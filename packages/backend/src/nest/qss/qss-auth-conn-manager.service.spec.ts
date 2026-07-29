@@ -192,7 +192,7 @@ describe('QSSAuthConnectionManager', () => {
   it('forwards auth protocol errors with their team ID', async () => {
     const teamId = sigchainService.activeChain.team!.id
     const authErrorHandler = jest.fn()
-    qssAuthConnManager.on(QSSEvents.QSS_AUTH_ERROR, authErrorHandler)
+    qssAuthConnManager.on(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, authErrorHandler)
     await qssAuthConnManager.startNewConnection(teamId)
 
     const conn = qssAuthConnManager.getConnection(teamId)
@@ -201,7 +201,10 @@ describe('QSSAuthConnectionManager', () => {
 
     expect(authErrorHandler).toHaveBeenCalledWith({
       teamId,
+      code: protocolError.type,
       error: expect.objectContaining({ message: protocolError.message }),
+      source: 'remote',
+      deviceAdmission: false,
     })
   })
 

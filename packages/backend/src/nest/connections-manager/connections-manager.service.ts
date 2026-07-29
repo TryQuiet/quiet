@@ -67,7 +67,7 @@ import {
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
-import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { CreatedLibp2pPeerId, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { emitError } from '../socket/socket.errors'
@@ -84,17 +84,22 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
-import { QSSAuthErrorPayload, QSSEvents } from '../qss/qss.types'
+import { QSSOperationResult } from '../qss/qss.types'
 import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
 import { Member } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
+import { AdmissionCoordinator } from '../admission/admission-coordinator.service'
+import {
+  AdmissionKind,
+  AdmissionTransport,
+  CommunityAdmissionMetadata,
+  QssAdmissionStartResult,
+} from '../admission/admission.types'
 
-const DEVICE_ADMISSION_TIMEOUT_MS = 120_000
-const QSS_ADMISSION_LIBP2P_FALLBACK_MS = 60_000
-const QSS_ADMISSION_CONNECTIVITY_CHECK_MS = 1_000
+const INVITATION_ADMISSION_TIMEOUT_MS = 120_000
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -124,7 +129,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly sigChainService: SigChainService,
     private readonly qssService: QSSService,
     private readonly qpsService: QPSService,
-    private readonly captchaService: CaptchaService
+    private readonly captchaService: CaptchaService,
+    private readonly admissionCoordinator: AdmissionCoordinator
   ) {
     super()
   }
@@ -303,6 +309,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async pause() {
     this.logger.info('Pausing!')
+    await this.admissionCoordinator.cancelActive(new Error('Admission cancelled while services paused'))
     this.qssService.pause()
     await this.libp2pService?.pause()
     await this.closeSocket()
@@ -443,6 +450,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   ) {
     this.logger.info('Closing services', options)
+    await this.admissionCoordinator.cancelActive(new Error('Admission cancelled while services closed'))
 
     if (!options.deleteChainFromDisk) {
       this.logger.info('Saving active sigchain')
@@ -944,8 +952,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       torBootstrap: this.tor,
     }
 
-    await this.waitForQssAdmissionBeforeLibp2p(community, this.sigChainService.getActiveChain(), identity)
-    await this.libp2pService.createInstance(params)
+    let libp2pStartPromise: Promise<void> | undefined
+    const ensureLibp2pStarted = async (): Promise<void> => {
+      if (libp2pStartPromise == null) {
+        libp2pStartPromise = this.libp2pService.createInstance(params).then(() => undefined)
+      }
+      return libp2pStartPromise
+    }
 
     let storageTeamId: string | undefined
     let setupStorageWithTeamMetaPromise: Promise<void> | undefined
@@ -971,108 +984,65 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const activeChain = this.sigChainService.getActiveChain()
     const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
-    const isPendingDevice = activeChain.isPendingDeviceAdmission
     if (hasStorageReadyChain) {
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
+      await ensureLibp2pStarted()
       await setupStorageWithTeamMeta(activeChain.team!.id)
-      this.qssService.connect(community.qssEndpoint)
+      void this.qssService.connect(community.qssEndpoint)
       await this._updateTeamIdOnStoredCommunity(community, activeChain)
     } else {
-      this.logger.debug(
-        'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
-      )
-      const storageReadyPromise = new Promise<void>((resolve, reject) => {
-        let rejectAdmission: ((payload: { error?: Error }) => void) | undefined
-        let rejectQssAdmission: ((payload: QSSAuthErrorPayload) => void) | undefined
-        let deviceAdmissionTimeout: NodeJS.Timeout | undefined
-        const cleanupDeviceAdmissionListeners = () => {
-          if (rejectAdmission != null) {
-            this.libp2pService.off(Libp2pEvents.AUTH_LOCAL_ERROR, rejectAdmission)
-            this.libp2pService.off(Libp2pEvents.AUTH_REMOTE_ERROR, rejectAdmission)
-          }
-          if (rejectQssAdmission != null) {
-            this.qssService.off(QSSEvents.QSS_AUTH_ERROR, rejectQssAdmission)
-          }
-          if (deviceAdmissionTimeout != null) {
-            clearTimeout(deviceAdmissionTimeout)
-          }
-        }
-        const resolveStorageReady = () => {
-          cleanupDeviceAdmissionListeners()
-          resolve()
-        }
-        const rejectStorageReady = (error: unknown) => {
-          cleanupDeviceAdmissionListeners()
-          reject(error)
-        }
-        const handleStorageReady = async (teamId: string, persistDeviceChain = false) => {
-          try {
-            if (persistDeviceChain) {
-              const admittedChain = this.sigChainService.getActiveChain()
-              if (admittedChain.team?.id !== community.teamId) {
-                throw new Error(`Device admission team mismatch: ${admittedChain.team?.id} !== ${community.teamId}`)
-              }
-              if (admittedChain.user.userId !== identity.userId) {
-                throw new Error(`Device admission user mismatch: ${admittedChain.user.userId} !== ${identity.userId}`)
-              }
-              if (!admittedChain.team.hasDevice(admittedChain.device.deviceId)) {
-                throw new Error(`Admitted team does not contain device ${admittedChain.device.deviceId}`)
-              }
-              await this.sigChainService.saveChain(community.teamId)
-            }
-            await setupStorageWithTeamMeta(teamId)
-            await this._updateTeamIdOnStoredCommunity(community, teamId)
-            resolveStorageReady()
-          } catch (e) {
-            rejectStorageReady(e)
-          }
-        }
-
-        const qssJoinEvent = isPendingDevice ? QSSEvents.QSS_AUTH_JOINED : QSSEvents.QSS_FULLY_JOINED
-        this.qssService.once(qssJoinEvent, (teamId: string) => {
-          this.logger.info(`Handling ${qssJoinEvent} event`, teamId)
-          void handleStorageReady(teamId, isPendingDevice)
-        })
-        this.libp2pService.once(Libp2pEvents.AUTH_JOINED, payload => {
-          this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
-          const teamId = this.sigChainService.getActiveChain().team?.id
-          if (teamId == null) {
-            rejectStorageReady(
-              new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`)
-            )
-            return
-          }
-          void handleStorageReady(teamId, isPendingDevice)
-        })
-        if (isPendingDevice) {
-          rejectAdmission = (payload: { error?: Error }) => {
-            rejectStorageReady(payload.error ?? new Error('Device admission failed'))
-          }
-          rejectQssAdmission = (payload: QSSAuthErrorPayload) => {
-            if (payload.teamId !== community.teamId) return
-            rejectStorageReady(payload.error)
-          }
-          this.libp2pService.once(Libp2pEvents.AUTH_LOCAL_ERROR, rejectAdmission)
-          this.libp2pService.once(Libp2pEvents.AUTH_REMOTE_ERROR, rejectAdmission)
-          this.qssService.on(QSSEvents.QSS_AUTH_ERROR, rejectQssAdmission)
-          deviceAdmissionTimeout = setTimeout(() => {
-            rejectStorageReady(
-              new Error(
-                `Device admission timed out after ${DEVICE_ADMISSION_TIMEOUT_MS}ms for team ${community.teamId}`
-              )
-            )
-          }, DEVICE_ADMISSION_TIMEOUT_MS)
-        }
-      })
-
-      this.qssService.connect(community.qssEndpoint)
-
-      if (await this.tor.isBootstrappingFinished()) {
-        this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+      const inviteData = community.inviteData
+      if (inviteData == null) {
+        throw new Error(`Cannot coordinate admission for community ${community.id} without invitation data`)
       }
-      this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+      const teamId = community.teamId ?? inviteData.authData.teamId
+      const qssAdmissionEndpoint =
+        community.qssEnabled === true &&
+        inviteData.version === InvitationDataVersion.v5 &&
+        inviteData.qssEnabled &&
+        inviteData.qssEndpoint
+          ? inviteData.qssEndpoint
+          : undefined
+      const admission = await this.admissionCoordinator.coordinate(
+        {
+          communityId: community.id,
+          teamId,
+          expectedUserId: identity.userId,
+          expectedDeviceId: activeChain.device.deviceId,
+          kind: activeChain.isPendingDeviceAdmission ? AdmissionKind.DEVICE : AdmissionKind.MEMBER,
+          preferredTransport: qssAdmissionEndpoint != null ? AdmissionTransport.QSS : AdmissionTransport.P2P,
+          storedTransport: (community as Community & CommunityAdmissionMetadata).admissionTransport,
+          timeoutMs: INVITATION_ADMISSION_TIMEOUT_MS,
+        },
+        {
+          startQss: async () => {
+            if (qssAdmissionEndpoint == null) {
+              return QssAdmissionStartResult.UNAVAILABLE
+            }
+            const result = await this.qssService.connect(qssAdmissionEndpoint)
+            return result === QSSOperationResult.SUCCESS
+              ? QssAdmissionStartResult.READY
+              : QssAdmissionStartResult.UNAVAILABLE
+          },
+          pauseQss: () => this.qssService.pause(),
+          startP2p: ensureLibp2pStarted,
+          stopP2p: async () => this.libp2pService.close(false),
+          convergeQssAfterP2p: async () => {
+            if (qssAdmissionEndpoint == null) {
+              return
+            }
+            await this.qssService.resume()
+            const result = await this.qssService.connect(qssAdmissionEndpoint)
+            if (result === QSSOperationResult.SUCCESS) {
+              await this.qssService.authenticateCurrentCommunity()
+            }
+          },
+        }
+      )
 
-      await storageReadyPromise
+      await ensureLibp2pStarted()
+      await setupStorageWithTeamMeta(admission.teamId)
+      await this._updateTeamIdOnStoredCommunity(community, admission.teamId)
     }
 
     if (await this.tor.isBootstrappingFinished()) {
@@ -1081,85 +1051,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.logger.info('Storage initialized')
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
-  }
-
-  private async waitForQssAdmissionBeforeLibp2p(
-    community: Community,
-    activeChain: SigChain,
-    identity: Identity
-  ): Promise<void> {
-    const inviteData = community.inviteData
-    const qssEndpoint =
-      inviteData?.version === InvitationDataVersion.v5 && inviteData.qssEnabled ? inviteData.qssEndpoint : undefined
-    const shouldWait =
-      community.qssEnabled === true && qssEndpoint != null && qssEndpoint !== '' && activeChain.team == null
-
-    if (!shouldWait || inviteData == null) {
-      return
-    }
-
-    const expectedTeamId = community.teamId ?? inviteData.authData.teamId
-    const wasPendingDeviceAdmission = activeChain.isPendingDeviceAdmission
-    this.logger.info(
-      `Delaying libp2p while seeking invitation admission through QSS at ${qssEndpoint}; ` +
-        `falling back after ${QSS_ADMISSION_LIBP2P_FALLBACK_MS}ms without a QSS connection`
-    )
-
-    await new Promise<void>((resolve, reject) => {
-      let qssUnavailableSince = Date.now()
-      const cleanup = () => {
-        clearInterval(connectivityCheck)
-        this.qssService.off(QSSEvents.QSS_AUTH_JOINED, handleAdmission)
-        this.qssService.off(QSSEvents.QSS_AUTH_ERROR, handleAdmissionError)
-      }
-      const finish = (reason: string) => {
-        cleanup()
-        this.logger.info(`Releasing delayed libp2p startup: ${reason}`)
-        resolve()
-      }
-      const handleAdmission = (teamId: string) => {
-        if (teamId !== expectedTeamId) return
-        cleanup()
-        void (async () => {
-          try {
-            if (wasPendingDeviceAdmission) {
-              const admittedChain = this.sigChainService.getActiveChain()
-              if (admittedChain.team?.id !== expectedTeamId) {
-                throw new Error(`Device admission team mismatch: ${admittedChain.team?.id} !== ${expectedTeamId}`)
-              }
-              if (admittedChain.user.userId !== identity.userId) {
-                throw new Error(`Device admission user mismatch: ${admittedChain.user.userId} !== ${identity.userId}`)
-              }
-              if (!admittedChain.team.hasDevice(admittedChain.device.deviceId)) {
-                throw new Error(`Admitted team does not contain device ${admittedChain.device.deviceId}`)
-              }
-              await this.sigChainService.saveChain(expectedTeamId)
-            }
-            finish(`QSS admitted invitation for team ${teamId}`)
-          } catch (error) {
-            reject(error)
-          }
-        })()
-      }
-      const handleAdmissionError = (payload: QSSAuthErrorPayload) => {
-        if (payload.teamId !== expectedTeamId || !activeChain.isPendingDeviceAdmission) return
-        cleanup()
-        reject(payload.error)
-      }
-      const connectivityCheck = setInterval(() => {
-        if (this.qssService.connected) {
-          qssUnavailableSince = Date.now()
-          return
-        }
-        if (Date.now() - qssUnavailableSince >= QSS_ADMISSION_LIBP2P_FALLBACK_MS) {
-          finish(`QSS remained unavailable for ${QSS_ADMISSION_LIBP2P_FALLBACK_MS}ms`)
-        }
-      }, QSS_ADMISSION_CONNECTIVITY_CHECK_MS)
-
-      this.qssService.on(QSSEvents.QSS_AUTH_JOINED, handleAdmission)
-      this.qssService.on(QSSEvents.QSS_AUTH_ERROR, handleAdmissionError)
-      void this.qssService.connect(qssEndpoint)
-    })
   }
 
   private async _updateTeamIdOnStoredCommunity(community: Community, chain: SigChain): Promise<void>

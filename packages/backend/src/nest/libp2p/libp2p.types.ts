@@ -2,6 +2,7 @@ import { PeerId, PrivateKey } from '@libp2p/interface'
 import { Agent } from 'http'
 
 export enum Libp2pEvents {
+  ADMISSION_CANDIDATE = 'libp2pAdmissionCandidate',
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   NETWORK_STATS = 'networkStats',

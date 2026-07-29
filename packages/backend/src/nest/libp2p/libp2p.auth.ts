@@ -25,6 +25,7 @@ import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
+import { AdmissionKind, AdmissionTransport, createDeferredAdmissionCandidate } from '../admission/admission.types'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -218,6 +219,10 @@ export class Libp2pAuth {
   async afterStop() {
     this.logger.info('afterStop')
     if (this.sigChainService.activeChainTeamId != null) {
+      if (this.sigChainService.hasAdmissionPersistenceBarrier(this.sigChainService.activeChainTeamId)) {
+        this.logger.info('Skipping shutdown persistence while admission persistence is suspended')
+        return
+      }
       if (this.sigChainService.getActiveChain().isPendingDeviceAdmission) {
         this.logger.info('Skipping persistence for pending device invitation context')
         return
@@ -418,37 +423,8 @@ export class Libp2pAuth {
     })
 
     authConnection.on(LFAEvents.JOINED, payload => {
-      const { team, user } = payload
-      const sigChain = this.sigChainService.getActiveChain()
-      const wasPendingDeviceAdmission = sigChain.isPendingDeviceAdmission
-      if (sigChain.team == null) {
-        try {
-          sigChain.completeInvitation(team, user)
-        } catch (error) {
-          this.joinStatus = JoinStatus.PENDING
-          this.logger.error('Rejected invited device admission', error)
-          this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
-          return
-        }
-
-        this.logger.info(`${user.userId}: Created SigChain for user with name ${user.userName} and team ${team.id}`)
-        this.logger.info(`Joined team ${team.id} (userid: ${user.userId})!`)
-        this.sigChainService.setActiveChain(sigChain.teamId!)
-      }
-      this.joinStatus = JoinStatus.JOINED
-      if (!wasPendingDeviceAdmission) {
-        void this.sigChainService.saveChain(sigChain.teamId!).catch(error => {
-          this.logger.error('Failed to save admitted member sigchain', error)
-        })
-      }
-      this.emit(Libp2pEvents.AUTH_JOINED, {
-        teamId: team.id,
-        userId: user.userId,
-        deviceId: sigChain.device.deviceId,
-        deviceAdmission: wasPendingDeviceAdmission,
-      })
-      void this.unblockConnections().catch(error => {
-        this.logger.error('Failed to resume buffered connections after libp2p admission', error)
+      void this.handleAdmissionCandidate(authConnection, connection, payload).catch(error => {
+        this.logger.error('Failed to finalize libp2p admission candidate', error)
       })
     })
 
@@ -464,9 +440,11 @@ export class Libp2pAuth {
     // Handle errors from local or remote sources.
     authConnection.on(LFAEvents.LOCAL_ERROR, error => {
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
+      void this.advanceAfterAdmissionFailure(authConnection, connection)
     })
     authConnection.on(LFAEvents.REMOTE_ERROR, error => {
       this.emit(Libp2pEvents.AUTH_REMOTE_ERROR, { error, connection })
+      void this.advanceAfterAdmissionFailure(authConnection, connection)
     })
 
     // Store the auth connection and also the underlying libp2p connection
@@ -477,10 +455,97 @@ export class Libp2pAuth {
     authConnection.start()
   }
 
+  private async handleAdmissionCandidate(
+    authConnection: Auth.Connection,
+    connection: Connection,
+    payload: { team: Auth.Team; user: Auth.UserWithSecrets }
+  ): Promise<void> {
+    if (this.authConnections.get(connection.remotePeer.toString()) !== authConnection) {
+      this.logger.warn('Ignoring stale admission success from an inactive peer', connection.remotePeer.toString())
+      return
+    }
+    const { team, user } = payload
+    const sigChain = this.sigChainService.getActiveChain()
+    const wasPendingDeviceAdmission = sigChain.isPendingDeviceAdmission
+    if (sigChain.team == null) {
+      try {
+        sigChain.completeInvitation(team, user)
+      } catch (error) {
+        this.joinStatus = JoinStatus.PENDING
+        this.logger.error('Rejected invited device admission', error)
+        this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
+        await this.advanceAfterAdmissionFailure(authConnection, connection)
+        return
+      }
+
+      this.logger.info(`${user.userId}: Created SigChain for user with name ${user.userName} and team ${team.id}`)
+      this.logger.info(`Joined team ${team.id} (userid: ${user.userId})!`)
+      this.sigChainService.setActiveChain(sigChain.teamId!)
+    }
+    const deferred = createDeferredAdmissionCandidate({
+      transport: AdmissionTransport.P2P,
+      teamId: team.id,
+      userId: user.userId,
+      deviceId: sigChain.device.deviceId,
+      kind: wasPendingDeviceAdmission ? AdmissionKind.DEVICE : AdmissionKind.MEMBER,
+    })
+    this.emit(Libp2pEvents.ADMISSION_CANDIDATE, deferred.candidate)
+    try {
+      await deferred.waitUntilPersisted()
+    } catch (error) {
+      this.joinStatus = JoinStatus.PENDING
+      this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
+      return
+    }
+    this.joinStatus = JoinStatus.JOINED
+    this.emit(Libp2pEvents.AUTH_JOINED, {
+      teamId: team.id,
+      userId: user.userId,
+      deviceId: sigChain.device.deviceId,
+      deviceAdmission: wasPendingDeviceAdmission,
+    })
+    void this.unblockConnections().catch(error => {
+      this.logger.error('Failed to resume buffered connections after libp2p admission', error)
+    })
+  }
+
+  private async advanceAfterAdmissionFailure(authConnection: Auth.Connection, connection: Connection): Promise<void> {
+    if (this.joinStatus !== JoinStatus.JOINING) {
+      return
+    }
+    const peerId = connection.remotePeer
+    if (this.authConnections.get(peerId.toString()) !== authConnection) {
+      return
+    }
+
+    this.closeAuthConnection(peerId, false)
+    await this.advanceToNextBufferedPeer()
+  }
+
+  private async advanceToNextBufferedPeer(): Promise<void> {
+    this.joinStatus = JoinStatus.PENDING
+    while (this.bufferedConnections.length > 0) {
+      const next = this.bufferedConnections.shift()!
+      if (next.connection.status !== 'open') {
+        continue
+      }
+      await this.onPeerConnected(next.peerId, next.connection)
+      return
+    }
+  }
+
   private async onPeerDisconnected(peerId: PeerId) {
+    const disconnectedAdmissionPeer =
+      this.joinStatus === JoinStatus.JOINING && this.authConnections.has(peerId.toString())
     if (this.authConnections.has(peerId.toString())) {
       this.logger.warn(`Auth connection with ${peerId.toString()} was disconnected`)
       this.closeAuthConnection(peerId, false)
+    }
+    if (disconnectedAdmissionPeer) {
+      await this.advanceToNextBufferedPeer()
+      if (this.joinStatus === JoinStatus.JOINING) {
+        return
+      }
     }
 
     if (this.joinStatus === JoinStatus.JOINED) {

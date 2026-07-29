@@ -37,7 +37,9 @@ export enum WebsocketEvents {
  * Event emitter events
  */
 export enum QSSEvents {
+  ADMISSION_CANDIDATE = 'qssAdmissionCandidate',
   QSS_AUTH_JOINED = 'qssAuthJoined',
+  QSS_AUTH_ATTEMPT_FAILED = 'qssAuthAttemptFailed',
   QSS_AUTH_ERROR = 'qssAuthError',
   QSS_SELF_ASSIGN_MEMBER = 'qssSelfAssignMember',
   QSS_FULLY_JOINED = 'qssFullyJoined',
@@ -51,9 +53,20 @@ export enum QSSEvents {
   QSS_LOG_SYNCED = 'qssLogSynced',
 }
 
+export type QSSAuthFailureSource = 'local' | 'remote' | 'client-validation' | 'sign-in'
+
+export interface QSSAuthAttemptFailurePayload {
+  teamId: string
+  code: string
+  error: Error
+  source: QSSAuthFailureSource
+  deviceAdmission: boolean
+}
+
 export interface QSSAuthErrorPayload {
   teamId: string
   error: Error
+  attempts?: number
 }
 
 export enum QSSOperationResult {

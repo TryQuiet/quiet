@@ -10,7 +10,7 @@ import * as uint8arrays from 'uint8arrays'
 import { createLogger } from '../common/logger'
 import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSClient } from './qss.client'
-import { AuthSyncMessage, QSSAuthErrorPayload, QSSEvents, WebsocketEvents } from './qss.types'
+import { AuthSyncMessage, QSSAuthAttemptFailurePayload, QSSEvents, WebsocketEvents } from './qss.types'
 
 @Injectable()
 export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDestroy {
@@ -172,11 +172,12 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
       if (this.authConnMap.get(teamId) !== authConnection) return
       this.emit(QSSEvents.QSS_AUTH_JOINED, eventTeamId ?? teamId)
     })
-    authConnection.on(QSSEvents.QSS_AUTH_ERROR, (payload: QSSAuthErrorPayload) => {
-      this.emit(QSSEvents.QSS_AUTH_ERROR, {
+    authConnection.on(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, (payload: QSSAuthAttemptFailurePayload) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
+      this.emit(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, {
         ...payload,
         teamId: payload.teamId ?? teamId,
-      } satisfies QSSAuthErrorPayload)
+      } satisfies QSSAuthAttemptFailurePayload)
     })
     authConnection.on(QSSEvents.QSS_DISCONNECTED, (eventTeamId: string) => {
       if (this.authConnMap.get(teamId) !== authConnection) return

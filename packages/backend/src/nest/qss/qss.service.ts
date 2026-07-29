@@ -2,6 +2,12 @@
  * Abstraction layer for interacting with QSS
  */
 import { Mutex } from 'async-mutex'
+import {
+  AdmissionKind,
+  AdmissionTransport,
+  createDeferredAdmissionCandidate,
+  PreparedQssAdmission,
+} from '../admission/admission.types'
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
@@ -17,6 +23,7 @@ import {
   CreateCommunityResponse,
   CreateCommunityStatus,
   GeneratePublicKeysMessage,
+  QSSAuthAttemptFailurePayload,
   QSSAuthErrorPayload,
   WebsocketEvents,
   QSSOperationResult,
@@ -32,8 +39,22 @@ import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { LocalDbService } from '../local-db/local-db.service'
-import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
-import { CompoundError, NseQssUrlUpdatedEvent, SocketActions, SocketEvents, type InvitationDataV5 } from '@quiet/types'
+import {
+  QSS_DEVICE_ADMISSION_MAX_ATTEMPTS,
+  QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS,
+  QSS_DEVICE_ADMISSION_RETRY_MAX_MS,
+  QSS_RECONNECT_BACKOFF_FACTOR,
+  QSS_RECONNECT_DELAY_MS,
+  QSS_RECONNECT_MAX_DELAY_MS,
+} from './qss.const'
+import {
+  CompoundError,
+  isDeviceInvitationData,
+  NseQssUrlUpdatedEvent,
+  SocketActions,
+  SocketEvents,
+  type InvitationDataV5,
+} from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { QSSSyncManager } from './qss-sync-manager.service'
@@ -55,6 +76,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    */
   private _signInMutex: Mutex = new Mutex()
   private _connectMutex: Mutex = new Mutex()
+  private readonly preparedAdmissions = new Map<string, { prepared: PreparedQssAdmission; sigChain: SigChain }>()
+  private readonly deviceAdmissionRetries = new Map<
+    string,
+    { attempts: number; timer?: NodeJS.Timeout; lastFailure: QSSAuthAttemptFailurePayload }
+  >()
+  private deviceAdmissionRetryGeneration = 0
   private _eventHandlersConfigured = false
 
   private readonly logger = createLogger(`qss:service`)
@@ -86,17 +113,40 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
   private _handleQssDisconnected = (): void => {
     this.logger.debug('QSS disconnected, scheduling reconnect if enabled')
+    this.clearDeviceAdmissionRetries()
     this._scheduleReconnect(QSSOperationResult.ERROR)
   }
 
   private _handleQssAuthJoined = (teamId: string): void => {
+    void this.handleQssAuthJoined(teamId).catch(error => {
+      this._handleQssAuthError({
+        teamId,
+        error: error instanceof Error ? error : new Error(String(error)),
+      })
+    })
+  }
+
+  private async handleQssAuthJoined(teamId: string): Promise<void> {
     this.logger.debug('Auth connection joined via QSS')
+    this.clearDeviceAdmissionRetry(teamId)
+    const prepared = this.preparedAdmissions.get(teamId)?.prepared
+    if (prepared?.kind === AdmissionKind.MEMBER) {
+      return
+    }
+    if (prepared?.kind === AdmissionKind.DEVICE) {
+      await this.emitAdmissionCandidate(teamId, prepared.kind)
+      this.preparedAdmissions.delete(teamId)
+    }
     this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
   }
 
   private _handleQssAuthError = (payload: QSSAuthErrorPayload): void => {
     this.logger.warn('QSS auth connection failed', payload.teamId, payload.error)
     this.emit(QSSEvents.QSS_AUTH_ERROR, payload)
+  }
+
+  private _handleQssAuthAttemptFailed = (payload: QSSAuthAttemptFailurePayload): void => {
+    void this.processQssAuthAttemptFailure(payload)
   }
 
   private _handleStartAuthConnection = (teamId: string): void => {
@@ -175,6 +225,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
           this.logger.warn('Attempted to sign into QSS but no team ID was found')
           return
         }
+        if (sigChain.team == null) {
+          this.logger.debug('Pending invitation admission is coordinated externally; skipping automatic QSS sign-in')
+          return
+        }
         await this.signInToCommunity(teamId, sigChain)
       }
     })
@@ -192,9 +246,33 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       `Is user now member through self-assign?`,
       sigchain.roles.memberHasRole(sigchain.user.userId, RoleName.MEMBER)
     )
-    this.qssAuthConnManager.markMemberRoleReady(teamId)
-    this.qssSyncManager.markMemberRoleReady(teamId)
-    this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+    try {
+      if (this.preparedAdmissions.get(teamId)?.prepared.kind === AdmissionKind.MEMBER) {
+        await this.emitAdmissionCandidate(teamId, AdmissionKind.MEMBER)
+        this.preparedAdmissions.delete(teamId)
+      }
+      this.qssAuthConnManager.markMemberRoleReady(teamId)
+      this.qssSyncManager.markMemberRoleReady(teamId)
+      this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+    } catch (error) {
+      this._handleQssAuthError({
+        teamId,
+        error: error instanceof Error ? error : new Error(String(error)),
+      })
+    }
+  }
+
+  private async emitAdmissionCandidate(teamId: string, kind: AdmissionKind): Promise<void> {
+    const chain = this.sigChainService.getChain(teamId)
+    const deferred = createDeferredAdmissionCandidate({
+      transport: AdmissionTransport.QSS,
+      teamId,
+      userId: chain.user.userId,
+      deviceId: chain.device.deviceId,
+      kind,
+    })
+    this.emit(QSSEvents.ADMISSION_CANDIDATE, deferred.candidate)
+    await deferred.waitUntilPersisted()
   }
 
   private _configureEventHandlers(): void {
@@ -203,7 +281,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, this._handleQssAuthJoined)
-    this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_ERROR, this._handleQssAuthError)
+    this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, this._handleQssAuthAttemptFailed)
     this.on(QSSEvents.QSS_START_AUTH_CONN, this._handleStartAuthConnection)
     this.socketService.on(SocketActions.HCAPTCHA_REQUEST, this._handleHcaptchaRequest)
     this.qssClient.on(QSSEvents.QSS_CAPTCHA_REQUIRED, this._handleCaptchaRequired)
@@ -221,7 +299,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_JOINED, this._handleQssAuthJoined)
-    this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_ERROR, this._handleQssAuthError)
+    this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, this._handleQssAuthAttemptFailed)
     this.off(QSSEvents.QSS_START_AUTH_CONN, this._handleStartAuthConnection)
     this.socketService.off(SocketActions.HCAPTCHA_REQUEST, this._handleHcaptchaRequest)
     this.qssClient.off(QSSEvents.QSS_CAPTCHA_REQUIRED, this._handleCaptchaRequired)
@@ -240,6 +318,125 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     } catch (e) {
       this.logger.error('Failed to start QSS auth connection', e)
       return false
+    }
+  }
+
+  private clearDeviceAdmissionRetry(teamId: string): void {
+    this.deviceAdmissionRetryGeneration += 1
+    const retry = this.deviceAdmissionRetries.get(teamId)
+    if (retry?.timer != null) {
+      clearTimeout(retry.timer)
+    }
+    this.deviceAdmissionRetries.delete(teamId)
+  }
+
+  private clearDeviceAdmissionRetries(): void {
+    this.deviceAdmissionRetryGeneration += 1
+    for (const retry of this.deviceAdmissionRetries.values()) {
+      if (retry.timer != null) {
+        clearTimeout(retry.timer)
+      }
+    }
+    this.deviceAdmissionRetries.clear()
+  }
+
+  private isRetryableDeviceAdmissionFailure(code: string): boolean {
+    return [
+      'INVITATION_PROOF_INVALID',
+      'ADMIT_MEMBER_LINK_MISSING',
+      'DEVICE_UNKNOWN',
+      'TIMEOUT',
+      'SIGN_IN_FAILED',
+    ].includes(code)
+  }
+
+  private async processQssAuthAttemptFailure(payload: QSSAuthAttemptFailurePayload): Promise<void> {
+    if (this._paused) return
+    const retryGeneration = this.deviceAdmissionRetryGeneration
+    const initStatus = await this.getQssInitStatus()
+    if (this._paused || retryGeneration !== this.deviceAdmissionRetryGeneration) return
+
+    const isDeviceLink =
+      initStatus.community?.inviteData != null && isDeviceInvitationData(initStatus.community.inviteData)
+    const previousRetry = this.deviceAdmissionRetries.get(payload.teamId)
+    const attempts = (previousRetry?.attempts ?? 0) + 1
+    if (
+      !isDeviceLink ||
+      !payload.deviceAdmission ||
+      !this.isRetryableDeviceAdmissionFailure(payload.code) ||
+      attempts >= QSS_DEVICE_ADMISSION_MAX_ATTEMPTS
+    ) {
+      this.clearDeviceAdmissionRetry(payload.teamId)
+      this._handleQssAuthError({ teamId: payload.teamId, error: payload.error, attempts })
+      return
+    }
+
+    if (previousRetry?.timer != null) {
+      return
+    }
+    const delayMs = Math.min(
+      QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS * 2 ** (attempts - 1),
+      QSS_DEVICE_ADMISSION_RETRY_MAX_MS
+    )
+    const retryState = {
+      attempts,
+      lastFailure: payload,
+      timer: undefined as NodeJS.Timeout | undefined,
+    }
+    retryState.timer = setTimeout(() => {
+      retryState.timer = undefined
+      void this.retryDeviceAdmission(payload.teamId)
+    }, delayMs)
+    this.deviceAdmissionRetries.set(payload.teamId, retryState)
+    this.logger.warn(
+      `QSS device admission attempt ${attempts} failed; retrying in ${delayMs}ms`,
+      payload.teamId,
+      payload.error
+    )
+  }
+
+  private async retryDeviceAdmission(teamId: string): Promise<void> {
+    const retryState = this.deviceAdmissionRetries.get(teamId)
+    if (retryState == null || this._paused || !this.connected) {
+      this.clearDeviceAdmissionRetry(teamId)
+      return
+    }
+    const retryGeneration = this.deviceAdmissionRetryGeneration
+    const retryIsCurrent = (): boolean =>
+      !this._paused &&
+      this.connected &&
+      retryGeneration === this.deviceAdmissionRetryGeneration &&
+      this.deviceAdmissionRetries.get(teamId) === retryState
+
+    if (this.joinStatus(teamId) === JoinStatus.JOINED) {
+      this.clearDeviceAdmissionRetry(teamId)
+      return
+    }
+
+    try {
+      if (this.qssAuthConnManager.getConnection(teamId) != null) {
+        this.qssAuthConnManager.stopConnection(teamId, true)
+      }
+      const sigChain = this.sigChainService.getChain(teamId)
+      const result = await this.signInToCommunity(teamId, sigChain)
+      if (!retryIsCurrent() || result === QSSOperationResult.SUCCESS) return
+      await this.processQssAuthAttemptFailure({
+        teamId,
+        code: 'SIGN_IN_FAILED',
+        error: new Error(`Failed to restart QSS authentication for team ${teamId}`),
+        source: 'sign-in',
+        deviceAdmission: sigChain.isPendingDeviceAdmission,
+      })
+    } catch (error) {
+      if (!retryIsCurrent()) return
+      const sigChain = this.sigChainService.getChain(teamId)
+      await this.processQssAuthAttemptFailure({
+        teamId,
+        code: 'SIGN_IN_FAILED',
+        error: error instanceof Error ? error : new Error('Failed to restart QSS authentication'),
+        source: 'sign-in',
+        deviceAdmission: sigChain.isPendingDeviceAdmission,
+      })
     }
   }
 
@@ -383,6 +580,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._teardownEventHandlers()
     this.qssSyncManager.pause()
     this._clearReconnectTimer(true)
+    this.clearDeviceAdmissionRetries()
+    this.preparedAdmissions.clear()
     this._captchaVerificationQueued = false
     this.qssAuthConnManager.close()
     this.qssClient.close()
@@ -673,13 +872,46 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return result
   }
 
+  public async prepareAdmission(teamId: string, sigChain: SigChain): Promise<PreparedQssAdmission> {
+    this.clearDeviceAdmissionRetry(teamId)
+    const kind = sigChain.isPendingDeviceAdmission ? AdmissionKind.DEVICE : AdmissionKind.MEMBER
+    const result = await this._signInToCommunityImpl(teamId, sigChain, false)
+    if (result !== QSSOperationResult.SUCCESS) {
+      throw new Error(`Failed to prepare QSS admission for team ${teamId}: ${result}`)
+    }
+    const prepared: PreparedQssAdmission = { teamId, kind }
+    this.preparedAdmissions.set(teamId, { prepared, sigChain })
+    return prepared
+  }
+
+  public async startPreparedAdmission(prepared: PreparedQssAdmission): Promise<void> {
+    const state = this.preparedAdmissions.get(prepared.teamId)
+    if (state == null || state.prepared !== prepared) {
+      throw new Error(`QSS admission preparation is stale for team ${prepared.teamId}`)
+    }
+    const started = await this.startAuthConnection(prepared.teamId)
+    if (!started) {
+      throw new Error(`Failed to start prepared QSS admission for team ${prepared.teamId}`)
+    }
+    await this.emitNseQssUrl(this._qssEndpoint)
+    this.qssSyncManager.startLogSyncForSignedInTeam(prepared.teamId, state.sigChain)
+  }
+
+  public async authenticateCurrentCommunity(): Promise<void> {
+    await this._handleQssHandleSignIn()
+  }
+
   /**
    * Send a sign in message to QSS and start the auth sync connection with QSS for this community
    *
    * @param teamId ID of the team we are signing in to
    * @param sigChain Sigchain for this team
    */
-  public async _signInToCommunityImpl(teamId: string, sigChain: SigChain): Promise<QSSOperationResult> {
+  public async _signInToCommunityImpl(
+    teamId: string,
+    sigChain: SigChain,
+    startAuthentication = true
+  ): Promise<QSSOperationResult> {
     if (!this.canConnect) {
       this.logger.info(`Can't sign in to community on QSS because QSS is not enabled for this community`)
       return QSSOperationResult.DISABLED
@@ -716,11 +948,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       throw new CompoundError(`Error while signing in to community ${teamId} - ${signInResponse.status}`, qssError)
     }
 
-    // start the auth sync connection with QSS now that we've successfully signed in
-    this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
-    const authConnectionStarted = await this.startAuthConnection(teamId)
-    if (!authConnectionStarted) {
-      return QSSOperationResult.ERROR
+    if (startAuthentication) {
+      // start the auth sync connection with QSS now that we've successfully signed in
+      this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
+      const authConnectionStarted = await this.startAuthConnection(teamId)
+      if (!authConnectionStarted) {
+        return QSSOperationResult.ERROR
+      }
     }
 
     const community = await this.localDbService.getCurrentCommunity()
@@ -735,7 +969,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.logger.info(`Closing QSS service`)
     this._paused = true
     this._clearReconnectTimer(true)
+    this.clearDeviceAdmissionRetries()
     this.qssSyncManager.close()
+    this.preparedAdmissions.clear()
     this._teardownEventHandlers()
     this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
     this._captchaVerificationQueued = false

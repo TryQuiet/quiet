@@ -18,6 +18,11 @@ export type SerializedSigChain = {
   teamKeyRing: Keyring | undefined
 }
 
+export interface AdmissionPersistenceBarrier {
+  readonly teamId: string
+  readonly id: symbol
+}
+
 /**
  * Native LFA Events
  */

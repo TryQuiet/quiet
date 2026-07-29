@@ -13,8 +13,17 @@ import { Libp2pService } from '../libp2p/libp2p.service'
 import { ConnectionsManagerModule } from '../connections-manager/connections-manager.module'
 import { StorageModule } from '../storage/storage.module'
 import { IpfsModule } from '../ipfs/ipfs.module'
+import { SigChainService } from '../auth/sigchain.service'
+import { AdmissionCandidate } from '../admission/admission.types'
 
 const logger = createLogger('libp2p:test-utils')
+
+const attachDirectAdmissionPersistence = async (module: TestingModule, libp2pService: Libp2pService): Promise<void> => {
+  const sigChainService = await module.resolve(SigChainService)
+  libp2pService.on(Libp2pEvents.ADMISSION_CANDIDATE, (candidate: AdmissionCandidate) => {
+    candidate.deferUntilPersisted(sigChainService.saveChain(candidate.teamId))
+  })
+}
 
 export const attachEventListeners = (libp2pService: Libp2pService, timeline: string[], instanceName: string) => {
   // loop over all enum Libp2pEvents and attach event listeners
@@ -63,6 +72,7 @@ export const spawnLibp2pInstances = async (
       params.psk = singlePSK
     }
     logger.info(`creating libp2p instance with params:`, params)
+    await attachDirectAdmissionPersistence(modules[i], libp2pService)
     await libp2pService.createInstance(params)
     libp2pServices.push(libp2pService)
   }
@@ -91,6 +101,7 @@ export const spawnLibp2pInstancesInMemory = async (
       instanceParams.psk = singlePSK
     }
     logger.info(`creating in-memory libp2p instance with params:`, instanceParams)
+    await attachDirectAdmissionPersistence(modules[i], libp2pService)
     await libp2pService.createInstance(instanceParams)
     libp2pServices.push(libp2pService)
     params.push(instanceParams)
