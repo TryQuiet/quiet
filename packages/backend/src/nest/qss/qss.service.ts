@@ -141,7 +141,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       }
 
       if (!initStatus.qssEnabled) {
-        this.logger.trace('QSS not enabled for this community, skipping sign in')
+        this.logger.verbose('QSS not enabled for this community, skipping sign in')
         return
       }
 
@@ -164,7 +164,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
           sigChain.team != null
             ? sigChain.teamId
             : (initStatus.community?.inviteData as InvitationDataV5).authData.teamId
-        this.logger.trace('QSS Sign in', teamId)
+        this.logger.verbose('QSS Sign in', teamId)
         if (teamId == null) {
           this.logger.warn('Attempted to sign into QSS but no team ID was found')
           return
@@ -182,7 +182,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     if (authData.salt != null) {
       sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)
     }
-    this.logger.trace(
+    this.logger.verbose(
       `Is user now member through self-assign?`,
       sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
     )
@@ -366,7 +366,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
   public pause(): void {
     if (!this.canConnect) {
-      this.logger.trace(`Skipping QSS pause because QSS isn't enabled`)
+      this.logger.verbose(`Skipping QSS pause because QSS isn't enabled`)
       return
     }
 
@@ -382,7 +382,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
   public async resume(): Promise<void> {
     if (!this.canConnect) {
-      this.logger.trace(`Skipping QSS resume because QSS isn't enabled`)
+      this.logger.verbose(`Skipping QSS resume because QSS isn't enabled`)
       return
     }
 
@@ -413,7 +413,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     if (!this.canConnect) {
-      this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
+      this.logger.verbose(`Can't connect to QSS because QSS is not initialized`)
       return QSSOperationResult.DISABLED
     }
 
@@ -521,7 +521,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    */
   public async _createCommunityImpl(sigChain: SigChain): Promise<boolean> {
     if (!this.canConnect) {
-      this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
+      this.logger.verbose(`Can't create community on QSS because QSS is not initialized`)
       return false
     }
 
@@ -705,7 +705,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     // start the auth sync connection with QSS now that we've successfully signed in
-    this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
+    this.logger.verbose(`Sign in request to QSS was successful, initiating LFA connection`)
     const authConnectionStarted = await this.startAuthConnection(teamId)
     if (!authConnectionStarted) {
       return QSSOperationResult.ERROR

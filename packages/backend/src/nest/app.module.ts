@@ -189,7 +189,7 @@ export class AppModule {
               })
 
               socket.conn.once('upgrade', () => {
-                _ioLogger.trace('Server IO client connection transport upgraded', socket.conn.transport.name)
+                _ioLogger.verbose('Server IO client connection transport upgraded', socket.conn.transport.name)
               })
             })
             _ioLogger.info('ok')

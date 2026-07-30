@@ -78,12 +78,17 @@ export const createWinstonQuietLogger = (
   let internalLogMethod: InternalLogMethod = DEFAULT_INTERNAL_LOG_METHOD
   const logToFile = (process.env.LOG_TO_FILE ?? 'true') === 'true'
   if (logToFile) {
-    internalLogMethod = (level: LogLevel, parallelConsoleLog: boolean, ...formattedLogStrings: string[]): void => {
+    internalLogMethod = (
+      level: LogLevel,
+      parallelConsoleLog: boolean,
+      minifyTraceLogs: boolean,
+      ...formattedLogStrings: string[]
+    ): void => {
       if (winstonLogger != null) {
         const winstonLevel = level === LogLevel.ERROR ? LogLevel.ERROR : LogLevel.INFO
         winstonLogger.log(winstonLevel, formattedLogStrings.join(' '))
       }
-      DEFAULT_INTERNAL_LOG_METHOD(level, parallelConsoleLog, ...formattedLogStrings)
+      DEFAULT_INTERNAL_LOG_METHOD(level, parallelConsoleLog, minifyTraceLogs, ...formattedLogStrings)
     }
   }
   return createQuietLogger(internalLogMethod, packageName, parallelConsoleLog, formatters)

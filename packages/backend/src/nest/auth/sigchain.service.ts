@@ -163,12 +163,12 @@ export class SigChainService extends EventEmitter {
   private async _updateKeysOnChainUpdate(teamId: string): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') {
-      this.logger.trace('Skipping key update because we are not on mobile, current platform =', process.platform)
+      this.logger.verbose('Skipping key update because we are not on mobile, current platform =', process.platform)
       return
     }
 
     if (process.env.QPS_ALLOWED !== 'true') {
-      this.logger.trace('Not updating IOS keychain because QPS is not allowed in this environment')
+      this.logger.verbose('Not updating IOS keychain because QPS is not allowed in this environment')
       return
     }
 
@@ -229,7 +229,7 @@ export class SigChainService extends EventEmitter {
     }
 
     if (keysToSend.length === 0) {
-      this.logger.trace('Skipping native key update, no new keys')
+      this.logger.verbose('Skipping native key update, no new keys')
       return
     }
 
@@ -249,7 +249,7 @@ export class SigChainService extends EventEmitter {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') return
     if (process.env.QPS_ALLOWED !== 'true') {
-      this.logger.trace('Not emitting device credentials because QPS is not allowed in this environment')
+      this.logger.verbose('Not emitting device credentials because QPS is not allowed in this environment')
       return
     }
     try {

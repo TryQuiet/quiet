@@ -167,7 +167,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         if (message == null) {
           this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
         } else if (message == false) {
-          this.logger.trace(`Skipping processing message`, entry.payload.value.id, entry.payload.value.channelId)
+          this.logger.verbose(`Skipping processing message`, entry.payload.value.id, entry.payload.value.channelId)
         } else {
           await this._handleMessageOnUpdate(message)
         }

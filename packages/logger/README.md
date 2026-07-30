@@ -26,17 +26,31 @@ This would produce log messages with the scope `backend:IpfsFileManagerService`.
 
 ## Setting log levels
 
-The maximum level at which we log is set by the `DEBUG` environment variable.  For local desktop this can set on the `start` npm script and for the backend, run from the desktop, it can be set in `src/main/main.ts`.
+The maximum level at which we log is set by the `DEBUG` environment variable and/or the `GLOBAL_LOG_LEVEL` variable.  For local desktop this can set on the `start` npm script and for the backend, run from the desktop, it can be set in `src/main/main.ts`.
 
 **NOTE: Any logs emitted by the backend when run as part of Quiet (i.e. not running the backend standalone) _must_ have their log level set via `src/main/main.ts`.  The environment variable on the desktop start script does not propagate!**
 
+### Global Log Level
+
+The `GLOBAL_LOG_LEVEL` environment variable can be used to set the minimum log level used by any Quiet logger.  The possible values for this variable are:
+
+* debug
+* verbose
+* trace
+
+This can be used on its own or in conjunction with `DEBUG`; the logger will use the highest log level from these two sources for a given namespace.
+
+**NOTE: This value is needed for increasing the log level on mobile due to conflicts with the `DEBUG` environment variable.**
+
 ### Levels Explained
 
-There are currently 3 levels that logging can be set at for Quiet logs:
+There are currently 5 levels that logging can be set at for Quiet logs:
 
 1. On
 2. Debug
-3. Trace
+3. Verbose
+4. Trace
+5. Minified Trace
 
 #### On
 
@@ -46,9 +60,17 @@ Excluding a package or module from `DEBUG` will still print logs from the Quiet 
 
 Including a package or module in `DEBUG` will print the same logs as `On` but will now include `log` and `debug` logs for that package/module.
 
+#### Verbose
+
+Including a package or module in `DEBUG` with the suffix `:verbose` will print all at `verbose` level or lower (this excludes `trace`!) for that package/module.
+
 #### Trace
 
-Including a package or module in `DEBUG` with the suffix `:trace` print all logs for that package/module.
+Including a package or module in `DEBUG` with the suffix `:trace` will print all logs for that package/module.
+
+#### Minified Trace
+
+Including a package or module in `DEBUG` with the suffix `:trace` and `MINIFY_TRACE_LOGS=true` will print all logs for that package/module but will log `trace` logs without their stacktraces.
 
 ### How to Set the Log Level
 
@@ -74,6 +96,12 @@ DEBUG='backend*:trace'
 
 ```
 DEBUG='backend:ConnectionsManagerService:trace'
+```
+
+#### Overriding the minimum log level with GLOBAL_LOG_LEVEL
+
+```
+DEBUG='backend:ConnectionsManagerService:trace' GLOBAL_LOG_LEVEL=debug
 ```
 
 ## Setting log levels for dependencies

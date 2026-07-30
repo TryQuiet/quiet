@@ -126,7 +126,7 @@ export class StorageService extends EventEmitter {
   private async migrateMissingSelfUserProfile(): Promise<void> {
     const activeChain = this.sigchainService.getActiveChain(false)
     if (!activeChain?.team || !activeChain.roles.amIMember()) {
-      this.logger.trace('Skipping cached self user profile migration; active user is not a team member')
+      this.logger.verbose('Skipping cached self user profile migration; active user is not a team member')
       return
     }
 
@@ -138,11 +138,11 @@ export class StorageService extends EventEmitter {
     const selfUserId = activeChain.user.userId
     const storedProfiles = await this.userProfileStore.getUserProfiles()
     if (storedProfiles.some(profile => profile.userId === selfUserId)) {
-      this.logger.trace('Skipping cached self user profile migration; profile already exists in store', selfUserId)
+      this.logger.verbose('Skipping cached self user profile migration; profile already exists in store', selfUserId)
       return
     }
     if (this.socketService.serverIoProvider.io.sockets.sockets.size === 0) {
-      this.logger.trace('Skipping cached self user profile migration; no connected state-manager clients')
+      this.logger.verbose('Skipping cached self user profile migration; no connected state-manager clients')
       return
     }
 

@@ -122,7 +122,7 @@ export class Libp2pAuth {
     }
 
     const activeChain = this.sigChainService.getActiveChain(false)
-    this.logger.trace(
+    this.logger.verbose(
       'Join status (libp2p, qss)',
       this.joinStatus,
       activeChain != null && activeChain.team != null ? this.qssService.joinStatus(activeChain.team.id) : null
@@ -196,7 +196,7 @@ export class Libp2pAuth {
    */
   private async onIncomingStream({ stream, connection }: IncomingStreamData) {
     const peerId = connection.remotePeer
-    this.logger.trace(`Handling incoming ephemeral stream ${connection.id.toString()} from ${peerId.toString()}`)
+    this.logger.verbose(`Handling incoming ephemeral stream ${connection.id.toString()} from ${peerId.toString()}`)
     const abortController = new AbortController()
 
     // Process messages from the stream
@@ -267,13 +267,13 @@ export class Libp2pAuth {
 
     const abortController = new AbortController()
     try {
-      this.logger.trace(`Opening ephemeral outbound stream to ${peerId.toString()}`)
+      this.logger.verbose(`Opening ephemeral outbound stream to ${peerId.toString()}`)
       const stream = await connection.newStream(this.protocol, {
         runOnLimitedConnection: false,
         negotiateFully: false,
         signal: abortController.signal,
       })
-      this.logger.trace(`Ephemeral stream opened to ${peerId.toString()}, sending message`)
+      this.logger.verbose(`Ephemeral stream opened to ${peerId.toString()}, sending message`)
       if (stream.status !== 'open') {
         this.logger.warn(
           `Attempted to send message to ${peerId.toString()} on ephemeral stream that had already closed`
@@ -282,7 +282,7 @@ export class Libp2pAuth {
       }
       await pipe([encode.single(message)], stream)
       await stream.close()
-      this.logger.trace(`Ephemeral stream closed to ${peerId.toString()}`)
+      this.logger.verbose(`Ephemeral stream closed to ${peerId.toString()}`)
     } catch (e) {
       this.logger.error(`Error sending ephemeral message to ${peerId.toString()}`, e)
       if (!abortController.signal.aborted) {

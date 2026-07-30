@@ -121,7 +121,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       args[0].event != null &&
       ['LOCAL_ERROR', 'REMOTE_ERROR', 'ERROR'].includes(args[0].event.type)
     ) {
-      this.logger.trace('Got an auth error on disconnect')
+      this.logger.verbose('Got an auth error on disconnect')
       try {
         const innerEvent = args[0].event
         // Check for errors related to ephemeral LFA connection isseus that warrant a redial attempt
@@ -132,7 +132,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           (innerEvent.type === 'LOCAL_ERROR' && innerEvent.payload.type === 'TIMEOUT')
 
         const remotePeerId = args[0].connection?.remotePeerId?.toString() ?? args[0].connection?.remotePeer?.toString()
-        this.logger.trace('Got this peer ID from this auth connection', remotePeerId)
+        this.logger.verbose('Got this peer ID from this auth connection', remotePeerId)
         const peerAddress = this.connectedPeers.get(remotePeerId)?.address
         if (peerAddress) {
           this.hangUpPeer(peerAddress, redial)
@@ -170,7 +170,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   ) => {
     const peerId = peerAddress.split('/').pop()!
     if (this.connectedPeers.has(peerId)) {
-      this.logger.trace(`Already connected to peer address: ${peerAddress}`)
+      this.logger.verbose(`Already connected to peer address: ${peerAddress}`)
       return
     }
 

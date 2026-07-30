@@ -238,7 +238,7 @@ export class QSSAuthConnection extends EventEmitter {
         authConnection.emit('sync', { team, user })
         this._joinStatus = JoinStatus.JOINED
         this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId)
-        this.logger.trace(`Server info`, this.sigChainService.activeChain.server.getServers())
+        this.logger.verbose(`Server info`, this.sigChainService.activeChain.server.getServers())
       }
       this.emit(QSSEvents.QSS_AUTH_CONNECTED, this.teamId)
     })
@@ -278,11 +278,11 @@ export class QSSAuthConnection extends EventEmitter {
     })
 
     authConnection.on(LFAEvents.CHANGE, payload => {
-      this.logger.trace(`Auth state change`, payload)
+      this.logger.verbose(`Auth state change`, payload)
     })
 
     authConnection.on(LFAEvents.UPDATED, head => {
-      this.logger.trace('Received sync message, team graph updated', head)
+      this.logger.verbose('Received sync message, team graph updated', head)
     })
 
     // Handle errors from local or remote sources.

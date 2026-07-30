@@ -63,7 +63,7 @@ export function* updateUserProfilesSaga(socket: Socket, action: PayloadAction<Us
     logger.debug(`Emitting user profiles updated event`)
     yield* apply(socket, socket.emit, applyEmitParams(SocketActions.USER_PROFILES_UPDATED, output))
   } else {
-    logger.trace('Skipping user profile updated event, no new or updated profiles')
+    logger.verbose('Skipping user profile updated event, no new or updated profiles')
   }
   logger.info(`Done`)
 }

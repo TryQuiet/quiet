@@ -8,12 +8,18 @@ const colors = require('ansi-colors')
 
 const COLORIZE = process.env['COLORIZE'] === 'true'
 
-export type InternalLogMethod = (level: LogLevel, parallelConsoleLog: boolean, ...formattedLogStrings: string[]) => void
+export type InternalLogMethod = (
+  level: LogLevel,
+  parallelConsoleLog: boolean,
+  minifyTraceLogs: boolean,
+  ...formattedLogStrings: string[]
+) => void
 
 /**
  * Available log levels
  */
 export enum LogLevel {
+  VERBOSE = 'verbose',
   DEBUG = 'debug',
   ERROR = 'error',
   INFO = 'info',
@@ -27,7 +33,9 @@ export enum LogLevel {
  * Maximum log level allowed
  */
 export enum LogSetting {
-  TRACE = 2, // Allows all logs
+  MINIFIED_TRACE = 4, // Allows all logs but writes TRACE logs without stacktraces
+  TRACE = 3, // Allows all logs
+  VERBOSE = 2, // Allow VERBOSE logs but not TRACE
   DEBUG = 1, // Excludes `trace` logs
   ON = 0, // Excludes `trace`, `debug`, and `log`
 }
@@ -62,6 +70,10 @@ colors.theme({
   trace: colors.bold.italic.cyanBright,
   trace_text: colors.italic.cyanBright,
 
+  // trace
+  verbose: colors.bold.italic.dim.white,
+  verbose_text: colors.italic.dim.white,
+
   // debug
   debug: colors.bold.cyan,
   debug_text: colors.cyan,
@@ -89,14 +101,19 @@ colors.theme({
   // misc
   scope: colors.magenta,
   scope_trace: colors.italic.magenta,
+  scope_verbose: colors.italic.dim.magenta,
   staticLogId: colors.bold.white,
   staticLogId_trace: colors.bold.italic.white,
+  staticLogId_verbose: colors.bold.italic.dim.white,
   date: colors.bold.gray,
   date_trace: colors.bold.italic.gray,
+  date_verbose: colors.bold.italic.dim.gray,
   object: colors.green,
   object_trace: colors.italic.green,
+  object_verbose: colors.italic.dim.green,
   object_error: colors.red,
   object_error_trace: colors.italic.red,
+  object_error_verbose: colors.italic.dim.red,
 })
 
 /**
@@ -118,6 +135,8 @@ export class QuietLogger {
   private readonly timers: Map<string, number> = new Map()
   // Static, traceable ID that is attached to all logs from a given instance of Quiet
   private readonly staticLogId: string | undefined
+  // If true minify trace logs by removing stacktraces
+  private readonly minifyTraceLogs: boolean
 
   /**
    * @param internalLogMethod This is what determines how and where logs are written
@@ -133,6 +152,7 @@ export class QuietLogger {
   ) {
     this.logSetting = this._getLogSetting()
     this.staticLogId = process.env.STATIC_LOG_ID
+    this.minifyTraceLogs = process.env.MINIFY_TRACE_LOGS === 'true'
   }
 
   extend(moduleName: string): QuietLogger {
@@ -160,13 +180,24 @@ export class QuietLogger {
 
   /**
    * Log a trace-level message if the DEBUG environment variable is set for this package/module with
-   * trace set (e.g. `backend*:trace`)
+   * trace (e.g. `backend*:trace`) set
    *
    * @param message Message to log
    * @param optionalParams Optional parameters to log
    */
   trace(message: any, ...optionalParams: any[]) {
     this.callLogMethods(LogLevel.TRACE, message, ...optionalParams)
+  }
+
+  /**
+   * Log a verbose-level message if the DEBUG environment variable is set for this package/module with
+   * trace (e.g. `backend*:trace`) or verbose (e.g. `backend*:verbose`) set
+   *
+   * @param message Message to log
+   * @param optionalParams Optional parameters to log
+   */
+  verbose(message: any, ...optionalParams: any[]) {
+    this.callLogMethods(LogLevel.VERBOSE, message, ...optionalParams)
   }
 
   /**
@@ -221,7 +252,7 @@ export class QuietLogger {
     }
 
     const formattedLogStrings = this.formatLog(LogLevel.TIMER, name, `- timer started`)
-    this.internalLogMethod(LogLevel.LOG, this.parallelConsoleLog, formattedLogStrings.join(' '))
+    this.internalLogMethod(LogLevel.LOG, this.parallelConsoleLog, this.minifyTraceLogs, formattedLogStrings.join(' '))
 
     const startMs = DateTime.utc().toMillis()
     this.timers.set(name, startMs)
@@ -243,7 +274,7 @@ export class QuietLogger {
     this.timers.delete(name)
 
     const formattedLogStrings = this.formatLog(LogLevel.TIMER, name, `${endMs - startMs}ms - timer ended`)
-    this.internalLogMethod(LogLevel.LOG, this.parallelConsoleLog, formattedLogStrings.join(' '))
+    this.internalLogMethod(LogLevel.LOG, this.parallelConsoleLog, this.minifyTraceLogs, formattedLogStrings.join(' '))
   }
 
   /**
@@ -261,7 +292,7 @@ export class QuietLogger {
     if (!this._canLog(level)) return
 
     const formattedLogStrings = this.formatLog(level, message, ...optionalParams)
-    this.internalLogMethod(level, this.parallelConsoleLog, formattedLogStrings.join(' '))
+    this.internalLogMethod(level, this.parallelConsoleLog, this.minifyTraceLogs, formattedLogStrings.join(' '))
   }
 
   /**
@@ -468,12 +499,29 @@ export class QuietLogger {
   /**
    * Checks if this logger is enabled in `debug` and to what level
    *
+   * NOTE: if a valid value is provided for the env variable `GLOBAL_LOG_LEVEL` and the applied
+   * LogSetting value is greater than the value that would be generated by checking settings in `debug`
+   * the global override will supercede it.  However, if the value is less than the value generated by
+   * checking settings in `debug` the higher value from the `DEBUG` env variable would win.  The applied
+   * value of `GLOBAL_LOG_LEVEL` sets the minimum log level.
+   *
+   * WARNING: If you need to skip specific namespaces don't use GLOBAL_LOG_LEVEL as it will override those skips!
+   *
+   * Examples:
+   *
+   *  - `DEBUG=backend*:* GLOBAL_LOG_LEVEL=trace` => Allow trace logs for all of our loggers
+   *  - `DEBUG=backend*:trace GLOBAL_LOG_LEVEL=debug` => Allow debug logs for all of our loggers, allow trace for backend
+   *
    * @returns LogSetting for this logger
    */
   private _getLogSetting(): LogSetting {
-    if (this._canTrace()) {
+    const globalLogSettingOverride = this._applyGlobalLogLevel()
+    if (globalLogSettingOverride >= LogSetting.TRACE || this._canTrace()) {
+      if (this.minifyTraceLogs) return LogSetting.MINIFIED_TRACE
       return LogSetting.TRACE
-    } else if (debug.enabled(this.name)) {
+    } else if (globalLogSettingOverride >= LogSetting.VERBOSE || this._canVerbose()) {
+      return LogSetting.VERBOSE
+    } else if (globalLogSettingOverride >= LogSetting.DEBUG || this._canDebug()) {
       return LogSetting.DEBUG
     }
 
@@ -487,31 +535,27 @@ export class QuietLogger {
    */
   private _canTrace(): boolean {
     const traceNamespace = `${this.name}:trace`
+    return debug.enabled(traceNamespace)
+  }
 
-    for (const skip of debug.skips) {
-      if (skip.test(traceNamespace)) {
-        return false
-      }
-    }
+  /**
+   * Check if <this logger name>:verbose or <this logger name>:verbose is explicitly enabled in the DEBUG environment variable
+   *
+   * @returns True if this logger can emit VERBOSE logs
+   */
+  private _canVerbose(): boolean {
+    const verboseNamespace = `${this.name}:verbose`
+    if (debug.enabled(verboseNamespace)) return true
+    return this._canTrace()
+  }
 
-    for (const debugName of debug.names) {
-      const isRegExp = debugName instanceof RegExp
-      const containsTrace = isRegExp
-        ? (debugName as RegExp).source.includes(':trace')
-        : (debugName as string).includes(':trace')
-
-      if (!containsTrace) {
-        continue
-      }
-
-      const matches = isRegExp ? (debugName as RegExp).test(traceNamespace) : (debugName as string) === traceNamespace
-
-      if (matches) {
-        return true
-      }
-    }
-
-    return false
+  /**
+   * Check if this namespace is enabled in the DEBUG environment variable
+   *
+   * @returns True if this logger can emit DEBUG logs
+   */
+  private _canDebug(): boolean {
+    return debug.enabled(this.name)
   }
 
   /**
@@ -526,7 +570,9 @@ export class QuietLogger {
       case LogLevel.LOG:
         return this.logSetting >= LogSetting.DEBUG
       case LogLevel.TRACE:
-        return this.logSetting === LogSetting.TRACE
+        return this.logSetting >= LogSetting.TRACE
+      case LogLevel.VERBOSE:
+        return this.logSetting >= LogSetting.VERBOSE
       case LogLevel.INFO:
       case LogLevel.WARN:
       case LogLevel.ERROR:
@@ -556,7 +602,36 @@ export class QuietLogger {
       return colors[`${field}_trace`]
     }
 
+    if (level === LogLevel.VERBOSE) {
+      return colors[`${field}_verbose`]
+    }
+
     return colors[field]
+  }
+
+  /**
+   * Determine the global override LogSetting based on the human readable log level provided in GLOBAL_LOG_LEVEL, if that level is
+   * one of:
+   *
+   *  - trace
+   *  - verbose
+   *  - debug
+   *
+   * @returns The LogSetting that matches the value of GLOBAL_LOG_LEVEL
+   */
+  private _applyGlobalLogLevel(): LogSetting {
+    const envGlobalLogLevel = process.env.GLOBAL_LOG_LEVEL
+    if (envGlobalLogLevel == null) return LogSetting.ON
+    switch (envGlobalLogLevel) {
+      case LogLevel.TRACE:
+        return LogSetting.TRACE
+      case LogLevel.VERBOSE:
+        return LogSetting.VERBOSE
+      case LogLevel.DEBUG:
+        return LogSetting.DEBUG
+      default:
+        return LogSetting.ON
+    }
   }
 }
 
@@ -565,18 +640,28 @@ export class QuietLogger {
  *
  * @param level Level to log at
  * @param parallelConsoleLog Simultaneously write logs to the browser console
+ * @param minifyTraceLogs If true print trace logs without stacktraces
  * @param formattedLogStrings List of pre-formatted log strings to write to the log entry
  */
 export const DEFAULT_INTERNAL_LOG_METHOD: InternalLogMethod = (
   level,
   parallelConsoleLog: boolean,
+  minifyTraceLogs: boolean,
   ...formattedLogStrings
 ): void => {
-  // we have to do this conversion because console doesn't have a trace method
-  const printLevel: LogLevel = level === LogLevel.TRACE ? LogLevel.LOG : level
+  let printLevel: LogLevel = level
+  let overrideLevel: LogLevel = level
+  if (level === LogLevel.TRACE && !minifyTraceLogs) {
+    // we have to do this conversion because console doesn't have a trace method
+    printLevel = LogLevel.LOG
+  } else if (level === LogLevel.VERBOSE || (level === LogLevel.TRACE && minifyTraceLogs)) {
+    // we have to do this conversion to stop stack traces from being written on minified trace logs
+    printLevel = LogLevel.INFO
+    overrideLevel = LogLevel.DEBUG
+  }
 
   // @ts-ignore
-  __nodeConsoleLogger[level](...formattedLogStrings)
+  __nodeConsoleLogger[overrideLevel](...formattedLogStrings)
   if (parallelConsoleLog) {
     // @ts-ignore
     console[printLevel](...formattedLogStrings)

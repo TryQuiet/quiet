@@ -197,7 +197,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    * @param sendDisconnectToQSS If true send a disconnect message to QSS on closure of each auth sync connection
    */
   public close(sendDisconnectToQSS = false): void {
-    this.logger.trace('Closing all QSS auth connections')
+    this.logger.verbose('Closing all QSS auth connections')
     for (const teamId of Array.from(this.authConnMap.keys())) {
       this.logger.info('Closing QSS auth connection for team ID', teamId)
       this.stopConnection(teamId, sendDisconnectToQSS)

@@ -396,7 +396,7 @@ export class QSSClient extends EventEmitter {
   public close(): void {
     const socket = this.getClientSocket()
     if (socket == null) {
-      this.logger.trace(`Client socket wasn't open!`)
+      this.logger.verbose(`Client socket wasn't open!`)
       return
     }
 

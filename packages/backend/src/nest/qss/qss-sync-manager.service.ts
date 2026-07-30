@@ -569,7 +569,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     const initStatus = await this.getQssInitStatus()
 
     if (!initStatus.qssEnabled) {
-      this.logger.trace(`Can't sync to QSS because QSS is disabled on this community`)
+      this.logger.verbose(`Can't sync to QSS because QSS is disabled on this community`)
       this.recordLogSyncFailure(update.hash, `QSS is disabled for this community; cannot sync log entry ${update.hash}`)
       return
     }
@@ -597,7 +597,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
 
     this.logger.info('Syncing OrbitDB entry to QSS', update.hash)
 
-    this.logger.trace('Encrypting log entry', update.hash)
+    this.logger.verbose('Encrypting log entry', update.hash)
     const encEntry: EncryptedAndSignedPayload = sigChain.crypto.encryptAndSign(update.entry, {
       type: EncryptionScopeType.ROLE,
       name: RoleName.MEMBER,
