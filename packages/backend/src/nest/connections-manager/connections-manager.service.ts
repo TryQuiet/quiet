@@ -8,7 +8,7 @@ import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
-import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
+import { createLibp2pAddress, createLocalAddress, isPSKcodeValid, parseLocalAddress } from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -623,9 +623,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async getNetworkInfo(): Promise<NetworkInfo> {
     this.logger.info('Getting network information')
 
-    this.logger.info('Creating hidden service')
-    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
-    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    const hiddenService =
+      process.env.LOCAL_TRANSPORT === 'true'
+        ? {
+            onionAddress: createLocalAddress(this.ports.libp2pHiddenService),
+            privateKey: '',
+          }
+        : await this.createEphemeralHiddenService()
     this.logger.info('Getting peer ID')
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
@@ -638,6 +642,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       hiddenService,
       peerId: peerIdJson,
     }
+  }
+
+  private async createEphemeralHiddenService(): Promise<NetworkInfo['hiddenService']> {
+    this.logger.info('Creating hidden service')
+    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
+    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    return hiddenService
   }
 
   private async bootstrapCommunityFromInvitation(
@@ -934,22 +945,33 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       throw new Error(ErrorMessages.IDENTITY_NOT_FOUND)
     }
 
-    const onionAddress = await this.spawnTorHiddenService(community.id, identity)
+    const useLocalTransport = process.env.LOCAL_TRANSPORT === 'true'
+    const networkAddress = useLocalTransport
+      ? identity.networkInfo.hiddenService.onionAddress
+      : await this.spawnTorHiddenService(community.id, identity)
+
+    if (useLocalTransport) {
+      const localAddress = parseLocalAddress(networkAddress)
+      if (localAddress == null) {
+        throw new Error(`Local transport requires a 127.0.0.1:<port> peer address, received: ${networkAddress}`)
+      }
+      this.ports = { ...this.ports, libp2pHiddenService: localAddress.port }
+    }
 
     const peerIdData: CreatedLibp2pPeerId = {
       peerId: peerIdFromString(identity.networkInfo.peerId.id),
       privKey: privateKeyFromRaw(uint8arrays.fromString(identity.networkInfo.peerId.privKey, 'base64')),
     }
-    const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
+    const localAddress = createLibp2pAddress(networkAddress, peerIdData.peerId.toString())
 
     const params: Libp2pNodeParams = {
       peerId: peerIdData,
-      listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
-      agent: this.socksProxyAgent,
+      listenAddresses: [this.libp2pService.createLibp2pListenAddress(networkAddress)],
+      agent: useLocalTransport ? undefined : this.socksProxyAgent,
       localAddress: localAddress,
       targetPort: this.ports.libp2pHiddenService,
       psk: generateLibp2pPSK(community.psk).fullKey,
-      torBootstrap: this.tor,
+      torBootstrap: useLocalTransport ? undefined : this.tor,
     }
 
     let libp2pStartPromise: Promise<void> | undefined
@@ -1054,7 +1076,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this._updateTeamIdOnStoredCommunity(community, admission.teamId)
     }
 
-    if (await this.tor.isBootstrappingFinished()) {
+    if (useLocalTransport || (await this.tor.isBootstrappingFinished())) {
       this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
     }
 

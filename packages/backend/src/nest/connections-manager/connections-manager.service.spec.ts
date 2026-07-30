@@ -22,7 +22,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
-import { createLibp2pAddress, validInvitationDatav4, validInvitationDatav5 } from '@quiet/common'
+import { createLibp2pAddress, createLocalAddress, validInvitationDatav4, validInvitationDatav5 } from '@quiet/common'
 
 import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
@@ -130,6 +130,72 @@ describe('ConnectionsManagerService', () => {
 
   it('should be defined', () => {
     expect(connectionsManagerService).toBeDefined()
+  })
+
+  it('creates and launches a local identity without Tor using its persisted port', async () => {
+    const previousLocalTransport = process.env.LOCAL_TRANSPORT
+    process.env.LOCAL_TRANSPORT = 'true'
+    try {
+      connectionsManagerService['ports'] = {
+        socksPort: 43_000,
+        libp2pHiddenService: 43_001,
+        controlPort: 43_002,
+        dataServer: 43_003,
+        httpTunnelPort: 43_004,
+      }
+      const createHiddenServiceSpy = jest.spyOn(connectionsManagerService['tor'], 'createNewHiddenService')
+      const spawnHiddenServiceSpy = jest.spyOn(connectionsManagerService, 'spawnTorHiddenService')
+
+      const network = await connectionsManagerService.getNetworkInfo()
+
+      expect(network.hiddenService).toEqual({
+        onionAddress: createLocalAddress(43_001),
+        privateKey: '',
+      })
+      expect(createHiddenServiceSpy).not.toHaveBeenCalled()
+
+      const persistedPort = 43_101
+      const localIdentity: Identity = {
+        ...userIdentity,
+        networkInfo: {
+          ...network,
+          hiddenService: {
+            onionAddress: createLocalAddress(persistedPort),
+            privateKey: '',
+          },
+        },
+      }
+      jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(localIdentity)
+      const createInstanceSpy = jest
+        .spyOn(connectionsManagerService.libp2pService, 'createInstance')
+        .mockResolvedValue(undefined as any)
+      jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
+      jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+        team: { id: community.teamId },
+        roles: { amIMemberOfRole: () => true },
+      } as any)
+
+      await connectionsManagerService.launch(community)
+
+      expect(spawnHiddenServiceSpy).not.toHaveBeenCalled()
+      expect(createInstanceSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          listenAddresses: [`/ip4/127.0.0.1/tcp/${persistedPort}/ws`],
+          localAddress: expect.stringMatching(
+            new RegExp(`^/ip4/127\\.0\\.0\\.1/tcp/${persistedPort}/ws/p2p/[a-zA-Z0-9]{52}$`)
+          ),
+          targetPort: persistedPort,
+          agent: undefined,
+          torBootstrap: undefined,
+        })
+      )
+    } finally {
+      if (previousLocalTransport == null) {
+        delete process.env.LOCAL_TRANSPORT
+      } else {
+        process.env.LOCAL_TRANSPORT = previousLocalTransport
+      }
+    }
   })
 
   it('launches community on init if its data exists in local db', async () => {

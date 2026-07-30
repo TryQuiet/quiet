@@ -1,5 +1,5 @@
 import { TestingModule } from '@nestjs/testing'
-import { spawnLibp2pInstancesInMemory, spawnTestModules } from '../../common/test-utils'
+import { spawnLibp2pInstances, spawnTestModules } from '../../common/test-utils'
 import { SigChainService } from '../../auth/sigchain.service'
 import { Libp2pService } from '../libp2p.service'
 import { Libp2pEvents } from '../libp2p.types'
@@ -19,6 +19,20 @@ const dialAndWaitForJoin = async (
     void joiningPeer.dialPeer(acceptingPeer.localAddress)
   })
 }
+
+const previousLocalTransport = process.env.LOCAL_TRANSPORT
+
+beforeAll(() => {
+  process.env.LOCAL_TRANSPORT = 'true'
+})
+
+afterAll(() => {
+  if (previousLocalTransport == null) {
+    delete process.env.LOCAL_TRANSPORT
+    return
+  }
+  process.env.LOCAL_TRANSPORT = previousLocalTransport
+})
 
 describe('Libp2pAuth device linking', () => {
   const modules: TestingModule[] = []
@@ -47,7 +61,7 @@ describe('Libp2pAuth device linking', () => {
       ownerChain.team!.id,
       true
     )
-    await spawnLibp2pInstancesInMemory(modules)
+    await spawnLibp2pInstances(modules)
   })
 
   afterAll(async () => {
@@ -110,7 +124,7 @@ describe('Libp2pAuth device linking with a third peer', () => {
       ownerChain.team!.id,
       true
     )
-    await spawnLibp2pInstancesInMemory(modules)
+    await spawnLibp2pInstances(modules)
   })
 
   afterAll(async () => {

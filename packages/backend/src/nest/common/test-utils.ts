@@ -74,6 +74,9 @@ export const spawnLibp2pInstances = async (
       ...customLibp2pInstanceParams,
       instanceName: `instance${i}`,
     }
+    if (process.env.LOCAL_TRANSPORT === 'true' && customLibp2pInstanceParams?.transport == null) {
+      delete params.transport
+    }
     if (sharePsk) {
       params.psk = singlePSK
     }

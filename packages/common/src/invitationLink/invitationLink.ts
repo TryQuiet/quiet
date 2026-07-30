@@ -28,7 +28,7 @@ import {
   PARAM_CONFIG_V4,
   PARAM_CONFIG_V5,
 } from './invitationLink.validator'
-import { createLibp2pAddress } from '../libp2p'
+import { createLibp2pAddress, getAddressFromLibp2pAddress } from '../libp2p'
 import { createLogger } from '../logger'
 
 const logger = createLogger('invite')
@@ -156,7 +156,7 @@ export const p2pAddressesToPairs = (addresses: string[]): InvitationPair[] => {
   const pairs: InvitationPair[] = []
   for (const peerAddress of addresses) {
     let peerId: string
-    let onionAddress: string
+    let onionAddress: string | undefined
     try {
       peerId = peerAddress.split('/p2p/')[1]
     } catch (e) {
@@ -164,7 +164,7 @@ export const p2pAddressesToPairs = (addresses: string[]): InvitationPair[] => {
       continue
     }
     try {
-      onionAddress = peerAddress.split('/tcp/')[0].split('/dns4/')[1]
+      onionAddress = getAddressFromLibp2pAddress(peerAddress)
     } catch (e) {
       logger.error(`Could not add peer address '${peerAddress}' to invitation url.`, e)
       continue
@@ -174,10 +174,9 @@ export const p2pAddressesToPairs = (addresses: string[]): InvitationPair[] => {
       logger.error(`No peerId or address in ${peerAddress}`)
       continue
     }
-    const rawAddress = onionAddress.endsWith('.onion') ? onionAddress.split('.')[0] : onionAddress
-    if (!validatePeerData({ peerId, onionAddress: rawAddress })) continue
+    if (!validatePeerData({ peerId, onionAddress })) continue
 
-    pairs.push({ peerId: peerId, onionAddress: rawAddress })
+    pairs.push({ peerId: peerId, onionAddress })
   }
   return pairs
 }

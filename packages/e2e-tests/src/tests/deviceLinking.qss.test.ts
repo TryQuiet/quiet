@@ -41,7 +41,21 @@ type DeviceLinkingUsers = {
 const logger = createLogger('deviceLinking:qss')
 const QSS_HOST = '127.0.0.1'
 const QSS_PORT = 3003
+const previousLocalTransport = process.env.LOCAL_TRANSPORT
+
 jest.setTimeout(1_200_000) // 20 minutes
+
+beforeAll(() => {
+  process.env.LOCAL_TRANSPORT = 'true'
+})
+
+afterAll(() => {
+  if (previousLocalTransport == null) {
+    delete process.env.LOCAL_TRANSPORT
+    return
+  }
+  process.env.LOCAL_TRANSPORT = previousLocalTransport
+})
 
 async function startQssProxy() {
   const port = await getPort()
