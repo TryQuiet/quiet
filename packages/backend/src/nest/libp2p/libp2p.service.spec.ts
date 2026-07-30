@@ -8,6 +8,7 @@ import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
 import { AdmissionFinalizer, AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { Libp2pEvents } from './libp2p.types'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -59,6 +60,35 @@ describe('Libp2pService', () => {
   it('creates libp2p listen address', async () => {
     const libp2pListenAddress = libp2pService.createLibp2pListenAddress('onionAddress')
     expect(libp2pListenAddress).toStrictEqual(`/dns4/onionAddress.onion/tcp/80/ws`)
+  })
+
+  it('lets an auth error stream flush before hanging up the peer', async () => {
+    let deferredHangup: (() => void) | undefined
+    jest.spyOn(global, 'setTimeout').mockImplementation(((callback: () => void) => {
+      deferredHangup = callback
+      return {} as NodeJS.Timeout
+    }) as typeof setTimeout)
+    const hangUpPeer = jest.spyOn(libp2pService, 'hangUpPeer').mockResolvedValue(undefined)
+    libp2pService.connectedPeers.set('remote-peer', {
+      peerId: 'remote-peer',
+      address: remotePeerAddress,
+      connectedAtSeconds: 1,
+    })
+
+    libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
+      event: {
+        type: 'LOCAL_ERROR',
+        payload: { type: 'INVITATION_PROOF_INVALID' },
+      },
+      connection: {
+        remotePeer: { toString: () => 'remote-peer' },
+      },
+    })
+
+    expect(hangUpPeer).not.toHaveBeenCalled()
+    expect(deferredHangup).toBeDefined()
+    deferredHangup!()
+    expect(hangUpPeer).toHaveBeenCalledWith(remotePeerAddress, false)
   })
 
   it('Generated libp2p psk matches psk composed from existing key', () => {

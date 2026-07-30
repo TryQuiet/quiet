@@ -60,6 +60,7 @@ export class Libp2pAuth {
   private authConnections: Map<string, Auth.Connection>
   private peerConnections: Map<string, Connection>
   private bufferedConnections: { peerId: PeerId; connection: Connection }[]
+  private failedAdmissionPeers: Set<string>
   private unblockInterval: NodeJS.Timeout
   private unblockConnectionsInFlight: Promise<void> | undefined
   private joinStatus: JoinStatus
@@ -82,6 +83,7 @@ export class Libp2pAuth {
     this.authConnections = new Map()
     this.peerConnections = new Map()
     this.bufferedConnections = []
+    this.failedAdmissionPeers = new Set()
 
     if (sigChainService.activeChainTeamId == null) {
       this.logger.warn('No active chain found')
@@ -99,6 +101,7 @@ export class Libp2pAuth {
     }
 
     this.qssService.once(QSSEvents.QSS_AUTH_JOINED, () => {
+      this.failedAdmissionPeers.clear()
       if (this.joinStatus !== JoinStatus.JOINED) {
         const activeChain = this.sigChainService.getActiveChain(false)
         this.joinStatus =
@@ -338,17 +341,18 @@ export class Libp2pAuth {
    * store the underlying libp2p connection for ephemeral stream use.
    */
   private async onPeerConnected(peerId: PeerId, connection: Connection) {
-    if (this.authConnections.has(peerId.toString())) {
-      this.logger.info(`Auth connection with ${peerId.toString()} already exists`)
+    const peerIdString = peerId.toString()
+    if (this.joinStatus !== JoinStatus.JOINED && this.failedAdmissionPeers.has(peerIdString)) {
+      this.logger.warn(`Ignoring previously failed admission peer ${peerIdString}`)
       return
     }
     if (this.joinStatus === JoinStatus.JOINING) {
-      this.logger.warn(`Connection to ${peerId.toString()} will be buffered due to a concurrent join`)
+      this.logger.warn(`Connection to ${peerIdString} will be buffered due to a concurrent join`)
       this.bufferedConnections.push({ peerId, connection })
       return
     }
     if (this.sigChainService.activeChainTeamId == null) {
-      this.logger.warn(`No active chain found, buffering connection to ${peerId.toString()}`)
+      this.logger.warn(`No active chain found, buffering connection to ${peerIdString}`)
       this.bufferedConnections.push({ peerId, connection })
       return
     }
@@ -365,19 +369,17 @@ export class Libp2pAuth {
 
     const context = this.sigChainService.getActiveChain().context
 
-    if (this.authConnections.has(peerId.toString())) {
-      const oldAuthConnection = this.authConnections.get(peerId.toString())!
-      const oldPeerConnection = this.peerConnections.get(peerId.toString())
+    if (this.authConnections.has(peerIdString)) {
+      const oldAuthConnection = this.authConnections.get(peerIdString)!
+      const oldPeerConnection = this.peerConnections.get(peerIdString)
       if (oldPeerConnection != null && oldPeerConnection.status === 'open') {
-        this.logger.warn(
-          `A connection with ${peerId.toString()} was already available, skipping connection initialization!`
-        )
+        this.logger.warn(`A connection with ${peerIdString} was already available, skipping connection initialization!`)
         return
       }
       this.logger.warn('Replacing closed auth connection with a new one', oldPeerConnection?.remotePeer)
       oldAuthConnection.stop()
-      this.authConnections.delete(peerId.toString())
-      this.peerConnections.delete(peerId.toString())
+      this.authConnections.delete(peerIdString)
+      this.peerConnections.delete(peerIdString)
     }
 
     // Create an auth connection using an ephemeral sendMessage callback.
@@ -448,10 +450,10 @@ export class Libp2pAuth {
     })
 
     // Store the auth connection and also the underlying libp2p connection
-    this.authConnections.set(peerId.toString(), authConnection)
-    this.peerConnections.set(peerId.toString(), connection)
+    this.authConnections.set(peerIdString, authConnection)
+    this.peerConnections.set(peerIdString, connection)
 
-    this.logger.info(`Auth connection established with ${peerId.toString()}`)
+    this.logger.info(`Auth connection established with ${peerIdString}`)
     authConnection.start()
   }
 
@@ -497,6 +499,7 @@ export class Libp2pAuth {
       return
     }
     this.joinStatus = JoinStatus.JOINED
+    this.failedAdmissionPeers.clear()
     this.emit(Libp2pEvents.AUTH_JOINED, {
       teamId: team.id,
       userId: user.userId,
@@ -517,20 +520,25 @@ export class Libp2pAuth {
       return
     }
 
+    this.failedAdmissionPeers.add(peerId.toString())
     this.closeAuthConnection(peerId, false)
-    await this.advanceToNextBufferedPeer()
+    const advancedToBufferedPeer = await this.advanceToNextBufferedPeer()
+    if (!advancedToBufferedPeer) {
+      await this.libp2pService.redialPeers()
+    }
   }
 
-  private async advanceToNextBufferedPeer(): Promise<void> {
+  private async advanceToNextBufferedPeer(): Promise<boolean> {
     this.joinStatus = JoinStatus.PENDING
     while (this.bufferedConnections.length > 0) {
       const next = this.bufferedConnections.shift()!
-      if (next.connection.status !== 'open') {
+      if (next.connection.status !== 'open' || this.failedAdmissionPeers.has(next.peerId.toString())) {
         continue
       }
       await this.onPeerConnected(next.peerId, next.connection)
-      return
+      return true
     }
+    return false
   }
 
   private async onPeerDisconnected(peerId: PeerId) {
@@ -606,6 +614,7 @@ export class Libp2pAuth {
       this.sigChainService.roles.amIMemberOfRole(RoleName.MEMBER)
     ) {
       this.joinStatus = JoinStatus.JOINED
+      this.failedAdmissionPeers.clear()
       await this.unblockConnections()
       this.emit(Libp2pEvents.AUTH_JOINED)
       await this.sigChainService.saveChain(this.sigChainService.activeTeamId!)

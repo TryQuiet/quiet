@@ -22,6 +22,7 @@ describe('Libp2pAuth buffered connections', () => {
   let sigChainService: SigChainService
   let qssService: QSSService
   let libp2pEvents: EventEmitter
+  let redialPeers: jest.Mock<() => Promise<void>>
 
   const peerId = (id: string): PeerId =>
     ({
@@ -56,6 +57,7 @@ describe('Libp2pAuth buffered connections', () => {
     qssService = Object.assign(new EventEmitter(), {
       joinStatus: jest.fn().mockReturnValue(JoinStatus.NOT_STARTED),
     }) as unknown as QSSService
+    redialPeers = jest.fn<() => Promise<void>>().mockResolvedValue()
     libp2pEvents = Object.assign(new EventEmitter(), {
       completeAdmission: jest.fn(async (candidate: AdmissionCandidate) => ({
         teamId: candidate.teamId,
@@ -63,6 +65,7 @@ describe('Libp2pAuth buffered connections', () => {
         deviceId: candidate.deviceId,
         transport: candidate.transport,
       })),
+      redialPeers,
     })
     const components = {
       registrar: {
@@ -144,6 +147,29 @@ describe('Libp2pAuth buffered connections', () => {
     expect(pendingChain.team).toBeNull()
   })
 
+  it('does not retry a peer that already failed the pending admission', async () => {
+    const failingPeer = peerId('failing-peer')
+    const fallbackPeer = peerId('fallback-peer')
+
+    await auth['onPeerConnected'](failingPeer, connection(failingPeer.toString()))
+    const failingAuth = auth['authConnections'].get(failingPeer.toString())!
+    failingAuth.emit(LFAEvents.REMOTE_ERROR, new Error('peer rejected invitation') as any)
+
+    await waitForExpect(() => {
+      expect(auth['joinStatus']).toBe(JoinStatus.PENDING)
+      expect(auth['authConnections'].has(failingPeer.toString())).toBe(false)
+      expect(redialPeers).toHaveBeenCalledTimes(1)
+    })
+
+    await auth['onPeerConnected'](failingPeer, connection(failingPeer.toString()))
+    expect(auth['authConnections'].has(failingPeer.toString())).toBe(false)
+    expect(auth['bufferedConnections']).toHaveLength(0)
+
+    await auth['onPeerConnected'](fallbackPeer, connection(fallbackPeer.toString()))
+    expect(auth['authConnections'].has(fallbackPeer.toString())).toBe(true)
+    expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+  })
+
   it('advances to the next buffered peer when the active admission peer disconnects', async () => {
     const disconnectedPeer = peerId('disconnected-peer')
     const fallbackPeer = peerId('fallback-peer')
@@ -155,6 +181,24 @@ describe('Libp2pAuth buffered connections', () => {
     expect(auth['authConnections'].has(disconnectedPeer.toString())).toBe(false)
     expect(auth['authConnections'].has(fallbackPeer.toString())).toBe(true)
     expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+  })
+
+  it('replaces a stale auth connection when the peer reconnects', async () => {
+    const reconnectingPeer = peerId('reconnecting-peer')
+    const staleConnection = connection(reconnectingPeer.toString())
+    auth['joinStatus'] = JoinStatus.JOINED
+
+    await auth['onPeerConnected'](reconnectingPeer, staleConnection)
+    const staleAuthConnection = auth['authConnections'].get(reconnectingPeer.toString())!
+    const stopStaleAuthConnection = jest.spyOn(staleAuthConnection, 'stop')
+    ;(staleConnection as { status: Connection['status'] }).status = 'closed'
+
+    const replacementConnection = connection(reconnectingPeer.toString())
+    await auth['onPeerConnected'](reconnectingPeer, replacementConnection)
+
+    expect(stopStaleAuthConnection).toHaveBeenCalledTimes(1)
+    expect(auth['authConnections'].get(reconnectingPeer.toString())).not.toBe(staleAuthConnection)
+    expect(auth['peerConnections'].get(reconnectingPeer.toString())).toBe(replacementConnection)
   })
 
   it('does not persist a completed candidate while admission persistence is suspended', async () => {

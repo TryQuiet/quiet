@@ -1370,23 +1370,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     this.socketService.on(SocketActions.TOGGLE_P2P, async (payload: boolean, callback: (response: boolean) => void) => {
+      let toggleAccepted = false
       try {
         if (payload) {
-          await this.libp2pService.resume()
+          toggleAccepted = await this.libp2pService.resume()
           await this.storageService.startSync()
         } else {
-          await this.libp2pService.pause()
+          toggleAccepted = await this.libp2pService.pause()
           await this.storageService.stopSync()
         }
       } catch (e) {
         this.logger.error('Error toggling libp2p service', e)
       }
 
-      if (this.libp2pService.state === Libp2pState.Started) {
-        callback(true)
-      } else {
-        callback(false)
-      }
+      callback(toggleAccepted ? payload : this.libp2pService.state === Libp2pState.Started)
     })
   }
 

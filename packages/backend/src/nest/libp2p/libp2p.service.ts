@@ -46,6 +46,7 @@ import { QSSService } from '../qss/qss.service'
 import { AdmissionCandidate, AdmissionFinalizer, AdmissionResult } from '../admission/admission.types'
 
 const CONNECTION_LIMIT = 20
+const AUTH_ERROR_HANGUP_GRACE_MS = 1_000
 
 export enum Libp2pState {
   Started = 'started',
@@ -143,7 +144,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         this.logger.trace('Got this peer ID from this auth connection', remotePeerId)
         const peerAddress = this.connectedPeers.get(remotePeerId)?.address
         if (peerAddress) {
-          this.hangUpPeer(peerAddress, redial)
+          // Auth errors are delivered on an ephemeral stream. Give that stream
+          // time to flush before hangUpPeer removes the connection it uses.
+          setTimeout(() => {
+            void this.hangUpPeer(peerAddress, redial)
+          }, AUTH_ERROR_HANGUP_GRACE_MS)
         } else {
           this.logger.warn(
             `No peer address associated with this peer's connection, can't hang up or redial`,

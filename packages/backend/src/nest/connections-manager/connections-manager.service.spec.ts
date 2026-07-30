@@ -252,6 +252,19 @@ describe('ConnectionsManagerService', () => {
     expect(qssResumeSpy).toHaveBeenCalledTimes(1)
   })
 
+  it('acknowledges an accepted P2P resume while Tor bootstrap is pending', async () => {
+    await connectionsManagerService.init()
+    const resumeSpy = jest.spyOn(connectionsManagerService.libp2pService, 'resume').mockResolvedValue(true)
+    const startSyncSpy = jest.spyOn(connectionsManagerService['storageService'], 'startSync').mockResolvedValue()
+    const callback = jest.fn()
+
+    connectionsManagerService['socketService'].emit(SocketActions.TOGGLE_P2P, true, callback)
+    await waitForExpect(() => expect(callback).toHaveBeenCalledWith(true))
+
+    expect(resumeSpy).toHaveBeenCalledTimes(1)
+    expect(startSyncSpy).toHaveBeenCalledTimes(1)
+  })
+
   it('uses bounded socket readiness and awaits libp2p before resuming qss', async () => {
     let resolveLibp2pResume!: (value: boolean) => void
     const libp2pResumePromise = new Promise<boolean>(resolve => {
