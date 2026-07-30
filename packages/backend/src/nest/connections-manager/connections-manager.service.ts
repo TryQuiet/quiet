@@ -969,20 +969,48 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   /**
-   * Update user records in the state manager based on sigchain user data and private channel metadata (to get channel membership)
+   * Update user and channel metadata in the frontend when the sigchain/DBs are updated
    *
    * @param sourceEvent The emitted event whose handler triggered the update
-   * @param teamId ID of the LFA team/Quiet community that was updated
+   * @param teamId ID of the sigchain that was updated
    */
-  private async _updateUsersInStateManager(sourceEvent: string, teamId: string): Promise<void> {
-    this.logger.debug('Updating users after source event', sourceEvent, teamId)
+  public async updateUserChannelMetadataInFrontend(sourceEvent: string, teamId: string): Promise<void> {
+    this.logger.debug('Updating user/channel metadata in frontend', sourceEvent, teamId)
     if (!this.sigChainService) {
-      this.logger.warn(`Skipping users update, sigchainservice hasn't been initialized`)
+      this.logger.warn(`Skipping frontend metadata update, sigchainservice hasn't been initialized`)
       return
     }
 
-    // handle chain updates
-    const sigChain = this.sigChainService.getChain(teamId)
+    let sigChain: SigChain
+    try {
+      sigChain = this.sigChainService.getChain(teamId, true)
+    } catch (e) {
+      this.logger.error(`No sigchain found for team ID ${teamId}, skipping frontend metadata update`, e)
+      return
+    }
+
+    try {
+      await this._updateUsersInStateManager(sourceEvent, teamId, sigChain)
+    } catch (e) {
+      this.logger.error('Error while updating user metadata in frontend', e)
+    }
+
+    try {
+      await this._updateChannelMetadataInNativeMobile(sourceEvent, teamId, sigChain)
+    } catch (e) {
+      this.logger.error('Error while updating channel metadata in mobile', e)
+    }
+  }
+
+  /**
+   * Update user records in the state manager based on sigchain user data and private channel metadata (to get channel membership)
+   *
+   * @param sourceEvent The emitted event whose handler triggered the update
+   * @param teamId ID of the sigchain that was updated
+   * @param sigChain Sigchain that was updated
+   */
+  private async _updateUsersInStateManager(sourceEvent: string, teamId: string, sigChain: SigChain): Promise<void> {
+    this.logger.debug('Updating users after source event', sourceEvent, teamId)
     let channelMapping: PrivateChannelMappings = {
       roleNameToChannel: {},
       idToRoleName: {},
@@ -1043,17 +1071,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 
-  private async _updateChannelMetadataInNativeMobile(sourceEvent: string, teamId: string): Promise<void> {
+  /**
+   * Pass channel ID to channel name mappings to mobile for populating notifications
+   *
+   * @param sourceEvent The emitted event whose handler triggered the update
+   * @param teamId ID of the sigchain that was updated
+   * @param sigChain Sigchain that was updated
+   */
+  private async _updateChannelMetadataInNativeMobile(
+    sourceEvent: string,
+    teamId: string,
+    sigChain: SigChain
+  ): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'android' && platform !== 'ios') {
-      this.logger.debug('Skipping channel metadata mobile update because this is not a mobile client', platform)
+      this.logger.trace('Skipping channel metadata mobile update because this is not a mobile client', platform)
       return
     }
     this.logger.debug('Updating mobile channel metadata after source event', sourceEvent, teamId, platform)
-    if (!this.sigChainService) {
-      this.logger.warn(`Skipping mobile channel metadata update, sigchainservice hasn't been initialized`)
-      return
-    }
 
     // handle chain updates
     if (!this.storageService || !this.storageService.initialized || !this.storageService.channels.initialized) {
@@ -1282,8 +1317,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!this.sigChainService) return
 
     this.sigChainService.on(SigchainEvents.UPDATED, async (teamId: string) => {
-      await this._updateUsersInStateManager(SigchainEvents.UPDATED, teamId)
-      await this._updateChannelMetadataInNativeMobile(SigchainEvents.UPDATED, teamId)
+      await this.updateUserChannelMetadataInFrontend(SigchainEvents.UPDATED, teamId)
     })
   }
 
@@ -1298,8 +1332,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info(`Storage - ${StorageEvents.INITIALIZED}`)
       try {
         const activeChain = this.sigChainService.activeChain
-        await this._updateUsersInStateManager(StorageEvents.INITIALIZED, activeChain.team!.id)
-        await this._updateChannelMetadataInNativeMobile(StorageEvents.INITIALIZED, activeChain.team!.id)
+        await this.updateUserChannelMetadataInFrontend(StorageEvents.INITIALIZED, activeChain.team!.id)
       } catch (e) {
         this.logger.warn(
           `Couldn't update state manager users based on sigchain after storage init, active sigchain likely not found`,
@@ -1315,8 +1348,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info(`Storage (emitted) - ${SocketEvents.CHANNELS_STORED}`)
       try {
         const activeChain = this.sigChainService.activeChain
-        await this._updateUsersInStateManager(StorageEvents.CHANNELS_STORED, activeChain.team!.id)
-        await this._updateChannelMetadataInNativeMobile(StorageEvents.CHANNELS_STORED, activeChain.team!.id)
+        await this.updateUserChannelMetadataInFrontend(StorageEvents.CHANNELS_STORED, activeChain.team!.id)
       } catch (e) {
         this.logger.warn(
           `Couldn't update state manager users based on sigchain after channels stored, active sigchain likely not found`,
