@@ -160,7 +160,13 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
 
   const unread = unreadChannels.length > 0
 
-  const channelList = unread && channelInput.length === 0 ? unreadChannels : dynamicSearchedChannelsSelector
+  const priorityChannels = unread ? unreadChannels : dynamicSearchedChannelsSelector
+  const additionalPrivateChannels = publicChannelsSelector.filter(
+    channel => channel.public === false && !priorityChannels.some(priorityChannel => priorityChannel.id === channel.id)
+  )
+  const privateChannelsStartIndex = priorityChannels.length
+  const channelList =
+    channelInput.length === 0 ? [...priorityChannels, ...additionalPrivateChannels] : dynamicSearchedChannelsSelector
 
   const onChannelClickHandler = (id: string) => {
     setChannelInput('')
@@ -232,15 +238,25 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                 {channelList.length > 0 &&
                   channelList.map((item, index) => {
                     return (
-                      <ChannelItem
-                        className={classes.channelWrapper}
-                        focused={focusedIndex === index}
-                        classNameSelected={classes.channelWrapperSelected}
-                        item={item}
-                        key={index}
-                        onClickHandler={onChannelClickHandler}
-                        channelInput={channelInput}
-                      />
+                      <React.Fragment key={item.id}>
+                        {channelInput.length === 0 &&
+                          additionalPrivateChannels.length > 0 &&
+                          index === privateChannelsStartIndex && (
+                            <Grid className={classes.wrapperRecent}>
+                              <Typography variant='overline' className={classes.recentChannels}>
+                                private channels
+                              </Typography>
+                            </Grid>
+                          )}
+                        <ChannelItem
+                          className={classes.channelWrapper}
+                          focused={focusedIndex === index}
+                          classNameSelected={classes.channelWrapperSelected}
+                          item={item}
+                          onClickHandler={onChannelClickHandler}
+                          channelInput={channelInput}
+                        />
+                      </React.Fragment>
                     )
                   })}
               </Grid>

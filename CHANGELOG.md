@@ -16,6 +16,7 @@
 
 ### Fixes
 
+* Include private channels in the desktop quick channel switcher [#3378](https://github.com/TryQuiet/quiet/issues/3378)
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 

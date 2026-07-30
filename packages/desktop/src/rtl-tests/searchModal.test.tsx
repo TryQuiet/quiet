@@ -50,11 +50,13 @@ describe('Switch channels', () => {
   let community: Community
   let alice: Identity
 
-  const channelFun = { name: 'fun', timestamp: 1673857606990 }
+  const channelFun = { name: 'fun', timestamp: 1673857606990, public: true }
+  const privateChannel = { name: 'secret', timestamp: 1673000000000, public: false }
   const channelsMocks = [
     channelFun,
-    { name: 'random', timestamp: 1673854900410 },
-    { name: 'test', timestamp: 1673623514097 },
+    privateChannel,
+    { name: 'random', timestamp: 1673854900410, public: true },
+    { name: 'test', timestamp: 1673623514097, public: true },
   ]
 
   beforeEach(async () => {
@@ -85,6 +87,7 @@ describe('Switch channels', () => {
           timestamp: channelMock.timestamp,
           owner: alice.userId,
           id: channelMock.name,
+          public: channelMock.public,
         },
       })
     }
@@ -110,6 +113,41 @@ describe('Switch channels', () => {
     const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
 
     expect(currentChannel?.name).toEqual(channelFun.name)
+  })
+
+  it('Shows private channels outside the recent channel list', async () => {
+    renderComponent(
+      <>
+        <SearchModal />
+      </>,
+      redux.store
+    )
+    redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+
+    expect(await screen.findByText('private channels')).toBeVisible()
+    expect(await screen.findByText('# secret')).toBeVisible()
+  })
+
+  it('Select private channel by writing name and pressing enter', async () => {
+    renderComponent(
+      <>
+        <SearchModal />
+      </>,
+      redux.store
+    )
+    redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+
+    const input = await screen.findByPlaceholderText('Channel name')
+    await userEvent.type(input, privateChannel.name)
+    const tab = await screen.findByText('# secret')
+    await userEvent.type(tab, '{ArrowDown}')
+    await userEvent.type(tab, '{enter}')
+
+    await act(async () => {})
+
+    const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
+
+    expect(currentChannel?.name).toEqual(privateChannel.name)
   })
 
   it('Select channel by writing name and clicking', async () => {
