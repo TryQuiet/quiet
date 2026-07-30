@@ -1,27 +1,36 @@
-// import { NativeModules } from 'react-native'
-// import { expectSaga } from 'redux-saga-test-plan'
+import { NativeModules } from 'react-native'
+import { expectSaga } from 'redux-saga-test-plan'
 
-// import { saveKeysInKeychainSaga } from './saveChannelMetadataInKeychain.saga'
-// import { channelMetadataActions } from '../channelMetadata.slice'
+import { saveChannelMetadataInKeychainSaga } from './saveChannelMetadataInKeychain.saga'
+import { channelMetadataActions } from '../channelMetadata.slice'
+import type { MobileChannelMetadataUpdatedPayload } from '@quiet/types'
 
-// describe('saveKeysInKeychainSaga', () => {
-//   beforeEach(() => {
-//     jest.clearAllMocks()
-//   })
+describe('saveChannelMetadataInKeychainSaga', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
-//   it('serializes key payloads before saving them to the iOS keychain', async () => {
-//     const payload = {
-//       keys: [
-//         { keyName: 'quiet_team_secret', key: 'secret-key' },
-//         { keyName: 'quiet_user_public', key: 'public-key' },
-//       ],
-//     }
+  it('serializes key payloads before saving them to the iOS keychain', async () => {
+    const payload: MobileChannelMetadataUpdatedPayload = {
+      teamId: 'foobar',
+      channelMetadata: [
+        {
+          channelName: 'foo',
+          channelId: '123',
+        },
+        {
+          channelName: 'bar',
+          channelId: '456',
+        },
+      ],
+    }
 
-//     await expectSaga(saveKeysInKeychainSaga, channelMetadataActions.saveKeysInKeychain(payload))
-//       .call(
-//         NativeModules.CommunicationModule.saveKeysInKeychain,
-//         payload.keys.map(key => JSON.stringify(key))
-//       )
-//       .run()
-//   })
-// })
+    await expectSaga(saveChannelMetadataInKeychainSaga, channelMetadataActions.saveChannelMetadataInKeychain(payload))
+      .call(
+        NativeModules.CommunicationModule.saveChannelMetadataInKeychain,
+        payload.teamId,
+        payload.channelMetadata.map(metadata => JSON.stringify(metadata))
+      )
+      .run()
+  })
+})
