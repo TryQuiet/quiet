@@ -18,10 +18,11 @@ import {
 } from '../selectors'
 import { SettingsModalTabName } from '../enums'
 import { createLogger } from '../logger'
-import type { UserTestData } from '../types'
+import type { MessageIds, UserTestData } from '../types'
 import { sleep, tailQssLogs } from '../utils'
 
 type PrimaryMessages = {
+  beforeLinking: string
   fromPrimaryDevice: string
   fromLinkedDevice: string
 }
@@ -346,16 +347,17 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
     owner.buildSetup.clearProcessOutput()
     await setP2pEnabled(owner, true)
     await owner.buildSetup.waitForProcessOutput(`connected to ${stalePeerIds[0]}`, timeouts.ownerReconnect)
-    const readinessMessage = `Device admission may proceed after ${unawarePeerCount} stale peer rejection(s)`
-    await ownerChannelBeforeRetry.sendMessage(readinessMessage, ownerUsername)
 
     await joinPanel.waitForJoinToComplete(timeouts.joinPanelVisible, timeouts.joinCompletion)
 
-    const ownerChannelAfterRetry = new Channel(owner.driver, 'general')
-    expect(await ownerChannelAfterRetry.isReady()).toBeTruthy()
     const linkedChannel = new Channel(linkedDevice.driver, 'general')
     expect(await linkedChannel.isReady()).toBeTruthy()
     expect(await linkedChannel.isMessageInputReady()).toBeTruthy()
+
+    const ownerSidebar = new Sidebar(owner.driver)
+    const linkedDeviceSidebar = new Sidebar(linkedDevice.driver)
+    await ownerSidebar.waitForUserProfilesNum(unawarePeerCount + 1)
+    expect((await linkedDeviceSidebar.getCurrentUserNickname()).trim()).toBe(ownerUsername)
   } finally {
     await Promise.allSettled(proxies.map(proxy => proxy.stop()))
     await closeAndCleanupApps(apps)
@@ -373,6 +375,7 @@ describe('Device linking message replication (QSS)', () => {
   let primaryChannel: Channel
   let linkedDeviceChannel: Channel
   let memberChannel: Channel
+  let preLinkMessageIds: MessageIds
   let stageStartTime: number
 
   beforeAll(() => {
@@ -381,6 +384,7 @@ describe('Device linking message replication (QSS)', () => {
       primary: {
         username: 'device-owner',
         messages: {
+          beforeLinking: 'Message sent before linking the secondary device',
           fromPrimaryDevice: 'Message from the primary linked device',
           fromLinkedDevice: 'Message from the secondary linked device',
         },
@@ -454,6 +458,8 @@ describe('Device linking message replication (QSS)', () => {
       expect(await primaryChannel.isOpen()).toBeTruthy()
       expect(await primaryChannel.isMessageInputReady()).toBeTruthy()
 
+      preLinkMessageIds = await primaryChannel.sendMessage(users.primary.messages.beforeLinking, users.primary.username)
+
       const memberSettings = await new Sidebar(users.primary.app.driver).openSettings()
       expect(await memberSettings.isReady()).toBeTruthy()
       await memberSettings.switchTab(SettingsModalTabName.INVITE)
@@ -487,6 +493,21 @@ describe('Device linking message replication (QSS)', () => {
       expect(await linkedDeviceChannel.isReady()).toBeTruthy()
       expect(await linkedDeviceChannel.isOpen()).toBeTruthy()
       expect(await linkedDeviceChannel.isMessageInputReady()).toBeTruthy()
+
+      expect(
+        await linkedDeviceChannel.getMessageIdsByText(
+          users.primary.messages.beforeLinking,
+          users.primary.username,
+          120_000
+        )
+      ).toEqual(preLinkMessageIds)
+
+      const primarySidebar = new Sidebar(users.primary.app.driver)
+      const linkedDeviceSidebar = new Sidebar(users.linkedDevice.app.driver)
+      await Promise.all([primarySidebar.waitForUserProfilesNum(1), linkedDeviceSidebar.waitForUserProfilesNum(1)])
+      expect((await linkedDeviceSidebar.getCurrentUserNickname()).trim()).toBe(users.primary.username)
+      expect(await primarySidebar.getUserProfileByNickname(users.primary.username)).toBeDefined()
+      expect(await linkedDeviceSidebar.getUserProfileByNickname(users.primary.username)).toBeDefined()
     })
   })
 

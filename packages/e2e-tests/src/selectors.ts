@@ -2372,7 +2372,7 @@ export class Sidebar {
    */
   async getUserProfileByNickname(nickname: string) {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//li[@data-testid='${nickname}-user-link']`)),
+      until.elementLocated(By.xpath(`//*[@data-testid='${nickname}-user-link']`)),
       10_000,
       `User profile for ${nickname} couldn't be found within timeout`,
       500
