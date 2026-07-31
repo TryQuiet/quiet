@@ -714,16 +714,22 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       }
       await this.localDbService.updatePeerStats(peerStats)
 
-      if (connection) {
-        // Ensure address is always a string
-        const address = peerStats[remotePeerId].address || remoteAddr || ''
-        const connectedPeer: Libp2pConnectedPeer = {
-          peerId: remotePeerId,
-          address,
-          connectedAtSeconds: DateTime.utc().toSeconds(),
-        }
-        this.connectedPeers.set(remotePeerId, connectedPeer)
+      // The peer can disconnect while the async stats operations above are in
+      // flight. Re-read libp2p's current connections before publishing state so
+      // a stale peer:connect handler cannot resurrect a disconnected peer.
+      const activeConnection = this.libp2pInstance?.getConnections(event.detail).find(item => item.status === 'open')
+      if (activeConnection == null) {
+        this.logger.debug(`Peer ${remotePeerId} disconnected before connection setup completed`)
+        return
       }
+
+      const address = peerStats[remotePeerId].address || activeConnection.remoteAddr?.toString() || remoteAddr || ''
+      const connectedPeer: Libp2pConnectedPeer = {
+        peerId: remotePeerId,
+        address,
+        connectedAtSeconds: DateTime.utc().toSeconds(),
+      }
+      this.connectedPeers.set(remotePeerId, connectedPeer)
 
       this.logger.debug(`Local: ${localPeerId} is connected to ${this.connectedPeers.size} peers`)
       this.logger.debug(`Local: ${localPeerId} has ${this.libp2pInstance?.getConnections().length} open connections`)
