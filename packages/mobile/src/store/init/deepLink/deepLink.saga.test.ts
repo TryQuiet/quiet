@@ -10,7 +10,9 @@ import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
 import {
   type Community,
+  type DeviceInvitationDataV4,
   InvitationData,
+  InvitationKind,
   type InvitationDataV4,
   InvitationDataVersion,
   JoinCommunityPayload,
@@ -42,7 +44,10 @@ describe('deepLinkSaga', () => {
       })
     )
     const joinCommunityPayload: JoinCommunityPayload = {
-      inviteData: validData,
+      inviteData: {
+        ...validData,
+        kind: InvitationKind.Member,
+      },
     }
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
@@ -51,6 +56,44 @@ describe('deepLinkSaga', () => {
       .put(initActions.resetDeepLink())
       .put(communities.actions.joinCommunity(joinCommunityPayload))
       .put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
+      .run()
+  })
+
+  test('links a device without opening username registration', async () => {
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001,
+        socketIOSecret: 'secret',
+      })
+    )
+    const deviceInvite: DeviceInvitationDataV4 = {
+      ...validData,
+      kind: InvitationKind.Device,
+      authData: {
+        ...validData.authData,
+        userId: 'user-id',
+        userName: 'alice',
+      },
+    }
+    const deviceCode = getValidInvitationUrlTestData(deviceInvite).code()
+    const reducer = combineReducers(reducers)
+
+    await expectSaga(deepLinkSaga, initActions.deepLink(deviceCode))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(initActions.resetDeepLink())
+      .put(communities.actions.linkDevice({ inviteData: deviceInvite }))
+      .put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.ConnectionProcessScreen,
+        })
+      )
+      .not.put(communities.actions.joinCommunity({ inviteData: deviceInvite }))
+      .not.put(
         navigationActions.replaceScreen({
           screen: ScreenNames.UsernameRegistrationScreen,
         })
