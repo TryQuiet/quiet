@@ -38,7 +38,7 @@ describe('Multiple Clients', () => {
   let secondChannelUser1: Channel
   let secondChannelUser3: Channel
 
-  let thirdChannelOwner: Channel
+  let tempChannelOwner: Channel
 
   let channelContextMenuOwner: ChannelContextMenu
 
@@ -54,7 +54,7 @@ describe('Multiple Clients', () => {
   const displayedCommunityName = 'Testcommunity'
   const newChannelName = 'mid-night-club'
   const generalChannelName = 'general'
-  const thirdChannelName = 'delete-this'
+  const tempChannelName = 'delete-this'
 
   beforeAll(async () => {
     const commonApp = new App({ username: 'user-joining-1' })
@@ -157,6 +157,46 @@ describe('Multiple Clients', () => {
       })
     })
 
+    describe('Create And Delete Channel Before User Joins', () => {
+      it('Owner creates temporary channel', async () => {
+        sidebarOwner = new Sidebar(users.owner.app.driver)
+        await sidebarOwner.addNewChannel(tempChannelName, true, true)
+        await sidebarOwner.switchChannel(tempChannelName)
+        const channels = await sidebarOwner.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
+
+      it('Owner sends message in temporary channel', async () => {
+        tempChannelOwner = new Channel(users.owner.app.driver, tempChannelName)
+        expect(await tempChannelOwner.isReady()).toBeTruthy()
+        expect(await tempChannelOwner.isMessageInputReady()).toBeTruthy()
+        await tempChannelOwner.sendMessage(users.owner.messages[1], users.owner.username)
+      })
+
+      it('Owner deletes temporary channel', async () => {
+        channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
+        const { iconVisible, menuOpened, menuButton } = await channelContextMenuOwner.openMenu()
+        expect(menuButton).toBe(true)
+        expect(menuOpened).toBe(true)
+        expect(iconVisible).toBe(true)
+        await channelContextMenuOwner.openDeletionChannelModal()
+        await channelContextMenuOwner.deleteChannel()
+        const channels = await sidebarOwner.getChannelList()
+        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(channels.length).toEqual(1)
+      })
+
+      it('Owner sees that the temporary channel is missing in the sidebar', async () => {
+        const channels = await sidebarOwner.getChannelList()
+        expect(channels.length).toEqual(1)
+      })
+
+      it('Owner sees info about channel deletion in general channel', async () => {
+        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        await generalChannelOwner.getMessageIdsByText(deleteChannelMessage(tempChannelName), users.owner.username)
+      })
+    })
+
     describe('First User Joins Community', () => {
       it('First user opens the app', async () => {
         logger.info('Second client')
@@ -217,6 +257,17 @@ describe('Multiple Clients', () => {
       it("First user's message is visible in a channel to the owner", async () => {
         await generalChannelUser1.getUserMessages(users.user1.username)
         await generalChannelOwner.getMessageIdsByText(users.user1.messages[0], users.user1.username)
+      })
+
+      it('User sees info about channel deletion in general channel', async () => {
+        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        await generalChannelUser1.getMessageIdsByText(deleteChannelMessage(tempChannelName), users.owner.username)
+      })
+
+      it('User sees that the channel is missing in the sidebar', async () => {
+        sidebarUser1 = new Sidebar(users.user1.app.driver)
+        const channels = await sidebarUser1.getChannelList()
+        expect(channels.length).toEqual(1)
       })
 
       // NOTE: we used to get the second invite link with the other user but LFA treats invite generation as an admin-only
@@ -376,6 +427,10 @@ describe('Multiple Clients', () => {
     })
 
     describe('Channel Deletion', () => {
+      it('Second user goes offline', async () => {
+        await users.user3.app.close()
+      })
+
       it('Owner deletes second channel', async () => {
         channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
         const { iconVisible, menuOpened, menuButton } = await channelContextMenuOwner.openMenu()
@@ -404,17 +459,29 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
-      it('Second user sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser3.isOpen(true, true, 30_000)).toBeTruthy()
-        await generalChannelUser3.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
-      })
-
       it('User sees that the channel is missing in the sidebar', async () => {
         const channels = await sidebarUser1.getChannelList()
         expect(channels.length).toEqual(1)
       })
 
+      it('Second user comes back online', async () => {
+        await users.user3.app.open(false)
+      })
+
+      it('Second user app is ready to use', async () => {
+        generalChannelUser3 = new Channel(users.user3.app.driver, generalChannelName)
+        expect(await generalChannelUser3.isReady()).toBeTruthy()
+        expect(await generalChannelUser3.isOpen()).toBeTruthy()
+        expect(await generalChannelUser3.isMessageInputReady()).toBeTruthy()
+      })
+
+      it('Second user sees info about channel deletion in general channel', async () => {
+        expect(await generalChannelUser3.isOpen(true, true, 30_000)).toBeTruthy()
+        await generalChannelUser3.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
+      })
+
       it('Second user sees that the channel is missing in the sidebar', async () => {
+        sidebarUser3 = new Sidebar(users.user3.app.driver)
         const channels = await sidebarUser3.getChannelList()
         expect(channels.length).toEqual(1)
       })
