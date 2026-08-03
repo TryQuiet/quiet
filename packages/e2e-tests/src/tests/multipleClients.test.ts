@@ -439,9 +439,6 @@ describe('Multiple Clients', () => {
         expect(iconVisible).toBe(true)
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
-        const channels = await sidebarOwner.getChannelList()
-        expect(await generalChannelOwner.isOpen()).toBeTruthy()
-        expect(channels.length).toEqual(1)
       })
 
       it('Owner sees that the channel is missing in the sidebar', async () => {
@@ -454,14 +451,15 @@ describe('Multiple Clients', () => {
         await generalChannelOwner.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
-      it('User sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser1.isOpen()).toBeTruthy()
-        await generalChannelUser1.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
-      })
-
       it('User sees that the channel is missing in the sidebar', async () => {
         const channels = await sidebarUser1.getChannelList()
         expect(channels.length).toEqual(1)
+      })
+
+      it('User sees info about channel deletion in general channel', async () => {
+        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
+        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        await generalChannelUser1.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
       it('Second user comes back online', async () => {
@@ -503,6 +501,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Second user sees the recreated second channel', async () => {
+        secondChannelUser3 = new Channel(users.user3.app.driver, newChannelName)
         expect(await secondChannelUser3.isReady(30_000)).toBeTruthy()
         const channels = await sidebarUser3.getChannelList()
         expect(channels.length).toEqual(2)
