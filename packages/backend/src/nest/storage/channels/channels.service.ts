@@ -142,7 +142,7 @@ export class ChannelsService extends EventEmitter {
   private async initChannels(): Promise<void> {
     this.logger.time(`Initializing channel databases`)
 
-    await this.createChannelsDb()
+    await this.createChannelsDbs()
     await this.loadAllChannels()
 
     this.logger.timeEnd('Initializing channel databases')
@@ -174,7 +174,7 @@ export class ChannelsService extends EventEmitter {
    * NOTE: This also subscribes to all known channel stores and handles update events on the channels management database for
    * subscribing to newly created channel stores.
    */
-  public async createChannelsDb(): Promise<void> {
+  public async createChannelsDbs(): Promise<void> {
     this.logger.info('Creating channels database')
     this.channels = await this.openChannelsDb()
     this.privateChannels = await this.openPrivateChannelsDb()
@@ -239,7 +239,7 @@ export class ChannelsService extends EventEmitter {
 
     const channelId = entry.payload?.key
     const operation = entry.payload.op
-    this.logger.info('channels database updated', channelId, operation)
+    this.logger.info('handleChannelMetadataUpdate: channels database updated', store.name, channelId, operation)
 
     await store.retryIndexingUnindexedEntries()
     this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
@@ -629,6 +629,7 @@ export class ChannelsService extends EventEmitter {
 
     const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, 'DEL')
     if (writerIdentity == null) {
+      this.logger.error('Cannot validate delete channel entry without verified writer identity', entry.hash)
       return false
     }
 
@@ -685,11 +686,16 @@ export class ChannelsService extends EventEmitter {
         if (!(await this.validateChannelEntryMetadata(entry, encPayload, decEntry, expectedPublic, metadataStore))) {
           return false
         }
-      }
-      if (entry.payload.op === 'DEL') {
+      } else if (entry.payload.op === 'DEL') {
         if (!(await this.validateChannelDeleteEntry(entry, expectedPublic ?? true))) {
           return false
         }
+      } else {
+        this.logger.warn(
+          `Got unhandled operation '${entry.payload.op}' on channel metadata store (expectedPublic? ${expectedPublic})`,
+          entry.payload.key,
+          entry.hash
+        )
       }
     } catch (err) {
       if (err instanceof NotAMemberError || err.message.startsWith('Not a member of this channel')) {
@@ -715,6 +721,7 @@ export class ChannelsService extends EventEmitter {
    * Broadcasts current channels to any listeners
    */
   public async broadcastCurrentChannels(): Promise<void> {
+    this.logger.debug('broadcastCurrentChannels: starting')
     const channels = await this.getChannels()
 
     this.emit(StorageEvents.CHANNELS_STORED, { channels })
@@ -740,6 +747,7 @@ export class ChannelsService extends EventEmitter {
    * @throws Error
    */
   public async setChannel(channel: PublicChannel): Promise<void> {
+    this.logger.debug('Setting channel', channel.id)
     if (!this.channels || !this.privateChannels) {
       throw new Error('Channels have not been initialized!')
     }
@@ -1022,6 +1030,7 @@ export class ChannelsService extends EventEmitter {
   }
 
   private async ensureChannelRepo(channelData: PublicChannel): Promise<ChannelRepo | undefined> {
+    this.logger.debug('ensureChannelRepo: starting', channelData.id)
     let repo = this.channelsRepos.get(channelData.id)
     if (repo) {
       return repo
@@ -1030,7 +1039,10 @@ export class ChannelsService extends EventEmitter {
     try {
       await this.createChannel(channelData)
     } catch (e) {
-      this.logger.error(`Can't subscribe to channel ${channelData.id}`, e)
+      this.logger.error(
+        `ensureChannelRepo: can't subscribe to channel ${channelData.id} due to error while creating channel`,
+        e
+      )
       return
     }
 
@@ -1043,9 +1055,13 @@ export class ChannelsService extends EventEmitter {
   }
 
   private async ensureChannelSubscription(channelData: PublicChannel): Promise<ChannelRepo | undefined> {
+    this.logger.debug('ensureChannelSubscription: starting', channelData.id)
     const channel = this.normalizeChannelData(channelData)
     const repo = await this.ensureChannelRepo(channel)
-    if (!repo) return
+    if (!repo) {
+      this.logger.error('ensureChannelSubscription: failed to ensure channel repo', channelData.id)
+      return
+    }
     if (repo.subscribed) return repo
 
     if (!repo.subscriptionPromise) {
@@ -1059,6 +1075,7 @@ export class ChannelsService extends EventEmitter {
   }
 
   private async subscribeChannelRepo(channelId: string, repo: ChannelRepo): Promise<void> {
+    this.logger.debug('subscribeChannelRepo: starting', channelId)
     if (!repo.eventsAttached) {
       this.handleMessageEventsOnChannelStore(channelId, repo)
       repo.eventsAttached = true
@@ -1067,7 +1084,7 @@ export class ChannelsService extends EventEmitter {
     await repo.store.subscribe()
     repo.subscribed = true
 
-    this.logger.info(`Subscribed to channel ${channelId}`)
+    this.logger.info(`Subscribed to channel, emitting`, channelId)
     this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId,
     } as ChannelSubscribedPayload)
