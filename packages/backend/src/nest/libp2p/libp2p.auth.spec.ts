@@ -147,6 +147,67 @@ describe('Libp2pAuth buffered connections', () => {
     expect(pendingChain.team).toBeNull()
   })
 
+  it('advances to the next buffered peer when minimal auth disconnects with a remote error', async () => {
+    const failingPeer = peerId('failing-peer')
+    const fallbackPeer = peerId('fallback-peer')
+
+    await auth['onPeerConnected'](failingPeer, connection(failingPeer.toString()))
+    await auth['onPeerConnected'](fallbackPeer, connection(fallbackPeer.toString()))
+    const failingAuth = auth['authConnections'].get(failingPeer.toString())!
+
+    failingAuth.emit(LFAEvents.DISCONNECTED, {
+      type: 'ERROR',
+      payload: {
+        type: 'INVITATION_PROOF_INVALID',
+        message: 'Invitation was not accepted',
+      },
+    } as any)
+
+    await waitForExpect(() => {
+      expect(auth['authConnections'].has(failingPeer.toString())).toBe(false)
+      expect(auth['authConnections'].has(fallbackPeer.toString())).toBe(true)
+      expect(auth['bufferedConnections']).toHaveLength(0)
+      expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+    })
+  })
+
+  it('keeps advancing when an earlier failed peer disconnects during a fallback attempt', async () => {
+    const firstFailingPeer = peerId('first-failing-peer')
+    const secondFailingPeer = peerId('second-failing-peer')
+    const admittingPeer = peerId('admitting-peer')
+
+    await auth['onPeerConnected'](firstFailingPeer, connection(firstFailingPeer.toString()))
+    await auth['onPeerConnected'](secondFailingPeer, connection(secondFailingPeer.toString()))
+    await auth['onPeerConnected'](admittingPeer, connection(admittingPeer.toString()))
+    const firstFailingAuth = auth['authConnections'].get(firstFailingPeer.toString())!
+
+    firstFailingAuth.emit(LFAEvents.DISCONNECTED, {
+      type: 'ERROR',
+      payload: { type: 'INVITATION_PROOF_INVALID', message: 'Invitation was not accepted' },
+    } as any)
+
+    await waitForExpect(() => {
+      expect(auth['authConnections'].has(secondFailingPeer.toString())).toBe(true)
+      expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+    })
+
+    await auth['onPeerDisconnected'](firstFailingPeer)
+    expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+
+    const secondFailingAuth = auth['authConnections'].get(secondFailingPeer.toString())!
+    secondFailingAuth.emit(LFAEvents.DISCONNECTED, {
+      type: 'ERROR',
+      payload: { type: 'INVITATION_PROOF_INVALID', message: 'Invitation was not accepted' },
+    } as any)
+
+    await waitForExpect(() => {
+      expect(auth['authConnections'].has(secondFailingPeer.toString())).toBe(false)
+      expect(auth['authConnections'].has(admittingPeer.toString())).toBe(true)
+      expect(auth['bufferedConnections']).toHaveLength(0)
+      expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+    })
+  })
+
   it('does not retry a peer that already failed the pending admission', async () => {
     const failingPeer = peerId('failing-peer')
     const fallbackPeer = peerId('fallback-peer')

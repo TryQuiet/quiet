@@ -422,6 +422,9 @@ export class Libp2pAuth {
         event,
         connection,
       })
+      if (['LOCAL_ERROR', 'REMOTE_ERROR', 'ERROR'].includes(event.type)) {
+        void this.advanceAfterAdmissionFailure(authConnection, connection)
+      }
     })
 
     authConnection.on(LFAEvents.JOINED, payload => {
@@ -553,6 +556,12 @@ export class Libp2pAuth {
       if (this.joinStatus === JoinStatus.JOINING) {
         return
       }
+    }
+
+    // A failed admission peer can disconnect after we've already advanced to a
+    // buffered fallback. Do not reset that in-progress fallback to PENDING.
+    if (this.joinStatus === JoinStatus.JOINING) {
+      return
     }
 
     if (this.joinStatus === JoinStatus.JOINED) {

@@ -663,7 +663,7 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
     linkedDevice.libp2pService as unknown as {
       authService?: {
         bufferedConnections: Array<{ peerId: { toString(): string } }>
-        advanceToNextBufferedPeer(): Promise<void>
+        advanceToNextBufferedPeer(): Promise<boolean>
       }
     }
   ).authService
@@ -674,7 +674,7 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
   const advanceToNextBufferedPeer = authService.advanceToNextBufferedPeer.bind(authService)
   jest.spyOn(authService, 'advanceToNextBufferedPeer').mockImplementation(async () => {
     bufferedPeerIdsAtFailure.push(authService.bufferedConnections.map(connection => connection.peerId.toString()))
-    await advanceToNextBufferedPeer()
+    return await advanceToNextBufferedPeer()
   })
 
   for (const peer of acceptingPeers) {

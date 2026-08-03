@@ -13,6 +13,7 @@ import {
 import { DeviceWithSecrets, LocalUserContext, Member, User, UserWithSecrets } from '@localfirst/auth'
 import { SigChain } from '../../sigchain'
 import { DeviceService } from './device.service'
+import { InviteService } from '../invites/invite.service'
 import { KeyMap } from '@localfirst/auth/team/selectors/keyMap'
 import { createLogger } from '../../../common/logger'
 import { randomKey } from '@localfirst/crypto'
@@ -51,11 +52,15 @@ class UserService extends ChainServiceBase {
    * @returns ProspectiveUser instance
    */
   public static createFromInviteSeed(input: CreateUserFromInviteSeedInput): ProspectiveUser {
-    const { name } = input
+    const { name, seed } = input
     const context = this.create({ name })
+    const inviteProof = InviteService.generateProof(seed)
+    const publicKeys = UserService.redactUser(context.user).keys
 
     return {
       context,
+      inviteProof,
+      publicKeys,
     }
   }
 
