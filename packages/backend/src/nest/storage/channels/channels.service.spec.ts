@@ -51,6 +51,7 @@ import { SigchainEvents } from '../../auth/types'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const logger = createLogger('channelsService:test')
 
@@ -170,7 +171,7 @@ describe('ChannelsService', () => {
       hash,
       identity,
       payload: {
-        op: 'PUT',
+        op: OrbitDbOp.PUT,
         key,
         value,
       },
@@ -187,7 +188,7 @@ describe('ChannelsService', () => {
       hash,
       identity,
       payload: {
-        op: 'DEL',
+        op: OrbitDbOp.DEL,
         key,
       },
     }) as unknown as LogEntry<EncryptedAndSignedPayload>
@@ -863,7 +864,7 @@ describe('ChannelsService', () => {
       }
       const metadataEntries = await metadataLog.values()
       const channelPuts = metadataEntries.filter(
-        entry => entry.payload.op === 'PUT' && entry.payload.key === publicChannel.id
+        entry => entry.payload.op === OrbitDbOp.PUT && entry.payload.key === publicChannel.id
       )
       expect(channelPuts).toHaveLength(1)
       await expect(channelsService.getChannel(publicChannel.id)).resolves.toEqual(publicChannel)

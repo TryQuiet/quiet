@@ -46,6 +46,7 @@ import { SigchainEvents } from '../../auth/types'
 import { ChannelMetadataAccessController } from './orbitdb/ChannelMetadataAccessController'
 import crypto from 'crypto'
 import type { PrivateChannelMappings } from './channels.types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -355,7 +356,7 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
-    const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, 'PUT')
+    const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, OrbitDbOp.PUT)
     if (writerIdentity == null) {
       return false
     }
@@ -473,7 +474,7 @@ export class ChannelsService extends EventEmitter {
 
   private async getVerifiedChannelEntryWriter(
     entry: LogEntry<EncryptedAndSignedPayload>,
-    operation: 'PUT' | 'DEL'
+    operation: OrbitDbOp
   ): Promise<{ id: string; teamId: string } | undefined> {
     if (!entry.identity) {
       this.logger.error(`Failed to validate channel ${operation} entry: entry identity is missing:`, entry.hash)
@@ -627,7 +628,7 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
-    const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, 'DEL')
+    const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, OrbitDbOp.DEL)
     if (writerIdentity == null) {
       this.logger.error('Cannot validate delete channel entry without verified writer identity', entry.hash)
       return false
@@ -676,7 +677,7 @@ export class ChannelsService extends EventEmitter {
     metadataStore: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   ): Promise<boolean> {
     try {
-      if (entry.payload.op === 'PUT') {
+      if (entry.payload.op === OrbitDbOp.PUT) {
         const encPayload = entry.payload.value!
         const decEntry = this.decryptChannelEntry(encPayload)
         if (!isChannel(decEntry)) {
@@ -686,7 +687,7 @@ export class ChannelsService extends EventEmitter {
         if (!(await this.validateChannelEntryMetadata(entry, encPayload, decEntry, expectedPublic, metadataStore))) {
           return false
         }
-      } else if (entry.payload.op === 'DEL') {
+      } else if (entry.payload.op === OrbitDbOp.DEL) {
         if (!(await this.validateChannelDeleteEntry(entry, expectedPublic ?? true))) {
           return false
         }
