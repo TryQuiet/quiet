@@ -5,6 +5,7 @@ import { type LogEntry } from '@orbitdb/core'
 import { ChannelMetadataAccessController } from './ChannelMetadataAccessController'
 import { RoleName } from '../../../auth/services/roles/roles'
 import { EncryptedAndSignedPayload } from '../../../auth/services/crypto/types'
+import type { PrivateChannelMappings } from '../channels.types'
 
 const emptyAsyncIterable = async function* () {}
 
@@ -30,10 +31,12 @@ const createSigchainService = ({
   teamId = 'team-id',
   member = true,
   admin = false,
+  rolesMemberOf = [],
 }: {
   teamId?: string
   member?: boolean
   admin?: boolean
+  rolesMemberOf?: string[]
 }) =>
   ({
     getActiveChain: jest.fn().mockReturnValue({
@@ -47,7 +50,9 @@ const createSigchainService = ({
       channels: {
         canMemberCreatePrivateChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
         canMemberCreatePublicChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
-        canMemberDeletePrivateChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
+        canMemberDeletePrivateChannel: jest.fn(
+          (memberId: string, roleName: string) => memberId === 'writer-id' && admin && rolesMemberOf.includes(roleName)
+        ),
         canMemberDeletePublicChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
       },
     }),
@@ -78,9 +83,14 @@ const attachLogContext = (access: any, entries: LogEntry<EncryptedAndSignedPaylo
   })
 }
 
-const createAccess = async (sigchainService: any, isPublic: boolean) => {
+const createAccess = async (sigchainService: any, isPublic: boolean, idToRoleName: Record<string, string> = {}) => {
   const controller = new ChannelMetadataAccessController(sigchainService)
-  const factory = controller.createAccessControllerFunc({ write: ['*'], sigchainService, isPublic })
+  const factory = controller.createAccessControllerFunc({
+    write: ['*'],
+    sigchainService,
+    isPublic,
+    getPrivateChannelsByRolename: async () => ({ idToRoleName, roleNameToChannel: {} }),
+  })
   return (factory as any)({
     orbitdb: {
       identity: { id: 'local-orbitdb-identity' },
@@ -97,7 +107,12 @@ describe('ChannelMetadataAccessController', () => {
   it('loads the ACL manifest from a persisted typed access-controller address', async () => {
     const sigchainService = createSigchainService({})
     const controller = new ChannelMetadataAccessController(sigchainService)
-    const factory = controller.createAccessControllerFunc({ write: ['writer-id'], sigchainService, isPublic: true })
+    const factory = controller.createAccessControllerFunc({
+      write: ['writer-id'],
+      sigchainService,
+      isPublic: true,
+      getPrivateChannelsByRolename: async () => ({ idToRoleName: {}, roleNameToChannel: {} }),
+    })
     const orbitdb = {
       identity: { id: 'local-orbitdb-identity' },
       ipfs: createInMemoryIpfs(),
@@ -290,10 +305,22 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(true)
   })
 
-  it('allows private channel metadata DEL entries from admins', async () => {
+  it('allows private channel metadata DEL entries from admins with valid channel role name', async () => {
+    const channelId = 'foobar'
+    const roleName = 'barbaz'
+    const access = await createAccess(
+      createSigchainService({ member: true, admin: true, rolesMemberOf: [roleName] }),
+      false,
+      { [channelId]: roleName }
+    )
+
+    await expect(access.canAppend(createEntry('DEL', channelId))).resolves.toBe(true)
+  })
+
+  it('rejects private channel metadata DEL entries from admins without valid channel role name', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
 
-    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
   })
 
   it('rejects public channel metadata entries from admins even without the member role', async () => {
