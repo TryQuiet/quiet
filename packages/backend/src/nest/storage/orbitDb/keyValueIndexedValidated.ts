@@ -39,7 +39,6 @@ import { abortableAsyncIterable } from '../../common/utils'
 import { KeyValueWithStorage } from './keyValueWithStorage'
 
 import { posixJoin } from './util'
-import { OrbitDbOp } from './orbitdb.types'
 
 type ValidateFn<T> = (entry: LogEntry<T>) => Promise<boolean>
 
@@ -60,6 +59,7 @@ const Index =
       path: posixJoin(directory ?? './level', '/_indexedEntries/'),
       valueEncoding,
     })
+
     const update = async (log: LogType, entry: LogEntry) => {
       const keys = new Set()
       const toBeIndexed = new Set()
@@ -68,6 +68,7 @@ const Index =
       // Function to check if a hash is in the entry index
       const isIndexed = async (hash: string) => (await indexedEntries.get(hash)) === true
       const isNotIndexed = async (hash: string) => !(await isIndexed(hash))
+
       // Function to decide when the log traversal should be stopped
       const shoudStopTraverse = async (entry: LogEntry) => {
         // Go through the nexts of an entry and if any is not yet
@@ -86,30 +87,25 @@ const Index =
       for await (const entry of log.traverse(null, shoudStopTraverse)) {
         const { hash, payload } = entry
         const { op, key } = payload
-        const isSupportedOperation = op === OrbitDbOp.PUT || op === OrbitDbOp.DEL
-        // Indexed entries were previously validated and still need to claim their
-        // keys so older, newly-valid entries cannot replace them during a retry.
-        const isHashNotIndexed = await isNotIndexed(hash)
-        if (isHashNotIndexed) {
+        // If an entry is not yet indexed, process it
+        if (await isNotIndexed(hash)) {
           const isValid = validateFn ? await validateFn(entry) : true
-          if (isSupportedOperation && isValid) {
-            if (!keys.has(key)) {
-              keys.add(key)
-              if (op === OrbitDbOp.PUT) {
-                await index.put(key as string, encodeEntry(entry))
-              } else {
-                await index.del(key as string)
-              }
-            }
-            // Older valid operations are also permanently superseded once a
-            // newer valid operation for the same key has claimed the traversal.
+          if (op === 'PUT' && !keys.has(key) && isValid) {
+            keys.add(key)
+            await index.put(key as string, encodeEntry(entry))
+            await indexedEntries.put(hash, true)
+          } else if (op === 'DEL' && !keys.has(key) && isValid) {
+            keys.add(key)
+            await index.del(key as string)
+            await indexedEntries.put(hash, true)
+          } else if ((op === 'PUT' || op === 'DEL') && isValid) {
             await indexedEntries.put(hash, true)
           } else if (!isValid) {
             logger.warn(`Invalid entry detected: ${hash}, skipping indexing`)
           }
           // Remove the entry (hash) from the list of to-be-indexed entries
           toBeIndexed.delete(hash)
-        } else if (isSupportedOperation) {
+        } else if (op === 'PUT' || op === 'DEL') {
           keys.add(key)
         }
       }
