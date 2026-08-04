@@ -6,6 +6,7 @@ RCT_EXTERN_METHOD(handleIncomingEvents:(NSString *)event payload:(NSString *)pay
 RCT_EXTERN_METHOD(requestNotificationPermission)
 RCT_EXTERN_METHOD(checkNotificationPermission)
 RCT_EXTERN_METHOD(saveKeysInKeychain:(NSArray *)newKeys)
+RCT_EXTERN_METHOD(saveChannelMetadataInKeychain:(NSString *)teamId updatedChannelMetadata:(NSArray *)updatedChannelMetadata)
 RCT_EXTERN_METHOD(saveUserMetadata:(NSArray *)updatedMetadata)
 RCT_EXTERN_METHOD(saveDeviceCredentials:(NSString *)deviceId teamId:(NSString *)teamId signingPrivateKey:(NSString *)signingPrivateKey)
 RCT_EXTERN_METHOD(saveNseQssUrl:(NSString *)teamId qssUrl:(NSString *)qssUrl)

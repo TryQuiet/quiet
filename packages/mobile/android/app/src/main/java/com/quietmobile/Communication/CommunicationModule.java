@@ -120,6 +120,19 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public static void saveChannelMetadataInKeychain(String teamId, ReadableArray updatedChannelMetadata) {
+        for (int index = 0; index < updatedChannelMetadata.size(); index++) {
+            try {
+                String channelMetadataAsString = updatedChannelMetadata.getString(index);
+                JSONObject channelMetadata = new JSONObject(channelMetadataAsString);
+                QuietStorage.addChannelMetadata(teamId, channelMetadata.getString("channelId"), channelMetadata.getString("channelName"));
+            } catch (Exception e) {
+                Log.e("CommunicationModule", "Error while saving channel metadata in QuietStorage", e);
+            }
+        }
+    }
+
+    @ReactMethod
     public static void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey) {
         try {
             QuietStorage.saveDeviceCredentials(deviceId, teamId, signingPrivateKey);
