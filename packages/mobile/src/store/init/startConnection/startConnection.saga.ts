@@ -25,10 +25,12 @@ import {
   SocketActions,
   SocketEvents,
   UserProfilesUpdatedPayload,
+  type MobileChannelMetadataUpdatedPayload,
 } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { keysActions } from '../../keys/keys.slice'
 import { usersMetadataActions } from '../../userMetadata/usersMetadata.slice'
+import { channelMetadataActions } from '../../channelMetadata/channelMetadata.slice'
 
 const logger = createLogger('startConnection')
 
@@ -95,6 +97,7 @@ export function subscribeSocketLifecycle(socket: Socket, socketIOData: Websocket
     | ReturnType<typeof keysActions.saveKeysInKeychain>
     | ReturnType<typeof keysActions.saveDeviceCredentials>
     | ReturnType<typeof usersMetadataActions.saveUserMetadataNatively>
+    | ReturnType<typeof channelMetadataActions.saveChannelMetadataInKeychain>
   >(emit => {
     socket.on('connect', async () => {
       socket_id = socket.id
@@ -116,6 +119,10 @@ export function subscribeSocketLifecycle(socket: Socket, socketIOData: Websocket
     socket.on(SocketEvents.USER_PROFILES_UPDATED, async (payload: UserProfilesUpdatedPayload) => {
       logger.info('User profiles updated, saving in ios native storage')
       emit(usersMetadataActions.saveUserMetadataNatively(payload))
+    })
+    socket.on(SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED, async (payload: MobileChannelMetadataUpdatedPayload) => {
+      logger.info('Channel metadata updated, writing to keychain')
+      emit(channelMetadataActions.saveChannelMetadataInKeychain(payload))
     })
     socket.on(SocketEvents.NSE_QSS_URL_UPDATED, async (payload: NseQssUrlUpdatedEvent) => {
       logger.info(`NSE QSS URL updated for team ${payload.teamId}, saving in shared iOS storage`)
@@ -141,6 +148,7 @@ export function subscribeSocketLifecycle(socket: Socket, socketIOData: Websocket
       socket.off(SocketEvents.USER_PROFILES_UPDATED)
       socket.off(SocketEvents.NSE_QSS_URL_UPDATED)
       socket.off(SocketEvents.NSE_SYNC_SEQ_UPDATED)
+      socket.off(SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED)
     }
   })
 }
