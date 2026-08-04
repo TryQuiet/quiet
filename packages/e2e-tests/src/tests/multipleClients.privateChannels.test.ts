@@ -96,7 +96,7 @@ describe('Multiple Clients (Private Channels)', () => {
     logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
-  describe.skip('Stages:', () => {
+  describe('Stages:', () => {
     describe('Owner Creates Community', () => {
       it('Owner opens the app', async () => {
         await users.owner.app.openWithRetries()
@@ -779,7 +779,7 @@ describe('Multiple Clients (Private Channels)', () => {
         expect(channelNames).not.toContain(privateChannelName)
       })
 
-      it('Owner sees info about channel deletion in general channel', async () => {
+      it('Owner does not see info about channel deletion in general channel', async () => {
         expect(await generalChannelOwner.isOpen()).toBeTruthy()
         let messageIds: MessageIds | undefined = undefined
         try {
@@ -798,7 +798,7 @@ describe('Multiple Clients (Private Channels)', () => {
         expect(channelNames).not.toContain(privateChannelName)
       })
 
-      it('First user sees info about channel deletion in general channel', async () => {
+      it('First user does not see info about channel deletion in general channel', async () => {
         sidebarUser1 = new Sidebar(users.user1.app.driver)
         generalChannelUser1 = await sidebarUser1.switchChannel(generalChannelName)
         expect(await generalChannelUser1.isOpen()).toBeTruthy()
@@ -814,7 +814,7 @@ describe('Multiple Clients (Private Channels)', () => {
         expect(messageIds).toBeUndefined()
       })
 
-      it('Second user sees info about channel deletion in general channel', async () => {
+      it('Second user does not see info about channel deletion in general channel', async () => {
         sidebarUser2 = new Sidebar(users.user2.app.driver)
         generalChannelUser2 = await sidebarUser2.switchChannel(generalChannelName)
         expect(await generalChannelUser2.isOpen()).toBeTruthy()

@@ -24,6 +24,7 @@ import { QuietLogger } from '@quiet/logger'
 import { posixJoin } from '../../orbitDb/util'
 import type { SigChain } from '../../../auth/sigchain'
 import { OrbitDbOp } from '../../orbitDb/orbitdb.types'
+import type { PrivateChannelMappings } from '../channels.types'
 
 const TYPE = 'channelmetadataaccess'
 const codec = dagCbor
@@ -61,6 +62,7 @@ interface ChannelMetadataAccessControllerConfig {
   write: string[]
   sigchainService: SigChainService
   isPublic: boolean
+  getPrivateChannelsByRolename: () => Promise<PrivateChannelMappings>
 }
 
 interface ChannelMetadataWriterIdentity {
@@ -176,9 +178,29 @@ export class ChannelMetadataAccessController {
         return false
       }
 
-      const canDelete = config.isPublic
-        ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
-        : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, entry.key)
+      let canDelete: boolean
+      if (config.isPublic) {
+        canDelete = chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
+      } else {
+        const key = entry.payload.key
+        if (key == null) {
+          this.logger.warn(`Channel metadata DEL rejected due to missing key`, {
+            writerId: writerIdentity.id,
+          })
+          return false
+        }
+        try {
+          const channelRoleMappings = await config.getPrivateChannelsByRolename()
+          const channelRoleName = channelRoleMappings.idToRoleName[key]
+          canDelete = chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channelRoleName)
+        } catch (e) {
+          this.logger.warn(`Private channel metadata DEL rejected because role name couldn't be resolved`, {
+            writerId: writerIdentity.id,
+            channelId: key,
+          })
+          return false
+        }
+      }
       if (entry.payload.op === OrbitDbOp.DEL && !canDelete) {
         this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
           writerId: writerIdentity.id,

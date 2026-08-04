@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { Entry, type LogEntry } from '@orbitdb/core'
+import { Entry, type LogEntry, useAccessController as orbitDbUseAccessController } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import {
   ChannelMessage,
@@ -99,6 +99,7 @@ export class ChannelsService extends EventEmitter {
     this._handleEventRemoveDownloadStatus = this._handleEventRemoveDownloadStatus.bind(this)
     this._handleEventFileAttached = this._handleEventFileAttached.bind(this)
     this._handleEventMessageMediaUpdated = this._handleEventMessageMediaUpdated.bind(this)
+    this.getPrivateChannelsByRolename = this.getPrivateChannelsByRolename.bind(this)
   }
 
   // Initialization
@@ -264,14 +265,17 @@ export class ChannelsService extends EventEmitter {
     isPublic: boolean,
     validateFunc: typeof this.validatePublicChannelMetadataEntry | typeof this.validatePrivateChannelMetadataEntry
   ): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
+    const accessController = this.channelMetadataAccessController.createAccessControllerFunc({
+      write: ['*'],
+      sigchainService: this.sigchainService,
+      isPublic,
+      getPrivateChannelsByRolename: this.getPrivateChannelsByRolename,
+    })
+    orbitDbUseAccessController(accessController as any)
     return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(dbName, {
       sync: false,
       Database: KeyValueIndexedValidated(validateFunc.bind(this)),
-      AccessController: this.channelMetadataAccessController.createAccessControllerFunc({
-        write: ['*'],
-        sigchainService: this.sigchainService,
-        isPublic,
-      }),
+      AccessController: accessController,
     })
   }
 
@@ -646,9 +650,22 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
+    const publicPrivate = expectedPublic ? 'public' : 'private'
+    const channel = await this.getChannel(key)
+    if (channel == null) {
+      const message = `Channel with ID ${key} was null and no entry was found in the ${publicPrivate} metadata store`
+      if (!expectedPublic) throw new Error(message)
+      this.logger.warn(message)
+    }
+
+    if (!expectedPublic && channel!.roleName == null) {
+      this.logger.error('Failed to validate delete channel entry: private channel lacked a valid role name', entry.hash)
+      return false
+    }
+
     const writerHasPermissions = expectedPublic
       ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
-      : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, entry.key)
+      : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channel!.roleName!)
     if (!writerHasPermissions) {
       this.logger.error(
         'Failed to validate delete channel entry: writer must have channel deletion permissions on chain:',
@@ -1134,7 +1151,8 @@ export class ChannelsService extends EventEmitter {
     const iCanDeleteChannel =
       (channel.public ?? true)
         ? this.sigchainService.activeChain.channels.canIDeletePublicChannel()
-        : this.sigchainService.activeChain.channels.canIDeletePrivateChannel(channelId)
+        : channel.roleName != null &&
+          this.sigchainService.activeChain.channels.canIDeletePrivateChannel(channel.roleName)
     // NOTE: this doesn't prevent other users from deleting channels they don't own if they modify the client
     // TODO: invalidate removals from non-owners
     if (iCanDeleteChannel) {
