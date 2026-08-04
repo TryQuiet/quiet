@@ -60,7 +60,7 @@ const Index =
       valueEncoding,
     })
 
-    const update = async (log: LogType, entry: LogEntry) => {
+    const update = async (log: LogType, entry: LogEntry, traverseFullLog = false) => {
       const keys = new Set()
       const toBeIndexed = new Set()
       const latest = entry.hash
@@ -70,7 +70,11 @@ const Index =
       const isNotIndexed = async (hash: string) => !(await isIndexed(hash))
 
       // Function to decide when the log traversal should be stopped
-      const shoudStopTraverse = async (entry: LogEntry) => {
+      const shouldStopTraverse = async (entry: LogEntry) => {
+        // Retry must revisit invalid entries even when indexed descendants would
+        // ordinarily form an early-stop boundary.
+        if (traverseFullLog) return false
+
         // Go through the nexts of an entry and if any is not yet
         // indexed, add it to the list of entries-to-be-indexed
         for await (const hash of entry.next) {
@@ -84,23 +88,32 @@ const Index =
       }
 
       // Traverse the log and stop when everything has been processed
-      for await (const entry of log.traverse(null, shoudStopTraverse)) {
+      for await (const entry of log.traverse(null, shouldStopTraverse)) {
         const { hash, payload } = entry
         const { op, key } = payload
         // If an entry is not yet indexed, process it
         if (await isNotIndexed(hash)) {
+          if (op !== 'PUT' && op !== 'DEL') {
+            logger.warn(`Unsupported entry operation detected: ${op}, skipping indexing`)
+            // Unsupported operations can never affect a key/value projection,
+            // so mark them terminal instead of reconsidering them on every retry.
+            await indexedEntries.put(hash, true)
+            toBeIndexed.delete(hash)
+            continue
+          }
+
           const isValid = validateFn ? await validateFn(entry) : true
-          if (op === 'PUT' && !keys.has(key) && isValid) {
-            keys.add(key)
-            await index.put(key as string, encodeEntry(entry))
+          if (isValid) {
+            if (!keys.has(key)) {
+              keys.add(key)
+              if (op === 'PUT') {
+                await index.put(key as string, encodeEntry(entry))
+              } else {
+                await index.del(key as string)
+              }
+            }
             await indexedEntries.put(hash, true)
-          } else if (op === 'DEL' && !keys.has(key) && isValid) {
-            keys.add(key)
-            await index.del(key as string)
-            await indexedEntries.put(hash, true)
-          } else if ((op === 'PUT' || op === 'DEL') && isValid) {
-            await indexedEntries.put(hash, true)
-          } else if (!isValid) {
+          } else {
             logger.warn(`Invalid entry detected: ${hash}, skipping indexing`)
           }
           // Remove the entry (hash) from the list of to-be-indexed entries
@@ -192,6 +205,15 @@ export const KeyValueIndexedValidated =
 
     // Set up the index
     const index = await Index({ directory: posixJoin(directory || './orbitdb', `./${address}/_index`), validateFn })()
+    let indexOperationQueue: Promise<void> = Promise.resolve()
+    const enqueueIndexOperation = (operation: () => Promise<void>) => {
+      const result = indexOperationQueue.then(operation)
+      // Return each failure to its caller without poisoning later index work.
+      indexOperationQueue = result.catch(() => undefined)
+      return result
+    }
+
+    const updateIndex = (log: LogType, entry: LogEntry) => enqueueIndexOperation(() => index.update(log, entry))
 
     // Set up the underlying KeyValue database
     const keyValueStore: KeyValueType = await KeyValueWithStorage()({
@@ -204,7 +226,7 @@ export const KeyValueIndexedValidated =
       meta,
       referencesCount,
       syncAutomatically,
-      onUpdate: index.update,
+      onUpdate: updateIndex,
     })
 
     keyValueStore.events.on('error', error => {
@@ -212,14 +234,14 @@ export const KeyValueIndexedValidated =
     })
 
     /**
-     * Traverses the log and attempts to index entries that are not currently indexed.
+     * Traverses the complete log and attempts to index entries that are not currently indexed.
      * Useful for retrying entries that previously failed validation.
      */
     const retryIndexingUnindexedEntries = async () => {
-      const heads = await keyValueStore.log.heads()
-      for (const head of heads) {
-        await index.update(keyValueStore.log, head)
-      }
+      await enqueueIndexOperation(async () => {
+        const [head] = await keyValueStore.log.heads()
+        if (head) await index.update(keyValueStore.log, head, true)
+      })
     }
 
     /**
@@ -283,6 +305,7 @@ export const KeyValueIndexedValidated =
      * Closes the index and underlying storage.
      */
     const close = async () => {
+      await indexOperationQueue
       await keyValueStore.close()
       await index.close()
     }
@@ -291,6 +314,7 @@ export const KeyValueIndexedValidated =
      * Drops all records from the index and underlying storage.
      */
     const drop = async () => {
+      await indexOperationQueue
       await keyValueStore.drop()
       await index.drop()
     }
