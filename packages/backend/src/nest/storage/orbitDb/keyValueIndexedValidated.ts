@@ -39,12 +39,15 @@ import { abortableAsyncIterable } from '../../common/utils'
 import { KeyValueWithStorage } from './keyValueWithStorage'
 
 import { posixJoin } from './util'
+import { OrbitDbOp } from './orbitdb.types'
 
 type ValidateFn<T> = (entry: LogEntry<T>) => Promise<boolean>
 
 const valueEncoding = 'json'
 
 const logger = createLogger('orbitdb:keyValueIndexedValidated')
+
+const isValidOp = (op: string): boolean => op === OrbitDbOp.PUT || op === OrbitDbOp.DEL
 
 /**
  * Defines an index for a KeyValue database.
@@ -93,7 +96,7 @@ const Index =
         const { op, key } = payload
         // If an entry is not yet indexed, process it
         if (await isNotIndexed(hash)) {
-          if (op !== 'PUT' && op !== 'DEL') {
+          if (!isValidOp(op)) {
             logger.warn(`Unsupported entry operation detected: ${op}, skipping indexing`)
             // Unsupported operations can never affect a key/value projection,
             // so mark them terminal instead of reconsidering them on every retry.
@@ -106,7 +109,7 @@ const Index =
           if (isValid) {
             if (!keys.has(key)) {
               keys.add(key)
-              if (op === 'PUT') {
+              if (op === OrbitDbOp.PUT) {
                 await index.put(key as string, encodeEntry(entry))
               } else {
                 await index.del(key as string)
@@ -118,7 +121,7 @@ const Index =
           }
           // Remove the entry (hash) from the list of to-be-indexed entries
           toBeIndexed.delete(hash)
-        } else if (op === 'PUT' || op === 'DEL') {
+        } else if (isValidOp(op)) {
           keys.add(key)
         }
       }
