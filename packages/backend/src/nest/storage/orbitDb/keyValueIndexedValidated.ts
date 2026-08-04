@@ -60,11 +60,6 @@ const Index =
       path: posixJoin(directory ?? './level', '/_indexedEntries/'),
       valueEncoding,
     })
-    const indexedKeysWithOp = await LevelStorage({
-      path: posixJoin(directory ?? './level', '/_indexedKeysWithOps/'),
-      valueEncoding,
-    })
-
     const update = async (log: LogType, entry: LogEntry) => {
       const keys = new Set()
       const toBeIndexed = new Set()
@@ -73,8 +68,6 @@ const Index =
       // Function to check if a hash is in the entry index
       const isIndexed = async (hash: string) => (await indexedEntries.get(hash)) === true
       const isNotIndexed = async (hash: string) => !(await isIndexed(hash))
-      const isDeleted = async (key: string) => (await indexedKeysWithOp.get(key)) === OrbitDbOp.DEL
-
       // Function to decide when the log traversal should be stopped
       const shoudStopTraverse = async (entry: LogEntry) => {
         // Go through the nexts of an entry and if any is not yet
@@ -92,29 +85,32 @@ const Index =
       // Traverse the log and stop when everything has been processed
       for await (const entry of log.traverse(null, shoudStopTraverse)) {
         const { hash, payload } = entry
-        // If an entry is not yet indexed, process it
+        const { op, key } = payload
+        const isSupportedOperation = op === OrbitDbOp.PUT || op === OrbitDbOp.DEL
+        // Indexed entries were previously validated and still need to claim their
+        // keys so older, newly-valid entries cannot replace them during a retry.
         const isHashNotIndexed = await isNotIndexed(hash)
         if (isHashNotIndexed) {
-          const { op, key } = payload
           const isValid = validateFn ? await validateFn(entry) : true
-          if (op === OrbitDbOp.PUT && isValid) {
-            const isKeyDeleted = await isDeleted(key!)
-            if (!keys.has(key) && !isKeyDeleted) {
+          if (isSupportedOperation && isValid) {
+            if (!keys.has(key)) {
               keys.add(key)
-              await index.put(key as string, encodeEntry(entry))
-              await indexedKeysWithOp.put(key as string, OrbitDbOp.PUT)
+              if (op === OrbitDbOp.PUT) {
+                await index.put(key as string, encodeEntry(entry))
+              } else {
+                await index.del(key as string)
+              }
             }
+            // Older valid operations are also permanently superseded once a
+            // newer valid operation for the same key has claimed the traversal.
             await indexedEntries.put(hash, true)
-          } else if (op === OrbitDbOp.DEL && isValid) {
-            keys.add(key)
-            await index.del(key as string)
-            await indexedEntries.put(hash, true)
-            await indexedKeysWithOp.put(key as string, OrbitDbOp.DEL)
           } else if (!isValid) {
             logger.warn(`Invalid entry detected: ${hash}, skipping indexing`)
           }
           // Remove the entry (hash) from the list of to-be-indexed entries
           toBeIndexed.delete(hash)
+        } else if (isSupportedOperation) {
+          keys.add(key)
         }
       }
     }
@@ -125,7 +121,6 @@ const Index =
     const close = async () => {
       await index.close()
       await indexedEntries.close()
-      await indexedKeysWithOp.close()
     }
 
     /**
@@ -134,7 +129,6 @@ const Index =
     const drop = async () => {
       await index.clear()
       await indexedEntries.clear()
-      await indexedKeysWithOp.clear()
     }
 
     const encodeEntry = (entry: LogEntry): any => {
