@@ -47,6 +47,8 @@ const valueEncoding = 'json'
 
 const logger = createLogger('orbitdb:keyValueIndexedValidated')
 
+const isValidOp = (op: string): boolean => op === OrbitDbOp.PUT || op === OrbitDbOp.DEL
+
 /**
  * Defines an index for a KeyValue database.
  * @param {string} [directory] A location for storing the index-related data
@@ -60,12 +62,8 @@ const Index =
       path: posixJoin(directory ?? './level', '/_indexedEntries/'),
       valueEncoding,
     })
-    const indexedKeysWithOp = await LevelStorage({
-      path: posixJoin(directory ?? './level', '/_indexedKeysWithOps/'),
-      valueEncoding,
-    })
 
-    const update = async (log: LogType, entry: LogEntry) => {
+    const update = async (log: LogType, entry: LogEntry, traverseFullLog = false) => {
       const keys = new Set()
       const toBeIndexed = new Set()
       const latest = entry.hash
@@ -73,10 +71,13 @@ const Index =
       // Function to check if a hash is in the entry index
       const isIndexed = async (hash: string) => (await indexedEntries.get(hash)) === true
       const isNotIndexed = async (hash: string) => !(await isIndexed(hash))
-      const isDeleted = async (key: string) => (await indexedKeysWithOp.get(key)) === OrbitDbOp.DEL
 
       // Function to decide when the log traversal should be stopped
-      const shoudStopTraverse = async (entry: LogEntry) => {
+      const shouldStopTraverse = async (entry: LogEntry) => {
+        // Retry must revisit invalid entries even when indexed descendants would
+        // ordinarily form an early-stop boundary.
+        if (traverseFullLog) return false
+
         // Go through the nexts of an entry and if any is not yet
         // indexed, add it to the list of entries-to-be-indexed
         for await (const hash of entry.next) {
@@ -90,31 +91,38 @@ const Index =
       }
 
       // Traverse the log and stop when everything has been processed
-      for await (const entry of log.traverse(null, shoudStopTraverse)) {
+      for await (const entry of log.traverse(null, shouldStopTraverse)) {
         const { hash, payload } = entry
+        const { op, key } = payload
         // If an entry is not yet indexed, process it
-        const isHashNotIndexed = await isNotIndexed(hash)
-        if (isHashNotIndexed) {
-          const { op, key } = payload
+        if (await isNotIndexed(hash)) {
+          if (!isValidOp(op)) {
+            logger.warn(`Unsupported entry operation detected: ${op}, skipping indexing`)
+            // Unsupported operations can never affect a key/value projection,
+            // so mark them terminal instead of reconsidering them on every retry.
+            await indexedEntries.put(hash, true)
+            toBeIndexed.delete(hash)
+            continue
+          }
+
           const isValid = validateFn ? await validateFn(entry) : true
-          if (op === OrbitDbOp.PUT && isValid) {
-            const isKeyDeleted = await isDeleted(key!)
-            if (!keys.has(key) && !isKeyDeleted) {
+          if (isValid) {
+            if (!keys.has(key)) {
               keys.add(key)
-              await index.put(key as string, encodeEntry(entry))
-              await indexedKeysWithOp.put(key as string, OrbitDbOp.PUT)
+              if (op === OrbitDbOp.PUT) {
+                await index.put(key as string, encodeEntry(entry))
+              } else {
+                await index.del(key as string)
+              }
             }
             await indexedEntries.put(hash, true)
-          } else if (op === OrbitDbOp.DEL && isValid) {
-            keys.add(key)
-            await index.del(key as string)
-            await indexedEntries.put(hash, true)
-            await indexedKeysWithOp.put(key as string, OrbitDbOp.DEL)
-          } else if (!isValid) {
+          } else {
             logger.warn(`Invalid entry detected: ${hash}, skipping indexing`)
           }
           // Remove the entry (hash) from the list of to-be-indexed entries
           toBeIndexed.delete(hash)
+        } else if (isValidOp(op)) {
+          keys.add(key)
         }
       }
     }
@@ -125,7 +133,6 @@ const Index =
     const close = async () => {
       await index.close()
       await indexedEntries.close()
-      await indexedKeysWithOp.close()
     }
 
     /**
@@ -134,7 +141,6 @@ const Index =
     const drop = async () => {
       await index.clear()
       await indexedEntries.clear()
-      await indexedKeysWithOp.clear()
     }
 
     const encodeEntry = (entry: LogEntry): any => {
@@ -202,6 +208,15 @@ export const KeyValueIndexedValidated =
 
     // Set up the index
     const index = await Index({ directory: posixJoin(directory || './orbitdb', `./${address}/_index`), validateFn })()
+    let indexOperationQueue: Promise<void> = Promise.resolve()
+    const enqueueIndexOperation = (operation: () => Promise<void>) => {
+      const result = indexOperationQueue.then(operation)
+      // Return each failure to its caller without poisoning later index work.
+      indexOperationQueue = result.catch(() => undefined)
+      return result
+    }
+
+    const updateIndex = (log: LogType, entry: LogEntry) => enqueueIndexOperation(() => index.update(log, entry))
 
     // Set up the underlying KeyValue database
     const keyValueStore: KeyValueType = await KeyValueWithStorage()({
@@ -214,7 +229,7 @@ export const KeyValueIndexedValidated =
       meta,
       referencesCount,
       syncAutomatically,
-      onUpdate: index.update,
+      onUpdate: updateIndex,
     })
 
     keyValueStore.events.on('error', error => {
@@ -222,14 +237,14 @@ export const KeyValueIndexedValidated =
     })
 
     /**
-     * Traverses the log and attempts to index entries that are not currently indexed.
+     * Traverses the complete log and attempts to index entries that are not currently indexed.
      * Useful for retrying entries that previously failed validation.
      */
     const retryIndexingUnindexedEntries = async () => {
-      const heads = await keyValueStore.log.heads()
-      for (const head of heads) {
-        await index.update(keyValueStore.log, head)
-      }
+      await enqueueIndexOperation(async () => {
+        const [head] = await keyValueStore.log.heads()
+        if (head) await index.update(keyValueStore.log, head, true)
+      })
     }
 
     /**
@@ -293,6 +308,7 @@ export const KeyValueIndexedValidated =
      * Closes the index and underlying storage.
      */
     const close = async () => {
+      await indexOperationQueue
       await keyValueStore.close()
       await index.close()
     }
@@ -301,6 +317,7 @@ export const KeyValueIndexedValidated =
      * Drops all records from the index and underlying storage.
      */
     const drop = async () => {
+      await indexOperationQueue
       await keyValueStore.drop()
       await index.drop()
     }
