@@ -151,7 +151,7 @@ describe('communitiesSelectors', () => {
     const deviceInvite = {
       seed: '5ah8uYodiwuwVybT',
       id: '5ah8uYodiwuwVybT' as Base58,
-      expiresAt: 1_700_001_800_000,
+      expiresAt: Date.now() + 1_800_000,
       userId: 'q5ck86uuhihx5w00zhknit60',
       userName: 'Alice device owner',
     }
@@ -181,6 +181,48 @@ describe('communitiesSelectors', () => {
     })
   })
 
+  it('deviceLinkUrl selector stops returning an invitation exactly at its expiry boundary', async () => {
+    jest.useFakeTimers('modern')
+
+    try {
+      const store = prepareStore().store
+      const factory = await getReduxStoreFactory(store)
+      const expiresAt = 1_700_001_800_000
+      jest.setSystemTime(expiresAt - 1)
+
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+        name: 'community-name',
+        teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3',
+        psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+      })
+      const community = communitiesSelectors.currentCommunity(store.getState())!
+      await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+        communityId: community.id,
+      })
+
+      const deviceInvite = {
+        seed: '5ah8uYodiwuwVybT',
+        id: '5ah8uYodiwuwVybT' as Base58,
+        expiresAt,
+        userId: 'q5ck86uuhihx5w00zhknit60',
+        userName: 'Alice device owner',
+      }
+
+      store.dispatch(connectionActions.setDeviceLinkInvite({ ...deviceInvite }))
+      expect(connectionSelectors.deviceLinkUrl(store.getState())).not.toEqual('')
+
+      jest.setSystemTime(expiresAt)
+      store.dispatch(connectionActions.setDeviceLinkInvite({ ...deviceInvite }))
+      expect(connectionSelectors.deviceLinkUrl(store.getState())).toEqual('')
+
+      jest.setSystemTime(expiresAt + 1)
+      store.dispatch(connectionActions.setDeviceLinkInvite({ ...deviceInvite }))
+      expect(connectionSelectors.deviceLinkUrl(store.getState())).toEqual('')
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
   it('deviceLinkUrl selector uses v5 QSS transport data without a member-invite salt', async () => {
     const store = prepareStore().store
     const factory = await getReduxStoreFactory(store)
@@ -201,7 +243,7 @@ describe('communitiesSelectors', () => {
       connectionActions.setDeviceLinkInvite({
         seed: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
-        expiresAt: 1_700_001_800_000,
+        expiresAt: Date.now() + 1_800_000,
         userId: 'q5ck86uuhihx5w00zhknit60',
         userName: 'Alice device owner',
       })

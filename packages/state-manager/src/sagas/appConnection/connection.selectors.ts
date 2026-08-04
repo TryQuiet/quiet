@@ -147,7 +147,14 @@ export const deviceLinkUrl = createSelector(
   peerList,
   deviceLinkInvite,
   (communityPsk, currentCommunity, sortedPeerList, deviceLinkInvite) => {
-    if (!sortedPeerList || sortedPeerList.length === 0 || !communityPsk || !currentCommunity || !deviceLinkInvite) {
+    if (
+      !sortedPeerList ||
+      sortedPeerList.length === 0 ||
+      !communityPsk ||
+      !currentCommunity ||
+      !deviceLinkInvite ||
+      deviceLinkInvite.expiresAt <= Date.now()
+    ) {
       return ''
     }
     if (!currentCommunity.name || !currentCommunity.teamId) {

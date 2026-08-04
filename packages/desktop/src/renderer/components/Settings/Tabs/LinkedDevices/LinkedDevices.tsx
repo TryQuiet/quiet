@@ -12,9 +12,14 @@ export const LinkedDevices: FC = () => {
   const [revealLink, setRevealLink] = useState(false)
 
   useEffect(() => {
-    dispatch(connection.actions.createDeviceLink())
     dispatch(connection.actions.setDeviceLinkInvite(undefined))
   }, [dispatch])
+
+  useEffect(() => {
+    if (!deviceLinkInvite) {
+      dispatch(connection.actions.createDeviceLink())
+    }
+  }, [deviceLinkInvite, dispatch])
 
   return (
     <LinkedDevicesComponent

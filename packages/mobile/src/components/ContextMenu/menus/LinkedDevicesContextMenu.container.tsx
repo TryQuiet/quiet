@@ -29,8 +29,13 @@ export const LinkedDevicesContextMenu: FC = () => {
     if (!linkedDevicesContextMenu.visible) return
 
     dispatch(connection.actions.setDeviceLinkInvite(undefined))
-    dispatch(connection.actions.createDeviceLink())
   }, [dispatch, linkedDevicesContextMenu.visible])
+
+  useEffect(() => {
+    if (linkedDevicesContextMenu.visible && !deviceLinkInvite) {
+      dispatch(connection.actions.createDeviceLink())
+    }
+  }, [deviceLinkInvite, dispatch, linkedDevicesContextMenu.visible])
 
   useEffect(() => {
     linkedDevicesContextMenu.handleClose()

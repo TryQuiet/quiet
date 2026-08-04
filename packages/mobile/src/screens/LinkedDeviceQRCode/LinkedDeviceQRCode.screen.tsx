@@ -18,7 +18,7 @@ export const LinkedDeviceQRCodeScreen: FC = () => {
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
 
   useEffect(() => {
-    if (!deviceLinkInvite || deviceLinkInvite.expiresAt <= Date.now()) {
+    if (!deviceLinkInvite) {
       dispatch(connection.actions.createDeviceLink())
     }
   }, [deviceLinkInvite, dispatch])
