@@ -35,11 +35,11 @@ export const communitiesSlice = createSlice({
       state.currentCommunity = action.payload
     },
     addNewCommunity: (state, action: PayloadAction<Community>) => {
-      logger.info('Adding new community', JSON.stringify(action.payload, null, 2))
+      logger.info('Adding new community', action.payload.id)
       communitiesAdapter.addOne(state.communities, action.payload)
     },
     updateCommunityData: (state, action: PayloadAction<UpdateCommunityPayload>) => {
-      logger.info('Updating community data', JSON.stringify(action.payload, null, 2))
+      logger.info('Updating community data', action.payload.id)
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
@@ -61,7 +61,7 @@ export const communitiesSlice = createSlice({
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {
-      logger.info('Setting invitation codes', action.payload)
+      logger.info('Setting invitation codes')
       state.invitationCodes = action.payload
     },
     clearInvitationCodes: state => {

@@ -24,7 +24,7 @@ export function* customProtocolSaga(
   action: PayloadAction<ReturnType<typeof communities.actions.customProtocol>['payload']>
 ): Generator {
   const code = action.payload
-  logger.info('Custom protocol', code)
+  logger.info('Custom protocol received')
   logger.info('Waiting for websocket connection before proceeding with deep link flow.')
 
   while (true) {
@@ -41,8 +41,8 @@ export function* customProtocolSaga(
 
   try {
     data = argvInvitationLink(code)
-  } catch (e) {
-    logger.warn(e)
+  } catch {
+    logger.warn('Failed to parse custom protocol invitation')
     yield* put(
       modalsActions.openModal({
         name: ModalName.warningModal,
@@ -52,12 +52,12 @@ export function* customProtocolSaga(
         },
       })
     )
-    logger.warn(`Failed processing ${code}`)
+    logger.warn('Failed processing custom protocol invitation')
     return
   }
 
   if (data === null) {
-    logger.warn(`Failed (Returned null) ${code}`)
+    logger.warn('Failed processing custom protocol invitation (parser returned null)')
     return
   }
 
@@ -94,7 +94,7 @@ export function* customProtocolSaga(
     const payload: LinkDevicePayload = {
       inviteData: data,
     }
-    logger.info('Dispatching link device action', payload)
+    logger.info('Dispatching link device action')
     yield* put(modalsActions.openModal({ name: ModalName.loadingPanel }))
     yield* put(communities.actions.linkDevice(payload))
     return
@@ -104,7 +104,7 @@ export function* customProtocolSaga(
     inviteData: data,
   }
 
-  logger.info('Dispatching join community action', payload)
+  logger.info('Dispatching join community action')
   yield* put(communities.actions.joinCommunity(payload))
   yield* put(modalsActions.openModal({ name: ModalName.createUsernameModal }))
 }

@@ -14,6 +14,6 @@ export function* createDeviceLinkSaga(socket: Socket): Generator {
     socket.emitWithAck,
     applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {})
   )
-  logger.info('deviceLinkInvite', JSON.stringify(deviceLinkInvite, null, 2))
+  logger.info('setting device link invite in state')
   yield* putResolve(connectionActions.setDeviceLinkInvite(deviceLinkInvite))
 }
