@@ -81,6 +81,27 @@ describe('Libp2pAuth buffered connections', () => {
     await auth.stop()
   })
 
+  it('restores PENDING_MEMBER when an active chain appears without the member role', async () => {
+    auth['joinStatus'] = JoinStatus.NOT_STARTED
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: { id: teamId },
+      roles: { amIMemberOfRole: jest.fn().mockReturnValue(false) },
+    } as any)
+
+    await auth['drainBufferedConnections']()
+
+    expect(auth['joinStatus']).toBe(JoinStatus.PENDING_MEMBER)
+  })
+
+  it('does not start joining through a closed peer connection', async () => {
+    const closedPeer = peerId('closed-peer')
+
+    await auth['onPeerConnected'](closedPeer, connection(closedPeer.toString(), 'closed'))
+
+    expect(auth['joinStatus']).toBe(JoinStatus.PENDING)
+    expect(auth['authConnections'].has(closedPeer.toString())).toBe(false)
+  })
+
   it('resumes every open buffered peer immediately after QSS admission', async () => {
     const admittingPeer = peerId('admitting-peer')
     const bufferedPeerA = peerId('buffered-peer-a')
@@ -185,6 +206,31 @@ describe('Libp2pAuth buffered connections', () => {
     await waitForExpect(() => {
       expect(auth['joinStatus']).toBe(JoinStatus.JOINED)
       expect(pendingChain.team?.id).toBe(teamId)
+    })
+  })
+
+  it('cleans up and redials when admission persistence fails', async () => {
+    const admittingPeer = peerId('admitting-peer')
+    jest.mocked((libp2pEvents as any).completeAdmission).mockRejectedValueOnce(new Error('persistence failed'))
+
+    await auth['onPeerConnected'](admittingPeer, connection(admittingPeer.toString()))
+    const admittingAuth = auth['authConnections'].get(admittingPeer.toString())!
+    admittingAuth.emit(LFAEvents.JOINED, {
+      team: {
+        id: teamId,
+        hasDevice: jest.fn().mockReturnValue(true),
+        memberHasRole: jest.fn().mockReturnValue(true),
+        on: jest.fn(),
+        removeListener: jest.fn(),
+      },
+      user: { userId, userName: 'alice' } as UserWithSecrets,
+    } as any)
+
+    await waitForExpect(() => {
+      expect(auth['joinStatus']).toBe(JoinStatus.PENDING)
+      expect(auth['authConnections'].has(admittingPeer.toString())).toBe(false)
+      expect(auth['failedAdmissionPeers'].has(admittingPeer.toString())).toBe(true)
+      expect(redialPeers).toHaveBeenCalledTimes(1)
     })
   })
 

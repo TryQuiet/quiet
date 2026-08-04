@@ -146,7 +146,14 @@ export class Libp2pAuth {
   private async drainBufferedConnections(): Promise<void> {
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamId != null) {
       this.logger.info(`Unblocking ${this.bufferedConnections.length} connections now that we have an active chain`)
-      this.joinStatus = this.sigChainService.getActiveChain()!.team != null ? JoinStatus.JOINED : JoinStatus.PENDING
+      const activeChain = this.sigChainService.getActiveChain()!
+      if (activeChain.team == null) {
+        this.joinStatus = JoinStatus.PENDING
+      } else if (activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+        this.joinStatus = JoinStatus.JOINED
+      } else {
+        this.joinStatus = JoinStatus.PENDING_MEMBER
+      }
     }
 
     const activeChain = this.sigChainService.getActiveChain(false)
@@ -357,10 +364,6 @@ export class Libp2pAuth {
       return
     }
 
-    if (this.joinStatus === JoinStatus.PENDING) {
-      this.joinStatus = JoinStatus.JOINING
-    }
-
     this.logger.info(`Peer connected (direction = ${connection.direction})! (status = ${connection.status})`)
     if (connection.status !== 'open') {
       this.logger.warn(`The connection with ${peerId.toString()} was not in an open state!`)
@@ -380,6 +383,10 @@ export class Libp2pAuth {
       oldAuthConnection.stop()
       this.authConnections.delete(peerIdString)
       this.peerConnections.delete(peerIdString)
+    }
+
+    if (this.joinStatus === JoinStatus.PENDING) {
+      this.joinStatus = JoinStatus.JOINING
     }
 
     // Create an auth connection using an ephemeral sendMessage callback.
@@ -496,8 +503,8 @@ export class Libp2pAuth {
     try {
       await this.libp2pService.completeAdmission(candidate)
     } catch (error) {
-      this.joinStatus = JoinStatus.PENDING
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
+      await this.advanceAfterAdmissionFailure(authConnection, connection)
       return
     }
     this.joinStatus = JoinStatus.JOINED
