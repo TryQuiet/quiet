@@ -37,10 +37,7 @@ class NotificationHandler(private val context: Context) {
         try {
             val channelId = String.format("#%s", jsonMessage.getString("channelId"))
             // Parse channel name
-            var channelName = jsonMessage.get("channelName") as? String?
-            if (channelName == null) {
-                channelName = channelId
-            }
+            var channelName = jsonMessage.optString("channelName", channelId)
             // Parse message content
             val content = String.format("%s", jsonMessage.getString("message"))
             if (!logNotificationState()) {

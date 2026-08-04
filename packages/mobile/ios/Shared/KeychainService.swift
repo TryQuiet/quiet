@@ -258,6 +258,7 @@ struct KeychainService {
         logger.info("clearAllQuietData: starting keychain cleanup")
         try deleteAll(matchingPrefix: "quiet_", service: lfaKeyService)
         try deleteAll(matchingPrefix: "quiet.device.privateKey.")
+        try deleteAll(matchingPrefix: channelMetadataKeyPrefix, service: lfaKeyService)
         try delete(account: deviceIdKey)
         try delete(account: teamIdKey)
         logger.info("clearAllQuietData: finished keychain cleanup")
