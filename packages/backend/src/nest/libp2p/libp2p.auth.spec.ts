@@ -147,6 +147,47 @@ describe('Libp2pAuth buffered connections', () => {
     expect(pendingChain.team).toBeNull()
   })
 
+  it('advances to a valid buffered peer after rejecting an invalid admission candidate', async () => {
+    const invalidPeer = peerId('invalid-peer')
+    const validPeer = peerId('valid-peer')
+
+    await auth['onPeerConnected'](invalidPeer, connection(invalidPeer.toString()))
+    await auth['onPeerConnected'](validPeer, connection(validPeer.toString()))
+
+    const invalidAuth = auth['authConnections'].get(invalidPeer.toString())!
+    invalidAuth.emit(LFAEvents.JOINED, {
+      team: {
+        id: 'wrong-team',
+        hasDevice: jest.fn().mockReturnValue(true),
+      },
+      user: { userId, userName: 'alice' } as UserWithSecrets,
+    } as any)
+
+    await waitForExpect(() => {
+      expect(auth['authConnections'].has(invalidPeer.toString())).toBe(false)
+      expect(auth['authConnections'].has(validPeer.toString())).toBe(true)
+      expect(auth['bufferedConnections']).toHaveLength(0)
+      expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+    })
+
+    const validAuth = auth['authConnections'].get(validPeer.toString())!
+    validAuth.emit(LFAEvents.JOINED, {
+      team: {
+        id: teamId,
+        hasDevice: jest.fn().mockReturnValue(true),
+        memberHasRole: jest.fn().mockReturnValue(true),
+        on: jest.fn(),
+        removeListener: jest.fn(),
+      },
+      user: { userId, userName: 'alice' } as UserWithSecrets,
+    } as any)
+
+    await waitForExpect(() => {
+      expect(auth['joinStatus']).toBe(JoinStatus.JOINED)
+      expect(pendingChain.team?.id).toBe(teamId)
+    })
+  })
+
   it('advances to the next buffered peer when minimal auth disconnects with a remote error', async () => {
     const failingPeer = peerId('failing-peer')
     const fallbackPeer = peerId('fallback-peer')

@@ -476,7 +476,6 @@ export class Libp2pAuth {
       try {
         sigChain.completeInvitation(team, user)
       } catch (error) {
-        this.joinStatus = JoinStatus.PENDING
         this.logger.error('Rejected invited device admission', error)
         this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
         await this.advanceAfterAdmissionFailure(authConnection, connection)
