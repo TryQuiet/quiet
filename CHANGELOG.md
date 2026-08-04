@@ -6,6 +6,10 @@
 
 * Add beta warning message to desktop when creating/joining a community [#3351](https://github.com/TryQuiet/quiet/issues/3351)
 
+### Features
+
+* Add beta warning message to desktop when creating/joining a community [#3351](https://github.com/TryQuiet/quiet/issues/3351)
+
 ### Breaking
 
 * Update data directories for 9.x [#3379](https://github.com/TryQuiet/quiet/issues/3379)
@@ -21,6 +25,7 @@
 * Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
 * Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
+* Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
 
 ## [8.0.0]
 
