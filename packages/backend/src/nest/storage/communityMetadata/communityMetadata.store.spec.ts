@@ -23,6 +23,7 @@ import { SigChainModule } from '../../auth/sigchain.service.module'
 import { SigChainService } from '../../auth/sigchain.service'
 import { EncryptedAndSignedPayload } from '../../auth/services/crypto/types'
 import { LocalDbModule } from '../../local-db/local-db.module'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const metaValid = {
   id: 'anId',
@@ -99,7 +100,7 @@ describe('CommmunityMetadataStore', () => {
     }
     encryptedMetaValid = communityMetadataStore.encryptEntry(metaValidWithOwnerId)
 
-    const op = { op: 'PUT', key: metaValidWithOwnerId.id, value: encryptedMetaValid }
+    const op = { op: OrbitDbOp.PUT, key: metaValidWithOwnerId.id, value: encryptedMetaValid }
 
     entryValid = await Entry.create<EncryptedAndSignedPayload>(
       orbitDbService.orbitDb.identity,
@@ -183,7 +184,7 @@ describe('CommmunityMetadataStore', () => {
     })
 
     test('returns false if the owner ID is unexpected and entry is otherwise valid', async () => {
-      const op = { op: 'PUT', key: metaValidWithOwnerId.id, value: encryptedMetaValid }
+      const op = { op: OrbitDbOp.PUT, key: metaValidWithOwnerId.id, value: encryptedMetaValid }
 
       try {
         const entryInvalid = await Entry.create<EncryptedAndSignedPayload>(
@@ -211,7 +212,7 @@ describe('CommmunityMetadataStore', () => {
         rootCa: 'Something invalid!',
       }
       const encryptedMetaInvalid = communityMetadataStore.encryptEntry(metaInvalid)
-      const opInvalid = { op: 'PUT', key: metaInvalid.id, value: encryptedMetaInvalid }
+      const opInvalid = { op: OrbitDbOp.PUT, key: metaInvalid.id, value: encryptedMetaInvalid }
       const entryInvalid = await Entry.create<EncryptedAndSignedPayload>(
         orbitDbService.orbitDb.identity,
         // @ts-ignore

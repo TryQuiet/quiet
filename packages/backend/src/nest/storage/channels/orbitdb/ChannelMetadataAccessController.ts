@@ -23,6 +23,7 @@ import { createLogger } from '../../../common/logger'
 import { QuietLogger } from '@quiet/logger'
 import { posixJoin } from '../../orbitDb/util'
 import type { SigChain } from '../../../auth/sigchain'
+import { OrbitDbOp } from '../../orbitDb/orbitdb.types'
 import type { PrivateChannelMappings } from '../channels.types'
 
 const TYPE = 'channelmetadataaccess'
@@ -171,7 +172,7 @@ export class ChannelMetadataAccessController {
       }
 
       if (
-        entry.payload.op === 'PUT' &&
+        entry.payload.op === OrbitDbOp.PUT &&
         !(await this.canAppendPutForKey(entry, getLog(), writerIdentity.id, chain, config))
       ) {
         return false
@@ -200,7 +201,7 @@ export class ChannelMetadataAccessController {
           return false
         }
       }
-      if (entry.payload.op === 'DEL' && !canDelete) {
+      if (entry.payload.op === OrbitDbOp.DEL && !canDelete) {
         this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
           writerId: writerIdentity.id,
         })
@@ -246,7 +247,7 @@ export class ChannelMetadataAccessController {
       for await (const existingEntry of log.traverse(null, async () => false)) {
         if (
           existingEntry.hash !== entry.hash &&
-          existingEntry.payload.op === 'PUT' &&
+          existingEntry.payload.op === OrbitDbOp.PUT &&
           existingEntry.payload.key === channelId
         ) {
           this.logger.warn(`Channel metadata PUT rejected because the channel id already has a PUT entry`, {
