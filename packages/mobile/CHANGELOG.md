@@ -1,20 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [9.0.0-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@9.0.0-alpha.4...@quiet/mobile@9.0.0-alpha.5) (2026-08-05)
-
-
-### Bug Fixes
-
-* **3371:** Make usernames and profile photos tapable when adding members to private channels ([#3398](https://github.com/TryQuiet/quiet/issues/3398)) ([8bef365](https://github.com/TryQuiet/quiet/commit/8bef36536819b8a37503b646940e8ef23bef2206))
-* **3387:** Pass channel ID to name mappings to mobile, use channel names in notifications ([#3396](https://github.com/TryQuiet/quiet/issues/3396)) ([e113e54](https://github.com/TryQuiet/quiet/commit/e113e54639b4cd71818afa4cbfbb7b6ece83d0e1))
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
@@ -35,6 +18,10 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
+* Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
+* Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
+* Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
+* Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
 
 ## [8.0.0]
 
