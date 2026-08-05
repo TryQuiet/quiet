@@ -186,6 +186,7 @@ export class ChannelMetadataAccessController {
         if (key == null) {
           this.logger.warn(`Channel metadata DEL rejected due to missing key`, {
             writerId: writerIdentity.id,
+            isPublic: config.isPublic,
           })
           return false
         }
@@ -197,6 +198,7 @@ export class ChannelMetadataAccessController {
           this.logger.warn(`Private channel metadata DEL rejected because role name couldn't be resolved`, {
             writerId: writerIdentity.id,
             channelId: key,
+            isPublic: config.isPublic,
           })
           return false
         }
@@ -204,6 +206,7 @@ export class ChannelMetadataAccessController {
       if (entry.payload.op === OrbitDbOp.DEL && !canDelete) {
         this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
           writerId: writerIdentity.id,
+          isPublic: config.isPublic,
         })
         return false
       }
