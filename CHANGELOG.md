@@ -22,6 +22,7 @@
 * Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
 * Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
+* Fix issue with unverifiable private channel deletes locking the oplog [#3406](https://github.com/TryQuiet/quiet/issues/3406)
 
 ## [8.0.0]
 
