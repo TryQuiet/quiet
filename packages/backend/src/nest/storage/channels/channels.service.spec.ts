@@ -901,26 +901,6 @@ describe('ChannelsService', () => {
         getChannelSpy.mockRestore()
       }
     })
-
-    // skipping because we don't have a strong way to prevent a user from deleting a channel yet
-    it.skip('delete channel as standard user', async () => {
-      logger.info('Deleting channel as standard user')
-      const notOwnersChannel = await factory.build<PublicChannel>('PublicChannel', {
-        owner: 'notAlice',
-      })
-      await channelsService.subscribeToChannel(notOwnersChannel)
-
-      const failure: DeleteChannelResponse = {
-        channelId: channel.id,
-        deleted: false,
-      }
-
-      const result = await channelsService.deleteChannel({ channelId: channel.id })
-      expect(result).toEqual(failure)
-
-      const channelFromKeyValueStore = (await channelsService.getChannels()).filter(x => x.id === notOwnersChannel.id)
-      expect(channelFromKeyValueStore).toEqual([notOwnersChannel])
-    })
   })
 
   describe('Message access controller', () => {

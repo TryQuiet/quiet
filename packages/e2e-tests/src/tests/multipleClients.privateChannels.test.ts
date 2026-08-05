@@ -38,6 +38,7 @@ describe('Multiple Clients (Private Channels)', () => {
   let privateChannelUser1: Channel
   let privateChannel2Owner: Channel
   let privateChannel2User1: Channel
+  let privateChannelDeletedOwner: Channel
 
   let channelContextMenuOwner: ChannelContextMenu
 
@@ -53,6 +54,7 @@ describe('Multiple Clients (Private Channels)', () => {
   const displayedCommunityName = 'Testcommunity'
   const privateChannelName = 'private-chat'
   const privateChannel2Name = 'private-chat-2'
+  const deletedPrivateChannelName = 'private-delete-me'
   const generalChannelName = 'general'
 
   beforeAll(async () => {
@@ -64,7 +66,7 @@ describe('Multiple Clients (Private Channels)', () => {
           'Only I can see this',
           `I'm still the only one who can see this`,
           `New private channel only I can see`,
-          `The second user can now see this`,
+          `The user can now see this`,
         ],
         app: new App({ username: 'owner' }),
       },
@@ -149,6 +151,66 @@ describe('Multiple Clients (Private Channels)', () => {
         const messages = await generalChannelOwner.getUserMessages(users.owner.username)
         const text = await messages[1].getText()
         expect(text).toEqual(users.owner.messages[0])
+      })
+    })
+
+    describe('Creating and Deleting Private Channel Before User Joins', () => {
+      describe('Owner Creates a Temporary Private Channel', () => {
+        it('Owner creates a private channel', async () => {
+          await sidebarOwner.addNewChannel(deletedPrivateChannelName, false)
+          await sidebarOwner.switchChannel(deletedPrivateChannelName, false)
+        })
+
+        it(`Temporary private channel is in owner's sidebar`, async () => {
+          const channels = await sidebarOwner.getChannelsNames()
+          expect(channels).toContain(deletedPrivateChannelName)
+          await sidebarOwner.getChannelIcon(deletedPrivateChannelName, false)
+        })
+
+        it('Owner sends message in temporary private channel', async () => {
+          privateChannelDeletedOwner = new Channel(users.owner.app.driver, deletedPrivateChannelName)
+          expect(await privateChannelDeletedOwner.isReady()).toBeTruthy()
+          expect(await privateChannelDeletedOwner.isMessageInputReady()).toBeTruthy()
+          await privateChannelDeletedOwner.sendMessage(users.owner.messages[1], users.owner.username)
+        })
+
+        it("Owner's message is visible in temporary private channel", async () => {
+          const messages = await privateChannelDeletedOwner.getUserMessages(users.owner.username)
+          const text = await messages[1].getText()
+          expect(text).toEqual(users.owner.messages[1])
+        })
+      })
+
+      describe('Owner Deletes the Temporary Private Channel', () => {
+        it('Owner deletes temporary private channel', async () => {
+          channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
+          const { iconVisible, menuOpened, menuButton } = await channelContextMenuOwner.openMenu()
+          expect(menuButton).toBe(true)
+          expect(menuOpened).toBe(true)
+          expect(iconVisible).toBe(true)
+          await channelContextMenuOwner.openDeletionChannelModal()
+          await channelContextMenuOwner.deleteChannel()
+          await sidebarOwner.waitForChannelsNum(1)
+        })
+
+        it('Owner sees that the temporary private channel is missing in the sidebar', async () => {
+          const channelNames = await sidebarOwner.getChannelsNames()
+          expect(channelNames).not.toContain(deletedPrivateChannelName)
+        })
+
+        it('Owner does not see info about channel deletion in general channel', async () => {
+          expect(await generalChannelOwner.isOpen()).toBeTruthy()
+          let messageIds: MessageIds | undefined = undefined
+          try {
+            messageIds = await generalChannelOwner.getMessageIdsByText(
+              deleteChannelMessage(deletedPrivateChannelName),
+              users.owner.username
+            )
+          } catch (e) {
+            // do nothing - we don't expect to see the deletion message for private channels
+          }
+          expect(messageIds).toBeUndefined()
+        })
       })
     })
 
@@ -261,6 +323,22 @@ describe('Multiple Clients (Private Channels)', () => {
         it("Owner's message is visible in general channel", async () => {
           await generalChannelUser1.getUserMessages(users.owner.username)
           await generalChannelUser1.getMessageIdsByText(users.owner.messages[0], users.owner.username, 60_000)
+        })
+
+        it('First user does not see info about channel deletion in general channel', async () => {
+          sidebarUser1 = new Sidebar(users.user1.app.driver)
+          generalChannelUser1 = await sidebarUser1.switchChannel(generalChannelName)
+          expect(await generalChannelUser1.isOpen()).toBeTruthy()
+          let messageIds: MessageIds | undefined = undefined
+          try {
+            messageIds = await generalChannelUser1.getMessageIdsByText(
+              deleteChannelMessage(deletedPrivateChannelName),
+              users.owner.username
+            )
+          } catch (e) {
+            // do nothing - we don't expect to see the deletion message for private channels
+          }
+          expect(messageIds).toBeUndefined()
         })
       })
 
@@ -550,6 +628,22 @@ describe('Multiple Clients (Private Channels)', () => {
           const channels = await sidebarUser2.getChannelsNames()
           expect(channels.length).toBe(1)
           expect(channels).toContain(generalChannelName)
+        })
+
+        it('Second user does not see info about channel deletion in general channel', async () => {
+          sidebarUser2 = new Sidebar(users.user2.app.driver)
+          generalChannelUser2 = await sidebarUser2.switchChannel(generalChannelName)
+          expect(await generalChannelUser2.isOpen()).toBeTruthy()
+          let messageIds: MessageIds | undefined = undefined
+          try {
+            messageIds = await generalChannelUser2.getMessageIdsByText(
+              deleteChannelMessage(deletedPrivateChannelName),
+              users.owner.username
+            )
+          } catch (e) {
+            // do nothing - we don't expect to see the deletion message for private channels
+          }
+          expect(messageIds).toBeUndefined()
         })
       })
     })

@@ -294,9 +294,13 @@ describe('ChannelMetadataAccessController', () => {
   })
 
   it('rejects private channel metadata DEL entries from non-admin members', async () => {
-    const access = await createAccess(createSigchainService({ member: true, admin: false }), false)
+    const channelId = 'foobar'
+    const roleName = 'barbaz'
+    const access = await createAccess(createSigchainService({ member: true, admin: false }), false, {
+      [channelId]: roleName,
+    })
 
-    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL, channelId))).resolves.toBe(false)
   })
 
   it('allows public channel metadata DEL entries from admins', async () => {
@@ -305,7 +309,7 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(true)
   })
 
-  it('allows private channel metadata DEL entries from admins with valid channel role name', async () => {
+  it('allows private channel metadata DEL entries from admins with resolved channel role name', async () => {
     const channelId = 'foobar'
     const roleName = 'barbaz'
     const access = await createAccess(
@@ -317,10 +321,15 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(createEntry(OrbitDbOp.DEL, channelId))).resolves.toBe(true)
   })
 
-  it('rejects private channel metadata DEL entries from admins without valid channel role name', async () => {
-    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+  it('accepts private channel metadata DEL entries from admins without resolving channel role name', async () => {
+    const channelId = 'foobar'
+    const roleName = 'barbaz'
+    const access = await createAccess(
+      createSigchainService({ member: true, admin: true, rolesMemberOf: [roleName] }),
+      false
+    )
 
-    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL, channelId))).resolves.toBe(true)
   })
 
   it('rejects public channel metadata entries from admins even without the member role', async () => {

@@ -190,18 +190,20 @@ export class ChannelMetadataAccessController {
           })
           return false
         }
-        try {
-          const channelRoleMappings = await config.getPrivateChannelsByRolename()
-          const channelRoleName = channelRoleMappings.idToRoleName[key]
-          canDelete = chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channelRoleName)
-        } catch (e) {
-          this.logger.warn(`Private channel metadata DEL rejected because role name couldn't be resolved`, {
-            writerId: writerIdentity.id,
-            channelId: key,
-            isPublic: config.isPublic,
-          })
-          return false
+        const channelRoleMappings = await config.getPrivateChannelsByRolename()
+        const channelRoleName = channelRoleMappings.idToRoleName[key]
+        if (channelRoleName == null) {
+          this.logger.warn(
+            `Private channel metadata DEL allowed but couldn't validate user's permission because role name couldn't be resolved`,
+            {
+              writerId: writerIdentity.id,
+              channelId: key,
+              isPublic: config.isPublic,
+            }
+          )
+          return true
         }
+        canDelete = chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channelRoleName)
       }
       if (entry.payload.op === OrbitDbOp.DEL && !canDelete) {
         this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
