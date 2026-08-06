@@ -10,7 +10,7 @@ import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
-import { deleteChannelMessage, generateChannelId } from '@quiet/common'
+import { deleteChannelMessage, generateTestChannelId } from '@quiet/common'
 import {
   type Community,
   type Identity,
@@ -63,7 +63,7 @@ describe('sendDeletionMessage', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
     ).channel!
@@ -81,7 +81,7 @@ describe('sendDeletionMessage', () => {
           description: 'Welcome to #private',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('private'),
+          id: generateTestChannelId('private'),
           public: false,
         },
       })

@@ -202,6 +202,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suf
           minHeight,
           width: '100%',
         }}
+        testID={'context-menu-item'}
       >
         <View
           style={{

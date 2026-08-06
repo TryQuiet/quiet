@@ -348,6 +348,7 @@ describe('ContextMenu component', () => {
                             "width": "100%",
                           }
                         }
+                        testID="context-menu-item"
                       >
                         <View
                           style={
@@ -491,6 +492,7 @@ describe('ContextMenu component', () => {
                             "width": "100%",
                           }
                         }
+                        testID="context-menu-item"
                       >
                         <View
                           style={
@@ -634,6 +636,7 @@ describe('ContextMenu component', () => {
                             "width": "100%",
                           }
                         }
+                        testID="context-menu-item"
                       >
                         <View
                           style={
@@ -1060,6 +1063,7 @@ describe('ContextMenu component', () => {
                             "width": "100%",
                           }
                         }
+                        testID="context-menu-item"
                       >
                         <View
                           style={
@@ -1203,6 +1207,7 @@ describe('ContextMenu component', () => {
                             "width": "100%",
                           }
                         }
+                        testID="context-menu-item"
                       >
                         <View
                           style={
@@ -1346,6 +1351,7 @@ describe('ContextMenu component', () => {
                             "width": "100%",
                           }
                         }
+                        testID="context-menu-item"
                       >
                         <View
                           style={

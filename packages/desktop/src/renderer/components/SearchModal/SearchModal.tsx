@@ -12,16 +12,11 @@ const SearchModal = () => {
 
   const searchChannelModal = useModal(ModalName.searchChannelModal)
 
-  // Hide private channels from search results
-  const dynamicSearchedChannelsSelector = useSelector(
-    publicChannels.selectors.dynamicSearchedChannels(channelInput)
-  ).filter(channel => channel.public !== false)
+  const dynamicSearchedChannelsSelector = useSelector(publicChannels.selectors.dynamicSearchedChannels(channelInput))
 
   const unreadChannelsSelector = useSelector(publicChannels.selectors.unreadChannels)
 
-  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels).filter(
-    channel => channel.public !== false
-  )
+  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
   const setCurrentChannel = useCallback(
     (id: string) => {

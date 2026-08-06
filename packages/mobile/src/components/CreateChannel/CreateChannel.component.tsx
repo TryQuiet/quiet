@@ -22,9 +22,6 @@ export interface CreateChannelProps {
   handleBackButton: () => void
 }
 
-// Private channels are hidden from the UI for now
-const SHOW_PRIVATE_CHANNEL_TOGGLE = false
-
 export const CreateChannel: FC<CreateChannelProps> = ({
   canCreateChannel,
   canCreatePrivateChannel,
@@ -145,7 +142,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
               </View>
             </View>
           )}
-        {SHOW_PRIVATE_CHANNEL_TOGGLE && canCreatePrivateChannel && (
+        {canCreatePrivateChannel && (
           <View
             style={{
               display: 'flex',

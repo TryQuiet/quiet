@@ -3,7 +3,7 @@ import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type FactoryGirl } from 'factory-girl'
-import { generateChannelId, createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
+import { generateTestChannelId, createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
 import { DateTime } from 'luxon'
 import {
   type Community,
@@ -49,6 +49,7 @@ describe('verifyMessage saga test', () => {
     logger.info('create owner identity')
     owner = await factory.create('Identity', {
       communityId: community.id,
+      userId: 'alice',
     })
 
     ownerProfile = await factory.create('UserProfile', {
@@ -69,7 +70,7 @@ describe('verifyMessage saga test', () => {
           description: 'Welcome to #general',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('general'),
+          id: generateTestChannelId('general'),
         },
       })
     ).channel
@@ -82,7 +83,7 @@ describe('verifyMessage saga test', () => {
           description: 'Welcome to #sport',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('sport'),
+          id: generateTestChannelId('sport'),
         },
       })
     ).channel
@@ -146,7 +147,7 @@ describe('verifyMessage saga test', () => {
           userId: owner.userId,
           channelId: generalChannel.id,
           type: MessageType.Info,
-          message: createdChannelMessage(generalChannel.name),
+          message: verifyUserInfoMessage(ownerProfile.nickname, ownerProfile.userId, generalChannel),
         }),
       ],
       isVerified: true,

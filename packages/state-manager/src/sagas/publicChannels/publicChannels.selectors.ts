@@ -5,6 +5,7 @@ import {
   channelMessagesAdapter,
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter,
+  channelSpecificPermissionsAdapter,
 } from './publicChannels.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { userProfiles } from '../users/userProfile/userProfile.selectors'
@@ -18,7 +19,9 @@ import {
   type MessagesDailyGroups,
   type MessagesGroupsType,
   type PublicChannel,
+  type PublicChannelSubscription,
   type PublicChannelStatus,
+  type PublicChannelStatusWithName,
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
@@ -47,10 +50,18 @@ const pendingGeneralChannelRecreation = createSelector(selectState, state => {
 })
 
 export const subscribedChannels = createSelector(selectChannelsSubscriptions, subscriptions => {
-  return subscriptions.map(subscription => {
-    if (subscription.subscribed) return subscription.id
-  })
+  return subscriptions.filter(subscription => subscription.subscribed).map(subscription => subscription.id)
 })
+
+const hasSubscribedChannel = (subscriptions: PublicChannelSubscription[], channelId: string | undefined): boolean => {
+  if (!channelId) return false
+  return subscriptions.some(subscription => subscription.id === channelId && subscription.subscribed)
+}
+
+export const isChannelSubscribed = (channelId: string | undefined) =>
+  createSelector(selectChannelsSubscriptions, subscriptions => {
+    return hasSubscribedChannel(subscriptions, channelId)
+  })
 
 // Serves for testing purposes only
 export const selectGeneralChannel = createSelector(selectChannels, currentCommunity, (channels, currentCommunity) => {
@@ -122,6 +133,14 @@ export const currentChannelId = createSelector(selectState, generalChannel, (sta
     return state.currentChannelId
   }
 })
+
+export const currentChannelSubscribed = createSelector(
+  currentChannelId,
+  selectChannelsSubscriptions,
+  (id, subscriptions) => {
+    return hasSubscribedChannel(subscriptions, id)
+  }
+)
 
 export const recentChannels = createSelector(
   publicChannels,
@@ -262,11 +281,23 @@ export const channelsStatus = createSelector(selectState, state => {
   return publicChannelsStatusAdapter.getSelectors().selectEntities(state.channelsStatus)
 })
 
-export const channelsStatusSorted = createSelector(selectState, state => {
+export const channelsStatusSorted = createSelector(selectState, selectChannels, (state, channels) => {
   if (!state?.channelsStatus) return []
+  const channelNamesById = new Map(channels.map(channel => [channel.id, channel.name]))
   const statuses = publicChannelsStatusAdapter.getSelectors().selectAll(state.channelsStatus)
 
   return statuses
+    .map((status): PublicChannelStatusWithName | undefined => {
+      const name = channelNamesById.get(status.id)
+      if (name == null) {
+        return undefined
+      }
+      return {
+        ...status,
+        name,
+      }
+    })
+    .filter(isDefined)
     .sort((a, b) => {
       const aCreatedAt = a.newestMessage?.createdAt
       const bCreatedAt = b.newestMessage?.createdAt
@@ -309,9 +340,31 @@ export const canCreatePrivateChannel = createSelector(selectState, () => {
   return true
 })
 
+export const genericChannelPermissions = createSelector(selectState, state => {
+  return state.genericChannelPermissions
+})
+
+export const allChannelSpecificPermissions = createSelector(selectState, state => {
+  return channelSpecificPermissionsAdapter.getSelectors().selectEntities(state.channelSpecificPermissions)
+})
+
+export const currentChannelPermissions = createSelector(
+  selectState,
+  currentChannelId,
+  currentChannel,
+  (state, currentChannelId, currentChannel) => {
+    if (currentChannelId == null || currentChannel == null || currentChannel.public) return undefined
+    return channelSpecificPermissionsAdapter
+      .getSelectors()
+      .selectById(state.channelSpecificPermissions, currentChannelId)
+  }
+)
+
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
+  isChannelSubscribed,
+  currentChannelSubscribed,
   currentChannelId,
   currentChannelName,
   currentChannel,
@@ -334,4 +387,7 @@ export const publicChannelsSelectors = {
   areChannelsLoaded,
   canCreateChannel,
   canCreatePrivateChannel,
+  genericChannelPermissions,
+  allChannelSpecificPermissions,
+  currentChannelPermissions,
 }

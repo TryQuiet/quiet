@@ -6,9 +6,18 @@ import { IpfsModule } from '../ipfs/ipfs.module'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { OrbitDbModule } from './orbitDb/orbitdb.module'
 import { CommonModule } from '../common/common.module'
+import { SocketModule } from '../socket/socket.module'
 
 @Module({
-  imports: [CommonModule, LocalDbModule, IpfsModule, IpfsFileManagerModule, SigChainModule, OrbitDbModule],
+  imports: [
+    CommonModule,
+    LocalDbModule,
+    IpfsModule,
+    IpfsFileManagerModule,
+    SigChainModule,
+    OrbitDbModule,
+    SocketModule,
+  ],
   providers: [StorageService],
   exports: [StorageService],
 })

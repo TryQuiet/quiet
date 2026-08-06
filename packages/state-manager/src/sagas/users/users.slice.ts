@@ -6,10 +6,16 @@ import {
   SaveUserProfileActionPayload,
   DeleteUserProfileActionPayload,
   FileMetadata,
+  CachedUserProfileRequest,
+  CachedUserProfileResponse,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('usersSlice')
+
+export interface CachedUserProfileRequestedActionPayload extends CachedUserProfileRequest {
+  callback: (response: CachedUserProfileResponse) => void
+}
 
 export class UsersState {
   // Mapping of userId to UserProfile (for display data)
@@ -38,6 +44,7 @@ export const usersSlice = createSlice({
       return state
     },
     updateUserProfiles: (state, _action: PayloadAction<UserProfile[]>) => state,
+    cachedUserProfileRequested: (state, _action: PayloadAction<CachedUserProfileRequestedActionPayload>) => state,
     // Sets a single user profile, overwriting the existing one
     setUserProfile: (state, action: PayloadAction<UserProfile>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1

@@ -55,11 +55,10 @@
 		18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.m */; };
 		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
 		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
-		2815B731ADE0FE0C770C78E3 /* Pods_QuietNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1725031A98BBEE5E8F3F6561 /* Pods_QuietNotificationServiceExtension.framework */; };
+		4D83A3053BB0BA758B7C612D /* Pods_QuietNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D609F9D4DF7238B86189CDC /* Pods_QuietNotificationServiceExtension.framework */; };
+		6204263D91F3440F598B7BB0 /* Pods_Quiet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4656C8360BE2B6E9C1BCF8CF /* Pods_Quiet.framework */; };
 		663DC8C12F621139005D2086 /* UserMetadataHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663DC8C02F621134005D2086 /* UserMetadataHandler.swift */; };
-		673478D924128C1639690CFF /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 805522FA9F468CE465C44459 /* Pods_Quiet_QuietTests.framework */; };
 		955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955DC7572BD930B30014725B /* WebsocketSingleton.swift */; };
-		CE99A25A0E4E1440E0C42536 /* Pods_Quiet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A49D8557AFF7D73033A5FD2 /* Pods_Quiet.framework */; };
 		D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */; };
 		EB4DC7EC2F5FF6AB00EFD23F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */; };
 		EB4DC8002F608A3300EFD23F /* QuietNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -67,6 +66,7 @@
 		EB4DC8172F60A81000EFD23F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */; };
 		EB5F92FC2F5FBB2100B5C60D /* FirebaseMessagingModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */; };
 		EB5F92FD2F5FBB2100B5C60D /* FirebaseMessagingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */; };
+		F4B2150A7001269B8241CC86 /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CB1D543483316490C8FEBE9 /* Pods_Quiet_QuietTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -132,9 +132,7 @@
 		03B674042E6103DC00A86655 /* Rubik-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Regular.ttf"; path = "../src/assets/fonts/Rubik-Regular.ttf"; sourceTree = SOURCE_ROOT; };
 		03B674052E6103DC00A86655 /* Rubik-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-SemiBold.ttf"; path = "../src/assets/fonts/Rubik-SemiBold.ttf"; sourceTree = SOURCE_ROOT; };
 		03B674062E6103DC00A86655 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-SemiBoldItalic.ttf"; path = "../src/assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = SOURCE_ROOT; };
-		09783DD98C14F076599A13B4 /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Quiet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiet.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1725031A98BBEE5E8F3F6561 /* Pods_QuietNotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QuietNotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		180E120A2AEFB7F900804659 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		1827A9E129783D6E00245FD3 /* classic-level.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = "classic-level.framework"; sourceTree = "<group>"; };
 		183C484F296C7B6700BA2D8B /* v8-platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-platform.h"; sourceTree = "<group>"; };
@@ -644,17 +642,19 @@
 		18FD2A39296F009E00A2B8C0 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Quiet/main.m; sourceTree = "<group>"; };
 		18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Quiet.entitlements; path = Quiet/Quiet.entitlements; sourceTree = "<group>"; };
 		18FD2A3B296F009E00A2B8C0 /* QuietDebug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = QuietDebug.entitlements; path = Quiet/QuietDebug.entitlements; sourceTree = "<group>"; };
-		1A49D8557AFF7D73033A5FD2 /* Pods_Quiet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		58FBDCDCEEA5EACED0FF5D68 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
+		1CB1D543483316490C8FEBE9 /* Pods_Quiet_QuietTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet_QuietTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D609F9D4DF7238B86189CDC /* Pods_QuietNotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QuietNotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4656C8360BE2B6E9C1BCF8CF /* Pods_Quiet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F5C736CD3F644621489397D /* Pods-QuietNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-QuietNotificationServiceExtension/Pods-QuietNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		663DC8C02F621134005D2086 /* UserMetadataHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadataHandler.swift; sourceTree = "<group>"; };
-		72EA7AA4B77C0780A86EC300 /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
-		805522FA9F468CE465C44459 /* Pods_Quiet_QuietTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet_QuietTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Quiet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		866ADD8CCEDAE901228A8325 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
+		88791CE736EBC48C100DEECB /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		955DC7572BD930B30014725B /* WebsocketSingleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsocketSingleton.swift; sourceTree = "<group>"; };
-		C5124A51F9229F2CDC5100C0 /* Pods-QuietNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-QuietNotificationServiceExtension/Pods-QuietNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
-		CDD5E3F75BDB63D6BC806F2B /* Pods-QuietNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-QuietNotificationServiceExtension/Pods-QuietNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
+		983C2DA0FB6D06D1452AFCDF /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
+		D138F5E8F9C27CF118B62554 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		DC03A48F321B4BE2A5339F05 /* Quiet.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.xcconfig; sourceTree = SOURCE_ROOT; };
-		DE73D517F18C6E0B941FDFF2 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
+		DCB679A6329CD994279348D8 /* Pods-QuietNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-QuietNotificationServiceExtension/Pods-QuietNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		E079692B46015F1D27CDBBC1 /* Quiet.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		E079692B46015F1D27CDBBC2 /* Quiet.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.release.xcconfig; sourceTree = SOURCE_ROOT; };
 		E17A7BE86B5879902AF7BA3A /* QuietNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = QuietNotificationServiceExtension.debug.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -701,7 +701,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */,
-				673478D924128C1639690CFF /* Pods_Quiet_QuietTests.framework in Frameworks */,
+				F4B2150A7001269B8241CC86 /* Pods_Quiet_QuietTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -711,7 +711,7 @@
 			files = (
 				00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */,
 				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
-				CE99A25A0E4E1440E0C42536 /* Pods_Quiet.framework in Frameworks */,
+				6204263D91F3440F598B7BB0 /* Pods_Quiet.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -719,7 +719,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2815B731ADE0FE0C770C78E3 /* Pods_QuietNotificationServiceExtension.framework in Frameworks */,
+				4D83A3053BB0BA758B7C612D /* Pods_QuietNotificationServiceExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4782,12 +4782,12 @@
 		1CEEDB4F07B9978C125775C5 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				DE73D517F18C6E0B941FDFF2 /* Pods-Quiet.debug.xcconfig */,
-				09783DD98C14F076599A13B4 /* Pods-Quiet.release.xcconfig */,
-				72EA7AA4B77C0780A86EC300 /* Pods-Quiet-QuietTests.debug.xcconfig */,
-				58FBDCDCEEA5EACED0FF5D68 /* Pods-Quiet-QuietTests.release.xcconfig */,
-				C5124A51F9229F2CDC5100C0 /* Pods-QuietNotificationServiceExtension.debug.xcconfig */,
-				CDD5E3F75BDB63D6BC806F2B /* Pods-QuietNotificationServiceExtension.release.xcconfig */,
+				866ADD8CCEDAE901228A8325 /* Pods-Quiet.debug.xcconfig */,
+				983C2DA0FB6D06D1452AFCDF /* Pods-Quiet.release.xcconfig */,
+				88791CE736EBC48C100DEECB /* Pods-Quiet-QuietTests.debug.xcconfig */,
+				D138F5E8F9C27CF118B62554 /* Pods-Quiet-QuietTests.release.xcconfig */,
+				DCB679A6329CD994279348D8 /* Pods-QuietNotificationServiceExtension.debug.xcconfig */,
+				4F5C736CD3F644621489397D /* Pods-QuietNotificationServiceExtension.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -4797,9 +4797,9 @@
 			children = (
 				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
 				1827A9E129783D6E00245FD3 /* classic-level.framework */,
-				1A49D8557AFF7D73033A5FD2 /* Pods_Quiet.framework */,
-				805522FA9F468CE465C44459 /* Pods_Quiet_QuietTests.framework */,
-				1725031A98BBEE5E8F3F6561 /* Pods_QuietNotificationServiceExtension.framework */,
+				4656C8360BE2B6E9C1BCF8CF /* Pods_Quiet.framework */,
+				1CB1D543483316490C8FEBE9 /* Pods_Quiet_QuietTests.framework */,
+				3D609F9D4DF7238B86189CDC /* Pods_QuietNotificationServiceExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4873,12 +4873,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "QuietTests" */;
 			buildPhases = (
-				B84DABF150D7B1B5C2DF9239 /* [CP] Check Pods Manifest.lock */,
+				765F2ED3DBDDEF2FF5C056CB /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				C0311D831E5FCA078E3114A7 /* [CP] Embed Pods Frameworks */,
-				D779ACFAE5667A522EFCF468 /* [CP] Copy Pods Resources */,
+				F2CC9725101511987408ECEC /* [CP] Embed Pods Frameworks */,
+				2FF92392E3AF19C0048F19EA /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -4894,7 +4894,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Quiet" */;
 			buildPhases = (
-				669A6891CB9F7ADDDD9A98B4 /* [CP] Check Pods Manifest.lock */,
+				6B0C767FCED8729054722020 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
@@ -4907,8 +4907,8 @@
 				1827A9E0297837FE00245FD3 /* [CUSTOM NODEJS MOBILE] Remove prebuilds */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
 				EBD3273E2F5FA01F00E2CD0C /* Embed Foundation Extensions */,
-				468C008BFE8FDD32EC649A5B /* [CP] Embed Pods Frameworks */,
-				B04C9103A39CF5F564636327 /* [CP] Copy Pods Resources */,
+				45E8E1CED3ACB0A8578792B4 /* [CP] Embed Pods Frameworks */,
+				256DD21612F4D56D318DA3D7 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -4927,7 +4927,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EB4DC8022F608A3300EFD23F /* Build configuration list for PBXNativeTarget "QuietNotificationServiceExtension" */;
 			buildPhases = (
-				3D09985B32EEEAFD930419CB /* [CP] Check Pods Manifest.lock */,
+				8A70AA2C80FA5736FD665DB6 /* [CP] Check Pods Manifest.lock */,
 				EB4DC7F52F608A3300EFD23F /* Sources */,
 				EB4DC7F62F608A3300EFD23F /* Frameworks */,
 				EB4DC7F72F608A3300EFD23F /* Resources */,
@@ -5155,29 +5155,41 @@
 			shellPath = /bin/sh;
 			shellScript = "find \"$CODESIGNING_FOLDER_PATH/nodejs-project/node_modules/\" -name \"python3\" | xargs rm\n";
 		};
-		3D09985B32EEEAFD930419CB /* [CP] Check Pods Manifest.lock */ = {
+		256DD21612F4D56D318DA3D7 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-QuietNotificationServiceExtension-checkManifestLockResult.txt",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		468C008BFE8FDD32EC649A5B /* [CP] Embed Pods Frameworks */ = {
+		2FF92392E3AF19C0048F19EA /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		45E8E1CED3ACB0A8578792B4 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5194,7 +5206,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		669A6891CB9F7ADDDD9A98B4 /* [CP] Check Pods Manifest.lock */ = {
+		6B0C767FCED8729054722020 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5216,24 +5228,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B04C9103A39CF5F564636327 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B84DABF150D7B1B5C2DF9239 /* [CP] Check Pods Manifest.lock */ = {
+		765F2ED3DBDDEF2FF5C056CB /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5255,7 +5250,29 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C0311D831E5FCA078E3114A7 /* [CP] Embed Pods Frameworks */ = {
+		8A70AA2C80FA5736FD665DB6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-QuietNotificationServiceExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F2CC9725101511987408ECEC /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5270,23 +5287,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D779ACFAE5667A522EFCF468 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -5368,7 +5368,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 72EA7AA4B77C0780A86EC300 /* Pods-Quiet-QuietTests.debug.xcconfig */;
+			baseConfigurationReference = 88791CE736EBC48C100DEECB /* Pods-Quiet-QuietTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
@@ -5403,7 +5403,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 58FBDCDCEEA5EACED0FF5D68 /* Pods-Quiet-QuietTests.release.xcconfig */;
+			baseConfigurationReference = D138F5E8F9C27CF118B62554 /* Pods-Quiet-QuietTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;

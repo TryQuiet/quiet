@@ -1,8 +1,8 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { createLogger } from '../../../utils/logger'
-import { apply, call, put, select } from 'typed-redux-saga'
+import { apply, put, select } from 'typed-redux-saga'
 import { userProfileSelectors } from './userProfile.selectors'
-import { SocketActions, SocketEvents, SocketEventsMap, UserProfile, UserProfilesUpdatedPayload } from '@quiet/types'
+import { SocketActions, UserProfile, UserProfilesUpdatedPayload } from '@quiet/types'
 import { applyEmitParams, Socket } from '../../../types'
 import { usersActions } from '../users.slice'
 
@@ -16,6 +16,7 @@ export function* updateUserProfilesSaga(socket: Socket, action: PayloadAction<Us
     updates: [],
   }
   const updates = { ...existingProfiles }
+
   for (const userProfile of action.payload) {
     if (existingProfiles[userProfile.userId]) {
       const existingProfile = existingProfiles[userProfile.userId]

@@ -128,11 +128,11 @@ describe('communitiesSelectors', () => {
     expect(invitationUrl).toEqual('')
   })
 
-  it('invitationUrl selector returns proper v2 url when community and long lived invite are defined', async () => {
+  it('invitationUrl selector returns proper v4 url when community and long lived invite are defined', async () => {
     const store = prepareStore().store
     const factory = await getReduxStoreFactory(store)
 
-    logger.info('invitationUrl selector returns proper v2 url when community and long lived invite are defined')
+    logger.info('invitationUrl selector returns proper v4 url when community and long lived invite are defined')
     const psk = '12345'
     const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
     await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
@@ -179,7 +179,7 @@ describe('communitiesSelectors', () => {
     expect(selectorInvitationUrl).toEqual(expectedUrl)
   })
 
-  it('invitationUrl selector returns proper v3 url when community and long lived invite are defined and qss is enabled', async () => {
+  it('invitationUrl selector returns proper v5 url when community and long lived invite are defined and qss is enabled', async () => {
     const store = prepareStore().store
     const factory = await getReduxStoreFactory(store)
 

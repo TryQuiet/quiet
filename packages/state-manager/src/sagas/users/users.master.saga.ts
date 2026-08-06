@@ -6,6 +6,7 @@ import { saveUserProfileSaga } from './userProfile/saveUserProfile.saga'
 import { downloadProfilePhotosSaga } from './userProfile/downloadProfilePhotos.saga'
 import { createLogger } from '../../utils/logger'
 import { updateUserProfilesSaga } from './userProfile/updateUserProfiles.saga'
+import { respondCachedUserProfileSaga } from './userProfile/respondCachedUserProfile.saga'
 
 const logger = createLogger('usersMasterSaga')
 
@@ -16,6 +17,7 @@ export function* usersMasterSaga(socket: Socket): Generator {
       takeEvery(usersActions.saveUserProfile.type, saveUserProfileSaga, socket),
       takeEvery(usersActions.updateUserProfiles.type, updateUserProfilesSaga, socket),
       takeEvery(usersActions.updateUserProfiles.type, downloadProfilePhotosSaga),
+      takeEvery(usersActions.cachedUserProfileRequested.type, respondCachedUserProfileSaga),
     ])
   } finally {
     logger.info('usersMasterSaga stopping')

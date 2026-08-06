@@ -76,4 +76,31 @@ describe('checkForMessagesSaga', () => {
       )
       .run()
   })
+
+  test('creates missing message base before asking for messages', async () => {
+    const channelId = 'new-private-channel'
+    const messageId = 'created-private-channel-message'
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMessagesSaga,
+      messagesActions.checkForMessages({
+        ids: [messageId],
+        channelId,
+        communityId: community.id,
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(messagesActions.addPublicChannelsMessagesBase({ channelId }))
+      .put(
+        messagesActions.getMessages({
+          peerId: alice.networkInfo.peerId.id,
+          communityId: community.id,
+          channelId,
+          ids: [messageId],
+        })
+      )
+      .run()
+  })
 })

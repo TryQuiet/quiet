@@ -1,4 +1,4 @@
-import { FileMetadata } from '@quiet/types'
+import { FileMetadata, type ConsumedChannelMessage } from '@quiet/types'
 import { EncryptedPayload, Signature } from '../../../auth/services/crypto/types'
 
 export interface EncryptableMessageComponents {
@@ -10,6 +10,8 @@ export interface EncryptableMessageComponents {
   signature?: string
   pubKey?: string
   media?: FileMetadata
+  teamId: string
+  createdAt: number
 }
 
 export interface EncryptedMessage {
@@ -20,3 +22,10 @@ export interface EncryptedMessage {
   teamId: string
   encSignature: Signature
 }
+
+export const SHARED_FIELDS: (keyof EncryptedMessage & keyof ConsumedChannelMessage)[] = [
+  'id',
+  'teamId',
+  'channelId',
+  'createdAt',
+]

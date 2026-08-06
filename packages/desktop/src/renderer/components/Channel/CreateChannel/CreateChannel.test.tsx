@@ -44,6 +44,7 @@ describe('Add new channel', () => {
     await factory.create('Identity', {
       nickname: 'alice',
     })
+    await factory.create('ChannelPermissions')
 
     renderComponent(<CreateChannel />, store)
 
@@ -77,6 +78,14 @@ describe('Add new channel', () => {
   })
 
   it('user provides proper name', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork State-manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('ChannelPermissions')
+
     renderComponent(
       <CreateChannelComponent
         open={true}
@@ -117,6 +126,24 @@ describe('Add new channel', () => {
   })
 
   it(`user doesn't have permissions to create private channel`, async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork State-manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('ChannelPermissions', {
+      genericPermissions: {
+        public: {
+          create: true,
+          delete: true,
+        },
+        private: {
+          create: false,
+        },
+      },
+    })
+
     const result = renderComponent(
       <CreateChannelComponent
         open={true}
@@ -295,6 +322,7 @@ describe('Add new channel', () => {
 
     const factory = await getReduxStoreFactory(store)
     const alice = await factory.create<Identity>('Identity')
+    await factory.create('ChannelPermissions')
 
     renderComponent(<CreateChannel />, store)
 
@@ -318,6 +346,14 @@ describe('Add new channel', () => {
     ['spaces to hyphens', 'spaces-to-hyphens'],
     ['!@#$%^&*()', '----------'],
   ])('user inserting wrong channel name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork State-manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('ChannelPermissions')
+
     renderComponent(
       <CreateChannelComponent
         open={true}

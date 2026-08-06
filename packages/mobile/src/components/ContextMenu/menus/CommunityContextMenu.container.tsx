@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { NativeModules, Platform } from 'react-native'
 
@@ -28,11 +28,13 @@ const logger = createLogger('CommunityContextMenu')
 export const CommunityContextMenu: FC = () => {
   const dispatch = useDispatch()
 
+  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
+
   const screen = useSelector(navigationSelectors.currentScreen)
 
   const community = useSelector(communities.selectors.currentCommunity)
   const backgroundTorEnabled = useSelector(pushNotificationsSelectors.backgroundTorEnabled)
-  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
 
   let title = '...'
   if (community?.name) {
@@ -52,6 +54,10 @@ export const CommunityContextMenu: FC = () => {
     },
     [dispatch]
   )
+
+  useEffect(() => {
+    setCanCreateChannel(channelPermissions.public.create)
+  }, [channelPermissions])
 
   const toggleBackgroundTor = useCallback(async () => {
     const nextValue = !backgroundTorEnabled

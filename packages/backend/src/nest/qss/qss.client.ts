@@ -82,7 +82,7 @@ export class QSSClient extends EventEmitter {
   /**
    * Create and connect a socket.io socket to QSS
    *
-   * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V3 invites
+   * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V5 invites
    * @returns Connected socket.io socket instance
    */
   public async createSocketAndConnect(qssEndpoint: string | undefined): Promise<ClientSocket> {

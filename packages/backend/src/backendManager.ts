@@ -15,9 +15,18 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import { randomBytes } from 'crypto'
 import { sleep } from './nest/common/sleep'
 import { type BackendLeaveCommunityMessage } from '@quiet/types'
+import { MobileLifecycleCoordinator } from './mobile-lifecycle-coordinator'
 
 // Shutdown helper constants
 const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
+
+const parseMobilePort = (value: unknown, name: string): number => {
+  const port = Number(value)
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new Error(`Invalid mobile ${name}`)
+  }
+  return port
+}
 
 const logger = createLogger('backendManager')
 
@@ -232,13 +241,21 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString()
 
+  const socketIOPort = parseMobilePort(options.dataPort, 'data port')
+  const httpTunnelPort = options.httpTunnelPort
+    ? parseMobilePort(options.httpTunnelPort, 'HTTP tunnel port')
+    : undefined
+  const torControlPort = options.controlPort
+    ? parseMobilePort(options.controlPort, 'Tor control port')
+    : await getPort()
+
   const app: INestApplicationContext = await NestFactory.createApplicationContext(
     AppModule.forOptions({
-      socketIOPort: options.dataPort,
+      socketIOPort,
       socketIOSecret: secret,
-      httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
+      httpTunnelPort,
       torAuthCookie: options.authCookie ? options.authCookie : null,
-      torControlPort: options.controlPort ? options.controlPort : await getPort(),
+      torControlPort,
       torBinaryPath: options.torBinary ? options.torBinary : null,
       options: {
         env: {
@@ -249,11 +266,29 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
     }),
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
   )
-  let proxyAgent: HttpsProxyAgent<string> | undefined
+  const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+  const tor = app.get<Tor>(Tor)
+  const proxyAgent = app.get<HttpsProxyAgent<string>>(SOCKS_PROXY_AGENT)
+  const mobileLifecycle = new MobileLifecycleCoordinator({
+    pause: async () => connectionsManager.pause(),
+    activate: async (msg: OpenServices) => {
+      const torControlPort = parseMobilePort(msg.torControlPort, 'Tor control port')
+      const httpTunnelPort = parseMobilePort(msg.httpTunnelPort, 'HTTP tunnel port')
+      tor.rewireNativeTor({
+        controlPort: torControlPort,
+        httpTunnelPort,
+        authCookie: msg.authCookie,
+      })
+      proxyAgent.connectOpts.port = httpTunnelPort
+      proxyAgent.proxy.port = httpTunnelPort.toString()
+      await connectionsManager.resume()
+    },
+  })
   let shutdownRequestedFromBridge = false
   rn_bridge.channel.on('close', () => {
-    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    connectionsManager.pause()
+    void mobileLifecycle.pause().catch(error => {
+      logger.error('Failed to pause mobile services', error)
+    })
   })
   rn_bridge.channel.on('hibernate', async () => {
     logger.info('Received hibernate message from RN bridge')
@@ -276,19 +311,9 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
     }
   })
   rn_bridge.channel.on('open', (msg: OpenServices) => {
-    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    const tor = app.get<Tor>(Tor)
-    proxyAgent = app.get<HttpsProxyAgent<string>>(SOCKS_PROXY_AGENT)
-    const torControlPort = Number(msg.torControlPort)
-    const httpTunnelPort = Number(msg.httpTunnelPort)
-    tor.rewireNativeTor({
-      controlPort: torControlPort,
-      httpTunnelPort,
-      authCookie: msg.authCookie,
+    void mobileLifecycle.activate(msg).catch(error => {
+      logger.error('Failed to activate mobile services', error)
     })
-    proxyAgent.connectOpts.port = httpTunnelPort
-    proxyAgent.proxy.port = httpTunnelPort.toString()
-    connectionsManager.resume()
   })
   const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
   rn_bridge.channel.on('shutdown', async () => {

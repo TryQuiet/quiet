@@ -9,7 +9,7 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { DateTime } from 'luxon'
 import { deleteChannelSaga } from './deleteChannel.saga'
 import { type Socket } from '../../../types'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { filesActions } from '../../files/files.slice'
 import {
   type Community,
@@ -62,7 +62,7 @@ describe('deleteChannelSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
     ).channel

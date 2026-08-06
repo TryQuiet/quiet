@@ -99,9 +99,7 @@ describe('Switch channels', () => {
     }
   })
 
-  // TODO: Re-enable when private channels are unhidden in the UI. Uses a private "pets" channel,
-  // which is now hidden from the sidebar.
-  it.skip('Opens another channel', async () => {
+  it('Opens another channel', async () => {
     const generalChannelMessage = await factory.create('TestMessage', {
       // @ts-expect-error
       message: generateMessageFactoryContentWithId(generalId, alice.userId),
@@ -155,9 +153,7 @@ describe('Switch channels', () => {
     expect(message).toBeVisible()
   })
 
-  // TODO: Re-enable when private channels are unhidden in the UI. Asserts the private "pets" channel
-  // highlight, which is now hidden from the sidebar.
-  it.skip('Highlights channel with unread messages and removes the highlight when entered', async () => {
+  it('Highlights channel with unread messages and removes the highlight when entered', async () => {
     const messagesIds = ['memes', 'pets']
     const messages: ChannelMessage[] = []
 

@@ -20,7 +20,7 @@ import {
   SendingStatus,
   MessageType,
 } from '@quiet/types'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 import { uploadFileSaga } from './attachFile.saga'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
@@ -58,7 +58,7 @@ describe('uploadFileSaga', () => {
           description: 'Welcome to #comics',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('comics'),
+          id: generateTestChannelId('comics'),
         },
       })
     ).channel

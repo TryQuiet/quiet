@@ -22,7 +22,7 @@ import {
   FileMetadata,
 } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
 import { createLogger } from '../../../utils/logger'
 
@@ -63,7 +63,7 @@ describe('downloadedFileSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).channel

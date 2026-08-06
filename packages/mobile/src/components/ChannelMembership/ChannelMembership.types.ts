@@ -8,6 +8,7 @@ export interface ChannelMembershipProps {
   userProfiles: Record<string, UserProfile>
   members: UserProfile[] | undefined
   memberCount: number | undefined
+  canAddMembers: boolean
   handleBackButton: () => void
 }
 

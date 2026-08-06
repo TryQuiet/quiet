@@ -16,12 +16,13 @@ import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
 
 export const ChannelContextMenu: FC = () => {
   const [showDebug, setShowDebug] = useState<boolean>(false)
-  const [isChannelOwner, setIsChannelOwner] = useState<boolean>(false)
+  const [canDelete, setCanDelete] = useState<boolean>(false)
+  const [canAddMembers, setCanAddMembers] = useState<boolean>(false)
 
-  const isOwner = useSelector(communities.selectors.isOwner)
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
-  const me = useSelector(users.selectors.myUserProfile)
+  const genericChannelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
+  const currentChannelPermissions = useSelector(publicChannels.selectors.currentChannelPermissions)
 
   let title = ''
   if (channel) {
@@ -36,11 +37,27 @@ export const ChannelContextMenu: FC = () => {
   const items: ContextMenuItemProps[] = []
 
   useEffect(() => {
-    setIsChannelOwner(me != null && channel != null && channel.owner === me.userId)
-  }, [channel, me])
+    if (channel == null) {
+      setCanAddMembers(false)
+      setCanDelete(false)
+      return
+    }
 
-  // TODO: update this to actually use the LFA admin role
-  if (!(channel?.public ?? true)) {
+    if (channel.public ?? true) {
+      setCanAddMembers(false)
+      setCanDelete(genericChannelPermissions.public.delete)
+    } else {
+      if (currentChannelPermissions == null) {
+        setCanAddMembers(false)
+        setCanDelete(false)
+      } else {
+        setCanAddMembers(currentChannelPermissions.addMembers)
+        setCanDelete(currentChannelPermissions.delete)
+      }
+    }
+  }, [channel, genericChannelPermissions, currentChannelPermissions])
+
+  if (canAddMembers === true) {
     items.push({
       title: 'Add members',
       action: () => {
@@ -50,7 +67,7 @@ export const ChannelContextMenu: FC = () => {
     })
   }
 
-  if (isOwner) {
+  if (canDelete) {
     items.push({
       title: 'Delete',
       action: () => {

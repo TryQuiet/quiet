@@ -429,7 +429,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
         Context context = reactContext.getApplicationContext();
         try {
-            FileUtils.deleteDirectory(new File(context.getFilesDir(), "backend/files7"));
+            FileUtils.deleteDirectory(new File(context.getFilesDir(), "backend/files8"));
         } catch (IOException e) {
             Log.e("CommunicationModule", e.toString());
         }

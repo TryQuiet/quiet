@@ -11,7 +11,7 @@ import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import {
   type Community,
@@ -59,7 +59,7 @@ describe('autoDownloadFilesSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).channel

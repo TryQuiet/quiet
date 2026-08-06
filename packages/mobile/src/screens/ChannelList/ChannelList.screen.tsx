@@ -2,7 +2,6 @@ import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { communities, identity, publicChannels } from '@quiet/state-manager'
-import { getChannelNameFromChannelId } from '@quiet/common'
 
 import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
@@ -70,27 +69,24 @@ export const ChannelListScreen: FC = () => {
 
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
 
-  // Hide private channels from the UI
-  const tiles = channelsStatusSorted
-    .filter(status => (status.public ?? true) !== false)
-    .map(status => {
-      const newestMessage = status.newestMessage
+  const tiles = channelsStatusSorted.map(status => {
+    const newestMessage = status.newestMessage
 
-      const message = newestMessage?.message || '...'
-      const date = newestMessage?.createdAt ? formatTileDate(newestMessage.createdAt) : undefined
+    const message = newestMessage?.message || '...'
+    const date = newestMessage?.createdAt ? formatTileDate(newestMessage.createdAt) : undefined
 
-      const tile: ChannelTileProps = {
-        name: getChannelNameFromChannelId(status.id),
-        isPublic: status.public ?? true,
-        id: status.id,
-        message,
-        date,
-        unread: status.unread,
-        redirect,
-      }
+    const tile: ChannelTileProps = {
+      name: status.name,
+      isPublic: status.public ?? true,
+      id: status.id,
+      message,
+      date,
+      unread: status.unread,
+      redirect,
+    }
 
-      return tile
-    })
+    return tile
+  })
 
   const communityContextMenu = useContextMenu(MenuName.Community)
 

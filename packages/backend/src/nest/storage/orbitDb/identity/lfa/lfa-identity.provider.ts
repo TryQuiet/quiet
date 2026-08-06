@@ -115,7 +115,7 @@ class LFAIdentityProvider implements IdentityProvider {
     const sigchain = this.sigchainService.getChain(teamId, true)
     const user = sigchain.users.getUserById(userId, { includeRemoved, throwOnMissing: true })
     return {
-      user: user!,
+      user,
       sigchain,
     }
   }

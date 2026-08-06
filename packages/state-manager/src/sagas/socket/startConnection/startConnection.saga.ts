@@ -31,12 +31,15 @@ import {
   type RemoveDownloadStatus,
   type ChannelSubscribedPayload,
   type UserProfilesStoredEvent,
+  type CachedUserProfileRequest,
+  type CachedUserProfileResponse,
   type UsersUpdatedEvent,
   SocketEvents,
   LaunchCommunityPayload,
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
   UpdateCommunityPayload,
+  type SetChannelPermissionsPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -64,6 +67,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
+    | ReturnType<typeof publicChannelsActions.setChannelPermissions>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.updateIdentity>
@@ -93,6 +97,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof usersActions.updateUserProfiles>
+    | ReturnType<typeof usersActions.cachedUserProfileRequested>
     | ReturnType<typeof appActions.loadMigrationData>
     | ReturnType<typeof captchaActions.presentChallenge>
     | ReturnType<typeof captchaActions.setSiteKey>
@@ -165,6 +170,10 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.CHANNEL_SUBSCRIBED}`, payload)
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
+    socket.on(SocketEvents.CHANNEL_PERMISSIONS_UPDATED, (payload: SetChannelPermissionsPayload) => {
+      logger.info(`${SocketEvents.CHANNEL_PERMISSIONS_UPDATED}`, payload)
+      emit(publicChannelsActions.setChannelPermissions(payload))
+    })
     // Messages
     socket.on(SocketEvents.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
       logger.info(`${SocketEvents.MESSAGE_IDS_STORED}`, payload)
@@ -210,6 +219,22 @@ export function subscribe(socket: Socket) {
       emit(usersActions.updateUserProfiles(payload.profiles))
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
+    socket.on(
+      SocketEvents.CACHED_USER_PROFILE_REQUEST,
+      (payload: CachedUserProfileRequest, callback?: (response: CachedUserProfileResponse) => void) => {
+        logger.info(`${SocketEvents.CACHED_USER_PROFILE_REQUEST}`, payload.userId)
+        if (!callback) {
+          logger.warn(`${SocketEvents.CACHED_USER_PROFILE_REQUEST} missing response callback`, payload.userId)
+          return
+        }
+        emit(
+          usersActions.cachedUserProfileRequested({
+            userId: payload.userId,
+            callback,
+          })
+        )
+      }
+    )
 
     socket.on(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, (payload: HCaptchaChallengeRequest) => {
       logger.info(`${SocketEvents.HCAPTCHA_CHALLENGE_REQUEST}`, JSON.stringify(payload))
@@ -246,6 +271,7 @@ export function subscribe(socket: Socket) {
       socket.off(SocketEvents.USERS_UPDATED)
       socket.off(SocketEvents.USERS_REMOVED)
       socket.off(SocketEvents.USER_PROFILES_STORED)
+      socket.off(SocketEvents.CACHED_USER_PROFILE_REQUEST)
       socket.off(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST)
       socket.off(SocketEvents.HCAPTCHA_SITE_KEY)
       socket.off(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE)

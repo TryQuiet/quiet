@@ -114,6 +114,38 @@ class RoleService extends ChainServiceBase {
     return this.sigChain.team!.membersInRole(roleName)
   }
 
+  public canMemberCreateRole(memberId: string): boolean {
+    return this.sigChain.team!.memberCanCreateRole(memberId)
+  }
+
+  public canICreateRole(): boolean {
+    return this.canMemberCreateRole(this.sigChain.user.userId)
+  }
+
+  public canMemberAddMembersRole(memberId: string, roleName: string): boolean {
+    return this.sigChain.team!.memberCanAddMembersToRole(roleName, memberId)
+  }
+
+  public canIAddMembersToRole(roleName: string): boolean {
+    return this.canMemberAddMembersRole(this.sigChain.user.userId, roleName)
+  }
+
+  public canMemberRemoveMembersFromRole(memberId: string, roleName: string): boolean {
+    return this.sigChain.team!.memberCanRemoveMembersFromRole(roleName, memberId)
+  }
+
+  public canIRemoveMembersFromRole(roleName: string): boolean {
+    return this.canMemberRemoveMembersFromRole(this.sigChain.user.userId, roleName)
+  }
+
+  public canMemberDeleteRole(memberId: string, roleName: string): boolean {
+    return this.sigChain.team!.memberCanDeleteRole(roleName, memberId)
+  }
+
+  public canIDeleteRole(roleName: string): boolean {
+    return this.canMemberDeleteRole(this.sigChain.user.userId, roleName)
+  }
+
   private roleToQuietRole(role: Role): QuietRole {
     const members = this.sigChain.roles.getMembersForRole(role.roleName)
     const hasRole = this.sigChain.roles.amIMemberOfRole(role.roleName as RoleName)

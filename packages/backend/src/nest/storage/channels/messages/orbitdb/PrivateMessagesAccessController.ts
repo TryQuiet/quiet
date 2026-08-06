@@ -15,6 +15,7 @@ const TYPE = 'privatemessagesaccess'
 export interface PrivateAccessControllerConfig extends AccessControllerConfig {
   channelId: string
   teamId: string
+  roleName: string
 }
 
 @Injectable()
@@ -67,13 +68,18 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      if (!sigchain.channels.memberInChannel(id, config.channelId)) {
+      if (!sigchain.channels.memberInChannel(id, config.roleName)) {
         this.logger.warn(
           `User is not a member of the channel, skipping log append`,
           id,
           config.teamId,
           config.channelId
         )
+        return false
+      }
+
+      if (config.roleName !== entry.payload.value.contents.scope.name) {
+        this.logger.warn(`Message was encrypted to a different scope than the one configured on the channel`)
         return false
       }
 

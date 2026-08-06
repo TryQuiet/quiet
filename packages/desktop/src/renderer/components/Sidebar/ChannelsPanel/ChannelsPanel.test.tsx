@@ -7,7 +7,7 @@ import { getReduxStoreFactory, publicChannels, communities, identity, users } fr
 import ChannelsPanel from './ChannelsPanel'
 import DirectMessagesPanel from '../DirectMessagesPanel/DirectMessagesPanel'
 import { DateTime } from 'luxon'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { Identity, UserProfile } from '@quiet/types'
 import { createLogger } from '../../../logger'
 
@@ -78,7 +78,7 @@ describe('Channels panel', () => {
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId(name),
+          id: generateTestChannelId(name),
           public: isPublic,
         },
       })

@@ -61,6 +61,14 @@ export interface UserProfilesStoredEvent {
   profiles: UserProfile[]
 }
 
+export interface CachedUserProfileRequest {
+  userId: string
+}
+
+export interface CachedUserProfileResponse {
+  profile?: UserProfile
+}
+
 export interface UserProfilesUpdatedPayload {
   new: UserProfile[]
   updates: UserProfile[]
