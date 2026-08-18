@@ -333,14 +333,21 @@ tasks.register("copyDownloadableDepsToLibs", Copy) {
 // Keys are matched by dotenv.gradle's getCurrentFlavor(), which captures the
 // trailing CamelCase segment of the gradle task name and lowercases it (e.g.
 // installStandardDebug -> "standarddebug"). With product flavors in play the
-// bare buildType keys ("debug", "release") never match, so keys must include
-// the flavor prefix.
+// bare buildType keys ("debug", "release") never match flavor-qualified task
+// names, so those keys are also listed. But some invocations (e.g. plain
+// "assembleDebug", which Android Studio's Make/Run actions can issue) omit
+// the flavor entirely and only resolve to "debug"/"release" - without a
+// fallback here, no env file matches, no BuildConfig fields get generated,
+// and the app fails to compile with "Unresolved reference" errors. The bare
+// keys below cover that case, defaulting to the "standard" flavor's env files.
 project.ext.envConfigFiles = [
         standarddebug   : ".env.development",
         standardrelease : ".env.staging",
         standardprod    : ".env.production",
         storybookdebug  : ".env.storybook",
         storybookrelease: ".env.storybook",
+        debug           : ".env.development",
+        release         : ".env.staging",
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
