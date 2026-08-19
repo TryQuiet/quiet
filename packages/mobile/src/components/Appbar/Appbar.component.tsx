@@ -81,7 +81,7 @@ export const Appbar: FC<AppbarProps> = ({
             }}
             testID={'open_menu'}
           >
-            <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', width: 64, height: 50 }}>
               <Image
                 source={menu_icon}
                 resizeMode='contain'
@@ -102,7 +102,7 @@ export const Appbar: FC<AppbarProps> = ({
             }}
             testID={'submit'}
           >
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', width: 64, height: 50 }}>
               <Typography style={{ color: defaultTheme.palette.typography.blue }} fontSize={16}>
                 Done
               </Typography>

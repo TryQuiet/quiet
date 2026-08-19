@@ -314,6 +314,7 @@ exports[`Chat component renders component 1`] = `
           style={
             {
               "alignItems": "center",
+              "height": 50,
               "justifyContent": "center",
               "width": 64,
             }

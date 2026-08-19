@@ -1,4 +1,5 @@
 import React from 'react'
+import { ReactTestInstance } from 'react-test-renderer'
 
 import { useContextMenu } from '../../hooks/useContextMenu'
 
@@ -326,6 +327,7 @@ describe('Appbar component', () => {
               style={
                 {
                   "alignItems": "center",
+                  "height": 50,
                   "justifyContent": "center",
                   "width": 64,
                 }
@@ -351,5 +353,16 @@ describe('Appbar component', () => {
         </View>
       </View>
     `)
+  })
+
+  it('renders submit button with a touch target that meets the accessibility minimum', () => {
+    const { getByTestId } = renderComponent(<Appbar title={'quiet'} submit={() => {}} />)
+
+    const submitButtonView = getByTestId('submit').children[0] as ReactTestInstance
+
+    expect(submitButtonView.props.style).toMatchObject({
+      width: 64,
+      height: 50,
+    })
   })
 })
