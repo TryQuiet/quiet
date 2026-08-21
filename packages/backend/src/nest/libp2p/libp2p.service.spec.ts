@@ -1,21 +1,28 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { jest } from '@jest/globals'
 import { TestModule } from '../common/test.module'
-import { generateLibp2pPSK, LIBP2P_PSK_METADATA, libp2pInstanceParams } from '../common/utils'
+import { createPeerId, generateLibp2pPSK, LIBP2P_PSK_METADATA, libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from './libp2p.module'
 import { Libp2pService } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
+import { Libp2pConnectionGater } from './libp2p.connection-gater'
+import type { Peer, PeerId, PendingDial } from '@libp2p/interface'
+import { multiaddr } from '@multiformats/multiaddr'
 
 describe('Libp2pService', () => {
   let module: TestingModule
   let libp2pService: Libp2pService
   let params: Libp2pNodeParams
+  let connectionGater: Libp2pConnectionGater
 
-  const localPeerAddress = '/dns4/local.onion/tcp/80/ws/p2p/local-peer'
-  const remotePeerAddress = '/dns4/remote.onion/tcp/80/ws/p2p/remote-peer'
-  const connectedRemotePeerAddress = '/dns4/connected-remote.onion/tcp/80/ws/p2p/remote-peer'
+  let localPeerAddress: string
+  let remotePeerAddress: string
+  let connectedRemotePeerAddress: string
+  let localPeerId: PeerId
+  let remotePeerId: PeerId
+  let connectedRemotePeerId: PeerId
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -24,6 +31,15 @@ describe('Libp2pService', () => {
 
     libp2pService = await module.resolve(Libp2pService)
     params = await libp2pInstanceParams()
+    connectionGater = await module.resolve(Libp2pConnectionGater)
+
+    localPeerId = params.peerId.peerId
+    remotePeerId = (await createPeerId()).peerId
+    connectedRemotePeerId = (await createPeerId()).peerId
+
+    localPeerAddress = `/dns4/local.onion/tcp/80/ws/p2p/${localPeerId.toString()}`
+    remotePeerAddress = `/dns4/remote.onion/tcp/80/ws/p2p/${remotePeerId.toString()}`
+    connectedRemotePeerAddress = `/dns4/connected-remote.onion/tcp/80/ws/p2p/${connectedRemotePeerId.toString()}`
   })
 
   beforeEach(() => {
@@ -86,8 +102,8 @@ describe('Libp2pService', () => {
 
   it('redials explicit peers once and hangs up their active connected address', async () => {
     const getSortedPeers = jest.spyOn((libp2pService as any).localDbService, 'getSortedPeers')
-    libp2pService.connectedPeers.set('remote-peer', {
-      peerId: 'remote-peer',
+    libp2pService.connectedPeers.set(connectedRemotePeerId.toString(), {
+      peerId: connectedRemotePeerId.toString(),
       address: connectedRemotePeerAddress,
       connectedAtSeconds: 1,
     })
@@ -97,7 +113,79 @@ describe('Libp2pService', () => {
     await libp2pService.redialPeers([remotePeerAddress, remotePeerAddress, localPeerAddress])
 
     expect(getSortedPeers).not.toHaveBeenCalled()
-    expect(hangUpPeers).toHaveBeenCalledWith([connectedRemotePeerAddress])
+    expect(hangUpPeers).toHaveBeenCalledWith([remotePeerAddress])
     expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
+  })
+
+  it('pauses libp2p and hangs up on all peers, clears dial queue, clears peer store, and pauses connection gater', async () => {
+    jest
+      .spyOn((libp2pService as any).localDbService, 'getSortedPeers')
+      .mockResolvedValue([remotePeerAddress, localPeerAddress])
+    const hangUpPeersSpy = jest.spyOn(libp2pService, 'hangUpPeers').mockImplementationOnce(async (peers?: string[]) => {
+      const peersToHangUp = peers ?? [remotePeerAddress]
+      for (const peer of peersToHangUp) {
+        libp2pService.dialedPeers.delete(peer)
+        libp2pService.connectedPeers.delete(multiaddr(peer).getPeerId()!)
+      }
+    })
+    const hangUpPeerSpy = jest.spyOn(libp2pService, 'hangUpPeer')
+    const dialPeersSpy = jest
+      .spyOn(libp2pService, 'dialPeers')
+      .mockImplementationOnce(async (peerAddresses: string[]) => {
+        for (const address of peerAddresses) {
+          if (address !== localPeerAddress) {
+            libp2pService.dialedPeers.add(address)
+            libp2pService.connectedPeers.set(remotePeerId.toString(), {
+              peerId: remotePeerId.toString(),
+              address: remotePeerAddress,
+              connectedAtSeconds: 1,
+            })
+          }
+        }
+      })
+    const pauseConnectionGaterSpy = jest.spyOn(connectionGater, 'pauseConnections')
+    await libp2pService.createInstance(params)
+    const allPeersSpy = jest.spyOn(libp2pService.libp2pInstance!.peerStore, 'all').mockImplementationOnce(async () => {
+      return [
+        {
+          id: remotePeerId,
+          addresses: [{ multiaddr: multiaddr(remotePeerAddress), isCertified: true }],
+          metadata: new Map(),
+          protocols: [],
+          tags: new Map(),
+        },
+        {
+          id: localPeerId,
+          address: [{ multiaddr: multiaddr(localPeerAddress), isCertified: true }],
+          metadata: new Map(),
+          protocols: [],
+          tags: new Map(),
+        },
+      ] as Peer[]
+    })
+    const deletePeerSpy = jest.spyOn(libp2pService.libp2pInstance!.peerStore, 'delete')
+    const pendingDialQueueSpy = jest.spyOn(libp2pService.libp2pInstance!, 'getDialQueue').mockImplementationOnce(() => {
+      return [
+        { id: remotePeerId.toString(), multiaddrs: [multiaddr(remotePeerAddress)], status: 'queued' },
+      ] as PendingDial[]
+    })
+
+    await libp2pService.dialPeers([remotePeerAddress])
+    expect(dialPeersSpy).toHaveBeenCalledWith([remotePeerAddress])
+    expect(libp2pService.dialedPeers.size).toBe(1)
+    expect(libp2pService.connectedPeers.size).toBe(1)
+
+    await libp2pService.pause()
+    expect(hangUpPeersSpy).toHaveBeenCalled()
+    expect(libp2pService.dialedPeers.size).toBe(0)
+    expect(libp2pService.connectedPeers.size).toBe(0)
+    expect(pauseConnectionGaterSpy).toHaveBeenCalledTimes(1)
+    expect(allPeersSpy).toHaveBeenCalledTimes(1)
+    expect(deletePeerSpy).toHaveBeenCalledTimes(2)
+    expect(deletePeerSpy).toHaveBeenCalledWith(remotePeerId)
+    expect(deletePeerSpy).not.toHaveBeenCalledWith(localPeerId)
+    expect(pendingDialQueueSpy).toHaveBeenCalledTimes(1)
+    expect(hangUpPeerSpy).toHaveBeenCalledTimes(1)
+    expect(hangUpPeerSpy).toHaveBeenCalledWith(remotePeerAddress, false)
   })
 })

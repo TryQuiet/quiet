@@ -262,7 +262,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
         if (i === 0) {
           await initOrbitDb(i)
         }
-        libp2pService.pauseDialQueue()
+        await libp2pService.pauseDialQueue()
       })
     )
     // Attach event listeners to all libp2p service instances
@@ -613,7 +613,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     await orbitDbService.create(ipfsService.ipfsInstance!)
     await channelsService.init()
 
-    libp2pService.pauseDialQueue()
+    await libp2pService.pauseDialQueue()
     eventTimelines[N_PEERS] = []
     attachEventListeners(await modules[N_PEERS].get(Libp2pService), eventTimeline, `${N_PEERS}`)
     attachEventListeners(await modules[N_PEERS].get(Libp2pService), eventTimelines[N_PEERS], `${N_PEERS}`)

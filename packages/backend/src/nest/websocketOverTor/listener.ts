@@ -21,15 +21,18 @@ import type {
   Libp2pEvents,
   Upgrader,
   MultiaddrConnection,
+  ConnectionGater,
 } from '@libp2p/interface'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { DuplexWebSocket } from 'it-ws/duplex'
 import type { Server } from 'node:http'
 import { createServer, type WebSocketServer } from 'it-ws/server'
+import { peerIdFromString } from '@libp2p/peer-id'
 
 export interface WebSocketListenerComponents {
   logger: ComponentLogger
   events: TypedEventTarget<Libp2pEvents>
+  connectionGater: ConnectionGater
   metrics?: Metrics
 }
 
@@ -64,6 +67,7 @@ export class WebSocketListener extends TypedEventEmitter<ListenerEvents> impleme
   private init: WebSocketListenerInit
   private readonly components: WebSocketListenerComponents
   private readonly connections: Set<DuplexWebSocket>
+  private readonly connectionGater: ConnectionGater
 
   constructor(components: WebSocketListenerComponents, init: WebSocketListenerInit) {
     super()
@@ -78,6 +82,7 @@ export class WebSocketListener extends TypedEventEmitter<ListenerEvents> impleme
     this.init = init
     this.connections = new Set<DuplexWebSocket>()
     this.http = init.server ?? http.createServer(this.httpOptions ?? {})
+    this.connectionGater = this.components.connectionGater
 
     this.wsServer = createServer({
       ...this.init,
