@@ -31,6 +31,8 @@ export const Appbar: FC<AppbarProps> = ({
             if (back) back()
           }}
           testID={'appbar_action_item'}
+          accessibilityRole={back ? 'button' : undefined}
+          accessibilityLabel={back ? (crossBackIcon ? 'Close' : 'Go back') : undefined}
         >
           <View
             style={{
@@ -45,6 +47,7 @@ export const Appbar: FC<AppbarProps> = ({
                 source={crossBackIcon ? cross_icon : arrow_icon}
                 resizeMode='cover'
                 resizeMethod='resize'
+                accessible={false}
                 style={{
                   width: 16,
                   height: 16,
@@ -80,12 +83,15 @@ export const Appbar: FC<AppbarProps> = ({
               contextMenu.handleOpen()
             }}
             testID={'open_menu'}
+            accessibilityRole='button'
+            accessibilityLabel='More options'
           >
             <View style={{ justifyContent: 'center', alignItems: 'center', width: 64, height: 50 }}>
               <Image
                 source={menu_icon}
                 resizeMode='contain'
                 resizeMethod='resize'
+                accessible={false}
                 style={{
                   width: 16,
                   height: 16,
@@ -102,7 +108,7 @@ export const Appbar: FC<AppbarProps> = ({
             }}
             testID={'submit'}
           >
-            <View style={{ justifyContent: 'center', alignItems: 'center', width: 64, height: 50 }}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', minWidth: 64, height: 50 }}>
               <Typography style={{ color: defaultTheme.palette.typography.blue }} fontSize={16}>
                 Done
               </Typography>

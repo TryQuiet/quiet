@@ -39,6 +39,8 @@ describe('DuplicatedUsername component', () => {
             }
           >
             <View
+              accessibilityLabel="Close"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -84,6 +86,7 @@ describe('DuplicatedUsername component', () => {
                 }
               >
                 <Image
+                  accessible={false}
                   resizeMethod="resize"
                   resizeMode="cover"
                   source={
