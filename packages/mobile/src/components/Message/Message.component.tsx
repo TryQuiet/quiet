@@ -15,6 +15,10 @@ import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 import { DateTime } from 'luxon'
 import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
+import { isAllEmoji } from '@quiet/common'
+
+const DEFAULT_MESSAGE_FONT_SIZE = 14
+const EMOJI_ONLY_MESSAGE_FONT_SIZE = 28
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
@@ -91,6 +95,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
       }
       default: {
         const color = pending ? 'lightGray' : 'main'
+        const messageFontSize = isAllEmoji(message.message) ? EMOJI_ONLY_MESSAGE_FONT_SIZE : DEFAULT_MESSAGE_FONT_SIZE
 
         const markdownRules = {
           image: (
@@ -111,7 +116,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             </Text>
           ),
           paragraph: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => (
-            <Typography fontSize={14} color={color} testID={message.message}>
+            <Typography fontSize={messageFontSize} color={color} testID={message.message}>
               {children}
             </Typography>
           ),
