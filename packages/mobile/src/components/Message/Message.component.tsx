@@ -15,7 +15,8 @@ import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 import { DateTime } from 'luxon'
 import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
-import { isAllEmoji } from '@quiet/common'
+import { hasEmoji, isAllEmoji } from '@quiet/common'
+import { isPlainMessageText, renderWithInlineEmoji } from './Message.utils'
 
 const DEFAULT_MESSAGE_FONT_SIZE = 14
 const EMOJI_ONLY_MESSAGE_FONT_SIZE = 28
@@ -95,7 +96,8 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
       }
       default: {
         const color = pending ? 'lightGray' : 'main'
-        const messageFontSize = isAllEmoji(message.message) ? EMOJI_ONLY_MESSAGE_FONT_SIZE : DEFAULT_MESSAGE_FONT_SIZE
+        const isEmojiOnlyMessage = isAllEmoji(message.message)
+        const messageFontSize = isEmojiOnlyMessage ? EMOJI_ONLY_MESSAGE_FONT_SIZE : DEFAULT_MESSAGE_FONT_SIZE
 
         const markdownRules = {
           image: (
@@ -115,6 +117,18 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
               {children}
             </Text>
           ),
+          // Overriding the default `text` rule (rather than `paragraph`) because this is the one
+          // place raw string content (node.content) is actually available — by the time `paragraph`
+          // receives `children`, the library has already wrapped each text run in its own <Text>,
+          // so splitting on typeof child === 'string' there never matches real (non-mocked) messages.
+          text: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any, inheritedStyles: any = {}) => {
+            const shouldRenderInlineEmoji = isPlainMessageText(parent) && !isEmojiOnlyMessage && hasEmoji(node.content)
+            return (
+              <Text key={node.key} style={[inheritedStyles, styles.text]}>
+                {shouldRenderInlineEmoji ? renderWithInlineEmoji(node.content) : node.content}
+              </Text>
+            )
+          },
           paragraph: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => (
             <Typography fontSize={messageFontSize} color={color} testID={message.message}>
               {children}
