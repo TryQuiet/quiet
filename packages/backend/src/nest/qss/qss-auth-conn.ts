@@ -230,15 +230,20 @@ export class QSSAuthConnection extends EventEmitter {
     // Handle connected events and update the sigchain/join status
     authConnection.on(LFAEvents.CONNECTED, () => {
       this._connStatus = QSSAuthConnStatus.CONNECTED
-      if (this.sigChainService.activeChainTeamId != null && this._joinStatus !== JoinStatus.JOINED) {
-        this.logger.debug(`Sending sync message because our chain is initialized`)
+      if (this.sigChainService.activeChainTeamId != null && this._joinStatus === JoinStatus.NOT_STARTED) {
         const sigChain = this.sigChainService.getActiveChain()
-        const team = sigChain.team!
-        const user = sigChain.user
-        authConnection.emit('sync', { team, user })
-        this._joinStatus = JoinStatus.JOINED
-        this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId)
-        this.logger.trace(`Server info`, this.sigChainService.activeChain.server.getServers())
+        if (sigChain.team != null && !sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+          this._joinStatus = JoinStatus.PENDING_MEMBER
+          this.logger.debug(`Restored QSS team is missing ${RoleName.MEMBER}; requesting local invite claim`)
+          this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
+          this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId)
+        } else if (sigChain.team != null) {
+          this.logger.debug(`Sending sync message because our chain is initialized`)
+          authConnection.emit('sync', { team: sigChain.team, user: sigChain.user })
+          this._joinStatus = JoinStatus.JOINED
+          this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId)
+          this.logger.trace(`Server info`, this.sigChainService.activeChain.server.getServers())
+        }
       }
       this.emit(QSSEvents.QSS_AUTH_CONNECTED, this.teamId)
     })
@@ -272,8 +277,10 @@ export class QSSAuthConnection extends EventEmitter {
         this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
       } else {
         this._joinStatus = JoinStatus.JOINED
+        void this.sigChainService.saveChain(team.id).catch(error => {
+          this.logger.error(`Failed to persist existing team after QSS auth join`, team.id, error)
+        })
       }
-      void this.sigChainService.saveChain(team.id)
       this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
     })
 

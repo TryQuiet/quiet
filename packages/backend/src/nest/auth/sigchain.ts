@@ -114,8 +114,10 @@ class SigChain extends EventEmitter {
     } as auth.MemberContext
     const sigChain = new SigChain(adminContext)
 
-    // Initialize member role (your own user is added by default to the role)
+    // Role creation no longer grants membership implicitly, so initialize the
+    // member role and explicitly add the founding user.
     sigChain.roles.create(RoleName.MEMBER)
+    sigChain.roles.addMember(sigChain.user.userId, RoleName.MEMBER)
 
     return sigChain
   }
@@ -161,13 +163,14 @@ class SigChain extends EventEmitter {
    * @param input Create user input with invite seed
    * @returns LoadedSigChain instance with the given user context
    */
-  public static createFromInvite(input: CreateUserFromInviteSeedInput): SigChain {
+  public static createFromInvite(input: CreateUserFromInviteSeedInput, expectedTeamId: auth.Base58): SigChain {
     const { seed } = input
     const prospectiveUser = UserService.createFromInviteSeed(input)
     const context = {
-      user: prospectiveUser.context.user,
-      device: prospectiveUser.context.device,
+      user: prospectiveUser.user,
+      device: prospectiveUser.device,
       invitationSeed: seed,
+      expectedTeamId,
     } as auth.InviteeMemberContext
     return new SigChain(context)
   }

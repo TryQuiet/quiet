@@ -27,6 +27,7 @@ import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
 import type { SigChain } from '../auth/sigchain'
+import { ServiceState } from './connections-manager.types'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -158,6 +159,21 @@ describe('ConnectionsManagerService', () => {
     ])
 
     expect(launchSpy).toBeCalledTimes(1)
+  })
+
+  it('allows launch to be retried after a launch failure', async () => {
+    await localDbService.setCommunity(community)
+    jest.spyOn(sigChainService, 'loadChain').mockResolvedValue(chain)
+    const launchSpy = jest
+      .spyOn(connectionsManagerService, 'launch')
+      .mockRejectedValueOnce(new Error('launch failed'))
+      .mockResolvedValueOnce()
+
+    await connectionsManagerService.launchCommunity(community.id)
+    expect(connectionsManagerService.communityState).toBe(ServiceState.DEFAULT)
+
+    await connectionsManagerService.launchCommunity(community.id)
+    expect(launchSpy).toHaveBeenCalledTimes(2)
   })
 
   it('waits for current community id to be persisted before launching community services', async () => {
@@ -326,6 +342,115 @@ describe('ConnectionsManagerService', () => {
     expect(storageInitSpy).toHaveBeenCalledWith(teamId)
     expect(markTeamStorageReadySpy).toHaveBeenCalledTimes(1)
     expect(markTeamStorageReadySpy).toHaveBeenCalledWith(teamId)
+  })
+
+  it('rejects launch and removes join listeners after a terminal QSS auth error', async () => {
+    const teamId = community.teamId
+    const authError = new Error('member role grant could not be persisted')
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockImplementation(() => {
+      qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error: authError })
+      return Promise.resolve(QSSOperationResult.ERROR)
+    })
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: {
+        id: teamId,
+      },
+      roles: {
+        amIMemberOfRole: () => false,
+      },
+    } as any)
+
+    const fullyJoinedListeners = qssService.listenerCount(QSSEvents.QSS_FULLY_JOINED)
+    const authErrorListeners = qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)
+    const libp2pJoinedListeners = connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_JOINED)
+
+    await expect(connectionsManagerService.launch(community)).rejects.toThrow(authError)
+
+    expect(qssService.listenerCount(QSSEvents.QSS_FULLY_JOINED)).toBe(fullyJoinedListeners)
+    expect(qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)).toBe(authErrorListeners)
+    expect(connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_JOINED)).toBe(libp2pJoinedListeners)
+  })
+
+  it('rejects launch when a terminal QSS auth error races with storage initialization', async () => {
+    const teamId = community.teamId
+    const authError = new Error('member role grant could not be persisted')
+    let resolveStorageInit!: () => void
+    const storageInitPromise = new Promise<void>(resolve => {
+      resolveStorageInit = resolve
+    })
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: { id: teamId },
+      roles: { amIMemberOfRole: () => false },
+    } as any)
+    const storageInitSpy = jest
+      .spyOn(connectionsManagerService['storageService'], 'init')
+      .mockReturnValue(storageInitPromise)
+
+    const launchPromise = connectionsManagerService.launch(community)
+    await waitForExpect(() => expect(qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)).toBe(1))
+    connectionsManagerService.libp2pService.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer-id' })
+    await waitForExpect(() => expect(storageInitSpy).toHaveBeenCalledWith(teamId))
+
+    qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error: authError })
+    resolveStorageInit()
+
+    await expect(launchPromise).rejects.toThrow(authError)
+  })
+
+  it('ignores another team auth error without consuming the matching-team listener', async () => {
+    const teamId = community.teamId
+    const matchingError = new Error('the launched team failed admission')
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockImplementation(() => {
+      qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId: 'another-team', error: new Error('unrelated') })
+      qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error: matchingError })
+      qssService.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+      return Promise.resolve(QSSOperationResult.SUCCESS)
+    })
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: { id: teamId },
+      roles: { amIMemberOfRole: () => false },
+    } as any)
+    const storageInitSpy = jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
+
+    await expect(connectionsManagerService.launch(community)).rejects.toBe(matchingError)
+    expect(storageInitSpy).not.toHaveBeenCalled()
   })
 
   it('attempts notification token tombstoning before closing services and still leaves if it is not acked', async () => {

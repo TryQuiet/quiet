@@ -26,8 +26,6 @@ import { Community, Identity, ChannelMessage, SocketActions, SocketEvents, Publi
 import { getReduxStoreFactory, getBaseTypesFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
-import { createKeyset, redactKeys } from '../../../../../3rd-party/auth/packages/crdx/dist'
-import { randomBytes } from 'crypto'
 import waitForExpect from 'wait-for-expect'
 import * as uint8arrays from 'uint8arrays'
 import { JoinStatus } from '../libp2p/libp2p.auth'
@@ -44,7 +42,7 @@ import { EventsType } from '@orbitdb/core'
 import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
 import { MessagesAccessController } from '../storage/channels/messages/orbitdb/MessagesAccessController'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
-import { Base58 } from '@localfirst/auth'
+import { Base58, createServer, redactServer } from '@localfirst/auth'
 import { RoleName } from '../auth/services/roles/roles'
 import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
 import { IpfsModule } from '../ipfs/ipfs.module'
@@ -58,6 +56,12 @@ import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
 import { QSSSyncManager } from './qss-sync-manager.service'
 import { Serializer } from '../common/serializer.service'
+
+/** Creates a test-only QSS server-key response using the current LFA server shape. */
+const generateQssServerKeys = (teamId: string) => {
+  const { serverId, identityKeys, keys } = redactServer(createServer({ host: 'localhost' }))
+  return { teamId, serverId, identityKeys, keys }
+}
 
 describe('QSSService', () => {
   let store: Store
@@ -278,6 +282,80 @@ describe('QSSService', () => {
     markOutboundSyncReady(teamId)
     ;(qssSyncManager as any)._storageReadyTeams.add(teamId)
   }
+
+  describe('member role readiness', () => {
+    it('persists the invitation-granted role before marking QSS fully joined', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      let finishSaving!: () => void
+      const pendingSave = new Promise<void>(resolve => {
+        finishSaving = resolve
+      })
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain').mockReturnValue(pendingSave)
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+
+      const completion = qssService['_handleSelfAssignMember'](teamId)
+      await Promise.resolve()
+
+      expect(saveSpy).toHaveBeenCalledWith(teamId)
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+
+      finishSaving()
+      await completion
+
+      expect(authReadySpy).toHaveBeenCalledWith(teamId)
+      expect(syncReadySpy).toHaveBeenCalledWith(teamId)
+      expect(fullyJoinedSpy).toHaveBeenCalledWith(teamId)
+    })
+
+    it('surfaces an auth error when persistence fails', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      const saveError = new Error('database failure')
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain').mockRejectedValueOnce(saveError)
+      const stopSpy = jest.spyOn(qssAuthConnManager, 'stopConnection')
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      const authErrorSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, authErrorSpy)
+
+      await qssService['_handleSelfAssignMember'](teamId)
+
+      expect(saveSpy).toHaveBeenCalledTimes(1)
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+      expect(stopSpy).toHaveBeenCalledWith(teamId, false)
+      expect(authErrorSpy).toHaveBeenCalledWith({ teamId, error: saveError })
+    })
+
+    it('surfaces a terminal auth error without marking readiness when no invite grant is available', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      sigchainService.activeChain.roles.revokeMembership(sigchainService.activeChain.user.userId, RoleName.MEMBER)
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain')
+      const stopSpy = jest.spyOn(qssAuthConnManager, 'stopConnection')
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      const authErrorSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, authErrorSpy)
+
+      await qssService['_handleSelfAssignMember'](teamId)
+
+      expect(saveSpy).not.toHaveBeenCalled()
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+      expect(stopSpy).toHaveBeenCalledWith(teamId, false)
+      expect(authErrorSpy).toHaveBeenCalledWith({ teamId, error: expect.any(Error) })
+    })
+  })
 
   describe('connect', () => {
     it('connects to QSS when enabled and an endpoint string is provided', async () => {
@@ -506,12 +584,7 @@ describe('QSSService', () => {
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
-                  payload: {
-                    teamId: sigchainService.team?.id,
-                    keys: redactKeys(
-                      createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                    ),
-                  },
+                  payload: generateQssServerKeys(sigchainService.team.id),
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
@@ -641,12 +714,7 @@ describe('QSSService', () => {
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
-                  payload: {
-                    teamId: sigchainService.team?.id,
-                    keys: redactKeys(
-                      createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                    ),
-                  },
+                  payload: generateQssServerKeys(sigchainService.team.id),
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
@@ -723,12 +791,7 @@ describe('QSSService', () => {
                   ts: DateTime.utc().toMillis(),
                   payload: {
                     status: CommunityOperationStatus.SUCCESS,
-                    payload: {
-                      teamId: sigchainService.team?.id,
-                      keys: redactKeys(
-                        createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                      ),
-                    },
+                    payload: generateQssServerKeys(sigchainService.team.id),
                   },
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:

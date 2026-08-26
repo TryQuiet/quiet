@@ -45,7 +45,6 @@ import { SigChain } from '../../auth/sigchain'
 import { RoleName } from '../../auth/services/roles/roles'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { InviteService } from '../../auth/services/invites/invite.service'
-import { UserService } from '../../auth/services/members/user.service'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { SigchainEvents } from '../../auth/types'
 import crypto from 'crypto'
@@ -130,17 +129,10 @@ describe('ChannelsService', () => {
   const createNonAdminMemberChain = (username: string): SigChain => {
     const adminChain = sigChainService.getActiveChain()
     const invite = adminChain.invites.createUserInvite()
-    const salt = `${username}-metadata-validation-salt`
 
-    adminChain.lockbox.createInviteLockboxes(invite.seed, salt, RoleName.MEMBER)
-
-    const invitedChain = SigChain.createFromInvite({ seed: invite.seed })
-    adminChain.invites.admitMemberFromInvite(
-      InviteService.generateProof(invite.seed),
-      invitedChain.user.userName,
-      invitedChain.user.userId,
-      UserService.redactUser(invitedChain.user).keys
-    )
+    const invitedChain = SigChain.createFromInvite({ seed: invite.seed }, adminChain.team!.id)
+    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: invitedChain.context })
+    adminChain.invites.admitMemberFromInvite(admission)
 
     const joinedChain = SigChain.joinForTesting(
       {
@@ -150,8 +142,6 @@ describe('ChannelsService', () => {
       adminChain.save(),
       adminChain.team!.teamKeyring()
     )
-    joinedChain.roles.addSelf(RoleName.MEMBER, invite.seed, salt)
-
     expect(joinedChain.roles.amIAdmin()).toBe(false)
     expect(joinedChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
 

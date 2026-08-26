@@ -9,6 +9,7 @@ import {
   Team,
   UserWithSecrets,
   DeviceWithSecrets,
+  Base58,
 } from '@localfirst/auth'
 import { KeyMetadata } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -351,7 +352,7 @@ export class SigChainService extends EventEmitter {
     setActive: boolean
   ): Promise<SigChain> {
     this.logger.info('Creating chain from invite')
-    const sigChain = SigChain.createFromInvite(createFromInviteSeedInput)
+    const sigChain = SigChain.createFromInvite(createFromInviteSeedInput, teamId as Base58)
     this.addChain(sigChain, setActive, teamId)
     await this.saveChain(teamId)
     return sigChain

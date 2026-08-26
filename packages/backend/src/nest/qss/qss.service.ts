@@ -32,7 +32,14 @@ import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { LocalDbService } from '../local-db/local-db.service'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
-import { CompoundError, NseQssUrlUpdatedEvent, SocketActions, SocketEvents, type InvitationDataV5 } from '@quiet/types'
+import {
+  CompoundError,
+  InvitationDataVersion,
+  NseQssUrlUpdatedEvent,
+  SocketActions,
+  SocketEvents,
+  type InvitationDataV5,
+} from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { QSSSyncManager } from './qss-sync-manager.service'
@@ -175,20 +182,39 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   }
 
   private _handleSelfAssignMember = async (teamId: string): Promise<void> => {
-    this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
-    const initStatus = await this.getQssInitStatus()
-    const sigchain = this.sigChainService.getChain(teamId)
-    const authData = (initStatus.community?.inviteData as InvitationDataV5).authData
-    if (authData.salt != null) {
-      sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)
+    try {
+      this.logger.debug(`Confirming ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
+      const sigchain = this.sigChainService.getChain(teamId)
+
+      // Current auth handshakes claim the invitation grant before JOINED. This fallback repairs a
+      // restored pre-migration chain locally from its saved invite; the seed never crosses QSS.
+      if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+        const initStatus = await this.getQssInitStatus()
+        const inviteData = initStatus.community?.inviteData
+        if (inviteData?.version !== InvitationDataVersion.v5 || inviteData.authData.teamId !== teamId) {
+          throw new Error(`Joined team ${teamId} without a usable invitation ${RoleName.MEMBER} grant`)
+        }
+        sigchain.roles.addSelf(RoleName.MEMBER, inviteData.authData.seed, inviteData.authData.salt)
+      }
+
+      if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+        throw new Error(`Joined team ${teamId} without the ${RoleName.MEMBER} role`)
+      }
+      this.logger.trace(
+        `Does the user have the invitation-granted member role?`,
+        sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
+      )
+
+      await this.sigChainService.saveChain(teamId)
+
+      this.qssAuthConnManager.markMemberRoleReady(teamId)
+      this.qssSyncManager.markMemberRoleReady(teamId)
+      this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+    } catch (error) {
+      this.logger.error(`Failed to finish QSS member-role admission`, teamId, error)
+      this.qssAuthConnManager.stopConnection(teamId, false)
+      this.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error })
     }
-    this.logger.trace(
-      `Is user now member through self-assign?`,
-      sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
-    )
-    this.qssAuthConnManager.markMemberRoleReady(teamId)
-    this.qssSyncManager.markMemberRoleReady(teamId)
-    this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
   }
 
   private _configureEventHandlers(): void {
@@ -555,7 +581,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     // if we don't already have this server in our chain we need to generate keys and add it
-    if (!sigChain.team.hasServer(host)) {
+    if (sigChain.server.getServer(host) == null) {
       // Generating the QSS LFA keyset for this community
       this.logger.info(`Getting server keys for this team`)
       const qssGeneratePublicKeysMessage: GeneratePublicKeysMessage = {
@@ -577,6 +603,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         generateKeysResponse.status !== CommunityOperationStatus.SUCCESS ||
         generateKeysResponse.payload == null ||
         generateKeysResponse.payload.teamId != sigChain.team.id ||
+        generateKeysResponse.payload.serverId == null ||
+        generateKeysResponse.payload.identityKeys == null ||
         generateKeysResponse.payload.keys == null
       ) {
         this.logger.error(`Failed to generate server keys!`, generateKeysResponse?.reason ?? 'Response was nullish')
@@ -585,12 +613,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
       const lfaServer: Server = {
         host,
+        serverId: generateKeysResponse.payload.serverId,
+        identityKeys: generateKeysResponse.payload.identityKeys,
         keys: generateKeysResponse.payload.keys,
       }
 
       // add this QSS server/cluster to our chain using the keys we generated earlier
       this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
-      if (!sigChain.team.hasServer(host)) {
+      if (!sigChain.team.hasServer(lfaServer.serverId)) {
         sigChain.server.addServer(lfaServer)
       }
     }

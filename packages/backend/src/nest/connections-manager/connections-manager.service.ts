@@ -78,7 +78,7 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
-import { QSSEvents } from '../qss/qss.types'
+import { QSSEvents, type QSSAuthErrorPayload } from '../qss/qss.types'
 import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
@@ -810,6 +810,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.launch(community)
     } catch (e) {
       this.logger.error(`Failed to launch community ${community.id}`, e)
+      this.communityState = ServiceState.DEFAULT
       emitError(this.serverIoProvider.io, {
         type: SocketActions.LAUNCH_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
@@ -903,29 +904,59 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
       )
       const storageReadyPromise = new Promise<void>((resolve, reject) => {
+        let settled = false
+
+        const cleanup = () => {
+          this.qssService.off(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
+          this.qssService.off(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
+          this.libp2pService.off(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
+        }
+
+        const rejectLaunch = (error: unknown) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error instanceof Error ? error : new Error(String(error)))
+        }
+
         const handleStorageReady = async (teamId: string) => {
+          if (settled) return
           try {
             await setupStorageWithTeamMeta(teamId)
             await this._updateTeamIdOnStoredCommunity(community, teamId)
+            if (settled) return
+            settled = true
+            cleanup()
             resolve()
           } catch (e) {
-            reject(e)
+            rejectLaunch(e)
           }
         }
 
-        this.qssService.once(QSSEvents.QSS_FULLY_JOINED, (teamId: string) => {
+        const handleQssFullyJoined = (teamId: string) => {
           this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
           void handleStorageReady(teamId)
-        })
-        this.libp2pService.once(Libp2pEvents.AUTH_JOINED, (payload: { peer: string }) => {
+        }
+        const handleLibp2pAuthJoined = (payload: { peer: string }) => {
           this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
           const teamId = this.sigChainService.getActiveChain().team?.id
           if (teamId == null) {
-            reject(new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`))
+            rejectLaunch(
+              new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`)
+            )
             return
           }
           void handleStorageReady(teamId)
-        })
+        }
+        const handleQssAuthError = ({ teamId, error }: QSSAuthErrorPayload) => {
+          if (teamId !== community.teamId) return
+          this.logger.error(`Handling ${QSSEvents.QSS_AUTH_ERROR} event`, teamId, error)
+          rejectLaunch(error)
+        }
+
+        this.qssService.once(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
+        this.qssService.on(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
+        this.libp2pService.once(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
       })
 
       this.qssService.connect(community.qssEndpoint)
@@ -1120,11 +1151,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         } else {
           try {
             const newInvite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
-            const qssInitStatus = await this.qssService.getQssInitStatus()
-            // create the lockboxes using invite-based keys for users to self-assign the MEMBER role
-            if (qssInitStatus.qssEnabled) {
-              this.sigChainService.activeChain.lockbox.createInviteLockboxes(newInvite.seed, newInvite.salt)
-            }
             await this.sigChainService.saveChain(this.sigChainService.activeChainTeamId)
             this.serverIoProvider.io.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
             callback({ valid: false, newInvite })
