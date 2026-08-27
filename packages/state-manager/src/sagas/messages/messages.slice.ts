@@ -23,6 +23,7 @@ import {
   type WriteMessagePayload,
   MessageSendingStatusPayload,
   VerifyMessagesPayload,
+  MessageType,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -82,6 +83,7 @@ export const messagesSlice = createSlice({
     addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
+        if (message.type === MessageType.Reaction) continue
         if (!instanceOfChannelMessage(message)) {
           continue
         }

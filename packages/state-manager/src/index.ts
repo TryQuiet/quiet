@@ -25,6 +25,9 @@ import { messagesActions, messagesReducer } from './sagas/messages/messages.slic
 
 import { messagesSelectors } from './sagas/messages/messages.selectors'
 
+import { reactionsReducer, reactionsActions } from './sagas/reactions/reactions.slice'
+import { selectReactionsForMessage } from './sagas/reactions/reactions.selectors'
+
 import { errorsSelectors } from './sagas/errors/errors.selectors'
 import { errorsReducer, errorsActions } from './sagas/errors/errors.slice'
 
@@ -129,6 +132,12 @@ export const messages = {
   selectors: messagesSelectors,
 }
 
+export const reactions = {
+  reducer: reactionsReducer,
+  actions: reactionsActions,
+  selectors: { selectReactionsForMessage },
+}
+
 export const errors = {
   reducer: errorsReducer,
   actions: errorsActions,
@@ -183,6 +192,7 @@ export default {
   users,
   identity,
   messages,
+  reactions,
   errors,
   communities,
   connection,

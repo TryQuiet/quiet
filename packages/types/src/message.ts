@@ -9,6 +9,7 @@ export enum MessageType {
   Image = 2,
   Info = 3,
   File = 4,
+  Reaction = 5,
 }
 
 export enum SendingStatus {
@@ -99,4 +100,9 @@ export interface TestMessage {
   message: ChannelMessage
   identity: Identity
   verifyAutomatically: boolean
+}
+export interface ReactionPayload {
+  targetMessageId: string
+  emoji: string
+  action: 'add' | 'remove'
 }
