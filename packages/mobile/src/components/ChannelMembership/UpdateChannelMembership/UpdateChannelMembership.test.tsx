@@ -104,6 +104,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -149,6 +151,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={
@@ -429,7 +432,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "height": 50,
                       "justifyContent": "center",
+                      "minWidth": 64,
                     }
                   }
                 >
@@ -742,6 +747,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -787,6 +794,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={
@@ -1067,7 +1075,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "height": 50,
                       "justifyContent": "center",
+                      "minWidth": 64,
                     }
                   }
                 >
@@ -1603,6 +1613,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -1648,6 +1660,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={
@@ -1928,7 +1941,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "height": 50,
                       "justifyContent": "center",
+                      "minWidth": 64,
                     }
                   }
                 >
