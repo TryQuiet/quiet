@@ -62,8 +62,8 @@ export const InvitationContextMenu: FC = () => {
   const shareLink = async () => {
     try {
       await Share.share({
-        title: '"Quiet" invitation',
-        message: `Chat with me on "Quiet"!\n${invitationLink}`,
+        title: 'Quiet invitation',
+        message: `Chat with me on Quiet!\n${invitationLink}`,
       })
     } catch (error) {
       logger.error(error)

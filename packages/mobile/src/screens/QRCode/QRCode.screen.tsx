@@ -44,8 +44,8 @@ export const QRCodeScreen: FC = () => {
     svgRef.current?.toDataURL(async base64 => {
       try {
         await Share.open({
-          title: '"Quiet" invitation',
-          message: `Chat with me on "Quiet"!\n${invitationLink}`,
+          title: 'Quiet invitation',
+          message: `Chat with me on Quiet!\n${invitationLink}`,
           url: `data:image/png;base64,${base64}`,
         })
       } catch (error) {
