@@ -1449,54 +1449,89 @@ describe('UpdateChannelMembership component', () => {
                           </View>
                         </View>
                         <View
+                          accessibilityState={
+                            {
+                              "busy": undefined,
+                              "checked": undefined,
+                              "disabled": undefined,
+                              "expanded": undefined,
+                              "selected": undefined,
+                            }
+                          }
+                          accessibilityValue={
+                            {
+                              "max": undefined,
+                              "min": undefined,
+                              "now": undefined,
+                              "text": undefined,
+                            }
+                          }
+                          accessible={true}
+                          collapsable={false}
+                          focusable={true}
+                          onClick={[Function]}
+                          onResponderGrant={[Function]}
+                          onResponderMove={[Function]}
+                          onResponderRelease={[Function]}
+                          onResponderTerminate={[Function]}
+                          onResponderTerminationRequest={[Function]}
+                          onStartShouldSetResponder={[Function]}
                           style={
                             {
-                              "alignContent": "center",
-                              "alignItems": "center",
-                              "display": "flex",
-                              "flexDirection": "row",
-                              "gap": 16,
-                              "paddingVertical": 11,
+                              "opacity": 1,
                             }
                           }
                         >
-                          <Image
-                            alt="baz's profile image"
-                            source={
-                              {
-                                "uri": "foobar",
-                              }
-                            }
+                          <View
                             style={
                               {
-                                "borderRadius": 4,
-                                "height": 32,
-                                "width": 32,
+                                "alignContent": "center",
+                                "alignItems": "center",
+                                "display": "flex",
+                                "flexDirection": "row",
+                                "gap": 16,
+                                "paddingVertical": 11,
                               }
                             }
-                          />
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                                {
-                                  "color": "#000000",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
                           >
-                            baz
-                          </Text>
+                            <Image
+                              alt="baz's profile image"
+                              source={
+                                {
+                                  "uri": "foobar",
+                                }
+                              }
+                              style={
+                                {
+                                  "borderRadius": 4,
+                                  "height": 32,
+                                  "width": 32,
+                                }
+                              }
+                            />
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              horizontalTextAlign="left"
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                  {
+                                    "color": "#000000",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              baz
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>

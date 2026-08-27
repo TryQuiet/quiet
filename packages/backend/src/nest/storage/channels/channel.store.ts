@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common'
 
-import { AccessController, EventsType, LogEntry } from '@orbitdb/core'
+import {
+  AccessController,
+  EventsType,
+  LogEntry,
+  useAccessController as orbitDbUseAccessController,
+} from '@orbitdb/core'
 
 import { QuietLogger } from '@quiet/logger'
 import {
@@ -100,13 +105,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       if (this.channelData.roleName == null) {
         throw new Error('Invalid role name for private channel!')
       }
-      this._accessController = this._privateMessagesAccessController.createAccessControllerFunc({
+      const accessController = this._privateMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
         channelId: this.channelData.id,
         teamId: this.channelData.teamId ?? this.auth.team.id,
         roleName: this.channelData.roleName,
       })
+      orbitDbUseAccessController(accessController as any)
+      this._accessController = accessController
       this._messagesService = this._privateMessagesService
     }
 

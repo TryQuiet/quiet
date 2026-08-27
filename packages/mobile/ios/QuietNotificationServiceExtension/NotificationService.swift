@@ -24,11 +24,14 @@ class NotificationService: UNNotificationServiceExtension {
     private let crypto = NSECryptoService()
     private let tokenCache = NSEAuthTokenCache()
 
-    private static func channelName(from channelId: String) -> String {
-        guard let separatorIndex = channelId.firstIndex(of: "_") else {
-            return channelId
-        }
-        return String(channelId[..<separatorIndex])
+    private static func getChannelName(teamId: String, channelId: String) -> String {
+      do {
+        let channelName = try KeychainService.getChannelName(teamId: teamId, channelId: channelId)
+        return channelName
+      } catch {
+        os_log("getChannelName failed: %{public}@", log: nseLog, type: .error, String(describing: error))
+        return channelId
+      }
     }
 
     override func didReceive(
@@ -166,6 +169,7 @@ class NotificationService: UNNotificationServiceExtension {
                         let scheduledContent = self.makeNotificationContent(
                             from: content,
                             message: decryptedEntry.message,
+                            teamId: teamId,
                             badge: badgeNumber
                         )
                         await self.scheduleNotification(
@@ -174,7 +178,7 @@ class NotificationService: UNNotificationServiceExtension {
                         )
                     }
 
-                    self.applyNotificationMessage(latestDecryptedEntry.message, to: content)
+                  self.applyNotificationMessage(latestDecryptedEntry.message, teamId: teamId, to: content)
                     content.badge = badgeNumber
 
                     os_log(
@@ -256,8 +260,8 @@ class NotificationService: UNNotificationServiceExtension {
         }
     }
 
-    private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, to content: UNMutableNotificationContent) {
-        content.title = "#\(Self.channelName(from: message.channelId))"
+    private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, teamId: String, to content: UNMutableNotificationContent) {
+        content.title = "#\(Self.getChannelName(teamId: teamId, channelId: message.channelId))"
         content.body = message.body
         content.threadIdentifier = message.channelId
     }
@@ -265,10 +269,11 @@ class NotificationService: UNNotificationServiceExtension {
     private func makeNotificationContent(
         from template: UNNotificationContent,
         message: NSEDecryptedNotificationMessage,
+        teamId: String,
         badge: NSNumber
     ) -> UNMutableNotificationContent {
         let content = (template.mutableCopy() as? UNMutableNotificationContent) ?? UNMutableNotificationContent()
-        applyNotificationMessage(message, to: content)
+      applyNotificationMessage(message, teamId: teamId, to: content)
         content.badge = badge
         return content
     }

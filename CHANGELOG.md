@@ -1,6 +1,6 @@
 # Changelog
 
-## [unreleased]
+## [9.0.0]
 
 ### Features
 
@@ -8,6 +8,7 @@
 
 ### Breaking
 
+* Update data directories for 9.x [#3379](https://github.com/TryQuiet/quiet/issues/3379)
 * Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
 * Use chain permission checks to gate channel creation, deletion and membership [#3344](https://github.com/TryQuiet/quiet/issues/3344)
 * Use randomly generated role names for private channels [#3354](https://github.com/TryQuiet/quiet/issues/3354)
@@ -18,6 +19,10 @@
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 * Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
+* Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
+* Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
+* Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
+* Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
 
 ## [8.0.0]
 

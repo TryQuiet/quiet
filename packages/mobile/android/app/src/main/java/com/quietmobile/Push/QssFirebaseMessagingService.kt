@@ -108,6 +108,7 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
                         .put("id", message.id)
                         .put("channelId", message.channelId)
                         .put("message", message.body)
+                        .put("channelName", QuietStorage.getChannelName(teamId, message.channelId))
                         .toString()
                 val nickname = QuietStorage.getNickname(message.userId) ?: message.userId
                 if (QuietStorage.isAppForeground()) {

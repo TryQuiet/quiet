@@ -7,6 +7,7 @@ import { nativeServicesReducer, nativeServicesActions } from './nativeServices/n
 import { pushNotificationsReducer } from './pushNotifications/pushNotifications.slice'
 import { keysReducer } from './keys/keys.slice'
 import { usersMetadataReducer } from './userMetadata/usersMetadata.slice'
+import { channelMetadataReducer } from './channelMetadata/channelMetadata.slice'
 
 export const reducers = {
   ...stateManagerReducers.reducers,
@@ -16,6 +17,7 @@ export const reducers = {
   [StoreKeys.PushNotifications]: pushNotificationsReducer,
   [StoreKeys.Keys]: keysReducer,
   [StoreKeys.UsersMetadata]: usersMetadataReducer,
+  [StoreKeys.ChannelMetadata]: channelMetadataReducer,
 }
 
 export const allReducers = combineReducers(reducers)

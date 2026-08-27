@@ -5,6 +5,7 @@ import { type LogEntry } from '@orbitdb/core'
 import { ChannelMetadataAccessController } from './ChannelMetadataAccessController'
 import { RoleName } from '../../../auth/services/roles/roles'
 import { EncryptedAndSignedPayload } from '../../../auth/services/crypto/types'
+import { OrbitDbOp } from '../../orbitDb/orbitdb.types'
 
 const emptyAsyncIterable = async function* () {}
 
@@ -30,10 +31,12 @@ const createSigchainService = ({
   teamId = 'team-id',
   member = true,
   admin = false,
+  rolesMemberOf = [],
 }: {
   teamId?: string
   member?: boolean
   admin?: boolean
+  rolesMemberOf?: string[]
 }) =>
   ({
     getActiveChain: jest.fn().mockReturnValue({
@@ -47,14 +50,16 @@ const createSigchainService = ({
       channels: {
         canMemberCreatePrivateChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
         canMemberCreatePublicChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
-        canMemberDeletePrivateChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
+        canMemberDeletePrivateChannel: jest.fn(
+          (memberId: string, roleName: string) => memberId === 'writer-id' && admin && rolesMemberOf.includes(roleName)
+        ),
         canMemberDeletePublicChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
       },
     }),
   }) as any
 
 const createEntry = (
-  op: 'PUT' | 'DEL',
+  op: OrbitDbOp,
   key = 'channel-id',
   hash = `${op.toLowerCase()}-${key}`
 ): LogEntry<EncryptedAndSignedPayload> =>
@@ -64,7 +69,7 @@ const createEntry = (
     payload: {
       op,
       key,
-      value: op === 'PUT' ? {} : undefined,
+      value: op === OrbitDbOp.PUT ? {} : undefined,
     },
   }) as unknown as LogEntry<EncryptedAndSignedPayload>
 
@@ -78,9 +83,14 @@ const attachLogContext = (access: any, entries: LogEntry<EncryptedAndSignedPaylo
   })
 }
 
-const createAccess = async (sigchainService: any, isPublic: boolean) => {
+const createAccess = async (sigchainService: any, isPublic: boolean, idToRoleName: Record<string, string> = {}) => {
   const controller = new ChannelMetadataAccessController(sigchainService)
-  const factory = controller.createAccessControllerFunc({ write: ['*'], sigchainService, isPublic })
+  const factory = controller.createAccessControllerFunc({
+    write: ['*'],
+    sigchainService,
+    isPublic,
+    getPrivateChannelsByRolename: async () => ({ idToRoleName, roleNameToChannel: {} }),
+  })
   return (factory as any)({
     orbitdb: {
       identity: { id: 'local-orbitdb-identity' },
@@ -97,7 +107,12 @@ describe('ChannelMetadataAccessController', () => {
   it('loads the ACL manifest from a persisted typed access-controller address', async () => {
     const sigchainService = createSigchainService({})
     const controller = new ChannelMetadataAccessController(sigchainService)
-    const factory = controller.createAccessControllerFunc({ write: ['writer-id'], sigchainService, isPublic: true })
+    const factory = controller.createAccessControllerFunc({
+      write: ['writer-id'],
+      sigchainService,
+      isPublic: true,
+      getPrivateChannelsByRolename: async () => ({ idToRoleName: {}, roleNameToChannel: {} }),
+    })
     const orbitdb = {
       identity: { id: 'local-orbitdb-identity' },
       ipfs: createInMemoryIpfs(),
@@ -118,46 +133,46 @@ describe('ChannelMetadataAccessController', () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     attachLogContext(access)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(true)
   })
 
   it('allows private channel metadata PUT entries from team members with correct permissions', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
     attachLogContext(access)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(true)
   })
 
   it('rejects public channel metadata PUT entries from non-members', async () => {
     const access = await createAccess(createSigchainService({ member: false }), true)
     attachLogContext(access)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(false)
   })
 
   it('rejects private channel metadata PUT entries from non-members', async () => {
     const access = await createAccess(createSigchainService({ member: false }), false)
     attachLogContext(access)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(false)
   })
 
   it('rejects public channel metadata PUT entries when log state is unavailable', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(false)
   })
 
   it('rejects private channel metadata PUT entries when log state is unavailable', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(false)
   })
 
   it('rejects public channel metadata PUT entries when the entry key is missing', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     attachLogContext(access)
-    const entry = createEntry('PUT')
+    const entry = createEntry(OrbitDbOp.PUT)
     ;(entry.payload as any).key = undefined
 
     await expect(access.canAppend(entry)).resolves.toBe(false)
@@ -166,7 +181,7 @@ describe('ChannelMetadataAccessController', () => {
   it('rejects private channel metadata PUT entries when the entry key is missing', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
     attachLogContext(access)
-    const entry = createEntry('PUT')
+    const entry = createEntry(OrbitDbOp.PUT)
     ;(entry.payload as any).key = undefined
 
     await expect(access.canAppend(entry)).resolves.toBe(false)
@@ -182,7 +197,7 @@ describe('ChannelMetadataAccessController', () => {
       }),
     })
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(false)
   })
 
   it('rejects private channel metadata PUT entries when log traversal throws', async () => {
@@ -195,13 +210,13 @@ describe('ChannelMetadataAccessController', () => {
       }),
     })
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(false)
   })
 
   it('rejects public channel metadata PUT entries when a previous PUT exists for the same key', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
-    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
-    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    const previousEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'previous-channel-put')
+    const nextEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'next-channel-put')
     attachLogContext(access, [previousEntry])
 
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
@@ -209,8 +224,8 @@ describe('ChannelMetadataAccessController', () => {
 
   it('rejects private channel metadata PUT entries when a previous PUT exists for the same key', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
-    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
-    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    const previousEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'previous-channel-put')
+    const nextEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'next-channel-put')
     attachLogContext(access, [previousEntry])
 
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
@@ -218,8 +233,8 @@ describe('ChannelMetadataAccessController', () => {
 
   it('allows public channel metadata PUT entries when previous PUTs are for different keys', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
-    const previousEntry = createEntry('PUT', 'other-channel-id')
-    const nextEntry = createEntry('PUT', 'channel-id')
+    const previousEntry = createEntry(OrbitDbOp.PUT, 'other-channel-id')
+    const nextEntry = createEntry(OrbitDbOp.PUT, 'channel-id')
     attachLogContext(access, [previousEntry])
 
     await expect(access.canAppend(nextEntry)).resolves.toBe(true)
@@ -227,8 +242,8 @@ describe('ChannelMetadataAccessController', () => {
 
   it('allows private channel metadata PUT entries when previous PUTs are for different keys', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
-    const previousEntry = createEntry('PUT', 'other-channel-id')
-    const nextEntry = createEntry('PUT', 'channel-id')
+    const previousEntry = createEntry(OrbitDbOp.PUT, 'other-channel-id')
+    const nextEntry = createEntry(OrbitDbOp.PUT, 'channel-id')
     attachLogContext(access, [previousEntry])
 
     await expect(access.canAppend(nextEntry)).resolves.toBe(true)
@@ -236,9 +251,9 @@ describe('ChannelMetadataAccessController', () => {
 
   it('rejects public channel metadata PUT entries after a prior PUT even when the latest entry is a DEL', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
-    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
-    const deleteEntry = createEntry('DEL', 'channel-id', 'deleted-channel')
-    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    const previousEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'previous-channel-put')
+    const deleteEntry = createEntry(OrbitDbOp.DEL, 'channel-id', 'deleted-channel')
+    const nextEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'next-channel-put')
     attachLogContext(access, [deleteEntry, previousEntry])
 
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
@@ -246,9 +261,9 @@ describe('ChannelMetadataAccessController', () => {
 
   it('rejects private channel metadata PUT entries after a prior PUT even when the latest entry is a DEL', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
-    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
-    const deleteEntry = createEntry('DEL', 'channel-id', 'deleted-channel')
-    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    const previousEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'previous-channel-put')
+    const deleteEntry = createEntry(OrbitDbOp.DEL, 'channel-id', 'deleted-channel')
+    const nextEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'next-channel-put')
     attachLogContext(access, [deleteEntry, previousEntry])
 
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
@@ -256,8 +271,8 @@ describe('ChannelMetadataAccessController', () => {
 
   it('rejects duplicate public channel metadata PUT entries from admins', async () => {
     const access = await createAccess(createSigchainService({ member: false, admin: true }), true)
-    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
-    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    const previousEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'previous-channel-put')
+    const nextEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'next-channel-put')
     attachLogContext(access, [previousEntry])
 
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
@@ -265,8 +280,8 @@ describe('ChannelMetadataAccessController', () => {
 
   it('rejects duplicate private channel metadata PUT entries from admins', async () => {
     const access = await createAccess(createSigchainService({ member: false, admin: true }), true)
-    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
-    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    const previousEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'previous-channel-put')
+    const nextEntry = createEntry(OrbitDbOp.PUT, 'channel-id', 'next-channel-put')
     attachLogContext(access, [previousEntry])
 
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
@@ -275,40 +290,52 @@ describe('ChannelMetadataAccessController', () => {
   it('rejects public channel metadata DEL entries from non-admin members', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: false }), true)
 
-    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
   })
 
   it('rejects private channel metadata DEL entries from non-admin members', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: false }), false)
 
-    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
   })
 
   it('allows public channel metadata DEL entries from admins', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
 
-    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(true)
   })
 
-  it('allows private channel metadata DEL entries from admins', async () => {
+  it('allows private channel metadata DEL entries from admins with valid channel role name', async () => {
+    const channelId = 'foobar'
+    const roleName = 'barbaz'
+    const access = await createAccess(
+      createSigchainService({ member: true, admin: true, rolesMemberOf: [roleName] }),
+      false,
+      { [channelId]: roleName }
+    )
+
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL, channelId))).resolves.toBe(true)
+  })
+
+  it('rejects private channel metadata DEL entries from admins without valid channel role name', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
 
-    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
   })
 
   it('rejects public channel metadata entries from admins even without the member role', async () => {
     const access = await createAccess(createSigchainService({ member: false, admin: true }), true)
     attachLogContext(access)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
-    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
   })
 
   it('rejects private channel metadata entries from admins even without the member role', async () => {
     const access = await createAccess(createSigchainService({ member: false, admin: true }), false)
     attachLogContext(access)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
-    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
   })
 })

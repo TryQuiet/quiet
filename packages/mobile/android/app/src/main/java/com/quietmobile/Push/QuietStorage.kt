@@ -25,6 +25,7 @@ object QuietStorage {
     private const val DISPLAYED_NOTIFICATION_HASHES_KEY = "quiet.notification.displayedHashes"
     private const val DISPLAYED_NOTIFICATION_HASHES_TTL_MS = 24L * 60L * 60L * 1000L
     private const val DISPLAYED_NOTIFICATION_HASHES_MAX_SIZE = 512
+    private const val CHANNEL_METADATA_KEY_PREFIX = "quiet.channelMetadata."
 
     @Volatile
     private var applicationContext: Context? = null
@@ -67,6 +68,23 @@ object QuietStorage {
 
     @JvmStatic
     fun getLfaKey(keyName: String): String? = securePrefs().getString(keyName, null)
+
+    @JvmStatic
+    fun addChannelMetadata(teamId: String, channelId: String, channelName: String) {
+        val keyName = QuietStorage.generateChannelMetadataKeyName(teamId, channelId)
+        securePrefs().edit().putString(keyName, channelName).apply()
+    }
+
+    @JvmStatic
+    fun getChannelName(teamId: String, channelId: String): String? {
+        val keyName = QuietStorage.generateChannelMetadataKeyName(teamId, channelId)
+        return securePrefs().getString(keyName, null)
+    }
+
+    @JvmStatic
+    fun generateChannelMetadataKeyName(teamId: String, channelId: String): String {
+        return "$CHANNEL_METADATA_KEY_PREFIX$teamId.$channelId"
+    }
 
     @JvmStatic
     fun saveQssUrl(teamId: String, url: String) {

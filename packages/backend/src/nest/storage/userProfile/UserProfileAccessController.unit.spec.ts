@@ -6,6 +6,7 @@ import { base58btc } from 'multiformats/bases/base58'
 import { UserProfileAccessController } from './UserProfileAccessController'
 import { RoleName } from '../../auth/services/roles/roles'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const emptyAsyncIterable = async function* () {}
 
@@ -99,13 +100,13 @@ const createEncryptedPayload = ({
   }) as unknown as EncryptedAndSignedPayload
 
 const createEntry = ({
-  op = 'PUT',
+  op = OrbitDbOp.PUT,
   key = 'writer-id',
   hash = `put-${key}`,
   value = createEncryptedPayload(),
   includeValue = true,
 }: {
-  op?: 'PUT' | 'DEL'
+  op?: OrbitDbOp
   key?: string
   hash?: string
   value?: EncryptedAndSignedPayload
@@ -243,18 +244,18 @@ describe('UserProfileAccessController', () => {
   it('allows members to delete their own user profile', async () => {
     const access = await createAccess(createSigchainService())
 
-    await expect(access.canAppend(createEntry({ op: 'DEL' }))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry({ op: OrbitDbOp.DEL }))).resolves.toBe(true)
   })
 
   it('rejects members deleting another user profile', async () => {
     const access = await createAccess(createSigchainService())
 
-    await expect(access.canAppend(createEntry({ op: 'DEL', key: 'other-user-id' }))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry({ op: OrbitDbOp.DEL, key: 'other-user-id' }))).resolves.toBe(false)
   })
 
   it('allows admins to delete another user profile', async () => {
     const access = await createAccess(createSigchainService({ admin: true }))
 
-    await expect(access.canAppend(createEntry({ op: 'DEL', key: 'other-user-id' }))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry({ op: OrbitDbOp.DEL, key: 'other-user-id' }))).resolves.toBe(true)
   })
 })

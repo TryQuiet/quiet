@@ -50,6 +50,7 @@ import { SigchainEvents } from '../../auth/types'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const logger = createLogger('channelsService:test')
 
@@ -160,7 +161,7 @@ describe('ChannelsService', () => {
       hash,
       identity,
       payload: {
-        op: 'PUT',
+        op: OrbitDbOp.PUT,
         key,
         value,
       },
@@ -177,7 +178,7 @@ describe('ChannelsService', () => {
       hash,
       identity,
       payload: {
-        op: 'DEL',
+        op: OrbitDbOp.DEL,
         key,
       },
     }) as unknown as LogEntry<EncryptedAndSignedPayload>
@@ -853,7 +854,7 @@ describe('ChannelsService', () => {
       }
       const metadataEntries = await metadataLog.values()
       const channelPuts = metadataEntries.filter(
-        entry => entry.payload.op === 'PUT' && entry.payload.key === publicChannel.id
+        entry => entry.payload.op === OrbitDbOp.PUT && entry.payload.key === publicChannel.id
       )
       expect(channelPuts).toHaveLength(1)
       await expect(channelsService.getChannel(publicChannel.id)).resolves.toEqual(publicChannel)
@@ -1216,8 +1217,34 @@ describe('ChannelsService', () => {
       )
     })
 
-    it('accepts channel metadata deletion from a sigchain admin', async () => {
-      await expectChannelEntryValidation(channelDelEntry('channel-id-to-delete'), aliceUserId, true)
+    it('accepts public channel metadata deletion from a sigchain admin', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+        public: true,
+      })
+      await channelsService.setChannel(publicChannel)
+      await expectChannelEntryValidation(channelDelEntry(publicChannel.id), aliceUserId, true, 'public')
+    })
+
+    it('accepts public channel metadata deletion from a sigchain admin even if no channel is found', async () => {
+      await expectChannelEntryValidation(channelDelEntry('this-is-a-random-channel-id'), aliceUserId, true, 'public')
+    })
+
+    it('accepts private channel metadata deletion from a sigchain admin with found channel', async () => {
+      const channelRoleName = sigChainService.activeChain.channels.create()
+      const privateChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+        public: false,
+        roleName: channelRoleName,
+      })
+      await channelsService.setChannel(privateChannel)
+      await expectChannelEntryValidation(channelDelEntry(privateChannel.id), aliceUserId, true, 'private')
+    })
+
+    it('rejects private channel metadata deletion from a sigchain admin when no channel is found', async () => {
+      await expectChannelEntryValidation(channelDelEntry('this-is-a-random-channel-id'), aliceUserId, false, 'private')
     })
 
     it('rejects channel metadata deletion from a non-admin member', async () => {

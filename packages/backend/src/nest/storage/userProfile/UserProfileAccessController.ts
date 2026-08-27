@@ -26,6 +26,7 @@ import { posixJoin } from '../orbitDb/util'
 import { validateUserProfile } from './userProfile.utils'
 import type { SigChain } from '../../auth/sigchain'
 import type { UserProfileAccessControllerConfig, UserProfileWriterIdentity } from './UserProfileAccessController.types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const TYPE = 'userprofileaccess'
 const codec = dagCbor
@@ -142,7 +143,7 @@ export class UserProfileAccessController {
         return false
       }
 
-      if (entry.payload.op === 'PUT' && !(await this.canAppendPutEntry(entry, chain, writerIdentity.id))) {
+      if (entry.payload.op === OrbitDbOp.PUT && !(await this.canAppendPutEntry(entry, chain, writerIdentity.id))) {
         return false
       }
 
@@ -157,7 +158,7 @@ export class UserProfileAccessController {
         return false
       }
 
-      if (entry.payload.op === 'DEL') {
+      if (entry.payload.op === OrbitDbOp.DEL) {
         return this.canAppendDeleteEntry(entry, writerIdentity.id)
       }
 
