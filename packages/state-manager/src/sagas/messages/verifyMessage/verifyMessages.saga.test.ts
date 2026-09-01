@@ -126,6 +126,7 @@ describe('verifyMessage saga test', () => {
         }),
       ],
       isVerified: false,
+      isLocal: false,
     })
 
     await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))

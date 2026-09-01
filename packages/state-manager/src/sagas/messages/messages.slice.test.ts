@@ -45,4 +45,33 @@ describe('messages transport verification boundary', () => {
       validMessage
     )
   })
+
+  test.each([
+    ['no verification flags', {}],
+    ['only a blanket batch flag', { isVerified: true }],
+  ])('rejects a received message with %s', (_label, flags) => {
+    let state = messagesReducer(undefined, messagesActions.addPublicChannelsMessagesBase({ channelId }))
+    const message = { ...forgedMessage }
+    delete (message as Partial<ConsumedChannelMessage>).verified
+
+    state = messagesReducer(
+      state,
+      messagesActions.addMessages({
+        messages: [message],
+        ...flags,
+      })
+    )
+
+    expect(state.publicChannelsMessagesBase.entities[channelId]?.messages.entities[message.id]).toBeUndefined()
+  })
+
+  test('allows an explicitly trusted local optimistic message', () => {
+    let state = messagesReducer(undefined, messagesActions.addPublicChannelsMessagesBase({ channelId }))
+    const message = { ...forgedMessage }
+    delete (message as Partial<ConsumedChannelMessage>).verified
+
+    state = messagesReducer(state, messagesActions.addMessages({ messages: [message], isLocal: true }))
+
+    expect(state.publicChannelsMessagesBase.entities[channelId]?.messages.entities[message.id]).toEqual(message)
+  })
 })

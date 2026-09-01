@@ -13,7 +13,7 @@ export function* markUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   const messages = action.payload.messages.filter(message =>
-    isMessageTransportVerified(message, action.payload.isVerified)
+    isMessageTransportVerified(message, action.payload.isLocal)
   )
   if (messages.length === 0) return
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)

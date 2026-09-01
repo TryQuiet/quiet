@@ -36,6 +36,7 @@ import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | undefined = undefined
   private stores: Record<string, DatabaseType> = {}
+  private openQueue: Promise<void> = Promise.resolve()
   private storeAliases: Record<string, string> = {}
   private orbitDbUpdateListenerAttached = false
   public identities: LFAIdentities | undefined = undefined
@@ -302,7 +303,22 @@ export class OrbitDbService {
     if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
-    const store = await this.orbitDbInstance.open<T>(address, options)
+    const previousOpen = this.openQueue
+    let releaseOpen: () => void = () => undefined
+    this.openQueue = new Promise<void>(resolve => {
+      releaseOpen = resolve
+    })
+    await previousOpen
+
+    let store: T
+    try {
+      if (options?.AccessController != null) {
+        orbitDbUseAccessController(options.AccessController as any)
+      }
+      store = await this.orbitDbInstance.open<T>(address, options)
+    } finally {
+      releaseOpen()
+    }
     const storeAddress = this.normalizeStoreIdentifier((store as { address?: unknown }).address) ?? address
     const aliases = this.registerStore(address, store)
     this.attachStoreLifecycleUnregister(store, storeAddress)

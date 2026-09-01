@@ -14,7 +14,7 @@ export function* addMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
-    if (!isMessageTransportVerified(incomingMessage, action.payload.isVerified)) {
+    if (!isMessageTransportVerified(incomingMessage, action.payload.isLocal)) {
       logger.warn(`Skipping message rejected by transport verification`, incomingMessage.id)
       continue
     }

@@ -17,7 +17,7 @@ export function* verifyMessagesSaga(
   const messages: ChannelMessage[] = action.payload.messages
 
   for (const message of messages) {
-    if (!isMessageTransportVerified(message, action.payload.isVerified)) continue
+    if (!isMessageTransportVerified(message, action.payload.isLocal)) continue
     let isVerified = true
     const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
     if (author === null) {
