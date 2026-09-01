@@ -318,7 +318,12 @@ class NotificationService: UNNotificationServiceExtension {
         os_log("fetchAndUpdate: creating fresh NSEAuthService for %{public}@",
                log: nseLog, type: .debug, qssUrl.absoluteString)
         let client = NSENetworkClient(baseURL: qssUrl)
-        return NSEAuthService(client: client, crypto: crypto, tokenCache: tokenCache)
+        return NSEAuthService(
+            client: client,
+            crypto: crypto,
+            credentials: KeychainNSEDeviceCredentials(),
+            tokenCache: tokenCache
+        )
     }
 
     private func shouldRetryFetch(error: Error, startedAt: Date, retryIndex: Int) -> Bool {
@@ -346,12 +351,14 @@ class NotificationService: UNNotificationServiceExtension {
     }
 
     private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, teamId: String, to content: UNMutableNotificationContent) {
-        content.title = NSENotificationPresentation.title(
+        let presentation = NSENotificationPresenter.makePresentation(
+            message: message,
             channelName: Self.getChannelName(teamId: teamId, channelId: message.channelId),
             authenticatedAuthor: Self.getNickname(userId: message.userId)
         )
-        content.body = message.body
-        content.threadIdentifier = message.channelId
+        content.title = presentation.title
+        content.body = presentation.body
+        content.threadIdentifier = presentation.threadIdentifier
     }
 
     private func makeNotificationContent(

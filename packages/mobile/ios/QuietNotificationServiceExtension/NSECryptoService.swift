@@ -3,13 +3,6 @@ import Sodium
 
 private typealias NSEJSONObject = [String: Any]
 
-struct NSEDecryptedNotificationMessage {
-    let channelId: String
-    let userId: String
-    let body: String
-    let type: Int
-}
-
 private struct NSEEncryptionScope {
     let type: String
     let name: String
@@ -39,10 +32,7 @@ private struct NSEMessageSignature {
 
 // MARK: - Protocol
 
-protocol DeviceCryptography {
-    /// Signs only the validated, domain-separated NSE authentication proof.
-    func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String
-
+protocol DeviceCryptography: NSEAuthSigning {
     /// Decrypts a QSS log entry and, if it is a channel message, returns a displayable preview.
     func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage?
 }

@@ -3,6 +3,22 @@ import os.log
 
 private let authLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NSEAuthService")
 
+protocol NSEAuthNetworking: AnyObject {
+    var baseURL: URL { get }
+    func requestChallenge(deviceId: String, teamId: String) async throws -> ChallengeResponse
+    func requestToken(challengeId: String, deviceId: String, signature: String) async throws -> TokenResponse
+    func fetchLogEntries(teamId: String, afterSeq: Int64, token: String) async throws -> LogEntriesResponse
+}
+
+protocol NSEAuthSigning {
+    func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String
+}
+
+protocol NSEDeviceCredentials {
+    func deviceId() throws -> String
+    func privateKey(deviceId: String) throws -> Data
+}
+
 struct NSEAuthTokenCacheKey: Hashable {
     let qssUrl: URL
     let teamId: String
@@ -47,14 +63,24 @@ final class NSEAuthTokenCache {
 }
 
 class NSEAuthService {
-    private let client: NSENetworkClient
-    private let crypto: DeviceCryptography
+    private let client: NSEAuthNetworking
+    private let crypto: NSEAuthSigning
+    private let credentials: NSEDeviceCredentials
     private let tokenCache: NSEAuthTokenCache
+    private let nowMs: () -> Int64
 
-    init(client: NSENetworkClient, crypto: DeviceCryptography, tokenCache: NSEAuthTokenCache = NSEAuthTokenCache()) {
+    init(
+        client: NSEAuthNetworking,
+        crypto: NSEAuthSigning,
+        credentials: NSEDeviceCredentials,
+        tokenCache: NSEAuthTokenCache = NSEAuthTokenCache(),
+        nowMs: @escaping () -> Int64 = { Int64(Date().timeIntervalSince1970 * 1000) }
+    ) {
         self.client = client
         self.crypto = crypto
+        self.credentials = credentials
         self.tokenCache = tokenCache
+        self.nowMs = nowMs
     }
 
     // MARK: - Full auth flow
@@ -77,11 +103,12 @@ class NSEAuthService {
         try challengeResp.challenge.validate(
             deviceId: deviceId,
             teamId: teamId,
-            qssServerId: qssServerId
+            qssServerId: qssServerId,
+            nowMs: nowMs()
         )
 
         os_log("authenticate: reading device private key from keychain", log: authLog, type: .debug)
-        let privateKeyData = try KeychainService.getDevicePrivateKey(deviceId: deviceId)
+        let privateKeyData = try credentials.privateKey(deviceId: deviceId)
         os_log("authenticate: private key read (%{public}d bytes), signing challenge", log: authLog, type: .debug, privateKeyData.count)
 
         let signature = try crypto.signNseAuthProof(challengeResp.challenge, privateKeyData: privateKeyData)
@@ -103,7 +130,7 @@ class NSEAuthService {
 
     func fetchNewEntries(teamId: String, qssServerId: String, afterSeq: Int64) async throws -> LogEntriesResponse {
         os_log("fetchNewEntries: reading deviceId from keychain", log: authLog, type: .debug)
-        let deviceId = try KeychainService.getDeviceId()
+        let deviceId = try credentials.deviceId()
         os_log("fetchNewEntries: deviceId=%{public}@, authenticating", log: authLog, type: .info, deviceId)
         let token = try await authenticate(deviceId: deviceId, teamId: teamId, qssServerId: qssServerId)
         os_log("fetchNewEntries: authenticated, fetching log entries afterSeq=%{public}lld",

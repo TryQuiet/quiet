@@ -3,7 +3,7 @@ import os.log
 
 private let netLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NSENetworkClient")
 
-class NSENetworkClient {
+class NSENetworkClient: NSEAuthNetworking {
     let baseURL: URL
     let session: URLSession
 
