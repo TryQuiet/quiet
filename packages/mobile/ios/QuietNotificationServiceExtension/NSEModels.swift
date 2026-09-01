@@ -85,6 +85,7 @@ let nseAuthProtocolVersion = 1
 let nseAuthSignatureContext = "quiet/qss-nse-auth/device-proof"
 let nseAuthMaximumLifetimeMs: Int64 = 30_000
 let nseAuthClockSkewMs: Int64 = 5_000
+let nseAuthMaximumSafeInteger: Int64 = 9_007_199_254_740_991
 
 struct ChallengePayload: Decodable {
     let protocolVersion: Int
@@ -126,11 +127,17 @@ struct ChallengePayload: Decodable {
               deviceId == expectedDeviceId,
               teamId == expectedTeamId,
               qssServerId == expectedServerId,
-              !challengeId.isEmpty,
+              challengeId.range(of: "^[0-9a-f]{32}$", options: .regularExpression) != nil,
+              issuedAtMs >= 0,
+              issuedAtMs <= nseAuthMaximumSafeInteger,
+              expiresAtMs >= 0,
+              expiresAtMs <= nseAuthMaximumSafeInteger,
+              nowMs >= 0,
+              nowMs <= nseAuthMaximumSafeInteger,
               expiresAtMs > issuedAtMs,
-              expiresAtMs - issuedAtMs <= nseAuthMaximumLifetimeMs,
+              expiresAtMs <= issuedAtMs + nseAuthMaximumLifetimeMs,
               issuedAtMs <= nowMs + nseAuthClockSkewMs,
-              expiresAtMs >= nowMs - nseAuthClockSkewMs,
+              expiresAtMs + nseAuthClockSkewMs >= nowMs,
               let nonceBytes = Base58.decode(nonce),
               nonceBytes.count == 32,
               Base58.encode(nonceBytes) == nonce else {

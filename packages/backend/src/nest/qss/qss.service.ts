@@ -523,7 +523,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       const qssServerId =
         normalizedQssHost == null ? undefined : activeChain?.server.getServer(normalizedQssHost)?.serverId
       if (qssServerId == null) {
-        this.logger.warn('Skipping NSE QSS URL update because the QSS LFA server identity is not pinned', qssUrl)
+        this.logger.warn('Clearing the NSE QSS configuration because the QSS LFA server identity is not pinned', qssUrl)
+        this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId,
+          qssUrl: '',
+          qssServerId: '',
+        } satisfies NseQssUrlUpdatedEvent)
         return
       }
 

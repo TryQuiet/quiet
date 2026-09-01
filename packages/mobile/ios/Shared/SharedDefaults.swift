@@ -109,6 +109,11 @@ struct SharedDefaults {
 
     static func saveQssConfiguration(teamId: String, url: String, serverId: String) {
         var configurations = defaults.dictionary(forKey: qssConfigurationsKey) as? [String: [String: String]] ?? [:]
+        guard !url.isEmpty, !serverId.isEmpty else {
+            configurations.removeValue(forKey: teamId)
+            defaults.set(configurations, forKey: qssConfigurationsKey)
+            return
+        }
         configurations[teamId] = ["url": url, "serverId": serverId]
         defaults.set(configurations, forKey: qssConfigurationsKey)
     }

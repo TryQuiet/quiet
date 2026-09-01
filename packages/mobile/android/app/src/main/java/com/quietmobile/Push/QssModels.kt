@@ -7,6 +7,7 @@ object NseAuthProtocol {
     const val SIGNATURE_CONTEXT = "quiet/qss-nse-auth/device-proof"
     const val MAXIMUM_LIFETIME_MS = 30_000L
     const val CLOCK_SKEW_MS = 5_000L
+    const val MAXIMUM_SAFE_INTEGER = 9_007_199_254_740_991L
 }
 
 data class ChallengePayload(
@@ -27,11 +28,14 @@ data class ChallengePayload(
         require(deviceId == expectedDeviceId)
         require(teamId == expectedTeamId)
         require(qssServerId == expectedQssServerId)
-        require(challengeId.isNotEmpty())
+        require(challengeId.matches(Regex("^[0-9a-f]{32}$")))
+        require(issuedAtMs in 0..NseAuthProtocol.MAXIMUM_SAFE_INTEGER)
+        require(expiresAtMs in 0..NseAuthProtocol.MAXIMUM_SAFE_INTEGER)
+        require(nowMs in 0..NseAuthProtocol.MAXIMUM_SAFE_INTEGER)
         require(expiresAtMs > issuedAtMs)
-        require(expiresAtMs - issuedAtMs <= NseAuthProtocol.MAXIMUM_LIFETIME_MS)
+        require(expiresAtMs <= issuedAtMs + NseAuthProtocol.MAXIMUM_LIFETIME_MS)
         require(issuedAtMs <= nowMs + NseAuthProtocol.CLOCK_SKEW_MS)
-        require(expiresAtMs >= nowMs - NseAuthProtocol.CLOCK_SKEW_MS)
+        require(expiresAtMs + NseAuthProtocol.CLOCK_SKEW_MS >= nowMs)
         require(nonceBytes?.size == 32)
         require(CopperBase58.encode(nonceBytes) == nonce)
     }

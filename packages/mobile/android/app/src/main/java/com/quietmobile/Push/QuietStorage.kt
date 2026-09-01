@@ -106,7 +106,11 @@ object QuietStorage {
     @JvmStatic
     fun saveQssConfiguration(teamId: String, url: String, serverId: String) {
         val current = JSONObject(regularPrefs().getString(QSS_CONFIGURATIONS_KEY, "{}") ?: "{}")
-        current.put(teamId, JSONObject().put("url", url).put("serverId", serverId))
+        if (url.isEmpty() || serverId.isEmpty()) {
+            current.remove(teamId)
+        } else {
+            current.put(teamId, JSONObject().put("url", url).put("serverId", serverId))
+        }
         regularPrefs().edit().putString(QSS_CONFIGURATIONS_KEY, current.toString()).apply()
     }
 

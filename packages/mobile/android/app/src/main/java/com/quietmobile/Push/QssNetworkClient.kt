@@ -8,6 +8,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 
 class QssHttpException(val statusCode: Int, body: String?) :
@@ -26,7 +27,10 @@ class QssNetworkClient(baseUrl: String) {
             .put("deviceId", deviceId)
             .put("teamId", teamId)
 
-        val json = post("nse-auth/challenge", body.toString(), null)
+        return parseChallengeResponse(post("nse-auth/challenge", body.toString(), null))
+    }
+
+    internal fun parseChallengeResponse(json: JSONObject): ChallengeResponse {
         val challengeJson = json.getJSONObject("challenge")
         require(json.keys().asSequence().toSet() == setOf("challengeId", "challenge"))
         require(challengeJson.keys().asSequence().toSet() == setOf(
@@ -34,20 +38,44 @@ class QssNetworkClient(baseUrl: String) {
             "challengeId", "nonce", "issuedAtMs", "expiresAtMs",
         ))
         return ChallengeResponse(
-            challengeId = json.getString("challengeId"),
+            challengeId = requireString(json, "challengeId"),
             challenge =
                 ChallengePayload(
-                    protocolVersion = challengeJson.getInt("protocolVersion"),
-                    type = challengeJson.getString("type"),
-                    deviceId = challengeJson.getString("deviceId"),
-                    teamId = challengeJson.getString("teamId"),
-                    qssServerId = challengeJson.getString("qssServerId"),
-                    challengeId = challengeJson.getString("challengeId"),
-                    nonce = challengeJson.getString("nonce"),
-                    issuedAtMs = challengeJson.getLong("issuedAtMs"),
-                    expiresAtMs = challengeJson.getLong("expiresAtMs"),
+                    protocolVersion = requireInt(challengeJson, "protocolVersion"),
+                    type = requireString(challengeJson, "type"),
+                    deviceId = requireString(challengeJson, "deviceId"),
+                    teamId = requireString(challengeJson, "teamId"),
+                    qssServerId = requireString(challengeJson, "qssServerId"),
+                    challengeId = requireString(challengeJson, "challengeId"),
+                    nonce = requireString(challengeJson, "nonce"),
+                    issuedAtMs = requireSafeInteger(challengeJson, "issuedAtMs"),
+                    expiresAtMs = requireSafeInteger(challengeJson, "expiresAtMs"),
                 ),
         )
+    }
+
+    private fun requireString(json: JSONObject, key: String): String =
+        (json.get(key) as? String) ?: throw IllegalArgumentException("$key was not a JSON string")
+
+    private fun requireSafeInteger(json: JSONObject, key: String): Long {
+        val raw = json.get(key)
+        require(raw is Number) { "$key was not a JSON number" }
+        val value = raw.toString().toBigDecimalOrNull()
+            ?: throw IllegalArgumentException("$key was not finite")
+        require(value.stripTrailingZeros().scale() <= 0) { "$key was not an integer" }
+        require(
+            value >= BigDecimal.ZERO &&
+                value <= BigDecimal.valueOf(NseAuthProtocol.MAXIMUM_SAFE_INTEGER),
+        ) {
+            "$key was outside the JavaScript safe-integer range"
+        }
+        return value.longValueExact()
+    }
+
+    private fun requireInt(json: JSONObject, key: String): Int {
+        val value = requireSafeInteger(json, key)
+        require(value <= Int.MAX_VALUE) { "$key was outside the integer range" }
+        return value.toInt()
     }
 
     fun requestToken(challengeId: String, deviceId: String, proof: ProofPayload): TokenResponse {

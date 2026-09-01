@@ -966,6 +966,36 @@ describe('QSSService', () => {
       }
     })
 
+    it('clears native NSE QSS state when the endpoint has no active pinned server identity', async () => {
+      const originalPlatform = process.platform
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+
+        await qssService.connect('wss://untrusted.example/ws')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: 'team-id',
+          qssUrl: '',
+          qssServerId: '',
+        })
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
+    })
+
     it('skips NSE QSS URL emission when sign in uses a non-ws endpoint on iOS', async () => {
       const originalPlatform = process.platform
       Object.defineProperty(process, 'platform', { value: 'ios' })

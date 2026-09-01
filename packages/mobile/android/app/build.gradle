@@ -278,6 +278,7 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 
     androidTestImplementation("com.wix:detox:+")
     androidTestImplementation("androidx.test:core:1.7.0")
