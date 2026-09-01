@@ -57,12 +57,51 @@ enum NSEMessageAuthenticator {
         messageCreatedAt: Double,
         envelopeCreatedAt: Double?
     ) throws {
+        try validateClaims(
+            signature: signature,
+            authorType: authorType,
+            authorName: authorName,
+            messageUserId: messageUserId,
+            messageId: messageId,
+            envelopeId: envelopeId,
+            messageTeamId: messageTeamId,
+            envelopeTeamId: envelopeTeamId,
+            requestedTeamId: requestedTeamId,
+            messageChannelId: messageChannelId,
+            envelopeChannelId: envelopeChannelId,
+            messageCreatedAt: messageCreatedAt,
+            envelopeCreatedAt: envelopeCreatedAt
+        )
         guard
             let signature,
-            signature.count == 64,
             let publicKey,
             publicKey.count == 32
         else {
+            throw NSEMessageAuthenticationError.malformedSignature
+        }
+
+        let verificationKey = try Curve25519.Signing.PublicKey(rawRepresentation: publicKey)
+        guard verificationKey.isValidSignature(signature, for: signaturePayload(plaintext)) else {
+            throw NSEMessageAuthenticationError.invalidSignature
+        }
+    }
+
+    static func validateClaims(
+        signature: Data?,
+        authorType: String?,
+        authorName: String?,
+        messageUserId: String,
+        messageId: String,
+        envelopeId: String?,
+        messageTeamId: String,
+        envelopeTeamId: String?,
+        requestedTeamId: String,
+        messageChannelId: String,
+        envelopeChannelId: String?,
+        messageCreatedAt: Double,
+        envelopeCreatedAt: Double?
+    ) throws {
+        guard let signature, signature.count == 64 else {
             throw NSEMessageAuthenticationError.malformedSignature
         }
         guard authorType == "USER", authorName == messageUserId else {
@@ -76,11 +115,6 @@ enum NSEMessageAuthenticator {
             envelopeCreatedAt == messageCreatedAt
         else {
             throw NSEMessageAuthenticationError.immutableFieldMismatch
-        }
-
-        let verificationKey = try Curve25519.Signing.PublicKey(rawRepresentation: publicKey)
-        guard verificationKey.isValidSignature(signature, for: signaturePayload(plaintext)) else {
-            throw NSEMessageAuthenticationError.invalidSignature
         }
     }
 }

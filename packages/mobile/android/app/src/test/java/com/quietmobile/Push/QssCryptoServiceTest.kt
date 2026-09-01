@@ -109,6 +109,31 @@ class QssCryptoServiceTest {
         }
     }
 
+    @Test
+    fun rejectsMalformedSignatureBeforeMissingKeyLookup() {
+        var lookedUp = false
+        val malformed = signature().copy(
+            signature = "not-base58!",
+            author = SignatureAuthor(type = "USER", name = "alice-id", generation = 999),
+        )
+
+        assertThrows(IllegalStateException::class.java) {
+            authenticateNotificationMessage(
+                envelope(),
+                message(),
+                plaintext,
+                malformed,
+                teamId,
+                {
+                    lookedUp = true
+                    null
+                },
+                verifier,
+            )
+        }
+        assertEquals(false, lookedUp)
+    }
+
     private fun authenticate(
         envelope: Map<*, *>,
         message: Map<*, *>,

@@ -70,6 +70,34 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
         XCTAssertThrowsError(try authenticate(envelopeChannelId: "other-channel"))
     }
 
+    func testMalformedAuthorIsPermanentBeforeMissingKeyCanBlockCursor() throws {
+        let signature = try privateKey.signature(for: NSEMessageAuthenticator.signaturePayload(plaintext))
+        XCTAssertThrowsError(
+            try NSEMessageAuthenticator.validateClaims(
+                signature: signature,
+                authorType: "USER",
+                authorName: "mallory-id",
+                messageUserId: "alice-id",
+                messageId: "message-id",
+                envelopeId: "message-id",
+                messageTeamId: "team-id",
+                envelopeTeamId: "team-id",
+                requestedTeamId: "team-id",
+                messageChannelId: "channel-id",
+                envelopeChannelId: "channel-id",
+                messageCreatedAt: 1234,
+                envelopeCreatedAt: 1234
+            )
+        ) { error in
+            XCTAssertTrue(error is NSEMessageAuthenticationError)
+        }
+
+        var cursor: Int64 = 10
+        cursor = NSENotificationCursorPolicy.cursor(after: cursor, processing: 11, outcome: .rejected)
+        cursor = NSENotificationCursorPolicy.cursor(after: cursor, processing: 12, outcome: .delivered)
+        XCTAssertEqual(cursor, 12)
+    }
+
     func testRejectedEntryAdvancesCursorSoLaterEntriesAreNotBlocked() {
         let cursor = NSENotificationCursorPolicy.cursor(
             after: 10,

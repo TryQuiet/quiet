@@ -257,11 +257,27 @@ class NSECryptoService: DeviceCryptography {
         messageCreatedAt: Double,
         payloadValue: NSEJSONObject
     ) throws {
+        let signatureData = Base58.decode(signature.signature).map { Data($0) }
+        try NSEMessageAuthenticator.validateClaims(
+            signature: signatureData,
+            authorType: signature.author.type,
+            authorName: signature.author.name,
+            messageUserId: messageUserId,
+            messageId: messageId,
+            envelopeId: self.stringValue(payloadValue["id"]),
+            messageTeamId: messageTeamId,
+            envelopeTeamId: self.stringValue(payloadValue["teamId"]),
+            requestedTeamId: teamId,
+            messageChannelId: messageChannelId,
+            envelopeChannelId: self.stringValue(payloadValue["channelId"]),
+            messageCreatedAt: messageCreatedAt,
+            envelopeCreatedAt: self.numberValue(payloadValue["createdAt"])
+        )
         let keyName = self.makeUserSignatureKeyName(teamId: teamId, author: signature.author)
         let publicKeyString = try self.lfaKeyString(keyName: keyName)
         try NSEMessageAuthenticator.authenticate(
             plaintext: plaintext,
-            signature: Base58.decode(signature.signature).map { Data($0) },
+            signature: signatureData,
             publicKey: Base58.decode(publicKeyString).map { Data($0) },
             authorType: signature.author.type,
             authorName: signature.author.name,

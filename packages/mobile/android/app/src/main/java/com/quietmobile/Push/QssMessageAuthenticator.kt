@@ -68,13 +68,17 @@ internal fun authenticateNotificationMessage(
         throw IllegalStateException("Inner message fields did not match its encrypted envelope")
     }
 
-    val keyName = "quiet_${teamId}_${signature.author.type}_${signature.author.name}_${signature.author.generation}_userSig"
-    val publicKey = lfaKeyLookup(keyName) ?: throw MissingQssNotificationKeyException(keyName)
     val signatureBytes = decodeBase58(signature.signature)
-    val publicKeyBytes = decodeBase58(publicKey)
     if (signatureBytes.size != 64) {
         throw IllegalStateException("Invalid message signature length: ${signatureBytes.size}")
     }
+
+    // Only a structurally valid, internally consistent immutable entry may enter the retryable
+    // missing-key path. Otherwise an attacker can combine malformed signature material with an
+    // unknown generation and pin the notification cursor forever.
+    val keyName = "quiet_${teamId}_${signature.author.type}_${signature.author.name}_${signature.author.generation}_userSig"
+    val publicKey = lfaKeyLookup(keyName) ?: throw MissingQssNotificationKeyException(keyName)
+    val publicKeyBytes = decodeBase58(publicKey)
     if (publicKeyBytes.size != 32) {
         throw IllegalStateException("Invalid user signature public key length: ${publicKeyBytes.size}")
     }
