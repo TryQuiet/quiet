@@ -66,6 +66,7 @@ const createEntry = (
   ({
     hash,
     identity: 'writer-identity-hash',
+    key: 'writer-public-key',
     payload: {
       op,
       key,
@@ -97,7 +98,9 @@ const createAccess = async (sigchainService: any, isPublic: boolean, idToRoleNam
       ipfs: createInMemoryIpfs(),
     },
     identities: {
-      getIdentity: jest.fn().mockResolvedValue({ id: 'writer-id', teamId: 'team-id' } as never),
+      getIdentity: jest
+        .fn()
+        .mockResolvedValue({ id: 'writer-id', teamId: 'team-id', publicKey: 'writer-public-key' } as never),
       verifyIdentity: jest.fn().mockResolvedValue(true as never),
     },
   })
@@ -134,6 +137,14 @@ describe('ChannelMetadataAccessController', () => {
     attachLogContext(access)
 
     await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(true)
+  })
+
+  it('rejects privileged channel metadata when the entry key belongs to another signer', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
+    attachLogContext(access)
+    const entry = { ...createEntry(OrbitDbOp.PUT), key: 'attacker-public-key' }
+
+    await expect(access.canAppend(entry)).resolves.toBe(false)
   })
 
   it('allows private channel metadata PUT entries from team members with correct permissions', async () => {

@@ -115,6 +115,7 @@ const createEntry = ({
   ({
     hash,
     identity: 'writer-identity-hash',
+    key: 'writer-public-key',
     payload: {
       op,
       key,
@@ -124,7 +125,11 @@ const createEntry = ({
 
 const createAccess = async (
   sigchainService: any,
-  writerIdentity: { id: string; teamId?: string } | undefined = { id: 'writer-id', teamId: 'team-id' },
+  writerIdentity: { id: string; teamId?: string; publicKey: string } | undefined = {
+    id: 'writer-id',
+    teamId: 'team-id',
+    publicKey: 'writer-public-key',
+  },
   verifyIdentity = true
 ) => {
   const controller = new UserProfileAccessController(sigchainService)
@@ -168,6 +173,13 @@ describe('UserProfileAccessController', () => {
     await expect(access.canAppend(createEntry())).resolves.toBe(true)
   })
 
+  it('rejects a profile entry whose signature key does not belong to the claimed writer identity', async () => {
+    const access = await createAccess(createSigchainService())
+    const entry = { ...createEntry(), key: 'attacker-public-key' }
+
+    await expect(access.canAppend(entry)).resolves.toBe(false)
+  })
+
   it('rejects user profile PUT entries from non-members', async () => {
     const access = await createAccess(createSigchainService({ member: false }))
 
@@ -183,7 +195,11 @@ describe('UserProfileAccessController', () => {
   })
 
   it('rejects user profile PUT entries from a different team identity', async () => {
-    const access = await createAccess(createSigchainService(), { id: 'writer-id', teamId: 'other-team-id' })
+    const access = await createAccess(createSigchainService(), {
+      id: 'writer-id',
+      teamId: 'other-team-id',
+      publicKey: 'writer-public-key',
+    })
 
     await expect(access.canAppend(createEntry())).resolves.toBe(false)
   })
@@ -202,7 +218,11 @@ describe('UserProfileAccessController', () => {
   })
 
   it('rejects user profile PUT entries when the writer does not match the encrypted signature author', async () => {
-    const access = await createAccess(createSigchainService(), { id: 'other-user-id', teamId: 'team-id' })
+    const access = await createAccess(createSigchainService(), {
+      id: 'other-user-id',
+      teamId: 'team-id',
+      publicKey: 'writer-public-key',
+    })
 
     await expect(access.canAppend(createEntry())).resolves.toBe(false)
   })

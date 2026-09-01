@@ -68,6 +68,7 @@ interface ChannelMetadataAccessControllerConfig {
 interface ChannelMetadataWriterIdentity {
   id: string
   teamId?: string
+  publicKey: string
 }
 
 @Injectable()
@@ -139,6 +140,9 @@ export class ChannelMetadataAccessController {
     return async (entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> => {
       const writerIdentity = (await identities.getIdentity(entry.identity)) as ChannelMetadataWriterIdentity
       if (!writerIdentity) {
+        return false
+      }
+      if (writerIdentity.publicKey !== entry.key) {
         return false
       }
 

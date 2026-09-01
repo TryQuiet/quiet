@@ -114,6 +114,9 @@ export class UserProfileAccessController {
       if (!writerIdentity) {
         return false
       }
+      if (writerIdentity.publicKey !== entry.key) {
+        return false
+      }
 
       if (!config.write.includes(writerIdentity.id) && !config.write.includes('*')) {
         return false

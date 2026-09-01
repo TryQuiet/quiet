@@ -495,6 +495,13 @@ export class ChannelsService extends EventEmitter {
     }
 
     const writerIdentity = await identities.getIdentity(entry.identity)
+    if (writerIdentity.publicKey !== entry.key) {
+      this.logger.error(
+        `Failed to validate channel ${operation} entry: entry key does not match claimed identity:`,
+        entry.hash
+      )
+      return undefined
+    }
     const identityVerified = await identities.verifyIdentity(writerIdentity)
     if (!identityVerified) {
       this.logger.error(

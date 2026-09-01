@@ -18,6 +18,7 @@ export interface LFAUserAndChain {
 export interface LFAIdentityMetadata {
   id: string
   teamId: string
+  type: string
   publicKey: Base58
   generation: number
 }

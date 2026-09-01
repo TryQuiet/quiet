@@ -183,6 +183,18 @@ describe('CommmunityMetadataStore', () => {
       expect(ret).toEqual(false)
     })
 
+    test('returns false when the entry key does not belong to the claimed owner identity', async () => {
+      const forgedEntry = { ...entryValid, key: 'attacker-public-key' }
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        localDbService,
+        mockIdentities(true, true),
+        sigChainService,
+        forgedEntry
+      )
+
+      expect(ret).toEqual(false)
+    })
+
     test('returns false if the owner ID is unexpected and entry is otherwise valid', async () => {
       const op = { op: OrbitDbOp.PUT, key: metaValidWithOwnerId.id, value: encryptedMetaValid }
 

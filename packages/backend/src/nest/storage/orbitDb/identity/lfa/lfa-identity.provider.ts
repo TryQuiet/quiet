@@ -12,6 +12,7 @@ import { Injectable } from '@nestjs/common'
 import { SigChainService } from '../../../../auth/sigchain.service'
 import {
   LFAIdentity,
+  LFAIdentityMetadata,
   LFAIdentityProviderGetIdError,
   LFAIdentityProviderSignError,
   LFAIdentityProviderVerifyError,
@@ -19,8 +20,10 @@ import {
   SignatureWithTeamId,
   SignedEnvelopeWithTeamId,
 } from './types'
-import { Member } from '@localfirst/auth'
-import { hash } from '@localfirst/crypto'
+import { SigChain } from '../../../../auth/sigchain'
+import { Base58, Member, membershipResolver } from '@localfirst/auth'
+import { hash, signatures } from '@localfirst/crypto'
+import { getSequence, KeyType, ROOT } from '@localfirst/crdx'
 import { createLogger } from '../../../../common/logger'
 import { randomUUID } from 'crypto'
 import { Serializer } from '../../../../common/serializer.service'
@@ -94,11 +97,20 @@ class LFAIdentityProvider implements IdentityProvider {
    */
   public async verifyIdentity(identity: LFAIdentity): Promise<boolean> {
     try {
-      const { user } = this.getUserAndChain(identity.id, identity.teamId)
+      const { sigchain } = this.getUserAndChain(identity.id, identity.teamId)
+      const metadata: LFAIdentityMetadata = {
+        id: identity.id,
+        teamId: identity.teamId,
+        type: identity.type,
+        publicKey: identity.publicKey as Base58,
+        generation: identity.generation,
+      }
+      const canonicalBytes = this.serializer.serialize(metadata, SerializerEncodingType.UINT8ARRAY)
+      const canonicalHash = uint8arrays.toString(canonicalBytes, 'hex')
       return (
         identity.type === this.type &&
-        identity.generation === user.keys.generation &&
-        identity.publicKey === user.keys.signature
+        identity.hash === canonicalHash &&
+        identity.publicKey === this.getSigningKey(sigchain, identity.id, identity.generation)
       )
     } catch (e) {
       const err = new LFAIdentityProviderVerifyError(e)
@@ -162,20 +174,24 @@ class LFAIdentityProvider implements IdentityProvider {
       // convert the hex string back to a signed envelope
       const signedEnvelope = this._hexToSignedEnvelope(signature)
       // validate the user is on the chain
-      const { user, sigchain } = this.getUserAndChain(signedEnvelope.author.name, signedEnvelope.teamId)
+      const { sigchain } = this.getUserAndChain(signedEnvelope.author.name, signedEnvelope.teamId)
+      const expectedPublicKey = this.getSigningKey(
+        sigchain,
+        signedEnvelope.author.name,
+        signedEnvelope.author.generation
+      )
       // OrbitDB authorizes the identity whose public key it passes here. The signed envelope is
       // untrusted until its author metadata is bound to that identity; otherwise a valid member can
       // sign as themselves while the entry claims a different, more privileged member.
-      if (
-        signedEnvelope.author.type !== user.keys.type ||
-        signedEnvelope.author.name !== user.userId ||
-        signedEnvelope.author.generation !== user.keys.generation ||
-        publicKey !== user.keys.signature
-      ) {
+      if (signedEnvelope.author.type !== KeyType.USER || expectedPublicKey == null || publicKey !== expectedPublicKey) {
         return false
       }
-      // verify the signature against the keys stored on the chain for this user
-      return sigchain.crypto.validateSignature({ ...signedEnvelope, contents: data })
+      return (signatures.verify as any)({
+        payload: data,
+        signature: signedEnvelope.signature,
+        publicKey: expectedPublicKey,
+        context: 'lf/auth/team-message',
+      })
     } catch (e) {
       this.logger.error('Error validating OrbitDB entry signature', e)
       return false
@@ -190,6 +206,33 @@ class LFAIdentityProvider implements IdentityProvider {
    */
   private _generateIdentitySignaturePayload(user: Member): string {
     return hash(user.userId, user.keys.signature)
+  }
+
+  /** Resolve a user's canonical signing key from the validated, conflict-resolved team history. */
+  private getSigningKey(sigchain: SigChain, userId: string, generation: number): Base58 | undefined {
+    const team = sigchain.team
+    if (team == null) return undefined
+
+    const sequence = getSequence(team.graph, membershipResolver)
+    for (const link of sequence) {
+      if (link.isInvalid) continue
+      const { type, payload } = link.body
+      const keys =
+        type === ROOT
+          ? payload.rootMember.keys
+          : type === 'ADD_MEMBER'
+            ? payload.member.keys
+            : type === 'ADMIT_MEMBER'
+              ? payload.claim.memberKeys
+              : type === 'CHANGE_MEMBER_KEYS'
+                ? payload.keys
+                : undefined
+
+      if (keys?.type === KeyType.USER && keys.name === userId && keys.generation === generation) {
+        return keys.signature
+      }
+    }
+    return undefined
   }
 
   /**

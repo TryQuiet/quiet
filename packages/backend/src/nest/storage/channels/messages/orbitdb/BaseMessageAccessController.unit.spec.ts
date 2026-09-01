@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals'
 import { base58btc } from 'multiformats/bases/base58'
 
 import { MessagesAccessController } from './MessagesAccessController'
+import { PrivateMessagesAccessController } from './PrivateMessagesAccessController'
 
 const emptyAsyncIterable = async function* () {}
 
@@ -43,5 +44,37 @@ describe('BaseMessagesAccessController address handling', () => {
       address: created.address,
       write,
     })
+  })
+
+  it.each([
+    [
+      'public',
+      new MessagesAccessController({} as any).createAccessControllerFunc({
+        write: ['alice'],
+        sigchainService: {} as any,
+      }),
+    ],
+    [
+      'private',
+      new PrivateMessagesAccessController({} as any).createAccessControllerFunc({
+        write: ['alice'],
+        sigchainService: {} as any,
+        channelId: 'channel-id',
+        teamId: 'team-id',
+        roleName: 'channel-role',
+      }),
+    ],
+  ])('rejects a %s message when the entry key is not the claimed writer key', async (_label, factory) => {
+    const access = await (factory as any)({
+      orbitdb: { identity: { id: 'local' }, ipfs: createInMemoryIpfs() },
+      identities: {
+        getIdentity: async () => ({ id: 'alice', publicKey: 'alice-public-key' }),
+        verifyIdentity: async () => true,
+      },
+    })
+
+    await expect(
+      access.canAppend({ identity: 'alice-identity', key: 'attacker-public-key', payload: { value: {} } })
+    ).resolves.toBe(false)
   })
 })

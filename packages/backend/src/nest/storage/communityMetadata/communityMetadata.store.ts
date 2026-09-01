@@ -236,6 +236,10 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
         logger.error('Failed to verify community metadata entry:', entry.hash, 'entry identity != owner identity')
         return false
       }
+      if (entryIdentity.publicKey !== entry.key) {
+        logger.error('Failed to verify community metadata entry:', entry.hash, 'entry key != identity public key')
+        return false
+      }
 
       const entryVerified = await Entry.verify(identities, entry)
       if (!entryVerified) {

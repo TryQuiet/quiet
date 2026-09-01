@@ -25,6 +25,9 @@ export class MessagesAccessController extends BaseMessagesAccessController<Acces
       if (!writerIdentity) {
         return false
       }
+      if (writerIdentity.publicKey !== entry.key) {
+        return false
+      }
 
       const { id } = writerIdentity
       if (config.write.includes(id) || config.write.includes('*')) {

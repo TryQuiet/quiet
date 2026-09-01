@@ -8,4 +8,5 @@ export interface UserProfileAccessControllerConfig {
 export interface UserProfileWriterIdentity {
   id: string
   teamId?: string
+  publicKey: string
 }

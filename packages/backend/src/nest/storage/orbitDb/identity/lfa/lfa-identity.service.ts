@@ -73,6 +73,7 @@ class LFAIdentities extends EventEmitter {
     const identityMetadata: LFAIdentityMetadata = {
       id: user.userId,
       teamId,
+      type: this.provider.type,
       publicKey: user.keys.signature,
       generation: user.keys.generation,
     }
@@ -82,7 +83,7 @@ class LFAIdentities extends EventEmitter {
       id: user.userId,
       generation: user.keys.generation,
       teamId,
-      type: this.provider.type,
+      type: identityMetadata.type,
       provider: this.provider,
       publicKey: user.keys.signature,
       signatures: {
@@ -107,12 +108,16 @@ class LFAIdentities extends EventEmitter {
   public async getIdentity(hash: string): Promise<LFAIdentity> {
     const bytes = uint8arrays.fromString(hash, 'hex')
     const identityMetadata = this.serializer.deserialize(bytes) as LFAIdentityMetadata
+    if (identityMetadata.type !== this.provider.type) {
+      throw new Error(`Unsupported OrbitDB identity provider type: ${identityMetadata.type}`)
+    }
     this.provider.getUserAndChain(identityMetadata.id, identityMetadata.teamId)
     return {
       id: identityMetadata.id,
       teamId: identityMetadata.teamId,
       generation: identityMetadata.generation,
-      type: this.provider.type,
+      type: identityMetadata.type,
+      provider: this.provider,
       publicKey: identityMetadata.publicKey,
       signatures: {
         id: '',
