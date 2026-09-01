@@ -14,7 +14,15 @@ import java.util.concurrent.TimeUnit
 class QssHttpException(val statusCode: Int, body: String?) :
     IOException("QSS request failed with HTTP $statusCode${body?.let { ": $it" } ?: ""}")
 
-class QssNetworkClient(baseUrl: String) {
+interface QssAuthClient {
+    fun requestChallenge(deviceId: String, teamId: String): ChallengeResponse
+
+    fun requestToken(challengeId: String, deviceId: String, proof: ProofPayload): TokenResponse
+
+    fun fetchLogEntries(teamId: String, afterSeq: Long, token: String): LogEntriesResponse
+}
+
+class QssNetworkClient(baseUrl: String) : QssAuthClient {
     private val baseUrl = baseUrl.toHttpUrl()
     private val client =
         OkHttpClient.Builder()
@@ -22,7 +30,7 @@ class QssNetworkClient(baseUrl: String) {
             .readTimeout(20, TimeUnit.SECONDS)
             .build()
 
-    fun requestChallenge(deviceId: String, teamId: String): ChallengeResponse {
+    override fun requestChallenge(deviceId: String, teamId: String): ChallengeResponse {
         val body = JSONObject()
             .put("deviceId", deviceId)
             .put("teamId", teamId)
@@ -78,7 +86,7 @@ class QssNetworkClient(baseUrl: String) {
         return value.toInt()
     }
 
-    fun requestToken(challengeId: String, deviceId: String, proof: ProofPayload): TokenResponse {
+    override fun requestToken(challengeId: String, deviceId: String, proof: ProofPayload): TokenResponse {
         val body = JSONObject()
             .put("challengeId", challengeId)
             .put("deviceId", deviceId)
@@ -91,7 +99,7 @@ class QssNetworkClient(baseUrl: String) {
         )
     }
 
-    fun fetchLogEntries(teamId: String, afterSeq: Long, token: String): LogEntriesResponse {
+    override fun fetchLogEntries(teamId: String, afterSeq: Long, token: String): LogEntriesResponse {
         val url =
             baseUrl.newBuilder()
                 .addPathSegments("nse-auth/logs/$teamId")

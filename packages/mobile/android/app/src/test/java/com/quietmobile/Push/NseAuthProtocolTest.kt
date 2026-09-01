@@ -40,19 +40,33 @@ class NseAuthProtocolTest {
         val secretKey = CopperBase58.decode(
             "2ZC6948FLMTyZ9cAN2Db6u4E9FN72vEwXa1s193vMozZUYnBzVU7952gS6zY7T2VZJVBuJKSsdo7gDDkox3tZx4u",
         )
-        val pkcs8Prefix = hex("302e020100300506032b657004220420")
-        val privateKey = KeyFactory.getInstance("Ed25519").generatePrivate(
-            PKCS8EncodedKeySpec(pkcs8Prefix + secretKey.copyOfRange(0, 32)),
-        )
-        val signature = Signature.getInstance("Ed25519").run {
-            initSign(privateKey)
-            update(MsgpackEncoder.encodeNseAuthProof(challenge))
-            sign()
-        }
+        val productionSigner = QssCryptoService(NseDetachedSigner { seed, payload ->
+            val pkcs8Prefix = hex("302e020100300506032b657004220420")
+            val privateKey = KeyFactory.getInstance("Ed25519").generatePrivate(
+                PKCS8EncodedKeySpec(pkcs8Prefix + seed),
+            )
+            Signature.getInstance("Ed25519").run {
+                initSign(privateKey)
+                update(payload)
+                sign()
+            }
+        })
+        val proof = productionSigner.signNseAuthProof(challenge, secretKey)
         assertEquals(
             "62XsfcCvq4SeRxmVK6LNyjuPpLyUSaCxPD315LRtfet9GnHQ6zu5sg8muz1eh4ZvvnZ6m3SH88KRztu4gm8W5YQk",
-            CopperBase58.encode(signature),
+            proof.signature,
         )
+    }
+
+    @Test
+    fun `production signer rejects invalid key and primitive signature sizes`() {
+        val signer = QssCryptoService(NseDetachedSigner { _, _ -> ByteArray(63) })
+        assertThrows(IllegalStateException::class.java) {
+            signer.signNseAuthProof(challenge, ByteArray(31))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            signer.signNseAuthProof(challenge, ByteArray(32))
+        }
     }
 
     @Test
