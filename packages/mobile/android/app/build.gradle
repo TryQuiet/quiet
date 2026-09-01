@@ -319,6 +319,8 @@ dependencies {
     implementation("com.apicatalog:copper-multibase:4.1.0")
     implementation("org.msgpack:msgpack-core:0.9.12")
 
+    testImplementation("junit:junit:4.13.2")
+
     implementation("com.google.guava:guava:33.5.0-android")
 }
 

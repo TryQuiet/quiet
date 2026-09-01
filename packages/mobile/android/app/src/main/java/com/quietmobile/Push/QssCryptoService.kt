@@ -8,6 +8,8 @@ import com.goterl.lazysodium.interfaces.PwHash
 class QssCryptoService {
     private val sodium = LazySodiumAndroid(SodiumAndroid())
 
+    private val teamMessageSignatureContext = "lf/auth/team-message"
+
     private val stretchSalt: ByteArray =
         decodeBase58("H5B4DLSXw5xwNYFdz1Wr6e")
             ?: throw IllegalStateException("Failed to decode Quiet stretch salt")
@@ -37,13 +39,18 @@ class QssCryptoService {
     }
 
     fun decryptNotificationMessage(logEntry: LogEntry, teamId: String): DecryptedNotificationMessage? {
+        if (logEntry.communityId != teamId) {
+            throw IllegalStateException("QSS entry community did not match requested team")
+        }
+
         val outerEnvelope =
             MsgpackDecoder.decode(logEntry.entry) as? Map<*, *>
                 ?: throw IllegalStateException("Outer QSS envelope was not a map")
         val outerEncrypted = parseEncryptedPayload(outerEnvelope["encrypted"], "outer QSS payload")
 
+        val decryptedOrbitEntry = decryptPayload(outerEncrypted, teamId)
         val orbitEntry =
-            decryptPayload(outerEncrypted, teamId) as? Map<*, *>
+            decryptedOrbitEntry.value as? Map<*, *>
                 ?: throw IllegalStateException("Decrypted OrbitDB entry was not a map")
         val payload = orbitEntry["payload"] as? Map<*, *> ?: return null
         val payloadValue = payload["value"] as? Map<*, *> ?: return null
@@ -54,17 +61,37 @@ class QssCryptoService {
 
         val signature = parseSignature(payloadValue["encSignature"])
         val innerEncrypted = parseEncryptedPayload(payloadValue["contents"], "inner channel message")
-        val message = decryptPayload(innerEncrypted, teamId) as? Map<*, *> ?: return null
-
-        if (!verifyMessageSignature(message, signature, teamId)) {
-            throw IllegalStateException("Message signature verification failed")
-        }
+        val decryptedInner = decryptPayload(innerEncrypted, teamId)
+        val message = decryptedInner.value as? Map<*, *> ?: return null
 
         val id = stringValue(message["id"]) ?: return null
         val channelId = stringValue(message["channelId"]) ?: return null
         val userId = stringValue(message["userId"]) ?: return null
+        val messageTeamId = stringValue(message["teamId"]) ?: return null
+        val createdAt = numberValue(message["createdAt"]) ?: return null
         val type = intValue(message["type"]) ?: return null
         val body = notificationBody(message, type) ?: return null
+
+        if (id.isEmpty() || channelId.isEmpty() || userId.isEmpty() || messageTeamId.isEmpty() || type <= 0) {
+            throw IllegalStateException("Decrypted message shape was invalid")
+        }
+
+        if (signature.author.name != userId) {
+            throw IllegalStateException("Message signature author did not match message userId")
+        }
+        if (
+            stringValue(payloadValue["id"]) != id ||
+            stringValue(payloadValue["channelId"]) != channelId ||
+            stringValue(payloadValue["teamId"]) != messageTeamId ||
+            messageTeamId != teamId ||
+            numberValue(payloadValue["createdAt"]) != createdAt
+        ) {
+            throw IllegalStateException("Inner message fields did not match its encrypted envelope")
+        }
+
+        if (!verifyMessageSignature(decryptedInner.bytes, signature, teamId)) {
+            throw IllegalStateException("Message signature verification failed")
+        }
 
         return DecryptedNotificationMessage(
             id = id,
@@ -75,7 +102,10 @@ class QssCryptoService {
         )
     }
 
-    private fun verifyMessageSignature(message: Map<*, *>, signature: MessageSignature, teamId: String): Boolean {
+    private fun verifyMessageSignature(plaintext: ByteArray, signature: MessageSignature, teamId: String): Boolean {
+        if (signature.author.type != "USER") {
+            throw IllegalStateException("Message signature author was not a user key")
+        }
         val publicKeyName = makeUserSignatureKeyName(teamId, signature.author)
         val publicKey =
             QuietStorage.getLfaKey(publicKeyName)
@@ -93,7 +123,7 @@ class QssCryptoService {
             throw IllegalStateException("Invalid user signature public key length: ${publicKeyBytes.size}")
         }
 
-        val payloadBytes = MsgpackEncoder.encode(message)
+        val payloadBytes = MsgpackEncoder.withSignatureContext(teamMessageSignatureContext, plaintext)
         return sodium.cryptoSignVerifyDetached(signatureBytes, payloadBytes, payloadBytes.size, publicKeyBytes)
     }
 
@@ -110,7 +140,7 @@ class QssCryptoService {
         }
     }
 
-    private fun decryptPayload(encryptedPayload: EncryptedPayload, teamId: String): Any? {
+    private fun decryptPayload(encryptedPayload: EncryptedPayload, teamId: String): DecryptedPayload {
         val keyName = makeKeyName(teamId, encryptedPayload.scope)
         val secretKey =
             QuietStorage.getLfaKey(keyName)
@@ -118,7 +148,7 @@ class QssCryptoService {
         return decryptSymmetric(encryptedPayload.contents, secretKey)
     }
 
-    private fun decryptSymmetric(cipherBytes: ByteArray, password: String): Any? {
+    private fun decryptSymmetric(cipherBytes: ByteArray, password: String): DecryptedPayload {
         val cipher =
             MsgpackDecoder.decode(cipherBytes) as? Map<*, *>
                 ?: throw IllegalStateException("Cipher payload did not decode to a map")
@@ -151,7 +181,7 @@ class QssCryptoService {
             throw IllegalStateException("secretbox open failed")
         }
 
-        return MsgpackDecoder.decode(decrypted)
+        return DecryptedPayload(value = MsgpackDecoder.decode(decrypted), bytes = decrypted)
     }
 
     private fun stretch(password: String): ByteArray {
@@ -261,6 +291,15 @@ class QssCryptoService {
         }
     }
 
+    private fun numberValue(value: Any?): Double? {
+        val result = when (value) {
+            is Number -> value.toDouble()
+            is String -> value.toDoubleOrNull()
+            else -> null
+        }
+        return result?.takeIf { it.isFinite() }
+    }
+
     private fun decodeBase58(value: String): ByteArray? {
         return runCatching { CopperBase58.decode(value) }.getOrNull()
     }
@@ -274,5 +313,10 @@ class QssCryptoService {
         val type: String,
         val name: String,
         val generation: Int,
+    )
+
+    private data class DecryptedPayload(
+        val value: Any?,
+        val bytes: ByteArray,
     )
 }
