@@ -25,6 +25,7 @@ import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
+import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -359,12 +360,10 @@ export class Libp2pAuth {
         const user = this.sigChainService.user
         if (team) {
           authConnection.emit('sync', { team, user })
-          if (
-            authConnection._context.peer != null &&
-            !(authConnection._context.peer as Member).roles.includes(RoleName.MEMBER)
-          ) {
-            this.sigChainService.roles.addMember((authConnection._context.peer as Member).userId, RoleName.MEMBER)
-          }
+          grantMissingMemberRoleFromConnectedPeer(
+            this.sigChainService.roles,
+            authConnection._context.peer as Member | undefined
+          )
           this.handleJoinViaQSS()
         } else {
           this.logger.error('Cannot emit sync event, team is null')
