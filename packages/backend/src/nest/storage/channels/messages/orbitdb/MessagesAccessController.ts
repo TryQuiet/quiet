@@ -38,6 +38,7 @@ export class MessagesAccessController extends BaseMessagesAccessController<Publi
       if (!config.write.includes(id) && !config.write.includes('*')) {
         return false
       }
+      const writerMetadata = writerIdentity as typeof writerIdentity & { generation: number; teamId: string }
 
       if (entry.payload.value == null) {
         this.logger.error(`Can't verify OrbitDB entry ${entry.id}, payload value is nullish`)
@@ -54,6 +55,8 @@ export class MessagesAccessController extends BaseMessagesAccessController<Publi
         config.teamId == null ||
         config.channelId == null ||
         id !== encryptedMessage.encSignature.author.name ||
+        writerMetadata.generation !== encryptedMessage.encSignature.author.generation ||
+        writerMetadata.teamId !== config.teamId ||
         encryptedMessage.teamId !== config.teamId ||
         encryptedMessage.channelId !== config.channelId ||
         encryptedMessage.contents.scope.type !== EncryptionScopeType.ROLE ||

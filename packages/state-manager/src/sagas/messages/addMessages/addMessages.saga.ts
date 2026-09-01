@@ -4,8 +4,9 @@ import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { type CacheMessagesPayload, type ChannelMessage, type ConsumedChannelMessage } from '@quiet/types'
+import { type CacheMessagesPayload, type ChannelMessage } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { isMessageTransportVerified } from '../utils/message.utils'
 
 const logger = createLogger('addMessagesSaga')
 
@@ -13,8 +14,7 @@ export function* addMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
-    const transportVerified = (incomingMessage as ConsumedChannelMessage).verified ?? action.payload.isVerified
-    if (transportVerified === false) {
+    if (!isMessageTransportVerified(incomingMessage, action.payload.isVerified)) {
       logger.warn(`Skipping message rejected by transport verification`, incomingMessage.id)
       continue
     }

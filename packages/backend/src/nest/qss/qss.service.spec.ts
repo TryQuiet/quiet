@@ -1174,13 +1174,18 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       markOutboundSyncReady(sigchainService.activeChain.team!.id)
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId: sigchainService.team.id,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
@@ -1420,13 +1425,18 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeFalsy()
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId: sigchainService.team.id,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       expect(hash).toBeDefined()
@@ -1947,13 +1957,18 @@ describe('QSSService', () => {
 
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.joinstatus`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
@@ -1978,13 +1993,18 @@ describe('QSSService', () => {
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage')
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.starting`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
@@ -2009,13 +2029,18 @@ describe('QSSService', () => {
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage')
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.pending-member`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
@@ -2042,7 +2067,12 @@ describe('QSSService', () => {
       await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.test`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: 'test',
+          teamId,
+        }),
         sync: true,
       })
 

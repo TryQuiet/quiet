@@ -39,6 +39,7 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
       if (!config.write.includes(id) && !config.write.includes('*')) {
         return false
       }
+      const writerMetadata = writerIdentity as typeof writerIdentity & { generation: number; teamId: string }
 
       if (entry.payload.value == null) {
         this.logger.error(`Can't verify OrbitDB entry ${entry.id}, payload value is nullish`)
@@ -62,6 +63,8 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
 
       if (
         id !== entry.payload.value.encSignature.author.name ||
+        writerMetadata.generation !== entry.payload.value.encSignature.author.generation ||
+        writerMetadata.teamId !== config.teamId ||
         entry.payload.value.encSignature.author.type !== EncryptionScopeType.USER
       ) {
         this.logger.warn(`Message writer identity did not match the encrypted-signature author`)

@@ -51,6 +51,33 @@ describe('BaseMessagesAccessController address handling', () => {
     })
   })
 
+  it('keeps the legacy ACL address when team and channel security context is supplied', async () => {
+    const sigchainService = {} as any
+    const orbitdb = {
+      identity: { id: 'local-orbitdb-identity' },
+      ipfs: createInMemoryIpfs(),
+    }
+    const controller = new MessagesAccessController(sigchainService)
+    const first = await (
+      controller.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService,
+        channelId: 'first-channel',
+        teamId: 'first-team',
+      }) as any
+    )({ orbitdb, identities: {} })
+    const second = await (
+      controller.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService,
+        channelId: 'second-channel',
+        teamId: 'second-team',
+      }) as any
+    )({ orbitdb, identities: {} })
+
+    expect(first.address).toEqual(second.address)
+  })
+
   it.each([
     [
       'public',
@@ -127,7 +154,12 @@ describe('BaseMessagesAccessController address handling', () => {
     const access = await (factory as any)({
       orbitdb: { identity: { id: 'local' }, ipfs: createInMemoryIpfs() },
       identities: {
-        getIdentity: async () => ({ id: 'mallory', publicKey: 'mallory-public-key' }),
+        getIdentity: async () => ({
+          id: 'mallory',
+          publicKey: 'mallory-public-key',
+          generation: 0,
+          teamId: 'team-id',
+        }),
         verifyIdentity: async () => true,
       },
     })
@@ -162,5 +194,66 @@ describe('BaseMessagesAccessController address handling', () => {
         payload: { value: encryptedMessage },
       })
     ).resolves.toBe(true)
+  })
+
+  it.each([
+    ['public', 'member'],
+    ['private', 'channel-role'],
+  ])('rejects a %s message when writer generation or team differs from its claimed author', async (kind, roleName) => {
+    const sigchainService = {
+      getChain: () => ({
+        roles: { memberHasRole: () => true },
+        channels: { memberInChannel: () => true },
+      }),
+    } as any
+    const config = {
+      write: ['*'],
+      sigchainService,
+      channelId: 'channel-id',
+      teamId: 'team-id',
+      roleName,
+    }
+    const identity = {
+      id: 'alice',
+      publicKey: 'alice-public-key',
+      generation: 1,
+      teamId: 'team-id',
+    }
+    const factory = (
+      kind === 'public'
+        ? new MessagesAccessController(sigchainService)
+        : new PrivateMessagesAccessController(sigchainService)
+    ).createAccessControllerFunc(config)
+    const access = await (factory as any)({
+      orbitdb: { identity: { id: 'local' }, ipfs: createInMemoryIpfs() },
+      identities: {
+        getIdentity: async () => identity,
+        verifyIdentity: async () => true,
+      },
+    })
+    const encryptedMessage = {
+      id: 'message-id',
+      teamId: 'team-id',
+      channelId: 'channel-id',
+      createdAt: 1234,
+      contents: {
+        contents: new Uint8Array([1, 2, 3]),
+        scope: { type: 'ROLE', name: roleName, generation: 0 },
+      },
+      encSignature: {
+        signature: 'invalid-but-shaped-signature',
+        author: { type: 'USER', name: 'alice', generation: 0 },
+      },
+    }
+    const entry = {
+      identity: 'alice-identity',
+      key: 'alice-public-key',
+      payload: { value: encryptedMessage },
+    }
+
+    await expect(access.canAppend(entry)).resolves.toBe(false)
+    identity.generation = 0
+    identity.teamId = 'other-team'
+    await expect(access.canAppend(entry)).resolves.toBe(false)
   })
 })

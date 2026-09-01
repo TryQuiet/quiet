@@ -10,7 +10,6 @@ import {
   type AddPublicChannelsMessagesBasePayload,
   type GetMessagesPayload,
   type ChannelMessage,
-  type ConsumedChannelMessage,
   type ChannelMessageIdsResponse,
   type DeleteChannelEntryPayload,
   type MessagesLoadedPayload,
@@ -26,6 +25,7 @@ import {
   VerifyMessagesPayload,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import { isMessageTransportVerified } from './utils/message.utils'
 
 const logger = createLogger('messagesSlice')
 
@@ -83,8 +83,7 @@ export const messagesSlice = createSlice({
     addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
-        const transportVerified = (message as ConsumedChannelMessage).verified ?? action.payload.isVerified
-        if (transportVerified === false) {
+        if (!isMessageTransportVerified(message, action.payload.isVerified)) {
           logger.warn('Refusing to store message rejected by transport verification', message.id)
           continue
         }

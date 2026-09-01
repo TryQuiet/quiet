@@ -8,6 +8,7 @@ import { filesActions } from '../files.slice'
 import { applyEmitParams, type Socket } from '../../../types'
 import { type DownloadFilePayload, DownloadState, MessageType, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { isMessageTransportVerified } from '../../messages/utils/message.utils'
 
 const logger = createLogger('autoDownloadFilesSaga')
 
@@ -15,13 +16,16 @@ export function* autoDownloadFilesSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
+  const messages = action.payload.messages.filter(message =>
+    isMessageTransportVerified(message, action.payload.isVerified)
+  )
+  if (messages.length === 0) return
+
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
     logger.error('Could not autodownload files, no identity')
     return
   }
-
-  const { messages } = action.payload
 
   for (const message of messages) {
     // Proceed for images and files only
