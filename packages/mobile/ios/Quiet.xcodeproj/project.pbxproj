@@ -19,6 +19,8 @@
 		A11500000000000000000006 /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000009 /* Base58.swift */; };
 		A1150000000000000000000C /* NSEAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000A /* NSEAuthService.swift */; };
 		A1150000000000000000000D /* NSENotificationPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000B /* NSENotificationPresentation.swift */; };
+		A11500000000000000000010 /* NSENetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000E /* NSENetworkClient.swift */; };
+		A11500000000000000000011 /* NSECryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000F /* NSECryptoService.swift */; };
 		03B674072E6103DC00A86655 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674042E6103DC00A86655 /* Rubik-Regular.ttf */; };
 		03B674082E6103DC00A86655 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674022E6103DC00A86655 /* Rubik-Medium.ttf */; };
 		03B674092E6103DC00A86655 /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FC2E6103DC00A86655 /* Rubik-BoldItalic.ttf */; };
@@ -136,6 +138,8 @@
 		A11500000000000000000009 /* Base58.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Base58.swift; path = ../Shared/Base58.swift; sourceTree = "<group>"; };
 		A1150000000000000000000A /* NSEAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEAuthService.swift; path = ../QuietNotificationServiceExtension/NSEAuthService.swift; sourceTree = "<group>"; };
 		A1150000000000000000000B /* NSENotificationPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENotificationPresentation.swift; path = ../QuietNotificationServiceExtension/NSENotificationPresentation.swift; sourceTree = "<group>"; };
+		A1150000000000000000000E /* NSENetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENetworkClient.swift; path = ../QuietNotificationServiceExtension/NSENetworkClient.swift; sourceTree = "<group>"; };
+		A1150000000000000000000F /* NSECryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSECryptoService.swift; path = ../QuietNotificationServiceExtension/NSECryptoService.swift; sourceTree = "<group>"; };
 		03B673F92E6103DC00A86655 /* Rubik-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Black.ttf"; path = "../src/assets/fonts/Rubik-Black.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-BlackItalic.ttf"; path = "../src/assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FB2E6103DC00A86655 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Bold.ttf"; path = "../src/assets/fonts/Rubik-Bold.ttf"; sourceTree = SOURCE_ROOT; };
@@ -757,6 +761,8 @@
 				A11500000000000000000009 /* Base58.swift */,
 				A1150000000000000000000A /* NSEAuthService.swift */,
 				A1150000000000000000000B /* NSENotificationPresentation.swift */,
+				A1150000000000000000000E /* NSENetworkClient.swift */,
+				A1150000000000000000000F /* NSECryptoService.swift */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
 			path = QuietTests;
@@ -5352,6 +5358,8 @@
 				A11500000000000000000006 /* Base58.swift in Sources */,
 				A1150000000000000000000C /* NSEAuthService.swift in Sources */,
 				A1150000000000000000000D /* NSENotificationPresentation.swift in Sources */,
+				A11500000000000000000010 /* NSENetworkClient.swift in Sources */,
+				A11500000000000000000011 /* NSECryptoService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

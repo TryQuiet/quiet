@@ -37,6 +37,10 @@ protocol DeviceCryptography: NSEAuthSigning {
     func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage?
 }
 
+protocol NSELFAKeyReading {
+    func lfaKeyString(keyName: String) throws -> String
+}
+
 extension DeviceCryptography {
     func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String {
         try NSEAuthProof.sign(challenge, privateKeyData: privateKeyData)
@@ -80,6 +84,11 @@ extension NSECryptoError: NSERetryableNotificationError {
 /// 3. QSS log entries contain msgpackr-record-encoded payloads, not JSON
 class NSECryptoService: DeviceCryptography {
     private let sodium = Sodium()
+    private let lfaKeyReader: NSELFAKeyReading
+
+    init(lfaKeyReader: NSELFAKeyReading) {
+        self.lfaKeyReader = lfaKeyReader
+    }
 
     // Matches @localfirst/crypto stretch.ts
     private static let stretchSalt: [UInt8] = {
@@ -358,7 +367,7 @@ class NSECryptoService: DeviceCryptography {
 
     private func lfaKeyString(keyName: String) throws -> String {
         do {
-            return try KeychainService.getLfaKeyString(keyName: keyName)
+            return try self.lfaKeyReader.lfaKeyString(keyName: keyName)
         } catch {
             throw NSECryptoError.missingKey(keyName)
         }

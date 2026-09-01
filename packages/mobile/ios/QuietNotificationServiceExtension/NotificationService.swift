@@ -22,7 +22,7 @@ class NotificationService: UNNotificationServiceExtension {
     var fetchTask: Task<Void, Never>?
     private var pendingSyncSeq: Int64?
 
-    private let crypto = NSECryptoService()
+    private let crypto = NSECryptoService(lfaKeyReader: KeychainNSELFAKeyReader())
     private let tokenCache = NSEAuthTokenCache()
 
     private static func getChannelName(teamId: String, channelId: String) -> String {

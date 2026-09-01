@@ -12,3 +12,9 @@ struct KeychainNSEDeviceCredentials: NSEDeviceCredentials {
         try KeychainService.getDevicePrivateKey(deviceId: deviceId)
     }
 }
+
+struct KeychainNSELFAKeyReader: NSELFAKeyReading {
+    func lfaKeyString(keyName: String) throws -> String {
+        try KeychainService.getLfaKeyString(keyName: keyName)
+    }
+}

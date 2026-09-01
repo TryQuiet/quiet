@@ -1,3 +1,5 @@
+import CryptoKit
+import Foundation
 import XCTest
 
 final class NSEAuthProtocolTests: XCTestCase {
@@ -120,22 +122,34 @@ final class NSEAuthProtocolTests: XCTestCase {
         let secretKey = try XCTUnwrap(Base58.decode(
             "2ZC6948FLMTyZ9cAN2Db6u4E9FN72vEwXa1s193vMozZUYnBzVU7952gS6zY7T2VZJVBuJKSsdo7gDDkox3tZx4u"
         ))
-        let client = FixedQSSClient(
-            challengeResponse: try challengeResponse(),
-            tokenResponse: TokenResponse(token: "fixed-qss-token", expiresIn: 300),
-            logResponse: try logEntriesResponse()
+        let server = try FixedQSSHTTPServer(
+            challenge: challenge(),
+            signingPrivateKey: secretKey,
+            encryptedEntry: Self.encryptedLogEntry
+        )
+        FixedQSSURLProtocol.server = server
+        defer { FixedQSSURLProtocol.server = nil }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [FixedQSSURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+        let client = NSENetworkClient(
+            baseURL: URL(string: "https://fixed-qss.test")!,
+            session: session
         )
         let credentials = RecordingCredentials(privateKeyData: secretKey)
-        let signer = RecordingSigner(useProductionProof: true)
+        let crypto = NSECryptoService(lfaKeyReader: FixedLFAKeyReader())
         let service = NSEAuthService(
             client: client,
-            crypto: signer,
+            crypto: crypto,
             credentials: credentials,
             nowMs: { self.now }
         )
 
-        // This is the production NotificationService fetch path: credentials ->
-        // challenge validation -> native proof -> token -> authenticated log fetch.
+        // This is the production NotificationService fetch path over actual
+        // URLRequest/JSON serialization. The fixed QSS verifies the Ed25519
+        // proof before it will issue the bearer token.
         let response = try await service.fetchNewEntries(
             teamId: "team-test-1",
             qssServerId: "qss-test-1",
@@ -145,28 +159,27 @@ final class NSEAuthProtocolTests: XCTestCase {
         XCTAssertEqual(credentials.deviceIdReads, 1)
         XCTAssertEqual(credentials.privateKeyReads, 1)
         XCTAssertEqual(credentials.privateKeyDeviceIds, ["device-test-1"])
-        XCTAssertEqual(client.challengeRequests, [ChallengeRequest(deviceId: "device-test-1", teamId: "team-test-1")])
-        XCTAssertEqual(signer.signCalls, 1)
-        XCTAssertEqual(client.tokenRequests.count, 1)
-        XCTAssertEqual(client.tokenRequests.first?.challengeId, "00112233445566778899aabbccddeeff")
-        XCTAssertEqual(client.tokenRequests.first?.deviceId, "device-test-1")
-        XCTAssertEqual(
-            client.tokenRequests.first?.signature,
-            "62XsfcCvq4SeRxmVK6LNyjuPpLyUSaCxPD315LRtfet9GnHQ6zu5sg8muz1eh4ZvvnZ6m3SH88KRztu4gm8W5YQk"
-        )
-        XCTAssertEqual(client.logRequests, [LogRequest(teamId: "team-test-1", afterSeq: 40, token: "fixed-qss-token")])
+        XCTAssertTrue(server.verifiedProductionSignature)
+        XCTAssertEqual(server.requestPaths, [
+            "/nse-auth/challenge",
+            "/nse-auth/token",
+            "/nse-auth/logs/team-test-1?afterSeq=40"
+        ])
         XCTAssertEqual(response.entries.map(\.syncSeq), [41])
-        XCTAssertEqual(response.entries.first?.entry, Data([1, 2, 3, 4]))
 
-        // NotificationService applies this exact production presenter after its
-        // crypto layer decrypts the returned entry.
+        let entry = try XCTUnwrap(response.entries.first)
+        let message = try XCTUnwrap(
+            crypto.decryptNotificationMessage(from: entry, teamId: "team-test-1")
+        )
+        XCTAssertEqual(message.channelId, "channel-security")
+        XCTAssertEqual(message.userId, "user-alice")
+        XCTAssertEqual(message.body, "Authenticated background message")
+        XCTAssertEqual(message.type, 1)
+
+        // NotificationService calls this exact production presenter with the
+        // message produced by NSECryptoService; no decrypted input is fabricated.
         let presentation = NSENotificationPresenter.makePresentation(
-            message: NSEDecryptedNotificationMessage(
-                channelId: "channel-security",
-                userId: "user-alice",
-                body: "Authenticated background message",
-                type: 1
-            ),
+            message: message,
             channelName: "security",
             authenticatedAuthor: "Alice"
         )
@@ -206,23 +219,24 @@ final class NSEAuthProtocolTests: XCTestCase {
         )
     }
 
-    private func logEntriesResponse() throws -> LogEntriesResponse {
-        let value: [String: Any] = [
-            "entries": [[
-                "cid": "cid-fixed-41",
-                "hashedDbId": "hashed-db-fixed",
-                "communityId": "team-test-1",
-                "entry": ["type": "Buffer", "data": [1, 2, 3, 4]],
-                "receivedAt": "2023-11-14T22:13:20.000Z",
-                "syncSeq": 41
-            ]],
-            "resolvedAfterSeq": 40
-        ]
-        return try JSONDecoder().decode(
-            LogEntriesResponse.self,
-            from: JSONSerialization.data(withJSONObject: value)
-        )
-    }
+    /// Generated with msgpackr 1.11.5 and libsodium using deterministic
+    /// nonces. Both the outer OrbitDB payload and inner channel message are
+    /// authenticated secretbox ciphertexts under FixedLFAKeyReader's key.
+    private static let encryptedLogEntry = Data(hex:
+        "de0001a9656e63727970746564de0002a8636f6e74656e7473c501a5de0004a56e6f6e6365c418" +
+        "1f202122232425262728292a2b2c2d2e2f30313233343536a3746167c420b0d9f45b9b4da8b1d5" +
+        "a33a1166c2d2105e4467795dfd16f5652a0ad7a6f46aa1a76d657373616765c5013b49699b2980" +
+        "c2f27d893976fe8bae70115a200775979050216efd21f584635e229ed787d3132488542be3f9dec" +
+        "996d1ae5ddfc04787c2e24012ce9b3aacaa2d4a58109b1a855310404d9e1b9e2d7e3348615e0a" +
+        "9e830551dd4fbbc677896269bc9c15a6144990b7fd0f672a7e5c339218f8f09340958529da3559" +
+        "235baa55387cefaad6f6142bf7a80ebac3eb0934e2a3b22514f7912d6bb8b730f955cf05467542" +
+        "4f049b6633c7956ee5952d3f8109d45c340f6464e61b44ea629811df94315a14126edc999a55c" +
+        "748d20a2170163b7404d69721d97693f0bf34055bf88860651ccb9ca2c7315ec3efb001c1ae150" +
+        "9611437a1096fef927a296e81b4cd700e79f0bf1363b7df004f1712cd37c4d7d0015c74abc2695" +
+        "2e3e04c1ed90b2466679f20ea514f91996d145d1c8e2f49a2085ed7c1833a3d36a1041e57b8a" +
+        "36d6163c41057063ca3f553750badf49046950a8cb5a573636f7065de0003a474797065a4544541" +
+        "4da46e616d65a45445414daa67656e65726174696f6e00"
+    )
 }
 
 private struct ChallengeRequest: Equatable {
@@ -288,6 +302,192 @@ private final class FixedQSSClient: NSEAuthNetworking {
     }
 }
 
+private enum FixedQSSError: Error {
+    case invalidRequest(String)
+    case unexpectedKey(String)
+}
+
+private struct FixedLFAKeyReader: NSELFAKeyReading {
+    func lfaKeyString(keyName: String) throws -> String {
+        guard keyName == "quiet_team-test-1_TEAM_TEAM_0_secret" else {
+            throw FixedQSSError.unexpectedKey(keyName)
+        }
+        return "0123456789abcdef0123456789abcdef"
+    }
+}
+
+/// A deterministic, protocol-backed QSS. Requests still pass through
+/// URLSession and NSENetworkClient, including the production JSON codecs and
+/// HTTP headers, while the test remains independent of an external listener.
+private final class FixedQSSHTTPServer {
+    private let challenge: ChallengePayload
+    private let signingPublicKey: Curve25519.Signing.PublicKey
+    private let encryptedEntry: Data
+    private let lock = NSLock()
+    private var recordedRequestPaths: [String] = []
+    private var didVerifyProductionSignature = false
+
+    init(
+        challenge: ChallengePayload,
+        signingPrivateKey: Data,
+        encryptedEntry: Data
+    ) throws {
+        self.challenge = challenge
+        let privateKey = try Curve25519.Signing.PrivateKey(
+            rawRepresentation: signingPrivateKey.prefix(32)
+        )
+        self.signingPublicKey = privateKey.publicKey
+        self.encryptedEntry = encryptedEntry
+    }
+
+    var requestPaths: [String] {
+        self.lock.lock()
+        defer { self.lock.unlock() }
+        return self.recordedRequestPaths
+    }
+
+    var verifiedProductionSignature: Bool {
+        self.lock.lock()
+        defer { self.lock.unlock() }
+        return self.didVerifyProductionSignature
+    }
+
+    func respond(to request: URLRequest) throws -> (status: Int, body: Data) {
+        self.lock.lock()
+        defer { self.lock.unlock() }
+
+        guard let url = request.url else {
+            throw FixedQSSError.invalidRequest("missing URL")
+        }
+        let pathAndQuery = url.path + (url.query.map { "?\($0)" } ?? "")
+        self.recordedRequestPaths.append(pathAndQuery)
+
+        switch (request.httpMethod, url.path) {
+        case ("POST", "/nse-auth/challenge"):
+            return (200, try self.challengeResponse(for: request))
+        case ("POST", "/nse-auth/token"):
+            return (200, try self.tokenResponse(for: request))
+        case ("GET", "/nse-auth/logs/team-test-1"):
+            return (200, try self.logResponse(for: request, url: url))
+        default:
+            throw FixedQSSError.invalidRequest("unexpected route \(pathAndQuery)")
+        }
+    }
+
+    private func challengeResponse(for request: URLRequest) throws -> Data {
+        let body = try self.jsonBody(request)
+        guard Set(body.keys) == ["deviceId", "teamId"],
+              body["deviceId"] as? String == challenge.deviceId,
+              body["teamId"] as? String == challenge.teamId else {
+            throw FixedQSSError.invalidRequest("challenge request schema or binding")
+        }
+
+        let payload: [String: Any] = [
+            "protocolVersion": challenge.protocolVersion,
+            "type": challenge.type,
+            "deviceId": challenge.deviceId,
+            "teamId": challenge.teamId,
+            "qssServerId": challenge.qssServerId,
+            "challengeId": challenge.challengeId,
+            "nonce": challenge.nonce,
+            "issuedAtMs": challenge.issuedAtMs,
+            "expiresAtMs": challenge.expiresAtMs
+        ]
+        return try JSONSerialization.data(withJSONObject: [
+            "challengeId": challenge.challengeId,
+            "challenge": payload
+        ])
+    }
+
+    private func tokenResponse(for request: URLRequest) throws -> Data {
+        let body = try self.jsonBody(request)
+        guard Set(body.keys) == ["challengeId", "deviceId", "signature"],
+              body["challengeId"] as? String == challenge.challengeId,
+              body["deviceId"] as? String == challenge.deviceId,
+              let signatureString = body["signature"] as? String,
+              let signature = Base58.decode(signatureString),
+              signature.count == 64,
+              Base58.encode(signature) == signatureString,
+              self.signingPublicKey.isValidSignature(
+                  signature,
+                  for: try NSEAuthProof.encode(challenge)
+              ) else {
+            throw FixedQSSError.invalidRequest("token proof was not the canonical registered-device signature")
+        }
+        self.didVerifyProductionSignature = true
+        return try JSONSerialization.data(withJSONObject: [
+            "token": "fixed-qss-token",
+            "expiresIn": 300
+        ])
+    }
+
+    private func logResponse(for request: URLRequest, url: URL) throws -> Data {
+        guard self.didVerifyProductionSignature,
+              request.value(forHTTPHeaderField: "Authorization") == "Bearer fixed-qss-token",
+              URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems == [
+                  URLQueryItem(name: "afterSeq", value: "40")
+              ] else {
+            throw FixedQSSError.invalidRequest("log request was not authenticated or cursor-bound")
+        }
+        return try JSONSerialization.data(withJSONObject: [
+            "entries": [[
+                "cid": "cid-fixed-41",
+                "hashedDbId": "hashed-db-fixed",
+                "communityId": challenge.teamId,
+                "entry": ["type": "Buffer", "data": [UInt8](self.encryptedEntry)],
+                "receivedAt": "2023-11-14T22:13:20.000Z",
+                "syncSeq": 41
+            ]],
+            "resolvedAfterSeq": 40
+        ])
+    }
+
+    private func jsonBody(_ request: URLRequest) throws -> [String: Any] {
+        guard request.value(forHTTPHeaderField: "Content-Type") == "application/json",
+              let data = request.httpBody,
+              let body = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw FixedQSSError.invalidRequest("request did not contain a JSON body")
+        }
+        return body
+    }
+}
+
+private final class FixedQSSURLProtocol: URLProtocol {
+    static var server: FixedQSSHTTPServer?
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        request.url?.host == "fixed-qss.test"
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        do {
+            guard let server = Self.server, let url = request.url else {
+                throw FixedQSSError.invalidRequest("fixed QSS was not configured")
+            }
+            let result = try server.respond(to: request)
+            guard let response = HTTPURLResponse(
+                url: url,
+                statusCode: result.status,
+                httpVersion: "HTTP/1.1",
+                headerFields: ["Content-Type": "application/json"]
+            ) else {
+                throw FixedQSSError.invalidRequest("could not construct HTTP response")
+            }
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: result.body)
+            client?.urlProtocolDidFinishLoading(self)
+        } catch {
+            client?.urlProtocol(self, didFailWithError: error)
+        }
+    }
+
+    override func stopLoading() {}
+}
+
 private final class RecordingCredentials: NSEDeviceCredentials {
     let privateKeyData: Data
     var deviceIdReads = 0
@@ -311,18 +511,10 @@ private final class RecordingCredentials: NSEDeviceCredentials {
 }
 
 private final class RecordingSigner: NSEAuthSigning {
-    let useProductionProof: Bool
     var signCalls = 0
-
-    init(useProductionProof: Bool = false) {
-        self.useProductionProof = useProductionProof
-    }
 
     func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String {
         signCalls += 1
-        if useProductionProof {
-            return try NSEAuthProof.sign(challenge, privateKeyData: privateKeyData)
-        }
         return "spy-signature"
     }
 }
