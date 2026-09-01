@@ -70,22 +70,19 @@ class LFAIdentities extends EventEmitter {
       this.sigchainService.activeTeamId!
     )
     const teamId = sigchain.team!.id
+    const device = sigchain.device
     const identityMetadata: LFAIdentityMetadata = {
       id: user.userId,
+      deviceId: device.deviceId,
       teamId,
-      type: this.provider.type,
-      publicKey: user.keys.signature,
-      generation: user.keys.generation,
+      publicKey: device.keys.signature.publicKey,
     }
     const identityBytes = this.serializer.serialize(identityMetadata, SerializerEncodingType.UINT8ARRAY)
     const identityHash = uint8arrays.toString(identityBytes, 'hex')
     return {
-      id: user.userId,
-      generation: user.keys.generation,
-      teamId,
-      type: identityMetadata.type,
+      ...identityMetadata,
+      type: this.provider.type,
       provider: this.provider,
-      publicKey: user.keys.signature,
       signatures: {
         id: '',
         publicKey: '',
@@ -98,27 +95,29 @@ class LFAIdentities extends EventEmitter {
   }
 
   /**
-   * Generate an LFAIdentity object given a combination of LFA user ID, team ID and key generation
+   * Generate an LFAIdentity object given serialized identity metadata (LFA user ID, device ID, team
+   * ID and device signing key)
    *
-   * NOTE: This record is generated ad hoc from the current information on the sigchain
+   * NOTE: The metadata is entry-controlled. This only checks that the named user is a current member;
+   * `verifyIdentity` is what binds the device and key to that user.
    *
-   * @param hash A serialized object containing the LFA user ID, team ID and key generation used for a given entry
-   * @returns LFAIdentity object associated with a given user ID
+   * @param hash Hex-encoded serialized LFAIdentityMetadata, as carried in `entry.identity`
+   * @returns LFAIdentity object associated with the given metadata
    */
   public async getIdentity(hash: string): Promise<LFAIdentity> {
     const bytes = uint8arrays.fromString(hash, 'hex')
-    const identityMetadata = this.serializer.deserialize(bytes) as LFAIdentityMetadata
-    if (identityMetadata.type !== this.provider.type) {
-      throw new Error(`Unsupported OrbitDB identity provider type: ${identityMetadata.type}`)
+    const { id, deviceId, teamId, publicKey } = this.serializer.deserialize(bytes) as LFAIdentityMetadata
+    if ([id, deviceId, teamId, publicKey].some(field => typeof field !== 'string')) {
+      throw new Error('Malformed OrbitDB identity metadata')
     }
-    this.provider.getUserAndChain(identityMetadata.id, identityMetadata.teamId)
+    this.provider.getUserAndChain(id, teamId)
     return {
-      id: identityMetadata.id,
-      teamId: identityMetadata.teamId,
-      generation: identityMetadata.generation,
-      type: identityMetadata.type,
+      id,
+      deviceId,
+      teamId,
+      publicKey,
+      type: this.provider.type,
       provider: this.provider,
-      publicKey: identityMetadata.publicKey,
       signatures: {
         id: '',
         publicKey: '',
@@ -155,12 +154,8 @@ class LFAIdentities extends EventEmitter {
   /**
    * Verify a signature
    *
-   * NOTE: We already verify signatures on any OrbitDB records that are encrypted
-   *
-   * TODO: Decide if we want to store signatures to verify
-   *
    * @param signature Signature to verify (this is a hex string representation of an LFA signed envelope)
-   * @param publicKey Public key declared by the verified OrbitDB identity
+   * @param publicKey Public key OrbitDB attributes the entry to (`entry.key`)
    * @param data Data that was signed
    * @returns True if the signature is valid
    */

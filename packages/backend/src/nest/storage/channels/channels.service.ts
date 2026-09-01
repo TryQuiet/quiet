@@ -30,6 +30,7 @@ import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manage
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR } from '../../const'
 import { IpfsFilesManagerEvents } from '../../ipfs-file-manager/ipfs-file-manager.types'
 import { createLogger } from '../../common/logger'
+import { getVerifiedEntryWriter } from '../orbitDb/identity/lfa/entry-writer'
 import { ChannelRepo } from '../../common/types'
 import { StorageEvents } from '../storage.types'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
@@ -494,20 +495,9 @@ export class ChannelsService extends EventEmitter {
       return undefined
     }
 
-    const writerIdentity = await identities.getIdentity(entry.identity)
-    if (writerIdentity.publicKey !== entry.key) {
-      this.logger.error(
-        `Failed to validate channel ${operation} entry: entry key does not match claimed identity:`,
-        entry.hash
-      )
-      return undefined
-    }
-    const identityVerified = await identities.verifyIdentity(writerIdentity)
-    if (!identityVerified) {
-      this.logger.error(
-        `Failed to validate channel ${operation} entry: entry identity verification failed:`,
-        entry.hash
-      )
+    const writerIdentity = await getVerifiedEntryWriter(identities as any, entry)
+    if (writerIdentity == null) {
+      this.logger.error(`Failed to validate channel ${operation} entry: entry writer verification failed:`, entry.hash)
       return undefined
     }
 

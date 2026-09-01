@@ -21,18 +21,22 @@ describe('LFAIdentityProvider identity binding', () => {
       },
     } as never)
 
-  const publicSigningKey = (chain: SigChain) => chain.users.getUserById(chain.user.userId).keys.signature
+  const deviceKey = (chain: SigChain) => chain.device.keys.signature.publicKey
 
-  const identityFor = (provider: LFAIdentityProvider, chain: SigChain, publicKey = publicSigningKey(chain)) => {
+  const identityFor = (
+    provider: LFAIdentityProvider,
+    chain: SigChain,
+    overrides: Partial<LFAIdentityMetadata> = {}
+  ) => {
     const metadata: LFAIdentityMetadata = {
       id: chain.user.userId,
+      deviceId: chain.device.deviceId,
       teamId: chain.team!.id,
-      type: provider.type,
-      publicKey,
-      generation: chain.user.keys.generation,
+      publicKey: deviceKey(chain),
+      ...overrides,
     }
     const bytes = serializer.serialize(metadata, SerializerEncodingType.UINT8ARRAY)
-    return { ...metadata, bytes, hash: uint8arrays.toString(bytes, 'hex') }
+    return { ...metadata, type: provider.type, bytes, hash: uint8arrays.toString(bytes, 'hex') }
   }
 
   const addBob = (alice: SigChain): SigChain => {
@@ -46,41 +50,65 @@ describe('LFAIdentityProvider identity binding', () => {
     const alice = SigChain.create()
     const bob = addBob(alice)
     const aliceProvider = providerFor(alice)
-    const bobProvider = providerFor(bob)
     const entryBytes = 'entry-bytes'
-    const bobSignature = bobProvider.sign(bob.user.userId, bob.team!.id, entryBytes)
+    const bobSignature = providerFor(bob).sign(bob.user.userId, bob.team!.id, entryBytes)
 
-    expect(aliceProvider.verify(bobSignature, publicSigningKey(alice), entryBytes)).toBe(false)
-    expect(aliceProvider.verify(bobSignature, publicSigningKey(bob), entryBytes)).toBe(true)
+    expect(aliceProvider.verify(bobSignature, deviceKey(alice), entryBytes)).toBe(false)
+    expect(aliceProvider.verify(bobSignature, deviceKey(bob), entryBytes)).toBe(true)
+    expect(aliceProvider.verify(bobSignature, deviceKey(bob), `${entryBytes}-tampered`)).toBe(false)
   })
 
-  it('binds the complete canonical identity metadata to its hash', async () => {
+  it('binds the identity to the device registered for the claimed user', async () => {
+    const alice = SigChain.create()
+    const bob = addBob(alice)
+    const provider = providerFor(alice)
+
+    await expect(provider.verifyIdentity(identityFor(provider, alice) as never)).resolves.toBe(true)
+    await expect(provider.verifyIdentity(identityFor(provider, bob) as never)).resolves.toBe(true)
+    await expect(
+      provider.verifyIdentity(identityFor(provider, alice, { publicKey: 'substituted-key' as never }) as never)
+    ).resolves.toBe(false)
+    await expect(
+      provider.verifyIdentity(identityFor(provider, alice, { teamId: 'other-team' }) as never)
+    ).resolves.toBe(false)
+    await expect(
+      provider.verifyIdentity({ ...identityFor(provider, alice), type: 'other-provider' } as never)
+    ).resolves.toBe(false)
+    // Bob's own device and key, presented under Alice's user ID: the device is registered, but not to Alice
+    await expect(provider.verifyIdentity(identityFor(provider, bob, { id: alice.user.userId }) as never)).resolves.toBe(
+      false
+    )
+  })
+
+  it('keeps verifying identities and entries across a user key rotation', async () => {
     const alice = SigChain.create()
     const provider = providerFor(alice)
     const identity = identityFor(provider, alice)
-    await expect(provider.verifyIdentity(identity as never)).resolves.toBe(true)
-    await expect(provider.verifyIdentity({ ...identity, publicKey: 'substituted-key' } as never)).resolves.toBe(false)
-    await expect(provider.verifyIdentity({ ...identity, generation: identity.generation + 1 } as never)).resolves.toBe(
-      false
-    )
-    await expect(provider.verifyIdentity({ ...identity, type: 'other-provider' } as never)).resolves.toBe(false)
-    await expect(provider.verifyIdentity({ ...identity, teamId: 'other-team' } as never)).resolves.toBe(false)
-  })
-
-  it('continues verifying identities and entries created before a legitimate key rotation', async () => {
-    const alice = SigChain.create()
-    const provider = providerFor(alice)
-    const oldIdentity = identityFor(provider, alice)
     const oldSignature = provider.sign(alice.user.userId, alice.team!.id, 'old-entry')
 
     alice.team!.changeKeys(createKeyset({ type: KeyType.USER, name: alice.user.userId }))
-    const newIdentity = identityFor(provider, alice)
     const newSignature = provider.sign(alice.user.userId, alice.team!.id, 'new-entry')
 
-    await expect(provider.verifyIdentity(oldIdentity as never)).resolves.toBe(true)
-    expect(provider.verify(oldSignature, oldIdentity.publicKey, 'old-entry')).toBe(true)
-    await expect(provider.verifyIdentity(newIdentity as never)).resolves.toBe(true)
-    expect(provider.verify(newSignature, newIdentity.publicKey, 'new-entry')).toBe(true)
+    // Entries are bound to the device key, which does not rotate, so nothing about the identity changes
+    expect(identityFor(provider, alice)).toEqual(identity)
+    await expect(provider.verifyIdentity(identity as never)).resolves.toBe(true)
+    expect(provider.verify(oldSignature, identity.publicKey, 'old-entry')).toBe(true)
+    expect(provider.verify(newSignature, identity.publicKey, 'new-entry')).toBe(true)
+  })
+
+  it('keeps verifying entries from a device that was later removed, until the user is removed', async () => {
+    const alice = SigChain.create()
+    const bob = addBob(alice)
+    const provider = providerFor(alice)
+    const bobIdentity = identityFor(provider, bob)
+    const bobSignature = providerFor(bob).sign(bob.user.userId, bob.team!.id, 'entry-bytes')
+
+    alice.team!.removeDevice(bob.device.deviceId)
+    await expect(provider.verifyIdentity(bobIdentity as never)).resolves.toBe(true)
+    expect(provider.verify(bobSignature, bobIdentity.publicKey, 'entry-bytes')).toBe(true)
+
+    alice.team!.remove(bob.user.userId)
+    await expect(provider.verifyIdentity(bobIdentity as never)).resolves.toBe(false)
   })
 
   it('passes the claimed OrbitDB identity key into entry-signature verification', async () => {

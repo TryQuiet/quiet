@@ -3,6 +3,7 @@
  */
 
 import { type LogEntry, type IdentitiesType, CanAppendFunc } from '@orbitdb/core'
+import { getVerifiedEntryWriter } from '../../../orbitDb/identity/lfa/entry-writer'
 import { NoCryptoEngineError } from '@quiet/types'
 import { EncryptedMessage } from '../messages.types'
 import { SigChainService } from '../../../../auth/sigchain.service'
@@ -28,20 +29,13 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
     return async (entry: LogEntry<EncryptedMessage>): Promise<boolean> => {
       if (!crypto) throw new NoCryptoEngineError()
 
-      const writerIdentity = await identities.getIdentity(entry.identity)
-      if (!writerIdentity) {
-        return false
-      }
-      if (writerIdentity.publicKey !== entry.key) {
+      const writerIdentity = await getVerifiedEntryWriter(identities, entry)
+      if (writerIdentity == null) {
         return false
       }
 
       const { id } = writerIdentity
-      if (config.write.includes(id) || config.write.includes('*')) {
-        if (!(await identities.verifyIdentity(writerIdentity))) {
-          return false
-        }
-      } else {
+      if (!config.write.includes(id) && !config.write.includes('*')) {
         return false
       }
 

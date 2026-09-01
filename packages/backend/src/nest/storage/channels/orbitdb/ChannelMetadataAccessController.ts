@@ -20,6 +20,7 @@ import { RoleName } from '../../../auth/services/roles/roles'
 import { SigChainService } from '../../../auth/sigchain.service'
 import { EncryptedAndSignedPayload } from '../../../auth/services/crypto/types'
 import { createLogger } from '../../../common/logger'
+import { getVerifiedEntryWriter } from '../../orbitDb/identity/lfa/entry-writer'
 import { QuietLogger } from '@quiet/logger'
 import { posixJoin } from '../../orbitDb/util'
 import type { SigChain } from '../../../auth/sigchain'
@@ -63,12 +64,6 @@ interface ChannelMetadataAccessControllerConfig {
   sigchainService: SigChainService
   isPublic: boolean
   getPrivateChannelsByRolename: () => Promise<PrivateChannelMappings>
-}
-
-interface ChannelMetadataWriterIdentity {
-  id: string
-  teamId?: string
-  publicKey: string
 }
 
 @Injectable()
@@ -138,19 +133,12 @@ export class ChannelMetadataAccessController {
     getLog: () => LogType | undefined
   ): CanAppendFunc {
     return async (entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> => {
-      const writerIdentity = (await identities.getIdentity(entry.identity)) as ChannelMetadataWriterIdentity
-      if (!writerIdentity) {
-        return false
-      }
-      if (writerIdentity.publicKey !== entry.key) {
+      const writerIdentity = await getVerifiedEntryWriter(identities, entry)
+      if (writerIdentity == null) {
         return false
       }
 
       if (!config.write.includes(writerIdentity.id) && !config.write.includes('*')) {
-        return false
-      }
-
-      if (!(await identities.verifyIdentity(writerIdentity as any))) {
         return false
       }
 
