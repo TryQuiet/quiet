@@ -5,6 +5,37 @@ import com.goterl.lazysodium.LazySodiumAndroid
 import com.goterl.lazysodium.SodiumAndroid
 import com.goterl.lazysodium.interfaces.PwHash
 
+internal fun parseQssEncryptedPayload(value: Any?, label: String): EncryptedPayload {
+    val dict = value as? Map<*, *> ?: throw IllegalStateException("$label was not an object")
+    val contents =
+        when (val rawContents = dict["contents"]) {
+            is ByteArray -> rawContents
+            is List<*> -> {
+                val bytes = ByteArray(rawContents.size)
+                rawContents.forEachIndexed { index, item ->
+                    val number = item as? Number ?: throw IllegalStateException("$label contents were not binary")
+                    bytes[index] = number.toByte()
+                }
+                bytes
+            }
+            else -> throw IllegalStateException("$label contents were not binary")
+        }
+    val scope = dict["scope"] as? Map<*, *>
+        ?: throw IllegalStateException("$label scope was malformed")
+    return EncryptedPayload(
+        contents = contents,
+        scope =
+            EncryptionScope(
+                type = scope["type"] as? String
+                    ?: throw IllegalStateException("$label scope.type missing"),
+                name = scope["name"] as? String
+                    ?: throw IllegalStateException("$label scope.name missing"),
+                generation = exactNonNegativeInt(scope["generation"])
+                    ?: throw IllegalStateException("$label scope.generation was not an exact non-negative integer"),
+            ),
+    )
+}
+
 class QssCryptoService(
     private val lfaKeyLookup: (String) -> String? = { keyName -> QuietStorage.getLfaKey(keyName) },
     private val signatureVerifier: ((ByteArray, ByteArray, ByteArray) -> Boolean)? = null,
@@ -47,7 +78,7 @@ class QssCryptoService(
         val outerEnvelope =
             MsgpackDecoder.decode(logEntry.entry) as? Map<*, *>
                 ?: throw IllegalStateException("Outer QSS envelope was not a map")
-        val outerEncrypted = parseEncryptedPayload(outerEnvelope["encrypted"], "outer QSS payload")
+        val outerEncrypted = parseQssEncryptedPayload(outerEnvelope["encrypted"], "outer QSS payload")
 
         val decryptedOrbitEntry = decryptPayload(outerEncrypted, teamId)
         val orbitEntry =
@@ -61,7 +92,7 @@ class QssCryptoService(
         }
 
         val signature = parseSignature(payloadValue["encSignature"])
-        val innerEncrypted = parseEncryptedPayload(payloadValue["contents"], "inner channel message")
+        val innerEncrypted = parseQssEncryptedPayload(payloadValue["contents"], "inner channel message")
         val decryptedInner = decryptPayload(innerEncrypted, teamId)
         val message = decryptedInner.value as? Map<*, *> ?: return null
 
@@ -90,7 +121,7 @@ class QssCryptoService(
     private fun decryptPayload(encryptedPayload: EncryptedPayload, teamId: String): DecryptedPayload {
         val keyName = makeKeyName(teamId, encryptedPayload.scope)
         val secretKey =
-            QuietStorage.getLfaKey(keyName)
+            lfaKeyLookup(keyName)
                 ?: throw MissingQssNotificationKeyException(keyName)
         return decryptSymmetric(encryptedPayload.contents, secretKey)
     }
@@ -165,28 +196,6 @@ class QssCryptoService(
         return output
     }
 
-    private fun parseEncryptedPayload(value: Any?, label: String): EncryptedPayload {
-        val dict = value as? Map<*, *> ?: throw IllegalStateException("$label was not an object")
-        val contents =
-            byteArrayValue(dict["contents"])
-                ?: throw IllegalStateException("$label contents were not binary")
-        val scope = dict["scope"] as? Map<*, *>
-            ?: throw IllegalStateException("$label scope was malformed")
-
-        return EncryptedPayload(
-            contents = contents,
-            scope =
-                EncryptionScope(
-                    type = stringValue(scope["type"])
-                        ?: throw IllegalStateException("$label scope.type missing"),
-                    name = stringValue(scope["name"])
-                        ?: throw IllegalStateException("$label scope.name missing"),
-                    generation = intValue(scope["generation"])
-                        ?: throw IllegalStateException("$label scope.generation missing"),
-                ),
-        )
-    }
-
     internal fun parseSignature(value: Any?): MessageSignature = parseMessageSignature(value)
 
     private fun makeKeyName(teamId: String, scope: EncryptionScope): String {
@@ -209,14 +218,6 @@ class QssCryptoService(
     }
 
     private fun stringValue(value: Any?): String? = value as? String
-
-    private fun intValue(value: Any?): Int? {
-        return when (value) {
-            is Number -> value.toInt()
-            is String -> value.toIntOrNull()
-            else -> null
-        }
-    }
 
     private fun numberValue(value: Any?): Double? {
         val result = when (value) {

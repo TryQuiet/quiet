@@ -14,6 +14,10 @@ enum NSENotificationProcessingOutcome {
     case deliveryFailed
 }
 
+protocol NSERetryableNotificationError: Error {
+    var isRetryableForNotification: Bool { get }
+}
+
 enum NSENotificationCursorPolicy {
     static func cursor(
         after current: Int64,
@@ -31,8 +35,13 @@ enum NSENotificationCursorPolicy {
 
 enum NSENotificationFailurePolicy {
     static func isRetryable(_ error: Error) -> Bool {
-        if case NSECryptoError.missingKey = error { return true }
-        return false
+        return (error as? NSERetryableNotificationError)?.isRetryableForNotification ?? false
+    }
+}
+
+enum NSENotificationPresentation {
+    static func title(channelName: String, authenticatedAuthor: String) -> String {
+        "\(authenticatedAuthor) in #\(channelName)"
     }
 }
 
@@ -68,6 +77,18 @@ enum NSEMessageAuthenticator {
             return nil
         }
         return Int(number)
+    }
+
+    static func exactEncryptionScope(_ value: Any?) -> (type: String, name: String, generation: Int)? {
+        guard
+            let scope = value as? [String: Any],
+            let type = scope["type"] as? String,
+            let name = scope["name"] as? String,
+            let generation = exactNonNegativeInt(scope["generation"])
+        else {
+            return nil
+        }
+        return (type, name, generation)
     }
 
     static func authenticate(

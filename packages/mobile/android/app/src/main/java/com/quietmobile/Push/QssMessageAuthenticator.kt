@@ -35,7 +35,7 @@ internal fun parseMessageSignature(value: Any?): MessageSignature {
     )
 }
 
-private fun exactNonNegativeInt(value: Any?): Int? =
+internal fun exactNonNegativeInt(value: Any?): Int? =
     when (value) {
         is Byte -> value.toInt().takeIf { it >= 0 }
         is Short -> value.toInt().takeIf { it >= 0 }

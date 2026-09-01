@@ -2,6 +2,11 @@ import CryptoKit
 import XCTest
 
 final class NSEMessageAuthenticatorTests: XCTestCase {
+    private enum RetryableTestError: NSERetryableNotificationError {
+        case missingKey
+
+        var isRetryableForNotification: Bool { true }
+    }
     private let privateKey = Curve25519.Signing.PrivateKey()
     private let plaintext = Data([0x81, 0xa2, 0x69, 0x64, 0xa1, 0x31])
 
@@ -77,7 +82,7 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
         for (sequence, generationValue) in [(Int64(11), 3.5 as Any), (Int64(12), 3 as Any)] {
             do {
                 guard NSEMessageAuthenticator.exactNonNegativeInt(generationValue) != nil else {
-                    throw NSECryptoError.invalidPayload("message signature generation was malformed")
+                    throw NSEMessageAuthenticationError.malformedSignature
                 }
                 _ = try NSEMessageAuthenticator.publicKeyAfterValidatingClaims(
                     signature: signature,
@@ -111,6 +116,35 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
         XCTAssertEqual(lookups, 1)
     }
 
+    func testEncryptionScopeGenerationsUseExactNonNegativeParserBeforeLookup() {
+        let malformed: [Any] = [3.5, -1, Int64.max, Double.nan, Double.infinity, "3", true]
+        var lookups = 0
+
+        for label in ["outer QSS payload", "inner channel message"] {
+            for generation in malformed {
+                let scope: [String: Any] = ["type": "ROLE", "name": "member", "generation": generation]
+                guard NSEMessageAuthenticator.exactEncryptionScope(scope) != nil else {
+                    continue
+                }
+                XCTFail("\(label) accepted malformed generation \(generation)")
+                lookups += 1
+            }
+        }
+        let validScope: [String: Any] = ["type": "ROLE", "name": "member", "generation": 3]
+        if NSEMessageAuthenticator.exactEncryptionScope(validScope) != nil {
+            lookups += 1
+        }
+
+        XCTAssertEqual(lookups, 1, "only an exact scope generation may reach an LFA key lookup")
+    }
+
+    func testPresentationIncludesAuthenticatedAuthorAndChannel() {
+        XCTAssertEqual(
+            NSENotificationPresentation.title(channelName: "general", authenticatedAuthor: "Alice"),
+            "Alice in #general"
+        )
+    }
+
     func testRejectedEntryAdvancesCursorSoLaterEntriesAreNotBlocked() {
         let cursor = NSENotificationCursorPolicy.cursor(
             after: 10,
@@ -129,5 +163,10 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
         )
 
         XCTAssertEqual(cursor, 10)
+    }
+
+    func testMissingKeyFailureIsRetryableWithoutDependingOnCryptoServiceTarget() {
+        XCTAssertTrue(NSENotificationFailurePolicy.isRetryable(RetryableTestError.missingKey))
+        XCTAssertFalse(NSENotificationFailurePolicy.isRetryable(NSEMessageAuthenticationError.invalidSignature))
     }
 }

@@ -87,6 +87,13 @@ enum NSECryptoError: Error, LocalizedError {
     }
 }
 
+extension NSECryptoError: NSERetryableNotificationError {
+    var isRetryableForNotification: Bool {
+        if case .missingKey = self { return true }
+        return false
+    }
+}
+
 // MARK: - NSECryptoService
 
 /// Mirrors the JS crypto stack used in Quiet:
@@ -335,18 +342,13 @@ class NSECryptoService: DeviceCryptography {
             throw NSECryptoError.invalidPayload("\(label) contents were not binary")
         }
 
-        guard
-            let scopeDict = dict["scope"] as? NSEJSONObject,
-            let scopeType = self.stringValue(scopeDict["type"]),
-            let scopeName = self.stringValue(scopeDict["name"]),
-            let generation = self.intValue(scopeDict["generation"])
-        else {
+        guard let scope = NSEMessageAuthenticator.exactEncryptionScope(dict["scope"]) else {
             throw NSECryptoError.invalidPayload("\(label) scope was malformed")
         }
 
         return NSEEncryptedPayload(
             contents: contents,
-            scope: NSEEncryptionScope(type: scopeType, name: scopeName, generation: generation)
+            scope: NSEEncryptionScope(type: scope.type, name: scope.name, generation: scope.generation)
         )
     }
 

@@ -137,6 +137,7 @@ class UserMetadataHandler: NSObject {
       }
       let model = UserMetadata.fromStruct(userMetadata: metadata, createdAt: Date.now)
       context.insert(model)
+      try KeychainService.addNickname(userId: metadata.userId, nickname: metadata.nickname)
     }
     
     UserMetadataHandler.logger.info("Persisting user metadata")

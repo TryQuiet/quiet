@@ -35,6 +35,15 @@ class NotificationService: UNNotificationServiceExtension {
       }
     }
 
+    private static func getNickname(userId: String) -> String {
+        do {
+            return try KeychainService.getNickname(userId: userId)
+        } catch {
+            os_log("getNickname failed: %{public}@", log: nseLog, type: .error, String(describing: error))
+            return userId
+        }
+    }
+
     override func didReceive(
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
@@ -305,7 +314,10 @@ class NotificationService: UNNotificationServiceExtension {
     }
 
     private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, teamId: String, to content: UNMutableNotificationContent) {
-        content.title = "#\(Self.getChannelName(teamId: teamId, channelId: message.channelId))"
+        content.title = NSENotificationPresentation.title(
+            channelName: Self.getChannelName(teamId: teamId, channelId: message.channelId),
+            authenticatedAuthor: Self.getNickname(userId: message.userId)
+        )
         content.body = message.body
         content.threadIdentifier = message.channelId
     }

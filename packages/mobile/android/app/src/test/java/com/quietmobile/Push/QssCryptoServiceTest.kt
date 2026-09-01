@@ -176,6 +176,44 @@ class QssCryptoServiceTest {
         assertEquals(listOf("quiet_team-id_USER_alice-id_3_userSig"), lookups)
     }
 
+    @Test
+    fun malformedOuterAndInnerEncryptionScopesAreRejectedBeforeMissingKeyLookup() {
+        val malformedGenerations = listOf<Any>(3.5, -1, Long.MAX_VALUE, Double.NaN, Double.POSITIVE_INFINITY, "3")
+
+        for (label in listOf("outer QSS payload", "inner channel message")) {
+            for (generation in malformedGenerations) {
+                var lookedUp = false
+                assertThrows(IllegalStateException::class.java) {
+                    val encrypted =
+                        parseQssEncryptedPayload(
+                            mapOf(
+                                "contents" to byteArrayOf(),
+                                "scope" to mapOf("type" to "ROLE", "name" to "member", "generation" to generation),
+                            ),
+                            label,
+                        )
+                    lookedUp = encrypted.scope.generation >= 0
+                }
+                assertEquals("$label generation=$generation must fail before key lookup", false, lookedUp)
+            }
+        }
+    }
+
+    @Test
+    fun exactOuterAndInnerScopeGenerationsReachProductionParser() {
+        for (label in listOf("outer QSS payload", "inner channel message")) {
+            val encrypted =
+                parseQssEncryptedPayload(
+                    mapOf(
+                        "contents" to byteArrayOf(),
+                        "scope" to mapOf("type" to "ROLE", "name" to "member", "generation" to 3),
+                    ),
+                    label,
+                )
+            assertEquals(3, encrypted.scope.generation)
+        }
+    }
+
     private fun authenticate(
         envelope: Map<*, *>,
         message: Map<*, *>,
