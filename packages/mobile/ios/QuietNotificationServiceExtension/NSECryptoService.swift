@@ -130,16 +130,6 @@ class NSECryptoService: DeviceCryptography {
         }
 
         guard
-            !id.isEmpty,
-            !channelId.isEmpty,
-            !userId.isEmpty,
-            !messageTeamId.isEmpty,
-            type > 0
-        else {
-            throw NSECryptoError.invalidPayload("decrypted message shape was invalid")
-        }
-
-        guard
             payloadValue["contents"] != nil,
             payloadValue["channelId"] != nil
         else {
@@ -163,6 +153,16 @@ class NSECryptoService: DeviceCryptography {
             let body = self.notificationBody(from: message, type: type)
         else {
             return nil
+        }
+
+        guard
+            !id.isEmpty,
+            !channelId.isEmpty,
+            !userId.isEmpty,
+            !messageTeamId.isEmpty,
+            type > 0
+        else {
+            throw NSECryptoError.invalidPayload("decrypted message shape was invalid")
         }
 
         guard signature.author.name == userId else {
