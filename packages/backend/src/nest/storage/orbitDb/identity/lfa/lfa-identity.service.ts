@@ -155,12 +155,12 @@ class LFAIdentities extends EventEmitter {
    * TODO: Decide if we want to store signatures to verify
    *
    * @param signature Signature to verify (this is a hex string representation of an LFA signed envelope)
-   * @param publicKey Unused public key (the key used for verification is pulled from the sigchain)
+   * @param publicKey Public key declared by the verified OrbitDB identity
    * @param data Data that was signed
    * @returns True if the signature is valid
    */
   public async verify(signature: string, publicKey: string, data: string): Promise<boolean> {
-    return this.provider.verify(signature, '', data)
+    return this.provider.verify(signature, publicKey, data)
   }
 }
 
