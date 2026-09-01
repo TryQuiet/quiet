@@ -29,11 +29,27 @@ internal fun parseMessageSignature(value: Any?): MessageSignature {
                     ?: throw IllegalStateException("Message signature author.type missing"),
                 name = author["name"] as? String
                     ?: throw IllegalStateException("Message signature author.name missing"),
-                generation = (author["generation"] as? Number)?.toInt()
-                    ?: throw IllegalStateException("Message signature author.generation missing"),
+                generation = exactNonNegativeInt(author["generation"])
+                    ?: throw IllegalStateException("Message signature author.generation was not an exact non-negative integer"),
             ),
     )
 }
+
+private fun exactNonNegativeInt(value: Any?): Int? =
+    when (value) {
+        is Byte -> value.toInt().takeIf { it >= 0 }
+        is Short -> value.toInt().takeIf { it >= 0 }
+        is Int -> value.takeIf { it >= 0 }
+        is Long -> value.takeIf { it in 0..Int.MAX_VALUE.toLong() }?.toInt()
+        is Float -> exactFloatingPointInt(value.toDouble())
+        is Double -> exactFloatingPointInt(value)
+        else -> null
+    }
+
+private fun exactFloatingPointInt(value: Double): Int? =
+    value
+        .takeIf { it.isFinite() && it >= 0 && it <= Int.MAX_VALUE.toDouble() && it % 1.0 == 0.0 }
+        ?.toInt()
 
 internal fun authenticateNotificationMessage(
     payloadValue: Map<*, *>,

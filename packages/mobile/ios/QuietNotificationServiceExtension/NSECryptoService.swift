@@ -258,7 +258,7 @@ class NSECryptoService: DeviceCryptography {
         payloadValue: NSEJSONObject
     ) throws {
         let signatureData = Base58.decode(signature.signature).map { Data($0) }
-        try NSEMessageAuthenticator.validateClaims(
+        let publicKey = try NSEMessageAuthenticator.publicKeyAfterValidatingClaims(
             signature: signatureData,
             authorType: signature.author.type,
             authorName: signature.author.name,
@@ -271,14 +271,17 @@ class NSECryptoService: DeviceCryptography {
             messageChannelId: messageChannelId,
             envelopeChannelId: self.stringValue(payloadValue["channelId"]),
             messageCreatedAt: messageCreatedAt,
-            envelopeCreatedAt: self.numberValue(payloadValue["createdAt"])
+            envelopeCreatedAt: self.numberValue(payloadValue["createdAt"]),
+            lookup: {
+                let keyName = self.makeUserSignatureKeyName(teamId: teamId, author: signature.author)
+                let publicKeyString = try self.lfaKeyString(keyName: keyName)
+                return Base58.decode(publicKeyString).map { Data($0) }
+            }
         )
-        let keyName = self.makeUserSignatureKeyName(teamId: teamId, author: signature.author)
-        let publicKeyString = try self.lfaKeyString(keyName: keyName)
         try NSEMessageAuthenticator.authenticate(
             plaintext: plaintext,
             signature: signatureData,
-            publicKey: Base58.decode(publicKeyString).map { Data($0) },
+            publicKey: publicKey,
             authorType: signature.author.type,
             authorName: signature.author.name,
             messageUserId: messageUserId,
@@ -354,7 +357,7 @@ class NSECryptoService: DeviceCryptography {
             let author = dict["author"] as? NSEJSONObject,
             let authorType = self.stringValue(author["type"]),
             let authorName = self.stringValue(author["name"]),
-            let generation = self.intValue(author["generation"])
+            let generation = NSEMessageAuthenticator.exactNonNegativeInt(author["generation"])
         else {
             throw NSECryptoError.invalidPayload("message signature was malformed")
         }

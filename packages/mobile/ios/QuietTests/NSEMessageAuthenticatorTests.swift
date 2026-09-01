@@ -70,32 +70,45 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
         XCTAssertThrowsError(try authenticate(envelopeChannelId: "other-channel"))
     }
 
-    func testMalformedAuthorIsPermanentBeforeMissingKeyCanBlockCursor() throws {
+    func testMalformedGenerationIsRejectedBeforeLookupAndDoesNotBlockNextValidEntry() throws {
         let signature = try privateKey.signature(for: NSEMessageAuthenticator.signaturePayload(plaintext))
-        XCTAssertThrowsError(
-            try NSEMessageAuthenticator.validateClaims(
-                signature: signature,
-                authorType: "USER",
-                authorName: "mallory-id",
-                messageUserId: "alice-id",
-                messageId: "message-id",
-                envelopeId: "message-id",
-                messageTeamId: "team-id",
-                envelopeTeamId: "team-id",
-                requestedTeamId: "team-id",
-                messageChannelId: "channel-id",
-                envelopeChannelId: "channel-id",
-                messageCreatedAt: 1234,
-                envelopeCreatedAt: 1234
-            )
-        ) { error in
-            XCTAssertTrue(error is NSEMessageAuthenticationError)
+        var lookups = 0
+        var cursor: Int64 = 10
+        for (sequence, generationValue) in [(Int64(11), 3.5 as Any), (Int64(12), 3 as Any)] {
+            do {
+                guard NSEMessageAuthenticator.exactNonNegativeInt(generationValue) != nil else {
+                    throw NSECryptoError.invalidPayload("message signature generation was malformed")
+                }
+                _ = try NSEMessageAuthenticator.publicKeyAfterValidatingClaims(
+                    signature: signature,
+                    authorType: "USER",
+                    authorName: "alice-id",
+                    messageUserId: "alice-id",
+                    messageId: "message-id",
+                    envelopeId: "message-id",
+                    messageTeamId: "team-id",
+                    envelopeTeamId: "team-id",
+                    requestedTeamId: "team-id",
+                    messageChannelId: "channel-id",
+                    envelopeChannelId: "channel-id",
+                    messageCreatedAt: 1234,
+                    envelopeCreatedAt: 1234,
+                    lookup: {
+                        lookups += 1
+                        return self.privateKey.publicKey.rawRepresentation
+                    }
+                )
+                cursor = NSENotificationCursorPolicy.cursor(after: cursor, processing: sequence, outcome: .delivered)
+            } catch {
+                let outcome: NSENotificationProcessingOutcome = NSENotificationFailurePolicy.isRetryable(error)
+                    ? .deliveryFailed
+                    : .rejected
+                cursor = NSENotificationCursorPolicy.cursor(after: cursor, processing: sequence, outcome: outcome)
+            }
         }
 
-        var cursor: Int64 = 10
-        cursor = NSENotificationCursorPolicy.cursor(after: cursor, processing: 11, outcome: .rejected)
-        cursor = NSENotificationCursorPolicy.cursor(after: cursor, processing: 12, outcome: .delivered)
         XCTAssertEqual(cursor, 12)
+        XCTAssertEqual(lookups, 1)
     }
 
     func testRejectedEntryAdvancesCursorSoLaterEntriesAreNotBlocked() {

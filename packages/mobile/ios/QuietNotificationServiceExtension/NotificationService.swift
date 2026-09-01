@@ -159,7 +159,7 @@ class NotificationService: UNNotificationServiceExtension {
                             entry.cid,
                             String(describing: error)
                         )
-                        if case NSECryptoError.missingKey = error {
+                        if NSENotificationFailurePolicy.isRetryable(error) {
                             // Keychain propagation can lag behind the push. Preserve this entry for
                             // a later wake-up rather than treating a valid message as malformed.
                             return ProcessedEntry(entry: entry, message: nil, retryableFailure: true)

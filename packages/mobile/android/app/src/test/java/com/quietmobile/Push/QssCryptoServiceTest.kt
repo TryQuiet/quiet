@@ -134,6 +134,48 @@ class QssCryptoServiceTest {
         assertEquals(false, lookedUp)
     }
 
+    @Test
+    fun malformedGenerationIsConsumedBeforeLookupAndDoesNotBlockNextValidEntry() {
+        val entries = listOf(1L, 2L).map { sequence ->
+            LogEntry("cid-$sequence", "db", teamId, byteArrayOf(), "2026-09-01T00:00:00Z", sequence)
+        }
+        val lookups = mutableListOf<String>()
+        val presented = mutableListOf<Long>()
+
+        val cursor = processContiguousQssEntries(
+            afterSeq = 0,
+            entries = entries,
+            authenticate = { entry ->
+                val signed = signature()
+                val parsed = parseMessageSignature(
+                    mapOf(
+                        "signature" to signed.signature,
+                        "author" to mapOf(
+                            "type" to signed.author.type,
+                            "name" to signed.author.name,
+                            "generation" to if (entry.syncSeq == 1L) 3.5 else 3,
+                        ),
+                    ),
+                )
+                authenticateNotificationMessage(
+                    envelope(),
+                    message(),
+                    plaintext,
+                    parsed,
+                    teamId,
+                    { keyName -> lookups += keyName; CopperBase58.encode(publicKey) },
+                    verifier,
+                )
+            },
+            present = { entry, _ -> presented += entry.syncSeq },
+            isPermanentRejection = { it !is MissingQssNotificationKeyException },
+        )
+
+        assertEquals(2L, cursor)
+        assertEquals(listOf(2L), presented)
+        assertEquals(listOf("quiet_team-id_USER_alice-id_3_userSig"), lookups)
+    }
+
     private fun authenticate(
         envelope: Map<*, *>,
         message: Map<*, *>,

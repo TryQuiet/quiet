@@ -29,6 +29,13 @@ enum NSENotificationCursorPolicy {
     }
 }
 
+enum NSENotificationFailurePolicy {
+    static func isRetryable(_ error: Error) -> Bool {
+        if case NSECryptoError.missingKey = error { return true }
+        return false
+    }
+}
+
 /// Pure notification-message authentication shared by the NSE and its native regression tests.
 /// The caller supplies the exact decrypted MessagePack bytes; they are never re-encoded.
 enum NSEMessageAuthenticator {
@@ -38,6 +45,29 @@ enum NSEMessageAuthenticator {
         let contextBytes = Data(context.utf8)
         precondition(contextBytes.count <= 31)
         return Data([0x92, 0xa0 | UInt8(contextBytes.count)]) + contextBytes + plaintext
+    }
+
+    static func exactNonNegativeInt(_ value: Any?) -> Int? {
+        if value is Bool { return nil }
+        let maximum = Int(Int32.max)
+        let number: Double
+        switch value {
+        case let value as Int: return value >= 0 && value <= maximum ? value : nil
+        case let value as Int64:
+            guard value >= 0, value <= Int64(maximum) else { return nil }
+            return Int(value)
+        case let value as UInt64:
+            guard value <= UInt64(maximum) else { return nil }
+            return Int(value)
+        case let value as NSNumber: number = value.doubleValue
+        case let value as Double: number = value
+        case let value as Float: number = Double(value)
+        default: return nil
+        }
+        guard number.isFinite, number >= 0, number <= Double(maximum), number.rounded(.towardZero) == number else {
+            return nil
+        }
+        return Int(number)
     }
 
     static func authenticate(
@@ -116,5 +146,42 @@ enum NSEMessageAuthenticator {
         else {
             throw NSEMessageAuthenticationError.immutableFieldMismatch
         }
+    }
+
+    static func publicKeyAfterValidatingClaims(
+        signature: Data?,
+        authorType: String?,
+        authorName: String?,
+        messageUserId: String,
+        messageId: String,
+        envelopeId: String?,
+        messageTeamId: String,
+        envelopeTeamId: String?,
+        requestedTeamId: String,
+        messageChannelId: String,
+        envelopeChannelId: String?,
+        messageCreatedAt: Double,
+        envelopeCreatedAt: Double?,
+        lookup: () throws -> Data?
+    ) throws -> Data {
+        try validateClaims(
+            signature: signature,
+            authorType: authorType,
+            authorName: authorName,
+            messageUserId: messageUserId,
+            messageId: messageId,
+            envelopeId: envelopeId,
+            messageTeamId: messageTeamId,
+            envelopeTeamId: envelopeTeamId,
+            requestedTeamId: requestedTeamId,
+            messageChannelId: messageChannelId,
+            envelopeChannelId: envelopeChannelId,
+            messageCreatedAt: messageCreatedAt,
+            envelopeCreatedAt: envelopeCreatedAt
+        )
+        guard let publicKey = try lookup() else {
+            throw NSEMessageAuthenticationError.malformedSignature
+        }
+        return publicKey
     }
 }
