@@ -124,6 +124,15 @@ class NseAuthProtocolTest {
                 client.parseChallengeResponse(json)
             }
         }
+
+        listOf("1700000000000.0001", "9007199254740990.6").forEach { timestamp ->
+            val literal = JSONObject(
+                """{"challengeId":"00112233445566778899aabbccddeeff","challenge":{"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":$timestamp,"expiresAtMs":1700000030000}}""",
+            )
+            assertThrows(IllegalArgumentException::class.java) {
+                client.parseChallengeResponse(literal)
+            }
+        }
     }
 
     private fun hex(value: String): ByteArray = value.chunked(2).map { it.toInt(16).toByte() }.toByteArray()

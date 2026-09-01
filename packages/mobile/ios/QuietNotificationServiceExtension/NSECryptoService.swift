@@ -1,4 +1,3 @@
-import CryptoKit
 import Foundation
 import Sodium
 
@@ -50,14 +49,7 @@ protocol DeviceCryptography {
 
 extension DeviceCryptography {
     func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String {
-        let payloadBytes = try NSEMsgpack.encodeNseAuthProof(challenge)
-        guard privateKeyData.count == 64 || privateKeyData.count == 32 else {
-            throw NSECryptoError.invalidKeyLength(expected: 64, got: privateKeyData.count)
-        }
-        let seed = privateKeyData.prefix(32)
-        let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: seed)
-        let signatureBytes = try privateKey.signature(for: payloadBytes)
-        return Base58.encode(signatureBytes)
+        try NSEAuthProof.sign(challenge, privateKeyData: privateKeyData)
     }
 }
 
@@ -488,20 +480,7 @@ enum NSEMsgpack {
 
     /// Encodes msgpackr.pack([NSE_AUTH_SIGNATURE_CONTEXT, canonicalPayload]).
     static func encodeNseAuthProof(_ challenge: ChallengePayload) throws -> Data {
-        var out = Data()
-        out.append(0x92)
-        try appendString(nseAuthSignatureContext, to: &out)
-        out.append(0x99)
-        out.append(UInt8(challenge.protocolVersion))
-        try appendString(challenge.type, to: &out)
-        try appendString(challenge.deviceId, to: &out)
-        try appendString(challenge.teamId, to: &out)
-        try appendString(challenge.qssServerId, to: &out)
-        try appendString(challenge.challengeId, to: &out)
-        try appendString(challenge.nonce, to: &out)
-        appendFloat64(Double(challenge.issuedAtMs), to: &out)
-        appendFloat64(Double(challenge.expiresAtMs), to: &out)
-        return out
+        try NSEAuthProof.encode(challenge)
     }
 
     static func decode(_ data: Data) throws -> Any {
@@ -539,22 +518,6 @@ enum NSEMsgpack {
         }
         out.append(contentsOf: bytes)
     }
-
-    /// Encodes a Double as IEEE 754 float64 (0xcb + 8 bytes big-endian).
-    /// msgpackr uses float64 for JavaScript numbers that exceed 2^32.
-    private static func appendFloat64(_ v: Double, to out: inout Data) {
-        out.append(0xcb)
-        let bits = v.bitPattern // UInt64 IEEE 754 representation
-        out.append(UInt8((bits >> 56) & 0xFF))
-        out.append(UInt8((bits >> 48) & 0xFF))
-        out.append(UInt8((bits >> 40) & 0xFF))
-        out.append(UInt8((bits >> 32) & 0xFF))
-        out.append(UInt8((bits >> 24) & 0xFF))
-        out.append(UInt8((bits >> 16) & 0xFF))
-        out.append(UInt8((bits >>  8) & 0xFF))
-        out.append(UInt8(bits & 0xFF))
-    }
-
     private final class Decoder {
         private let bytes: [UInt8]
         private var index: Int = 0

@@ -59,7 +59,7 @@ class QssNetworkClient(baseUrl: String) {
 
     private fun requireSafeInteger(json: JSONObject, key: String): Long {
         val raw = json.get(key)
-        require(raw is Number) { "$key was not a JSON number" }
+        require(raw is Int || raw is Long) { "$key was not an integer JSON literal" }
         val value = raw.toString().toBigDecimalOrNull()
             ?: throw IllegalArgumentException("$key was not finite")
         require(value.stripTrailingZeros().scale() <= 0) { "$key was not an integer" }

@@ -1,11 +1,4 @@
 import XCTest
-@testable import QuietNotificationServiceExtension
-
-private struct TestDeviceCryptography: DeviceCryptography {
-    func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage? {
-        nil
-    }
-}
 
 final class NSEAuthProtocolTests: XCTestCase {
     private let now: Int64 = 1_700_000_000_000
@@ -35,11 +28,11 @@ final class NSEAuthProtocolTests: XCTestCase {
             "aa7173732d746573742d31d920303031313232333334343535363637373838393961616262" +
             "6363646465656666d920313131313131313131313131313131313131313131313131313131" +
             "3131313131cb4278bcfe56800000cb4278bcfe5dd30000")
-        XCTAssertEqual(try NSEMsgpack.encodeNseAuthProof(value), expectedBytes)
+        XCTAssertEqual(try NSEAuthProof.encode(value), expectedBytes)
 
         let secretKey = try XCTUnwrap(Base58.decode("2ZC6948FLMTyZ9cAN2Db6u4E9FN72vEwXa1s193vMozZUYnBzVU7952gS6zY7T2VZJVBuJKSsdo7gDDkox3tZx4u"))
         XCTAssertEqual(
-            try TestDeviceCryptography().signNseAuthProof(value, privateKeyData: secretKey),
+            try NSEAuthProof.sign(value, privateKeyData: secretKey),
             "62XsfcCvq4SeRxmVK6LNyjuPpLyUSaCxPD315LRtfet9GnHQ6zu5sg8muz1eh4ZvvnZ6m3SH88KRztu4gm8W5YQk"
         )
     }
@@ -65,6 +58,10 @@ final class NSEAuthProtocolTests: XCTestCase {
         XCTAssertThrowsError(try challenge(extra: ["extra": true]))
         XCTAssertThrowsError(try challenge(overrides: ["issuedAtMs": "1700000000000"]))
         XCTAssertThrowsError(try challenge(overrides: ["type": 7]))
+        let fractional = """
+        {"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":1700000000000.0001,"expiresAtMs":1700000030000}
+        """.data(using: .utf8)!
+        XCTAssertThrowsError(try JSONDecoder().decode(ChallengePayload.self, from: fractional))
     }
 }
 

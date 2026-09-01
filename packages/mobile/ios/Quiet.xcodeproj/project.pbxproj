@@ -14,6 +14,9 @@
 		A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000004 /* NSEMessageAuthenticator.swift */; };
 		A11400000000000000000005 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000006 /* SharedDefaults.swift */; };
 		A11500000000000000000001 /* NSEAuthProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000002 /* NSEAuthProtocolTests.swift */; };
+		A11500000000000000000004 /* NSEAuthProof.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000007 /* NSEAuthProof.swift */; };
+		A11500000000000000000005 /* NSEModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000008 /* NSEModels.swift */; };
+		A11500000000000000000006 /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000009 /* Base58.swift */; };
 		03B674072E6103DC00A86655 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674042E6103DC00A86655 /* Rubik-Regular.ttf */; };
 		03B674082E6103DC00A86655 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674022E6103DC00A86655 /* Rubik-Medium.ttf */; };
 		03B674092E6103DC00A86655 /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FC2E6103DC00A86655 /* Rubik-BoldItalic.ttf */; };
@@ -126,6 +129,9 @@
 		A11400000000000000000004 /* NSEMessageAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEMessageAuthenticator.swift; path = QuietNotificationServiceExtension/NSEMessageAuthenticator.swift; sourceTree = SOURCE_ROOT; };
 		A11400000000000000000006 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedDefaults.swift; path = Shared/SharedDefaults.swift; sourceTree = SOURCE_ROOT; };
 		A11500000000000000000002 /* NSEAuthProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEAuthProtocolTests.swift; sourceTree = "<group>"; };
+		A11500000000000000000007 /* NSEAuthProof.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEAuthProof.swift; path = ../QuietNotificationServiceExtension/NSEAuthProof.swift; sourceTree = "<group>"; };
+		A11500000000000000000008 /* NSEModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEModels.swift; path = ../QuietNotificationServiceExtension/NSEModels.swift; sourceTree = "<group>"; };
+		A11500000000000000000009 /* Base58.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Base58.swift; path = ../Shared/Base58.swift; sourceTree = "<group>"; };
 		03B673F92E6103DC00A86655 /* Rubik-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Black.ttf"; path = "../src/assets/fonts/Rubik-Black.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-BlackItalic.ttf"; path = "../src/assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FB2E6103DC00A86655 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Bold.ttf"; path = "../src/assets/fonts/Rubik-Bold.ttf"; sourceTree = SOURCE_ROOT; };
@@ -742,6 +748,9 @@
 				A11400000000000000000004 /* NSEMessageAuthenticator.swift */,
 				A11400000000000000000006 /* SharedDefaults.swift */,
 				A11500000000000000000002 /* NSEAuthProtocolTests.swift */,
+				A11500000000000000000007 /* NSEAuthProof.swift */,
+				A11500000000000000000008 /* NSEModels.swift */,
+				A11500000000000000000009 /* Base58.swift */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
 			path = QuietTests;
@@ -4896,7 +4905,6 @@
 			);
 			dependencies = (
 				00E356F51AD99517003FC87E /* PBXTargetDependency */,
-				A11500000000000000000003 /* PBXTargetDependency */,
 			);
 			name = QuietTests;
 			productName = QuietTests;
@@ -5333,6 +5341,9 @@
 				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
 				A11400000000000000000005 /* SharedDefaults.swift in Sources */,
 				A11500000000000000000001 /* NSEAuthProtocolTests.swift in Sources */,
+				A11500000000000000000004 /* NSEAuthProof.swift in Sources */,
+				A11500000000000000000005 /* NSEModels.swift in Sources */,
+				A11500000000000000000006 /* Base58.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5376,11 +5387,6 @@
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
 		EB4DC7FF2F608A3300EFD23F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */;
-			targetProxy = EB4DC7FE2F608A3300EFD23F /* PBXContainerItemProxy */;
-		};
-		A11500000000000000000003 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */;
 			targetProxy = EB4DC7FE2F608A3300EFD23F /* PBXContainerItemProxy */;
