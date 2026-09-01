@@ -1,39 +1,77 @@
 import _ from 'validator'
 import joi from 'joi'
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { ChannelMessage, MessageType, PublicChannel } from '@quiet/types'
 import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
 import { isPSKcodeValid } from '@quiet/common'
 import { createLogger } from '../common/logger'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { isUint8Array } from 'util/types'
+import { CID } from 'multiformats/cid'
 
 const logger = createLogger('validators')
 
+export const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024 * 1024
+export const MAX_IMAGE_DIMENSION = 100_000
+
+const attachmentMessageSchema = joi
+  .object({
+    id: joi.string().min(1).max(512).required(),
+    channelId: joi.string().min(1).max(512).required(),
+  })
+  .required()
+
+const attachmentEncryptionSchema = joi
+  .object({
+    header: joi
+      .string()
+      .pattern(/^[a-zA-Z0-9_-]+={0,2}$/)
+      .min(1)
+      .max(4096)
+      .required(),
+    recipient: joi
+      .object({
+        generation: joi.number().integer().min(0).max(Number.MAX_SAFE_INTEGER).required(),
+        type: joi.string().min(1).max(128).required(),
+        name: joi.string().min(1).max(512).required(),
+      })
+      .required(),
+  })
+  .required()
+
 const messageMediaSchema = joi.object({
-  path: joi.string().allow(null),
-  name: joi.string().required(),
-  ext: joi.string().required(),
-  cid: joi.string().required(),
-  size: joi.number().allow(null),
-  width: joi.number().allow(null),
-  height: joi.number().allow(null),
-  message: joi.object({
-    id: joi.string().required(),
-    channelId: joi.string(),
-    channelAddress: joi.string(),
-  }),
-  enc: joi
-    .object({
-      header: joi.binary().required(),
-      recipient: joi
-        .object({
-          generation: joi.number().required(),
-          type: joi.string().required(),
-          name: joi.string().allow(null),
-        })
-        .required(),
+  path: joi.valid(null).required(),
+  tmpPath: joi.forbidden(),
+  name: joi.string().trim().min(1).max(255).required(),
+  ext: joi
+    .string()
+    .pattern(/^\.[a-z0-9]{1,31}$/i)
+    .required(),
+  cid: joi
+    .string()
+    .min(1)
+    .max(256)
+    .custom((value: string, helpers) => {
+      try {
+        CID.parse(value)
+        return value
+      } catch {
+        return helpers.error('any.invalid')
+      }
     })
-    .allow(null),
+    .required(),
+  size: joi.number().integer().positive().max(MAX_ATTACHMENT_SIZE_BYTES).required(),
+  message: attachmentMessageSchema,
+  enc: attachmentEncryptionSchema,
+})
+
+const fileMediaSchema = messageMediaSchema.keys({
+  width: joi.forbidden(),
+  height: joi.forbidden(),
+})
+
+const imageMediaSchema = messageMediaSchema.keys({
+  width: joi.number().integer().positive().max(MAX_IMAGE_DIMENSION).required(),
+  height: joi.number().integer().positive().max(MAX_IMAGE_DIMENSION).required(),
 })
 
 const signatureAuthorSchema = joi.object({
@@ -49,13 +87,19 @@ const EncryptionSignatureSchema = joi.object({
 
 const messageSchema = joi.object({
   id: joi.string().required(),
-  type: joi.number().required().positive().integer(),
+  type: joi.number().valid(MessageType.Basic, MessageType.Image, MessageType.Info, MessageType.File).required(),
   message: joi.string().required().allow(''),
   createdAt: joi.number().required(),
   channelId: joi.string().required(),
   userId: joi.string().required(),
   encSignature: EncryptionSignatureSchema.optional(),
-  media: messageMediaSchema.optional(),
+  media: joi.when('type', {
+    switch: [
+      { is: MessageType.File, then: fileMediaSchema.required() },
+      { is: MessageType.Image, then: imageMediaSchema.required() },
+    ],
+    otherwise: joi.forbidden(),
+  }),
 })
 
 // extends messageSchema to include "verified" field
