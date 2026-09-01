@@ -228,6 +228,14 @@ jobs:
       - name: 'Build debug .apk'
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
 
+      - name: 'Test native notification authentication'
+        run: |
+          cd ./packages/mobile/android
+          ENVFILE=../.env.staging ./gradlew testStandardDebugUnitTest \
+            --tests com.quietmobile.Push.MsgpackEncoderTest \
+            --tests com.quietmobile.Push.QssCryptoServiceTest \
+            --tests com.quietmobile.Push.QssNotificationCursorTest
+
       - name: Get branch name
         id: branch
         shell: bash

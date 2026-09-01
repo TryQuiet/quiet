@@ -73,6 +73,7 @@ enum NSECryptoError: Error, LocalizedError {
     case invalidPayload(String)
     case msgpack(String)
     case decryptionFailed(String)
+    case missingKey(String)
 
     var errorDescription: String? {
         switch self {
@@ -81,6 +82,7 @@ enum NSECryptoError: Error, LocalizedError {
         case .invalidPayload(let msg): return "Invalid payload: \(msg)"
         case .msgpack(let msg): return "MessagePack decoding failed: \(msg)"
         case .decryptionFailed(let msg): return "Decryption failed: \(msg)"
+        case .missingKey(let keyName): return "Missing LFA key: \(keyName)"
         }
     }
 }
@@ -93,10 +95,6 @@ enum NSECryptoError: Error, LocalizedError {
 /// 3. QSS log entries contain msgpackr-record-encoded payloads, not JSON
 class NSECryptoService: DeviceCryptography {
     private let sodium = Sodium()
-
-    // Must match @localfirst/auth's TEAM_MESSAGE domain. This is a stable wire
-    // constant and is deliberately supplied by the verifier, not the message.
-    private static let teamMessageSignatureContext = "lf/auth/team-message"
 
     // Matches @localfirst/crypto stretch.ts
     private static let stretchSalt: [UInt8] = {
@@ -165,24 +163,16 @@ class NSECryptoService: DeviceCryptography {
             throw NSECryptoError.invalidPayload("decrypted message shape was invalid")
         }
 
-        guard signature.author.name == userId else {
-            throw NSECryptoError.invalidPayload("message signature author did not match message userId")
-        }
-
-        guard
-            self.stringValue(payloadValue["id"]) == id,
-            self.stringValue(payloadValue["channelId"]) == channelId,
-            self.stringValue(payloadValue["teamId"]) == messageTeamId,
-            messageTeamId == teamId,
-            self.numberValue(payloadValue["createdAt"]) == createdAt
-        else {
-            throw NSECryptoError.invalidPayload("inner message fields did not match its encrypted envelope")
-        }
-
-        try self.verifyMessageSignature(
+        try self.authenticateMessage(
             plaintext: decryptedInner.bytes,
             signature: signature,
-            teamId: teamId
+            teamId: teamId,
+            messageId: id,
+            messageTeamId: messageTeamId,
+            messageChannelId: channelId,
+            messageUserId: userId,
+            messageCreatedAt: createdAt,
+            payloadValue: payloadValue
         )
 
         return NSEDecryptedNotificationMessage(
@@ -213,7 +203,7 @@ class NSECryptoService: DeviceCryptography {
 
     private func decryptPayload(_ encryptedPayload: NSEEncryptedPayload, teamId: String) throws -> NSEDecryptedPayload {
         let keyName = self.makeKeyName(teamId: teamId, scope: encryptedPayload.scope)
-        let secretKey = try KeychainService.getLfaKeyString(keyName: keyName)
+        let secretKey = try self.lfaKeyString(keyName: keyName)
         return try self.decryptSymmetric(cipherBytes: encryptedPayload.contents, password: secretKey)
     }
 
@@ -256,41 +246,36 @@ class NSECryptoService: DeviceCryptography {
         return NSEDecryptedPayload(value: try self.decodeObject(plaintext), bytes: plaintext)
     }
 
-    private func verifyMessageSignature(
+    private func authenticateMessage(
         plaintext: Data,
         signature: NSEMessageSignature,
-        teamId: String
+        teamId: String,
+        messageId: String,
+        messageTeamId: String,
+        messageChannelId: String,
+        messageUserId: String,
+        messageCreatedAt: Double,
+        payloadValue: NSEJSONObject
     ) throws {
-        guard signature.author.type == "USER" else {
-            throw NSECryptoError.invalidPayload("message signature author was not a user key")
-        }
-
         let keyName = self.makeUserSignatureKeyName(teamId: teamId, author: signature.author)
-        let publicKeyString = try KeychainService.getLfaKeyString(keyName: keyName)
-        guard
-            let signatureBytes = Base58.decode(signature.signature),
-            let publicKeyBytes = Base58.decode(publicKeyString)
-        else {
-            throw NSECryptoError.invalidBase58
-        }
-        guard signatureBytes.count == 64 else {
-            throw NSECryptoError.invalidKeyLength(expected: 64, got: signatureBytes.count)
-        }
-        guard publicKeyBytes.count == 32 else {
-            throw NSECryptoError.invalidKeyLength(expected: 32, got: publicKeyBytes.count)
-        }
-
-        let signedBytes = try NSEMsgpack.withSignatureContext(
-            Self.teamMessageSignatureContext,
-            plaintext: plaintext
+        let publicKeyString = try self.lfaKeyString(keyName: keyName)
+        try NSEMessageAuthenticator.authenticate(
+            plaintext: plaintext,
+            signature: Base58.decode(signature.signature).map { Data($0) },
+            publicKey: Base58.decode(publicKeyString).map { Data($0) },
+            authorType: signature.author.type,
+            authorName: signature.author.name,
+            messageUserId: messageUserId,
+            messageId: messageId,
+            envelopeId: self.stringValue(payloadValue["id"]),
+            messageTeamId: messageTeamId,
+            envelopeTeamId: self.stringValue(payloadValue["teamId"]),
+            requestedTeamId: teamId,
+            messageChannelId: messageChannelId,
+            envelopeChannelId: self.stringValue(payloadValue["channelId"]),
+            messageCreatedAt: messageCreatedAt,
+            envelopeCreatedAt: self.numberValue(payloadValue["createdAt"])
         )
-        guard self.sodium.sign.verify(
-            message: [UInt8](signedBytes),
-            publicKey: publicKeyBytes,
-            signature: signatureBytes
-        ) else {
-            throw NSECryptoError.invalidPayload("message signature verification failed")
-        }
     }
 
     private func stretch(_ password: String) throws -> [UInt8] {
@@ -370,6 +355,14 @@ class NSECryptoService: DeviceCryptography {
 
     private func makeUserSignatureKeyName(teamId: String, author: NSESignatureAuthor) -> String {
         return "quiet_\(teamId)_\(author.type)_\(author.name)_\(author.generation)_userSig"
+    }
+
+    private func lfaKeyString(keyName: String) throws -> String {
+        do {
+            return try KeychainService.getLfaKeyString(keyName: keyName)
+        } catch {
+            throw NSECryptoError.missingKey(keyName)
+        }
     }
 
     private func decodeObject(_ data: Data) throws -> Any {

@@ -5,10 +5,11 @@ import com.goterl.lazysodium.LazySodiumAndroid
 import com.goterl.lazysodium.SodiumAndroid
 import com.goterl.lazysodium.interfaces.PwHash
 
-class QssCryptoService {
-    private val sodium = LazySodiumAndroid(SodiumAndroid())
-
-    private val teamMessageSignatureContext = "lf/auth/team-message"
+class QssCryptoService(
+    private val lfaKeyLookup: (String) -> String? = { keyName -> QuietStorage.getLfaKey(keyName) },
+    private val signatureVerifier: ((ByteArray, ByteArray, ByteArray) -> Boolean)? = null,
+) {
+    private val sodium by lazy { LazySodiumAndroid(SodiumAndroid()) }
 
     private val stretchSalt: ByteArray =
         decodeBase58("H5B4DLSXw5xwNYFdz1Wr6e")
@@ -64,87 +65,33 @@ class QssCryptoService {
         val decryptedInner = decryptPayload(innerEncrypted, teamId)
         val message = decryptedInner.value as? Map<*, *> ?: return null
 
-        val id = stringValue(message["id"]) ?: return null
-        val channelId = stringValue(message["channelId"]) ?: return null
-        val userId = stringValue(message["userId"]) ?: return null
-        val messageTeamId = stringValue(message["teamId"]) ?: return null
-        val createdAt = numberValue(message["createdAt"]) ?: return null
-        val type = intValue(message["type"]) ?: return null
-        val body = notificationBody(message, type) ?: return null
-
-        if (id.isEmpty() || channelId.isEmpty() || userId.isEmpty() || messageTeamId.isEmpty() || type <= 0) {
-            throw IllegalStateException("Decrypted message shape was invalid")
-        }
-
-        if (signature.author.name != userId) {
-            throw IllegalStateException("Message signature author did not match message userId")
-        }
-        if (
-            stringValue(payloadValue["id"]) != id ||
-            stringValue(payloadValue["channelId"]) != channelId ||
-            stringValue(payloadValue["teamId"]) != messageTeamId ||
-            messageTeamId != teamId ||
-            numberValue(payloadValue["createdAt"]) != createdAt
-        ) {
-            throw IllegalStateException("Inner message fields did not match its encrypted envelope")
-        }
-
-        if (!verifyMessageSignature(decryptedInner.bytes, signature, teamId)) {
-            throw IllegalStateException("Message signature verification failed")
-        }
-
-        return DecryptedNotificationMessage(
-            id = id,
-            channelId = channelId,
-            userId = userId,
-            body = body,
-            type = type,
-        )
+        return validateDecryptedMessage(payloadValue, message, decryptedInner.bytes, signature, teamId)
     }
 
-    private fun verifyMessageSignature(plaintext: ByteArray, signature: MessageSignature, teamId: String): Boolean {
-        if (signature.author.type != "USER") {
-            throw IllegalStateException("Message signature author was not a user key")
+    internal fun validateDecryptedMessage(
+        payloadValue: Map<*, *>,
+        message: Map<*, *>,
+        plaintext: ByteArray,
+        signature: MessageSignature,
+        teamId: String,
+    ): DecryptedNotificationMessage? =
+        authenticateNotificationMessage(
+            payloadValue,
+            message,
+            plaintext,
+            signature,
+            teamId,
+            lfaKeyLookup,
+        ) { signatureBytes, payloadBytes, publicKeyBytes ->
+            signatureVerifier?.invoke(signatureBytes, payloadBytes, publicKeyBytes)
+                ?: sodium.cryptoSignVerifyDetached(signatureBytes, payloadBytes, payloadBytes.size, publicKeyBytes)
         }
-        val publicKeyName = makeUserSignatureKeyName(teamId, signature.author)
-        val publicKey =
-            QuietStorage.getLfaKey(publicKeyName)
-                ?: throw IllegalStateException("Missing user signature public key for scope $publicKeyName")
-        val signatureBytes =
-            decodeBase58(signature.signature)
-                ?: throw IllegalStateException("Message signature was not valid base58")
-        val publicKeyBytes =
-            decodeBase58(publicKey)
-                ?: throw IllegalStateException("User signature public key was not valid base58")
-        if (signatureBytes.size != 64) {
-            throw IllegalStateException("Invalid message signature length: ${signatureBytes.size}")
-        }
-        if (publicKeyBytes.size != 32) {
-            throw IllegalStateException("Invalid user signature public key length: ${publicKeyBytes.size}")
-        }
-
-        val payloadBytes = MsgpackEncoder.withSignatureContext(teamMessageSignatureContext, plaintext)
-        return sodium.cryptoSignVerifyDetached(signatureBytes, payloadBytes, payloadBytes.size, publicKeyBytes)
-    }
-
-    private fun notificationBody(message: Map<*, *>, type: Int): String? {
-        val trimmed = stringValue(message["message"])?.trim().orEmpty()
-        if (trimmed.isNotEmpty()) {
-            return trimmed
-        }
-
-        return when (type) {
-            2 -> "Sent an image"
-            4 -> "Sent a file"
-            else -> null
-        }
-    }
 
     private fun decryptPayload(encryptedPayload: EncryptedPayload, teamId: String): DecryptedPayload {
         val keyName = makeKeyName(teamId, encryptedPayload.scope)
         val secretKey =
             QuietStorage.getLfaKey(keyName)
-                ?: throw IllegalStateException("Missing LFA key for scope $keyName")
+                ?: throw MissingQssNotificationKeyException(keyName)
         return decryptSymmetric(encryptedPayload.contents, secretKey)
     }
 
@@ -240,30 +187,10 @@ class QssCryptoService {
         )
     }
 
-    private fun parseSignature(value: Any?): MessageSignature {
-        val dict = value as? Map<*, *> ?: throw IllegalStateException("Message signature was not an object")
-        val author = dict["author"] as? Map<*, *>
-            ?: throw IllegalStateException("Message signature author was malformed")
-        return MessageSignature(
-            signature = stringValue(dict["signature"])
-                ?: throw IllegalStateException("Message signature missing signature"),
-            author = SignatureAuthor(
-                type = stringValue(author["type"])
-                    ?: throw IllegalStateException("Message signature author.type missing"),
-                name = stringValue(author["name"])
-                    ?: throw IllegalStateException("Message signature author.name missing"),
-                generation = intValue(author["generation"])
-                    ?: throw IllegalStateException("Message signature author.generation missing"),
-            ),
-        )
-    }
+    internal fun parseSignature(value: Any?): MessageSignature = parseMessageSignature(value)
 
     private fun makeKeyName(teamId: String, scope: EncryptionScope): String {
         return "quiet_${teamId}_${scope.type}_${scope.name}_${scope.generation}_secret"
-    }
-
-    private fun makeUserSignatureKeyName(teamId: String, author: SignatureAuthor): String {
-        return "quiet_${teamId}_${author.type}_${author.name}_${author.generation}_userSig"
     }
 
     private fun byteArrayValue(value: Any?): ByteArray? {
@@ -303,17 +230,6 @@ class QssCryptoService {
     private fun decodeBase58(value: String): ByteArray? {
         return runCatching { CopperBase58.decode(value) }.getOrNull()
     }
-
-    private data class MessageSignature(
-        val signature: String,
-        val author: SignatureAuthor,
-    )
-
-    private data class SignatureAuthor(
-        val type: String,
-        val name: String,
-        val generation: Int,
-    )
 
     private data class DecryptedPayload(
         val value: Any?,
