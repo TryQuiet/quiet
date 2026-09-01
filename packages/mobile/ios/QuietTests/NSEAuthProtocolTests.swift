@@ -147,13 +147,51 @@ final class NSEAuthProtocolTests: XCTestCase {
             nowMs: { self.now }
         )
 
-        // This is the production NotificationService fetch path over actual
-        // URLRequest/JSON serialization. The fixed QSS verifies the Ed25519
-        // proof before it will issue the bearer token.
-        let response = try await service.fetchNewEntries(
+        let orchestrator = NSEBackgroundNotificationOrchestrator()
+        var badge = 7
+        var cursor: Int64 = 40
+        var delivery: NSEBackgroundNotificationDelivery?
+        var events: [String] = []
+
+        // NotificationService.fetchAndUpdate delegates this entire transaction
+        // to the same production core: HTTP auth/fetch, cursor filter/sort,
+        // decryption/presentation, content delivery, then cursor persistence.
+        try await orchestrator.run(
             teamId: "team-test-1",
-            qssServerId: "qss-test-1",
-            afterSeq: 40
+            baselineSeq: cursor,
+            crypto: crypto,
+            fetch: {
+                try await service.fetchNewEntries(
+                    teamId: "team-test-1",
+                    qssServerId: "qss-test-1",
+                    afterSeq: cursor
+                )
+            },
+            channelName: { channelId in
+                XCTAssertEqual(channelId, "channel-security")
+                return "security"
+            },
+            authenticatedAuthor: { userId in
+                XCTAssertEqual(userId, "user-alice")
+                return "Alice"
+            },
+            storedBadge: { badge },
+            saveBadge: {
+                badge = $0
+                events.append("badge:\($0)")
+            },
+            recordMissingNotificationKeyFailure: { _, _ in 1 },
+            clearMissingNotificationKeyFailure: { _, _ in },
+            stageCursor: { events.append("stage:\($0)") },
+            deliver: {
+                delivery = $0
+                events.append("deliver")
+                return true
+            },
+            persistCursor: {
+                cursor = $0
+                events.append("persist:\($0)")
+            }
         )
 
         XCTAssertEqual(credentials.deviceIdReads, 1)
@@ -165,32 +203,29 @@ final class NSEAuthProtocolTests: XCTestCase {
             "/nse-auth/token",
             "/nse-auth/logs/team-test-1?afterSeq=40"
         ])
-        XCTAssertEqual(response.entries.map(\.syncSeq), [41])
+        XCTAssertEqual(events, ["stage:42", "deliver", "badge:9", "persist:42"])
+        XCTAssertEqual(badge, 9)
+        XCTAssertEqual(cursor, 42)
 
-        let entry = try XCTUnwrap(response.entries.first)
-        let message = try XCTUnwrap(
-            crypto.decryptNotificationMessage(from: entry, teamId: "team-test-1")
-        )
-        XCTAssertEqual(message.channelId, "channel-security")
-        XCTAssertEqual(message.userId, "user-alice")
-        XCTAssertEqual(message.body, "Authenticated background message")
-        XCTAssertEqual(message.type, 1)
-
-        // NotificationService calls this exact production presenter with the
-        // message produced by NSECryptoService; no decrypted input is fabricated.
-        let presentation = NSENotificationPresenter.makePresentation(
-            message: message,
-            channelName: "security",
-            authenticatedAuthor: "Alice"
-        )
+        let delivered = try XCTUnwrap(delivery)
+        // QSS deliberately returned seq 42, already-seen 40, then 41. The core
+        // filters 40 and sorts the two unseen notifications before delivery.
         XCTAssertEqual(
-            presentation,
-            NSEPreparedNotificationPresentation(
-                title: "Alice in #security",
-                body: "Authenticated background message",
-                threadIdentifier: "channel-security"
-            )
+            delivered.notifications.map(\.identifier),
+            ["quiet.nse.synced.cid-fixed-41", "quiet.nse.synced.cid-fixed-42"]
         )
+        XCTAssertEqual(delivered.badge, 9)
+        XCTAssertEqual(delivered.notifications.map(\.badge), [8, 9])
+        for notification in delivered.notifications {
+            XCTAssertEqual(
+                notification.presentation,
+                NSEPreparedNotificationPresentation(
+                    title: "Alice in #security",
+                    body: "Authenticated background message",
+                    threadIdentifier: "channel-security"
+                )
+            )
+        }
     }
 
     private func challengeResponse(
@@ -429,15 +464,22 @@ private final class FixedQSSHTTPServer {
               ] else {
             throw FixedQSSError.invalidRequest("log request was not authenticated or cursor-bound")
         }
-        return try JSONSerialization.data(withJSONObject: [
-            "entries": [[
-                "cid": "cid-fixed-41",
+        func entry(cid: String, syncSeq: Int) -> [String: Any] {
+            [
+                "cid": cid,
                 "hashedDbId": "hashed-db-fixed",
                 "communityId": challenge.teamId,
                 "entry": ["type": "Buffer", "data": [UInt8](self.encryptedEntry)],
                 "receivedAt": "2023-11-14T22:13:20.000Z",
-                "syncSeq": 41
-            ]],
+                "syncSeq": syncSeq
+            ]
+        }
+        return try JSONSerialization.data(withJSONObject: [
+            "entries": [
+                entry(cid: "cid-fixed-42", syncSeq: 42),
+                entry(cid: "cid-already-seen-40", syncSeq: 40),
+                entry(cid: "cid-fixed-41", syncSeq: 41)
+            ],
             "resolvedAfterSeq": 40
         ])
     }

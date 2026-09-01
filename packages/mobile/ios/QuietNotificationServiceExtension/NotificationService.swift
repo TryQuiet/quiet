@@ -4,12 +4,6 @@ import os.log
 private let nseLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NotificationService")
 
 class NotificationService: UNNotificationServiceExtension {
-    private struct ProcessedEntry {
-        let entry: LogEntry
-        let message: NSEDecryptedNotificationMessage?
-        let retryableFailure: Bool
-    }
-
     private static let retryDelaysNanoseconds: [UInt64] = [
         250_000_000,
         750_000_000
@@ -20,9 +14,9 @@ class NotificationService: UNNotificationServiceExtension {
     var contentHandler: ((UNNotificationContent) -> Void)?
     var bestAttemptContent: UNMutableNotificationContent?
     var fetchTask: Task<Void, Never>?
-    private var pendingSyncSeq: Int64?
 
     private let crypto = NSECryptoService(lfaKeyReader: KeychainNSELFAKeyReader())
+    private let backgroundOrchestrator = NSEBackgroundNotificationOrchestrator()
     private let tokenCache = NSEAuthTokenCache()
 
     private static func getChannelName(teamId: String, channelId: String) -> String {
@@ -69,7 +63,7 @@ class NotificationService: UNNotificationServiceExtension {
     // MARK: - Private
 
     private func fetchAndUpdate(userInfo: [AnyHashable: Any]) async {
-        defer { deliver() }
+        defer { _ = deliver() }
 
         os_log("fetchAndUpdate: start", log: nseLog, type: .info)
 
@@ -111,172 +105,37 @@ class NotificationService: UNNotificationServiceExtension {
             let afterSeq = SharedDefaults.getLastSyncSeq()
             os_log("fetchAndUpdate: fetching entries afterSeq=%{public}lld",
                    log: nseLog, type: .info, afterSeq)
-
-            let response = try await fetchEntriesWithRetry(qssUrl: qssUrl, teamId: teamId, qssServerId: qssServerId, afterSeq: afterSeq)
-            let entries = response.entries
-            let baselineSeq = afterSeq
-            os_log("fetchAndUpdate: fetched %{public}d entries",
-                   log: nseLog, type: .info, entries.count)
-
-            guard !Task.isCancelled else {
-                os_log("fetchAndUpdate: task cancelled after fetch", log: nseLog, type: .info)
-                return
-            }
-
-            if entries.isEmpty {
-                os_log("fetchAndUpdate: no new entries, delivering as-is", log: nseLog, type: .info)
-            } else {
-                let unseenEntries = entries.filter { $0.syncSeq > baselineSeq }
-
-                if unseenEntries.isEmpty {
-                    os_log("fetchAndUpdate: no unseen entries after cursor filtering", log: nseLog, type: .info)
-                    return
-                }
-
-                let sortedEntries = unseenEntries.sorted { lhs, rhs in
-                    lhs.syncSeq < rhs.syncSeq
-                }
-
-                var notificationEntries: [LogEntry] = []
-                var expectedSyncSeq = baselineSeq + 1
-                for entry in sortedEntries {
-                    guard entry.syncSeq == expectedSyncSeq else {
-                        os_log(
-                            "fetchAndUpdate: stopping at non-contiguous sync seq; expected=%{public}lld actual=%{public}lld",
-                            log: nseLog,
-                            type: .error,
-                            expectedSyncSeq,
-                            entry.syncSeq
-                        )
-                        break
-                    }
-                    notificationEntries.append(entry)
-                    expectedSyncSeq += 1
-                }
-
-                guard let content = bestAttemptContent else {
-                    os_log("fetchAndUpdate: bestAttemptContent is nil, cannot update badge", log: nseLog, type: .error)
-                    return
-                }
-
-                let processedEntries = notificationEntries.map { entry -> ProcessedEntry in
-                    do {
-                        let message = try self.crypto.decryptNotificationMessage(from: entry, teamId: teamId)
-                        return ProcessedEntry(entry: entry, message: message, retryableFailure: false)
-                    } catch {
-                        os_log(
-                            "fetchAndUpdate: failed to decrypt entry %{public}@: %{public}@",
-                            log: nseLog,
-                            type: .error,
-                            entry.cid,
-                            String(describing: error)
-                        )
-                        if NSENotificationFailurePolicy.isRetryable(error) {
-                            // Keychain propagation can lag behind the push. Preserve this entry for
-                            // a later wake-up rather than treating a valid message as malformed.
-                            return ProcessedEntry(entry: entry, message: nil, retryableFailure: true)
-                        }
-                        // Authentication failures are permanent for this immutable entry. Treat it
-                        // as rejected and consume its sequence so it cannot poison later delivery.
-                        return ProcessedEntry(entry: entry, message: nil, retryableFailure: false)
-                    }
-                }
-                let storedBadgeCount = SharedDefaults.getBadgeCount()
-                let lastDisplayableIndex = processedEntries.lastIndex { $0.message != nil }
-                var displayedCount = 0
-                var lastProcessedSeq = baselineSeq
-
-                for (index, processedEntry) in processedEntries.enumerated() {
-                    if processedEntry.retryableFailure {
-                        let failureCount = SharedDefaults.recordMissingNotificationKeyFailure(
-                            teamId: teamId,
-                            syncSeq: processedEntry.entry.syncSeq
-                        )
-                        if NSENotificationRetryPolicy.shouldRetryMissingKey(failureCount: failureCount) {
-                            break
-                        }
-                        // A structurally valid entry can name a generation that will never exist.
-                        // After a bounded keychain-propagation window, consume it as rejected so it
-                        // cannot pin every later notification forever.
-                        SharedDefaults.clearMissingNotificationKeyFailure(
-                            teamId: teamId,
-                            syncSeq: processedEntry.entry.syncSeq
-                        )
-                        lastProcessedSeq = NSENotificationCursorPolicy.cursor(
-                            after: lastProcessedSeq,
-                            processing: processedEntry.entry.syncSeq,
-                            outcome: .rejected
-                        )
-                        pendingSyncSeq = lastProcessedSeq
-                        continue
-                    }
-                    guard let message = processedEntry.message else {
-                        SharedDefaults.clearMissingNotificationKeyFailure(
-                            teamId: teamId,
-                            syncSeq: processedEntry.entry.syncSeq
-                        )
-                        lastProcessedSeq = NSENotificationCursorPolicy.cursor(
-                            after: lastProcessedSeq,
-                            processing: processedEntry.entry.syncSeq,
-                            outcome: .rejected
-                        )
-                        pendingSyncSeq = lastProcessedSeq
-                        continue
-                    }
-
-                    SharedDefaults.clearMissingNotificationKeyFailure(
+            try await backgroundOrchestrator.run(
+                teamId: teamId,
+                baselineSeq: afterSeq,
+                crypto: crypto,
+                fetch: {
+                    try await self.fetchEntriesWithRetry(
+                        qssUrl: qssUrl,
                         teamId: teamId,
-                        syncSeq: processedEntry.entry.syncSeq
+                        qssServerId: qssServerId,
+                        afterSeq: afterSeq
                     )
-
-                    let nextBadge = NSNumber(value: storedBadgeCount + displayedCount + 1)
-                    if let lastDisplayableIndex, index == lastDisplayableIndex {
-                        self.applyNotificationMessage(message, teamId: teamId, to: content)
-                        content.badge = nextBadge
-                    } else {
-                        let scheduledContent = self.makeNotificationContent(
-                            from: content,
-                            message: message,
-                            teamId: teamId,
-                            badge: nextBadge
-                        )
-                        let scheduled = await self.scheduleNotification(
-                            identifier: "quiet.nse.synced.\(processedEntry.entry.cid)",
-                            content: scheduledContent
-                        )
-                        guard scheduled else {
-                            // This valid message was not delivered. Leave it and every later entry
-                            // beyond the cursor so a later provider wake-up can retry them.
-                            lastProcessedSeq = NSENotificationCursorPolicy.cursor(
-                                after: lastProcessedSeq,
-                                processing: processedEntry.entry.syncSeq,
-                                outcome: .deliveryFailed
-                            )
-                            break
-                        }
-                    }
-                    displayedCount += 1
-                    lastProcessedSeq = NSENotificationCursorPolicy.cursor(
-                        after: lastProcessedSeq,
-                        processing: processedEntry.entry.syncSeq,
-                        outcome: .delivered
+                },
+                channelName: { Self.getChannelName(teamId: teamId, channelId: $0) },
+                authenticatedAuthor: Self.getNickname,
+                storedBadge: SharedDefaults.getBadgeCount,
+                saveBadge: SharedDefaults.setBadgeCount,
+                recordMissingNotificationKeyFailure: SharedDefaults.recordMissingNotificationKeyFailure,
+                clearMissingNotificationKeyFailure: SharedDefaults.clearMissingNotificationKeyFailure,
+                stageCursor: { seq in
+                    os_log(
+                        "fetchAndUpdate: staging sync seq=%{public}lld (saved after delivery)",
+                        log: nseLog,
+                        type: .info,
+                        seq
                     )
-                    pendingSyncSeq = lastProcessedSeq
-                }
-
-                if displayedCount > 0 {
-                    let newBadge = storedBadgeCount + displayedCount
-                    SharedDefaults.setBadgeCount(newBadge)
-                    content.badge = NSNumber(value: newBadge)
-                }
-                os_log(
-                    "fetchAndUpdate: authenticated %{public}d notification(s), safe cursor=%{public}lld",
-                    log: nseLog,
-                    type: .info,
-                    displayedCount,
-                    lastProcessedSeq
-                )
-            }
+                },
+                deliver: { delivery in
+                    await self.applyAndDeliver(delivery)
+                },
+                persistCursor: SharedDefaults.saveLastSyncSeq
+            )
         } catch {
             os_log("fetchAndUpdate failed: %{public}@", log: nseLog, type: .error, String(describing: error))
         }
@@ -350,12 +209,7 @@ class NotificationService: UNNotificationServiceExtension {
         }
     }
 
-    private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, teamId: String, to content: UNMutableNotificationContent) {
-        let presentation = NSENotificationPresenter.makePresentation(
-            message: message,
-            channelName: Self.getChannelName(teamId: teamId, channelId: message.channelId),
-            authenticatedAuthor: Self.getNickname(userId: message.userId)
-        )
+    private func applyPresentation(_ presentation: NSEPreparedNotificationPresentation, to content: UNMutableNotificationContent) {
         content.title = presentation.title
         content.body = presentation.body
         content.threadIdentifier = presentation.threadIdentifier
@@ -363,14 +217,41 @@ class NotificationService: UNNotificationServiceExtension {
 
     private func makeNotificationContent(
         from template: UNNotificationContent,
-        message: NSEDecryptedNotificationMessage,
-        teamId: String,
+        presentation: NSEPreparedNotificationPresentation,
         badge: NSNumber
     ) -> UNMutableNotificationContent {
         let content = (template.mutableCopy() as? UNMutableNotificationContent) ?? UNMutableNotificationContent()
-      applyNotificationMessage(message, teamId: teamId, to: content)
+        applyPresentation(presentation, to: content)
         content.badge = badge
         return content
+    }
+
+    private func applyAndDeliver(_ delivery: NSEBackgroundNotificationDelivery) async -> Bool {
+        guard let content = bestAttemptContent else {
+            return false
+        }
+
+        if let badge = delivery.badge {
+            let badgeNumber = NSNumber(value: badge)
+            if let latest = delivery.notifications.last {
+                for notification in delivery.notifications.dropLast() {
+                    let scheduledContent = makeNotificationContent(
+                        from: content,
+                        presentation: notification.presentation,
+                        badge: NSNumber(value: notification.badge)
+                    )
+                    let scheduled = await scheduleNotification(
+                        identifier: notification.identifier,
+                        content: scheduledContent
+                    )
+                    guard scheduled else { return false }
+                }
+                applyPresentation(latest.presentation, to: content)
+            }
+            content.badge = badgeNumber
+        }
+
+        return deliver()
     }
 
     private func scheduleNotification(identifier: String, content: UNNotificationContent) async -> Bool {
@@ -393,17 +274,13 @@ class NotificationService: UNNotificationServiceExtension {
         }
     }
 
-    private func deliver() {
-        guard let handler = contentHandler, let content = bestAttemptContent else { return }
+    @discardableResult
+    private func deliver() -> Bool {
+        guard let handler = contentHandler, let content = bestAttemptContent else { return false }
         // Nil contentHandler first to prevent double-delivery if serviceExtensionTimeWillExpire
         // races with task completion — both paths call deliver(), only the first wins.
         contentHandler = nil
-        // Persist the seq cursor only at the moment of delivery so a mid-run NSE kill
-        // (XPC_ERROR_CONNECTION_INTERRUPTED) cannot advance the cursor past undelivered entries.
-        if let seq = pendingSyncSeq {
-            SharedDefaults.saveLastSyncSeq(seq)
-            pendingSyncSeq = nil
-        }
         handler(content)
+        return true
     }
 }
