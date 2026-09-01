@@ -77,7 +77,12 @@ describe('BaseMessagesAccessController', () => {
   it('loads the ACL write list from a persisted access-controller address', async () => {
     const controller = new MessagesAccessController(sigchainService)
     const write = [orbitDbService.orbitDb.identity.id]
-    const factory = controller.createAccessControllerFunc({ write, sigchainService })
+    const factory = controller.createAccessControllerFunc({
+      write,
+      sigchainService,
+      channelId: 'channel-id',
+      teamId: sigchainService.team.id,
+    })
 
     const orbitdb = orbitDbService.orbitDb
     const identities = orbitDbService.identities
@@ -103,6 +108,8 @@ describe('BaseMessagesAccessController', () => {
       AccessController: new MessagesAccessController(sigchainService).createAccessControllerFunc({
         write,
         sigchainService,
+        channelId: 'channel-id',
+        teamId: sigchainService.team.id,
       }),
       sync: false,
     })
@@ -133,6 +140,8 @@ describe('BaseMessagesAccessController', () => {
       new MessagesAccessController(sigchainService).createAccessControllerFunc({
         write,
         sigchainService,
+        channelId: 'channel-id',
+        teamId: sigchainService.team.id,
       })
 
     const created = await orbitDbService.open<EventsType<EncryptedMessage>>(dbName, {

@@ -57,6 +57,10 @@ export class BaseMessagesService extends EventEmitter {
     encryptedMessage: EncryptedMessage,
     channel: PublicChannel
   ): boolean {
+    if (decryptedMessage.verified !== true) {
+      this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: signature was invalid`)
+      return false
+    }
     if (decryptedMessage.id !== encryptedMessage.id) {
       this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: IDs do not match`)
       return false

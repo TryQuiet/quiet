@@ -214,5 +214,20 @@ describe('PrivateChannelMessagesService', () => {
 
       expect(await messagesService.onConsume(invalidEncryptedMessage, channel)).toBeUndefined()
     })
+
+    it('rejects invalid signature bytes even when the signer metadata matches the plaintext author', async () => {
+      const encryptedMessage = await messagesService.onSend(message, channel)
+      const first = encryptedMessage.encSignature.signature[0]
+      const invalidEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        encSignature: {
+          ...encryptedMessage.encSignature,
+          signature:
+            `${first === '1' ? '2' : '1'}${encryptedMessage.encSignature.signature.slice(1)}` as typeof encryptedMessage.encSignature.signature,
+        },
+      }
+
+      expect(await messagesService.onConsume(invalidEncryptedMessage, channel)).toBeUndefined()
+    })
   })
 })

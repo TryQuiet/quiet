@@ -99,6 +99,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       this._accessController = this._publicMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
+        channelId: this.channelData.id,
+        teamId: this.channelData.teamId ?? this.auth.team.id,
       })
       this._messagesService = this._publicMessagesService
     } else {
@@ -272,7 +274,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     const messages = await this.getEntries(ids)
     return {
       messages,
-      isVerified: true,
+      isVerified: messages.every(message => message.verified === true),
     }
   }
 

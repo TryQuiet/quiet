@@ -2,7 +2,7 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put } from 'typed-redux-saga'
 
 import { messagesActions } from '../messages.slice'
-import { ChannelMessage, MessageType, type MessageVerificationStatus } from '@quiet/types'
+import { ChannelMessage, MessageType, type ConsumedChannelMessage, type MessageVerificationStatus } from '@quiet/types'
 import { generalChannel, publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { deleteChannelMessageRegex, generalChannelDeletionMessageRegex, verifyUserInfoMessage } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
@@ -16,7 +16,8 @@ export function* verifyMessagesSaga(
   const messages: ChannelMessage[] = action.payload.messages
 
   for (const message of messages) {
-    let isVerified = true
+    const transportVerification = (message as ConsumedChannelMessage).verified ?? action.payload.isVerified
+    let isVerified = transportVerification === true
     const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
     if (author === null) {
       logger.warn(`No author for ID found in redux`, message.userId, message.id)

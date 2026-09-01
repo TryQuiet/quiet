@@ -10,6 +10,7 @@ import {
   type AddPublicChannelsMessagesBasePayload,
   type GetMessagesPayload,
   type ChannelMessage,
+  type ConsumedChannelMessage,
   type ChannelMessageIdsResponse,
   type DeleteChannelEntryPayload,
   type MessagesLoadedPayload,
@@ -82,6 +83,11 @@ export const messagesSlice = createSlice({
     addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
+        const transportVerified = (message as ConsumedChannelMessage).verified ?? action.payload.isVerified
+        if (transportVerified === false) {
+          logger.warn('Refusing to store message rejected by transport verification', message.id)
+          continue
+        }
         if (!instanceOfChannelMessage(message)) {
           continue
         }

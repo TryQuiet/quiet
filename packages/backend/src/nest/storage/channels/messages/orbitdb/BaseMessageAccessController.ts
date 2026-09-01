@@ -94,6 +94,7 @@ export class BaseMessagesAccessController<T extends AccessControllerConfig> {
         await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
       )
       let write = config.write || [orbitdb.identity.id]
+      let resolvedConfig = config
 
       if (address) {
         const manifestBytes = await storage.get(getAccessControllerManifestHash(address))
@@ -101,8 +102,10 @@ export class BaseMessagesAccessController<T extends AccessControllerConfig> {
         // FIXME: Figure out typings
         // @ts-ignore
         write = value.write
+        resolvedConfig = { ...config, ...(value as Partial<T>), sigchainService: config.sigchainService }
       } else {
-        address = await AccessControlList({ storage, type: this.type, params: { write } })
+        const { sigchainService: _sigchainService, ...persistedConfig } = config
+        address = await AccessControlList({ storage, type: this.type, params: { ...persistedConfig, write } })
         address = posixJoin('/', this.type, address)
       }
 
@@ -110,7 +113,7 @@ export class BaseMessagesAccessController<T extends AccessControllerConfig> {
         type: this.type,
         address,
         write,
-        canAppend: this.canAppend({ ...config, write }, identities) as any,
+        canAppend: this.canAppend({ ...resolvedConfig, write }, identities) as any,
       }
     }
   }
