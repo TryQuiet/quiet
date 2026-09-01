@@ -99,7 +99,10 @@ class NotificationService: UNNotificationServiceExtension {
             return
         }
         let qssUrlString = qssUrl.absoluteString
-
+        guard let qssServerId = SharedDefaults.getQssServerId(teamId: teamId) else {
+            os_log("fetchAndUpdate: missing pinned QSS server identity for teamId=%{public}@", log: nseLog, type: .error, teamId)
+            return
+        }
 
         os_log("fetchAndUpdate: teamId=%{public}@ qssUrl=%{public}@",
                log: nseLog, type: .info, teamId, qssUrlString)
@@ -109,7 +112,7 @@ class NotificationService: UNNotificationServiceExtension {
             os_log("fetchAndUpdate: fetching entries afterSeq=%{public}lld",
                    log: nseLog, type: .info, afterSeq)
 
-            let response = try await fetchEntriesWithRetry(qssUrl: qssUrl, teamId: teamId, afterSeq: afterSeq)
+            let response = try await fetchEntriesWithRetry(qssUrl: qssUrl, teamId: teamId, qssServerId: qssServerId, afterSeq: afterSeq)
             let entries = response.entries
             let baselineSeq = afterSeq
             os_log("fetchAndUpdate: fetched %{public}d entries",
@@ -279,7 +282,7 @@ class NotificationService: UNNotificationServiceExtension {
         }
     }
 
-    private func fetchEntriesWithRetry(qssUrl: URL, teamId: String, afterSeq: Int64) async throws -> LogEntriesResponse {
+    private func fetchEntriesWithRetry(qssUrl: URL, teamId: String, qssServerId: String, afterSeq: Int64) async throws -> LogEntriesResponse {
         let startedAt = Date()
         var retryIndex = 0
 
@@ -290,7 +293,7 @@ class NotificationService: UNNotificationServiceExtension {
 
             do {
                 let auth = makeAuthService(qssUrl: qssUrl)
-                return try await auth.fetchNewEntries(teamId: teamId, afterSeq: afterSeq)
+                return try await auth.fetchNewEntries(teamId: teamId, qssServerId: qssServerId, afterSeq: afterSeq)
             } catch {
                 guard shouldRetryFetch(error: error, startedAt: startedAt, retryIndex: retryIndex) else {
                     throw error

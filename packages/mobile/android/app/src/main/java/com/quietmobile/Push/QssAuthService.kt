@@ -13,20 +13,23 @@ class QssAuthService(
 
     private val tokenCache = mutableMapOf<String, CachedToken>()
 
-    fun authenticate(deviceId: String, teamId: String): String {
-        val cached = tokenCache[teamId]
+    fun authenticate(deviceId: String, teamId: String, qssServerId: String): String {
+        val cacheKey = "$teamId:$qssServerId"
+        val cached = tokenCache[cacheKey]
         if (cached != null && cached.expiry.after(Date())) {
             return cached.token
         }
 
         val challenge = client.requestChallenge(deviceId, teamId)
+        require(challenge.challengeId == challenge.challenge.challengeId)
+        challenge.challenge.validate(deviceId, teamId, qssServerId)
         val privateKey =
             QuietStorage.getDevicePrivateKey(deviceId)
                 ?: throw IllegalStateException("Missing device private key for $deviceId")
-        val proof = crypto.signChallengePayload(challenge.challenge, privateKey)
+        val proof = crypto.signNseAuthProof(challenge.challenge, privateKey)
         val tokenResponse = client.requestToken(challenge.challengeId, deviceId, proof)
 
-        tokenCache[teamId] =
+        tokenCache[cacheKey] =
             CachedToken(
                 token = tokenResponse.token,
                 expiry = Date(System.currentTimeMillis() + ((tokenResponse.expiresIn - 30) * 1000L)),
@@ -34,11 +37,11 @@ class QssAuthService(
         return tokenResponse.token
     }
 
-    fun fetchNewEntries(teamId: String, afterSeq: Long): LogEntriesResponse {
+    fun fetchNewEntries(teamId: String, qssServerId: String, afterSeq: Long): LogEntriesResponse {
         val deviceId =
             QuietStorage.getDeviceId()
                 ?: throw IllegalStateException("Missing QSS device id in QuietStorage")
-        val token = authenticate(deviceId, teamId)
+        val token = authenticate(deviceId, teamId, qssServerId)
 
         return try {
             client.fetchLogEntries(teamId, afterSeq, token)
@@ -47,8 +50,8 @@ class QssAuthService(
                 throw error
             }
 
-            tokenCache.remove(teamId)
-            val refreshedToken = authenticate(deviceId, teamId)
+            tokenCache.remove("$teamId:$qssServerId")
+            val refreshedToken = authenticate(deviceId, teamId, qssServerId)
             client.fetchLogEntries(teamId, afterSeq, refreshedToken)
         }
     }

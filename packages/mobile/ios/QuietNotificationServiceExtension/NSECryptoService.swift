@@ -41,27 +41,23 @@ private struct NSEMessageSignature {
 // MARK: - Protocol
 
 protocol DeviceCryptography {
-    /// Signs a challenge payload exactly as `identity.prove()` does in TypeScript.
-    func signChallengePayload(_ challenge: ChallengePayload, privateKeyData: Data) throws -> ProofPayload
+    /// Signs only the validated, domain-separated NSE authentication proof.
+    func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String
 
     /// Decrypts a QSS log entry and, if it is a channel message, returns a displayable preview.
     func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage?
 }
 
 extension DeviceCryptography {
-    func signChallengePayload(_ challenge: ChallengePayload, privateKeyData: Data) throws -> ProofPayload {
-        let payloadBytes = try NSEMsgpack.encode(challenge)
+    func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String {
+        let payloadBytes = try NSEMsgpack.encodeNseAuthProof(challenge)
         guard privateKeyData.count == 64 || privateKeyData.count == 32 else {
             throw NSECryptoError.invalidKeyLength(expected: 64, got: privateKeyData.count)
         }
         let seed = privateKeyData.prefix(32)
         let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: seed)
         let signatureBytes = try privateKey.signature(for: payloadBytes)
-        let publicKeyBytes = privateKey.publicKey.rawRepresentation
-        return ProofPayload(
-            signature: Base58.encode(signatureBytes),
-            publicKey: Base58.encode(publicKeyBytes)
-        )
+        return Base58.encode(signatureBytes)
     }
 }
 
@@ -490,22 +486,21 @@ enum NSEMsgpack {
         case unsupportedType(UInt8)
     }
 
-    /// Encodes a ChallengePayload in the same byte format as msgpackr.pack().
-    static func encode(_ challenge: ChallengePayload) throws -> Data {
+    /// Encodes msgpackr.pack([NSE_AUTH_SIGNATURE_CONTEXT, canonicalPayload]).
+    static func encodeNseAuthProof(_ challenge: ChallengePayload) throws -> Data {
         var out = Data()
-        // msgpackr always uses map16, never fixmap, regardless of element count.
-        out.append(0xde)
-        out.append(0x00)
-        out.append(0x04)
-        try appendString("type", to: &out)
+        out.append(0x92)
+        try appendString(nseAuthSignatureContext, to: &out)
+        out.append(0x99)
+        out.append(UInt8(challenge.protocolVersion))
         try appendString(challenge.type, to: &out)
-        try appendString("name", to: &out)
-        try appendString(challenge.name, to: &out)
-        try appendString("nonce", to: &out)
+        try appendString(challenge.deviceId, to: &out)
+        try appendString(challenge.teamId, to: &out)
+        try appendString(challenge.qssServerId, to: &out)
+        try appendString(challenge.challengeId, to: &out)
         try appendString(challenge.nonce, to: &out)
-        // Date.now() ms since epoch (~1.7e12) exceeds 2^32; msgpackr encodes as float64, not uint64.
-        try appendString("timestamp", to: &out)
-        appendFloat64(Double(challenge.timestamp), to: &out)
+        appendFloat64(Double(challenge.issuedAtMs), to: &out)
+        appendFloat64(Double(challenge.expiresAtMs), to: &out)
         return out
     }
 

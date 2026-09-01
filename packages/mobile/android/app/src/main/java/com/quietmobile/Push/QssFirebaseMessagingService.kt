@@ -116,17 +116,22 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
             Log.w(TAG, "Skipping push handling because no QSS URL is stored for teamId=$teamId")
             return
         }
+        val qssServerId = QuietStorage.getQssServerId(teamId)
+        if (qssServerId == null) {
+            Log.w(TAG, "Skipping push handling because no pinned QSS server identity is stored for teamId=$teamId")
+            return
+        }
 
         try {
             runBlocking(Dispatchers.IO) {
-                handlePush(teamId, qssUrl)
+                handlePush(teamId, qssUrl, qssServerId)
             }
         } catch (error: Exception) {
             Log.e("QssFirebaseMessaging", "Failed handling QSS FCM message", error)
         }
     }
 
-    private fun handlePush(teamId: String, qssUrl: String) {
+    private fun handlePush(teamId: String, qssUrl: String, qssServerId: String) {
         val afterSeq = QuietStorage.getLastSyncSeq(teamId)
         Log.i(TAG, "Fetching QSS entries for teamId=$teamId qssUrl=$qssUrl afterSeq=$afterSeq")
         val authService =
@@ -134,7 +139,7 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
                 QssAuthService(QssNetworkClient(qssUrl), cryptoService)
             }
 
-        val entries = authService.fetchNewEntries(teamId, afterSeq).entries
+        val entries = authService.fetchNewEntries(teamId, qssServerId, afterSeq).entries
         Log.i(
             TAG,
             "Fetched ${entries.size} entries for teamId=$teamId",

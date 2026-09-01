@@ -6,14 +6,15 @@ private let authLog = OSLog(subsystem: "com.quietmobile.QuietNotificationService
 struct NSEAuthTokenCacheKey: Hashable {
     let qssUrl: URL
     let teamId: String
+    let qssServerId: String
 }
 
 final class NSEAuthTokenCache {
     private let lock = NSLock()
     private var tokens: [NSEAuthTokenCacheKey: (token: String, expiry: Date)] = [:]
 
-    func token(for qssUrl: URL, teamId: String, now: Date = Date()) -> (token: String, expiry: Date)? {
-        let key = NSEAuthTokenCacheKey(qssUrl: qssUrl, teamId: teamId)
+    func token(for qssUrl: URL, teamId: String, qssServerId: String, now: Date = Date()) -> (token: String, expiry: Date)? {
+        let key = NSEAuthTokenCacheKey(qssUrl: qssUrl, teamId: teamId, qssServerId: qssServerId)
         lock.lock()
         defer { lock.unlock() }
 
@@ -29,16 +30,16 @@ final class NSEAuthTokenCache {
         return cached
     }
 
-    func store(token: String, expiresIn: Int, for qssUrl: URL, teamId: String, now: Date = Date()) {
-        let key = NSEAuthTokenCacheKey(qssUrl: qssUrl, teamId: teamId)
+    func store(token: String, expiresIn: Int, for qssUrl: URL, teamId: String, qssServerId: String, now: Date = Date()) {
+        let key = NSEAuthTokenCacheKey(qssUrl: qssUrl, teamId: teamId, qssServerId: qssServerId)
         let expiry = now.addingTimeInterval(TimeInterval(expiresIn) - 30)
         lock.lock()
         tokens[key] = (token: token, expiry: expiry)
         lock.unlock()
     }
 
-    func removeToken(for qssUrl: URL, teamId: String) {
-        let key = NSEAuthTokenCacheKey(qssUrl: qssUrl, teamId: teamId)
+    func removeToken(for qssUrl: URL, teamId: String, qssServerId: String) {
+        let key = NSEAuthTokenCacheKey(qssUrl: qssUrl, teamId: teamId, qssServerId: qssServerId)
         lock.lock()
         tokens.removeValue(forKey: key)
         lock.unlock()
@@ -58,8 +59,8 @@ class NSEAuthService {
 
     // MARK: - Full auth flow
 
-    func authenticate(deviceId: String, teamId: String) async throws -> String {
-        if let cached = tokenCache.token(for: client.baseURL, teamId: teamId) {
+    func authenticate(deviceId: String, teamId: String, qssServerId: String) async throws -> String {
+        if let cached = tokenCache.token(for: client.baseURL, teamId: teamId, qssServerId: qssServerId) {
             os_log("authenticate: using cached token for teamId=%{public}@, expires=%{public}@",
                    log: authLog, type: .debug, teamId, "\(cached.expiry)")
             return cached.token
@@ -70,32 +71,41 @@ class NSEAuthService {
         let challengeResp = try await client.requestChallenge(deviceId: deviceId, teamId: teamId)
         os_log("authenticate: got challengeId=%{public}@", log: authLog, type: .debug, challengeResp.challengeId)
 
+        guard challengeResp.challenge.challengeId == challengeResp.challengeId else {
+            throw NSEAuthError.invalidResponse
+        }
+        try challengeResp.challenge.validate(
+            deviceId: deviceId,
+            teamId: teamId,
+            qssServerId: qssServerId
+        )
+
         os_log("authenticate: reading device private key from keychain", log: authLog, type: .debug)
         let privateKeyData = try KeychainService.getDevicePrivateKey(deviceId: deviceId)
         os_log("authenticate: private key read (%{public}d bytes), signing challenge", log: authLog, type: .debug, privateKeyData.count)
 
-        let proof = try crypto.signChallengePayload(challengeResp.challenge, privateKeyData: privateKeyData)
+        let signature = try crypto.signNseAuthProof(challengeResp.challenge, privateKeyData: privateKeyData)
         os_log("authenticate: signed challenge, requesting token", log: authLog, type: .debug)
 
         let tokenResp = try await client.requestToken(
             challengeId: challengeResp.challengeId,
             deviceId: deviceId,
-            proof: proof
+            signature: signature
         )
         os_log("authenticate: token received, expiresIn=%{public}d", log: authLog, type: .info, tokenResp.expiresIn)
 
-        tokenCache.store(token: tokenResp.token, expiresIn: tokenResp.expiresIn, for: client.baseURL, teamId: teamId)
+        tokenCache.store(token: tokenResp.token, expiresIn: tokenResp.expiresIn, for: client.baseURL, teamId: teamId, qssServerId: qssServerId)
 
         return tokenResp.token
     }
 
     // MARK: - Fetch log entries
 
-    func fetchNewEntries(teamId: String, afterSeq: Int64) async throws -> LogEntriesResponse {
+    func fetchNewEntries(teamId: String, qssServerId: String, afterSeq: Int64) async throws -> LogEntriesResponse {
         os_log("fetchNewEntries: reading deviceId from keychain", log: authLog, type: .debug)
         let deviceId = try KeychainService.getDeviceId()
         os_log("fetchNewEntries: deviceId=%{public}@, authenticating", log: authLog, type: .info, deviceId)
-        let token = try await authenticate(deviceId: deviceId, teamId: teamId)
+        let token = try await authenticate(deviceId: deviceId, teamId: teamId, qssServerId: qssServerId)
         os_log("fetchNewEntries: authenticated, fetching log entries afterSeq=%{public}lld",
                log: authLog, type: .info, afterSeq)
         do {
@@ -105,8 +115,8 @@ class NSEAuthService {
         } catch NSEAuthError.logFetchFailed(let statusCode) where statusCode == 401 {
             os_log("fetchNewEntries: token rejected (401) for teamId=%{public}@, evicting cache and retrying",
                    log: authLog, type: .info, teamId)
-            tokenCache.removeToken(for: client.baseURL, teamId: teamId)
-            let freshToken = try await authenticate(deviceId: deviceId, teamId: teamId)
+            tokenCache.removeToken(for: client.baseURL, teamId: teamId, qssServerId: qssServerId)
+            let freshToken = try await authenticate(deviceId: deviceId, teamId: teamId, qssServerId: qssServerId)
             let resp = try await client.fetchLogEntries(teamId: teamId, afterSeq: afterSeq, token: freshToken)
             os_log("fetchNewEntries: retry succeeded, received %{public}d entries", log: authLog, type: .info, resp.entries.count)
             return resp

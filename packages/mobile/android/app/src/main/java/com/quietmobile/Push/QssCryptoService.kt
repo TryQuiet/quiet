@@ -46,7 +46,7 @@ class QssCryptoService(
         decodeBase58("H5B4DLSXw5xwNYFdz1Wr6e")
             ?: throw IllegalStateException("Failed to decode Quiet stretch salt")
 
-    fun signChallengePayload(challenge: ChallengePayload, privateKeyBytes: ByteArray): ProofPayload {
+    fun signNseAuthProof(challenge: ChallengePayload, privateKeyBytes: ByteArray): ProofPayload {
         if (privateKeyBytes.size != 32 && privateKeyBytes.size != 64) {
             throw IllegalStateException("Invalid private key length: ${privateKeyBytes.size}")
         }
@@ -58,7 +58,7 @@ class QssCryptoService(
             throw IllegalStateException("Failed to derive Ed25519 keypair from device seed")
         }
 
-        val payloadBytes = MsgpackEncoder.encodeChallenge(challenge)
+        val payloadBytes = MsgpackEncoder.encodeNseAuthProof(challenge)
         val signature = ByteArray(64)
         if (!sodium.cryptoSignDetached(signature, payloadBytes, payloadBytes.size.toLong(), secretKey)) {
             throw IllegalStateException("Failed to sign challenge payload")
@@ -66,7 +66,6 @@ class QssCryptoService(
 
         return ProofPayload(
             signature = CopperBase58.encode(signature),
-            publicKey = CopperBase58.encode(publicKey),
         )
     }
 

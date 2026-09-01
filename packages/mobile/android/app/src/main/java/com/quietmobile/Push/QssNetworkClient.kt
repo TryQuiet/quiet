@@ -28,14 +28,24 @@ class QssNetworkClient(baseUrl: String) {
 
         val json = post("nse-auth/challenge", body.toString(), null)
         val challengeJson = json.getJSONObject("challenge")
+        require(json.keys().asSequence().toSet() == setOf("challengeId", "challenge"))
+        require(challengeJson.keys().asSequence().toSet() == setOf(
+            "protocolVersion", "type", "deviceId", "teamId", "qssServerId",
+            "challengeId", "nonce", "issuedAtMs", "expiresAtMs",
+        ))
         return ChallengeResponse(
             challengeId = json.getString("challengeId"),
             challenge =
                 ChallengePayload(
+                    protocolVersion = challengeJson.getInt("protocolVersion"),
                     type = challengeJson.getString("type"),
-                    name = challengeJson.getString("name"),
+                    deviceId = challengeJson.getString("deviceId"),
+                    teamId = challengeJson.getString("teamId"),
+                    qssServerId = challengeJson.getString("qssServerId"),
+                    challengeId = challengeJson.getString("challengeId"),
                     nonce = challengeJson.getString("nonce"),
-                    timestamp = challengeJson.getLong("timestamp"),
+                    issuedAtMs = challengeJson.getLong("issuedAtMs"),
+                    expiresAtMs = challengeJson.getLong("expiresAtMs"),
                 ),
         )
     }
@@ -44,12 +54,7 @@ class QssNetworkClient(baseUrl: String) {
         val body = JSONObject()
             .put("challengeId", challengeId)
             .put("deviceId", deviceId)
-            .put(
-                "proof",
-                JSONObject()
-                    .put("signature", proof.signature)
-                    .put("publicKey", proof.publicKey),
-            )
+            .put("signature", proof.signature)
 
         val json = post("nse-auth/token", body.toString(), null)
         return TokenResponse(

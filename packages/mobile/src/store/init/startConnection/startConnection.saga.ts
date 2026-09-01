@@ -127,7 +127,7 @@ export function subscribeSocketLifecycle(socket: Socket, socketIOData: Websocket
     socket.on(SocketEvents.NSE_QSS_URL_UPDATED, async (payload: NseQssUrlUpdatedEvent) => {
       logger.info(`NSE QSS URL updated for team ${payload.teamId}, saving in shared iOS storage`)
       try {
-        await NativeModules.CommunicationModule?.saveNseQssUrl?.(payload.teamId, payload.qssUrl)
+        await NativeModules.CommunicationModule?.saveNseQssUrl?.(payload.teamId, payload.qssUrl, payload.qssServerId)
       } catch (error) {
         logger.error('Failed to store NSE QSS URL in iOS native storage', error)
       }

@@ -29,6 +29,7 @@ object QuietStorage {
     private const val TEAM_ID_KEY = "quiet.team.id"
     private const val DEVICE_PRIVATE_KEY_PREFIX = "quiet.device.privateKey."
     private const val QSS_URLS_KEY = "quiet.nse.qssUrls"
+    private const val QSS_CONFIGURATIONS_KEY = "quiet.nse.qssConfigurations"
     private const val LAST_SYNC_SEQ_KEY = "quiet.nse.lastSyncSeq"
     private const val LAST_SYNC_TEAM_ID_KEY = "quiet.nse.lastSyncTeamId"
     private const val LAST_SYNC_SEQ_BY_TEAM_PREFIX = "quiet.nse.lastSyncSeq."
@@ -103,16 +104,24 @@ object QuietStorage {
     }
 
     @JvmStatic
-    fun saveQssUrl(teamId: String, url: String) {
-        val current = JSONObject(regularPrefs().getString(QSS_URLS_KEY, "{}") ?: "{}")
-        current.put(teamId, url)
-        regularPrefs().edit().putString(QSS_URLS_KEY, current.toString()).apply()
+    fun saveQssConfiguration(teamId: String, url: String, serverId: String) {
+        val current = JSONObject(regularPrefs().getString(QSS_CONFIGURATIONS_KEY, "{}") ?: "{}")
+        current.put(teamId, JSONObject().put("url", url).put("serverId", serverId))
+        regularPrefs().edit().putString(QSS_CONFIGURATIONS_KEY, current.toString()).apply()
     }
 
     @JvmStatic
     fun getQssUrl(teamId: String): String? {
+        val configurations = JSONObject(regularPrefs().getString(QSS_CONFIGURATIONS_KEY, "{}") ?: "{}")
+        configurations.optJSONObject(teamId)?.optString("url")?.takeIf { it.isNotEmpty() }?.let { return it }
         val current = JSONObject(regularPrefs().getString(QSS_URLS_KEY, "{}") ?: "{}")
         return if (current.has(teamId)) current.optString(teamId) else null
+    }
+
+    @JvmStatic
+    fun getQssServerId(teamId: String): String? {
+        val configurations = JSONObject(regularPrefs().getString(QSS_CONFIGURATIONS_KEY, "{}") ?: "{}")
+        return configurations.optJSONObject(teamId)?.optString("serverId")?.takeIf { it.isNotEmpty() }
     }
 
     @JvmStatic

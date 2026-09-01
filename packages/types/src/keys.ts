@@ -19,6 +19,8 @@ export interface DeviceCredentialsUpdatedEvent {
 export interface NseQssUrlUpdatedEvent {
   teamId: string
   qssUrl: string
+  /** Self-certifying LFA identity of the QSS serving this team. */
+  qssServerId: string
 }
 
 export interface NseSyncSeqUpdatedEvent {
