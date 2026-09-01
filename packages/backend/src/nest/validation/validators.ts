@@ -12,6 +12,7 @@ const logger = createLogger('validators')
 
 export const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024 * 1024
 export const MAX_IMAGE_DIMENSION = 100_000
+export const ATTACHMENT_ENCRYPTION_HEADER_BYTES = 24
 
 const attachmentMessageSchema = joi
   .object({
@@ -24,9 +25,19 @@ const attachmentEncryptionSchema = joi
   .object({
     header: joi
       .string()
-      .pattern(/^[a-zA-Z0-9_-]+={0,2}$/)
       .min(1)
-      .max(4096)
+      .max(64)
+      .custom((value: string, helpers) => {
+        try {
+          const decoded = Buffer.from(value, 'base64url')
+          if (decoded.byteLength !== ATTACHMENT_ENCRYPTION_HEADER_BYTES || decoded.toString('base64url') !== value) {
+            return helpers.error('any.invalid')
+          }
+          return value
+        } catch {
+          return helpers.error('any.invalid')
+        }
+      })
       .required(),
     recipient: joi
       .object({
@@ -167,13 +178,13 @@ export const isDirectMessage = (msg: string): boolean => {
 }
 
 export const isMessage = (msg: ChannelMessage): boolean => {
-  const value = messageSchema.validate(msg)
+  const value = messageSchema.validate(msg, { convert: false })
   if (value.error) logger.error('isMessage', value.error)
   return !value.error
 }
 
 export const isConsumedChannelMessage = (msg: ChannelMessage): boolean => {
-  const value: joi.ValidationResult = consumedChannelMessageSchema.validate(msg)
+  const value: joi.ValidationResult = consumedChannelMessageSchema.validate(msg, { convert: false })
   if (value.error) logger.error('isConsumedChannelMessage', value.error)
   return !value.error
 }

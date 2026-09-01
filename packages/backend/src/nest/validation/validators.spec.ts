@@ -23,7 +23,7 @@ describe('Validators - Messages', () => {
     width: 640,
     height: 480,
     enc: {
-      header: 'base64url-encryption-header',
+      header: Buffer.alloc(24, 1).toString('base64url'),
       recipient: { generation: 0, type: 'ROLE', name: 'MEMBER' },
     },
     ...overrides,
@@ -72,6 +72,7 @@ describe('Validators - Messages', () => {
     ['a zero size', { size: 0 }],
     ['an oversized size', { size: MAX_ATTACHMENT_SIZE_BYTES + 1 }],
     ['an oversized filename', { name: 'a'.repeat(256) }],
+    ['a coercively trimmed oversized filename', { name: ` ${'a'.repeat(255)} ` }],
     ['an invalid extension', { ext: '../png' }],
     ['an oversized width', { width: MAX_IMAGE_DIMENSION + 1 }],
     ['a missing height', { height: undefined }],
@@ -97,6 +98,19 @@ describe('Validators - Messages', () => {
       createdAt: 1234567,
       channelId: '123n23l234lk234',
       media: hostedMedia(),
+    }
+    expect(isMessage(msg)).toBeFalsy()
+  })
+
+  test('does not coerce a numeric-string message type', () => {
+    const msg: ChannelMessage = {
+      id: 'fzxjdiasf8ashfisfd',
+      userId: 'szakalak',
+      type: '4' as unknown as number,
+      message: '',
+      createdAt: 1234567,
+      channelId: '123n23l234lk234',
+      media: hostedMedia({ width: undefined, height: undefined }),
     }
     expect(isMessage(msg)).toBeFalsy()
   })

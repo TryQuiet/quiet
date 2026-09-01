@@ -36,7 +36,7 @@ describe('PublicChannelMessagesService', () => {
     ext: '.pdf',
     size: 1024,
     enc: {
-      header: 'base64url-encryption-header',
+      header: Buffer.alloc(24, 1).toString('base64url'),
       recipient: { generation: 0, type: 'ROLE', name: 'MEMBER' },
     },
     ...overrides,
@@ -131,6 +131,17 @@ describe('PublicChannelMessagesService', () => {
         type: MessageType.File,
         message: '',
         media: createMedia(),
+      }
+      const encryptedMessage = await messagesService.onSend(fileMessage, channel)
+      expect(await messagesService.onConsume(encryptedMessage, channel)).toBeUndefined()
+    })
+
+    it('does not let a numeric-string file type bypass attachment binding', async () => {
+      const fileMessage: ChannelMessage = {
+        ...message,
+        type: '4' as unknown as number,
+        message: '',
+        media: hostedMedia({ message: { id: 'other-message', channelId: message.channelId } }),
       }
       const encryptedMessage = await messagesService.onSend(fileMessage, channel)
       expect(await messagesService.onConsume(encryptedMessage, channel)).toBeUndefined()
