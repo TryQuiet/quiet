@@ -165,9 +165,16 @@ export class SigChainService extends EventEmitter {
    * not only on chain mutation: the native push handler needs the LFA role keys
    * to decrypt fetched entries, and a device that joined and then saw no chain
    * update would otherwise throw MissingQssNotificationKeyException on every push.
-   * Idempotent - keys already recorded in the local keychain ledger are not resent.
+   *
+   * The local "stored in keychain" ledger only proves we *emitted* a key once, not
+   * that native storage still holds it (dropped emit, saga not yet listening, app
+   * reinstalled while the backend db persisted). So callers at steady state pass
+   * resendAll=true to emit every key regardless of the ledger; native storage is a
+   * put, so this is idempotent. The ledger is still only appended with new names.
+   *
+   * @param resendAll Emit all keys even if the ledger says they were already sent
    */
-  public async updateKeysInNativeStorage(teamId: string): Promise<void> {
+  public async updateKeysInNativeStorage(teamId: string, resendAll = false): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') {
       this.logger.trace('Skipping key update because we are not on mobile, current platform =', process.platform)
@@ -203,8 +210,11 @@ export class SigChainService extends EventEmitter {
             type: keyTypeGenData.type,
             generation: keyTypeGenData.generation,
           })
-          if (!alreadySentKeys.has(keyName)) {
+          const isNew = !alreadySentKeys.has(keyName)
+          if (resendAll || isNew) {
             keysToSend.push({ key: keyTypeGenData.secretKey, keyName })
+          }
+          if (isNew) {
             keyNamesSent.push(keyName)
           }
         }
@@ -219,8 +229,11 @@ export class SigChainService extends EventEmitter {
         type: keySet.type,
         generation: keySet.generation,
       })
-      if (!alreadySentKeys.has(publicKeyName)) {
+      const isNewPublicKey = !alreadySentKeys.has(publicKeyName)
+      if (resendAll || isNewPublicKey) {
         keysToSend.push({ key: keySet.encryption, keyName: publicKeyName })
+      }
+      if (isNewPublicKey) {
         keyNamesSent.push(publicKeyName)
       }
 
@@ -229,8 +242,11 @@ export class SigChainService extends EventEmitter {
         type: keySet.type,
         generation: keySet.generation,
       })
-      if (!alreadySentKeys.has(sigKeyName)) {
+      const isNewSigKey = !alreadySentKeys.has(sigKeyName)
+      if (resendAll || isNewSigKey) {
         keysToSend.push({ key: keySet.signature, keyName: sigKeyName })
+      }
+      if (isNewSigKey) {
         keyNamesSent.push(sigKeyName)
       }
     }
@@ -240,12 +256,18 @@ export class SigChainService extends EventEmitter {
       return
     }
 
-    // send new keys to the state manager to add to the keychain and update list of key names in
+    // send keys to the state manager to add to native storage; only record names not
+    // already in the ledger so forced resends do not grow it
     const keyUpdateEvent: KeysUpdatedEvent = {
       keys: keysToSend,
     }
-    await this.localDbService.updateKeysStoredInKeychain(teamId, keyNamesSent)
+    if (keyNamesSent.length > 0) {
+      await this.localDbService.updateKeysStoredInKeychain(teamId, keyNamesSent)
+    }
     this.serverIoProvider.io.emit(SocketEvents.KEYS_UPDATED, keyUpdateEvent)
+    this.logger.info(
+      `Emitted ${keysToSend.length} keys to native storage (${keyNamesSent.length} new, resendAll=${resendAll})`
+    )
   }
 
   /**

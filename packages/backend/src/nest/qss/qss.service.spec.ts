@@ -932,7 +932,7 @@ describe('QSSService', () => {
         await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
 
         expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id)
-        expect(updateKeysSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id)
+        expect(updateKeysSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id, true)
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
         process.env.QPS_ALLOWED = originalQpsAllowed
