@@ -709,6 +709,16 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     if (result === QSSOperationResult.SUCCESS) {
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once storage is ready', teamId)
       await this.emitNseQssUrl(this._qssEndpoint)
+      // The native push handler needs qssUrl, qssServerId, deviceId AND the LFA role
+      // keys. The first two are emitted above on every sign-in; device credentials and
+      // keys were previously only emitted on sigchain mutation, so a device that joined
+      // and saw no membership changes could never authenticate to fetch entries, nor
+      // decrypt them, for a push. Keys are resent in full (resendAll) because the local
+      // ledger cannot prove native storage still holds them. Both are idempotent.
+      this.sigChainService.updateDeviceCredentials(teamId)
+      void this.sigChainService.updateKeysInNativeStorage(teamId, true).catch(err => {
+        this.logger.error('Failed to sync keys to native storage after QSS sign-in', err)
+      })
       this.qssSyncManager.startLogSyncForSignedInTeam(teamId, sigChain)
     }
 

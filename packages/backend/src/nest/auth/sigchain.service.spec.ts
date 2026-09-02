@@ -187,6 +187,42 @@ describe('SigChainService - listener lifecycle', () => {
     }
   })
 
+  // Regression: the ledger only proves a key was emitted once, not that native storage
+  // still holds it. QSS sign-in passes resendAll=true so a device that missed or lost
+  // the keys (dropped emit, reinstall) gets them again without a sigchain mutation.
+  it('resends already-stored keys to native storage when forced, without growing the ledger', async () => {
+    const originalPlatform = process.platform
+    const originalQpsAllowed = process.env.QPS_ALLOWED
+    Object.defineProperty(process, 'platform', { value: 'android' })
+    process.env.QPS_ALLOWED = 'true'
+
+    try {
+      const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
+      const chain = await sigChainService.createChain(true)
+      const teamId = chain.teamId!
+
+      await waitForExpect(async () => {
+        expect(emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)).toHaveLength(1)
+      })
+      const ledgerAfterFirst = await localDbService.getKeysStoredInKeychain(teamId)
+      expect(ledgerAfterFirst.length).toBeGreaterThan(0)
+
+      // default path: nothing new, nothing emitted
+      await sigChainService.updateKeysInNativeStorage(teamId)
+      expect(emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)).toHaveLength(1)
+
+      // forced path: everything re-emitted, ledger unchanged
+      await sigChainService.updateKeysInNativeStorage(teamId, true)
+      const keyCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)
+      expect(keyCalls).toHaveLength(2)
+      expect((keyCalls[1][1] as { keys: unknown[] }).keys.length).toBe(ledgerAfterFirst.length)
+      expect(await localDbService.getKeysStoredInKeychain(teamId)).toEqual(ledgerAfterFirst)
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform })
+      process.env.QPS_ALLOWED = originalQpsAllowed
+    }
+  })
+
   it('emits new keys to Android once and does not resend already-stored keys', async () => {
     const originalPlatform = process.platform
     const originalQpsAllowed = process.env.QPS_ALLOWED
