@@ -142,6 +142,7 @@ export interface SendInitialChannelMessagePayload {
 export interface MessagesLoadedPayload {
   messages: ChannelMessage[]
   isVerified?: boolean
+  isLocal?: boolean
 }
 
 export interface VerifyMessagesPayload {

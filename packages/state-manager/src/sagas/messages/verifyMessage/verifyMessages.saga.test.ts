@@ -115,7 +115,7 @@ describe('verifyMessage saga test', () => {
       .run()
   })
 
-  it('verify standard message - fail', async () => {
+  it('does not create verification state for a transport-rejected message', async () => {
     logger.info('verify standard message')
     const action = await factory.build('AddMessages', {
       messages: [
@@ -126,12 +126,13 @@ describe('verifyMessage saga test', () => {
         }),
       ],
       isVerified: false,
+      isLocal: false,
     })
 
     await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
-      .put(
+      .not.put(
         messagesActions.addMessageVerificationStatus({
           id: action.payload.messages[0].id,
           isVerified: false,

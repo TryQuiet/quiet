@@ -10,6 +10,7 @@ import { SigChainService } from '../../../../auth/sigchain.service'
 import { AccessControllerConfig, BaseMessagesAccessController } from './BaseMessageAccessController'
 import { Injectable } from '@nestjs/common'
 import { isEncryptedMessage } from '../../../../validation/validators'
+import { EncryptionScopeType } from '../../../../auth/services/crypto/types'
 
 const TYPE = 'privatemessagesaccess'
 
@@ -49,13 +50,22 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      if (entry.payload.value.teamId != null && entry.payload.value.teamId !== config.teamId) {
+      if (entry.payload.value.teamId !== config.teamId) {
         this.logger.error(`Entry ${entry.payload.value.id} is from a different team`)
         return false
       }
 
       if (entry.payload.value.channelId !== config.channelId) {
         this.logger.error(`Entry ${entry.payload.value.id} is from a different channel`)
+        return false
+      }
+
+      if (
+        id !== entry.payload.value.encSignature.author.name ||
+        writerIdentity.teamId !== config.teamId ||
+        entry.payload.value.encSignature.author.type !== EncryptionScopeType.USER
+      ) {
+        this.logger.warn(`Message writer identity did not match the encrypted-signature author`)
         return false
       }
 
@@ -75,7 +85,10 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      if (config.roleName !== entry.payload.value.contents.scope.name) {
+      if (
+        entry.payload.value.contents.scope.type !== EncryptionScopeType.ROLE ||
+        config.roleName !== entry.payload.value.contents.scope.name
+      ) {
         this.logger.warn(`Message was encrypted to a different scope than the one configured on the channel`)
         return false
       }

@@ -6,6 +6,7 @@ import { ChannelMessage, MessageType, type MessageVerificationStatus } from '@qu
 import { generalChannel, publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { deleteChannelMessageRegex, generalChannelDeletionMessageRegex, verifyUserInfoMessage } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
+import { isMessageTransportVerified } from '../utils/message.utils'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('verifyMessagesSaga')
@@ -16,6 +17,7 @@ export function* verifyMessagesSaga(
   const messages: ChannelMessage[] = action.payload.messages
 
   for (const message of messages) {
+    if (!isMessageTransportVerified(message, action.payload.isLocal)) continue
     let isVerified = true
     const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
     if (author === null) {

@@ -119,6 +119,7 @@ describe('ChannelsService', () => {
 
     channel = await factory.build<PublicChannel>('PublicChannel', {
       owner: aliceUserId,
+      teamId: sigChainService.team.id,
     })
 
     message = await factory.build('ChannelMessage', {
@@ -714,11 +715,11 @@ describe('ChannelsService', () => {
       logger.info('Creating several channels and deleting one')
       const channel1 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
-        teamId: community.teamId!,
+        teamId: sigChainService.team.id,
       })
       const channel2 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
-        teamId: community.teamId!,
+        teamId: sigChainService.team.id,
       })
 
       await channelsService.subscribeToChannel(channel1)
