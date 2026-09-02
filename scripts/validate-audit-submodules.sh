@@ -45,10 +45,11 @@ assert_qss_auth_matches_client() {
 assert_config "$auth_path" '../private.git' 'auth/main-baseline'
 assert_config "$qss_path" '../private.git' 'qss/main-baseline'
 
-# Sync makes Git use the relative URLs from .gitmodules, then update performs
-# a real clone/fetch and checks out each gitlink pinned by this audit branch.
+# Sync makes Git use the relative URLs from .gitmodules. Initialize the two
+# top-level gitlinks first because QSS's nested policy cannot be inspected from
+# a fresh non-recursive checkout until QSS itself exists.
 git submodule sync -- "$auth_path" "$qss_path"
-git submodule update --init --checkout --recursive --depth 1 -- "$auth_path" "$qss_path"
+git submodule update --init --checkout --depth 1 -- "$auth_path" "$qss_path"
 
 # QSS's own metadata only exists after a fresh superproject checkout initializes
 # the QSS gitlink above. Check it after initialization so this test works both in
@@ -57,6 +58,12 @@ test "$(git -C "$qss_path" config -f .gitmodules \
   --get "submodule.${qss_auth_relative_path}.url")" = '../private.git'
 test "$(git -C "$qss_path" config -f .gitmodules \
   --get "submodule.${qss_auth_relative_path}.branch")" = 'auth/main-baseline'
+
+# Only after validating QSS's declaration do we initialize its nested Auth
+# checkout. This keeps an unexpected nested URL or branch from being consumed
+# before the policy rejects it.
+git -C "$qss_path" submodule sync -- "$qss_auth_relative_path"
+git -C "$qss_path" submodule update --init --checkout --depth 1 -- "$qss_auth_relative_path"
 
 assert_checkout_matches_gitlink "$auth_path"
 assert_checkout_matches_gitlink "$qss_path"
