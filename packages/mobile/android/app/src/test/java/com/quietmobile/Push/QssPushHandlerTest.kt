@@ -1,10 +1,27 @@
 package com.quietmobile.Push
 
+import android.util.Log
 import org.json.JSONObject
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
+import org.mockito.MockedStatic
+import org.mockito.Mockito
 
 class QssPushHandlerTest {
+    private lateinit var logMock: MockedStatic<Log>
+
+    @Before
+    fun mockAndroidLogging() {
+        logMock = Mockito.mockStatic(Log::class.java)
+    }
+
+    @After
+    fun closeAndroidLoggingMock() {
+        logMock.close()
+    }
+
     @Test
     fun `background handler drives challenge proof token log fetch decrypt and notification`() {
         val now = 1_700_000_000_000L
