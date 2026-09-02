@@ -312,8 +312,12 @@ export class OrbitDbService {
 
     let store: T
     try {
-      if (options?.AccessController != null) {
-        orbitDbUseAccessController(options.AccessController as any)
+      // Only our own access controllers carry a `type`; OrbitDB's built-ins (e.g. `IPFSAccessController`)
+      // are registered by the library at import time and hand back an untyped instance here, which
+      // `useAccessController` rejects.
+      const accessController = options?.AccessController as { type?: string } | undefined
+      if (accessController?.type != null) {
+        orbitDbUseAccessController(accessController as any)
       }
       store = await this.orbitDbInstance.open<T>(address, options)
     } finally {

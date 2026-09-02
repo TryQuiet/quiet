@@ -102,7 +102,12 @@ describe('BaseMessagesAccessController address handling', () => {
     const access = await (factory as any)({
       orbitdb: { identity: { id: 'local' }, ipfs: createInMemoryIpfs() },
       identities: {
-        getIdentity: async () => ({ id: 'alice', publicKey: 'alice-public-key' }),
+        getIdentity: async () => ({
+          id: 'alice',
+          publicKey: 'alice-public-key',
+          deviceId: 'alice-device',
+          teamId: 'team-id',
+        }),
         verifyIdentity: async () => true,
         // A valid signature, so the rejection below can only come from the key mismatch.
         verify: async () => true,
@@ -157,7 +162,7 @@ describe('BaseMessagesAccessController address handling', () => {
         getIdentity: async () => ({
           id: 'mallory',
           publicKey: 'mallory-public-key',
-          generation: 0,
+          deviceId: 'mallory-device',
           teamId: 'team-id',
         }),
         verifyIdentity: async () => true,
@@ -199,7 +204,7 @@ describe('BaseMessagesAccessController address handling', () => {
   it.each([
     ['public', 'member'],
     ['private', 'channel-role'],
-  ])('rejects a %s message when writer generation or team differs from its claimed author', async (kind, roleName) => {
+  ])('rejects a %s message when the writer identity belongs to a different team', async (kind, roleName) => {
     const sigchainService = {
       getChain: () => ({
         roles: { memberHasRole: () => true },
@@ -216,7 +221,7 @@ describe('BaseMessagesAccessController address handling', () => {
     const identity = {
       id: 'alice',
       publicKey: 'alice-public-key',
-      generation: 1,
+      deviceId: 'alice-device',
       teamId: 'team-id',
     }
     const factory = (
@@ -251,8 +256,7 @@ describe('BaseMessagesAccessController address handling', () => {
       payload: { value: encryptedMessage },
     }
 
-    await expect(access.canAppend(entry)).resolves.toBe(false)
-    identity.generation = 0
+    await expect(access.canAppend(entry)).resolves.toBe(true)
     identity.teamId = 'other-team'
     await expect(access.canAppend(entry)).resolves.toBe(false)
   })

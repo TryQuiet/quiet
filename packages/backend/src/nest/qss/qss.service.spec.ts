@@ -1186,7 +1186,9 @@ describe('QSSService', () => {
         }),
         sync: true,
       })
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -1437,7 +1439,9 @@ describe('QSSService', () => {
         }),
         sync: true,
       })
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       expect(hash).toBeDefined()
       const entry = await db.log.get(hash)
@@ -1969,7 +1973,9 @@ describe('QSSService', () => {
         }),
         sync: true,
       })
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -2005,7 +2011,9 @@ describe('QSSService', () => {
         }),
         sync: true,
       })
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -2041,7 +2049,9 @@ describe('QSSService', () => {
         }),
         sync: true,
       })
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
