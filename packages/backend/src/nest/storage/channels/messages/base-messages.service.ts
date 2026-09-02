@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 
-import { ChannelMessage, ConsumedChannelMessage, type PublicChannel } from '@quiet/types'
+import { ChannelMessage, ConsumedChannelMessage, MessageType, type PublicChannel } from '@quiet/types'
 
 import { createLogger } from '../../../common/logger'
 import { SigChainService } from '../../../auth/sigchain.service'
@@ -63,6 +63,14 @@ export class BaseMessagesService extends EventEmitter {
     }
     if (!isConsumedChannelMessage(decryptedMessage)) {
       this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: message shape is not valid`)
+      return false
+    }
+    if (
+      (decryptedMessage.type === MessageType.File || decryptedMessage.type === MessageType.Image) &&
+      (decryptedMessage.media?.message.id !== decryptedMessage.id ||
+        decryptedMessage.media.message.channelId !== decryptedMessage.channelId)
+    ) {
+      this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: attachment metadata is not bound to its message`)
       return false
     }
     if (!channel.public && channel.roleName == null) {

@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { getBaseTypesFactory } from '@quiet/state-manager'
-import { ChannelMessage, type PublicChannel } from '@quiet/types'
+import { ChannelMessage, MessageType, type FileMetadata, type PublicChannel } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { isUint8Array } from 'util/types'
 import { EncryptionScopeType } from '../../../auth/services/crypto/types'
@@ -27,6 +27,20 @@ describe('PublicChannelMessagesService', () => {
   let channel: PublicChannel
 
   const INVALID_FIELD_VALUE = 'THIS IS INVALID'
+
+  const hostedMedia = (overrides: Partial<FileMetadata> = {}): FileMetadata => ({
+    cid: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3rneevh2d5oa4sdh5xj5r6z2a',
+    message: { id: message.id, channelId: message.channelId },
+    path: null,
+    name: 'report',
+    ext: '.pdf',
+    size: 1024,
+    enc: {
+      header: Buffer.alloc(24, 1).toString('base64url'),
+      recipient: { generation: 0, type: 'ROLE', name: 'MEMBER' },
+    },
+    ...overrides,
+  })
 
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
@@ -91,6 +105,46 @@ describe('PublicChannelMessagesService', () => {
         encSignature: encryptedMessage.encSignature,
         teamId: encryptedMessage.teamId,
       })
+    })
+
+    it('consumes a valid hosted encrypted file message', async () => {
+      const fileMessage: ChannelMessage = {
+        ...message,
+        type: MessageType.File,
+        message: '',
+        media: hostedMedia(),
+      }
+      const encryptedMessage = await messagesService.onSend(fileMessage, channel)
+      expect(await messagesService.onConsume(encryptedMessage, channel)).toEqual(
+        expect.objectContaining({ id: fileMessage.id, media: fileMessage.media })
+      )
+    })
+
+    it.each([
+      ['another message', () => hostedMedia({ message: { id: 'other-message', channelId: message.channelId } })],
+      ['another channel', () => hostedMedia({ message: { id: message.id, channelId: 'other-channel' } })],
+      ['missing encryption metadata', () => hostedMedia({ enc: undefined })],
+      ['a local path', () => hostedMedia({ path: '/private/local/path' })],
+    ])('fails to consume file media pointing at %s', async (_description, createMedia) => {
+      const fileMessage: ChannelMessage = {
+        ...message,
+        type: MessageType.File,
+        message: '',
+        media: createMedia(),
+      }
+      const encryptedMessage = await messagesService.onSend(fileMessage, channel)
+      expect(await messagesService.onConsume(encryptedMessage, channel)).toBeUndefined()
+    })
+
+    it('does not let a numeric-string file type bypass attachment binding', async () => {
+      const fileMessage: ChannelMessage = {
+        ...message,
+        type: '4' as unknown as number,
+        message: '',
+        media: hostedMedia({ message: { id: 'other-message', channelId: message.channelId } }),
+      }
+      const encryptedMessage = await messagesService.onSend(fileMessage, channel)
+      expect(await messagesService.onConsume(encryptedMessage, channel)).toBeUndefined()
     })
 
     // https://github.com/TryQuiet/quiet/issues/3304
