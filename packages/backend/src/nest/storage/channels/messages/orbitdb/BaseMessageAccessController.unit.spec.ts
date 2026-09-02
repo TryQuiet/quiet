@@ -166,6 +166,10 @@ describe('BaseMessagesAccessController address handling', () => {
           teamId: 'team-id',
         }),
         verifyIdentity: async () => true,
+        // A valid entry signature, so the rejections below can only come from the writer/author
+        // binding. Signer substitution itself is covered with real LFA keys in
+        // signer-substitution.spec.ts.
+        verify: async () => true,
       },
     })
     const encryptedMessage = {
@@ -185,8 +189,17 @@ describe('BaseMessagesAccessController address handling', () => {
 
     await expect(
       access.canAppend({
+        // A full OrbitDB entry shape. The writer chokepoint verifies the entry signature, and
+        // `Entry.verify` re-encodes these fields, so they all have to be present and dag-cbor
+        // encodable.
+        id: 'message-log',
         identity: 'mallory-identity',
         key: 'mallory-public-key',
+        sig: 'mallory-signature',
+        next: [],
+        refs: [],
+        clock: { id: 'mallory-public-key', time: 1 },
+        v: 2,
         payload: { value: encryptedMessage },
       })
     ).resolves.toBe(false)
@@ -194,8 +207,17 @@ describe('BaseMessagesAccessController address handling', () => {
     encryptedMessage.encSignature.author.name = 'mallory'
     await expect(
       access.canAppend({
+        // A full OrbitDB entry shape. The writer chokepoint verifies the entry signature, and
+        // `Entry.verify` re-encodes these fields, so they all have to be present and dag-cbor
+        // encodable.
+        id: 'message-log',
         identity: 'mallory-identity',
         key: 'mallory-public-key',
+        sig: 'mallory-signature',
+        next: [],
+        refs: [],
+        clock: { id: 'mallory-public-key', time: 1 },
+        v: 2,
         payload: { value: encryptedMessage },
       })
     ).resolves.toBe(true)
@@ -234,6 +256,8 @@ describe('BaseMessagesAccessController address handling', () => {
       identities: {
         getIdentity: async () => identity,
         verifyIdentity: async () => true,
+        // A valid entry signature, so the rejection below can only come from the team mismatch.
+        verify: async () => true,
       },
     })
     const encryptedMessage = {
@@ -251,8 +275,17 @@ describe('BaseMessagesAccessController address handling', () => {
       },
     }
     const entry = {
+      // A full OrbitDB entry shape. The writer chokepoint verifies the entry signature, and
+      // `Entry.verify` re-encodes these fields, so they all have to be present and dag-cbor
+      // encodable.
+      id: 'message-log',
       identity: 'alice-identity',
       key: 'alice-public-key',
+      sig: 'alice-signature',
+      next: [],
+      refs: [],
+      clock: { id: 'alice-public-key', time: 1 },
+      v: 2,
       payload: { value: encryptedMessage },
     }
 

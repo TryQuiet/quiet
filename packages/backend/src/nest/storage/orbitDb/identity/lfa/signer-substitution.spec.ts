@@ -681,7 +681,14 @@ describe('OrbitDB signer substitution (#150)', () => {
   describe('MessagesAccessController', () => {
     const createAccess = async (write: string[] = ['*']) => {
       const controller = new MessagesAccessController(alice.sigchainService)
-      const factory = controller.createAccessControllerFunc({ write, sigchainService: alice.sigchainService })
+      // The public message controller now binds the writer to the message's author, team and
+      // channel, so the security context the channel store passes has to be supplied here too.
+      const factory = controller.createAccessControllerFunc({
+        write,
+        sigchainService: alice.sigchainService,
+        channelId: PUBLIC_CHANNEL_ID,
+        teamId,
+      })
       return (factory as any)({
         orbitdb: { identity: { id: alice.userId }, ipfs: createInMemoryIpfs() },
         identities: alice.identities,
