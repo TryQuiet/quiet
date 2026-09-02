@@ -150,7 +150,7 @@ export class SigChainService extends EventEmitter {
     void this._updateKeysOnChainUpdate(teamId).catch(err => {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
-    this._updateDeviceCredentials(teamId)
+    this.updateDeviceCredentials(teamId)
     void this.saveChain(teamId).catch(err => {
       this.logger.error('Failed to save chain after update', err)
     })
@@ -245,8 +245,13 @@ export class SigChainService extends EventEmitter {
   /**
    * Emit device credentials to mobile clients so native background handlers can
    * authenticate with QSS.
+   *
+   * Must be emitted whenever the client reaches a steady state for a team, not
+   * only when the chain mutates: the native FCM handler cannot fetch log entries
+   * without a device id, so a device that joins and then sees no membership
+   * changes would never be able to render a push notification.
    */
-  private _updateDeviceCredentials(teamId: string): void {
+  public updateDeviceCredentials(teamId: string): void {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') return
     if (process.env.QPS_ALLOWED !== 'true') {

@@ -709,6 +709,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     if (result === QSSOperationResult.SUCCESS) {
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once storage is ready', teamId)
       await this.emitNseQssUrl(this._qssEndpoint)
+      // The native push handler needs all three of qssUrl, qssServerId and deviceId.
+      // The first two are emitted above on every sign-in; device credentials were
+      // previously only emitted on sigchain mutation, so a device that joined and saw
+      // no membership changes could never authenticate to fetch entries for a push.
+      this.sigChainService.updateDeviceCredentials(teamId)
       this.qssSyncManager.startLogSyncForSignedInTeam(teamId, sigChain)
     }
 

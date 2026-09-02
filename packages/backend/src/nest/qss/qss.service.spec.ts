@@ -901,6 +901,42 @@ describe('QSSService', () => {
       }
     })
 
+    // Regression: the native FCM handler needs qssUrl, qssServerId AND deviceId to
+    // fetch log entries for a push. The first two were emitted on every sign-in, but
+    // device credentials were only emitted from handleChainUpdate, so a device that
+    // joined and then saw no membership changes threw
+    // "Missing QSS device id in QuietStorage" on every push and rendered no notification.
+    it('emits device credentials on successful sign in, without any sigchain mutation', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const updateDeviceCredentialsSpy = jest.spyOn(sigchainService, 'updateDeviceCredentials')
+
+        await qssService.connect('wss://community.example/ws')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id)
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    })
+
     it('emits the NSE QSS URL from the endpoint passed to connect on Android after successful sign in', async () => {
       const originalPlatform = process.platform
       Object.defineProperty(process, 'platform', { value: 'android' })
