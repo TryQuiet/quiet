@@ -1,0 +1,48 @@
+name: Release QSS compatibility
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/release-qss-compatibility.yml'
+      - 'scripts/check-qss-qps-payload-binding.mjs'
+      - 'scripts/check-qss-qps-payload-binding.test.mjs'
+  release:
+    types: [released]
+  workflow_dispatch:
+    inputs:
+      capabilities-url:
+        description: QSS capabilities endpoint to verify
+        required: false
+        default: https://qss-prod.quiet-services.app/health/capabilities
+
+jobs:
+  probe-tests:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+      - name: Test QSS compatibility probe
+        run: node --test scripts/check-qss-qps-payload-binding.test.mjs
+
+  production-qss:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.event.release.tag_name, '@quiet/mobile@') ||
+      startsWith(github.event.release.tag_name, '@quiet/desktop@')
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+      - name: Require hardened production QSS before client release
+        env:
+          QSS_CAPABILITIES_URL: ${{ inputs['capabilities-url'] || 'https://qss-prod.quiet-services.app/health/capabilities' }}
+        run: node scripts/check-qss-qps-payload-binding.mjs

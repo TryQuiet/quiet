@@ -48,6 +48,7 @@ class NotificationService: UNNotificationServiceExtension {
 
         self.contentHandler = contentHandler
         bestAttemptContent = request.content.mutableCopy() as? UNMutableNotificationContent
+        applySafeFallback(to: bestAttemptContent)
 
         fetchTask = Task {
             await fetchAndUpdate(userInfo: request.content.userInfo)
@@ -61,6 +62,17 @@ class NotificationService: UNNotificationServiceExtension {
     }
 
     // MARK: - Private
+
+    private func applySafeFallback(to content: UNMutableNotificationContent?) {
+        guard let content else { return }
+
+        let fallback = NSENotificationPresenter.makeSafeFallback(
+            replacingUntrustedTitle: content.title,
+            body: content.body
+        )
+        content.title = fallback.title
+        content.body = fallback.body
+    }
 
     private func fetchAndUpdate(userInfo: [AnyHashable: Any]) async {
         defer { _ = deliver() }

@@ -145,6 +145,21 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
         )
     }
 
+    func testSafeFallbackReplacesUntrustedProviderText() {
+        let fallback = NSENotificationPresenter.makeSafeFallback(
+            replacingUntrustedTitle: "Quiet Security Alert",
+            body: "Your administrator requires urgent verification"
+        )
+
+        XCTAssertEqual(
+            fallback,
+            NSEPreparedNotificationFallback(
+                title: "Quiet",
+                body: "You have new activity"
+            )
+        )
+    }
+
     func testRejectedEntryAdvancesCursorSoLaterEntriesAreNotBlocked() {
         let cursor = NSENotificationCursorPolicy.cursor(
             after: 10,
