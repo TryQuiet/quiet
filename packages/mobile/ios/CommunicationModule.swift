@@ -161,10 +161,10 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
-  func saveNseQssUrl(_ teamId: NSString, qssUrl: NSString) {
+  func saveNseQssUrl(_ teamId: NSString, qssUrl: NSString, qssServerId: NSString) {
     let teamIdStr = teamId as String
     let qssUrlStr = qssUrl as String
-    SharedDefaults.saveQssUrl(teamId: teamIdStr, url: qssUrlStr)
+    SharedDefaults.saveQssConfiguration(teamId: teamIdStr, url: qssUrlStr, serverId: qssServerId as String)
     CommunicationModule.logger.info("saveNseQssUrl: stored for team \(teamIdStr, privacy: .public) as \(qssUrlStr, privacy: .public)")
   }
 

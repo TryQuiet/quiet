@@ -3,8 +3,11 @@ package com.quietmobile.Push
 import java.util.Date
 
 class QssAuthService(
-    private val client: QssNetworkClient,
-    private val crypto: QssCryptoService,
+    private val client: QssAuthClient,
+    private val crypto: NseProofSigner,
+    private val keyProvider: DevicePrivateKeyProvider = DevicePrivateKeyProvider { QuietStorage.getDevicePrivateKey(it) },
+    private val deviceIdProvider: () -> String? = QuietStorage::getDeviceId,
+    private val nowMs: () -> Long = System::currentTimeMillis,
 ) {
     private data class CachedToken(
         val token: String,
@@ -13,32 +16,35 @@ class QssAuthService(
 
     private val tokenCache = mutableMapOf<String, CachedToken>()
 
-    fun authenticate(deviceId: String, teamId: String): String {
-        val cached = tokenCache[teamId]
-        if (cached != null && cached.expiry.after(Date())) {
+    fun authenticate(deviceId: String, teamId: String, qssServerId: String): String {
+        val cacheKey = "$teamId:$qssServerId"
+        val cached = tokenCache[cacheKey]
+        if (cached != null && cached.expiry.after(Date(nowMs()))) {
             return cached.token
         }
 
         val challenge = client.requestChallenge(deviceId, teamId)
+        require(challenge.challengeId == challenge.challenge.challengeId)
+        challenge.challenge.validate(deviceId, teamId, qssServerId, nowMs())
         val privateKey =
-            QuietStorage.getDevicePrivateKey(deviceId)
+            keyProvider.getDevicePrivateKey(deviceId)
                 ?: throw IllegalStateException("Missing device private key for $deviceId")
-        val proof = crypto.signChallengePayload(challenge.challenge, privateKey)
+        val proof = crypto.signNseAuthProof(challenge.challenge, privateKey)
         val tokenResponse = client.requestToken(challenge.challengeId, deviceId, proof)
 
-        tokenCache[teamId] =
+        tokenCache[cacheKey] =
             CachedToken(
                 token = tokenResponse.token,
-                expiry = Date(System.currentTimeMillis() + ((tokenResponse.expiresIn - 30) * 1000L)),
+                expiry = Date(nowMs() + ((tokenResponse.expiresIn - 30) * 1000L)),
             )
         return tokenResponse.token
     }
 
-    fun fetchNewEntries(teamId: String, afterSeq: Long): LogEntriesResponse {
+    fun fetchNewEntries(teamId: String, qssServerId: String, afterSeq: Long): LogEntriesResponse {
         val deviceId =
-            QuietStorage.getDeviceId()
+            deviceIdProvider()
                 ?: throw IllegalStateException("Missing QSS device id in QuietStorage")
-        val token = authenticate(deviceId, teamId)
+        val token = authenticate(deviceId, teamId, qssServerId)
 
         return try {
             client.fetchLogEntries(teamId, afterSeq, token)
@@ -47,9 +53,13 @@ class QssAuthService(
                 throw error
             }
 
-            tokenCache.remove(teamId)
-            val refreshedToken = authenticate(deviceId, teamId)
+            tokenCache.remove("$teamId:$qssServerId")
+            val refreshedToken = authenticate(deviceId, teamId, qssServerId)
             client.fetchLogEntries(teamId, afterSeq, refreshedToken)
         }
     }
+}
+
+fun interface DevicePrivateKeyProvider {
+    fun getDevicePrivateKey(deviceId: String): ByteArray?
 }

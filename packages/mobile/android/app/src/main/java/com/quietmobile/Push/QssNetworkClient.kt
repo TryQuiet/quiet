@@ -8,12 +8,21 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 
 class QssHttpException(val statusCode: Int, body: String?) :
     IOException("QSS request failed with HTTP $statusCode${body?.let { ": $it" } ?: ""}")
 
-class QssNetworkClient(baseUrl: String) {
+interface QssAuthClient {
+    fun requestChallenge(deviceId: String, teamId: String): ChallengeResponse
+
+    fun requestToken(challengeId: String, deviceId: String, proof: ProofPayload): TokenResponse
+
+    fun fetchLogEntries(teamId: String, afterSeq: Long, token: String): LogEntriesResponse
+}
+
+class QssNetworkClient(baseUrl: String) : QssAuthClient {
     private val baseUrl = baseUrl.toHttpUrl()
     private val client =
         OkHttpClient.Builder()
@@ -21,35 +30,67 @@ class QssNetworkClient(baseUrl: String) {
             .readTimeout(20, TimeUnit.SECONDS)
             .build()
 
-    fun requestChallenge(deviceId: String, teamId: String): ChallengeResponse {
+    override fun requestChallenge(deviceId: String, teamId: String): ChallengeResponse {
         val body = JSONObject()
             .put("deviceId", deviceId)
             .put("teamId", teamId)
 
-        val json = post("nse-auth/challenge", body.toString(), null)
+        return parseChallengeResponse(post("nse-auth/challenge", body.toString(), null))
+    }
+
+    internal fun parseChallengeResponse(json: JSONObject): ChallengeResponse {
         val challengeJson = json.getJSONObject("challenge")
+        require(json.keys().asSequence().toSet() == setOf("challengeId", "challenge"))
+        require(challengeJson.keys().asSequence().toSet() == setOf(
+            "protocolVersion", "type", "deviceId", "teamId", "qssServerId",
+            "challengeId", "nonce", "issuedAtMs", "expiresAtMs",
+        ))
         return ChallengeResponse(
-            challengeId = json.getString("challengeId"),
+            challengeId = requireString(json, "challengeId"),
             challenge =
                 ChallengePayload(
-                    type = challengeJson.getString("type"),
-                    name = challengeJson.getString("name"),
-                    nonce = challengeJson.getString("nonce"),
-                    timestamp = challengeJson.getLong("timestamp"),
+                    protocolVersion = requireInt(challengeJson, "protocolVersion"),
+                    type = requireString(challengeJson, "type"),
+                    deviceId = requireString(challengeJson, "deviceId"),
+                    teamId = requireString(challengeJson, "teamId"),
+                    qssServerId = requireString(challengeJson, "qssServerId"),
+                    challengeId = requireString(challengeJson, "challengeId"),
+                    nonce = requireString(challengeJson, "nonce"),
+                    issuedAtMs = requireSafeInteger(challengeJson, "issuedAtMs"),
+                    expiresAtMs = requireSafeInteger(challengeJson, "expiresAtMs"),
                 ),
         )
     }
 
-    fun requestToken(challengeId: String, deviceId: String, proof: ProofPayload): TokenResponse {
+    private fun requireString(json: JSONObject, key: String): String =
+        (json.get(key) as? String) ?: throw IllegalArgumentException("$key was not a JSON string")
+
+    private fun requireSafeInteger(json: JSONObject, key: String): Long {
+        val raw = json.get(key)
+        require(raw is Int || raw is Long) { "$key was not an integer JSON literal" }
+        val value = raw.toString().toBigDecimalOrNull()
+            ?: throw IllegalArgumentException("$key was not finite")
+        require(value.stripTrailingZeros().scale() <= 0) { "$key was not an integer" }
+        require(
+            value >= BigDecimal.ZERO &&
+                value <= BigDecimal.valueOf(NseAuthProtocol.MAXIMUM_SAFE_INTEGER),
+        ) {
+            "$key was outside the JavaScript safe-integer range"
+        }
+        return value.longValueExact()
+    }
+
+    private fun requireInt(json: JSONObject, key: String): Int {
+        val value = requireSafeInteger(json, key)
+        require(value <= Int.MAX_VALUE) { "$key was outside the integer range" }
+        return value.toInt()
+    }
+
+    override fun requestToken(challengeId: String, deviceId: String, proof: ProofPayload): TokenResponse {
         val body = JSONObject()
             .put("challengeId", challengeId)
             .put("deviceId", deviceId)
-            .put(
-                "proof",
-                JSONObject()
-                    .put("signature", proof.signature)
-                    .put("publicKey", proof.publicKey),
-            )
+            .put("signature", proof.signature)
 
         val json = post("nse-auth/token", body.toString(), null)
         return TokenResponse(
@@ -58,7 +99,7 @@ class QssNetworkClient(baseUrl: String) {
         )
     }
 
-    fun fetchLogEntries(teamId: String, afterSeq: Long, token: String): LogEntriesResponse {
+    override fun fetchLogEntries(teamId: String, afterSeq: Long, token: String): LogEntriesResponse {
         val url =
             baseUrl.newBuilder()
                 .addPathSegments("nse-auth/logs/$teamId")

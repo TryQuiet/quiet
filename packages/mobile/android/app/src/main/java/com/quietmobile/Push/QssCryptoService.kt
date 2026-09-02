@@ -36,45 +36,49 @@ internal fun parseQssEncryptedPayload(value: Any?, label: String): EncryptedPayl
     )
 }
 
-class QssCryptoService(
+fun interface NseProofSigner {
+    fun signNseAuthProof(challenge: ChallengePayload, privateKeyBytes: ByteArray): ProofPayload
+}
+
+interface QssMessageCrypto : NseProofSigner {
+    fun decryptNotificationMessage(logEntry: LogEntry, teamId: String): DecryptedNotificationMessage?
+}
+
+internal fun interface NseDetachedSigner {
+    fun sign(seed: ByteArray, payload: ByteArray): ByteArray
+}
+
+class QssCryptoService internal constructor(
+    private val detachedSignerOverride: NseDetachedSigner? = null,
     private val lfaKeyLookup: (String) -> String? = { keyName -> QuietStorage.getLfaKey(keyName) },
     private val signatureVerifier: ((ByteArray, ByteArray, ByteArray) -> Boolean)? = null,
-) {
-    private val sodium by lazy { LazySodiumAndroid(SodiumAndroid()) }
+) : QssMessageCrypto {
+    private var sodiumInstance: Any? = null
 
-    private val stretchSalt: ByteArray =
+    private val stretchSalt: ByteArray by lazy {
         decodeBase58("H5B4DLSXw5xwNYFdz1Wr6e")
             ?: throw IllegalStateException("Failed to decode Quiet stretch salt")
+    }
 
-    fun signChallengePayload(challenge: ChallengePayload, privateKeyBytes: ByteArray): ProofPayload {
+    override fun signNseAuthProof(challenge: ChallengePayload, privateKeyBytes: ByteArray): ProofPayload {
         if (privateKeyBytes.size != 32 && privateKeyBytes.size != 64) {
             throw IllegalStateException("Invalid private key length: ${privateKeyBytes.size}")
         }
 
         val seed = privateKeyBytes.copyOfRange(0, 32)
-        val publicKey = ByteArray(32)
-        val secretKey = ByteArray(64)
-        if (!sodium.cryptoSignSeedKeypair(publicKey, secretKey, seed)) {
-            throw IllegalStateException("Failed to derive Ed25519 keypair from device seed")
-        }
-
-        val payloadBytes = MsgpackEncoder.encodeChallenge(challenge)
-        val signature = ByteArray(64)
-        if (!sodium.cryptoSignDetached(signature, payloadBytes, payloadBytes.size.toLong(), secretKey)) {
-            throw IllegalStateException("Failed to sign challenge payload")
-        }
+        val payloadBytes = MsgpackEncoder.encodeNseAuthProof(challenge)
+        val signature = detachedSignerOverride?.sign(seed, payloadBytes) ?: signWithSodium(seed, payloadBytes)
+        require(signature.size == 64) { "Invalid Ed25519 signature length: ${signature.size}" }
 
         return ProofPayload(
             signature = CopperBase58.encode(signature),
-            publicKey = CopperBase58.encode(publicKey),
         )
     }
 
-    fun decryptNotificationMessage(logEntry: LogEntry, teamId: String): DecryptedNotificationMessage? {
+    override fun decryptNotificationMessage(logEntry: LogEntry, teamId: String): DecryptedNotificationMessage? {
         if (logEntry.communityId != teamId) {
             throw IllegalStateException("QSS entry community did not match requested team")
         }
-
         val outerEnvelope =
             MsgpackDecoder.decode(logEntry.entry) as? Map<*, *>
                 ?: throw IllegalStateException("Outer QSS envelope was not a map")
@@ -115,8 +119,21 @@ class QssCryptoService(
             lfaKeyLookup,
         ) { signatureBytes, payloadBytes, publicKeyBytes ->
             signatureVerifier?.invoke(signatureBytes, payloadBytes, publicKeyBytes)
-                ?: sodium.cryptoSignVerifyDetached(signatureBytes, payloadBytes, payloadBytes.size, publicKeyBytes)
+                ?: sodium().cryptoSignVerifyDetached(signatureBytes, payloadBytes, payloadBytes.size, publicKeyBytes)
         }
+
+    private fun signWithSodium(seed: ByteArray, payloadBytes: ByteArray): ByteArray {
+        val publicKey = ByteArray(32)
+        val secretKey = ByteArray(64)
+        if (!sodium().cryptoSignSeedKeypair(publicKey, secretKey, seed)) {
+            throw IllegalStateException("Failed to derive Ed25519 keypair from device seed")
+        }
+        val signature = ByteArray(64)
+        if (!sodium().cryptoSignDetached(signature, payloadBytes, payloadBytes.size.toLong(), secretKey)) {
+            throw IllegalStateException("Failed to sign challenge payload")
+        }
+        return signature
+    }
 
     private fun decryptPayload(encryptedPayload: EncryptedPayload, teamId: String): DecryptedPayload {
         val keyName = makeKeyName(teamId, encryptedPayload.scope)
@@ -142,13 +159,13 @@ class QssCryptoService(
 
         val derivedKey = stretch(password)
         val authMessage = nonce + mac
-        if (!sodium.cryptoAuthVerify(tag, authMessage, authMessage.size.toLong(), derivedKey)) {
+        if (!sodium().cryptoAuthVerify(tag, authMessage, authMessage.size.toLong(), derivedKey)) {
             throw IllegalStateException("Cipher tag verification failed")
         }
 
         val combinedCipher = mac + message
         val decrypted = ByteArray(message.size)
-        if (!sodium.cryptoSecretBoxOpenEasy(
+        if (!sodium().cryptoSecretBoxOpenEasy(
                 decrypted,
                 combinedCipher,
                 combinedCipher.size.toLong(),
@@ -168,7 +185,7 @@ class QssCryptoService(
 
         val success =
             if (passwordBytes.size >= 16) {
-                sodium.cryptoGenericHash(
+                sodium().cryptoGenericHash(
                     output,
                     output.size,
                     passwordBytes,
@@ -177,7 +194,7 @@ class QssCryptoService(
                     stretchSalt.size,
                 )
             } else {
-                sodium.cryptoPwHash(
+                sodium().cryptoPwHash(
                     output,
                     output.size,
                     passwordBytes,
@@ -194,6 +211,12 @@ class QssCryptoService(
         }
 
         return output
+    }
+
+    private fun sodium(): LazySodiumAndroid {
+        val existing = sodiumInstance
+        if (existing != null) return existing as LazySodiumAndroid
+        return LazySodiumAndroid(SodiumAndroid()).also { sodiumInstance = it }
     }
 
     internal fun parseSignature(value: Any?): MessageSignature = parseMessageSignature(value)

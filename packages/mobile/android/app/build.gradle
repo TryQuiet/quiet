@@ -277,10 +277,14 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 
     androidTestImplementation("com.wix:detox:+")
     androidTestImplementation("androidx.test:core:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 
     if (enableHermes) {
         //noinspection GradleDynamicVersion

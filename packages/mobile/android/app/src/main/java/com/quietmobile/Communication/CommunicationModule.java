@@ -158,8 +158,8 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveNseQssUrl(String teamId, String qssUrl) {
-        QuietStorage.saveQssUrl(teamId, qssUrl);
+    public static void saveNseQssUrl(String teamId, String qssUrl, String qssServerId) {
+        QuietStorage.saveQssConfiguration(teamId, qssUrl, qssServerId);
     }
 
     @ReactMethod

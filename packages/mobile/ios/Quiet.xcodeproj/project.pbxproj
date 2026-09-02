@@ -13,6 +13,15 @@
 		A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */; };
 		A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000004 /* NSEMessageAuthenticator.swift */; };
 		A11400000000000000000005 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000006 /* SharedDefaults.swift */; };
+		A11500000000000000000001 /* NSEAuthProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000002 /* NSEAuthProtocolTests.swift */; };
+		A11500000000000000000004 /* NSEAuthProof.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000007 /* NSEAuthProof.swift */; };
+		A11500000000000000000005 /* NSEModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000008 /* NSEModels.swift */; };
+		A11500000000000000000006 /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000009 /* Base58.swift */; };
+		A1150000000000000000000C /* NSEAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000A /* NSEAuthService.swift */; };
+		A1150000000000000000000D /* NSENotificationPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000B /* NSENotificationPresentation.swift */; };
+		A11500000000000000000010 /* NSENetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000E /* NSENetworkClient.swift */; };
+		A11500000000000000000011 /* NSECryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000F /* NSECryptoService.swift */; };
+		A11500000000000000000013 /* NSEBackgroundNotificationOrchestrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */; };
 		03B674072E6103DC00A86655 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674042E6103DC00A86655 /* Rubik-Regular.ttf */; };
 		03B674082E6103DC00A86655 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674022E6103DC00A86655 /* Rubik-Medium.ttf */; };
 		03B674092E6103DC00A86655 /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FC2E6103DC00A86655 /* Rubik-BoldItalic.ttf */; };
@@ -124,6 +133,15 @@
 		A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEMessageAuthenticatorTests.swift; sourceTree = "<group>"; };
 		A11400000000000000000004 /* NSEMessageAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEMessageAuthenticator.swift; path = QuietNotificationServiceExtension/NSEMessageAuthenticator.swift; sourceTree = SOURCE_ROOT; };
 		A11400000000000000000006 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedDefaults.swift; path = Shared/SharedDefaults.swift; sourceTree = SOURCE_ROOT; };
+		A11500000000000000000002 /* NSEAuthProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEAuthProtocolTests.swift; sourceTree = "<group>"; };
+		A11500000000000000000007 /* NSEAuthProof.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEAuthProof.swift; path = ../QuietNotificationServiceExtension/NSEAuthProof.swift; sourceTree = "<group>"; };
+		A11500000000000000000008 /* NSEModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEModels.swift; path = ../QuietNotificationServiceExtension/NSEModels.swift; sourceTree = "<group>"; };
+		A11500000000000000000009 /* Base58.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Base58.swift; path = ../Shared/Base58.swift; sourceTree = "<group>"; };
+		A1150000000000000000000A /* NSEAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEAuthService.swift; path = ../QuietNotificationServiceExtension/NSEAuthService.swift; sourceTree = "<group>"; };
+		A1150000000000000000000B /* NSENotificationPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENotificationPresentation.swift; path = ../QuietNotificationServiceExtension/NSENotificationPresentation.swift; sourceTree = "<group>"; };
+		A1150000000000000000000E /* NSENetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENetworkClient.swift; path = ../QuietNotificationServiceExtension/NSENetworkClient.swift; sourceTree = "<group>"; };
+		A1150000000000000000000F /* NSECryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSECryptoService.swift; path = ../QuietNotificationServiceExtension/NSECryptoService.swift; sourceTree = "<group>"; };
+		A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEBackgroundNotificationOrchestrator.swift; path = ../QuietNotificationServiceExtension/NSEBackgroundNotificationOrchestrator.swift; sourceTree = "<group>"; };
 		03B673F92E6103DC00A86655 /* Rubik-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Black.ttf"; path = "../src/assets/fonts/Rubik-Black.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-BlackItalic.ttf"; path = "../src/assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FB2E6103DC00A86655 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Bold.ttf"; path = "../src/assets/fonts/Rubik-Bold.ttf"; sourceTree = SOURCE_ROOT; };
@@ -739,6 +757,15 @@
 				A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */,
 				A11400000000000000000004 /* NSEMessageAuthenticator.swift */,
 				A11400000000000000000006 /* SharedDefaults.swift */,
+				A11500000000000000000002 /* NSEAuthProtocolTests.swift */,
+				A11500000000000000000007 /* NSEAuthProof.swift */,
+				A11500000000000000000008 /* NSEModels.swift */,
+				A11500000000000000000009 /* Base58.swift */,
+				A1150000000000000000000A /* NSEAuthService.swift */,
+				A1150000000000000000000B /* NSENotificationPresentation.swift */,
+				A1150000000000000000000E /* NSENetworkClient.swift */,
+				A1150000000000000000000F /* NSECryptoService.swift */,
+				A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
 			path = QuietTests;
@@ -5328,6 +5355,15 @@
 				A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */,
 				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
 				A11400000000000000000005 /* SharedDefaults.swift in Sources */,
+				A11500000000000000000001 /* NSEAuthProtocolTests.swift in Sources */,
+				A11500000000000000000004 /* NSEAuthProof.swift in Sources */,
+				A11500000000000000000005 /* NSEModels.swift in Sources */,
+				A11500000000000000000006 /* Base58.swift in Sources */,
+				A1150000000000000000000C /* NSEAuthService.swift in Sources */,
+				A1150000000000000000000D /* NSENotificationPresentation.swift in Sources */,
+				A11500000000000000000010 /* NSENetworkClient.swift in Sources */,
+				A11500000000000000000011 /* NSECryptoService.swift in Sources */,
+				A11500000000000000000013 /* NSEBackgroundNotificationOrchestrator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5394,7 +5430,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = QuietTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5426,7 +5462,7 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = QuietTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

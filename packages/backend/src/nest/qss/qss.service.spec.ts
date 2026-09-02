@@ -883,6 +883,8 @@ describe('QSSService', () => {
         await localDbService.setIdentity(userIdentity)
 
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -892,6 +894,7 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
@@ -912,6 +915,8 @@ describe('QSSService', () => {
         await localDbService.setIdentity(userIdentity)
 
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -921,6 +926,7 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
@@ -942,6 +948,8 @@ describe('QSSService', () => {
 
         qssService._qssEndpoint = 'ws://configured.example/ws'
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'configured.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -951,6 +959,37 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'http://configured.example/ws',
+          qssServerId: pinnedQss.serverId,
+        })
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
+    })
+
+    it('clears native NSE QSS state when the endpoint has no active pinned server identity', async () => {
+      const originalPlatform = process.platform
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+
+        await qssService.connect('wss://untrusted.example/ws')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: 'team-id',
+          qssUrl: '',
+          qssServerId: '',
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })

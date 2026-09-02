@@ -90,10 +90,15 @@ describe('subscribeSocketLifecycle', () => {
     socket.trigger(SocketEvents.NSE_QSS_URL_UPDATED, {
       teamId: 'team-id',
       qssUrl: 'https://community.example',
+      qssServerId: 'qss-server-id',
     })
     await Promise.resolve()
 
-    expect(NativeModules.CommunicationModule.saveNseQssUrl).toHaveBeenCalledWith('team-id', 'https://community.example')
+    expect(NativeModules.CommunicationModule.saveNseQssUrl).toHaveBeenCalledWith(
+      'team-id',
+      'https://community.example',
+      'qss-server-id'
+    )
 
     socket.trigger(SocketEvents.NSE_SYNC_SEQ_UPDATED, {
       teamId: 'team-id',

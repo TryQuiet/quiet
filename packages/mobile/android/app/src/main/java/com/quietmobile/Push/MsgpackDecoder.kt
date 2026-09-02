@@ -144,21 +144,22 @@ object MsgpackEncoder {
         return out.toByteArray()
     }
 
-    fun encodeChallenge(challenge: ChallengePayload): ByteArray {
-        val out = ByteArrayOutputStream()
-        out.write(0xde)
-        out.write(0x00)
-        out.write(0x04)
-        appendString("type", out)
-        appendString(challenge.type, out)
-        appendString("name", out)
-        appendString(challenge.name, out)
-        appendString("nonce", out)
-        appendString(challenge.nonce, out)
-        appendString("timestamp", out)
-        appendFloat64(challenge.timestamp.toDouble(), out)
-        return out.toByteArray()
-    }
+    fun encodeNseAuthProof(challenge: ChallengePayload): ByteArray = encode(
+        listOf(
+            NseAuthProtocol.SIGNATURE_CONTEXT,
+            listOf(
+                challenge.protocolVersion,
+                challenge.type,
+                challenge.deviceId,
+                challenge.teamId,
+                challenge.qssServerId,
+                challenge.challengeId,
+                challenge.nonce,
+                challenge.issuedAtMs.toDouble(),
+                challenge.expiresAtMs.toDouble(),
+            ),
+        ),
+    )
 
     /** Matches msgpackr.pack([context, payload]) without re-encoding payload. */
     fun withSignatureContext(context: String, plaintext: ByteArray): ByteArray {

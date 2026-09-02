@@ -116,29 +116,67 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
             Log.w(TAG, "Skipping push handling because no QSS URL is stored for teamId=$teamId")
             return
         }
+        val qssServerId = QuietStorage.getQssServerId(teamId)
+        if (qssServerId == null) {
+            Log.w(TAG, "Skipping push handling because no pinned QSS server identity is stored for teamId=$teamId")
+            return
+        }
 
         try {
             runBlocking(Dispatchers.IO) {
-                handlePush(teamId, qssUrl)
+                handlePush(teamId, qssUrl, qssServerId)
             }
         } catch (error: Exception) {
             Log.e("QssFirebaseMessaging", "Failed handling QSS FCM message", error)
         }
     }
 
-    private fun handlePush(teamId: String, qssUrl: String) {
-        val afterSeq = QuietStorage.getLastSyncSeq(teamId)
-        Log.i(TAG, "Fetching QSS entries for teamId=$teamId qssUrl=$qssUrl afterSeq=$afterSeq")
+    private fun handlePush(teamId: String, qssUrl: String, qssServerId: String) {
         val authService =
             authServices.getOrPut(qssUrl) {
                 QssAuthService(QssNetworkClient(qssUrl), cryptoService)
             }
+        QssPushHandler(
+            authService = authService,
+            cryptoService = cryptoService,
+            getLastSyncSeq = QuietStorage::getLastSyncSeq,
+            saveLastSyncSeq = QuietStorage::saveLastSyncSeq,
+            recordMissingNotificationKeyFailure = QuietStorage::recordMissingNotificationKeyFailure,
+            clearMissingNotificationKeyFailure = QuietStorage::clearMissingNotificationKeyFailure,
+            isAppForeground = QuietStorage::isAppForeground,
+            getChannelName = QuietStorage::getChannelName,
+            getNickname = QuietStorage::getNickname,
+            notify = notificationHandler::notify,
+        ).handle(teamId, qssServerId)
+    }
 
-        val entries = authService.fetchNewEntries(teamId, afterSeq).entries
-        Log.i(
-            TAG,
-            "Fetched ${entries.size} entries for teamId=$teamId",
-        )
+    companion object {
+        private const val TAG = "QssFirebaseMessaging"
+        private val cryptoService = QssCryptoService()
+        private val authServices = ConcurrentHashMap<String, QssAuthService>()
+    }
+}
+
+/**
+ * Production orchestration for a background QSS push. Dependencies are narrow so the complete
+ * challenge -> device proof -> token -> log fetch -> notification path can be exercised on the JVM.
+ */
+internal class QssPushHandler(
+    private val authService: QssAuthService,
+    private val cryptoService: QssMessageCrypto,
+    private val getLastSyncSeq: (String) -> Long,
+    private val saveLastSyncSeq: (Long, String) -> Unit,
+    private val recordMissingNotificationKeyFailure: (String, Long) -> Int,
+    private val clearMissingNotificationKeyFailure: (String, Long) -> Unit,
+    private val isAppForeground: () -> Boolean,
+    private val getChannelName: (String, String) -> String?,
+    private val getNickname: (String) -> String?,
+    private val notify: (String, String) -> Unit,
+) {
+    fun handle(teamId: String, qssServerId: String) {
+        val afterSeq = getLastSyncSeq(teamId)
+        val entries = authService.fetchNewEntries(teamId, qssServerId, afterSeq).entries
+        Log.i(TAG, "Fetched ${entries.size} entries for teamId=$teamId")
 
         val lastProcessedSeq =
             processContiguousQssEntries(
@@ -154,32 +192,31 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
                             .put("id", message.id)
                             .put("channelId", message.channelId)
                             .put("message", message.body)
-                            .put("channelName", QuietStorage.getChannelName(teamId, message.channelId))
+                            .put("channelName", getChannelName(teamId, message.channelId))
                             .toString()
-                    val nickname = QuietStorage.getNickname(message.userId) ?: message.userId
-                    if (QuietStorage.isAppForeground()) {
+                    if (isAppForeground()) {
                         Log.i(TAG, "Skipping notification for cid=${entry.cid} because app returned to foreground")
                     } else {
                         Log.i(
                             TAG,
                             "Posting notification for cid=${entry.cid} channelId=${message.channelId} userId=${message.userId}",
                         )
-                        notificationHandler.notify(payload, nickname)
+                        notify(payload, getNickname(message.userId) ?: message.userId)
                     }
                 },
                 isPermanentRejection = { entry, error ->
                     if (error !is MissingQssNotificationKeyException) {
                         true
                     } else {
-                        val failureCount = QuietStorage.recordMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                        val failureCount = recordMissingNotificationKeyFailure(teamId, entry.syncSeq)
                         !shouldRetryMissingNotificationKey(failureCount)
                     }
                 },
                 onAuthenticated = { entry ->
-                    QuietStorage.clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                    clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
                 },
                 onRejected = { entry, error ->
-                    QuietStorage.clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                    clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
                     Log.e(TAG, "Rejecting invalid QSS log entry ${entry.cid}", error)
                 },
                 onRetryableFailure = { entry, error, cursor ->
@@ -201,13 +238,11 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
             return
         }
 
-        QuietStorage.saveLastSyncSeq(lastProcessedSeq, teamId)
+        saveLastSyncSeq(lastProcessedSeq, teamId)
         Log.i(TAG, "Saved lastSyncSeq=$lastProcessedSeq for teamId=$teamId")
     }
 
     companion object {
         private const val TAG = "QssFirebaseMessaging"
-        private val cryptoService = QssCryptoService()
-        private val authServices = ConcurrentHashMap<String, QssAuthService>()
     }
 }

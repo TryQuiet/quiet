@@ -12,6 +12,7 @@ struct SharedDefaults {
     static let missingKeyRetrySeqByTeamKey = "quiet.nse.missingKeyRetrySeqByTeam"
     static let missingKeyRetryCountByTeamKey = "quiet.nse.missingKeyRetryCountByTeam"
     static let qssUrlsKey         = "quiet.nse.qssUrls"
+    static let qssConfigurationsKey = "quiet.nse.qssConfigurations"
     static let qssFallbackUrlKey  = "quiet.nse.qssFallbackUrl"
     static let badgeCountKey      = "quiet.nse.badgeCount"
     static let appIsForegroundKey = "quiet.app.isForeground"
@@ -90,6 +91,10 @@ struct SharedDefaults {
     // MARK: - QSS URLs
 
     static func getQssUrl(teamId: String) -> URL? {
+        if let configurations = defaults.dictionary(forKey: qssConfigurationsKey) as? [String: [String: String]],
+           let urlString = configurations[teamId]?["url"] {
+            return URL(string: urlString)
+        }
         guard
             let qssUrls = defaults.dictionary(forKey: qssUrlsKey) as? [String: String],
             let urlString = qssUrls[teamId]
@@ -97,10 +102,20 @@ struct SharedDefaults {
         return URL(string: urlString)
     }
 
-    static func saveQssUrl(teamId: String, url: String) {
-        var existing = defaults.dictionary(forKey: qssUrlsKey) as? [String: String] ?? [:]
-        existing[teamId] = url
-        defaults.set(existing, forKey: qssUrlsKey)
+    static func getQssServerId(teamId: String) -> String? {
+        let configurations = defaults.dictionary(forKey: qssConfigurationsKey) as? [String: [String: String]]
+        return configurations?[teamId]?["serverId"]
+    }
+
+    static func saveQssConfiguration(teamId: String, url: String, serverId: String) {
+        var configurations = defaults.dictionary(forKey: qssConfigurationsKey) as? [String: [String: String]] ?? [:]
+        guard !url.isEmpty, !serverId.isEmpty else {
+            configurations.removeValue(forKey: teamId)
+            defaults.set(configurations, forKey: qssConfigurationsKey)
+            return
+        }
+        configurations[teamId] = ["url": url, "serverId": serverId]
+        defaults.set(configurations, forKey: qssConfigurationsKey)
     }
 
     static func getFallbackQssUrl() -> URL? {
@@ -122,6 +137,7 @@ struct SharedDefaults {
         defaults.removeObject(forKey: missingKeyRetrySeqByTeamKey)
         defaults.removeObject(forKey: missingKeyRetryCountByTeamKey)
         defaults.removeObject(forKey: qssUrlsKey)
+        defaults.removeObject(forKey: qssConfigurationsKey)
         defaults.removeObject(forKey: badgeCountKey)
     }
 }

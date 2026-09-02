@@ -1,15 +1,7 @@
-import CryptoKit
 import Foundation
 import Sodium
 
 private typealias NSEJSONObject = [String: Any]
-
-struct NSEDecryptedNotificationMessage {
-    let channelId: String
-    let userId: String
-    let body: String
-    let type: Int
-}
 
 private struct NSEEncryptionScope {
     let type: String
@@ -40,28 +32,18 @@ private struct NSEMessageSignature {
 
 // MARK: - Protocol
 
-protocol DeviceCryptography {
-    /// Signs a challenge payload exactly as `identity.prove()` does in TypeScript.
-    func signChallengePayload(_ challenge: ChallengePayload, privateKeyData: Data) throws -> ProofPayload
-
+protocol DeviceCryptography: NSEAuthSigning {
     /// Decrypts a QSS log entry and, if it is a channel message, returns a displayable preview.
     func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage?
 }
 
+protocol NSELFAKeyReading {
+    func lfaKeyString(keyName: String) throws -> String
+}
+
 extension DeviceCryptography {
-    func signChallengePayload(_ challenge: ChallengePayload, privateKeyData: Data) throws -> ProofPayload {
-        let payloadBytes = try NSEMsgpack.encode(challenge)
-        guard privateKeyData.count == 64 || privateKeyData.count == 32 else {
-            throw NSECryptoError.invalidKeyLength(expected: 64, got: privateKeyData.count)
-        }
-        let seed = privateKeyData.prefix(32)
-        let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: seed)
-        let signatureBytes = try privateKey.signature(for: payloadBytes)
-        let publicKeyBytes = privateKey.publicKey.rawRepresentation
-        return ProofPayload(
-            signature: Base58.encode(signatureBytes),
-            publicKey: Base58.encode(publicKeyBytes)
-        )
+    func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String {
+        try NSEAuthProof.sign(challenge, privateKeyData: privateKeyData)
     }
 }
 
@@ -102,6 +84,11 @@ extension NSECryptoError: NSERetryableNotificationError {
 /// 3. QSS log entries contain msgpackr-record-encoded payloads, not JSON
 class NSECryptoService: DeviceCryptography {
     private let sodium = Sodium()
+    private let lfaKeyReader: NSELFAKeyReading
+
+    init(lfaKeyReader: NSELFAKeyReading) {
+        self.lfaKeyReader = lfaKeyReader
+    }
 
     // Matches @localfirst/crypto stretch.ts
     private static let stretchSalt: [UInt8] = {
@@ -380,7 +367,7 @@ class NSECryptoService: DeviceCryptography {
 
     private func lfaKeyString(keyName: String) throws -> String {
         do {
-            return try KeychainService.getLfaKeyString(keyName: keyName)
+            return try self.lfaKeyReader.lfaKeyString(keyName: keyName)
         } catch {
             throw NSECryptoError.missingKey(keyName)
         }
@@ -490,23 +477,9 @@ enum NSEMsgpack {
         case unsupportedType(UInt8)
     }
 
-    /// Encodes a ChallengePayload in the same byte format as msgpackr.pack().
-    static func encode(_ challenge: ChallengePayload) throws -> Data {
-        var out = Data()
-        // msgpackr always uses map16, never fixmap, regardless of element count.
-        out.append(0xde)
-        out.append(0x00)
-        out.append(0x04)
-        try appendString("type", to: &out)
-        try appendString(challenge.type, to: &out)
-        try appendString("name", to: &out)
-        try appendString(challenge.name, to: &out)
-        try appendString("nonce", to: &out)
-        try appendString(challenge.nonce, to: &out)
-        // Date.now() ms since epoch (~1.7e12) exceeds 2^32; msgpackr encodes as float64, not uint64.
-        try appendString("timestamp", to: &out)
-        appendFloat64(Double(challenge.timestamp), to: &out)
-        return out
+    /// Encodes msgpackr.pack([NSE_AUTH_SIGNATURE_CONTEXT, canonicalPayload]).
+    static func encodeNseAuthProof(_ challenge: ChallengePayload) throws -> Data {
+        try NSEAuthProof.encode(challenge)
     }
 
     static func decode(_ data: Data) throws -> Any {
@@ -544,22 +517,6 @@ enum NSEMsgpack {
         }
         out.append(contentsOf: bytes)
     }
-
-    /// Encodes a Double as IEEE 754 float64 (0xcb + 8 bytes big-endian).
-    /// msgpackr uses float64 for JavaScript numbers that exceed 2^32.
-    private static func appendFloat64(_ v: Double, to out: inout Data) {
-        out.append(0xcb)
-        let bits = v.bitPattern // UInt64 IEEE 754 representation
-        out.append(UInt8((bits >> 56) & 0xFF))
-        out.append(UInt8((bits >> 48) & 0xFF))
-        out.append(UInt8((bits >> 40) & 0xFF))
-        out.append(UInt8((bits >> 32) & 0xFF))
-        out.append(UInt8((bits >> 24) & 0xFF))
-        out.append(UInt8((bits >> 16) & 0xFF))
-        out.append(UInt8((bits >>  8) & 0xFF))
-        out.append(UInt8(bits & 0xFF))
-    }
-
     private final class Decoder {
         private let bytes: [UInt8]
         private var index: Int = 0
