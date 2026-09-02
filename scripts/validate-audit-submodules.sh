@@ -44,15 +44,19 @@ assert_qss_auth_matches_client() {
 
 assert_config "$auth_path" '../private.git' 'auth/main-baseline'
 assert_config "$qss_path" '../private.git' 'qss/main-baseline'
-test "$(git -C "$qss_path" config -f .gitmodules \
-  --get "submodule.${qss_auth_relative_path}.url")" = '../private.git'
-test "$(git -C "$qss_path" config -f .gitmodules \
-  --get "submodule.${qss_auth_relative_path}.branch")" = 'auth/main-baseline'
 
 # Sync makes Git use the relative URLs from .gitmodules, then update performs
 # a real clone/fetch and checks out each gitlink pinned by this audit branch.
 git submodule sync -- "$auth_path" "$qss_path"
 git submodule update --init --checkout --recursive --depth 1 -- "$auth_path" "$qss_path"
+
+# QSS's own metadata only exists after a fresh superproject checkout initializes
+# the QSS gitlink above. Check it after initialization so this test works both in
+# developer worktrees and in a non-recursive CI clone.
+test "$(git -C "$qss_path" config -f .gitmodules \
+  --get "submodule.${qss_auth_relative_path}.url")" = '../private.git'
+test "$(git -C "$qss_path" config -f .gitmodules \
+  --get "submodule.${qss_auth_relative_path}.branch")" = 'auth/main-baseline'
 
 assert_checkout_matches_gitlink "$auth_path"
 assert_checkout_matches_gitlink "$qss_path"
