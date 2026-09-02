@@ -20,6 +20,7 @@
     "lint-staged": "lerna run lint-staged",
     "pull:submodules": "git submodule update --init --recursive --no-fetch --remote",
     "pull:submodules:update": "git submodule update --init --recursive --remote",
+    "test:submodule-policy": "bash ./scripts/validate-audit-submodules.test.sh",
     "build:auth": "cd ./3rd-party/auth && pnpm install && pnpm build",
     "build:noise": "cd ./3rd-party/js-libp2p-noise && npm i && npm run build",
     "build:orbitdb": "cd ./3rd-party/orbitdb && npm i && npm run build:dist && npm run build:debug",
