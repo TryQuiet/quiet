@@ -628,4 +628,53 @@ describe('Message author impersonation (#125, CLIENT-002)', () => {
     createAccess: () => privateAccessController(),
     service: () => privateMessagesService,
   })
+
+  /**
+   * `ChannelStore.init` used to derive the access controller's team as
+   * `channelData.teamId ?? this.auth.team.id`, preferring the channel metadata. That metadata is
+   * replicated, so for every channel this node learns about rather than creates, a peer chooses the
+   * value. An attacker could publish channel metadata naming any team and then send messages stamped
+   * with that same id, leaving `encryptedMessage.teamId !== config.teamId` comparing two values they
+   * supplied. The team a message is authorized against has to come from the local chain.
+   */
+  describe('access controller team binding', () => {
+    const FOREIGN_TEAM_ID = 'foreign-team-id'
+
+    /** Init the production store over a channel whose replicated metadata names a foreign team. */
+    const configFromForeignMetadata = async (channel: PublicChannel): Promise<{ teamId: string }> => {
+      const recorded: { teamId: string }[] = []
+      const recorder = {
+        createAccessControllerFunc: (config: { teamId: string }) => {
+          recorded.push(config)
+          const accessController: any = () => ({})
+          accessController.type = 'author-impersonation-test-access'
+          return accessController
+        },
+      }
+      const store = new ChannelStore(
+        { open: async () => ({ events: new EventEmitter(), sync: { start: async () => {} } }) } as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        alice.sigchainService,
+        recorder as never,
+        recorder as never
+      )
+
+      await store.init({ ...channel, teamId: FOREIGN_TEAM_ID }, { sync: false })
+      expect(recorded).toHaveLength(1)
+      return recorded[0]
+    }
+
+    it.each([
+      ['public channel', () => publicChannel],
+      ['private channel', () => privateChannel],
+    ])('binds a %s to the local sigchain team, not to the replicated channel metadata', async (_label, channel) => {
+      const config = await configFromForeignMetadata(channel())
+
+      expect(config.teamId).toEqual(teamId)
+      expect(config.teamId).not.toEqual(FOREIGN_TEAM_ID)
+    })
+  })
 })
