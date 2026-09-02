@@ -1,4 +1,3 @@
-import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put } from 'typed-redux-saga'
 
 import { messagesActions } from '../messages.slice'
@@ -12,7 +11,7 @@ import { userProfileSelectors } from '../../users/userProfile/userProfile.select
 const logger = createLogger('verifyMessagesSaga')
 
 export function* verifyMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>>['payload']
+  action: ReturnType<typeof messagesActions.addMessages> | ReturnType<typeof messagesActions.verifyMessages>
 ): Generator {
   const messages: ChannelMessage[] = action.payload.messages
 
