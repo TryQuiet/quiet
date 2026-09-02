@@ -69,7 +69,9 @@ describe('roles', () => {
   it('should grant the MEMBER role when admitting the second user', () => {
     expect(secondSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
     expect(secondSigChain.roles.canICreateRole()).toBe(false)
-    expect(secondSigChain.roles.canIAddMembersToRole(RoleName.MEMBER)).toBe(true)
+    // A plain member may hold MEMBER but may not put anyone *else* in it. MEMBER being
+    // self-assignable grants self-assignment only; adding another member is an admin act.
+    expect(secondSigChain.roles.canIAddMembersToRole(RoleName.MEMBER)).toBe(false)
     expect(secondSigChain.roles.canIRemoveMembersFromRole(RoleName.MEMBER)).toBe(false)
     expect(secondSigChain.roles.canIDeleteRole(RoleName.MEMBER)).toBe(false)
   })
