@@ -578,7 +578,12 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       true
     )
     const admission = InviteService.createMemberAdmission({ seed: inviteResult.seed, context: sigchain.context })
-    adminSigchainService.activeChain.invites.admitMemberFromInvite(admission)
+    // Admit the user onto the graph *without* granting the MEMBER role. `admitMemberFromInvite`
+    // also calls `roles.addMember(..., MEMBER)`, which would put the MEMBER role keys in a lockbox
+    // addressed to this peer -- exactly the keys channel metadata is encrypted to -- so the
+    // "cannot decrypt" assertion below would no longer be testing anything. The MEMBER role is
+    // granted later, over the libp2p connection, as the comment above describes.
+    adminSigchainService.activeChain.invites.admitUser(admission)
     const teamBytes = adminSigchainService.activeChain.save()
     const teamKeyring = adminSigchainService.activeChain.team!.teamKeyring()
     expect(teamKeyring).toBeDefined()
