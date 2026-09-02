@@ -169,4 +169,39 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
         XCTAssertTrue(NSENotificationFailurePolicy.isRetryable(RetryableTestError.missingKey))
         XCTAssertFalse(NSENotificationFailurePolicy.isRetryable(NSEMessageAuthenticationError.invalidSignature))
     }
+
+    func testMissingKeyEventuallyAdvancesPastInvalidEntryAndDeliversLaterEntry() {
+        var cursor: Int64 = 10
+        var presented: [Int64] = []
+
+        for failureCount in 1...(NSENotificationRetryPolicy.maxMissingKeyFailures + 1) {
+            let outcome: NSENotificationProcessingOutcome =
+                NSENotificationRetryPolicy.shouldRetryMissingKey(failureCount: failureCount)
+                    ? .deliveryFailed
+                    : .rejected
+            cursor = NSENotificationCursorPolicy.cursor(after: cursor, processing: 11, outcome: outcome)
+
+            if cursor == 11 {
+                presented.append(12)
+                cursor = NSENotificationCursorPolicy.cursor(after: cursor, processing: 12, outcome: .delivered)
+            }
+        }
+
+        XCTAssertEqual(cursor, 12)
+        XCTAssertEqual(presented, [12])
+    }
+
+    func testMissingKeyRetryStatePersistsPerTeamAndResetsForNewSequence() {
+        let teamA = "missing-key-retry-team-a-\(UUID().uuidString)"
+        let teamB = "missing-key-retry-team-b-\(UUID().uuidString)"
+
+        XCTAssertEqual(SharedDefaults.recordMissingNotificationKeyFailure(teamId: teamA, syncSeq: 11), 1)
+        XCTAssertEqual(SharedDefaults.recordMissingNotificationKeyFailure(teamId: teamA, syncSeq: 11), 2)
+        XCTAssertEqual(SharedDefaults.recordMissingNotificationKeyFailure(teamId: teamB, syncSeq: 4), 1)
+        XCTAssertEqual(SharedDefaults.recordMissingNotificationKeyFailure(teamId: teamA, syncSeq: 11), 3)
+        XCTAssertEqual(SharedDefaults.recordMissingNotificationKeyFailure(teamId: teamA, syncSeq: 12), 1)
+
+        SharedDefaults.clearMissingNotificationKeyFailure(teamId: teamA, syncSeq: 12)
+        SharedDefaults.clearMissingNotificationKeyFailure(teamId: teamB, syncSeq: 4)
+    }
 }

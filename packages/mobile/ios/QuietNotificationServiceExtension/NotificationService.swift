@@ -185,9 +185,20 @@ class NotificationService: UNNotificationServiceExtension {
 
                 for (index, processedEntry) in processedEntries.enumerated() {
                     if processedEntry.retryableFailure {
-                        break
-                    }
-                    guard let message = processedEntry.message else {
+                        let failureCount = SharedDefaults.recordMissingNotificationKeyFailure(
+                            teamId: teamId,
+                            syncSeq: processedEntry.entry.syncSeq
+                        )
+                        if NSENotificationRetryPolicy.shouldRetryMissingKey(failureCount: failureCount) {
+                            break
+                        }
+                        // A structurally valid entry can name a generation that will never exist.
+                        // After a bounded keychain-propagation window, consume it as rejected so it
+                        // cannot pin every later notification forever.
+                        SharedDefaults.clearMissingNotificationKeyFailure(
+                            teamId: teamId,
+                            syncSeq: processedEntry.entry.syncSeq
+                        )
                         lastProcessedSeq = NSENotificationCursorPolicy.cursor(
                             after: lastProcessedSeq,
                             processing: processedEntry.entry.syncSeq,
@@ -196,6 +207,24 @@ class NotificationService: UNNotificationServiceExtension {
                         pendingSyncSeq = lastProcessedSeq
                         continue
                     }
+                    guard let message = processedEntry.message else {
+                        SharedDefaults.clearMissingNotificationKeyFailure(
+                            teamId: teamId,
+                            syncSeq: processedEntry.entry.syncSeq
+                        )
+                        lastProcessedSeq = NSENotificationCursorPolicy.cursor(
+                            after: lastProcessedSeq,
+                            processing: processedEntry.entry.syncSeq,
+                            outcome: .rejected
+                        )
+                        pendingSyncSeq = lastProcessedSeq
+                        continue
+                    }
+
+                    SharedDefaults.clearMissingNotificationKeyFailure(
+                        teamId: teamId,
+                        syncSeq: processedEntry.entry.syncSeq
+                    )
 
                     let nextBadge = NSNumber(value: storedBadgeCount + displayedCount + 1)
                     if let lastDisplayableIndex, index == lastDisplayableIndex {

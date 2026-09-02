@@ -168,7 +168,7 @@ class QssCryptoServiceTest {
                 )
             },
             present = { entry, _ -> presented += entry.syncSeq },
-            isPermanentRejection = { it !is MissingQssNotificationKeyException },
+            isPermanentRejection = { _, error -> error !is MissingQssNotificationKeyException },
         )
 
         assertEquals(2L, cursor)

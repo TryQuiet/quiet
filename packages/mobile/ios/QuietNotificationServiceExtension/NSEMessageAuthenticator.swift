@@ -39,6 +39,14 @@ enum NSENotificationFailurePolicy {
     }
 }
 
+enum NSENotificationRetryPolicy {
+    static let maxMissingKeyFailures = 3
+
+    static func shouldRetryMissingKey(failureCount: Int) -> Bool {
+        (1...maxMissingKeyFailures).contains(failureCount)
+    }
+}
+
 enum NSENotificationPresentation {
     static func title(channelName: String, authenticatedAuthor: String) -> String {
         "\(authenticatedAuthor) in #\(channelName)"

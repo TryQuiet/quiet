@@ -11,12 +11,18 @@ import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 
+internal const val MAX_MISSING_NOTIFICATION_KEY_FAILURES = 3
+
+internal fun shouldRetryMissingNotificationKey(failureCount: Int): Boolean =
+    failureCount in 1..MAX_MISSING_NOTIFICATION_KEY_FAILURES
+
 internal fun <T> processContiguousQssEntries(
     afterSeq: Long,
     entries: List<LogEntry>,
     authenticate: (LogEntry) -> T?,
     present: (LogEntry, T) -> Unit,
-    isPermanentRejection: (Exception) -> Boolean = { true },
+    isPermanentRejection: (LogEntry, Exception) -> Boolean = { _, _ -> true },
+    onAuthenticated: (LogEntry) -> Unit = {},
     onRejected: (LogEntry, Exception) -> Unit = { _, _ -> },
     onRetryableFailure: (LogEntry, Exception, Long) -> Unit = { _, _, _ -> },
     onPresentationFailure: (LogEntry, Exception, Long) -> Unit = { _, _, _ -> },
@@ -36,7 +42,7 @@ internal fun <T> processContiguousQssEntries(
             try {
                 authenticate(entry)
             } catch (error: Exception) {
-                if (!isPermanentRejection(error)) {
+                if (!isPermanentRejection(entry, error)) {
                     onRetryableFailure(entry, error, lastProcessedSeq)
                     break
                 }
@@ -47,6 +53,7 @@ internal fun <T> processContiguousQssEntries(
                 continue
             }
 
+        onAuthenticated(entry)
         if (message == null) {
             lastProcessedSeq = entry.syncSeq
             continue
@@ -160,8 +167,19 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
                         notificationHandler.notify(payload, nickname)
                     }
                 },
-                isPermanentRejection = { error -> error !is MissingQssNotificationKeyException },
+                isPermanentRejection = { entry, error ->
+                    if (error !is MissingQssNotificationKeyException) {
+                        true
+                    } else {
+                        val failureCount = QuietStorage.recordMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                        !shouldRetryMissingNotificationKey(failureCount)
+                    }
+                },
+                onAuthenticated = { entry ->
+                    QuietStorage.clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                },
                 onRejected = { entry, error ->
+                    QuietStorage.clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
                     Log.e(TAG, "Rejecting invalid QSS log entry ${entry.cid}", error)
                 },
                 onRetryableFailure = { entry, error, cursor ->
