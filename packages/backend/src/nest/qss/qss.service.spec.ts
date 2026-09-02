@@ -906,7 +906,7 @@ describe('QSSService', () => {
     // device credentials were only emitted from handleChainUpdate, so a device that
     // joined and then saw no membership changes threw
     // "Missing QSS device id in QuietStorage" on every push and rendered no notification.
-    it('emits device credentials on successful sign in, without any sigchain mutation', async () => {
+    it('emits device credentials and native keys on successful sign in, without any sigchain mutation', async () => {
       const originalPlatform = process.platform
       const originalQpsAllowed = process.env.QPS_ALLOWED
       Object.defineProperty(process, 'platform', { value: 'android' })
@@ -926,11 +926,13 @@ describe('QSSService', () => {
         sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const updateDeviceCredentialsSpy = jest.spyOn(sigchainService, 'updateDeviceCredentials')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
 
         await qssService.connect('wss://community.example/ws')
         await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
 
         expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id)
+        expect(updateKeysSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id)
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
         process.env.QPS_ALLOWED = originalQpsAllowed

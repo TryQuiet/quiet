@@ -147,7 +147,7 @@ export class SigChainService extends EventEmitter {
   private handleChainUpdate = async (teamId: string) => {
     this.saveChain(teamId)
     this.logger.info('Chain updated, emitted updated event')
-    void this._updateKeysOnChainUpdate(teamId).catch(err => {
+    void this.updateKeysInNativeStorage(teamId).catch(err => {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
     this.updateDeviceCredentials(teamId)
@@ -159,9 +159,15 @@ export class SigChainService extends EventEmitter {
   }
 
   /**
-   * Update mobile native storage with any new keys on chain update.
+   * Update mobile native storage with any new keys.
+   *
+   * Like updateDeviceCredentials, this must run on steady state (QSS sign-in),
+   * not only on chain mutation: the native push handler needs the LFA role keys
+   * to decrypt fetched entries, and a device that joined and then saw no chain
+   * update would otherwise throw MissingQssNotificationKeyException on every push.
+   * Idempotent - keys already recorded in the local keychain ledger are not resent.
    */
-  private async _updateKeysOnChainUpdate(teamId: string): Promise<void> {
+  public async updateKeysInNativeStorage(teamId: string): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') {
       this.logger.trace('Skipping key update because we are not on mobile, current platform =', process.platform)
