@@ -204,10 +204,10 @@ type Admission = 'accepted' | 'rejected-by-access-control' | 'rejected-by-signat
  * Mirrors what OrbitDB does when an entry arrives (`Log.joinEntry` in @orbitdb/core): the access
  * controller authorizes the writer first, then the entry signature is verified.
  *
- * Since the writer chokepoint verifies the signature itself, `rejected-by-signature` should now be
- * unreachable through any access controller: whatever OrbitDB's second pass would catch, `canAppend`
- * has already caught. Tests below assert `rejected-by-access-control` rather than merely "not
- * accepted" wherever that distinction is the point.
+ * Since the writer chokepoint verifies the signature itself, `rejected-by-signature` is unreachable
+ * through any access controller: whatever OrbitDB's second pass would catch, `canAppend` has already
+ * caught. Every substitution below is asserted as `rejected-by-access-control`, never as merely "not
+ * accepted", so that guarantee cannot quietly regress into relying on OrbitDB.
  */
 const admit = async (access: any, verifier: Party, entry: LogEntry<any>): Promise<Admission> => {
   if (!(await access.canAppend(entry))) return 'rejected-by-access-control'
@@ -280,6 +280,16 @@ describe('OrbitDB signer substitution (#150)', () => {
     carol = await partyFor(carolChain)
     teamId = aliceChain.team!.id
   })
+
+  /**
+   * Every substitution has to die in `canAppend`, with no help from the signature pass OrbitDB runs
+   * afterwards. A caller that authorizes on the writer the access controller resolved gets no second
+   * chance, so "the entry was eventually refused" is not a strong enough claim to assert.
+   */
+  const expectRejectedByCanAppendAlone = async (access: any, entry: LogEntry<any>): Promise<void> => {
+    await expect(access.canAppend(entry)).resolves.toBe(false)
+    await expect(admit(access, alice, entry)).resolves.toEqual('rejected-by-access-control')
+  }
 
   it('builds a team where only Alice holds the privileges under attack', () => {
     const chain = alice.chain
@@ -423,9 +433,7 @@ describe('OrbitDB signer substitution (#150)', () => {
     it.each(VARIANTS)('rejects a public channel deletion by Bob claiming Alice, using %s', async (_name, variant) => {
       const access = await createAccess(true)
 
-      await expect(admit(access, alice, await substituted(bob, alice, variant, publicDel))).resolves.not.toEqual(
-        'accepted'
-      )
+      await expectRejectedByCanAppendAlone(access, await substituted(bob, alice, variant, publicDel))
     })
 
     it('rejects the executed proof of concept in canAppend alone, with no help from OrbitDB', async () => {
@@ -473,9 +481,7 @@ describe('OrbitDB signer substitution (#150)', () => {
       const access = await createAccess(true)
       attachEmptyLog(access)
 
-      await expect(admit(access, alice, await substituted(bob, alice, variant, channelPut(bob)))).resolves.not.toEqual(
-        'accepted'
-      )
+      await expectRejectedByCanAppendAlone(access, await substituted(bob, alice, variant, channelPut(bob)))
     })
 
     // Scenario 4: private channel metadata DEL, claiming a principal the chain lets delete it.
@@ -491,9 +497,7 @@ describe('OrbitDB signer substitution (#150)', () => {
     it.each(VARIANTS)('rejects a private channel deletion by Bob claiming Alice, using %s', async (_name, variant) => {
       const access = await createAccess(false, { [PRIVATE_CHANNEL_ID]: privateChannelRole })
 
-      await expect(admit(access, alice, await substituted(bob, alice, variant, privateDel))).resolves.not.toEqual(
-        'accepted'
-      )
+      await expectRejectedByCanAppendAlone(access, await substituted(bob, alice, variant, privateDel))
     })
   })
 
@@ -588,9 +592,7 @@ describe('OrbitDB signer substitution (#150)', () => {
       async (_name, variant) => {
         const access = await createAccess()
 
-        await expect(
-          admit(access, alice, await substituted(bob, carol, variant, deleteCarolsProfile()))
-        ).resolves.not.toEqual('accepted')
+        await expectRejectedByCanAppendAlone(access, await substituted(bob, carol, variant, deleteCarolsProfile()))
       }
     )
 
@@ -599,9 +601,7 @@ describe('OrbitDB signer substitution (#150)', () => {
       async (_name, variant) => {
         const access = await createAccess()
 
-        await expect(
-          admit(access, alice, await substituted(bob, alice, variant, deleteCarolsProfile()))
-        ).resolves.not.toEqual('accepted')
+        await expectRejectedByCanAppendAlone(access, await substituted(bob, alice, variant, deleteCarolsProfile()))
       }
     )
   })
@@ -672,7 +672,7 @@ describe('OrbitDB signer substitution (#150)', () => {
         const access = await createAccess()
         const entry = await substituted(bob, alice, variant, { op: OrbitDbOp.PUT, value: forgedMessage() })
 
-        await expect(admit(access, alice, entry)).resolves.not.toEqual('accepted')
+        await expectRejectedByCanAppendAlone(access, entry)
       }
     )
   })
@@ -711,9 +711,7 @@ describe('OrbitDB signer substitution (#150)', () => {
     it.each(VARIANTS)('rejects a message Bob signs but attributes to Alice, using %s', async (_name, variant) => {
       const access = await createAccess()
 
-      await expect(admit(access, alice, await substituted(bob, alice, variant, message(bob)))).resolves.not.toEqual(
-        'accepted'
-      )
+      await expectRejectedByCanAppendAlone(access, await substituted(bob, alice, variant, message(bob)))
     })
 
     it('applies a restricted write list to the verified writer, not the claimed one', async () => {
@@ -724,9 +722,7 @@ describe('OrbitDB signer substitution (#150)', () => {
         'rejected-by-access-control'
       )
       for (const [, variant] of VARIANTS) {
-        await expect(admit(access, alice, await substituted(bob, alice, variant, message(bob)))).resolves.not.toEqual(
-          'accepted'
-        )
+        await expectRejectedByCanAppendAlone(access, await substituted(bob, alice, variant, message(bob)))
       }
     })
   })
