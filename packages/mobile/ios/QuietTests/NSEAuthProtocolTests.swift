@@ -254,23 +254,27 @@ final class NSEAuthProtocolTests: XCTestCase {
         )
     }
 
-    /// Generated with msgpackr 1.11.5 and libsodium using deterministic
-    /// nonces. Both the outer OrbitDB payload and inner channel message are
-    /// authenticated secretbox ciphertexts under FixedLFAKeyReader's key.
+    /// Generated with msgpackr-compatible map encoding and libsodium using
+    /// deterministic nonces. The channel plaintext is also signed under the
+    /// `lf/auth/team-message` domain by FixedLFAKeyReader's USER key.
     private static let encryptedLogEntry = Data(hex:
-        "de0001a9656e63727970746564de0002a8636f6e74656e7473c501a5de0004a56e6f6e6365c418" +
-        "1f202122232425262728292a2b2c2d2e2f30313233343536a3746167c420b0d9f45b9b4da8b1d5" +
-        "a33a1166c2d2105e4467795dfd16f5652a0ad7a6f46aa1a76d657373616765c5013b49699b2980" +
-        "c2f27d893976fe8bae70115a200775979050216efd21f584635e229ed787d3132488542be3f9dec" +
-        "996d1ae5ddfc04787c2e24012ce9b3aacaa2d4a58109b1a855310404d9e1b9e2d7e3348615e0a" +
-        "9e830551dd4fbbc677896269bc9c15a6144990b7fd0f672a7e5c339218f8f09340958529da3559" +
-        "235baa55387cefaad6f6142bf7a80ebac3eb0934e2a3b22514f7912d6bb8b730f955cf05467542" +
-        "4f049b6633c7956ee5952d3f8109d45c340f6464e61b44ea629811df94315a14126edc999a55c" +
-        "748d20a2170163b7404d69721d97693f0bf34055bf88860651ccb9ca2c7315ec3efb001c1ae150" +
-        "9611437a1096fef927a296e81b4cd700e79f0bf1363b7df004f1712cd37c4d7d0015c74abc2695" +
-        "2e3e04c1ed90b2466679f20ea514f91996d145d1c8e2f49a2085ed7c1833a3d36a1041e57b8a" +
-        "36d6163c41057063ca3f553750badf49046950a8cb5a573636f7065de0003a474797065a4544541" +
-        "4da46e616d65a45445414daa67656e65726174696f6e00"
+        "de0001a9656e63727970746564de0002a8636f6e74656e7473c502ccde0004a56e6f6e6365c418191a1b1c1d1e1f2021" +
+        "22232425262728292a2b2c2d2e2f30a3746167c4200fb0b2235027ec26019c92945409dace011ad747718a111f5cf3d9" +
+        "8923b26666a76d657373616765c5026238c6b5e5cb8081c15f93d18202085ba8d536819663b46d750a7de44ed53eadcd" +
+        "a0858710de9ecee10686e895262b86fec2c95fdb79f8dacddd943f08422a46997f21a2873c8770f2beb121cd2889f9b5" +
+        "9a6f2dbc8e2796d9f81c76d864aa3c521632323be3dd13e45ef6300b85c6442cd272569eced5438f6345bec864f06437" +
+        "417c3abfb122e7ef454cb72c464b3a94598aa420e5395ae85a7e4e77a8d6a7d7ab5394d5ecc43d5bf05ea39e6e62571e" +
+        "15f6da0e998e6aaf0affca1de1753a9110eebc9b2fff6dd1f00a28de5b8ca1f3887d7477aa664cb61ef63f2e54193ca8" +
+        "e8f187374743827176b71fe4e4c08360b4d541bdf3f3e4d80f3f73c15a0c7536b552e581b570a49aa1fd4a3fb6cedc8a" +
+        "9d9ff19a432dc66dca3ba5d0b6b06eabd3069cafbd48a9afbda4c15482c8cfdf3a786e7fada6f368541e20666d8634a5" +
+        "d440337c5f767c8646ad4648a9841d88d1b2833c80f94548816fa041d6ebfb76891e59c9e70fcdaa1403589b60468a3a" +
+        "0fdb23aa7c20cf01efb272865bd3466486582deee4049caea4e58a365ea3fdb0934b7e1425ffc90781c6256a3e607e7f" +
+        "99d78fe83c6097fd8980b7f41dcbe9dae303043c949b83381df050f728a9fb2a655b4593ae420ae92aadd4d556b90aee" +
+        "561e48d6ce8d0f74e4f483a1a38bff0da1004553b24aa29e79276bb321d65b604e4f1cc0d2d786ca2df9e046521e72ff" +
+        "12cd43a197995c6825bce677249b3e70d91b0df73fd00b7ae7150453acf22a0f4d036bbfab43da949e7f1fb9142e02e5" +
+        "5c555c8b10a29c4437fc176883593fd64dd2b04a1c237966561f6c3ddf87b0229e4b65d53594379db959010cd8092de4" +
+        "f418a36d6163c41015a2ac59748b23fb53ed4313bc27cebfa573636f7065de0003a474797065a45445414da46e616d65" +
+        "a45445414daa67656e65726174696f6e00"
     )
 }
 
@@ -344,10 +348,14 @@ private enum FixedQSSError: Error {
 
 private struct FixedLFAKeyReader: NSELFAKeyReading {
     func lfaKeyString(keyName: String) throws -> String {
-        guard keyName == "quiet_team-test-1_TEAM_TEAM_0_secret" else {
+        switch keyName {
+        case "quiet_team-test-1_TEAM_TEAM_0_secret":
+            return "0123456789abcdef0123456789abcdef"
+        case "quiet_team-test-1_USER_user-alice_0_userSig":
+            return "3J7vYeD99DJiP2mjAkCgtxBk6Pkx4CXEDNsgz3Vc7Ted"
+        default:
             throw FixedQSSError.unexpectedKey(keyName)
         }
-        return "0123456789abcdef0123456789abcdef"
     }
 }
 

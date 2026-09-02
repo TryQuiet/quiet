@@ -118,7 +118,7 @@ class NotificationService: UNNotificationServiceExtension {
                     )
                 },
                 channelName: { Self.getChannelName(teamId: teamId, channelId: $0) },
-                authenticatedAuthor: Self.getNickname,
+                authenticatedAuthor: { Self.getNickname(userId: $0) },
                 storedBadge: SharedDefaults.getBadgeCount,
                 saveBadge: SharedDefaults.setBadgeCount,
                 recordMissingNotificationKeyFailure: SharedDefaults.recordMissingNotificationKeyFailure,
