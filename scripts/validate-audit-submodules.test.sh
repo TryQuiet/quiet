@@ -23,7 +23,11 @@ git -C "$source_root" worktree add --detach "$fixture_root" HEAD >/dev/null
 )
 
 client_auth="$(git -C "$fixture_root" rev-parse 'HEAD:3rd-party/auth')"
-mismatched_auth="$(git -C "$fixture_root" rev-parse "${client_auth}^")"
+# The validator intentionally creates a depth-one Auth checkout. Deepen only
+# this disposable fixture far enough to obtain a different, still-fetchable
+# Auth commit for the mismatch case.
+git -C "$fixture_root/3rd-party/auth" fetch --deepen=1 origin "$client_auth" >/dev/null
+mismatched_auth="$(git -C "$fixture_root/3rd-party/auth" rev-parse "${client_auth}^")"
 test "$mismatched_auth" != "$client_auth"
 
 git -C "$fixture_root" update-index \
