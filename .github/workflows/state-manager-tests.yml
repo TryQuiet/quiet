@@ -3,6 +3,10 @@ name: State-manager tests
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   state-manager-tests:
     timeout-minutes: 25

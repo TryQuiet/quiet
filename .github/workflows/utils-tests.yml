@@ -5,6 +5,10 @@ on:
     paths:
       - packages/common/**
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   utils-tests:
     timeout-minutes: 25
