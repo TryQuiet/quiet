@@ -252,9 +252,6 @@ export interface GetCaptchaSiteKeyResponse extends BaseWebsocketMessage<GetCaptc
 
 export interface SendPushPayload {
   ucan: string
-  title?: string
-  body?: string
-  data?: Record<string, string>
 }
 
 export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
@@ -264,7 +261,6 @@ export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
 export interface SendPushResponse extends BaseWebsocketMessage<undefined> {}
 
 export interface SendBatchPushPayload {
-  teamId: string
   ucans: string[]
 }
 
