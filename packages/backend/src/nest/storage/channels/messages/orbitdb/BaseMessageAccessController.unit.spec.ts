@@ -70,11 +70,23 @@ describe('BaseMessagesAccessController address handling', () => {
       identities: {
         getIdentity: async () => ({ id: 'alice', publicKey: 'alice-public-key' }),
         verifyIdentity: async () => true,
+        // A valid signature, so the rejection below can only come from the key mismatch.
+        verify: async () => true,
       },
     })
 
     await expect(
-      access.canAppend({ identity: 'alice-identity', key: 'attacker-public-key', payload: { value: {} } })
+      access.canAppend({
+        id: 'message-log',
+        identity: 'alice-identity',
+        key: 'attacker-public-key',
+        sig: 'attacker-signature',
+        next: [],
+        refs: [],
+        clock: { id: 'attacker-public-key', time: 1 },
+        v: 2,
+        payload: { value: {} },
+      })
     ).resolves.toBe(false)
   })
 })

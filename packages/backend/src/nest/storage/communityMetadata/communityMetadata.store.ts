@@ -1,5 +1,4 @@
 import {
-  Entry,
   type LogEntry,
   type IdentityProvider,
   type IdentitiesType,
@@ -232,6 +231,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
         return false
       }
 
+      // This also verifies the entry signature, so a writer coming back here is authenticated.
       const writerIdentity = await getVerifiedEntryWriter(identities, entry)
       if (writerIdentity == null) {
         logger.error('Failed to verify community metadata entry:', entry.hash, 'entry writer verification failed')
@@ -239,12 +239,6 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
       }
       if (writerIdentity.id !== ownerOrbitDbIdentity) {
         logger.error('Failed to verify community metadata entry:', entry.hash, 'entry identity != owner identity')
-        return false
-      }
-
-      const entryVerified = await Entry.verify(identities, entry)
-      if (!entryVerified) {
-        logger.error('Failed to verify community metadata entry:', entry.hash, 'invalid entry signature')
         return false
       }
 

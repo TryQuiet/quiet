@@ -1,24 +1,39 @@
-import { type IdentitiesType, type LogEntry } from '@orbitdb/core'
+import { Entry, type IdentitiesType, type LogEntry } from '@orbitdb/core'
 import { createLogger } from '../../../../common/logger'
 import { LFAIdentity } from './types'
 
 const logger = createLogger('orbitdb:identity:lfa:entry-writer')
 
 /**
- * Resolve and verify the writer of an OrbitDB entry.
+ * Resolve and authenticate the writer of an OrbitDB entry.
  *
- * OrbitDB carries the writer identity (`entry.identity`) and the signing key (`entry.key`) as two
- * separate fields and verifies the entry signature against `entry.key` alone, so an entry can claim
- * one identity while being signed by another. This is the single place that binds the two: the
- * identity the entry names must declare exactly the key the entry was signed with, and that identity
- * must verify against the sigchain. Every consumer that authorizes anything by writer ID must go
- * through here rather than calling `getIdentity` directly.
+ * OrbitDB carries the writer identity (`entry.identity`), the signing key (`entry.key`) and the
+ * signature (`entry.sig`) as three separate fields, and the signature covers none of the first two.
+ * An entry can therefore claim one identity, be attributed to a second key and be signed by a third
+ * party. This is the single place that ties all three together. A returned writer means all of:
  *
- * @returns The verified writer identity, or undefined if the entry's writer cannot be trusted
+ *   - the signature is valid over the entry's canonical bytes under `entry.key`;
+ *   - `entry.key` is the registered signing key of the device the identity names;
+ *   - that device belongs to the user the identity claims;
+ *   - that user is a current member of the team.
+ *
+ * The returned principal is therefore authenticated, not merely claimed, so a caller may authorize
+ * on `writer.id` with nothing further. In particular an access controller's `canAppend` rejects
+ * every signer substitution on its own, without relying on any later check.
+ *
+ * OrbitDB's own join path verifies the signature a second time (`Log.joinEntry` runs `canAppend` and
+ * then `Entry.verify`). That duplication is deliberate: it keeps this function's guarantee true for
+ * every caller, including the store validators that never go through `Log.joinEntry`, rather than
+ * leaving one layer's correctness contingent on another's.
+ *
+ * Every consumer that authorizes anything by writer ID must go through here rather than calling
+ * `getIdentity` directly.
+ *
+ * @returns The authenticated writer identity, or undefined if the entry's writer cannot be trusted
  */
 export const getVerifiedEntryWriter = async (
   identities: IdentitiesType,
-  entry: Pick<LogEntry, 'identity' | 'key' | 'hash'>
+  entry: LogEntry
 ): Promise<LFAIdentity | undefined> => {
   let writer: LFAIdentity | undefined
   try {
@@ -35,6 +50,20 @@ export const getVerifiedEntryWriter = async (
     return undefined
   }
   if (!(await identities.verifyIdentity(writer as any))) {
+    return undefined
+  }
+  // The identity and the key agree with the chain at this point, but nothing yet says the holder of
+  // that key produced this entry. Without this, an entry signed by one member and relabelled with
+  // another member's identity and key still resolves to that other member.
+  let signatureIsValid: boolean
+  try {
+    signatureIsValid = await Entry.verify(identities, entry)
+  } catch (e) {
+    logger.warn(`Could not verify the signature of entry ${entry.hash}`, e)
+    return undefined
+  }
+  if (!signatureIsValid) {
+    logger.warn(`Entry ${entry.hash} was not signed by the device its identity names`)
     return undefined
   }
   return writer

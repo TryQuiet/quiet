@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { Entry, type LogEntry, useAccessController as orbitDbUseAccessController } from '@orbitdb/core'
+import { type LogEntry, useAccessController as orbitDbUseAccessController } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import {
   ChannelMessage,
@@ -495,18 +495,10 @@ export class ChannelsService extends EventEmitter {
       return undefined
     }
 
+    // This also verifies the entry signature, so a writer coming back here is authenticated.
     const writerIdentity = await getVerifiedEntryWriter(identities as any, entry)
     if (writerIdentity == null) {
       this.logger.error(`Failed to validate channel ${operation} entry: entry writer verification failed:`, entry.hash)
-      return undefined
-    }
-
-    const entryVerified = await Entry.verify(identities as any, entry)
-    if (!entryVerified) {
-      this.logger.error(
-        `Failed to validate channel ${operation} entry: entry signature verification failed:`,
-        entry.hash
-      )
       return undefined
     }
 
