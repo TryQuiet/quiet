@@ -9,6 +9,8 @@ struct SharedDefaults {
 
     static let lastSyncSeqKey     = "quiet.nse.lastSyncSeq"
     static let lastSyncTeamIdKey  = "quiet.nse.lastSyncTeamId"
+    static let missingKeyRetrySeqByTeamKey = "quiet.nse.missingKeyRetrySeqByTeam"
+    static let missingKeyRetryCountByTeamKey = "quiet.nse.missingKeyRetryCountByTeam"
     static let qssUrlsKey         = "quiet.nse.qssUrls"
     static let qssFallbackUrlKey  = "quiet.nse.qssFallbackUrl"
     static let badgeCountKey      = "quiet.nse.badgeCount"
@@ -60,6 +62,31 @@ struct SharedDefaults {
         defaults.set(teamId, forKey: lastSyncTeamIdKey)
     }
 
+    /// Record the one entry that can currently block each team's contiguous NSE cursor. A
+    /// different sequence resets that team's counter without disturbing another team's retries.
+    static func recordMissingNotificationKeyFailure(teamId: String, syncSeq: Int64) -> Int {
+        var sequences = defaults.dictionary(forKey: missingKeyRetrySeqByTeamKey) ?? [:]
+        var counts = defaults.dictionary(forKey: missingKeyRetryCountByTeamKey) ?? [:]
+        let previousSequence = (sequences[teamId] as? NSNumber)?.int64Value
+        let previousCount = previousSequence == syncSeq ? (counts[teamId] as? NSNumber)?.intValue ?? 0 : 0
+        let nextCount = previousCount == Int.max ? Int.max : previousCount + 1
+        sequences[teamId] = NSNumber(value: syncSeq)
+        counts[teamId] = NSNumber(value: nextCount)
+        defaults.set(sequences, forKey: missingKeyRetrySeqByTeamKey)
+        defaults.set(counts, forKey: missingKeyRetryCountByTeamKey)
+        return nextCount
+    }
+
+    static func clearMissingNotificationKeyFailure(teamId: String, syncSeq: Int64) {
+        var sequences = defaults.dictionary(forKey: missingKeyRetrySeqByTeamKey) ?? [:]
+        guard (sequences[teamId] as? NSNumber)?.int64Value == syncSeq else { return }
+        var counts = defaults.dictionary(forKey: missingKeyRetryCountByTeamKey) ?? [:]
+        sequences.removeValue(forKey: teamId)
+        counts.removeValue(forKey: teamId)
+        defaults.set(sequences, forKey: missingKeyRetrySeqByTeamKey)
+        defaults.set(counts, forKey: missingKeyRetryCountByTeamKey)
+    }
+
     // MARK: - QSS URLs
 
     static func getQssUrl(teamId: String) -> URL? {
@@ -92,6 +119,8 @@ struct SharedDefaults {
     static func clearAll() {
         defaults.removeObject(forKey: lastSyncSeqKey)
         defaults.removeObject(forKey: lastSyncTeamIdKey)
+        defaults.removeObject(forKey: missingKeyRetrySeqByTeamKey)
+        defaults.removeObject(forKey: missingKeyRetryCountByTeamKey)
         defaults.removeObject(forKey: qssUrlsKey)
         defaults.removeObject(forKey: badgeCountKey)
     }

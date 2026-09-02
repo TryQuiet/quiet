@@ -160,6 +160,16 @@ object MsgpackEncoder {
         return out.toByteArray()
     }
 
+    /** Matches msgpackr.pack([context, payload]) without re-encoding payload. */
+    fun withSignatureContext(context: String, plaintext: ByteArray): ByteArray {
+        require(context.isNotEmpty()) { "Signature context must not be empty" }
+        val out = ByteArrayOutputStream()
+        out.write(0x92) // fixarray(2)
+        appendString(context, out)
+        out.write(plaintext, 0, plaintext.size)
+        return out.toByteArray()
+    }
+
     private fun appendValue(value: Any?, out: ByteArrayOutputStream) {
         when (value) {
             null -> out.write(0xc0)

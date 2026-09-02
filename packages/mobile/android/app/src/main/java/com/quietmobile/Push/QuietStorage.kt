@@ -7,6 +7,20 @@ import androidx.security.crypto.MasterKey
 import com.apicatalog.base.Base58 as CopperBase58
 import org.json.JSONObject
 
+internal data class MissingNotificationKeyRetryState(
+    val syncSeq: Long,
+    val failureCount: Int,
+)
+
+internal fun nextMissingNotificationKeyRetryState(
+    previous: MissingNotificationKeyRetryState?,
+    syncSeq: Long,
+): MissingNotificationKeyRetryState {
+    val previousCount = if (previous?.syncSeq == syncSeq) previous.failureCount else 0
+    val nextCount = if (previousCount == Int.MAX_VALUE) Int.MAX_VALUE else previousCount + 1
+    return MissingNotificationKeyRetryState(syncSeq, nextCount)
+}
+
 object QuietStorage {
     private const val ENCRYPTED_PREFS_NAME = "quiet.secure.storage"
     private const val REGULAR_PREFS_NAME = "quiet.storage"
@@ -18,6 +32,8 @@ object QuietStorage {
     private const val LAST_SYNC_SEQ_KEY = "quiet.nse.lastSyncSeq"
     private const val LAST_SYNC_TEAM_ID_KEY = "quiet.nse.lastSyncTeamId"
     private const val LAST_SYNC_SEQ_BY_TEAM_PREFIX = "quiet.nse.lastSyncSeq."
+    private const val MISSING_KEY_RETRY_SEQ_BY_TEAM_PREFIX = "quiet.nse.missingKeyRetrySeq."
+    private const val MISSING_KEY_RETRY_COUNT_BY_TEAM_PREFIX = "quiet.nse.missingKeyRetryCount."
     private const val APP_FOREGROUND_KEY = "quiet.app.isForeground"
     private const val TEAM_QSS_ENABLED_KEY = "quiet.qss.team.enabled"
     private const val USER_BACKGROUND_TOR_ENABLED_KEY = "quiet.qss.backgroundTor.enabled"
@@ -128,6 +144,43 @@ object QuietStorage {
         return 0L
     }
 
+    /**
+     * Record a missing notification key for the entry currently blocking this team's cursor.
+     * Only one sequence can block a team's contiguous cursor, so a different sequence resets the
+     * bounded counter instead of growing an attacker-controlled preference map.
+     */
+    @JvmStatic
+    @Synchronized
+    fun recordMissingNotificationKeyFailure(teamId: String, syncSeq: Long): Int {
+        val prefs = regularPrefs()
+        val sequenceKey = missingKeyRetrySeqKey(teamId)
+        val countKey = missingKeyRetryCountKey(teamId)
+        val previous =
+            if (prefs.contains(sequenceKey)) {
+                MissingNotificationKeyRetryState(
+                    prefs.getLong(sequenceKey, -1L),
+                    prefs.getInt(countKey, 0),
+                )
+            } else {
+                null
+            }
+        val next = nextMissingNotificationKeyRetryState(previous, syncSeq)
+        prefs.edit().putLong(sequenceKey, next.syncSeq).putInt(countKey, next.failureCount).apply()
+        return next.failureCount
+    }
+
+    @JvmStatic
+    @Synchronized
+    fun clearMissingNotificationKeyFailure(teamId: String, syncSeq: Long) {
+        val prefs = regularPrefs()
+        val sequenceKey = missingKeyRetrySeqKey(teamId)
+        if (prefs.getLong(sequenceKey, -1L) != syncSeq) return
+        prefs.edit()
+            .remove(sequenceKey)
+            .remove(missingKeyRetryCountKey(teamId))
+            .apply()
+    }
+
     @JvmStatic
     fun setAppForeground(foreground: Boolean) {
         regularPrefs().edit().putBoolean(APP_FOREGROUND_KEY, foreground).apply()
@@ -236,6 +289,10 @@ object QuietStorage {
     }
 
     private fun lastSyncSeqKey(teamId: String): String = "$LAST_SYNC_SEQ_BY_TEAM_PREFIX$teamId"
+
+    private fun missingKeyRetrySeqKey(teamId: String): String = "$MISSING_KEY_RETRY_SEQ_BY_TEAM_PREFIX$teamId"
+
+    private fun missingKeyRetryCountKey(teamId: String): String = "$MISSING_KEY_RETRY_COUNT_BY_TEAM_PREFIX$teamId"
 
     private fun notificationHash(message: String?): String? {
         if (message.isNullOrBlank()) {

@@ -4,9 +4,10 @@ import os.log
 private let nseLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NotificationService")
 
 class NotificationService: UNNotificationServiceExtension {
-    private struct DecryptedEntry {
+    private struct ProcessedEntry {
         let entry: LogEntry
-        let message: NSEDecryptedNotificationMessage
+        let message: NSEDecryptedNotificationMessage?
+        let retryableFailure: Bool
     }
 
     private static let retryDelaysNanoseconds: [UInt64] = [
@@ -32,6 +33,15 @@ class NotificationService: UNNotificationServiceExtension {
         os_log("getChannelName failed: %{public}@", log: nseLog, type: .error, String(describing: error))
         return channelId
       }
+    }
+
+    private static func getNickname(userId: String) -> String {
+        do {
+            return try KeychainService.getNickname(userId: userId)
+        } catch {
+            os_log("getNickname failed: %{public}@", log: nseLog, type: .error, String(describing: error))
+            return userId
+        }
     }
 
     override func didReceive(
@@ -124,27 +134,32 @@ class NotificationService: UNNotificationServiceExtension {
                     lhs.syncSeq < rhs.syncSeq
                 }
 
-                let notificationEntries = sortedEntries
-                let maxSyncSeq = notificationEntries.map(\.syncSeq).max() ?? baselineSeq
-                os_log(
-                    "fetchAndUpdate: staging sync seq=%{public}lld (saved on delivery)",
-                    log: nseLog,
-                    type: .info,
-                    maxSyncSeq
-                )
-                pendingSyncSeq = maxSyncSeq
+                var notificationEntries: [LogEntry] = []
+                var expectedSyncSeq = baselineSeq + 1
+                for entry in sortedEntries {
+                    guard entry.syncSeq == expectedSyncSeq else {
+                        os_log(
+                            "fetchAndUpdate: stopping at non-contiguous sync seq; expected=%{public}lld actual=%{public}lld",
+                            log: nseLog,
+                            type: .error,
+                            expectedSyncSeq,
+                            entry.syncSeq
+                        )
+                        break
+                    }
+                    notificationEntries.append(entry)
+                    expectedSyncSeq += 1
+                }
 
                 guard let content = bestAttemptContent else {
                     os_log("fetchAndUpdate: bestAttemptContent is nil, cannot update badge", log: nseLog, type: .error)
                     return
                 }
 
-                let decryptedEntries = notificationEntries.compactMap { entry -> DecryptedEntry? in
+                let processedEntries = notificationEntries.map { entry -> ProcessedEntry in
                     do {
-                        guard let message = try self.crypto.decryptNotificationMessage(from: entry, teamId: teamId) else {
-                            return nil
-                        }
-                        return DecryptedEntry(entry: entry, message: message)
+                        let message = try self.crypto.decryptNotificationMessage(from: entry, teamId: teamId)
+                        return ProcessedEntry(entry: entry, message: message, retryableFailure: false)
                     } catch {
                         os_log(
                             "fetchAndUpdate: failed to decrypt entry %{public}@: %{public}@",
@@ -153,44 +168,111 @@ class NotificationService: UNNotificationServiceExtension {
                             entry.cid,
                             String(describing: error)
                         )
-                        return nil
+                        if NSENotificationFailurePolicy.isRetryable(error) {
+                            // Keychain propagation can lag behind the push. Preserve this entry for
+                            // a later wake-up rather than treating a valid message as malformed.
+                            return ProcessedEntry(entry: entry, message: nil, retryableFailure: true)
+                        }
+                        // Authentication failures are permanent for this immutable entry. Treat it
+                        // as rejected and consume its sequence so it cannot poison later delivery.
+                        return ProcessedEntry(entry: entry, message: nil, retryableFailure: false)
                     }
                 }
-
-                let badgeIncrement = decryptedEntries.isEmpty ? notificationEntries.count : decryptedEntries.count
                 let storedBadgeCount = SharedDefaults.getBadgeCount()
-                let newBadge = storedBadgeCount + badgeIncrement
-                let badgeNumber = NSNumber(value: newBadge)
-                os_log("fetchAndUpdate: updating badge to %{public}d", log: nseLog, type: .info, newBadge)
-                SharedDefaults.setBadgeCount(newBadge)
+                let lastDisplayableIndex = processedEntries.lastIndex { $0.message != nil }
+                var displayedCount = 0
+                var lastProcessedSeq = baselineSeq
 
-                if let latestDecryptedEntry = decryptedEntries.last {
-                    for decryptedEntry in decryptedEntries.dropLast() {
+                for (index, processedEntry) in processedEntries.enumerated() {
+                    if processedEntry.retryableFailure {
+                        let failureCount = SharedDefaults.recordMissingNotificationKeyFailure(
+                            teamId: teamId,
+                            syncSeq: processedEntry.entry.syncSeq
+                        )
+                        if NSENotificationRetryPolicy.shouldRetryMissingKey(failureCount: failureCount) {
+                            break
+                        }
+                        // A structurally valid entry can name a generation that will never exist.
+                        // After a bounded keychain-propagation window, consume it as rejected so it
+                        // cannot pin every later notification forever.
+                        SharedDefaults.clearMissingNotificationKeyFailure(
+                            teamId: teamId,
+                            syncSeq: processedEntry.entry.syncSeq
+                        )
+                        lastProcessedSeq = NSENotificationCursorPolicy.cursor(
+                            after: lastProcessedSeq,
+                            processing: processedEntry.entry.syncSeq,
+                            outcome: .rejected
+                        )
+                        pendingSyncSeq = lastProcessedSeq
+                        continue
+                    }
+                    guard let message = processedEntry.message else {
+                        SharedDefaults.clearMissingNotificationKeyFailure(
+                            teamId: teamId,
+                            syncSeq: processedEntry.entry.syncSeq
+                        )
+                        lastProcessedSeq = NSENotificationCursorPolicy.cursor(
+                            after: lastProcessedSeq,
+                            processing: processedEntry.entry.syncSeq,
+                            outcome: .rejected
+                        )
+                        pendingSyncSeq = lastProcessedSeq
+                        continue
+                    }
+
+                    SharedDefaults.clearMissingNotificationKeyFailure(
+                        teamId: teamId,
+                        syncSeq: processedEntry.entry.syncSeq
+                    )
+
+                    let nextBadge = NSNumber(value: storedBadgeCount + displayedCount + 1)
+                    if let lastDisplayableIndex, index == lastDisplayableIndex {
+                        self.applyNotificationMessage(message, teamId: teamId, to: content)
+                        content.badge = nextBadge
+                    } else {
                         let scheduledContent = self.makeNotificationContent(
                             from: content,
-                            message: decryptedEntry.message,
+                            message: message,
                             teamId: teamId,
-                            badge: badgeNumber
+                            badge: nextBadge
                         )
-                        await self.scheduleNotification(
-                            identifier: "quiet.nse.synced.\(decryptedEntry.entry.cid)",
+                        let scheduled = await self.scheduleNotification(
+                            identifier: "quiet.nse.synced.\(processedEntry.entry.cid)",
                             content: scheduledContent
                         )
+                        guard scheduled else {
+                            // This valid message was not delivered. Leave it and every later entry
+                            // beyond the cursor so a later provider wake-up can retry them.
+                            lastProcessedSeq = NSENotificationCursorPolicy.cursor(
+                                after: lastProcessedSeq,
+                                processing: processedEntry.entry.syncSeq,
+                                outcome: .deliveryFailed
+                            )
+                            break
+                        }
                     }
-
-                  self.applyNotificationMessage(latestDecryptedEntry.message, teamId: teamId, to: content)
-                    content.badge = badgeNumber
-
-                    os_log(
-                        "fetchAndUpdate: emitted %{public}d per-entry notification(s)",
-                        log: nseLog,
-                        type: .info,
-                        decryptedEntries.count
+                    displayedCount += 1
+                    lastProcessedSeq = NSENotificationCursorPolicy.cursor(
+                        after: lastProcessedSeq,
+                        processing: processedEntry.entry.syncSeq,
+                        outcome: .delivered
                     )
-                } else {
-                    os_log("fetchAndUpdate: no decryptable channel messages found", log: nseLog, type: .info)
-                    content.badge = badgeNumber
+                    pendingSyncSeq = lastProcessedSeq
                 }
+
+                if displayedCount > 0 {
+                    let newBadge = storedBadgeCount + displayedCount
+                    SharedDefaults.setBadgeCount(newBadge)
+                    content.badge = NSNumber(value: newBadge)
+                }
+                os_log(
+                    "fetchAndUpdate: authenticated %{public}d notification(s), safe cursor=%{public}lld",
+                    log: nseLog,
+                    type: .info,
+                    displayedCount,
+                    lastProcessedSeq
+                )
             }
         } catch {
             os_log("fetchAndUpdate failed: %{public}@", log: nseLog, type: .error, String(describing: error))
@@ -261,7 +343,10 @@ class NotificationService: UNNotificationServiceExtension {
     }
 
     private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, teamId: String, to content: UNMutableNotificationContent) {
-        content.title = "#\(Self.getChannelName(teamId: teamId, channelId: message.channelId))"
+        content.title = NSENotificationPresentation.title(
+            channelName: Self.getChannelName(teamId: teamId, channelId: message.channelId),
+            authenticatedAuthor: Self.getNickname(userId: message.userId)
+        )
         content.body = message.body
         content.threadIdentifier = message.channelId
     }
@@ -278,9 +363,9 @@ class NotificationService: UNNotificationServiceExtension {
         return content
     }
 
-    private func scheduleNotification(identifier: String, content: UNNotificationContent) async {
+    private func scheduleNotification(identifier: String, content: UNNotificationContent) async -> Bool {
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: nil)
-        await withCheckedContinuation { continuation in
+        return await withCheckedContinuation { continuation in
             UNUserNotificationCenter.current().add(request) { error in
                 if let error {
                     os_log(
@@ -290,8 +375,10 @@ class NotificationService: UNNotificationServiceExtension {
                         identifier,
                         String(describing: error)
                     )
+                    continuation.resume(returning: false)
+                    return
                 }
-                continuation.resume()
+                continuation.resume(returning: true)
             }
         }
     }

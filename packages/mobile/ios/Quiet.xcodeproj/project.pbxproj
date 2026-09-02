@@ -10,6 +10,9 @@
 		00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */; };
 		00A416372EC2EC7F00ACC877 /* NodeMobile.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00A416352EC2EAF600ACC877 /* NodeMobile.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		00E356F31AD99517003FC87E /* QuietTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* QuietTests.m */; };
+		A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */; };
+		A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000004 /* NSEMessageAuthenticator.swift */; };
+		A11400000000000000000005 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000006 /* SharedDefaults.swift */; };
 		03B674072E6103DC00A86655 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674042E6103DC00A86655 /* Rubik-Regular.ttf */; };
 		03B674082E6103DC00A86655 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674022E6103DC00A86655 /* Rubik-Medium.ttf */; };
 		03B674092E6103DC00A86655 /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FC2E6103DC00A86655 /* Rubik-BoldItalic.ttf */; };
@@ -118,6 +121,9 @@
 		00E356EE1AD99517003FC87E /* QuietTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuietTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* QuietTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietTests.m; sourceTree = "<group>"; };
+		A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEMessageAuthenticatorTests.swift; sourceTree = "<group>"; };
+		A11400000000000000000004 /* NSEMessageAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEMessageAuthenticator.swift; path = QuietNotificationServiceExtension/NSEMessageAuthenticator.swift; sourceTree = SOURCE_ROOT; };
+		A11400000000000000000006 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedDefaults.swift; path = Shared/SharedDefaults.swift; sourceTree = SOURCE_ROOT; };
 		03B673F92E6103DC00A86655 /* Rubik-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Black.ttf"; path = "../src/assets/fonts/Rubik-Black.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-BlackItalic.ttf"; path = "../src/assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FB2E6103DC00A86655 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Bold.ttf"; path = "../src/assets/fonts/Rubik-Bold.ttf"; sourceTree = SOURCE_ROOT; };
@@ -730,6 +736,9 @@
 			isa = PBXGroup;
 			children = (
 				00E356F21AD99517003FC87E /* QuietTests.m */,
+				A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */,
+				A11400000000000000000004 /* NSEMessageAuthenticator.swift */,
+				A11400000000000000000006 /* SharedDefaults.swift */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
 			path = QuietTests;
@@ -5316,6 +5325,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E356F31AD99517003FC87E /* QuietTests.m in Sources */,
+				A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */,
+				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
+				A11400000000000000000005 /* SharedDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

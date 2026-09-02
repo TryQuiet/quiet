@@ -36,6 +36,7 @@ struct KeychainService {
     private static let deviceIdKey = "quiet.device.id"
     private static let teamIdKey = "quiet.team.id"
     private static let channelMetadataKeyPrefix = "quiet.channelMetadata."
+    private static let userNicknameKeyPrefix = "quiet.userNickname."
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.quietmobile",
@@ -219,6 +220,16 @@ struct KeychainService {
         return channelMetadataKeyPrefix + teamId + "." + channelId
     }
 
+    // MARK: - Domain-specific: User Metadata
+
+    static func getNickname(userId: String) throws -> String {
+        try readString(account: userNicknameKeyPrefix + userId, service: lfaKeyService)
+    }
+
+    static func addNickname(userId: String, nickname: String) throws {
+        try upsertString(account: userNicknameKeyPrefix + userId, value: nickname, service: lfaKeyService)
+    }
+
     // MARK: - Upsert
 
     /// Delete-then-add to allow updating an existing item's value.
@@ -259,6 +270,7 @@ struct KeychainService {
         try deleteAll(matchingPrefix: "quiet_", service: lfaKeyService)
         try deleteAll(matchingPrefix: "quiet.device.privateKey.")
         try deleteAll(matchingPrefix: channelMetadataKeyPrefix, service: lfaKeyService)
+        try deleteAll(matchingPrefix: userNicknameKeyPrefix, service: lfaKeyService)
         try delete(account: deviceIdKey)
         try delete(account: teamIdKey)
         logger.info("clearAllQuietData: finished keychain cleanup")
