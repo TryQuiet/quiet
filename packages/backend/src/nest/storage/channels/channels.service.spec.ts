@@ -160,6 +160,7 @@ describe('ChannelsService', () => {
       id: storeId,
       hash,
       identity,
+      key: 'writer-public-key',
       payload: {
         op: OrbitDbOp.PUT,
         key,
@@ -177,17 +178,20 @@ describe('ChannelsService', () => {
       id: storeId,
       hash,
       identity,
+      key: 'writer-public-key',
       payload: {
         op: OrbitDbOp.DEL,
         key,
       },
     }) as unknown as LogEntry<EncryptedAndSignedPayload>
 
-  const mockChannelEntryIdentity = (userId: string): (() => void) => {
+  const mockChannelEntryIdentity = (userId: string, publicKey: string): (() => void) => {
     const identities = orbitDbService.identities
     expect(identities).toBeDefined()
     const teamId = sigChainService.getActiveChain().team!.id
-    const getIdentitySpy = jest.spyOn(identities!, 'getIdentity').mockResolvedValue({ id: userId, teamId } as any)
+    const getIdentitySpy = jest
+      .spyOn(identities!, 'getIdentity')
+      .mockResolvedValue({ id: userId, teamId, publicKey } as any)
     const verifyIdentitySpy = jest.spyOn(identities!, 'verifyIdentity').mockResolvedValue(true)
     const entryVerifySpy = jest.spyOn(Entry, 'verify').mockResolvedValue(true)
 
@@ -202,9 +206,10 @@ describe('ChannelsService', () => {
     entry: LogEntry<EncryptedAndSignedPayload>,
     writerUserId: string,
     expected: boolean,
-    validator: 'public' | 'private' = 'public'
+    validator: 'public' | 'private' = 'public',
+    identityPublicKey: string = entry.key
   ): Promise<void> => {
-    const restoreIdentityMocks = mockChannelEntryIdentity(writerUserId)
+    const restoreIdentityMocks = mockChannelEntryIdentity(writerUserId, identityPublicKey)
 
     try {
       switch (validator) {
@@ -958,6 +963,16 @@ describe('ChannelsService', () => {
       const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
 
       await expectChannelEntryValidation(channelPutEntry(publicChannel.id, encryptedEntry), aliceUserId, true)
+    })
+
+    it('rejects channel metadata signed by a key other than the claimed writer identity key', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const entry = channelPutEntry(publicChannel.id, channelsService.encryptChannelEntry(publicChannel))
+
+      await expectChannelEntryValidation(entry, aliceUserId, false, 'public', 'different-public-key')
     })
 
     it('rejects public channel metadata when owner does not match the encrypted signature author', async () => {

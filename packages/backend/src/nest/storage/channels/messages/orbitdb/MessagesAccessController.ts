@@ -3,6 +3,7 @@
  */
 
 import { type LogEntry, type IdentitiesType, type CanAppendFunc } from '@orbitdb/core'
+import { getVerifiedEntryWriter } from '../../../orbitDb/identity/lfa/entry-writer'
 import { NoCryptoEngineError } from '@quiet/types'
 import { EncryptedMessage } from '../messages.types'
 import { AccessControllerConfig, BaseMessagesAccessController } from './BaseMessageAccessController'
@@ -21,17 +22,13 @@ export class MessagesAccessController extends BaseMessagesAccessController<Acces
     return async (entry: LogEntry<EncryptedMessage>): Promise<boolean> => {
       if (!crypto) throw new NoCryptoEngineError()
 
-      const writerIdentity = await identities.getIdentity(entry.identity)
-      if (!writerIdentity) {
+      const writerIdentity = await getVerifiedEntryWriter(identities, entry)
+      if (writerIdentity == null) {
         return false
       }
 
       const { id } = writerIdentity
-      if (config.write.includes(id) || config.write.includes('*')) {
-        if (!(await identities.verifyIdentity(writerIdentity))) {
-          return false
-        }
-      } else {
+      if (!config.write.includes(id) && !config.write.includes('*')) {
         return false
       }
 

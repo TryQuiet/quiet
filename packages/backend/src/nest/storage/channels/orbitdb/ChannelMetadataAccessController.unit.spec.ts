@@ -58,18 +58,27 @@ const createSigchainService = ({
     }),
   }) as any
 
+// A full OrbitDB entry shape. The writer chokepoint verifies the entry signature, and
+// `Entry.verify` re-encodes these fields, so they all have to be present and dag-cbor encodable.
 const createEntry = (
   op: OrbitDbOp,
   key = 'channel-id',
   hash = `${op.toLowerCase()}-${key}`
 ): LogEntry<EncryptedAndSignedPayload> =>
   ({
+    id: 'channel-metadata-log',
     hash,
     identity: 'writer-identity-hash',
+    key: 'writer-public-key',
+    sig: 'writer-signature',
+    next: [],
+    refs: [],
+    clock: { id: 'writer-public-key', time: 1 },
+    v: 2,
     payload: {
       op,
       key,
-      value: op === OrbitDbOp.PUT ? {} : undefined,
+      ...(op === OrbitDbOp.PUT ? { value: {} } : {}),
     },
   }) as unknown as LogEntry<EncryptedAndSignedPayload>
 
@@ -97,8 +106,13 @@ const createAccess = async (sigchainService: any, isPublic: boolean, idToRoleNam
       ipfs: createInMemoryIpfs(),
     },
     identities: {
-      getIdentity: jest.fn().mockResolvedValue({ id: 'writer-id', teamId: 'team-id' } as never),
+      getIdentity: jest
+        .fn()
+        .mockResolvedValue({ id: 'writer-id', teamId: 'team-id', publicKey: 'writer-public-key' } as never),
       verifyIdentity: jest.fn().mockResolvedValue(true as never),
+      // Stands in for a valid entry signature; the substitution cases are covered end to end with
+      // real LFA keys in signer-substitution.spec.ts.
+      verify: jest.fn().mockResolvedValue(true as never),
     },
   })
 }
@@ -134,6 +148,14 @@ describe('ChannelMetadataAccessController', () => {
     attachLogContext(access)
 
     await expect(access.canAppend(createEntry(OrbitDbOp.PUT))).resolves.toBe(true)
+  })
+
+  it('rejects privileged channel metadata when the entry key belongs to another signer', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
+    attachLogContext(access)
+    const entry = { ...createEntry(OrbitDbOp.PUT), key: 'attacker-public-key' }
+
+    await expect(access.canAppend(entry)).resolves.toBe(false)
   })
 
   it('allows private channel metadata PUT entries from team members with correct permissions', async () => {
@@ -173,7 +195,9 @@ describe('ChannelMetadataAccessController', () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     attachLogContext(access)
     const entry = createEntry(OrbitDbOp.PUT)
-    ;(entry.payload as any).key = undefined
+    // Removed rather than set to undefined so the entry stays dag-cbor encodable and the rejection
+    // comes from the missing key, not from a signature check that could not run.
+    delete (entry.payload as any).key
 
     await expect(access.canAppend(entry)).resolves.toBe(false)
   })
@@ -182,7 +206,9 @@ describe('ChannelMetadataAccessController', () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
     attachLogContext(access)
     const entry = createEntry(OrbitDbOp.PUT)
-    ;(entry.payload as any).key = undefined
+    // Removed rather than set to undefined so the entry stays dag-cbor encodable and the rejection
+    // comes from the missing key, not from a signature check that could not run.
+    delete (entry.payload as any).key
 
     await expect(access.canAppend(entry)).resolves.toBe(false)
   })

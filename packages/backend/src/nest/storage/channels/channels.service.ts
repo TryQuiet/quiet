@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { Entry, type LogEntry, useAccessController as orbitDbUseAccessController } from '@orbitdb/core'
+import { type LogEntry, useAccessController as orbitDbUseAccessController } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import {
   ChannelMessage,
@@ -30,6 +30,7 @@ import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manage
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR } from '../../const'
 import { IpfsFilesManagerEvents } from '../../ipfs-file-manager/ipfs-file-manager.types'
 import { createLogger } from '../../common/logger'
+import { getVerifiedEntryWriter } from '../orbitDb/identity/lfa/entry-writer'
 import { ChannelRepo } from '../../common/types'
 import { StorageEvents } from '../storage.types'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
@@ -494,22 +495,10 @@ export class ChannelsService extends EventEmitter {
       return undefined
     }
 
-    const writerIdentity = await identities.getIdentity(entry.identity)
-    const identityVerified = await identities.verifyIdentity(writerIdentity)
-    if (!identityVerified) {
-      this.logger.error(
-        `Failed to validate channel ${operation} entry: entry identity verification failed:`,
-        entry.hash
-      )
-      return undefined
-    }
-
-    const entryVerified = await Entry.verify(identities as any, entry)
-    if (!entryVerified) {
-      this.logger.error(
-        `Failed to validate channel ${operation} entry: entry signature verification failed:`,
-        entry.hash
-      )
+    // This also verifies the entry signature, so a writer coming back here is authenticated.
+    const writerIdentity = await getVerifiedEntryWriter(identities as any, entry)
+    if (writerIdentity == null) {
+      this.logger.error(`Failed to validate channel ${operation} entry: entry writer verification failed:`, entry.hash)
       return undefined
     }
 
