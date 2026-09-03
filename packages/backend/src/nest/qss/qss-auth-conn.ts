@@ -1,7 +1,7 @@
 /**
  * Abstraction of LFA auth sync connection logic for QSS
  */
-import { Connection as AuthConnection } from '../../../../../3rd-party/auth/packages/auth/dist'
+import { Connection as AuthConnection, Team, type User } from '../../../../../3rd-party/auth/packages/auth/dist'
 import {
   ConnectionParams as AuthConnectionParams,
   InviteeContext,
@@ -255,33 +255,18 @@ export class QSSAuthConnection extends EventEmitter {
     })
 
     // handle joined events
+    //
+    // The accepted graph has to be on disk before QSS_AUTH_JOINED goes out.
+    // Downstream services treat that event as proof that we hold a usable team,
+    // and QSS has already seen our acceptance; a crash between the event and the
+    // write would bring us back without the graph we are relying on (QSS-006).
+    // Both branches persist: the team == null branch previously wrote nothing at
+    // all, so a freshly accepted graph lived only in memory until some later
+    // chain mutation happened to flush it.
     authConnection.on(LFAEvents.JOINED, payload => {
-      const { team, user } = payload
-
-      const sigChain = this.sigChainService.getActiveChain()
-      this.logger.info(`${sigChain.user.userId}: Joined team ${team.id} (userid: ${user.userId})!`)
-      // if we didn't have a team on the sigchain previously then it is assumed that we haven't connected to a peer yet
-      // and thus don't have the member role so our joining is still pending
-      if (sigChain.team == null) {
-        this.logger.info(
-          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.id}`
-        )
-        sigChain.context = {
-          device: (sigChain.context as InviteeContext).device,
-          team,
-          user,
-        } as MemberContext
-        this.sigChainService.setActiveChain(team.id)
-        this._joinStatus = JoinStatus.PENDING_MEMBER
-        this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
-        this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
-      } else {
-        this._joinStatus = JoinStatus.JOINED
-        void this.sigChainService.saveChain(team.id).catch(error => {
-          this.logger.error(`Failed to persist existing team after QSS auth join`, team.id, error)
-        })
-      }
-      this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
+      void this._handleJoined(payload).catch(error => {
+        this.logger.error(`Failed to handle LFA joined event`, error)
+      })
     })
 
     authConnection.on(LFAEvents.CHANGE, payload => {
@@ -301,6 +286,51 @@ export class QSSAuthConnection extends EventEmitter {
     })
 
     this._authConnection = authConnection
+  }
+
+  /**
+   * Records a completed LFA join and signals it to the rest of the backend.
+   *
+   * The persist is awaited and failure is fail-closed: if the chain cannot be
+   * written we do not emit QSS_AUTH_JOINED (or ask for a member self-assign),
+   * because everything behind those events assumes the team survives a restart.
+   *
+   * @param payload The LFA joined payload carrying the team and user we joined as
+   */
+  private async _handleJoined(payload: { team: Team; user: User }): Promise<void> {
+    const { team, user } = payload
+
+    const sigChain = this.sigChainService.getActiveChain()
+    this.logger.info(`${sigChain.user.userId}: Joined team ${team.id} (userid: ${user.userId})!`)
+    // if we didn't have a team on the sigchain previously then it is assumed that we haven't connected to a peer yet
+    // and thus don't have the member role so our joining is still pending
+    let needsMemberSelfAssign = false
+    if (sigChain.team == null) {
+      this.logger.info(`${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.id}`)
+      sigChain.context = {
+        device: (sigChain.context as InviteeContext).device,
+        team,
+        user,
+      } as MemberContext
+      this.sigChainService.setActiveChain(team.id)
+      this._joinStatus = JoinStatus.PENDING_MEMBER
+      needsMemberSelfAssign = true
+    } else {
+      this._joinStatus = JoinStatus.JOINED
+    }
+
+    try {
+      await this.sigChainService.persistChain(team.id)
+    } catch (error) {
+      this.logger.error(`Failed to persist team after QSS auth join, not signalling joined`, team.id, error)
+      return
+    }
+
+    if (needsMemberSelfAssign) {
+      this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
+      this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
+    }
+    this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
   }
 
   public deliver(message: Uint8Array): void {

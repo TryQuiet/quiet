@@ -35,6 +35,13 @@ export class SigChainService extends EventEmitter {
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
   private readonly _chainListeners: Map<SigChain, () => void> = new Map()
+  /**
+   * Tail of the in-flight write chain for each team, keyed by team ID.
+   *
+   * The stored promise never rejects, so a failed write does not poison later
+   * writes for the same team; see persistChain.
+   */
+  private readonly _persistQueue: Map<string, Promise<void>> = new Map()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -144,18 +151,28 @@ export class SigChainService extends EventEmitter {
     this.attachSocketListeners(this.getChain(teamId))
   }
 
-  private handleChainUpdate = async (teamId: string) => {
-    this.saveChain(teamId)
-    this.logger.info('Chain updated, emitted updated event')
+  /**
+   * Handles an in-memory mutation of a team's sigchain.
+   *
+   * The chain is written to disk *before* the UPDATED event goes out. Anything
+   * downstream of that event may release material that only makes sense if the
+   * entry we just appended survives a restart (QSS-006): if we emit first and
+   * crash before the write lands, we come back without an admission the peer is
+   * already relying on, and that peer is then rejected as an unknown device.
+   *
+   * This used to fire two un-awaited writes of the same value, so the emit
+   * raced both of them and neither failure was visible to any caller. It is now
+   * a single awaited write through the per-team queue, and a rejection
+   * propagates to the caller so admission paths can fail closed.
+   */
+  private handleChainUpdate = async (teamId: string): Promise<void> => {
+    await this.persistChain(teamId)
     void this.updateKeysInNativeStorage(teamId).catch(err => {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
     this.updateDeviceCredentials(teamId)
-    void this.saveChain(teamId).catch(err => {
-      this.logger.error('Failed to save chain after update', err)
-    })
     this.emit(SigchainEvents.UPDATED, teamId)
-    this.logger.info('Chain updated, emitted updated event')
+    this.logger.info('Chain updated and persisted, emitted updated event', teamId)
   }
 
   /**
@@ -309,7 +326,11 @@ export class SigChainService extends EventEmitter {
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
     const listener = (): void => {
-      this.handleChainUpdate(chain.teamId!)
+      // EventEmitter cannot await us, so a rejected persist would otherwise
+      // surface as an unhandled rejection. Log it loudly with the team ID.
+      void this.handleChainUpdate(chain.teamId!).catch(err => {
+        this.logger.error(`Failed to handle chain update for team ${chain.teamId}`, err)
+      })
     }
     this._chainListeners.set(chain, listener)
     chain.on(SigchainEvents.UPDATED, listener)
@@ -375,7 +396,7 @@ export class SigChainService extends EventEmitter {
     const sigChain = SigChain.create(createUserInput)
     this.addChain(sigChain, setActive, sigChain.teamId!)
     await this.saveChain(sigChain.teamId!)
-    this.handleChainUpdate(sigChain.teamId!)
+    await this.handleChainUpdate(sigChain.teamId!)
     return sigChain
   }
 
@@ -442,14 +463,60 @@ export class SigChainService extends EventEmitter {
   }
 
   /**
-   * Saves a chain to disk
-   * @param teamName Name of the team to save
+   * Durably writes a team's sigchain (graph + team keyring) to disk.
+   *
+   * Writes for a given team are queued one behind another. Without that, two
+   * overlapping writes each serialize the live team object at the moment they
+   * reach LevelDB, so a write that started earlier can land after a write that
+   * started later and commit a stale graph over a newer one - silently dropping
+   * an entry we already told a peer about.
+   *
+   * The returned promise rejects if the write fails. Callers that are about to
+   * release credentials or an acceptance message must await it and fail closed,
+   * rather than treating persistence as best effort (QSS-006).
+   *
+   * @param teamId ID of the team whose chain should be persisted
+   */
+  public persistChain(teamId: string): Promise<void> {
+    const write = async (): Promise<void> => {
+      try {
+        this.logger.info(`Saving chain to disk`, teamId)
+        await this._ensureDb()
+        const chain = this.getChain(teamId)
+        await this.localDbService.setSigChain(chain, teamId)
+      } catch (err) {
+        this.logger.error(`Failed to persist sigchain for team ${teamId}`, err)
+        throw err
+      }
+    }
+
+    // The queued tail never rejects, so one failed write does not cascade into
+    // every later write for the same team.
+    const previous = this._persistQueue.get(teamId)
+    const result = previous == null ? write() : previous.then(write)
+    const tail = result.then(
+      () => undefined,
+      () => undefined
+    )
+    this._persistQueue.set(teamId, tail)
+    void tail.then(() => {
+      if (this._persistQueue.get(teamId) === tail) {
+        this._persistQueue.delete(teamId)
+      }
+    })
+    return result
+  }
+
+  /**
+   * Saves a chain to disk.
+   *
+   * Retained as the historical name for persistChain; both go through the same
+   * per-team write queue.
+   *
+   * @param teamId ID of the team to save
    */
   async saveChain(teamId: string): Promise<void> {
-    this.logger.info(`Saving chain to disk`, teamId)
-    await this._ensureDb()
-    const chain = this.getChain(teamId)
-    await this.localDbService.setSigChain(chain, teamId)
+    await this.persistChain(teamId)
   }
 
   private async _ensureDb(): Promise<void> {

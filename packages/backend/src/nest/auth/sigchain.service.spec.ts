@@ -318,3 +318,153 @@ describe('SigChainService - listener lifecycle', () => {
     }
   })
 })
+
+// QSS-006: the sigchain has to be on disk before anything downstream of a chain
+// update acts on it. handleChainUpdate used to fire two un-awaited writes of the
+// same value and emit UPDATED without waiting for either, so a crash between the
+// event and the write left us without an entry a peer was already relying on,
+// and a write failure was invisible to every caller.
+describe('SigChainService - durable chain writes', () => {
+  let module: TestingModule
+  let sigChainService: SigChainService
+  let localDbService: LocalDbService
+  let chain: SigChain
+  let teamId: string
+
+  const deferred = <T = void>() => {
+    let resolve!: (value: T) => void
+    let reject!: (reason?: unknown) => void
+    const promise = new Promise<T>((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+    return { promise, resolve, reject }
+  }
+
+  beforeEach(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, SigChainModule, LocalDbModule],
+    }).compile()
+    sigChainService = await module.resolve(SigChainService)
+    localDbService = await module.resolve(LocalDbService)
+    await localDbService.open()
+    chain = await sigChainService.createChain(true)
+    teamId = chain.teamId!
+  })
+
+  afterEach(async () => {
+    jest.restoreAllMocks()
+    await localDbService.close()
+    await module.close()
+  })
+
+  it('writes the chain exactly once per chain update', async () => {
+    const setSigChainSpy = jest.spyOn(localDbService, 'setSigChain')
+
+    chain.emit(SigchainEvents.UPDATED)
+
+    await waitForExpect(() => {
+      expect(setSigChainSpy).toHaveBeenCalledTimes(1)
+    })
+    // Give any second, un-awaited write the chance to land before we conclude
+    // there is only one.
+    await new Promise(resolve => setTimeout(resolve, 50))
+    expect(setSigChainSpy).toHaveBeenCalledTimes(1)
+    expect(setSigChainSpy).toHaveBeenCalledWith(chain, teamId)
+  })
+
+  it('emits UPDATED only after the write has resolved', async () => {
+    const write = deferred()
+    jest.spyOn(localDbService, 'setSigChain').mockImplementation(async () => {
+      await write.promise
+    })
+    const updates: string[] = []
+    sigChainService.on(SigchainEvents.UPDATED, (id: string) => updates.push(id))
+
+    chain.emit(SigchainEvents.UPDATED)
+
+    await new Promise(resolve => setTimeout(resolve, 50))
+    expect(updates).toHaveLength(0)
+
+    write.resolve()
+
+    await waitForExpect(() => {
+      expect(updates).toEqual([teamId])
+    })
+  })
+
+  it('serializes writes for a team so a stale serialization cannot land last', async () => {
+    const order: string[] = []
+    const firstWrite = deferred()
+    let writeCount = 0
+    jest.spyOn(localDbService, 'setSigChain').mockImplementation(async () => {
+      const n = ++writeCount
+      order.push(`start-${n}`)
+      if (n === 1) {
+        await firstWrite.promise
+      }
+      order.push(`end-${n}`)
+    })
+
+    const first = sigChainService.persistChain(teamId)
+    const second = sigChainService.persistChain(teamId)
+
+    await waitForExpect(() => {
+      expect(order).toEqual(['start-1'])
+    })
+    // The second write must not have begun while the first is still in flight,
+    // otherwise the earlier serialization can be committed after the later one.
+    expect(writeCount).toBe(1)
+
+    firstWrite.resolve()
+    await Promise.all([first, second])
+
+    expect(order).toEqual(['start-1', 'end-1', 'start-2', 'end-2'])
+  })
+
+  it('does not serialize writes for different teams against each other', async () => {
+    const otherChain = await sigChainService.createChain(false)
+    const otherTeamId = otherChain.teamId!
+    const started: string[] = []
+    const block = deferred()
+    jest.spyOn(localDbService, 'setSigChain').mockImplementation(async (_chain: SigChain, id: string) => {
+      started.push(id)
+      await block.promise
+    })
+
+    const first = sigChainService.persistChain(teamId)
+    const second = sigChainService.persistChain(otherTeamId)
+
+    await waitForExpect(() => {
+      expect(started.sort()).toEqual([teamId, otherTeamId].sort())
+    })
+
+    block.resolve()
+    await Promise.all([first, second])
+  })
+
+  it('propagates write failures to the caller instead of swallowing them', async () => {
+    jest.spyOn(localDbService, 'setSigChain').mockRejectedValueOnce(new Error('disk is on fire'))
+
+    await expect(sigChainService.persistChain(teamId)).rejects.toThrow('disk is on fire')
+  })
+
+  it('does not let a failed write block later writes for the same team', async () => {
+    const setSigChainSpy = jest.spyOn(localDbService, 'setSigChain').mockRejectedValueOnce(new Error('disk is on fire'))
+
+    await expect(sigChainService.persistChain(teamId)).rejects.toThrow('disk is on fire')
+    await expect(sigChainService.persistChain(teamId)).resolves.toBeUndefined()
+    expect(setSigChainSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not emit UPDATED when the write fails', async () => {
+    jest.spyOn(localDbService, 'setSigChain').mockRejectedValue(new Error('disk is on fire'))
+    const updates: string[] = []
+    sigChainService.on(SigchainEvents.UPDATED, (id: string) => updates.push(id))
+
+    chain.emit(SigchainEvents.UPDATED)
+
+    await new Promise(resolve => setTimeout(resolve, 100))
+    expect(updates).toHaveLength(0)
+  })
+})

@@ -293,6 +293,30 @@ export class Libp2pAuth {
   }
 
   /**
+   * Makes an admission durable before the acceptance that carries the team keys
+   * is released to the invitee.
+   *
+   * This is the callback shape @localfirst/auth calls after ADMIT_MEMBER /
+   * ADMIT_DEVICE has been appended to the in-memory team and before
+   * ACCEPT_INVITATION is queued. Rejecting fails the connection with
+   * ADMISSION_NOT_PERSISTED and sends nothing, which is the fail-closed half of
+   * threat-model C3 option A: an invitee must never end up holding keys for an
+   * admission that our restart would forget, because it is then rejected as an
+   * unknown device (QSS-006).
+   *
+   * The team LFA hands us is the same object the active SigChain holds, so
+   * persisting by team ID serializes exactly the graph carrying the new entry.
+   *
+   * Not yet passed to the Connection: ConnectionParams gains persistAdmission in
+   * the paired @localfirst/auth change, and the construction site starts
+   * supplying this once that version is pinned.
+   */
+  private persistAdmission = async (team: Auth.Team): Promise<void> => {
+    this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
+    await this.sigChainService.persistChain(team.id)
+  }
+
+  /**
    * Called when a peer connects. If we’re not ready to start (e.g. no active chain),
    * the connection is buffered. Otherwise we create a new auth connection and
    * store the underlying libp2p connection for ephemeral stream use.
@@ -364,7 +388,9 @@ export class Libp2pAuth {
             this.sigChainService.roles,
             authConnection._context.peer as Member | undefined
           )
-          this.handleJoinViaQSS()
+          void this.handleJoinViaQSS().catch(err => {
+            this.logger.error('Failed to complete QSS join handling on connect', err)
+          })
         } else {
           this.logger.error('Cannot emit sync event, team is null')
         }
@@ -380,6 +406,11 @@ export class Libp2pAuth {
       })
     })
 
+    // The graph we just accepted has to be on disk before AUTH_JOINED goes out
+    // and before buffered peers are released: everything behind that event
+    // assumes we hold a team that survives a restart, and the peer that admitted
+    // us has already handed over keys (QSS-006). The write used to be
+    // fire-and-forget, so a crash in the gap left us with no team at all.
     authConnection.on(LFAEvents.JOINED, payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
@@ -399,9 +430,15 @@ export class Libp2pAuth {
         this.sigChainService.setActiveChain(sigChain.teamId!)
       }
       this.joinStatus = JoinStatus.JOINED
-      this.sigChainService.saveChain(sigChain.teamId!)
-      this.emit(Libp2pEvents.AUTH_JOINED)
-      this.unblockConnections(this.bufferedConnections)
+      void this.sigChainService
+        .persistChain(sigChain.teamId!)
+        .then(() => {
+          this.emit(Libp2pEvents.AUTH_JOINED)
+          this.unblockConnections(this.bufferedConnections)
+        })
+        .catch(err => {
+          this.logger.error(`Failed to persist chain after joining team ${sigChain.teamId}, not signalling joined`, err)
+        })
     })
 
     authConnection.on(LFAEvents.CHANGE, payload => {
@@ -410,7 +447,9 @@ export class Libp2pAuth {
 
     authConnection.on(LFAEvents.UPDATED, payload => {
       this.emit(Libp2pEvents.AUTH_UPDATED, payload)
-      this.handleJoinViaQSS()
+      void this.handleJoinViaQSS().catch(err => {
+        this.logger.error('Failed to complete QSS join handling on chain update', err)
+      })
     })
 
     // Handle errors from local or remote sources.
@@ -492,9 +531,12 @@ export class Libp2pAuth {
       this.sigChainService.roles.amIMemberOfRole(RoleName.MEMBER)
     ) {
       this.joinStatus = JoinStatus.JOINED
+      // Persist before signalling, for the same reason as the JOINED handler:
+      // the write used to happen after the event, so a crash in between left us
+      // advertising a membership we had not stored (QSS-006).
+      await this.sigChainService.persistChain(this.sigChainService.activeTeamId!)
       this.unblockConnections(this.bufferedConnections)
       this.emit(Libp2pEvents.AUTH_JOINED)
-      await this.sigChainService.saveChain(this.sigChainService.activeTeamId!)
     }
   }
 
