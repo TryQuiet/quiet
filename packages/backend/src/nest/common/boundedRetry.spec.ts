@@ -112,4 +112,37 @@ describe('BoundedRetry', () => {
     await waitForExpect(() => expect(ran).toBe(true))
     await flush(20)
   })
+
+  // private#203 iteration-2 L-1: a rejecting attempt used to consume the budget
+  // and then wait for some unrelated event to schedule again, so a transport
+  // that was briefly unavailable stranded an otherwise retryable join.
+  it('re-arms itself when an attempt rejects, until the budget is spent', async () => {
+    const retry = new BoundedRetry('test', { maxAttempts: 3, baseDelayMs: 1 })
+    let runs = 0
+    retry.schedule('peer', async () => {
+      runs += 1
+      throw new Error('transport unavailable')
+    })
+
+    // One schedule call, three attempts, no external trigger.
+    await waitForExpect(() => expect(runs).toBe(3), 3_000)
+    await flush(50)
+    expect(runs).toBe(3)
+    expect(retry.schedule('peer', async () => {})).toBe(false)
+  })
+
+  it('stops re-arming as soon as an attempt succeeds', async () => {
+    const retry = new BoundedRetry('test', { maxAttempts: 5, baseDelayMs: 1 })
+    let runs = 0
+    retry.schedule('peer', async () => {
+      runs += 1
+      if (runs < 2) {
+        throw new Error('not yet')
+      }
+    })
+
+    await waitForExpect(() => expect(runs).toBe(2), 3_000)
+    await flush(50)
+    expect(runs).toBe(2)
+  })
 })

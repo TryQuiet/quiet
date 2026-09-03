@@ -7,7 +7,6 @@ import { UserService } from './services/members/user.service'
 import { RoleService } from './services/roles/role.service'
 import { DeviceService } from './services/members/device.service'
 import { InviteService } from './services/invites/invite.service'
-import { InvitationAttemptMemory, type PriorInvitationProof } from './services/invites/invitationAttemptMemory'
 import { CryptoService } from './services/crypto/crypto.service'
 import { ServerService } from './services/members/server.service'
 import { RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
@@ -32,12 +31,6 @@ class SigChain extends EventEmitter {
   private _crypto: CryptoService | null = null
   private _server: ServerService | null = null
   private _lockbox: LockboxService | null = null
-  /**
-   * Proofs this device presented in earlier join attempts. In memory only and
-   * short-lived by design: a proof that outlived the process would be usable
-   * long after the transaction it belonged to.
-   */
-  private readonly _invitationAttempts = new InvitationAttemptMemory()
 
   private constructor(context: auth.MemberContext | auth.InviteeMemberContext) {
     super()
@@ -53,40 +46,7 @@ class SigChain extends EventEmitter {
   }
 
   get context(): auth.MemberContext | auth.InviteeMemberContext {
-    // An invitee's next attempt has to carry the proofs it presented in earlier
-    // ones. The admitter still holds the admission it made on the first attempt,
-    // and that link carries the proof from that handshake, not from this one, so
-    // without this the retry is rejected by the acceptance rule that stops a
-    // stale graph being wrapped in a fresh envelope (private#203 M-1).
-    if (!('team' in this._context)) {
-      const remembered = this._invitationAttempts.list()
-      this._context.priorInvitationProofs = remembered.length > 0 ? remembered : undefined
-    }
     return this._context
-  }
-
-  /**
-   * Records the invitation proof presented in an attempt that did not end in a
-   * durable admission, so the next attempt can accept the admission link the
-   * peer already holds.
-   *
-   * @param attempt The proof and the peer it was presented to
-   */
-  public rememberInvitationAttempt(attempt: PriorInvitationProof | undefined): void {
-    if (attempt == null) {
-      return
-    }
-    this._invitationAttempts.remember(attempt)
-  }
-
-  /** Drops every remembered attempt; call as soon as a join is durable. */
-  public forgetInvitationAttempts(): void {
-    this._invitationAttempts.clear()
-  }
-
-  /** Remembered attempts, after expiry; for tests and diagnostics. */
-  public get rememberedInvitationAttempts(): PriorInvitationProof[] {
-    return this._invitationAttempts.list()
   }
 
   set context(context: auth.MemberContext | auth.InviteeMemberContext) {
@@ -224,6 +184,30 @@ class SigChain extends EventEmitter {
     this._crypto = new CryptoService(this)
     this._server = new ServerService(this)
     this._lockbox = new LockboxService(this)
+  }
+
+  /**
+   * Replaces the in-memory team with the one stored on disk.
+   *
+   * Used after an admission write fails: the live team then holds an ADMIT link
+   * that was never stored, and any later write would commit it. Rebuilding from
+   * the stored bytes discards it, so a retry produces a fresh admission instead
+   * of one this device cannot prove it recorded.
+   *
+   * The SigChain instance itself is kept, so services holding it stay valid; the
+   * context setter moves the update listener onto the rebuilt team.
+   */
+  public restoreTeam(
+    serializedTeam: Uint8Array,
+    localUserContext: auth.LocalUserContext,
+    teamKeyRing: auth.Keyring
+  ): void {
+    const team: auth.Team = auth.loadTeam(serializedTeam, localUserContext, teamKeyRing, lfaLogger)
+    this.context = {
+      user: localUserContext.user,
+      device: localUserContext.device,
+      team,
+    } as auth.MemberContext
   }
 
   public save(): Uint8Array {

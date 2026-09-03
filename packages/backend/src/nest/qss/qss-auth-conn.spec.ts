@@ -227,11 +227,14 @@ describe('QSSAuthConnection - durable join', () => {
     })
   })
   /**
-   * private#203 L-2. The QSS join used to install the accepted team on the chain
-   * and set PENDING_MEMBER or JOINED before awaiting the write. On failure the
-   * events were suppressed but the mutations stood, so every later guard read a
-   * completed join while nothing had been stored, and this connection is not
-   * re-initialized on its own.
+   * private#203 L-2, with the iteration-2 correction. The QSS join used to
+   * install the accepted team and set its status before awaiting the write, so a
+   * failure left a completed-looking join that nothing re-entered.
+   *
+   * The write is now awaited first, and because the acceptance is already
+   * validated and in memory a failure is retried locally rather than by asking
+   * QSS for a second acceptance. Only once that budget is spent does the join
+   * roll back and go get a new one.
    */
   describe('when the write fails', () => {
     let ownerModule: TestingModule
@@ -254,66 +257,10 @@ describe('QSSAuthConnection - durable join', () => {
       return { inviteeChain, team }
     }
 
-    it('rolls the fresh join back instead of leaving a half-joined chain', async () => {
+    it('converges on a retried local write without asking for a second acceptance', async () => {
       const { inviteeChain, team } = await buildInviteeChain()
       const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
-      const statusBefore = conn.joinStatus
-
-      jest.spyOn(localDbService, 'setSigChain').mockRejectedValue(new Error('transient LevelDB failure'))
-      const joined: (string | undefined)[] = []
-      const selfAssign: (string | undefined)[] = []
-      conn.on(QSSEvents.QSS_AUTH_JOINED, (id: string | undefined) => joined.push(id))
-      conn.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (id: string | undefined) => selfAssign.push(id))
-
-      emitJoined(conn, { team, user: inviteeChain.user })
-
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      expect(joined).toHaveLength(0)
-      expect(selfAssign).toHaveLength(0)
-      // The staged team is gone: the chain is an invitee again, not a member
-      // holding a team it never stored.
-      expect(inviteeChain.team).toBeNull()
-      expect(conn.joinStatus).toBe(statusBefore)
-      expect(sigChainService.activeChainTeamId).toBe(team.id)
-    })
-
-    it('rolls a role-completion join back to its previous status', async () => {
-      // A chain that already holds the team but not the member role: this is the
-      // branch that only flips the status, so that flip is what must roll back.
-      const { inviteeChain, team } = await buildInviteeChain()
-      inviteeChain.context = {
-        device: (inviteeChain.context as any).device,
-        team,
-        user: inviteeChain.user,
-      } as any
-      const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
-      const statusBefore = conn.joinStatus
-      expect(statusBefore).not.toBe(JoinStatus.JOINED)
-
-      jest.spyOn(localDbService, 'setSigChain').mockRejectedValue(new Error('transient LevelDB failure'))
-      const joined: (string | undefined)[] = []
-      conn.on(QSSEvents.QSS_AUTH_JOINED, (id: string | undefined) => joined.push(id))
-
-      emitJoined(conn, { team, user: inviteeChain.user })
-
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      expect(joined).toHaveLength(0)
-      expect(conn.joinStatus).toBe(statusBefore)
-    })
-
-    it('re-attempts the join and converges once the write succeeds', async () => {
-      const { inviteeChain, team } = await buildInviteeChain()
-      const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
-
-      // Exercise the real start() path. @localfirst/auth now refuses to restart
-      // a stopped Connection, and this retry stops its connection before
-      // re-arming, so this is what proves the rebuild creates a fresh instance
-      // rather than reviving the torn-down one.
-      jest
-        .spyOn(qssClient, 'getClientSocket')
-        .mockReturnValue({ connected: true, active: true } as unknown as ClientSocket)
+      const restartSpy = jest.spyOn(conn, 'start')
 
       const original = localDbService.setSigChain.bind(localDbService)
       let failuresLeft = 1
@@ -330,22 +277,82 @@ describe('QSSAuthConnection - durable join', () => {
 
       emitJoined(conn, { team, user: inviteeChain.user })
 
-      // First attempt rolls back and schedules a re-attempt, which rebuilds the
-      // LFA connection from scratch.
-      await waitForExpect(() => {
-        expect(failuresLeft).toBe(0)
-        expect((conn as any)._authConnection).toBeDefined()
-      }, 15_000)
-      expect(joined).toHaveLength(0)
-
-      // QSS re-sends the acceptance on the rebuilt connection.
-      emitJoined(conn, { team, user: inviteeChain.user })
-
       await waitForExpect(() => {
         expect(joined).toEqual([team.id])
       }, 15_000)
+
       expect(inviteeChain.team).not.toBeNull()
       expect(conn.joinStatus).toBe(JoinStatus.PENDING_MEMBER)
+      // The acceptance we already held was enough: no reconnect, no new handshake.
+      expect(restartSpy).not.toHaveBeenCalled()
+    })
+
+    it('rolls the fresh join back once the local write budget is spent', async () => {
+      const { inviteeChain, team } = await buildInviteeChain()
+      const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
+      const statusBefore = conn.joinStatus
+
+      jest.spyOn(localDbService, 'setSigChain').mockRejectedValue(new Error('disk is on fire'))
+      const joined: (string | undefined)[] = []
+      const selfAssign: (string | undefined)[] = []
+      conn.on(QSSEvents.QSS_AUTH_JOINED, (id: string | undefined) => joined.push(id))
+      conn.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (id: string | undefined) => selfAssign.push(id))
+
+      emitJoined(conn, { team, user: inviteeChain.user })
+
+      // The staged team is gone: the chain is an invitee again, not a member
+      // holding a team it never stored.
+      await waitForExpect(() => {
+        expect(inviteeChain.team).toBeNull()
+      }, 15_000)
+      expect(joined).toHaveLength(0)
+      expect(selfAssign).toHaveLength(0)
+      expect(conn.joinStatus).toBe(statusBefore)
+    })
+
+    it('rolls a role-completion join back to its previous status', async () => {
+      // A chain that already holds the team but not the member role: this is the
+      // branch that only flips the status, so that flip is what must roll back.
+      const { inviteeChain, team } = await buildInviteeChain()
+      inviteeChain.context = {
+        device: (inviteeChain.context as any).device,
+        team,
+        user: inviteeChain.user,
+      } as any
+      const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
+      const statusBefore = conn.joinStatus
+      expect(statusBefore).not.toBe(JoinStatus.JOINED)
+
+      jest.spyOn(localDbService, 'setSigChain').mockRejectedValue(new Error('disk is on fire'))
+      const joined: (string | undefined)[] = []
+      conn.on(QSSEvents.QSS_AUTH_JOINED, (id: string | undefined) => joined.push(id))
+
+      emitJoined(conn, { team, user: inviteeChain.user })
+
+      await waitForExpect(() => {
+        expect(conn.joinStatus).toBe(statusBefore)
+        expect((conn as any)._authConnection).toBeUndefined()
+      }, 15_000)
+      expect(joined).toHaveLength(0)
+    })
+
+    // private#203 iteration-2 L-1: a rejected retry callback used to consume an
+    // attempt and then wait for an unrelated event.
+    it('keeps re-attempting when the reconnect itself throws', async () => {
+      const { inviteeChain, team } = await buildInviteeChain()
+      const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
+
+      jest.spyOn(localDbService, 'setSigChain').mockRejectedValue(new Error('disk is on fire'))
+      // start() rejects the way it would with no QSS socket available.
+      const startSpy = jest.spyOn(conn, 'start').mockRejectedValue(new Error('no QSS socket'))
+
+      emitJoined(conn, { team, user: inviteeChain.user })
+
+      // One failing reconnect must not end the schedule: the budget is spent
+      // without anything external calling back in.
+      await waitForExpect(() => {
+        expect(startSpy.mock.calls.length).toBeGreaterThanOrEqual(3)
+      }, 30_000)
     })
   })
 })

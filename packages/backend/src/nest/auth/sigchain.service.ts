@@ -58,6 +58,11 @@ export class SigChainService extends EventEmitter {
   private readonly _chainListeners: Map<SigChain, () => void> = new Map()
   /** Coalescing write state per team; see persistChain. */
   private readonly _persistQueue: Map<string, TeamPersistState> = new Map()
+  /**
+   * Teams whose in-memory state is known to contain something we never stored.
+   * Every write for them is refused until they are back to a durable state.
+   */
+  private readonly _blockedTeams: Set<string> = new Set()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -540,6 +545,11 @@ export class SigChainService extends EventEmitter {
     state.pending = null
     const running = (async () => {
       try {
+        // A write queued before the block would serialize the live team, which
+        // is exactly the un-persisted link we are refusing to commit.
+        if (this._blockedTeams.has(teamId)) {
+          throw new Error(`Refusing to write team ${teamId}: it holds state that was never persisted`)
+        }
         this.logger.info(`Saving chain to disk`, teamId)
         await this._ensureDb()
         const chain = this.getChain(teamId)
@@ -565,6 +575,40 @@ export class SigChainService extends EventEmitter {
       }
     })
     return running
+  }
+
+  /**
+   * Puts a team back to the last state this device actually stored.
+   *
+   * Called when an admission write fails. The live team then holds an ADMIT link
+   * that is not durable, and any later ordinary write would commit it: the peer
+   * would be treated as admitted by a record we cannot prove we made. Writes for
+   * the team are refused from the moment this starts, which also kills anything
+   * already queued, and are allowed again only once the team has been rebuilt
+   * from disk.
+   *
+   * If there is nothing durable to rebuild from, writes stay blocked. Refusing
+   * to write anything for the team is the correct failure: committing the link
+   * is the outcome the gate exists to prevent.
+   *
+   * @param teamId The team to roll back
+   */
+  public async restoreChainToDurableState(teamId: string): Promise<void> {
+    this._blockedTeams.add(teamId)
+    await this._ensureDb()
+    const stored = await this.localDbService.getSigChain(teamId)
+    if (stored?.serializedTeam == null || stored.teamKeyRing == null) {
+      this.logger.error(`Cannot restore team ${teamId}: nothing durable to restore to, writes stay blocked`)
+      throw new Error(`No durable state to restore for team ${teamId}`)
+    }
+    this.getChain(teamId).restoreTeam(stored.serializedTeam, stored.localUserContext, stored.teamKeyRing)
+    this._blockedTeams.delete(teamId)
+    this.logger.info(`Restored team ${teamId} to its last durable state`)
+  }
+
+  /** Whether writes for this team are currently refused; for tests and diagnostics. */
+  public isChainBlocked(teamId: string): boolean {
+    return this._blockedTeams.has(teamId)
   }
 
   /** Callers currently waiting on a write for this team; for tests and diagnostics. */

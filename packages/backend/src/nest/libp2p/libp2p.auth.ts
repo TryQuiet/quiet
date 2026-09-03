@@ -41,6 +41,18 @@ export interface Libp2pAuthStatus {
   joining: boolean
 }
 
+/** Everything commitJoin needs to finish, or roll back, a received acceptance. */
+type PendingJoin = {
+  teamId: string
+  userId: string
+  peerId: PeerId
+  connection: Connection
+  joiningNow: boolean
+  stagedContext: boolean
+  previousContext: Auth.MemberContext | Auth.InviteeMemberContext
+  previousJoinStatus: JoinStatus
+}
+
 export enum JoinStatus {
   PENDING_MEMBER = 'PENDING_MEMBER',
   PENDING = 'PENDING',
@@ -67,6 +79,15 @@ export class Libp2pAuth {
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst:libp2p')
   /** Bounded re-attempts for joins that failed on our own persistence. */
   private readonly joinRetry = new BoundedRetry('libp2p:join')
+  /**
+   * Bounded re-attempts for the local write of an acceptance we already hold.
+   * Separate budget from joinRetry, because this one costs no network work.
+   */
+  private readonly localWriteRetry = new BoundedRetry('libp2p:joinWrite', {
+    maxAttempts: 5,
+    baseDelayMs: 100,
+    maxDelayMs: 2_000,
+  })
   /** Re-entrancy guard for handleJoinViaQSS, which no longer uses joinStatus. */
   private joinViaQssInFlight = false
   readonly [serviceCapabilities]: string[] = ['@quiet/auth']
@@ -179,6 +200,7 @@ export class Libp2pAuth {
     clearInterval(this.unblockInterval)
     // Nothing should re-attempt a join against a stopped service
     this.joinRetry.clearAll()
+    this.localWriteRetry.clearAll()
 
     // Close all auth connections
     for (const peerId of this.authConnections.keys()) {
@@ -325,7 +347,48 @@ export class Libp2pAuth {
    */
   private persistAdmission = async (team: Auth.Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
-    await this.sigChainService.persistChain(team.id, 'admission')
+    try {
+      await this.sigChainService.persistChain(team.id, 'admission')
+    } catch (err) {
+      await this.rollBackFailedAdmission(team.id, err)
+      // Still fail the gate: the acceptance must not be released.
+      throw err
+    }
+  }
+
+  /**
+   * Undoes an admission this device appended but could not store.
+   *
+   * Leaving it in memory is not neutral. The link stays in the live team, so the
+   * next ordinary write commits it, and the invitee is then treated as admitted
+   * by a record we never made. Worse for the invitee, a retry would be served
+   * that same link, whose proof belongs to the handshake that already failed, so
+   * it could not accept it. Rolling back to the stored team means the retry
+   * produces a fresh admission bound to the new handshake.
+   *
+   * Every auth connection captured the team object we are discarding, so they
+   * are dropped too and their peers redial.
+   *
+   * @param teamId The team whose admission could not be stored
+   * @param cause The write failure
+   */
+  private async rollBackFailedAdmission(teamId: string, cause: unknown): Promise<void> {
+    this.logger.error(`Admission write failed for team ${teamId}, rolling back to the stored team`, cause)
+    try {
+      await this.sigChainService.restoreChainToDurableState(teamId)
+    } catch (err) {
+      this.logger.error(`Could not restore team ${teamId}; writes for it stay blocked`, err)
+      return
+    }
+    // Drop the connections after this gate has finished failing. Tearing them
+    // down inline removes the listeners @localfirst/auth is about to emit
+    // ADMISSION_NOT_PERSISTED on, so the failure would go out silently.
+    const timer = setTimeout(() => {
+      for (const peerId of [...this.authConnections.keys()]) {
+        this.closeAuthConnection(peerId, true)
+      }
+    }, 0)
+    timer.unref?.()
   }
 
   /**
@@ -413,7 +476,6 @@ export class Libp2pAuth {
 
     authConnection.on(LFAEvents.DISCONNECTED, event => {
       this.logger.info(`LFA Disconnected!`, event)
-      this.rememberInvitationAttempt(authConnection)
       this.libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
         event,
         connection,
@@ -444,11 +506,9 @@ export class Libp2pAuth {
 
     // Handle errors from local or remote sources.
     authConnection.on(LFAEvents.LOCAL_ERROR, error => {
-      this.rememberInvitationAttempt(authConnection)
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
     })
     authConnection.on(LFAEvents.REMOTE_ERROR, error => {
-      this.rememberInvitationAttempt(authConnection)
       this.emit(Libp2pEvents.AUTH_REMOTE_ERROR, { error, connection })
     })
 
@@ -503,51 +563,68 @@ export class Libp2pAuth {
       stagedContext = true
     }
 
-    const teamId = sigChain.teamId!
+    await this.commitJoin({
+      teamId: sigChain.teamId!,
+      userId: user.userId,
+      peerId,
+      connection,
+      joiningNow,
+      stagedContext,
+      previousContext,
+      previousJoinStatus,
+    })
+  }
+
+  /**
+   * Writes the accepted team and, only once that lands, publishes the join.
+   *
+   * Re-entered by the local write retry. The acceptance has already been
+   * validated and is held in memory, so a failure here is ours alone: nothing
+   * about it needs the network again, and asking the admitter for a second
+   * acceptance would be both slower and a fresh handshake we do not need.
+   * The local write is therefore retried on its own budget, and only when that
+   * is spent do we roll back and go get a new acceptance.
+   */
+  private async commitJoin(pending: PendingJoin): Promise<void> {
+    const { teamId, userId, peerId, connection, joiningNow, stagedContext, previousContext, previousJoinStatus } =
+      pending
+    const retryKey = `${teamId}:${peerId.toString()}`
+
     try {
       await this.sigChainService.persistChain(teamId)
     } catch (err) {
-      this.logger.error(`Failed to persist chain after joining team ${teamId}, rolling back the join`, err)
+      // Keep the staged context while we retry: it is what the write serializes,
+      // and nothing is published from it until the write succeeds.
+      const scheduled = this.localWriteRetry.schedule(retryKey, async () => this.commitJoin(pending))
+      if (scheduled) {
+        this.logger.error(`Failed to persist chain after joining team ${teamId}, retrying the write`, err)
+        return
+      }
+
+      this.logger.error(
+        `Giving up on writing the joined team ${teamId} locally, rolling back and asking for a new acceptance`,
+        err
+      )
       if (stagedContext) {
-        sigChain.context = previousContext
+        this.sigChainService.getActiveChain().context = previousContext
       }
       // JOINING would make the retry buffer the peer instead of re-admitting us,
       // so hand back a status the join path will actually act on.
       this.joinStatus = previousJoinStatus === JoinStatus.JOINING ? JoinStatus.PENDING : previousJoinStatus
-      // The admitter keeps the admission it made on this attempt, so the retry
-      // has to be able to accept a link carrying this handshake's proof.
-      this.rememberInvitationAttempt(this.authConnections.get(peerId.toString()))
       this.closeAuthConnection(peerId, false)
       this.scheduleJoinRetry(peerId, connection)
       return
     }
 
+    this.localWriteRetry.clear(retryKey)
     if (joiningNow) {
-      this.logger.info(`Joined team ${teamId} (userid: ${user.userId})!`)
+      this.logger.info(`Joined team ${teamId} (userid: ${userId})!`)
       this.sigChainService.setActiveChain(teamId)
     }
     this.joinStatus = JoinStatus.JOINED
     this.joinRetry.clear(peerId.toString())
-    sigChain.forgetInvitationAttempts()
     this.emit(Libp2pEvents.AUTH_JOINED)
     this.unblockConnections(this.bufferedConnections)
-  }
-
-  /**
-   * Keeps the proof we presented on this connection, if it was an invitee one.
-   *
-   * Undefined for a member connection, and undefined before we learn who the
-   * peer is, so this is a no-op except on the path that needs it.
-   *
-   * @param authConnection The connection whose attempt is ending
-   */
-  private rememberInvitationAttempt(authConnection: Auth.Connection | undefined): void {
-    const attempt = authConnection?.invitationAttempt
-    if (attempt == null) {
-      return
-    }
-    const sigChain = this.sigChainService.getActiveChain(false)
-    sigChain?.rememberInvitationAttempt(attempt)
   }
 
   /**

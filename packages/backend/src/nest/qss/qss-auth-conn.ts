@@ -5,6 +5,7 @@ import { Connection as AuthConnection, Team, type User } from '../../../../../3r
 import {
   ConnectionParams as AuthConnectionParams,
   InviteeContext,
+  InviteeMemberContext,
   MemberContext,
 } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { SigChainService } from '../auth/sigchain.service'
@@ -61,6 +62,15 @@ export class QSSAuthConnection extends EventEmitter {
   private logger = createLogger('qss:auth:conn')
   /** Bounded re-attempts for joins that failed on our own persistence. */
   private readonly _joinRetry = new BoundedRetry('qss:join')
+  /**
+   * Bounded re-attempts for the local write of an acceptance we already hold.
+   * Separate budget from _joinRetry, because this one costs no network work.
+   */
+  private readonly _localWriteRetry = new BoundedRetry('qss:joinWrite', {
+    maxAttempts: 5,
+    baseDelayMs: 100,
+    maxDelayMs: 2_000,
+  })
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst:qss')
 
   constructor(
@@ -255,7 +265,6 @@ export class QSSAuthConnection extends EventEmitter {
     // set the connection to inactive when disconnecting
     authConnection.on(LFAEvents.DISCONNECTED, event => {
       this.logger.info(`LFA Disconnected!`, event)
-      this._rememberInvitationAttempt(authConnection)
       this._markDisconnected()
     })
 
@@ -285,11 +294,9 @@ export class QSSAuthConnection extends EventEmitter {
     // Handle errors from local or remote sources.
     authConnection.on(LFAEvents.LOCAL_ERROR, error => {
       this.logger.error(`Local LFA error`, error)
-      this._rememberInvitationAttempt(authConnection)
     })
     authConnection.on(LFAEvents.REMOTE_ERROR, error => {
       this.logger.error(`Remote LFA error`, error)
-      this._rememberInvitationAttempt(authConnection)
     })
 
     this._authConnection = authConnection
@@ -314,7 +321,22 @@ export class QSSAuthConnection extends EventEmitter {
    */
   private persistAdmission = async (team: Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
-    await this.sigChainService.persistChain(team.id, 'admission')
+    try {
+      await this.sigChainService.persistChain(team.id, 'admission')
+    } catch (err) {
+      // Undo the admission we appended but could not store, so no later write
+      // commits it and a retry produces a fresh link. This connection captured
+      // the team we are discarding, so it goes too.
+      this.logger.error(`Admission write failed for team ${team.id}, rolling back to the stored team`, err)
+      try {
+        await this.sigChainService.restoreChainToDurableState(team.id)
+        this.stop(false)
+      } catch (restoreError) {
+        this.logger.error(`Could not restore team ${team.id}; writes for it stay blocked`, restoreError)
+      }
+      // Still fail the gate: the acceptance must not be released.
+      throw err
+    }
   }
 
   /**
@@ -349,25 +371,54 @@ export class QSSAuthConnection extends EventEmitter {
       } as MemberContext
     }
 
+    await this._commitJoin({ team, needsMemberSelfAssign, previousContext, previousJoinStatus })
+  }
+
+  /**
+   * Writes the accepted team and, only once that lands, publishes the join.
+   *
+   * Re-entered by the local write retry. The acceptance is already validated and
+   * in memory, so a write failure here is ours alone; asking QSS for another
+   * acceptance would be a fresh handshake we do not need. Only when the local
+   * budget is spent do we roll back and go get a new one.
+   */
+  private async _commitJoin(pending: {
+    team: Team
+    needsMemberSelfAssign: boolean
+    previousContext: MemberContext | InviteeMemberContext
+    previousJoinStatus: JoinStatus
+  }): Promise<void> {
+    const { team, needsMemberSelfAssign, previousContext, previousJoinStatus } = pending
+
     try {
       await this.sigChainService.persistChain(team.id)
     } catch (error) {
+      // Keep the staged context while we retry: it is what the write serializes,
+      // and nothing is published from it until the write succeeds.
+      const scheduled = this._localWriteRetry.schedule(team.id, async () => this._commitJoin(pending))
+      if (scheduled) {
+        this.logger.error(`Failed to persist team after QSS auth join, retrying the write`, team.id, error)
+        return
+      }
+
       // Roll all of it back. Leaving the staged context and a PENDING_MEMBER or
       // JOINED status behind would look like a completed join to every later
       // guard while nothing had been stored, and this connection is not
       // re-initialized on its own (private#203 L-2).
-      this.logger.error(`Failed to persist team after QSS auth join, rolling back the join`, team.id, error)
+      this.logger.error(
+        `Giving up on writing the joined team locally, rolling back and asking for a new acceptance`,
+        team.id,
+        error
+      )
       if (needsMemberSelfAssign) {
-        sigChain.context = previousContext
+        this.sigChainService.getActiveChain().context = previousContext
       }
       this._joinStatus = previousJoinStatus
-      // QSS keeps the admission it made on this attempt, so the retry has to be
-      // able to accept a link carrying this handshake's proof.
-      this._rememberInvitationAttempt(this._authConnection)
       this._scheduleJoinRetry()
       return
     }
 
+    this._localWriteRetry.clear(team.id)
     if (needsMemberSelfAssign) {
       this.sigChainService.setActiveChain(team.id)
       this._joinStatus = JoinStatus.PENDING_MEMBER
@@ -375,27 +426,12 @@ export class QSSAuthConnection extends EventEmitter {
       this._joinStatus = JoinStatus.JOINED
     }
     this._joinRetry.clear(team.id)
-    sigChain.forgetInvitationAttempts()
 
     if (needsMemberSelfAssign) {
       this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
       this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
     }
     this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
-  }
-
-  /**
-   * Keeps the proof we presented on this connection, if it was an invitee one.
-   *
-   * @param authConnection The connection whose attempt is ending
-   */
-  private _rememberInvitationAttempt(authConnection: AuthConnection | undefined): void {
-    const attempt = authConnection?.invitationAttempt
-    if (attempt == null) {
-      return
-    }
-    const sigChain = this.sigChainService.getActiveChain(false)
-    sigChain?.rememberInvitationAttempt(attempt)
   }
 
   /**
@@ -446,6 +482,7 @@ export class QSSAuthConnection extends EventEmitter {
     // stops the connection before re-arming, so clearing budgets here would
     // make the bound unreachable.
     this._joinRetry.cancelPending()
+    this._localWriteRetry.cancelPending()
 
     if (this._authConnection == null) {
       this.logger.warn(`Auth connection not open with QSS for this team`, this.teamId)

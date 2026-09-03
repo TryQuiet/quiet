@@ -44,6 +44,12 @@ export class BoundedRetry {
   /**
    * Queues one more attempt for this key.
    *
+   * A rejecting attempt re-arms the next one itself, until the budget runs out.
+   * Without that, a transport that happens to be unavailable at the moment the
+   * timer fires would consume an attempt and then wait forever for some
+   * unrelated event to call back in, which is not the bounded retry the caller
+   * was promised.
+   *
    * @param key Identifies the thing being retried, e.g. a peer or a team
    * @param run The work to re-run; rejections are logged, not rethrown
    * @returns false when the attempt budget for this key is already spent
@@ -67,6 +73,9 @@ export class BoundedRetry {
       this.timers.delete(key)
       void run().catch(err => {
         this.logger.error(`${this.name}: retry ${attempt} for ${key} failed`, err)
+        if (!this.schedule(key, run)) {
+          this.logger.error(`${this.name}: no attempts left for ${key} after a failed retry`)
+        }
       })
     }, delay)
     // A pending retry must never hold the process open on its own.
