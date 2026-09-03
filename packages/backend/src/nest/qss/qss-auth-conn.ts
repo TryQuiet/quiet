@@ -311,7 +311,7 @@ export class QSSAuthConnection extends EventEmitter {
    */
   private persistAdmission = async (team: Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
-    await this.sigChainService.persistChain(team.id)
+    await this.sigChainService.persistChain(team.id, 'admission')
   }
 
   /**

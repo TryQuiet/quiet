@@ -325,7 +325,7 @@ export class Libp2pAuth {
    */
   private persistAdmission = async (team: Auth.Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
-    await this.sigChainService.persistChain(team.id)
+    await this.sigChainService.persistChain(team.id, 'admission')
   }
 
   /**

@@ -407,12 +407,15 @@ describe('SigChainService - durable chain writes', () => {
     })
 
     const first = sigChainService.persistChain(teamId)
-    const second = sigChainService.persistChain(teamId)
-
+    // Wait until the first write has actually reached the database. A caller
+    // arriving after that cannot be served by it, because that write already
+    // serialized the team.
     await waitForExpect(() => {
       expect(order).toEqual(['start-1'])
     })
-    // The second write must not have begun while the first is still in flight,
+
+    const second = sigChainService.persistChain(teamId)
+    // The second write must not begin while the first is still in flight,
     // otherwise the earlier serialization can be committed after the later one.
     expect(writeCount).toBe(1)
 
@@ -420,6 +423,110 @@ describe('SigChainService - durable chain writes', () => {
     await Promise.all([first, second])
 
     expect(order).toEqual(['start-1', 'end-1', 'start-2', 'end-2'])
+  })
+
+  // private#203 M-4: a peer that can restart the handshake was able to queue an
+  // unbounded number of serialize-and-write tasks, delaying every other write
+  // for the team. Ordinary writes now coalesce onto one pending task, and the
+  // admission gate refuses rather than growing the queue without limit.
+  it('coalesces writes queued before the disk is reached into a single write', async () => {
+    const write = deferred()
+    let started = 0
+    const setSigChainSpy = jest.spyOn(localDbService, 'setSigChain').mockImplementation(async () => {
+      started += 1
+      await write.promise
+    })
+
+    const first = sigChainService.persistChain(teamId)
+    await waitForExpect(() => {
+      expect(started).toBe(1)
+    })
+
+    // Twenty more updates arrive while that write is in flight. They describe
+    // the same live chain, so one further write covers all of them.
+    const queued = Array.from({ length: 20 }, () => sigChainService.persistChain(teamId))
+    expect(sigChainService.pendingPersistCount(teamId)).toBe(21)
+
+    write.resolve()
+    await Promise.all([first, ...queued])
+
+    expect(setSigChainSpy).toHaveBeenCalledTimes(2)
+    expect(sigChainService.pendingPersistCount(teamId)).toBe(0)
+  })
+
+  it('gives every coalesced admission its own completion, resolved by a write that saw its state', async () => {
+    const order: string[] = []
+    const write = deferred()
+    let started = 0
+    jest.spyOn(localDbService, 'setSigChain').mockImplementation(async () => {
+      started += 1
+      if (started === 1) {
+        await write.promise
+      }
+      order.push(`write-${started}`)
+    })
+
+    const blocking = sigChainService.persistChain(teamId)
+    await waitForExpect(() => {
+      expect(started).toBe(1)
+    })
+
+    // Two admissions for the same head share one write, and neither completion
+    // can be skipped: both must still be told when that write lands.
+    const settled: string[] = []
+    const admissionA = sigChainService.persistChain(teamId, 'admission').then(() => settled.push('a'))
+    const admissionB = sigChainService.persistChain(teamId, 'admission').then(() => settled.push('b'))
+
+    expect(settled).toHaveLength(0)
+
+    write.resolve()
+    await Promise.all([blocking, admissionA, admissionB])
+
+    expect(settled.sort()).toEqual(['a', 'b'])
+    // One shared write served both admissions, and it started after they were
+    // queued, so it serialized their state.
+    expect(order).toEqual(['write-1', 'write-2'])
+  })
+
+  it('fails the admission gate closed past the pending-write bound', async () => {
+    const write = deferred()
+    jest.spyOn(localDbService, 'setSigChain').mockImplementation(async () => {
+      await write.promise
+    })
+
+    const bound = 64
+    const queued = Array.from({ length: bound }, () => sigChainService.persistChain(teamId).catch(() => undefined))
+    expect(sigChainService.pendingPersistCount(teamId)).toBe(bound)
+
+    await expect(sigChainService.persistChain(teamId, 'admission')).rejects.toThrow(/already pending/)
+
+    write.resolve()
+    await Promise.all(queued)
+  })
+
+  it('still accepts ordinary updates at the bound, because they add no new work', async () => {
+    const write = deferred()
+    let started = 0
+    const setSigChainSpy = jest.spyOn(localDbService, 'setSigChain').mockImplementation(async () => {
+      started += 1
+      await write.promise
+    })
+
+    const bound = 64
+    const queued = Array.from({ length: bound }, () => sigChainService.persistChain(teamId))
+    await waitForExpect(() => {
+      expect(started).toBe(1)
+    })
+    expect(sigChainService.pendingPersistCount(teamId)).toBe(bound)
+
+    // An update at the bound is served rather than refused: it joins the write
+    // already queued behind the running one instead of adding another.
+    const extra = sigChainService.persistChain(teamId)
+    expect(setSigChainSpy).toHaveBeenCalledTimes(1)
+
+    write.resolve()
+    await Promise.all([...queued, extra])
+    expect(setSigChainSpy).toHaveBeenCalledTimes(2)
   })
 
   it('does not serialize writes for different teams against each other', async () => {

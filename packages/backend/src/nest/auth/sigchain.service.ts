@@ -28,20 +28,36 @@ import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
 
+/** Why a write was requested; only admissions are refused past the bound. */
+export type PersistKind = 'update' | 'admission'
+
+/**
+ * Write state for one team: at most one write talking to the database and one
+ * queued behind it, plus the number of callers waiting on that queued write.
+ */
+type TeamPersistState = {
+  running: Promise<void> | null
+  pending: Promise<void> | null
+  waiters: number
+}
+
 @Injectable()
 export class SigChainService extends EventEmitter {
+  /**
+   * Ceiling on callers waiting for one team's write.
+   *
+   * Reached only when something is generating admissions far faster than the
+   * disk retires them, which in practice means a peer is driving it.
+   */
+  private static readonly MAX_PENDING_PERSISTS_PER_TEAM = 64
+
   public activeChainTeamId: string | undefined
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
   private readonly _chainListeners: Map<SigChain, () => void> = new Map()
-  /**
-   * Tail of the in-flight write chain for each team, keyed by team ID.
-   *
-   * The stored promise never rejects, so a failed write does not poison later
-   * writes for the same team; see persistChain.
-   */
-  private readonly _persistQueue: Map<string, Promise<void>> = new Map()
+  /** Coalescing write state per team; see persistChain. */
+  private readonly _persistQueue: Map<string, TeamPersistState> = new Map()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -479,8 +495,50 @@ export class SigChainService extends EventEmitter {
    *
    * @param teamId ID of the team whose chain should be persisted
    */
-  public persistChain(teamId: string): Promise<void> {
-    const write = async (): Promise<void> => {
+  public persistChain(teamId: string, kind: PersistKind = 'update'): Promise<void> {
+    let state = this._persistQueue.get(teamId)
+    if (state == null) {
+      state = { running: null, pending: null, waiters: 0 }
+      this._persistQueue.set(teamId, state)
+    }
+
+    // Fail the admission gate closed past the bound. An invitation holder that
+    // can restart the handshake would otherwise keep adding waiters for free;
+    // refusing here turns that into a failed admission rather than unbounded
+    // work in front of every other write for this team.
+    if (kind === 'admission' && state.waiters >= SigChainService.MAX_PENDING_PERSISTS_PER_TEAM) {
+      const message = `Refusing to queue another admission write for team ${teamId}: ${state.waiters} already pending`
+      this.logger.error(message)
+      return Promise.reject(new Error(message))
+    }
+
+    if (state.pending == null) {
+      const startAfter = state.running ?? Promise.resolve()
+      const queued = state
+      state.pending = startAfter.then(
+        () => this.runPersist(teamId, queued),
+        () => this.runPersist(teamId, queued)
+      )
+    }
+
+    const result = state.pending
+    const queued = state
+    queued.waiters += 1
+    return result.finally(() => {
+      queued.waiters -= 1
+    })
+  }
+
+  /**
+   * Runs one write and hands the queue its next slot.
+   *
+   * The pending slot is released the moment this write starts, so a caller that
+   * arrives afterwards opens a fresh slot instead of being told its state is
+   * already covered by a write that had begun before its mutation.
+   */
+  private runPersist(teamId: string, state: TeamPersistState): Promise<void> {
+    state.pending = null
+    const running = (async () => {
       try {
         this.logger.info(`Saving chain to disk`, teamId)
         await this._ensureDb()
@@ -490,23 +548,28 @@ export class SigChainService extends EventEmitter {
         this.logger.error(`Failed to persist sigchain for team ${teamId}`, err)
         throw err
       }
-    }
-
-    // The queued tail never rejects, so one failed write does not cascade into
+    })()
+    // The tracked tail never rejects, so one failed write does not cascade into
     // every later write for the same team.
-    const previous = this._persistQueue.get(teamId)
-    const result = previous == null ? write() : previous.then(write)
-    const tail = result.then(
+    const settled = running.then(
       () => undefined,
       () => undefined
     )
-    this._persistQueue.set(teamId, tail)
-    void tail.then(() => {
-      if (this._persistQueue.get(teamId) === tail) {
+    state.running = settled
+    void settled.then(() => {
+      if (state.running === settled) {
+        state.running = null
+      }
+      if (this._persistQueue.get(teamId) === state && state.pending == null && state.waiters === 0) {
         this._persistQueue.delete(teamId)
       }
     })
-    return result
+    return running
+  }
+
+  /** Callers currently waiting on a write for this team; for tests and diagnostics. */
+  public pendingPersistCount(teamId: string): number {
+    return this._persistQueue.get(teamId)?.waiters ?? 0
   }
 
   /**
