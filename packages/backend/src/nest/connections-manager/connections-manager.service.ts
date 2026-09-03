@@ -8,7 +8,7 @@ import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
-import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
+import { createLibp2pAddress, createLocalAddress, isPSKcodeValid, parseLocalAddress } from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -34,15 +34,21 @@ import {
   type UserProfile,
   type UserProfilesStoredEvent,
   Identity,
+  InvitationData,
   PeerId as QuietPeerId,
   InvitationDataVersion,
+  isDeviceInvitationData,
   PermissionsError,
   CommunityOwnership,
   InitCommunityPayload,
   ResponseCreateCommunityPayload,
   ResponseJoinCommunityPayload,
+  ResponseLinkDevicePayload,
+  InitDeviceLinkPayload,
   RequestInvitePayload,
+  RequestDeviceLinkPayload,
   ResponseInvitePayload,
+  DeviceLinkInvite,
   LaunchCommunityPayload,
   ChannelMessage,
   DownloadFilePayload,
@@ -61,7 +67,7 @@ import {
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
-import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { CreatedLibp2pPeerId, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { emitError } from '../socket/socket.errors'
@@ -78,13 +84,22 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
-import { QSSEvents } from '../qss/qss.types'
+import { QSSOperationResult } from '../qss/qss.types'
 import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
 import { Member } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
+import { AdmissionCoordinator } from '../admission/admission-coordinator.service'
+import {
+  AdmissionKind,
+  AdmissionTransport,
+  CommunityAdmissionMetadata,
+  QssAdmissionStartResult,
+} from '../admission/admission.types'
+
+const INVITATION_ADMISSION_TIMEOUT_MS = 120_000
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -114,7 +129,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly sigChainService: SigChainService,
     private readonly qssService: QSSService,
     private readonly qpsService: QPSService,
-    private readonly captchaService: CaptchaService
+    private readonly captchaService: CaptchaService,
+    private readonly admissionCoordinator: AdmissionCoordinator
   ) {
     super()
   }
@@ -259,6 +275,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.sigChainService.loadChain(community.teamId, true)
       } catch (e) {
         this.logger.error('Failed to load sigchain', e)
+        if (community.inviteData && isDeviceInvitationData(community.inviteData)) {
+          this.logger.info('Cleaning interrupted device-link artifacts')
+          await this.erasePreviousCommunityArtifacts()
+          return
+        }
         await this.localDbService.deleteCommunity(community.id)
         await this.sigChainService.deleteChain(community.teamId, true)
         return
@@ -276,6 +297,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async saveActiveChain() {
     try {
+      if (this.sigChainService.getActiveChain(false)?.isPendingDeviceAdmission) {
+        this.logger.info('Skipping active-chain save for pending device invitation context')
+        return
+      }
       await this.sigChainService.saveChain(this.sigChainService.activeChainTeamId!)
     } catch (e) {
       this.logger.info('Failed to save active chain', e)
@@ -284,6 +309,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async pause() {
     this.logger.info('Pausing!')
+    await this.admissionCoordinator.cancelActive(new Error('Admission cancelled while services paused'))
     this.qssService.pause()
     await this.libp2pService?.pause()
     await this.closeSocket()
@@ -424,6 +450,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   ) {
     this.logger.info('Closing services', options)
+    await this.admissionCoordinator.cancelActive(new Error('Admission cancelled while services closed'))
 
     if (!options.deleteChainFromDisk) {
       this.logger.info('Saving active sigchain')
@@ -596,9 +623,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async getNetworkInfo(): Promise<NetworkInfo> {
     this.logger.info('Getting network information')
 
-    this.logger.info('Creating hidden service')
-    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
-    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    const hiddenService =
+      process.env.LOCAL_TRANSPORT === 'true'
+        ? {
+            onionAddress: createLocalAddress(this.ports.libp2pHiddenService),
+            privateKey: '',
+          }
+        : await this.createEphemeralHiddenService()
     this.logger.info('Getting peer ID')
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
@@ -611,6 +642,63 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       hiddenService,
       peerId: peerIdJson,
     }
+  }
+
+  private async createEphemeralHiddenService(): Promise<NetworkInfo['hiddenService']> {
+    this.logger.info('Creating hidden service')
+    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
+    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    return hiddenService
+  }
+
+  private async bootstrapCommunityFromInvitation(
+    id: string,
+    inviteData: InvitationData,
+    userId: string
+  ): Promise<{ community: Community; identity: Identity }> {
+    const network = await this.getNetworkInfo()
+    const identity: Identity = {
+      communityId: id,
+      userId,
+      networkInfo: network,
+      joinTimestamp: null,
+      introMessageSent: isDeviceInvitationData(inviteData) ? true : undefined,
+    }
+    await this.storageService.setIdentity(identity)
+
+    const localAddress = createLibp2pAddress(
+      identity.networkInfo.hiddenService.onionAddress,
+      identity.networkInfo.peerId.id
+    )
+    const bootstrapPeerStats: Record<string, NetworkStats> = {}
+    for (const pair of inviteData.pairs) {
+      const multiaddr = createLibp2pAddress(pair.onionAddress, pair.peerId)
+      bootstrapPeerStats[pair.peerId] = {
+        peerId: pair.peerId,
+        address: multiaddr,
+        connectionTime: 0,
+        lastSeen: DateTime.utc().toSeconds(),
+      } as NetworkStats
+    }
+    await this.localDbService.updatePeerStats(bootstrapPeerStats)
+
+    const community: Community = {
+      id,
+      name: inviteData.authData.communityName,
+      peerList: [...new Set([localAddress, ...Object.keys(bootstrapPeerStats)])],
+      inviteData,
+      psk: inviteData.psk,
+      teamId: inviteData.authData.teamId,
+      ownership: CommunityOwnership.User,
+      qssEnabled: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEnabled : undefined,
+      qssEndpoint: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEndpoint : undefined,
+      qssSetup:
+        isDeviceInvitationData(inviteData) && inviteData.version === InvitationDataVersion.v5 ? true : undefined,
+    }
+
+    await this.localDbService.setCommunity(community)
+    await this.localDbService.setCurrentCommunityId(community.id)
+    return { community, identity }
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
@@ -688,62 +776,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
       return
     }
-
     await this.erasePreviousCommunityArtifacts()
 
-    const { communityName, seed, teamId } = inviteData.authData
+    const { seed, teamId } = inviteData.authData
     await this.sigChainService.createChainFromInvite({ seed }, teamId, true)
 
-    if (!isPSKcodeValid(inviteData.psk)) {
-      emitError(this.serverIoProvider.io, {
-        type: SocketActions.JOIN_COMMUNITY,
-        message: ErrorMessages.NETWORK_SETUP_FAILED,
-        community: payload.id,
-      })
-      return
-    }
-
-    const network = await this.getNetworkInfo()
-
-    const identity: Identity = {
-      communityId: payload.id,
-      userId: this.sigChainService.user.userId,
-      networkInfo: network,
-      joinTimestamp: null,
-    }
-    await this.storageService.setIdentity(identity)
-
-    const localAddress = createLibp2pAddress(
-      identity.networkInfo.hiddenService.onionAddress,
-      identity.networkInfo.peerId.id
-    )
-    const bootstrapPeerStats: Record<string, NetworkStats> = {}
-    for (const pair of inviteData.pairs) {
-      const multiaddr = createLibp2pAddress(pair.onionAddress, pair.peerId)
-      bootstrapPeerStats[pair.peerId] = {
-        peerId: pair.peerId,
-        address: multiaddr,
-        connectionTime: 0,
-        lastSeen: DateTime.utc().toSeconds(),
-      } as NetworkStats
-    }
-    // this adds bootstrap peers to the local db with the expectation that they are replaced once the user connects
-    await this.localDbService.updatePeerStats(bootstrapPeerStats)
-
-    const community: Community = {
-      id: payload.id,
-      name: communityName,
-      peerList: [...new Set([localAddress, ...Object.keys(bootstrapPeerStats)])], // TODO: we should deprecate this field and use db
+    const { community, identity } = await this.bootstrapCommunityFromInvitation(
+      payload.id,
       inviteData,
-      psk: inviteData.psk,
-      teamId,
-      ownership: CommunityOwnership.User,
-      qssEnabled: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEnabled : undefined,
-      qssEndpoint: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEndpoint : undefined,
-    }
-
-    await this.localDbService.setCommunity(community)
-    await this.localDbService.setCurrentCommunityId(community.id)
+      this.sigChainService.user.userId
+    )
 
     const userProfile: UserProfile = {
       userId: identity.userId,
@@ -761,6 +803,59 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       identity: identity,
       profile: userProfile,
     } as ResponseJoinCommunityPayload
+  }
+
+  public async linkDevice(payload: InitDeviceLinkPayload): Promise<ResponseLinkDevicePayload | undefined> {
+    this.logger.info('Linking device to community', payload.id)
+    const { inviteData } = payload
+    if (inviteData == null || !isDeviceInvitationData(inviteData)) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.LINK_DEVICE,
+        message: ErrorMessages.INVITE_DATA_REQUIRED,
+        community: payload.id,
+      })
+      return
+    }
+    if (!isPSKcodeValid(inviteData.psk)) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.LINK_DEVICE,
+        message: ErrorMessages.NETWORK_SETUP_FAILED,
+        community: payload.id,
+      })
+      return
+    }
+
+    const communities = (await this.localDbService.getCommunities()) ?? {}
+    if (Object.keys(communities).length > 0) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.LINK_DEVICE,
+        message: ErrorMessages.COMMUNITY_ALREADY_INITIALIZED,
+        community: payload.id,
+      })
+      return
+    }
+
+    await this.erasePreviousCommunityArtifacts()
+
+    const { seed, teamId, userId, userName } = inviteData.authData
+    await this.sigChainService.createChainFromDeviceInvite(
+      {
+        seed,
+        userName,
+        deviceName: payload.deviceName,
+        expectedTeamId: teamId,
+        expectedUserId: userId,
+      },
+      teamId,
+      true
+    )
+
+    const { community, identity } = await this.bootstrapCommunityFromInvitation(payload.id, inviteData, userId)
+    return {
+      id: community.id,
+      community,
+      identity,
+    }
   }
 
   public async launchCommunity(id: string): Promise<void> {
@@ -850,24 +945,42 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       throw new Error(ErrorMessages.IDENTITY_NOT_FOUND)
     }
 
-    const onionAddress = await this.spawnTorHiddenService(community.id, identity)
+    const useLocalTransport = process.env.LOCAL_TRANSPORT === 'true'
+    const networkAddress = useLocalTransport
+      ? identity.networkInfo.hiddenService.onionAddress
+      : await this.spawnTorHiddenService(community.id, identity)
+
+    if (useLocalTransport) {
+      const localAddress = parseLocalAddress(networkAddress)
+      if (localAddress == null) {
+        throw new Error(`Local transport requires a 127.0.0.1:<port> peer address, received: ${networkAddress}`)
+      }
+      this.ports = { ...this.ports, libp2pHiddenService: localAddress.port }
+    }
 
     const peerIdData: CreatedLibp2pPeerId = {
       peerId: peerIdFromString(identity.networkInfo.peerId.id),
       privKey: privateKeyFromRaw(uint8arrays.fromString(identity.networkInfo.peerId.privKey, 'base64')),
     }
-    const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
+    const localAddress = createLibp2pAddress(networkAddress, peerIdData.peerId.toString())
 
     const params: Libp2pNodeParams = {
       peerId: peerIdData,
-      listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
-      agent: this.socksProxyAgent,
+      listenAddresses: [this.libp2pService.createLibp2pListenAddress(networkAddress)],
+      agent: useLocalTransport ? undefined : this.socksProxyAgent,
       localAddress: localAddress,
       targetPort: this.ports.libp2pHiddenService,
       psk: generateLibp2pPSK(community.psk).fullKey,
-      torBootstrap: this.tor,
+      torBootstrap: useLocalTransport ? undefined : this.tor,
     }
-    await this.libp2pService.createInstance(params)
+
+    let libp2pStartPromise: Promise<void> | undefined
+    const ensureLibp2pStarted = async (): Promise<void> => {
+      if (libp2pStartPromise == null) {
+        libp2pStartPromise = this.libp2pService.createInstance(params).then(() => undefined)
+      }
+      return libp2pStartPromise
+    }
 
     let storageTeamId: string | undefined
     let setupStorageWithTeamMetaPromise: Promise<void> | undefined
@@ -895,50 +1008,75 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
     if (hasStorageReadyChain) {
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
+      await ensureLibp2pStarted()
       await setupStorageWithTeamMeta(activeChain.team!.id)
-      this.qssService.connect(community.qssEndpoint)
+      void this.qssService.connect(community.qssEndpoint)
       await this._updateTeamIdOnStoredCommunity(community, activeChain)
     } else {
-      this.logger.debug(
-        'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
-      )
-      const storageReadyPromise = new Promise<void>((resolve, reject) => {
-        const handleStorageReady = async (teamId: string) => {
-          try {
-            await setupStorageWithTeamMeta(teamId)
-            await this._updateTeamIdOnStoredCommunity(community, teamId)
-            resolve()
-          } catch (e) {
-            reject(e)
-          }
-        }
-
-        this.qssService.once(QSSEvents.QSS_FULLY_JOINED, (teamId: string) => {
-          this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
-          void handleStorageReady(teamId)
-        })
-        this.libp2pService.once(Libp2pEvents.AUTH_JOINED, (payload: { peer: string }) => {
-          this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
-          const teamId = this.sigChainService.getActiveChain().team?.id
-          if (teamId == null) {
-            reject(new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`))
-            return
-          }
-          void handleStorageReady(teamId)
-        })
-      })
-
-      this.qssService.connect(community.qssEndpoint)
-
-      if (await this.tor.isBootstrappingFinished()) {
-        this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+      const inviteData = community.inviteData
+      if (inviteData == null) {
+        throw new Error(`Cannot coordinate admission for community ${community.id} without invitation data`)
       }
-      this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+      const teamId = community.teamId ?? inviteData.authData.teamId
+      const qssAdmissionEndpoint =
+        community.qssEnabled === true &&
+        inviteData.version === InvitationDataVersion.v5 &&
+        inviteData.qssEnabled &&
+        inviteData.qssEndpoint
+          ? inviteData.qssEndpoint
+          : undefined
+      const admission = await this.admissionCoordinator.coordinate(
+        {
+          communityId: community.id,
+          teamId,
+          expectedUserId: identity.userId,
+          expectedDeviceId: activeChain.device.deviceId,
+          kind: activeChain.isPendingDeviceAdmission ? AdmissionKind.DEVICE : AdmissionKind.MEMBER,
+          preferredTransport: qssAdmissionEndpoint != null ? AdmissionTransport.QSS : AdmissionTransport.P2P,
+          storedTransport: (community as Community & CommunityAdmissionMetadata).admissionTransport,
+          timeoutMs: INVITATION_ADMISSION_TIMEOUT_MS,
+        },
+        {
+          startQss: async () => {
+            if (qssAdmissionEndpoint == null) {
+              return QssAdmissionStartResult.UNAVAILABLE
+            }
+            const result = await this.qssService.connect(qssAdmissionEndpoint)
+            return result === QSSOperationResult.SUCCESS
+              ? QssAdmissionStartResult.READY
+              : QssAdmissionStartResult.UNAVAILABLE
+          },
+          pauseQss: () => this.qssService.pause(),
+          startP2p: async finalize => {
+            const admission = this.libp2pService.beginAdmission(finalize)
+            try {
+              await ensureLibp2pStarted()
+              return await admission
+            } catch (error) {
+              this.libp2pService.cancelAdmission(error instanceof Error ? error : new Error(String(error)))
+              throw error
+            }
+          },
+          stopP2p: async () => this.libp2pService.close(false),
+          convergeQssAfterP2p: async () => {
+            if (qssAdmissionEndpoint == null) {
+              return
+            }
+            await this.qssService.resume()
+            const result = await this.qssService.connect(qssAdmissionEndpoint)
+            if (result === QSSOperationResult.SUCCESS) {
+              await this.qssService.authenticateCurrentCommunity()
+            }
+          },
+        }
+      )
 
-      await storageReadyPromise
+      await ensureLibp2pStarted()
+      await setupStorageWithTeamMeta(admission.teamId)
+      await this._updateTeamIdOnStoredCommunity(community, admission.teamId)
     }
 
-    if (await this.tor.isBootstrappingFinished()) {
+    if (useLocalTransport || (await this.tor.isBootstrappingFinished())) {
       this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
     }
 
@@ -1093,6 +1231,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         }
       }
     )
+    this.socketService.on(
+      SocketActions.LINK_DEVICE,
+      async (args: InitDeviceLinkPayload, callback: (response?: ResponseLinkDevicePayload) => void) => {
+        this.logger.info(`socketService - ${SocketActions.LINK_DEVICE}`)
+        try {
+          callback(await this.linkDevice(args))
+        } catch (e) {
+          this.logger.error('Error while handling link device request', e)
+          callback(undefined)
+        }
+      }
+    )
 
     this.socketService.on(SocketActions.LEAVE_COMMUNITY, async (callback: (closed: boolean) => void) => {
       this.logger.info(`socketService - ${SocketActions.LEAVE_COMMUNITY}`)
@@ -1134,6 +1284,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
               : this.logger.error(`Failed to generate a new long lived LFA invite code!`, e)
             callback({ valid: false })
           }
+        }
+      }
+    )
+    this.socketService.on(
+      SocketActions.CREATE_DEVICE_LINK,
+      async (_args: RequestDeviceLinkPayload, callback: (response?: DeviceLinkInvite) => void) => {
+        if (this.sigChainService.activeChainTeamId == null) {
+          this.logger.warn(`No sigchain configured, skipping device link generation!`)
+          callback(undefined)
+          return
+        }
+
+        try {
+          const deviceInvite = this.sigChainService.getActiveChain().invites.createDeviceInvite()
+          await this.sigChainService.saveChain(this.sigChainService.activeChainTeamId)
+          callback(deviceInvite)
+        } catch (e) {
+          this.logger.error(`Failed to generate a device link!`, e)
+          callback(undefined)
         }
       }
     )
@@ -1223,23 +1392,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     this.socketService.on(SocketActions.TOGGLE_P2P, async (payload: boolean, callback: (response: boolean) => void) => {
+      let toggleAccepted = false
       try {
         if (payload) {
-          await this.libp2pService.resume()
+          toggleAccepted = await this.libp2pService.resume()
           await this.storageService.startSync()
         } else {
-          await this.libp2pService.pause()
+          toggleAccepted = await this.libp2pService.pause()
           await this.storageService.stopSync()
         }
       } catch (e) {
         this.logger.error('Error toggling libp2p service', e)
       }
 
-      if (this.libp2pService.state === Libp2pState.Started) {
-        callback(true)
-      } else {
-        callback(false)
-      }
+      callback(toggleAccepted ? payload : this.libp2pService.state === Libp2pState.Started)
     })
   }
 

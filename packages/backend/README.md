@@ -66,6 +66,30 @@ When your aim is to build the desktop app run the following command in packages/
 
 `npm run webpack:prod`
 
+### Live QSS integration test
+
+The live QSS integration suite is excluded from normal backend and CI test
+discovery. It requires a running, migrated Docker QSS server and exercises
+community creation, websocket connection, Local First Auth synchronization,
+new-member joining, QSS-backed log replication, reconnects, historical pulls,
+and P2P device linking followed by QSS authentication.
+
+From the repository root:
+
+```sh
+npm run start:qss
+npm run test:qss-integration
+```
+
+The test defaults to `http://localhost:3003`. To use another running QSS:
+
+```sh
+QSS_INTEGRATION_ENDPOINT=http://localhost:3003 npm run test:qss-integration
+```
+
+The suite creates uniquely named communities but does not reset the QSS
+database. Stop the Docker stack separately with `npm run stop:qss`.
+
 ### Logging
 
 By default logs are output to the console and to files located in the application data directory (this location varies by OS).  This is true for backends running on desktop _and_ mobile.

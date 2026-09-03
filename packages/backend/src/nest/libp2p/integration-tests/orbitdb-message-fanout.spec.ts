@@ -577,13 +577,13 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       true
     )
     const proof = generateProof(inviteResult.seed)
-    adminSigchainService.activeChain.team!.admitMember(proof, redactKeys(sigchain.context.user.keys), username)
+    adminSigchainService.activeChain.team!.admitMember(proof, redactKeys(sigchain.user.keys), username)
     const teamBytes = adminSigchainService.activeChain.save()
     const teamKeyring = adminSigchainService.activeChain.team!.teamKeyring()
     expect(teamKeyring).toBeDefined()
     const userContext = {
       device: sigchain.context.device,
-      user: sigchain.context.user,
+      user: sigchain.user,
     }
     const loadedTeam = new Team({
       source: teamBytes,
@@ -597,7 +597,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     }
     const newUser = sigchain.users.getUserById(sigchain.user.userId, { includeRemoved: false, throwOnMissing: false })
     expect(newUser).toBeDefined()
-    expect(newUser!.keys.encryption).toBe(sigchain.context.user.keys.encryption.publicKey)
+    expect(newUser!.keys.encryption).toBe(sigchain.user.keys.encryption.publicKey)
 
     // Create libp2p instances (in-memory transport)
     libp2pNodeParams = await spawnLibp2pInstancesInMemory(newPeerModule)

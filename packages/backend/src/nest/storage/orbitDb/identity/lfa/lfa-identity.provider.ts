@@ -75,7 +75,7 @@ class LFAIdentityProvider implements IdentityProvider {
     try {
       // TODO: replace this with `sign` if we end up signing the identity records themselves
       const { user, sigchain } = this.getUserAndChain(userId, teamId)
-      const userFromContext = sigchain.context.user
+      const userFromContext = sigchain.user
       if (userFromContext.userId !== user.userId || userFromContext.keys.signature.publicKey != user.keys.signature) {
         throw new Error('User ID and/or public signing key does not match context user')
       }
@@ -133,7 +133,7 @@ class LFAIdentityProvider implements IdentityProvider {
       // validate your user is on the chain
       const { user, sigchain } = this.getUserAndChain(userId, teamId)
       // ensure the user on the chain matches the user in our context
-      const userFromContext = sigchain.context.user
+      const userFromContext = sigchain.user
       if (userFromContext.userId !== user.userId) {
         throw new Error('User ID and/or public signing key does not match context user')
       }

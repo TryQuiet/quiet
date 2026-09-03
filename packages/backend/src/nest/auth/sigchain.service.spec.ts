@@ -141,6 +141,83 @@ describe('SigChainService - listener lifecycle', () => {
     expect(chainB.listenerCount(SigchainEvents.UPDATED)).toBe(0)
   })
 
+  it('does not attach another update listener when the active chain is selected again', async () => {
+    const chain = await sigChainService.createChain(true)
+
+    sigChainService.setActiveChain(chain.teamId!)
+    sigChainService.setActiveChain(chain.teamId!)
+
+    expect(chain.listenerCount(SigchainEvents.UPDATED)).toBe(1)
+  })
+
+  it('holds admission writes behind the barrier and releases them after the durable commit', async () => {
+    const chain = await sigChainService.createChain(true)
+    const teamId = chain.teamId!
+    const persistSpy = jest.spyOn(localDbService, 'setSigChainData')
+    persistSpy.mockClear()
+    let blockedSaveResolved = false
+
+    await sigChainService.withAdmissionPersistence(teamId, async persistence => {
+      const blockedSave = sigChainService.saveChain(teamId).then(() => {
+        blockedSaveResolved = true
+      })
+      await new Promise<void>(resolve => setImmediate(resolve))
+
+      expect(blockedSaveResolved).toBe(false)
+      expect(persistSpy).not.toHaveBeenCalled()
+
+      await persistence.commit()
+      await blockedSave
+    })
+
+    expect(blockedSaveResolved).toBe(true)
+    expect(persistSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('persists a newer snapshot when the chain changes during admission commit', async () => {
+    const chain = await sigChainService.createChain(true)
+    const teamId = chain.teamId!
+    let snapshotVersion = 1
+    let releaseFirstWrite!: () => void
+    const firstWrite = new Promise<void>(resolve => {
+      releaseFirstWrite = resolve
+    })
+    const snapshots: Array<{ serializedTeam: string }> = []
+    const captureSpy = jest.spyOn(sigChainService as any, 'captureSnapshot').mockImplementation(() => ({
+      serializedTeam: String(snapshotVersion),
+      localUserContext: chain.context,
+      teamKeyRing: undefined,
+    }))
+    const enqueueSpy = jest
+      .spyOn(sigChainService as any, 'enqueueSnapshot')
+      .mockImplementation(async (...args: unknown[]) => {
+        const snapshot = args[1] as { serializedTeam: string }
+        snapshots.push(snapshot)
+        if (snapshots.length === 1) {
+          await firstWrite
+        }
+      })
+
+    try {
+      await sigChainService.withAdmissionPersistence(teamId, async persistence => {
+        const commit = persistence.commit()
+        await waitForExpect(() => expect(snapshots).toHaveLength(1))
+
+        snapshotVersion = 2
+        const blockedSave = sigChainService.saveChain(teamId)
+        await new Promise<void>(resolve => setImmediate(resolve))
+        releaseFirstWrite()
+
+        await commit
+        await blockedSave
+      })
+      expect(snapshots.map(snapshot => snapshot.serializedTeam)).toEqual(['1', '2'])
+    } finally {
+      captureSpy.mockRestore()
+      enqueueSpy.mockRestore()
+    }
+  })
+
   it('does not emit iOS-native key or device events on non-ios platforms', async () => {
     const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
 

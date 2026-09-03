@@ -55,9 +55,16 @@ import { QSSAuthConnection } from './qss-auth-conn'
 import { SigchainEvents } from '../auth/types'
 import { PublicChannelMessagesService } from '../storage/channels/messages/public-channel-messages.service'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
-import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
+import {
+  QSS_DEVICE_ADMISSION_MAX_ATTEMPTS,
+  QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS,
+  QSS_RECONNECT_BACKOFF_FACTOR,
+  QSS_RECONNECT_DELAY_MS,
+  QSSAuthConnStatus,
+} from './qss.const'
 import { QSSSyncManager } from './qss-sync-manager.service'
 import { Serializer } from '../common/serializer.service'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 
 describe('QSSService', () => {
   let store: Store
@@ -280,6 +287,241 @@ describe('QSSService', () => {
   }
 
   describe('connect', () => {
+    it('leaves pending invited-device authentication to the admission coordinator', async () => {
+      const teamId = 'pending-device-team'
+      await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)
+      const pendingChain = await sigchainService.createChainFromDeviceInvite(
+        {
+          seed: 'device-invite-seed',
+          userName: 'alice',
+          expectedTeamId: teamId,
+          expectedUserId: userIdentity.userId,
+        },
+        teamId,
+        true
+      )
+      const createCommunitySpy = jest.spyOn(qssService, 'createCommunity')
+      const signInSpy = jest.spyOn(qssService, 'signInToCommunity').mockResolvedValue(QSSOperationResult.SUCCESS)
+
+      community = {
+        ...community,
+        teamId,
+        inviteData: {
+          authData: { teamId },
+        } as any,
+      }
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      await qssService['_handleQssHandleSignIn']()
+
+      expect(createCommunitySpy).not.toHaveBeenCalled()
+      expect(signInSpy).not.toHaveBeenCalled()
+
+      const requestSignInSpy = jest
+        .spyOn(qssService, '_signInToCommunityImpl')
+        .mockResolvedValue(QSSOperationResult.SUCCESS)
+      const startAuthSpy = jest.spyOn(qssService as any, 'startAuthConnection').mockResolvedValue(true)
+      jest.spyOn(qssService as any, 'emitNseQssUrl').mockResolvedValue(undefined)
+      const startSyncSpy = jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+
+      const prepared = await qssService.prepareAdmission(teamId, pendingChain)
+      expect(requestSignInSpy).toHaveBeenCalledWith(teamId, pendingChain, false)
+      expect(startAuthSpy).not.toHaveBeenCalled()
+
+      const admission = qssService.startPreparedAdmission(prepared, async candidate => ({
+        teamId: candidate.teamId,
+        userId: candidate.userId,
+        deviceId: candidate.deviceId,
+        transport: candidate.transport,
+      }))
+      expect(startAuthSpy).toHaveBeenCalledWith(teamId)
+      await waitForExpect(() => expect(startSyncSpy).toHaveBeenCalledWith(teamId, pendingChain))
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      qssService.pause()
+      await expect(admission).rejects.toThrow('aborted while service paused')
+    })
+
+    it('resolves prepared admission through the supplied finalizer', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssService as any, 'startAuthConnection').mockResolvedValue(true)
+      jest.spyOn(qssService as any, 'emitNseQssUrl').mockResolvedValue(undefined)
+      jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const expected = {
+        teamId,
+        userId: chain.user.userId,
+        deviceId: chain.device.deviceId,
+        transport: AdmissionTransport.QSS,
+      }
+      const finalize = jest.fn(async () => expected)
+      const admission = qssService.startPreparedAdmission(prepared, finalize)
+      await waitForExpect(() => expect(qssService['preparedAdmissions'].get(teamId)?.finalize).toBe(finalize))
+
+      await qssService['completePreparedAdmission'](teamId, prepared.kind)
+
+      await expect(admission).resolves.toEqual(expected)
+      expect(finalize).toHaveBeenCalledWith({
+        ...expected,
+        kind: prepared.kind,
+      })
+    })
+
+    it('discards prepared admission state when startup fails after installing the finalizer', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssService as any, 'startAuthConnection').mockResolvedValue(true)
+      jest.spyOn(qssService as any, 'emitNseQssUrl').mockRejectedValue(new Error('NSE setup failed'))
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+
+      await expect(
+        qssService.startPreparedAdmission(prepared, async candidate => ({
+          teamId: candidate.teamId,
+          userId: candidate.userId,
+          deviceId: candidate.deviceId,
+          transport: candidate.transport,
+        }))
+      ).rejects.toThrow('NSE setup failed')
+      expect(qssService['preparedAdmissions'].has(teamId)).toBe(false)
+    })
+
+    it('retries a retryable pending-device auth failure without surfacing it as terminal', async () => {
+      const teamId = 'pending-device-retry-team'
+      await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)
+      const pendingChain = await sigchainService.createChainFromDeviceInvite(
+        {
+          seed: 'device-invite-seed',
+          userName: 'alice',
+          expectedTeamId: teamId,
+          expectedUserId: userIdentity.userId,
+        },
+        teamId,
+        true
+      )
+      community = {
+        ...community,
+        teamId,
+        inviteData: {
+          kind: 'device',
+          authData: { teamId },
+        } as any,
+      }
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      jest.spyOn(qssService, 'connected', 'get').mockReturnValue(true)
+      const signInSpy = jest.spyOn(qssService, 'signInToCommunity').mockResolvedValue(QSSOperationResult.SUCCESS)
+      const terminalErrorHandler = jest.fn()
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, terminalErrorHandler)
+      const scheduledRetries: Array<{ callback: () => void; delay: number }> = []
+      const setTimeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation(((
+        callback: () => void,
+        delay: number
+      ) => {
+        scheduledRetries.push({ callback, delay })
+        return {} as NodeJS.Timeout
+      }) as any)
+
+      try {
+        await qssService['processQssAuthAttemptFailure']({
+          teamId,
+          code: 'INVITATION_PROOF_INVALID',
+          error: new Error('Invitation has not propagated yet'),
+          source: 'remote',
+          deviceAdmission: true,
+        })
+
+        expect(terminalErrorHandler).not.toHaveBeenCalled()
+        expect(scheduledRetries).toHaveLength(1)
+        expect(scheduledRetries[0].delay).toBe(QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS)
+
+        scheduledRetries[0].callback()
+        await new Promise<void>(resolve => setImmediate(resolve))
+        expect(signInSpy).toHaveBeenCalledWith(teamId, pendingChain)
+      } finally {
+        setTimeoutSpy.mockRestore()
+        qssService['clearDeviceAdmissionRetries']()
+      }
+    })
+
+    it('surfaces only the terminal failure after pending-device retries are exhausted', async () => {
+      const teamId = 'pending-device-exhausted-team'
+      community = {
+        ...community,
+        teamId,
+        inviteData: {
+          kind: 'device',
+          authData: { teamId },
+        } as any,
+      }
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      const failure = {
+        teamId,
+        code: 'INVITATION_PROOF_INVALID',
+        error: new Error('Invitation was not accepted'),
+        source: 'remote' as const,
+        deviceAdmission: true,
+      }
+      const terminalErrorHandler = jest.fn()
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, terminalErrorHandler)
+      qssService['deviceAdmissionRetries'].set(teamId, {
+        attempts: QSS_DEVICE_ADMISSION_MAX_ATTEMPTS - 1,
+        lastFailure: failure,
+      })
+
+      await qssService['processQssAuthAttemptFailure'](failure)
+
+      expect(terminalErrorHandler).toHaveBeenCalledWith({
+        teamId,
+        error: failure.error,
+        attempts: QSS_DEVICE_ADMISSION_MAX_ATTEMPTS,
+      })
+      expect(qssService['deviceAdmissionRetries'].has(teamId)).toBe(false)
+    })
+
+    it('invalidates an in-flight device retry when QSS is paused', async () => {
+      const teamId = 'pending-device-paused-team'
+      await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)
+      await sigchainService.createChainFromDeviceInvite(
+        {
+          seed: 'device-invite-seed',
+          userName: 'alice',
+          expectedTeamId: teamId,
+          expectedUserId: userIdentity.userId,
+        },
+        teamId,
+        true
+      )
+      jest.spyOn(qssService, 'connected', 'get').mockReturnValue(true)
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      let resolveSignIn!: (result: QSSOperationResult) => void
+      const signInPromise = new Promise<QSSOperationResult>(resolve => {
+        resolveSignIn = resolve
+      })
+      const signInSpy = jest.spyOn(qssService, 'signInToCommunity').mockReturnValue(signInPromise)
+      const terminalErrorHandler = jest.fn()
+      const failure = {
+        teamId,
+        code: 'INVITATION_PROOF_INVALID',
+        error: new Error('Invitation was not accepted'),
+        source: 'remote' as const,
+        deviceAdmission: true,
+      }
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, terminalErrorHandler)
+      qssService['deviceAdmissionRetries'].set(teamId, {
+        attempts: 1,
+        lastFailure: failure,
+      })
+
+      const retryPromise = qssService['retryDeviceAdmission'](teamId)
+      await waitForExpect(() => expect(signInSpy).toHaveBeenCalledTimes(1))
+      qssService.pause()
+      resolveSignIn(QSSOperationResult.ERROR)
+      await retryPromise
+
+      expect(qssService['deviceAdmissionRetries'].has(teamId)).toBe(false)
+      expect(terminalErrorHandler).not.toHaveBeenCalled()
+    })
+
     it('connects to QSS when enabled and an endpoint string is provided', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
@@ -452,6 +694,18 @@ describe('QSSService', () => {
       expect(qssService.connected).toBe(true)
     })
 
+    it('discards prepared admission state when paused for transport fallback', () => {
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      qssService['preparedAdmissions'].set('fallback-team', {
+        prepared: { teamId: 'fallback-team', kind: AdmissionKind.DEVICE },
+        sigChain: sigchainService.activeChain,
+      })
+
+      qssService.pause()
+
+      expect(qssService['preparedAdmissions'].size).toBe(0)
+    })
+
     it('serializes concurrent connect requests without overlapping attempts', async () => {
       let resolveConnect: (() => void) | undefined
       let inFlightConnects = 0
@@ -560,6 +814,7 @@ describe('QSSService', () => {
                 sigChain: uint8arrays.toString(sigchainService.activeChain.save(), 'hex'),
               },
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),
             },
           } as CreateCommunity),
@@ -695,6 +950,7 @@ describe('QSSService', () => {
                 sigChain: uint8arrays.toString(sigchainService.activeChain.save(), 'hex'),
               },
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),
             },
           } as CreateCommunity),
@@ -771,9 +1027,10 @@ describe('QSSService', () => {
           WebsocketEvents.SIGN_IN_COMMUNITY,
           expect.objectContaining({
             ts: expect.any(Number),
-            status: CommunityOperationStatus.SUCCESS,
+            status: CommunityOperationStatus.SENDING,
             payload: {
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamId: sigchainService.team.id,
             },
           } as CommunitySignInMessage),
@@ -991,9 +1248,10 @@ describe('QSSService', () => {
           WebsocketEvents.SIGN_IN_COMMUNITY,
           expect.objectContaining({
             ts: expect.any(Number),
-            status: CommunityOperationStatus.SUCCESS,
+            status: CommunityOperationStatus.SENDING,
             payload: {
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamId: sigchainService.team.id,
             },
           } as CommunitySignInMessage),

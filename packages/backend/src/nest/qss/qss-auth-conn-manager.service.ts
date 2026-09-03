@@ -10,7 +10,7 @@ import * as uint8arrays from 'uint8arrays'
 import { createLogger } from '../common/logger'
 import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSClient } from './qss.client'
-import { AuthSyncMessage, QSSEvents, WebsocketEvents } from './qss.types'
+import { AuthSyncMessage, QSSAuthAttemptFailurePayload, QSSEvents, WebsocketEvents } from './qss.types'
 
 @Injectable()
 export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDestroy {
@@ -36,36 +36,41 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
   public onModuleDestroy() {
     this.close(true)
     this.qssClient.off(QSSEvents.QSS_DISCONNECTED, this._handleQssClientDisconnected)
+    this.qssClient.off(WebsocketEvents.AUTH_SYNC, this._handleAuthSyncMessage)
   }
 
   private _configureEventHandlers(): void {
     this.qssClient.on(QSSEvents.QSS_DISCONNECTED, this._handleQssClientDisconnected)
+    this.qssClient.on(WebsocketEvents.AUTH_SYNC, this._handleAuthSyncMessage)
+  }
 
-    // pass auth sync messages received on the websocket to the auth connection
-    this.qssClient.on(WebsocketEvents.AUTH_SYNC, async (message: AuthSyncMessage): Promise<void> => {
-      try {
-        if (message.payload?.message == null) {
-          throw new Error(`Missing message`)
-        }
-
-        const authConnection = this.getConnection(message.payload.teamId)
-        if (authConnection == null || !authConnection.active) {
-          throw new Error(
-            `Auth connection for team ${message.payload.teamId} wasn't initialized, can't process auth sync message`
-          )
-        }
-        if (!authConnection.isForClientSocket(this.qssClient.getClientSocket())) {
-          this.stopConnection(message.payload.teamId, false)
-          throw new Error(
-            `Auth connection for team ${message.payload.teamId} belongs to a previous QSS client socket, can't process auth sync message`
-          )
-        }
-
-        authConnection.deliver(uint8arrays.fromString(message.payload.message, 'base64'))
-      } catch (e) {
-        this.logger.error(`Error handling auth sync message`, e)
+  private readonly _handleAuthSyncMessage = (message: AuthSyncMessage): void => {
+    try {
+      if (message.payload?.message == null) {
+        throw new Error(`Missing message`)
       }
-    })
+
+      const currentClientSocket = this.qssClient.getClientSocket()
+      if (currentClientSocket == null || !currentClientSocket.connected || !currentClientSocket.active) {
+        throw new Error(`Cannot process auth sync message without an active QSS client socket`)
+      }
+
+      const teamId = message.payload.teamId
+      const authConnection = this.getConnection(teamId)
+      if (authConnection == null || !authConnection.active) {
+        throw new Error(`Auth connection for team ${teamId} wasn't initialized, can't process auth sync message`)
+      }
+      if (!authConnection.isForClientSocket(currentClientSocket)) {
+        this.stopConnection(teamId, false)
+        throw new Error(
+          `Auth connection for team ${teamId} belongs to a previous QSS client socket, can't process auth sync message`
+        )
+      }
+
+      authConnection.deliver(uint8arrays.fromString(message.payload.message, 'base64'))
+    } catch (e) {
+      this.logger.error(`Error handling auth sync message`, e)
+    }
   }
 
   private _handleQssClientDisconnected = (): void => {
@@ -160,16 +165,27 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     })
     authConnection.teamId = teamId
     authConnection.on(QSSEvents.QSS_AUTH_CONNECTED, (eventTeamId: string) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
       this.emit(QSSEvents.QSS_AUTH_CONNECTED, eventTeamId ?? teamId)
     })
     authConnection.on(QSSEvents.QSS_AUTH_JOINED, (eventTeamId: string) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
       this.emit(QSSEvents.QSS_AUTH_JOINED, eventTeamId ?? teamId)
     })
+    authConnection.on(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, (payload: QSSAuthAttemptFailurePayload) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
+      this.emit(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, {
+        ...payload,
+        teamId: payload.teamId ?? teamId,
+      } satisfies QSSAuthAttemptFailurePayload)
+    })
     authConnection.on(QSSEvents.QSS_DISCONNECTED, (eventTeamId: string) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
       this.emit(QSSEvents.QSS_DISCONNECTED, eventTeamId ?? teamId)
     })
-    authConnection.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (teamId: string) => {
-      this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, teamId)
+    authConnection.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (eventTeamId: string) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
+      this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, eventTeamId ?? teamId)
     })
     this.authConnMap.set(teamId, authConnection)
     await authConnection.start()

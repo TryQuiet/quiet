@@ -614,6 +614,7 @@ app.on('ready', async () => {
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
       IS_E2E: process.env.IS_E2E ?? 'false',
       NETWORK_LOGGING: process.env.NETWORK_LOGGING ?? 'false',
+      LOCAL_TRANSPORT: process.env.LOCAL_TRANSPORT ?? 'false',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)

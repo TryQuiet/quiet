@@ -46,7 +46,7 @@ class LockboxService extends ChainServiceBase {
     if (this.sigChain.team == null) {
       throw new Error('Error while creating invite lockbox - No team')
     }
-    if (!this.sigChain.roles.memberHasRole(this.sigChain.context.user.userId, roleName)) {
+    if (!this.sigChain.roles.memberHasRole(this.sigChain.user.userId, roleName)) {
       throw new Error(`Error while creating invite lockbox - User is missing ${roleName} role`)
     }
     const inviteKeyset = this.generateLockboxKeys(seed, salt)

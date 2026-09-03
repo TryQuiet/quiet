@@ -25,7 +25,6 @@ export enum WebsocketEvents {
   GEN_PUB_KEYS = 'generate-public-keys',
   SIGN_IN_COMMUNITY = 'sign-in-community',
   LOG_ENTRY_SYNC = 'log-entry-sync',
-  LOG_ENTRY_FANOUT = 'log-entry-fanout',
   LOG_ENTRY_PULL = 'log-entry-pull',
   VERIFY_CAPTCHA = 'verify-captcha',
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
@@ -39,6 +38,8 @@ export enum WebsocketEvents {
  */
 export enum QSSEvents {
   QSS_AUTH_JOINED = 'qssAuthJoined',
+  QSS_AUTH_ATTEMPT_FAILED = 'qssAuthAttemptFailed',
+  QSS_AUTH_ERROR = 'qssAuthError',
   QSS_SELF_ASSIGN_MEMBER = 'qssSelfAssignMember',
   QSS_FULLY_JOINED = 'qssFullyJoined',
   QSS_CONNECTED = 'qssConnected',
@@ -49,6 +50,22 @@ export enum QSSEvents {
   QSS_START_AUTH_CONN = 'qssStartAuthConn',
   QSS_AUTH_CONNECTED = 'qssAuthConnected',
   QSS_LOG_SYNCED = 'qssLogSynced',
+}
+
+export type QSSAuthFailureSource = 'local' | 'remote' | 'client-validation' | 'sign-in'
+
+export interface QSSAuthAttemptFailurePayload {
+  teamId: string
+  code: string
+  error: Error
+  source: QSSAuthFailureSource
+  deviceAdmission: boolean
+}
+
+export interface QSSAuthErrorPayload {
+  teamId: string
+  error: Error
+  attempts?: number
 }
 
 export enum QSSOperationResult {
@@ -80,6 +97,7 @@ export interface CreateCommunityPayload {
   community: QSSCommunity
   teamKeyring: string
   userId: string
+  deviceId: string
   hcaptchaToken?: string
 }
 
@@ -120,6 +138,7 @@ export enum CommunityOperationStatus {
 
 export interface AuthSyncMessagePayload {
   userId: string
+  deviceId: string
   teamId: string
   message: string
 }
@@ -146,6 +165,7 @@ export interface GeneratePublicKeysMessage extends BaseWebsocketMessage<Generate
 export interface CommunitySignInPayload {
   teamId: string
   userId: string
+  deviceId: string
 }
 
 export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySignInPayload> {
@@ -256,8 +276,10 @@ export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
 export interface SendPushResponse extends BaseWebsocketMessage<undefined> {}
 
 export interface SendBatchPushPayload {
-  teamId: string
   ucans: string[]
+  title?: string
+  body?: string
+  data?: Record<string, string>
 }
 
 export interface SendBatchPushMessage extends BaseWebsocketMessage<SendBatchPushPayload> {

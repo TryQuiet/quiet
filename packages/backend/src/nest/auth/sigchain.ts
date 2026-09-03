@@ -14,15 +14,20 @@ import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/channel.service'
-import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
+import { LFAEvents, PendingDeviceAdmission, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
 import { randomKey } from '@localfirst/crypto'
-import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
+import type {
+  CreateDeviceFromInviteSeedInput,
+  CreateUserFromInviteSeedInput,
+  CreateUserInput,
+} from './services/members/types'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
 
 class SigChain extends EventEmitter {
-  private _context: auth.MemberContext | auth.InviteeMemberContext
+  private _context: auth.MemberContext | auth.InviteeContext
+  private _pendingDeviceAdmission: PendingDeviceAdmission | undefined
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
   private _roles: RoleService | null = null
@@ -32,8 +37,12 @@ class SigChain extends EventEmitter {
   private _server: ServerService | null = null
   private _lockbox: LockboxService | null = null
 
-  private constructor(context: auth.MemberContext | auth.InviteeMemberContext) {
+  private constructor(
+    context: auth.MemberContext | auth.InviteeContext,
+    pendingDeviceAdmission?: PendingDeviceAdmission
+  ) {
     super()
+    this._pendingDeviceAdmission = pendingDeviceAdmission
     this.context = context
     this.initServices()
   }
@@ -45,11 +54,11 @@ class SigChain extends EventEmitter {
     return null
   }
 
-  get context(): auth.MemberContext | auth.InviteeMemberContext {
+  get context(): auth.MemberContext | auth.InviteeContext {
     return this._context
   }
 
-  set context(context: auth.MemberContext | auth.InviteeMemberContext) {
+  set context(context: auth.MemberContext | auth.InviteeContext) {
     logger.warn('Setting context', Object.keys(context))
 
     const oldContext = this._context
@@ -77,15 +86,32 @@ class SigChain extends EventEmitter {
   }
 
   get user(): auth.UserWithSecrets {
+    if (!('user' in this.context)) {
+      throw new Error('User is unavailable until the invited device is admitted')
+    }
     return this.context.user
   }
 
-  get username(): string {
-    return this.user!.userName
+  get userId(): string {
+    if ('user' in this.context) {
+      return this.context.user.userId
+    }
+    if (this._pendingDeviceAdmission == null) {
+      throw new Error('User ID is unavailable until the invited device is admitted')
+    }
+    return this._pendingDeviceAdmission.userId
   }
 
-  get device(): auth.DeviceWithSecrets {
+  get username(): string {
+    return 'user' in this.context ? this.context.user.userName : this.context.userName
+  }
+
+  get device(): auth.DeviceWithSecrets | auth.FirstUseDeviceWithSecrets {
     return this.context.device
+  }
+
+  get isPendingDeviceAdmission(): boolean {
+    return 'invitationSeed' in this.context && !('user' in this.context)
   }
 
   private handleTeamUpdate = async (payload: { head: auth.Hash[] }) => {
@@ -170,6 +196,52 @@ class SigChain extends EventEmitter {
       invitationSeed: seed,
     } as auth.InviteeMemberContext
     return new SigChain(context)
+  }
+
+  public static createFromDeviceInvite(input: CreateDeviceFromInviteSeedInput): SigChain {
+    const { seed, userName, deviceName, expectedTeamId, expectedUserId } = input
+    const context = {
+      device: DeviceService.generateFirstUseDevice(deviceName),
+      invitationSeed: seed,
+      userName,
+    } satisfies auth.InviteeDeviceContext
+    return new SigChain(context, { teamId: expectedTeamId, userId: expectedUserId })
+  }
+
+  public completeInvitation(team: auth.Team, user: auth.UserWithSecrets): void {
+    if ('team' in this.context) {
+      return
+    }
+
+    if (!('user' in this.context)) {
+      const expected = this._pendingDeviceAdmission
+      if (expected == null) {
+        throw new Error('Device admission expectations are missing')
+      }
+      if (team.id !== expected.teamId) {
+        throw new Error(`Device admission team mismatch: ${team.id} !== ${expected.teamId}`)
+      }
+      if (user.userId !== expected.userId) {
+        throw new Error(`Device admission user mismatch: ${user.userId} !== ${expected.userId}`)
+      }
+      if (!team.hasDevice(this.context.device.deviceId)) {
+        throw new Error(`Admitted team does not contain device ${this.context.device.deviceId}`)
+      }
+
+      this.context = {
+        device: { ...this.context.device, userId: user.userId },
+        team,
+        user,
+      }
+      this._pendingDeviceAdmission = undefined
+      return
+    }
+
+    this.context = {
+      device: this.context.device,
+      team,
+      user,
+    }
   }
 
   private initServices() {

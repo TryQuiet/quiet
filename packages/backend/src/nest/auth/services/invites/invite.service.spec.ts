@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals'
+
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 import { RoleName } from '..//roles/roles'
 import { UserService } from '../members/user.service'
-import { InviteService } from './invite.service'
+import { DEFAULT_DEVICE_INVITATION_VALID_FOR_MS, InviteService } from './invite.service'
 import { DeviceService } from '../members/device.service'
 import { base58 } from '@localfirst/crypto'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
@@ -94,12 +96,27 @@ describe('invites', () => {
     }).toThrowError()
   })
   it('should invite device', () => {
+    const now = 1_700_000_000_000
+    const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(now)
     const newDevice = DeviceService.generateDeviceForUser(adminSigChain.user.userId)
-    const deviceInvite = adminSigChain.invites.createDeviceInvite()
-    const inviteProof = InviteService.generateProof(deviceInvite.seed)
-    expect(inviteProof).toBeDefined()
-    expect(adminSigChain.invites.validateProof(inviteProof)).toBe(true)
-    adminSigChain.invites.admitDeviceFromInvite(inviteProof, DeviceService.redactDevice(newDevice))
-    expect(adminSigChain.team!.hasDevice(newDevice.deviceId)).toBe(true)
+    try {
+      const deviceInvite = adminSigChain.invites.createDeviceInvite()
+      const storedInvite = adminSigChain.invites.getById(deviceInvite.id)
+      const inviteProof = InviteService.generateProof(deviceInvite.seed)
+
+      expect(deviceInvite).toMatchObject({
+        expiresAt: now + DEFAULT_DEVICE_INVITATION_VALID_FOR_MS,
+        userId: adminSigChain.user.userId,
+        userName: adminSigChain.user.userName,
+      })
+      expect(storedInvite.expiration).toBe(deviceInvite.expiresAt)
+      expect(storedInvite.maxUses).toBe(1)
+      expect(inviteProof).toBeDefined()
+      expect(adminSigChain.invites.validateProof(inviteProof)).toBe(true)
+      adminSigChain.invites.admitDeviceFromInvite(inviteProof, DeviceService.redactDevice(newDevice))
+      expect(adminSigChain.team!.hasDevice(newDevice.deviceId)).toBe(true)
+    } finally {
+      dateNowSpy.mockRestore()
+    }
   })
 })

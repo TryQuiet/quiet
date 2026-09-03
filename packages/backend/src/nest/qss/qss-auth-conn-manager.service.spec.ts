@@ -14,6 +14,7 @@ import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSS_ALLOWED } from '../const'
 import { QSSEvents } from './qss.types'
 import { QSSAuthConnStatus } from './qss.const'
+import { LFAEvents } from '../auth/types'
 
 describe('QSSAuthConnectionManager', () => {
   let module: TestingModule
@@ -173,6 +174,38 @@ describe('QSSAuthConnectionManager', () => {
 
     expect(qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)).toBeUndefined()
     expect(conn?.active).toBeFalsy()
+  })
+
+  it('ignores admission events from a stopped auth connection', async () => {
+    const teamId = sigchainService.activeChain.team!.id
+    const joinedHandler = jest.fn()
+    qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, joinedHandler)
+    await qssAuthConnManager.startNewConnection(teamId)
+    const conn = qssAuthConnManager.getConnection(teamId)
+
+    qssAuthConnManager.stopConnection(teamId, false)
+    conn?.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
+
+    expect(joinedHandler).not.toHaveBeenCalled()
+  })
+
+  it('forwards auth protocol errors with their team ID', async () => {
+    const teamId = sigchainService.activeChain.team!.id
+    const authErrorHandler = jest.fn()
+    qssAuthConnManager.on(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, authErrorHandler)
+    await qssAuthConnManager.startNewConnection(teamId)
+
+    const conn = qssAuthConnManager.getConnection(teamId)
+    const protocolError = { type: 'INVITATION_PROOF_INVALID', message: 'Invitation was not accepted' }
+    ;(conn as any)._authConnection.emit(LFAEvents.REMOTE_ERROR, protocolError)
+
+    expect(authErrorHandler).toHaveBeenCalledWith({
+      teamId,
+      code: protocolError.type,
+      error: expect.objectContaining({ message: protocolError.message }),
+      source: 'remote',
+      deviceAdmission: false,
+    })
   })
 
   it('marks a pending-member auth connection joined after member role self-assignment', () => {

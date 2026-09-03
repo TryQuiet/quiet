@@ -69,6 +69,14 @@ describe('CommunityContextMenu (dev/alpha gate for "Share all data")', () => {
   })
 })
 
+describe('CommunityContextMenu (device linking)', () => {
+  it('shows the linked devices entry', () => {
+    const { queryByText } = renderComponent(<CommunityContextMenu />)
+
+    expect(queryByText('Linked devices')).not.toBeNull()
+  })
+})
+
 describe('CommunityContextMenu (permissions gate for "Create Channel")', () => {
   let store: Store
   let factory: FactoryGirl

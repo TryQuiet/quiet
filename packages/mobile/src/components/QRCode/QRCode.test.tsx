@@ -5,6 +5,21 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { QRCode } from './QRCode.component'
 
 describe('QRCode component', () => {
+  it('supports device-linking copy', () => {
+    const { getByText } = renderComponent(
+      <QRCode
+        value={'https://tryquiet.org/join#device-link'}
+        shareCode={jest.fn()}
+        handleBackButton={jest.fn()}
+        title='Link a device'
+        description='Scan this code with your other device.'
+      />
+    )
+
+    expect(getByText('Link a device')).toBeTruthy()
+    expect(getByText('Scan this code with your other device.')).toBeTruthy()
+  })
+
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
       <QRCode value={'https://tryquiet.org/join#'} shareCode={jest.fn()} handleBackButton={jest.fn()} />

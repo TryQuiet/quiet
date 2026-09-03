@@ -498,16 +498,21 @@ export class JoiningLoadingPanel {
     )
   }
 
+  async waitUntilVisible(timeoutMs = 60_000): Promise<boolean> {
+    const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
+    return this.driver.wait(
+      async () => this.hasVisiblePanel(panelLocator),
+      timeoutMs,
+      `Loading panel element couldn't be seen within timeout`,
+      500
+    )
+  }
+
   async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000): Promise<void> {
     const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
     const visiblePanelTimeoutMs = Math.min(visibleTimeoutMs, 10_000)
     try {
-      await this.driver.wait(
-        async () => this.hasVisiblePanel(panelLocator),
-        visiblePanelTimeoutMs,
-        `Loading panel element couldn't be seen within timeout`,
-        500
-      )
+      await this.waitUntilVisible(visiblePanelTimeoutMs)
     } catch (e) {
       if (this.isLoadingPanelTimeout(e)) {
         logger.warn('Joining loading panel not present; skipping wait')
@@ -2370,7 +2375,7 @@ export class Sidebar {
    */
   async getUserProfileByNickname(nickname: string) {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//li[@data-testid='${nickname}-user-link']`)),
+      until.elementLocated(By.xpath(`//*[@data-testid='${nickname}-user-link']`)),
       10_000,
       `User profile for ${nickname} couldn't be found within timeout`,
       500
@@ -2663,6 +2668,25 @@ export class Settings {
     )
   }
 
+  async deviceLink() {
+    const unlockButton = await this.driver.wait(
+      until.elementLocated(By.xpath('//button[@data-testid="show-device-link"]')),
+      30_000,
+      `Show device link button couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(unlockButton), 10_000)
+
+    await unlockButton.click()
+
+    return await this.driver.wait(
+      until.elementLocated(By.xpath("//p[@data-testid='device-link']")),
+      10_000,
+      `Unhidden device link element couldn't be found within timeout`,
+      500
+    )
+  }
+
   /**
    * Returns the visible, interactive switch element (the span).
    */
@@ -2741,9 +2765,14 @@ export class Settings {
 
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {
     let locator: string | undefined = undefined
+    let timeoutMs = 15_000
     switch (tabName) {
       case SettingsModalTabName.INVITE:
         locator = "//*[@data-testid='invite-a-friend']"
+        break
+      case SettingsModalTabName.LINKED_DEVICES:
+        locator = "//*[@data-testid='linked-devices-title']"
+        timeoutMs = 30_000
         break
       case SettingsModalTabName.ABOUT:
         locator = "//div[contains(@class, 'Abouttitle')]"
@@ -2766,7 +2795,7 @@ export class Settings {
 
     const result = await this.driver.wait(
       until.elementLocated(By.xpath(locator!)),
-      15_000,
+      timeoutMs,
       `Settings tab ${tabName} wasn't ready within timeout`,
       500
     )

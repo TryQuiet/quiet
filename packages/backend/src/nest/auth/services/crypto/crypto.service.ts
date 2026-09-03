@@ -41,7 +41,7 @@ class CryptoService extends ChainServiceBase {
     const members = this.sigChain.users.getAllUsers()
     const keysByMember = []
     for (const member of members) {
-      if (member.userId === this.sigChain.context.user.userId && !includeSelf) {
+      if (member.userId === this.sigChain.user.userId && !includeSelf) {
         continue
       }
       keysByMember.push(member.keys)
