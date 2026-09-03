@@ -294,7 +294,10 @@ export class QSSAuthConnection extends EventEmitter {
    * without a durable record of their admission on the device that admitted
    * them, so the ADMIT_MEMBER / ADMIT_DEVICE link must be on disk before the
    * acceptance that carries the team graph and keyring is released to the peer
-   * on the other end of this connection (threat-model C3, option A).
+   * on the other end of this connection (threat-model C3, option A). The
+   * adversary is the joiner: a peer holding a valid invitation is entitled to
+   * join but not to join unrecorded, and it is exactly the party that cannot
+   * be relied on to report its own admission afterwards.
    *
    * @localfirst/auth calls this after the admission has been appended to the
    * in-memory team and before ACCEPT_INVITATION is queued. Rejecting fails the
