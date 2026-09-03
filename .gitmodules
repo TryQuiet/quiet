@@ -1,7 +1,7 @@
 [submodule "3rd-party/auth"]
 	path = 3rd-party/auth
-	url = ../private.git
-	branch = auth/main-baseline
+	url = ../auth-private.git
+	branch = main
 [submodule "3rd-party/js-libp2p-noise"]
 	path = 3rd-party/js-libp2p-noise
 	url = https://github.com/TryQuiet/js-libp2p-noise.git
@@ -12,5 +12,5 @@
 	branch = main
 [submodule "3rd-party/qss"]
 	path = 3rd-party/qss
-	url = ../private.git
-	branch = qss/main-baseline
+	url = ../quiet-storage-service-private.git
+	branch = main
