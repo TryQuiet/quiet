@@ -218,6 +218,7 @@ export class QSSAuthConnection extends EventEmitter {
         }
       },
       createLogger: this.createLfaLogger,
+      persistAdmission: this.persistAdmission,
     } as AuthConnectionParams)
 
     this.logger.info(`Starting auth connection with QSS for syncing`)
@@ -286,6 +287,23 @@ export class QSSAuthConnection extends EventEmitter {
     })
 
     this._authConnection = authConnection
+  }
+
+  /**
+   * Makes an admission durable before the acceptance that carries the team keys
+   * is released to the peer on the other end of this connection.
+   *
+   * @localfirst/auth calls this after ADMIT_MEMBER / ADMIT_DEVICE has been
+   * appended to the in-memory team and before ACCEPT_INVITATION is queued.
+   * Rejecting fails the connection with ADMISSION_NOT_PERSISTED and sends
+   * nothing, so a peer never ends up holding keys for an admission a restart
+   * would forget (QSS-006, threat-model C3 option A).
+   *
+   * @param team The team LFA just appended the admission to
+   */
+  private persistAdmission = async (team: Team): Promise<void> => {
+    this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
+    await this.sigChainService.persistChain(team.id)
   }
 
   /**

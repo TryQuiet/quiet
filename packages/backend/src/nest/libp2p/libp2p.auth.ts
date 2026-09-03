@@ -14,7 +14,7 @@ import { encode, decode } from 'it-length-prefixed'
 
 import { SigChainService } from '../auth/sigchain.service'
 import { createLogger } from '../common/logger'
-import { ConnectionParams } from '3rd-party/auth/packages/auth/dist/connection/Connection'
+import { ConnectionParams } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Libp2pService } from './libp2p.service'
 import { Libp2pEvents } from './libp2p.types'
 import { abortableAsyncIterable } from '../common/utils'
@@ -305,11 +305,8 @@ export class Libp2pAuth {
    * unknown device (QSS-006).
    *
    * The team LFA hands us is the same object the active SigChain holds, so
-   * persisting by team ID serializes exactly the graph carrying the new entry.
-   *
-   * Not yet passed to the Connection: ConnectionParams gains persistAdmission in
-   * the paired @localfirst/auth change, and the construction site starts
-   * supplying this once that version is pinned.
+   * persisting by team ID serializes exactly the graph carrying the new entry,
+   * and persistChain's per-team queue keeps it ordered against other writers.
    */
   private persistAdmission = async (team: Auth.Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
@@ -374,6 +371,7 @@ export class Libp2pAuth {
         })
       },
       createLogger: this.createLfaLogger,
+      persistAdmission: this.persistAdmission,
     } as ConnectionParams)
 
     // Set up auth connection event handlers.

@@ -328,7 +328,9 @@ export class SigChainService extends EventEmitter {
     const listener = (): void => {
       // EventEmitter cannot await us, so a rejected persist would otherwise
       // surface as an unhandled rejection. Log it loudly with the team ID.
-      void this.handleChainUpdate(chain.teamId!).catch(err => {
+      // Wrapped rather than chained directly: tests stub handleChainUpdate with a
+      // plain function, and a void return has no catch to call.
+      void Promise.resolve(this.handleChainUpdate(chain.teamId!)).catch(err => {
         this.logger.error(`Failed to handle chain update for team ${chain.teamId}`, err)
       })
     }
