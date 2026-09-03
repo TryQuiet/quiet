@@ -296,13 +296,18 @@ export class Libp2pAuth {
    * Makes an admission durable before the acceptance that carries the team keys
    * is released to the invitee.
    *
-   * This is the callback shape @localfirst/auth calls after ADMIT_MEMBER /
-   * ADMIT_DEVICE has been appended to the in-memory team and before
-   * ACCEPT_INVITATION is queued. Rejecting fails the connection with
-   * ADMISSION_NOT_PERSISTED and sends nothing, which is the fail-closed half of
-   * threat-model C3 option A: an invitee must never end up holding keys for an
-   * admission that our restart would forget, because it is then rejected as an
-   * unknown device (QSS-006).
+   * The point is to bind membership to its record. Nobody may hold this
+   * community's keys without a durable record of their admission on the device
+   * that admitted them, so the ADMIT_MEMBER / ADMIT_DEVICE link must be on disk
+   * before the acceptance that carries the team graph and keyring leaves this
+   * machine (threat-model C3, option A).
+   *
+   * This is the callback shape @localfirst/auth calls after the admission has
+   * been appended to the in-memory team and before ACCEPT_INVITATION is queued.
+   * Rejecting fails the connection with ADMISSION_NOT_PERSISTED and sends
+   * nothing. The failure this rules out is a member with keys but no record:
+   * after a crash the admitter has forgotten them and they surface as an
+   * unknown device (QSS-006 / private#203).
    *
    * The team LFA hands us is the same object the active SigChain holds, so
    * persisting by team ID serializes exactly the graph carrying the new entry,

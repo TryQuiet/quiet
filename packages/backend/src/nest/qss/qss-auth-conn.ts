@@ -290,14 +290,16 @@ export class QSSAuthConnection extends EventEmitter {
   }
 
   /**
-   * Makes an admission durable before the acceptance that carries the team keys
-   * is released to the peer on the other end of this connection.
+   * Binds membership to its record: nobody may hold this community's keys
+   * without a durable record of their admission on the device that admitted
+   * them, so the ADMIT_MEMBER / ADMIT_DEVICE link must be on disk before the
+   * acceptance that carries the team graph and keyring is released to the peer
+   * on the other end of this connection (threat-model C3, option A).
    *
-   * @localfirst/auth calls this after ADMIT_MEMBER / ADMIT_DEVICE has been
-   * appended to the in-memory team and before ACCEPT_INVITATION is queued.
-   * Rejecting fails the connection with ADMISSION_NOT_PERSISTED and sends
-   * nothing, so a peer never ends up holding keys for an admission a restart
-   * would forget (QSS-006, threat-model C3 option A).
+   * @localfirst/auth calls this after the admission has been appended to the
+   * in-memory team and before ACCEPT_INVITATION is queued. Rejecting fails the
+   * connection with ADMISSION_NOT_PERSISTED and sends nothing, so a crash can
+   * never produce a member with keys but no record (QSS-006 / private#203).
    *
    * @param team The team LFA just appended the admission to
    */
