@@ -24,6 +24,7 @@ import { randomUUID } from 'crypto'
 import { SigChain } from '../auth/sigchain'
 import { QSSAuthConnStatus } from './qss.const'
 import { LFAEvents } from '../auth/types'
+import { BoundedRetry } from '../common/boundedRetry'
 
 @Injectable()
 export class QSSAuthConnection extends EventEmitter {
@@ -58,6 +59,8 @@ export class QSSAuthConnection extends EventEmitter {
   private _id: string
 
   private logger = createLogger('qss:auth:conn')
+  /** Bounded re-attempts for joins that failed on our own persistence. */
+  private readonly _joinRetry = new BoundedRetry('qss:join')
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst:qss')
 
   constructor(
@@ -327,33 +330,72 @@ export class QSSAuthConnection extends EventEmitter {
     this.logger.info(`${sigChain.user.userId}: Joined team ${team.id} (userid: ${user.userId})!`)
     // if we didn't have a team on the sigchain previously then it is assumed that we haven't connected to a peer yet
     // and thus don't have the member role so our joining is still pending
-    let needsMemberSelfAssign = false
-    if (sigChain.team == null) {
+    const previousContext = sigChain.context
+    const previousJoinStatus = this._joinStatus
+    const needsMemberSelfAssign = sigChain.team == null
+
+    // Only the context is staged before the write, because the chain cannot be
+    // serialized until it carries the team. The active chain, the join status
+    // and both events wait for durability.
+    if (needsMemberSelfAssign) {
       this.logger.info(`${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.id}`)
       sigChain.context = {
         device: (sigChain.context as InviteeContext).device,
         team,
         user,
       } as MemberContext
-      this.sigChainService.setActiveChain(team.id)
-      this._joinStatus = JoinStatus.PENDING_MEMBER
-      needsMemberSelfAssign = true
-    } else {
-      this._joinStatus = JoinStatus.JOINED
     }
 
     try {
       await this.sigChainService.persistChain(team.id)
     } catch (error) {
-      this.logger.error(`Failed to persist team after QSS auth join, not signalling joined`, team.id, error)
+      // Roll all of it back. Leaving the staged context and a PENDING_MEMBER or
+      // JOINED status behind would look like a completed join to every later
+      // guard while nothing had been stored, and this connection is not
+      // re-initialized on its own (private#203 L-2).
+      this.logger.error(`Failed to persist team after QSS auth join, rolling back the join`, team.id, error)
+      if (needsMemberSelfAssign) {
+        sigChain.context = previousContext
+      }
+      this._joinStatus = previousJoinStatus
+      this._scheduleJoinRetry()
       return
     }
+
+    if (needsMemberSelfAssign) {
+      this.sigChainService.setActiveChain(team.id)
+      this._joinStatus = JoinStatus.PENDING_MEMBER
+    } else {
+      this._joinStatus = JoinStatus.JOINED
+    }
+    this._joinRetry.clear(team.id)
 
     if (needsMemberSelfAssign) {
       this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
       this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
     }
     this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
+  }
+
+  /**
+   * Re-attempts a QSS join that failed on our own persistence, with backoff.
+   *
+   * The current LFA connection is dropped first: it has already delivered its
+   * joined event and will not deliver another, so a retry has to run a fresh
+   * handshake.
+   */
+  private _scheduleJoinRetry(): void {
+    const teamId = this.teamId!
+    this.stop(false)
+    const scheduled = this._joinRetry.schedule(teamId, async () => {
+      this.logger.info(`Retrying the QSS auth join for team ${teamId} after a failed admission write`)
+      await this.start()
+    })
+    if (!scheduled) {
+      this.logger.error(
+        `Giving up on the QSS auth join for team ${teamId}: the chain could not be persisted after repeated attempts`
+      )
+    }
   }
 
   public deliver(message: Uint8Array): void {
@@ -379,6 +421,10 @@ export class QSSAuthConnection extends EventEmitter {
    */
   public stop(sendDisconnectToQSS = false): void {
     this.qssClient.off(QSSEvents.QSS_DISCONNECTED, this._onQssDisconnected)
+    // Cancel a queued retry without resetting its budget: _scheduleJoinRetry
+    // stops the connection before re-arming, so clearing budgets here would
+    // make the bound unreachable.
+    this._joinRetry.cancelPending()
 
     if (this._authConnection == null) {
       this.logger.warn(`Auth connection not open with QSS for this team`, this.teamId)
