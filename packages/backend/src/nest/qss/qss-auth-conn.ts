@@ -255,6 +255,7 @@ export class QSSAuthConnection extends EventEmitter {
     // set the connection to inactive when disconnecting
     authConnection.on(LFAEvents.DISCONNECTED, event => {
       this.logger.info(`LFA Disconnected!`, event)
+      this._rememberInvitationAttempt(authConnection)
       this._markDisconnected()
     })
 
@@ -284,9 +285,11 @@ export class QSSAuthConnection extends EventEmitter {
     // Handle errors from local or remote sources.
     authConnection.on(LFAEvents.LOCAL_ERROR, error => {
       this.logger.error(`Local LFA error`, error)
+      this._rememberInvitationAttempt(authConnection)
     })
     authConnection.on(LFAEvents.REMOTE_ERROR, error => {
       this.logger.error(`Remote LFA error`, error)
+      this._rememberInvitationAttempt(authConnection)
     })
 
     this._authConnection = authConnection
@@ -358,6 +361,9 @@ export class QSSAuthConnection extends EventEmitter {
         sigChain.context = previousContext
       }
       this._joinStatus = previousJoinStatus
+      // QSS keeps the admission it made on this attempt, so the retry has to be
+      // able to accept a link carrying this handshake's proof.
+      this._rememberInvitationAttempt(this._authConnection)
       this._scheduleJoinRetry()
       return
     }
@@ -369,12 +375,27 @@ export class QSSAuthConnection extends EventEmitter {
       this._joinStatus = JoinStatus.JOINED
     }
     this._joinRetry.clear(team.id)
+    sigChain.forgetInvitationAttempts()
 
     if (needsMemberSelfAssign) {
       this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
       this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
     }
     this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
+  }
+
+  /**
+   * Keeps the proof we presented on this connection, if it was an invitee one.
+   *
+   * @param authConnection The connection whose attempt is ending
+   */
+  private _rememberInvitationAttempt(authConnection: AuthConnection | undefined): void {
+    const attempt = authConnection?.invitationAttempt
+    if (attempt == null) {
+      return
+    }
+    const sigChain = this.sigChainService.getActiveChain(false)
+    sigChain?.rememberInvitationAttempt(attempt)
   }
 
   /**

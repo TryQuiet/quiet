@@ -413,6 +413,7 @@ export class Libp2pAuth {
 
     authConnection.on(LFAEvents.DISCONNECTED, event => {
       this.logger.info(`LFA Disconnected!`, event)
+      this.rememberInvitationAttempt(authConnection)
       this.libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
         event,
         connection,
@@ -443,9 +444,11 @@ export class Libp2pAuth {
 
     // Handle errors from local or remote sources.
     authConnection.on(LFAEvents.LOCAL_ERROR, error => {
+      this.rememberInvitationAttempt(authConnection)
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
     })
     authConnection.on(LFAEvents.REMOTE_ERROR, error => {
+      this.rememberInvitationAttempt(authConnection)
       this.emit(Libp2pEvents.AUTH_REMOTE_ERROR, { error, connection })
     })
 
@@ -511,6 +514,9 @@ export class Libp2pAuth {
       // JOINING would make the retry buffer the peer instead of re-admitting us,
       // so hand back a status the join path will actually act on.
       this.joinStatus = previousJoinStatus === JoinStatus.JOINING ? JoinStatus.PENDING : previousJoinStatus
+      // The admitter keeps the admission it made on this attempt, so the retry
+      // has to be able to accept a link carrying this handshake's proof.
+      this.rememberInvitationAttempt(this.authConnections.get(peerId.toString()))
       this.closeAuthConnection(peerId, false)
       this.scheduleJoinRetry(peerId, connection)
       return
@@ -522,8 +528,26 @@ export class Libp2pAuth {
     }
     this.joinStatus = JoinStatus.JOINED
     this.joinRetry.clear(peerId.toString())
+    sigChain.forgetInvitationAttempts()
     this.emit(Libp2pEvents.AUTH_JOINED)
     this.unblockConnections(this.bufferedConnections)
+  }
+
+  /**
+   * Keeps the proof we presented on this connection, if it was an invitee one.
+   *
+   * Undefined for a member connection, and undefined before we learn who the
+   * peer is, so this is a no-op except on the path that needs it.
+   *
+   * @param authConnection The connection whose attempt is ending
+   */
+  private rememberInvitationAttempt(authConnection: Auth.Connection | undefined): void {
+    const attempt = authConnection?.invitationAttempt
+    if (attempt == null) {
+      return
+    }
+    const sigChain = this.sigChainService.getActiveChain(false)
+    sigChain?.rememberInvitationAttempt(attempt)
   }
 
   /**
