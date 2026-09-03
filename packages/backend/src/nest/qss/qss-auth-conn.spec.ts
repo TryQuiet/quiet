@@ -15,6 +15,7 @@ import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSClient } from './qss.client'
 import { QSSEvents } from './qss.types'
 import { QSSModule } from './qss.module'
+import { type Socket as ClientSocket } from 'socket.io-client'
 
 /**
  * QSS-006: QSS_AUTH_JOINED is the backend's signal that we hold a usable team,
@@ -306,13 +307,13 @@ describe('QSSAuthConnection - durable join', () => {
       const { inviteeChain, team } = await buildInviteeChain()
       const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
 
-      // The retry rebuilds the connection through start(). Rebuild without
-      // starting the LFA state machine: this asserts the re-attempt and the
-      // second join, and a started machine would leave its 30s protocol timer
-      // running past the test (auth-side, private#203 L-3).
-      jest.spyOn(conn, 'start').mockImplementation(async () => {
-        await (conn as any)._initNewConn(sigChainService.getChain(team.id))
-      })
+      // Exercise the real start() path. @localfirst/auth now refuses to restart
+      // a stopped Connection, and this retry stops its connection before
+      // re-arming, so this is what proves the rebuild creates a fresh instance
+      // rather than reviving the torn-down one.
+      jest
+        .spyOn(qssClient, 'getClientSocket')
+        .mockReturnValue({ connected: true, active: true } as unknown as ClientSocket)
 
       const original = localDbService.setSigChain.bind(localDbService)
       let failuresLeft = 1
