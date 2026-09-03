@@ -61,18 +61,32 @@ describe('Libp2pAuth admitting-side rollback', () => {
     modules = []
   })
 
-  /** Fails the admitter's next `count` chain writes, then lets the rest through. */
-  const failAdmitterWrites = (count: number): { remaining: () => number } => {
+  /**
+   * Fails the admitter's next `count` writes that actually carry the invitee's
+   * admission.
+   *
+   * Appending ADMIT_* also triggers an ordinary chain-update write, so failing
+   * "the next write" would usually hit that one and leave the gate's own write
+   * to succeed. The gate is what has to fail for a rollback to be under test.
+   */
+  const failAdmittingWrites = (count: number): { remaining: () => number; stopFailing: () => void } => {
     let remaining = count
-    const original = localDbA.setSigChain.bind(localDbA)
-    jest.spyOn(localDbA, 'setSigChain').mockImplementation(async (chain: SigChain, id: string) => {
-      if (remaining > 0) {
+    const original = localDbA.setSigChainFromTeam.bind(localDbA)
+    jest.spyOn(localDbA, 'setSigChainFromTeam').mockImplementation(async (team: any, ctx: any, id: string) => {
+      const inviteeUserId = sigChainB.getActiveChain().user.userId
+      const carriesAdmission = team?.members?.().some((member: any) => member.userId === inviteeUserId) ?? false
+      if (remaining > 0 && carriesAdmission) {
         remaining -= 1
         throw new Error('transient LevelDB failure on the admitter')
       }
-      return original(chain, id)
+      return original(team, ctx, id)
     })
-    return { remaining: () => remaining }
+    return {
+      remaining: () => remaining,
+      stopFailing: () => {
+        remaining = 0
+      },
+    }
   }
 
   /** Admissions for the invitee's identity in the admitter's stored graph. */
@@ -85,20 +99,23 @@ describe('Libp2pAuth admitting-side rollback', () => {
   }
 
   it('discards the un-persisted admission and admits afresh on the retry', async () => {
-    const writes = failAdmitterWrites(1)
+    // Fail every write that carries the admission, so the gate itself fails and
+    // the link genuinely never reaches disk.
+    const writes = failAdmittingWrites(50)
     const joinedEvents: string[] = []
     libp2pB.on(Libp2pEvents.AUTH_JOINED, () => joinedEvents.push('authJoined'))
 
     await libp2pB.dialPeer(libp2pA.localAddress)
 
-    // The gate fails closed and the admitter rolls back to its stored team.
     await waitForExpect(() => {
-      expect(writes.remaining()).toBe(0)
+      expect(sigChainA.rollbackCount(teamId)).toBeGreaterThanOrEqual(1)
     }, 30_000)
     expect(joinedEvents).toHaveLength(0)
+    expect(await storedAdmissionsForInvitee()).toBe(0)
 
-    // Second handshake: the admitter has no admission to re-serve, so it makes a
-    // new one bound to this handshake, and the invitee can accept it.
+    // Storage recovers. The admitter has no admission to re-serve, so the second
+    // handshake produces a new one bound to it, and the invitee can accept it.
+    writes.stopFailing()
     const connections = libp2pB.libp2pInstance!.getConnections()
     await Promise.all(connections.map(async connection => connection.close()))
     await new Promise(resolve => setTimeout(resolve, 250))
@@ -108,36 +125,30 @@ describe('Libp2pAuth admitting-side rollback', () => {
       expect(joinedEvents).toHaveLength(1)
     }, 60_000)
 
-    // Exactly one admission on disk, from the second handshake: the rolled-back
-    // one left nothing behind.
+    // Exactly one admission on disk, from the second handshake.
     expect(await storedAdmissionsForInvitee()).toBe(1)
     expect(sigChainA.isChainBlocked(teamId)).toBe(false)
     logger.info('admitter rolled back and re-admitted with a fresh link')
   })
 
   it('never commits the un-persisted admission through a later ordinary write', async () => {
-    // Fail only the admission write. Any write queued behind it, or issued
-    // afterwards, must not be the thing that commits the link.
-    const original = localDbA.setSigChain.bind(localDbA)
-    let failNext = true
-    jest.spyOn(localDbA, 'setSigChain').mockImplementation(async (chain: SigChain, id: string) => {
-      if (failNext) {
-        failNext = false
-        throw new Error('transient LevelDB failure on the admitter')
-      }
-      return original(chain, id)
-    })
+    // Every write carrying the admission fails, so the link never legitimately
+    // reaches disk. Nothing queued behind it, and nothing issued afterwards, may
+    // be the thing that commits it.
+    const writes = failAdmittingWrites(50)
 
     await libp2pB.dialPeer(libp2pA.localAddress)
 
     await waitForExpect(() => {
-      expect(failNext).toBe(false)
+      expect(sigChainA.rollbackCount(teamId)).toBeGreaterThanOrEqual(1)
     }, 30_000)
 
-    // Let anything queued run, then look at what actually reached the disk.
+    // Let anything queued run, then issue a fresh ordinary write and look at
+    // what actually reached the disk.
     await new Promise(resolve => setTimeout(resolve, 2_000))
-    await sigChainA.persistChain(teamId)
+    await sigChainA.persistChain(teamId).catch(() => undefined)
 
     expect(await storedAdmissionsForInvitee()).toBe(0)
+    expect(writes.remaining()).toBeLessThan(50)
   })
 })

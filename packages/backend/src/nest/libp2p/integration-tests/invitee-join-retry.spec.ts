@@ -89,13 +89,13 @@ describe('Libp2pAuth invitee join persistence failure', () => {
   /** Fails the invitee's next `count` chain writes, then lets the rest through. */
   const failWrites = (count: number): { remaining: () => number } => {
     let remaining = count
-    const original = localDbB.setSigChain.bind(localDbB)
-    jest.spyOn(localDbB, 'setSigChain').mockImplementation(async (chain: SigChain, id: string) => {
+    const original = localDbB.setSigChainFromTeam.bind(localDbB)
+    jest.spyOn(localDbB, 'setSigChainFromTeam').mockImplementation(async (team: any, ctx: any, id: string) => {
       if (remaining > 0) {
         remaining -= 1
         throw new Error('transient LevelDB failure')
       }
-      return original(chain, id)
+      return original(team, ctx, id)
     })
     return { remaining: () => remaining }
   }
@@ -149,7 +149,7 @@ describe('Libp2pAuth invitee join persistence failure', () => {
    * accepted rather than reopening a rollback window.
    */
   it('re-arms the redial when the redial itself throws', async () => {
-    jest.spyOn(localDbB, 'setSigChain').mockRejectedValue(new Error('disk is on fire'))
+    jest.spyOn(localDbB, 'setSigChainFromTeam').mockRejectedValue(new Error('disk is on fire'))
 
     // Call 1 is this test's own dial. Call 2 is the first retry-driven redial,
     // which fails. Nothing external re-arms it.
@@ -173,7 +173,7 @@ describe('Libp2pAuth invitee join persistence failure', () => {
   it('publishes nothing and does not latch JOINED while writes keep failing', async () => {
     // Never let a write succeed. The join must stay un-published and must not
     // latch a status that would stop anything from trying again.
-    jest.spyOn(localDbB, 'setSigChain').mockRejectedValue(new Error('disk is on fire'))
+    jest.spyOn(localDbB, 'setSigChainFromTeam').mockRejectedValue(new Error('disk is on fire'))
     const joinedEvents: string[] = []
     libp2pB.on(Libp2pEvents.AUTH_JOINED, () => joinedEvents.push('authJoined'))
 

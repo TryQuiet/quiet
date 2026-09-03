@@ -84,6 +84,11 @@ class SigChain extends EventEmitter {
     return this.user!.userName
   }
 
+  /** The user and device halves of the context, as storage wants them. */
+  get localUserContext(): auth.LocalUserContext {
+    return { user: this.user, device: this.device }
+  }
+
   get device(): auth.DeviceWithSecrets {
     return this.context.device
   }

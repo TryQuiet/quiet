@@ -27,6 +27,11 @@ import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
 import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
 import { BoundedRetry } from '../common/boundedRetry'
+import {
+  AdmittingTeamReplacedError,
+  PersistenceBacklogError,
+  PersistenceRolledBackError,
+} from '../auth/sigchain.service'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -348,10 +353,22 @@ export class Libp2pAuth {
   private persistAdmission = async (team: Auth.Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
     try {
-      await this.sigChainService.persistChain(team.id, 'admission')
+      await this.sigChainService.persistAdmittedTeam(team)
     } catch (err) {
-      await this.rollBackFailedAdmission(team.id, err)
-      // Still fail the gate: the acceptance must not be released.
+      // Only this admission's own write failing means the live team now holds a
+      // link that never reached disk. A replaced team, a rollback already in
+      // progress, or a refusal for capacity are all cases where nothing new was
+      // appended by us, so rolling the whole team back would disconnect every
+      // established peer for no reason (audit L-2).
+      if (
+        err instanceof AdmittingTeamReplacedError ||
+        err instanceof PersistenceRolledBackError ||
+        err instanceof PersistenceBacklogError
+      ) {
+        this.logger.warn(`Admission for team ${team.id} refused without a rollback: ${err.name}`)
+        throw err
+      }
+      this.rollBackFailedAdmission(team.id, err)
       throw err
     }
   }
@@ -366,29 +383,36 @@ export class Libp2pAuth {
    * it could not accept it. Rolling back to the stored team means the retry
    * produces a fresh admission bound to the new handshake.
    *
-   * Every auth connection captured the team object we are discarding, so they
-   * are dropped too and their peers redial.
+   * The guard half runs synchronously here, before this gate rejects, so no
+   * concurrent connection on the discarded team can pass in the meantime. The
+   * reload then runs on its own, and the connections that captured the discarded
+   * team are stopped after it, on a later tick: stopping them any earlier
+   * removes the listeners the library is about to report
+   * ADMISSION_NOT_PERSISTED on, and they cannot cause a write in the meantime
+   * because the gate now fails their identity check.
    *
    * @param teamId The team whose admission could not be stored
    * @param cause The write failure
    */
-  private async rollBackFailedAdmission(teamId: string, cause: unknown): Promise<void> {
-    this.logger.error(`Admission write failed for team ${teamId}, rolling back to the stored team`, cause)
-    try {
-      await this.sigChainService.restoreChainToDurableState(teamId)
-    } catch (err) {
-      this.logger.error(`Could not restore team ${teamId}; writes for it stay blocked`, err)
-      return
-    }
-    // Drop the connections after this gate has finished failing. Tearing them
-    // down inline removes the listeners @localfirst/auth is about to emit
-    // ADMISSION_NOT_PERSISTED on, so the failure would go out silently.
-    const timer = setTimeout(() => {
-      for (const peerId of [...this.authConnections.keys()]) {
-        this.closeAuthConnection(peerId, true)
+  private rollBackFailedAdmission(teamId: string, cause: unknown): void {
+    this.sigChainService.beginChainRollback(teamId)
+    const stopping = [...this.authConnections.keys()]
+    void (async () => {
+      try {
+        await this.sigChainService.restoreChainToDurableState(teamId)
+        this.logger.warn(
+          `Rolled team ${teamId} back after a failed admission write; stopping ${stopping.length} auth connection(s)`,
+          cause
+        )
+      } catch (err) {
+        this.logger.error(`Could not restore team ${teamId}; writes for it stay blocked`, err)
       }
-    }, 0)
-    timer.unref?.()
+      setImmediate(() => {
+        for (const peerId of stopping) {
+          this.closeAuthConnection(peerId, true)
+        }
+      })
+    })()
   }
 
   /**

@@ -26,6 +26,11 @@ import { SigChain } from '../auth/sigchain'
 import { QSSAuthConnStatus } from './qss.const'
 import { LFAEvents } from '../auth/types'
 import { BoundedRetry } from '../common/boundedRetry'
+import {
+  AdmittingTeamReplacedError,
+  PersistenceBacklogError,
+  PersistenceRolledBackError,
+} from '../auth/sigchain.service'
 
 @Injectable()
 export class QSSAuthConnection extends EventEmitter {
@@ -71,6 +76,21 @@ export class QSSAuthConnection extends EventEmitter {
     baseDelayMs: 100,
     maxDelayMs: 2_000,
   })
+  /**
+   * Set while an accepted team is staged in memory but not yet written.
+   *
+   * The staged context makes the chain look joined, so nothing may read it as
+   * restored state until this clears. It also carries what a rollback needs, for
+   * the case where the transport dies before the write lands.
+   */
+  private _pendingLocalCommit:
+    | {
+        team: Team
+        needsMemberSelfAssign: boolean
+        previousContext: MemberContext | InviteeMemberContext
+        previousJoinStatus: JoinStatus
+      }
+    | undefined = undefined
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst:qss')
 
   constructor(
@@ -246,7 +266,12 @@ export class QSSAuthConnection extends EventEmitter {
       this._connStatus = QSSAuthConnStatus.CONNECTED
       if (this.sigChainService.activeChainTeamId != null && this._joinStatus === JoinStatus.NOT_STARTED) {
         const sigChain = this.sigChainService.getActiveChain()
-        if (sigChain.team != null && !sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+        if (this._pendingLocalCommit != null) {
+          // The team on the chain is staged, not stored. Treating it as restored
+          // state here would publish a join for a graph a crash would lose
+          // (audit L-1).
+          this.logger.warn(`Not treating team ${this.teamId} as restored: its local write has not landed`)
+        } else if (sigChain.team != null && !sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
           this._joinStatus = JoinStatus.PENDING_MEMBER
           this.logger.debug(`Restored QSS team is missing ${RoleName.MEMBER}; requesting local invite claim`)
           this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
@@ -322,19 +347,29 @@ export class QSSAuthConnection extends EventEmitter {
   private persistAdmission = async (team: Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
     try {
-      await this.sigChainService.persistChain(team.id, 'admission')
+      await this.sigChainService.persistAdmittedTeam(team)
     } catch (err) {
-      // Undo the admission we appended but could not store, so no later write
-      // commits it and a retry produces a fresh link. This connection captured
-      // the team we are discarding, so it goes too.
-      this.logger.error(`Admission write failed for team ${team.id}, rolling back to the stored team`, err)
-      try {
-        await this.sigChainService.restoreChainToDurableState(team.id)
-        this.stop(false)
-      } catch (restoreError) {
-        this.logger.error(`Could not restore team ${team.id}; writes for it stay blocked`, restoreError)
+      // Only this admission's own write failing means the live team holds a link
+      // that never reached disk. A replaced team, a rollback already running, or
+      // a capacity refusal appended nothing of ours, so rolling the team back
+      // would disconnect established peers for no reason (audit L-2).
+      if (
+        err instanceof AdmittingTeamReplacedError ||
+        err instanceof PersistenceRolledBackError ||
+        err instanceof PersistenceBacklogError
+      ) {
+        this.logger.warn(`Admission for team ${team.id} refused without a rollback: ${err.name}`)
+        throw err
       }
-      // Still fail the gate: the acceptance must not be released.
+      this.sigChainService.beginChainRollback(team.id)
+      void (async () => {
+        try {
+          await this.sigChainService.restoreChainToDurableState(team.id)
+        } catch (restoreError) {
+          this.logger.error(`Could not restore team ${team.id}; writes for it stay blocked`, restoreError)
+        }
+        setImmediate(() => this.stop(false))
+      })()
       throw err
     }
   }
@@ -389,6 +424,7 @@ export class QSSAuthConnection extends EventEmitter {
     previousJoinStatus: JoinStatus
   }): Promise<void> {
     const { team, needsMemberSelfAssign, previousContext, previousJoinStatus } = pending
+    this._pendingLocalCommit = pending
 
     try {
       await this.sigChainService.persistChain(team.id)
@@ -410,15 +446,15 @@ export class QSSAuthConnection extends EventEmitter {
         team.id,
         error
       )
-      if (needsMemberSelfAssign) {
-        this.sigChainService.getActiveChain().context = previousContext
-      }
-      this._joinStatus = previousJoinStatus
+      this._rollBackStagedJoin()
+      void previousContext
+      void previousJoinStatus
       this._scheduleJoinRetry()
       return
     }
 
     this._localWriteRetry.clear(team.id)
+    this._pendingLocalCommit = undefined
     if (needsMemberSelfAssign) {
       this.sigChainService.setActiveChain(team.id)
       this._joinStatus = JoinStatus.PENDING_MEMBER
@@ -432,6 +468,28 @@ export class QSSAuthConnection extends EventEmitter {
       this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
     }
     this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
+  }
+
+  /**
+   * Undoes a staged join whose write never landed.
+   *
+   * Leaving the staged context installed makes the chain look joined to anything
+   * that reads it, while a crash would lose the graph entirely.
+   */
+  private _rollBackStagedJoin(): void {
+    const pending = this._pendingLocalCommit
+    if (pending == null) {
+      return
+    }
+    this._pendingLocalCommit = undefined
+    if (pending.needsMemberSelfAssign) {
+      const chain = this.sigChainService.getChain(pending.team.id, false)
+      if (chain != null) {
+        chain.context = pending.previousContext
+      }
+    }
+    this._joinStatus = pending.previousJoinStatus
+    this.logger.warn(`Rolled back a staged join for team ${pending.team.id} whose local write never landed`)
   }
 
   /**
@@ -482,7 +540,11 @@ export class QSSAuthConnection extends EventEmitter {
     // stops the connection before re-arming, so clearing budgets here would
     // make the bound unreachable.
     this._joinRetry.cancelPending()
+    // Cancelling the local write here would leave the staged team installed and
+    // unwritten, and a later connect would read it as restored state (audit
+    // L-1). Roll it back instead, so the next attempt starts clean.
     this._localWriteRetry.cancelPending()
+    this._rollBackStagedJoin()
 
     if (this._authConnection == null) {
       this.logger.warn(`Auth connection not open with QSS for this team`, this.teamId)

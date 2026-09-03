@@ -98,7 +98,7 @@ describe('Libp2pAuth durable admission', () => {
 
   it('holds the acceptance until the admission write resolves', async () => {
     const write = deferred()
-    const setSigChainSpy = jest.spyOn(localDbA, 'setSigChain').mockImplementation(async () => {
+    const setSigChainSpy = jest.spyOn(localDbA, 'setSigChainFromTeam').mockImplementation(async () => {
       await write.promise
     })
 
@@ -128,7 +128,7 @@ describe('Libp2pAuth durable admission', () => {
   })
 
   it('fails closed with ADMISSION_NOT_PERSISTED and sends nothing when the write rejects', async () => {
-    jest.spyOn(localDbA, 'setSigChain').mockRejectedValue(new Error('disk is on fire'))
+    jest.spyOn(localDbA, 'setSigChainFromTeam').mockRejectedValue(new Error('disk is on fire'))
 
     const admitterErrors: string[] = []
     libp2pA.on(Libp2pEvents.AUTH_LOCAL_ERROR, ({ error }: { error: { type?: string } }) => {

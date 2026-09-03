@@ -65,6 +65,10 @@ describe('QSSAuthConnection - durable join', () => {
     ;(conn as any)._authConnection.emit(LFAEvents.JOINED, payload)
   }
 
+  const emitConnected = (conn: QSSAuthConnection): void => {
+    ;(conn as any)._authConnection.emit(LFAEvents.CONNECTED)
+  }
+
   let module: TestingModule
   let sigChainService: SigChainService
   let localDbService: LocalDbService
@@ -334,6 +338,80 @@ describe('QSSAuthConnection - durable join', () => {
         expect((conn as any)._authConnection).toBeUndefined()
       }, 15_000)
       expect(joined).toHaveLength(0)
+    })
+
+    /**
+     * private#203 iteration-3 L-1. A transport drop used to cancel the local
+     * write retry without committing or undoing the staged team, so the chain
+     * kept a team that had never been written; a later connect then read that as
+     * restored state and published a join for it.
+     */
+    it('does not leave a staged team behind when the transport drops mid-write', async () => {
+      const { inviteeChain, team } = await buildInviteeChain()
+      const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
+
+      const setSigChainSpy = jest
+        .spyOn(localDbService, 'setSigChainFromTeam')
+        .mockRejectedValue(new Error('disk is on fire'))
+      const joined: (string | undefined)[] = []
+      const selfAssign: (string | undefined)[] = []
+      conn.on(QSSEvents.QSS_AUTH_JOINED, (id: string | undefined) => joined.push(id))
+      conn.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (id: string | undefined) => selfAssign.push(id))
+
+      emitJoined(conn, { team, user: inviteeChain.user })
+
+      // The first write has failed and a local retry is queued.
+      await waitForExpect(() => {
+        expect(setSigChainSpy).toHaveBeenCalled()
+      }, 10_000)
+      expect(inviteeChain.team).not.toBeNull()
+
+      // QSS drops before that retry fires.
+      conn.stop(false)
+
+      // The staged team goes with it, rather than sitting on the chain unwritten.
+      expect(inviteeChain.team).toBeNull()
+      expect(joined).toHaveLength(0)
+      expect(selfAssign).toHaveLength(0)
+
+      // A later connection has nothing to mistake for restored state.
+      const reconnected = await buildConnection(
+        sigChainService,
+        qssClient,
+        sigChainService.getChain(team.id),
+        team.id + '-second'
+      )
+      reconnected.on(QSSEvents.QSS_AUTH_JOINED, (id: string | undefined) => joined.push(id))
+      reconnected.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (id: string | undefined) => selfAssign.push(id))
+      emitConnected(reconnected)
+
+      await new Promise(resolve => setTimeout(resolve, 100))
+      expect(joined).toHaveLength(0)
+      expect(selfAssign).toHaveLength(0)
+    })
+
+    it('never reads a staged team as restored state on connect', async () => {
+      const { inviteeChain, team } = await buildInviteeChain()
+      const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
+
+      jest.spyOn(localDbService, 'setSigChainFromTeam').mockRejectedValue(new Error('disk is on fire'))
+      const joined: (string | undefined)[] = []
+      const selfAssign: (string | undefined)[] = []
+      conn.on(QSSEvents.QSS_AUTH_JOINED, (id: string | undefined) => joined.push(id))
+      conn.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (id: string | undefined) => selfAssign.push(id))
+
+      emitJoined(conn, { team, user: inviteeChain.user })
+      await waitForExpect(() => {
+        expect(inviteeChain.team).not.toBeNull()
+      }, 10_000)
+
+      // The team is staged and its write has not landed. Connect must publish
+      // nothing on the strength of the team simply being present.
+      emitConnected(conn)
+
+      await new Promise(resolve => setTimeout(resolve, 100))
+      expect(joined).toHaveLength(0)
+      expect(selfAssign).toHaveLength(0)
     })
 
     // private#203 iteration-2 L-1: a rejected retry callback used to consume an

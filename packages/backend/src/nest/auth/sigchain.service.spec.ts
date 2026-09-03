@@ -10,6 +10,7 @@ import { SigChain } from './sigchain'
 import { SocketEvents } from '@quiet/types'
 import waitForExpect from 'wait-for-expect'
 import { SigchainEvents } from './types'
+import { AdmittingTeamReplacedError, PersistenceBacklogError } from './sigchain.service'
 
 const logger = createLogger('auth:sigchainManager.spec')
 
@@ -573,5 +574,162 @@ describe('SigChainService - durable chain writes', () => {
 
     await new Promise(resolve => setTimeout(resolve, 100))
     expect(updates).toHaveLength(0)
+  })
+})
+
+/**
+ * private#203 iteration-3 M-1. The rollback itself opened a hole: it installed a
+ * clean replacement team and lifted the write block before the connections
+ * holding the discarded team were closed, and the gate looked its team up by ID.
+ * A second connection could then have the replacement persisted, have its gate
+ * resolve on that write, and go on to release an acceptance serialized from the
+ * discarded graph, carrying an admission that never reached disk.
+ */
+describe('SigChainService - admission gate isolation', () => {
+  let module: TestingModule
+  let sigChainService: SigChainService
+  let localDbService: LocalDbService
+  let chain: SigChain
+  let teamId: string
+
+  const deferred = <T = void>() => {
+    let resolve!: (value: T) => void
+    let reject!: (reason?: unknown) => void
+    const promise = new Promise<T>((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+    return { promise, resolve, reject }
+  }
+
+  beforeEach(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, SigChainModule, LocalDbModule],
+    }).compile()
+    sigChainService = await module.resolve(SigChainService)
+    localDbService = await module.resolve(LocalDbService)
+    await localDbService.open()
+    chain = await sigChainService.createChain(true)
+    teamId = chain.teamId!
+  })
+
+  afterEach(async () => {
+    jest.restoreAllMocks()
+    await localDbService.close()
+    await module.close()
+  })
+
+  it('refuses a gate holding the discarded team, during the rollback and after it', async () => {
+    const discarded = chain.team!
+
+    // A's write fails, so the rollback guard goes up synchronously.
+    sigChainService.beginChainRollback(teamId)
+
+    // B reaches its gate in the window before the replacement is installed. It
+    // still holds the same object, so only the block can stop it.
+    await expect(sigChainService.persistAdmittedTeam(discarded)).rejects.toThrow(/never persisted|rollback/)
+
+    // The reload installs a different team object.
+    await sigChainService.restoreChainToDurableState(teamId)
+    expect(chain.team).not.toBe(discarded)
+
+    // B reaches its gate after the reload. Looking the team up by ID would find
+    // the clean replacement and let this succeed.
+    await expect(sigChainService.persistAdmittedTeam(discarded)).rejects.toBeInstanceOf(AdmittingTeamReplacedError)
+  })
+
+  it('does not resolve a gate on the discarded team with a write of the replacement', async () => {
+    const discarded = chain.team!
+    const writes: unknown[] = []
+    jest.spyOn(localDbService, 'setSigChainFromTeam').mockImplementation(async (team: any) => {
+      writes.push(team)
+    })
+
+    sigChainService.beginChainRollback(teamId)
+    // Attach the handler immediately: this gate rejects while the reload is
+    // still awaiting, and an unhandled rejection would fail the run.
+    const gate = sigChainService.persistAdmittedTeam(discarded).then(
+      () => 'resolved',
+      () => 'rejected'
+    )
+    await sigChainService.restoreChainToDurableState(teamId)
+
+    expect(await gate).toBe('rejected')
+    // Whatever else happened, no write of the replacement was allowed to stand
+    // in for the discarded team's admission.
+    expect(writes).not.toContain(chain.team)
+  })
+
+  it('waits for a put that was already in flight before reading durable state', async () => {
+    const put = deferred()
+    const order: string[] = []
+    jest.spyOn(localDbService, 'setSigChainFromTeam').mockImplementation(async () => {
+      order.push('put-start')
+      await put.promise
+      order.push('put-end')
+    })
+
+    // A write is mid-put, holding bytes serialized before the rollback.
+    const inFlight = sigChainService.persistChain(teamId)
+    await waitForExpect(() => {
+      expect(order).toEqual(['put-start'])
+    })
+
+    sigChainService.beginChainRollback(teamId)
+    const restore = sigChainService.restoreChainToDurableState(teamId).then(() => order.push('restored'))
+
+    // The restore must not read the stored value while that put can still land.
+    await new Promise(resolve => setTimeout(resolve, 100))
+    expect(order).toEqual(['put-start'])
+
+    put.resolve()
+    await inFlight
+    await restore
+
+    expect(order).toEqual(['put-start', 'put-end', 'restored'])
+  })
+
+  it('shares one write across repeated gates for the same head, and rolls nothing back', async () => {
+    const write = deferred()
+    let started = 0
+    jest.spyOn(localDbService, 'setSigChainFromTeam').mockImplementation(async () => {
+      started += 1
+      await write.promise
+    })
+
+    const team = chain.team!
+    const gates = Array.from({ length: 80 }, () => sigChainService.persistAdmittedTeam(team))
+
+    await waitForExpect(() => {
+      expect(started).toBe(1)
+    })
+    // Eighty gates for one head, one write, and nowhere near the backlog bound:
+    // a peer re-running the handshake cannot spend the team's capacity or push
+    // it into a rollback (audit L-2).
+    expect(sigChainService.pendingPersistCount(teamId)).toBe(1)
+
+    write.resolve()
+    await Promise.all(gates)
+
+    expect(started).toBe(1)
+    expect(sigChainService.rollbackCount(teamId)).toBe(0)
+
+    // The head is durable now, so another gate for it costs no write at all.
+    await sigChainService.persistAdmittedTeam(team)
+    expect(started).toBe(1)
+  })
+
+  it('refuses for capacity without rolling the team back', async () => {
+    const write = deferred()
+    jest.spyOn(localDbService, 'setSigChainFromTeam').mockImplementation(async () => {
+      await write.promise
+    })
+
+    const queued = Array.from({ length: 64 }, () => sigChainService.persistChain(teamId))
+    await expect(sigChainService.persistChain(teamId, 'admission')).rejects.toBeInstanceOf(PersistenceBacklogError)
+    expect(sigChainService.rollbackCount(teamId)).toBe(0)
+
+    write.resolve()
+    await Promise.all(queued)
   })
 })

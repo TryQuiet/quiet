@@ -31,14 +31,50 @@ import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/
 /** Why a write was requested; only admissions are refused past the bound. */
 export type PersistKind = 'update' | 'admission'
 
+/** The admitting team was replaced before its write could commit. */
+export class AdmittingTeamReplacedError extends Error {
+  constructor(teamId: string) {
+    super(`The team admitting into ${teamId} is no longer the one this device holds`)
+    this.name = 'AdmittingTeamReplacedError'
+  }
+}
+
+/** Too many callers are already waiting on a write for this team. */
+export class PersistenceBacklogError extends Error {
+  constructor(teamId: string, pending: number) {
+    super(`Refusing to queue another admission write for team ${teamId}: ${pending} already pending`)
+    this.name = 'PersistenceBacklogError'
+  }
+}
+
+/** The write was queued against a team state that a rollback has since discarded. */
+export class PersistenceRolledBackError extends Error {
+  constructor(teamId: string) {
+    super(`Discarding a write for team ${teamId} that was queued before a rollback`)
+    this.name = 'PersistenceRolledBackError'
+  }
+}
+
 /**
  * Write state for one team: at most one write talking to the database and one
- * queued behind it, plus the number of callers waiting on that queued write.
+ * queued behind it, plus the callers waiting on that queued write.
+ *
+ * `generation` is what a rollback invalidates. Every queued task captures it, so
+ * a task that was queued against a graph the rollback is discarding refuses to
+ * run rather than committing it, or resolving an admission gate against a write
+ * of the replacement.
  */
 type TeamPersistState = {
-  running: Promise<void> | null
-  pending: Promise<void> | null
+  /** Settled chain of every write for this team; never rejects. */
+  tail: Promise<void>
+  /** An ordinary update not yet started, which later callers can join. */
+  coalescedUpdate: Promise<void> | undefined
   waiters: number
+  generation: number
+  /** Heads already on disk, so a repeated gate for one costs no write. */
+  durableHeads: Set<string>
+  /** One write per head in flight, so repeated gates share a completion. */
+  admissionsInFlight: Map<string, Promise<void>>
 }
 
 @Injectable()
@@ -50,6 +86,8 @@ export class SigChainService extends EventEmitter {
    * disk retires them, which in practice means a peer is driving it.
    */
   private static readonly MAX_PENDING_PERSISTS_PER_TEAM = 64
+  /** Heads remembered as durable per team; enough to absorb a retry burst. */
+  private static readonly MAX_DURABLE_HEADS_PER_TEAM = 32
 
   public activeChainTeamId: string | undefined
   private readonly logger = createLogger(SigChainService.name)
@@ -63,6 +101,8 @@ export class SigChainService extends EventEmitter {
    * Every write for them is refused until they are back to a durable state.
    */
   private readonly _blockedTeams: Set<string> = new Set()
+  /** Rollbacks performed per team, for diagnosing repeated availability loss. */
+  private readonly _rollbacks: Map<string, number> = new Map()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -400,7 +440,19 @@ export class SigChainService extends EventEmitter {
       this.detachSocketListeners(chain)
     }
     if (fromDisk) {
-      this.localDbService.deleteSigChain(teamId)
+      // Abandon anything queued and wait for whatever is mid-write before
+      // deleting, or a write already holding serialized bytes lands afterwards
+      // and puts the record straight back.
+      const state = this._persistQueue.get(teamId)
+      if (state != null) {
+        state.generation += 1
+        state.coalescedUpdate = undefined
+        state.admissionsInFlight.clear()
+        state.durableHeads.clear()
+        await state.tail
+      }
+      await this.localDbService.deleteSigChain(teamId)
+      this._persistQueue.delete(teamId)
     }
     this.chains.delete(teamId)
     if (this.activeChainTeamId === teamId) {
@@ -501,91 +553,257 @@ export class SigChainService extends EventEmitter {
    * @param teamId ID of the team whose chain should be persisted
    */
   public persistChain(teamId: string, kind: PersistKind = 'update'): Promise<void> {
-    let state = this._persistQueue.get(teamId)
-    if (state == null) {
-      state = { running: null, pending: null, waiters: 0 }
-      this._persistQueue.set(teamId, state)
-    }
+    const state = this.stateFor(teamId)
 
-    // Fail the admission gate closed past the bound. An invitation holder that
-    // can restart the handshake would otherwise keep adding waiters for free;
-    // refusing here turns that into a failed admission rather than unbounded
-    // work in front of every other write for this team.
     if (kind === 'admission' && state.waiters >= SigChainService.MAX_PENDING_PERSISTS_PER_TEAM) {
-      const message = `Refusing to queue another admission write for team ${teamId}: ${state.waiters} already pending`
-      this.logger.error(message)
-      return Promise.reject(new Error(message))
+      const error = new PersistenceBacklogError(teamId, state.waiters)
+      this.logger.error(error.message)
+      return Promise.reject(error)
     }
 
-    if (state.pending == null) {
-      const startAfter = state.running ?? Promise.resolve()
-      const queued = state
-      state.pending = startAfter.then(
-        () => this.runPersist(teamId, queued),
-        () => this.runPersist(teamId, queued)
-      )
+    let write = state.coalescedUpdate
+    if (write == null) {
+      const slot: { write?: Promise<void> } = {}
+      write = this.enqueue(teamId, state, async generation => {
+        // Free the slot as this write starts, never when it finishes, so a
+        // caller arriving now opens a fresh one that covers its own mutation.
+        if (state.coalescedUpdate === slot.write) {
+          state.coalescedUpdate = undefined
+        }
+        await this.writeLiveChain(teamId, state, generation)
+      })
+      slot.write = write
+      state.coalescedUpdate = write
     }
-
-    const result = state.pending
-    const queued = state
-    queued.waiters += 1
-    return result.finally(() => {
-      queued.waiters -= 1
-    })
+    return this.track(state, write)
   }
 
   /**
-   * Runs one write and hands the queue its next slot.
+   * Durably writes the exact team an LFA connection has just admitted into.
    *
-   * The pending slot is released the moment this write starts, so a caller that
-   * arrives afterwards opens a fresh slot instead of being told its state is
-   * already covered by a write that had begun before its mutation.
+   * This is the durable-admission gate, and it is bound to the object it is
+   * handed rather than to the team ID. Looking the team up by ID instead lets a
+   * rollback that has already installed a clean replacement satisfy this gate
+   * with a write of that replacement, while the connection goes on to release an
+   * acceptance serialized from the discarded graph, carrying an admission that
+   * never reached disk. The identity is therefore checked when the write is
+   * queued and again immediately before its bytes are produced.
+   *
+   * Repeated gates for one head share a single write, and a head already on disk
+   * costs none, so a peer that re-runs the handshake cannot consume the backlog
+   * bound or provoke a rollback (audit L-2).
+   *
+   * @param team The team the connection appended the admission to
+   * @throws AdmittingTeamReplacedError if this is no longer the team we hold,
+   *   PersistenceBacklogError past the bound, PersistenceRolledBackError if a
+   *   rollback discarded this state, or the underlying write failure
    */
-  private runPersist(teamId: string, state: TeamPersistState): Promise<void> {
-    state.pending = null
-    const running = (async () => {
-      try {
-        // A write queued before the block would serialize the live team, which
-        // is exactly the un-persisted link we are refusing to commit.
-        if (this._blockedTeams.has(teamId)) {
-          throw new Error(`Refusing to write team ${teamId}: it holds state that was never persisted`)
-        }
-        this.logger.info(`Saving chain to disk`, teamId)
-        await this._ensureDb()
-        const chain = this.getChain(teamId)
-        await this.localDbService.setSigChain(chain, teamId)
-      } catch (err) {
-        this.logger.error(`Failed to persist sigchain for team ${teamId}`, err)
-        throw err
+  public async persistAdmittedTeam(team: Team): Promise<void> {
+    const teamId = team.id
+    this.assertAdmittingTeamIsCurrent(team)
+
+    const state = this.stateFor(teamId)
+    const head = SigChainService.headKey(team)
+
+    if (state.durableHeads.has(head)) {
+      this.logger.info(`Admission for team ${teamId} at head ${head} is already durable`)
+      return
+    }
+
+    const inFlight = state.admissionsInFlight.get(head)
+    if (inFlight != null) {
+      this.logger.info(`Joining the in-flight admission write for team ${teamId}`)
+      await inFlight
+      return
+    }
+
+    if (state.waiters >= SigChainService.MAX_PENDING_PERSISTS_PER_TEAM) {
+      const error = new PersistenceBacklogError(teamId, state.waiters)
+      this.logger.error(error.message)
+      throw error
+    }
+
+    const write = this.track(
+      state,
+      this.enqueue(teamId, state, async generation => this.writeAdmittedTeam(teamId, team, state, generation))
+    )
+    state.admissionsInFlight.set(head, write)
+    try {
+      await write
+      SigChainService.rememberDurableHead(state, head)
+    } finally {
+      state.admissionsInFlight.delete(head)
+    }
+  }
+
+  /**
+   * Fails closed unless this is still exactly the team this device holds.
+   *
+   * @param team The team an admission was appended to
+   */
+  private assertAdmittingTeamIsCurrent(team: Team): void {
+    const chain = this.getChain(team.id, false)
+    if (chain == null || chain.team !== team) {
+      const error = new AdmittingTeamReplacedError(team.id)
+      this.logger.error(error.message)
+      throw error
+    }
+  }
+
+  /** Write state for a team, created on first use. */
+  private stateFor(teamId: string): TeamPersistState {
+    let state = this._persistQueue.get(teamId)
+    if (state == null) {
+      state = {
+        tail: Promise.resolve(),
+        coalescedUpdate: undefined,
+        waiters: 0,
+        generation: 0,
+        durableHeads: new Set<string>(),
+        admissionsInFlight: new Map<string, Promise<void>>(),
       }
-    })()
-    // The tracked tail never rejects, so one failed write does not cascade into
-    // every later write for the same team.
-    const settled = running.then(
+      this._persistQueue.set(teamId, state)
+    }
+    return state
+  }
+
+  /**
+   * Queues one write behind everything already queued for this team.
+   *
+   * The generation is captured here and rechecked when the task runs, so a task
+   * queued before a rollback refuses rather than committing a graph the rollback
+   * is discarding, or resolving an admission gate against a write of the
+   * replacement.
+   *
+   * @param teamId Team being written
+   * @param state That team's write state
+   * @param run The write itself, given the generation it was queued in
+   */
+  private enqueue(teamId: string, state: TeamPersistState, run: (generation: number) => Promise<void>): Promise<void> {
+    const generation = state.generation
+    const guarded = async (): Promise<void> => {
+      if (state.generation !== generation) {
+        throw new PersistenceRolledBackError(teamId)
+      }
+      await run(generation)
+    }
+    // Order after the previous write either way: a failed write must not wedge
+    // the queue, and the stored tail must never be a rejection nobody handles.
+    const current = state.tail.then(guarded, guarded)
+    state.tail = current.then(
       () => undefined,
       () => undefined
     )
-    state.running = settled
-    void settled.then(() => {
-      if (state.running === settled) {
-        state.running = null
-      }
-      if (this._persistQueue.get(teamId) === state && state.pending == null && state.waiters === 0) {
-        this._persistQueue.delete(teamId)
-      }
+    return current
+  }
+
+  /** Counts a caller against the team's backlog for as long as it waits. */
+  private track(state: TeamPersistState, write: Promise<void>): Promise<void> {
+    state.waiters += 1
+    return write.finally(() => {
+      state.waiters -= 1
     })
-    return running
+  }
+
+  /** Writes whatever the chain currently holds. */
+  private async writeLiveChain(teamId: string, state: TeamPersistState, generation: number): Promise<void> {
+    try {
+      this.logger.info(`Saving chain to disk`, teamId)
+      await this._ensureDb()
+      this.assertWritable(teamId, state, generation)
+      await this.localDbService.setSigChain(this.getChain(teamId), teamId)
+    } catch (err) {
+      this.logger.error(`Failed to persist sigchain for team ${teamId}`, err)
+      throw err
+    }
+  }
+
+  /** Writes exactly the team an admission was appended to, or refuses. */
+  private async writeAdmittedTeam(
+    teamId: string,
+    team: Team,
+    state: TeamPersistState,
+    generation: number
+  ): Promise<void> {
+    try {
+      this.logger.info(`Saving the admitting team to disk`, teamId)
+      await this._ensureDb()
+      this.assertWritable(teamId, state, generation)
+      // Re-check identity immediately before the bytes are produced: the awaits
+      // above are exactly where a rollback can install a replacement.
+      const chain = this.getChain(teamId)
+      if (chain.team !== team) {
+        throw new AdmittingTeamReplacedError(teamId)
+      }
+      await this.localDbService.setSigChainFromTeam(team, chain.localUserContext, teamId)
+    } catch (err) {
+      this.logger.error(`Failed to persist the admitting team for ${teamId}`, err)
+      throw err
+    }
+  }
+
+  /** Refuses a write whose generation is retired or whose team is blocked. */
+  private assertWritable(teamId: string, state: TeamPersistState, generation: number): void {
+    if (state.generation !== generation) {
+      throw new PersistenceRolledBackError(teamId)
+    }
+    if (this._blockedTeams.has(teamId)) {
+      throw new Error(`Refusing to write team ${teamId}: it holds state that was never persisted`)
+    }
+  }
+
+  /** Canonical key for a team's current graph heads. */
+  private static headKey(team: Team): string {
+    const graph = team.graph as unknown as { head: string[] }
+    return [...graph.head].sort().join(',')
+  }
+
+  /** Records a head as durable, keeping the record bounded. */
+  private static rememberDurableHead(state: TeamPersistState, head: string): void {
+    state.durableHeads.add(head)
+    while (state.durableHeads.size > SigChainService.MAX_DURABLE_HEADS_PER_TEAM) {
+      const oldest = state.durableHeads.values().next().value
+      if (oldest == null) break
+      state.durableHeads.delete(oldest)
+    }
+  }
+
+  /**
+   * Marks a team's in-memory state as untrustworthy, synchronously.
+   *
+   * Split from the reload because the guard has to be in place at the instant
+   * the gate fails, with no await in between. From here every queued task is a
+   * stale generation and refuses to run, every new write is refused, and every
+   * admission gate holding the discarded team fails its identity check. Nothing
+   * can commit the un-persisted link while the reload does its own awaiting.
+   *
+   * @param teamId The team whose memory state is being discarded
+   * @returns The generation that has just been retired
+   */
+  public beginChainRollback(teamId: string): number {
+    const state = this.stateFor(teamId)
+    const retired = state.generation
+    state.generation += 1
+    state.coalescedUpdate = undefined
+    state.admissionsInFlight.clear()
+    state.durableHeads.clear()
+    this._blockedTeams.add(teamId)
+    this._rollbacks.set(teamId, (this._rollbacks.get(teamId) ?? 0) + 1)
+    this.logger.warn(
+      `Rolling team ${teamId} back to durable state: generation ${retired} retired, ` +
+        `rollback ${this._rollbacks.get(teamId)} for this team`
+    )
+    return retired
   }
 
   /**
    * Puts a team back to the last state this device actually stored.
    *
-   * Called when an admission write fails. The live team then holds an ADMIT link
-   * that is not durable, and any later ordinary write would commit it: the peer
-   * would be treated as admitted by a record we cannot prove we made. Writes for
-   * the team are refused from the moment this starts, which also kills anything
-   * already queued, and are allowed again only once the team has been rebuilt
-   * from disk.
+   * Must follow beginChainRollback, which is what makes the window safe. This
+   * half waits for any write already talking to the database to settle before
+   * reading, so a put that was serialized before the rollback cannot land after
+   * the reload and reintroduce the discarded graph. Only then is the stored team
+   * installed and the new generation unblocked.
    *
    * If there is nothing durable to rebuild from, writes stay blocked. Refusing
    * to write anything for the team is the correct failure: committing the link
@@ -594,7 +812,13 @@ export class SigChainService extends EventEmitter {
    * @param teamId The team to roll back
    */
   public async restoreChainToDurableState(teamId: string): Promise<void> {
-    this._blockedTeams.add(teamId)
+    const state = this._persistQueue.get(teamId)
+    // Fence: the tail never rejects, and settling it means no earlier put is
+    // still holding serialized bytes we are about to read past.
+    if (state != null) {
+      await state.tail
+    }
+
     await this._ensureDb()
     const stored = await this.localDbService.getSigChain(teamId)
     if (stored?.serializedTeam == null || stored.teamKeyRing == null) {
@@ -604,6 +828,11 @@ export class SigChainService extends EventEmitter {
     this.getChain(teamId).restoreTeam(stored.serializedTeam, stored.localUserContext, stored.teamKeyRing)
     this._blockedTeams.delete(teamId)
     this.logger.info(`Restored team ${teamId} to its last durable state`)
+  }
+
+  /** How many times this team has been rolled back; for diagnostics. */
+  public rollbackCount(teamId: string): number {
+    return this._rollbacks.get(teamId) ?? 0
   }
 
   /** Whether writes for this team are currently refused; for tests and diagnostics. */
