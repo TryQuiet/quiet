@@ -27,11 +27,6 @@ import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
 import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
 import { BoundedRetry } from '../common/boundedRetry'
-import {
-  AdmittingTeamReplacedError,
-  PersistenceBacklogError,
-  PersistenceRolledBackError,
-} from '../auth/sigchain.service'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -352,67 +347,7 @@ export class Libp2pAuth {
    */
   private persistAdmission = async (team: Auth.Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
-    try {
-      await this.sigChainService.persistAdmittedTeam(team)
-    } catch (err) {
-      // Only this admission's own write failing means the live team now holds a
-      // link that never reached disk. A replaced team, a rollback already in
-      // progress, or a refusal for capacity are all cases where nothing new was
-      // appended by us, so rolling the whole team back would disconnect every
-      // established peer for no reason (audit L-2).
-      if (
-        err instanceof AdmittingTeamReplacedError ||
-        err instanceof PersistenceRolledBackError ||
-        err instanceof PersistenceBacklogError
-      ) {
-        this.logger.warn(`Admission for team ${team.id} refused without a rollback: ${err.name}`)
-        throw err
-      }
-      this.rollBackFailedAdmission(team.id, err)
-      throw err
-    }
-  }
-
-  /**
-   * Undoes an admission this device appended but could not store.
-   *
-   * Leaving it in memory is not neutral. The link stays in the live team, so the
-   * next ordinary write commits it, and the invitee is then treated as admitted
-   * by a record we never made. Worse for the invitee, a retry would be served
-   * that same link, whose proof belongs to the handshake that already failed, so
-   * it could not accept it. Rolling back to the stored team means the retry
-   * produces a fresh admission bound to the new handshake.
-   *
-   * The guard half runs synchronously here, before this gate rejects, so no
-   * concurrent connection on the discarded team can pass in the meantime. The
-   * reload then runs on its own, and the connections that captured the discarded
-   * team are stopped after it, on a later tick: stopping them any earlier
-   * removes the listeners the library is about to report
-   * ADMISSION_NOT_PERSISTED on, and they cannot cause a write in the meantime
-   * because the gate now fails their identity check.
-   *
-   * @param teamId The team whose admission could not be stored
-   * @param cause The write failure
-   */
-  private rollBackFailedAdmission(teamId: string, cause: unknown): void {
-    this.sigChainService.beginChainRollback(teamId)
-    const stopping = [...this.authConnections.keys()]
-    void (async () => {
-      try {
-        await this.sigChainService.restoreChainToDurableState(teamId)
-        this.logger.warn(
-          `Rolled team ${teamId} back after a failed admission write; stopping ${stopping.length} auth connection(s)`,
-          cause
-        )
-      } catch (err) {
-        this.logger.error(`Could not restore team ${teamId}; writes for it stay blocked`, err)
-      }
-      setImmediate(() => {
-        for (const peerId of stopping) {
-          this.closeAuthConnection(peerId, true)
-        }
-      })
-    })()
+    await this.sigChainService.persistAdmittedTeam(team)
   }
 
   /**

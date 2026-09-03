@@ -26,11 +26,6 @@ import { SigChain } from '../auth/sigchain'
 import { QSSAuthConnStatus } from './qss.const'
 import { LFAEvents } from '../auth/types'
 import { BoundedRetry } from '../common/boundedRetry'
-import {
-  AdmittingTeamReplacedError,
-  PersistenceBacklogError,
-  PersistenceRolledBackError,
-} from '../auth/sigchain.service'
 
 @Injectable()
 export class QSSAuthConnection extends EventEmitter {
@@ -346,32 +341,7 @@ export class QSSAuthConnection extends EventEmitter {
    */
   private persistAdmission = async (team: Team): Promise<void> => {
     this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
-    try {
-      await this.sigChainService.persistAdmittedTeam(team)
-    } catch (err) {
-      // Only this admission's own write failing means the live team holds a link
-      // that never reached disk. A replaced team, a rollback already running, or
-      // a capacity refusal appended nothing of ours, so rolling the team back
-      // would disconnect established peers for no reason (audit L-2).
-      if (
-        err instanceof AdmittingTeamReplacedError ||
-        err instanceof PersistenceRolledBackError ||
-        err instanceof PersistenceBacklogError
-      ) {
-        this.logger.warn(`Admission for team ${team.id} refused without a rollback: ${err.name}`)
-        throw err
-      }
-      this.sigChainService.beginChainRollback(team.id)
-      void (async () => {
-        try {
-          await this.sigChainService.restoreChainToDurableState(team.id)
-        } catch (restoreError) {
-          this.logger.error(`Could not restore team ${team.id}; writes for it stay blocked`, restoreError)
-        }
-        setImmediate(() => this.stop(false))
-      })()
-      throw err
-    }
+    await this.sigChainService.persistAdmittedTeam(team)
   }
 
   /**

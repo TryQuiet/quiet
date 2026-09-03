@@ -191,30 +191,6 @@ class SigChain extends EventEmitter {
     this._lockbox = new LockboxService(this)
   }
 
-  /**
-   * Replaces the in-memory team with the one stored on disk.
-   *
-   * Used after an admission write fails: the live team then holds an ADMIT link
-   * that was never stored, and any later write would commit it. Rebuilding from
-   * the stored bytes discards it, so a retry produces a fresh admission instead
-   * of one this device cannot prove it recorded.
-   *
-   * The SigChain instance itself is kept, so services holding it stay valid; the
-   * context setter moves the update listener onto the rebuilt team.
-   */
-  public restoreTeam(
-    serializedTeam: Uint8Array,
-    localUserContext: auth.LocalUserContext,
-    teamKeyRing: auth.Keyring
-  ): void {
-    const team: auth.Team = auth.loadTeam(serializedTeam, localUserContext, teamKeyRing, lfaLogger)
-    this.context = {
-      user: localUserContext.user,
-      device: localUserContext.device,
-      team,
-    } as auth.MemberContext
-  }
-
   public save(): Uint8Array {
     if (!this.team) {
       return new Uint8Array()
