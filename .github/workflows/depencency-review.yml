@@ -12,8 +12,15 @@ on: [pull_request]
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   dependency-review:
+    # The private audit mirror does not have GitHub dependency-graph/Advanced
+    # Security support, so the action always fails there before scanning.
+    if: github.repository != 'TryQuiet/private'
     runs-on: ubuntu-22.04
     steps:
       - name: 'Checkout Repository'

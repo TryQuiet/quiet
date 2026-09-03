@@ -4,6 +4,7 @@ import { setEngine as setIdentityEngine } from '../../identity/node_modules/pkij
 import React from 'react'
 
 import { io } from 'socket.io-client'
+import { saveChannelMetadataInKeychainSaga } from './store/channelMetadata/saveChannelMetadataInKeychain/saveChannelMetadataInKeychain.saga'
 
 setEngine(
   'newEngine',
@@ -50,6 +51,7 @@ jest.mock('react-native', () => {
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),
     saveKeysInKeychain: jest.fn(),
+    saveChannelMetadataInKeychain: jest.fn(),
     saveDeviceCredentials: jest.fn(),
     saveUserMetadata: jest.fn(),
     saveNseQssUrl: jest.fn(),

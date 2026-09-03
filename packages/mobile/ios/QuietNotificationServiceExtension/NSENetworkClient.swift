@@ -3,7 +3,7 @@ import os.log
 
 private let netLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NSENetworkClient")
 
-class NSENetworkClient {
+class NSENetworkClient: NSEAuthNetworking {
     let baseURL: URL
     let session: URLSession
 
@@ -48,13 +48,13 @@ class NSENetworkClient {
 
     // MARK: - POST /nse-auth/token
 
-    func requestToken(challengeId: String, deviceId: String, proof: ProofPayload) async throws -> TokenResponse {
+    func requestToken(challengeId: String, deviceId: String, signature: String) async throws -> TokenResponse {
         let url = baseURL.appendingPathComponent("nse-auth/token")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let body = TokenRequest(challengeId: challengeId, deviceId: deviceId, proof: proof)
+        let body = TokenRequest(challengeId: challengeId, deviceId: deviceId, signature: signature)
         request.httpBody = try Self.encoder.encode(body)
 
         return try await perform(request: request, as: TokenResponse.self) { code in

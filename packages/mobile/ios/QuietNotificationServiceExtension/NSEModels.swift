@@ -81,29 +81,105 @@ extension NSEAuthError {
 
 // MARK: - Challenge
 
-struct ChallengePayload: Codable {
+let nseAuthProtocolVersion = 1
+let nseAuthSignatureContext = "quiet/qss-nse-auth/device-proof"
+let nseAuthMaximumLifetimeMs: Int64 = 30_000
+let nseAuthClockSkewMs: Int64 = 5_000
+let nseAuthMaximumSafeInteger: Int64 = 9_007_199_254_740_991
+
+struct ChallengePayload: Decodable {
+    let protocolVersion: Int
     let type: String
-    let name: String
+    let deviceId: String
+    let teamId: String
+    let qssServerId: String
+    let challengeId: String
     let nonce: String
-    let timestamp: Int64  // Unix ms, from identity.challenge() in TypeScript
+    let issuedAtMs: Int64
+    let expiresAtMs: Int64
+
+    private enum CodingKeys: String, CodingKey, CaseIterable {
+        case protocolVersion, type, deviceId, teamId, qssServerId, challengeId, nonce, issuedAtMs, expiresAtMs
+    }
+
+    init(from decoder: Decoder) throws {
+        let dynamic = try decoder.container(keyedBy: AnyCodingKey.self)
+        let expected = Set(CodingKeys.allCases.map(\.rawValue))
+        let actual = Set(dynamic.allKeys.map(\.stringValue))
+        guard actual == expected else {
+            throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Challenge schema was not exact"))
+        }
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        protocolVersion = try values.decode(Int.self, forKey: .protocolVersion)
+        type = try values.decode(String.self, forKey: .type)
+        deviceId = try values.decode(String.self, forKey: .deviceId)
+        teamId = try values.decode(String.self, forKey: .teamId)
+        qssServerId = try values.decode(String.self, forKey: .qssServerId)
+        challengeId = try values.decode(String.self, forKey: .challengeId)
+        nonce = try values.decode(String.self, forKey: .nonce)
+        issuedAtMs = try values.decode(Int64.self, forKey: .issuedAtMs)
+        expiresAtMs = try values.decode(Int64.self, forKey: .expiresAtMs)
+    }
+
+    func validate(deviceId expectedDeviceId: String, teamId expectedTeamId: String, qssServerId expectedServerId: String, nowMs: Int64 = Int64(Date().timeIntervalSince1970 * 1000)) throws {
+        guard protocolVersion == nseAuthProtocolVersion,
+              type == "DEVICE",
+              deviceId == expectedDeviceId,
+              teamId == expectedTeamId,
+              qssServerId == expectedServerId,
+              challengeId.range(of: "^[0-9a-f]{32}$", options: .regularExpression) != nil,
+              issuedAtMs >= 0,
+              issuedAtMs <= nseAuthMaximumSafeInteger,
+              expiresAtMs >= 0,
+              expiresAtMs <= nseAuthMaximumSafeInteger,
+              nowMs >= 0,
+              nowMs <= nseAuthMaximumSafeInteger,
+              expiresAtMs > issuedAtMs,
+              expiresAtMs <= issuedAtMs + nseAuthMaximumLifetimeMs,
+              issuedAtMs <= nowMs + nseAuthClockSkewMs,
+              expiresAtMs + nseAuthClockSkewMs >= nowMs,
+              let nonceBytes = Base58.decode(nonce),
+              nonceBytes.count == 32,
+              Base58.encode(nonceBytes) == nonce else {
+            throw NSEAuthError.invalidResponse
+        }
+    }
 }
 
-struct ChallengeResponse: Codable {
+private struct AnyCodingKey: CodingKey {
+    let stringValue: String
+    let intValue: Int? = nil
+    init?(stringValue: String) { self.stringValue = stringValue }
+    init?(intValue: Int) { return nil }
+}
+
+struct ChallengeResponse: Decodable {
     let challengeId: String
     let challenge: ChallengePayload
+
+    private enum CodingKeys: String, CodingKey, CaseIterable { case challengeId, challenge }
+
+    init(from decoder: Decoder) throws {
+        let dynamic = try decoder.container(keyedBy: AnyCodingKey.self)
+        guard Set(dynamic.allKeys.map(\.stringValue)) == Set(CodingKeys.allCases.map(\.rawValue)) else {
+            throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Challenge response schema was not exact"))
+        }
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        challengeId = try values.decode(String.self, forKey: .challengeId)
+        challenge = try values.decode(ChallengePayload.self, forKey: .challenge)
+    }
 }
 
 // MARK: - Token
 
 struct ProofPayload: Codable {
     let signature: String
-    let publicKey: String
 }
 
 struct TokenRequest: Codable {
     let challengeId: String
     let deviceId: String
-    let proof: ProofPayload
+    let signature: String
 }
 
 struct TokenResponse: Codable {

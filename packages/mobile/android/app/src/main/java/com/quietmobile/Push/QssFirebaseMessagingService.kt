@@ -11,6 +11,68 @@ import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 
+internal const val MAX_MISSING_NOTIFICATION_KEY_FAILURES = 3
+
+internal fun shouldRetryMissingNotificationKey(failureCount: Int): Boolean =
+    failureCount in 1..MAX_MISSING_NOTIFICATION_KEY_FAILURES
+
+internal fun <T> processContiguousQssEntries(
+    afterSeq: Long,
+    entries: List<LogEntry>,
+    authenticate: (LogEntry) -> T?,
+    present: (LogEntry, T) -> Unit,
+    isPermanentRejection: (LogEntry, Exception) -> Boolean = { _, _ -> true },
+    onAuthenticated: (LogEntry) -> Unit = {},
+    onRejected: (LogEntry, Exception) -> Unit = { _, _ -> },
+    onRetryableFailure: (LogEntry, Exception, Long) -> Unit = { _, _, _ -> },
+    onPresentationFailure: (LogEntry, Exception, Long) -> Unit = { _, _, _ -> },
+    onGap: (expected: Long, actual: Long, LogEntry) -> Unit = { _, _, _ -> },
+): Long {
+    var lastProcessedSeq = afterSeq
+    val unseenEntries = entries.filter { it.syncSeq > afterSeq }.sortedBy { it.syncSeq }
+
+    for (entry in unseenEntries) {
+        if (entry.syncSeq <= lastProcessedSeq) continue
+        if (entry.syncSeq != lastProcessedSeq + 1) {
+            onGap(lastProcessedSeq + 1, entry.syncSeq, entry)
+            break
+        }
+
+        val message =
+            try {
+                authenticate(entry)
+            } catch (error: Exception) {
+                if (!isPermanentRejection(entry, error)) {
+                    onRetryableFailure(entry, error, lastProcessedSeq)
+                    break
+                }
+                // Authentication failures are permanent for this immutable log entry. Consume
+                // the rejected sequence so one malicious entry cannot poison the cursor.
+                onRejected(entry, error)
+                lastProcessedSeq = entry.syncSeq
+                continue
+            }
+
+        onAuthenticated(entry)
+        if (message == null) {
+            lastProcessedSeq = entry.syncSeq
+            continue
+        }
+
+        try {
+            present(entry, message)
+            lastProcessedSeq = entry.syncSeq
+        } catch (error: Exception) {
+            // A valid message that failed during presentation remains undelivered. Preserve the
+            // cursor so a later provider wake-up can retry it and every entry after it.
+            onPresentationFailure(entry, error, lastProcessedSeq)
+            break
+        }
+    }
+
+    return lastProcessedSeq
+}
+
 class QssFirebaseMessagingService : FirebaseMessagingService() {
     private val notificationHandler by lazy { NotificationHandler(applicationContext) }
 
@@ -54,91 +116,133 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
             Log.w(TAG, "Skipping push handling because no QSS URL is stored for teamId=$teamId")
             return
         }
+        val qssServerId = QuietStorage.getQssServerId(teamId)
+        if (qssServerId == null) {
+            Log.w(TAG, "Skipping push handling because no pinned QSS server identity is stored for teamId=$teamId")
+            return
+        }
 
         try {
             runBlocking(Dispatchers.IO) {
-                handlePush(teamId, qssUrl)
+                handlePush(teamId, qssUrl, qssServerId)
             }
         } catch (error: Exception) {
             Log.e("QssFirebaseMessaging", "Failed handling QSS FCM message", error)
         }
     }
 
-    private fun handlePush(teamId: String, qssUrl: String) {
-        val afterSeq = QuietStorage.getLastSyncSeq(teamId)
-        Log.i(TAG, "Fetching QSS entries for teamId=$teamId qssUrl=$qssUrl afterSeq=$afterSeq")
+    private fun handlePush(teamId: String, qssUrl: String, qssServerId: String) {
         val authService =
             authServices.getOrPut(qssUrl) {
                 QssAuthService(QssNetworkClient(qssUrl), cryptoService)
             }
-
-        val entries = authService.fetchNewEntries(teamId, afterSeq).entries
-        val unseenEntries = entries.filter { it.syncSeq > afterSeq }.sortedBy { it.syncSeq }
-        Log.i(
-            TAG,
-            "Fetched ${entries.size} entries and ${unseenEntries.size} unseen entries for teamId=$teamId",
-        )
-
-        var lastProcessedSeq = afterSeq
-        for (entry in unseenEntries) {
-            if (entry.syncSeq <= lastProcessedSeq) {
-                continue
-            }
-            if (entry.syncSeq != lastProcessedSeq + 1) {
-                Log.w(
-                    TAG,
-                    "Stopping QSS entry processing because syncSeq is not contiguous. expected=${lastProcessedSeq + 1} actual=${entry.syncSeq} cid=${entry.cid}",
-                )
-                break
-            }
-
-            try {
-                Log.d(TAG, "Decrypting QSS entry cid=${entry.cid} syncSeq=${entry.syncSeq}")
-                val message = cryptoService.decryptNotificationMessage(entry, teamId)
-                if (message == null) {
-                    Log.i(
-                        TAG,
-                        "Skipping notification for cid=${entry.cid} because decrypted message was null",
-                    )
-                    lastProcessedSeq = entry.syncSeq
-                    continue
-                }
-                val payload =
-                    JSONObject()
-                        .put("id", message.id)
-                        .put("channelId", message.channelId)
-                        .put("message", message.body)
-                        .toString()
-                val nickname = QuietStorage.getNickname(message.userId) ?: message.userId
-                if (QuietStorage.isAppForeground()) {
-                    Log.i(TAG, "Skipping notification for cid=${entry.cid} because app returned to foreground")
-                    lastProcessedSeq = entry.syncSeq
-                    continue
-                }
-                Log.i(
-                    TAG,
-                    "Posting notification for cid=${entry.cid} channelId=${message.channelId} userId=${message.userId}",
-                )
-                notificationHandler.notify(payload, nickname)
-                lastProcessedSeq = entry.syncSeq
-            } catch (error: Exception) {
-                Log.e(TAG, "Failed processing QSS log entry ${entry.cid}; leaving cursor at $lastProcessedSeq", error)
-                break
-            }
-        }
-
-        if (lastProcessedSeq <= afterSeq) {
-            Log.i(TAG, "No new sync sequence to persist for teamId=$teamId")
-            return
-        }
-
-        QuietStorage.saveLastSyncSeq(lastProcessedSeq, teamId)
-        Log.i(TAG, "Saved lastSyncSeq=$lastProcessedSeq for teamId=$teamId")
+        QssPushHandler(
+            authService = authService,
+            cryptoService = cryptoService,
+            getLastSyncSeq = QuietStorage::getLastSyncSeq,
+            saveLastSyncSeq = QuietStorage::saveLastSyncSeq,
+            recordMissingNotificationKeyFailure = QuietStorage::recordMissingNotificationKeyFailure,
+            clearMissingNotificationKeyFailure = QuietStorage::clearMissingNotificationKeyFailure,
+            isAppForeground = QuietStorage::isAppForeground,
+            getChannelName = QuietStorage::getChannelName,
+            getNickname = QuietStorage::getNickname,
+            notify = notificationHandler::notify,
+        ).handle(teamId, qssServerId)
     }
 
     companion object {
         private const val TAG = "QssFirebaseMessaging"
         private val cryptoService = QssCryptoService()
         private val authServices = ConcurrentHashMap<String, QssAuthService>()
+    }
+}
+
+/**
+ * Production orchestration for a background QSS push. Dependencies are narrow so the complete
+ * challenge -> device proof -> token -> log fetch -> notification path can be exercised on the JVM.
+ */
+internal class QssPushHandler(
+    private val authService: QssAuthService,
+    private val cryptoService: QssMessageCrypto,
+    private val getLastSyncSeq: (String) -> Long,
+    private val saveLastSyncSeq: (Long, String) -> Unit,
+    private val recordMissingNotificationKeyFailure: (String, Long) -> Int,
+    private val clearMissingNotificationKeyFailure: (String, Long) -> Unit,
+    private val isAppForeground: () -> Boolean,
+    private val getChannelName: (String, String) -> String?,
+    private val getNickname: (String) -> String?,
+    private val notify: (String, String) -> Unit,
+) {
+    fun handle(teamId: String, qssServerId: String) {
+        val afterSeq = getLastSyncSeq(teamId)
+        val entries = authService.fetchNewEntries(teamId, qssServerId, afterSeq).entries
+        Log.i(TAG, "Fetched ${entries.size} entries for teamId=$teamId")
+
+        val lastProcessedSeq =
+            processContiguousQssEntries(
+                afterSeq = afterSeq,
+                entries = entries,
+                authenticate = { entry ->
+                    Log.d(TAG, "Decrypting QSS entry cid=${entry.cid} syncSeq=${entry.syncSeq}")
+                    cryptoService.decryptNotificationMessage(entry, teamId)
+                },
+                present = { entry, message ->
+                    val payload =
+                        JSONObject()
+                            .put("id", message.id)
+                            .put("channelId", message.channelId)
+                            .put("message", message.body)
+                            .put("channelName", getChannelName(teamId, message.channelId))
+                            .toString()
+                    if (isAppForeground()) {
+                        Log.i(TAG, "Skipping notification for cid=${entry.cid} because app returned to foreground")
+                    } else {
+                        Log.i(
+                            TAG,
+                            "Posting notification for cid=${entry.cid} channelId=${message.channelId} userId=${message.userId}",
+                        )
+                        notify(payload, getNickname(message.userId) ?: message.userId)
+                    }
+                },
+                isPermanentRejection = { entry, error ->
+                    if (error !is MissingQssNotificationKeyException) {
+                        true
+                    } else {
+                        val failureCount = recordMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                        !shouldRetryMissingNotificationKey(failureCount)
+                    }
+                },
+                onAuthenticated = { entry ->
+                    clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                },
+                onRejected = { entry, error ->
+                    clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                    Log.e(TAG, "Rejecting invalid QSS log entry ${entry.cid}", error)
+                },
+                onRetryableFailure = { entry, error, cursor ->
+                    Log.e(TAG, "Could not authenticate QSS entry ${entry.cid} yet; leaving cursor at $cursor", error)
+                },
+                onPresentationFailure = { entry, error, cursor ->
+                    Log.e(TAG, "Failed presenting valid QSS log entry ${entry.cid}; leaving cursor at $cursor", error)
+                },
+                onGap = { expected, actual, entry ->
+                    Log.w(
+                        TAG,
+                        "Stopping QSS entry processing because syncSeq is not contiguous. expected=$expected actual=$actual cid=${entry.cid}",
+                    )
+                },
+            )
+
+        if (lastProcessedSeq <= afterSeq) {
+            Log.i(TAG, "No new sync sequence to persist for teamId=$teamId")
+            return
+        }
+
+        saveLastSyncSeq(lastProcessedSeq, teamId)
+        Log.i(TAG, "Saved lastSyncSeq=$lastProcessedSeq for teamId=$teamId")
+    }
+
+    companion object {
+        private const val TAG = "QssFirebaseMessaging"
     }
 }

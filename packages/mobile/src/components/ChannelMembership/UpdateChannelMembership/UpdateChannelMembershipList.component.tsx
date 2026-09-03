@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FlatList, ListRenderItemInfo, View } from 'react-native'
+import { FlatList, ListRenderItemInfo, TouchableOpacity, View } from 'react-native'
 
 import { ProfilePhoto } from '../../ProfilePhoto/ProfilePhoto.component'
 import { Typography } from '../../Typography/Typography.component'
@@ -55,28 +55,30 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
       : defaultTheme.palette.background.gray06
     const checkedColor = item.mutable ? defaultTheme.palette.background.gray70 : defaultTheme.palette.background.gray06
     const label = (
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          alignContent: 'center',
-          gap: 16,
-          paddingVertical: 11,
-        }}
-      >
-        <ProfilePhoto
-          userId={item.id}
-          username={item.label}
-          photo={userProfiles[item.id]?.photo}
-          profilePhoto={userProfiles[item.id]?.profilePhoto}
-          size={32}
-          borderRadius={4}
-        />
-        <Typography fontSize={16} style={{ color: labelColor }}>
-          {item.label}
-        </Typography>
-      </View>
+      <TouchableOpacity onPress={() => updateOptionsOnCheck(item)}>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            alignContent: 'center',
+            gap: 16,
+            paddingVertical: 11,
+          }}
+        >
+          <ProfilePhoto
+            userId={item.id}
+            username={item.label}
+            photo={userProfiles[item.id]?.photo}
+            profilePhoto={userProfiles[item.id]?.profilePhoto}
+            size={32}
+            borderRadius={4}
+          />
+          <Typography fontSize={16} style={{ color: labelColor }}>
+            {item.label}
+          </Typography>
+        </View>
+      </TouchableOpacity>
     )
     return (
       <Checkbox

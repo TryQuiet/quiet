@@ -6,24 +6,34 @@ import { ChainServiceBase } from '../chainServiceBase'
 import { ValidationResult } from '@localfirst/crdx'
 import {
   Base58,
-  FirstUseDevice,
+  DeviceInvitationClaim,
   InvitationState,
+  InvitationClaim,
   InviteResult,
-  Keyset,
+  MemberInvitationClaim,
   ProofOfInvitation,
   UnixTimestamp,
   invitation,
+  redactDevice,
+  redactFirstUseDevice,
+  redactKeys,
 } from '@localfirst/auth'
 import { SigChain } from '../../sigchain'
 import { RoleName } from '../roles/roles'
 import { createLogger } from '../../../common/logger'
 import { PermissionsError, InviteResultWithSalt } from '@quiet/types'
+import { randomKey } from '@localfirst/crypto'
+import {
+  CreateDeviceAdmissionParameters,
+  CreateMemberAdmissionParameters,
+  DeviceAdmission,
+  InvitationProofParameters,
+  MemberAdmission,
+} from './invite.types'
 
 const logger = createLogger('auth:inviteService')
 
-export const DEFAULT_MAX_USES = 1
 export const DEFAULT_INVITATION_VALID_FOR_MS = 604_800_000 // 1 week
-export const DEFAULT_LONG_LIVED_MAX_USES = 0 // no limit
 export const DEFAULT_LONG_LIVED_VALID_FOR_MS = 0 // no limit
 
 class InviteService extends ChainServiceBase {
@@ -33,8 +43,8 @@ class InviteService extends ChainServiceBase {
 
   public createUserInvite(
     validForMs: number = DEFAULT_INVITATION_VALID_FOR_MS,
-    maxUses: number = DEFAULT_MAX_USES,
-    seed?: string
+    seed?: string,
+    roleNames: string[] = []
   ): InviteResult {
     let expiration: UnixTimestamp = 0 as UnixTimestamp
     if (validForMs > 0) {
@@ -49,13 +59,13 @@ class InviteService extends ChainServiceBase {
     const invitation: InviteResult = this.sigChain.team!.inviteMember({
       seed,
       expiration,
-      maxUses,
+      roleNames,
     })
     return invitation
   }
 
   public createLongLivedUserInvite(): InviteResultWithSalt {
-    const invite = this.createUserInvite(DEFAULT_LONG_LIVED_VALID_FOR_MS, DEFAULT_LONG_LIVED_MAX_USES)
+    const invite = this.createUserInvite(DEFAULT_LONG_LIVED_VALID_FOR_MS, undefined, [RoleName.MEMBER])
     // Generate a base58 salt with same entropy as the invitation seed
     const salt = invitation.randomSeed()
     return {
@@ -80,8 +90,9 @@ class InviteService extends ChainServiceBase {
       if (
         invite.id === id && // is correct invite
         !invite.revoked && // is not revoked
-        invite.maxUses == 0 && // is an unlimited invite
-        invite.expiration == 0 // is an unlimited invite
+        invite.kind === 'member' && // is a user invite
+        invite.expiration === 0 && // does not expire
+        this.sigChain.team!.hasCurrentInvitationRoleGrant(invite.id, RoleName.MEMBER)
       ) {
         return true
       }
@@ -101,12 +112,60 @@ class InviteService extends ChainServiceBase {
     return this.sigChain.team!.getInvitation(id)
   }
 
-  public static generateProof(seed: string): ProofOfInvitation {
-    return SigChain.lfa.invitation.generateProof(seed)
+  /**
+   * Test-only helper for generating a complete invitation proof with explicit
+   * claims and handshake nonces. Production admission uses LFA Connection.
+   */
+  public static generateProof(parameters: InvitationProofParameters): ProofOfInvitation {
+    return SigChain.lfa.invitation.generateProof(parameters)
   }
 
-  public validateProof(proof: ProofOfInvitation): boolean {
-    const validationResult = this.sigChain.team!.validateInvitation(proof) as ValidationResult
+  /**
+   * Test-only helper that assembles the member claim, invitation proof, and
+   * device possession proof normally produced during an LFA handshake.
+   */
+  public static createMemberAdmission({
+    seed,
+    context,
+    identityNonce = randomKey() as Base58,
+    inviteeNonce = randomKey() as Base58,
+  }: CreateMemberAdmissionParameters): MemberAdmission {
+    const claim: MemberInvitationClaim = {
+      invitationKind: 'member',
+      userName: context.user.userName,
+      memberKeys: redactKeys(context.user.keys),
+      device: redactDevice(context.device),
+    }
+    const proof = this.generateProof({ seed, claim, identityNonce, inviteeNonce })
+    const possessionProof = invitation.createPossessionProof({
+      invitationId: proof.id,
+      claim,
+      device: context.device,
+    })
+    return { proof, claim, possessionProof }
+  }
+
+  /**
+   * Test-only helper that assembles the device claim, invitation proof, and
+   * possession proof normally produced during an LFA handshake.
+   */
+  public static createDeviceAdmission({
+    seed,
+    device,
+    identityNonce = randomKey() as Base58,
+    inviteeNonce = randomKey() as Base58,
+  }: CreateDeviceAdmissionParameters): DeviceAdmission {
+    const claim: DeviceInvitationClaim = {
+      invitationKind: 'device',
+      device: redactFirstUseDevice(device),
+    }
+    const proof = this.generateProof({ seed, claim, identityNonce, inviteeNonce })
+    const possessionProof = invitation.createPossessionProof({ invitationId: proof.id, claim, device })
+    return { proof, claim, possessionProof }
+  }
+
+  public validateProof(proof: ProofOfInvitation, claim: InvitationClaim, possessionProof: Base58): boolean {
+    const validationResult = this.sigChain.team!.validateInvitation(proof, claim, possessionProof) as ValidationResult
     if (!validationResult.isValid) {
       logger.warn(`Proof was invalid or was on an invalid invitation`, validationResult.error)
       return false
@@ -114,18 +173,18 @@ class InviteService extends ChainServiceBase {
     return true
   }
 
-  public admitUser(proof: ProofOfInvitation, username: string, publicKeys: Keyset) {
-    this.sigChain.team!.admitMember(proof, publicKeys, username)
+  public admitUser({ proof, claim, possessionProof }: MemberAdmission) {
+    this.sigChain.team!.admitMember(proof, claim, possessionProof)
   }
 
-  public admitMemberFromInvite(proof: ProofOfInvitation, username: string, userId: string, publicKeys: Keyset): string {
-    this.sigChain.team!.admitMember(proof, publicKeys, username)
-    this.sigChain.roles.addMember(userId, RoleName.MEMBER)
-    return username
+  public admitMemberFromInvite({ proof, claim, possessionProof }: MemberAdmission): string {
+    this.sigChain.team!.admitMember(proof, claim, possessionProof)
+    this.sigChain.roles.addMember(claim.memberKeys.name, RoleName.MEMBER)
+    return claim.userName
   }
 
-  public admitDeviceFromInvite(proof: ProofOfInvitation, firstUseDevice: FirstUseDevice): void {
-    this.sigChain.team!.admitDevice(proof, firstUseDevice)
+  public admitDeviceFromInvite({ proof, claim, possessionProof }: DeviceAdmission): void {
+    this.sigChain.team!.admitDevice(proof, claim, possessionProof)
   }
 
   public getAllInvites(): InvitationState[] {

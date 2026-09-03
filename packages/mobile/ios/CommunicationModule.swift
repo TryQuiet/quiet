@@ -99,6 +99,27 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
+  func saveChannelMetadataInKeychain(_ teamId: NSString, updatedChannelMetadata: NSArray) {
+    let decoder = JSONDecoder()
+    for channelMetadataAsAny in updatedChannelMetadata {
+      do {
+        guard let channelMetadataAsString = channelMetadataAsAny as? String else {
+          CommunicationModule.logger.error("saveChannelMetadataInKeychain: unexpected non-string element in channel metadata array")
+          continue
+        }
+        let data = Data(channelMetadataAsString.utf8)
+        let decodedChannelMetadata = try decoder.decode(ChannelMetadata.self, from: data)
+        _ = try KeychainService.addChannelMetadata(teamId: teamId as String, channelId: decodedChannelMetadata.channelId, channelName: decodedChannelMetadata.channelName)
+        let stored = try KeychainService.getChannelName(teamId: teamId as String, channelId: decodedChannelMetadata.channelId)
+        CommunicationModule.logger.info("Stored channel name matches? \(stored == decodedChannelMetadata.channelName) \(decodedChannelMetadata.channelId)")
+      } catch {
+        // TODO: send a message to the backend with any channel names that weren't stored
+        CommunicationModule.logger.error("Error while saving channel metadata in keychain: \(error)")
+      }
+    }
+  }
+
+  @objc
   func clearSensitiveData() {
     CommunicationModule.clearSensitiveDataImpl()
   }
@@ -140,10 +161,10 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
-  func saveNseQssUrl(_ teamId: NSString, qssUrl: NSString) {
+  func saveNseQssUrl(_ teamId: NSString, qssUrl: NSString, qssServerId: NSString) {
     let teamIdStr = teamId as String
     let qssUrlStr = qssUrl as String
-    SharedDefaults.saveQssUrl(teamId: teamIdStr, url: qssUrlStr)
+    SharedDefaults.saveQssConfiguration(teamId: teamIdStr, url: qssUrlStr, serverId: qssServerId as String)
     CommunicationModule.logger.info("saveNseQssUrl: stored for team \(teamIdStr, privacy: .public) as \(qssUrlStr, privacy: .public)")
   }
 

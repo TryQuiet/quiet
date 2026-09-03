@@ -78,6 +78,7 @@ export function* sendMessageSaga(
     messagesActions.addMessages({
       messages: [message],
       isVerified: true,
+      isLocal: true,
     })
   )
 

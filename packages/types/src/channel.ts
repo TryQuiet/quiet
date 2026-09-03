@@ -142,6 +142,7 @@ export interface SendInitialChannelMessagePayload {
 export interface MessagesLoadedPayload {
   messages: ChannelMessage[]
   isVerified?: boolean
+  isLocal?: boolean
 }
 
 export interface VerifyMessagesPayload {
@@ -243,4 +244,14 @@ export const DEFAULT_GENERIC_CHANNEL_PERMISSIONS: GenericChannelPermissions = {
   private: {
     create: false,
   },
+}
+
+export interface MobileChannelMetadata {
+  channelId: string
+  channelName: string
+}
+
+export interface MobileChannelMetadataUpdatedPayload {
+  teamId: string
+  channelMetadata: MobileChannelMetadata[]
 }

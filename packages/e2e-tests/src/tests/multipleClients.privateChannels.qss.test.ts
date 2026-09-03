@@ -15,10 +15,11 @@ import {
   UsersList,
 } from '../selectors'
 import { promiseWithRetries, tailQssLogs } from '../utils'
-import { UserListStatus, UserTestData2, UserTestDataMap } from '../types'
+import { UserListStatus, UserTestData2, UserTestDataMap, type MessageIds } from '../types'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 import { ChildProcess } from 'child_process'
+import { deleteChannelMessage } from '@quiet/common'
 
 const logger = createLogger('multipleClients:privateChannels:qss')
 
@@ -576,6 +577,113 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           expect(channels.length).toBe(1)
           expect(channels).toContain(generalChannelName)
         })
+      })
+    })
+
+    describe('Delete private channel', () => {
+      it('Owner goes online', async () => {
+        await users.owner.app.openWithRetries(undefined, true)
+      })
+
+      it('First user goes online', async () => {
+        await users.user1.app.openWithRetries(undefined, true)
+      })
+
+      it('Owner switches to general channel', async () => {
+        sidebarOwner = new Sidebar(users.owner.app.driver)
+        generalChannelOwner = await sidebarOwner.switchChannel(generalChannelName, true, true)
+        expect(generalChannelOwner.isOpen(true, true)).toBeTruthy()
+        expect(generalChannelOwner.isReady()).toBeTruthy()
+        expect(generalChannelOwner.isMessageInputReady()).toBeTruthy()
+      })
+
+      it("Second user's message is visible in general channel to the owner", async () => {
+        await generalChannelOwner.getAtleastNumUserMessages(users.user2.username, 1)
+      })
+
+      it('First user switches to general channel', async () => {
+        sidebarUser1 = new Sidebar(users.user1.app.driver)
+        generalChannelUser1 = await sidebarUser1.switchChannel(generalChannelName, true, true)
+        expect(generalChannelUser1.isOpen(true, true)).toBeTruthy()
+        expect(generalChannelUser1.isReady()).toBeTruthy()
+        expect(generalChannelUser1.isMessageInputReady()).toBeTruthy()
+      })
+
+      it("First user's message is visible in general channel to the user", async () => {
+        await generalChannelUser1.getAtleastNumUserMessages(users.user2.username, 1)
+      })
+
+      it('Owner switches to private channel', async () => {
+        sidebarOwner = new Sidebar(users.owner.app.driver)
+        privateChannelOwner = await sidebarOwner.switchChannel(privateChannelName, false, true)
+        expect(await privateChannelOwner.isReady()).toBeTruthy()
+      })
+
+      it('Owner deletes private channel', async () => {
+        channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
+        const { iconVisible, menuOpened, menuButton } = await channelContextMenuOwner.openMenu()
+        expect(menuButton).toBe(true)
+        expect(menuOpened).toBe(true)
+        expect(iconVisible).toBe(true)
+        await channelContextMenuOwner.openDeletionChannelModal()
+        await channelContextMenuOwner.deleteChannel()
+        await sidebarOwner.waitForChannelsNum(2)
+      })
+
+      it('Owner sees that the private channel is missing in the sidebar', async () => {
+        const channelNames = await sidebarOwner.getChannelsNames()
+        expect(channelNames).not.toContain(privateChannelName)
+      })
+
+      it('Owner does not see info about channel deletion in general channel', async () => {
+        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        let messageIds: MessageIds | undefined = undefined
+        try {
+          messageIds = await generalChannelOwner.getMessageIdsByText(
+            deleteChannelMessage(privateChannelName),
+            users.owner.username
+          )
+        } catch (e) {
+          // do nothing - we don't expect to see the deletion message for private channels
+        }
+        expect(messageIds).toBeUndefined()
+      })
+
+      it('First user sees that the private channel is missing in the sidebar', async () => {
+        const channelNames = await sidebarUser1.getChannelsNames()
+        expect(channelNames).not.toContain(privateChannelName)
+      })
+
+      it('First user does not see info about channel deletion in general channel', async () => {
+        sidebarUser1 = new Sidebar(users.user1.app.driver)
+        generalChannelUser1 = await sidebarUser1.switchChannel(generalChannelName)
+        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        let messageIds: MessageIds | undefined = undefined
+        try {
+          messageIds = await generalChannelUser1.getMessageIdsByText(
+            deleteChannelMessage(privateChannelName),
+            users.owner.username
+          )
+        } catch (e) {
+          // do nothing - we don't expect to see the deletion message for private channels
+        }
+        expect(messageIds).toBeUndefined()
+      })
+
+      it('Second user does not see info about channel deletion in general channel', async () => {
+        sidebarUser2 = new Sidebar(users.user2.app.driver)
+        generalChannelUser2 = await sidebarUser2.switchChannel(generalChannelName)
+        expect(await generalChannelUser2.isOpen()).toBeTruthy()
+        let messageIds: MessageIds | undefined = undefined
+        try {
+          messageIds = await generalChannelUser2.getMessageIdsByText(
+            deleteChannelMessage(privateChannelName),
+            users.owner.username
+          )
+        } catch (e) {
+          // do nothing - we don't expect to see the deletion message for private channels
+        }
+        expect(messageIds).toBeUndefined()
       })
     })
   })

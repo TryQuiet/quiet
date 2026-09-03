@@ -7,6 +7,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build-prod-apk:
     # needs: detox-android
@@ -22,15 +26,22 @@ jobs:
       ENVFILE: ${{ github.event.action == 'prereleased' && '../.env.staging' || '../.env.production' }}
 
     steps:
-      - name: "Print OS"
+      - name: 'Print OS'
         run: echo ${{ matrix.os }}
 
       - uses: actions/checkout@v5
         with:
           submodules: false
 
-      - name: "Init submodules except 3rd-party/qss"
-        run: git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
+      - name: 'Init submodules except 3rd-party/qss'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          auth_url="https://x-access-token:${GH_TOKEN}@github.com/"
+          git config --global url."${auth_url}".insteadOf "https://github.com/"
+          trap 'git config --global --unset-all url."${auth_url}".insteadOf || true' EXIT
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
 
       - name: Extract version
         id: extract_version
@@ -38,7 +49,7 @@ jobs:
         with:
           path: packages/mobile
 
-      - name: "Reclaim disk space"
+      - name: 'Reclaim disk space'
         run: |
           set -euxo pipefail
           echo "=== Disk usage before cleanup ==="
@@ -50,34 +61,34 @@ jobs:
           echo "=== Disk usage after cleanup ==="
           df -h
 
-      - name: "Set up JDK"
+      - name: 'Set up JDK'
         uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2 # v3.12.0
         with:
           distribution: 'temurin'
           java-version: 17
 
-      - name: "Set up NDK"
+      - name: 'Set up NDK'
         uses: nttld/setup-ndk@afb4c9964b521afb97c864b7d40b11e6911bd410 # v1.5.0
         id: setup-ndk
         with:
           ndk-version: r28c
           add-to-path: false
 
-      - name: "Setup environment"
+      - name: 'Setup environment'
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common"
+          bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common'
 
-      - name: "Create gradle configuration directory"
+      - name: 'Create gradle configuration directory'
         run: mkdir -p $HOME/.gradle
 
-      - name: "Prepare ndk configuration"
+      - name: 'Prepare ndk configuration'
         run: |
           printf "\
           NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n\
           " > $HOME/.gradle/gradle.properties
 
-      - name: "Prepare signing configuration"
+      - name: 'Prepare signing configuration'
         run: |
           printf "\
           STORE_FILE=quietmobile.keystore\n\
@@ -86,47 +97,47 @@ jobs:
           KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
           " >> $HOME/.gradle/gradle.properties
 
-      - name: "Decode keystore"
+      - name: 'Decode keystore'
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
-      - name: "Decrypt Firebase config (google-services.json)"
+      - name: 'Decrypt Firebase config (google-services.json)'
         run: ./.github/secrets/decrypt_android_secrets.sh
         env:
           ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
 
-      - name: "Build .apk"
+      - name: 'Build .apk'
         run: cd ./packages/mobile/android && ./gradlew assembleStandardRelease
 
-      - name: "Upload .apk to artifacts"
+      - name: 'Upload .apk to artifacts'
         continue-on-error: true
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: app-standard-release.apk
           path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
 
-      - name: "Build debug .apk"
+      - name: 'Build debug .apk'
         run: cd ./packages/mobile/android && ./gradlew assembleStandardDebug
 
-      - name: "Upload debug .apk to artifacts"
+      - name: 'Upload debug .apk to artifacts'
         continue-on-error: true
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: app-standard-debug.apk
           path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
 
-      - name: "Preserve standard .apk release assets"
+      - name: 'Preserve standard .apk release assets'
         run: |
           mkdir -p ./packages/mobile/android/app/build/release-assets
           cp ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk ./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk
           cp ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk ./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk
 
-      - name: "Get release"
+      - name: 'Get release'
         id: get_release
         uses: bruceadams/get-release@v1.2.3
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: "Upload release assets"
+      - name: 'Upload release assets'
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -136,7 +147,7 @@ jobs:
           asset_name: app-standard-release.apk
           asset_content_type: application/.apk
 
-      - name: "Upload debug release assets"
+      - name: 'Upload debug release assets'
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -165,10 +176,17 @@ jobs:
         with:
           submodules: false
 
-      - name: "Init submodules except 3rd-party/qss"
-        run: git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
+      - name: 'Init submodules except 3rd-party/qss'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          auth_url="https://x-access-token:${GH_TOKEN}@github.com/"
+          git config --global url."${auth_url}".insteadOf "https://github.com/"
+          trap 'git config --global --unset-all url."${auth_url}".insteadOf || true' EXIT
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
 
-      - name: "Reclaim disk space"
+      - name: 'Reclaim disk space'
         run: |
           set -euxo pipefail
           echo "=== Disk usage before cleanup ==="
@@ -180,39 +198,47 @@ jobs:
           echo "=== Disk usage after cleanup ==="
           df -h
 
-      - name: "Set up JDK"
+      - name: 'Set up JDK'
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 17
 
-      - name: "Set up NDK"
+      - name: 'Set up NDK'
         uses: nttld/setup-ndk@afb4c9964b521afb97c864b7d40b11e6911bd410 # v1.5.0
         id: setup-ndk
         with:
           ndk-version: r28c
           add-to-path: false
 
-      - name: "Setup environment"
+      - name: 'Setup environment'
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common"
-          cachePrefix: "mobile-debug-apk"
+          bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common'
+          cachePrefix: 'mobile-debug-apk'
 
-      - name: "Create gradle configuration directory"
+      - name: 'Create gradle configuration directory'
         run: mkdir -p $HOME/.gradle
 
-      - name: "Prepare ndk configuration"
+      - name: 'Prepare ndk configuration'
         run: |
           printf "NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n" > $HOME/.gradle/gradle.properties
 
-      - name: "Decrypt Firebase config (google-services.json)"
+      - name: 'Decrypt Firebase config (google-services.json)'
         run: ./.github/secrets/decrypt_android_secrets.sh
         env:
           ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
 
-      - name: "Build debug .apk"
+      - name: 'Build debug .apk'
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
+
+      - name: 'Test native notification authentication'
+        run: |
+          cd ./packages/mobile/android
+          ENVFILE=../.env.staging ./gradlew testStandardDebugUnitTest \
+            --tests com.quietmobile.Push.MsgpackEncoderTest \
+            --tests com.quietmobile.Push.QssCryptoServiceTest \
+            --tests com.quietmobile.Push.QssNotificationCursorTest
 
       - name: Get branch name
         id: branch
@@ -222,7 +248,7 @@ jobs:
           echo "branch_name=$B_NAME" >> $GITHUB_OUTPUT
           echo "BRANCH_NAME=$B_NAME" >> $GITHUB_ENV
 
-      - name: "Upload debug .apk to artifacts"
+      - name: 'Upload debug .apk to artifacts'
         uses: actions/upload-artifact@v4
         with:
           name: Quiet-APK-${{steps.branch.outputs.branch_name}}-${{ github.event.pull_request.head.sha || github.sha }}

@@ -1,14 +1,21 @@
-import { jest } from '@jest/globals'
+import { expect, jest } from '@jest/globals'
 
 import fs from 'fs'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
-import { CommunityOwnership, SocketActions, type Community, type Identity } from '@quiet/types'
+import {
+  CommunityOwnership,
+  SocketActions,
+  SocketEvents,
+  type Community,
+  type Identity,
+  type PublicChannel,
+} from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
-import { removeFilesFromDir } from '../common/utils'
-import { QUIET_DIR, TOR_PASSWORD_PROVIDER } from '../const'
+import { libp2pInstanceParams, removeFilesFromDir } from '../common/utils'
+import { QUIET_DIR, SERVER_IO_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { SocketModule } from '../socket/socket.module'
@@ -27,6 +34,13 @@ import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
 import type { SigChain } from '../auth/sigchain'
+import { ServiceState } from './connections-manager.types'
+import type { ServerIoProviderTypes } from '../types'
+import { RoleName } from '../auth/services/roles/roles'
+import { ChannelsService } from '../storage/channels/channels.service'
+import { StorageService } from '../storage/storage.service'
+import { Libp2pService } from '../libp2p/libp2p.service'
+import { randomKey } from '@localfirst/crypto'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -47,6 +61,11 @@ describe('ConnectionsManagerService', () => {
   let qpsService: QPSService
   let captchaService: CaptchaService
   let chain: SigChain
+  let serverIoProvider: ServerIoProviderTypes
+  let channelsService: ChannelsService
+  let storageService: StorageService
+  let libp2pService: Libp2pService
+  const originalPlatform = process.platform as string
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -68,6 +87,11 @@ describe('ConnectionsManagerService', () => {
     qssSyncManager = await module.resolve(QSSSyncManager)
     qpsService = await module.resolve(QPSService)
     captchaService = await module.resolve(CaptchaService)
+    serverIoProvider = await module.resolve(SERVER_IO_PROVIDER)
+    channelsService = await module.resolve(ChannelsService)
+    storageService = await module.resolve(StorageService)
+    libp2pService = await module.resolve(Libp2pService)
+
     jest.spyOn(qssSyncManager, 'processDLQDecrypt').mockResolvedValue(undefined)
     await localDbService.open()
 
@@ -96,6 +120,7 @@ describe('ConnectionsManagerService', () => {
     }
     handleChainUpdateSpy.mockReset()
     removeFilesFromDir(quietDir)
+    Object.defineProperty(process, 'platform', { value: originalPlatform })
   })
 
   afterAll(async () => {
@@ -158,6 +183,21 @@ describe('ConnectionsManagerService', () => {
     ])
 
     expect(launchSpy).toBeCalledTimes(1)
+  })
+
+  it('allows launch to be retried after a launch failure', async () => {
+    await localDbService.setCommunity(community)
+    jest.spyOn(sigChainService, 'loadChain').mockResolvedValue(chain)
+    const launchSpy = jest
+      .spyOn(connectionsManagerService, 'launch')
+      .mockRejectedValueOnce(new Error('launch failed'))
+      .mockResolvedValueOnce()
+
+    await connectionsManagerService.launchCommunity(community.id)
+    expect(connectionsManagerService.communityState).toBe(ServiceState.DEFAULT)
+
+    await connectionsManagerService.launchCommunity(community.id)
+    expect(launchSpy).toHaveBeenCalledTimes(2)
   })
 
   it('waits for current community id to be persisted before launching community services', async () => {
@@ -326,6 +366,115 @@ describe('ConnectionsManagerService', () => {
     expect(storageInitSpy).toHaveBeenCalledWith(teamId)
     expect(markTeamStorageReadySpy).toHaveBeenCalledTimes(1)
     expect(markTeamStorageReadySpy).toHaveBeenCalledWith(teamId)
+  })
+
+  it('rejects launch and removes join listeners after a terminal QSS auth error', async () => {
+    const teamId = community.teamId
+    const authError = new Error('member role grant could not be persisted')
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockImplementation(() => {
+      qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error: authError })
+      return Promise.resolve(QSSOperationResult.ERROR)
+    })
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: {
+        id: teamId,
+      },
+      roles: {
+        amIMemberOfRole: () => false,
+      },
+    } as any)
+
+    const fullyJoinedListeners = qssService.listenerCount(QSSEvents.QSS_FULLY_JOINED)
+    const authErrorListeners = qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)
+    const libp2pJoinedListeners = connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_JOINED)
+
+    await expect(connectionsManagerService.launch(community)).rejects.toThrow(authError)
+
+    expect(qssService.listenerCount(QSSEvents.QSS_FULLY_JOINED)).toBe(fullyJoinedListeners)
+    expect(qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)).toBe(authErrorListeners)
+    expect(connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_JOINED)).toBe(libp2pJoinedListeners)
+  })
+
+  it('rejects launch when a terminal QSS auth error races with storage initialization', async () => {
+    const teamId = community.teamId
+    const authError = new Error('member role grant could not be persisted')
+    let resolveStorageInit!: () => void
+    const storageInitPromise = new Promise<void>(resolve => {
+      resolveStorageInit = resolve
+    })
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: { id: teamId },
+      roles: { amIMemberOfRole: () => false },
+    } as any)
+    const storageInitSpy = jest
+      .spyOn(connectionsManagerService['storageService'], 'init')
+      .mockReturnValue(storageInitPromise)
+
+    const launchPromise = connectionsManagerService.launch(community)
+    await waitForExpect(() => expect(qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)).toBe(1))
+    connectionsManagerService.libp2pService.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer-id' })
+    await waitForExpect(() => expect(storageInitSpy).toHaveBeenCalledWith(teamId))
+
+    qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error: authError })
+    resolveStorageInit()
+
+    await expect(launchPromise).rejects.toThrow(authError)
+  })
+
+  it('ignores another team auth error without consuming the matching-team listener', async () => {
+    const teamId = community.teamId
+    const matchingError = new Error('the launched team failed admission')
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockImplementation(() => {
+      qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId: 'another-team', error: new Error('unrelated') })
+      qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error: matchingError })
+      qssService.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+      return Promise.resolve(QSSOperationResult.SUCCESS)
+    })
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: { id: teamId },
+      roles: { amIMemberOfRole: () => false },
+    } as any)
+    const storageInitSpy = jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
+
+    await expect(connectionsManagerService.launch(community)).rejects.toBe(matchingError)
+    expect(storageInitSpy).not.toHaveBeenCalled()
   })
 
   it('attempts notification token tombstoning before closing services and still leaves if it is not acked', async () => {
@@ -629,5 +778,229 @@ describe('ConnectionsManagerService', () => {
 
     expect(leaveCommunitySpy).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(false)
+  })
+
+  describe('updateUserChannelMetadataInFrontend', () => {
+    // await connectionsManagerService.init()
+    it('skips updates when sigchain not initialized', async () => {
+      const channelMetadataSpy = jest.spyOn(connectionsManagerService as any, '_updateChannelMetadataInNativeMobile')
+      const updateUsersSpy = jest.spyOn(connectionsManagerService as any, '_updateUsersInStateManager')
+      const serverIoEmitSpy = jest.spyOn(serverIoProvider.io, 'emit')
+
+      // the chain was created but isn't stored in memory
+      await connectionsManagerService.updateUserChannelMetadataInFrontend('foobar', chain.teamId!)
+      expect(channelMetadataSpy).toHaveBeenCalledTimes(0)
+      expect(updateUsersSpy).toHaveBeenCalledTimes(0)
+      expect(serverIoEmitSpy).not.toHaveBeenCalledWith(SocketEvents.USERS_UPDATED)
+      expect(serverIoEmitSpy).not.toHaveBeenCalledWith(SocketEvents.CHANNEL_PERMISSIONS_UPDATED)
+      expect(serverIoEmitSpy).not.toHaveBeenCalledWith(SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED)
+    })
+
+    it('partially updates users but skips mobile channel updates when sigchain initialized but storage not initialized and platform is not ios/android', async () => {
+      const channelMetadataSpy = jest.spyOn(connectionsManagerService as any, '_updateChannelMetadataInNativeMobile')
+      const updateUsersSpy = jest.spyOn(connectionsManagerService as any, '_updateUsersInStateManager')
+      const serverIoEmitSpy = jest.spyOn(serverIoProvider.io, 'emit')
+
+      await sigChainService.loadChain(chain.teamId!, true)
+      await connectionsManagerService.updateUserChannelMetadataInFrontend('foobar', chain.teamId!)
+      expect(channelMetadataSpy).toHaveBeenCalledTimes(1)
+      expect(updateUsersSpy).toHaveBeenCalledTimes(1)
+      expect(serverIoEmitSpy).toHaveBeenCalledTimes(2)
+      expect(serverIoEmitSpy).toHaveBeenCalledWith(
+        SocketEvents.USERS_UPDATED,
+        expect.objectContaining({
+          users: expect.arrayContaining([
+            expect.objectContaining({
+              userId: chain.context.user.userId,
+              channelIds: [],
+              isDuplicated: false,
+              isRegistered: true,
+              roles: expect.arrayContaining([RoleName.ADMIN, RoleName.MEMBER]),
+            }),
+          ]),
+        })
+      )
+      expect(serverIoEmitSpy).toHaveBeenCalledWith(
+        SocketEvents.CHANNEL_PERMISSIONS_UPDATED,
+        expect.objectContaining({
+          channelSpecificPermissions: [],
+          genericPermissions: {
+            private: { create: true },
+            public: { create: true, delete: true },
+          },
+        })
+      )
+      expect(serverIoEmitSpy).not.toHaveBeenCalledWith(SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED)
+    })
+
+    it('fully updates users but skips mobile channel updates when fully initialized and platform is not ios/android', async () => {
+      const channelMetadataSpy = jest.spyOn(connectionsManagerService as any, '_updateChannelMetadataInNativeMobile')
+      const updateUsersSpy = jest.spyOn(connectionsManagerService as any, '_updateUsersInStateManager')
+      const serverIoEmitSpy = jest.spyOn(serverIoProvider.io, 'emit')
+
+      chain = await sigChainService.loadChain(chain.teamId!, true)
+      await libp2pService.createInstance(await libp2pInstanceParams())
+      await storageService.init(chain.teamId)
+      await connectionsManagerService.init()
+
+      const channelRolename = chain.channels.create()
+      expect(chain.channels.amIMemberOfChannel(channelRolename)).toBeTruthy()
+      const privateChannel = (
+        await factory.create('PublicChannel', {
+          channel: {
+            id: randomKey(32),
+            owner: chain.user.userId,
+            teamId: community.teamId!,
+            public: false,
+            roleName: channelRolename,
+          },
+        })
+      ).channel as PublicChannel
+      const publicChannel = (await factory.create('PublicChannel')).channel as PublicChannel
+      const roleNameMappingsSpy = jest
+        .spyOn(storageService.channels, 'getPrivateChannelsByRolename')
+        .mockImplementation(async () => ({
+          idToRoleName: {
+            [privateChannel.id]: channelRolename,
+          },
+          roleNameToChannel: {
+            [channelRolename]: privateChannel,
+          },
+        }))
+      const getChannelsSpy = jest.spyOn(storageService.channels, 'getChannels').mockImplementation(async () => {
+        return [privateChannel, publicChannel]
+      })
+      await connectionsManagerService.updateUserChannelMetadataInFrontend('foobar', chain.teamId!)
+      expect(roleNameMappingsSpy).toHaveBeenCalledTimes(1)
+      expect(channelMetadataSpy).toHaveBeenCalledTimes(1)
+      expect(updateUsersSpy).toHaveBeenCalledTimes(1)
+      expect(serverIoEmitSpy).toHaveBeenCalledTimes(3)
+      expect(serverIoEmitSpy).toHaveBeenCalledWith(
+        SocketEvents.USERS_UPDATED,
+        expect.objectContaining({
+          users: expect.arrayContaining([
+            expect.objectContaining({
+              userId: chain.context.user.userId,
+              channelIds: [privateChannel.id],
+              isDuplicated: false,
+              isRegistered: true,
+              roles: expect.arrayContaining([RoleName.ADMIN, RoleName.MEMBER, channelRolename]),
+            }),
+          ]),
+        })
+      )
+      expect(serverIoEmitSpy).toHaveBeenCalledWith(
+        SocketEvents.CHANNEL_PERMISSIONS_UPDATED,
+        expect.objectContaining({
+          channelSpecificPermissions: [
+            expect.objectContaining({
+              addMembers: true,
+              removeMembers: true,
+              delete: true,
+            }),
+          ],
+          genericPermissions: {
+            private: { create: true },
+            public: { create: true, delete: true },
+          },
+        })
+      )
+      expect(serverIoEmitSpy).not.toHaveBeenCalledWith(SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED)
+    })
+
+    it.each(['ios', 'android'])(
+      'fully updates users and performs mobile channel updates when fully initialized and platform is %s',
+      async (platform: string) => {
+        Object.defineProperty(process, 'platform', { value: platform })
+        const channelMetadataSpy = jest.spyOn(connectionsManagerService as any, '_updateChannelMetadataInNativeMobile')
+        const updateUsersSpy = jest.spyOn(connectionsManagerService as any, '_updateUsersInStateManager')
+        const serverIoEmitSpy = jest.spyOn(serverIoProvider.io, 'emit')
+
+        chain = await sigChainService.loadChain(chain.teamId!, true)
+        await libp2pService.createInstance(await libp2pInstanceParams())
+        await storageService.init(chain.teamId)
+        await connectionsManagerService.init()
+
+        const channelRolename = chain.channels.create()
+        expect(chain.channels.amIMemberOfChannel(channelRolename)).toBeTruthy()
+        const privateChannel = (
+          await factory.create('PublicChannel', {
+            channel: {
+              id: randomKey(32),
+              owner: chain.user.userId,
+              teamId: community.teamId!,
+              public: false,
+              roleName: channelRolename,
+            },
+          })
+        ).channel as PublicChannel
+        const publicChannel = (await factory.create('PublicChannel')).channel as PublicChannel
+        const roleNameMappingsSpy = jest
+          .spyOn(storageService.channels, 'getPrivateChannelsByRolename')
+          .mockImplementation(async () => ({
+            idToRoleName: {
+              [privateChannel.id]: channelRolename,
+            },
+            roleNameToChannel: {
+              [channelRolename]: privateChannel,
+            },
+          }))
+        const getChannelsSpy = jest.spyOn(storageService.channels, 'getChannels').mockImplementation(async () => {
+          return [privateChannel, publicChannel]
+        })
+
+        await connectionsManagerService.updateUserChannelMetadataInFrontend('foobar', chain.teamId!)
+        expect(roleNameMappingsSpy).toHaveBeenCalledTimes(1)
+        expect(channelMetadataSpy).toHaveBeenCalledTimes(1)
+        expect(updateUsersSpy).toHaveBeenCalledTimes(1)
+        expect(serverIoEmitSpy).toHaveBeenCalledTimes(4)
+        expect(serverIoEmitSpy).toHaveBeenCalledWith(
+          SocketEvents.USERS_UPDATED,
+          expect.objectContaining({
+            users: expect.arrayContaining([
+              expect.objectContaining({
+                userId: chain.context.user.userId,
+                channelIds: [privateChannel.id],
+                isDuplicated: false,
+                isRegistered: true,
+                roles: expect.arrayContaining([RoleName.ADMIN, RoleName.MEMBER, channelRolename]),
+              }),
+            ]),
+          })
+        )
+        expect(serverIoEmitSpy).toHaveBeenCalledWith(
+          SocketEvents.CHANNEL_PERMISSIONS_UPDATED,
+          expect.objectContaining({
+            channelSpecificPermissions: [
+              expect.objectContaining({
+                addMembers: true,
+                removeMembers: true,
+                delete: true,
+              }),
+            ],
+            genericPermissions: {
+              private: { create: true },
+              public: { create: true, delete: true },
+            },
+          })
+        )
+        expect(serverIoEmitSpy).toHaveBeenCalledWith(
+          SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED,
+          expect.objectContaining({
+            teamId: chain.teamId!,
+            channelMetadata: expect.arrayContaining([
+              {
+                channelName: privateChannel.name,
+                channelId: privateChannel.id,
+              },
+              {
+                channelName: publicChannel.name,
+                channelId: publicChannel.id,
+              },
+            ]),
+          })
+        )
+      }
+    )
   })
 })

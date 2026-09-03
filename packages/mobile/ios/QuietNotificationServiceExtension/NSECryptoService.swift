@@ -1,15 +1,7 @@
-import CryptoKit
 import Foundation
 import Sodium
 
 private typealias NSEJSONObject = [String: Any]
-
-struct NSEDecryptedNotificationMessage {
-    let channelId: String
-    let userId: String
-    let body: String
-    let type: Int
-}
 
 private struct NSEEncryptionScope {
     let type: String
@@ -22,30 +14,36 @@ private struct NSEEncryptedPayload {
     let scope: NSEEncryptionScope
 }
 
+private struct NSEDecryptedPayload {
+    let value: Any
+    let bytes: Data
+}
+
+private struct NSESignatureAuthor {
+    let type: String
+    let name: String
+    let generation: Int
+}
+
+private struct NSEMessageSignature {
+    let signature: String
+    let author: NSESignatureAuthor
+}
+
 // MARK: - Protocol
 
-protocol DeviceCryptography {
-    /// Signs a challenge payload exactly as `identity.prove()` does in TypeScript.
-    func signChallengePayload(_ challenge: ChallengePayload, privateKeyData: Data) throws -> ProofPayload
-
+protocol DeviceCryptography: NSEAuthSigning {
     /// Decrypts a QSS log entry and, if it is a channel message, returns a displayable preview.
     func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage?
 }
 
+protocol NSELFAKeyReading {
+    func lfaKeyString(keyName: String) throws -> String
+}
+
 extension DeviceCryptography {
-    func signChallengePayload(_ challenge: ChallengePayload, privateKeyData: Data) throws -> ProofPayload {
-        let payloadBytes = try NSEMsgpack.encode(challenge)
-        guard privateKeyData.count == 64 || privateKeyData.count == 32 else {
-            throw NSECryptoError.invalidKeyLength(expected: 64, got: privateKeyData.count)
-        }
-        let seed = privateKeyData.prefix(32)
-        let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: seed)
-        let signatureBytes = try privateKey.signature(for: payloadBytes)
-        let publicKeyBytes = privateKey.publicKey.rawRepresentation
-        return ProofPayload(
-            signature: Base58.encode(signatureBytes),
-            publicKey: Base58.encode(publicKeyBytes)
-        )
+    func signNseAuthProof(_ challenge: ChallengePayload, privateKeyData: Data) throws -> String {
+        try NSEAuthProof.sign(challenge, privateKeyData: privateKeyData)
     }
 }
 
@@ -57,6 +55,7 @@ enum NSECryptoError: Error, LocalizedError {
     case invalidPayload(String)
     case msgpack(String)
     case decryptionFailed(String)
+    case missingKey(String)
 
     var errorDescription: String? {
         switch self {
@@ -65,7 +64,15 @@ enum NSECryptoError: Error, LocalizedError {
         case .invalidPayload(let msg): return "Invalid payload: \(msg)"
         case .msgpack(let msg): return "MessagePack decoding failed: \(msg)"
         case .decryptionFailed(let msg): return "Decryption failed: \(msg)"
+        case .missingKey(let keyName): return "Missing LFA key: \(keyName)"
         }
+    }
+}
+
+extension NSECryptoError: NSERetryableNotificationError {
+    var isRetryableForNotification: Bool {
+        if case .missingKey = self { return true }
+        return false
     }
 }
 
@@ -77,6 +84,11 @@ enum NSECryptoError: Error, LocalizedError {
 /// 3. QSS log entries contain msgpackr-record-encoded payloads, not JSON
 class NSECryptoService: DeviceCryptography {
     private let sodium = Sodium()
+    private let lfaKeyReader: NSELFAKeyReading
+
+    init(lfaKeyReader: NSELFAKeyReading) {
+        self.lfaKeyReader = lfaKeyReader
+    }
 
     // Matches @localfirst/crypto stretch.ts
     private static let stretchSalt: [UInt8] = {
@@ -85,15 +97,19 @@ class NSECryptoService: DeviceCryptography {
     }()
 
     func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage? {
+        guard logEntry.communityId == teamId else {
+            throw NSECryptoError.invalidPayload("QSS entry community did not match requested team")
+        }
+
         let outerEnvelope = try self.decodeObject(logEntry.entry)
         guard let outerDict = outerEnvelope as? NSEJSONObject else {
             throw NSECryptoError.invalidPayload("outer envelope was not an object")
         }
         let outerEncrypted = try self.parseEncryptedPayload(outerDict["encrypted"], label: "outer QSS payload")
 
-        let orbitEntry = try self.decryptPayload(outerEncrypted, teamId: teamId)
+        let decryptedOrbitEntry = try self.decryptPayload(outerEncrypted, teamId: teamId)
         guard
-            let orbitEntryDict = orbitEntry as? NSEJSONObject
+            let orbitEntryDict = decryptedOrbitEntry.value as? NSEJSONObject
         else {
             throw NSECryptoError.invalidPayload("decrypted OrbitDB entry was not an object")
         }
@@ -112,20 +128,46 @@ class NSECryptoService: DeviceCryptography {
             return nil
         }
 
+        let signature = try self.parseSignature(payloadValue["encSignature"])
         let innerEncrypted = try self.parseEncryptedPayload(payloadValue["contents"], label: "inner channel message")
         let decryptedInner = try self.decryptPayload(innerEncrypted, teamId: teamId)
-        guard let message = decryptedInner as? NSEJSONObject else {
+        guard let message = decryptedInner.value as? NSEJSONObject else {
             return nil
         }
 
         guard
+            let id = self.stringValue(message["id"]),
             let channelId = self.stringValue(message["channelId"]),
             let userId = self.stringValue(message["userId"]),
+            let messageTeamId = self.stringValue(message["teamId"]),
+            let createdAt = self.numberValue(message["createdAt"]),
             let type = self.intValue(message["type"]),
             let body = self.notificationBody(from: message, type: type)
         else {
             return nil
         }
+
+        guard
+            !id.isEmpty,
+            !channelId.isEmpty,
+            !userId.isEmpty,
+            !messageTeamId.isEmpty,
+            type > 0
+        else {
+            throw NSECryptoError.invalidPayload("decrypted message shape was invalid")
+        }
+
+        try self.authenticateMessage(
+            plaintext: decryptedInner.bytes,
+            signature: signature,
+            teamId: teamId,
+            messageId: id,
+            messageTeamId: messageTeamId,
+            messageChannelId: channelId,
+            messageUserId: userId,
+            messageCreatedAt: createdAt,
+            payloadValue: payloadValue
+        )
 
         return NSEDecryptedNotificationMessage(
             channelId: channelId,
@@ -153,13 +195,13 @@ class NSECryptoService: DeviceCryptography {
         }
     }
 
-    private func decryptPayload(_ encryptedPayload: NSEEncryptedPayload, teamId: String) throws -> Any {
+    private func decryptPayload(_ encryptedPayload: NSEEncryptedPayload, teamId: String) throws -> NSEDecryptedPayload {
         let keyName = self.makeKeyName(teamId: teamId, scope: encryptedPayload.scope)
-        let secretKey = try KeychainService.getLfaKeyString(keyName: keyName)
+        let secretKey = try self.lfaKeyString(keyName: keyName)
         return try self.decryptSymmetric(cipherBytes: encryptedPayload.contents, password: secretKey)
     }
 
-    private func decryptSymmetric(cipherBytes: Data, password: String) throws -> Any {
+    private func decryptSymmetric(cipherBytes: Data, password: String) throws -> NSEDecryptedPayload {
         let cipher = try self.decodeObject(cipherBytes)
         guard let cipherDict = cipher as? NSEJSONObject else {
             throw NSECryptoError.invalidPayload("cipher bytes did not decode to an object")
@@ -194,7 +236,59 @@ class NSECryptoService: DeviceCryptography {
             throw NSECryptoError.decryptionFailed("secretbox open failed")
         }
 
-        return try self.decodeObject(Data(decryptedBytes))
+        let plaintext = Data(decryptedBytes)
+        return NSEDecryptedPayload(value: try self.decodeObject(plaintext), bytes: plaintext)
+    }
+
+    private func authenticateMessage(
+        plaintext: Data,
+        signature: NSEMessageSignature,
+        teamId: String,
+        messageId: String,
+        messageTeamId: String,
+        messageChannelId: String,
+        messageUserId: String,
+        messageCreatedAt: Double,
+        payloadValue: NSEJSONObject
+    ) throws {
+        let signatureData = Base58.decode(signature.signature).map { Data($0) }
+        let publicKey = try NSEMessageAuthenticator.publicKeyAfterValidatingClaims(
+            signature: signatureData,
+            authorType: signature.author.type,
+            authorName: signature.author.name,
+            messageUserId: messageUserId,
+            messageId: messageId,
+            envelopeId: self.stringValue(payloadValue["id"]),
+            messageTeamId: messageTeamId,
+            envelopeTeamId: self.stringValue(payloadValue["teamId"]),
+            requestedTeamId: teamId,
+            messageChannelId: messageChannelId,
+            envelopeChannelId: self.stringValue(payloadValue["channelId"]),
+            messageCreatedAt: messageCreatedAt,
+            envelopeCreatedAt: self.numberValue(payloadValue["createdAt"]),
+            lookup: {
+                let keyName = self.makeUserSignatureKeyName(teamId: teamId, author: signature.author)
+                let publicKeyString = try self.lfaKeyString(keyName: keyName)
+                return Base58.decode(publicKeyString).map { Data($0) }
+            }
+        )
+        try NSEMessageAuthenticator.authenticate(
+            plaintext: plaintext,
+            signature: signatureData,
+            publicKey: publicKey,
+            authorType: signature.author.type,
+            authorName: signature.author.name,
+            messageUserId: messageUserId,
+            messageId: messageId,
+            envelopeId: self.stringValue(payloadValue["id"]),
+            messageTeamId: messageTeamId,
+            envelopeTeamId: self.stringValue(payloadValue["teamId"]),
+            requestedTeamId: teamId,
+            messageChannelId: messageChannelId,
+            envelopeChannelId: self.stringValue(payloadValue["channelId"]),
+            messageCreatedAt: messageCreatedAt,
+            envelopeCreatedAt: self.numberValue(payloadValue["createdAt"])
+        )
     }
 
     private func stretch(_ password: String) throws -> [UInt8] {
@@ -235,23 +329,48 @@ class NSECryptoService: DeviceCryptography {
             throw NSECryptoError.invalidPayload("\(label) contents were not binary")
         }
 
-        guard
-            let scopeDict = dict["scope"] as? NSEJSONObject,
-            let scopeType = self.stringValue(scopeDict["type"]),
-            let scopeName = self.stringValue(scopeDict["name"]),
-            let generation = self.intValue(scopeDict["generation"])
-        else {
+        guard let scope = NSEMessageAuthenticator.exactEncryptionScope(dict["scope"]) else {
             throw NSECryptoError.invalidPayload("\(label) scope was malformed")
         }
 
         return NSEEncryptedPayload(
             contents: contents,
-            scope: NSEEncryptionScope(type: scopeType, name: scopeName, generation: generation)
+            scope: NSEEncryptionScope(type: scope.type, name: scope.name, generation: scope.generation)
+        )
+    }
+
+    private func parseSignature(_ value: Any?) throws -> NSEMessageSignature {
+        guard
+            let dict = value as? NSEJSONObject,
+            let signature = self.stringValue(dict["signature"]),
+            let author = dict["author"] as? NSEJSONObject,
+            let authorType = self.stringValue(author["type"]),
+            let authorName = self.stringValue(author["name"]),
+            let generation = NSEMessageAuthenticator.exactNonNegativeInt(author["generation"])
+        else {
+            throw NSECryptoError.invalidPayload("message signature was malformed")
+        }
+
+        return NSEMessageSignature(
+            signature: signature,
+            author: NSESignatureAuthor(type: authorType, name: authorName, generation: generation)
         )
     }
 
     private func makeKeyName(teamId: String, scope: NSEEncryptionScope) -> String {
         return "quiet_\(teamId)_\(scope.type)_\(scope.name)_\(scope.generation)_secret"
+    }
+
+    private func makeUserSignatureKeyName(teamId: String, author: NSESignatureAuthor) -> String {
+        return "quiet_\(teamId)_\(author.type)_\(author.name)_\(author.generation)_userSig"
+    }
+
+    private func lfaKeyString(keyName: String) throws -> String {
+        do {
+            return try self.lfaKeyReader.lfaKeyString(keyName: keyName)
+        } catch {
+            throw NSECryptoError.missingKey(keyName)
+        }
     }
 
     private func decodeObject(_ data: Data) throws -> Any {
@@ -307,6 +426,34 @@ class NSECryptoService: DeviceCryptography {
             return nil
         }
     }
+
+    private func numberValue(_ value: Any?) -> Double? {
+        if value is Bool {
+            return nil
+        }
+
+        let result: Double?
+        switch value {
+        case let number as NSNumber:
+            result = number.doubleValue
+        case let int as Int:
+            result = Double(int)
+        case let int64 as Int64:
+            result = Double(int64)
+        case let uint64 as UInt64:
+            result = Double(uint64)
+        case let float as Float:
+            result = Double(float)
+        case let double as Double:
+            result = double
+        case let string as String:
+            result = Double(string)
+        default:
+            result = nil
+        }
+        guard let result, result.isFinite else { return nil }
+        return result
+    }
 }
 
 // MARK: - Msgpack helpers
@@ -330,27 +477,24 @@ enum NSEMsgpack {
         case unsupportedType(UInt8)
     }
 
-    /// Encodes a ChallengePayload in the same byte format as msgpackr.pack().
-    static func encode(_ challenge: ChallengePayload) throws -> Data {
-        var out = Data()
-        // msgpackr always uses map16, never fixmap, regardless of element count.
-        out.append(0xde)
-        out.append(0x00)
-        out.append(0x04)
-        try appendString("type", to: &out)
-        try appendString(challenge.type, to: &out)
-        try appendString("name", to: &out)
-        try appendString(challenge.name, to: &out)
-        try appendString("nonce", to: &out)
-        try appendString(challenge.nonce, to: &out)
-        // Date.now() ms since epoch (~1.7e12) exceeds 2^32; msgpackr encodes as float64, not uint64.
-        try appendString("timestamp", to: &out)
-        appendFloat64(Double(challenge.timestamp), to: &out)
-        return out
+    /// Encodes msgpackr.pack([NSE_AUTH_SIGNATURE_CONTEXT, canonicalPayload]).
+    static func encodeNseAuthProof(_ challenge: ChallengePayload) throws -> Data {
+        try NSEAuthProof.encode(challenge)
     }
 
     static func decode(_ data: Data) throws -> Any {
         try Decoder(data: data).decode()
+    }
+
+    /// Produces the exact bytes signed by @localfirst/auth:
+    /// msgpackr.pack([context, payload]). `plaintext` is already the exact
+    /// msgpackr encoding of payload recovered from authenticated encryption.
+    static func withSignatureContext(_ context: String, plaintext: Data) throws -> Data {
+        guard !context.isEmpty else { throw MsgpackError.invalidString }
+        var out = Data([0x92]) // fixarray(2)
+        try appendString(context, to: &out)
+        out.append(plaintext)
+        return out
     }
 
     private static func appendString(_ s: String, to out: inout Data) throws {
@@ -373,22 +517,6 @@ enum NSEMsgpack {
         }
         out.append(contentsOf: bytes)
     }
-
-    /// Encodes a Double as IEEE 754 float64 (0xcb + 8 bytes big-endian).
-    /// msgpackr uses float64 for JavaScript numbers that exceed 2^32.
-    private static func appendFloat64(_ v: Double, to out: inout Data) {
-        out.append(0xcb)
-        let bits = v.bitPattern // UInt64 IEEE 754 representation
-        out.append(UInt8((bits >> 56) & 0xFF))
-        out.append(UInt8((bits >> 48) & 0xFF))
-        out.append(UInt8((bits >> 40) & 0xFF))
-        out.append(UInt8((bits >> 32) & 0xFF))
-        out.append(UInt8((bits >> 24) & 0xFF))
-        out.append(UInt8((bits >> 16) & 0xFF))
-        out.append(UInt8((bits >>  8) & 0xFF))
-        out.append(UInt8(bits & 0xFF))
-    }
-
     private final class Decoder {
         private let bytes: [UInt8]
         private var index: Int = 0

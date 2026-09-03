@@ -26,8 +26,6 @@ import { Community, Identity, ChannelMessage, SocketActions, SocketEvents, Publi
 import { getReduxStoreFactory, getBaseTypesFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
-import { createKeyset, redactKeys } from '../../../../../3rd-party/auth/packages/crdx/dist'
-import { randomBytes } from 'crypto'
 import waitForExpect from 'wait-for-expect'
 import * as uint8arrays from 'uint8arrays'
 import { JoinStatus } from '../libp2p/libp2p.auth'
@@ -44,7 +42,7 @@ import { EventsType } from '@orbitdb/core'
 import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
 import { MessagesAccessController } from '../storage/channels/messages/orbitdb/MessagesAccessController'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
-import { Base58 } from '@localfirst/auth'
+import { Base58, createServer, redactServer } from '@localfirst/auth'
 import { RoleName } from '../auth/services/roles/roles'
 import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
 import { IpfsModule } from '../ipfs/ipfs.module'
@@ -58,6 +56,12 @@ import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
 import { QSSSyncManager } from './qss-sync-manager.service'
 import { Serializer } from '../common/serializer.service'
+
+/** Creates a test-only QSS server-key response using the current LFA server shape. */
+const generateQssServerKeys = (teamId: string) => {
+  const { serverId, identityKeys, keys } = redactServer(createServer({ host: 'localhost' }))
+  return { teamId, serverId, identityKeys, keys }
+}
 
 describe('QSSService', () => {
   let store: Store
@@ -278,6 +282,80 @@ describe('QSSService', () => {
     markOutboundSyncReady(teamId)
     ;(qssSyncManager as any)._storageReadyTeams.add(teamId)
   }
+
+  describe('member role readiness', () => {
+    it('persists the invitation-granted role before marking QSS fully joined', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      let finishSaving!: () => void
+      const pendingSave = new Promise<void>(resolve => {
+        finishSaving = resolve
+      })
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain').mockReturnValue(pendingSave)
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+
+      const completion = qssService['_handleSelfAssignMember'](teamId)
+      await Promise.resolve()
+
+      expect(saveSpy).toHaveBeenCalledWith(teamId)
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+
+      finishSaving()
+      await completion
+
+      expect(authReadySpy).toHaveBeenCalledWith(teamId)
+      expect(syncReadySpy).toHaveBeenCalledWith(teamId)
+      expect(fullyJoinedSpy).toHaveBeenCalledWith(teamId)
+    })
+
+    it('surfaces an auth error when persistence fails', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      const saveError = new Error('database failure')
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain').mockRejectedValueOnce(saveError)
+      const stopSpy = jest.spyOn(qssAuthConnManager, 'stopConnection')
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      const authErrorSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, authErrorSpy)
+
+      await qssService['_handleSelfAssignMember'](teamId)
+
+      expect(saveSpy).toHaveBeenCalledTimes(1)
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+      expect(stopSpy).toHaveBeenCalledWith(teamId, false)
+      expect(authErrorSpy).toHaveBeenCalledWith({ teamId, error: saveError })
+    })
+
+    it('surfaces a terminal auth error without marking readiness when no invite grant is available', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      sigchainService.activeChain.roles.revokeMembership(sigchainService.activeChain.user.userId, RoleName.MEMBER)
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain')
+      const stopSpy = jest.spyOn(qssAuthConnManager, 'stopConnection')
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      const authErrorSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, authErrorSpy)
+
+      await qssService['_handleSelfAssignMember'](teamId)
+
+      expect(saveSpy).not.toHaveBeenCalled()
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+      expect(stopSpy).toHaveBeenCalledWith(teamId, false)
+      expect(authErrorSpy).toHaveBeenCalledWith({ teamId, error: expect.any(Error) })
+    })
+  })
 
   describe('connect', () => {
     it('connects to QSS when enabled and an endpoint string is provided', async () => {
@@ -506,12 +584,7 @@ describe('QSSService', () => {
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
-                  payload: {
-                    teamId: sigchainService.team?.id,
-                    keys: redactKeys(
-                      createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                    ),
-                  },
+                  payload: generateQssServerKeys(sigchainService.team.id),
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
@@ -641,12 +714,7 @@ describe('QSSService', () => {
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
-                  payload: {
-                    teamId: sigchainService.team?.id,
-                    keys: redactKeys(
-                      createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                    ),
-                  },
+                  payload: generateQssServerKeys(sigchainService.team.id),
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
@@ -723,12 +791,7 @@ describe('QSSService', () => {
                   ts: DateTime.utc().toMillis(),
                   payload: {
                     status: CommunityOperationStatus.SUCCESS,
-                    payload: {
-                      teamId: sigchainService.team?.id,
-                      keys: redactKeys(
-                        createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                      ),
-                    },
+                    payload: generateQssServerKeys(sigchainService.team.id),
                   },
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
@@ -820,6 +883,8 @@ describe('QSSService', () => {
         await localDbService.setIdentity(userIdentity)
 
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -829,9 +894,48 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
+    })
+
+    // Regression: the native FCM handler needs qssUrl, qssServerId AND deviceId to
+    // fetch log entries for a push. The first two were emitted on every sign-in, but
+    // device credentials were only emitted from handleChainUpdate, so a device that
+    // joined and then saw no membership changes threw
+    // "Missing QSS device id in QuietStorage" on every push and rendered no notification.
+    it('emits device credentials and native keys on successful sign in, without any sigchain mutation', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const updateDeviceCredentialsSpy = jest.spyOn(sigchainService, 'updateDeviceCredentials')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
+
+        await qssService.connect('wss://community.example/ws')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id)
+        expect(updateKeysSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id, true)
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
       }
     })
 
@@ -849,6 +953,8 @@ describe('QSSService', () => {
         await localDbService.setIdentity(userIdentity)
 
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -858,6 +964,7 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
@@ -879,6 +986,8 @@ describe('QSSService', () => {
 
         qssService._qssEndpoint = 'ws://configured.example/ws'
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'configured.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -888,6 +997,37 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'http://configured.example/ws',
+          qssServerId: pinnedQss.serverId,
+        })
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
+    })
+
+    it('clears native NSE QSS state when the endpoint has no active pinned server identity', async () => {
+      const originalPlatform = process.platform
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+
+        await qssService.connect('wss://untrusted.example/ws')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: 'team-id',
+          qssUrl: '',
+          qssServerId: '',
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
@@ -1072,14 +1212,21 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       markOutboundSyncReady(sigchainService.activeChain.team!.id)
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId: sigchainService.team.id,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -1318,14 +1465,21 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeFalsy()
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId: sigchainService.team.id,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       expect(hash).toBeDefined()
       const entry = await db.log.get(hash)
@@ -1845,14 +1999,21 @@ describe('QSSService', () => {
 
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.joinstatus`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -1876,14 +2037,21 @@ describe('QSSService', () => {
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage')
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.starting`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -1907,14 +2075,21 @@ describe('QSSService', () => {
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage')
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.pending-member`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -1940,7 +2115,12 @@ describe('QSSService', () => {
       await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.test`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: 'test',
+          teamId,
+        }),
         sync: true,
       })
 

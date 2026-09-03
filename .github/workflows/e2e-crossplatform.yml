@@ -14,6 +14,10 @@ on:
       - .github/actions/setup-env/**
       - .github/actions/before-build/**
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   mac:
     uses: ./.github/workflows/e2e-mac.yml
