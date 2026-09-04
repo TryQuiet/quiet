@@ -346,19 +346,17 @@ extract_desktop_binaries() {
             return 1
         }
     else
-        # Linux: Use dmg2img + 7z (dependencies already checked)
-        # Convert DMG to IMG, then extract with 7z
-        log_info "Converting DMG to IMG format..."
-        dmg2img "$dmg_file" tor-browser.img || {
-            log_error "Failed to convert DMG to IMG"
-            return 1
-        }
-        
-        log_info "Extracting from IMG file..."
+        # Linux: Use 7z directly on the DMG (dependency already checked).
+        # Recent Tor Browser DMGs use LZMA-compressed UDIF blocks, which
+        # dmg2img cannot decode (it reports "Unsupported or corrupted block
+        # found: -2147483640", i.e. block type 0x80000008). 7-Zip >= 23
+        # reads these DMGs natively, so extract just the Tor directory.
+        log_info "Extracting from DMG file..."
         local mount_point="tor_browser_extracted"
         mkdir -p "$mount_point"
-        7z x -o"$mount_point" tor-browser.img >/dev/null || {
-            log_error "Failed to extract IMG file"
+        7z x -y -o"$mount_point" "$dmg_file" \
+            "Tor Browser/Tor Browser.app/Contents/MacOS/Tor/*" >/dev/null || {
+            log_error "Failed to extract DMG file"
             return 1
         }
     fi
@@ -403,7 +401,6 @@ extract_desktop_binaries() {
         hdiutil detach "$mount_point" -quiet
     else
         # Clean up temporary files on Linux
-        rm -f tor-browser.img
         rm -rf "$mount_point"
     fi
 
@@ -562,18 +559,21 @@ check_dependencies() {
     
     # Platform-specific dependency checks
     if [[ "$(uname)" != "Darwin" ]]; then
-        # Linux: Check for DMG extraction tools
-        if ! command -v dmg2img >/dev/null 2>&1; then
-            log_error "dmg2img is required to extract macOS DMG files on Linux"
-            log_error "Install with: sudo apt install dmg2img (Debian/Ubuntu)"
-            log_error "            or: sudo dnf install dmg2img (Red Hat/Fedora)"
-            return 1
-        fi
-        
+        # Linux: Check for DMG extraction tool. 7-Zip >= 23 is needed because
+        # Tor Browser DMGs use LZMA-compressed blocks that older p7zip (16.02)
+        # and dmg2img cannot decode.
         if ! command -v 7z >/dev/null 2>&1; then
             log_error "7z is required to extract macOS DMG files on Linux"
-            log_error "Install with: sudo apt install p7zip-full (Debian/Ubuntu)"
-            log_error "            or: sudo dnf install p7zip-plugins (Red Hat/Fedora)"
+            log_error "Install with: sudo apt install 7zip (Debian/Ubuntu)"
+            log_error "            or: sudo dnf install 7zip (Red Hat/Fedora)"
+            return 1
+        fi
+        local sevenzip_version
+        sevenzip_version=$(7z 2>/dev/null | grep -m1 '7-Zip' | sed -E 's/\[[^]]*\]//g' | grep -oE '[0-9]+\.[0-9]+' | head -n1 | cut -d. -f1 || echo 0)
+        if [[ "${sevenzip_version:-0}" -lt 23 ]]; then
+            log_error "7-Zip 23 or newer is required (found: $(7z 2>/dev/null | head -n2 | tail -n1))"
+            log_error "Older p7zip cannot decode LZMA-compressed Tor Browser DMGs."
+            log_error "Install with: sudo apt install 7zip (Debian/Ubuntu)"
             return 1
         fi
     fi
