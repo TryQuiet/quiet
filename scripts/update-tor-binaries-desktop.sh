@@ -449,6 +449,24 @@ extract_android_binaries() {
     # Find and copy libtor.so for arm64-v8a
     local libtor_path="apk_extract/lib/arm64-v8a/libTor.so"
     if [[ -f "$libtor_path" ]]; then
+        # Google Play requires native libraries to be 16KB page aligned.
+        # Refuse the APK's libTor.so if any LOAD segment has a smaller alignment.
+        if command -v readelf >/dev/null 2>&1; then
+            local bad_align="" align
+            for align in $(readelf -lW "$libtor_path" | awk '$1=="LOAD" {print $NF}'); do
+                if (( align < 16384 )); then
+                    bad_align="$align"
+                fi
+            done
+            if [[ -n "$bad_align" ]]; then
+                log_error "libTor.so from the APK is not 16KB page aligned (found alignment: $bad_align)"
+                log_error "Build libtor.so manually instead: https://github.com/bitmold/quiet_libtor_android"
+                return 1
+            fi
+            log_success "libTor.so LOAD segments are 16KB page aligned"
+        else
+            log_info "readelf not available; skipping 16KB alignment check"
+        fi
         cp "$libtor_path" extracted/android/libtor.so
         log_success "Extracted libtor.so from Android APK"
     else
@@ -699,11 +717,11 @@ main() {
     log_info "Updating all Tor binaries to the version of tor in Tor Browser version $latest_version..."
     
     download_desktop_bundles "$latest_version"
-    # download_android_apk "$latest_version"
+    download_android_apk "$latest_version"
     extract_desktop_binaries
-    # extract_android_binaries
+    extract_android_binaries
     install_desktop_binaries
-    # install_android_binaries
+    install_android_binaries
     
     log_success "All Tor binaries updated successfully to the version of tor in Tor Browser version $latest_version"
 }
