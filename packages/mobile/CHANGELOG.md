@@ -1,99 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# 9.0.0-alpha.8 (2026-09-04)
-
-
-### Bug Fixes
-
-* **3371:** Make usernames and profile photos tapable when adding members to private channels ([#3398](https://github.com/TryQuiet/quiet-private/issues/3398)) ([8bef365](https://github.com/TryQuiet/quiet-private/commit/8bef36536819b8a37503b646940e8ef23bef2206))
-* **3387:** Pass channel ID to name mappings to mobile, use channel names in notifications ([#3396](https://github.com/TryQuiet/quiet-private/issues/3396)) ([e113e54](https://github.com/TryQuiet/quiet-private/commit/e113e54639b4cd71818afa4cbfbb7b6ece83d0e1))
-* Add `patch` to requirements documentation ([#1766](https://github.com/TryQuiet/quiet-private/issues/1766)) ([8eb6fcc](https://github.com/TryQuiet/quiet-private/commit/8eb6fccae2a894af395826f8043b35cfdd9bf3b5))
-* Add retry ability to tor-control and update Tor port on resume ([#2360](https://github.com/TryQuiet/quiet-private/issues/2360)) ([9517f08](https://github.com/TryQuiet/quiet-private/commit/9517f0876be58c00f745c6c514778e657590a99e))
-* Adds a quick fix for the iOS sync issue after suspend ([#2414](https://github.com/TryQuiet/quiet-private/issues/2414)) ([151895d](https://github.com/TryQuiet/quiet-private/commit/151895db4a74290c010ed1edf87f540c092de673))
-* ask push notification runtime permission on Android ([#2213](https://github.com/TryQuiet/quiet-private/issues/2213)) ([2f92e88](https://github.com/TryQuiet/quiet-private/commit/2f92e88d488a5a98eae5bf6d42a5485b98c6be99))
-* authenticate native notification messages [#114](https://github.com/TryQuiet/quiet-private/issues/114) ([3dd2758](https://github.com/TryQuiet/quiet-private/commit/3dd27583a8a47aa0c608075cd4f3ca120caf7182))
-* Backend fails to start on GrapheneOS in 6.5.1 ([#3106](https://github.com/TryQuiet/quiet-private/issues/3106)) ([ce4b9f5](https://github.com/TryQuiet/quiet-private/commit/ce4b9f56a3cb3c1cd9836e3f234bb3b44560f396))
-* broken privacy policy link on join-server screen ([#3186](https://github.com/TryQuiet/quiet-private/issues/3186)) ([4cdb3a1](https://github.com/TryQuiet/quiet-private/commit/4cdb3a1c8c8cb30ba481dc6c16f5c05fc5b6bac7))
-* calling init websocket connection ([#2261](https://github.com/TryQuiet/quiet-private/issues/2261)) ([fe1d9dd](https://github.com/TryQuiet/quiet-private/commit/fe1d9dda73ffaad585c87701bcb9658af0389362))
-* check websocket client connection status before blocking the flow [#1970](https://github.com/TryQuiet/quiet-private/issues/1970) ([#2125](https://github.com/TryQuiet/quiet-private/issues/2125)) ([faca03b](https://github.com/TryQuiet/quiet-private/commit/faca03ba9458e12ec41b85100d8de03ad64f3e03))
-* classify malformed notification generations permanently ([f484ddf](https://github.com/TryQuiet/quiet-private/commit/f484ddffa668267537e67b4df3bc6463228e935a))
-* cleanup username creation component ([#2216](https://github.com/TryQuiet/quiet-private/issues/2216)) ([1d03995](https://github.com/TryQuiet/quiet-private/commit/1d039952cf84e94fdcf8b66c395f634094ea3a6b))
-* complete native notification authentication [#114](https://github.com/TryQuiet/quiet-private/issues/114) ([9b45884](https://github.com/TryQuiet/quiet-private/commit/9b458843081d5cf0d3eebb8c31fc88e26fd0c77c))
-* correct getting ndk path ([#2130](https://github.com/TryQuiet/quiet-private/issues/2130)) ([f0a6336](https://github.com/TryQuiet/quiet-private/commit/f0a6336434d4f8ba829123ca6f24d3df3df557a8))
-* create jdenticon from pubKey, not username - to distinguish user… ([#2207](https://github.com/TryQuiet/quiet-private/issues/2207)) ([fd8bd06](https://github.com/TryQuiet/quiet-private/commit/fd8bd06a5f226e0da8189581c076ba9976633e7d))
-* deep linking issues ([#2154](https://github.com/TryQuiet/quiet-private/issues/2154)) ([2867264](https://github.com/TryQuiet/quiet-private/commit/28672643b4e91d4782cbd3b7aae04b769000d4c7)), closes [#1970](https://github.com/TryQuiet/quiet-private/issues/1970)
-* delay node start ([#2300](https://github.com/TryQuiet/quiet-private/issues/2300)) ([810f7c3](https://github.com/TryQuiet/quiet-private/commit/810f7c39a9b33952aa8316873a6c0d053c3e41a5))
-* disable waitsForConnectivity in NSENetworkClient and improve sync sequence handling in NotificationService ([6794d61](https://github.com/TryQuiet/quiet-private/commit/6794d61790c22e167d5f495ab09203d5179104d4))
-* fallback to gradle.properties for ndk path ([#1960](https://github.com/TryQuiet/quiet-private/issues/1960)) ([a1d341c](https://github.com/TryQuiet/quiet-private/commit/a1d341c9257d3fee93678655741d2ef7eb101c6c))
-* fix UI ([#2021](https://github.com/TryQuiet/quiet-private/issues/2021)) ([0aac01d](https://github.com/TryQuiet/quiet-private/commit/0aac01da5a02c2ebef6839a7ab4542b99896df68))
-* font in input validation and hint from 10px to 14px ([a3ce5cb](https://github.com/TryQuiet/quiet-private/commit/a3ce5cb76603042294685e3ad9ca82088a0d7561))
-* include flavor prefix in envConfigFiles keys so dotenv picks the right .env ([#3197](https://github.com/TryQuiet/quiet-private/issues/3197)) ([e3f77d1](https://github.com/TryQuiet/quiet-private/commit/e3f77d1ec25b673485c74c638cb952ac063b06e4))
-* Keyboard avoiding on android, properly displaying send button on android, newline rendering in message component on mobile ([#2980](https://github.com/TryQuiet/quiet-private/issues/2980)) ([4f0afa3](https://github.com/TryQuiet/quiet-private/commit/4f0afa30160cdc75f624e7246580438c7d2e7600))
-* make sure local peer's address in in invitation link ([#2268](https://github.com/TryQuiet/quiet-private/issues/2268)) ([53f1ec9](https://github.com/TryQuiet/quiet-private/commit/53f1ec91da07efeb7861e504c4936728ff01062c))
-* mobile popup back button ([#2023](https://github.com/TryQuiet/quiet-private/issues/2023)) ([b0c6e2d](https://github.com/TryQuiet/quiet-private/commit/b0c6e2d13f287124c52eec3ec85c07e80e2b057b))
-* **mobile:** bound missing notification key retries ([#114](https://github.com/TryQuiet/quiet-private/issues/114)) ([9bb41f6](https://github.com/TryQuiet/quiet-private/commit/9bb41f6bcbe1898e0400043acdcab24aab334fa3))
-* **mobile:** point dev QSS_ENDPOINT at localhost instead of a LAN IP ([b04bbbe](https://github.com/TryQuiet/quiet-private/commit/b04bbbef0c6b070aae99257b2eaf10cc1bd802a9)), closes [#318](https://github.com/TryQuiet/quiet-private/issues/318)
-* **mobile:** shareAllData — stage sources before zip so iOS recurses ([1370f67](https://github.com/TryQuiet/quiet-private/commit/1370f67c789fc291636aa760409756f930e18e43)), closes [#3213](https://github.com/TryQuiet/quiet-private/issues/3213) [#3213](https://github.com/TryQuiet/quiet-private/issues/3213)
-* **mobile:** update Android libtor.so to Tor 0.4.9.11 and re-enable Android in update script ([9bc4027](https://github.com/TryQuiet/quiet-private/commit/9bc40275b33639a54c65a14049ff0a135f3ebf79))
-* poin to a different directory after breaking changes ([#2132](https://github.com/TryQuiet/quiet-private/issues/2132)) ([07ef5bb](https://github.com/TryQuiet/quiet-private/commit/07ef5bb5a403ee52cf69982d19a9d0b14f11c969))
-* postpone restore connection saga ([#2462](https://github.com/TryQuiet/quiet-private/issues/2462)) ([b8ef745](https://github.com/TryQuiet/quiet-private/commit/b8ef7450c8a3364ed99e6240e2add0c7a73ea271))
-* Reduce max random port on iOS ([#2402](https://github.com/TryQuiet/quiet-private/issues/2402)) ([2c783aa](https://github.com/TryQuiet/quiet-private/commit/2c783aa69b8d3e3214baf8f75aabd77dfbc9aa3e))
-* reject malformed notifications before key retry ([6a22aa4](https://github.com/TryQuiet/quiet-private/commit/6a22aa45e41e287d74b4f888c1dcb38a34958b41))
-* Remove unused dmPublicKey to prevent UI delay during joining ([#2392](https://github.com/TryQuiet/quiet-private/issues/2392)) ([3ba5b9a](https://github.com/TryQuiet/quiet-private/commit/3ba5b9a94501620777b4cf766506763abdc140f1))
-* Reorder the closing of services, prevent sagas running multiple times and close backend server properly ([#2499](https://github.com/TryQuiet/quiet-private/issues/2499)) ([1eef06c](https://github.com/TryQuiet/quiet-private/commit/1eef06cd0c113e58509bc39ba99b5b9140647ecb))
-* reset deep link flag ([#2191](https://github.com/TryQuiet/quiet-private/issues/2191)) ([9509f21](https://github.com/TryQuiet/quiet-private/commit/9509f213620c5bfc1ee518fe9d125e23531e8ba5))
-* **security:** bind native NSE auth to QSS identity [#115](https://github.com/TryQuiet/quiet-private/issues/115) ([cc0a6d7](https://github.com/TryQuiet/quiet-private/commit/cc0a6d7d1e2e9e78f883d7b5b5cffdc0e9adc5ad))
-* **security:** close NSE proof validation gaps [#115](https://github.com/TryQuiet/quiet-private/issues/115) ([5e29b4c](https://github.com/TryQuiet/quiet-private/commit/5e29b4c08744270faf3884ff1fc7e9fcd6a866a5))
-* **security:** harden QPS notification envelopes [#135](https://github.com/TryQuiet/quiet-private/issues/135) ([5a51027](https://github.com/TryQuiet/quiet-private/commit/5a5102714eac32e677859d8fb0176896000a8fa9))
-* send csr if local and stored ones differs ([#2147](https://github.com/TryQuiet/quiet-private/issues/2147)) ([b640d16](https://github.com/TryQuiet/quiet-private/commit/b640d1617ec58bb93129adaf8dfebe09c8de625c))
-* start websocket connection on react init ([#2481](https://github.com/TryQuiet/quiet-private/issues/2481)) ([611af21](https://github.com/TryQuiet/quiet-private/commit/611af21d316b80767190df5bda498ed2a810a058))
-* typo in function name ([7e00db1](https://github.com/TryQuiet/quiet-private/commit/7e00db1eb8d868cfe6682a1fa75f7e90b3a496bb))
-* Updating channel naming logic ([#2307](https://github.com/TryQuiet/quiet-private/issues/2307)) ([38b007e](https://github.com/TryQuiet/quiet-private/commit/38b007e9319855afdb9b2150a3fbb782b9a688c3))
-* Use useLegacyPackaging feature in Gradle ([#2384](https://github.com/TryQuiet/quiet-private/issues/2384)) ([125ec4e](https://github.com/TryQuiet/quiet-private/commit/125ec4e96f81cdeb9c6df44fa2a0ae281bc0e064))
-* use version 9 data directories [#3379](https://github.com/TryQuiet/quiet-private/issues/3379) ([#3381](https://github.com/TryQuiet/quiet-private/issues/3381)) ([7d751f2](https://github.com/TryQuiet/quiet-private/commit/7d751f26c08685fd66f67c15fdfa6007e0adc56d))
-* validate notification scopes before key lookup ([04bdb7d](https://github.com/TryQuiet/quiet-private/commit/04bdb7d26afb41af3d970b5ecd8f62cd548ad975))
-* validate NSE message shape after decoding [#114](https://github.com/TryQuiet/quiet-private/issues/114) ([3798775](https://github.com/TryQuiet/quiet-private/commit/37987753d50b0253815660ba6290156eb6dedcf8))
-* Various fixes related to peers, CSRs and backend startup ([#2455](https://github.com/TryQuiet/quiet-private/issues/2455)) ([abd9101](https://github.com/TryQuiet/quiet-private/commit/abd9101f84149ae4ec1db3038fca31880334cdf3))
-
-
-### Features
-
-* **1698:** Attachments button on mobile shows photo library ([#2721](https://github.com/TryQuiet/quiet-private/issues/2721)) ([9907eb4](https://github.com/TryQuiet/quiet-private/commit/9907eb4c3db726569846bac680988dffdec30ae6))
-* 2312 pass invitation data to createNetwork saga and LAUNCH_COMMUNITY… ([#2438](https://github.com/TryQuiet/quiet-private/issues/2438)) ([de6f0cd](https://github.com/TryQuiet/quiet-private/commit/de6f0cda1b07ba7715cfb4876e51e423c5e9b9d0))
-* **2759:** Add QSS sigchain syncing to Quiet ([#2877](https://github.com/TryQuiet/quiet-private/issues/2877)) ([fe1b1a0](https://github.com/TryQuiet/quiet-private/commit/fe1b1a0927e8f3c3e0ef3bc8c9adda19a64df0cc))
-* **3155:** Add private channels with modifiable membership (no removals) to desktop ([#3177](https://github.com/TryQuiet/quiet-private/issues/3177)) ([9eef40c](https://github.com/TryQuiet/quiet-private/commit/9eef40c7974f22e9a5bfa51449cfc35b9c2f66f4))
-* **3155:** Private channels for mobile ([#3194](https://github.com/TryQuiet/quiet-private/issues/3194)) ([c3c89bf](https://github.com/TryQuiet/quiet-private/commit/c3c89bfdc9758e57b47f6e9630e3a8e3f6f6d7ef))
-* **3277:** Open private channel creation to all users and prep for role-based permissons ([#3276](https://github.com/TryQuiet/quiet-private/issues/3276)) ([2592f56](https://github.com/TryQuiet/quiet-private/commit/2592f5689ab1482c61044c8e3c40d759282270e5))
-* **3296:** Update invite links, use team ID everywhere and write randomly generated team name to chain ([#3324](https://github.com/TryQuiet/quiet-private/issues/3324)) ([c2a850c](https://github.com/TryQuiet/quiet-private/commit/c2a850c7f0da377b0cdf46e892b36fd74de31c86))
-* **3300:** Allow all members of a private channel to add members to that channel ([#3303](https://github.com/TryQuiet/quiet-private/issues/3303)) ([5e41f92](https://github.com/TryQuiet/quiet-private/commit/5e41f921c11836ef8e8031aabdd9e42eada8b43a))
-* **3300:** Allow channel owners to add members to channel ([#3299](https://github.com/TryQuiet/quiet-private/issues/3299)) ([8599479](https://github.com/TryQuiet/quiet-private/commit/85994797d82e10c81d2bb26d899233ad5a068c94))
-* Add community metadata validation ([#2073](https://github.com/TryQuiet/quiet-private/issues/2073)) ([5780574](https://github.com/TryQuiet/quiet-private/commit/57805747f08261d0709554266e36fd0005eca839))
-* Add user profile feature for desktop ([#1923](https://github.com/TryQuiet/quiet-private/issues/1923)) ([d016be5](https://github.com/TryQuiet/quiet-private/commit/d016be5a162560962c6059d73db6ab005fb023e8))
-* bump versionCode ([104c656](https://github.com/TryQuiet/quiet-private/commit/104c6569805efecffcc23a801a8ba91a352966fe))
-* **mobile:** dev/alpha-only "Share logs" + "Share all data" on joining screen and menu ([#3213](https://github.com/TryQuiet/quiet-private/issues/3213)) ([d61bc44](https://github.com/TryQuiet/quiet-private/commit/d61bc4425acb509686dbf7b2d38c0025d2383061)), closes [#3198](https://github.com/TryQuiet/quiet-private/issues/3198) [#3198](https://github.com/TryQuiet/quiet-private/issues/3198) [#3196](https://github.com/TryQuiet/quiet-private/issues/3196)
-* **mobile:** dev/alpha-only "Share logs" menu item ([#3198](https://github.com/TryQuiet/quiet-private/issues/3198)) ([8328534](https://github.com/TryQuiet/quiet-private/commit/8328534721479fc0a012b30b78bb4bac516794bf)), closes [#3196](https://github.com/TryQuiet/quiet-private/issues/3196)
-* **mobile:** dev/alpha-only "Share logs" menu item ([#3198](https://github.com/TryQuiet/quiet-private/issues/3198)) ([9d3457d](https://github.com/TryQuiet/quiet-private/commit/9d3457d033d06de55e42a615cc15dd682e0fd87f)), closes [#3196](https://github.com/TryQuiet/quiet-private/issues/3196)
-* Reintroduce private channels with improved privacy/security ([#3359](https://github.com/TryQuiet/quiet-private/issues/3359)) ([d98c353](https://github.com/TryQuiet/quiet-private/commit/d98c3533eb2cd3f16f46ec006236554581dd8834)), closes [#3323](https://github.com/TryQuiet/quiet-private/issues/3323) [#3318](https://github.com/TryQuiet/quiet-private/issues/3318)
-* trigger lerna ([4ca8195](https://github.com/TryQuiet/quiet-private/commit/4ca81958c57e88f172e0d78f055e9008a5a4a90a))
-* version code 366 ([cebf886](https://github.com/TryQuiet/quiet-private/commit/cebf886aee2c4ec6e0ef4e66219d9dc0afecb98c))
-
-
-### Reverts
-
-* Revert "Use mise-en-place (https://mise.jdx.dev/) for repo dependencies" ([18c8d31](https://github.com/TryQuiet/quiet-private/commit/18c8d31ea982fb8a793ab59a196cf00f2fc39f90))
-* Revert "upgrade to AGP 8.3.2, Gradle 8.8, Android SDK 35 (#2923)" ([504545e](https://github.com/TryQuiet/quiet-private/commit/504545efbc5ddf1d3f0ddcf9fbeb9137d378a3e5)), closes [#2923](https://github.com/TryQuiet/quiet-private/issues/2923)
-* Revert "Fix/2766-wrong-timezone-on-mobile (#2780)" (#2791) ([02556f0](https://github.com/TryQuiet/quiet-private/commit/02556f0d617a7d6c84fe2c8c150dd16997795b36)), closes [#2780](https://github.com/TryQuiet/quiet-private/issues/2780) [#2791](https://github.com/TryQuiet/quiet-private/issues/2791)
-* Revert "Adjust project bootstrap scripts to be windows-friendly (#1870)" (#1937) ([0811ea3](https://github.com/TryQuiet/quiet-private/commit/0811ea3ea3f682dd763be72b12f626fe416bc036)), closes [#1870](https://github.com/TryQuiet/quiet-private/issues/1870) [#1937](https://github.com/TryQuiet/quiet-private/issues/1937) [#1870](https://github.com/TryQuiet/quiet-private/issues/1870)
-* Revert "Match designs for mobile chat input (#1841)" ([e57fbca](https://github.com/TryQuiet/quiet-private/commit/e57fbcadcc51995c0360ee3b7b7fba201f4a9605)), closes [#1841](https://github.com/TryQuiet/quiet-private/issues/1841)
-* Revert "Linked react-native-config with iOS project" ([14b1bfc](https://github.com/TryQuiet/quiet-private/commit/14b1bfcbfd0497a1e2f463e71128d164f11ce89b))
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
@@ -114,10 +18,34 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
+* Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
 * Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
 * Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
 * Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
+* Update desktop Tor binaries to Tor 0.4.9.11 (Tor Browser 15.0.21) and fix the update script to extract LZMA-compressed macOS DMGs with 7-Zip instead of dmg2img
+* Update Android libtor.so to Tor 0.4.9.11 (16KB page aligned, from Tor Browser 15.0.21) and re-enable Android in the Tor binary update script
+* Android push notifications now appear for a device that joined a community and then saw no further membership changes; previously every background push was silently dropped [#291](https://github.com/TryQuiet/quiet-private/issues/291)
+* An invitee's admission is now saved to the sigchain by the admitting member device or storage service (QSS) before the invitee's acceptance is sent, so a crash or restart on the admitter can no longer leave the new member accepted on their side but absent from the admitter's chain [#203](https://github.com/TryQuiet/quiet-private/issues/203)
+
+### Security
+
+* Sigchain changes were not signed, so any community member could forge changes attributed to another member: promoting themselves to administrator, removing any member including the founder, or re-keying a private channel they were never admitted to so that they could read its future messages while locking out the real members. Every sigchain change and identity is now bound to the device key that signed it, and the community state handed to a new member is encrypted to that member and authenticated [#276](https://github.com/TryQuiet/quiet-private/issues/276)
+* The storage service (QSS), which is designed as an untrusted relay, could add an identity it controlled to a community as a full member without any invitation and then read everything shared with members. Servers now hold a separate self-certifying identity that cannot act as a member, and membership changes must be signed by a registered member device [#54](https://github.com/TryQuiet/quiet-private/pull/54)
+* A community member could register a device under another member's account, because nothing bound the author of a device addition to the account it named [#47](https://github.com/TryQuiet/quiet-private/pull/47)
+* Anyone who observed an invitation proof, such as the member accepting it or the storage service relaying the handshake, could replay it to be admitted to the community. Admission now requires a signature from the joining device's own key over a single-use challenge [#50](https://github.com/TryQuiet/quiet-private/pull/50)
+* Any community member could inject new team, role, or channel keys through unvalidated key deliveries, taking over a private channel and excluding its members. Unauthorized re-keys are now dropped [#61](https://github.com/TryQuiet/quiet-private/issues/61)
+* An ordinary member could promote another member straight to administrator, because role grants were not administrator-gated. This fix shipped in 7.3.x, was reverted in 8.0.0, and is restored [#49](https://github.com/TryQuiet/quiet-private/pull/49)
+* A member of a channel could post a message in that channel that all clients displayed as coming from a different member, without that member's key. Messages are now cryptographically verified against their author before they are stored, shown, or used for notifications [#125](https://github.com/TryQuiet/quiet-private/issues/125)
+* An ordinary member could sign a shared-database entry with their own key while labelling it with an administrator's identity, and so pass administrator-only checks, for example to delete public channels or other members' profiles. Database entries are now bound to the device key that signed them [#150](https://github.com/TryQuiet/quiet-private/issues/150)
+* An administrator could replace another member's account keys with keys the administrator controls and then sign messages, including direct messages, as that member. Only a member can now change their own keys [#140](https://github.com/TryQuiet/quiet-private/issues/140)
+* An ordinary member could grant the basic `member` role to any user rather than only to themselves. This had no effect today because every member already holds that role, but it would have let a single member undo an administrator's removal of another member once removal ships. Non-admins can now only claim self-assignable roles for themselves [#87](https://github.com/TryQuiet/quiet-private/issues/87)
+* An administrator could create a role named `__proto__`, which corrupted the role state of every peer that synced it and disabled the checks that reject malformed sigchain changes. Such names are now rejected and role lookups no longer touch object prototypes [#117](https://github.com/TryQuiet/quiet-private/issues/117)
+* A community member could make background push notifications on iOS and Android show a forged sender or content, because iOS did not verify the message signature and Android did not check that the signer matched the claimed sender. Both platforms now verify the author before displaying a notification [#114](https://github.com/TryQuiet/quiet-private/issues/114)
+* A community member could send arbitrary notification text to another member's iOS device, enabling lock-screen phishing, because every member's push token is replicated to the whole community and the storage service accepted caller-supplied title and body. Clients no longer send notification content, and the service derives routing from the signed token [#135](https://github.com/TryQuiet/quiet-private/issues/135)
+* A malicious or compromised storage service (QSS) could have a device sign an unbound challenge with its device key, then replay that signature at a different storage service to impersonate the device there. Devices now sign only challenges bound to their own identity, team, and pinned server [#115](https://github.com/TryQuiet/quiet-private/issues/115)
+* A community member could send a message whose attachment metadata pointed at a different message or channel, or referenced hosted media without encryption metadata. Attachment metadata is now strictly validated against the signed message [#21](https://github.com/TryQuiet/quiet-private/issues/21)
+* Anyone who could reach a community's storage service (QSS), without authenticating, could crash it by sending a websocket event without an acknowledgement callback, interrupting sync and push delivery for every community on that instance. Malformed events are now rejected without crashing the service [#202](https://github.com/TryQuiet/quiet-private/issues/202)
 
 ## [8.0.0]
 

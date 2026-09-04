@@ -1,95 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# 9.0.0-alpha.8 (2026-09-04)
-
-
-### Bug Fixes
-
-* "Invite A Friend" tab now reads "Add Members" ([#2234](https://github.com/TryQuiet/quiet-private/issues/2234)) ([049cd56](https://github.com/TryQuiet/quiet-private/commit/049cd560b7fbdd31353f3565ab0498b60fddefa2))
-* **#2593:** link color ([#2640](https://github.com/TryQuiet/quiet-private/issues/2640)) ([7110cb5](https://github.com/TryQuiet/quiet-private/commit/7110cb5d6c84c9c3862ad15c532b593ec1341455)), closes [#2593](https://github.com/TryQuiet/quiet-private/issues/2593)
-* **2576:** Update hover and selected contrast and modify sidebar color in dark mode ([#2579](https://github.com/TryQuiet/quiet-private/issues/2579)) ([d7bf1b9](https://github.com/TryQuiet/quiet-private/commit/d7bf1b938bce3096fbb9a67296fdca3fc4a157dc))
-* **3140:** Validate qss endpoint when qss is allowed to avoid registration loops ([#3141](https://github.com/TryQuiet/quiet-private/issues/3141)) ([38d4292](https://github.com/TryQuiet/quiet-private/commit/38d42923dee8c31c454ca8a107479f9db1bf3bdb))
-* **3146:** Fix slow electron startup ([#3147](https://github.com/TryQuiet/quiet-private/issues/3147)) ([748374e](https://github.com/TryQuiet/quiet-private/commit/748374e0d43124f2c95de15f38732145310adb56))
-* Add `patch` to requirements documentation ([#1766](https://github.com/TryQuiet/quiet-private/issues/1766)) ([8eb6fcc](https://github.com/TryQuiet/quiet-private/commit/8eb6fccae2a894af395826f8043b35cfdd9bf3b5))
-* add conditional checksum path ([8164b50](https://github.com/TryQuiet/quiet-private/commit/8164b50774f32856d9886f75d1bb25788f1e03c4))
-* adds meaningful date markers [#2745](https://github.com/TryQuiet/quiet-private/issues/2745) ([#2775](https://github.com/TryQuiet/quiet-private/issues/2775)) ([fdd78e6](https://github.com/TryQuiet/quiet-private/commit/fdd78e6f40bc463131fb86c27d830e4d8c5fede1))
-* Allow JPEG and GIF images as profile photos [#2332](https://github.com/TryQuiet/quiet-private/issues/2332) ([#2353](https://github.com/TryQuiet/quiet-private/issues/2353)) ([233725f](https://github.com/TryQuiet/quiet-private/commit/233725f6872c0a2dceb5eab02622c529ee64b152))
-* Better QSS handling in invite links, proper redialing on disconnects, resetting LFA join status when in intermediate state on disconnect ([#3012](https://github.com/TryQuiet/quiet-private/issues/3012)) ([2b68c3c](https://github.com/TryQuiet/quiet-private/commit/2b68c3c94693f2aafa7fc5c7a65073e92c93e6dd))
-* broken privacy policy link on join-server screen ([#3186](https://github.com/TryQuiet/quiet-private/issues/3186)) ([4cdb3a1](https://github.com/TryQuiet/quiet-private/commit/4cdb3a1c8c8cb30ba481dc6c16f5c05fc5b6bac7))
-* Clean up desktop UI console errors/warnings ([#2226](https://github.com/TryQuiet/quiet-private/issues/2226)) ([570a7a9](https://github.com/TryQuiet/quiet-private/commit/570a7a9ce61ce52fb05b86e84c91c4a5110e2f7b))
-* cleanup username creation component ([#2216](https://github.com/TryQuiet/quiet-private/issues/2216)) ([1d03995](https://github.com/TryQuiet/quiet-private/commit/1d039952cf84e94fdcf8b66c395f634094ea3a6b))
-* create jdenticon from pubKey, not username - to distinguish user… ([#2207](https://github.com/TryQuiet/quiet-private/issues/2207)) ([fd8bd06](https://github.com/TryQuiet/quiet-private/commit/fd8bd06a5f226e0da8189581c076ba9976633e7d))
-* e2e test for invitation link; ([#2126](https://github.com/TryQuiet/quiet-private/issues/2126)) ([5ddbc6a](https://github.com/TryQuiet/quiet-private/commit/5ddbc6adbbd694b030e61dbde50d73c658b097c9))
-* Enable channel context menu for all users ([#2206](https://github.com/TryQuiet/quiet-private/issues/2206)) ([02f6809](https://github.com/TryQuiet/quiet-private/commit/02f680903bb66faf52c007f66523096e449d6d31))
-* Fixes for crashes and connection hanging on 5.0.0 ([#2863](https://github.com/TryQuiet/quiet-private/issues/2863)) ([be1dd72](https://github.com/TryQuiet/quiet-private/commit/be1dd72ca3d65e170238a2b3ea8ecf88f8151141))
-* Fixes issues related to joining, leaving communities and syncing ([#2857](https://github.com/TryQuiet/quiet-private/issues/2857)) ([37ecee0](https://github.com/TryQuiet/quiet-private/commit/37ecee07441a8c5c53689e308bfd7afdd35726e4))
-* initialize electron store after setting new appData, otherwise i… ([#2150](https://github.com/TryQuiet/quiet-private/issues/2150)) ([ed9eb26](https://github.com/TryQuiet/quiet-private/commit/ed9eb266dae0a41531bb048d4a997e870c6c92c2))
-* Make community name field text visible on create community page ([#2233](https://github.com/TryQuiet/quiet-private/issues/2233)) ([0f4a33f](https://github.com/TryQuiet/quiet-private/commit/0f4a33f231797d2ee94fdafbbb7917c640556a6d))
-* make sure local peer's address in in invitation link ([#2268](https://github.com/TryQuiet/quiet-private/issues/2268)) ([53f1ec9](https://github.com/TryQuiet/quiet-private/commit/53f1ec91da07efeb7861e504c4936728ff01062c))
-* pasting multiple files [#1987](https://github.com/TryQuiet/quiet-private/issues/1987) ([#2306](https://github.com/TryQuiet/quiet-private/issues/2306)) ([7c6b669](https://github.com/TryQuiet/quiet-private/commit/7c6b6693bb05e83632dbf452761345524cc4e310))
-* Quick fix for intro message race condition ([#2376](https://github.com/TryQuiet/quiet-private/issues/2376)) ([d4f7449](https://github.com/TryQuiet/quiet-private/commit/d4f744941db33cfc1aa0f519a0d90378ba90f574))
-* Remove duplicate introduction messages once again ([#2296](https://github.com/TryQuiet/quiet-private/issues/2296)) ([655a812](https://github.com/TryQuiet/quiet-private/commit/655a8124e177dae57a67e60367d6afdb73e0cb1a))
-* Remove unused dmPublicKey to prevent UI delay during joining ([#2392](https://github.com/TryQuiet/quiet-private/issues/2392)) ([3ba5b9a](https://github.com/TryQuiet/quiet-private/commit/3ba5b9a94501620777b4cf766506763abdc140f1))
-* send csr if local and stored ones differs ([#2147](https://github.com/TryQuiet/quiet-private/issues/2147)) ([b640d16](https://github.com/TryQuiet/quiet-private/commit/b640d1617ec58bb93129adaf8dfebe09c8de625c))
-* sidebar layout tweaks ([#3184](https://github.com/TryQuiet/quiet-private/issues/3184)) ([accc53f](https://github.com/TryQuiet/quiet-private/commit/accc53ff515e302fe07d404827a4dc3a70178b08))
-* trigger desktop ([2898bee](https://github.com/TryQuiet/quiet-private/commit/2898bee80bbf2f16cbda67281a29e47716faa77c))
-* Updating channel naming logic ([#2307](https://github.com/TryQuiet/quiet-private/issues/2307)) ([38b007e](https://github.com/TryQuiet/quiet-private/commit/38b007e9319855afdb9b2150a3fbb782b9a688c3))
-* user profile area should be clickable [#2566](https://github.com/TryQuiet/quiet-private/issues/2566) ([#2595](https://github.com/TryQuiet/quiet-private/issues/2595)) ([9dfd6da](https://github.com/TryQuiet/quiet-private/commit/9dfd6da55a744546afd185c17bc8e6bbe29ec3ad))
-* Various fixes related to peers, CSRs and backend startup ([#2455](https://github.com/TryQuiet/quiet-private/issues/2455)) ([abd9101](https://github.com/TryQuiet/quiet-private/commit/abd9101f84149ae4ec1db3038fca31880334cdf3))
-
-
-### Features
-
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) get light/dark from native theme and access it through DRY function ([4d80746](https://github.com/TryQuiet/quiet-private/commit/4d8074674e324389a747d5a864b0efe96c282ee6))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) Implement dark mode, tidy up loose styles and unused classes. ([84bf50a](https://github.com/TryQuiet/quiet-private/commit/84bf50a3e4018530e077b04f1d63c4202792dd50))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) Let's do the Emoji picker too! ([17c1c67](https://github.com/TryQuiet/quiet-private/commit/17c1c67d829e5b78b169e3515095e95dabf595c0))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) make backgrounds on channel input and settings tabs the default ([1fb3969](https://github.com/TryQuiet/quiet-private/commit/1fb396900adcc1a1c27d671ace7e0be8cf50c55b))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) Remove hardcoded color and ensure contrast in tabs, more icon replacement ([cf106e0](https://github.com/TryQuiet/quiet-private/commit/cf106e08ae5b32d75b794b656fddc7e1fe1652ff))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) Replace hard-coded icons that weren't visible in dark mode ([1a1ce11](https://github.com/TryQuiet/quiet-private/commit/1a1ce116348acc341c327a5819fb6517c68c72a5))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) respect browser night-mode, fix sidebar and message highlight colors ([ecd239a](https://github.com/TryQuiet/quiet-private/commit/ecd239add006bca03519bb8d79ef1bc05db42928))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) tweak light-mode sidebar background ([663afcd](https://github.com/TryQuiet/quiet-private/commit/663afcd42976f161392e768032a605a7fb342a6d))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) Tweak more backgrounds in sidebar, Jdenticons, etc. ([d3fabeb](https://github.com/TryQuiet/quiet-private/commit/d3fabeb3ed8d08e6d3d1eafc308be806a2181159))
-* [#1502](https://github.com/TryQuiet/quiet-private/issues/1502) update sidebar's selected item background to match Figmas ([3d50808](https://github.com/TryQuiet/quiet-private/commit/3d508086e778a61bdeefbd3417acad5220572562))
-* 2312 pass invitation data to createNetwork saga and LAUNCH_COMMUNITY… ([#2438](https://github.com/TryQuiet/quiet-private/issues/2438)) ([de6f0cd](https://github.com/TryQuiet/quiet-private/commit/de6f0cda1b07ba7715cfb4876e51e423c5e9b9d0))
-* **2759:** Add QSS sigchain syncing to Quiet ([#2877](https://github.com/TryQuiet/quiet-private/issues/2877)) ([fe1b1a0](https://github.com/TryQuiet/quiet-private/commit/fe1b1a0927e8f3c3e0ef3bc8c9adda19a64df0cc))
-* **2803:** Write orbitdb sync data to QSS ([#2914](https://github.com/TryQuiet/quiet-private/issues/2914)) ([bfbfd92](https://github.com/TryQuiet/quiet-private/commit/bfbfd925feb35abf4bb6f04d2ed27b08a58b14cb))
-* **3155:** Add private channels with modifiable membership (no removals) to desktop ([#3177](https://github.com/TryQuiet/quiet-private/issues/3177)) ([9eef40c](https://github.com/TryQuiet/quiet-private/commit/9eef40c7974f22e9a5bfa51449cfc35b9c2f66f4))
-* **3155:** Private channels for mobile ([#3194](https://github.com/TryQuiet/quiet-private/issues/3194)) ([c3c89bf](https://github.com/TryQuiet/quiet-private/commit/c3c89bfdc9758e57b47f6e9630e3a8e3f6f6d7ef))
-* **3277:** Open private channel creation to all users and prep for role-based permissons ([#3276](https://github.com/TryQuiet/quiet-private/issues/3276)) ([2592f56](https://github.com/TryQuiet/quiet-private/commit/2592f5689ab1482c61044c8e3c40d759282270e5))
-* **3296:** Update invite links, use team ID everywhere and write randomly generated team name to chain ([#3324](https://github.com/TryQuiet/quiet-private/issues/3324)) ([c2a850c](https://github.com/TryQuiet/quiet-private/commit/c2a850c7f0da377b0cdf46e892b36fd74de31c86))
-* **3300:** Allow all members of a private channel to add members to that channel ([#3303](https://github.com/TryQuiet/quiet-private/issues/3303)) ([5e41f92](https://github.com/TryQuiet/quiet-private/commit/5e41f921c11836ef8e8031aabdd9e42eada8b43a))
-* **3300:** Allow channel owners to add members to channel ([#3299](https://github.com/TryQuiet/quiet-private/issues/3299)) ([8599479](https://github.com/TryQuiet/quiet-private/commit/85994797d82e10c81d2bb26d899233ad5a068c94))
-* **3321:** Use random base58 usernames on sigchain ([#3325](https://github.com/TryQuiet/quiet-private/issues/3325)) ([698b1fd](https://github.com/TryQuiet/quiet-private/commit/698b1fd6217151a838bee0919c1623ec292fc76e))
-* **503:** Adds desktop context menu ([#2719](https://github.com/TryQuiet/quiet-private/issues/2719)) ([4a71f68](https://github.com/TryQuiet/quiet-private/commit/4a71f68400f4d01219bbf26a6239454216c2dbcd)), closes [#503](https://github.com/TryQuiet/quiet-private/issues/503) [#568](https://github.com/TryQuiet/quiet-private/issues/568)
-* add appPath to notarize ([bd9a0dc](https://github.com/TryQuiet/quiet-private/commit/bd9a0dc69f9da99405317d8210a14b82e6ac4910))
-* add Certificates store and validation ([#2072](https://github.com/TryQuiet/quiet-private/issues/2072)) ([47669f4](https://github.com/TryQuiet/quiet-private/commit/47669f42edb1366b24de96139891909d696ded6d)), closes [#1899](https://github.com/TryQuiet/quiet-private/issues/1899)
-* Add community metadata validation ([#2073](https://github.com/TryQuiet/quiet-private/issues/2073)) ([5780574](https://github.com/TryQuiet/quiet-private/commit/57805747f08261d0709554266e36fd0005eca839))
-* add debug logs ([#2057](https://github.com/TryQuiet/quiet-private/issues/2057)) ([aa3e777](https://github.com/TryQuiet/quiet-private/commit/aa3e777778b0861d5f96e6116bfc70031ed67929))
-* Add in V2 invite links for LFA ([#2661](https://github.com/TryQuiet/quiet-private/issues/2661)) ([46c0716](https://github.com/TryQuiet/quiet-private/commit/46c07166b3a8afd03d8d47d275b1787da8cfdaf1))
-* add sticky date markers [#505](https://github.com/TryQuiet/quiet-private/issues/505) ([#2731](https://github.com/TryQuiet/quiet-private/issues/2731)) ([15d57b3](https://github.com/TryQuiet/quiet-private/commit/15d57b3227b1fee936feac21d5fe5c4921e9240a))
-* Add user profile feature for desktop ([#1923](https://github.com/TryQuiet/quiet-private/issues/1923)) ([d016be5](https://github.com/TryQuiet/quiet-private/commit/d016be5a162560962c6059d73db6ab005fb023e8))
-* export chats per channel ([c3faf4f](https://github.com/TryQuiet/quiet-private/commit/c3faf4f46693c3c08da23d57b4e8a3b2f4aec0ec)), closes [#2102](https://github.com/TryQuiet/quiet-private/issues/2102)
-* Feat/519 big emoji messages ([#2389](https://github.com/TryQuiet/quiet-private/issues/2389)) ([71c8b22](https://github.com/TryQuiet/quiet-private/commit/71c8b226c81430c4eb741ca0903b8a27f67e259b))
-* fixed UI for modal ([#2151](https://github.com/TryQuiet/quiet-private/issues/2151)) ([cf899d5](https://github.com/TryQuiet/quiet-private/commit/cf899d5983dd1f69605bbf622770a23884ad6f9f))
-* Reintroduce private channels with improved privacy/security ([#3359](https://github.com/TryQuiet/quiet-private/issues/3359)) ([d98c353](https://github.com/TryQuiet/quiet-private/commit/d98c3533eb2cd3f16f46ec006236554581dd8834)), closes [#3323](https://github.com/TryQuiet/quiet-private/issues/3323) [#3318](https://github.com/TryQuiet/quiet-private/issues/3318)
-* trigger desktop ([713e1b8](https://github.com/TryQuiet/quiet-private/commit/713e1b822b266c218f71742ed68616b8b1056c75))
-* trigger lerna ([4ca8195](https://github.com/TryQuiet/quiet-private/commit/4ca81958c57e88f172e0d78f055e9008a5a4a90a))
-* version code 366 ([cebf886](https://github.com/TryQuiet/quiet-private/commit/cebf886aee2c4ec6e0ef4e66219d9dc0afecb98c))
-
-
-### Reverts
-
-* Revert "Use mise-en-place (https://mise.jdx.dev/) for repo dependencies" ([18c8d31](https://github.com/TryQuiet/quiet-private/commit/18c8d31ea982fb8a793ab59a196cf00f2fc39f90))
-* Revert "Adjust project bootstrap scripts to be windows-friendly (#1870)" (#1937) ([0811ea3](https://github.com/TryQuiet/quiet-private/commit/0811ea3ea3f682dd763be72b12f626fe416bc036)), closes [#1870](https://github.com/TryQuiet/quiet-private/issues/1870) [#1937](https://github.com/TryQuiet/quiet-private/issues/1937) [#1870](https://github.com/TryQuiet/quiet-private/issues/1870)
-* Revert "Remove afterAllArtifactBuild for linux" ([975d0df](https://github.com/TryQuiet/quiet-private/commit/975d0df58494bdfba1270f6845152af4969e77ea))
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
@@ -110,10 +18,34 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
+* Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
 * Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
 * Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
 * Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
+* Update desktop Tor binaries to Tor 0.4.9.11 (Tor Browser 15.0.21) and fix the update script to extract LZMA-compressed macOS DMGs with 7-Zip instead of dmg2img
+* Update Android libtor.so to Tor 0.4.9.11 (16KB page aligned, from Tor Browser 15.0.21) and re-enable Android in the Tor binary update script
+* Android push notifications now appear for a device that joined a community and then saw no further membership changes; previously every background push was silently dropped [#291](https://github.com/TryQuiet/quiet-private/issues/291)
+* An invitee's admission is now saved to the sigchain by the admitting member device or storage service (QSS) before the invitee's acceptance is sent, so a crash or restart on the admitter can no longer leave the new member accepted on their side but absent from the admitter's chain [#203](https://github.com/TryQuiet/quiet-private/issues/203)
+
+### Security
+
+* Sigchain changes were not signed, so any community member could forge changes attributed to another member: promoting themselves to administrator, removing any member including the founder, or re-keying a private channel they were never admitted to so that they could read its future messages while locking out the real members. Every sigchain change and identity is now bound to the device key that signed it, and the community state handed to a new member is encrypted to that member and authenticated [#276](https://github.com/TryQuiet/quiet-private/issues/276)
+* The storage service (QSS), which is designed as an untrusted relay, could add an identity it controlled to a community as a full member without any invitation and then read everything shared with members. Servers now hold a separate self-certifying identity that cannot act as a member, and membership changes must be signed by a registered member device [#54](https://github.com/TryQuiet/quiet-private/pull/54)
+* A community member could register a device under another member's account, because nothing bound the author of a device addition to the account it named [#47](https://github.com/TryQuiet/quiet-private/pull/47)
+* Anyone who observed an invitation proof, such as the member accepting it or the storage service relaying the handshake, could replay it to be admitted to the community. Admission now requires a signature from the joining device's own key over a single-use challenge [#50](https://github.com/TryQuiet/quiet-private/pull/50)
+* Any community member could inject new team, role, or channel keys through unvalidated key deliveries, taking over a private channel and excluding its members. Unauthorized re-keys are now dropped [#61](https://github.com/TryQuiet/quiet-private/issues/61)
+* An ordinary member could promote another member straight to administrator, because role grants were not administrator-gated. This fix shipped in 7.3.x, was reverted in 8.0.0, and is restored [#49](https://github.com/TryQuiet/quiet-private/pull/49)
+* A member of a channel could post a message in that channel that all clients displayed as coming from a different member, without that member's key. Messages are now cryptographically verified against their author before they are stored, shown, or used for notifications [#125](https://github.com/TryQuiet/quiet-private/issues/125)
+* An ordinary member could sign a shared-database entry with their own key while labelling it with an administrator's identity, and so pass administrator-only checks, for example to delete public channels or other members' profiles. Database entries are now bound to the device key that signed them [#150](https://github.com/TryQuiet/quiet-private/issues/150)
+* An administrator could replace another member's account keys with keys the administrator controls and then sign messages, including direct messages, as that member. Only a member can now change their own keys [#140](https://github.com/TryQuiet/quiet-private/issues/140)
+* An ordinary member could grant the basic `member` role to any user rather than only to themselves. This had no effect today because every member already holds that role, but it would have let a single member undo an administrator's removal of another member once removal ships. Non-admins can now only claim self-assignable roles for themselves [#87](https://github.com/TryQuiet/quiet-private/issues/87)
+* An administrator could create a role named `__proto__`, which corrupted the role state of every peer that synced it and disabled the checks that reject malformed sigchain changes. Such names are now rejected and role lookups no longer touch object prototypes [#117](https://github.com/TryQuiet/quiet-private/issues/117)
+* A community member could make background push notifications on iOS and Android show a forged sender or content, because iOS did not verify the message signature and Android did not check that the signer matched the claimed sender. Both platforms now verify the author before displaying a notification [#114](https://github.com/TryQuiet/quiet-private/issues/114)
+* A community member could send arbitrary notification text to another member's iOS device, enabling lock-screen phishing, because every member's push token is replicated to the whole community and the storage service accepted caller-supplied title and body. Clients no longer send notification content, and the service derives routing from the signed token [#135](https://github.com/TryQuiet/quiet-private/issues/135)
+* A malicious or compromised storage service (QSS) could have a device sign an unbound challenge with its device key, then replay that signature at a different storage service to impersonate the device there. Devices now sign only challenges bound to their own identity, team, and pinned server [#115](https://github.com/TryQuiet/quiet-private/issues/115)
+* A community member could send a message whose attachment metadata pointed at a different message or channel, or referenced hosted media without encryption metadata. Attachment metadata is now strictly validated against the signed message [#21](https://github.com/TryQuiet/quiet-private/issues/21)
+* Anyone who could reach a community's storage service (QSS), without authenticating, could crash it by sending a websocket event without an acknowledgement callback, interrupting sync and push delivery for every community on that instance. Malformed events are now rejected without crashing the service [#202](https://github.com/TryQuiet/quiet-private/issues/202)
 
 ## [8.0.0]
 
