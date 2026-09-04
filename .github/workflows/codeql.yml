@@ -28,8 +28,27 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  visibility:
+    # Dependency graph and code scanning need GitHub Advanced Security on
+    # private repositories, so the scan below only runs when the repository is
+    # public. The API is asked at run time so this works for every trigger,
+    # including schedules, and ports unchanged between the public and private
+    # repositories.
+    name: Repository visibility
+    runs-on: ubuntu-22.04
+    outputs:
+      private: ${{ steps.lookup.outputs.private }}
+    steps:
+      - name: Look up repository visibility
+        id: lookup
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "private=$(gh api "repos/${GITHUB_REPOSITORY}" --jq .private)" >> "$GITHUB_OUTPUT"
+
   analyze:
     name: Analyze
+    needs: visibility
+    if: needs.visibility.outputs.private == 'false'
     runs-on: ubuntu-22.04
     permissions:
       actions: read
