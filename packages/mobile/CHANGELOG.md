@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [9.0.0-alpha.10](https://github.com/TryQuiet/quiet-private/compare/@quiet/mobile@9.0.0-alpha.9...@quiet/mobile@9.0.0-alpha.10) (2026-09-04)
+
+
+### Bug Fixes
+
+* **mobile:** disable Android native heap pointer tagging to stop JSC crash ([95ce188](https://github.com/TryQuiet/quiet-private/commit/95ce188bba3baa48966be7d286569b9634295804)), closes [#325](https://github.com/TryQuiet/quiet-private/issues/325)
+
+
+
+
+
 # Changelog
 
 ## [9.0.0]
