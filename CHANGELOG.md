@@ -25,6 +25,7 @@
 * Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
 * Update desktop Tor binaries to Tor 0.4.9.11 (Tor Browser 15.0.21) and fix the update script to extract LZMA-compressed macOS DMGs with 7-Zip instead of dmg2img
 * Update Android libtor.so to Tor 0.4.9.11 (16KB page aligned, from Tor Browser 15.0.21) and re-enable Android in the Tor binary update script
+* Fix the Android app crashing on every launch after the Tor 0.4.9.11 upgrade: the `--hash-password` call now passes an explicit `--DataDirectory` instead of falling back to the binary's compiled-in default (`/data/local/tmp`), which the app's uid cannot read [#324](https://github.com/TryQuiet/quiet-private/issues/324)
 * Android push notifications now appear for a device that joined a community and then saw no further membership changes; previously every background push was silently dropped [#291](https://github.com/TryQuiet/quiet-private/issues/291)
 * An invitee's admission is now saved to the sigchain by the admitting member device or storage service (QSS) before the invitee's acceptance is sent, so a crash or restart on the admitter can no longer leave the new member accepted on their side but absent from the admitter's chain [#203](https://github.com/TryQuiet/quiet-private/issues/203)
 
