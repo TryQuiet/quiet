@@ -23,6 +23,7 @@
 * Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
 * Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
+* Update desktop Tor binaries to Tor 0.4.9.11 (Tor Browser 15.0.21) and fix the update script to extract LZMA-compressed macOS DMGs with 7-Zip instead of dmg2img
 
 ## [8.0.0]
 
