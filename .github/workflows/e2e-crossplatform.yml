@@ -21,12 +21,16 @@ concurrency:
 jobs:
   mac:
     uses: ./.github/workflows/e2e-mac.yml
+    secrets: inherit
   linux:
     uses: ./.github/workflows/e2e-linux.yml
+    secrets: inherit
   linux-qss:
     uses: ./.github/workflows/e2e-qss-linux.yml
+    secrets: inherit
   linux-back-compat:
     uses: ./.github/workflows/e2e-back-compat-linux.yml
+    secrets: inherit
   # windows:
   #   uses: ./.github/workflows/e2e-win.yml
     

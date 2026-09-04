@@ -21,7 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
 
       - name: Extract version
         id: extract_version

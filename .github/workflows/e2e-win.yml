@@ -15,7 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env

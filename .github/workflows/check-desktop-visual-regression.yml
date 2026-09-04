@@ -36,7 +36,8 @@ jobs:
         if: steps.filter.outputs.desktop == 'true'
         with:
           fetch-depth: 0 # Required to retrieve git history
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
 
       - name: Setup environment
         uses: ./.github/actions/setup-env

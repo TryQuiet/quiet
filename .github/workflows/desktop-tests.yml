@@ -36,7 +36,8 @@ jobs:
       - uses: actions/checkout@v5
         if: steps.filter.outputs.desktop == 'true'
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env

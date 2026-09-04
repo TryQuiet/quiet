@@ -36,7 +36,8 @@ jobs:
       - uses: actions/checkout@v5
         if: steps.filter.outputs.backend == 'true'
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
 
       - name: "Setup environment"
         if: steps.filter.outputs.backend == 'true'
@@ -75,7 +76,8 @@ jobs:
       - uses: actions/checkout@v5
         if: steps.filter.outputs.backend == 'true'
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
 
       - name: "Setup environment"
         if: steps.filter.outputs.backend == 'true'
@@ -114,7 +116,8 @@ jobs:
       - uses: actions/checkout@v5
         if: steps.filter.outputs.backend == 'true'
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
 
       - name: "Setup environment"
         if: steps.filter.outputs.backend == 'true'

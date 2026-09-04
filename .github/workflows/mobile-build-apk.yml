@@ -35,7 +35,7 @@ jobs:
 
       - name: 'Init submodules except 3rd-party/qss'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.SUBMODULE_READ_TOKEN }}
         run: |
           auth_url="https://x-access-token:${GH_TOKEN}@github.com/"
           git config --global url."${auth_url}".insteadOf "https://github.com/"
@@ -178,7 +178,7 @@ jobs:
 
       - name: 'Init submodules except 3rd-party/qss'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.SUBMODULE_READ_TOKEN }}
         run: |
           auth_url="https://x-access-token:${GH_TOKEN}@github.com/"
           git config --global url."${auth_url}".insteadOf "https://github.com/"
