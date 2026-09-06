@@ -204,12 +204,6 @@ export const DebugInfoComponent: React.FC = () => {
 
   return (
     <StyledGrid container direction='column' className={classes.root}>
-      <Grid item className={classes.title}>
-        <Typography variant='h4' gutterBottom>
-          Debug Information
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-      </Grid>
       <Grid item className={classes.section}>
         <Typography variant='h6' gutterBottom>
           Summary
