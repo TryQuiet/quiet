@@ -53,6 +53,7 @@
 
 * Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
 * Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Adds emoji reactions to messages on desktop [#572](https://github.com/TryQuiet/quiet/issues/572)
 * Private channel creation and modification is limited to admins [#3256](https://github.com/TryQuiet/quiet/issues/3256)
 
 ### Fixes

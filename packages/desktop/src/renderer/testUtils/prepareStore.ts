@@ -12,6 +12,7 @@ import {
   Store,
   network,
   captcha,
+  reactions,
 } from '@quiet/state-manager'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
@@ -37,6 +38,7 @@ export const testReducers = {
   [StateManagerStoreKeys.Files]: files.reducer,
   [StateManagerStoreKeys.Network]: network.reducer,
   [StateManagerStoreKeys.Captcha]: captcha.reducer,
+  [StateManagerStoreKeys.Reactions]: reactions.reducer,
   [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer,

@@ -4,7 +4,7 @@ import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { type CacheMessagesPayload, type ChannelMessage } from '@quiet/types'
+import { type CacheMessagesPayload, type ChannelMessage, MessageType } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('addMessagesSaga')
@@ -13,6 +13,8 @@ export function* addMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
+    if (incomingMessage.type === MessageType.Reaction) continue
+
     // Proceed only for messages from current channel
     // TODO: do we still need this check?
     const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)

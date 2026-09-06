@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import type { Dictionary } from '@reduxjs/toolkit'
 import classNames from 'classnames'
@@ -14,6 +14,7 @@ import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 import type { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
 
 import { NestedMessageContent } from './NestedMessageContent'
+import MessageReactionBar from './MessageReactionBar'
 
 import type { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
@@ -172,6 +173,33 @@ export interface BasicMessageProps {
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
 
+interface MessageWithReactionsProps extends FileActionsProps {
+  message: DisplayableMessage
+  pending: boolean
+  downloadStatus?: DownloadStatus
+  maxAutodownloadSizeBytes: number
+  uploadedFileModal?: UseModalType<{ src: string }>
+  onMathMessageRendered?: () => void
+  openUrl: (url: string) => void
+}
+
+const MessageWithReactions: React.FC<MessageWithReactionsProps> = ({ message, pending, downloadStatus, ...rest }) => {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      onMouseOver={e => {
+        e.stopPropagation()
+        setHovered(true)
+      }}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <NestedMessageContent message={message} pending={pending} downloadStatus={downloadStatus} {...rest} />
+      <MessageReactionBar messageId={message.id} hovered={hovered} />
+    </div>
+  )
+}
+
 export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
   messages,
   pendingMessages = {},
@@ -270,7 +298,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   const pending = pendingMessages[message.id] !== undefined
                   const downloadStatus = downloadStatuses[message.id]
                   return (
-                    <NestedMessageContent
+                    <MessageWithReactions
                       key={index}
                       message={message}
                       pending={pending}

@@ -537,4 +537,40 @@ describe('addMessagesSaga', () => {
       )
       .run()
   })
+
+  test('ignore reaction messages', async () => {
+    const reactionMessage = (
+      await factory.build('TestMessage', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Reaction,
+          message: JSON.stringify({ targetMessageId: 'some-id', emoji: '👍', action: 'add' }),
+          createdAt: DateTime.utc().valueOf(),
+          channelId: generalChannel.id,
+          signature: '',
+          pubKey: '',
+        },
+        verifyAutomatically: true,
+      })
+    ).payload.message
+
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id,
+      })
+    )
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      addMessagesSaga,
+      messagesActions.addMessages({
+        messages: [reactionMessage],
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put.actionType(publicChannelsActions.cacheMessages.type)
+      .run()
+  })
 })
