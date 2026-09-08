@@ -69,8 +69,8 @@ On API 36 and API 35, verify:
   status/navigation bars and cutouts with the keyboard open and closed. Check
   both gesture and three-button navigation.
 - Rotate and resize a tablet (at least 600dp); retain navigation and unsent
-  text. Pay particular attention to bottom drawers, which currently size from
-  the physical screen rather than the available app window.
+  text. Bottom drawers now size to their measured parent; check the complete
+  CAPTCHA and server-offer content with the keyboard open and closed.
 - Select/cancel photos and documents; attach, send, and open them.
 - Background messaging and notifications, followed by reopening the app;
   inspect WorkManager stop reasons and confirm backend recovery.
@@ -111,6 +111,29 @@ actual landscape dimensions, draft retention, and full composer/image-view
 visibility. Each test relaunches the app to isolate native modal state. The
 preview uses a local bundled image and fixture-owned visibility state; these
 checks do not exercise attachment downloading or opening from a channel message.
+
+Additional focused UI checks use the same Storybook build:
+
+```sh
+npx detox test android-drawer-window -c android.att.storybook --device-name <adb-serial>
+npx detox test android-photo-picker -c android.att.storybook --device-name <adb-serial>
+```
+
+`DrawerWindow` constrains the production drawer's parent, shrinks it while open,
+and rotates the activity. It checks the drawer bounds and visibility of content
+at both ends, then closes and reopens through the real close control. This
+exercises layout responses; it does not automate Android's multi-window task UI
+or the complete CAPTCHA/server-offer flows.
+
+The photo suite opens the production channel's attachment button and operates
+the external system picker. It checks cancel/selection, draft retention, local
+image preview, and removal without a backend. Android 16's app-owned-photo
+permission-dialog change applies to partial-media permission requests; Quiet
+uses individual picker grants and declares no `READ_MEDIA_IMAGES`,
+`READ_MEDIA_VIDEO`, or `READ_MEDIA_VISUAL_USER_SELECTED` permission. See
+[app-owned photos](https://developer.android.com/about/versions/16/behavior-changes-16#app-owned-photos).
+Cloud media, videos, file transfer, and permission revocation need separate
+coverage. The document-picker handler currently has no rendered entry point.
 
 ## Validation results
 
