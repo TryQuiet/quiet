@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [8.0.1-alpha.0](https://github.com/TryQuiet/quiet-private/compare/@quiet/desktop@8.0.0...@quiet/desktop@8.0.1-alpha.0) (2026-09-08)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
 # Changelog
 
 ## [8.0.0]
