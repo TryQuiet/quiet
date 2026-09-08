@@ -85,7 +85,7 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}>
         <NavigationContainer
           ref={navigationRef}
           linking={linking}
