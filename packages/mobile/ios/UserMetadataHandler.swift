@@ -108,7 +108,14 @@ class UserMetadataHandler: NSObject {
     }
     
     do {
-      self.container = try ModelContainer(for: UserMetadata.self, configurations: .init(isStoredInMemoryOnly: false))
+      let configuration = ModelConfiguration(isStoredInMemoryOnly: false)
+      // SwiftData resolves the existing app-group store location for us.
+      // Create its parent directory before the first persistent-store open.
+      try FileManager.default.createDirectory(
+        at: configuration.url.deletingLastPathComponent(),
+        withIntermediateDirectories: true
+      )
+      self.container = try ModelContainer(for: UserMetadata.self, configurations: configuration)
       self.modelContext = ModelContext(self.container!)
     } catch {
       UserMetadataHandler.logger.error("Error while initializing UserMetadata ModelContainer: \(error)")
