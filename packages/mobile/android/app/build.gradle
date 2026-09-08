@@ -291,7 +291,6 @@ dependencies {
         implementation(jscFlavor)
     }
 
-    // TODO these can't be further updated until Quiet targets API 36
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
     implementation("androidx.core:core-ktx:1.16.0")
 

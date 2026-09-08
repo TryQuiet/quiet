@@ -36,10 +36,15 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({
         resetPreviewData()
       }}
     >
-      <View>
+      <View style={{ flex: 1 }}>
         <Appbar title={`#${currentChannelName}`} back={resetPreviewData} />
-        <View style={{ padding: 5 }}>
-          <FastImage source={{ uri: `file://${imagePreviewData.path}` }} style={{ aspectRatio: width / height }} />
+        <View style={{ flex: 1, padding: 5 }}>
+          <FastImage
+            testID='image-preview-image'
+            source={{ uri: `file://${imagePreviewData.path}` }}
+            resizeMode={FastImage.resizeMode.contain}
+            style={{ flex: 1 }}
+          />
         </View>
       </View>
     </SafeAreaModal>
