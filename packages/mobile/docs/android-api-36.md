@@ -114,7 +114,8 @@ checks do not exercise attachment downloading or opening from a channel message.
 
 ## Validation results
 
-Validated on September 8, 2026:
+First SDK checkpoint (`21c436948`, based on `9d3457d03`), validated on
+September 8, 2026:
 
 - Standard debug APK and AndroidTest builds passed. A separate production-env
   release AAB build passed, and bundletool 1.15.6 validated the AAB.
@@ -144,6 +145,30 @@ Validated on September 8, 2026:
   spawning. The stall also occurs with the original SDK settings; ARM64
   translation is suspected but not established as its cause. Final debug
   outputs were subsequently rebuilt and verified with target SDK 36.
+
+After merging current `develop` (`e0a92300a`) in `152302980`:
+
+- Updated the isolated UI fixture with the required community/team metadata
+  and channel operation status. The original fixture reproduces the two
+  TypeScript errors that blocked CI bootstrap; the corrected fixture passes.
+- Clean CI-equivalent bootstrap passed for all 11 packages. Mobile TypeScript,
+  full mobile lint, and the three safe-area unit tests passed locally.
+- GitHub's mobile test job passed 50 suites / 121 tests and 44 snapshots; three
+  suites / three tests were skipped. Ubuntu lint/type checks also passed.
+- Fresh standard debug and Storybook debug / AndroidTest builds passed against
+  the updated base. The standard APK still targets API 36, and all 19 packaged
+  ELF files (including the Node addon) plus APK ZIP alignment passed 16KB checks.
+- All three native SDK compatibility tests passed again on each of API 35 and
+  API 36 with the updated Storybook APK.
+- A fresh-data full starter attempt on API 35 again passed its first four
+  onboarding tests and stalled before the channel list. Backend logs again end
+  at `Attempting to kill hanging tor processes`; full messaging remains blocked
+  on this translated emulator.
+- The production AAB result above belongs to the first checkpoint. Current
+  `develop` requires Firebase configuration for release builds; it is absent in
+  this local checkout. Rebuild the current production AAB through the normal
+  configured release workflow before uploading. Local debug/Storybook builds
+  tolerate the missing configuration and do not validate push notifications.
 
 These emulator runs used x86_64 images translating ARM64 binaries. Full backend
 onboarding and messaging, attachment selection/download/opening, drawer layouts,
