@@ -44,6 +44,8 @@ describe('QRCode component', () => {
             }
           >
             <View
+              accessibilityLabel="Go back"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -89,6 +91,7 @@ describe('QRCode component', () => {
                 }
               >
                 <Image
+                  accessible={false}
                   resizeMethod="resize"
                   resizeMode="cover"
                   source={

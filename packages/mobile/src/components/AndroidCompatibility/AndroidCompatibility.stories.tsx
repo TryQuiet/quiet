@@ -11,7 +11,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import RNFS from 'react-native-fs'
 import { ThemeProvider } from 'styled-components'
 import { communities, publicChannels, users } from '@quiet/state-manager'
-import { CommunityOwnership, FileMetadata, MessageType } from '@quiet/types'
+import { ChannelOperationStatus, CommunityOwnership, FileMetadata, MessageType } from '@quiet/types'
 
 import { navigationRef } from '../../RootNavigation'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -42,6 +42,7 @@ const createFixture = () => {
     communities.actions.addNewCommunity({
       id: 'android-compatibility',
       name: 'Android compatibility',
+      teamId: 'android-compatibility-team',
       ownership: CommunityOwnership.User,
     })
   )
@@ -49,12 +50,15 @@ const createFixture = () => {
   store.dispatch(users.actions.setUserProfile({ userId: 'storybook-user', nickname: 'Alice' }))
   store.dispatch(
     publicChannels.actions.addChannel({
+      status: ChannelOperationStatus.SUCCESS,
       channel: {
         id: 'general',
         name: 'general',
         description: 'Android system Back fixture',
         owner: 'storybook-user',
         timestamp: 1700000000,
+        public: true,
+        teamId: 'android-compatibility-team',
       },
     })
   )

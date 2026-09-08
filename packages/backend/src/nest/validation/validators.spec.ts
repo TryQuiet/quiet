@@ -184,6 +184,8 @@ describe('Validators - Channels', () => {
       owner: 'szakalakakaaakaka',
       timestamp: 12341234,
       id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
+      public: true,
+      teamId: 'foobar',
     }
     expect(isChannel(channel)).toBeTruthy()
   })
@@ -193,6 +195,8 @@ describe('Validators - Channels', () => {
       description: 'quiet',
       owner: 'szakalakakaaakaka',
       id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
+      public: true,
+      teamId: 'foobar',
     }
     expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })
@@ -203,6 +207,8 @@ describe('Validators - Channels', () => {
       owner: 'szakalakakaaakaka',
       timestamp: 'asfasdf',
       id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
+      public: true,
+      teamId: 'foobar',
     }
     expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })

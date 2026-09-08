@@ -134,6 +134,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   isCommunityInitialized: defaultIsCommunityInitialized,
   handleClipboardFiles: dummyFn,
   pendingGeneralChannelRecreation: false,
+  isPublic: true,
 }
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
@@ -830,6 +831,7 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
         user={validUser}
         channelId='general'
         channelName='general'
+        isPublic={true}
         newestMessage={
           args.newestMessage || {
             id: '31',

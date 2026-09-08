@@ -29,6 +29,9 @@
     "node_modules",
     "**/__tests__/*",
     "**/__mocks__/*",
-    "**/*.cy.tsx"
+    "**/*.cy.ts",
+    "**/*.cy.tsx",
+    "cypress/**/*.ts",
+    "cypress.config.ts"
   ]
 }

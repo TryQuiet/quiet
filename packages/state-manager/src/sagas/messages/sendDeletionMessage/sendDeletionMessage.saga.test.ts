@@ -10,7 +10,7 @@ import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
-import { deleteChannelMessage, generateChannelId } from '@quiet/common'
+import { deleteChannelMessage, generateTestChannelId } from '@quiet/common'
 import {
   type Community,
   type Identity,
@@ -31,6 +31,7 @@ describe('sendDeletionMessage', () => {
 
   let photoChannel: PublicChannel
   let generalChannel: PublicChannel
+  let privateChannel: PublicChannel
 
   let message: string
   let messagePayload: WriteMessagePayload
@@ -62,16 +63,29 @@ describe('sendDeletionMessage', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
-    ).channel
+    ).channel!
     message = deleteChannelMessage(photoChannel.name)
     messagePayload = {
       type: MessageType.Info,
       message,
       channelId: generalChannel.id,
     }
+
+    privateChannel = (
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'private',
+          description: 'Welcome to #private',
+          timestamp: DateTime.utc().valueOf(),
+          owner: owner.userId,
+          id: generateTestChannelId('private'),
+          public: false,
+        },
+      })
+    ).channel!
   })
 
   test('send message after deletion standard channel', async () => {
@@ -82,6 +96,7 @@ describe('sendDeletionMessage', () => {
       sendDeletionMessageSaga,
       messagesActions.sendDeletionMessage({
         channelId,
+        isPublic: true,
       })
     )
       .withReducer(reducer)
@@ -98,6 +113,24 @@ describe('sendDeletionMessage', () => {
       sendDeletionMessageSaga,
       messagesActions.sendDeletionMessage({
         channelId,
+        isPublic: true,
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(messagesActions.sendMessage(messagePayload))
+      .run()
+  })
+
+  test('not send message after deletion of private channel', async () => {
+    const channelId = privateChannel.id
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      sendDeletionMessageSaga,
+      messagesActions.sendDeletionMessage({
+        channelId,
+        isPublic: false,
       })
     )
       .withReducer(reducer)

@@ -1,4 +1,4 @@
-import { FieldErrors, ChannelNameErrors } from '../fieldsErrors'
+import { FieldErrors, ChannelNameErrors, ChannelPublicPrivateErrors } from '../fieldsErrors'
 import { FieldData } from '../types'
 
 export const channelNameField = (name = 'channelName'): FieldData => {
@@ -14,6 +14,24 @@ export const channelNameField = (name = 'channelName'): FieldData => {
       maxLength: {
         value: 20,
         message: ChannelNameErrors.NameTooLong,
+      },
+    },
+  }
+}
+
+export const channelPrivateField = (name = 'private'): FieldData => {
+  return {
+    fieldProps: {
+      label: '',
+      name,
+      type: 'boolean',
+    },
+    validation: {
+      validate: (value: any) => {
+        if (typeof value === 'boolean') {
+          return true
+        }
+        return ChannelPublicPrivateErrors.InvalidValue
       },
     },
   }

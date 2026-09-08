@@ -42,6 +42,10 @@ export const CreateCommunityScreen: FC = () => {
         setPendingName(name)
         setShowServerOffer(true)
         return
+      } else {
+        logger.info(
+          'QSS is not allowed in this environment, skipping server offer and proceeding with community creation'
+        )
       }
 
       // QSS disabled: proceed immediately without relying on pending state

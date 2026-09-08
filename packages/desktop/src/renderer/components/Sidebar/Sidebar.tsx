@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { useContextMenu } from '../../../hooks/useContextMenu'
@@ -14,25 +14,33 @@ import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPa
 const Sidebar = () => {
   const dispatch = useDispatch()
 
+  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
+  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean>(false)
+
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
   const userProfileContextMenu = useContextMenu(MenuName.UserProfile)
 
   const userProfileSelector = useSelector(users.selectors.userProfiles)
-  const myUserProfile = useSelector(users.selectors.myUserProfile)
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
   const userId = userProfile?.userId || ''
 
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
   useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+
+  useEffect(() => {
+    setCanCreateChannel(channelPermissions.public.create)
+    setCanCreatePrivateChannel(channelPermissions.private.create)
+  }, [channelPermissions])
 
   const setCurrentChannel = (id: string) => {
     dispatch(
@@ -53,7 +61,6 @@ const Sidebar = () => {
 
   const channelsPanelProps: ChannelsPanelProps = {
     channels: publicChannelsSelector,
-    myUserProfile: myUserProfile,
     userProfiles: userProfileSelector,
     connectedPeers: connectedPeers,
     unreadChannels: unreadChannels,
@@ -61,6 +68,7 @@ const Sidebar = () => {
     currentChannelId: currentChannelId,
     createChannelModal: createChannelModal,
     isTorInitialized: isTorInitialized,
+    canCreateChannel: (canCreateChannel || canCreatePrivateChannel) ?? false,
   }
 
   const userProfilePanelProps: UserProfilePanelProps = {
@@ -71,7 +79,7 @@ const Sidebar = () => {
   }
 
   const directMessagesPanelProps: DirectMessagesPanelProps = {
-    myUserProfile: myUserProfile,
+    myUserProfile: userProfile,
     userProfiles: userProfileSelector,
     userProfileContextMenu: userProfileContextMenu,
     connectedPeers: connectedPeers,

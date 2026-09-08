@@ -3,6 +3,7 @@ import { BaseWebsocketMessage } from '../qss/qss.types'
 export interface QPSRegisterPayload {
   deviceToken: string
   bundleId: string
+  platform: 'ios' | 'android'
   teamId: string
 }
 

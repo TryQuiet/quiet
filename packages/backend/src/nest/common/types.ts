@@ -1,9 +1,12 @@
 import { type PublicChannel } from '@quiet/types'
 import { ChannelStore } from '../storage/channels/channel.store'
 
-export interface PublicChannelsRepo {
+export interface ChannelRepo {
   store: ChannelStore
   eventsAttached: boolean
+  subscribed: boolean
+  subscriptionPromise?: Promise<void>
+  public: boolean
 }
 
 export type ChannelInfoResponse = Record<string, PublicChannel>

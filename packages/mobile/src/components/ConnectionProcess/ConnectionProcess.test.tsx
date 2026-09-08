@@ -1,230 +1,75 @@
 import { ConnectionProcessInfo } from '@quiet/types'
 import React from 'react'
+import Config from 'react-native-config'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import ConnectionProcessComponent from './ConnectionProcess.component'
 
-describe('ConnectionProcessComponent', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <ConnectionProcessComponent
-        connectionProcess={{ number: 40, text: ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE }}
-        openUrl={jest.fn()}
-      />
-    )
+jest.mock('react-native-share', () => ({ default: { open: jest.fn() } }))
+jest.mock('../../utils/sendLogs', () => ({ sendLogs: jest.fn() }))
+jest.mock('../../utils/shareAllData', () => ({ shareAllData: jest.fn() }))
 
-    expect(toJSON()).toMatchInlineSnapshot(`
-      <View
-        style={
-          {
-            "backgroundColor": "#ffffff",
-            "flex": 1,
-          }
-        }
-        testID="connection-process-component"
-      >
-        <View
-          style={
-            {
-              "alignItems": "center",
-              "display": "flex",
-              "flexDirection": "column",
-              "height": "100%",
-              "justifyContent": "center",
-              "padding": "10%",
-              "width": "100%",
-            }
-          }
-        >
-          <Image
-            collapsable={false}
-            source={
-              {
-                "testUri": "../../../src/assets/icons/png/join-community.png",
-              }
-            }
-            style={
-              {
-                "height": 120,
-                "transform": [
-                  {
-                    "rotate": "0deg",
-                  },
-                ],
-                "width": 120,
-              }
-            }
-          />
-          <Text
-            color="main"
-            fontSize={18}
-            fontWeight="medium"
-            horizontalTextAlign="left"
-            style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Medium",
-                  "fontSize": 18,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "marginBottom": 16,
-                  "marginTop": 24,
-                },
-              ]
-            }
-            testID="connection-process-title"
-            verticalTextAlign="center"
-          >
-            Joining now!
-          </Text>
-          <View
-            style={
-              {
-                "backgroundColor": "#F0F0F0",
-                "borderRadius": 4,
-                "height": 4,
-                "position": "relative",
-                "width": 300,
-                "zIndex": 1,
-              }
-            }
-          >
-            <View
-              style={
-                {
-                  "backgroundColor": "#2196f3",
-                  "borderRadius": 4,
-                  "height": 4,
-                  "position": "relative",
-                  "width": 120,
-                  "zIndex": 3,
-                }
-              }
-            />
-          </View>
-          <Text
-            color="main"
-            fontSize={14}
-            horizontalTextAlign="left"
-            style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Regular",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "lineHeight": 20,
-                  "marginTop": 8,
-                  "textAlign": "center",
-                },
-              ]
-            }
-            testID="connection-process-text"
-            verticalTextAlign="center"
-          >
-            Spawning hidden service for community
-          </Text>
-          <Text
-            color="main"
-            fontSize={14}
-            fontWeight="medium"
-            horizontalTextAlign="left"
-            style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Medium",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "lineHeight": 20,
-                  "marginTop": 40,
-                  "textAlign": "center",
-                },
-              ]
-            }
-            verticalTextAlign="center"
-          >
-            Please leave this screen open. Joining the first time can take a few minutes or more.
-          </Text>
-          <Text
-            color="main"
-            fontSize={14}
-            horizontalTextAlign="left"
-            style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Regular",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "lineHeight": 20,
-                  "marginTop": 25,
-                  "textAlign": "center",
-                },
-              ]
-            }
-            verticalTextAlign="center"
-          >
-            Quiet stores data on your community’s devices using the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and leaving this screen
-             will stop the process of joining.
-          </Text>
-          <Text
-            accessibilityState={
-              {
-                "busy": undefined,
-                "checked": undefined,
-                "disabled": undefined,
-                "expanded": undefined,
-                "selected": undefined,
-              }
-            }
-            accessible={true}
-            color="main"
-            focusable={true}
-            fontSize={14}
-            horizontalTextAlign="left"
-            onClick={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
-            style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Regular",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "color": "#2373EA",
-                  "lineHeight": 20,
-                  "marginTop": 40,
-                  "textAlign": "center",
-                },
-              ]
-            }
-            testID="learn-more-link"
-            verticalTextAlign="center"
-          >
-            Learn more about Tor and Quiet
-          </Text>
-        </View>
-      </View>
-    `)
+const mutableConfig = Config as { NODE_ENV?: string }
+
+const render = () =>
+  renderComponent(
+    <ConnectionProcessComponent
+      connectionProcess={{ number: 40, text: ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE }}
+      openUrl={jest.fn()}
+    />
+  )
+
+describe('ConnectionProcessComponent', () => {
+  const originalNodeEnv = mutableConfig.NODE_ENV
+
+  afterEach(() => {
+    mutableConfig.NODE_ENV = originalNodeEnv ?? 'staging'
+  })
+
+  it('renders the connection-process container, title, text, and learn-more link', () => {
+    const { queryByTestId, getByTestId } = render()
+    expect(queryByTestId('connection-process-component')).not.toBeNull()
+    expect(getByTestId('connection-process-title')).toHaveTextContent('Joining now!')
+    expect(getByTestId('connection-process-text')).toHaveTextContent(ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE)
+    expect(queryByTestId('learn-more-link')).not.toBeNull()
+  })
+
+  describe('Share logs link (dev/alpha gate)', () => {
+    it('hides Share logs link in production builds', () => {
+      mutableConfig.NODE_ENV = 'production'
+      const { queryByTestId } = render()
+      expect(queryByTestId('share-logs-link')).toBeNull()
+    })
+
+    it('shows Share logs link in development builds', () => {
+      mutableConfig.NODE_ENV = 'development'
+      const { queryByTestId } = render()
+      expect(queryByTestId('share-logs-link')).not.toBeNull()
+    })
+
+    it('shows Share logs link in staging/alpha builds', () => {
+      mutableConfig.NODE_ENV = 'staging'
+      const { queryByTestId } = render()
+      expect(queryByTestId('share-logs-link')).not.toBeNull()
+    })
+  })
+
+  describe('Share all data link (dev/alpha gate)', () => {
+    it('hides Share all data link in production builds', () => {
+      mutableConfig.NODE_ENV = 'production'
+      const { queryByTestId } = render()
+      expect(queryByTestId('share-all-data-link')).toBeNull()
+    })
+
+    it('shows Share all data link in development builds', () => {
+      mutableConfig.NODE_ENV = 'development'
+      const { queryByTestId } = render()
+      expect(queryByTestId('share-all-data-link')).not.toBeNull()
+    })
+
+    it('shows Share all data link in staging/alpha builds', () => {
+      mutableConfig.NODE_ENV = 'staging'
+      const { queryByTestId } = render()
+      expect(queryByTestId('share-all-data-link')).not.toBeNull()
+    })
   })
 })

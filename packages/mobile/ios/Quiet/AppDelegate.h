@@ -1,8 +1,5 @@
 #import <RCTAppDelegate.h>
 #import <UIKit/UIKit.h>
-#import <Tor/TORConfiguration.h>
-#import <Tor/TORController.h>
-#import <Tor/TORControlReplyCode.h>
 #import <UserNotifications/UserNotifications.h>
 
 #import "RNNodeJsMobile.h"
@@ -10,8 +7,6 @@
 // Forward declarations for Swift classes
 // (Actual imports happen in AppDelegate.m to avoid circular dependencies)
 @class TorHandler;
-@class TORConfiguration;
-@class TORController;
 
 @interface AppDelegate : RCTAppDelegate <UNUserNotificationCenterDelegate>
 
@@ -24,7 +19,5 @@
 @property (nonatomic, strong) RNNodeJsMobile *nodeJsMobile;
 
 @property (nonatomic, strong) TorHandler *tor;
-@property (nonatomic, strong) TORConfiguration *torConfiguration;
-@property (nonatomic, strong) TORController *torController;
 
 @end

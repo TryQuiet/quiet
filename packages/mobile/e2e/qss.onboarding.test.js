@@ -79,7 +79,7 @@ describe('QSS Onboarding', () => {
         .toBeVisible()
         .withTimeout(LONG)
 
-      await press(element(by.text('#general')))
+      await press(element(by.text('general')))
       await waitFor(element(by.id('chat_general')))
         .toBeVisible()
         .withTimeout(BASIC)
@@ -142,7 +142,7 @@ describe('QSS Onboarding', () => {
         .toBeVisible()
         .withTimeout(LONG)
 
-      await press(element(by.text('#general')))
+      await press(element(by.text('general')))
       await waitFor(element(by.id('chat_general')))
         .toBeVisible()
         .withTimeout(BASIC)

@@ -35,7 +35,7 @@ export async function createTestUserCert(rootCert?: RootCA, userCsr?: UserCsr): 
 
 export function setupCrypto() {
   // prettier-ignore
-  const crypto = require('crypto').webcrypto;
+  const crypto = require('crypto').webcrypto
   setEngine(
     'newEngine',
     crypto,

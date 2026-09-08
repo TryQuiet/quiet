@@ -13,5 +13,8 @@ export const QSS_ENABLED_KEY = 'q'
 export const QSS_ENDPOINT_KEY = 'e'
 export const AUTH_DATA_OBJECT_KEY = 'authData'
 
+// v4/v5 invitation code format (v4 = v2 with guaranteed team ID, v5 = v4 with QSS integration)
+export const VERSION_KEY = 'v'
+
 export const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
 export const DEEP_URL_SCHEME = 'quiet'

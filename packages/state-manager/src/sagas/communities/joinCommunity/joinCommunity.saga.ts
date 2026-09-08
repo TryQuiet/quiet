@@ -1,11 +1,9 @@
-import { apply, select, put, call, take } from 'typed-redux-saga'
+import { apply, put, call, take } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, type Socket } from '../../../types'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions } from '../communities.slice'
 import {
-  type Community,
-  CommunityOwnership,
   type InitCommunityPayload,
   InvitationDataVersion,
   JoinCommunityPayload,
@@ -40,7 +38,7 @@ export function* joinCommunitySaga(
   )
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
-  if (inviteData?.version === InvitationDataVersion.v3 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
+  if (inviteData?.version === InvitationDataVersion.v5 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
     yield* put(communitiesActions.requestTermsOfService())
     acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
     if (acceptTerms.payload.accepted) {
@@ -54,7 +52,7 @@ export function* joinCommunitySaga(
 
   const payload: InitCommunityPayload = {
     id: communityId,
-    name: '',
+    name: inviteData.authData.communityName,
     inviteData,
     username: registerAction.payload.nickname,
     tosAccepted: acceptTerms.payload.accepted,

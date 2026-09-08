@@ -25,7 +25,7 @@ export const ioMock = io as jest.Mock
 jest.mock('electron-store-webpack-wrapper')
 
 jest.mock('electron', () => {
-  return { ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() } }
+  return { ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn(), invoke: jest.fn() } }
 })
 
 jest.mock('electron-store', () => {

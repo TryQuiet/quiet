@@ -43,10 +43,14 @@ describe('handleCommunityOnboarding', () => {
     } as CreateCommunityPayload)
     const joinAction = communitiesActions.joinCommunity({
       inviteData: {
-        version: InvitationDataVersion.v1,
+        version: InvitationDataVersion.v4,
         pairs: [],
         psk: 'psk',
-        ownerOrbitDbIdentity: 'owner',
+        authData: {
+          communityName: 'foobar',
+          teamId: 'abc123',
+          seed: 'def456',
+        },
       },
     } as JoinCommunityPayload)
 

@@ -19,6 +19,11 @@ export enum Libp2pDatastorePrefix {
   PEERS = 'peers',
 }
 
+export interface TorBootstrapProvider {
+  bootstrapped: boolean
+  once(event: 'bootstrapped', listener: () => void): this
+}
+
 export interface Libp2pNodeParams {
   peerId: CreatedLibp2pPeerId
   listenAddresses: string[]
@@ -29,6 +34,7 @@ export interface Libp2pNodeParams {
   transport?: any[]
   useConnectionProtector?: boolean
   instanceName?: string
+  torBootstrap?: TorBootstrapProvider
 }
 
 export type Libp2pPeerInfo = {

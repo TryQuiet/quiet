@@ -6,4 +6,5 @@ export interface ButtonProps {
   negative?: boolean
   disabled?: boolean
   newDesign?: boolean
+  testID?: string
 }

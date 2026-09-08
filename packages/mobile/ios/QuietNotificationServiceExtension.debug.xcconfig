@@ -1,0 +1,2 @@
+#include? "Pods/Target Support Files/Pods-QuietNotificationServiceExtension/Pods-QuietNotificationServiceExtension.debug.xcconfig"
+#include "Quiet.xcconfig"

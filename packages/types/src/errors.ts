@@ -41,6 +41,8 @@ export enum ErrorMessages {
   // Community
   COMMUNITY_LAUNCH_FAILED = 'Could not launch community',
   INVITE_DATA_REQUIRED = 'Invite data is required',
+  COMMUNITY_NOT_INITIALIZED = 'Community not initialized',
+  SIGCHAIN_LOAD_FAILED = 'Loading sigchain failed',
 
   // Network
   NETWORK_SETUP_FAILED = 'Creating network failed',
@@ -53,6 +55,8 @@ export enum ErrorMessages {
 
   // Channels
   CHANNEL_NAME_TAKEN = 'Channel with this name already exists',
+  CHANNEL_PERMISSIONS_NOT_FOUND = `Channel permissions couldn't be determined`,
+  CHANNEL_PERMISSIONS_INVALID = `You don't have permission to perform this channel action`,
 
   // General
   GENERAL = 'Something went wrong',
@@ -67,5 +71,11 @@ export class CompoundError<T extends Error> extends Error {
     public readonly originalError?: T
   ) {
     super(message)
+  }
+}
+
+export class NotImplementedError<T extends Error> extends Error {
+  constructor(functionName: string) {
+    super(`${functionName} is not implemented`)
   }
 }

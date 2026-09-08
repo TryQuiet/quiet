@@ -54,6 +54,7 @@ import { oneToOne } from './unixfs-utils/oneToOneChunker'
 export class IpfsFileManagerService extends EventEmitter {
   public ipfs: Helia
   public ufs: UnixFS
+  public initialized: boolean = false
   public controllers: Map<
     string,
     {
@@ -71,11 +72,17 @@ export class IpfsFileManagerService extends EventEmitter {
     private readonly imageCompressionService: ImageCompressionService
   ) {
     super()
-
-    this.attachIncomingEvents()
+    this._handleEventAttachFile = this._handleEventAttachFile.bind(this)
+    this._handleEventCancelDownload = this._handleEventCancelDownload.bind(this)
+    this._handleEventDownloadFile = this._handleEventDownloadFile.bind(this)
   }
 
-  public async init() {
+  public async init(): Promise<void> {
+    if (this.initialized) {
+      this.logger.debug(`Skipping duplicate file manager init`)
+      return
+    }
+    this.logger.time(`Initializing IPFS file manager`)
     const ipfsInstance = this.ipfsService?.ipfsInstance
 
     if (!ipfsInstance) {
@@ -84,48 +91,63 @@ export class IpfsFileManagerService extends EventEmitter {
     }
     this.ipfs = ipfsInstance
     this.ufs = unixfs(this.ipfs)
+    this.attachIncomingEvents()
+    this.logger.timeEnd(`Initializing IPFS file manager`)
+    this.initialized = true
+  }
+
+  private _handleEventAttachFile = async (fileMetadata: FileMetadata): Promise<void> => {
+    await this.attachFile(fileMetadata)
+  }
+
+  private _handleEventDownloadFile = async (fileMetadata: FileMetadata): Promise<void> => {
+    const _logger = createLogger(`${IpfsFileManagerService.name}:eventHandler:download:${fileMetadata.cid}`)
+    _logger.info('Downloading file', fileMetadata.size)
+    if (this.files.get(fileMetadata.cid)) {
+      _logger.warn(`Download is already running for this CID`)
+      return
+    }
+
+    this.files.set(fileMetadata.cid, {
+      size: fileMetadata.size || 0,
+      downloadedBytes: 0,
+      transferSpeed: 0,
+      cid: fileMetadata.cid,
+      message: fileMetadata.message,
+    })
+    this.controllers.delete(fileMetadata.cid)
+
+    try {
+      await this.downloadFile(fileMetadata)
+    } catch (e) {
+      _logger.error(`Error while downloading file`, e)
+    }
+  }
+
+  private _handleEventCancelDownload = async (cid: string): Promise<void> => {
+    const _logger = createLogger(`${IpfsFileManagerService.name}:eventHandler:cancel:${cid}`)
+    const fileDownloaded = Array.from(this.files.values()).find(e => e.message.id === cid)
+    if (fileDownloaded) {
+      try {
+        await this.cancelDownload(fileDownloaded.cid)
+      } catch (e) {
+        _logger.error(`Error while cancelling download`, e)
+      }
+    } else {
+      _logger.warn(`Download for this file was already canceled or never started`)
+    }
   }
 
   private attachIncomingEvents() {
-    this.on(IpfsFilesManagerEvents.ATTACH_FILE, async (fileMetadata: FileMetadata) => {
-      await this.attachFile(fileMetadata)
-    })
-    this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
-      const _logger = createLogger(`${IpfsFileManagerService.name}:eventHandler:download:${fileMetadata.cid}`)
-      _logger.info('Downloading file', fileMetadata.size)
-      if (this.files.get(fileMetadata.cid)) {
-        _logger.warn(`Download is already running for this CID`)
-        return
-      }
+    this.on(IpfsFilesManagerEvents.ATTACH_FILE, this._handleEventAttachFile)
+    this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, this._handleEventDownloadFile)
+    this.on(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, this._handleEventCancelDownload)
+  }
 
-      this.files.set(fileMetadata.cid, {
-        size: fileMetadata.size || 0,
-        downloadedBytes: 0,
-        transferSpeed: 0,
-        cid: fileMetadata.cid,
-        message: fileMetadata.message,
-      })
-      this.controllers.delete(fileMetadata.cid)
-
-      try {
-        await this.downloadFile(fileMetadata)
-      } catch (e) {
-        _logger.error(`Error while downloading file`, e)
-      }
-    })
-    this.on(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, async cid => {
-      const _logger = createLogger(`${IpfsFileManagerService.name}:eventHandler:cancel:${cid}`)
-      const fileDownloaded = Array.from(this.files.values()).find(e => e.message.id === cid)
-      if (fileDownloaded) {
-        try {
-          await this.cancelDownload(fileDownloaded.cid)
-        } catch (e) {
-          _logger.error(`Error while cancelling download`, e)
-        }
-      } else {
-        _logger.warn(`Download for this file was already canceled or never started`)
-      }
-    })
+  private detachIncomingEvents() {
+    this.off(IpfsFilesManagerEvents.ATTACH_FILE, this._handleEventAttachFile)
+    this.off(IpfsFilesManagerEvents.DOWNLOAD_FILE, this._handleEventDownloadFile)
+    this.off(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, this._handleEventCancelDownload)
   }
 
   public async deleteBlocks(fileMetadata: FileMetadata) {
@@ -152,7 +174,10 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   public async stop() {
+    this.initialized = false
     this.logger.info('Stopping IpfsFileManagerService')
+    this.logger.info(`Removing listeners`)
+    this.detachIncomingEvents()
     const cancelPromises: Promise<void>[] = []
     this.logger.info(`Cancelling ${this.files.size} downloads`)
     for (const cid of this.files.keys()) {

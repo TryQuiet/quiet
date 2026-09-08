@@ -4,6 +4,7 @@ import { type PeerId } from '@libp2p/interface'
 import {
   ConnectionProcessInfo,
   SocketEvents,
+  type CachedUserProfileResponse,
   type UserProfile,
   type UserProfilesStoredEvent,
   type Identity,
@@ -15,7 +16,7 @@ import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { removeFiles, removeDirs, createPaths, removeFilesFromDir } from '../common/utils'
-import { StorageEvents } from './storage.types'
+import { type PurgeDataOptions, StorageEvents } from './storage.types'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
@@ -26,13 +27,17 @@ import { Member } from '@localfirst/auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { DateTime } from 'luxon'
 import { createLibp2pAddress } from '@quiet/common'
-import { readdirSync, rmSync } from 'fs'
+import { existsSync, readdirSync, rmSync } from 'fs'
 import path from 'path'
+import { SocketService } from '../socket/socket.service'
+
+const CACHED_USER_PROFILE_REQUEST_TIMEOUT_MS = 5_000
 
 @Injectable()
 export class StorageService extends EventEmitter {
-  private initialized: boolean = false
-  private initializing: boolean = false
+  public initialized: boolean = false
+  private initPromise: Promise<void> | undefined
+  private storeListenersAttached = false
 
   private readonly logger = createLogger(StorageService.name)
 
@@ -46,7 +51,8 @@ export class StorageService extends EventEmitter {
     public readonly userProfileStore: UserProfileStore,
     public readonly notificationTokensStore: NotificationTokensStore,
     public readonly channelsService: ChannelsService,
-    public readonly sigchainService: SigChainService
+    public readonly sigchainService: SigChainService,
+    public readonly socketService: SocketService
   ) {
     super()
   }
@@ -60,19 +66,28 @@ export class StorageService extends EventEmitter {
     }
   }
 
-  public async init() {
-    if (this.initialized === true) {
+  public async init(teamId?: string) {
+    if (this.initialized) {
       this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
+      if (teamId != null) {
+        this.addTeamIdToDbMetas(teamId)
+      }
       return
     }
 
-    if (this.initializing === true) {
-      this.logger.warn(`${StorageService.name} currently initializing, skipping duplicate event`)
-      return
+    if (this.initPromise != null) {
+      this.logger.warn(`${StorageService.name} currently initializing, waiting for existing initialization`)
+      return this.initPromise
     }
 
-    this.initializing = true
+    this.initPromise = this.initInternal(teamId).finally(() => {
+      this.initPromise = undefined
+    })
 
+    return this.initPromise
+  }
+
+  private async initInternal(teamId?: string) {
     this.logger.info('Initializing storage')
     this.prepare()
 
@@ -91,6 +106,11 @@ export class StorageService extends EventEmitter {
 
     this.logger.info(`Initializing Databases`)
     await this.initDatabases()
+    await this.migrateMissingSelfUserProfile()
+
+    if (teamId != null) {
+      this.addTeamIdToDbMetas(teamId)
+    }
 
     this.logger.info(`Starting database sync`)
     await this.startSync()
@@ -100,7 +120,70 @@ export class StorageService extends EventEmitter {
 
     this.logger.info('Initialized storage')
     this.initialized = true
-    this.initializing = false
+    this.emit(StorageEvents.INITIALIZED)
+  }
+
+  private async migrateMissingSelfUserProfile(): Promise<void> {
+    const activeChain = this.sigchainService.getActiveChain(false)
+    if (!activeChain?.team || !activeChain.roles.amIMember()) {
+      this.logger.trace('Skipping cached self user profile migration; active user is not a team member')
+      return
+    }
+
+    // Fresh joins already queue the profile supplied by the join flow. Persist
+    // that profile first so the migration does not append a duplicate cached
+    // entry before startSync flushes the same deferred profile again.
+    await this.userProfileStore.flushDeferredEntries()
+
+    const selfUserId = activeChain.user.userId
+    const storedProfiles = await this.userProfileStore.getUserProfiles()
+    if (storedProfiles.some(profile => profile.userId === selfUserId)) {
+      this.logger.trace('Skipping cached self user profile migration; profile already exists in store', selfUserId)
+      return
+    }
+    if (this.socketService.serverIoProvider.io.sockets.sockets.size === 0) {
+      this.logger.trace('Skipping cached self user profile migration; no connected state-manager clients')
+      return
+    }
+
+    const cachedProfile = await this.requestCachedSelfUserProfile(selfUserId)
+    if (!cachedProfile) {
+      this.logger.info('No cached self user profile returned by state-manager', selfUserId)
+      return
+    }
+    if (cachedProfile.userId !== selfUserId) {
+      this.logger.warn('Cached self user profile userId mismatch', {
+        expected: selfUserId,
+        received: cachedProfile.userId,
+      })
+      return
+    }
+
+    const response = await this.addUserProfile(cachedProfile)
+    if (!response.success) {
+      this.logger.warn('Failed to migrate cached self user profile', selfUserId, response.error)
+    }
+  }
+
+  private async requestCachedSelfUserProfile(userId: string): Promise<UserProfile | undefined> {
+    this.logger.info('Requesting cached self user profile from state-manager', userId)
+    return new Promise(resolve => {
+      this.socketService.serverIoProvider.io
+        .timeout(CACHED_USER_PROFILE_REQUEST_TIMEOUT_MS)
+        .emit(
+          SocketEvents.CACHED_USER_PROFILE_REQUEST,
+          { userId },
+          (err: Error | null, responses: CachedUserProfileResponse[] = []) => {
+            if (err) {
+              this.logger.warn('Timed out requesting cached self user profile from state-manager', userId, err)
+              resolve(undefined)
+              return
+            }
+
+            resolve(responses.find(response => response?.profile)?.profile)
+          }
+        )
+    })
   }
 
   public async clean() {
@@ -117,26 +200,33 @@ export class StorageService extends EventEmitter {
     await this.stop()
   }
 
-  public purgeData() {
+  public purgeData({ removeTorDataDirectory = true }: PurgeDataOptions = {}) {
     this.logger.info('Purging data directories and files')
-    this._purgeDataDirectories()
+    this._purgeDataDirectories({ removeTorDataDirectory })
     this._purgeFiles()
   }
-  private _purgeDataDirectories() {
-    const dirsToRemove = readdirSync(this.quietDir).filter(
-      i =>
-        i.startsWith('Ipfs') ||
-        i.startsWith('OrbitDB') ||
-        i.startsWith('backendDB') ||
-        i.startsWith('Local Storage') ||
-        i.startsWith('libp2pDatastore') ||
-        i.startsWith('databases') ||
-        i.startsWith('TorDataDirectory')
-    )
+  private _purgeDataDirectories({ removeTorDataDirectory }: Required<PurgeDataOptions>) {
+    const dirsToRemove = existsSync(this.quietDir)
+      ? readdirSync(this.quietDir).filter(
+          i =>
+            i.startsWith('Ipfs') ||
+            i.startsWith('OrbitDB') ||
+            i.startsWith('backendDB') ||
+            i.startsWith('Local Storage') ||
+            i.startsWith('libp2pDatastore') ||
+            i.startsWith('databases') ||
+            (removeTorDataDirectory && i.startsWith('TorDataDirectory')) ||
+            i.startsWith('uploads') ||
+            i.startsWith('downloads')
+        )
+      : []
+    const dirsToRemovePaths = new Set([this.ipfsRepoPath, this.orbitDbDir])
     for (const dir of dirsToRemove) {
-      const dirPath = path.join(this.quietDir, dir)
+      dirsToRemovePaths.add(path.join(this.quietDir, dir))
+    }
+    for (const dirPath of dirsToRemovePaths) {
       this.logger.info(`Removing dir: ${dirPath}`)
-      removeFilesFromDir(dirPath)
+      removeFilesFromDir(dirPath, { throwOnError: false, maxRetries: 1, retryDelay: 100 })
     }
   }
 
@@ -240,12 +330,17 @@ export class StorageService extends EventEmitter {
   }
 
   public attachStoreListeners() {
+    if (this.storeListenersAttached) {
+      return
+    }
+
     this.userProfileStore.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.emit(StorageEvents.USER_PROFILES_STORED, payload)
     })
     this.notificationTokensStore.on(StorageEvents.NOTIFICATION_TOKENS_STORED, payload => {
       this.emit(StorageEvents.NOTIFICATION_TOKENS_STORED, payload)
     })
+    this.storeListenersAttached = true
   }
 
   public async addUserProfile(profile: UserProfile): Promise<SetUserProfileResponse> {
@@ -259,6 +354,15 @@ export class StorageService extends EventEmitter {
       // additions may be deferred if the user is not a member of the team
       this.logger.warn('User profile deferred:', profile.userId, err)
     }
+    return { success: true }
+  }
+
+  public async deferUserProfile(profile: UserProfile): Promise<SetUserProfileResponse> {
+    const validationResponse = await UserProfileStore.validateUserProfile(profile)
+    if (!validationResponse.success) {
+      return validationResponse
+    }
+    this.userProfileStore.deferEntry(profile)
     return { success: true }
   }
 

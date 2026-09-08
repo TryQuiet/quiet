@@ -1,4 +1,5 @@
 export enum StorageEvents {
+  INITIALIZED = 'storageInitialized',
   // Public Channels
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CHANNELS_STORED = 'channelsStored',
@@ -37,4 +38,8 @@ export interface CsrReplicatedPromiseValues {
 
 export interface DBOptions {
   sync: boolean
+}
+
+export type PurgeDataOptions = {
+  removeTorDataDirectory?: boolean
 }

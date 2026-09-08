@@ -1,4 +1,5 @@
 import React from 'react'
+import { ReactTestInstance } from 'react-test-renderer'
 
 import { useContextMenu } from '../../hooks/useContextMenu'
 
@@ -7,7 +8,9 @@ import { Appbar } from './Appbar.component'
 
 describe('Appbar component', () => {
   it('renders for channel', () => {
-    const { toJSON } = renderComponent(<Appbar title={'general'} prefix={'#'} back={() => {}} />)
+    const { toJSON, getByLabelText } = renderComponent(<Appbar title={'general'} prefix={'#'} back={() => {}} />)
+
+    expect(getByLabelText('Go back')).toBeTruthy()
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -35,6 +38,8 @@ describe('Appbar component', () => {
           }
         >
           <View
+            accessibilityLabel="Go back"
+            accessibilityRole="button"
             accessibilityState={
               {
                 "busy": undefined,
@@ -80,6 +85,7 @@ describe('Appbar component', () => {
               }
             >
               <Image
+                accessible={false}
                 resizeMethod="resize"
                 resizeMode="cover"
                 source={
@@ -144,7 +150,11 @@ describe('Appbar component', () => {
       handleClose: function (): any {},
     }
 
-    const { toJSON } = renderComponent(<Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />)
+    const { toJSON, getByLabelText } = renderComponent(
+      <Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />
+    )
+
+    expect(getByLabelText('More options')).toBeTruthy()
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -288,6 +298,8 @@ describe('Appbar component', () => {
           }
         >
           <View
+            accessibilityLabel="More options"
+            accessibilityRole="button"
             accessibilityState={
               {
                 "busy": undefined,
@@ -326,12 +338,14 @@ describe('Appbar component', () => {
               style={
                 {
                   "alignItems": "center",
+                  "height": 50,
                   "justifyContent": "center",
                   "width": 64,
                 }
               }
             >
               <Image
+                accessible={false}
                 resizeMethod="resize"
                 resizeMode="contain"
                 source={
@@ -351,5 +365,22 @@ describe('Appbar component', () => {
         </View>
       </View>
     `)
+  })
+
+  it('labels the back button as "Close" when crossBackIcon is set', () => {
+    const { getByLabelText } = renderComponent(<Appbar title={'general'} back={() => {}} crossBackIcon />)
+
+    expect(getByLabelText('Close')).toBeTruthy()
+  })
+
+  it('renders submit button with a touch target that meets the accessibility minimum', () => {
+    const { getByTestId } = renderComponent(<Appbar title={'quiet'} submit={() => {}} />)
+
+    const submitButtonView = getByTestId('submit').children[0] as ReactTestInstance
+
+    expect(submitButtonView.props.style).toMatchObject({
+      minWidth: 64,
+      height: 50,
+    })
   })
 })

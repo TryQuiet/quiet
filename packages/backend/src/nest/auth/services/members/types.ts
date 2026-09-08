@@ -12,3 +12,14 @@ export type ProspectiveUser = {
 }
 
 export const DEFAULT_SEARCH_OPTIONS: MemberSearchOptions = { includeRemoved: false, throwOnMissing: true }
+
+export type CreateUserInput = {
+  name?: string
+  id?: string
+}
+
+export type CreateUserFromInviteSeedInput = CreateUserInput & {
+  seed: string
+}
+
+export const RANDOM_USERNAME_LENGTH = 32

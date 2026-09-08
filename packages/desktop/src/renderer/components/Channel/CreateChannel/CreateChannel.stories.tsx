@@ -18,6 +18,8 @@ const args: CreateChannelProps = {
   createChannel: function (name: string): void {
     logger.info('creating channel: ', name)
   },
+  canCreateChannel: true,
+  canCreatePrivateChannel: true,
   handleClose: function (): void {},
   clearErrorsDispatch: function (): void {},
 }

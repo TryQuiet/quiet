@@ -13,6 +13,10 @@ import { RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
 import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
+import { ChannelService } from './services/roles/channel.service'
+import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
+import { randomKey } from '@localfirst/crypto'
+import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
@@ -22,6 +26,7 @@ class SigChain extends EventEmitter {
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
   private _roles: RoleService | null = null
+  private _channels: ChannelService | null = null
   private _invites: InviteService | null = null
   private _crypto: CryptoService | null = null
   private _server: ServerService | null = null
@@ -53,14 +58,22 @@ class SigChain extends EventEmitter {
 
     if (oldTeam) {
       logger.info('Detaching socket listeners')
-      oldTeam.removeListener('updated', this.handleTeamUpdate)
+      oldTeam.removeListener(LFAEvents.UPDATED, this.handleTeamUpdate)
     }
     if (newTeam) {
       logger.info('Attaching socket listeners')
-      newTeam.on('updated', this.handleTeamUpdate)
+      newTeam.on(LFAEvents.UPDATED, this.handleTeamUpdate)
     }
 
     this._context = context
+  }
+
+  get teamId(): string | undefined {
+    return this.team?.id
+  }
+
+  get teamName(): string | undefined {
+    return this.team?.teamName
   }
 
   get user(): auth.UserWithSecrets {
@@ -76,20 +89,19 @@ class SigChain extends EventEmitter {
   }
 
   private handleTeamUpdate = async (payload: { head: auth.Hash[] }) => {
-    this.emit('updated', payload)
+    this.emit(SigchainEvents.UPDATED, payload)
   }
 
   /**
-   * Create a brand new SigChain with a given name and also generate the initial user with a given name
+   * Create a brand new SigChain with a given name and also generate the initial user with an optional name/ID
    *
-   * @param teamName Name of the team we are creating
-   * @param username Username of the initial user we are generating
+   * @param createUserInput Optional input to user creation
    * @returns LoadedSigChain instance with the new SigChain and user context
    */
-  public static create(teamName: string, username: string, userId?: string): SigChain {
-    const localUser = UserService.create(username, userId)
+  public static create(createUserInput: CreateUserInput = {}): SigChain {
+    const localUser = UserService.create(createUserInput)
     const team: auth.Team = auth.createTeam(
-      teamName,
+      SigChain.generateRandomTeamName(),
       localUser,
       undefined,
       { selfAssignableRoles: SELF_ASSIGN_ROLES },
@@ -102,8 +114,8 @@ class SigChain extends EventEmitter {
     } as auth.MemberContext
     const sigChain = new SigChain(adminContext)
 
-    // Initialize member role with yourself
-    sigChain.roles.createWithMembers(RoleName.MEMBER, [localUser.user.userId])
+    // Initialize member role (your own user is added by default to the role)
+    sigChain.roles.create(RoleName.MEMBER)
 
     return sigChain
   }
@@ -146,12 +158,12 @@ class SigChain extends EventEmitter {
   /**
    * Create a SigChain from an invite seed
    *
-   * @param username Username of the user to create
-   * @param seed Seed of the invite
+   * @param input Create user input with invite seed
    * @returns LoadedSigChain instance with the given user context
    */
-  public static createFromInvite(username: string, seed: string): SigChain {
-    const prospectiveUser = UserService.createFromInviteSeed(username, seed)
+  public static createFromInvite(input: CreateUserFromInviteSeedInput): SigChain {
+    const { seed } = input
+    const prospectiveUser = UserService.createFromInviteSeed(input)
     const context = {
       user: prospectiveUser.context.user,
       device: prospectiveUser.context.device,
@@ -164,6 +176,7 @@ class SigChain extends EventEmitter {
     this._users = new UserService(this)
     this._devices = new DeviceService(this)
     this._roles = new RoleService(this)
+    this._channels = new ChannelService(this)
     this._invites = new InviteService(this)
     this._crypto = new CryptoService(this)
     this._server = new ServerService(this)
@@ -183,6 +196,10 @@ class SigChain extends EventEmitter {
 
   get roles(): RoleService {
     return this._roles!
+  }
+
+  get channels(): ChannelService {
+    return this._channels!
   }
 
   get devices(): DeviceService {
@@ -225,6 +242,10 @@ class SigChain extends EventEmitter {
       team: team,
     } as auth.MemberContext
     return new SigChain(memberContext)
+  }
+
+  public static generateRandomTeamName(): string {
+    return randomKey(RANDOM_TEAM_NAME_LENGTH)
   }
 }
 

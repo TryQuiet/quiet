@@ -1,30 +1,28 @@
 import {
   InvitationData,
-  InvitationDataV1,
-  InvitationDataV2,
-  InvitationDataV3,
   InvitationDataVersion,
   InvitationPair,
+  type InvitationDataV4,
+  type InvitationDataV5,
 } from '@quiet/types'
 import { QUIET_JOIN_PAGE } from '../const'
 import {
   AUTH_DATA_KEY,
   DEEP_URL_SCHEME,
   DEEP_URL_SCHEME_WITH_SEPARATOR,
-  OWNER_ORBIT_DB_IDENTITY_PARAM_KEY,
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
   QSS_ENABLED_KEY,
   QSS_ENDPOINT_KEY,
+  VERSION_KEY,
 } from './invitationLink.const'
 import {
   encodeAuthData,
-  PARAM_CONFIG_V1,
-  PARAM_CONFIG_V2,
   validatePeerData,
   parseAndValidateUrlParams,
-  PARAM_CONFIG_V3,
   encodeQssEndpoint,
+  PARAM_CONFIG_V4,
+  PARAM_CONFIG_V5,
 } from './invitationLink.validator'
 import { createLibp2pAddress } from '../libp2p'
 import { createLogger } from '../logger'
@@ -37,47 +35,33 @@ interface ParseDeepUrlParams {
 }
 
 /**
- * Parse and validate the URL parameters on a given V2 (LFA) invite link URL
+ * Parse and validate the URL parameters on a given V4 (LFA+teamId) invite link URL
  *
- * @param url V2 invite link URL to validate parameters on
+ * @param url V4 invite link URL to validate parameters on
  *
- * @returns {InvitationDataV2} Parsed V2 parameters
+ * @returns {InvitationDataV4} Parsed V4 parameters
  */
-const parseLinkV2 = (url: string): InvitationDataV2 => {
+const parseLinkV4 = (url: string): InvitationDataV4 => {
   /**
-   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string>
-   * (`a` decodes to `?c=<community name>&s=<base58 LFA invitation seed>`)
+   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string>&v=v4
+   * (`a` decodes to `?c=<community name>&s=<base58 LFA invitation seed>&t=<base 58 LFA team ID>`)
    */
-  return parseAndValidateUrlParams(url, PARAM_CONFIG_V2)
+  return parseAndValidateUrlParams(url, PARAM_CONFIG_V4)
 }
 
 /**
- * Parse and validate the URL parameters on a given V3 (LFA + QSS) invite link URL
+ * Parse and validate the URL parameters on a given V5 (LFA + teamId + QSS) invite link URL
  *
- * @param url V3 invite link URL to validate parameters on
+ * @param url V5 invite link URL to validate parameters on
  *
- * @returns {InvitationDataV3} Parsed V3 parameters
+ * @returns {InvitationDataV5} Parsed V5 parameters
  */
-const parseLinkV3 = (url: string): InvitationDataV3 => {
+const parseLinkV5 = (url: string): InvitationDataV5 => {
   /**
-   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string>&q=<boolean, is QSS enabled>
+   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string>&q=<boolean, is QSS enabled>&v=v5
    * (`a` decodes to `?c=<community name>&s=<base58 LFA invitation seed>&t=<base58 LFA team ID>`)
    */
-  return parseAndValidateUrlParams(url, PARAM_CONFIG_V3)
-}
-
-/**
- * Parse and validate the URL parameters on a given V1 (non-LFA) invite link URL
- *
- * @param url V1 invite link URL to validate parameters on
- *
- * @returns {InvitationDataV1} Parsed V1 parameters
- */
-const parseLinkV1 = (url: string): InvitationDataV1 => {
-  /**
-   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>
-   */
-  return parseAndValidateUrlParams(url, PARAM_CONFIG_V1)
+  return parseAndValidateUrlParams(url, PARAM_CONFIG_V5)
 }
 
 /**
@@ -113,17 +97,16 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
 
   const psk = params.get(PSK_PARAM_KEY)
   const authData = params.get(AUTH_DATA_KEY)
-  const qssEnabled = params.get(QSS_ENABLED_KEY)
-  if (!psk) throw new Error(`Invitation link does not match either v1 or v2 format '${url}'`)
+  const version = params.get(VERSION_KEY)
+  if (!psk && !authData && !version) throw new Error(`Invitation link does not match either v4 or v5 format '${url}'`)
 
   let data: InvitationData | null = null
-  if (psk != null && authData == null) {
-    logger.info('Parsing v1 invitation link')
-    data = parseLinkV1(_url)
-  } else if (psk != null && authData != null && qssEnabled == null) {
-    data = parseLinkV2(_url)
-  } else if (psk != null && authData != null && qssEnabled != null) {
-    data = parseLinkV3(_url)
+  if (version === InvitationDataVersion.v4) {
+    data = parseLinkV4(_url)
+  } else if (version === InvitationDataVersion.v5) {
+    data = parseLinkV5(_url)
+  } else {
+    throw new Error(`Unknown or deprecated invitation was processed! (version = ${version})`)
   }
 
   if (!data) throw new Error(`Could not parse invitation data from deep url '${url}'`)
@@ -136,7 +119,7 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
  * Extract invitation data from deep url.
  * Valid format: quiet://?<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
  *
- * @param url V1 or V2 invite link URL to validate parameters on
+ * @param url V4 or V5 invite link URL to validate parameters on
  *
  * @returns {InvitationData} Parsed parameters
  */
@@ -147,7 +130,7 @@ export const parseInvitationLinkDeepUrl = (url: string): InvitationData => {
 /**
  * @param link <peerId1>=<address1>&<peerId2>=<address2>&k=<psk>
  *
- * @param url V1 or V2 invite link URL to validate parameters on
+ * @param url V4 or V5 invite link URL to validate parameters on
  *
  * @returns {InvitationData} Parsed parameters
  */
@@ -253,30 +236,24 @@ export const peerPairsToUrlParamString = (pairs: InvitationPair[]): string => {
  *
  * @returns {string} Complete invite link URL
  */
-const composeInvitationUrl = (
-  baseUrl: string,
-  data: InvitationDataV1 | InvitationDataV2 | InvitationDataV3
-): string => {
+const composeInvitationUrl = (baseUrl: string, data: InvitationDataV4 | InvitationDataV5): string => {
   const url = new URL(baseUrl)
 
   switch (data.version) {
-    case InvitationDataVersion.v1:
-      url.searchParams.append(PEER_ADDRESS_KEY, peerPairsToUrlParamString(data.pairs))
-      url.searchParams.append(PSK_PARAM_KEY, data.psk)
-      url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
-      break
-    case InvitationDataVersion.v2:
+    case InvitationDataVersion.v4:
       url.searchParams.append(PEER_ADDRESS_KEY, peerPairsToUrlParamString(data.pairs))
       url.searchParams.append(PSK_PARAM_KEY, data.psk)
       url.searchParams.append(AUTH_DATA_KEY, encodeAuthData(data.authData))
       break
-    case InvitationDataVersion.v3:
+    case InvitationDataVersion.v5:
       url.searchParams.append(PEER_ADDRESS_KEY, peerPairsToUrlParamString(data.pairs))
       url.searchParams.append(PSK_PARAM_KEY, data.psk)
       url.searchParams.append(AUTH_DATA_KEY, encodeAuthData(data.authData))
       url.searchParams.append(QSS_ENABLED_KEY, `${data.qssEnabled}`)
       url.searchParams.append(QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint))
+      break
   }
+  url.searchParams.append(VERSION_KEY, data.version)
   return url.href
 }
 
@@ -297,9 +274,8 @@ export const argvInvitationLink = (argv: string[]): InvitationData | null => {
     logger.info('Parsing deep url', arg)
     invitationData = parseInvitationLinkDeepUrl(arg)
     switch (invitationData.version) {
-      case InvitationDataVersion.v1:
-      case InvitationDataVersion.v2:
-      case InvitationDataVersion.v3:
+      case InvitationDataVersion.v4:
+      case InvitationDataVersion.v5:
         if (invitationData.pairs.length > 0) {
           break
         } else {

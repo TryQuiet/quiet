@@ -12,7 +12,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import { Divider, Drawer } from '../ui'
 import IconButton from '../ui/Icon/IconButton'
 
-export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, children }) => {
+export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, titleIcon, children }) => {
   const theme = useTheme()
 
   const ref = useRef<HTMLDivElement>(null)
@@ -51,8 +51,20 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
           >
             {handleBack ? <ArrowBackIcon style={{ fontSize: '24px' }} /> : <CloseIcon />}
           </IconButton>
-          <Grid style={{ flex: 5, justifyContent: 'center' }}>
-            <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
+          <Grid
+            style={{
+              justifyContent: 'center',
+              flexDirection: 'row',
+              alignItems: 'center',
+              alignContent: 'center',
+              display: 'flex',
+              flex: 5,
+              gap: '1px',
+            }}
+            data-testid={'contextMenu-title-wrapper'}
+          >
+            {titleIcon && titleIcon}
+            <Typography fontSize={16} fontWeight={'medium'} data-testid={'contextMenu-title'}>
               {title}
             </Typography>
           </Grid>
@@ -110,7 +122,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
           cursor: 'pointer',
         }}
         onClick={action}
-        data-testid={`contextMenuItem${title}`}
+        data-testid={`contextMenuItem${title.replace(' ', '_')}`}
       >
         <Grid
           style={{

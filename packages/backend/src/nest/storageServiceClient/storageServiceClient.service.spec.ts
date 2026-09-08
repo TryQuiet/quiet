@@ -5,7 +5,7 @@ import { StorageServiceClientModule } from './storageServiceClient.module'
 import { StorageServiceClient } from './storageServiceClient.service'
 import { ServerStoredCommunityMetadata } from './storageServiceClient.types'
 import { prepareResponse } from './testUtils'
-import { createLibp2pAddress, getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
+import { createLibp2pAddress, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
 import { Response } from 'node-fetch'
 
 const mockFetch = async (responseData: Partial<Response>[]) => {
@@ -29,12 +29,12 @@ const mockFetch = async (responseData: Partial<Response>[]) => {
 describe('Storage Service Client', () => {
   let clientMetadata: ServerStoredCommunityMetadata
   beforeEach(() => {
-    const data = getValidInvitationUrlTestData(validInvitationDatav1[0]).data
+    const data = getValidInvitationUrlTestData(validInvitationDatav4[0]).data
     clientMetadata = {
       id: '12345678',
       ownerCertificate: 'MIIDeTCCAyCgAwIBAgIGAYv8J0ToMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB21hYzIzMT',
       rootCa: 'MIIBUjCB+KADAgECAgEBMAoGCCqGSM49BAMCMBIxEDAOBgNVBAM',
-      ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+      ownerOrbitDbIdentity: 'foobar',
       peerList: [createLibp2pAddress(data.pairs[0].onionAddress, data.pairs[0].peerId)],
       psk: data.psk,
     }

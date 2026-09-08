@@ -1,6 +1,4 @@
 import { WebElement } from 'selenium-webdriver'
-import { promises as fs } from 'fs'
-import * as path from 'path'
 
 import {
   App,
@@ -10,6 +8,7 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
+  Settings,
   Sidebar,
 } from '../selectors'
 import { MessageIds } from '../types'
@@ -31,6 +30,7 @@ describe('Backwards Compatibility', () => {
   let sidebar: Sidebar
   let generalChannelMessageIds: MessageIds
   let dataDir: string
+  let settings: Settings
 
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
@@ -45,12 +45,13 @@ describe('Backwards Compatibility', () => {
     // download the old version of the app
     const appFilename = downloadInstaller()
     const copiedFilename = copyInstallerFile(appFilename)
+    const chromeDriver126Path = require.resolve('electron-chromedriver-126/chromedriver.js')
     dataDir = `e2e_back_compat_${(Math.random() * 10 ** 18).toString(36)}`
-    ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename })
+    ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename, chromeDriverPath: chromeDriver126Path })
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   afterAll(async () => {
@@ -118,11 +119,14 @@ describe('Backwards Compatibility', () => {
       })
 
       itif(process.platform == 'linux')(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
-        const settingsModal = await new Sidebar(ownerAppOldVersion.driver).openSettings()
-        expect(await settingsModal.isReady()).toBeTruthy()
-        const settingVersion = await settingsModal.getVersion()
+        settings = await new Sidebar(ownerAppOldVersion.driver).openSettings()
+        expect(await settings.isReady()).toBeTruthy()
+        const settingVersion = await settings.getVersion()
         expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
-        await settingsModal.closeTabThenModal()
+      })
+
+      itif(process.platform == 'linux')(`Close settings modal`, async () => {
+        await settings.closeTabThenModal()
       })
     })
 
@@ -144,8 +148,8 @@ describe('Backwards Compatibility', () => {
     describe('Second channel', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
-        await sidebar.addNewChannel(newChannelName)
-        await sidebar.switchChannel(newChannelName)
+        await sidebar.addNewChannel(newChannelName, true, false)
+        await sidebar.switchChannel(newChannelName, true, false)
         const channels = await sidebar.getChannelList()
         expect(channels.length).toEqual(2)
       })
@@ -226,7 +230,7 @@ describe('Backwards Compatibility', () => {
         expect(await generalChannel.isMessageInputReady()).toBeTruthy()
 
         const generalChannelText = await generalChannel.element.getText()
-        expect(generalChannelText).toEqual('# general')
+        expect(generalChannelText).toEqual('general')
       })
 
       itif(process.platform == 'linux')('Sent message is visible on general channel on new version', async () => {

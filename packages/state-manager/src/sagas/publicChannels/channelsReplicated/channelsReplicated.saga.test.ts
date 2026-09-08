@@ -13,8 +13,14 @@ import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { type Community, type Identity, type PublicChannel } from '@quiet/types'
-import { generateChannelId } from '@quiet/common'
+import {
+  ChannelOperationStatus,
+  CommunityOwnership,
+  type Community,
+  type Identity,
+  type PublicChannel,
+} from '@quiet/types'
+import { generateTestChannelId } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 
@@ -60,7 +66,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).payload.channel
@@ -73,7 +79,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
     ).payload.channel
@@ -93,6 +99,7 @@ describe('channelsReplicatedSaga', () => {
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       .run()
@@ -111,11 +118,13 @@ describe('channelsReplicatedSaga', () => {
       .not.putResolve(
         publicChannelsActions.addChannel({
           channel: generalChannel,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       .run()
@@ -134,6 +143,7 @@ describe('channelsReplicatedSaga', () => {
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       .putResolve(
@@ -157,6 +167,7 @@ describe('channelsReplicatedSaga', () => {
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       .putResolve(
@@ -167,6 +178,7 @@ describe('channelsReplicatedSaga', () => {
       .not.putResolve(
         publicChannelsActions.addChannel({
           channel: generalChannel,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       .not.putResolve(
@@ -227,7 +239,7 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('remove channel from store if it doesnt exist in the payload from the backend', async () => {
-    store.dispatch(publicChannelsActions.addChannel({ channel: photoChannel }))
+    store.dispatch(publicChannelsActions.addChannel({ channel: photoChannel, status: ChannelOperationStatus.SUCCESS }))
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
@@ -243,6 +255,7 @@ describe('channelsReplicatedSaga', () => {
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       .run()
@@ -259,6 +272,24 @@ describe('channelsReplicatedSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.putResolve(publicChannelsActions.deleteChannel({ channelId: generalChannel.id }))
+      .run()
+  })
+
+  test('sends introduction when general already exists locally and replicated channels are empty', async () => {
+    const localStore = prepareStore().store
+    const localFactory = await getReduxStoreFactory(localStore)
+    await localFactory.create('Community', { ownership: CommunityOwnership.User })
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      channelsReplicatedSaga,
+      publicChannelsActions.channelsReplicated({
+        channels: [],
+      })
+    )
+      .withReducer(reducer)
+      .withState(localStore.getState())
+      .putResolve(publicChannelsActions.sendIntroductionMessage())
       .run()
   })
 })

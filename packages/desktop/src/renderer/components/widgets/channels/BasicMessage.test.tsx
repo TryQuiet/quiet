@@ -230,7 +230,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-1v3s10o-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding css-1v3s10o-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"

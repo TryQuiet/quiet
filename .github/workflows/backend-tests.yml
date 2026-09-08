@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+        os: [ubuntu-22.04, macos-26, macos-26-intel]
 
     steps:
       - uses: dorny/paths-filter@v4

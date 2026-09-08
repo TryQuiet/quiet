@@ -132,6 +132,74 @@ describe('TorControl', () => {
     expect(spyOnInit).toHaveBeenCalledTimes(2)
   })
 
+  it('recovers from a loading_keys timeout stall by restarting managed Tor', async () => {
+    jest.useFakeTimers()
+    const loadingKeysTimeout =
+      '250-status/bootstrap-phase=WARN BOOTSTRAP PROGRESS=40 TAG=loading_keys SUMMARY="Loading authority key certs" WARNING="Operation timed out" REASON=TIMEOUT COUNT=1 RECOMMENDATION=ignore HOSTADDR="204.8.96.160:443"'
+    const bootstrapDone = '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
+    let restarted = false
+    const sendCommandSpy = jest.spyOn(torControl, 'sendCommand').mockImplementation(async () => {
+      return {
+        code: 250,
+        messages: [restarted ? bootstrapDone : loadingKeysTimeout, '250 OK'],
+      }
+    })
+    const initSpy = jest.spyOn(torService, 'init').mockImplementation(async () => {
+      restarted = true
+    })
+    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockReturnValue(['123'])
+    const torServiceInternals = torService as any
+
+    try {
+      torServiceInternals.torDataDirectory = `${tmpAppDataPath}/TorDataDirectory`
+      torService.startBootstrapWatcher(1000)
+
+      await jest.advanceTimersByTimeAsync(31_000)
+
+      expect(sendCommandSpy).toHaveBeenCalled()
+      expect(initSpy).toHaveBeenCalledTimes(1)
+      await expect(torService.isBootstrappingFinished()).resolves.toBe(true)
+      expect(torService.bootstrapped).toBe(true)
+    } finally {
+      torServiceInternals.stopBootstrapWatcher()
+      jest.useRealTimers()
+      sendCommandSpy.mockRestore()
+      initSpy.mockRestore()
+      getTorProcessIdsSpy.mockRestore()
+    }
+  })
+
+  it('restarts managed Tor immediately when the process disappears during bootstrap', async () => {
+    jest.useFakeTimers()
+    const sendCommandSpy = jest.spyOn(torControl, 'sendCommand').mockResolvedValue({
+      code: 250,
+      messages: [
+        '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=40 TAG=loading_keys SUMMARY="Loading authority key certs"',
+        '250 OK',
+      ],
+    })
+    const initSpy = jest.spyOn(torService, 'init').mockResolvedValue(undefined)
+    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockReturnValue([])
+    const torServiceInternals = torService as any
+
+    try {
+      torServiceInternals.torDataDirectory = `${tmpAppDataPath}/TorDataDirectory`
+      torService.startBootstrapWatcher(1000)
+
+      await jest.advanceTimersByTimeAsync(1000)
+
+      expect(getTorProcessIdsSpy).toHaveBeenCalled()
+      expect(sendCommandSpy).not.toHaveBeenCalled()
+      expect(initSpy).toHaveBeenCalledTimes(1)
+    } finally {
+      torServiceInternals.stopBootstrapWatcher()
+      jest.useRealTimers()
+      sendCommandSpy.mockRestore()
+      initSpy.mockRestore()
+      getTorProcessIdsSpy.mockRestore()
+    }
+  })
+
   it('tor is initializing correctly with 40 seconds timeout', async () => {
     await torService.init()
   })

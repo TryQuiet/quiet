@@ -1,6 +1,6 @@
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { getSocketFactory, getBaseTypesFactory } from '@quiet/state-manager'
-import { SocketActions, socketEventData } from '@quiet/types'
+import { ChannelSubscribedPayload, SocketActions, SocketEvents, socketEventData } from '@quiet/types'
 import { screen } from '@testing-library/dom'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
@@ -24,7 +24,7 @@ jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
-  const generalId = generateChannelId('general')
+  const generalId = generateTestChannelId('general')
 
   let factory: FactoryGirl
   let baseTypesFactory: FactoryGirl
@@ -71,7 +71,11 @@ describe('User', () => {
       if (action === SocketActions.CREATE_COMMUNITY) {
         return await factory.build(`${action}_response`, {
           id: input[1].id,
-          community: await baseTypesFactory.build('Community', { id: input[1].id, name: input[1].name }),
+          community: await baseTypesFactory.build('Community', {
+            id: input[1].id,
+            name: input[1].name,
+            teamId: 'foobar',
+          }),
           identity: await baseTypesFactory.build('Identity', {
             communityId: input[1].id,
             userId: 'commonUserId',
@@ -81,8 +85,12 @@ describe('User', () => {
           }),
         })
       } else if (action === SocketActions.CREATE_CHANNEL) {
+        const channel = await baseTypesFactory.build('PublicChannel', { ...input[1], id: generalId })
+        socket.socketClient.emit<ChannelSubscribedPayload>(SocketEvents.CHANNEL_SUBSCRIBED, {
+          channelId: channel.id,
+        })
         return await factory.build(`${action}_response`, {
-          channel: baseTypesFactory.build('PublicChannel', { ...input[1] }),
+          channel,
         })
       }
     }
@@ -125,8 +133,10 @@ describe('User', () => {
     expect(createCommunityTitle).not.toBeVisible()
     expect(createUsernameTitle).not.toBeVisible()
 
-    const channel = await screen.findByText('#general')
-    expect(channel).toBeVisible()
+    const titleElement = await screen.findByTestId('channelTitle')
+    const isGeneralAtStart = titleElement.textContent === 'general'
+    expect(isGeneralAtStart).toBeTruthy()
+    expect(titleElement).toBeVisible()
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
@@ -144,24 +154,18 @@ describe('User', () => {
         "PublicChannels/createGeneralChannel",
         "PublicChannels/createChannel",
         "Communities/launchCommunity",
-        "PublicChannels/setCurrentChannel",
         "Connection/createInvite",
-        "PublicChannels/clearUnreadChannel",
         "Modals/closeModal",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/retryVerification",
-        "Messages/verifyMessages",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/retryVerification",
-        "Messages/verifyMessages",
         "Communities/setCurrentCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Connection/setLongLivedInvite",
+        "PublicChannels/setChannelSubscribed",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/addChannel",
         "PublicChannels/sendInitialChannelMessage",
+        "PublicChannels/setCurrentChannel",
+        "PublicChannels/clearUnreadChannel",
         "PublicChannels/finishGeneralRecreation",
         "Messages/sendMessage",
         "Messages/addMessagesSendingStatus",
@@ -171,6 +175,15 @@ describe('User', () => {
         "PublicChannels/cacheMessages",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
+        "Messages/addMessageVerificationStatus",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
+        "Messages/addMessageVerificationStatus",
       ]
     `)
   })

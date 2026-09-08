@@ -1,72 +1,24 @@
-import * as Block from 'multiformats/block'
-import * as dagCbor from '@ipld/dag-cbor'
-import { sha256 } from 'multiformats/hashes/sha2'
-import { base58btc } from 'multiformats/bases/base58'
-import {
-  type Storage,
-  type OrbitDBType,
-  type LogEntry,
-  type IdentitiesType,
-  ComposedStorage,
-  LRUStorage,
-  IPFSBlockStorage,
-} from '@orbitdb/core'
-import { getCrypto } from 'pkijs'
+/**
+ * OrbitDB access controller for public channels
+ */
+
+import { type LogEntry, type IdentitiesType, type CanAppendFunc } from '@orbitdb/core'
 import { NoCryptoEngineError } from '@quiet/types'
-import { posixJoin } from '../../../orbitDb/util'
 import { EncryptedMessage } from '../messages.types'
-import { createLogger } from '../../../../common/logger'
+import { AccessControllerConfig, BaseMessagesAccessController } from './BaseMessageAccessController'
+import { SigChainService } from '../../../../auth/sigchain.service'
+import { Injectable } from '@nestjs/common'
+import { isEncryptedMessage } from '../../../../validation/validators'
 
-const codec = dagCbor
-const hasher = sha256
-const hashStringEncoding = base58btc
+const TYPE = 'messagesaccess'
 
-const logger = createLogger(`storage:channels:messages:orbitdb:access-control`)
-
-const AccessControlList = async ({
-  storage,
-  type,
-  params,
-}: {
-  storage: Storage
-  type: string
-  params: Record<string, any>
-}) => {
-  const manifest = {
-    type,
-    ...params,
+@Injectable()
+export class MessagesAccessController extends BaseMessagesAccessController<AccessControllerConfig> {
+  constructor(protected sigchainService: SigChainService) {
+    super(TYPE, sigchainService)
   }
-  const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
-  const hash = cid.toString(hashStringEncoding)
-  await storage.put(hash, bytes)
-  return hash
-}
-
-const type = 'messagesaccess'
-
-export const MessagesAccessController =
-  ({ write }: { write: string[] }) =>
-  async ({ orbitdb, identities, address }: { orbitdb: OrbitDBType; identities: IdentitiesType; address: string }) => {
-    const storage = await ComposedStorage(
-      await LRUStorage({ size: 1000 }),
-      await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
-    )
-    write = write || [orbitdb.identity.id]
-
-    if (address) {
-      const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''))
-      const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
-      // FIXME: Figure out typings
-      // @ts-ignore
-      write = value.write
-    } else {
-      address = await AccessControlList({ storage, type, params: { write } })
-      address = posixJoin('/', type, address)
-    }
-
-    const crypto = getCrypto()
-
-    const canAppend = async (entry: LogEntry<EncryptedMessage>) => {
+  protected canAppend(config: AccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
+    return async (entry: LogEntry<EncryptedMessage>): Promise<boolean> => {
       if (!crypto) throw new NoCryptoEngineError()
 
       const writerIdentity = await identities.getIdentity(entry.identity)
@@ -75,23 +27,25 @@ export const MessagesAccessController =
       }
 
       const { id } = writerIdentity
-      if (write.includes(id) || write.includes('*')) {
-        if (!identities.verifyIdentity(writerIdentity)) {
+      if (config.write.includes(id) || config.write.includes('*')) {
+        if (!(await identities.verifyIdentity(writerIdentity))) {
           return false
         }
       } else {
         return false
       }
 
+      if (entry.payload.value == null) {
+        this.logger.error(`Can't verify OrbitDB entry ${entry.id}, payload value is nullish`)
+        return false
+      }
+
+      if (!isEncryptedMessage(entry.payload.value)) {
+        this.logger.warn(`Cannot validate msg ${entry.id}: encrypted message shape is not valid`)
+        return false
+      }
+
       return true
     }
-
-    return {
-      type,
-      address,
-      write,
-      canAppend,
-    }
   }
-
-MessagesAccessController.type = type
+}

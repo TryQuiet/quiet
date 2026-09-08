@@ -8,7 +8,6 @@ import ChannelsListItem from './ChannelsListItem'
 
 export interface ChannelsPanelProps {
   channels: PublicChannel[]
-  myUserProfile?: UserProfile
   userProfiles: Record<string, UserProfile>
   connectedPeers: string[]
   unreadChannels: string[]
@@ -16,11 +15,13 @@ export interface ChannelsPanelProps {
   currentChannelId: string
   createChannelModal: ReturnType<typeof useModal>
   isTorInitialized: boolean
+  canCreateChannel: boolean
 }
 
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
   unreadChannels,
+  canCreateChannel,
   setCurrentChannel,
   currentChannelId,
   createChannelModal,
@@ -30,8 +31,8 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
       <Grid item>
         <SidebarHeader
           title={'Channels'}
-          action={createChannelModal.handleOpen}
-          actionTitle={createChannelModal.handleOpen}
+          action={canCreateChannel ? createChannelModal.handleOpen : undefined}
+          actionTitle={canCreateChannel ? createChannelModal.handleOpen : undefined}
           tooltipText='Create new channel'
         />
       </Grid>

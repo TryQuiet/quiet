@@ -48,7 +48,7 @@ const LoadingPanel = () => {
       logger.info('Joining completed')
       loadingPanelModal.handleClose()
     }
-  }, [isJoiningCompletedSelector])
+  }, [isJoiningCompletedSelector, areMessages, areChannels, isCurrentCommunityInitialized])
 
   useEffect(() => {
     if (isConnected) {

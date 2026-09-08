@@ -11,20 +11,22 @@ export interface FilePreviewData {
   [id: string]: FileContent
 }
 
+export interface FileEncryptionMetadata {
+  header: string
+  recipient: {
+    generation: number
+    type: string
+    name: string
+  }
+}
+
 export interface FileMetadata extends FileContent {
   cid: string
   message: FileMessage
   size?: number
   width?: number
   height?: number
-  enc?: {
-    header: string
-    recipient: {
-      generation: number
-      type: string
-      name: string
-    }
-  }
+  enc?: FileEncryptionMetadata
 }
 
 export interface AttachFilePayload {

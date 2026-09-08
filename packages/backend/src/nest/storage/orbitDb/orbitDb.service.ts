@@ -7,6 +7,8 @@ import { ORBIT_DB_DIR } from '../../const'
 import { createLogger } from '../../common/logger'
 import { logEntryToLogUpdate, posixJoin } from './util'
 import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesAccessController'
+import { ChannelMetadataAccessController } from '../channels/orbitdb/ChannelMetadataAccessController'
+import { UserProfileAccessController } from '../userProfile/UserProfileAccessController'
 import {
   createOrbitDB,
   type OrbitDBType,
@@ -34,23 +36,162 @@ import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | undefined = undefined
   private stores: Record<string, DatabaseType> = {}
+  private storeAliases: Record<string, string> = {}
+  private orbitDbUpdateListenerAttached = false
   public identities: LFAIdentities | undefined = undefined
   public static readonly events = new EventEmitter()
 
   private readonly logger = createLogger(OrbitDbService.name)
 
+  private readonly handleOrbitDbUpdate = (entry: LogEntry): void => {
+    const localIdentityHash = this.orbitDbInstance?.identity.hash
+    if (localIdentityHash == null || entry.identity !== localIdentityHash) {
+      return
+    }
+
+    const store = this.getStore(entry.id)
+    if (store == null) {
+      this.logger.warn('Skipping OrbitDB put fanout for local entry without an open store', {
+        storeId: entry.id,
+        hash: entry.hash,
+      })
+      return
+    }
+
+    const storeAddress = this.normalizeStoreIdentifier((store as { address?: unknown }).address) ?? entry.id
+    OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, storeAddress, store.meta?.['teamId']))
+  }
+
+  private normalizeStoreIdentifier(value: unknown): string | undefined {
+    if (typeof value === 'string') {
+      return value.length > 0 ? value : undefined
+    }
+    if (value == null) {
+      return undefined
+    }
+    const asString = String(value)
+    return asString.length > 0 && asString !== '[object Object]' ? asString : undefined
+  }
+
+  private getStoreIdentifierAliases(value: unknown): string[] {
+    const normalized = this.normalizeStoreIdentifier(value)
+    if (normalized == null) {
+      return []
+    }
+
+    const aliases = new Set([normalized])
+    if (normalized.startsWith('/orbitdb/')) {
+      aliases.add(normalized.slice('/orbitdb/'.length))
+    } else if (normalized.startsWith('zdpu')) {
+      aliases.add(`/orbitdb/${normalized}`)
+    }
+    return Array.from(aliases)
+  }
+
+  private getStore(address: string): DatabaseType | undefined {
+    const normalizedAddress = this.normalizeStoreIdentifier(address)
+    if (normalizedAddress == null) {
+      return undefined
+    }
+    const canonicalAddress = this.storeAliases[normalizedAddress] ?? normalizedAddress
+    return this.stores[canonicalAddress]
+  }
+
+  private getStoreAliases(requestedAddress: string, store: DatabaseType): string[] {
+    const storeWithIds = store as DatabaseType & {
+      address?: unknown
+      id?: unknown
+      name?: unknown
+    }
+    return Array.from(
+      new Set(
+        [requestedAddress, storeWithIds.address, storeWithIds.id, storeWithIds.name].flatMap(alias =>
+          this.getStoreIdentifierAliases(alias)
+        )
+      )
+    )
+  }
+
+  private registerStore(requestedAddress: string, store: DatabaseType): string[] {
+    const storeAddress = this.normalizeStoreIdentifier((store as { address?: unknown }).address) ?? requestedAddress
+    const aliases = Array.from(new Set([storeAddress, ...this.getStoreAliases(requestedAddress, store)]))
+    this.stores[storeAddress] = store
+    for (const alias of aliases) {
+      this.storeAliases[alias] = storeAddress
+    }
+    return aliases
+  }
+
+  private unregisterStore(storeAddress: string): void {
+    const normalizedAddress = this.normalizeStoreIdentifier(storeAddress) ?? storeAddress
+    delete this.stores[normalizedAddress]
+    for (const [alias, canonicalAddress] of Object.entries(this.storeAliases)) {
+      if (canonicalAddress === normalizedAddress) {
+        delete this.storeAliases[alias]
+      }
+    }
+  }
+
+  private attachStoreLifecycleUnregister(store: DatabaseType, storeAddress: string): void {
+    const storeWithLifecycle = store as unknown as {
+      close?: (...args: any[]) => Promise<void>
+      drop?: (...args: any[]) => Promise<void>
+      __quietOrbitDbLifecycleWrapped?: boolean
+    }
+    if (storeWithLifecycle.__quietOrbitDbLifecycleWrapped) {
+      return
+    }
+    storeWithLifecycle.__quietOrbitDbLifecycleWrapped = true
+
+    if (typeof storeWithLifecycle.close === 'function') {
+      const close = storeWithLifecycle.close.bind(store)
+      storeWithLifecycle.close = async (...args: any[]) => {
+        try {
+          await close(...args)
+        } finally {
+          this.unregisterStore(storeAddress)
+        }
+      }
+    }
+
+    if (typeof storeWithLifecycle.drop === 'function') {
+      const drop = storeWithLifecycle.drop.bind(store)
+      storeWithLifecycle.drop = async (...args: any[]) => {
+        try {
+          await drop(...args)
+        } finally {
+          this.unregisterStore(storeAddress)
+        }
+      }
+    }
+  }
+
   constructor(
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     private readonly localDbService: LocalDbService,
     private readonly sigChainService: SigChainService,
-    private readonly lfaIdentities: LFAIdentities
+    private readonly lfaIdentities: LFAIdentities,
+    private readonly messagesAccessController: MessagesAccessController,
+    private readonly channelMetadataAccessController: ChannelMetadataAccessController,
+    private readonly userProfileAccessController: UserProfileAccessController
   ) {
-    OrbitDbService.events.on('update', (entry: LogEntry) => {
-      if (entry.identity == this.orbitDbInstance?.identity.hash) {
-        const store = this.stores[entry.id]
-        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
-      }
-    })
+    this.attachOrbitDbUpdateListener()
+  }
+
+  private attachOrbitDbUpdateListener(): void {
+    if (this.orbitDbUpdateListenerAttached) {
+      return
+    }
+    OrbitDbService.events.on('update', this.handleOrbitDbUpdate)
+    this.orbitDbUpdateListenerAttached = true
+  }
+
+  private detachOrbitDbUpdateListener(): void {
+    if (!this.orbitDbUpdateListenerAttached) {
+      return
+    }
+    OrbitDbService.events.off('update', this.handleOrbitDbUpdate)
+    this.orbitDbUpdateListenerAttached = false
   }
 
   get orbitDb() {
@@ -67,8 +208,34 @@ export class OrbitDbService {
       this.logger.warn(`Already had an instance of OrbitDB, returning...`)
       return
     }
+    this.attachOrbitDbUpdateListener()
 
-    orbitDbUseAccessController(MessagesAccessController)
+    orbitDbUseAccessController(
+      this.messagesAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+      }) as any
+    )
+    orbitDbUseAccessController(
+      this.channelMetadataAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+        isPublic: true,
+      }) as any
+    )
+    orbitDbUseAccessController(
+      this.channelMetadataAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+        isPublic: false,
+      }) as any
+    )
+    orbitDbUseAccessController(
+      this.userProfileAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+      }) as any
+    )
 
     /**
      * This overrides the built-in identity system to use our custom LFA-based identity service
@@ -95,13 +262,16 @@ export class OrbitDbService {
     if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
-    if (address && !this.stores[address]) {
-      throw new Error(`No store found for address ${address}. Cannot start sync.`)
+    if (address) {
+      const store = this.getStore(address)
+      if (store == null) {
+        throw new Error(`No store found for address ${address}. Cannot start sync.`)
+      }
+      await store.sync?.start?.()
+      this.logger.info(`Started sync for store ${store.address}`)
+      return
     }
     for (const store of Object.values(this.stores)) {
-      if (address && store.address !== address) {
-        continue
-      }
       await store.sync?.start?.()
       this.logger.info(`Started sync for store ${store.address}`)
     }
@@ -111,19 +281,23 @@ export class OrbitDbService {
     if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
-    if (address && !this.stores[address]) {
-      throw new Error(`No store found for address ${address}. Cannot stop sync.`)
+    if (address) {
+      const store = this.getStore(address)
+      if (store == null) {
+        throw new Error(`No store found for address ${address}. Cannot stop sync.`)
+      }
+      await store.sync?.stop?.()
+      this.logger.info(`Stopped sync for store ${store.address}`)
+      return
     }
     for (const store of Object.values(this.stores)) {
-      if (address && store.address !== address) {
-        continue
-      }
       await store.sync?.stop?.()
       this.logger.info(`Stopped sync for store ${store.address}`)
     }
   }
 
   public async stop() {
+    this.detachOrbitDbUpdateListener()
     if (this.orbitDbInstance != undefined) {
       this.logger.info('Stopping OrbitDB')
       try {
@@ -133,6 +307,7 @@ export class OrbitDbService {
       }
     }
     this.stores = {}
+    this.storeAliases = {}
     this.orbitDbInstance = undefined
     this.identities = undefined
   }
@@ -142,11 +317,14 @@ export class OrbitDbService {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
     const store = await this.orbitDbInstance.open<T>(address, options)
-    const storeAddress = (store as { address: string }).address
-    this.stores[storeAddress] = store
+    const storeAddress = this.normalizeStoreIdentifier((store as { address?: unknown }).address) ?? address
+    const aliases = this.registerStore(address, store)
+    this.attachStoreLifecycleUnregister(store, storeAddress)
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
 
-    await this.joinPendingHeads(storeAddress)
+    for (const alias of aliases) {
+      await this.joinPendingHeads(alias)
+    }
     return store
   }
 
@@ -180,7 +358,7 @@ export class OrbitDbService {
       return
     }
 
-    const store = this.stores[address]
+    const store = this.getStore(address)
     if (!store) {
       return
     }
@@ -210,7 +388,7 @@ export class OrbitDbService {
     if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
-    const newHeads: Map<string, LogEntry[]> = new Map()
+    const entriesByLog: Map<string, LogEntry[]> = new Map()
     for (const entry of entries) {
       const cid = CID.parse(entry.hash, base58btc)
       await this.orbitDbInstance.ipfs.blockstore.put(cid, entry.bytes)
@@ -222,24 +400,25 @@ export class OrbitDbService {
         }
       }
 
-      if (!newHeads.has(entry.id)) {
-        newHeads.set(entry.id, [entry])
-        continue
-      }
-      const currentMaxHead = newHeads.get(entry.id)?.[0]
-      if (currentMaxHead?.clock && currentMaxHead.clock.time < entry.clock.time) {
-        newHeads.set(entry.id, [entry])
-      } else if (currentMaxHead?.clock && currentMaxHead.clock.time === entry.clock.time) {
-        newHeads.get(entry.id)?.push(entry)
-      }
+      const logEntries = entriesByLog.get(entry.id) ?? []
+      logEntries.push(entry)
+      entriesByLog.set(entry.id, logEntries)
     }
 
+    // Lamport clock order does not imply ancestry: concurrent branches can have
+    // different clock times. Keep every entry that is not referenced by another
+    // entry in this batch so independent heads are not dropped during QSS pulls.
+    const newHeads = Array.from(entriesByLog.entries()).map(([id, logEntries]) => {
+      const referencedHashes = new Set(logEntries.flatMap(entry => entry.next))
+      return [id, logEntries.filter(entry => !referencedHashes.has(entry.hash))] as const
+    })
+
     // For each id, try to join heads (async, using joinQueue)
-    const joinAll = Array.from(newHeads.entries()).map(([id, heads]) => this.joinHeads(id, heads))
+    const joinAll = newHeads.map(([id, heads]) => this.joinHeads(id, heads))
     await Promise.all(joinAll)
   }
 
-  public async handleFanoutMessage(message: LogEntrySyncMessage): Promise<void> {
+  public async handleFanoutMessage(message: LogEntrySyncMessage): Promise<boolean> {
     this.logger.debug('Ingesting fanout message, ', message.payload.hash)
     try {
       const logEntry: LogEntry = this.sigChainService.crypto.decryptAndVerify<LogEntry>(
@@ -247,8 +426,10 @@ export class OrbitDbService {
         message.payload.encEntry.signature
       ).contents
       await this.ingestEntries([logEntry])
+      return true
     } catch (err) {
       this.logger.error(`Failed to handle fanout log entry sync message`, err)
+      return false
     }
   }
 
@@ -258,10 +439,18 @@ export class OrbitDbService {
     }
 
     const entries: LogEntry[] = []
-    const store = this.stores[address]
+    const store = this.getStore(address)
+    if (store == null) {
+      throw new Error(`No store found for address ${address}. Cannot get log entries.`)
+    }
     for (const hash of hashes) {
-      const entry = await (store.log as LogType).get(hash)
-      entries.push(entry)
+      try {
+        const entry = await (store.log as LogType).get(hash)
+        entries.push(entry)
+      } catch (err) {
+        this.logger.warn(`Failed to get log entry ${hash} from store ${address}`, err)
+        continue
+      }
     }
 
     return entries

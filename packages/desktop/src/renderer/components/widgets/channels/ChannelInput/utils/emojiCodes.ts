@@ -1,4 +1,4 @@
-import { is } from 'ramda'
+// @ts-ignore
 import emojiDataJson from 'unicode-emoji-json'
 const emojiData = emojiDataJson as EmojiData
 

@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from './test.module'
-import { getLocalLibp2pInstanceParams, getInMemoryLibp2pInstanceParams, libp2pInstanceParams } from './utils'
+import {
+  generateLibp2pPSK,
+  getLocalLibp2pInstanceParams,
+  getInMemoryLibp2pInstanceParams,
+  libp2pInstanceParams,
+} from './utils'
 import { Libp2pModule } from '../libp2p/libp2p.module'
 import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLogger } from './logger'
@@ -44,7 +49,7 @@ export const spawnLibp2pInstances = async (
   sharePsk: boolean = true
 ) => {
   logger.info(`creating ${modules.length} libp2p instances`)
-  const singlePSK = Libp2pService.generateLibp2pPSK().fullKey
+  const singlePSK = generateLibp2pPSK().fullKey
   const libp2pServices = []
   for (let i = 0; i < modules.length; i++) {
     logger.info(`creating libp2p instance ${i}`)
@@ -71,7 +76,7 @@ export const spawnLibp2pInstancesInMemory = async (
   sharePsk: boolean = true
 ): Promise<Libp2pNodeParams[]> => {
   logger.info(`creating ${modules.length} in-memory libp2p instances`)
-  const singlePSK = Libp2pService.generateLibp2pPSK().fullKey
+  const singlePSK = generateLibp2pPSK().fullKey
   const libp2pServices = []
   const params: Libp2pNodeParams[] = []
   for (let i = 0; i < modules.length; i++) {

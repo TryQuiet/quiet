@@ -10,7 +10,7 @@ import { communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import { channelDeletionResponseSaga } from './channelDeletionResponse.saga'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { CommunityOwnership, type Community, type Identity, type PublicChannel } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { select } from 'redux-saga-test-plan/matchers'
@@ -26,6 +26,7 @@ describe('channelDeletionResponseSaga', () => {
 
   let photoChannel: PublicChannel
   let generalChannel: PublicChannel
+  let privateChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -51,10 +52,23 @@ describe('channelDeletionResponseSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
-    ).channel
+    ).channel!
+
+    privateChannel = (
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'private',
+          description: 'Welcome to #private',
+          timestamp: DateTime.utc().valueOf(),
+          owner: owner.userId,
+          id: generateTestChannelId('private'),
+          public: false,
+        },
+      })
+    ).channel!
   })
 
   describe('handle saga logic as owner of community', () => {
@@ -75,7 +89,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
-        .put(messagesActions.sendDeletionMessage({ channelId }))
+        .put(messagesActions.sendDeletionMessage({ channelId, channelName: photoChannel.name, isPublic: true }))
         .run()
     })
 
@@ -99,7 +113,28 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
         .put(publicChannelsActions.createGeneralChannel())
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
+        .run()
+    })
 
+    test('delete private channel', async () => {
+      const channelId = privateChannel.id
+
+      const reducer = combineReducers(testReducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId,
+          deleted: true,
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
@@ -120,14 +155,16 @@ describe('channelDeletionResponseSaga', () => {
         .not.put(messagesActions.deleteChannelEntry({ channelId }))
         .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .not.put(publicChannelsActions.completeChannelDeletion({}))
-        .not.put(messagesActions.sendDeletionMessage({ channelId }))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
   })
 
   describe('handle saga logic as standard user', () => {
     beforeAll(async () => {
-      store.dispatch(communitiesActions.updateCommunityData({ ...community, ownership: CommunityOwnership.User }))
+      store.dispatch(
+        communitiesActions.updateCommunityData({ id: community.id, updates: { ownership: CommunityOwnership.User } })
+      )
     })
     test('delete standard channel', async () => {
       const channelId = photoChannel.id
@@ -145,6 +182,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
@@ -163,6 +201,8 @@ describe('channelDeletionResponseSaga', () => {
         owner: 'general_owner',
         timestamp: 0,
         id: newGeneralId,
+        public: true,
+        teamId: community.teamId!,
       }
 
       const reducer = combineReducers(testReducers)
@@ -183,6 +223,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.completeChannelDeletion({}))
         .provide([{ call: provideDelay }, [select(publicChannelsSelectors.generalChannel), generalChannel]])
         .put(publicChannelsActions.setCurrentChannel({ channelId }))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
@@ -210,6 +251,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
@@ -230,7 +272,7 @@ describe('channelDeletionResponseSaga', () => {
         .not.put(messagesActions.deleteChannelEntry({ channelId }))
         .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .not.put(publicChannelsActions.completeChannelDeletion({}))
-        .not.put(messagesActions.sendDeletionMessage({ channelId }))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
   })

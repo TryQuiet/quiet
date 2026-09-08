@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ipcRenderer } from 'electron'
 import Root, { persistor } from './Root'
 import store from './store'
+import { clearCommunityWithDependencies } from './clearCommunity'
 import updateHandlers from './store/handlers/update'
 import { socketActions } from './sagas/socket/socket.slice'
 import { communities, captcha } from '@quiet/state-manager'
@@ -61,15 +62,17 @@ let root = createRoot(container)
 root.render(<Root />)
 
 export const clearCommunity = async () => {
-  persistor.pause()
-  await persistor.flush()
-  await persistor.purge()
-  store.dispatch(communities.actions.resetApp('payload'))
-  ipcRenderer.send('clear-community')
-  root.unmount()
-  root = createRoot(container)
-  root.render(<Root />)
-  persistor.persist()
+  await clearCommunityWithDependencies({
+    persistor,
+    dispatch: store.dispatch,
+    resetAppAction: communities.actions.resetApp('payload'),
+    requestBackendLeave: () => ipcRenderer.invoke('clear-community'),
+    remountRoot: () => {
+      root.unmount()
+      root = createRoot(container)
+      root.render(<Root />)
+    },
+  })
 }
 
 if (module.hot) {

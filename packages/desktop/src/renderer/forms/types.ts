@@ -4,7 +4,7 @@ export interface FieldProps {
   label: string
   name: string
   type: string
-  placeholder: string
+  placeholder?: string
 }
 
 export interface FieldData {

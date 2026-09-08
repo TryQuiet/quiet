@@ -5,6 +5,7 @@ import {
   channelMessagesAdapter,
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter,
+  channelSpecificPermissionsAdapter,
 } from './publicChannels.adapter'
 
 import {
@@ -18,7 +19,6 @@ import {
   type DeleteChannelFromStorePayload,
   type DeleteChannelPayload,
   type DisableChannelPayload,
-  type Identity,
   INITIAL_CURRENT_CHANNEL_ID,
   type MarkUnreadChannelPayload,
   type PublicChannelStatus,
@@ -28,7 +28,12 @@ import {
   type ChannelSubscribedPayload,
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
-  User,
+  type AddMembersChannelPayload,
+  ChannelOperationStatus,
+  type GenericChannelPermissions,
+  DEFAULT_GENERIC_CHANNEL_PERMISSIONS,
+  type SetChannelPermissionsPayload,
+  type PrivateChannelPermissions,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -45,6 +50,11 @@ export class PublicChannelsState {
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
+
+  public genericChannelPermissions: GenericChannelPermissions = DEFAULT_GENERIC_CHANNEL_PERMISSIONS
+
+  public channelSpecificPermissions: EntityState<PrivateChannelPermissions> =
+    channelSpecificPermissionsAdapter.getInitialState()
 }
 
 export const publicChannelsSlice = createSlice({
@@ -53,6 +63,7 @@ export const publicChannelsSlice = createSlice({
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
+    addMembersChannel: (state, action: PayloadAction<AddMembersChannelPayload>) => state,
     completeChannelDeletion: (state, _action) => state,
     sendIntroductionMessage: state => state,
     channelDeletionResponse: (state, _action: PayloadAction<DeleteChannelResponse>) => state,
@@ -88,7 +99,15 @@ export const publicChannelsSlice = createSlice({
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
       logger.info('addChannel', action.payload)
-      const { channel } = action.payload
+      const { channel, status } = action.payload
+      if (status === ChannelOperationStatus.FAILED) {
+        logger.error('addChannel got a failed status!')
+        return
+      }
+      if (channel == null) {
+        logger.error('addChannel got a success status but null channel')
+        return
+      }
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
         messages: channelMessagesAdapter.getInitialState(),
@@ -97,6 +116,7 @@ export const publicChannelsSlice = createSlice({
         id: channel.id,
         unread: false,
         newestMessage: null,
+        public: channel.public,
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {
@@ -145,6 +165,11 @@ export const publicChannelsSlice = createSlice({
           newestMessage: message,
         },
       })
+    },
+    setChannelPermissions: (state, action: PayloadAction<SetChannelPermissionsPayload>) => {
+      const { genericPermissions, channelSpecificPermissions } = action.payload
+      state.genericChannelPermissions = genericPermissions
+      channelSpecificPermissionsAdapter.setAll(state.channelSpecificPermissions, channelSpecificPermissions)
     },
     // Utility action for testing purposes
     test_message: (

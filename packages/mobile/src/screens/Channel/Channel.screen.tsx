@@ -53,7 +53,7 @@ export const ChannelScreen: FC = () => {
 
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
 
-  if (!isOwner || !isWebsocketConnected) {
+  if (!isWebsocketConnected || (!isOwner && currentChannel?.public)) {
     contextMenu = null
   }
 

@@ -2,12 +2,13 @@ import React, { FC, useState, useCallback, useEffect } from 'react'
 import { CreateChannel } from '../../components/CreateChannel/CreateChannel.component'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities, identity, publicChannels, errors } from '@quiet/state-manager'
-import { ErrorCodes, ErrorMessages, PublicChannel, SocketActions, ChannelStructure } from '@quiet/types'
-import { DateTime } from 'luxon'
+import { ErrorCodes, ErrorMessages, SocketActions, ChannelStructure } from '@quiet/types'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
-import { generateChannelId } from '@quiet/common'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('CreateChannelScreen')
 
 export const CreateChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -21,7 +22,7 @@ export const CreateChannelScreen: FC = () => {
   const user = useSelector(identity.selectors.currentIdentity)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
-
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
 
@@ -30,13 +31,14 @@ export const CreateChannelScreen: FC = () => {
   useEffect(() => {
     if (
       currentScreen === ScreenNames.CreateChannelScreen &&
-      channel.channelId !== null &&
       channel.channelName !== null &&
-      channels.filter(_channel => _channel.name === channel.channelName).length > 0
+      channels.find(_channel => _channel.name === channel.channelName) != null
     ) {
+      const createdChannel = channels.find(_channel => _channel.name === channel.channelName)
+      if (createdChannel == null) return
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelId: channel.channelId,
+          channelId: createdChannel.id,
         })
       )
       setChannel({ channelId: null, channelName: null })
@@ -56,7 +58,7 @@ export const CreateChannelScreen: FC = () => {
   }
 
   const createChannelAction = useCallback(
-    (name: string) => {
+    (name: string, isPublic: boolean) => {
       clearErrors()
 
       // Validate channel name
@@ -82,19 +84,35 @@ export const CreateChannelScreen: FC = () => {
         )
         return
       }
-      const id = generateChannelId(name)
 
-      setChannel({ channelId: id, channelName: name })
+      const canCreate = isPublic ? channelPermissions.public.create : channelPermissions.private.create
+      if (!canCreate) {
+        dispatch(
+          errors.actions.addError({
+            type: SocketActions.CREATE_CHANNEL,
+            code: ErrorCodes.FORBIDDEN,
+            message: ErrorMessages.CHANNEL_PERMISSIONS_INVALID,
+            community: community?.id,
+          })
+        )
+        return
+      }
+      setChannel({ channelId: null, channelName: name })
+
+      if (community == null || community.teamId == null) {
+        throw new Error(`Can't create channel when community isn't initialized`)
+      }
 
       dispatch(
         publicChannels.actions.createChannel({
           name: name,
           description: `Welcome to #${name}`,
-          id: id,
+          public: isPublic,
+          teamId: community.teamId,
         })
       )
     },
-    [dispatch]
+    [dispatch, channelPermissions]
   )
 
   const handleBackButton = useCallback(() => {
@@ -111,6 +129,8 @@ export const CreateChannelScreen: FC = () => {
       channelCreationError={error?.message}
       clearComponent={clearComponent}
       handleBackButton={handleBackButton}
+      canCreateChannel={channelPermissions.public.create}
+      canCreatePrivateChannel={channelPermissions.private.create}
     />
   )
 }

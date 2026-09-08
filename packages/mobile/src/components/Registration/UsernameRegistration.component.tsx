@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState, useRef } from 'react'
-import { Image, Keyboard, KeyboardAvoidingView, TextInput, View } from 'react-native'
+import { Image, Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
@@ -79,7 +79,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     >
       {!isNewUser && <Appbar title={'Username taken'} back={handleBackButton} crossBackIcon />}
       <KeyboardAvoidingView
-        behavior='height'
+        behavior={Platform.select({ ios: 'padding', android: 'height' })}
         style={{
           flex: 1,
           justifyContent: !isNewUser ? 'flex-start' : 'center',

@@ -10,6 +10,7 @@ import { EncryptedKeyValueIndexedValidatedStoreBase } from '../base.store'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
+import { SigchainEvents } from '../../auth/types'
 
 const logger = createLogger('NotificationTokensStore')
 
@@ -28,6 +29,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
     private readonly auth: SigChainService
   ) {
     super()
+    this.auth.on(SigchainEvents.UPDATED, this.handleAuthUpdated)
   }
 
   public async init() {
@@ -49,20 +51,24 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       })
     })
 
-    this.auth.on('updated', async () => {
-      try {
-        await this.flushDeferredEntries()
-        await this.store!.retryIndexingUnindexedEntries()
-      } catch (err) {
-        logger.error('Failed to update notification tokens:', err)
-      }
-    })
-
     await this.store!.retryIndexingUnindexedEntries()
 
     this.emit(StorageEvents.NOTIFICATION_TOKENS_STORED, {
       entries: await this.getAllEntries(),
     })
+  }
+
+  private readonly handleAuthUpdated = async (): Promise<void> => {
+    if (!this.store) {
+      return
+    }
+
+    try {
+      await this.flushDeferredEntries()
+      await this.store.retryIndexingUnindexedEntries()
+    } catch (err) {
+      logger.error('Failed to update notification tokens:', err)
+    }
   }
 
   public async startSync() {
@@ -78,7 +84,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       logger.info('No team found, cannot flush deferred notification tokens')
       return
     }
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+    if (!this.auth.roles.amIMember()) {
       logger.warn('User does not have permission to write notification tokens')
       return
     }
@@ -141,6 +147,26 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
     }
   }
 
+  public async tombstoneUser(userId: string): Promise<string> {
+    const myEntry = await this.getStore().get(userId)
+    if (!myEntry) {
+      logger.info(`No existing notification token entry found for user ${userId}, must skip tombstone`)
+      return ''
+    }
+
+    const tombstoneEntry: PushNotificationTokens = { userId, tokens: [] }
+
+    try {
+      const encEntry = await this.encryptEntry(tombstoneEntry)
+      const hash = await this.getStore().put(userId, encEntry)
+      return hash
+    } catch (err) {
+      logger.error('Failed to tombstone notification token entry:', userId, err)
+      this.deferredEntries.push(tombstoneEntry)
+      throw err
+    }
+  }
+
   /**
    * Appends a UCAN token for a user, enforcing a max of MAX_TOKENS_PER_USER.
    * Deduplicates by exact string match. Evicts oldest tokens when at capacity.
@@ -193,17 +219,15 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
         const valueUserId = encPayload.userId
         const decUserId = decEntry.userId
         const sigAuthor = encPayload.signature.author.name
-        if (
-          !(
-            key &&
-            valueUserId &&
-            decUserId &&
-            sigAuthor &&
-            key === valueUserId &&
-            key === decUserId &&
-            key === sigAuthor
-          )
-        ) {
+        const idsMatch =
+          key != null &&
+          valueUserId != null &&
+          decUserId != null &&
+          sigAuthor != null &&
+          key === valueUserId &&
+          key === decUserId &&
+          key === sigAuthor
+        if (!idsMatch) {
           logger.error(
             `Failed to verify notification token entry: ${entry.hash} - ID mismatch. key=${key}, valueUserId=${valueUserId}, decUserId=${decUserId}, sigAuthor=${sigAuthor}`
           )
@@ -234,11 +258,21 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
   public async clean(): Promise<void> {
     logger.info('Cleaning notification tokens store')
     this.deferredEntries = []
+    const store = this.store
     try {
-      await this.store?.sync?.stop?.()
-      await this.store?.drop?.()
+      await store?.sync?.stop?.()
     } catch (err) {
-      logger.error('Failed to clean notification tokens store:', err)
+      // If the sync is not started, this will throw an error
+    }
+    try {
+      await store?.drop?.()
+    } catch (err) {
+      logger.error('Failed to drop notification tokens store:', err)
+    }
+    try {
+      await store?.close?.()
+    } catch (err) {
+      logger.error('Failed to close notification tokens store after drop:', err)
     }
     this.store = undefined
   }

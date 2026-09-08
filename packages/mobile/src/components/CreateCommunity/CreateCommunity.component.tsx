@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { Keyboard, KeyboardAvoidingView, TextInput, View } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View, Image } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
@@ -8,6 +8,8 @@ import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { CreateCommunityProps } from './CreateCommunity.types'
 import { Splash } from '../Splash/Splash.component'
+
+import { icons } from '../../assets'
 
 export const CreateCommunity: FC<CreateCommunityProps> = ({
   createCommunityAction,
@@ -55,7 +57,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
           testID={'create-community-component'}
         >
           <KeyboardAvoidingView
-            behavior='height'
+            behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
               flex: 1,
               justifyContent: 'center',
@@ -89,6 +91,31 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
             </View>
             <View style={{ marginTop: 32 + 12 }}>
               <Button onPress={onPress} title={'Continue'} loading={loading} />
+            </View>
+            <View
+              style={{
+                marginTop: 32 + 12,
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                gap: 4,
+              }}
+            >
+              <Image
+                source={icons.icon_warning}
+                resizeMode='cover'
+                resizeMethod='resize'
+                style={{
+                  width: 16,
+                  height: 16,
+                }}
+              />
+              <Typography
+                fontSize={14}
+                style={{ color: defaultTheme.palette.typography.grayDark, textAlign: 'center' }}
+              >
+                {"Quiet is in beta and shouldn't be used for activities requiring security."}
+              </Typography>
             </View>
           </KeyboardAvoidingView>
         </View>

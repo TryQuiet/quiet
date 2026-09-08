@@ -61,6 +61,7 @@ const messageSchema = joi.object({
 // extends messageSchema to include "verified" field
 const consumedChannelMessageSchema = messageSchema.append({
   verified: joi.boolean().required(),
+  teamId: joi.string().required(),
 })
 
 const encryptedMessageSchema = joi.object({
@@ -96,6 +97,10 @@ const channelSchema = joi.object({
   timestamp: joi.number().required(),
   id: joi.string(),
   address: joi.string(),
+  public: joi.boolean().optional(),
+  roleName: joi.string().optional(),
+  disabled: joi.boolean().optional(),
+  teamId: joi.string().optional(),
 })
 
 // TODO: make this validator more strict

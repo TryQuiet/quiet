@@ -23,7 +23,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   const handleAction = (nickname: string) => {
     dispatch(identity.actions.registerUsername({ nickname: nickname, isUsernameTaken: false }))
     if (
-      (invitationCodes?.version === InvitationDataVersion.v3 && invitationCodes?.qssEnabled) ||
+      (invitationCodes?.version === InvitationDataVersion.v5 && invitationCodes?.qssEnabled) ||
       pendingNavigation === ScreenNames.TermsOfServiceScreen
     ) {
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.TermsOfServiceScreen }))

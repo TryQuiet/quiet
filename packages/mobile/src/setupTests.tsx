@@ -27,6 +27,8 @@ setIdentityEngine(
 
 jest.mock('react-native-config', () => ({
   NODE_ENV: 'staging',
+  QSS_ALLOWED: 'true',
+  FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED: 'true',
 }))
 
 jest.mock('redux-persist-filesystem-storage', () => {})
@@ -47,9 +49,18 @@ jest.mock('react-native', () => {
     requestNotificationPermission: jest.fn(),
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),
+    saveKeysInKeychain: jest.fn(),
+    saveDeviceCredentials: jest.fn(),
+    saveUserMetadata: jest.fn(),
+    saveNseQssUrl: jest.fn(),
+    saveNseLastSyncSeq: jest.fn(),
+    setTeamQssEnabled: jest.fn(),
+    setUserBackgroundTorEnabled: jest.fn(),
+    clearSensitiveData: jest.fn(),
   }
   rn.NativeModules.FirebaseMessagingModule = {
     getToken: jest.fn(),
+    deleteToken: jest.fn(),
   }
   return rn
 })
@@ -105,6 +116,9 @@ jest.mock('react-native-device-info', () => {
   return {
     getVersion: () => {
       return '1.0.0'
+    },
+    getBundleId: () => {
+      return 'com.quietmobile'
     },
   }
 })
@@ -170,6 +184,13 @@ jest.mock('react-native-file-logger', () => {
     },
   }
 })
+
+jest.mock('react-native-zip-archive', () => ({
+  zip: jest.fn(),
+  unzip: jest.fn(),
+}))
+
+jest.mock('react-native-share', () => ({ default: { open: jest.fn() } }))
 
 export const ioMock = io as jest.Mock
 

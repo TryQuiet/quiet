@@ -87,8 +87,10 @@ RCT_EXPORT_MODULE()
   [[NodeRunner sharedInstance] startEngineWithArguments:nodeArguments:nodePath];
 }
 
-RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)options)
+-(void)startNodeProjectInBackground:(NSString *)command
 {
+  // node_start runs the Node event loop synchronously for the backend's
+  // lifetime. Keep it off React Native's method queue and UIKit's main thread.
   if(![NodeRunner sharedInstance].startedNodeAlready)
   {
     [NodeRunner sharedInstance].startedNodeAlready=true;
@@ -102,6 +104,11 @@ RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)o
     [nodejsThread setStackSize:2*1024*1024];
     [nodejsThread start];
   }
+}
+
+RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)options)
+{
+  [self startNodeProjectInBackground:command];
 }
 
 -(void)sendMessageToNode:(NSString *)event :(NSString *)message

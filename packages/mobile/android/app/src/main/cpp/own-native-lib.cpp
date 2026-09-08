@@ -97,13 +97,15 @@ int start_redirecting_stdout_stderr() {
   pipe(pipe_stderr);
   dup2(pipe_stderr[1], STDERR_FILENO);
 
-  int stdout_thread_create = pthread_create(&thread_stdout, nullptr, thread_stdout_func, nullptr);
+  int stdout_thread_create =
+      pthread_create(&thread_stdout, nullptr, thread_stdout_func, nullptr);
   if (stdout_thread_create != 0) // may return EAGAIN, EPERM or EINVAL on error
     return stdout_thread_create;
 
   pthread_detach(thread_stdout);
 
-  int stderr_thread_create = pthread_create(&thread_stderr, nullptr, thread_stderr_func, nullptr);
+  int stderr_thread_create =
+      pthread_create(&thread_stderr, nullptr, thread_stderr_func, nullptr);
 
   if (stderr_thread_create != 0)
     return stderr_thread_create;
@@ -145,7 +147,6 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
          "libp2p*,helia*,blockstore*",
          1);
   setenv("COLORIZE", "false", 1);
-  setenv("LOG_TO_FILE", "true", 1);
   setenv("LOG_DIR", log_path, 1);
 
   // Set custom environment variables from envVars array
@@ -180,7 +181,7 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
   }
 
   // Stores arguments in contiguous memory.
-  char *args_buffer = (char *) calloc(c_arguments_size, sizeof(char));
+  char *args_buffer = (char *)calloc(c_arguments_size, sizeof(char));
   // argv to pass into node.
   char *argv[argument_count];
 
@@ -203,8 +204,8 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
     current_args_position += strlen(current_args_position) + 1;
   }
 
-  // NOTE: this works on android but breaks on GrapheneOS which uses its own hardened version of calloc/malloc/free
-  // free(args_buffer);
+  // NOTE: this works on android but breaks on GrapheneOS which uses its own
+  // hardened version of calloc/malloc/free free(args_buffer);
 
   rn_register_bridge_cb(&rcv_message);
 

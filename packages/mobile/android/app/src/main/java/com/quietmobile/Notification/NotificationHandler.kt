@@ -4,11 +4,15 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.quietmobile.MainActivity
+import com.quietmobile.Push.QuietStorage
 import com.quietmobile.R
 import com.quietmobile.Utils.Const
 import org.json.JSONException
@@ -23,7 +27,7 @@ class NotificationHandler(private val context: Context) {
         val jsonMessage: JSONObject = try {
             JSONObject(message)
         } catch (e: JSONException) {
-            Log.e("NOTIFICATION", "unexpected JSON exception", e)
+            Log.e(TAG, "unexpected JSON exception", e)
             return
         }
 
@@ -41,6 +45,14 @@ class NotificationHandler(private val context: Context) {
             }
             // Parse message content
             val content = String.format("%s", jsonMessage.getString("message"))
+            if (!logNotificationState()) {
+                Log.i(TAG, "Skipping notification because notifications are disabled or permission is missing")
+                return
+            }
+            if (!QuietStorage.recordDisplayedNotificationHashIfNew(jsonMessage)) {
+                Log.i(TAG, "Skipping notification because message was already displayed")
+                return
+            }
             // Keep all notifications under application's group
             val group = context.getString(R.string.app_name)
             createGroup(group)
@@ -48,7 +60,7 @@ class NotificationHandler(private val context: Context) {
             composeNotification(channelId, channelName, user, content, group)
 
         } catch (e: JSONException) {
-            Log.e("NOTIFICATION", "incorrect NOTIFICATION payload", e)
+            Log.e(TAG, "incorrect NOTIFICATION payload", e)
             return
         }
 
@@ -83,11 +95,14 @@ class NotificationHandler(private val context: Context) {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setGroupSummary(true)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+            .setSilent(true)
             .setGroup(group)
 
         val notificationManager =
             NotificationManagerCompat.from(context.applicationContext)
 
+        Log.i(TAG, "Posting group notification group=$group notificationId=$id")
         notificationManager.notify(id, groupBuilder.build())
     }
 
@@ -142,7 +157,32 @@ class NotificationHandler(private val context: Context) {
         val notificationManager =
             NotificationManagerCompat.from(context.applicationContext)
 
+        Log.i(
+            TAG,
+            "Posting message notification channelId=$channelId notificationId=$id channelName=$channelName",
+        )
         notificationManager.notify(id, builder.build())
+    }
+
+    private fun logNotificationState(): Boolean {
+        val notificationsEnabled = NotificationManagerCompat.from(context.applicationContext)
+            .areNotificationsEnabled()
+        val permissionGranted =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
+
+        Log.i(
+            TAG,
+            "notify called notificationsEnabled=$notificationsEnabled postPermissionGranted=$permissionGranted",
+        )
+        return notificationsEnabled && permissionGranted
+    }
+
+    companion object {
+        private const val TAG = "NotificationHandler"
     }
 
 }

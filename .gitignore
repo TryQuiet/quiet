@@ -10,6 +10,7 @@ packages/.DS_Store
 *.log
 clangd/
 **/.claude/settings.local.json
+.claude/worktrees
 
 
 # Yarn
@@ -22,3 +23,4 @@ clangd/
 
 # Firebase
 GoogleService-Info.plist
+google-services.json

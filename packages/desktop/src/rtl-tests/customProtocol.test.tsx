@@ -16,6 +16,7 @@ import {
   type Community,
   type InvitationData,
   type Identity,
+  type InvitationDataV4,
 } from '@quiet/types'
 import { composeInvitationDeepUrl } from '@quiet/common'
 import { act } from '@testing-library/react'
@@ -45,8 +46,8 @@ describe('Opening app through custom protocol', () => {
       socket // Fork state manager's sagas
     )
 
-    const invitationCodes: InvitationData = {
-      version: InvitationDataVersion.v1,
+    const invitationCodes: InvitationDataV4 = {
+      version: InvitationDataVersion.v4,
       pairs: [
         {
           peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
@@ -54,7 +55,11 @@ describe('Opening app through custom protocol', () => {
         },
       ],
       psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-      ownerOrbitDbIdentity: '018f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0', // 64-char hex
+      authData: {
+        teamId: 'F8UrkARjjngkBJVSJp1dTVo63xMZRcFzsH5wXGwgprW2',
+        communityName: 'communityName',
+        seed: '6k6damwb3z1emfqw',
+      },
     }
 
     const deepUrl = composeInvitationDeepUrl(invitationCodes)

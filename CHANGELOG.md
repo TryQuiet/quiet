@@ -4,10 +4,91 @@
 
 ### Features
 
+* Add beta warning message to desktop when creating/joining a community [#3351](https://github.com/TryQuiet/quiet/issues/3351)
+
+### Breaking
+
+* Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
+* Use chain permission checks to gate channel creation, deletion and membership [#3344](https://github.com/TryQuiet/quiet/issues/3344)
+* Use randomly generated role names for private channels [#3354](https://github.com/TryQuiet/quiet/issues/3354)
+* Tighten user profile store access control and validations [#3340](https://github.com/TryQuiet/quiet/issues/3340)
+
+### Fixes
+
+* iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
+* Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
+* Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
+* Fix tapable area in two places in the Appbar [#3372] (https://github.com/TryQuiet/quiet/issues/3372)
+
+## [8.0.0]
+
+### Features
+
+* Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
+* Allow channel members to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
+
+### Fixes
+
+* Don't send deletion message for private channels [#3273](https://github.com/TryQuiet/quiet/issues/3273)
+* Ensure notification registration waits for auth handshake [#3289](https://github.com/TryQuiet/quiet/issues/3289)
+* Fixed a race condition that can cause stale data to remain after leaving community [#3253](https://github.com/TryQuiet/quiet/issues/3253)
+* Validate user ID on decrypted message matches the signature [#3334](https://github.com/TryQuiet/quiet/issues/3334)
+
+### Chores
+
+* Enable QSS on prod
+* Add script for cleaning compiled/generated code directories
+
+### Breaking
+
+* Include team ID and createdAt in message encryption and validate on consume [#3304](https://github.com/TryQuiet/quiet/issues/3304)
+* Require team ID on invite links, use team ID for all chain operations, and hash team name on sigchains [#3296](https://github.com/TryQuiet/quiet/issues/3296)
+* Use randomly generated Base58 usernames on sigchain [#3321](https://github.com/TryQuiet/quiet/issues/3321)
+* Update install directories for 8.x [#3338](https://github.com/TryQuiet/quiet/issues/3338)
+* Update S3 bucket for 8.x release binaries [#3346](https://github.com/TryQuiet/quiet/issues/3346as)
+
+## [7.3.0]
+
+### Features
+
+* Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Private channel creation and modification is limited to admins [#3256](https://github.com/TryQuiet/quiet/issues/3256)
+
+### Fixes
+
+* Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
+* Fixed android not requesting permission for foreground push notifications [#3254](https://github.com/TryQuiet/quiet/issues/3254)
+* Fixes race condition with android push notifications [#3255](https://github.com/TryQuiet/quiet/issues/3255)
+* Mark IOS UI as needing compatibility updates to fix contrast problems on IOS 26 [#3266](https://github.com/TryQuiet/quiet/issues/3266)
+
+## [7.2.0]
+
+### Features
+
+* Added background push notifications and background hibernation for android [#3156](https://github.com/TryQuiet/quiet/issues/3156)
+* Extends the dev/alpha-only "Share logs" and "Share all data" actions to the "Starting backend" screen (mobile) [#3241](https://github.com/TryQuiet/quiet/pull/3241)
+
 ### Fixes
 
 * Keep image previews within the available window after rotating to landscape. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 * The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
+* Improved tor lifecycle handling [#3233](https://github.com/TryQuiet/quiet/issues/3233)
+* Fixed Android crash on leaving a community when `google-services.json` was missing from the build [#3238](https://github.com/TryQuiet/quiet/pull/3238)
+* Fixed broken privacy policy link on the Terms of Service / Privacy Policy acceptance screen (desktop + mobile) [#3186](https://github.com/TryQuiet/quiet/pull/3186)
+* Fixed Android build failure under product flavors where react-native-config didn't load the matching `.env` file [#3197](https://github.com/TryQuiet/quiet/pull/3197)
+
+### Chores
+
+* Refactored syncing data with QSS for modularity [#3235](https://github.com/TryQuiet/quiet/issues/3235)
+* Upgraded Electron to v32 (desktop) [#3119](https://github.com/TryQuiet/quiet/pull/3119)
+
+## [7.1.0]
+
+### Features
+
+* Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
+* Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
 
 ### Chores
 
@@ -39,7 +120,8 @@
 * Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
 * Use LFA-based identity in OrbitDB
 * Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
-* Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
+* Store LFA keys in IOS keychain for notifications [#3091](https://github.com/TryQuiet/quiet/issues/3091)
+* Store user metadata in IOS native storage for notifications [#3091](https://github.com/TryQuiet/quiet/issues/3091)
 
 ## [6.6.2]
 

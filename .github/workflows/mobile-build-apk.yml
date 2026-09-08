@@ -18,6 +18,9 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
 
+    env:
+      ENVFILE: ${{ github.event.action == 'prereleased' && '../.env.staging' || '../.env.production' }}
+
     steps:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
@@ -86,8 +89,13 @@ jobs:
       - name: "Decode keystore"
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
+      - name: "Decrypt Firebase config (google-services.json)"
+        run: ./.github/secrets/decrypt_android_secrets.sh
+        env:
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
+
       - name: "Build .apk"
-        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew assembleStandardRelease
+        run: cd ./packages/mobile/android && ./gradlew assembleStandardRelease
 
       - name: "Upload .apk to artifacts"
         continue-on-error: true
@@ -97,7 +105,7 @@ jobs:
           path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
 
       - name: "Build debug .apk"
-        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew assembleStandardDebug
+        run: cd ./packages/mobile/android && ./gradlew assembleStandardDebug
 
       - name: "Upload debug .apk to artifacts"
         continue-on-error: true
@@ -105,6 +113,12 @@ jobs:
         with:
           name: app-standard-debug.apk
           path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+
+      - name: "Preserve standard .apk release assets"
+        run: |
+          mkdir -p ./packages/mobile/android/app/build/release-assets
+          cp ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk ./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk
+          cp ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk ./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk
 
       - name: "Get release"
         id: get_release
@@ -118,7 +132,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
+          asset_path: ./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk
           asset_name: app-standard-release.apk
           asset_content_type: application/.apk
 
@@ -128,7 +142,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+          asset_path: ./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk
           asset_name: app-standard-debug.apk
           asset_content_type: application/.apk
 
@@ -191,6 +205,11 @@ jobs:
       - name: "Prepare ndk configuration"
         run: |
           printf "NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n" > $HOME/.gradle/gradle.properties
+
+      - name: "Decrypt Firebase config (google-services.json)"
+        run: ./.github/secrets/decrypt_android_secrets.sh
+        env:
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
 
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug

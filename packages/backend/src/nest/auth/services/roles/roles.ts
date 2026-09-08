@@ -1,9 +1,17 @@
 import { Member, Role } from '@localfirst/auth'
+import { EncryptionScopeType, type EncryptionScope } from '../crypto/types'
 
 export enum RoleName {
   ADMIN = 'admin',
   MEMBER = 'member',
 }
+
+export const MEMBER_SCOPE: EncryptionScope = {
+  name: RoleName.MEMBER,
+  type: EncryptionScopeType.ROLE,
+}
+
+export const PUBLIC_CHANNEL_MODIFICATION_ROLES = [RoleName.ADMIN]
 
 export const SELF_ASSIGN_ROLES: (RoleName | string)[] = [RoleName.MEMBER]
 
@@ -31,3 +39,11 @@ export type BaseChannel = {
 export type Channel = QuietRole & BaseChannel
 
 export type TruncatedChannel = TruncatedQuietRole & BaseChannel
+
+export class NotAdminError extends Error {
+  constructor() {
+    super('User is not an admin on this community')
+  }
+}
+
+export const DEFAULT_CHANNEL_ROLE_NAME_LENGTH = 64

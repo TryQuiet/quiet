@@ -20,7 +20,7 @@ import {
   MessageType,
 } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
 import { getSocketFactory } from '../../../utils/tests/factories'
 
@@ -57,10 +57,10 @@ describe('broadcastHostedFileSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
-    ).channel
+    ).channel!
   })
 
   test('broadcast message for hosted file', async () => {

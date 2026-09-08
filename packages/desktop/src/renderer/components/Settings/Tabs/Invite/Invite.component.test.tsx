@@ -8,7 +8,7 @@ import { InvitationDataVersion } from '@quiet/types'
 describe('CopyLink', () => {
   it('renderComponent - hidden long link', () => {
     const invitationLink = composeInvitationShareUrl({
-      version: InvitationDataVersion.v2,
+      version: InvitationDataVersion.v4,
       pairs: [
         {
           peerId: '12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
@@ -31,6 +31,7 @@ describe('CopyLink', () => {
       authData: {
         seed: '5ah8uYodiwuwVybT',
         communityName: 'name',
+        teamId: 'abc123',
       },
     })
     const result = renderComponent(
@@ -134,7 +135,7 @@ describe('CopyLink', () => {
 
   it('renderComponent - revealed short link', () => {
     const invitationLink = composeInvitationShareUrl({
-      version: InvitationDataVersion.v2,
+      version: InvitationDataVersion.v4,
       pairs: [
         {
           peerId: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
@@ -145,6 +146,7 @@ describe('CopyLink', () => {
       authData: {
         seed: '5ah8uYodiwuwVybT',
         communityName: 'name',
+        teamId: 'abc123',
       },
     })
     const result = renderComponent(
@@ -199,7 +201,7 @@ describe('CopyLink', () => {
                     class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
                     data-testid="invitation-link"
                   >
-                    https://tryquiet.org/join#p=12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY%2Cp3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345&a=Yz1uYW1lJnM9NWFoOHVZb2Rpd3V3VnliVA
+                    https://tryquiet.org/join#p=12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY%2Cp3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345&a=Yz1uYW1lJnM9NWFoOHVZb2Rpd3V3VnliVCZ0PWFiYzEyMw&v=v4
                   </p>
                   <button
                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall InviteToCommunityeyeIcon css-8prnfn-MuiButtonBase-root-MuiIconButton-root"

@@ -10,6 +10,9 @@ on:
       - packages/common/**
       - packages/e2e-tests/**
       - 3rd-party/**
+      - .github/workflows/e2e**
+      - .github/actions/setup-env/**
+      - .github/actions/before-build/**
 
 jobs:
   mac:

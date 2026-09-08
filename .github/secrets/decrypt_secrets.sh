@@ -7,6 +7,9 @@ gpg --quiet --batch --yes --decrypt --passphrase="$IOS_NSE_PROFILE_KEY" --output
 gpg --quiet --batch --yes --decrypt --passphrase="$IOS_CERTIFICATE_KEY" --output ./.github/secrets/Certificates.p12 ./.github/secrets/Certificates.p12.gpg
 gpg --quiet --batch --yes --decrypt --passphrase="$IOS_FIREBASE_KEY" --output ./.github/secrets/GoogleService-Info.plist ./.github/secrets/GoogleService-Info.plist.gpg
 
+# Android Firebase config (google-services.json) - shared with the Android workflows.
+./.github/secrets/decrypt_android_secrets.sh
+
 mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
 
 cp ./.github/secrets/match_AppStore_comquietmobile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/762df280-302c-4336-a56d-c74914169337.mobileprovision

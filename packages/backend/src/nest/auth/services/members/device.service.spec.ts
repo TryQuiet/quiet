@@ -3,6 +3,9 @@ import { createLogger } from '../../../common/logger'
 import { DeviceWithSecrets } from '3rd-party/auth/packages/auth/dist'
 import { RoleName } from '..//roles/roles'
 import { DeviceService } from './device.service'
+import { base58 } from '@localfirst/crypto'
+import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
+import { RANDOM_USERNAME_LENGTH } from './types'
 
 const logger = createLogger('auth:services:device.spec')
 
@@ -11,12 +14,15 @@ describe('devices', () => {
   let newDevice: DeviceWithSecrets
 
   it('should initialize a new sigchain and be admin', () => {
-    adminSigChain = SigChain.create('test', 'user')
+    adminSigChain = SigChain.create()
     expect(adminSigChain).toBeDefined()
     expect(adminSigChain.context).toBeDefined()
-    expect(adminSigChain.team!.teamName).toBe('test')
-    expect(adminSigChain.user.userName).toBe('user')
-    expect(adminSigChain.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(true)
+    expect(adminSigChain.teamName).toBeDefined()
+    expect(base58.detect(adminSigChain.teamName!)).toBeTruthy()
+    expect(adminSigChain.teamName?.length).toBe(RANDOM_TEAM_NAME_LENGTH)
+    expect(base58.detect(adminSigChain.user.userName)).toBeTruthy()
+    expect(adminSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
+    expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
   it('sigchain should contain admin device', () => {
