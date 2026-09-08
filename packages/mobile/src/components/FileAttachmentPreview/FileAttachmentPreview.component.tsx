@@ -24,7 +24,10 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         marginTop: 10,
       }}
     >
-      <TouchableWithoutFeedback onPress={onClick}>
+      <TouchableWithoutFeedback
+        onPress={onClick}
+        accessibilityLabel={imageType ? 'Remove image attachment' : `Remove attachment ${fileData.name}`}
+      >
         <View
           style={{
             position: 'absolute',
@@ -60,6 +63,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
       >
         {imageType && fileData.path ? (
           <Image
+            testID='attachment-preview-image'
             source={{ uri: fileData.path }}
             alt={fileData.name}
             style={{

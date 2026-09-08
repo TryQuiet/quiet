@@ -71,6 +71,7 @@
 
 ### Fixes
 
+* Keep bottom drawers within their available container when the app window resizes or rotates. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 * Keep image previews within the available window after rotating to landscape. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 * The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
 * Improved tor lifecycle handling [#3233](https://github.com/TryQuiet/quiet/issues/3233)
