@@ -33,13 +33,16 @@ const torParamsProvider = {
 
 const torControlParams = {
   provide: TOR_CONTROL_PARAMS,
-  useFactory: (configOptions: ConfigOptions, torPasswordProvider: TorPasswordProvider) => {
+  useFactory: (configOptions: ConfigOptions, torPasswordProvider: TorPasswordProvider | null) => {
+    // Native Tor has no password provider and can supply its cookie after module initialization.
+    // The bootstrap watcher waits for that cookie before attempting control I/O.
+    const usesCookieAuth = Boolean(configOptions.torAuthCookie) || torPasswordProvider === null
     return {
       port: configOptions.torControlPort,
       host: 'localhost',
       auth: {
-        value: configOptions.torAuthCookie || torPasswordProvider.torPassword,
-        type: configOptions.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD,
+        value: configOptions.torAuthCookie || torPasswordProvider?.torPassword || '',
+        type: usesCookieAuth ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD,
       },
     }
   },

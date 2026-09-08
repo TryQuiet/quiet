@@ -2,6 +2,7 @@
 #import "NodeRunner.hpp"
 #import <React/RCTEventDispatcher.h>
 
+NSString *const QuietBackendReadyNotification = @"QuietBackendReadyNotification";
 
 @implementation RNNodeJsMobile
 

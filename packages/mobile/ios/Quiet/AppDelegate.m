@@ -11,6 +11,7 @@
 #import "Quiet-Swift.h"
 
 @interface AppDelegate () <TorHandlerDelegate>
+@property (nonatomic) BOOL backendReady;
 @end
 
 @implementation AppDelegate
@@ -97,12 +98,35 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:arc4random_uniform(65000 - 1024) + 1024];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:arc4random_uniform(65000 - 1024) + 1024];
 
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(backendDidBecomeReady:)
+                                               name:QuietBackendReadyNotification
+                                             object:nil];
+  // Local storage and the frontend transport must work while Tor is unavailable.
+  // The real authentication cookie is supplied later through rewireServices.
+  [self launchBackend:controlPort httpTunnelPort:httpTunnelPort];
 
   // Spawn one Tor instance for the lifetime of this app process. App
   // background/foreground transitions switch it between DORMANT and ACTIVE.
   self.tor = [TorHandler new];
   self.tor.delegate = self;
   [self.tor startWithSocksPort:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
+}
+
+- (BOOL)applicationIsInBackground {
+  return [UIApplication sharedApplication].applicationState == UIApplicationStateBackground;
+}
+
+- (void)backendDidBecomeReady:(NSNotification *)notification {
+  self.backendReady = YES;
+  if ([self applicationIsInBackground]) {
+    // Backgrounding during Node startup may have preceded its bridge listeners.
+    [self.nodeJsMobile sendMessageToNode:@"close":@"app:close"];
+  } else {
+    [self.nodeJsMobile sendMessageToNode:@"resume":@"app:resume"];
+    // Request fresh readiness even if Tor's first callback preceded backendReady.
+    [self.tor enterForeground];
+  }
 }
 
 - (void)torHandlerReady:(TorHandler *)handler
@@ -114,21 +138,17 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 
   // A readiness callback can race with a background transition. The next
   // foreground callback will request readiness again, so do nothing here.
-  if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+  if (!self.backendReady || [self applicationIsInBackground]) {
     return;
   }
 
-  if (self.nodeJsMobile == nil) {
-    [self launchBackend:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
-  } else {
-    [self rewireServices:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
-  }
+  [self rewireServices:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
 }
 
-- (void)launchBackend:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort authCookie:(NSString *)authCookie {
+- (void)launchBackend:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort {
   self.nodeJsMobile = [RNNodeJsMobile new];
   [self.nodeJsMobile setSocketIOSecret:self.socketIOSecret];
-  NSString *command = [NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform];
+  NSString *command = [NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, platform];
   [self.nodeJsMobile startNodeProjectInBackground:command];
 }
 
@@ -164,6 +184,8 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
   QuietSetAppForegroundFlag(YES);
+  // Resume non-Tor services immediately. Tor supplies credentials separately.
+  [self.nodeJsMobile sendMessageToNode:@"resume":@"app:resume"];
   // Display splash screen until services become available again
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     NSTimeInterval delayInSeconds = 0;

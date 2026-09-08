@@ -6,16 +6,16 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
 1. If not on Mac (which comes preinstalled with `patch`), install `patch`, e.g. via your Linux package manager
-1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
+1. Install python3 and setuptools (used by node-gyp) through your preferred method.
 
 ## Android development
 
 1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 1. Follow the instructions for running [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop) and confirm it runs
 1. If not on Mac, which comes preinstalled with `patch`, install `patch` (e.g. via your Linux package manager).
-1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
+1. Install python3 and setuptools (used by node-gyp) through your preferred method.
 1. Install the [Temurin 17 JDK](https://adoptium.net/temurin) for [Mac](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=mac) (.pkg) or [Linux](https://adoptium.net/installation/linux/)
-1. Set `JAVA_HOME` to the Temurin install location by adding a line to your `.bashrc` or `.zshrc`:  
+1. Set `JAVA_HOME` to the Temurin install location by adding a line to your `.bashrc` or `.zshrc`:
     - Mac: `export JAVA_HOME="/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"`
     - Linux: `export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/`
 
@@ -27,7 +27,7 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
     # downloads + installs + configures JAVA_HOME for Temurin JDK 17
     sdk install java 17.0.0-tem
-    ``` 
+    ```
 
 1. Install [Android Studio](https://developer.android.com/studio), ensuring that all of the following items in the installation wizard are checked
     - Android SDK
@@ -37,8 +37,8 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
       - macOS: `~/Library/Android/sdk/`
       - Linux: `~/Android/Sdk/`
 
-1. Ensure Android Studio's `platform-tools` directories are added to your `PATH`. 
-    
+1. Ensure Android Studio's `platform-tools` directories are added to your `PATH`.
+
     Your `.bashrc` or `.zshrc` should now include something like:
     ```bash
     export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/"
@@ -59,7 +59,7 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 1. On Linux, follow [these instructions](https://reactnative.dev/docs/running-on-device?platform=android&os=linux#2-plug-in-your-device-via-usb-2) for authorizing your phone as a USB device (skip this step on Mac)
 1. Accept any "USB Debugging" prompt on your phone
 1. Confirm you can run [adb](https://developer.android.com/studio/command-line/adb) (Android Debug Bridge, installed with Android Studio) and that it can connect to your phone
-    
+
     ```bash
     adb devices
     ```
@@ -78,20 +78,20 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 1. On Mac, Metro will launch automatically in a new terminal window, but on Linux you may need a separate step
 
     From the `packages/mobile` directory
-    
+
     ```bash
     npm run start
     ```
-    Connecting to Metro can be fiddly. To get it working, once Metro is fully up and running, shake the Android device twice to access React Native's dev menu, then tap "Reload".  
+    Connecting to Metro can be fiddly. To get it working, once Metro is fully up and running, shake the Android device twice to access React Native's dev menu, then tap "Reload".
 
 #### Running from Android Studio
 
-It may be convenient to run the app from Android studio, for example if you are working on Android native pieces 
+It may be convenient to run the app from Android studio, for example if you are working on Android native pieces
 
 1. Open Android Studio
-    
+
     If using `nvm` to manage `node` versions, you may need relink the `node` installed by `nvm` in order to open Quiet in Android Studio.
-    
+
     ```bash
     nvm install # if needed, install node version from .nvmrc
     #then nvm use that version, ie for node 20.20.0:
@@ -110,10 +110,10 @@ Open a terminal window,
 adb logcat -v --color --pid=$(adb shell pidof -s com.quietmobile.debug)
 ```
 
-#### Telling Android Studio to use The Temurin JDK 
+#### Telling Android Studio to use The Temurin JDK
 
 [Some React Native packages](https://github.com/software-mansion/react-native-svg/issues/2703#issuecomment-2971893634) may build in the terminal with `npm run android` but aren't able to built in Android Studio.
-This can be fixed in Android Studio by going to the Settings -> "Build, Execution, Deployment" -> "Build Tools" -> "Gradle" and selecting the "Gradle JDK" dropdown menu. Select the Temurin SDK in place of what Android Studio is suggesting. 
+This can be fixed in Android Studio by going to the Settings -> "Build, Execution, Deployment" -> "Build Tools" -> "Gradle" and selecting the "Gradle JDK" dropdown menu. Select the Temurin SDK in place of what Android Studio is suggesting.
 
 #### Quiet log files
 
@@ -137,9 +137,9 @@ const watchFolders = [
 ## iOS development
 
 1. Have a Mac (Apple requires this)
-1. Create an account at [developer.apple.com](https://developer.apple.com) 
+1. Create an account at [developer.apple.com](https://developer.apple.com)
 1. Install Xcode Command Line Tools (required for Homebrew):
-    
+
     ```bash
     xcode-select --install
     ```
@@ -151,22 +151,22 @@ const watchFolders = [
     brew install git-lfs
     ```
 
-1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use Xcode version 16.2, but you should use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.) 
+1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use Xcode version 16.2, but you should use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.)
 
     ```bash
     brew install xcodesorg/made/xcodes
-    xcodes install 26.3.0 
+    xcodes install 26.3.0
     xcodes select 26.3.0
     xcodes runtimes install "iOS 26.2"
     ```
-    
+
     You may need to wait for the "Verifying Runtime" modal to complete before running Quiet
 
 1. Initialize submodules in the project's root and pull files with Git LFS:
 
     ```bash
-    git submodule update --init --recursive --remote 
-    git lfs pull 
+    git submodule update --init --recursive --remote
+    git lfs pull
      # Note: it may be necessary to first run `git lfs install`
     ```
 
@@ -174,7 +174,7 @@ const watchFolders = [
 
     ```bash
     cd packages/mobile/ios
-    file NodeJsMobile/NodeMobile.xcframework/ios-arm64/NodeMobile.framework/NodeMobile 
+    file NodeJsMobile/NodeMobile.xcframework/ios-arm64/NodeMobile.framework/NodeMobile
     ```
     You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup step was not successful.
 
@@ -210,7 +210,7 @@ const watchFolders = [
 
     ```bash
     cd ios
-    bundle exec pod install 
+    bundle exec pod install
     ```
 
 1. In `packages/mobile/ios`, create a `.xcode.env.local` file with your Node path:
@@ -234,17 +234,17 @@ const watchFolders = [
 
 1. Enable developer mode on your iPhone in Settings > Privacy & Security > Developer Mode
 1. Connect your iPhone to your Mac via USB and accept "Trust Device?" prompts
-1. Now we must get Apple's *permission* to run our own app on our own device. In addition to being a kafkaesque violation of everyone's basic rights, this step is difficult to document due to all the shuttling between Apple's website and the Xcode UI. Doing this wrong results in unclear and difficult-to-attribute errors. [Apple's documentation](https://developer.apple.com/help/account/) is not helpful so we'll attempt to provide instructions here: 
+1. Now we must get Apple's *permission* to run our own app on our own device. In addition to being a kafkaesque violation of everyone's basic rights, this step is difficult to document due to all the shuttling between Apple's website and the Xcode UI. Doing this wrong results in unclear and difficult-to-attribute errors. [Apple's documentation](https://developer.apple.com/help/account/) is not helpful so we'll attempt to provide instructions here:
     - Set up the signing certificate and Ad Hoc provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
-    - Download the profile and open it in Xcode 
+    - Download the profile and open it in Xcode
     - In Xcode, go to Settings > Accounts, create a new account, and sign in with your Apple developer account
     - For good measure, in Settings > Accounts click "Download Manual Profiles"
     - Open the "Signing & Capabilities" tab in the Xcode UI and ensure there are no errors.
-    
+
     If you have not been added on developer.apple.com to the Quiet team, you will also need to:
     - Uncheck "Automatically manage signing" if checked
     - Change Team to "Personal Team" (your Apple ID)
-    - Create a unique Bundle Identifier (e.g. com.quietmobile.yourname) 
+    - Create a unique Bundle Identifier (e.g. com.quietmobile.yourname)
     - Let Xcode create a new provisioning profile (click "Fix Issue" if prompted)
     - If errors persist, go to Build Settings → Code Signing
     - Set "Code Signing Identity" to "Apple Development"

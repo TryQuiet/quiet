@@ -269,20 +269,20 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
   const tor = app.get<Tor>(Tor)
   const proxyAgent = app.get<HttpsProxyAgent<string>>(SOCKS_PROXY_AGENT)
+  const rewireNativeServices = (msg: OpenServices) => {
+    const torControlPort = parseMobilePort(msg.torControlPort, 'Tor control port')
+    const httpTunnelPort = parseMobilePort(msg.httpTunnelPort, 'HTTP tunnel port')
+    tor.rewireNativeTor({
+      controlPort: torControlPort,
+      httpTunnelPort,
+      authCookie: msg.authCookie,
+    })
+    proxyAgent.connectOpts.port = httpTunnelPort
+    proxyAgent.proxy.port = httpTunnelPort.toString()
+  }
   const mobileLifecycle = new MobileLifecycleCoordinator({
     pause: async () => connectionsManager.pause(),
-    activate: async (msg: OpenServices) => {
-      const torControlPort = parseMobilePort(msg.torControlPort, 'Tor control port')
-      const httpTunnelPort = parseMobilePort(msg.httpTunnelPort, 'HTTP tunnel port')
-      tor.rewireNativeTor({
-        controlPort: torControlPort,
-        httpTunnelPort,
-        authCookie: msg.authCookie,
-      })
-      proxyAgent.connectOpts.port = httpTunnelPort
-      proxyAgent.proxy.port = httpTunnelPort.toString()
-      await connectionsManager.resume()
-    },
+    activate: async () => connectionsManager.resume(),
   })
   let shutdownRequestedFromBridge = false
   rn_bridge.channel.on('close', () => {
@@ -311,8 +311,21 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
     }
   })
   rn_bridge.channel.on('open', (msg: OpenServices) => {
+    try {
+      // Rewire synchronously so a network resume already in flight cannot
+      // prevent newly available Tor credentials from taking effect.
+      rewireNativeServices(msg)
+    } catch (error) {
+      logger.error('Failed to rewire native Tor services', error)
+      return
+    }
     void mobileLifecycle.activate(msg).catch(error => {
       logger.error('Failed to activate mobile services', error)
+    })
+  })
+  rn_bridge.channel.on('resume', () => {
+    void mobileLifecycle.resume().catch(error => {
+      logger.error('Failed to resume mobile services', error)
     })
   })
   const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))

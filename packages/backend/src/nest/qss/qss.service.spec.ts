@@ -516,6 +516,63 @@ describe('QSSService', () => {
       expectLifecycleHandlers(1)
     })
 
+    it('does not open a socket after pause interrupts loading community settings', async () => {
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      let finishSettings!: (status: Awaited<ReturnType<QSSService['getQssInitStatus']>>) => void
+      const settings = new Promise<Awaited<ReturnType<QSSService['getQssInitStatus']>>>(resolve => {
+        finishSettings = resolve
+      })
+      const getStatus = jest.spyOn(qssService, 'getQssInitStatus').mockReturnValue(settings)
+      const connecting = qssService.connect('ws://late-startup:3000')
+      await waitForExpect(() => expect(getStatus).toHaveBeenCalledTimes(1))
+      qssService.pause()
+      finishSettings({ communityInitialized: true, qssEnabled: true, qssSetup: true, community })
+      await expect(connecting).resolves.toBe(QSSOperationResult.DISABLED)
+      expect(mockedCreateSocket).not.toHaveBeenCalled()
+      getStatus.mockRestore()
+    })
+
+    it('closes a socket whose connection completes after pause', async () => {
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      let finishConnect!: (socket: ClientSocket) => void
+      mockedCreateSocket.mockReturnValue(
+        new Promise<ClientSocket>(resolve => {
+          finishConnect = resolve
+        })
+      )
+      const connecting = qssService.connect('ws://late-startup:3000', true)
+      await waitForExpect(() => expect(mockedCreateSocket).toHaveBeenCalledTimes(1))
+      qssService.pause()
+      mockedClientClose!.mockClear()
+      finishConnect({} as ClientSocket)
+      await expect(connecting).resolves.toBe(QSSOperationResult.DISABLED)
+      expect(mockedClientClose).toHaveBeenCalledTimes(1)
+    })
+
+    it('retains a late startup endpoint while paused and connects only on resume', async () => {
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(false)
+      const connectImpl = jest.spyOn(qssService as any, '_connectImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      qssService.pause()
+      await expect(qssService.connect('ws://late-startup:3000', true)).resolves.toBe(QSSOperationResult.DISABLED)
+      expect(connectImpl).not.toHaveBeenCalled()
+      mockedCanConnect.mockReturnValue(true)
+      await qssService.resume()
+      expect(connectImpl).toHaveBeenCalledWith('ws://late-startup:3000', true)
+      connectImpl.mockRestore()
+    })
+
+    it('honors resume before an endpoint becomes available', async () => {
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(false)
+      const connectImpl = jest.spyOn(qssService as any, '_connectImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      qssService.pause()
+      await qssService.resume()
+      expect(connectImpl).not.toHaveBeenCalled()
+      mockedCanConnect.mockReturnValue(true)
+      await qssService.connect('ws://late-startup:3000', true)
+      expect(connectImpl).toHaveBeenCalledWith('ws://late-startup:3000', true)
+      connectImpl.mockRestore()
+    })
+
     it('disconnects and reconnects on pause/resume', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)

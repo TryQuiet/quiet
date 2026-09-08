@@ -158,6 +158,7 @@ describe('ConnectionsManagerService', () => {
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
 
     await connectionsManagerService.init()
+    await connectionsManagerService.initializeStoredCommunity()
 
     expect(launchCommunitySpy).toHaveBeenCalledTimes(1)
   })
@@ -165,9 +166,91 @@ describe('ConnectionsManagerService', () => {
   it('does not launch community on init if its data does not exist in local db', async () => {
     logger.info('does not launch community on init if its data does not exist in local db')
     await connectionsManagerService.closeAllServices()
-    await connectionsManagerService.init()
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity')
+    await connectionsManagerService.init()
+    await connectionsManagerService.initializeStoredCommunity()
     expect(launchCommunitySpy).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { backend: 'mobile', port: undefined, cookie: undefined },
+    { backend: 'mobile', port: 12345, cookie: undefined },
+    { backend: 'mobile', port: 12345, cookie: 'cookie' },
+    { backend: 'desktop', port: 12345, cookie: undefined },
+  ])(
+    'initializes once without blocking for backend=$backend port=$port cookie=$cookie',
+    async ({ backend, port, cookie }) => {
+      const previousBackend = process.env.BACKEND
+      const previousAuthCookie = connectionsManagerService.configOptions.torAuthCookie
+      const previousControlPort = connectionsManagerService.configOptions.torControlPort
+      process.env.BACKEND = backend
+      connectionsManagerService.configOptions.torAuthCookie = cookie
+      connectionsManagerService.configOptions.torControlPort = port
+      const migrateSpy = jest.spyOn(connectionsManagerService, 'migrateLevelDb').mockResolvedValue()
+      let resolveLaunch!: () => void
+      const launchPending = new Promise<void>(resolve => {
+        resolveLaunch = resolve
+      })
+      const launchSpy = jest
+        .spyOn(connectionsManagerService, 'launchCommunityFromStorage')
+        .mockReturnValue(launchPending)
+
+      try {
+        await connectionsManagerService.init()
+
+        expect(migrateSpy).toHaveBeenCalledTimes(1)
+        expect(launchSpy).toHaveBeenCalledTimes(1)
+
+        const firstInitialization = connectionsManagerService.initializeStoredCommunity()
+        const secondInitialization = connectionsManagerService.initializeStoredCommunity()
+        expect(firstInitialization).toBe(secondInitialization)
+
+        let initializationResolved = false
+        void firstInitialization.then(() => {
+          initializationResolved = true
+        })
+        await Promise.resolve()
+        expect(initializationResolved).toBe(false)
+
+        resolveLaunch()
+        await firstInitialization
+
+        expect(migrateSpy).toHaveBeenCalledTimes(1)
+        expect(launchSpy).toHaveBeenCalledTimes(1)
+      } finally {
+        if (previousBackend === undefined) {
+          delete process.env.BACKEND
+        } else {
+          process.env.BACKEND = previousBackend
+        }
+        connectionsManagerService.configOptions.torAuthCookie = previousAuthCookie
+        connectionsManagerService.configOptions.torControlPort = previousControlPort
+      }
+    }
+  )
+
+  it('registers the stored onion address without contacting Tor', async () => {
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    const tor = connectionsManagerService['tor']
+    const registerHiddenService = jest.spyOn(tor, 'registerHiddenService').mockImplementation(() => {})
+    const spawnHiddenService = jest.spyOn(tor, 'spawnHiddenService')
+
+    const onionAddress = await connectionsManagerService.spawnTorHiddenService(community.id, userIdentity)
+
+    expect(onionAddress).toBe(userIdentity.networkInfo.hiddenService.onionAddress)
+    expect(registerHiddenService).toHaveBeenCalledWith({
+      targetPort: 9002,
+      privKey: userIdentity.networkInfo.hiddenService.privateKey,
+      onionAddress: userIdentity.networkInfo.hiddenService.onionAddress,
+      virtPort: 80,
+    })
+    expect(spawnHiddenService).not.toHaveBeenCalled()
   })
 
   it('community is only launched once', async () => {
@@ -236,16 +319,16 @@ describe('ConnectionsManagerService', () => {
 
     await connectionsManagerService.pause()
     expect(qssPauseSpy).toHaveBeenCalledTimes(1)
-    expect(closeSocketSpy).toHaveBeenCalledTimes(1)
+    expect(closeSocketSpy).not.toHaveBeenCalled()
     expect(libp2pPauseSpy).toHaveBeenCalledTimes(1)
 
     await connectionsManagerService.resume()
-    expect(listenSpy).toHaveBeenCalledTimes(1)
+    expect(listenSpy).not.toHaveBeenCalled()
     expect(libp2pResumeSpy).toHaveBeenCalledTimes(1)
     expect(qssResumeSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('uses bounded socket readiness and awaits libp2p before resuming qss', async () => {
+  it('keeps the local socket independent while awaiting libp2p before resuming qss', async () => {
     let resolveLibp2pResume!: (value: boolean) => void
     const libp2pResumePromise = new Promise<boolean>(resolve => {
       resolveLibp2pResume = resolve
@@ -261,14 +344,13 @@ describe('ConnectionsManagerService', () => {
     await waitForExpect(() => expect(libp2pResumeSpy).toHaveBeenCalledTimes(1))
 
     expect(socketInitSpy).not.toHaveBeenCalled()
-    expect(listenSpy).toHaveBeenCalledTimes(1)
+    expect(listenSpy).not.toHaveBeenCalled()
     expect(qssResumeSpy).not.toHaveBeenCalled()
 
     resolveLibp2pResume(true)
     await resumePromise
 
     expect(qssResumeSpy).toHaveBeenCalledTimes(1)
-    expect(listenSpy.mock.invocationCallOrder[0]).toBeLessThan(libp2pResumeSpy.mock.invocationCallOrder[0])
     expect(libp2pResumeSpy.mock.invocationCallOrder[0]).toBeLessThan(qssResumeSpy.mock.invocationCallOrder[0])
   })
 

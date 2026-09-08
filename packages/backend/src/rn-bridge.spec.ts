@@ -11,9 +11,30 @@ jest.unstable_mockModule('./nest/common/logger', () => ({
   createLogger: () => logger,
 }))
 
-const { EventChannel } = await import('./rn-bridge')
+const { EventChannel, default: initRnBridge } = await import('./rn-bridge')
 
 const loggedValues = (): string => JSON.stringify(Object.values(logger).flatMap(mock => mock.mock.calls))
+
+describe('rn-bridge native lifecycle wire format', () => {
+  it('wraps lifecycle messages in the same message envelope consumed by iOS and Android', () => {
+    const sendMessage = jest.fn()
+    const binding = jest.spyOn(process, '_linkedBinding').mockReturnValue({ sendMessage, registerChannel: jest.fn() })
+    try {
+      const bridge = initRnBridge()
+      bridge.channel.send('backendReady')
+      expect(sendMessage).toHaveBeenLastCalledWith('_EVENTS_', '{"event":"message","payload":"[\\"backendReady\\"]"}')
+      bridge.channel.send('backendClosed')
+      expect(sendMessage).toHaveBeenLastCalledWith('_EVENTS_', '{"event":"message","payload":"[\\"backendClosed\\"]"}')
+      bridge.channel.send('readyForSecret', 'test-nonce')
+      expect(JSON.parse(sendMessage.mock.calls.at(-1)![1] as string)).toEqual({
+        event: 'message',
+        payload: JSON.stringify(['readyForSecret', 'test-nonce']),
+      })
+    } finally {
+      binding.mockRestore()
+    }
+  })
+})
 
 describe('rn-bridge logging', () => {
   beforeEach(() => {

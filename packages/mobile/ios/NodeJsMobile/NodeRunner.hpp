@@ -8,6 +8,7 @@
   bool _startedNodeAlready;
 }
 + (NodeRunner*) sharedInstance;
++ (void) handleNodeEventMessage:(NSString*)message;
 - (void) startEngineWithArguments:(NSArray*)arguments :(NSString*)builtinModulesPath;
 - (void) setCurrentRNNodeJsMobile:(RNNodeJsMobile*)module;
 - (void) sendMessageToNode:(NSString*)channelName :(NSString*)message;

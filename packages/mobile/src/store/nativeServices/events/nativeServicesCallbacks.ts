@@ -35,6 +35,7 @@ export interface BackendEvent {
 export const deviceEvents = () => {
   return eventChannel<
     | ReturnType<typeof initActions.startWebsocketConnection>
+    | ReturnType<typeof initActions.resumeWebsocketConnection>
     | ReturnType<typeof initActions.updateInitCheck>
     | ReturnType<typeof navigationActions.navigation>
     | ReturnType<typeof navigationActions.setPendingNavigation>
@@ -79,7 +80,7 @@ export const deviceEvents = () => {
         emit(network.actions.removeInitializedCommunities())
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.AppResume, () => {
-        // emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
+        emit(initActions.resumeWebsocketConnection())
       }),
     ]
     return () => {
