@@ -10,6 +10,8 @@
 
 ### Chores
 
+* Target Android 16 (API 36), preserve Android Back navigation, and handle modal safe areas while retaining the current React Native version. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
+
 ## [7.0.1]
 
 ### Features
