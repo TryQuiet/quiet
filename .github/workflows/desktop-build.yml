@@ -348,7 +348,10 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-macos-arm64-prod:
-    runs-on: macos-26
+    # Pinned to macos-15 (arm64): the macos-26 image released 2026-09-01
+    # (macOS 26.6.2) rejects electron-builder's `security set-key-partition-list`
+    # call and breaks signing. See issue #333.
+    runs-on: macos-15
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
