@@ -13,9 +13,9 @@ const BreakingChangesWarning = () => {
   const modal = useModal(ModalName.breakingChangesWarning)
   const theme = useTheme()
 
-  const title = 'Update available'
+  const title = 'Update required'
   const message =
-    'Quiet 9.0 includes important security fixes that are not backwards compatible, so you must re-install Quiet from tryquiet.org and re-create or re-join your community. This version of Quiet (8.x) will no longer receive any updates or security fixes, so please re-install soon. We apologize for the inconvenience.'
+    'Quiet 9.0 includes important security fixes that are not backwards compatible, so you must re-install Quiet from tryquiet.org and re-create or re-join your community. Once Quiet 9.0 is released, this version (8.x) will stop receiving push notifications and will no longer let new members join unless the owner is online. This version will not receive any further updates or security fixes, so please re-install soon. We apologize for the inconvenience.'
 
   useEffect(() => {
     modal.handleOpen() // Open modal once per app start
