@@ -20,7 +20,7 @@ export const TextWithLink: FC<TextWithLinkProps> = ({ text, tagPrefix = '%', lin
     )
   }
 
-  const parts: Array<string | JSX.Element> = text.split(/(\s+)/)
+  const parts: Array<string | React.JSX.Element> = text.split(/(\s+)/)
 
   links.map(link => {
     for (let i = 1; i < parts.length; i++) {

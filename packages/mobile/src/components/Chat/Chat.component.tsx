@@ -26,7 +26,6 @@ import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
 import { DisplayableMessage } from '@quiet/types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
-import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
 import UploadFilesPreviewsComponent from '../FileAttachmentPreview/FileAttachmentPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
@@ -59,7 +58,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   imagePreview,
   setImagePreview,
   openImagePreview,
-  updateFileAttachments,
   updateImageAttachments,
   removeFilePreview,
   uploadedFiles,
@@ -285,27 +283,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     messageInputValueRef.current = value
     setMessageInput(value)
   }, [])
-
-  const openAttachments = async () => {
-    let response: DocumentPickerResponse[]
-    try {
-      response = await DocumentPicker.pick({
-        presentationStyle: 'fullScreen',
-        type: [types.allFiles],
-        allowMultiSelection: true,
-        copyTo: 'cachesDirectory',
-      })
-    } catch (e) {
-      if (!DocumentPicker.isCancel(e)) {
-        logger.error(`Could not attach files: ${e.message}`)
-        // TODO: display error message to user
-      }
-      return
-    }
-    if (response) {
-      updateFileAttachments(response)
-    }
-  }
 
   const openImages = async () => {
     launchImageLibrary(

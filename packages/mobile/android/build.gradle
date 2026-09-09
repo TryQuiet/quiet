@@ -2,6 +2,8 @@
 
 buildscript {
     ext.kotlin_version = "2.0.21"
+    // Native dependencies read kotlinVersion; keep Quiet's existing alias in sync.
+    ext.kotlinVersion = ext.kotlin_version
     ext {
         buildToolsVersion = "36.0.0"
         minSdkVersion = 26

@@ -7,7 +7,7 @@ import { publicChannels, Socket } from '@quiet/state-manager'
 import { showNotificationSaga } from './nativeServices/showNotification/showNotification.saga'
 import { clearReduxStore } from './nativeServices/leaveCommunity/leaveCommunity.saga'
 import { pushNotificationsMasterSaga } from './pushNotifications/pushNotifications.master.saga'
-import { setEngine, CryptoEngine } from 'pkijs'
+import { setEngine } from 'pkijs'
 import { createLogger } from '../utils/logger'
 import { keysMasterSaga } from './keys/keys.master.saga'
 import { usersMetadataMasterSaga } from './userMetadata/usersMetadata.master.saga'
@@ -16,14 +16,8 @@ import { watchAndSyncQssEnabledToNative } from './init/startConnection/startConn
 const logger = createLogger('root')
 
 const initCryptoEngine = () => {
-  setEngine(
-    'newEngine',
-    new CryptoEngine({
-      name: '',
-      crypto,
-      subtle: crypto.subtle,
-    })
-  )
+  // Let PKI.js wrap the WebCrypto provider in its own CryptoEngine.
+  setEngine('newEngine', crypto, crypto.subtle)
 }
 
 export function* rootSaga(): Generator {

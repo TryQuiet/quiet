@@ -3,7 +3,6 @@ import { storiesOf } from '@storybook/react-native'
 import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
 import { Chat } from './Chat.component'
-import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { createLogger } from '../../utils/logger'
 
@@ -244,9 +243,6 @@ storiesOf('Chat', module)
           ],
         },
       }}
-      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateFileAttachments')
-      }}
       updateImageAttachments={function (_assets: Asset[]): void {
         logger.info('updateImageAttachments')
       }}
@@ -280,9 +276,6 @@ storiesOf('Chat', module)
         public: true,
         teamId: 'foobar',
       }}
-      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateFileAttachments')
-      }}
       updateImageAttachments={function (_assets: Asset[]): void {
         logger.info('updateImageAttachments')
       }}
@@ -307,9 +300,6 @@ storiesOf('Chat', module)
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
-      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateFileAttachments')
-      }}
       updateImageAttachments={function (_assets: Asset[]): void {
         logger.info('updateImageAttachments')
       }}
