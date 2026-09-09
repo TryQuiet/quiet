@@ -80,7 +80,12 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void handleIncomingEvents(String event, @Nullable String payload, @Nullable String extra) {
+    public void handleIncomingEvents(String event, @Nullable String payload, @Nullable String extra) {
+        handleBackendEvent(event, payload, extra);
+    }
+
+    // Background workers call this without creating a second React Native module.
+    public static void handleBackendEvent(String event, @Nullable String payload, @Nullable String extra) {
         switch (event) {
             case BACKEND_READY_CHANNEL:
             case APP_READY_CHANNEL:
@@ -107,7 +112,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveKeysInKeychain(ReadableArray newKeys) {
+    public void saveKeysInKeychain(ReadableArray newKeys) {
         for (int index = 0; index < newKeys.size(); index++) {
             try {
                 String keyAsString = newKeys.getString(index);
@@ -120,7 +125,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey) {
+    public void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey) {
         try {
             QuietStorage.saveDeviceCredentials(deviceId, teamId, signingPrivateKey);
         } catch (Exception e) {
@@ -129,7 +134,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveUserMetadata(ReadableArray updatedMetadata) {
+    public void saveUserMetadata(ReadableArray updatedMetadata) {
         for (int index = 0; index < updatedMetadata.size(); index++) {
             try {
                 String metadataAsString = updatedMetadata.getString(index);
@@ -145,12 +150,12 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveNseQssUrl(String teamId, String qssUrl) {
+    public void saveNseQssUrl(String teamId, String qssUrl) {
         QuietStorage.saveQssUrl(teamId, qssUrl);
     }
 
     @ReactMethod
-    public static void saveNseLastSyncSeq(String teamId, double syncSeq) {
+    public void saveNseLastSyncSeq(String teamId, double syncSeq) {
         if (!QuietStorage.isAppForeground()) {
             Log.i(
                     TAG,
@@ -166,21 +171,21 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void setTeamQssEnabled(boolean enabled) {
+    public void setTeamQssEnabled(boolean enabled) {
         QuietStorage.setTeamQssEnabled(enabled);
         Log.i("CommunicationModule", "setTeamQssEnabled triggered syncBackendWorkerState enabled=" + enabled);
         syncBackendWorkerState();
     }
 
     @ReactMethod
-    public static void setUserBackgroundTorEnabled(boolean enabled) {
+    public void setUserBackgroundTorEnabled(boolean enabled) {
         QuietStorage.setUserBackgroundTorEnabled(enabled);
         Log.i("CommunicationModule", "setUserBackgroundTorEnabled triggered syncBackendWorkerState enabled=" + enabled);
         syncBackendWorkerState();
     }
 
     @ReactMethod
-    public static void clearSensitiveData() {
+    public void clearSensitiveData() {
         try {
             QuietStorage.clearAll();
             NotificationManagerCompat.from(reactContext.getApplicationContext()).cancelAll();

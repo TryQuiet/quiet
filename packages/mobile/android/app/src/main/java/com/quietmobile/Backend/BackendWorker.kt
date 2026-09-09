@@ -204,13 +204,13 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         private fun handleBackendReady() {
             markBackendReady()
             Log.i(TAG, "Backend reported ready: " + lifecycleSummary())
-            CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_READY_CHANNEL, "", "")
+            CommunicationModule.handleBackendEvent(CommunicationModule.BACKEND_READY_CHANNEL, "", "")
         }
 
         private fun handleBackendClosed() {
             markBackendClosed()
             Log.i(TAG, "Backend reported closed: " + lifecycleSummary())
-            CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
+            CommunicationModule.handleBackendEvent(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
         }
     }
 
@@ -321,7 +321,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         markBackendClosed()
         Log.i(TAG, "Backend worker finished: " + lifecycleSummary())
-        CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
+        CommunicationModule.handleBackendEvent(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
 
         // Indicate whether the work finished successfully with the Result
         return Result.success()
