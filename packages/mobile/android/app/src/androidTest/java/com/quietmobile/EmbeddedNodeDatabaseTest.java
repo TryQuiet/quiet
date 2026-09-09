@@ -19,6 +19,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.util.concurrent.atomic.AtomicReference;
 import org.json.JSONObject;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -53,10 +54,13 @@ public final class EmbeddedNodeDatabaseTest {
 
     @Test
     public void embeddedNodePersistsDatabase() throws Exception {
+        Bundle arguments = InstrumentationRegistry.getArguments();
+        // Normal Detox discovers every instrumentation test. This native smoke
+        // is opt-in; malformed arguments to an explicit invocation still fail.
+        Assume.assumeTrue("Dedicated embedded Node invocation only", arguments.containsKey("quietEmbeddedNodeRunId"));
+        String runId = arguments.getString("quietEmbeddedNodeRunId", "");
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertTrue("Use only the Storybook debug app", BuildConfig.DEBUG && context.getPackageName().equals("com.quietmobile.storybook.debug"));
-        Bundle arguments = InstrumentationRegistry.getArguments();
-        String runId = arguments.getString("quietEmbeddedNodeRunId", "");
         assertTrue("Supply a public run ID", runId.matches("[a-z0-9][a-z0-9_-]{0,63}"));
         int launch = Integer.parseInt(arguments.getString("quietEmbeddedNodeLaunch", "0"));
         assertTrue("Run exactly launch 1 or 2", launch == 1 || launch == 2);
