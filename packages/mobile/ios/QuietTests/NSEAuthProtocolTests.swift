@@ -33,10 +33,21 @@ final class NSEAuthProtocolTests: XCTestCase {
         XCTAssertEqual(try NSEAuthProof.encode(value), expectedBytes)
 
         let secretKey = try XCTUnwrap(Base58.decode("2ZC6948FLMTyZ9cAN2Db6u4E9FN72vEwXa1s193vMozZUYnBzVU7952gS6zY7T2VZJVBuJKSsdo7gDDkox3tZx4u"))
-        XCTAssertEqual(
-            try NSEAuthProof.sign(value, privateKeyData: secretKey),
+        XCTAssertEqual(secretKey.count, 64)
+        let publicKey = try Curve25519.Signing.PublicKey(rawRepresentation: secretKey.suffix(32))
+
+        // The fixture signature was produced by libsodium (deterministic Ed25519) on the other
+        // platforms. CryptoKit randomizes Ed25519 signatures, so the bytes differ on every run
+        // while still verifying under the same key. Check both directions of interop instead of
+        // comparing signature bytes.
+        let fixtureSignature = try XCTUnwrap(Base58.decode(
             "62XsfcCvq4SeRxmVK6LNyjuPpLyUSaCxPD315LRtfet9GnHQ6zu5sg8muz1eh4ZvvnZ6m3SH88KRztu4gm8W5YQk"
-        )
+        ))
+        XCTAssertTrue(publicKey.isValidSignature(fixtureSignature, for: expectedBytes))
+
+        let iosSignature = try XCTUnwrap(Base58.decode(try NSEAuthProof.sign(value, privateKeyData: secretKey)))
+        XCTAssertEqual(iosSignature.count, 64)
+        XCTAssertTrue(publicKey.isValidSignature(iosSignature, for: expectedBytes))
     }
 
     func testValidationRejectsIdentityProtocolNonceAndTimestampAttacks() throws {
