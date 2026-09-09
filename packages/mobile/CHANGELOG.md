@@ -1,30 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [9.0.0-alpha.18](https://github.com/TryQuiet/quiet-private/compare/@quiet/mobile@9.0.0-alpha.17...@quiet/mobile@9.0.0-alpha.18) (2026-09-09)
-
-
-### Bug Fixes
-
-* improve UserMetadataHandler initialization by ensuring directory creation for persistent store ([ad84b61](https://github.com/TryQuiet/quiet-private/commit/ad84b6197ed5051c16cb56e9c53508854780df92))
-* **ios:** check the JSON token type for NSE challenge timestamps instead of Decimal ([#342](https://github.com/TryQuiet/quiet-private/issues/342)) ([cac29a6](https://github.com/TryQuiet/quiet-private/commit/cac29a6976028ff4ee350da0e48e8f62e61e17aa))
-* **ios:** drop the NSE log fetch size cap; keep the auth endpoint caps ([#342](https://github.com/TryQuiet/quiet-private/issues/342)) ([e40e17f](https://github.com/TryQuiet/quiet-private/commit/e40e17f1888b1c826152500b7127cb5384f99a56))
-* **ios:** reject fractional timestamp literals in NSE challenges; fix test server body read ([#342](https://github.com/TryQuiet/quiet-private/issues/342)) ([c8d407f](https://github.com/TryQuiet/quiet-private/commit/c8d407fb8e0296bff594c29d44bccc1a8de4a14d))
-* **ios:** scan NSE challenge JSON strictly; reject duplicate members and bound responses ([#342](https://github.com/TryQuiet/quiet-private/issues/342)) ([d3b322f](https://github.com/TryQuiet/quiet-private/commit/d3b322f68a83ce4badfeba27bc754373642d938f))
-* **mobile:** reconcile Android background lifecycle and socket recovery ([c6cd5d1](https://github.com/TryQuiet/quiet-private/commit/c6cd5d189effb78fd604a06a7c02d6b17da1a63d))
-
-
-### Features
-
-* enhance backend lifecycle management and websocket connection handling ([0d0c4d9](https://github.com/TryQuiet/quiet-private/commit/0d0c4d911bbfdd6632f6eadd03b3b89430755052))
-* Implement QuietBackgroundTask for managing background transitions ([1685502](https://github.com/TryQuiet/quiet-private/commit/16855026a261966d4eee3491d662d3bfecceab59))
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
