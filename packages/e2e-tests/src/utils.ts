@@ -24,6 +24,9 @@ export interface BuildSetupInit {
   dataDir?: string
   fileName?: string
   chromeDriverPath?: string
+  // Run a checkout's packaged app directly, without replacing /Applications/Quiet.app.
+  binaryPath?: string
+  qssEndpoint?: string
   username?: string
 }
 
@@ -38,6 +41,8 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
   private chromeDriverPath?: string
+  private binaryPath?: string
+  private qssEndpoint: string
 
   constructor({
     port,
@@ -46,6 +51,8 @@ export class BuildSetup {
     dataDir,
     fileName,
     chromeDriverPath,
+    binaryPath,
+    qssEndpoint = 'ws://127.0.0.1:3003',
     username,
   }: BuildSetupInit) {
     this.port = port
@@ -54,6 +61,8 @@ export class BuildSetup {
     this.dataDir = dataDir
     this.fileName = fileName
     this.chromeDriverPath = chromeDriverPath
+    this.binaryPath = binaryPath
+    this.qssEndpoint = qssEndpoint
     this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (this.dataDir == null) {
@@ -76,6 +85,7 @@ export class BuildSetup {
   }
 
   private getBinaryLocation(): string {
+    if (this.binaryPath) return this.binaryPath
     let binaryPath: string | undefined = undefined
     switch (process.platform) {
       case 'linux':
@@ -160,7 +170,7 @@ export class BuildSetup {
       env = {
         ...env,
         QSS_ALLOWED: true,
-        QSS_ENDPOINT: 'ws://127.0.0.1:3003',
+        QSS_ENDPOINT: this.qssEndpoint,
       }
     } else {
       env = {
@@ -176,7 +186,9 @@ export class BuildSetup {
     this.child = spawn(chromeDriver.command, chromeDriver.args, {
       shell: chromeDriver.shell,
       detached: false,
-      env: Object.assign(process.env, env),
+      // The combined Detox/Selenium runner shares this process with mobile.
+      // Desktop launch settings belong only to the child process.
+      env: { ...process.env, ...env },
     })
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>

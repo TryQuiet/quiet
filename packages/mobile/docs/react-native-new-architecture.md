@@ -88,6 +88,8 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Full iOS starter suite | All 25 tests pass on ARM iOS 18.5 using the bundled staging app, fresh installation, notifications enabled and default synchronization; the exact final test file also passes all 25 tests on API 35 |
 | iOS without Firebase configuration | 5 hosted native XCTest cases pass, with no skips, exercising the production Swift module and app delegate |
 | Physical iPhone development build | Builds, signs, installs in place and launches on iPhone 16e / iOS 18.5; strict nested signing and app/extension entitlements verify, and the launched process remains running |
+| iOS QSS one-player | Real native app and local native Mac QSS: 1/1 passes with default synchronization, real public-test-key CAPTCHA, v5 invitation, exact message acknowledgment, server count/sequence 3 → 4, and message restoration after restart |
+| Desktop + iOS with QSS | 6/6 stages pass on the same Mac with same-checkout apps: offline-owner invitation/history, live exchange, offline catch-up in both directions with sender processes stopped, and all five messages restored after restart; no skipped tests or synchronization bypass |
 | Manual iOS CI preparation | 7 executable workflow tests, actionlint and shell syntax checks pass; hosted execution remains pending publication |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
@@ -162,9 +164,11 @@ and notification extension. Strict signature verification and exact entitlement
 checks pass; source frameworks and the unsigned build remain unchanged. The app
 installs in place without an uninstall or explicit data reset, launches with
 foreground activation, and remains running in the subsequent process check.
-Physical community creation, sending and persistence still need a manual UI
-check; process survival alone does not establish those behaviors. The earlier
-PR (#3422) still needs its separate physical-device smoke test.
+The user subsequently confirmed that one-player testing works on the physical
+iPhone; this manual result is recorded in
+[issue #3013](https://github.com/TryQuiet/quiet/issues/3013#issuecomment-5607256236).
+It is user-reported UI validation, separate from the automated simulator checks.
+The earlier PR (#3422) still needs its separate physical-device smoke test.
 
 The standard app also launches outside Detox on the ARM iOS simulator. It
 restores the saved community and channel list, loads Hermes, NodeMobile, Tor and
@@ -192,6 +196,32 @@ Firebase resource and retains build/test diagnostics. Its executable tests use
 the actual Detox CLI and configuration, but do not claim a native build or a
 hosted workflow pass. Publishing this workflow also requires write permission
 for GitHub Actions workflow files.
+
+The [QSS one-player suite](../e2e/README_QSS.md) and
+[mixed desktop/iOS suite](../e2e/README_DESKTOP_QSS.md) now run on the same Mac
+against a [native local QSS fixture](../scripts/qss-e2e/README.md). They use the
+same checkout for both apps, the existing Selenium `App`/`Channel`/onboarding
+helpers, and Detox's normal lifecycle and synchronization. The fixture pins
+QSS and its nested auth source, starts owned loopback Postgres/Redis processes,
+and verifies hCaptcha through its real public test-key API. No signing or
+physical-phone changes are needed for these simulator tests.
+
+The one-player test passes in 112.7 seconds; the six mixed stages pass in
+249.5 seconds with zero skips. Both apps and the test sources remain unchanged
+through the mixed run. Exact text and author assertions establish message
+retrieval while the sending peer is stopped; aggregate server counts alone do
+not identify encrypted messages. All five messages survive the final restart.
+Captured desktop descendants exit before offline retrieval, the isolated desktop
+profile is removed, and the owned simulator is shut down after testing.
+
+This validation caught two setup errors: stale installed auth dependencies can
+reintroduce the old Node 24 serializer failure despite a correct gitlink, and
+QSS's auth hostname must match the endpoint advertised to production-built
+clients. Follow the frozen submodule install/build steps and use `localhost`
+consistently for this fixture. Production authentication behavior is unchanged.
+Coverage is still narrower than the full desktop suite: QSS cancellation,
+private channels, attachments, and long paginated histories remain follow-up
+parity work. Production QSS availability and production CAPTCHA are unverified.
 
 The Tor process regression is opt-in and requires an explicitly selected owned
 emulator. It runs Android's actual command-line tools against temporary processes;
