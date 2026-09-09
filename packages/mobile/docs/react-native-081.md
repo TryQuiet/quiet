@@ -72,19 +72,58 @@ Validation on this checkpoint:
 
 ## iOS validation
 
+The app and notification extension compile successfully for an arm64 iOS device
+on macOS 26.4.1 with Xcode 26.3 (iOS SDK 26.2), Node 20.20.1, Ruby 3.3.12,
+Bundler 2.6.9, and CocoaPods 1.16.2. This is an unsigned Debug compatibility
+build with an empty, temporary Firebase plist; signing, push delivery, and
+device runtime behavior are not established by compilation.
+
+The regenerated CocoaPods lockfile contains RN/Hermes 0.81.5 and the matching
+native library versions. Firebase, Tor, Sodium, and unrelated pod versions
+remain unchanged. RN's new post-install plist scan tried to read and rewrite
+vendored binary framework metadata, failing with an invalid UTF-8 error.
+`scripts/react-native-app-plists.rb` scopes that hook to application targets'
+declared plists. Four Mac tests (32 assertions) verify architecture flags,
+configuration paths, idempotence, missing-file errors, and byte-for-byte
+preservation of the actual NodeMobile/classic-level binary plists.
+
+From `packages/mobile`, with the toolchain above selected:
+
+```sh
+bundle install
+bundle exec ruby scripts/react-native-app-plists.test.rb
+cd ios
+bundle exec pod install --deployment
+ENVFILE=.env.staging RCT_NO_LAUNCH_PACKAGER=1 xcodebuild build \
+  -workspace Quiet.xcworkspace -scheme Quiet -configuration Debug \
+  -destination 'generic/platform=iOS' -derivedDataPath build/compatibility \
+  -jobs 2 CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= \
+  ENABLE_BITCODE=NO ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
+  COMPILER_INDEX_STORE_ENABLE=NO GCC_GENERATE_DEBUGGING_SYMBOLS=NO DEBUG_INFORMATION_FORMAT=
+```
+
+The project copies `ios/GoogleService-Info.plist`; supply development configuration
+or an empty temporary plist for this unsigned compilation check. Disabling debug
+symbols and indexing limits build storage on a development laptop.
+
 The proposed [`Mobile iOS compatibility` workflow](mobile-ios-compatibility.yml.example)
-resolves changed pods, uploads the resulting lockfile for review, and compiles
+checks plist handling, resolves changed pods, uploads the lockfile, and compiles
 the app plus notification extension for a generic iOS device without signing
 or deployment. GitHub rejected publication under `.github/workflows` because
 the current token lacks `workflow` permission; enable it by moving the reviewed
-example into `.github/workflows/mobile-ios-compatibility.yml` once access is available. Commit the generated
-lockfile after reviewing it. Until that run succeeds, the checked-in RN 0.77
-CocoaPods lockfile is an outstanding migration item.
+example into `.github/workflows/mobile-ios-compatibility.yml` once access is available.
+The native build above was run directly on a Mac.
 
 The vendored `classic-level.framework` currently contains only an arm64 iPhone
-(device) binary. Node's XCFramework has simulator slices, but the database addon
-needs a simulator build before a complete simulator run is possible. An unsigned
-device compilation checks integration; it does not prove runtime behavior.
+(device) binary. The [simulator build script](../scripts/README_classic_level_ios.md)
+uses pinned classic-level 1.4.1 sources and Node 18.20.4 headers while preserving
+the device framework. Both simulator architectures compile on the Mac, with
+platform/export checks and byte-for-byte device preservation passing. Its real
+host database test also passes with Node 18.20.4; simulator integration and
+execution remain separate checks. Tor 405.9.1 also
+lacks an arm64 simulator slice, so the available next step uses an x86_64/Rosetta
+iOS runtime. Storybook now selects its own environment, and the real Hermes/WebView
+crypto smoke test can run on either mobile platform.
 
 ## RN 0.79.7 checkpoint
 
@@ -145,7 +184,9 @@ Validation on this checkpoint:
 | Actual edge gestures for keyboard/channel/modal Back | Pass on API 35 and 36 |
 | Activity recreation with native fragments and saved state | Pass on API 35 and 36, including full composer visibility |
 | Full embedded backend/community startup | Node/bridge/addon/socket startup works; Tor child spawn deadlocks on the emulator |
-| iOS CocoaPods/Xcode/runtime | Pending; see iOS validation above |
+| iOS CocoaPods and plist regression checks | Pass; RN/Hermes 0.81.5, 4 tests / 32 assertions |
+| iOS arm64 app and notification extension | Unsigned Debug build passes with Xcode 26.3 |
+| iOS simulator/device runtime | Pending; see iOS validation above |
 
 The release packaging check uses a temporary, nonproduction Firebase configuration
 and the repository's local debug signing fallback; the fixture is removed afterward.

@@ -62,6 +62,10 @@ jobs:
           bundler-cache: true
           working-directory: packages/mobile
 
+      - name: Check application plist updates
+        working-directory: packages/mobile
+        run: bundle exec ruby scripts/react-native-app-plists.test.rb
+
       - name: Resolve native dependencies
         working-directory: packages/mobile/ios
         shell: bash

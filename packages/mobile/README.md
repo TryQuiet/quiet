@@ -155,7 +155,7 @@ const watchFolders = [
     brew install git-lfs
     ```
 
-1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use Xcode version 16.2, but you should use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.) 
+1. Install Xcode 26.3 and Xcode Command Line Tools. Use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.
 
     ```bash
     brew install xcodesorg/made/xcodes
@@ -193,11 +193,11 @@ const watchFolders = [
     ```bash
     brew install rbenv
     rbenv init
-    rbenv install 2.7.5
-    rbenv global 2.7.5
+    rbenv install 3.3.12
+    cd packages/mobile
     ```
 
-1. Restart your terminal and confirm that you are using Ruby 2.7.5
+1. Restart your terminal and confirm that you are using Ruby 3.3.12 from `packages/mobile`. The checked-in `.ruby-version` selects it for this project.
 
     ```bash
     ruby --version
@@ -206,7 +206,7 @@ const watchFolders = [
 1. Install ruby dependencies from the Gemfile in the `packages/mobile` directory.
 
     ```bash
-    gem install bundler -v 1.17.2
+    gem install bundler -v 2.6.9
     bundle install
     ```
 
