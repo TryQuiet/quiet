@@ -6,6 +6,26 @@ override. It supports arm64 and x86_64 simulator builds and uses a dedicated dir
 under the native bridge's Documents directory. It exercises the addon separately
 from the production backend, which remains unchanged in the original built app.
 
+Fixture v2 passed on a native arm64 iOS 18.5 simulator on 2026-09-09 UTC, using the
+Storybook app built with the [pinned Tor simulator recipe](../../scripts/tor-ios-simulator/README.md).
+Run `rn081-20260909-045947-aad2cb4d` reported the actual native RN bridge and cached
+Quiet preload, Node 18.20.4, `platform: ios`, `architecture: arm64`, module ABI 108,
+and Node-API 9 on both launches:
+
+| Launch | Process ID | Writes | Reads | Compressed tables |
+| --- | --- | --- | --- | --- |
+| First | 37950 | 8 | 16 | 7 files / 74,809 bytes |
+| After app restart | 37968 | 0 | 16 | 8 files / 85,496 bytes |
+
+Each launch also passed two open/close cycles, forward and reverse iteration over
+all eight exact key/value pairs, and the missing-key check. The runner restored
+the original app and verified the original backend bundle was unchanged. The
+sanitized verdict's fixture SHA-256 matches this fixture:
+`3bbb495a694ae9260a3531cdefe19c648c1918c439524a391e2c55187627c8a9`.
+Hermes/WebView UI crypto validation remains in progress. This database result
+does not establish production backend startup, Tor network bootstrap, community
+creation, messaging, or physical-device runtime behavior.
+
 The normal build copies only `nodejs-assets/nodejs-project` and
 `nodejs-modules/builtin_modules`; this `e2e/fixtures` file is never shipped. Native
 AppDelegate starts `nodejs-project/bundle.cjs` after Tor's local control connection
@@ -19,12 +39,15 @@ simulator created for this test and `DETOX_IOS_ARCH` to its build architecture,
 and the app's deployment targets, including the notification service extension.
 All embedded frameworks must include the selected simulator architecture. In
 particular, the original Tor 405.9.1 framework needs a separately built arm64
-simulator variant before this probe can run on arm64.
+simulator variant before this probe can run on arm64. Use the recipe's guarded
+`build-storybook.py` wrapper for that build; it selects the simulator framework
+temporarily and restores the original Tor pod. Set `QUIET_STORYBOOK_APP` to the
+wrapper's `DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app` output.
 
 Build Storybook with the selected architecture and `FORCE_BUNDLING=1`. React
 Native's existing bundle fallback then loads `main.jsbundle` when Metro is stopped;
-no production AppDelegate change is needed. The explicit command below overrides
-the architecture rather than relying on the x86_64 Detox build preset.
+no production AppDelegate change is needed. The block below builds x86_64 with
+the default pod, or selects the previously built arm64 app from the guarded wrapper.
 
 ```sh
 : "${DETOX_IOS_SIMULATOR_ID:?Set this to the owned, fresh simulator UUID}"
@@ -34,11 +57,17 @@ case "$DETOX_IOS_ARCH" in
   x86_64) quiet_smoke_node_arch=x64 ;;
   *) printf '%s\n' 'DETOX_IOS_ARCH must be arm64 or x86_64' >&2; exit 1 ;;
 esac
-FORCE_BUNDLING=1 ENVFILE=.env.storybook xcodebuild \
-  -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug \
-  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
-  -derivedDataPath ios/build/storybook -jobs 2 \
-  ARCHS="$DETOX_IOS_ARCH" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO
+if [ "$DETOX_IOS_ARCH" = x86_64 ]; then
+  FORCE_BUNDLING=1 ENVFILE=.env.storybook xcodebuild \
+    -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug \
+    -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+    -derivedDataPath ios/build/storybook -jobs 2 \
+    ARCHS=x86_64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO
+  quiet_storybook_app="$PWD/ios/build/storybook/Build/Products/Debug-iphonesimulator/Quiet.app"
+else
+  : "${QUIET_STORYBOOK_APP:?Set this to Quiet.app from the guarded arm64 Storybook build}"
+  quiet_storybook_app="$QUIET_STORYBOOK_APP"
+fi
 ```
 
 After the build completes, stop Metro before booting the owned simulator if host
@@ -50,16 +79,16 @@ intentional second launch below.
 ```sh
 : "${DETOX_IOS_SIMULATOR_ID:?Set this to the owned, fresh simulator UUID}"
 : "${quiet_smoke_node_arch:?Run the architecture selection above first}"
+: "${quiet_storybook_app:?Build or select the Storybook app above first}"
 quiet_smoke_simulator="$DETOX_IOS_SIMULATOR_ID"
 quiet_smoke_run="rn081-$(date -u +%Y%m%d-%H%M%S)-$$"
-quiet_storybook_app="$PWD/ios/build/storybook/Build/Products/Debug-iphonesimulator/Quiet.app"
 quiet_smoke_bundle=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$quiet_storybook_app/Info.plist")
 quiet_smoke_directory=$(mktemp -d /tmp/quiet-embedded-node-smoke.XXXXXX)
 cp -cRp "$quiet_storybook_app" "$quiet_smoke_directory/Quiet.app"
 cp e2e/fixtures/embedded-node-database.cjs "$quiet_smoke_directory/Quiet.app/nodejs-project/bundle.cjs"
 # Refresh the copied app's signature only when the source app was signed.
 if codesign -d "$quiet_storybook_app" >/dev/null 2>&1; then
-  codesign --force --sign - --preserve-metadata=entitlements,identifier "$quiet_smoke_directory/Quiet.app"
+  codesign --force --sign - --preserve-metadata=entitlements,identifier,flags "$quiet_smoke_directory/Quiet.app"
 fi
 xcrun simctl install "$quiet_smoke_simulator" "$quiet_smoke_directory/Quiet.app"
 SIMCTL_CHILD_QUIET_EMBEDDED_NODE_DATABASE_RUN_ID="$quiet_smoke_run" \

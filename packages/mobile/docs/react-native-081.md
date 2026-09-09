@@ -131,9 +131,9 @@ iteration, close/reopen persistence, and the existing Quiet loader override.
 The Intel Storybook simulator app also compiles successfully, including a
 bundled Hermes payload with `FORCE_BUNDLING=1`. Storybook selects its own native
 environment, and the real Hermes/WebView crypto smoke test supports iOS.
-Tor 405.9.1 still lacks an arm64 simulator slice; its existing simulator path
-requires an x86_64-capable runtime such as iOS 18.5 (the installed iOS 26.3.1
-runtime has only arm64 executables).
+The default Tor 405.9.1 pod has only an x86_64 simulator slice. The optional
+source build below supplies an arm64 simulator framework without upgrading Tor
+or changing the default pod used for subsequent device builds.
 
 From `packages/mobile`, build without a running Metro server:
 
@@ -147,14 +147,11 @@ FORCE_BUNDLING=1 ENVFILE=.env.storybook RCT_NO_LAUNCH_PACKAGER=1 xcodebuild buil
   GCC_GENERATE_DEBUGGING_SYMBOLS=NO DEBUG_INFORMATION_FORMAT=
 ```
 
-The x86_64 iOS 18.5 simulator did not finish booting on the 8 GB Apple Silicon
-validation Mac. Apple service crashes and substantial swap/disk pressure occurred
-before Quiet was installed or launched. The attempts were stopped; this does
-not establish an app runtime failure or success. The iOS crypto smoke and
-[embedded Node database fixture](../e2e/fixtures/README_embedded_node_database.md)
-remain unexecuted on iOS. The fixture runs inside a separate copy of the built
-app and verifies the real native bridge, addon loading, and database persistence
-across app-process restarts; passing host tests do not replace that device check.
+Earlier x86_64 iOS 18.5 and arm64 iOS 26 simulator attempts encountered Apple
+service crashes or exhausted disk headroom on the 8 GB validation Mac. Those
+attempts stopped before installing Quiet. A native arm64 iOS 18.5 simulator
+subsequently booted and ran the app and database fixture successfully, as
+recorded below.
 
 For Apple Silicon, the optional [pinned Tor simulator recipe](../scripts/tor-ios-simulator/README.md)
 builds Tor.framework 405.9.1 from its exact Tor 0.4.5.9, OpenSSL 1.1.1k,
@@ -164,15 +161,33 @@ headers match the existing pod. The source preparer verifies all downloads and
 the patch before creating an isolated source tree.
 
 The guarded opt-in Storybook builder temporarily selects that simulator framework,
-builds an unsigned arm64 app with bundled Hermes, and restores the complete
+compiles an arm64 app with bundled Hermes without provisioning, applies a local
+ad hoc app signature for simulator installation, and restores the complete
 original Tor pod with hash verification. This app build passed, including matching
 embedded Tor bytes and simulator platform checks for NodeMobile, classic-level,
 Hermes, the app, and its extension. The recipe does not change the default pod,
-shipped Tor device binaries, or embedded Node version. Seventeen filesystem and
+shipped Tor device binaries, or embedded Node version. Filesystem and
 child-process tests cover restoration on success, failure, interruption, and low
-disk space. iOS 26 simulator startup subsequently exhausted the available disk
-headroom; the database runner stopped before installing Quiet. Runtime validation
-is still pending on a usable simulator or connected device.
+disk space.
+
+On 2026-09-09 UTC, the
+[embedded Node database fixture](../e2e/fixtures/README_embedded_node_database.md)
+passed inside that arm64 app on the native iOS 18.5 simulator. Run
+`rn081-20260909-045947-aad2cb4d` used the actual native RN bridge, Quiet's existing
+preload/path mapping, and classic-level with Node 18.20.4 (`platform: ios`,
+`architecture: arm64`, module ABI 108, Node-API 9). Two different app processes
+passed: eight synchronous writes on the first launch, zero writes after restart,
+and sixteen exact reads on each launch. Each launch also verified forward and
+reverse iteration, missing-key behavior, compressed persistent tables, and two
+open/close cycles. The runner restored the original app and verified its backend
+bundle remained unchanged.
+
+Storybook renders on the native arm64 iOS 18.5 simulator; the Hermes/WebView UI
+crypto checks remain in progress. The database fixture substitutes only the
+Node entry point in a separate app copy and does not run the production backend.
+Its success establishes native bridge/addon loading and storage persistence on
+this simulator, without establishing Tor network bootstrap, community creation,
+messaging, or physical-device runtime behavior.
 
 ## RN 0.79.7 checkpoint
 
@@ -235,7 +250,8 @@ Validation on this checkpoint:
 | Full embedded backend/community startup | Node/bridge/addon/socket startup works; Tor child spawn deadlocks on the emulator |
 | iOS CocoaPods and plist regression checks | Pass; RN/Hermes 0.81.5, 4 tests / 32 assertions |
 | iOS arm64 app and notification extension | Unsigned Debug build passes with Xcode 26.3 |
-| iOS simulator/device runtime | Pending; see iOS validation above |
+| iOS arm64 simulator embedded Node database | Pass on iOS 18.5; native bridge/addon, compressed storage and app-process restart |
+| iOS UI crypto / full backend runtime | UI checks in progress; Tor bootstrap/community behavior and physical-device runtime remain unverified |
 
 The release packaging check uses a temporary, nonproduction Firebase configuration
 and the repository's local debug signing fallback; the fixture is removed afterward.
@@ -261,9 +277,10 @@ to asynchronous spawn cannot unblock that native wait.
 These tests run an ARM64 APK through translation on x86_64 Android emulators.
 A fork/translation interaction is a hypothesis; the exact lock owner is not
 established. Pre-migration SDK checks also stalled during Tor child creation.
-Full Tor bootstrap, database operations, and community messaging still require
-validation on an ARM64 device. Loading the addon alone does not prove storage
-operations work. No embedded Node upgrade is justified solely by this result.
+Android database operations, full Tor bootstrap, and community messaging still
+require validation on an ARM64 Android device. The separate iOS database pass
+above does not resolve this Android child-process limitation. No embedded Node
+upgrade is justified solely by this result.
 
 Reproduce from `packages/mobile` with the repository's Node version, Android SDK,
 and JDK 17 available:

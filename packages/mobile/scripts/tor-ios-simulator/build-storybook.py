@@ -52,10 +52,10 @@ def snapshot(root):
     return result
 
 
-def command(args, env):
+def command(args, env, failure_message='Framework validation command failed'):
     result = subprocess.run(args, env=env, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                             text=True, timeout=30)
-    require(result.returncode == 0, 'Framework validation command failed')
+    require(result.returncode == 0, failure_message)
     return result.stdout.strip()
 
 
@@ -218,7 +218,19 @@ def build(args):
         require((app / 'main.jsbundle').is_file(), 'Built app is missing its bundled JS payload')
         embedded = app / 'Frameworks/Tor.framework/Tor'
         require(sha256(embedded) == result['simulatorTorSHA256'], 'Built app did not embed the selected simulator Tor binary unchanged')
-        result.update(status='passed', app=str(app), embeddedTorSHA256=sha256(embedded))
+        # The linker's ad hoc executable signature has no app resource envelope.
+        # Sign only the outer simulator app; never re-sign the embedded Tor binary.
+        check_disk(checkout, output)
+        command(['codesign', '--force', '--sign', '-',
+                 '--preserve-metadata=entitlements,identifier,flags', str(app)], env,
+                'Simulator app ad hoc signing failed')
+        check_stop()
+        command(['codesign', '--verify', '--strict', str(app)], env,
+                'Simulator app strict signature verification failed')
+        check_stop()
+        require(sha256(embedded) == result['simulatorTorSHA256'], 'Simulator signing changed the embedded Tor binary')
+        result.update(status='passed', app=str(app), embeddedTorSHA256=sha256(embedded),
+                      appSignature={'identity': 'ad-hoc', 'strictVerification': True})
     except Exception as error:
         result['error'] = str(error) if isinstance(error, BuildFailure) else type(error).__name__
     finally:

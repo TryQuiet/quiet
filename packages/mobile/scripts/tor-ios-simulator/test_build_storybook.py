@@ -1,6 +1,6 @@
 """Real filesystem and child-process rollback tests; no Xcode or Mac required.
 
-Only Mach-O inspection, free-disk readings, and the Xcode command are substituted.
+Only native inspection/signing, free-disk readings, and Xcode are substituted.
 The wrapper still swaps/copies frameworks, terminates real children, receives real
 signals, and verifies the resulting app's embedded framework and restored tree.
 """
@@ -64,6 +64,7 @@ class StorybookBuildTests(unittest.TestCase):
         self.children = []
         self.commands = []
         self.environments = []
+        self.signing_commands = []
         self.baseline_sha = wrapper.sha256(self.target / 'Tor')
 
     def assert_original_intact(self):
@@ -76,12 +77,32 @@ class StorybookBuildTests(unittest.TestCase):
         self.assertTrue(all(child.poll() is not None for child in self.children))
 
     def run_build(self, *, failure=False, interrupt=None, low_disk=False, wrong_app=False,
-                  platform='IOSSIMULATOR', prepare_error=None, baseline=None):
+                  platform='IOSSIMULATOR', prepare_error=None, baseline=None,
+                  signing_failure=None, signing_changes_tor=False):
         marker = self.output / 'child-stopped'
         ready = self.output / 'child-ready'
 
-        def validate(argv, env):
+        def validate(argv, env, failure_message='Framework validation command failed'):
             self.environments.append(env)
+            if argv[0] == 'codesign':
+                self.signing_commands.append(argv)
+                app = Path(argv[-1])
+                envelope = app / '_CodeSignature/CodeResources'
+                operation = 'sign' if '--sign' in argv else 'verify'
+                if signing_failure == operation:
+                    raise wrapper.BuildFailure(failure_message)
+                if operation == 'sign':
+                    self.assertEqual(argv[argv.index('--sign') + 1], '-')
+                    self.assertIn('--preserve-metadata=entitlements,identifier,flags', argv)
+                    self.assertNotIn('--deep', argv)
+                    envelope.parent.mkdir()
+                    envelope.write_bytes(b'test resource envelope')
+                    if signing_changes_tor:
+                        (app / 'Frameworks/Tor.framework/Tor').write_bytes(b'changed during signing')
+                else:
+                    self.assertIn('--strict', argv)
+                    self.assertEqual(envelope.read_bytes(), b'test resource envelope')
+                return ''
             if 'lipo' in argv:
                 return 'arm64'
             if 'vtool' in argv:
@@ -149,13 +170,17 @@ class StorybookBuildTests(unittest.TestCase):
                     self.assertEqual(self.children, [])
                 else:
                     status = wrapper.build(self.args)
-                    failed = failure or interrupt or low_disk or wrong_app
+                    failed = failure or interrupt or low_disk or wrong_app or signing_failure or signing_changes_tor
                     self.assertEqual(status, 1 if failed else 0)
                     result = json.loads((self.output / 'result.json').read_text())
                     self.assertTrue(result['originalRestored'])
                     self.assertEqual(result['status'], 'failed' if failed else 'passed')
                     if not failed:
                         self.assertEqual(result['embeddedTorSHA256'], wrapper.sha256(self.source / 'Tor'))
+                        self.assertEqual(result['appSignature'], {'identity': 'ad-hoc', 'strictVerification': True})
+                        self.assertEqual(len(self.signing_commands), 2)
+                    elif signing_failure or signing_changes_tor:
+                        self.assertNotIn('appSignature', result)
                     if interrupt or low_disk:
                         self.assertEqual(marker.read_bytes(), b'arm64 simulator framework')
             for env in self.environments:
@@ -206,6 +231,20 @@ class StorybookBuildTests(unittest.TestCase):
 
     def test_incorrect_app_framework_fails_and_restores_original(self):
         self.run_build(wrong_app=True)
+        self.assert_original_intact()
+
+    def test_signing_failure_rejects_app_and_restores_original(self):
+        self.run_build(signing_failure='sign')
+        self.assertEqual(len(self.signing_commands), 1)
+        self.assert_original_intact()
+
+    def test_signature_verification_failure_rejects_app_and_restores_original(self):
+        self.run_build(signing_failure='verify')
+        self.assertEqual(len(self.signing_commands), 2)
+        self.assert_original_intact()
+
+    def test_signing_cannot_change_embedded_tor(self):
+        self.run_build(signing_changes_tor=True)
         self.assert_original_intact()
 
     def test_device_source_rejected_before_swap(self):
