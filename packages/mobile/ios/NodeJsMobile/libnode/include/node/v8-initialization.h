@@ -52,6 +52,9 @@ using ReturnAddressLocationResolver =
 using DcheckErrorCallback = void (*)(const char* file, int line,
                                      const char* message);
 
+using V8FatalErrorCallback = void (*)(const char* file, int line,
+                                      const char* message);
+
 /**
  * Container class for static utility functions.
  */
@@ -77,6 +80,12 @@ class V8_EXPORT V8 {
   /** Set the callback to invoke in case of Dcheck failures. */
   static void SetDcheckErrorHandler(DcheckErrorCallback that);
 
+  /** Set the callback to invoke in the case of CHECK failures or fatal
+   * errors. This is distinct from Isolate::SetFatalErrorHandler, which
+   * is invoked in response to API usage failures.
+   * */
+  static void SetFatalErrorHandler(V8FatalErrorCallback that);
+
   /**
    * Sets V8 flags from a string.
    */
@@ -97,13 +106,24 @@ class V8_EXPORT V8 {
    * is created. It always returns true.
    */
   V8_INLINE static bool Initialize() {
+#ifdef V8_TARGET_OS_ANDROID
+    const bool kV8TargetOsIsAndroid = true;
+#else
+    const bool kV8TargetOsIsAndroid = false;
+#endif
+
+#ifdef V8_ENABLE_CHECKS
+    const bool kV8EnableChecks = true;
+#else
+    const bool kV8EnableChecks = false;
+#endif
+
     const int kBuildConfiguration =
         (internal::PointerCompressionIsEnabled() ? kPointerCompression : 0) |
         (internal::SmiValuesAre31Bits() ? k31BitSmis : 0) |
-        (internal::SandboxedExternalPointersAreEnabled()
-             ? kSandboxedExternalPointers
-             : 0) |
-        (internal::SandboxIsEnabled() ? kSandbox : 0);
+        (internal::SandboxIsEnabled() ? kSandbox : 0) |
+        (kV8TargetOsIsAndroid ? kTargetOsIsAndroid : 0) |
+        (kV8EnableChecks ? kEnableChecks : 0);
     return Initialize(kBuildConfiguration);
   }
 
@@ -184,30 +204,19 @@ class V8_EXPORT V8 {
    * V8 was disposed.
    */
   static void DisposePlatform();
-  V8_DEPRECATED("Use DisposePlatform()")
-  static void ShutdownPlatform() { DisposePlatform(); }
 
-#ifdef V8_SANDBOX
-  //
-  // Sandbox related API.
-  //
-  // This API is not yet stable and subject to changes in the future.
-  //
-
+#if defined(V8_ENABLE_SANDBOX)
   /**
-   * Initializes the V8 sandbox.
+   * Returns true if the sandbox is configured securely.
    *
-   * This must be invoked after the platform was initialized but before V8 is
-   * initialized. The sandbox is torn down during platform shutdown.
-   * Returns true on success, false otherwise.
-   *
-   * TODO(saelo) Once it is no longer optional to initialize the sandbox when
-   * compiling with V8_SANDBOX, the sandbox initialization will likely happen
-   * as part of V8::Initialize, at which point this function should be removed.
+   * If V8 cannot create a regular sandbox during initialization, for example
+   * because not enough virtual address space can be reserved, it will instead
+   * create a fallback sandbox that still allows it to function normally but
+   * does not have the same security properties as a regular sandbox. This API
+   * can be used to determine if such a fallback sandbox is being used, in
+   * which case it will return false.
    */
-  static bool InitializeSandbox();
-  V8_DEPRECATE_SOON("Use InitializeSandbox()")
-  static bool InitializeVirtualMemoryCage() { return InitializeSandbox(); }
+  static bool IsSandboxConfiguredSecurely();
 
   /**
    * Provides access to the virtual address subspace backing the sandbox.
@@ -220,39 +229,29 @@ class V8_EXPORT V8 {
    * and so in particular the contents of pages allocagted in this virtual
    * address space, arbitrarily and concurrently. Due to this, it is
    * recommended to to only place pure data buffers in them.
-   *
-   * This function must only be called after initializing the sandbox.
    */
   static VirtualAddressSpace* GetSandboxAddressSpace();
-  V8_DEPRECATE_SOON("Use GetSandboxAddressSpace()")
-  static PageAllocator* GetVirtualMemoryCagePageAllocator();
 
   /**
    * Returns the size of the sandbox in bytes.
    *
-   * If the sandbox has not been initialized, or if the initialization failed,
-   * this returns zero.
+   * This represents the size of the address space that V8 can directly address
+   * and in which it allocates its objects.
    */
   static size_t GetSandboxSizeInBytes();
-  V8_DEPRECATE_SOON("Use GetSandboxSizeInBytes()")
-  static size_t GetVirtualMemoryCageSizeInBytes() {
-    return GetSandboxSizeInBytes();
-  }
 
   /**
-   * Returns whether the sandbox is configured securely.
+   * Returns the size of the address space reservation backing the sandbox.
    *
-   * If V8 cannot create a proper sandbox, it will fall back to creating a
-   * sandbox that doesn't have the desired security properties but at least
-   * still allows V8 to function. This API can be used to determine if such an
-   * insecure sandbox is being used, in which case it will return false.
+   * This may be larger than the sandbox (i.e. |GetSandboxSizeInBytes()|) due
+   * to surrounding guard regions, or may be smaller than the sandbox in case a
+   * fallback sandbox is being used, which will use a smaller virtual address
+   * space reservation. In the latter case this will also be different from
+   * |GetSandboxAddressSpace()->size()| as that will cover a larger part of the
+   * address space than what has actually been reserved.
    */
-  static bool IsSandboxConfiguredSecurely();
-  V8_DEPRECATE_SOON("Use IsSandboxConfiguredSecurely()")
-  static bool IsUsingSecureVirtualMemoryCage() {
-    return IsSandboxConfiguredSecurely();
-  }
-#endif
+  static size_t GetSandboxReservationSizeInBytes();
+#endif  // V8_ENABLE_SANDBOX
 
   /**
    * Activate trap-based bounds checking for WebAssembly.
@@ -273,7 +272,7 @@ class V8_EXPORT V8 {
    * exceptions in V8-generated code.
    */
   static void SetUnhandledExceptionCallback(
-      UnhandledExceptionCallback unhandled_exception_callback);
+      UnhandledExceptionCallback callback);
 #endif
 
   /**
@@ -281,8 +280,7 @@ class V8_EXPORT V8 {
    * v8 has encountered a fatal failure to allocate memory and is about to
    * terminate.
    */
-
-  static void SetFatalMemoryErrorCallback(OOMErrorCallback oom_error_callback);
+  static void SetFatalMemoryErrorCallback(OOMErrorCallback callback);
 
   /**
    * Get statistics about the shared memory usage.
@@ -295,8 +293,9 @@ class V8_EXPORT V8 {
   enum BuildConfigurationFeatures {
     kPointerCompression = 1 << 0,
     k31BitSmis = 1 << 1,
-    kSandboxedExternalPointers = 1 << 2,
-    kSandbox = 1 << 3,
+    kSandbox = 1 << 2,
+    kTargetOsIsAndroid = 1 << 3,
+    kEnableChecks = 1 << 4,
   };
 
   /**

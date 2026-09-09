@@ -5,6 +5,10 @@
 #ifndef INCLUDE_V8_MAYBE_H_
 #define INCLUDE_V8_MAYBE_H_
 
+#include <type_traits>
+#include <utility>
+
+#include "cppgc/internal/conditional-stack-allocated.h"  // NOLINT(build/include_directory)
 #include "v8-internal.h"  // NOLINT(build/include_directory)
 #include "v8config.h"     // NOLINT(build/include_directory)
 
@@ -26,7 +30,7 @@ V8_EXPORT void FromJustIsNothing();
  * "Nothing" value is returned.
  */
 template <class T>
-class Maybe {
+class Maybe : public cppgc::internal::ConditionalStackAllocatedBase<T> {
  public:
   V8_INLINE bool IsNothing() const { return !has_value_; }
   V8_INLINE bool IsJust() const { return has_value_; }
@@ -57,9 +61,18 @@ class Maybe {
    * Converts this Maybe<> to a value of type T. If this Maybe<> is
    * nothing (empty), V8 will crash the process.
    */
-  V8_INLINE T FromJust() const {
+  V8_INLINE T FromJust() const& {
     if (V8_UNLIKELY(!IsJust())) api_internal::FromJustIsNothing();
     return value_;
+  }
+
+  /**
+   * Converts this Maybe<> to a value of type T. If this Maybe<> is
+   * nothing (empty), V8 will crash the process.
+   */
+  V8_INLINE T FromJust() && {
+    if (V8_UNLIKELY(!IsJust())) api_internal::FromJustIsNothing();
+    return std::move(value_);
   }
 
   /**
@@ -82,6 +95,7 @@ class Maybe {
  private:
   Maybe() : has_value_(false) {}
   explicit Maybe(const T& t) : has_value_(true), value_(t) {}
+  explicit Maybe(T&& t) : has_value_(true), value_(std::move(t)) {}
 
   bool has_value_;
   T value_;
@@ -90,6 +104,8 @@ class Maybe {
   friend Maybe<U> Nothing();
   template <class U>
   friend Maybe<U> Just(const U& u);
+  template <class U, std::enable_if_t<!std::is_lvalue_reference_v<U>>*>
+  friend Maybe<U> Just(U&& u);
 };
 
 template <class T>
@@ -100,6 +116,14 @@ inline Maybe<T> Nothing() {
 template <class T>
 inline Maybe<T> Just(const T& t) {
   return Maybe<T>(t);
+}
+
+// Don't use forwarding references here but instead use two overloads.
+// Forwarding references only work when type deduction takes place, which is not
+// the case for callsites such as Just<Type>(t).
+template <class T, std::enable_if_t<!std::is_lvalue_reference_v<T>>* = nullptr>
+inline Maybe<T> Just(T&& t) {
+  return Maybe<T>(std::move(t));
 }
 
 // A template specialization of Maybe<T> for the case of T = void.

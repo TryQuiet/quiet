@@ -18,6 +18,7 @@
 namespace v8 {
 
 class Context;
+class Location;
 class UnboundScript;
 
 /**
@@ -52,14 +53,16 @@ class V8_EXPORT Function : public Object {
       Local<Context> context, int argc, Local<Value> argv[],
       SideEffectType side_effect_type = SideEffectType::kHasSideEffect) const;
 
+  V8_WARN_UNUSED_RESULT MaybeLocal<Value> Call(v8::Isolate* isolate,
+                                               Local<Context> context,
+                                               Local<Value> recv, int argc,
+                                               Local<Value> argv[]);
   V8_WARN_UNUSED_RESULT MaybeLocal<Value> Call(Local<Context> context,
                                                Local<Value> recv, int argc,
                                                Local<Value> argv[]);
 
   void SetName(Local<String> name);
   Local<Value> GetName() const;
-
-  MaybeLocal<UnboundScript> GetUnboundScript() const;
 
   /**
    * Name inferred from variable or property assignment of this function.
@@ -87,6 +90,18 @@ class V8_EXPORT Function : public Object {
   int GetScriptColumnNumber() const;
 
   /**
+   * Returns zero based line and column number of function body, else returns
+   * {-1, -1}.
+   */
+  Location GetScriptLocation() const;
+
+  /**
+   * Returns zero based start position (character offset) of function body and
+   * kLineOffsetNotFound if no information available.
+   */
+  int GetScriptStartPosition() const;
+
+  /**
    * Returns scriptId.
    */
   int ScriptId() const;
@@ -105,6 +120,14 @@ class V8_EXPORT Function : public Object {
    */
   V8_WARN_UNUSED_RESULT MaybeLocal<String> FunctionProtoToString(
       Local<Context> context);
+
+  /**
+   * Returns true if the function does nothing.
+   * The function returns false on error.
+   * Note that this function is experimental. Embedders should not rely on
+   * this existing. We may remove this function in the future.
+   */
+  V8_WARN_UNUSED_RESULT bool Experimental_IsNopFunction() const;
 
   ScriptOrigin GetScriptOrigin() const;
   V8_INLINE static Function* Cast(Value* value) {
