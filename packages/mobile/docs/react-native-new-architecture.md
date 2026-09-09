@@ -59,7 +59,7 @@ upgrades the separate Node runtime that executes Quiet's backend.
   classic-level addon binaries are retained through their stable Node-API 3
   interface. The separate Tor ARM simulator recipe remains necessary.
 
-## Validation in progress
+## Validation results
 
 | Check | Result |
 | --- | --- |
@@ -80,18 +80,21 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Android 16 KB userspace | The same native Node/database smoke passes across 2 app processes on the API 36 16 KB emulator, using ARM64 translation on an x86_64 host |
 | Android Tor process discovery | Real production command passes on API 35 and 36 against two owned processes, including directory spaces, detector exclusion, and no matches after cleanup |
 | iOS embedded Node database | Same runtime identity; native bridge, existing addon, 8 compressed tables, and persistence across 2 app processes pass |
-| Standard iOS simulator build support | Debug/E2E/QSS/Release ARM routes use the guarded builder; 31 portable tests pass; actual standard Debug app builds and passes strict signing and Tor restoration checks |
+| Standard iOS simulator build support | Debug/E2E/QSS/Release ARM routes use the guarded builder; 42 portable tests pass; two identical standard Debug build commands reuse DerivedData and the app path, retain separate run evidence, and pass strict signing and exact Tor restoration |
 | Standard iOS community and messaging | Fresh community, username, visible keyboard-open input/Send, exact message's backend storage acknowledgment, process restart, and restored community/message pass with default Detox synchronization |
 | Standard Android community and messaging | The same full focused flow passes on API 35 with the corrected Tor detector and supported Detox idle defaults |
 | Native ARM Android 16 KB community and messaging | The complete focused flow passes on the Mac-hosted ARM64 API 36 emulator with 16 KB pages, no CPU translation, and default synchronization |
+| Full Android starter suite | All 25 tests pass on both API 35 and native ARM64 API 36 with 16 KB pages, notifications enabled and synchronization enabled throughout |
+| Manual iOS CI preparation | 7 executable workflow tests, actionlint and shell syntax checks pass; hosted execution remains pending publication |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
 debug signing. The fixture was removed afterward; these checks do not validate
 production push delivery or store credentials.
 
 The UI fixtures use production components without starting the full community
-backend. Separate tests must establish embedded Node startup, bridge transport,
-database persistence across processes, authentication, and Tor/community behavior.
+backend. The separate native database and standard community tests exercise
+embedded Node startup, bridge transport, database persistence across processes,
+authentication, and Tor/community behavior.
 A supplemental Node 24 host run exposed a MessagePack 1.10.2 authentication
 serialization failure. A separate auth dependency update to 1.11.8 fixes it:
 all 54 focused backend tests pass, and a new six-test crypto regression covers
@@ -118,6 +121,14 @@ marker on both platforms. Android uses Detox's supported bounded idle defaults;
 the previous 60-second override could abort a loading-stage tap before the
 test's 120-second community wait began.
 
+The full Android starter suite also covers channel deletion and recreation,
+leaving and creating another community, background restoration, and further
+messaging. Before its four header-menu taps, it waits for the actual Android
+notification banner to disappear naturally. The bounded helper observes the
+SystemUI hierarchy and removes its temporary file; notifications remain enabled
+and the original UI actions and assertions remain in place. The two previous
+onboarding synchronization bypasses have been removed.
+
 Full backend runs on x86 Android emulators can still hang when forking a child
 process: a captured native stack identifies the ARM translation cache mutex in
 `libndk_translation`. This is separate from the corrected Tor detector. The
@@ -126,8 +137,28 @@ pages, without CPU translation or false managed-Tor restart events.
 
 The requested physical iPhone check of the previous PR (#3422) is also pending:
 the paired device and provisioning profiles are available, but the Mac login
-keychain is locked and cannot sign the fresh build. Simulator validation continues
-independently. The final Daybreak Blue audit will follow working native integration.
+keychain is locked and cannot sign the fresh build.
+
+The requested independent Daybreak Blue review covered the implementation and
+auth dependency update. Its medium finding identified that the standard iOS
+build command failed on its second invocation. Commit `77ba01240` fixes this
+with owned reusable workspaces, exclusive workspace/pod locks, retained run
+evidence and atomic result publication. Two consecutive native builds and 42
+portable tests verify the fix, including failure, interruption, retry and
+concurrency. Daybreak's follow-up closed the finding with no open material
+findings in the reviewed implementation. The review did not independently rerun
+native tests or establish binary reproducibility, production signing or physical
+iPhone behavior.
+
+The manual iOS workflow now prepares the pinned ARM simulator Tor framework,
+selects Xcode 26.3 and one owned iPhone 16 Pro/iOS 18.5 simulator, and runs the
+bundled staging app's starter and community-persistence suites. It retains the
+checked-out submodule revisions; the previous bootstrap command could replace
+them with remote branch tips. It cleans up its simulator and temporary empty
+Firebase resource and retains build/test diagnostics. Its executable tests use
+the actual Detox CLI and configuration, but do not claim a native build or a
+hosted workflow pass. Publishing this workflow also requires write permission
+for GitHub Actions workflow files.
 
 The Tor process regression is opt-in and requires an explicitly selected owned
 emulator. It runs Android's actual command-line tools against temporary processes;
