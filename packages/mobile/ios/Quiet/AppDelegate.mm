@@ -215,6 +215,10 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
+  // Development builds may omit Firebase configuration.
+  if ([FIRApp defaultApp] == nil) {
+    return;
+  }
   // Forward APNS token to Firebase Messaging so it can generate an FCM token,
   // which will be delivered via the MessagingDelegate in AppDelegate+Firebase.swift
   [FIRMessaging.messaging setAPNSToken:deviceToken type:FIRMessagingAPNSTokenTypeUnknown];
