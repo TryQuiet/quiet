@@ -83,6 +83,7 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Standard iOS simulator build support | Debug/E2E/QSS/Release ARM routes use the guarded builder; 31 portable tests pass; actual standard Debug app builds and passes strict signing and Tor restoration checks |
 | Standard iOS community and messaging | Fresh community, username, visible keyboard-open input/Send, exact message's backend storage acknowledgment, process restart, and restored community/message pass with default Detox synchronization |
 | Standard Android community and messaging | The same full focused flow passes on API 35 with the corrected Tor detector and supported Detox idle defaults |
+| Native ARM Android 16 KB community and messaging | The complete focused flow passes on the Mac-hosted ARM64 API 36 emulator with 16 KB pages, no CPU translation, and default synchronization |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
 debug signing. The fixture was removed afterward; these checks do not validate
@@ -119,9 +120,9 @@ test's 120-second community wait began.
 
 Full backend runs on x86 Android emulators can still hang when forking a child
 process: a captured native stack identifies the ARM translation cache mutex in
-`libndk_translation`. This is separate from the corrected Tor detector. Native
-ARM Android validation on the Mac is in progress to check the complete flow
-without CPU translation.
+`libndk_translation`. This is separate from the corrected Tor detector. The
+complete flow passes on the Mac-hosted native ARM Android emulator with 16 KB
+pages, without CPU translation or false managed-Tor restart events.
 
 The requested physical iPhone check of the previous PR (#3422) is also pending:
 the paired device and provisioning profiles are available, but the Mac login
