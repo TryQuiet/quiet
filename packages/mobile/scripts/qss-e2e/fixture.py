@@ -133,7 +133,7 @@ def prepare(checkout, output, port, sudo_docker):
         "version": 1, "runtime": "docker", "output": str(output), "project": project, "port": port,
         "sudoDocker": sudo_docker, "qssCommit": qss_sha, "qssAuthCommit": auth_sha,
         "composeSha256": hashlib.sha256(compose_path.read_bytes()).hexdigest(),
-        "endpoint": f"ws://127.0.0.1:{port}", "productionQss": False, "pushNotifications": False,
+        "endpoint": f"ws://localhost:{port}", "productionQss": False, "pushNotifications": False,
     }
     private_json(output / "manifest.json", manifest)
     return manifest

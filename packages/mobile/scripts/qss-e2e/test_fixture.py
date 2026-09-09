@@ -11,6 +11,7 @@ import tempfile
 import threading
 import unittest
 from unittest.mock import patch
+from urllib.parse import urlsplit
 
 SPEC = importlib.util.spec_from_file_location("fixture", Path(__file__).with_name("fixture.py"))
 fixture = importlib.util.module_from_spec(SPEC)
@@ -61,6 +62,7 @@ class FixtureTests(unittest.TestCase):
         manifest = self.prepare()
         self.assertEqual(manifest["qssCommit"], fixture.git(self.qss, "rev-parse", "HEAD"))
         self.assertEqual(manifest["qssAuthCommit"], fixture.git(self.auth, "rev-parse", "HEAD"))
+        self.assertEqual(manifest["endpoint"], f"ws://localhost:{self.port}")
         context = self.output / "context"
         self.assertEqual((context / "app/main.ts").read_text(), "// exact pinned source\n")
         self.assertEqual(list(context.rglob(".env*")), [])
@@ -112,6 +114,7 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(services["qss"]["ports"][0]["host_ip"], "127.0.0.1")
         self.assertEqual(services["qss"]["environment"]["ENV"], "local")
         self.assertEqual(services["qss"]["environment"]["QPS_ENABLED"], "false")
+        self.assertEqual(services["qss"]["environment"]["QSS_HOSTNAME"], urlsplit(manifest["endpoint"]).hostname)
         self.assertNotIn("volumes", services["qss"])
         for volume in config["volumes"].values():
             self.assertTrue(volume["name"].startswith(manifest["project"] + "_"))
@@ -185,6 +188,7 @@ class FixtureTests(unittest.TestCase):
         with patch.dict(native.os.environ, {"PGPASSWORD": "ambient", "PGSERVICE": "ambient", "AWS_PROFILE": "ambient"}):
             native.prepare(manifest, binaries / "node", binaries / "corepack", binaries, binaries / "redis-server")
         environment = manifest["native"]["environment"]
+        self.assertEqual(environment["QSS_HOSTNAME"], urlsplit(manifest["endpoint"]).hostname)
         self.assertEqual(environment["PGPASSWORD"], "postgres")
         self.assertNotIn("PGSERVICE", environment)
         self.assertNotIn("AWS_PROFILE", environment)

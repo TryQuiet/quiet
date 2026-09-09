@@ -31,6 +31,10 @@ The helper creates a unique Compose project. Only QSS port 3003 is published,
 bound to `127.0.0.1`; Postgres and Redis have no host ports. `--port` can change
 the host port. Existing stacks, app profiles, and host credential files are not
 used. Push delivery is disabled in this local server fixture.
+The advertised endpoint is `ws://localhost:3003`, matching QSS's `localhost`
+auth identity in both development and production backend bundles. The actual
+listener stays bound to `127.0.0.1`. An IP-address invitation can produce a
+different auth server name in a production bundle and prevent server sync.
 
 ## Native macOS runtime
 
@@ -96,7 +100,7 @@ export QUIET_QSS_E2E_RUN_DIR=/tmp/quiet-qss-ui-my-run
 
 This creates `fixture.json` with a unique run ID and the exact successful
 manifest/result, plus empty private request/response directories. The standard
-`ios.sim.e2e.qss` configuration uses `ws://127.0.0.1:3003` and queries the local
+`ios.sim.e2e.qss` configuration uses `ws://localhost:3003` and queries the local
 fixture inspector directly. No SSH connection is needed on a single Mac runner.
 Detox also checks live `/health` and `get-captcha-site-key`; the health endpoint
 does not itself attest the source revision.
