@@ -207,6 +207,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
       await this.sigChainService.saveChain(teamId)
 
+      // The sign-in that preceded this ran against an invitee chain with no team, so the
+      // native push prerequisites could not be emitted then. Now the chain is complete.
+      await this.syncNativePushPrerequisites(teamId, sigchain, 'QSS join completed')
+
       this.qssAuthConnManager.markMemberRoleReady(teamId)
       this.qssSyncManager.markMemberRoleReady(teamId)
       this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
@@ -491,15 +495,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return undefined
   }
 
-  private async emitNseQssUrl(wsUrl: string | undefined): Promise<void> {
+  private async emitNseQssUrl(wsUrl: string | undefined, sigChain: SigChain): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') {
       this.logger.debug('Skipping NSE QSS URL emit because platform is not iOS or Android', platform)
       return
     }
     try {
+      if (sigChain.team == null) {
+        this.logger.warn('Skipping NSE QSS URL update because the sigchain has no team yet')
+        return
+      }
       const community = await this.localDbService.getCurrentCommunity()
-      const teamId = community?.teamId ?? this.sigChainService.getActiveChain(false)?.team?.id
+      const teamId = community?.teamId ?? sigChain.team.id
       if (teamId == null) {
         this.logger.warn('Skipping NSE QSS URL update because no active community or team ID found')
         this.logger.warn('Community', community)
@@ -521,9 +529,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         process.env.NODE_ENV !== 'production'
           ? 'localhost'
           : qssHost
-      const activeChain = this.sigChainService.getActiveChain(false)
-      const qssServerId =
-        normalizedQssHost == null ? undefined : activeChain?.server.getServer(normalizedQssHost)?.serverId
+      const qssServerId = normalizedQssHost == null ? undefined : sigChain.server.getServer(normalizedQssHost)?.serverId
       if (qssServerId == null) {
         this.logger.warn('Clearing the NSE QSS configuration because the QSS LFA server identity is not pinned', qssUrl)
         this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, {
@@ -710,21 +716,47 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
     if (result === QSSOperationResult.SUCCESS) {
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once storage is ready', teamId)
-      await this.emitNseQssUrl(this._qssEndpoint)
-      // The native push handler needs qssUrl, qssServerId, deviceId AND the LFA role
-      // keys. The first two are emitted above on every sign-in; device credentials and
-      // keys were previously only emitted on sigchain mutation, so a device that joined
-      // and saw no membership changes could never authenticate to fetch entries, nor
-      // decrypt them, for a push. Keys are resent in full (resendAll) because the local
-      // ledger cannot prove native storage still holds them. Both are idempotent.
-      this.sigChainService.updateDeviceCredentials(teamId)
-      void this.sigChainService.updateKeysInNativeStorage(teamId, true).catch(err => {
-        this.logger.error('Failed to sync keys to native storage after QSS sign-in', err)
-      })
+      await this.syncNativePushPrerequisites(teamId, sigChain, 'QSS sign-in')
       this.qssSyncManager.startLogSyncForSignedInTeam(teamId, sigChain)
     }
 
     return result
+  }
+
+  /**
+   * Emit everything the native push handler needs to fetch, authenticate and decrypt a
+   * pushed entry while the JS backend is not running: the QSS URL and pinned server
+   * identity (NSE_QSS_URL_UPDATED), the device credentials (DEVICE_CREDENTIALS_UPDATED)
+   * and the LFA keys (KEYS_UPDATED).
+   *
+   * This runs on every successful QSS sign-in and again when a QSS join completes. On a
+   * fresh invite join the sign-in happens while the chain is still an invitee context
+   * with no team (the team arrives through the auth handshake a moment later), so at
+   * that point none of the three values can be derived: ServerService throws "Team is
+   * nullish", device credentials are skipped and the key sync dereferences a null team.
+   * Nothing re-ran them once the join completed, so a freshly joined device dropped
+   * every push with "no QSS URL is stored" until the next app launch (#346).
+   *
+   * Every emit is a put into native storage (keys are resent in full), so running this
+   * at both points is idempotent. Failures are logged and never propagate: a join must
+   * not fail because a push prerequisite could not be emitted. The URL and device
+   * credential emits are awaited so callers can order them before QSS_FULLY_JOINED
+   * (QPS flushes the pending FCM token on that event); the key sync reads the whole
+   * team keyring from the local db, so it stays fire-and-forget and must never gate
+   * admission.
+   */
+  public async syncNativePushPrerequisites(teamId: string, sigChain: SigChain, trigger: string): Promise<void> {
+    if (sigChain.team == null) {
+      this.logger.info(
+        `Deferring native push prerequisites for team ${teamId} until the join completes (trigger: ${trigger})`
+      )
+      return
+    }
+    await this.emitNseQssUrl(this._qssEndpoint, sigChain)
+    this.sigChainService.updateDeviceCredentials(teamId)
+    void this.sigChainService.updateKeysInNativeStorage(teamId, true).catch(err => {
+      this.logger.error(`Failed to sync keys to native storage (trigger: ${trigger})`, err)
+    })
   }
 
   /**

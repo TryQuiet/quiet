@@ -238,6 +238,7 @@ jobs:
           ENVFILE=../.env.staging ./gradlew testStandardDebugUnitTest \
             --tests com.quietmobile.Push.MsgpackEncoderTest \
             --tests com.quietmobile.Push.QssCryptoServiceTest \
+            --tests com.quietmobile.Push.QssPushHandlerTest \
             --tests com.quietmobile.Push.QssNotificationCursorTest
 
       - name: Get branch name

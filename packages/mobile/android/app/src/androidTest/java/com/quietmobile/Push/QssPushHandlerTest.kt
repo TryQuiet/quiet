@@ -33,7 +33,7 @@ class QssPushHandlerTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         QuietStorage.init(context)
         QuietStorage.clearAll()
-        QuietStorage.saveDeviceCredentials(DEVICE_ID, TEAM_ID, DEVICE_SEED_BASE58)
+        QuietStorage.saveDeviceCredentials(DEVICE_ID, TEAM_ID, DEVICE_SEED_BASE58, "self-id")
         QuietStorage.addLfaKey("quiet_${TEAM_ID}_TEAM_TEAM_0_secret", OUTER_TEAM_SECRET)
         QuietStorage.addLfaKey("quiet_${TEAM_ID}_ROLE_MEMBER_0_secret", INNER_ROLE_SECRET)
         QuietStorage.addLfaKey("quiet_${TEAM_ID}_USER_user-1_0_userSig", USER_PUBLIC_KEY_BASE58)
@@ -71,6 +71,7 @@ class QssPushHandlerTest {
             isAppForeground = QuietStorage::isAppForeground,
             getChannelName = QuietStorage::getChannelName,
             getNickname = QuietStorage::getNickname,
+            getLocalUserId = QuietStorage::getLocalUserId,
             notify = { payload, nickname -> notifications += JSONObject(payload) to nickname },
         ).handle(TEAM_ID, QSS_SERVER_ID)
 

@@ -919,6 +919,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       )
       const storageReadyPromise = new Promise<void>((resolve, reject) => {
         let settled = false
+        let joinedViaQss = false
 
         const cleanup = () => {
           this.qssService.off(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
@@ -933,11 +934,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           reject(error instanceof Error ? error : new Error(String(error)))
         }
 
-        const handleStorageReady = async (teamId: string) => {
+        const handleStorageReady = async (teamId: string, joinedVia: 'qss' | 'libp2p') => {
           if (settled) return
           try {
             await setupStorageWithTeamMeta(teamId)
             await this._updateTeamIdOnStoredCommunity(community, teamId)
+            if (joinedVia === 'libp2p' && !joinedViaQss) {
+              // The QSS sign-in that ran before this join completed had no team to work
+              // with, so the native push prerequisites were deferred. The QSS path
+              // re-emits them from _handleSelfAssignMember before QSS_FULLY_JOINED; a
+              // join that completed over libp2p never passes through there, so do it
+              // here unless the QSS path has already done it (#346).
+              await this.qssService.syncNativePushPrerequisites(
+                teamId,
+                this.sigChainService.getActiveChain(),
+                'libp2p join completed'
+              )
+            }
             if (settled) return
             settled = true
             cleanup()
@@ -949,7 +962,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
         const handleQssFullyJoined = (teamId: string) => {
           this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
-          void handleStorageReady(teamId)
+          joinedViaQss = true
+          void handleStorageReady(teamId, 'qss')
         }
         const handleLibp2pAuthJoined = (payload: { peer: string }) => {
           this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
@@ -960,7 +974,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
             )
             return
           }
-          void handleStorageReady(teamId)
+          void handleStorageReady(teamId, 'libp2p')
         }
         const handleQssAuthError = ({ teamId, error }: QSSAuthErrorPayload) => {
           if (teamId !== community.teamId) return

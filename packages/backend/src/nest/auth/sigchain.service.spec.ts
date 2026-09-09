@@ -276,6 +276,7 @@ describe('SigChainService - listener lifecycle', () => {
         expect(deviceCalls).toHaveLength(1)
         expect(deviceCalls[0][1]).toEqual({
           deviceId: chain.device.deviceId,
+          userId: chain.user.userId,
           teamId: chain.teamId!,
           signingPrivateKey: chain.device.keys.signature.secretKey,
         })
@@ -305,6 +306,7 @@ describe('SigChainService - listener lifecycle', () => {
         expect(deviceCalls).toHaveLength(1)
         expect(deviceCalls[0][1]).toEqual({
           deviceId: chain.device.deviceId,
+          userId: chain.user.userId,
           teamId: chain.teamId!,
           signingPrivateKey: chain.device.keys.signature.secretKey,
         })

@@ -6,10 +6,16 @@ import { apply, call, select } from 'redux-saga-test-plan/matchers'
 import { runSaga, stdChannel } from 'redux-saga'
 import { io } from 'socket.io-client'
 
-import { reconcileWebsocketConnection, startConnectionSaga, subscribeSocketLifecycle } from './startConnection.saga'
+import {
+  reconcileWebsocketConnection,
+  startConnectionSaga,
+  subscribeSocketLifecycle,
+  watchWebsocketConnection,
+} from './startConnection.saga'
 import { initActions, initReducer, WebsocketConnectionPayload } from '../init.slice'
 import { initMasterSaga } from '../init.master.saga'
 import { initSelectors } from '../init.selectors'
+import { take } from 'typed-redux-saga'
 import { keysActions } from '../../keys/keys.slice'
 import { usersMetadataActions } from '../../userMetadata/usersMetadata.slice'
 
@@ -71,6 +77,7 @@ describe('subscribeSocketLifecycle', () => {
 
     const credentialsPayload = {
       deviceId: 'device-id',
+      userId: 'self-id',
       teamId: 'team-id',
       signingPrivateKey: 'private-signing-key',
     }
@@ -155,7 +162,7 @@ describe('subscribeSocketLifecycle', () => {
 })
 
 describe('startConnectionSaga', () => {
-  it('owns one socket and state-manager task across resume and repeated native connection announcements', async () => {
+  it('owns one socket and state-manager task across resume and ignores repeated native connection announcements', async () => {
     const sockets = [new MockSocket(), new MockSocket()]
     for (const socket of sockets) {
       socket.connect.mockImplementation(() => {
@@ -195,9 +202,8 @@ describe('startConnectionSaga', () => {
 
       dispatch(start)
       await Promise.resolve()
-      expect(sockets[0].disconnect).toHaveBeenCalledTimes(1)
-      expect(sockets[0].off).toHaveBeenCalledWith('connect')
-      expect(sockets[1].connect).toHaveBeenCalledTimes(1)
+      expect(sockets[0].disconnect).not.toHaveBeenCalled()
+      expect(sockets[1].connect).not.toHaveBeenCalled()
       expect(activeTasks).toBe(1)
     } finally {
       task.cancel()
@@ -205,7 +211,7 @@ describe('startConnectionSaga', () => {
       stateManagerTask.mockRestore()
     }
     expect(activeTasks).toBe(0)
-    expect(sockets[1].disconnect).toHaveBeenCalledTimes(1)
+    expect(sockets[0].disconnect).toHaveBeenCalledTimes(1)
   })
 
   it('installs listeners before connecting and closes its owned socket on cancellation', async () => {
@@ -342,5 +348,85 @@ describe('reconcileWebsocketConnection', () => {
       ])
       .put(initActions.suspendWebsocketConnection())
       .run()
+  })
+})
+
+// Regression (#347): the native layer can emit startWebsocketConnection twice for the
+// same backend during a cold start with a deep link. With takeLatest the repeat
+// cancelled the whole saga tree, including an in-flight join saga.
+describe('watchWebsocketConnection', () => {
+  const backendA: WebsocketConnectionPayload = { dataPort: 11000, socketIOSecret: 'secret-a' }
+  const backendB: WebsocketConnectionPayload = { dataPort: 11000, socketIOSecret: 'secret-b' }
+  const tick = () => new Promise(resolve => setImmediate(resolve))
+
+  const makeConnect = () => {
+    const started: WebsocketConnectionPayload[] = []
+    const cancelled: WebsocketConnectionPayload[] = []
+    function* connect(action: { payload: WebsocketConnectionPayload }): Generator {
+      started.push(action.payload)
+      try {
+        // A real connection saga blocks here for the life of the backend connection.
+        yield* take('never')
+      } finally {
+        cancelled.push(action.payload)
+      }
+    }
+    return { connect, started, cancelled }
+  }
+
+  const runWatcher = (connect: (action: { payload: WebsocketConnectionPayload }) => Generator) => {
+    const channel = stdChannel()
+    const task = runSaga(
+      { channel, dispatch: (action: unknown) => channel.put(action as { type: string }), getState: () => ({}) },
+      watchWebsocketConnection as any,
+      connect
+    )
+    return { task, dispatch: (action: { type: string }) => channel.put(action) }
+  }
+
+  it('starts the connection once for repeated events describing the same backend', async () => {
+    const { connect, started, cancelled } = makeConnect()
+    const { task, dispatch } = runWatcher(connect)
+
+    dispatch(initActions.startWebsocketConnection(backendA))
+    dispatch(initActions.startWebsocketConnection(backendA))
+    dispatch(initActions.startWebsocketConnection({ ...backendA }))
+    await tick()
+
+    expect(started).toEqual([backendA])
+    expect(cancelled).toEqual([])
+    task.cancel()
+  })
+
+  it('tears the running connection down and starts a new one when the backend changes', async () => {
+    const { connect, started, cancelled } = makeConnect()
+    const { task, dispatch } = runWatcher(connect)
+
+    dispatch(initActions.startWebsocketConnection(backendA))
+    await tick()
+    dispatch(initActions.startWebsocketConnection(backendB))
+    await tick()
+
+    expect(started).toEqual([backendA, backendB])
+    expect(cancelled).toEqual([backendA])
+    task.cancel()
+  })
+
+  it('starts again for the same backend once the previous connection task has ended', async () => {
+    const started: WebsocketConnectionPayload[] = []
+    // eslint-disable-next-line require-yield
+    function* connect(action: { payload: WebsocketConnectionPayload }): Generator {
+      started.push(action.payload)
+      // Returns immediately: the task is no longer running when the next event arrives.
+    }
+    const { task, dispatch } = runWatcher(connect)
+
+    dispatch(initActions.startWebsocketConnection(backendA))
+    await tick()
+    dispatch(initActions.startWebsocketConnection(backendA))
+    await tick()
+
+    expect(started).toEqual([backendA, backendA])
+    task.cancel()
   })
 })

@@ -145,6 +145,141 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
         )
     }
 
+    func testUnknownAuthorsDoNotProducePreviewsOrIncrementBadge() async throws {
+        let result = try await runNotificationBatch(authors: ["unknown-id", "another-unknown-id"])
+
+        XCTAssertTrue(result.delivery.notifications.isEmpty)
+        XCTAssertNil(result.delivery.badge)
+        XCTAssertEqual(result.badge, 7)
+        XCTAssertEqual(result.cursor, 12, "skipped messages must not be fetched repeatedly")
+    }
+
+    func testOwnMessagesWithoutCachedUsernameProduceNoPreviewsOrBadgeIncrements() async throws {
+        let result = try await runNotificationBatch(authors: ["self-id", "self-id"])
+
+        XCTAssertTrue(result.delivery.notifications.isEmpty)
+        XCTAssertNil(result.delivery.badge)
+        XCTAssertEqual(result.badge, 7)
+        XCTAssertEqual(result.cursor, 12)
+    }
+
+    func testOwnMessagesWithoutCachedUsernameDoNotHideOtherUsersNotification() async throws {
+        let result = try await runNotificationBatch(authors: ["self-id", "alice-id", "self-id"])
+
+        XCTAssertEqual(result.delivery.notifications.map(\.identifier), ["quiet.nse.synced.cid-12"])
+        XCTAssertEqual(result.delivery.notifications.map(\.presentation.title), ["Alice in #general"])
+        XCTAssertEqual(result.delivery.badge, 8)
+        XCTAssertEqual(result.badge, 8)
+        XCTAssertEqual(result.cursor, 13)
+    }
+
+    func testMixedBatchOnlyPresentsKnownAuthorsAndAdvancesPastUnknownAuthors() async throws {
+        let result = try await runNotificationBatch(
+            authors: ["unknown-id", "alice-id", "self-id", "alice-id", "unknown-id"]
+        )
+
+        XCTAssertEqual(result.delivery.notifications.map(\.identifier), [
+            "quiet.nse.synced.cid-12", "quiet.nse.synced.cid-14"
+        ])
+        XCTAssertEqual(result.delivery.notifications.map(\.presentation.title), [
+            "Alice in #general", "Alice in #general"
+        ])
+        XCTAssertEqual(result.delivery.notifications.map(\.badge), [8, 9])
+        XCTAssertEqual(result.delivery.badge, 9)
+        XCTAssertEqual(result.badge, 9)
+        XCTAssertEqual(result.cursor, 15)
+    }
+
+    func testOwnMessagesWithCachedUsernameAreSuppressedByUserIdentity() async throws {
+        let result = try await runNotificationBatch(authors: ["self-id", "self-id"], selfNickname: "Me")
+
+        XCTAssertTrue(result.delivery.notifications.isEmpty)
+        XCTAssertNil(result.delivery.badge)
+        XCTAssertEqual(result.badge, 7)
+        XCTAssertEqual(result.cursor, 12)
+    }
+
+    func testSelfFilteringUsesUserIdEvenWhenAnotherUserHasTheSameNickname() async throws {
+        let result = try await runNotificationBatch(
+            authors: ["self-id", "alice-id", "self-id"], selfNickname: "Alice"
+        )
+
+        XCTAssertEqual(result.delivery.notifications.map(\.identifier), ["quiet.nse.synced.cid-12"])
+        XCTAssertEqual(result.delivery.notifications.map(\.presentation.title), ["Alice in #general"])
+        XCTAssertEqual(result.delivery.badge, 8)
+        XCTAssertEqual(result.badge, 8)
+        XCTAssertEqual(result.cursor, 13)
+    }
+
+    func testMissingLocalIdentityDefersCachedSelfAndOtherMessagesWithoutAdvancingSync() async throws {
+        let result = try await runNotificationBatch(
+            authors: ["self-id", "unknown-id", "alice-id"], selfNickname: "Me", localUserId: nil
+        )
+
+        XCTAssertTrue(result.delivery.notifications.isEmpty)
+        XCTAssertNil(result.delivery.badge)
+        XCTAssertEqual(result.badge, 7)
+        XCTAssertEqual(result.cursor, 10)
+    }
+
+    func testFailedMixedBatchDeliveryDoesNotPersistBadgeOrCursor() async throws {
+        let result = try await runNotificationBatch(
+            authors: ["unknown-id", "alice-id"], didDeliver: false
+        )
+
+        XCTAssertEqual(result.delivery.notifications.count, 1)
+        XCTAssertEqual(result.badge, 7)
+        XCTAssertEqual(result.cursor, 10)
+    }
+
+    private func runNotificationBatch(
+        authors: [String],
+        didDeliver: Bool = true,
+        selfNickname: String? = nil,
+        localUserId: String? = "self-id"
+    ) async throws -> (delivery: NSEBackgroundNotificationDelivery, badge: Int, cursor: Int64) {
+        let entries = try authors.enumerated().map { index, _ in
+            let payload: [String: Any] = [
+                "cid": "cid-\(index + 11)",
+                "hashedDbId": "channel-db",
+                "communityId": "team-id",
+                "entry": ["type": "Buffer", "data": [UInt8]()],
+                "receivedAt": "2026-09-08T00:00:00Z",
+                "syncSeq": index + 11
+            ]
+            return try JSONDecoder().decode(LogEntry.self, from: JSONSerialization.data(withJSONObject: payload))
+        }
+        var delivery: NSEBackgroundNotificationDelivery?
+        var badge = 7
+        var cursor: Int64 = 10
+        try await NSEBackgroundNotificationOrchestrator().run(
+            teamId: "team-id",
+            baselineSeq: cursor,
+            localUserId: localUserId,
+            crypto: NotificationBatchCrypto(authors: authors),
+            fetch: {
+                XCTAssertNotNil(localUserId, "defer fetch until local identity is available")
+                return LogEntriesResponse(entries: entries, resolvedAfterSeq: 10)
+            },
+            channelName: { _ in "general" },
+            authenticatedAuthor: { $0 == "alice-id" ? "Alice" : ($0 == "self-id" ? selfNickname : nil) },
+            storedBadge: { badge },
+            saveBadge: { badge = $0 },
+            recordMissingNotificationKeyFailure: { _, _ in
+                XCTFail("an unknown nickname is not a missing decryption key")
+                return 1
+            },
+            clearMissingNotificationKeyFailure: { _, _ in },
+            stageCursor: { _ in },
+            deliver: {
+                delivery = $0
+                return didDeliver
+            },
+            persistCursor: { cursor = $0 }
+        )
+        return (try XCTUnwrap(delivery), badge, cursor)
+    }
+
     func testSafeFallbackReplacesUntrustedProviderText() {
         let fallback = NSENotificationPresenter.makeSafeFallback(
             replacingUntrustedTitle: "Quiet Security Alert",
@@ -218,5 +353,18 @@ final class NSEMessageAuthenticatorTests: XCTestCase {
 
         SharedDefaults.clearMissingNotificationKeyFailure(teamId: teamA, syncSeq: 12)
         SharedDefaults.clearMissingNotificationKeyFailure(teamId: teamB, syncSeq: 4)
+    }
+}
+
+private struct NotificationBatchCrypto: DeviceCryptography {
+    let authors: [String]
+
+    func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage? {
+        NSEDecryptedNotificationMessage(
+            channelId: "channel-id",
+            userId: authors[Int(logEntry.syncSeq - 11)],
+            body: "Message \(logEntry.syncSeq)",
+            type: 1
+        )
     }
 }

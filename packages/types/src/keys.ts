@@ -12,6 +12,7 @@ export interface KeysUpdatedEvent {
 export interface DeviceCredentialsUpdatedEvent {
   deviceId: string
   teamId: string
+  userId: string
   /** Base58-encoded 64-byte libsodium Ed25519 signing private key */
   signingPrivateKey: string
 }

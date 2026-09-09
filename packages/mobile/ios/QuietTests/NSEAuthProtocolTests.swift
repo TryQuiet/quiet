@@ -159,6 +159,7 @@ final class NSEAuthProtocolTests: XCTestCase {
         try await orchestrator.run(
             teamId: "team-test-1",
             baselineSeq: cursor,
+            localUserId: "self-id",
             crypto: crypto,
             fetch: {
                 try await service.fetchNewEntries(

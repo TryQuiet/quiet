@@ -18,10 +18,11 @@ final class NSEBackgroundNotificationOrchestrator {
     func run(
         teamId: String,
         baselineSeq: Int64,
+        localUserId: String?,
         crypto: DeviceCryptography,
         fetch: () async throws -> LogEntriesResponse,
         channelName: (String) -> String,
-        authenticatedAuthor: (String) -> String,
+        authenticatedAuthor: (String) -> String?,
         storedBadge: () -> Int,
         saveBadge: (Int) -> Void,
         recordMissingNotificationKeyFailure: (String, Int64) -> Int,
@@ -30,6 +31,12 @@ final class NSEBackgroundNotificationOrchestrator {
         deliver: (NSEBackgroundNotificationDelivery) async -> Bool,
         persistCursor: (Int64) -> Void
     ) async throws {
+        // Older installs receive this identity on the next main-app connection.
+        // Leave the cursor unchanged until self can be identified reliably.
+        guard let localUserId else {
+            _ = await deliver(NSEBackgroundNotificationDelivery(notifications: [], badge: nil))
+            return
+        }
         let response = try await fetch()
         guard !Task.isCancelled else {
             throw CancellationError()
@@ -61,6 +68,15 @@ final class NSEBackgroundNotificationOrchestrator {
                 }
 
                 clearMissingNotificationKeyFailure(teamId, entry.syncSeq)
+                if message.userId == localUserId {
+                    lastProcessedSeq = entry.syncSeq
+                    continue
+                }
+                // Skip unknown authors without blocking sync or increasing the badge.
+                guard let author = authenticatedAuthor(message.userId) else {
+                    lastProcessedSeq = entry.syncSeq
+                    continue
+                }
                 let badge = initialBadge + notifications.count + 1
                 notifications.append(
                     NSEPreparedNotification(
@@ -68,7 +84,7 @@ final class NSEBackgroundNotificationOrchestrator {
                         presentation: NSENotificationPresenter.makePresentation(
                             message: message,
                             channelName: channelName(message.channelId),
-                            authenticatedAuthor: authenticatedAuthor(message.userId)
+                            authenticatedAuthor: author
                         ),
                         badge: badge
                     )

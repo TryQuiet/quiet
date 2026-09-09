@@ -14,6 +14,7 @@ import {
   FixedTask,
   apply,
 } from 'typed-redux-saga'
+import type { Task } from 'redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { APP_READY_CHANNEL, communities, socket as stateManager, Socket } from '@quiet/state-manager'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
@@ -38,6 +39,49 @@ import { ActiveWebsocketConnection } from '../init.types'
 const logger = createLogger('startConnection')
 
 let activeWebsocketConnection: ActiveWebsocketConnection | undefined
+
+const isSameBackend = (a: WebsocketConnectionPayload, b: WebsocketConnectionPayload): boolean =>
+  a.dataPort === b.dataPort && a.socketIOSecret === b.socketIOSecret
+
+/**
+ * Starts the backend websocket connection and everything forked under it, once per
+ * backend.
+ *
+ * The native layer can emit startWebsocketConnection more than once for the same
+ * backend, e.g. twice within a second on a cold start with a deep link. This used to
+ * be wired with takeLatest, so every repeat cancelled the running connection saga and
+ * with it the state-manager root task and all master sagas, including an onboarding
+ * (join) saga in flight; the username and terms screens then dispatched into a void
+ * and the join spun forever (#347).
+ *
+ * A repeat for the same data port and secret is now ignored while the connection task
+ * is still running (that task already survives socket reconnects on its own). A
+ * different port or secret means a new backend, and only then is the old tree torn
+ * down and rebuilt.
+ */
+export function* watchWebsocketConnection(
+  connect: (action: PayloadAction<WebsocketConnectionPayload>) => Generator = startConnectionSaga
+): Generator {
+  let active: { payload: WebsocketConnectionPayload; task: Task } | undefined
+
+  while (true) {
+    const action = (yield* take(initActions.startWebsocketConnection.type)) as PayloadAction<WebsocketConnectionPayload>
+
+    if (active?.task.isRunning()) {
+      if (isSameBackend(active.payload, action.payload)) {
+        logger.info(
+          `Ignoring repeated startWebsocketConnection for the same backend on dataPort: ${action.payload.dataPort}`
+        )
+        continue
+      }
+      logger.info('Backend connection details changed, restarting the connection saga')
+      yield* cancel(active.task)
+    }
+
+    const task = yield* fork(connect, action)
+    active = { payload: action.payload, task }
+  }
+}
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>

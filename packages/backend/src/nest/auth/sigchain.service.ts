@@ -377,6 +377,7 @@ export class SigChainService extends EventEmitter {
       const event: DeviceCredentialsUpdatedEvent = {
         deviceId: device.deviceId,
         teamId,
+        userId: sigchain.user.userId,
         signingPrivateKey: device.keys.signature.secretKey,
       }
       this.serverIoProvider.io.emit(SocketEvents.DEVICE_CREDENTIALS_UPDATED, event)
