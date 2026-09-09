@@ -66,6 +66,8 @@ unused loopback ports. QSS listens on loopback port 3003 by default. No
 `brew services` commands run. `stop` verifies the recorded PID, owner and process
 start time before stopping only the fixture's processes; it retains their data.
 The CLI and storage proof contract are the same for both runtimes.
+Native database clients use explicit fixture credentials and empty owned
+password/service files, with SSL and GSS negotiation disabled for loopback.
 
 ## Test handoff and evidence
 

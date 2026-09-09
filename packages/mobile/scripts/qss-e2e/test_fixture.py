@@ -157,18 +157,44 @@ class FixtureTests(unittest.TestCase):
         other.terminate()
         other.wait(timeout=5)
 
-    def test_native_prepare_rejects_incomplete_postgres_before_build(self):
-        import native
+    def native_binaries(self, complete=True):
         binaries = self.root / "bin"
         binaries.mkdir()
+        sharedir = self.root / "postgres-share"
+        if complete:
+            sharedir.mkdir()
+            (sharedir / "postgres.bki").write_text("fixture installation")
         for name in ("node", "corepack", "redis-server", "initdb", "pg_ctl", "psql", "createdb", "pg_config"):
             binary = binaries / name
-            reply = "v22.14.0" if name == "node" else str(self.root / "missing-share")
+            reply = "v22.14.0" if name == "node" else str(sharedir)
             binary.write_text("#!/bin/sh\nprintf '%s\\n' " + shlex.quote(reply) + "\n")
             binary.chmod(0o700)
+        return binaries
+
+    def test_native_prepare_rejects_incomplete_postgres_before_build(self):
+        import native
+        binaries = self.native_binaries(complete=False)
         with self.assertRaisesRegex(ValueError, "Postgres installation is incomplete"):
             native.prepare({"output": str(self.output)}, binaries / "node", binaries / "corepack", binaries, binaries / "redis-server")
         self.assertFalse(self.output.exists())
+
+    def test_native_prepare_isolates_client_credentials_from_host_defaults(self):
+        import native
+        manifest = self.prepare()
+        binaries = self.native_binaries()
+        with patch.dict(native.os.environ, {"PGPASSWORD": "ambient", "PGSERVICE": "ambient", "AWS_PROFILE": "ambient"}):
+            native.prepare(manifest, binaries / "node", binaries / "corepack", binaries, binaries / "redis-server")
+        environment = manifest["native"]["environment"]
+        self.assertEqual(environment["PGPASSWORD"], "postgres")
+        self.assertNotIn("PGSERVICE", environment)
+        self.assertNotIn("AWS_PROFILE", environment)
+        self.assertEqual(environment["PGSSLMODE"], "disable")
+        self.assertEqual(environment["PGGSSENCMODE"], "disable")
+        for key in ("PGPASSFILE", "PGSERVICEFILE", "NPM_CONFIG_USERCONFIG", "NPM_CONFIG_GLOBALCONFIG"):
+            filename = Path(environment[key])
+            self.assertEqual(filename.parent, self.output)
+            self.assertEqual(filename.read_text(), "")
+            self.assertEqual(filename.stat().st_mode & 0o777, 0o600)
 
     def test_prepare_run_requires_matching_success_and_live_health(self):
         manifest = self.prepare()

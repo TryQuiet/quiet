@@ -44,8 +44,9 @@ def prepare(manifest, node=None, corepack=None, postgres_bin=None, redis_server=
             listener.close()
     for name in ("bin", "tmp", "redis", "pg-socket", "config"):
         (output / name).mkdir(mode=0o700)
-    for name in ("empty.npmrc", "empty-global.npmrc"):
+    for name in ("empty.npmrc", "empty-global.npmrc", "empty.pgpass", "empty.pg_service.conf"):
         (output / name).write_text("")
+        (output / name).chmod(0o600)
     # A private shim makes pnpm available to package scripts without changing
     # the user's Node installation or activating a global package manager.
     shim = output / "bin/pnpm"
@@ -66,6 +67,11 @@ def prepare(manifest, node=None, corepack=None, postgres_bin=None, redis_server=
         "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0", "CI": "true",
         "NPM_CONFIG_USERCONFIG": str(output / "empty.npmrc"),
         "NPM_CONFIG_GLOBALCONFIG": str(output / "empty-global.npmrc"),
+        # libpq otherwise looks up ~/.pgpass before the local trust handshake.
+        # Local fixture clients also need no client certificates or GSS credentials.
+        "PGPASSWORD": "postgres", "PGPASSFILE": str(output / "empty.pgpass"),
+        "PGSERVICEFILE": str(output / "empty.pg_service.conf"),
+        "PGSSLMODE": "disable", "PGGSSENCMODE": "disable",
         "npm_config_cache": str(output / "npm-cache"),
         "XDG_CONFIG_HOME": str(output / "config"),
     })
