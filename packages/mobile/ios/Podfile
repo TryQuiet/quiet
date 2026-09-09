@@ -13,6 +13,13 @@ install! 'cocoapods', :deterministic_uuids => false,
 # Disable New Architecture
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 
+# Host-less logic tests for the notification service extension code. Kept outside the
+# app target so they build for the simulator without the app (the Tor pod is device-only).
+target 'QuietTests' do
+  use_frameworks! :linkage => :static
+  pod 'Sodium'
+end
+
 target 'Quiet' do
   use_frameworks! :linkage => :static
   config = use_native_modules!
@@ -24,10 +31,6 @@ target 'Quiet' do
 
   use_react_native!(:path => config[:reactNativePath],)
 
-  target 'QuietTests' do
-    inherit! :complete
-    pod 'Sodium'
-  end
 
 
   # Make all the other frameworks into static frameworks by overriding the static_framework? function to return true

@@ -61,37 +61,6 @@ jobs:
           bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common'
           cachePrefix: 'native-ios-auth-tests'
 
-      - name: 'Create placeholder GoogleService-Info.plist'
-        working-directory: packages/mobile/ios
-        run: |
-          # GoogleService-Info.plist is gitignored and only decrypted in the deploy
-          # workflow, but both the Quiet and QuietNotificationServiceExtension targets
-          # list it in Copy Bundle Resources, so the build fails without it.
-          # These tests never touch Firebase, and AppDelegate+Firebase.swift already
-          # skips FirebaseApp.configure() unless the plist parses and carries a
-          # 39-character API key, so a placeholder is enough to satisfy the build
-          # without putting real Firebase credentials on a test runner.
-          test -f GoogleService-Info.plist || cat > GoogleService-Info.plist <<'PLIST'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>API_KEY</key>
-            <string>ci-placeholder</string>
-            <key>GCM_SENDER_ID</key>
-            <string>000000000000</string>
-            <key>PROJECT_ID</key>
-            <string>ci-placeholder</string>
-            <key>GOOGLE_APP_ID</key>
-            <string>1:000000000000:ios:0000000000000000</string>
-            <key>BUNDLE_ID</key>
-            <string>com.quietmobile</string>
-            <key>IS_GCM_ENABLED</key>
-            <false/>
-          </dict>
-          </plist>
-          PLIST
-
       - name: 'Install iOS pods'
         working-directory: packages/mobile/ios
         run: pod install
@@ -102,7 +71,6 @@ jobs:
           test -n "$destination_id"
           xcodebuild test \
             -workspace packages/mobile/ios/Quiet.xcworkspace \
-            -scheme Storybook \
+            -scheme QuietTests \
             -destination "platform=iOS Simulator,id=${destination_id}" \
-            -only-testing:QuietTests/NSEMessageAuthenticatorTests \
             CODE_SIGNING_ALLOWED=NO

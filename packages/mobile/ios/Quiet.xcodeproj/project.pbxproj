@@ -9,19 +9,6 @@
 /* Begin PBXBuildFile section */
 		00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */; };
 		00A416372EC2EC7F00ACC877 /* NodeMobile.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00A416352EC2EAF600ACC877 /* NodeMobile.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		00E356F31AD99517003FC87E /* QuietTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* QuietTests.m */; };
-		A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */; };
-		A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000004 /* NSEMessageAuthenticator.swift */; };
-		A11400000000000000000005 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000006 /* SharedDefaults.swift */; };
-		A11500000000000000000001 /* NSEAuthProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000002 /* NSEAuthProtocolTests.swift */; };
-		A11500000000000000000004 /* NSEAuthProof.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000007 /* NSEAuthProof.swift */; };
-		A11500000000000000000005 /* NSEModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000008 /* NSEModels.swift */; };
-		A11500000000000000000006 /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000009 /* Base58.swift */; };
-		A1150000000000000000000C /* NSEAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000A /* NSEAuthService.swift */; };
-		A1150000000000000000000D /* NSENotificationPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000B /* NSENotificationPresentation.swift */; };
-		A11500000000000000000010 /* NSENetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000E /* NSENetworkClient.swift */; };
-		A11500000000000000000011 /* NSECryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000F /* NSECryptoService.swift */; };
-		A11500000000000000000013 /* NSEBackgroundNotificationOrchestrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */; };
 		03B674072E6103DC00A86655 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674042E6103DC00A86655 /* Rubik-Regular.ttf */; };
 		03B674082E6103DC00A86655 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674022E6103DC00A86655 /* Rubik-Medium.ttf */; };
 		03B674092E6103DC00A86655 /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FC2E6103DC00A86655 /* Rubik-BoldItalic.ttf */; };
@@ -51,7 +38,6 @@
 		03B674212E6103DC00A86655 /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */; };
 		03B674222E6103DC00A86655 /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673F92E6103DC00A86655 /* Rubik-Black.ttf */; };
 		180E120B2AEFB7F900804659 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180E120A2AEFB7F900804659 /* Utils.swift */; };
-		1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; platformFilter = ios; };
 		1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1868B952292E9211001D6D5E /* NodeRunner.mm */; };
@@ -71,6 +57,18 @@
 		6204263D91F3440F598B7BB0 /* Pods_Quiet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4656C8360BE2B6E9C1BCF8CF /* Pods_Quiet.framework */; };
 		663DC8C12F621139005D2086 /* UserMetadataHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663DC8C02F621134005D2086 /* UserMetadataHandler.swift */; };
 		955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955DC7572BD930B30014725B /* WebsocketSingleton.swift */; };
+		A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */; };
+		A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000004 /* NSEMessageAuthenticator.swift */; };
+		A11400000000000000000005 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11400000000000000000006 /* SharedDefaults.swift */; };
+		A11500000000000000000001 /* NSEAuthProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000002 /* NSEAuthProtocolTests.swift */; };
+		A11500000000000000000004 /* NSEAuthProof.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000007 /* NSEAuthProof.swift */; };
+		A11500000000000000000005 /* NSEModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000008 /* NSEModels.swift */; };
+		A11500000000000000000006 /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000009 /* Base58.swift */; };
+		A1150000000000000000000C /* NSEAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000A /* NSEAuthService.swift */; };
+		A1150000000000000000000D /* NSENotificationPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000B /* NSENotificationPresentation.swift */; };
+		A11500000000000000000010 /* NSENetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000E /* NSENetworkClient.swift */; };
+		A11500000000000000000011 /* NSECryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000F /* NSECryptoService.swift */; };
+		A11500000000000000000013 /* NSEBackgroundNotificationOrchestrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */; };
 		D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */; };
 		EB4DC7EC2F5FF6AB00EFD23F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */; };
 		EB4DC8002F608A3300EFD23F /* QuietNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -78,17 +76,10 @@
 		EB4DC8172F60A81000EFD23F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */; };
 		EB5F92FC2F5FBB2100B5C60D /* FirebaseMessagingModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */; };
 		EB5F92FD2F5FBB2100B5C60D /* FirebaseMessagingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */; };
-		F4B2150A7001269B8241CC86 /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CB1D543483316490C8FEBE9 /* Pods_Quiet_QuietTests.framework */; };
+		EE51651EA363C766EA0DE07A /* Pods_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		00E356F41AD99517003FC87E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = QuietMobile;
-		};
 		EB4DC7FE2F608A3300EFD23F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -129,19 +120,6 @@
 		00A416352EC2EAF600ACC877 /* NodeMobile.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NodeMobile.xcframework; path = NodeJsMobile/NodeMobile.xcframework; sourceTree = "<group>"; };
 		00E356EE1AD99517003FC87E /* QuietTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuietTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		00E356F21AD99517003FC87E /* QuietTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietTests.m; sourceTree = "<group>"; };
-		A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEMessageAuthenticatorTests.swift; sourceTree = "<group>"; };
-		A11400000000000000000004 /* NSEMessageAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEMessageAuthenticator.swift; path = QuietNotificationServiceExtension/NSEMessageAuthenticator.swift; sourceTree = SOURCE_ROOT; };
-		A11400000000000000000006 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedDefaults.swift; path = Shared/SharedDefaults.swift; sourceTree = SOURCE_ROOT; };
-		A11500000000000000000002 /* NSEAuthProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEAuthProtocolTests.swift; sourceTree = "<group>"; };
-		A11500000000000000000007 /* NSEAuthProof.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEAuthProof.swift; path = ../QuietNotificationServiceExtension/NSEAuthProof.swift; sourceTree = "<group>"; };
-		A11500000000000000000008 /* NSEModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEModels.swift; path = ../QuietNotificationServiceExtension/NSEModels.swift; sourceTree = "<group>"; };
-		A11500000000000000000009 /* Base58.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Base58.swift; path = ../Shared/Base58.swift; sourceTree = "<group>"; };
-		A1150000000000000000000A /* NSEAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEAuthService.swift; path = ../QuietNotificationServiceExtension/NSEAuthService.swift; sourceTree = "<group>"; };
-		A1150000000000000000000B /* NSENotificationPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENotificationPresentation.swift; path = ../QuietNotificationServiceExtension/NSENotificationPresentation.swift; sourceTree = "<group>"; };
-		A1150000000000000000000E /* NSENetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENetworkClient.swift; path = ../QuietNotificationServiceExtension/NSENetworkClient.swift; sourceTree = "<group>"; };
-		A1150000000000000000000F /* NSECryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSECryptoService.swift; path = ../QuietNotificationServiceExtension/NSECryptoService.swift; sourceTree = "<group>"; };
-		A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEBackgroundNotificationOrchestrator.swift; path = ../QuietNotificationServiceExtension/NSEBackgroundNotificationOrchestrator.swift; sourceTree = "<group>"; };
 		03B673F92E6103DC00A86655 /* Rubik-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Black.ttf"; path = "../src/assets/fonts/Rubik-Black.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-BlackItalic.ttf"; path = "../src/assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FB2E6103DC00A86655 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Bold.ttf"; path = "../src/assets/fonts/Rubik-Bold.ttf"; sourceTree = SOURCE_ROOT; };
@@ -666,17 +644,31 @@
 		18FD2A39296F009E00A2B8C0 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Quiet/main.m; sourceTree = "<group>"; };
 		18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Quiet.entitlements; path = Quiet/Quiet.entitlements; sourceTree = "<group>"; };
 		18FD2A3B296F009E00A2B8C0 /* QuietDebug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = QuietDebug.entitlements; path = Quiet/QuietDebug.entitlements; sourceTree = "<group>"; };
-		1CB1D543483316490C8FEBE9 /* Pods_Quiet_QuietTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet_QuietTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B4142B984C17AFA0F88B287 /* Pods-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-QuietTests/Pods-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		3D609F9D4DF7238B86189CDC /* Pods_QuietNotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QuietNotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4656C8360BE2B6E9C1BCF8CF /* Pods_Quiet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F5C736CD3F644621489397D /* Pods-QuietNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-QuietNotificationServiceExtension/Pods-QuietNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
+		5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QuietTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		663DC8C02F621134005D2086 /* UserMetadataHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadataHandler.swift; sourceTree = "<group>"; };
 		84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Quiet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		866ADD8CCEDAE901228A8325 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
 		88791CE736EBC48C100DEECB /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		955DC7572BD930B30014725B /* WebsocketSingleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsocketSingleton.swift; sourceTree = "<group>"; };
 		983C2DA0FB6D06D1452AFCDF /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
+		A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEMessageAuthenticatorTests.swift; sourceTree = "<group>"; };
+		A11400000000000000000004 /* NSEMessageAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEMessageAuthenticator.swift; path = QuietNotificationServiceExtension/NSEMessageAuthenticator.swift; sourceTree = SOURCE_ROOT; };
+		A11400000000000000000006 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedDefaults.swift; path = Shared/SharedDefaults.swift; sourceTree = SOURCE_ROOT; };
+		A11500000000000000000002 /* NSEAuthProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEAuthProtocolTests.swift; sourceTree = "<group>"; };
+		A11500000000000000000007 /* NSEAuthProof.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEAuthProof.swift; path = ../QuietNotificationServiceExtension/NSEAuthProof.swift; sourceTree = "<group>"; };
+		A11500000000000000000008 /* NSEModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEModels.swift; path = ../QuietNotificationServiceExtension/NSEModels.swift; sourceTree = "<group>"; };
+		A11500000000000000000009 /* Base58.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Base58.swift; path = ../Shared/Base58.swift; sourceTree = "<group>"; };
+		A1150000000000000000000A /* NSEAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEAuthService.swift; path = ../QuietNotificationServiceExtension/NSEAuthService.swift; sourceTree = "<group>"; };
+		A1150000000000000000000B /* NSENotificationPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENotificationPresentation.swift; path = ../QuietNotificationServiceExtension/NSENotificationPresentation.swift; sourceTree = "<group>"; };
+		A1150000000000000000000E /* NSENetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENetworkClient.swift; path = ../QuietNotificationServiceExtension/NSENetworkClient.swift; sourceTree = "<group>"; };
+		A1150000000000000000000F /* NSECryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSECryptoService.swift; path = ../QuietNotificationServiceExtension/NSECryptoService.swift; sourceTree = "<group>"; };
+		A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEBackgroundNotificationOrchestrator.swift; path = ../QuietNotificationServiceExtension/NSEBackgroundNotificationOrchestrator.swift; sourceTree = "<group>"; };
 		D138F5E8F9C27CF118B62554 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
+		D48393269FBBD868224E65E9 /* Pods-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-QuietTests/Pods-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		DC03A48F321B4BE2A5339F05 /* Quiet.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.xcconfig; sourceTree = SOURCE_ROOT; };
 		DCB679A6329CD994279348D8 /* Pods-QuietNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-QuietNotificationServiceExtension/Pods-QuietNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		E079692B46015F1D27CDBBC1 /* Quiet.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.debug.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -724,8 +716,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */,
-				F4B2150A7001269B8241CC86 /* Pods_Quiet_QuietTests.framework in Frameworks */,
+				EE51651EA363C766EA0DE07A /* Pods_QuietTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -753,7 +744,6 @@
 		00E356EF1AD99517003FC87E /* QuietTests */ = {
 			isa = PBXGroup;
 			children = (
-				00E356F21AD99517003FC87E /* QuietTests.m */,
 				A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */,
 				A11400000000000000000004 /* NSEMessageAuthenticator.swift */,
 				A11400000000000000000006 /* SharedDefaults.swift */,
@@ -4824,6 +4814,8 @@
 				D138F5E8F9C27CF118B62554 /* Pods-Quiet-QuietTests.release.xcconfig */,
 				DCB679A6329CD994279348D8 /* Pods-QuietNotificationServiceExtension.debug.xcconfig */,
 				4F5C736CD3F644621489397D /* Pods-QuietNotificationServiceExtension.release.xcconfig */,
+				3B4142B984C17AFA0F88B287 /* Pods-QuietTests.debug.xcconfig */,
+				D48393269FBBD868224E65E9 /* Pods-QuietTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -4834,8 +4826,8 @@
 				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
 				1827A9E129783D6E00245FD3 /* classic-level.framework */,
 				4656C8360BE2B6E9C1BCF8CF /* Pods_Quiet.framework */,
-				1CB1D543483316490C8FEBE9 /* Pods_Quiet_QuietTests.framework */,
 				3D609F9D4DF7238B86189CDC /* Pods_QuietNotificationServiceExtension.framework */,
+				5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4913,13 +4905,10 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				F2CC9725101511987408ECEC /* [CP] Embed Pods Frameworks */,
-				2FF92392E3AF19C0048F19EA /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				00E356F51AD99517003FC87E /* PBXTargetDependency */,
 			);
 			name = QuietTests;
 			productName = QuietTests;
@@ -5208,23 +5197,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		2FF92392E3AF19C0048F19EA /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		45E8E1CED3ACB0A8578792B4 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5279,7 +5251,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Quiet-QuietTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-QuietTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5308,23 +5280,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F2CC9725101511987408ECEC /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5351,7 +5306,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00E356F31AD99517003FC87E /* QuietTests.m in Sources */,
 				A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */,
 				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
 				A11400000000000000000005 /* SharedDefaults.swift in Sources */,
@@ -5401,11 +5355,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		00E356F51AD99517003FC87E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 13B07F861A680F5B00A75B9A /* Quiet */;
-			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
-		};
 		EB4DC7FF2F608A3300EFD23F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */;
@@ -5416,9 +5365,8 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 88791CE736EBC48C100DEECB /* Pods-Quiet-QuietTests.debug.xcconfig */;
+			baseConfigurationReference = 3B4142B984C17AFA0F88B287 /* Pods-QuietTests.debug.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5444,16 +5392,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quiet.app/Quiet";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D138F5E8F9C27CF118B62554 /* Pods-Quiet-QuietTests.release.xcconfig */;
+			baseConfigurationReference = D48393269FBBD868224E65E9 /* Pods-QuietTests.release.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -5475,8 +5421,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quiet.app/Quiet";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
