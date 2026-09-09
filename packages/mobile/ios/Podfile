@@ -1,6 +1,9 @@
 MIN_SUPPORTED_IPHONEOS_VERSION = '17.1'
 
 require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../scripts/react-native-app-plists'
+
+QuietReactNativeAppPlists.install!(NewArchitectureHelper)
 
 platform :ios, MIN_SUPPORTED_IPHONEOS_VERSION
 use_modular_headers!
