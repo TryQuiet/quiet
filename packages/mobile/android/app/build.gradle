@@ -265,7 +265,7 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
-    androidTestImplementation("com.wix:detox:+")
+    androidTestImplementation("com.wix:detox:${new groovy.json.JsonSlurper().parse(file("$rootDir/../node_modules/detox/package.json")).version}")
     androidTestImplementation("androidx.test:core:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
 

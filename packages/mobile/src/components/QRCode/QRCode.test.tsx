@@ -21,19 +21,17 @@ describe('QRCode component', () => {
       >
         <View
           style={
-            [
-              {
-                "alignItems": "center",
-                "backgroundColor": "#ffffff",
-                "borderBottomColor": "#F0F0F0",
-                "borderBottomWidth": 1,
-                "display": "flex",
-                "flexDirection": "row",
-                "justifyContent": "center",
-                "maxHeight": 52,
-                "minHeight": 52,
-              },
-            ]
+            {
+              "alignItems": "center",
+              "backgroundColor": "#ffffff",
+              "borderBottomColor": "#F0F0F0",
+              "borderBottomWidth": 1,
+              "display": "flex",
+              "flexDirection": "row",
+              "justifyContent": "center",
+              "maxHeight": 52,
+              "minHeight": 52,
+            }
           }
         >
           <View
@@ -123,15 +121,13 @@ describe('QRCode component', () => {
               fontWeight="medium"
               horizontalTextAlign="left"
               style={
-                [
-                  {
-                    "color": "#000000",
-                    "fontFamily": "Rubik-Medium",
-                    "fontSize": 16,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "color": "#000000",
+                  "fontFamily": "Rubik-Medium",
+                  "fontSize": 16,
+                  "textAlign": "left",
+                  "textAlignVertical": "center",
+                }
               }
               verticalTextAlign="center"
             >
@@ -242,15 +238,13 @@ describe('QRCode component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  [
-                    {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  {
+                    "color": "#ffffff",
+                    "fontFamily": "Rubik-Regular",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  }
                 }
                 verticalTextAlign="center"
               >

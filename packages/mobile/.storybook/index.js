@@ -10,6 +10,7 @@ addDecorator(withNavigation)
 
 configure(() => {
   require('../src/components/AndroidCompatibility/AndroidCompatibility.stories')
+  require('../src/components/RuntimeCompatibility/RuntimeCompatibility.stories')
   require('../src/components/JoinCommunity/JoinCommunity.stories')
   require('../src/components/LeaveCommunity/LeaveCommunity.stories')
   require('../src/components/ConnectionProcess/ConnectionProcess.stories')

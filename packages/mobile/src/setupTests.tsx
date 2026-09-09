@@ -25,11 +25,13 @@ jest.mock('redux-persist', () => {
   }
 })
 
-jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter')
-
 jest.mock('react-native', () => {
   const rn = jest.requireActual('react-native')
+  // Keep NativeEventEmitter's real JavaScript subscriptions so Keyboard and
+  // KeyboardAvoidingView can receive events and remove listeners on unmount.
   rn.NativeModules.CommunicationModule = {
+    addListener: jest.fn(),
+    removeListeners: jest.fn(),
     requestNotificationPermission: jest.fn(),
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),

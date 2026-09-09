@@ -102,15 +102,13 @@ describe('ChannelList component', () => {
                     fontSize={20}
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#ffffff",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 20,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#ffffff",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 20,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -282,15 +280,13 @@ describe('ChannelList component', () => {
                       fontWeight="medium"
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#000000",
-                            "fontFamily": "Rubik-Medium",
-                            "fontSize": 16,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Medium",
+                          "fontSize": 16,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >
@@ -310,15 +306,13 @@ describe('ChannelList component', () => {
                       fontSize={14}
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#999999",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 14,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#999999",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >
@@ -346,15 +340,13 @@ describe('ChannelList component', () => {
                       fontSize={14}
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#7F7F7F",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 14,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#7F7F7F",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >
@@ -476,15 +468,13 @@ describe('ChannelList component', () => {
                     fontSize={20}
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#ffffff",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 20,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#ffffff",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 20,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -656,15 +646,13 @@ describe('ChannelList component', () => {
                       fontWeight="medium"
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#000000",
-                            "fontFamily": "Rubik-Medium",
-                            "fontSize": 16,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Medium",
+                          "fontSize": 16,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >
@@ -684,15 +672,13 @@ describe('ChannelList component', () => {
                       fontSize={14}
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#2373EA",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 14,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#2373EA",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >
@@ -720,15 +706,13 @@ describe('ChannelList component', () => {
                       fontSize={14}
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#7F7F7F",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 14,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#7F7F7F",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >
@@ -761,15 +745,13 @@ describe('ChannelList component', () => {
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#ffffff",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 12,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#ffffff",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 12,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -884,15 +866,13 @@ describe('ChannelList component', () => {
                     fontSize={20}
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#ffffff",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 20,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#ffffff",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 20,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -1046,15 +1026,13 @@ describe('ChannelList component', () => {
                       fontWeight="medium"
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#000000",
-                            "fontFamily": "Rubik-Medium",
-                            "fontSize": 16,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Medium",
+                          "fontSize": 16,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >
@@ -1074,15 +1052,13 @@ describe('ChannelList component', () => {
                       fontSize={14}
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#999999",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 14,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#999999",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >
@@ -1110,15 +1086,13 @@ describe('ChannelList component', () => {
                       fontSize={14}
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#7F7F7F",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 14,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#7F7F7F",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >

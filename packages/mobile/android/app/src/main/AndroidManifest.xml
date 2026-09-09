@@ -14,11 +14,8 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
-    <!-- RN 0.77 uses legacy Back callbacks. Keep them working when targeting
-         API 36; revisit predictive Back with the React Native upgrade (#3013). -->
     <application
       android:name=".MainApplication"
-      android:enableOnBackInvokedCallback="false"
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"

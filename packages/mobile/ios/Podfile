@@ -22,7 +22,11 @@ target 'Quiet' do
   pod 'FirebaseMessaging', '~> 10.20.0'
   pod 'FirebaseInstallations', '~> 10.20.0'
 
-  use_react_native!(:path => config[:reactNativePath], :hermes_enabled => true)
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :hermes_enabled => true
+  )
 
   target 'QuietTests' do
     inherit! :complete
@@ -45,7 +49,7 @@ target 'Quiet' do
 
 
   post_install do |installer|
-    react_native_post_install(installer)
+    react_native_post_install(installer, config[:reactNativePath])
 
     # Inject Quiet.xcconfig into Pods xcconfigs so DEVELOPMENT_TEAM and APP_BUNDLE_ID
     # are sourced from there (with optional LocalDev.xcconfig override) instead of

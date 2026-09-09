@@ -93,5 +93,71 @@ device compilation checks integration; it does not prove runtime behavior.
   already uses the React settings plugin and app plugin.
 - Keep Storybook's React DOM dependency aligned with React 19 using the same
   override approach as its React dependency; its declared peer range stops at
-  React 18, although the native Storybook UI passes the device regressions.
+  React 18. Native runtime checks use the final RN 0.81 checkpoint below.
 - Mobile TypeScript and the Storybook Android app/instrumentation builds pass.
+
+## RN 0.81.5 Android checkpoint
+
+The final dependency set uses React/renderer 19.1.0, RN tooling 0.81.5, CLI
+20.0.0, Screens 4.18.0, Gesture Handler 2.28.0, and Kotlin 2.1.20. Hermes
+runs the UI while nodejs-mobile 18.20.4 continues to run the backend. Both
+platforms retain the existing native bridge architecture.
+
+- Use RN's application entry point and Screens' fragment restoration factory;
+  pass Android's saved instance state to the recreated Activity. Remove the
+  temporary API 36 Back opt-out because RN 0.81 bridges Android's dispatcher.
+- RN 0.79 introduced `HTMLElement` without a browser `document`. Upgrade
+  styled-components to 6.1.19 and use its native ThemeProvider. Scope Metro's
+  Emotion 10 resolution to bundles that correctly check for `document`.
+- Scope Redux Saga resolution to its working CommonJS entries. Its Node ESM
+  proxy otherwise unwraps the default export twice under Metro, leaving
+  `createSagaMiddleware` undefined. Package exports remain enabled elsewhere.
+- Pin Navigation's elements package to the version compatible with the chosen
+  Navigation 7 packages. Align Storybook's React DOM override with React 19.
+- Upgrade Detox to 20.51.4 and use the same version for its Android dependency;
+  the previous native test runner crashed while registering its network monitor.
+- Preserve the native event emitter's real JavaScript subscription behavior in
+  tests. Reviewed snapshot changes flatten styled-components' style arrays and
+  expand equal border radii without changing rendered values.
+
+Validation on this checkpoint:
+
+| Check | Result |
+| --- | --- |
+| Mobile TypeScript and ESLint | Pass; 12 existing lint warnings |
+| Mobile Jest | 55 suites, 136 tests, 44 snapshots pass; 3 existing skips |
+| Real Metro resolution/package execution | 9 tests pass; also run by `npm test` |
+| Standard and Storybook debug app + instrumentation APKs | Build successfully |
+| APK target and native alignment | API 36; 19 ELF files pass 16 KB LOAD alignment; APK ZIP alignment passes |
+| Hermes + real WebView hashing/key/signature/tamper checks | Pass on API 35 and 36 |
+| Native keyboard/channel Back, modal Back, and rotation | Pass on API 35 and 36 |
+| Real photo selection, cache copy, thumbnail/removal, and cancellation | Pass on API 35 and 36 |
+| Actual edge gestures for keyboard/channel/modal Back | Pass on API 36; API 35 rerun pending |
+| Activity recreation with native fragments and saved state | Pass on API 36; API 35 composer layout investigation pending |
+| Full embedded backend/community startup | Investigation in progress; local backend socket connects |
+| iOS CocoaPods/Xcode/runtime | Pending; see iOS validation above |
+
+The device fixtures use production channel, navigation, photo, and image-preview
+components, with a local Redux store and no backend sagas. The crypto fixture
+mounts the actual WebView provider and checks a known SHA-256 vector, P-256 key
+export/import, signature verification, and rejection of modified data. These
+checks do not establish full community startup or messaging.
+
+Reproduce from `packages/mobile` with the repository's Node version, Android SDK,
+and JDK 17 available:
+
+```sh
+npm run build
+npm run lint-ci
+npm test -- --runInBand --watch=false
+cd android
+ENVFILE=../.env.storybook ./gradlew :app:assembleStorybookDebug :app:assembleStorybookDebugAndroidTest -DtestBuildType=debug
+cd ..
+npx detox test runtime-compatibility android-compatibility android-photo-picker activity-recreation android-gesture-back -c android.att.storybook --device-name emulator-5580
+```
+
+Use a separate emulator serial and artifact directory for concurrent API 35/36
+runs. The edge-gesture test requires gesture navigation and does not change the
+device's settings. Build the standard `.env.e2e` flavor in a separate Gradle
+invocation before running the full `starter` test; dotenv configuration is shared
+within an invocation.

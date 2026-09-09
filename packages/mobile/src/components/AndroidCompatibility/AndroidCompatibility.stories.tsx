@@ -9,7 +9,7 @@ import createSagaMiddleware from 'redux-saga'
 import { takeEvery } from 'typed-redux-saga'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import RNFS from 'react-native-fs'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components/native'
 import { communities, publicChannels, users } from '@quiet/state-manager'
 import { ChannelOperationStatus, CommunityOwnership, FileMetadata, MessageType } from '@quiet/types'
 

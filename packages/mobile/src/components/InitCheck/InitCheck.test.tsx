@@ -37,15 +37,13 @@ describe('InitCheck component', () => {
           fontSize={12}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#999999",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 12,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#999999",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 12,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >

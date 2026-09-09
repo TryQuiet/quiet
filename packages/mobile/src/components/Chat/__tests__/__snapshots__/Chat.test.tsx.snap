@@ -11,19 +11,17 @@ exports[`Chat component renders component 1`] = `
 >
   <View
     style={
-      [
-        {
-          "alignItems": "center",
-          "backgroundColor": "#ffffff",
-          "borderBottomColor": "#F0F0F0",
-          "borderBottomWidth": 1,
-          "display": "flex",
-          "flexDirection": "row",
-          "justifyContent": "center",
-          "maxHeight": 52,
-          "minHeight": 52,
-        },
-      ]
+      {
+        "alignItems": "center",
+        "backgroundColor": "#ffffff",
+        "borderBottomColor": "#F0F0F0",
+        "borderBottomWidth": 1,
+        "display": "flex",
+        "flexDirection": "row",
+        "justifyContent": "center",
+        "maxHeight": 52,
+        "minHeight": 52,
+      }
     }
   >
     <View
@@ -255,15 +253,13 @@ exports[`Chat component renders component 1`] = `
           fontWeight="medium"
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Medium",
-                "fontSize": 16,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Medium",
+              "fontSize": 16,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -842,15 +838,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -871,15 +865,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1069,15 +1061,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1098,15 +1088,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1296,15 +1284,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1325,15 +1311,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1509,15 +1493,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1538,15 +1520,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1722,15 +1702,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1751,15 +1729,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1949,15 +1925,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1978,15 +1952,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2173,15 +2145,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2202,15 +2172,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2386,15 +2354,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2415,15 +2381,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2599,15 +2563,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2628,15 +2590,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2826,15 +2786,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2855,15 +2813,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -3005,8 +2961,11 @@ exports[`Chat component renders component 1`] = `
                       [
                         {
                           "backgroundColor": "#ffffff",
+                          "borderBottomLeftRadius": 16,
+                          "borderBottomRightRadius": 16,
                           "borderColor": "#C4C4C4",
-                          "borderRadius": 16,
+                          "borderTopLeftRadius": 16,
+                          "borderTopRightRadius": 16,
                           "borderWidth": 1,
                           "flexGrow": 1,
                           "height": 56,
@@ -3034,14 +2993,12 @@ exports[`Chat component renders component 1`] = `
                       placeholder="Message #general"
                       placeholderTextColor="#999999"
                       style={
-                        [
-                          {
-                            "height": 54,
-                            "paddingBottom": 0,
-                            "paddingTop": 12,
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "height": 54,
+                          "paddingBottom": 0,
+                          "paddingTop": 12,
+                          "textAlignVertical": "center",
+                        }
                       }
                       testID="input"
                     />

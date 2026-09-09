@@ -38,6 +38,36 @@ const extraNodeModules = {
 
 const config = {
   resolver: {
+    resolveRequest: (context, moduleName, platform) => {
+      const isNative = platform === 'android' || platform === 'ios'
+      const isSagaImport =
+        moduleName === 'redux-saga' || moduleName.startsWith('redux-saga/') || moduleName.startsWith('@redux-saga/')
+
+      // Saga's Node ESM proxy unwraps a CJS default twice under Metro, leaving
+      // createSagaMiddleware undefined. Retain its working native CJS entry.
+      if (isNative && isSagaImport) {
+        return context.resolveRequest({ ...context, unstable_enablePackageExports: false }, moduleName, platform)
+      }
+
+      const isEmotionPackage = name => name === 'emotion-theming' || name?.startsWith('@emotion/')
+      const isEmotionImport =
+        isEmotionPackage(moduleName) ||
+        ((moduleName.startsWith('.') || path.isAbsolute(moduleName)) &&
+          isEmotionPackage(context.getPackageForModule(context.originModulePath)?.packageJson.name))
+
+      // RN 0.79+ defines HTMLElement without document, so Emotion 10 mistakes
+      // native for a browser. Its default bundles safely check for document.
+      // Include relative imports because Metro applies browser aliases there too.
+      if (isNative && isEmotionImport) {
+        return context.resolveRequest(
+          { ...context, mainFields: context.mainFields.filter(field => field !== 'browser') },
+          moduleName,
+          platform
+        )
+      }
+
+      return context.resolveRequest(context, moduleName, platform)
+    },
     extraNodeModules: new Proxy(extraNodeModules, {
       get: (target, name) =>
         // redirects dependencies referenced from common packages to local node_modules
