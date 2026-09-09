@@ -1,7 +1,7 @@
 // Explicit native integration test (downloads pinned sources and needs a host C++ compiler).
 // node --test scripts/build-classic-level-ios.test.cjs
 const assert = require('node:assert/strict')
-const { execFileSync } = require('node:child_process')
+const { execFileSync, spawnSync } = require('node:child_process')
 const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
@@ -16,6 +16,25 @@ const {
   assertTreeUnchanged,
   validateOutput,
 } = require('./build-classic-level-ios.cjs')
+const embeddedFixture = path.resolve(__dirname, '../e2e/fixtures/embedded-node-database.cjs')
+
+test('the embedded smoke rejects a host process without the actual native rn-bridge', () => {
+  const sentinel = 'private-test-value-must-not-be-printed'
+  const result = spawnSync(process.env.QUIET_TEST_NODE || process.execPath, [embeddedFixture, sentinel], {
+    encoding: 'utf8',
+    timeout: 10_000,
+    env: { ...process.env, QUIET_UNRELATED_PRIVATE_TEST_VALUE: sentinel },
+  })
+  assert.equal(result.status, 1)
+  const marker = 'QUIET_EMBEDDED_NODE_DATABASE '
+  const verdictLine = result.stderr.split('\n').find(line => line.startsWith(marker))
+  assert.ok(verdictLine, 'Failure must have a parseable verdict')
+  const verdict = JSON.parse(verdictLine.slice(marker.length))
+  assert.equal(verdict.status, 'fail')
+  assert.equal(verdict.stage, 'load-rn-bridge')
+  assert.equal(verdict.nativeBridge, undefined)
+  assert.equal(`${result.stdout}${result.stderr}`.includes(sentinel), false)
+})
 
 test('pinned classic-level sources compile and load through the real Quiet override', { timeout: 180_000 }, async t => {
   assert.ok(['linux', 'darwin'].includes(process.platform), 'Run this native integration test on Linux or macOS')
@@ -96,7 +115,7 @@ test('pinned classic-level sources compile and load through the real Quiet overr
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
-const { promisify } = require('node:util')
+const { exerciseDatabase } = require(process.argv[3])
 const project = process.argv[2]
 const addon = path.join(project, 'deps/ios/universal/classic-level/classic_level.node')
 // The empty placeholder cannot load until the actual, unmodified Quiet preload redirects it.
@@ -104,32 +123,30 @@ assert.throws(() => require(addon), { code: 'ERR_DLOPEN_FAILED' })
 require(path.join(project, 'override-dlopen-paths-preload.js'))
 const binding = require(addon)
 const dbPath = path.join(project, 'database')
-fs.mkdirSync(dbPath)
-const open = promisify(binding.db_open)
-const close = promisify(binding.db_close)
-const put = promisify(binding.db_put)
-const get = promisify(binding.db_get)
 ;(async () => {
-  const db = binding.db_init()
-  await open(db, dbPath, { createIfMissing: true, compression: true, writeBufferSize: 64 * 1024 })
-  const value = 'compressed-persistent-value'.repeat(8192)
-  for (let i = 0; i < 8; i++) await put(db, 'key-' + i, value, { sync: true })
-  assert.equal(await get(db, 'key-7', { valueEncoding: 'utf8' }), value)
-  await close(db)
-  assert.ok(fs.readdirSync(dbPath).some(file => file.endsWith('.ldb')), 'writes must exercise LevelDB table compression')
-  const reopened = binding.db_init()
-  await open(reopened, dbPath, { createIfMissing: false })
-  for (let i = 0; i < 8; i++) assert.equal(await get(reopened, 'key-' + i, { valueEncoding: 'utf8' }), value)
-  await assert.rejects(get(reopened, 'missing', { valueEncoding: 'utf8' }), { code: 'LEVEL_NOT_FOUND' })
-  await close(reopened)
+  const first = await exerciseDatabase(binding, dbPath, { create: true })
+  assert.equal(first.rowsWritten, 8)
+  assert.equal(first.rowsRead, 16)
+  assert.equal(first.forwardRows, 8)
+  assert.equal(first.reverseRows, 8)
+  assert.equal(first.openCloseCycles, 2)
+  const persisted = await exerciseDatabase(binding, dbPath, { create: false })
+  assert.equal(persisted.rowsWritten, 0)
+  assert.equal(persisted.rowsRead, 16)
+  assert.equal(persisted.forwardRows, 8)
+  assert.equal(persisted.reverseRows, 8)
   console.log('Quiet dlopen override: compressed data persisted and reopened with Node ' + process.version)
 })().catch(error => { console.error(error); process.exitCode = 1 })
 `
       )
-      const result = execFileSync(process.env.QUIET_TEST_NODE || process.execPath, [exercise, project], {
-        encoding: 'utf8',
-        timeout: 30_000,
-      })
+      const result = execFileSync(
+        process.env.QUIET_TEST_NODE || process.execPath,
+        [exercise, project, embeddedFixture],
+        {
+          encoding: 'utf8',
+          timeout: 30_000,
+        }
+      )
       assert.match(result, /compressed data persisted and reopened/)
       t.diagnostic(result.trim())
     }

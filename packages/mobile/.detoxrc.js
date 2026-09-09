@@ -64,8 +64,9 @@ module.exports = {
     'ios.storybook': {
       type: 'ios.app',
       binaryPath: 'ios/build/storybook/Build/Products/Debug-iphonesimulator/Quiet.app',
+      // Tor.framework currently provides only an Intel simulator slice.
       build:
-        'ENVFILE=.env.storybook xcodebuild -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath ios/build/storybook',
+        'ENVFILE=.env.storybook xcodebuild -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath ios/build/storybook ARCHS=x86_64 ONLY_ACTIVE_ARCH=YES',
     },
     'ios.release': {
       type: 'ios.app',
@@ -80,6 +81,13 @@ module.exports = {
       device: {
         type: 'iPhone 15 Pro',
       },
+    },
+    simulator_storybook: {
+      type: 'ios.simulator',
+      bootArgs: '--arch=x86_64',
+      device: process.env.DETOX_IOS_SIMULATOR_ID
+        ? { id: process.env.DETOX_IOS_SIMULATOR_ID }
+        : { type: 'iPhone 15 Pro', os: 'iOS 18.5' },
     },
     simulator_ci: {
       type: 'ios.simulator',
@@ -138,7 +146,7 @@ module.exports = {
       },
     },
     'ios.sim.storybook': {
-      device: 'simulator',
+      device: 'simulator_storybook',
       app: 'ios.storybook',
       artifacts: {
         rootDir: './e2e/artifacts/ios',

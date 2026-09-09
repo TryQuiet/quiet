@@ -114,16 +114,41 @@ the current token lacks `workflow` permission; enable it by moving the reviewed
 example into `.github/workflows/mobile-ios-compatibility.yml` once access is available.
 The native build above was run directly on a Mac.
 
-The vendored `classic-level.framework` currently contains only an arm64 iPhone
-(device) binary. The [simulator build script](../scripts/README_classic_level_ios.md)
-uses pinned classic-level 1.4.1 sources and Node 18.20.4 headers while preserving
-the device framework. Both simulator architectures compile on the Mac, with
-platform/export checks and byte-for-byte device preservation passing. Its real
-host database test also passes with Node 18.20.4; simulator integration and
-execution remain separate checks. Tor 405.9.1 also
-lacks an arm64 simulator slice, so the available next step uses an x86_64/Rosetta
-iOS runtime. Storybook now selects its own environment, and the real Hermes/WebView
-crypto smoke test can run on either mobile platform.
+The project now links `classic-level/classic-level.xcframework`, which retains
+the original arm64 device framework and adds arm64/x86_64 simulator slices. The
+[build script](../scripts/README_classic_level_ios.md) uses pinned classic-level
+1.4.1 sources and Node 18.20.4 headers. Platform/export checks pass, and the
+integrated device app rebuild succeeds with the original addon binary unchanged.
+The real Node 18.20.4 host addon test covers compressed writes, reads, ordered
+iteration, close/reopen persistence, and the existing Quiet loader override.
+
+The Intel Storybook simulator app also compiles successfully, including a
+bundled Hermes payload with `FORCE_BUNDLING=1`. Storybook selects its own native
+environment, and the real Hermes/WebView crypto smoke test supports iOS.
+Tor 405.9.1 still lacks an arm64 simulator slice; its existing simulator path
+requires an x86_64-capable runtime such as iOS 18.5 (the installed iOS 26.3.1
+runtime has only arm64 executables).
+
+From `packages/mobile`, build without a running Metro server:
+
+```sh
+FORCE_BUNDLING=1 ENVFILE=.env.storybook RCT_NO_LAUNCH_PACKAGER=1 xcodebuild build \
+  -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug \
+  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath ios/build/storybook -jobs 2 ARCHS=x86_64 ONLY_ACTIVE_ARCH=YES \
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= \
+  ENABLE_BITCODE=NO COMPILER_INDEX_STORE_ENABLE=NO \
+  GCC_GENERATE_DEBUGGING_SYMBOLS=NO DEBUG_INFORMATION_FORMAT=
+```
+
+The x86_64 iOS 18.5 simulator did not finish booting on the 8 GB Apple Silicon
+validation Mac. Apple service crashes and substantial swap/disk pressure occurred
+before Quiet was installed or launched. Both attempts were stopped; this does
+not establish an app runtime failure or success. The iOS crypto smoke and
+[embedded Node database fixture](../e2e/fixtures/README_embedded_node_database.md)
+remain unexecuted on iOS. The fixture runs inside a separate copy of the built
+app and verifies the real native bridge, addon loading, and database persistence
+across app-process restarts; passing host tests do not replace that device check.
 
 ## RN 0.79.7 checkpoint
 
