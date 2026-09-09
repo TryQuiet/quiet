@@ -1,42 +1,16 @@
 # Embedded Node database smoke
 
 This fixture runs inside Quiet's real iOS app, through `RNNodeJsMobile`, vendored
-Node Mobile 18.20.4, the linked `rn_bridge` module, and the existing `dlopen` path
-override. It supports arm64 and x86_64 simulator builds and uses a dedicated directory
+Node Mobile 24.18.0, the linked `rn_bridge` module, and the existing `dlopen` path
+override. It supports ARM64 simulator builds and uses a dedicated directory
 under the native bridge's Documents directory. It exercises the addon separately
 from the production backend, which remains unchanged in the original built app.
 
-Fixture v2 passed on a native arm64 iOS 18.5 simulator on 2026-09-09 UTC, using the
-Storybook app built with the [pinned Tor simulator recipe](../../scripts/tor-ios-simulator/README.md).
-Run `rn081-20260909-045947-aad2cb4d` reported the actual native RN bridge and cached
-Quiet preload, Node 18.20.4, `platform: ios`, `architecture: arm64`, module ABI 108,
-and Node-API 9 on both launches:
-
-| Launch | Process ID | Writes | Reads | Compressed tables |
-| --- | --- | --- | --- | --- |
-| First | 37950 | 8 | 16 | 7 files / 74,809 bytes |
-| After app restart | 37968 | 0 | 16 | 8 files / 85,496 bytes |
-
-Each launch also passed two open/close cycles, forward and reverse iteration over
-all eight exact key/value pairs, and the missing-key check. The runner restored
-the original app and verified the original backend bundle was unchanged. The
-sanitized verdict's fixture SHA-256 matches this fixture:
-`3bbb495a694ae9260a3531cdefe19c648c1918c439524a391e2c55187627c8a9`.
-
-The separate Hermes/WebView UI crypto test also passed on native arm64 iOS 18.5
-with default Detox synchronization. It used an APFS copy of the built arm64
-Storybook app with unchanged native binaries and a fresh development bundle from
-the normal `index.js` entry, without a diagnostic overlay. The test asserted the
-actual Hermes engine and WebView provider, then verified hashing, key export/import,
-signatures, and rejection of modified data.
-
-A Storybook-only prelude preserves RN's existing Promise through core-js's public
-configurator. This fixes recursion between Storybook's Promise replacement and
-RN's legacy `queueMicrotask`, which had stopped JavaScript timers and touch updates.
-The real RN/core-js regression is included in the 14 pretests run by `npm test`.
-The UI pass and this database result do not establish production backend startup,
-Tor network bootstrap, community creation, messaging, signed push delivery, or
-physical-device runtime behavior.
+The current fixture is v3 and requires Node 24.18.0 / module ABI 137. Native
+validation of this version is recorded in the
+[New Architecture migration notes](../../docs/react-native-new-architecture.md).
+The earlier v2 fixture passed with Node 18.20.4 on an ARM64 iOS 18.5 simulator
+in #3422; that historical result does not establish a Node 24 runtime pass.
 
 The normal build copies only `nodejs-assets/nodejs-project` and
 `nodejs-modules/builtin_modules`; this `e2e/fixtures` file is never shipped. Native
@@ -47,7 +21,7 @@ startup; it does not by itself establish an addon failure.
 
 Run from `packages/mobile` on the Mac. Set `DETOX_IOS_SIMULATOR_ID` to a fresh
 simulator created for this test and `DETOX_IOS_ARCH` to its build architecture,
-`arm64` or `x86_64`. The installed simulator runtime must support that architecture
+`arm64`. The installed simulator runtime must support that architecture
 and the app's deployment targets, including the notification service extension.
 All embedded frameworks must include the selected simulator architecture. In
 particular, the original Tor 405.9.1 framework needs a separately built arm64
@@ -58,28 +32,18 @@ wrapper's `DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app` output.
 
 Build Storybook with the selected architecture and `FORCE_BUNDLING=1`. React
 Native's existing bundle fallback then loads `main.jsbundle` when Metro is stopped;
-no production AppDelegate change is needed. The block below builds x86_64 with
-the default pod, or selects the previously built arm64 app from the guarded wrapper.
+no production AppDelegate change is needed. The block below selects the ARM64 app
+previously built by the guarded wrapper.
 
 ```sh
 : "${DETOX_IOS_SIMULATOR_ID:?Set this to the owned, fresh simulator UUID}"
-: "${DETOX_IOS_ARCH:?Set arm64 or x86_64 to match the simulator runtime}"
+: "${DETOX_IOS_ARCH:?Set arm64 to match the simulator runtime}"
 case "$DETOX_IOS_ARCH" in
   arm64) quiet_smoke_node_arch=arm64 ;;
-  x86_64) quiet_smoke_node_arch=x64 ;;
-  *) printf '%s\n' 'DETOX_IOS_ARCH must be arm64 or x86_64' >&2; exit 1 ;;
+  *) printf '%s\n' 'DETOX_IOS_ARCH must be arm64' >&2; exit 1 ;;
 esac
-if [ "$DETOX_IOS_ARCH" = x86_64 ]; then
-  FORCE_BUNDLING=1 ENVFILE=.env.storybook xcodebuild \
-    -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug \
-    -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
-    -derivedDataPath ios/build/storybook -jobs 2 \
-    ARCHS=x86_64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO
-  quiet_storybook_app="$PWD/ios/build/storybook/Build/Products/Debug-iphonesimulator/Quiet.app"
-else
-  : "${QUIET_STORYBOOK_APP:?Set this to Quiet.app from the guarded arm64 Storybook build}"
-  quiet_storybook_app="$QUIET_STORYBOOK_APP"
-fi
+: "${QUIET_STORYBOOK_APP:?Set this to Quiet.app from the guarded ARM64 Storybook build}"
+quiet_storybook_app="$QUIET_STORYBOOK_APP"
 ```
 
 After the build completes, stop Metro before booting the owned simulator if host
@@ -93,7 +57,7 @@ intentional second launch below.
 : "${quiet_smoke_node_arch:?Run the architecture selection above first}"
 : "${quiet_storybook_app:?Build or select the Storybook app above first}"
 quiet_smoke_simulator="$DETOX_IOS_SIMULATOR_ID"
-quiet_smoke_run="rn081-$(date -u +%Y%m%d-%H%M%S)-$$"
+quiet_smoke_run="rnnewarch-$(date -u +%Y%m%d-%H%M%S)-$$"
 quiet_smoke_bundle=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$quiet_storybook_app/Info.plist")
 quiet_smoke_directory=$(mktemp -d /tmp/quiet-embedded-node-smoke.XXXXXX)
 cp -cRp "$quiet_storybook_app" "$quiet_smoke_directory/Quiet.app"
@@ -119,8 +83,8 @@ output: the existing NodeRunner prints environment values during initialization.
 If the native bridge itself cannot load, the fixture can only emit a sanitized
 `QUIET_EMBEDDED_NODE_DATABASE` console marker because it has no native data directory.
 
-The first verdict must report `fixtureVersion: 2`, `nativeBridge: true`, `node: "18.20.4"`,
-`platform: "ios"`, `architecture` matching `quiet_smoke_node_arch`, ABI `108`, `preloadCached: true`,
+The first verdict must report `fixtureVersion: 3`, `nativeBridge: true`, `node: "24.18.0"`,
+`platform: "ios"`, `architecture` matching `quiet_smoke_node_arch`, ABI `137`, `preloadCached: true`,
 `placeholderBytes: 0`, and `launch: 1`. Database assertions verify:
 
 - Eight distinct values written synchronously, and sixteen successful reads.

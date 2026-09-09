@@ -221,7 +221,7 @@ async function build(output) {
       const target = `${architecture}-apple-ios${MINIMUM_IOS}-simulator`
       console.log(`Building classic-level 1.4.1 for ${target}`)
       // Node's dlopen resolves N-API symbols from the already-loaded NodeMobile framework.
-      // Node 18 uses napi_register_module_v1; do not add constructor registration or link another Node.
+      // The Node-API loader uses napi_register_module_v1; do not add constructor registration or link another Node.
       run('xcrun', [
         '--sdk',
         'iphonesimulator',
