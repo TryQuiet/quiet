@@ -16,6 +16,13 @@ describe('React Native runtime compatibility', () => {
       .toBeVisible()
       .withTimeout(10000)
     await element(by.id('Storybook.ListView.SearchBar')).replaceText('RuntimeCompatibility')
+    if (device.getPlatform() === 'ios') {
+      // The iOS search keyboard otherwise consumes the first story-row tap.
+      await element(by.id('Storybook.ListView.SearchBar')).tapReturnKey()
+    }
+    await waitFor(element(by.text('HermesWebCrypto')))
+      .toBeVisible()
+      .withTimeout(10000)
     await element(by.text('HermesWebCrypto')).tap()
     await element(by.id('BottomMenu.Canvas')).tap()
     await waitFor(element(by.id('runtime-compatibility-run')))

@@ -1,3 +1,5 @@
+import './preserve-native-promise'
+
 import { LogBox } from 'react-native'
 
 import { configure, addDecorator, getStorybookUI } from '@storybook/react-native'

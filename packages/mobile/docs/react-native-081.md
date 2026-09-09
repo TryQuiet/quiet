@@ -182,12 +182,31 @@ reverse iteration, missing-key behavior, compressed persistent tables, and two
 open/close cycles. The runner restored the original app and verified its backend
 bundle remained unchanged.
 
-Storybook renders on the native arm64 iOS 18.5 simulator; the Hermes/WebView UI
-crypto checks remain in progress. The database fixture substitutes only the
-Node entry point in a separate app copy and does not run the production backend.
-Its success establishes native bridge/addon loading and storage persistence on
-this simulator, without establishing Tor network bootstrap, community creation,
-messaging, or physical-device runtime behavior.
+The Hermes/WebView UI crypto test also passed on that native arm64 iOS 18.5
+simulator with default Detox synchronization. An APFS copy of the previously
+built arm64 Storybook app loaded a newly generated development bundle from the
+normal `index.js` entry, without a diagnostic overlay; native binaries were
+unchanged. The test navigated Storybook, asserted the actual Hermes engine and
+WebView crypto provider, and verified SHA-256, P-256 key export/import, signatures,
+and rejection of modified data. The iOS test dismisses the search keyboard with
+Return, waits for the row to become visible, and selects the story.
+
+This check exposed and fixed a Storybook startup failure: its core-js Promise
+replacement and RN's legacy Promise-backed `queueMicrotask` recursively called
+each other, preventing JavaScript timers and touch updates. A
+[Storybook-only prelude](../.storybook/preserve-native-promise.js) now uses
+[core-js's public configurator](https://github.com/zloirock/core-js#configurable-level-of-aggressiveness)
+to preserve RN's existing Promise before importing Storybook. The regression
+test executes the actual installed RN shim and core-js in bounded child
+processes, reproduces the unfixed recursion,
+and verifies Promise identity plus microtask, Promise-chain, and timer progress
+after the fix. No Detox synchronization workaround is required.
+
+The database fixture substitutes only the Node entry point in a separate app
+copy and does not run the production backend. Together, these checks establish
+UI crypto behavior, native bridge/addon loading, and storage persistence on this
+simulator. Tor network bootstrap, community creation, messaging, signed push
+delivery, and physical-device runtime behavior remain unverified.
 
 ## RN 0.79.7 checkpoint
 
@@ -238,7 +257,7 @@ Validation on this checkpoint:
 | --- | --- |
 | Mobile TypeScript and ESLint | Pass; 12 existing lint warnings |
 | Mobile Jest | 55 suites, 136 tests, 44 snapshots pass; 3 existing skips |
-| Real Metro/package execution and CLI XML configuration | 12 tests pass; also run by `npm test` |
+| Real Metro/package execution, CLI XML configuration, and Storybook Promise regression | 14 tests pass; also run by `npm test` |
 | Standard and Storybook debug app + instrumentation APKs | Build successfully |
 | Standard release AAB | Builds with release lint; temporary test Firebase configuration and local debug signing |
 | APK target and native alignment | API 36; 19 ELF files pass 16 KB LOAD alignment; APK ZIP alignment passes |
@@ -251,7 +270,8 @@ Validation on this checkpoint:
 | iOS CocoaPods and plist regression checks | Pass; RN/Hermes 0.81.5, 4 tests / 32 assertions |
 | iOS arm64 app and notification extension | Unsigned Debug build passes with Xcode 26.3 |
 | iOS arm64 simulator embedded Node database | Pass on iOS 18.5; native bridge/addon, compressed storage and app-process restart |
-| iOS UI crypto / full backend runtime | UI checks in progress; Tor bootstrap/community behavior and physical-device runtime remain unverified |
+| iOS Hermes + real WebView hashing/key/signature/tamper checks | Pass on native arm64 iOS 18.5 with default Detox synchronization |
+| iOS full backend / physical-device runtime | Tor bootstrap, community behavior, signed push delivery, and physical-device runtime remain unverified |
 
 The release packaging check uses a temporary, nonproduction Firebase configuration
 and the repository's local debug signing fallback; the fixture is removed afterward.
@@ -262,7 +282,8 @@ The device fixtures use production channel, navigation, photo, and image-preview
 components, with a local Redux store and no backend sagas. The crypto fixture
 mounts the actual WebView provider and checks a known SHA-256 vector, P-256 key
 export/import, signature verification, and rejection of modified data. These
-checks do not establish full community startup or messaging.
+checks do not establish full community startup or messaging. The real API 36
+crypto test also passed again after the Storybook Promise fix.
 
 ### Embedded backend validation limit
 

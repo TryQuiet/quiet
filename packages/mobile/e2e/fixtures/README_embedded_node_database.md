@@ -22,9 +22,21 @@ all eight exact key/value pairs, and the missing-key check. The runner restored
 the original app and verified the original backend bundle was unchanged. The
 sanitized verdict's fixture SHA-256 matches this fixture:
 `3bbb495a694ae9260a3531cdefe19c648c1918c439524a391e2c55187627c8a9`.
-Hermes/WebView UI crypto validation remains in progress. This database result
-does not establish production backend startup, Tor network bootstrap, community
-creation, messaging, or physical-device runtime behavior.
+
+The separate Hermes/WebView UI crypto test also passed on native arm64 iOS 18.5
+with default Detox synchronization. It used an APFS copy of the built arm64
+Storybook app with unchanged native binaries and a fresh development bundle from
+the normal `index.js` entry, without a diagnostic overlay. The test asserted the
+actual Hermes engine and WebView provider, then verified hashing, key export/import,
+signatures, and rejection of modified data.
+
+A Storybook-only prelude preserves RN's existing Promise through core-js's public
+configurator. This fixes recursion between Storybook's Promise replacement and
+RN's legacy `queueMicrotask`, which had stopped JavaScript timers and touch updates.
+The real RN/core-js regression is included in the 14 pretests run by `npm test`.
+The UI pass and this database result do not establish production backend startup,
+Tor network bootstrap, community creation, messaging, signed push delivery, or
+physical-device runtime behavior.
 
 The normal build copies only `nodejs-assets/nodejs-project` and
 `nodejs-modules/builtin_modules`; this `e2e/fixtures` file is never shipped. Native

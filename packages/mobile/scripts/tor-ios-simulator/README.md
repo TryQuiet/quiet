@@ -77,6 +77,17 @@ After compilation, the wrapper signs only the outer simulator app with `codesign
 
 Outputs include `DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app`, `xcodebuild.log`, `Storybook.xcresult`, framework tree snapshots and `result.json`. A passing result requires the app to contain its bundled JavaScript and to embed the selected simulator Tor binary byte for byte, with `originalRestored: true` and `appSignature: {"identity": "ad-hoc", "strictVerification": true}`. This build command does not boot a simulator, launch the app, change the device framework used by later builds, or demonstrate runtime correctness by itself.
 
+After that guarded build passes, run the Hermes/WebView crypto smoke test using the separate ARM Detox configuration. From the Quiet repository root:
+
+```sh
+cd packages/mobile
+DETOX_IOS_ARM64_STORYBOOK_APP=/tmp/quiet-storybook-arm64-validation/DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app \
+  npx detox test -c ios.sim.storybook.arm64 runtime-compatibility \
+  --artifacts-location /tmp/quiet-storybook-arm64-runtime-artifacts
+```
+
+`ios.sim.storybook.arm64` consumes the prebuilt app; it has no build command. `DETOX_IOS_ARM64_STORYBOOK_APP` selects a different guarded build output, and defaults to the path shown above. Its simulator defaults to `iPhone 15 Pro` on `iOS 18.5` with `--arch=arm64`; set `DETOX_IOS_SIMULATOR_ID` to select an existing simulator. The existing `ios.sim.storybook` configuration retains its Intel build and boot settings. A bundled app does not need Metro for this test.
+
 The portable rollback tests use disposable framework trees and actual child processes, including signal and low-disk cancellation. They also reject signing failures, failed signature verification, and changes to Tor during signing. Native Xcode, Mach-O inspection and codesign operations are substituted; these tests do not require a native build:
 
 ```sh

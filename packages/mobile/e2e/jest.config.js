@@ -2,6 +2,8 @@
 module.exports = {
   rootDir: '..',
   testMatch: ['<rootDir>/e2e/**/*.test.js'],
+  // Packaged apps contain copies of rn-bridge and must not enter Jest's module map.
+  modulePathIgnorePatterns: ['<rootDir>/ios/build/', '<rootDir>/android/app/build/'],
   testTimeout: 120000,
   maxWorkers: 1,
   globalSetup: 'detox/runners/jest/globalSetup',

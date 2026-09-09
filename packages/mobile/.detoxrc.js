@@ -68,6 +68,13 @@ module.exports = {
       build:
         'ENVFILE=.env.storybook xcodebuild -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath ios/build/storybook ARCHS=x86_64 ONLY_ACTIVE_ARCH=YES',
     },
+    'ios.storybook.arm64': {
+      type: 'ios.app',
+      // Prebuilt by scripts/tor-ios-simulator/build-storybook.py; the installed Tor pod lacks an arm64 simulator slice.
+      binaryPath:
+        process.env.DETOX_IOS_ARM64_STORYBOOK_APP ||
+        '/tmp/quiet-storybook-arm64-validation/DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app',
+    },
     'ios.release': {
       type: 'ios.app',
       binaryPath: 'ios/build/release/Build/Products/Release-iphonesimulator/Quiet.app',
@@ -85,6 +92,13 @@ module.exports = {
     simulator_storybook: {
       type: 'ios.simulator',
       bootArgs: '--arch=x86_64',
+      device: process.env.DETOX_IOS_SIMULATOR_ID
+        ? { id: process.env.DETOX_IOS_SIMULATOR_ID }
+        : { type: 'iPhone 15 Pro', os: 'iOS 18.5' },
+    },
+    simulator_storybook_arm64: {
+      type: 'ios.simulator',
+      bootArgs: '--arch=arm64',
       device: process.env.DETOX_IOS_SIMULATOR_ID
         ? { id: process.env.DETOX_IOS_SIMULATOR_ID }
         : { type: 'iPhone 15 Pro', os: 'iOS 18.5' },
@@ -148,6 +162,16 @@ module.exports = {
     'ios.sim.storybook': {
       device: 'simulator_storybook',
       app: 'ios.storybook',
+      artifacts: {
+        rootDir: './e2e/artifacts/ios',
+        plugins: {
+          instruments: 'all',
+        },
+      },
+    },
+    'ios.sim.storybook.arm64': {
+      device: 'simulator_storybook_arm64',
+      app: 'ios.storybook.arm64',
       artifacts: {
         rootDir: './e2e/artifacts/ios',
         plugins: {
