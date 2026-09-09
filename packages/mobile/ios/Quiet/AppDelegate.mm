@@ -2,14 +2,14 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
-#import <React/RCTModuleRegistry.h>
+#import <React/RCTBridgeModule.h>
 #import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
 // RCTHost exposes C++ runtime types, so this AppDelegate is compiled as Objective-C++.
 #import <ReactCommon/RCTHost.h>
 
 // Firebase imports
-@import FirebaseCore;
-@import FirebaseMessaging;
+#import <FirebaseCore/FirebaseCore.h>
+#import <FirebaseMessaging/FirebaseMessaging.h>
 
 #import "RNNodeJsMobile.h"
 #import "Quiet-Swift.h"
