@@ -1,4 +1,6 @@
 """Native QSS/Postgres/Redis startup for macOS runners; no service manager."""
+import ctypes
+import errno
 import json
 import os
 from pathlib import Path
@@ -7,6 +9,7 @@ import shutil
 import signal
 import socket
 import subprocess
+import sys
 import time
 
 from fixture import compose_config, health, private_json
@@ -44,7 +47,7 @@ def prepare(manifest, node=None, corepack=None, postgres_bin=None, redis_server=
             listener.close()
     for name in ("bin", "tmp", "redis", "pg-socket", "config"):
         (output / name).mkdir(mode=0o700)
-    for name in ("empty.npmrc", "empty-global.npmrc", "empty.pgpass", "empty.pg_service.conf"):
+    for name in ("empty.npmrc", "empty-global.npmrc", "empty.pgpass", "empty.pg_service.conf", "empty.aws-credentials", "empty.aws-config"):
         (output / name).write_text("")
         (output / name).chmod(0o600)
     # A private shim makes pnpm available to package scripts without changing
@@ -72,6 +75,10 @@ def prepare(manifest, node=None, corepack=None, postgres_bin=None, redis_server=
         "PGPASSWORD": "postgres", "PGPASSFILE": str(output / "empty.pgpass"),
         "PGSERVICEFILE": str(output / "empty.pg_service.conf"),
         "PGSSLMODE": "disable", "PGGSSENCMODE": "disable",
+        # Omitting AWS_PROFILE alone still allows the SDK's default ~/.aws files.
+        # Explicit empty files isolate that provider without changing HOME.
+        "AWS_SHARED_CREDENTIALS_FILE": str(output / "empty.aws-credentials"),
+        "AWS_CONFIG_FILE": str(output / "empty.aws-config"),
         "npm_config_cache": str(output / "npm-cache"),
         "XDG_CONFIG_HOME": str(output / "config"),
     })
@@ -116,10 +123,45 @@ def run(manifest, command, timeout=1800, capture=False):
     return stdout.decode() if capture else None
 
 
+class _ProcBsdInfo(ctypes.Structure):
+    # Public Darwin sys/proc_info.h ABI (PROC_PIDTBSDINFO). Names/titles are
+    # deliberately not part of identity: Redis rewrites its process title.
+    _fields_ = (
+        [(name, ctypes.c_uint32) for name in (
+            "flags", "status", "xstatus", "pid", "ppid", "uid", "gid",
+            "ruid", "rgid", "svuid", "svgid", "reserved",
+        )]
+        + [("comm", ctypes.c_char * 16), ("name", ctypes.c_char * 32)]
+        + [(name, ctypes.c_uint32) for name in ("nfiles", "pgid", "pjobc", "tdev", "tpgid")]
+        + [("nice", ctypes.c_int32), ("start_seconds", ctypes.c_uint64), ("start_microseconds", ctypes.c_uint64)]
+    )
+
+
 def process_identity(pid):
-    # lstart guards against signaling a reused PID; uid also fixes the owner.
-    result = subprocess.run(["ps", "-p", str(pid), "-o", "lstart=", "-o", "uid="], capture_output=True, text=True)
-    return result.stdout.strip() if result.returncode == 0 else None
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
+        raise ValueError("Fixture process identity requires a positive PID")
+    if sys.platform == "darwin":
+        libproc = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+        query = libproc.proc_pidinfo
+        query.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_uint64, ctypes.c_void_p, ctypes.c_int]
+        query.restype = ctypes.c_int
+        info = _ProcBsdInfo()
+        ctypes.set_errno(0)
+        size = query(pid, 3, 0, ctypes.byref(info), ctypes.sizeof(info))
+        if size == 0 and ctypes.get_errno() == errno.ESRCH:
+            return None
+        if size != ctypes.sizeof(info) or info.pid != pid:
+            raise RuntimeError("Unable to verify fixture process identity")
+        return {"pid": pid, "uid": info.uid, "start": [info.start_seconds, info.start_microseconds]}
+    if sys.platform == "linux":
+        try:
+            directory = Path("/proc") / str(pid)
+            # comm is parenthesized and may itself contain spaces or ')'.
+            fields = (directory / "stat").read_text().rsplit(")", 1)[1].split()
+            return {"pid": pid, "uid": directory.stat().st_uid, "start": [int(fields[19])]}
+        except FileNotFoundError:
+            return None
+    raise RuntimeError("Native fixture process identity requires macOS or Linux")
 
 
 def record_process(manifest, name, pid):

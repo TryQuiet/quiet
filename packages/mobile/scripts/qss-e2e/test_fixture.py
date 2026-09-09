@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from unittest.mock import patch
 from urllib.parse import urlsplit
@@ -151,6 +152,16 @@ class FixtureTests(unittest.TestCase):
         self.addCleanup(lambda: other.poll() is None and other.kill())
         self.addCleanup(lambda: target.poll() is None and target.kill())
         identity = native.process_identity(target.pid)
+        self.assertEqual(identity, json.loads(json.dumps(identity)))
+        # Same executable/owner and potentially the same ps lstart second must
+        # not let one freshly launched child stand in for another.
+        with self.assertRaisesRegex(RuntimeError, "reused or unowned"):
+            native.stop_process({"pid": other.pid, "identity": identity})
+        self.assertIsNone(other.poll())
+        wrong_birth = {**identity, "start": [*identity["start"]]}
+        wrong_birth["start"][-1] += 1
+        with self.assertRaisesRegex(RuntimeError, "reused or unowned"):
+            native.stop_process({"pid": target.pid, "identity": wrong_birth})
         with self.assertRaisesRegex(RuntimeError, "reused or unowned"):
             native.stop_process({"pid": target.pid, "identity": "wrong process"})
         self.assertIsNone(target.poll())
@@ -159,6 +170,44 @@ class FixtureTests(unittest.TestCase):
         self.assertIsNone(other.poll())
         other.terminate()
         other.wait(timeout=5)
+
+    @unittest.skipUnless(shutil.which("redis-server"), "Redis binary unavailable")
+    def test_native_identity_survives_real_redis_process_title_change(self):
+        import native
+        socket_path = self.root / "redis.sock"
+        process = subprocess.Popen([
+            shutil.which("redis-server"), "--port", "0", "--unixsocket", str(socket_path),
+            "--unixsocketperm", "700", "--save", "", "--appendonly", "no", "--dir", str(self.root),
+        ], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        def cleanup():
+            if process.poll() is None:
+                process.kill()
+            process.wait(timeout=5)
+        self.addCleanup(cleanup)
+        deadline = time.monotonic() + 10
+        with socket.socket(socket.AF_UNIX) as connection:
+            connection.settimeout(2)
+            while True:
+                self.assertIsNone(process.poll(), "Owned Redis exited during startup")
+                try:
+                    connection.connect(str(socket_path))
+                    break
+                except (FileNotFoundError, ConnectionRefusedError):
+                    if time.monotonic() >= deadline:
+                        self.fail("Owned Redis Unix socket did not start")
+                    time.sleep(0.05)
+            identity = native.process_identity(process.pid)
+            title = b"quiet-fixture-identity-regression"
+            parts = [b"CONFIG", b"SET", b"proc-title-template", title]
+            request = b"*4\r\n" + b"".join(b"$" + str(len(p)).encode() + b"\r\n" + p + b"\r\n" for p in parts)
+            connection.sendall(request)
+            self.assertEqual(connection.recv(1024), b"+OK\r\n")
+            command = subprocess.check_output(["ps", "-p", str(process.pid), "-o", "command="])
+            self.assertIn(title, command)
+            self.assertEqual(native.process_identity(process.pid), identity)
+        native.stop_process({"pid": process.pid, "identity": identity})
+        process.wait(timeout=5)
+        self.assertIsNone(native.process_identity(process.pid))
 
     def native_binaries(self, complete=True):
         binaries = self.root / "bin"
@@ -185,16 +234,29 @@ class FixtureTests(unittest.TestCase):
         import native
         manifest = self.prepare()
         binaries = self.native_binaries()
-        with patch.dict(native.os.environ, {"PGPASSWORD": "ambient", "PGSERVICE": "ambient", "AWS_PROFILE": "ambient"}):
+        ambient_credentials = self.root / "ambient-aws-credentials"
+        ambient_config = self.root / "ambient-aws-config"
+        ambient_credentials.write_text("[default]\naws_access_key_id = PUBLIC_TEST_ONLY\naws_secret_access_key = PUBLIC_TEST_ONLY\n")
+        ambient_config.write_text("[default]\nregion = us-east-1\n")
+        original_home = native.os.environ.get("HOME")
+        with patch.dict(native.os.environ, {
+            "PGPASSWORD": "ambient", "PGSERVICE": "ambient", "AWS_PROFILE": "ambient",
+            "AWS_SHARED_CREDENTIALS_FILE": str(ambient_credentials), "AWS_CONFIG_FILE": str(ambient_config),
+        }):
             native.prepare(manifest, binaries / "node", binaries / "corepack", binaries, binaries / "redis-server")
         environment = manifest["native"]["environment"]
         self.assertEqual(environment["QSS_HOSTNAME"], urlsplit(manifest["endpoint"]).hostname)
         self.assertEqual(environment["PGPASSWORD"], "postgres")
         self.assertNotIn("PGSERVICE", environment)
         self.assertNotIn("AWS_PROFILE", environment)
+        self.assertNotIn("HOME", environment)
+        self.assertEqual(native.os.environ.get("HOME"), original_home)
+        self.assertIn("PUBLIC_TEST_ONLY", ambient_credentials.read_text())
+        self.assertNotEqual(environment["AWS_SHARED_CREDENTIALS_FILE"], str(ambient_credentials))
+        self.assertNotEqual(environment["AWS_CONFIG_FILE"], str(ambient_config))
         self.assertEqual(environment["PGSSLMODE"], "disable")
         self.assertEqual(environment["PGGSSENCMODE"], "disable")
-        for key in ("PGPASSFILE", "PGSERVICEFILE", "NPM_CONFIG_USERCONFIG", "NPM_CONFIG_GLOBALCONFIG"):
+        for key in ("PGPASSFILE", "PGSERVICEFILE", "NPM_CONFIG_USERCONFIG", "NPM_CONFIG_GLOBALCONFIG", "AWS_SHARED_CREDENTIALS_FILE", "AWS_CONFIG_FILE"):
             filename = Path(environment[key])
             self.assertEqual(filename.parent, self.output)
             self.assertEqual(filename.read_text(), "")
