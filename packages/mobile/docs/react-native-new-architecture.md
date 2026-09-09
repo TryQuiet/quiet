@@ -38,6 +38,9 @@ upgrades the separate Node runtime that executes Quiet's backend.
 - Android's exported `CommunicationModule` methods are instance methods, as
   required by the bridgeless module adapter. Native backend callers retain a
   separate static event entry point. Notification intents use ReactHost.
+- Android's Tor process detector uses flags supported by both Android 15 and 16
+  Toybox versions and excludes its own shell by PID. The previous unsupported
+  flag could report a live Tor process as missing and trigger repeated restarts.
 - iOS AppDelegate compiles as Objective-C++ and obtains the managed native
   event module from ReactHost's module registry for lifecycle and notifications.
 - Config 1.7.2 and Share 12.3.1 supply supported New Architecture code generation.
@@ -74,9 +77,12 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | iOS ARM Storybook app | Builds with Xcode 26.3; all 109 pods compile; strict simulator app signature and exact Tor restoration pass |
 | iOS ARM simulator runtime | 2 tests pass on iOS 18.5: actual Fabric/bridgeless/Hermes/WebView crypto and managed native event/background/resume routing |
 | Android embedded Node database | Node 24.18.0 / ABI 137 / Node-API 10; native JNI event correlation and existing addon pass write/read/iterate/reopen across 2 actual app processes |
+| Android 16 KB userspace | The same native Node/database smoke passes across 2 app processes on the API 36 16 KB emulator, using ARM64 translation on an x86_64 host |
+| Android Tor process discovery | Real production command passes on API 35 and 36 against two owned processes, including directory spaces, detector exclusion, and no matches after cleanup |
 | iOS embedded Node database | Same runtime identity; native bridge, existing addon, 8 compressed tables, and persistence across 2 app processes pass |
 | Standard iOS simulator build support | Debug/E2E/QSS/Release ARM routes use the guarded builder; 31 portable tests pass; actual standard Debug app builds and passes strict signing and Tor restoration checks |
 | Standard iOS community and messaging | Fresh community, username, visible keyboard-open input/Send, exact message's backend storage acknowledgment, process restart, and restored community/message pass with default Detox synchronization |
+| Standard Android community and messaging | The same full focused flow passes on API 35 with the corrected Tor detector and supported Detox idle defaults |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
 debug signing. The fixture was removed afterward; these checks do not validate
@@ -100,20 +106,37 @@ isolated original auth checkout with MessagePack 1.10.2 on Node 20 reproduced
 the exact same 88 failing test names (396 passed). The six added regression
 tests account for the passing-test difference; no new failing test appears.
 
-The normal Android app completes Tor bootstrap (100%) and initializes storage.
-The composer fix from #3422 allows creating a community, typing and sending with
-the keyboard open, and reopening the displayed message after a process restart.
-That earlier check could pass using the optimistic frontend cache. A stronger
-test now requires the exact message's backend storage acknowledgment before
-restarting. Native traces confirm the original message is acknowledged, but the
-stronger Android check is encountering intermittent startup network/animation
-idle timeouts before sending. The full focused flow passes on the standard iOS
-app, including backend acknowledgment before restarting. Its test targets the
-actual native multiline composer because Fabric can drop a reused test
-identifier when replacing a single-line field. Explicit native hierarchy anchors
-keep each message's text under its own pending/stored marker on both platforms.
+The standard Android and iOS apps pass fresh community creation, username
+registration, keyboard-open sending, backend storage acknowledgment, and message
+restoration after a process restart. The test waits for the exact message's
+acknowledgment before restarting, so optimistic frontend caching cannot satisfy
+it alone. On iOS it targets the actual native multiline composer because Fabric
+can drop a reused test identifier when replacing a single-line field. Explicit
+native hierarchy anchors keep each message's text under its own pending/stored
+marker on both platforms. Android uses Detox's supported bounded idle defaults;
+the previous 60-second override could abort a loading-stage tap before the
+test's 120-second community wait began.
+
+Full backend runs on x86 Android emulators can still hang when forking a child
+process: a captured native stack identifies the ARM translation cache mutex in
+`libndk_translation`. This is separate from the corrected Tor detector. Native
+ARM Android validation on the Mac is in progress to check the complete flow
+without CPU translation.
 
 The requested physical iPhone check of the previous PR (#3422) is also pending:
 the paired device and provisioning profiles are available, but the Mac login
 keychain is locked and cannot sign the fresh build. Simulator validation continues
 independently. The final Daybreak Blue audit will follow working native integration.
+
+The Tor process regression is opt-in and requires an explicitly selected owned
+emulator. It runs Android's actual command-line tools against temporary processes;
+it does not modify a Quiet app or kill an existing Tor process. From
+`packages/backend`, with the intended host Node version selected:
+
+```sh
+QUIET_ANDROID_TEST_SERIAL=emulator-5582 \
+QUIET_ANDROID_TEST_AVD=quiet-api35-sdk \
+QUIET_ANDROID_TEST_ADB=/absolute/path/to/adb \
+node --experimental-vm-modules node_modules/jest/bin/jest.js \
+  src/nest/tor/tor-processes.android.spec.ts --runInBand
+```
