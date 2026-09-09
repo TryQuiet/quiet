@@ -1,24 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [9.0.0-alpha.17](https://github.com/TryQuiet/quiet-private/compare/@quiet/desktop@9.0.0-alpha.16...@quiet/desktop@9.0.0-alpha.17) (2026-09-09)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
-# [9.0.0-alpha.16](https://github.com/TryQuiet/quiet-private/compare/@quiet/desktop@9.0.0-alpha.15...@quiet/desktop@9.0.0-alpha.16) (2026-09-09)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
