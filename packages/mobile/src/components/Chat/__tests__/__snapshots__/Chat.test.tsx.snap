@@ -677,6 +677,7 @@ exports[`Chat component renders component 1`] = `
             },
           ]
         }
+        testID="messages_general"
         viewabilityConfig={
           {
             "itemVisiblePercentThreshold": 0,
@@ -713,11 +714,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-vader"
             >
               <View
                 style={
@@ -924,11 +927,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-windoo"
             >
               <View
                 style={
@@ -1149,11 +1154,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-luke"
             >
               <View
                 style={
@@ -1374,11 +1381,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-leah"
             >
               <View
                 style={
@@ -1585,11 +1594,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-wookie"
             >
               <View
                 style={
@@ -1796,11 +1807,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-obi"
             >
               <View
                 style={
@@ -2034,11 +2047,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-yoda"
             >
               <View
                 style={
@@ -2245,11 +2260,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-anakin"
             >
               <View
                 style={
@@ -2456,11 +2473,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-anakin"
             >
               <View
                 style={
@@ -2667,11 +2686,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-chad"
             >
               <View
                 style={

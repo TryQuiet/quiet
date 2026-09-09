@@ -36,6 +36,8 @@ it('identifies each message as pending until its stored acknowledgment, independ
   }
   const screen = renderComponent(<Message {...props} pendingMessages={state.messageSendingStatus.entities} />)
 
+  expect(within(screen.getByTestId('userMessages-nativeowner')).getByTestId(stored.message)).toBeTruthy()
+  expect(within(screen.getByTestId('userMessages-nativeowner')).getByTestId(pending.message)).toBeTruthy()
   expect(within(screen.getByTestId('message-stored')).getByTestId(stored.message)).toBeTruthy()
   expect(within(screen.getByTestId('message-stored')).queryByTestId(pending.message)).toBeNull()
   expect(within(screen.getByTestId('message-pending')).getByTestId(pending.message)).toBeTruthy()

@@ -405,6 +405,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
               )}
               <FlatList
                 ref={flatListRef}
+                testID={`messages_${channel?.name}`}
                 style={styles.list}
                 inverted
                 data={listData}

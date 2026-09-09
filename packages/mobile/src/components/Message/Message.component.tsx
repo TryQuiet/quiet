@@ -169,7 +169,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
     : null
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} testID={`userMessages-${representativeMessage.nickname}`} collapsable={false}>
       <View
         style={{
           flexDirection: 'row',
