@@ -19,7 +19,7 @@ final class NSEAuthProtocolTests: XCTestCase {
         ]
         overrides.forEach { value[$0.key] = $0.value }
         extra.forEach { value[$0.key] = $0.value }
-        return try JSONDecoder().decode(ChallengePayload.self, from: JSONSerialization.data(withJSONObject: value))
+        return try NSEJSON.decode(ChallengePayload.self, from: JSONSerialization.data(withJSONObject: value))
     }
 
     func testCanonicalBytesAndSignatureMatchCrossPlatformFixture() throws {
@@ -33,10 +33,21 @@ final class NSEAuthProtocolTests: XCTestCase {
         XCTAssertEqual(try NSEAuthProof.encode(value), expectedBytes)
 
         let secretKey = try XCTUnwrap(Base58.decode("2ZC6948FLMTyZ9cAN2Db6u4E9FN72vEwXa1s193vMozZUYnBzVU7952gS6zY7T2VZJVBuJKSsdo7gDDkox3tZx4u"))
-        XCTAssertEqual(
-            try NSEAuthProof.sign(value, privateKeyData: secretKey),
+        XCTAssertEqual(secretKey.count, 64)
+        let publicKey = try Curve25519.Signing.PublicKey(rawRepresentation: secretKey.suffix(32))
+
+        // The fixture signature was produced by libsodium (deterministic Ed25519) on the other
+        // platforms. CryptoKit randomizes Ed25519 signatures, so the bytes differ on every run
+        // while still verifying under the same key. Check both directions of interop instead of
+        // comparing signature bytes.
+        let fixtureSignature = try XCTUnwrap(Base58.decode(
             "62XsfcCvq4SeRxmVK6LNyjuPpLyUSaCxPD315LRtfet9GnHQ6zu5sg8muz1eh4ZvvnZ6m3SH88KRztu4gm8W5YQk"
-        )
+        ))
+        XCTAssertTrue(publicKey.isValidSignature(fixtureSignature, for: expectedBytes))
+
+        let iosSignature = try XCTUnwrap(Base58.decode(try NSEAuthProof.sign(value, privateKeyData: secretKey)))
+        XCTAssertEqual(iosSignature.count, 64)
+        XCTAssertTrue(publicKey.isValidSignature(iosSignature, for: expectedBytes))
     }
 
     func testValidationRejectsIdentityProtocolNonceAndTimestampAttacks() throws {
@@ -60,10 +71,40 @@ final class NSEAuthProtocolTests: XCTestCase {
         XCTAssertThrowsError(try challenge(extra: ["extra": true]))
         XCTAssertThrowsError(try challenge(overrides: ["issuedAtMs": "1700000000000"]))
         XCTAssertThrowsError(try challenge(overrides: ["type": 7]))
-        let fractional = """
-        {"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":1700000000000.0001,"expiresAtMs":1700000030000}
+
+        // Only an integer literal is acceptable for an integer field, matching the server and
+        // Android. Every one of these decodes as an integral value through JSONDecoder alone.
+        func document(issuedAtMs: String = "1700000000000", protocolVersion: String = "1", extraMembers: String = "") -> Data {
+            """
+            {"protocolVersion":\(protocolVersion),"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":\(issuedAtMs)\(extraMembers),"expiresAtMs":1700000030000}
+            """.data(using: .utf8)!
+        }
+        XCTAssertNoThrow(try NSEJSON.decode(ChallengePayload.self, from: document()))
+        for bad in ["1700000000000.0001", "1700000000000.0", "1700000000000.5", "1.7e12", "1E12", "true"] {
+            XCTAssertThrowsError(try NSEJSON.decode(ChallengePayload.self, from: document(issuedAtMs: bad)), bad)
+        }
+        for bad in ["1e0", "1.0"] {
+            XCTAssertThrowsError(try NSEJSON.decode(ChallengePayload.self, from: document(protocolVersion: bad)), bad)
+        }
+
+        // Duplicate members make JSONDecoder and any second parser see different values, so
+        // the whole document must be free of them, including escape-equivalent names.
+        XCTAssertThrowsError(try NSEJSON.decode(
+            ChallengePayload.self, from: document(issuedAtMs: "1.7e12", extraMembers: #","issuedAtMs":1700000000000"#)
+        ))
+        XCTAssertThrowsError(try NSEJSON.decode(
+            ChallengePayload.self, from: document(extraMembers: #","issuedAtMs":1700000000000"#)
+        ))
+        XCTAssertThrowsError(try NSEJSON.decode(
+            ChallengePayload.self, from: document(extraMembers: #","type":"DEVICE""#)
+        ))
+        let duplicateChallenge = """
+        {"challengeId":"00112233445566778899aabbccddeeff","challenge":{"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":1.7e12,"expiresAtMs":1700000030000},"challenge":{"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":1700000000000,"expiresAtMs":1700000030000}}
         """.data(using: .utf8)!
-        XCTAssertThrowsError(try JSONDecoder().decode(ChallengePayload.self, from: fractional))
+        XCTAssertThrowsError(try NSEJSON.decode(ChallengeResponse.self, from: duplicateChallenge))
+
+        // The literal check needs the raw bytes; decoding without them must fail closed.
+        XCTAssertThrowsError(try JSONDecoder().decode(ChallengePayload.self, from: document()))
     }
 
     func testAuthenticateRejectsEveryMaliciousChallengeBeforePrivateKeySigningOrTokenRequest() async throws {
@@ -249,7 +290,7 @@ final class NSEAuthProtocolTests: XCTestCase {
             "challengeId": outerChallengeId ?? (payload["challengeId"] as? String ?? "00112233445566778899aabbccddeeff"),
             "challenge": payload
         ]
-        return try JSONDecoder().decode(
+        return try NSEJSON.decode(
             ChallengeResponse.self,
             from: JSONSerialization.data(withJSONObject: response)
         )
@@ -495,11 +536,28 @@ private final class FixedQSSHTTPServer {
 
     private func jsonBody(_ request: URLRequest) throws -> [String: Any] {
         guard request.value(forHTTPHeaderField: "Content-Type") == "application/json",
-              let data = request.httpBody,
+              let data = Self.body(of: request),
               let body = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw FixedQSSError.invalidRequest("request did not contain a JSON body")
         }
         return body
+    }
+
+    /// URLSession hands a URLProtocol the request body as `httpBodyStream`, never as
+    /// `httpBody`, so read whichever one is present.
+    private static func body(of request: URLRequest) -> Data? {
+        if let data = request.httpBody { return data }
+        guard let stream = request.httpBodyStream else { return nil }
+        stream.open()
+        defer { stream.close() }
+        var data = Data()
+        var buffer = [UInt8](repeating: 0, count: 4096)
+        while stream.hasBytesAvailable {
+            let read = stream.read(&buffer, maxLength: buffer.count)
+            if read <= 0 { break }
+            data.append(buffer, count: read)
+        }
+        return data
     }
 }
 

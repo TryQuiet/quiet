@@ -71,7 +71,7 @@ jobs:
           test -n "$destination_id"
           xcodebuild test \
             -workspace packages/mobile/ios/Quiet.xcworkspace \
-            -scheme Storybook \
+            -scheme QuietTests \
             -destination "platform=iOS Simulator,id=${destination_id}" \
             -only-testing:QuietTests/NSEMessageAuthenticatorTests \
             -only-testing:QuietTests/QuietBackgroundTaskTests \
