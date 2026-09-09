@@ -99,7 +99,7 @@ device compilation checks integration; it does not prove runtime behavior.
 ## RN 0.81.5 Android checkpoint
 
 The final dependency set uses React/renderer 19.1.0, RN tooling 0.81.5, CLI
-20.0.0, Screens 4.18.0, Gesture Handler 2.28.0, and Kotlin 2.1.20. Hermes
+20.1.2, Screens 4.18.0, Gesture Handler 2.28.0, and Kotlin 2.1.20. Hermes
 runs the UI while nodejs-mobile 18.20.4 continues to run the backend. Both
 platforms retain the existing native bridge architecture.
 
@@ -114,11 +114,20 @@ platforms retain the existing native bridge architecture.
   `createSagaMiddleware` undefined. Package exports remain enabled elsewhere.
 - Pin Navigation's elements package to the version compatible with the chosen
   Navigation 7 packages. Align Storybook's React DOM override with React 19.
+- Use CLI 20.1.2 for its supported XML parser 5.x adoption (locked to 5.11.1),
+  and override styled-components' PostCSS to 8.5.23. These remove newly
+  introduced advisories reported by dependency review. Actual Android launcher,
+  iOS scheme, plist, and entitlement parsing are covered by CLI regression tests.
 - Upgrade Detox to 20.51.4 and use the same version for its Android dependency;
   the previous native test runner crashed while registering its network monitor.
 - Preserve the native event emitter's real JavaScript subscription behavior in
   tests. Reviewed snapshot changes flatten styled-components' style arrays and
   expand equal border radii without changing rendered values.
+- Raise Gradle's metaspace limit from 512 MB to 1 GB after release lint
+  exhausted class-metadata space with the upgraded Kotlin/native dependencies.
+- Let Android's existing `adjustResize` control the composer's flex layout.
+  KeyboardAvoidingView's cached height could exceed the resized channel after
+  Activity recreation and hide the input. Retain keyboard padding on iOS.
 
 Validation on this checkpoint:
 
@@ -126,22 +135,45 @@ Validation on this checkpoint:
 | --- | --- |
 | Mobile TypeScript and ESLint | Pass; 12 existing lint warnings |
 | Mobile Jest | 55 suites, 136 tests, 44 snapshots pass; 3 existing skips |
-| Real Metro resolution/package execution | 9 tests pass; also run by `npm test` |
+| Real Metro/package execution and CLI XML configuration | 12 tests pass; also run by `npm test` |
 | Standard and Storybook debug app + instrumentation APKs | Build successfully |
+| Standard release AAB | Builds with release lint; temporary test Firebase configuration and local debug signing |
 | APK target and native alignment | API 36; 19 ELF files pass 16 KB LOAD alignment; APK ZIP alignment passes |
 | Hermes + real WebView hashing/key/signature/tamper checks | Pass on API 35 and 36 |
 | Native keyboard/channel Back, modal Back, and rotation | Pass on API 35 and 36 |
 | Real photo selection, cache copy, thumbnail/removal, and cancellation | Pass on API 35 and 36 |
-| Actual edge gestures for keyboard/channel/modal Back | Pass on API 36; API 35 rerun pending |
-| Activity recreation with native fragments and saved state | Pass on API 36; API 35 composer layout investigation pending |
-| Full embedded backend/community startup | Investigation in progress; local backend socket connects |
+| Actual edge gestures for keyboard/channel/modal Back | Pass on API 35 and 36 |
+| Activity recreation with native fragments and saved state | Pass on API 35 and 36, including full composer visibility |
+| Full embedded backend/community startup | Node/bridge/addon/socket startup works; Tor child spawn deadlocks on the emulator |
 | iOS CocoaPods/Xcode/runtime | Pending; see iOS validation above |
+
+The release packaging check uses a temporary, nonproduction Firebase configuration
+and the repository's local debug signing fallback; the fixture is removed afterward.
+This checks compilation and packaging, not production push delivery or store
+release credentials.
 
 The device fixtures use production channel, navigation, photo, and image-preview
 components, with a local Redux store and no backend sagas. The crypto fixture
 mounts the actual WebView provider and checks a known SHA-256 vector, P-256 key
 export/import, signature verification, and rejection of modified data. These
 checks do not establish full community startup or messaging.
+
+### Embedded backend validation limit
+
+The standard RN 0.81 app loads `libnode.so` and `classic_level.node`, receives
+native bridge events, starts Nest on port 11001, and connects the frontend.
+Tor password generation and stale-process cleanup complete. The subsequent
+Tor spawn blocks before executing the child: Node waits on libuv's close-on-exec
+error pipe while the forked child retains the app's name/mappings and waits on
+a futex with the pipe's write end still open. A JavaScript timeout or switching
+to asynchronous spawn cannot unblock that native wait.
+
+These tests run an ARM64 APK through translation on x86_64 Android emulators.
+A fork/translation interaction is a hypothesis; the exact lock owner is not
+established. Pre-migration SDK checks also stalled during Tor child creation.
+Full Tor bootstrap, database operations, and community messaging still require
+validation on an ARM64 device. Loading the addon alone does not prove storage
+operations work. No embedded Node upgrade is justified solely by this result.
 
 Reproduce from `packages/mobile` with the repository's Node version, Android SDK,
 and JDK 17 available:

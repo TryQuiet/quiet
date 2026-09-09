@@ -8,7 +8,7 @@
     "android": "react-native run-android --mode=standardDebug --appIdSuffix=debug",
     "ios": "ENVFILE=.env.development react-native run-ios",
     "start": "react-native start",
-    "pretest": "node --test scripts/metro-resolution.test.cjs",
+    "pretest": "node --test scripts/metro-resolution.test.cjs scripts/cli-xml-config.test.cjs",
     "test": "TZ=UTC jest --testPathIgnorePatterns=\"./e2e\" --transformIgnorePatterns \"./node_modules/(?!@d11/react-native-fast-image|@react-navigation)/\"",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "npm run lint:no-fix -- --fix",
@@ -96,7 +96,10 @@
     "js-yaml": "4.1.1",
     "@xmldom/xmldom": "0.8.13",
     "react-dom": "$react-dom",
-    "@react-navigation/elements": "2.6.3"
+    "@react-navigation/elements": "2.6.3",
+    "styled-components": {
+      "postcss": "8.5.23"
+    }
   },
   "peerDependencies": {
     "react-native-randombytes": "git+https://github.com/siepra/react-native-randombytes.git#5a6dff9e340f70cabe3e1561cc2ff19671b0af49"
@@ -110,9 +113,9 @@
     "@localfirst/auth": "file:../../3rd-party/auth/packages/auth/dist",
     "@quiet/eslint-config": "^2.0.2-alpha.0",
     "@react-native-async-storage/async-storage": "2.1.2",
-    "@react-native-community/cli": "20.0.0",
-    "@react-native-community/cli-platform-android": "20.0.0",
-    "@react-native-community/cli-platform-ios": "20.0.0",
+    "@react-native-community/cli": "20.1.2",
+    "@react-native-community/cli-platform-android": "20.1.2",
+    "@react-native-community/cli-platform-ios": "20.1.2",
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/push-notification-ios": "^1.11.0",
     "@react-native/assets-registry": "0.81.5",

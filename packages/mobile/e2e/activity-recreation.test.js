@@ -53,13 +53,9 @@ describeAndroid('Android activity recreation', () => {
     await openChannelFixture()
     await expect(element(by.id('android-compatibility-channel-state'))).toHaveText('general')
     await element(by.id('input')).tap()
-    try {
-      await waitFor(element(by.id('input'))).toBeVisible(100).withTimeout(5000)
-    } catch (error) {
-      require('node:fs').writeFileSync('/tmp/quiet-rn-api35-recreation-hierarchy.xml', await device.generateViewHierarchyXml(true))
-      console.log('recreation layout', await element(by.id('chat_general')).getAttributes(), await element(by.id('input')).getAttributes())
-      throw error
-    }
+    // Regression: Android must keep the entire composer inside the resized
+    // channel after recreating the activity and opening the keyboard.
+    await waitFor(element(by.id('input'))).toBeVisible(100).withTimeout(5000)
     await element(by.id('input')).replaceText('A draft after activity recreation')
     await device.pressBack()
     await expect(element(by.id('input'))).toHaveText('A draft after activity recreation')

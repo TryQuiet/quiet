@@ -1,5 +1,9 @@
 # Android 16 / API 36 migration (issue #3013)
 
+This document records the SDK-only intermediate in PR #3420. On the React Native
+migration branch, [the RN 0.81 notes](react-native-081.md) describe the newer
+runtime, removal of the Back opt-out, and additional validation.
+
 ## Plan
 
 Deliver the Android SDK intermediate update before the React Native migration:

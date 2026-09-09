@@ -383,9 +383,11 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         contextMenu={contextMenu}
       />
       <KeyboardAvoidingView
-        behavior={Platform.select({ ios: 'padding', android: 'height' })}
-        keyboardVerticalOffset={Platform.select({ ios: insets.bottom, android: insets.bottom })}
-        enabled={Platform.select({ ios: true, android: true })}
+        // Android's adjustResize already resizes our parent. Applying a cached
+        // KeyboardAvoidingView height can exceed that parent after recreation.
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={insets.bottom}
+        enabled={Platform.OS === 'ios'}
         style={styles.keyboardAvoidingView}
       >
         {messages.count === 0 ? (
