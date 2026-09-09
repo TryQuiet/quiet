@@ -1,0 +1,130 @@
+name: Mobile iOS compatibility
+
+on:
+  pull_request:
+    paths:
+      - packages/mobile/**
+      - packages/identity/**
+      - .github/workflows/mobile-ios-compatibility.yml
+      - .github/actions/setup-env/**
+      - .nvmrc
+      - package.json
+      - package-lock.json
+  workflow_dispatch:
+    inputs:
+      regenerate_pods:
+        description: Resolve updated pods and upload the resulting lockfile for review
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-compatibility-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ios:
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/packages/mobile/Gemfile
+      BUNDLER_VERSION: 2.6.9
+      # Match the existing Quiet scheme's staging build pre-action.
+      ENVFILE: .env.staging
+      RCT_NO_LAUNCH_PACKAGER: '1'
+      REGENERATE_PODS: ${{ inputs.regenerate_pods || false }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          lfs: true
+          persist-credentials: false
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.3'
+
+      - name: Set up JavaScript dependencies
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: ios-compatibility
+          bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common'
+
+      - name: Set up CocoaPods
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler: '2.6.9'
+          bundler-cache: true
+          working-directory: packages/mobile
+
+      - name: Resolve native dependencies
+        working-directory: packages/mobile/ios
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_version=$(node -p "require('../package.json').dependencies['react-native']")
+          locked_version=$(bundle exec ruby -rcocoapods -e 'puts Pod::Lockfile.from_file(Pathname.new("Podfile.lock")).version("React-Core")')
+          if [[ "$expected_version" != "$locked_version" || "$REGENERATE_PODS" == true ]]; then
+            # A React Native migration replaces its native dependency graph.
+            # Return the resolved lockfile for review and commit on the PR.
+            bundle exec pod update --no-repo-update
+          else
+            bundle exec pod install --deployment
+          fi
+
+      - name: Upload resolved CocoaPods lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-pod-lock-${{ github.sha }}
+          path: packages/mobile/ios/Podfile.lock
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Prepare unsigned build resources
+        working-directory: packages/mobile/ios
+        run: |
+          # The project copies this resource even when Firebase is unconfigured.
+          # An empty plist supports compilation without Firebase credentials.
+          python3 - <<'PY'
+          import plistlib
+          with open('GoogleService-Info.plist', 'wb') as resource:
+              plistlib.dump({}, resource)
+          PY
+
+      - name: Compile app and notification extension for iOS
+        working-directory: packages/mobile/ios
+        shell: bash
+        run: |
+          set -euo pipefail
+          # classic-level.framework currently contains only a device slice.
+          # Validate that supported target without requiring signing or a device.
+          mkdir -p build
+          xcodebuild build \
+            -workspace Quiet.xcworkspace \
+            -scheme Quiet \
+            -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/compatibility \
+            -resultBundlePath build/ios-compatibility.xcresult \
+            -jobs 2 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            ENABLE_BITCODE=NO \
+            2>&1 | tee build/ios-compatibility.log
+
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-compatibility-diagnostics-${{ github.sha }}
+          path: |
+            packages/mobile/ios/build/ios-compatibility.log
+            packages/mobile/ios/build/ios-compatibility.xcresult
+          if-no-files-found: ignore
+          retention-days: 7

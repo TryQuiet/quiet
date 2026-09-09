@@ -1,4 +1,4 @@
-import { NativeModules, Platform } from 'react-native'
+import { AppState, NativeModules, Platform } from 'react-native'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call, select } from 'redux-saga-test-plan/matchers'
@@ -33,6 +33,7 @@ import { generateTestChannelId } from '@quiet/common'
 import { DateTime } from 'luxon'
 
 describe('showNotificationSaga', () => {
+  const initialAppState = AppState.currentState
   let payload: MarkUnreadChannelPayload
 
   let store: Store
@@ -58,6 +59,19 @@ describe('showNotificationSaga', () => {
     media?: FileMetadata
     channelName: string
   }
+
+  beforeEach(() => {
+    AppState.currentState = 'active'
+    jest.replaceProperty(Platform, 'OS', 'android')
+    jest.replaceProperty(NativeModules, 'CommunicationModule', {
+      handleIncomingEvents: jest.fn(),
+    })
+  })
+
+  afterEach(() => {
+    AppState.currentState = initialAppState
+    jest.restoreAllMocks()
+  })
 
   beforeAll(async () => {
     store = prepareStore().store
@@ -110,16 +124,6 @@ describe('showNotificationSaga', () => {
   })
 
   test('show notification for new messages', async () => {
-    jest.mock('react-native/Libraries/AppState/AppState', () => ({
-      currentState: 'active',
-    }))
-
-    Platform.OS = 'android'
-
-    NativeModules.CommunicationModule = {
-      handleIncomingEvents: jest.fn(),
-    }
-
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
       .withReducer(
         combineReducers({
@@ -150,15 +154,7 @@ describe('showNotificationSaga', () => {
   })
 
   test('do not show notifications when the app is in background', async () => {
-    jest.mock('react-native/Libraries/AppState/AppState', () => ({
-      currentState: 'background',
-    }))
-
-    Platform.OS = 'android'
-
-    NativeModules.CommunicationModule = {
-      handleIncomingEvents: jest.fn(),
-    }
+    AppState.currentState = 'background'
 
     const username = 'alice'
 
@@ -184,21 +180,11 @@ describe('showNotificationSaga', () => {
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
         [select(users.selectors.allUsers), { userId: { username } }],
       ])
-      .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
+      .not.call.fn(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()
   })
 
   test('do not show notifications when current screen is a channel list', async () => {
-    jest.mock('react-native/Libraries/AppState/AppState', () => ({
-      currentState: 'background',
-    }))
-
-    Platform.OS = 'android'
-
-    NativeModules.CommunicationModule = {
-      handleIncomingEvents: jest.fn(),
-    }
-
     const username = 'alice'
 
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
@@ -215,7 +201,7 @@ describe('showNotificationSaga', () => {
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            backStack: [ScreenNames.ChannelScreen],
+            backStack: [ScreenNames.ChannelListScreen],
           },
         }
       )
@@ -223,7 +209,7 @@ describe('showNotificationSaga', () => {
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
         [select(users.selectors.allUsers), { userId: { username } }],
       ])
-      .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
+      .not.call.fn(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()
   })
 })

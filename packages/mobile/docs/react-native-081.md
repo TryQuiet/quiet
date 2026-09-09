@@ -72,9 +72,12 @@ Validation on this checkpoint:
 
 ## iOS validation
 
-The `Mobile iOS compatibility` PR workflow resolves changed pods, uploads the
-resulting lockfile for review, and compiles the app plus notification extension
-for a generic iOS device without signing or deployment. Commit the generated
+The proposed [`Mobile iOS compatibility` workflow](mobile-ios-compatibility.yml.example)
+resolves changed pods, uploads the resulting lockfile for review, and compiles
+the app plus notification extension for a generic iOS device without signing
+or deployment. GitHub rejected publication under `.github/workflows` because
+the current token lacks `workflow` permission; enable it by moving the reviewed
+example into `.github/workflows/mobile-ios-compatibility.yml` once access is available. Commit the generated
 lockfile after reviewing it. Until that run succeeds, the checked-in RN 0.77
 CocoaPods lockfile is an outstanding migration item.
 
@@ -82,3 +85,13 @@ The vendored `classic-level.framework` currently contains only an arm64 iPhone
 (device) binary. Node's XCFramework has simulator slices, but the database addon
 needs a simulator build before a complete simulator run is possible. An unsigned
 device compilation checks integration; it does not prove runtime behavior.
+
+## RN 0.79.7 checkpoint
+
+- Upgrade matching RN tooling and CLI 18, Screens 4.15.4, and Gesture Handler
+  2.26.0. Remove the obsolete `native_modules.gradle` invocation; autolinking
+  already uses the React settings plugin and app plugin.
+- Keep Storybook's React DOM dependency aligned with React 19 using the same
+  override approach as its React dependency; its declared peer range stops at
+  React 18, although the native Storybook UI passes the device regressions.
+- Mobile TypeScript and the Storybook Android app/instrumentation builds pass.
