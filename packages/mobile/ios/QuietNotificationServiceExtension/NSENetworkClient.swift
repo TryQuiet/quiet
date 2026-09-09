@@ -14,7 +14,6 @@ class NSENetworkClient: NSEAuthNetworking {
         return e
     }()
 
-    private static let decoder = JSONDecoder()
 
     // Each client gets a fresh session so path transitions cannot poison pooled connections.
     private static func makeDefaultSession() -> URLSession {
@@ -117,7 +116,7 @@ class NSENetworkClient: NSEAuthNetworking {
         }
 
         do {
-            return try Self.decoder.decode(T.self, from: data)
+            return try NSEJSON.decode(T.self, from: data)
         } catch {
             let body = String(data: data, encoding: .utf8) ?? "(non-UTF8 body)"
             os_log("perform: decoding failed for %{public}@: %{public}@\nresponse body: %{public}@",

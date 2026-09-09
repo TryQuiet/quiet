@@ -1,5 +1,19 @@
 import Foundation
 
+// MARK: - JSON decoding
+
+enum NSEJSON {
+    /// The raw bytes being decoded, so a `Decodable` type can re-examine the JSON tokens
+    /// that `JSONDecoder` has already normalized (see `ChallengePayload`).
+    static let rawDataKey = CodingUserInfoKey(rawValue: "org.quiet.nse.rawJSON")!
+
+    static func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
+        let decoder = JSONDecoder()
+        decoder.userInfo[rawDataKey] = data
+        return try decoder.decode(type, from: data)
+    }
+}
+
 // MARK: - Error Types
 
 enum NSEAuthError: Error, LocalizedError {
@@ -117,32 +131,48 @@ struct ChallengePayload: Decodable {
         qssServerId = try values.decode(String.self, forKey: .qssServerId)
         challengeId = try values.decode(String.self, forKey: .challengeId)
         nonce = try values.decode(String.self, forKey: .nonce)
-        issuedAtMs = try Self.decodeExactInteger(values, forKey: .issuedAtMs)
-        expiresAtMs = try Self.decodeExactInteger(values, forKey: .expiresAtMs)
+        issuedAtMs = try values.decode(Int64.self, forKey: .issuedAtMs)
+        expiresAtMs = try values.decode(Int64.self, forKey: .expiresAtMs)
+        try Self.requireIntegerLiterals(decoder: decoder, keys: [.issuedAtMs, .expiresAtMs])
     }
 
-    /// Decodes a JSON number that must be an integer literal.
+    /// Rejects timestamps that were not integer JSON literals.
     ///
-    /// Decoding `Int64.self` accepts any number whose `Double` value is integral, so a
-    /// fractional literal below `Double` precision such as `1700000000000.0001` silently
-    /// decodes as `1700000000000`. `Decimal` keeps the digits of the literal, so a
-    /// fractional literal is rejected the way the Android client and the server reject it.
-    /// Range checks stay in `validate`.
-    private static func decodeExactInteger(
-        _ values: KeyedDecodingContainer<CodingKeys>,
-        forKey key: CodingKeys
-    ) throws -> Int64 {
-        let decimal = try values.decode(Decimal.self, forKey: key)
-        var rounded = Decimal()
-        var source = decimal
-        NSDecimalRound(&rounded, &source, 0, .plain)
-        guard rounded == decimal,
-              decimal >= Decimal(Int64.min), decimal <= Decimal(Int64.max) else {
-            throw DecodingError.dataCorruptedError(
-                forKey: key, in: values, debugDescription: "Timestamp was not an integer literal"
-            )
+    /// `JSONDecoder` accepts any number whose `Double` value is integral when decoding
+    /// `Int64`, so `1700000000000.0001` (below `Double` precision), `1e12` and
+    /// `1700000000000.0` all decode as plain integers, while the server and the Android
+    /// client only accept an integer literal. `Decimal` does not help: on iOS 17 Foundation
+    /// builds it from a `Double`, and it accepts exponent forms. So look at the token itself.
+    /// `JSONSerialization` keeps the integer/floating-point distinction of the literal in the
+    /// `NSNumber` it produces, and the raw response bytes reach this initializer through the
+    /// decoder's `userInfo` (see `NSEJSON.decode`). Decoding without the raw bytes fails closed.
+    private static func requireIntegerLiterals(decoder: Decoder, keys: [CodingKeys]) throws {
+        func corrupted(_ message: String) -> DecodingError {
+            DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: message))
         }
-        return NSDecimalNumber(decimal: decimal).int64Value
+        guard let raw = decoder.userInfo[NSEJSON.rawDataKey] as? Data else {
+            throw corrupted("Challenge was decoded without its raw JSON")
+        }
+        var node = try JSONSerialization.jsonObject(with: raw)
+        for key in decoder.codingPath {
+            if let index = key.intValue, let array = node as? [Any], array.indices.contains(index) {
+                node = array[index]
+            } else if let object = node as? [String: Any], let child = object[key.stringValue] {
+                node = child
+            } else {
+                throw corrupted("Challenge path was not found in the raw JSON")
+            }
+        }
+        guard let object = node as? [String: Any] else {
+            throw corrupted("Challenge was not a JSON object in the raw JSON")
+        }
+        for key in keys {
+            guard let number = object[key.rawValue] as? NSNumber,
+                  CFGetTypeID(number) != CFBooleanGetTypeID(),
+                  !CFNumberIsFloatType(number) else {
+                throw corrupted("\(key.rawValue) was not an integer JSON literal")
+            }
+        }
     }
 
     func validate(deviceId expectedDeviceId: String, teamId expectedTeamId: String, qssServerId expectedServerId: String, nowMs: Int64 = Int64(Date().timeIntervalSince1970 * 1000)) throws {

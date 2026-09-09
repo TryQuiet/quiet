@@ -19,7 +19,7 @@ final class NSEAuthProtocolTests: XCTestCase {
         ]
         overrides.forEach { value[$0.key] = $0.value }
         extra.forEach { value[$0.key] = $0.value }
-        return try JSONDecoder().decode(ChallengePayload.self, from: JSONSerialization.data(withJSONObject: value))
+        return try NSEJSON.decode(ChallengePayload.self, from: JSONSerialization.data(withJSONObject: value))
     }
 
     func testCanonicalBytesAndSignatureMatchCrossPlatformFixture() throws {
@@ -71,10 +71,20 @@ final class NSEAuthProtocolTests: XCTestCase {
         XCTAssertThrowsError(try challenge(extra: ["extra": true]))
         XCTAssertThrowsError(try challenge(overrides: ["issuedAtMs": "1700000000000"]))
         XCTAssertThrowsError(try challenge(overrides: ["type": 7]))
-        let fractional = """
-        {"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":1700000000000.0001,"expiresAtMs":1700000030000}
-        """.data(using: .utf8)!
-        XCTAssertThrowsError(try JSONDecoder().decode(ChallengePayload.self, from: fractional))
+
+        // Only an integer literal is acceptable for a timestamp, matching the server and
+        // Android. Every one of these decodes as an integral Int64 through JSONDecoder alone.
+        func literal(issuedAtMs: String) -> Data {
+            """
+            {"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":\(issuedAtMs),"expiresAtMs":1700000030000}
+            """.data(using: .utf8)!
+        }
+        XCTAssertNoThrow(try NSEJSON.decode(ChallengePayload.self, from: literal(issuedAtMs: "1700000000000")))
+        for bad in ["1700000000000.0001", "1700000000000.0", "1700000000000.5", "1.7e12", "1E12", "true"] {
+            XCTAssertThrowsError(try NSEJSON.decode(ChallengePayload.self, from: literal(issuedAtMs: bad)), bad)
+        }
+        // The literal check needs the raw bytes; decoding without them must fail closed.
+        XCTAssertThrowsError(try JSONDecoder().decode(ChallengePayload.self, from: literal(issuedAtMs: "1700000000000")))
     }
 
     func testAuthenticateRejectsEveryMaliciousChallengeBeforePrivateKeySigningOrTokenRequest() async throws {
@@ -260,7 +270,7 @@ final class NSEAuthProtocolTests: XCTestCase {
             "challengeId": outerChallengeId ?? (payload["challengeId"] as? String ?? "00112233445566778899aabbccddeeff"),
             "challenge": payload
         ]
-        return try JSONDecoder().decode(
+        return try NSEJSON.decode(
             ChallengeResponse.self,
             from: JSONSerialization.data(withJSONObject: response)
         )
