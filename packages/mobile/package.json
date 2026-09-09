@@ -73,7 +73,7 @@
     "react-native-qrcode-svg": "^6.3.15",
     "react-native-safe-area-context": "5.6.1",
     "react-native-screens": "4.24.0",
-    "react-native-share": "^10.2.1",
+    "react-native-share": "12.3.1",
     "react-native-svg": "15.12.1",
     "react-native-url-polyfill": "git+https://github.com/charpeni/react-native-url-polyfill.git#f432de38c370b45e99404eb46f081f390876726d",
     "react-native-webview": "^13.12.5",
