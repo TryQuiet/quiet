@@ -98,6 +98,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private hibernating = false
   private hibernateInFlight: Promise<void> | null = null
   private wakeInFlight: Promise<void> | null = null
+  private storedCommunityInitialization: Promise<void> | undefined
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
 
@@ -174,10 +175,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.localDbService.open()
     }
 
-    if (this.configOptions.torControlPort) {
-      await this.migrateLevelDb()
-      await this.launchCommunityFromStorage()
+    void this.initializeStoredCommunity().catch(error => {
+      this.logger.error('Stored community initialization failed', error)
+    })
+  }
+
+  /**
+   * Runs migration and stored-community launch once, independently of backend
+   * readiness and Tor availability.
+   */
+  public initializeStoredCommunity(): Promise<void> {
+    if (!this.storedCommunityInitialization) {
+      this.storedCommunityInitialization = (async () => {
+        await this.migrateLevelDb()
+        await this.launchCommunityFromStorage()
+      })()
     }
+    return this.storedCommunityInitialization
   }
 
   /**
@@ -288,16 +302,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Pausing!')
     this.qssService.pause()
     await this.libp2pService?.pause()
-    await this.closeSocket()
     this.logger.info('Pausing libp2pService!')
   }
 
   public async resume() {
     this.logger.info('Resuming!')
-    // A lifecycle transition only needs the data server to accept connections.
-    // Waiting for the frontend START event here would prevent a later pause
-    // from running if the app returns to the background before reconnecting.
-    await this.socketService.listen()
     await this.libp2pService?.resume()
     await this.qssService.resume()
   }
@@ -837,12 +846,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async spawnTorHiddenService(communityId: string, identity: Identity): Promise<string> {
-    this.logger.info(`Spawning hidden service for community ${communityId}, peer: ${identity.networkInfo.peerId.id}`)
+    this.logger.info(`Registering hidden service for community ${communityId}, peer: ${identity.networkInfo.peerId.id}`)
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE)
-    return await this.tor.spawnHiddenService({
+    this.tor.registerHiddenService({
       targetPort: this.ports.libp2pHiddenService,
       privKey: identity.networkInfo.hiddenService.privateKey,
+      onionAddress: identity.networkInfo.hiddenService.onionAddress,
+      virtPort: 80,
     })
+    return identity.networkInfo.hiddenService.onionAddress
   }
 
   public async launch(community: Community) {
@@ -977,7 +989,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
       this.qssService.connect(community.qssEndpoint)
 
-      if (await this.tor.isBootstrappingFinished()) {
+      if (this.tor.bootstrapped) {
         this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
       }
       this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
@@ -985,7 +997,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await storageReadyPromise
     }
 
-    if (await this.tor.isBootstrappingFinished()) {
+    if (this.tor.bootstrapped) {
       this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
     }
 

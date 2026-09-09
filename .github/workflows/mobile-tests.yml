@@ -65,7 +65,7 @@ jobs:
         working-directory: packages/mobile/ios
         run: pod install
 
-      - name: 'Run NSE authentication regressions'
+      - name: 'Run native authentication and lifecycle regressions'
         run: |
           destination_id=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/{print $2; exit}')
           test -n "$destination_id"
@@ -73,4 +73,7 @@ jobs:
             -workspace packages/mobile/ios/Quiet.xcworkspace \
             -scheme QuietTests \
             -destination "platform=iOS Simulator,id=${destination_id}" \
+            -only-testing:QuietTests/NSEMessageAuthenticatorTests \
+            -only-testing:QuietTests/QuietBackgroundTaskTests \
+            -only-testing:QuietTests/QuietBackendLifecycleTests \
             CODE_SIGNING_ALLOWED=NO

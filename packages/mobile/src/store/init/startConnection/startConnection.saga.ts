@@ -7,6 +7,7 @@ import {
   call,
   cancel,
   fork,
+  join,
   take,
   takeLeading,
   takeEvery,
@@ -15,9 +16,10 @@ import {
 } from 'typed-redux-saga'
 import type { Task } from 'redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { communities, socket as stateManager, Socket } from '@quiet/state-manager'
+import { APP_READY_CHANNEL, communities, socket as stateManager, Socket } from '@quiet/state-manager'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
-import { eventChannel } from 'redux-saga'
+import { initSelectors } from '../init.selectors'
+import { buffers, eventChannel } from 'redux-saga'
 import {
   DeviceCredentialsUpdatedEvent,
   KeysUpdatedEvent,
@@ -32,8 +34,11 @@ import { createLogger } from '../../../utils/logger'
 import { keysActions } from '../../keys/keys.slice'
 import { usersMetadataActions } from '../../userMetadata/usersMetadata.slice'
 import { channelMetadataActions } from '../../channelMetadata/channelMetadata.slice'
+import { ActiveWebsocketConnection } from '../init.types'
 
 const logger = createLogger('startConnection')
+
+let activeWebsocketConnection: ActiveWebsocketConnection | undefined
 
 const isSameBackend = (a: WebsocketConnectionPayload, b: WebsocketConnectionPayload): boolean =>
   a.dataPort === b.dataPort && a.socketIOSecret === b.socketIOSecret
@@ -98,14 +103,64 @@ export function* startConnectionSaga(
 
   logger.info('Connecting to backend')
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
+    autoConnect: false,
     withCredentials: true,
     extraHeaders: {
       authorization: `Bearer ${socketIOSecret}`,
     },
   })
-  yield* fork(handleSocketLifecycleActions, socket, action.payload)
-  // Handle opening/restoring connection
-  yield* takeLeading(initActions.setWebsocketConnected, setConnectedSaga, socket)
+  const socketLifecycleTask = yield* fork(handleSocketLifecycleActions, socket, action.payload)
+  const connectedWatcherTask = yield* takeLeading(initActions.setWebsocketConnected, setConnectedSaga, socket)
+  const connection = { socket, socketIOData: action.payload }
+  activeWebsocketConnection = connection
+
+  try {
+    // Attach lifecycle listeners before connecting so a fast local connection
+    // cannot fire before the event channel is ready.
+    yield* apply(socket, socket.connect, [])
+    yield* join(connectedWatcherTask)
+  } finally {
+    yield* cancel(connectedWatcherTask)
+    yield* cancel(socketLifecycleTask)
+    socket.disconnect()
+    if (activeWebsocketConnection === connection) {
+      activeWebsocketConnection = undefined
+      yield* put(initActions.suspendWebsocketConnection())
+    }
+  }
+}
+
+export function* resumeWebsocketConnectionSaga(): Generator {
+  yield* call(reconcileWebsocketConnection, activeWebsocketConnection)
+}
+
+export function* reconcileWebsocketConnection(connection?: ActiveWebsocketConnection): Generator {
+  const reduxConnected = yield* select(initSelectors.isWebsocketConnected)
+
+  if (!connection) {
+    if (reduxConnected) {
+      yield* put(initActions.suspendWebsocketConnection())
+    }
+    yield* call(NativeModules.CommunicationModule.handleIncomingEvents, APP_READY_CHANNEL, null, null)
+    return
+  }
+
+  const { socket, socketIOData } = connection
+
+  if (socket.connected) {
+    if (!reduxConnected) {
+      yield* put(initActions.setWebsocketConnected(socketIOData))
+    }
+    return
+  }
+
+  if (reduxConnected) {
+    yield* put(initActions.suspendWebsocketConnection())
+  }
+
+  if (!socket.active) {
+    yield* apply(socket, socket.connect, [])
+  }
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
@@ -152,6 +207,12 @@ export function subscribeSocketLifecycle(socket: Socket, socketIOData: Websocket
       logger.warn('client: Closing socket connection', socket_id, reason)
       emit(initActions.suspendWebsocketConnection())
     })
+    socket.on('connect_error', (error: Error) => {
+      logger.warn('client: Websocket connection error', error.message, {
+        active: socket.active,
+        connected: socket.connected,
+      })
+    })
     socket.on(SocketEvents.KEYS_UPDATED, async (payload: KeysUpdatedEvent) => {
       logger.info('Keys updated, writing to keychain')
       emit(keysActions.saveKeysInKeychain(payload))
@@ -187,6 +248,7 @@ export function subscribeSocketLifecycle(socket: Socket, socketIOData: Websocket
     return () => {
       socket.off('connect')
       socket.off('disconnect')
+      socket.off('connect_error')
       socket.off(SocketEvents.KEYS_UPDATED)
       socket.off(SocketEvents.DEVICE_CREDENTIALS_UPDATED)
       socket.off(SocketEvents.USER_PROFILES_UPDATED)
@@ -194,7 +256,7 @@ export function subscribeSocketLifecycle(socket: Socket, socketIOData: Websocket
       socket.off(SocketEvents.NSE_SYNC_SEQ_UPDATED)
       socket.off(SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED)
     }
-  })
+  }, buffers.expanding())
 }
 
 function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {

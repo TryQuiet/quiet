@@ -23,7 +23,7 @@ describe('MobileLifecycleCoordinator', () => {
   it('serializes active behind an in-flight pause', async () => {
     const pauseDeferred = deferred<void>()
     const pause = jest.fn(() => pauseDeferred.promise)
-    const activate = jest.fn(async (_services: OpenServices) => undefined)
+    const activate = jest.fn(async (_services?: OpenServices) => undefined)
     const coordinator = new MobileLifecycleCoordinator({ activate, pause })
 
     const pauseRequest = coordinator.pause()
@@ -42,7 +42,7 @@ describe('MobileLifecycleCoordinator', () => {
   it('coalesces pause-active-pause to the final paused intent', async () => {
     const pauseDeferred = deferred<void>()
     const pause = jest.fn(() => pauseDeferred.promise)
-    const activate = jest.fn(async (_services: OpenServices) => undefined)
+    const activate = jest.fn(async (_services?: OpenServices) => undefined)
     const coordinator = new MobileLifecycleCoordinator({ activate, pause })
 
     const firstPause = coordinator.pause()
@@ -59,8 +59,8 @@ describe('MobileLifecycleCoordinator', () => {
   it('applies the newest active payload and skips an obsolete pause', async () => {
     const firstActiveDeferred = deferred<void>()
     const pause = jest.fn(async () => undefined)
-    const activate = jest.fn((payload: OpenServices) => {
-      if (payload.authCookie === 'cookie-a') {
+    const activate = jest.fn((payload?: OpenServices) => {
+      if (payload?.authCookie === 'cookie-a') {
         return firstActiveDeferred.promise
       }
       return Promise.resolve()
@@ -85,7 +85,7 @@ describe('MobileLifecycleCoordinator', () => {
     const error = new Error('pause failed')
     const pauseDeferred = deferred<void>()
     const pause = jest.fn(() => pauseDeferred.promise)
-    const activate = jest.fn(async (_services: OpenServices) => undefined)
+    const activate = jest.fn(async (_services?: OpenServices) => undefined)
     const coordinator = new MobileLifecycleCoordinator({ activate, pause })
 
     const pauseRequest = coordinator.pause()
@@ -106,12 +106,39 @@ describe('MobileLifecycleCoordinator', () => {
   it('recovers after a rejected transition', async () => {
     const error = new Error('pause failed')
     const pause = jest.fn<() => Promise<void>>().mockRejectedValueOnce(error).mockResolvedValueOnce(undefined)
-    const activate = jest.fn(async (_services: OpenServices) => undefined)
+    const activate = jest.fn(async (_services?: OpenServices) => undefined)
     const coordinator = new MobileLifecycleCoordinator({ activate, pause })
 
     await expect(coordinator.pause()).rejects.toThrow(error)
     await coordinator.pause()
 
     expect(pause).toHaveBeenCalledTimes(2)
+  })
+
+  it('resumes without waiting for native Tor credentials', async () => {
+    const pause = jest.fn(async () => undefined)
+    const activate = jest.fn(async (_services?: OpenServices) => undefined)
+    const coordinator = new MobileLifecycleCoordinator({ activate, pause })
+
+    await coordinator.resume()
+
+    expect(activate).toHaveBeenCalledTimes(1)
+    expect(activate).toHaveBeenCalledWith(undefined)
+  })
+
+  it('preserves queued native Tor credentials when a resume follows an open', async () => {
+    const pauseDeferred = deferred<void>()
+    const pause = jest.fn(() => pauseDeferred.promise)
+    const activate = jest.fn(async (_services?: OpenServices) => undefined)
+    const coordinator = new MobileLifecycleCoordinator({ activate, pause })
+
+    const pauseRequest = coordinator.pause()
+    const openRequest = coordinator.activate(services('cookie-a'))
+    const resumeRequest = coordinator.resume()
+    pauseDeferred.resolve()
+    await Promise.all([pauseRequest, openRequest, resumeRequest])
+
+    expect(activate).toHaveBeenCalledTimes(1)
+    expect(activate).toHaveBeenCalledWith(services('cookie-a'))
   })
 })

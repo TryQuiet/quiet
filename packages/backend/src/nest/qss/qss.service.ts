@@ -331,12 +331,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
   public async connect(qssEndpoint: string | undefined, enabledOverride: boolean = false): Promise<QSSOperationResult> {
     if (this._paused) {
+      // Startup may supply the endpoint after a lifecycle pause. Retain it for resume.
+      if (qssEndpoint != null) this._qssEndpoint = qssEndpoint
+      this._enabledOverride = enabledOverride
       this.logger.debug('Skipping QSS connect because service is paused')
       return QSSOperationResult.DISABLED
     }
 
     return await this._connectMutex.runExclusive(async () => {
       if (this._paused) {
+        if (qssEndpoint != null) this._qssEndpoint = qssEndpoint
+        this._enabledOverride = enabledOverride
         this.logger.debug('Skipping QSS connect because service is paused')
         return QSSOperationResult.DISABLED
       }
@@ -395,11 +400,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   }
 
   public pause(): void {
-    if (!this.canConnect) {
-      this.logger.trace(`Skipping QSS pause because QSS isn't enabled`)
-      return
-    }
-
     this.logger.info('Pausing QSS service')
     this._paused = true
     this._teardownEventHandlers()
@@ -411,16 +411,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   }
 
   public async resume(): Promise<void> {
-    if (!this.canConnect) {
-      this.logger.trace(`Skipping QSS resume because QSS isn't enabled`)
-      return
-    }
-
     this.logger.info(`Resuming QSS service`)
     this._paused = false
     this._configureEventHandlers()
     this.qssSyncManager.resume()
-    await this.connect(this.qssEndpoint, this._enabledOverride)
+    if (this.canConnect) await this.connect(this.qssEndpoint, this._enabledOverride)
   }
 
   /**
@@ -460,11 +455,18 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       }
     }
 
+    // A lifecycle pause can arrive while loading community settings above.
+    if (this._paused) return QSSOperationResult.DISABLED
+
     // wait for our socket to finish connecting
     let connStatus: QSSOperationResult
     try {
       this.logger.info(`Establishing connection with QSS`)
       await this.qssClient.createSocketAndConnect(this._qssEndpoint)
+      if (this._paused) {
+        this.qssClient.close()
+        return QSSOperationResult.DISABLED
+      }
       this.logger.info(`Connection established`)
       connStatus = QSSOperationResult.SUCCESS
     } catch (e) {

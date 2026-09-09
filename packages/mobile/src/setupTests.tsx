@@ -60,6 +60,9 @@ jest.mock('react-native', () => {
     setTeamQssEnabled: jest.fn(),
     setUserBackgroundTorEnabled: jest.fn(),
     clearSensitiveData: jest.fn(),
+    completeAppPause: jest.fn(),
+    setPauseListenerReady: jest.fn(),
+    setLifecycleListenerReady: jest.fn(),
   }
   rn.NativeModules.FirebaseMessagingModule = {
     getToken: jest.fn(),
