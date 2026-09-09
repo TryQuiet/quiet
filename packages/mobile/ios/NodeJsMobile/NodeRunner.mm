@@ -6,6 +6,7 @@
 
 @implementation NodeRunner {
   RNNodeJsMobile *_currentModuleInstance;
+  QuietBackgroundTask *_backgroundTask;
 }
 
 @synthesize startedNodeAlready = _startedNodeAlready;
@@ -44,18 +45,20 @@ void rcv_message(const char *channelName, const char *msg) {
   if (self = [super init]) {
     _currentModuleInstance = nil;
     _startedNodeAlready = false;
+    __weak NodeRunner *weakSelf = self;
+    _backgroundTask = [[QuietBackgroundTask alloc]
+        initWithInvalidTask:UIBackgroundTaskInvalid
+        beginTask:^NSUInteger(void (^expiration)(void)) {
+          return [[UIApplication sharedApplication] beginBackgroundTaskWithName:@"Quiet background transition"
+                                                             expirationHandler:expiration];
+        }
+        endTask:^(NSUInteger task) {
+          [[UIApplication sharedApplication] endBackgroundTask:task];
+        }
+        sendBackendPause:^(NSString *transition) {
+          [weakSelf sendMessageToNode:SYSTEM_CHANNEL:[@"pause|" stringByAppendingString:transition]];
+        }];
   }
-  [[NSNotificationCenter defaultCenter]
-      addObserver:self
-         selector:@selector(onPause)
-             name:UIApplicationDidEnterBackgroundNotification
-           object:nil];
-
-  [[NSNotificationCenter defaultCenter]
-      addObserver:self
-         selector:@selector(onResume)
-             name:UIApplicationWillEnterForegroundNotification
-           object:nil];
   // Register the Documents Directory as the node dataDir.
   NSString *nodeDataDir = [NSSearchPathForDirectoriesInDomains(
       NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
@@ -73,11 +76,15 @@ void handleAppChannelMessage(NSString *msg) {
     // The expected format for this message is "release-pause-event|{eventId}"
     if (eventArguments.count >= 2) {
       // Release the received eventId.
-      [[NodeRunner sharedInstance] ReleasePauseEvent:eventArguments[1]];
+      NSString *transition = eventArguments[1];
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [[[NodeRunner sharedInstance] backgroundTask] acknowledgeTransition:transition
+                                                              participant:@"backend" success:YES];
+      });
     }
   } else if ([msg isEqualToString:@"ready-for-app-events"]) {
-    // The nodejs runtime is ready for APP events.
-    nodeIsReadyForAppEvents = true;
+    // Transport readiness precedes Quiet's pause listener. Only backendReady
+    // enrolls the backend, after its lifecycle listeners have been installed.
   }
 }
 
@@ -162,6 +169,7 @@ void handleAppChannelMessage(NSString *msg) {
     // Native Tor readiness may arrive before Node installs its bridge listeners.
     // Replay the current lifecycle only after those listeners are ready.
     dispatch_async(dispatch_get_main_queue(), ^{
+      [[[NodeRunner sharedInstance] backgroundTask] backendDidBecomeReady];
       [[NSNotificationCenter defaultCenter] postNotificationName:QuietBackendReadyNotification object:nil];
     });
     // Forward to React Native for any listeners
@@ -171,111 +179,10 @@ void handleAppChannelMessage(NSString *msg) {
   }
 }
 
-// Flag to indicate if node is ready to receive app events.
-bool nodeIsReadyForAppEvents = false;
-
-// Condition to wait on pause event handling on the node side.
-NSCondition *appEventBeingProcessedCondition = [[NSCondition alloc] init];
-
-// Set to keep ids for called pause events, so they can be unlocked later.
-NSMutableSet *appPauseEventsManagerSet = [[NSMutableSet alloc] init];
-
-// Lock to manipulate the App Pause Events Manager Set.
-id appPauseEventsManagerSetLock = [[NSObject alloc] init];
-
-/**
- * Handlers for events registered by the plugin:
- * - onPause
- * - onResume
- */
-
-- (void)onPause {
-  if (nodeIsReadyForAppEvents) {
-    UIApplication *application = [UIApplication sharedApplication];
-    // Inform the app intends do run something in the background.
-    // In this case we'll try to wait for the pause event to be properly taken
-    // care of by node.
-    __block UIBackgroundTaskIdentifier backgroundWaitForPauseHandlerTask =
-        [application beginBackgroundTaskWithExpirationHandler:^{
-          // Expiration handler to avoid app crashes if the task doesn't end in
-          // the iOS allowed background duration time.
-          [application endBackgroundTask:backgroundWaitForPauseHandlerTask];
-          backgroundWaitForPauseHandlerTask = UIBackgroundTaskInvalid;
-        }];
-
-    NSTimeInterval intendedMaxDuration =
-        [application backgroundTimeRemaining] + 1;
-    // Calls the event in a background thread, to let this
-    // UIApplicationDidEnterBackgroundNotification return as soon as possible.
-    dispatch_async(
-        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          NSDate *targetMaximumFinishTime =
-              [[NSDate date] dateByAddingTimeInterval:intendedMaxDuration];
-          // We should block the thread at most until a bit (1 second) after the
-          // maximum allowed background time. The background task will be ended
-          // by the expiration handler, anyway. SendPauseEventAndWaitForRelease
-          // won't return until the node runtime notifies it has finished its
-          // pause event (or the target time is reached).
-          [self SendPauseEventAndWaitForRelease:targetMaximumFinishTime];
-          // After SendPauseEventToNodeChannel returns, clean up the background
-          // task and let the Application enter the suspended state.
-          [application endBackgroundTask:backgroundWaitForPauseHandlerTask];
-          backgroundWaitForPauseHandlerTask = UIBackgroundTaskInvalid;
-        });
-  }
-}
-
-- (void)onResume {
-  if (nodeIsReadyForAppEvents) {
-    [[NodeRunner sharedInstance] sendMessageToNode:SYSTEM_CHANNEL:@"resume"];
-  }
-}
-
-// Sends the pause event to the node runtime and returns only after node signals
-// the event has been handled explicitely or the background time is running out.
-- (void)SendPauseEventAndWaitForRelease:(NSDate *)expectedFinishTime {
-  // Get unique identifier for this pause event.
-  NSString *eventId = [[NSUUID UUID] UUIDString];
-  // Create the pause event message with the id.
-  NSString *event = [NSString stringWithFormat:@"pause|%@", eventId];
-
-  [appEventBeingProcessedCondition lock];
-
-  @synchronized(appPauseEventsManagerSetLock) {
-    [appPauseEventsManagerSet addObject:eventId];
-  }
-
-  [[NodeRunner sharedInstance] sendMessageToNode:SYSTEM_CHANNEL:event];
-
-  while (YES) {
-    // Looping to avoid unintended spurious wake ups.
-    @synchronized(appPauseEventsManagerSetLock) {
-      if (![appPauseEventsManagerSet containsObject:eventId]) {
-        // The Id for this event has been released.
-        break;
-      }
-    }
-    if ([expectedFinishTime timeIntervalSinceNow] <= 0) {
-      // We blocked the background thread long enough.
-      break;
-    }
-    [appEventBeingProcessedCondition waitUntilDate:expectedFinishTime];
-  }
-  [appEventBeingProcessedCondition unlock];
-
-  @synchronized(appPauseEventsManagerSetLock) {
-    [appPauseEventsManagerSet removeObject:eventId];
-  }
-}
-
-// Signals the pause event has been handled by the node side.
-- (void)ReleasePauseEvent:(NSString *)eventId {
-  [appEventBeingProcessedCondition lock];
-  @synchronized(appPauseEventsManagerSetLock) {
-    [appPauseEventsManagerSet removeObject:eventId];
-  }
-  [appEventBeingProcessedCondition broadcast];
-  [appEventBeingProcessedCondition unlock];
+// AppDelegate owns lifecycle entry ordering. There are no parallel notification
+// observers or blocking condition waiters that can release the assertion early.
+- (QuietBackgroundTask *)backgroundTask {
+  return _backgroundTask;
 }
 
 - (void)setCurrentRNNodeJsMobile:(RNNodeJsMobile *)module {

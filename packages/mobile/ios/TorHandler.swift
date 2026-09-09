@@ -133,6 +133,7 @@ final class TorHandler: NSObject {
 
   private var cookieData: Data?
   private var authCookie: String?
+  private var backgroundTransitions: [String: (Bool) -> Void] = [:]
 
   deinit {
     monitorTimer?.cancel()
@@ -153,8 +154,12 @@ final class TorHandler: NSObject {
         self.httpTunnelPort = httpTunnelPort
       }
 
-      self.desiredMode = .active
-      self.readyNotificationPending = true
+      // Preserve a background intent that arrived before Tor configuration.
+      // The initial stopped state still starts active during a normal launch.
+      if self.desiredMode != .dormant {
+        self.desiredMode = .active
+        self.readyNotificationPending = true
+      }
       self.ensureThreadRunning()
     }
   }
@@ -164,6 +169,7 @@ final class TorHandler: NSObject {
   @objc func enterForeground() {
     lifecycleQueue.async { [weak self] in
       guard let self else { return }
+      self.finishAllBackgroundTransitions(success: false)
       self.desiredMode = .active
       self.readyNotificationPending = true
       self.ensureThreadRunning()
@@ -175,11 +181,55 @@ final class TorHandler: NSObject {
   @objc func enterBackground() {
     lifecycleQueue.async { [weak self] in
       guard let self else { return }
-      self.desiredMode = .dormant
-      self.readyNotificationPending = false
-      self.scheduledReadiness = nil
-      self.applyDesiredMode()
+      self.requestBackgroundMode()
     }
+  }
+
+  /// Requests DORMANT and reports when Tor has confirmed the transition. The
+  /// transition identifier lets the app cancel an expired UIKit background task
+  /// without changing Tor's latest desired mode.
+  @objc(enterBackgroundWithTransitionId:completion:)
+  func enterBackground(
+    transitionId: String,
+    completion: @escaping (Bool) -> Void
+  ) {
+    lifecycleQueue.async { [weak self] in
+      guard let self else {
+        DispatchQueue.main.async { completion(false) }
+        return
+      }
+
+      guard self.backgroundTransitions[transitionId] == nil else { return }
+      self.backgroundTransitions[transitionId] = completion
+      self.requestBackgroundMode()
+    }
+  }
+
+  /// Cancels only the acknowledgment waiter. Expiration must not overwrite a
+  /// newer foreground/background intent already serialized on lifecycleQueue.
+  @objc(cancelBackgroundTransition:)
+  func cancelBackgroundTransition(_ transitionId: String) {
+    lifecycleQueue.async { [weak self] in
+      guard let completion = self?.backgroundTransitions.removeValue(forKey: transitionId) else { return }
+      DispatchQueue.main.async { completion(false) }
+    }
+  }
+
+  private func requestBackgroundMode() {
+    desiredMode = .dormant
+    readyNotificationPending = false
+    scheduledReadiness = nil
+
+    // A Tor process that has not started (or has already exited) has no native
+    // work left to make dormant.
+    guard torThread != nil, torThread?.isFinished != true else {
+      state = .stopped
+      finishAllBackgroundTransitions(success: true)
+      return
+    }
+
+    applyDesiredMode()
+    finishBackgroundTransitionsIfDormant()
   }
 
   /// Explicit teardown is reserved for process termination. Normal app lifecycle
@@ -193,6 +243,7 @@ final class TorHandler: NSObject {
       self.restartScheduled = false
       self.state = .stopping
       self.pendingModeCommand = nil
+      self.finishAllBackgroundTransitions(success: false)
 
       guard let controller = self.controller, controller.isConnected else { return }
       controller.sendCommand("SIGNAL SHUTDOWN", arguments: nil, data: nil) { _, _, stop in
@@ -322,6 +373,10 @@ final class TorHandler: NSObject {
     pendingModeCommand = nil
     torThread = nil
     state = .stopped
+
+    if desiredMode == .dormant {
+      finishAllBackgroundTransitions(success: true)
+    }
 
     guard desiredMode == .active else {
       Self.logger.info("Tor stopped while the app does not require an active connection")
@@ -516,6 +571,7 @@ final class TorHandler: NSObject {
       return
     }
     if desiredMode == .dormant, state == .dormant {
+      finishAllBackgroundTransitions(success: true)
       return
     }
 
@@ -548,7 +604,8 @@ final class TorHandler: NSObject {
       self.pendingModeCommand = nil
       self.state = .unknown
       self.controller = nil
-      Self.logger.debug("Tor mode command timed out; reconnecting the controller")
+      let transitions = self.backgroundTransitions.keys.sorted().joined(separator: ",")
+      Self.logger.error("Tor mode command timed out; command=\(command.id) pendingBackgroundTransitions=\(transitions, privacy: .public); reconnecting")
       self.connectController(generation: command.generation)
     }
   }
@@ -563,13 +620,43 @@ final class TorHandler: NSObject {
       if desiredMode == command.mode {
         if command.mode == .active {
           notifyReadyIfNeeded()
+        } else {
+          finishAllBackgroundTransitions(success: true)
         }
         return
       }
       applyDesiredMode()
     } else {
       state = .unknown
+      let transitions = backgroundTransitions.keys.sorted().joined(separator: ",")
+      Self.logger.error("Tor mode command failed; command=\(command.id) pendingBackgroundTransitions=\(transitions, privacy: .public); retrying")
       scheduleControllerRetry(generation: generation)
+    }
+  }
+
+  private func finishBackgroundTransitionsIfDormant() {
+    guard Self.canAcknowledgeBackgroundTransition(
+      desiresDormant: desiredMode == .dormant,
+      isDormant: state == .dormant,
+      commandPending: pendingModeCommand != nil
+    ) else { return }
+    finishAllBackgroundTransitions(success: true)
+  }
+
+  static func canAcknowledgeBackgroundTransition(
+    desiresDormant: Bool,
+    isDormant: Bool,
+    commandPending: Bool
+  ) -> Bool {
+    desiresDormant && isDormant && !commandPending
+  }
+
+  private func finishAllBackgroundTransitions(success: Bool) {
+    guard !backgroundTransitions.isEmpty else { return }
+    let completions = Array(backgroundTransitions.values)
+    backgroundTransitions.removeAll()
+    DispatchQueue.main.async {
+      completions.forEach { $0(success) }
     }
   }
 

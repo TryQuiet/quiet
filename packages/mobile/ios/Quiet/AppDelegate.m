@@ -8,6 +8,7 @@
 @import FirebaseMessaging;
 
 #import "RNNodeJsMobile.h"
+#import "NodeRunner.hpp"
 #import "Quiet-Swift.h"
 
 @interface AppDelegate () <TorHandlerDelegate>
@@ -62,6 +63,10 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   // Call only once per nodejs thread
   [self createDataDirectory];
 
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(backgroundTransitionFinished:)
+                                               name:QuietBackgroundTransitionFinishedNotification
+                                             object:nil];
   [self startTorAndBackend];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
@@ -114,14 +119,16 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 }
 
 - (BOOL)applicationIsInBackground {
-  return [UIApplication sharedApplication].applicationState == UIApplicationStateBackground;
+  // Delegate intent changes before UIKit necessarily updates applicationState.
+  return [[[NodeRunner sharedInstance] backgroundTask] isBackground];
 }
 
 - (void)backendDidBecomeReady:(NSNotification *)notification {
   self.backendReady = YES;
   if ([self applicationIsInBackground]) {
     // Backgrounding during Node startup may have preceded its bridge listeners.
-    [self.nodeJsMobile sendMessageToNode:@"close":@"app:close"];
+    // NodeRunner replays the authoritative system pause when backendReady arrives.
+    [[[NodeRunner sharedInstance] backgroundTask] backendDidBecomeReady];
   } else {
     [self.nodeJsMobile sendMessageToNode:@"resume":@"app:resume"];
     // Request fresh readiness even if Tor's first callback preceded backendReady.
@@ -165,34 +172,45 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
+  QuietBackgroundTask *task = [[NodeRunner sharedInstance] backgroundTask];
+  if (task.isBackground) return;
+  NSString *transition = [task beginTransition];
   QuietSetAppForegroundFlag(NO);
-  [self.tor enterBackground];
 
-  NSString * message = [NSString stringWithFormat:@"app:close"];
-  [self.nodeJsMobile sendMessageToNode:@"close":message];
+  if (self.tor) {
+    [self.tor enterBackgroundWithTransitionId:transition completion:^(BOOL success) {
+      [task acknowledgeTransition:transition participant:@"native" success:success];
+    }];
+    if (![[task pendingTransitionsForParticipant:@"native"] containsObject:transition]) {
+      [self.tor cancelBackgroundTransition:transition];
+    }
+  } else {
+    [task acknowledgeTransition:transition participant:@"native" success:YES];
+  }
 
-  // Flush persistor before app goes idle
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[self.bridge moduleForName:@"CommunicationModule"] appPause];
-    });
+  // Module setup/event delivery is deferred so this delegate returns promptly.
+  // If the bridge is still starting, JS readiness replays the pending flush.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [[self.bridge moduleForName:@"CommunicationModule"] appPause:transition];
   });
+}
+
+- (void)backgroundTransitionFinished:(NSNotification *)notification {
+  // Expiration drops callback storage without changing Tor's latest intent.
+  [self.tor cancelBackgroundTransition:notification.userInfo[@"transitionId"]];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+  [[[NodeRunner sharedInstance] backgroundTask] enterForeground];
   QuietSetAppForegroundFlag(YES);
   // Resume non-Tor services immediately. Tor supplies credentials separately.
   [self.nodeJsMobile sendMessageToNode:@"resume":@"app:resume"];
-  // Display splash screen until services become available again
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+  // Preserve callback order and avoid replaying an old resume after a newer pause.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (![[[NodeRunner sharedInstance] backgroundTask] isBackground]) {
       [[self.bridge moduleForName:@"CommunicationModule"] appResume];
-    });
+    }
   });
 
   [self.tor enterForeground];

@@ -2,6 +2,7 @@
 #define NodeRunner_hpp
 #import <Foundation/Foundation.h>
 #import "RNNodeJsMobile.h"
+#import "../QuietBackgroundTask.h"
 
 @interface NodeRunner : NSObject
 {
@@ -14,6 +15,7 @@
 - (void) sendMessageToNode:(NSString*)channelName :(NSString*)message;
 - (void) sendMessageBackToReact:(NSString*)channelName :(NSString*)message;
 @property(assign, nonatomic, readwrite) bool startedNodeAlready;
+@property(nonatomic, readonly) QuietBackgroundTask *backgroundTask;
 @end
 
 #endif

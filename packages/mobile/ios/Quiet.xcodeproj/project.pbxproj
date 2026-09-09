@@ -79,6 +79,9 @@
 		EB5F92FC2F5FBB2100B5C60D /* FirebaseMessagingModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */; };
 		EB5F92FD2F5FBB2100B5C60D /* FirebaseMessagingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */; };
 		F4B2150A7001269B8241CC86 /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CB1D543483316490C8FEBE9 /* Pods_Quiet_QuietTests.framework */; };
+		A11600000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
+		A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000004 /* QuietBackgroundTaskTests.m */; };
+		A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000006 /* TorHandlerLifecycleTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -689,6 +692,10 @@
 		EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FirebaseMessagingModule.m; path = Quiet/FirebaseMessagingModule.m; sourceTree = "<group>"; };
 		EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirebaseMessagingModule.swift; path = Quiet/FirebaseMessagingModule.swift; sourceTree = "<group>"; };
 		EB5F93032F5FC50100B5C60D /* Quiet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Quiet-Bridging-Header.h"; sourceTree = "<group>"; };
+		A11600000000000000000002 /* QuietBackgroundTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTask.m; sourceTree = "<group>"; };
+		A11600000000000000000004 /* QuietBackgroundTaskTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTaskTests.m; sourceTree = "<group>"; };
+		A11600000000000000000006 /* TorHandlerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandlerLifecycleTests.swift; sourceTree = "<group>"; };
+		A11600000000000000000007 /* QuietBackgroundTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietBackgroundTask.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -753,6 +760,8 @@
 		00E356EF1AD99517003FC87E /* QuietTests */ = {
 			isa = PBXGroup;
 			children = (
+				A11600000000000000000004 /* QuietBackgroundTaskTests.m */,
+				A11600000000000000000006 /* TorHandlerLifecycleTests.swift */,
 				00E356F21AD99517003FC87E /* QuietTests.m */,
 				A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */,
 				A11400000000000000000004 /* NSEMessageAuthenticator.swift */,
@@ -802,6 +811,8 @@
 				EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */,
 				EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */,
 				1889CA4D26E763E1004ECFBD /* Extensions.swift */,
+				A11600000000000000000002 /* QuietBackgroundTask.m */,
+				A11600000000000000000007 /* QuietBackgroundTask.h */,
 				1868C43B2930E255001D6D5E /* CommunicationModule.swift */,
 				1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */,
 				955DC7572BD930B30014725B /* WebsocketSingleton.swift */,
@@ -5351,6 +5362,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */,
+				A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */,
 				00E356F31AD99517003FC87E /* QuietTests.m in Sources */,
 				A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */,
 				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
@@ -5385,6 +5398,7 @@
 				1868C43E2930EAEA001D6D5E /* CommunicationBridge.m in Sources */,
 				1868C43A2930D859001D6D5E /* FindFreePort.swift in Sources */,
 				18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */,
+				A11600000000000000000001 /* QuietBackgroundTask.m in Sources */,
 				1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */,
 				1868C43C2930E255001D6D5E /* CommunicationModule.swift in Sources */,
 				180E120B2AEFB7F900804659 /* Utils.swift in Sources */,

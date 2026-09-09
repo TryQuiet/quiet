@@ -20,6 +20,50 @@ class CommunicationModule: RCTEventEmitter {
   let userMetadataHandler = UserMetadataHandler()
 
   private var hasListeners = false
+  private var pauseListenerReady = false
+  private var sentPauseTransitions = Set<String>()
+
+  // Preserve RN's serial module execution for keychain/metadata work. Only
+  // lifecycle state hops to main; event emission stays on the listener queue.
+  private let nativeQueue = DispatchQueue(label: "com.quietmobile.communication")
+  override var methodQueue: DispatchQueue! { nativeQueue }
+
+  override class func requiresMainQueueSetup() -> Bool { true }
+
+  private var backgroundTask: QuietBackgroundTask {
+    NodeRunner.sharedInstance().backgroundTask
+  }
+
+  @objc func setPauseListenerReady(_ ready: Bool) {
+    DispatchQueue.main.async {
+      self.pauseListenerReady = ready
+      if ready { self.deliverPendingPauses() }
+    }
+  }
+
+  @objc func completeAppPause(_ transitionId: String, success: Bool) {
+    DispatchQueue.main.async {
+      self.backgroundTask.acknowledge(transitionId, participant: "persistence", success: success)
+      self.sentPauseTransitions.remove(transitionId)
+    }
+  }
+
+  private func deliverPendingPauses() {
+    let pending = Set(backgroundTask.pendingTransitions(forParticipant: "persistence"))
+    sentPauseTransitions.formIntersection(pending)
+    guard pauseListenerReady, hasListeners, bridge?.isValid == true else { return }
+    for transition in pending.subtracting(sentPauseTransitions) {
+      sentPauseTransitions.insert(transition)
+      let isBackground = backgroundTask.isBackground
+      nativeQueue.async {
+        guard self.bridge?.isValid == true else { return }
+        self.sendEvent(withName: Self.APP_PAUSE_IDENTIFIER, body: [
+          "transitionId": transition,
+          "isBackground": isBackground
+        ])
+      }
+    }
+  }
 
   @objc
   func sendDataPort(port: UInt16, socketIOSecret: String) {
@@ -32,9 +76,10 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
-  func appPause() {
-    SharedDefaults.setAppForeground(false)
-    self.sendEvent(withName: CommunicationModule.APP_PAUSE_IDENTIFIER, body: nil)
+  func appPause(_ transitionId: String) {
+    // The pending ID is owned natively, even when the bridge/listener is absent.
+    // Never rewrite foreground intent from deferred event delivery.
+    deliverPendingPauses()
   }
 
   @objc
@@ -51,7 +96,10 @@ class CommunicationModule: RCTEventEmitter {
     } else {
       UIApplication.shared.applicationIconBadgeNumber = 0
     }
-    self.sendEvent(withName: CommunicationModule.APP_RESUME_IDENTIFIER, body: nil)
+    nativeQueue.async {
+      guard self.bridge?.isValid == true else { return }
+      self.sendEvent(withName: CommunicationModule.APP_RESUME_IDENTIFIER, body: nil)
+    }
   }
 
   @objc
@@ -223,11 +271,26 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   override func startObserving() {
-    hasListeners = true
+    DispatchQueue.main.async { self.hasListeners = true }
   }
 
   override func stopObserving() {
+    guard Thread.isMainThread else {
+      DispatchQueue.main.async { [weak self] in self?.stopObserving() }
+      return
+    }
     hasListeners = false
+    pauseListenerReady = false
+    sentPauseTransitions.removeAll()
+  }
+
+  override func invalidate() {
+    // RN may invalidate on a teardown queue, independently of methodQueue.
+    DispatchQueue.main.async { [weak self] in
+      self?.pauseListenerReady = false
+      self?.sentPauseTransitions.removeAll()
+    }
+    super.invalidate()
   }
 
   override func supportedEvents() -> [String]! {

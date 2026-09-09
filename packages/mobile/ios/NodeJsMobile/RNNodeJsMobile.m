@@ -114,6 +114,17 @@ RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)o
 
 -(void)sendMessageToNode:(NSString *)event :(NSString *)message
 {
+  if ([event isEqualToString:@"open"] || [event isEqualToString:@"resume"]) {
+    // All iOS lifecycle intents share the system channel's FIFO. Separate
+    // libuv channels/global dispatch queues can deliver an older pause last.
+    NSAssert([NSThread isMainThread], @"Native lifecycle sends belong to the main queue");
+    NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"event": event, @"payload": message}
+                                                 options:0 error:nil];
+    NSString *envelope = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    [[NodeRunner sharedInstance] sendMessageToNode:@"_SYSTEM_"
+                                                :[@"lifecycle|" stringByAppendingString:envelope]];
+    return;
+  }
   NSString * data = [NSString stringWithFormat:@"{ \"event\": \"%@\", \"payload\": \"%@\" }", event, message];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     [[NodeRunner sharedInstance] sendMessageToNode:EVENTS_CHANNEL:data];

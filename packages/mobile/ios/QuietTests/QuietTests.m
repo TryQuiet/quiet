@@ -133,7 +133,7 @@
   XCTAssertEqual(delegate.rewires, 1u);
 }
 
-- (void)testBackendStartingInBackgroundReplaysPauseAndIgnoresTorReadiness {
+- (void)testBackendStartingInBackgroundAvoidsLegacyPauseAndIgnoresTorReadiness {
   QuietLifecycleAppDelegate *delegate = [QuietLifecycleAppDelegate new];
   QuietLifecycleTorStub *tor = [QuietLifecycleTorStub new];
   QuietLifecycleBackendStub *backend = [QuietLifecycleBackendStub new];
@@ -142,7 +142,8 @@
   delegate.background = YES;
 
   [delegate backendDidBecomeReady:nil];
-  XCTAssertEqualObjects(backend.lastEvent, @"close");
+  // Pause is delivered exclusively through NodeRunner's system channel.
+  XCTAssertNil(backend.lastEvent);
   XCTAssertEqual(tor.foregroundRequests, 0u);
   [delegate torHandlerReady:delegate.tor controlPort:12001 httpTunnelPort:12002 authCookie:@"cookie"];
   XCTAssertEqual(delegate.rewires, 0u);
