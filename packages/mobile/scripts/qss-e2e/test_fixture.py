@@ -1,11 +1,16 @@
 import importlib.util
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
 import shutil
+import shlex
 import socket
 import subprocess
+import sys
 import tempfile
+import threading
 import unittest
+from unittest.mock import patch
 
 SPEC = importlib.util.spec_from_file_location("fixture", Path(__file__).with_name("fixture.py"))
 fixture = importlib.util.module_from_spec(SPEC)
@@ -117,6 +122,101 @@ class FixtureTests(unittest.TestCase):
             fixture.private_json(proof, payload)
             with self.assertRaises(ValueError):
                 fixture.storage_proof({}, proof)
+
+    def test_storage_proof_binds_exact_team_and_run_for_both_runtimes(self):
+        import native
+        proof_path = self.root / "proof.json"
+        proof = {"teamId": "2" * 44, "runId": "one-player-run"}
+        fixture.private_json(proof_path, proof)
+        counts = {"communityExists": False, "logEntryCount": 0, "maxSyncSeq": 0}
+        for runtime in ("docker", "native"):
+            with self.subTest(runtime=runtime):
+                manifest = {"runtime": runtime, "project": "owned-project"}
+                with patch.object(fixture, "compose", return_value=json.dumps(counts)) as docker_query, patch.object(native, "storage", return_value=counts) as native_query:
+                    actual = fixture.storage_proof(manifest, proof_path)
+                self.assertEqual(actual, {**counts, **proof, "project": "owned-project"})
+                query = native_query.call_args.args[1] if runtime == "native" else docker_query.call_args.args[-1]
+                self.assertTrue(query.startswith("BEGIN READ ONLY;"))
+                self.assertIn("WHERE community_id = '" + proof["teamId"] + "'", query)
+                self.assertEqual(docker_query.call_count, int(runtime == "docker"))
+                self.assertEqual(native_query.call_count, int(runtime == "native"))
+
+    def test_native_stop_only_signals_recorded_process(self):
+        import native
+        target = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"], start_new_session=True)
+        other = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"], start_new_session=True)
+        self.addCleanup(lambda: other.poll() is None and other.kill())
+        self.addCleanup(lambda: target.poll() is None and target.kill())
+        identity = native.process_identity(target.pid)
+        with self.assertRaisesRegex(RuntimeError, "reused or unowned"):
+            native.stop_process({"pid": target.pid, "identity": "wrong process"})
+        self.assertIsNone(target.poll())
+        native.stop_process({"pid": target.pid, "identity": identity})
+        target.wait(timeout=5)
+        self.assertIsNone(other.poll())
+        other.terminate()
+        other.wait(timeout=5)
+
+    def test_native_prepare_rejects_incomplete_postgres_before_build(self):
+        import native
+        binaries = self.root / "bin"
+        binaries.mkdir()
+        for name in ("node", "corepack", "redis-server", "initdb", "pg_ctl", "psql", "createdb", "pg_config"):
+            binary = binaries / name
+            reply = "v22.14.0" if name == "node" else str(self.root / "missing-share")
+            binary.write_text("#!/bin/sh\nprintf '%s\\n' " + shlex.quote(reply) + "\n")
+            binary.chmod(0o700)
+        with self.assertRaisesRegex(ValueError, "Postgres installation is incomplete"):
+            native.prepare({"output": str(self.output)}, binaries / "node", binaries / "corepack", binaries, binaries / "redis-server")
+        self.assertFalse(self.output.exists())
+
+    def test_prepare_run_requires_matching_success_and_live_health(self):
+        manifest = self.prepare()
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b'{"status":"ok","details":{"postgres":{"status":"up"}}}')
+
+            def log_message(self, *args):
+                pass
+
+        server = ThreadingHTTPServer(("127.0.0.1", self.port), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        run_output = self.root / "test-run"
+        result = {"status": "passed", "manifest": manifest, "probe": {
+            "testSiteKey": True, "missingTokenRejected": True, "publicTestTokenVerified": True,
+        }}
+        fixture.private_json(self.output / "result.json", result)
+        created = fixture.prepare_run(manifest, run_output)
+        handoff = json.loads((run_output / "fixture.json").read_text())
+        self.assertEqual(handoff["runId"], created["runId"])
+        self.assertEqual(handoff["manifest"], manifest)
+        self.assertEqual((run_output / "fixture.json").stat().st_mode & 0o777, 0o600)
+        self.assertEqual(run_output.stat().st_mode & 0o777, 0o700)
+        self.assertEqual(list((run_output / "requests").iterdir()), [])
+        with self.assertRaisesRegex(ValueError, "new task-owned"):
+            fixture.prepare_run(manifest, run_output)
+        result["manifest"] = {**manifest, "project": "another-project"}
+        fixture.private_json(self.output / "result.json", result)
+        with self.assertRaisesRegex(ValueError, "exact fixture"):
+            fixture.prepare_run(manifest, self.root / "wrong-result")
+        self.assertFalse((self.root / "wrong-result").exists())
+
+    def test_native_command_timeout_is_bounded_and_leaves_other_process(self):
+        import native
+        (self.output / "context/app").mkdir(parents=True)
+        manifest = {"output": str(self.output), "native": {"environment": {"PATH": "/usr/bin:/bin"}}}
+        other = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"], start_new_session=True)
+        self.addCleanup(lambda: other.poll() is None and other.kill())
+        with self.assertRaises(subprocess.TimeoutExpired):
+            native.run(manifest, [sys.executable, "-c", "import time; time.sleep(60)"], timeout=0.1)
+        self.assertIsNone(other.poll())
+        other.terminate()
+        other.wait(timeout=5)
 
 
 if __name__ == "__main__":

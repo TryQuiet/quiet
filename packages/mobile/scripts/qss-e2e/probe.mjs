@@ -2,7 +2,10 @@
 import assert from 'node:assert/strict'
 import { io } from 'socket.io-client'
 
-const socket = io('http://127.0.0.1:3003', {
+const endpoint = new URL(process.env.QSS_FIXTURE_ENDPOINT || 'http://127.0.0.1:3003')
+assert.equal(endpoint.hostname, '127.0.0.1')
+assert.equal(endpoint.protocol, 'http:')
+const socket = io(endpoint.href, {
   transports: ['websocket'],
   reconnection: false,
   timeout: 10000,

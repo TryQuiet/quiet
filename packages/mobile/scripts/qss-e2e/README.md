@@ -6,9 +6,9 @@ the frozen QSS lockfile, and uses QSS's existing ESM migration CLI. It does not
 run the upstream bootstrap's `git submodule --remote` step. The checkout and its
 lockfiles stay unchanged.
 
-Requires Python 3.12+, Git, Docker Engine and Docker Compose. The image supplies
-the QSS-pinned Node 22.14.0 and pnpm 10.6.0. Postgres and Redis images are pinned
-by digest. Docker needs internet access for the build and hCaptcha test API.
+Requires Python 3.12+ and Git. Both runtimes need internet access for dependencies
+and the hCaptcha test API. QSS uses its pinned Node 22.14.0 and pnpm 10.6.0,
+independently of the application's `.nvmrc` tooling.
 
 Initialize the pinned sources using your normal Git credentials:
 
@@ -17,7 +17,9 @@ git submodule update --init -- 3rd-party/qss
 git -C 3rd-party/qss submodule update --init -- 3rd-party/auth
 ```
 
-From the Quiet repository root, choose a **new** task directory:
+For Linux, install Docker Engine and Docker Compose. The image supplies the
+pinned Node and pnpm; Postgres and Redis images are pinned by digest. From the
+Quiet repository root, choose a **new** task directory:
 
 ```sh
 python3 packages/mobile/scripts/qss-e2e/fixture.py up \
@@ -30,12 +32,49 @@ bound to `127.0.0.1`; Postgres and Redis have no host ports. `--port` can change
 the host port. Existing stacks, app profiles, and host credential files are not
 used. Push delivery is disabled in this local server fixture.
 
+## Native macOS runtime
+
+GitHub requires Linux runners for [Docker service containers](https://docs.github.com/en/actions/tutorials/use-containerized-services/use-docker-service-containers).
+The native runtime starts Postgres, Redis and QSS directly on a Mac, including
+GitHub macOS runners. Install the prerequisites without starting shared services:
+
+```sh
+brew update
+brew install python@3.13 postgresql@18 redis
+export PATH="$(brew --prefix python@3.13)/libexec/bin:$PATH"
+```
+
+Download Node 22.14.0 for the runner architecture from
+[the official distribution](https://nodejs.org/dist/v22.14.0/) and verify its
+archive against `SHASUMS256.txt` before extracting into an owned tool directory.
+Pass its executable paths explicitly; Corepack installs the repository-pinned
+pnpm into the fixture directory without changing the application's Node setup:
+
+```sh
+python3 packages/mobile/scripts/qss-e2e/fixture.py up --runtime native \
+  --output "${RUNNER_TEMP:-/tmp}/quiet-qss-e2e-my-run" \
+  --node /path/to/node-v22.14.0-darwin-arm64/bin/node \
+  --corepack /path/to/node-v22.14.0-darwin-arm64/bin/corepack \
+  --postgres-bin "$(brew --prefix postgresql@18)/bin" \
+  --redis-server "$(brew --prefix redis)/bin/redis-server"
+```
+
+The native runtime uses the same archived sources, environment, frozen install,
+migrations and protocol probe as Docker. Each invocation initializes a fresh
+Postgres cluster and Redis data directory under its output directory, using
+unused loopback ports. QSS listens on loopback port 3003 by default. No
+`brew services` commands run. `stop` verifies the recorded PID, owner and process
+start time before stopping only the fixture's processes; it retains their data.
+The CLI and storage proof contract are the same for both runtimes.
+
+## Test handoff and evidence
+
 `manifest.json` records the source revisions, project, endpoint and configuration
 digest. `result.json` is written only after `/health` reports healthy Postgres
 and the real Socket.IO captcha handlers pass their probe. `private.log` retains
 build, migration and failure output. The directory is mode 0700; evidence files
-are mode 0600. Failed startup stops only that fixture's containers, retaining
-their volumes and evidence.
+are mode 0600. Failed startup stops only that fixture's services, retaining
+their data and evidence.
 
 The fixture uses [hCaptcha's public integration test keys](https://docs.hcaptcha.com/#integration-testing-test-keys).
 These generate a token without an interactive challenge. QSS still verifies it
@@ -44,11 +83,21 @@ token is rejected, then verifies the public test token. This exercises test-key
 integration, **not production anti-bot protection**. Mobile should render its
 normal hCaptcha WebView; no Redux injection or synchronization bypass is needed.
 
-The standard `ios.sim.e2e.qss` configuration uses `ws://127.0.0.1:3003`. If QSS
-runs on another machine, establish an owned loopback SSH forward before running
-Detox. Copy the private manifest/result to the test coordinator and validate the
-expected fixture/project alongside live `/health` and `get-captcha-site-key`.
-The health endpoint does not itself attest the source revision.
+Prepare a new private test handoff from a successfully started, healthy fixture:
+
+```sh
+python3 packages/mobile/scripts/qss-e2e/fixture.py prepare-run \
+  --output /tmp/quiet-qss-e2e-my-run --run-output /tmp/quiet-qss-ui-my-run
+export QUIET_QSS_LOCAL_FIXTURE_OUTPUT=/tmp/quiet-qss-e2e-my-run
+export QUIET_QSS_E2E_RUN_DIR=/tmp/quiet-qss-ui-my-run
+```
+
+This creates `fixture.json` with a unique run ID and the exact successful
+manifest/result, plus empty private request/response directories. The standard
+`ios.sim.e2e.qss` configuration uses `ws://127.0.0.1:3003` and queries the local
+fixture inspector directly. No SSH connection is needed on a single Mac runner.
+Detox also checks live `/health` and `get-captcha-site-key`; the health endpoint
+does not itself attest the source revision.
 
 After the app generates an invitation, the UI test can save a private JSON file
 containing `teamId` (the decoded invitation's auth team ID) and `runId` (letters,
@@ -59,10 +108,13 @@ python3 packages/mobile/scripts/qss-e2e/fixture.py storage \
   --output /tmp/quiet-qss-e2e-my-run --ui-proof /tmp/private-ui-proof.json
 ```
 
-The read-only query returns `runId`, `project`, `communityExists`,
+The read-only query returns `runId`, `teamId`, `project`, `communityExists`,
 `logEntryCount` and `maxSyncSeq`. It never selects the sigchain or encrypted
 message bodies. Require the community to exist and the log count/sequence to
 advance after sending; UI `message-stored` alone proves local persistence.
+Aggregate count and sequence changes do not identify a particular encrypted
+message. To prove that message's QSS durability, the mixed desktop/iOS test must
+retrieve its exact text while the sending peer is offline.
 
 ```sh
 python3 packages/mobile/scripts/qss-e2e/fixture.py status --output /tmp/quiet-qss-e2e-my-run
@@ -70,19 +122,6 @@ python3 packages/mobile/scripts/qss-e2e/fixture.py stop --output /tmp/quiet-qss-
 python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p 'test_*.py' -v
 ```
 
-`stop` retains containers and data volumes. This helper intentionally has no
-volume deletion command. Keep raw test output and invitation handoffs private.
-
-## GitHub macOS runners
-
-This implementation requires Docker; it is currently a local Linux fixture.
-The repository's existing QSS CI also runs on Linux. GitHub requires Linux
-runners for [Docker service containers](https://docs.github.com/en/actions/tutorials/use-containerized-services/use-docker-service-containers),
-and the existing desktop macOS workflow explicitly disables Docker setup.
-
-For a future macOS CI implementation, retain the same pinned source preparation,
-local environment, migrations, protocol probe and storage assertions. Start
-native Postgres and Redis binaries with fresh directories under `RUNNER_TEMP`,
-loopback listeners and owned process cleanup. Run QSS with its Node 22.14.0 /
-pnpm 10.6.0, independently of the application's `.nvmrc` tooling. That native
-startup adapter and hosted execution remain unimplemented and unverified.
+`stop` retains containers/native process data and evidence. This helper has no
+data deletion command. Keep raw test output and invitation handoffs private.
+GitHub-hosted execution still needs to be validated in the workflow.

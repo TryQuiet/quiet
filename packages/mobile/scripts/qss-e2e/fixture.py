@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build an isolated QSS fixture from the checkout's exact gitlinks.
 
-Only `up` creates resources. `stop` retains the owned containers and volumes.
-No host credentials, existing env files, or application data enter the image.
+`up` creates services; `prepare-run` creates a private test handoff.
+`stop` retains owned service data. Existing host credentials and app data are unused.
 """
 import argparse
 import hashlib
@@ -130,7 +130,7 @@ def prepare(checkout, output, port, sudo_docker):
     compose_path = output / "compose.json"
     private_json(compose_path, config)
     manifest = {
-        "version": 1, "output": str(output), "project": project, "port": port,
+        "version": 1, "runtime": "docker", "output": str(output), "project": project, "port": port,
         "sudoDocker": sudo_docker, "qssCommit": qss_sha, "qssAuthCommit": auth_sha,
         "composeSha256": hashlib.sha256(compose_path.read_bytes()).hexdigest(),
         "endpoint": f"ws://127.0.0.1:{port}", "productionQss": False, "pushNotifications": False,
@@ -192,23 +192,66 @@ def storage_proof(manifest, proof_path):
         f"'maxSyncSeq', (SELECT coalesce(max(sync_seq), 0) FROM log_entry_sync WHERE community_id = '{team_id}')"
         "); COMMIT;"
     )
-    result = json.loads(compose(manifest, "exec", "-T", "postgres", "psql", "-XqAt", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "qss", "-c", query, timeout=15, capture=True))
-    return {"runId": run_id, "project": manifest["project"], **result}
+    if manifest.get("runtime") == "native":
+        from native import storage
+        result = storage(manifest, query)
+    else:
+        result = json.loads(compose(manifest, "exec", "-T", "postgres", "psql", "-XqAt", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "qss", "-c", query, timeout=15, capture=True))
+    return {**result, "runId": run_id, "teamId": team_id, "project": manifest["project"]}
+
+
+def prepare_run(manifest, run_output):
+    if run_output.exists() or run_output.is_symlink():
+        raise ValueError("Run output must be a new task-owned directory")
+    result = json.loads((Path(manifest["output"]) / "result.json").read_text())
+    if result.get("manifest") != manifest or result.get("status") != "passed":
+        raise ValueError("Require the successful result for this exact fixture")
+    probe = result.get("probe", {})
+    if not all(probe.get(key) is True for key in ("testSiteKey", "missingTokenRejected", "publicTestTokenVerified")):
+        raise ValueError("Fixture captcha protocol probe must pass before preparing a test run")
+    health(manifest["port"], timeout=5)
+    run_output.mkdir(parents=True, mode=0o700)
+    run = {"version": 1, "runId": uuid.uuid4().hex, "manifest": manifest, "result": result}
+    private_json(run_output / "fixture.json", run)
+    for name in ("requests", "responses"):
+        (run_output / name).mkdir(mode=0o700)
+    return {"runId": run["runId"], "runOutput": str(run_output), "project": manifest["project"]}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("up", "status", "storage", "stop"))
+    parser.add_argument("action", choices=("up", "status", "storage", "stop", "prepare-run"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--checkout", type=Path, default=HERE.parents[3])
     parser.add_argument("--port", type=int, default=3003)
     parser.add_argument("--sudo-docker", action="store_true")
+    parser.add_argument("--runtime", choices=("docker", "native"), default="docker")
+    parser.add_argument("--node", type=Path, help="Native mode Node 22.14.0 executable")
+    parser.add_argument("--corepack", type=Path, help="Native mode Corepack executable")
+    parser.add_argument("--postgres-bin", type=Path, help="Native mode Postgres bin directory")
+    parser.add_argument("--redis-server", type=Path, help="Native mode redis-server executable")
     parser.add_argument("--ui-proof", type=Path, help="Private JSON containing teamId and runId, for storage")
+    parser.add_argument("--run-output", type=Path, help="New private test run directory, for prepare-run")
     args = parser.parse_args()
     os.umask(0o077)
     output = args.output.resolve()
     if args.action == "up":
         manifest = prepare(args.checkout.resolve(), output, args.port, args.sudo_docker)
+        if args.runtime == "native":
+            import native
+            native.prepare(manifest, args.node, args.corepack, args.postgres_bin, args.redis_server)
+            print(f"Starting native pinned QSS fixture {manifest['project']}; private log: {output / 'private.log'}", flush=True)
+            try:
+                result = native.start(manifest)
+                private_json(output / "result.json", result)
+                print(json.dumps({"status": result["status"], "output": str(output), "project": manifest["project"], "health": result["health"], "probe": result["probe"]}), flush=True)
+            except BaseException as error:
+                try:
+                    native.stop(manifest)
+                except Exception as cleanup_error:
+                    error.add_note(f"Native fixture cleanup also failed: {cleanup_error}")
+                raise
+            return
         print(f"Building pinned QSS fixture {manifest['project']}; private log: {output / 'private.log'}", flush=True)
         try:
             compose(manifest, "build", "qss")
@@ -230,8 +273,16 @@ def main():
     else:
         manifest = load_manifest(output)
         if args.action == "stop":
-            compose(manifest, "stop", "--timeout", "15", timeout=60)
-            print("Owned fixture stopped; containers, data volumes, and evidence retained.")
+            if manifest.get("runtime") == "native":
+                from native import stop
+                stop(manifest)
+            else:
+                compose(manifest, "stop", "--timeout", "15", timeout=60)
+            print("Owned fixture stopped; data and evidence retained.")
+        elif args.action == "prepare-run":
+            if args.run_output is None:
+                parser.error("prepare-run requires --run-output")
+            print(json.dumps(prepare_run(manifest, args.run_output.absolute())))
         elif args.action == "storage":
             if args.ui_proof is None:
                 parser.error("storage requires --ui-proof")
