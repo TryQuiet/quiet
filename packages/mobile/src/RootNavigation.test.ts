@@ -33,6 +33,7 @@ describe('root stack navigation', () => {
   })
 
   it('returns from a channel to the existing list without leaving duplicate screens behind', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
     const listKey = state.routes[0].key
 
     for (let visit = 0; visit < 3; visit += 1) {
@@ -47,6 +48,7 @@ describe('root stack navigation', () => {
     // A later system Back must not reopen a channel that was already closed.
     pop()
     expect(state.routes.map(route => route.name)).toEqual([ScreenNames.ChannelListScreen])
+    expect(warn).not.toHaveBeenCalled()
   })
 
   it('pushes a new destination and returns through intermediate screens to an existing destination', () => {

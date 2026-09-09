@@ -9,7 +9,7 @@ export const navigate = <Params extends Record<string, unknown>>(screen: ScreenN
   if (navigationRef.isReady()) {
     // Back buttons also use this helper to return to an existing screen. In
     // React Navigation 7, popping that screen's successors must be explicit.
-    navigationRef.dispatch(CommonActions.navigate({ name: screen, params, pop: true }))
+    navigationRef.dispatch(CommonActions.navigate(screen, params, { pop: true }))
   }
 }
 
