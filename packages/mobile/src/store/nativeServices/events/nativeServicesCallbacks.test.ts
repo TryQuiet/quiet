@@ -1,6 +1,6 @@
 import { initActions } from '../../init/init.slice'
 import { network } from '@quiet/state-manager'
-import { NativeModules } from 'react-native'
+import { NativeModules, Platform } from 'react-native'
 import { runSaga } from 'redux-saga'
 import { NativeEventKeys } from './nativeEvent.keys'
 import { nativeServicesActions } from '../nativeServices.slice'
@@ -24,23 +24,70 @@ const takeFromChannel = <T>(channel: { take: (callback: (input: T) => void) => v
   new Promise(resolve => channel.take(resolve))
 
 describe('deviceEvents', () => {
+  const originalPlatform = Platform.OS
+
   beforeEach(() => {
+    Platform.OS = 'ios'
     mockListeners.clear()
     mockRemove.mockClear()
-    NativeModules.CommunicationModule.setPauseListenerReady.mockClear()
+    NativeModules.CommunicationModule.setPauseListenerReady.mockReset()
+    NativeModules.CommunicationModule.setLifecycleListenerReady.mockReset()
   })
 
-  it('maps AppResume to websocket recovery and removes native listeners on close', async () => {
+  afterEach(() => {
+    Platform.OS = originalPlatform
+  })
+
+  it.each(['ios', 'android'] as const)('subscribes only to supported lifecycle events on %s', async platform => {
+    Platform.OS = platform
     const channel = deviceEvents()
     const resumed = takeFromChannel(channel)
 
+    expect(mockListeners.has(NativeEventKeys.AppBackground)).toBe(platform === 'android')
     mockListeners.get(NativeEventKeys.AppResume)?.()
 
     await expect(resumed).resolves.toEqual(initActions.resumeWebsocketConnection())
 
     channel.close()
-    expect(mockRemove).toHaveBeenCalledTimes(5)
+    expect(mockRemove).toHaveBeenCalledTimes(platform === 'android' ? 6 : 5)
   })
+
+  it('flushes Android background state without clearing initialized communities or suspending the socket', async () => {
+    Platform.OS = 'android'
+    const dispatch = jest.fn()
+    const task = runSaga({ dispatch }, nativeServicesCallbacksSaga)
+
+    mockListeners.get(NativeEventKeys.AppBackground)?.()
+    mockListeners.get(NativeEventKeys.AppResume)?.()
+
+    expect(dispatch.mock.calls.map(([action]) => action)).toEqual([
+      nativeServicesActions.flushPersistor({}),
+      initActions.resumeWebsocketConnection(),
+    ])
+    task.cancel()
+    await task.toPromise()
+  })
+
+  it.each([NativeEventKeys.AppResume, NativeEventKeys.AppBackground])(
+    'receives Android %s during listener readiness and unregisters on cancellation',
+    async event => {
+      Platform.OS = 'android'
+      const dispatch = jest.fn()
+      NativeModules.CommunicationModule.setLifecycleListenerReady.mockImplementation((ready: boolean) => {
+        if (ready) mockListeners.get(event)?.()
+      })
+      const task = runSaga({ dispatch }, nativeServicesCallbacksSaga)
+
+      expect(dispatch).toHaveBeenCalledWith(
+        event === NativeEventKeys.AppResume
+          ? initActions.resumeWebsocketConnection()
+          : nativeServicesActions.flushPersistor({})
+      )
+      task.cancel()
+      await task.toPromise()
+      expect(NativeModules.CommunicationModule.setLifecycleListenerReady).toHaveBeenLastCalledWith(false)
+    }
+  )
 
   it('forwards the pause transition ID and queues persistence plus background cleanup', async () => {
     const channel = deviceEvents()

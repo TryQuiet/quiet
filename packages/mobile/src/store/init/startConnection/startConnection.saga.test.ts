@@ -7,7 +7,8 @@ import { runSaga, stdChannel } from 'redux-saga'
 import { io } from 'socket.io-client'
 
 import { reconcileWebsocketConnection, startConnectionSaga, subscribeSocketLifecycle } from './startConnection.saga'
-import { initActions, WebsocketConnectionPayload } from '../init.slice'
+import { initActions, initReducer, WebsocketConnectionPayload } from '../init.slice'
+import { initMasterSaga } from '../init.master.saga'
 import { initSelectors } from '../init.selectors'
 import { keysActions } from '../../keys/keys.slice'
 import { usersMetadataActions } from '../../userMetadata/usersMetadata.slice'
@@ -154,6 +155,59 @@ describe('subscribeSocketLifecycle', () => {
 })
 
 describe('startConnectionSaga', () => {
+  it('owns one socket and state-manager task across resume and repeated native connection announcements', async () => {
+    const sockets = [new MockSocket(), new MockSocket()]
+    for (const socket of sockets) {
+      socket.connect.mockImplementation(() => {
+        socket.connected = true
+        socket.active = true
+        socket.trigger('connect')
+        return socket
+      })
+    }
+    const mockIo = io as jest.Mock
+    mockIo.mockReturnValueOnce(sockets[0]).mockReturnValueOnce(sockets[1])
+    let activeTasks = 0
+    const stateManagerTask = jest.spyOn(stateManager, 'useIO').mockImplementation(function* () {
+      activeTasks++
+      try {
+        yield new Promise(() => undefined)
+      } finally {
+        activeTasks--
+      }
+    })
+    const channel = stdChannel()
+    let state = initReducer(undefined, { type: 'test/init' })
+    const dispatch = (action: any) => {
+      state = initReducer(state, action)
+      channel.put(action)
+    }
+    const task = runSaga({ channel, dispatch, getState: () => ({ Init: state }) }, initMasterSaga)
+    try {
+      const start = initActions.startWebsocketConnection({ dataPort: 11000, socketIOSecret: 'secret' })
+      dispatch(start)
+      await Promise.resolve()
+      dispatch(initActions.resumeWebsocketConnection())
+      dispatch(initActions.resumeWebsocketConnection())
+      expect(sockets[0].connect).toHaveBeenCalledTimes(1)
+      expect(sockets[0].disconnect).not.toHaveBeenCalled()
+      expect(activeTasks).toBe(1)
+
+      dispatch(start)
+      await Promise.resolve()
+      expect(sockets[0].disconnect).toHaveBeenCalledTimes(1)
+      expect(sockets[0].off).toHaveBeenCalledWith('connect')
+      expect(sockets[1].connect).toHaveBeenCalledTimes(1)
+      expect(activeTasks).toBe(1)
+    } finally {
+      task.cancel()
+      await task.toPromise()
+      stateManagerTask.mockRestore()
+    }
+    expect(activeTasks).toBe(0)
+    expect(sockets[1].disconnect).toHaveBeenCalledTimes(1)
+  })
+
   it('installs listeners before connecting and closes its owned socket on cancellation', async () => {
     const socket = new MockSocket()
     socket.connect.mockImplementation(() => {
@@ -207,6 +261,17 @@ describe('reconcileWebsocketConnection', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  it('keeps a healthy socket and Redux connection intact on foreground reconciliation', async () => {
+    const socket = Object.assign(new MockSocket(), { connected: true, active: true })
+    await expectSaga(reconcileWebsocketConnection, { socket: socket as any, socketIOData })
+      .provide([[select(initSelectors.isWebsocketConnected), true]])
+      .not.put.actionType(initActions.setWebsocketConnected.type)
+      .not.put.actionType(initActions.suspendWebsocketConnection.type)
+      .run()
+    expect(socket.connect).not.toHaveBeenCalled()
+    expect(socket.disconnect).not.toHaveBeenCalled()
   })
 
   it('reconciles Redux when the live socket is already connected', async () => {

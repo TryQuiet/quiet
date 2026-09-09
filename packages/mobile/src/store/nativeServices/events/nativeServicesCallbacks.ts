@@ -1,5 +1,5 @@
 import { buffers, eventChannel, EventChannel } from 'redux-saga'
-import { NativeModules } from 'react-native'
+import { NativeModules, Platform } from 'react-native'
 import { call, put, take, cancelled } from 'typed-redux-saga'
 import { app, publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL, network } from '@quiet/state-manager'
 import { initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
@@ -22,6 +22,10 @@ export function* nativeServicesCallbacksSaga(): Generator {
     if (setPauseListenerReady) {
       yield* call([NativeModules.CommunicationModule, setPauseListenerReady], true)
     }
+    const setLifecycleListenerReady = NativeModules.CommunicationModule?.setLifecycleListenerReady
+    if (setLifecycleListenerReady) {
+      yield* call([NativeModules.CommunicationModule, setLifecycleListenerReady], true)
+    }
     while (true) {
       const action = yield* take(channel)
       yield put(action)
@@ -31,6 +35,10 @@ export function* nativeServicesCallbacksSaga(): Generator {
     const setPauseListenerReady = NativeModules.CommunicationModule?.setPauseListenerReady
     if (setPauseListenerReady) {
       yield* call([NativeModules.CommunicationModule, setPauseListenerReady], false)
+    }
+    const setLifecycleListenerReady = NativeModules.CommunicationModule?.setLifecycleListenerReady
+    if (setLifecycleListenerReady) {
+      yield* call([NativeModules.CommunicationModule, setLifecycleListenerReady], false)
     }
     logger.info('nativeServicesCallbacksSaga stopping')
     if (yield cancelled()) {
@@ -93,6 +101,14 @@ export const deviceEvents = (): EventChannel<NativeServicesEventAction> => {
         emit(initActions.resumeWebsocketConnection())
       }),
     ]
+    if (Platform.OS === 'android') {
+      subscriptions.push(
+        nativeEventEmitter?.addListener(NativeEventKeys.AppBackground, () => {
+          // Android keeps the local socket and state-manager sagas alive during hibernation.
+          emit(nativeServicesActions.flushPersistor({}))
+        })
+      )
+    }
     return () => {
       subscriptions.forEach(subscription => subscription?.remove())
     }
