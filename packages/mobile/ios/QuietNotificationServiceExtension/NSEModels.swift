@@ -117,8 +117,32 @@ struct ChallengePayload: Decodable {
         qssServerId = try values.decode(String.self, forKey: .qssServerId)
         challengeId = try values.decode(String.self, forKey: .challengeId)
         nonce = try values.decode(String.self, forKey: .nonce)
-        issuedAtMs = try values.decode(Int64.self, forKey: .issuedAtMs)
-        expiresAtMs = try values.decode(Int64.self, forKey: .expiresAtMs)
+        issuedAtMs = try Self.decodeExactInteger(values, forKey: .issuedAtMs)
+        expiresAtMs = try Self.decodeExactInteger(values, forKey: .expiresAtMs)
+    }
+
+    /// Decodes a JSON number that must be an integer literal.
+    ///
+    /// Decoding `Int64.self` accepts any number whose `Double` value is integral, so a
+    /// fractional literal below `Double` precision such as `1700000000000.0001` silently
+    /// decodes as `1700000000000`. `Decimal` keeps the digits of the literal, so a
+    /// fractional literal is rejected the way the Android client and the server reject it.
+    /// Range checks stay in `validate`.
+    private static func decodeExactInteger(
+        _ values: KeyedDecodingContainer<CodingKeys>,
+        forKey key: CodingKeys
+    ) throws -> Int64 {
+        let decimal = try values.decode(Decimal.self, forKey: key)
+        var rounded = Decimal()
+        var source = decimal
+        NSDecimalRound(&rounded, &source, 0, .plain)
+        guard rounded == decimal,
+              decimal >= Decimal(Int64.min), decimal <= Decimal(Int64.max) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: key, in: values, debugDescription: "Timestamp was not an integer literal"
+            )
+        }
+        return NSDecimalNumber(decimal: decimal).int64Value
     }
 
     func validate(deviceId expectedDeviceId: String, teamId expectedTeamId: String, qssServerId expectedServerId: String, nowMs: Int64 = Int64(Date().timeIntervalSince1970 * 1000)) throws {

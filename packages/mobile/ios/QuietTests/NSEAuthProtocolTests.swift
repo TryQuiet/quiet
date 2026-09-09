@@ -506,11 +506,28 @@ private final class FixedQSSHTTPServer {
 
     private func jsonBody(_ request: URLRequest) throws -> [String: Any] {
         guard request.value(forHTTPHeaderField: "Content-Type") == "application/json",
-              let data = request.httpBody,
+              let data = Self.body(of: request),
               let body = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw FixedQSSError.invalidRequest("request did not contain a JSON body")
         }
         return body
+    }
+
+    /// URLSession hands a URLProtocol the request body as `httpBodyStream`, never as
+    /// `httpBody`, so read whichever one is present.
+    private static func body(of request: URLRequest) -> Data? {
+        if let data = request.httpBody { return data }
+        guard let stream = request.httpBodyStream else { return nil }
+        stream.open()
+        defer { stream.close() }
+        var data = Data()
+        var buffer = [UInt8](repeating: 0, count: 4096)
+        while stream.hasBytesAvailable {
+            let read = stream.read(&buffer, maxLength: buffer.count)
+            if read <= 0 { break }
+            data.append(buffer, count: read)
+        }
+        return data
     }
 }
 
