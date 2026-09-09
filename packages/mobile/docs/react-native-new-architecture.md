@@ -90,7 +90,7 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Physical iPhone development build | Builds, signs, installs in place and launches on iPhone 16e / iOS 18.5; strict nested signing and app/extension entitlements verify, and the launched process remains running |
 | iOS QSS one-player | Real native app and local native Mac QSS: 1/1 passes with default synchronization, real public-test-key CAPTCHA, v5 invitation, exact message acknowledgment, server count/sequence 3 → 4, and message restoration after restart |
 | Desktop + iOS with QSS | 6/6 stages pass on the same Mac with same-checkout apps: offline-owner invitation/history, live exchange, offline catch-up in both directions with sender processes stopped, and all five messages restored after restart; no skipped tests or synchronization bypass |
-| Manual iOS CI preparation | 7 executable workflow tests, actionlint and shell syntax checks pass; hosted execution remains pending publication |
+| Manual iOS CI preparation | 11 executable workflow tests, 4 disk/summary helper tests, and actionlint pass; final source review has no material findings; hosted execution remains pending publication |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
 debug signing. The fixture was removed afterward; these checks do not validate
@@ -187,15 +187,28 @@ native regressions (`0ef9700ff`), with no open material findings.
 The review did not independently rerun native tests or establish binary
 reproducibility, production signing or physical iPhone behavior.
 
-The manual iOS workflow now prepares the pinned ARM simulator Tor framework,
-selects Xcode 26.3 and one owned iPhone 16 Pro/iOS 18.5 simulator, and runs the
-bundled staging app's starter and community-persistence suites. It retains the
-checked-out submodule revisions; the previous bootstrap command could replace
-them with remote branch tips. It cleans up its simulator and temporary empty
-Firebase resource and retains build/test diagnostics. Its executable tests use
-the actual Detox CLI and configuration, but do not claim a native build or a
-hosted workflow pass. Publishing this workflow also requires write permission
-for GitHub Actions workflow files.
+The prepared manual iOS workflow uses the standard ARM `macos-15` image,
+Xcode 26.3 and one owned iPhone 16 Pro/iOS 18.5 simulator. It runs the staging
+starter/community suites, then QSS one-player and same-checkout desktop/iOS
+messaging. Backend bundling finishes before either iOS build, and the checkout's
+exact submodule revisions are preserved. QSS, Postgres and Redis run natively on
+the runner. The desktop test process receives the same runtime flags as the
+successful Mac run.
+
+Hosted runner preparation removes only unused versioned Xcode bundles, keeps
+the selected Xcode and simulator runtimes, and requires 25 GiB free. Separate
+guarded build workspaces preserve environment ownership; after the baseline
+tests pass, only that workspace's DerivedData is removed to limit disk usage.
+Receipts and logs remain. Cleanup stops owned services, deletes the simulator,
+and removes the temporary empty Firebase resource. QSS runtime diagnostics remain
+private; uploaded summaries contain counts and booleans without invitations.
+
+Eleven executable workflow tests and four disk/summary helper tests pass,
+including the real builder's refusal to reuse an environment-mismatched workspace.
+Actionlint passes. Daybreak Blue's final workflow review closed a missing-runtime-
+flags finding and found no remaining material source-level issues. These checks
+do not establish a hosted workflow pass; publishing the workflow still requires
+GitHub Actions workflow-file write permission.
 
 The [QSS one-player suite](../e2e/README_QSS.md) and
 [mixed desktop/iOS suite](../e2e/README_DESKTOP_QSS.md) now run on the same Mac
@@ -219,6 +232,10 @@ reintroduce the old Node 24 serializer failure despite a correct gitlink, and
 QSS's auth hostname must match the endpoint advertised to production-built
 clients. Follow the frozen submodule install/build steps and use `localhost`
 consistently for this fixture. Production authentication behavior is unchanged.
+Daybreak Blue reviewed the committed one-player and mixed suites against the
+supplied native evidence and matching source hashes, with no material findings.
+It independently ran the portable harness and process tests, but did not rerun
+the native suites.
 Coverage is still narrower than the full desktop suite: QSS cancellation,
 private channels, attachments, and long paginated histories remain follow-up
 parity work. Production QSS availability and production CAPTCHA are unverified.
