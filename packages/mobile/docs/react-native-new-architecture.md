@@ -86,6 +86,8 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Native ARM Android 16 KB community and messaging | The complete focused flow passes on the Mac-hosted ARM64 API 36 emulator with 16 KB pages, no CPU translation, and default synchronization |
 | Full Android starter suite | All 25 tests pass on both API 35 and native ARM64 API 36 with 16 KB pages, notifications enabled and synchronization enabled throughout |
 | Full iOS starter suite | All 25 tests pass on ARM iOS 18.5 using the bundled staging app, fresh installation, notifications enabled and default synchronization; the exact final test file also passes all 25 tests on API 35 |
+| iOS without Firebase configuration | 5 hosted native XCTest cases pass, with no skips, exercising the production Swift module and app delegate |
+| Physical iPhone development build | Builds, signs, installs in place and launches on iPhone 16e / iOS 18.5; strict nested signing and app/extension entitlements verify, and the launched process remains running |
 | Manual iOS CI preparation | 7 executable workflow tests, actionlint and shell syntax checks pass; hosted execution remains pending publication |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
@@ -144,14 +146,30 @@ process: a captured native stack identifies the ARM translation cache mutex in
 complete flow passes on the Mac-hosted native ARM Android emulator with 16 KB
 pages, without CPU translation or false managed-Tor restart events.
 
-The requested physical iPhone check of the previous PR (#3422) is also pending:
-the paired device and provisioning profiles are available, but the Mac login
-keychain is locked and cannot sign the fresh build.
+Development builds may omit Firebase configuration. In that state, the native
+token and topic operations now reject explicitly with `firebase_unavailable`,
+instead of relying on a missing Messaging instance to finish their promises.
+The APNS callback returns without configuring Firebase. Configured Firebase
+operations and notification permission requests retain their existing behavior.
+Five hosted XCTest cases exercise the linked production module and actual app
+delegate; all five pass on ARM iOS 18.5, with no skips or expected failures.
 
-The validated iOS app also launches normally over Tailscale on the MacBook Air,
-outside the Detox runner. It restores the saved community and channel list;
-the process loads Hermes, NodeMobile, Tor and classic-level and opens its saved
-database files. The simulator and app are left open for interactive use.
+The current development app, version 8.0.0 (587), also builds and runs on a
+physical iPhone 16e with iOS 18.5. It uses the stock device Tor framework and
+bundled frontend/backend code. Existing development profiles and the selected
+development certificate sign a copy of the built app, including its frameworks
+and notification extension. Strict signature verification and exact entitlement
+checks pass; source frameworks and the unsigned build remain unchanged. The app
+installs in place without an uninstall or explicit data reset, launches with
+foreground activation, and remains running in the subsequent process check.
+Physical community creation, sending and persistence still need a manual UI
+check; process survival alone does not establish those behaviors. The earlier
+PR (#3422) still needs its separate physical-device smoke test.
+
+The standard app also launches outside Detox on the ARM iOS simulator. It
+restores the saved community and channel list, loads Hermes, NodeMobile, Tor and
+classic-level, and opens its saved database files. The owned simulator was shut
+down after testing; the current app is left open on the physical phone.
 
 The requested independent Daybreak Blue review covered the implementation and
 auth dependency update. Its medium finding identified that the standard iOS
@@ -160,7 +178,8 @@ with owned reusable workspaces, exclusive workspace/pod locks, retained run
 evidence and atomic result publication. Two consecutive native builds and 42
 portable tests verify the fix, including failure, interruption, retry and
 concurrency. Daybreak's follow-up closed the finding and reviewed the later
-workflow and starter changes through `be1889d95`, with no open material findings.
+workflow and starter changes, followed by the unconfigured-Firebase fix and its
+native regressions (`0ef9700ff`), with no open material findings.
 The review did not independently rerun native tests or establish binary
 reproducibility, production signing or physical iPhone behavior.
 
