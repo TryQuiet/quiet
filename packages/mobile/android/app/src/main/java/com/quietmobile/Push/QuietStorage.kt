@@ -27,6 +27,7 @@ object QuietStorage {
 
     private const val DEVICE_ID_KEY = "quiet.device.id"
     private const val TEAM_ID_KEY = "quiet.team.id"
+    private const val LOCAL_USER_ID_PREFIX = "quiet.localUser.id."
     private const val DEVICE_PRIVATE_KEY_PREFIX = "quiet.device.privateKey."
     private const val QSS_URLS_KEY = "quiet.nse.qssUrls"
     private const val QSS_CONFIGURATIONS_KEY = "quiet.nse.qssConfigurations"
@@ -61,8 +62,9 @@ object QuietStorage {
     }
 
     @JvmStatic
-    fun saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String) {
+    fun saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String, userId: String) {
         securePrefs().edit()
+            .putString("$LOCAL_USER_ID_PREFIX$teamId", userId)
             .putString(DEVICE_ID_KEY, deviceId)
             .putString(TEAM_ID_KEY, teamId)
             .putString("$DEVICE_PRIVATE_KEY_PREFIX$deviceId", signingPrivateKey)
@@ -71,6 +73,9 @@ object QuietStorage {
 
     @JvmStatic
     fun getDeviceId(): String? = securePrefs().getString(DEVICE_ID_KEY, null)
+
+    @JvmStatic
+    fun getLocalUserId(teamId: String): String? = securePrefs().getString("$LOCAL_USER_ID_PREFIX$teamId", null)
 
     @JvmStatic
     fun getDevicePrivateKey(deviceId: String): ByteArray? {

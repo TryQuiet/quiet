@@ -8,7 +8,7 @@ RCT_EXTERN_METHOD(checkNotificationPermission)
 RCT_EXTERN_METHOD(saveKeysInKeychain:(NSArray *)newKeys)
 RCT_EXTERN_METHOD(saveChannelMetadataInKeychain:(NSString *)teamId updatedChannelMetadata:(NSArray *)updatedChannelMetadata)
 RCT_EXTERN_METHOD(saveUserMetadata:(NSArray *)updatedMetadata)
-RCT_EXTERN_METHOD(saveDeviceCredentials:(NSString *)deviceId teamId:(NSString *)teamId signingPrivateKey:(NSString *)signingPrivateKey)
+RCT_EXTERN_METHOD(saveDeviceCredentials:(NSString *)deviceId teamId:(NSString *)teamId signingPrivateKey:(NSString *)signingPrivateKey userId:(NSString *)userId)
 RCT_EXTERN_METHOD(saveNseQssUrl:(NSString *)teamId
                   qssUrl:(NSString *)qssUrl
                   qssServerId:(NSString *)qssServerId)

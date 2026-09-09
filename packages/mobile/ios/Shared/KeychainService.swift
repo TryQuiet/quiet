@@ -35,6 +35,7 @@ struct KeychainService {
     private static let devicePrivateKeyPrefix = "quiet.device.privateKey."
     private static let deviceIdKey = "quiet.device.id"
     private static let teamIdKey = "quiet.team.id"
+    private static let localUserIdPrefix = "quiet.localUser.id."
     private static let channelMetadataKeyPrefix = "quiet.channelMetadata."
     private static let userNicknameKeyPrefix = "quiet.userNickname."
 
@@ -247,7 +248,12 @@ struct KeychainService {
         try readString(account: deviceIdKey)
     }
 
-    static func saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String) throws {
+    static func getLocalUserId(teamId: String) throws -> String {
+        try readString(account: localUserIdPrefix + teamId)
+    }
+
+    static func saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String, userId: String) throws {
+        try upsertString(account: localUserIdPrefix + teamId, value: userId)
         try upsertString(account: deviceIdKey, value: deviceId)
         try upsertString(account: teamIdKey, value: teamId)
         try upsertString(account: devicePrivateKeyPrefix + deviceId, value: signingPrivateKey)
@@ -269,6 +275,7 @@ struct KeychainService {
         logger.info("clearAllQuietData: starting keychain cleanup")
         try deleteAll(matchingPrefix: "quiet_", service: lfaKeyService)
         try deleteAll(matchingPrefix: "quiet.device.privateKey.")
+        try deleteAll(matchingPrefix: localUserIdPrefix)
         try deleteAll(matchingPrefix: channelMetadataKeyPrefix, service: lfaKeyService)
         try deleteAll(matchingPrefix: userNicknameKeyPrefix, service: lfaKeyService)
         try delete(account: deviceIdKey)

@@ -59,6 +59,7 @@ describe('subscribeSocketLifecycle', () => {
 
     const credentialsPayload = {
       deviceId: 'device-id',
+      userId: 'self-id',
       teamId: 'team-id',
       signingPrivateKey: 'private-signing-key',
     }

@@ -146,6 +146,7 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
             isAppForeground = QuietStorage::isAppForeground,
             getChannelName = QuietStorage::getChannelName,
             getNickname = QuietStorage::getNickname,
+            getLocalUserId = QuietStorage::getLocalUserId,
             notify = notificationHandler::notify,
         ).handle(teamId, qssServerId)
     }
@@ -171,9 +172,13 @@ internal class QssPushHandler(
     private val isAppForeground: () -> Boolean,
     private val getChannelName: (String, String) -> String?,
     private val getNickname: (String) -> String?,
+    private val getLocalUserId: (String) -> String?,
     private val notify: (String, String) -> Unit,
 ) {
     fun handle(teamId: String, qssServerId: String) {
+        // Older installs receive this identity on the next main-app connection.
+        // Leave the cursor unchanged until self can be identified reliably.
+        val localUserId = getLocalUserId(teamId) ?: return
         val afterSeq = getLastSyncSeq(teamId)
         val entries = authService.fetchNewEntries(teamId, qssServerId, afterSeq).entries
         Log.i(TAG, "Fetched ${entries.size} entries for teamId=$teamId")
@@ -187,6 +192,15 @@ internal class QssPushHandler(
                     cryptoService.decryptNotificationMessage(entry, teamId)
                 },
                 present = { entry, message ->
+                    if (message.userId == localUserId) {
+                        return@processContiguousQssEntries
+                    }
+                    // Consume the entry without posting a notification for an unknown author.
+                    val nickname = getNickname(message.userId)
+                    if (nickname == null) {
+                        Log.i(TAG, "Skipping notification for cid=${entry.cid} because author is unknown")
+                        return@processContiguousQssEntries
+                    }
                     val payload =
                         JSONObject()
                             .put("id", message.id)
@@ -201,7 +215,7 @@ internal class QssPushHandler(
                             TAG,
                             "Posting notification for cid=${entry.cid} channelId=${message.channelId} userId=${message.userId}",
                         )
-                        notify(payload, getNickname(message.userId) ?: message.userId)
+                        notify(payload, nickname)
                     }
                 },
                 isPermanentRejection = { entry, error ->

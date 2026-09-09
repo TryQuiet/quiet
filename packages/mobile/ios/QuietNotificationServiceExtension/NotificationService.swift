@@ -29,12 +29,12 @@ class NotificationService: UNNotificationServiceExtension {
       }
     }
 
-    private static func getNickname(userId: String) -> String {
+    private static func getNickname(userId: String) -> String? {
         do {
             return try KeychainService.getNickname(userId: userId)
         } catch {
             os_log("getNickname failed: %{public}@", log: nseLog, type: .error, String(describing: error))
-            return userId
+            return nil
         }
     }
 
@@ -120,6 +120,7 @@ class NotificationService: UNNotificationServiceExtension {
             try await backgroundOrchestrator.run(
                 teamId: teamId,
                 baselineSeq: afterSeq,
+                localUserId: try? KeychainService.getLocalUserId(teamId: teamId),
                 crypto: crypto,
                 fetch: {
                     try await self.fetchEntriesWithRetry(

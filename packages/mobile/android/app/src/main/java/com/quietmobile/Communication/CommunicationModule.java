@@ -133,9 +133,9 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey) {
+    public static void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey, String userId) {
         try {
-            QuietStorage.saveDeviceCredentials(deviceId, teamId, signingPrivateKey);
+            QuietStorage.saveDeviceCredentials(deviceId, teamId, signingPrivateKey, userId);
         } catch (Exception e) {
             Log.e("CommunicationModule", "saveDeviceCredentials failed", e);
         }

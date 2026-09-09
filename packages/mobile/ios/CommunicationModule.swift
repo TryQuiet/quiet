@@ -125,12 +125,13 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
-  func saveDeviceCredentials(_ deviceId: NSString, teamId: NSString, signingPrivateKey: NSString) {
+  func saveDeviceCredentials(_ deviceId: NSString, teamId: NSString, signingPrivateKey: NSString, userId: NSString) {
     do {
       try KeychainService.saveDeviceCredentials(
         deviceId: deviceId as String,
         teamId: teamId as String,
-        signingPrivateKey: signingPrivateKey as String
+        signingPrivateKey: signingPrivateKey as String,
+        userId: userId as String
       )
       CommunicationModule.logger.info("saveDeviceCredentials: stored successfully")
     } catch {
