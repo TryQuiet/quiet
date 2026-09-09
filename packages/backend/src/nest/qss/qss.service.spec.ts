@@ -7,6 +7,7 @@ import { jest } from '@jest/globals'
 import { Socket, type Socket as ClientSocket } from 'socket.io-client'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
+import { SigChain } from '../auth/sigchain'
 import { QSSService } from './qss.service'
 import {
   GeneratePublicKeysMessage,
@@ -22,7 +23,15 @@ import {
   QSSEvents,
 } from './qss.types'
 import { createLogger } from '../common/logger'
-import { Community, Identity, ChannelMessage, SocketActions, SocketEvents, PublicChannel } from '@quiet/types'
+import {
+  Community,
+  Identity,
+  ChannelMessage,
+  SocketActions,
+  SocketEvents,
+  PublicChannel,
+  InvitationDataVersion,
+} from '@quiet/types'
 import { getReduxStoreFactory, getBaseTypesFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
@@ -50,7 +59,8 @@ import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSAuthConnection } from './qss-auth-conn'
-import { SigchainEvents } from '../auth/types'
+import { LFAEvents, SigchainEvents } from '../auth/types'
+import { InviteService } from '../auth/services/invites/invite.service'
 import { PublicChannelMessagesService } from '../storage/channels/messages/public-channel-messages.service'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
@@ -354,6 +364,91 @@ describe('QSSService', () => {
       expect(fullyJoinedSpy).not.toHaveBeenCalled()
       expect(stopSpy).toHaveBeenCalledWith(teamId, false)
       expect(authErrorSpy).toHaveBeenCalledWith({ teamId, error: expect.any(Error) })
+    })
+
+    // Regression (#346): the sign-in that precedes admission cannot emit the native push
+    // prerequisites (no team yet), so they must be emitted here, once the chain is complete
+    // and before QSS_FULLY_JOINED tells the rest of the backend the join is done.
+    it('emits the native push prerequisites once the QSS join completes, before marking fully joined', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        const teamId = sigchainService.activeChain.team!.id
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        await qssService.connect('wss://community.example/ws')
+
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+        const updateDeviceCredentialsSpy = jest.spyOn(sigchainService, 'updateDeviceCredentials')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
+        const fullyJoinedSpy = jest.fn()
+        qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+
+        await qssService['_handleSelfAssignMember'](teamId)
+
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: 'team-id',
+          qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
+        })
+        expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(teamId)
+        expect(updateKeysSpy).toHaveBeenCalledWith(teamId, true)
+        expect(fullyJoinedSpy).toHaveBeenCalledWith(teamId)
+
+        const nseUrlCall = emitSpy.mock.calls.findIndex(call => call[0] === SocketEvents.NSE_QSS_URL_UPDATED)
+        expect(emitSpy.mock.invocationCallOrder[nseUrlCall]).toBeLessThan(fullyJoinedSpy.mock.invocationCallOrder[0])
+        expect(updateDeviceCredentialsSpy.mock.invocationCallOrder[0]).toBeLessThan(
+          fullyJoinedSpy.mock.invocationCallOrder[0]
+        )
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    })
+
+    it('still completes the join when the native key sync fails', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        const teamId = sigchainService.activeChain.team!.id
+        sigchainService.activeChain.server.addServer(redactServer(createServer({ host: 'community.example' })))
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        await qssService.connect('wss://community.example/ws')
+
+        const updateKeysSpy = jest
+          .spyOn(sigchainService, 'updateKeysInNativeStorage')
+          .mockRejectedValue(new Error('native storage unavailable'))
+        const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+        const fullyJoinedSpy = jest.fn()
+        const authErrorSpy = jest.fn()
+        qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+        qssService.on(QSSEvents.QSS_AUTH_ERROR, authErrorSpy)
+
+        await qssService['_handleSelfAssignMember'](teamId)
+
+        expect(updateKeysSpy).toHaveBeenCalledWith(teamId, true)
+        expect(authReadySpy).toHaveBeenCalledWith(teamId)
+        expect(fullyJoinedSpy).toHaveBeenCalledWith(teamId)
+        expect(authErrorSpy).not.toHaveBeenCalled()
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
     })
   })
 
@@ -934,6 +1029,151 @@ describe('QSSService', () => {
         expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id)
         expect(updateKeysSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id, true)
       } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    })
+
+    // Regression (#346): on a fresh invite join the sign-in runs while the chain is still an
+    // invitee context with no team. The emits used to fail loudly (ServerService threw
+    // "Team is nullish", the key sync dereferenced a null team) and nothing re-ran them.
+    it('defers the native push prerequisites when signing in before the chain has a team (fresh invite join)', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const teamId = sigchainService.activeChain.team!.id
+        const invite = sigchainService.activeChain.invites.createUserInvite()
+        const inviteeChain = SigChain.createFromInvite({ seed: invite.seed }, teamId)
+        expect(inviteeChain.team).toBeNull()
+
+        // Note: creating the invite above mutates the admin chain, and handleChainUpdate
+        // legitimately emits device credentials for it, so the assertions below target
+        // what only the sign-in path does: the NSE URL emit and the resendAll key sync.
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
+        const infoSpy = jest.spyOn(qssService['logger'], 'info')
+        const errorSpy = jest.spyOn(qssService['logger'], 'error')
+
+        await qssService.connect('wss://community.example/ws')
+        const result = await qssService.signInToCommunity(teamId, inviteeChain)
+
+        expect(result).toEqual(QSSOperationResult.SUCCESS)
+        expect(emitSpy).not.toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, expect.anything())
+        expect(updateKeysSpy).not.toHaveBeenCalledWith(teamId, true)
+        expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Deferring native push prerequisites'))
+        expect(errorSpy).not.toHaveBeenCalled()
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    })
+
+    // Regression (#346), end to end on one chain object: a joining device signs in to QSS
+    // while its chain is still an invitee context, then the team arrives through the QSS
+    // auth connection and the member role is confirmed. The prerequisites must come out
+    // of the second step, before QSS_FULLY_JOINED.
+    it('emits the native push prerequisites when a real invitee chain is admitted through the QSS auth connection', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+      let conn: QSSAuthConnection | undefined
+
+      try {
+        // Owner side: the community chain with the QSS server pinned, and an invite.
+        const ownerChain = sigchainService.activeChain
+        const team = ownerChain.team!
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        ownerChain.server.addServer(pinnedQss)
+        const invite = ownerChain.invites.createLongLivedUserInvite()
+
+        // Joining device: an invitee chain with no team, registered as the active chain in
+        // place of the owner's (a device holds one chain per team).
+        const inviteeChain = SigChain.createFromInvite({ seed: invite.seed }, team.id)
+        expect(inviteeChain.team).toBeNull()
+        sigchainService['chains'].delete(team.id)
+        sigchainService.addChain(inviteeChain, true, team.id)
+        // The owner admits the invitee and grants the member role, as the auth handshake does.
+        ownerChain.invites.admitMemberFromInvite(
+          InviteService.createMemberAdmission({ seed: invite.seed, context: inviteeChain.context })
+        )
+        ownerChain.roles.addMember(inviteeChain.user.userId, RoleName.MEMBER)
+
+        // The joining device's community record carries the invite it joined with.
+        await localDbService.setCommunity({
+          ...community,
+          teamId: team.id,
+          qssEnabled: true,
+          qssEndpoint: 'wss://community.example/ws',
+          inviteData: {
+            version: InvitationDataVersion.v5,
+            pairs: [],
+            psk: community.psk ?? '',
+            authData: {
+              communityName: teamName,
+              seed: invite.seed,
+              salt: invite.salt,
+              teamId: team.id,
+            },
+            qssEnabled: true,
+            qssEndpoint: 'wss://community.example/ws',
+          },
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+        const updateDeviceCredentialsSpy = jest.spyOn(sigchainService, 'updateDeviceCredentials')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
+        const fullyJoinedSpy = jest.fn()
+        qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+
+        // 1. Sign-in runs before the team has arrived: nothing can be emitted yet.
+        await qssService.connect('wss://community.example/ws')
+        expect(await qssService.signInToCommunity(team.id, inviteeChain)).toEqual(QSSOperationResult.SUCCESS)
+        expect(emitSpy).not.toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, expect.anything())
+        expect(updateKeysSpy).not.toHaveBeenCalledWith(team.id, true)
+
+        // 2. The team arrives through the QSS auth connection, as on a joining device.
+        conn = new QSSAuthConnection(sigchainService, qssClient)
+        conn.teamId = team.id
+        await (conn as any)._initNewConn(inviteeChain)
+        conn.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (id: string) =>
+          qssAuthConnManager.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, id)
+        )
+        ;(conn as any)._authConnection.emit(LFAEvents.JOINED, { team, user: inviteeChain.user })
+
+        await waitForExpect(() => expect(fullyJoinedSpy).toHaveBeenCalledWith(team.id))
+        expect(inviteeChain.team).not.toBeNull()
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: team.id,
+          qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
+        })
+        expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(team.id)
+        expect(updateKeysSpy).toHaveBeenCalledWith(team.id, true)
+        const nseUrlCall = emitSpy.mock.calls.findIndex(call => call[0] === SocketEvents.NSE_QSS_URL_UPDATED)
+        expect(emitSpy.mock.invocationCallOrder[nseUrlCall]).toBeLessThan(fullyJoinedSpy.mock.invocationCallOrder[0])
+      } finally {
+        try {
+          conn?.stop(false)
+        } catch {
+          // already stopped
+        }
         Object.defineProperty(process, 'platform', { value: originalPlatform })
         process.env.QPS_ALLOWED = originalQpsAllowed
       }

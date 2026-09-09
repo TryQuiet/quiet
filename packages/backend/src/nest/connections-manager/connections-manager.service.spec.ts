@@ -272,6 +272,83 @@ describe('ConnectionsManagerService', () => {
     expect(libp2pResumeSpy.mock.invocationCallOrder[0]).toBeLessThan(qssResumeSpy.mock.invocationCallOrder[0])
   })
 
+  // Regression (#346): a QSS-enabled invite can complete over libp2p instead of QSS. That
+  // path never reaches QSSService._handleSelfAssignMember, so the native push
+  // prerequisites deferred at sign-in have to be emitted here.
+  it('emits the native push prerequisites when the join completes over libp2p', async () => {
+    const teamId = 'team-id'
+    const activeChain = {
+      team: {
+        id: teamId,
+      },
+      roles: {
+        amIMemberOfRole: () => false,
+      },
+    } as any
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue(activeChain)
+    jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
+    const markTeamStorageReadySpy = jest.spyOn(qssService, 'markTeamStorageReady').mockImplementation(() => {})
+    const syncPrerequisitesSpy = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockResolvedValue()
+
+    const launchPromise = connectionsManagerService.launch(community)
+    await waitForExpect(() => expect(qssService.listenerCount(QSSEvents.QSS_FULLY_JOINED)).toBe(1))
+
+    connectionsManagerService.libp2pService.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer-id' })
+    await launchPromise
+
+    expect(syncPrerequisitesSpy).toHaveBeenCalledTimes(1)
+    expect(syncPrerequisitesSpy).toHaveBeenCalledWith(teamId, activeChain, 'libp2p join completed')
+    expect(markTeamStorageReadySpy).toHaveBeenCalledWith(teamId)
+  })
+
+  it('leaves the native push prerequisites to QSSService when the join completes over QSS', async () => {
+    const teamId = 'team-id'
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: {
+        id: teamId,
+      },
+      roles: {
+        amIMemberOfRole: () => false,
+      },
+    } as any)
+    jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
+    jest.spyOn(qssService, 'markTeamStorageReady').mockImplementation(() => {})
+    const syncPrerequisitesSpy = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockResolvedValue()
+
+    const launchPromise = connectionsManagerService.launch(community)
+    await waitForExpect(() => expect(qssService.listenerCount(QSSEvents.QSS_FULLY_JOINED)).toBe(1))
+
+    qssService.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+    await launchPromise
+
+    expect(syncPrerequisitesSpy).not.toHaveBeenCalled()
+  })
+
   it('sets storage team metadata once when QSS and libp2p join events race', async () => {
     const teamId = 'team-id'
     let resolveStorageInit: () => void
@@ -304,6 +381,7 @@ describe('ConnectionsManagerService', () => {
       .spyOn(connectionsManagerService['storageService'], 'init')
       .mockReturnValue(storageInitPromise)
     const markTeamStorageReadySpy = jest.spyOn(qssService, 'markTeamStorageReady').mockImplementation(() => {})
+    const syncPrerequisitesSpy = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockResolvedValue()
 
     let launchResolved = false
     const launchPromise = connectionsManagerService.launch(community).then(() => {
@@ -327,6 +405,9 @@ describe('ConnectionsManagerService', () => {
     expect(markTeamStorageReadySpy).toHaveBeenCalledTimes(1)
     expect(markTeamStorageReadySpy).toHaveBeenCalledWith(teamId)
     expect(launchResolved).toBe(true)
+    // The QSS path already emitted the native push prerequisites before QSS_FULLY_JOINED;
+    // the racing libp2p completion must not emit them a second time.
+    expect(syncPrerequisitesSpy).not.toHaveBeenCalled()
   })
 
   it('handles QSS_FULLY_JOINED emitted synchronously while connecting', async () => {
