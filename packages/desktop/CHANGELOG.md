@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [9.0.0-alpha.15](https://github.com/TryQuiet/quiet-private/compare/@quiet/desktop@9.0.0-alpha.14...@quiet/desktop@9.0.0-alpha.15) (2026-09-09)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
@@ -29,6 +16,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Fixes
 
+* Suppress per-message notifications on Android and iOS for users with unknown usernames, and for one's own messages [#337](https://github.com/TryQuiet/quiet-private/issues/337)
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 * Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
