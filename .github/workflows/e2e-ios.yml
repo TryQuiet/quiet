@@ -53,7 +53,7 @@ jobs:
         run: |
           echo "QUIET_TOR_SOURCE=$RUNNER_TEMP/quiet-tor4059-source" >> "$GITHUB_ENV"
           echo "DETOX_IOS_ARM64_TOR_FRAMEWORK=$RUNNER_TEMP/quiet-tor4059-source/build/Build/Products/Release-iphonesimulator/Tor.framework" >> "$GITHUB_ENV"
-          echo "DETOX_IOS_ARM64_E2E_OUTPUT=$RUNNER_TEMP/quiet-e2e-arm64-validation" >> "$GITHUB_ENV"
+          echo "DETOX_IOS_ARM64_DEBUG_OUTPUT=$RUNNER_TEMP/quiet-debug-arm64-validation" >> "$GITHUB_ENV"
 
       - name: Create owned simulator
         id: simulator
@@ -109,7 +109,7 @@ jobs:
 
       - name: Build bundled Detox app
         working-directory: packages/mobile
-        run: ./node_modules/.bin/detox build -c ios.sim.e2e
+        run: ./node_modules/.bin/detox build -c ios.sim.debug.ci
 
       - name: Boot owned simulator
         run: |
@@ -118,11 +118,11 @@ jobs:
 
       - name: Run basic tests
         working-directory: packages/mobile
-        run: ./node_modules/.bin/detox test starter -c ios.sim.e2e --artifacts-location "$RUNNER_TEMP/quiet-ios-starter-artifacts"
+        run: ./node_modules/.bin/detox test starter -c ios.sim.debug.ci --artifacts-location "$RUNNER_TEMP/quiet-ios-starter-artifacts"
 
       - name: Verify message acknowledgment and persistence
         working-directory: packages/mobile
-        run: ./node_modules/.bin/detox test native-community -c ios.sim.e2e --artifacts-location "$RUNNER_TEMP/quiet-ios-community-artifacts"
+        run: ./node_modules/.bin/detox test native-community -c ios.sim.debug.ci --artifacts-location "$RUNNER_TEMP/quiet-ios-community-artifacts"
 
       - name: Take screenshot
         if: always() && steps.simulator.outputs.udid != ''
@@ -147,8 +147,8 @@ jobs:
           path: |
             ${{ runner.temp }}/quiet-tor4059-source/build-arm64-simulator.log
             ${{ runner.temp }}/quiet-tor4059-source/build-platform.txt
-            ${{ runner.temp }}/quiet-e2e-arm64-validation/result.json
-            ${{ runner.temp }}/quiet-e2e-arm64-validation/runs
+            ${{ runner.temp }}/quiet-debug-arm64-validation/result.json
+            ${{ runner.temp }}/quiet-debug-arm64-validation/runs
             ${{ runner.temp }}/quiet-ios-starter-artifacts
             ${{ runner.temp }}/quiet-ios-community-artifacts
             ${{ runner.temp }}/quiet-ios-screenshot.png

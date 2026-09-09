@@ -122,7 +122,7 @@ test('successful boot waits for readiness; screenshot targets the same owned sim
   )
 })
 
-test('actual pinned Detox CLI forwards the workflow framework/output into the guarded E2E builder', t => {
+test('actual pinned Detox CLI forwards the workflow framework/output into the guarded staging builder', t => {
   const f = fixture(t)
   const result = f.run('Build bundled Detox app', {}, mobile)
   assert.equal(result.status, 0, result.stderr)
@@ -133,13 +133,13 @@ test('actual pinned Detox CLI forwards the workflow framework/output into the gu
     '--framework',
     f.env.DETOX_IOS_ARM64_TOR_FRAMEWORK,
     '--output',
-    f.env.DETOX_IOS_ARM64_E2E_OUTPUT,
+    f.env.DETOX_IOS_ARM64_DEBUG_OUTPUT,
     '--scheme',
     'Quiet',
     '--configuration',
     'Debug',
     '--env-file',
-    '.env.e2e',
+    '.env.staging',
   ]
   assert.deepEqual(f.commands(), [{ tool: 'python3', args: expected }])
   assert.notEqual(f.run('Build bundled Detox app', { QUIET_TEST_FAIL: '--scheme' }, mobile).status, 0)
@@ -148,7 +148,7 @@ test('actual pinned Detox CLI forwards the workflow framework/output into the gu
     process.execPath,
     [
       '-e',
-      "const config=require('./.detoxrc.js'); console.log(JSON.stringify({app:config.apps['ios.e2e'],device:config.devices.simulator.device}))",
+      "const config=require('./.detoxrc.js'); console.log(JSON.stringify({app:config.apps['ios.debug'],device:config.devices.simulator_ci.device}))",
     ],
     { cwd: mobile, env: { ...f.env, DETOX_IOS_SIMULATOR_ID: udid }, encoding: 'utf8' }
   )
@@ -157,7 +157,7 @@ test('actual pinned Detox CLI forwards the workflow framework/output into the gu
   assert.deepEqual(config.device, { id: udid })
   assert.equal(
     config.app.binaryPath,
-    path.join(f.env.DETOX_IOS_ARM64_E2E_OUTPUT, 'DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app')
+    path.join(f.env.DETOX_IOS_ARM64_DEBUG_OUTPUT, 'DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app')
   )
 })
 
@@ -183,12 +183,12 @@ test('temporary Firebase resource is valid, refuses replacement, and has bounded
   assert.equal(fs.existsSync(resource), false)
 })
 
-test('workflow prepares Tor before compiling and uses the same E2E app for both suites', () => {
+test('workflow prepares Tor before compiling and uses the same staging app for both suites', () => {
   assert.ok(
     job.steps.indexOf(step('Prepare pinned ARM simulator Tor')) < job.steps.indexOf(step('Build bundled Detox app'))
   )
   for (const name of ['Run basic tests', 'Verify message acknowledgment and persistence']) {
-    assert.match(step(name).run, /^\.\/node_modules\/\.bin\/detox test .* -c ios\.sim\.e2e /)
+    assert.match(step(name).run, /^\.\/node_modules\/\.bin\/detox test .* -c ios\.sim\.debug\.ci /)
   }
   for (const entry of job.steps.filter(entry => entry.run)) {
     const syntax = spawnSync('bash', ['-n'], { input: entry.run, encoding: 'utf8' })
