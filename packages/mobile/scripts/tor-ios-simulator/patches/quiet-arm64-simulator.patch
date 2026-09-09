@@ -1,0 +1,399 @@
+--- a/Tor/quiet-simulator-build.sh
++++ b/Tor/quiet-simulator-build.sh
+@@ -0,0 +1,18 @@
++#!/bin/bash
++# This isolated source build is deliberately restricted to the missing simulator slice.
++set -eo pipefail
++case "${QUIET_TOR_BUILD_JOBS:-1}" in 1|2) ;; *) echo "QUIET_TOR_BUILD_JOBS must be 1 or 2" >&2; exit 1 ;; esac
++export QUIET_TOR_BUILD_JOBS="${QUIET_TOR_BUILD_JOBS:-1}"
++export MAKEFLAGS="-j${QUIET_TOR_BUILD_JOBS}"
++make() { command make -j"${QUIET_TOR_BUILD_JOBS}" "$@"; }
++if [[ "${PLATFORM_NAME:-}" != iphonesimulator || "${ARCHS:-}" != arm64 ]]; then
++    echo "This preparation only builds arm64 iOS Simulator; device artifacts must remain unchanged." >&2
++    exit 1
++fi
++: "${SDKROOT:?Xcode must provide the simulator SDKROOT}"
++: "${IPHONEOS_DEPLOYMENT_TARGET:?Xcode must provide the deployment target}"
++QUIET_TOR_TARGET_FLAGS="-target arm64-apple-ios${IPHONEOS_DEPLOYMENT_TARGET}-simulator -isysroot ${SDKROOT}"
++export PATH="/opt/homebrew/bin:/opt/homebrew/opt/gettext/bin:${PATH}"
++export LIBTOOLIZE=glibtoolize
++# Bitcode was removed from modern Xcode. Never inherit obsolete embed-bitcode flags.
++BITCODE_CFLAGS=""
+--- a/Tor/openssl.sh
++++ b/Tor/openssl.sh
+@@ -1,4 +1,6 @@
+ #!/bin/bash
++
++source "${SRCROOT}/Tor/quiet-simulator-build.sh"
+ 
+ ARCHS=($ARCHS)
+ 
+@@ -8,9 +10,9 @@
+ if [[ ${ACTION:-build} = "build" ]] || [[ $ACTION = "install" ]]; then
+     for ARCH in "${ARCHS[@]}"
+     do
+-        if [[ $(lipo -info "${BUILT_PRODUCTS_DIR}/libssl.a" 2>&1) != *"${ARCH}"* ]]; then
++        if ! lipo "${BUILT_PRODUCTS_DIR}/libssl.a" -verify_arch "${ARCH}" >/dev/null 2>&1; then
+             REBUILD=1;
+-        elif [[ $(lipo -info "${BUILT_PRODUCTS_DIR}/libcrypto.a" 2>&1) != *"${ARCH}"* ]]; then
++        elif ! lipo "${BUILT_PRODUCTS_DIR}/libcrypto.a" -verify_arch "${ARCH}" >/dev/null 2>&1; then
+             REBUILD=1;
+         fi
+     done
+@@ -18,21 +20,17 @@
+ 
+ # If rebuilding or cleaning then delete the built products
+ if [[ $ACTION = "clean" ]] || [[ $REBUILD = 1 ]]; then
+-    make distclean 2>/dev/null
+-    rm -r "${BUILT_PRODUCTS_DIR}/openssl-"* 2>/dev/null
+-    rm "${BUILT_PRODUCTS_DIR}/libssl.a" 2>/dev/null
+-    rm "${BUILT_PRODUCTS_DIR}/libcrypto.a" 2>/dev/null
++    if [[ -f Makefile ]]; then make distclean; fi
++    rm -rf "${BUILT_PRODUCTS_DIR}/openssl-"* "${BUILT_PRODUCTS_DIR}/openssl" 2>/dev/null
++    rm -f "${BUILT_PRODUCTS_DIR}/libssl.a" 2>/dev/null
++    rm -f "${BUILT_PRODUCTS_DIR}/libcrypto.a" 2>/dev/null
+ fi
+ 
+ if [[ $REBUILD = 0 ]]; then
+     exit;
+ fi
+ 
+-if [[ "${BITCODE_GENERATION_MODE}" = "bitcode" ]]; then
+-    BITCODE_CFLAGS="-fembed-bitcode"
+-elif [[ "${BITCODE_GENERATION_MODE}" = "marker" ]]; then
+-    BITCODE_CFLAGS="-fembed-bitcode-marker"
+-fi
++# Bitcode is disabled by quiet-simulator-build.sh.
+ 
+ if [[ "${CONFIGURATION}" = "Debug" ]]; then
+     DEBUG_FLAGS="--debug"
+@@ -43,7 +41,7 @@
+ # Build each architecture one by one using clang
+ for ARCH in "${ARCHS[@]}"
+ do
+-    export CC="$(xcrun --sdk ${PLATFORM_NAME} --find clang) -isysroot $(xcrun --sdk ${PLATFORM_NAME} --show-sdk-path) -arch ${ARCH} ${BITCODE_CFLAGS}"
++    export CC="$(xcrun --sdk ${PLATFORM_NAME} --find clang) ${QUIET_TOR_TARGET_FLAGS}"
+     
+     if [[ "${PLATFORM_NAME}" == "iphoneos" ]]; then
+         if [[ "${ARCH}" == "arm64" ]]; then
+@@ -58,7 +56,7 @@
+     elif [[ "${PLATFORM_NAME}" == "iphonesimulator" ]]; then
+         if [[ "${ARCH}" == "arm64" ]]; then
+             PLATFORM_FLAGS="no-async zlib-dynamic enable-ec_nistp_64_gcc_128"
+-            CONFIG="ios64-xcrun"
++            CONFIG="quiet-iossimulator-arm64"
+         elif [[ "${ARCH}" == "i386" ]]; then
+             PLATFORM_FLAGS="no-asm"
+             CONFIG="iossimulator-xcrun"
+@@ -87,7 +85,7 @@
+         ./Configure no-shared ${PLATFORM_FLAGS} ${DEBUG_FLAGS} --prefix="${CONFIGURATION_TEMP_DIR}/openssl-${ARCH}" ${CONFIG}
+         
+         make depend
+-        make -j$(sysctl hw.ncpu | awk '{print $2}') build_libs
++        make build_libs
+         make install_dev
+         make distclean
+     fi
+@@ -95,7 +93,8 @@
+ 
+ mkdir -p "${BUILT_PRODUCTS_DIR}"
+ 
+-declare -a HEADERS=("opensslconf.h" "configuration.h" "macros.h" "opensslv.h")
++# configuration.h and macros.h belong to OpenSSL 3, not this pinned 1.1.1k source.
++declare -a HEADERS=("opensslconf.h" "opensslv.h")
+ 
+ # Copy the build products from the temporary directory to the built products directory
+ for ARCH in "${ARCHS[@]}"
+@@ -118,5 +117,5 @@
+ # Combine the built products into a fat binary
+ xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/libssl."*.a -output "${BUILT_PRODUCTS_DIR}/libssl.a"
+ xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/libcrypto."*.a -output "${BUILT_PRODUCTS_DIR}/libcrypto.a"
+-rm "${BUILT_PRODUCTS_DIR}/libssl."*.a
+-rm "${BUILT_PRODUCTS_DIR}/libcrypto."*.a
++rm -f "${BUILT_PRODUCTS_DIR}/libssl."*.a
++rm -f "${BUILT_PRODUCTS_DIR}/libcrypto."*.a
+--- a/Tor/libevent.sh
++++ b/Tor/libevent.sh
+@@ -1,4 +1,6 @@
+ #!/bin/bash
++
++source "${SRCROOT}/Tor/quiet-simulator-build.sh"
+ 
+ ARCHS=($ARCHS)
+ 
+@@ -19,7 +21,7 @@
+     do
+         for ARCH in $ARCHS
+         do
+-            if [[ $(lipo -info "${LIBRARY}" 2>&1) != *"${ARCH}"* ]]; then
++            if ! lipo "${LIBRARY}" -verify_arch "${ARCH}" >/dev/null 2>&1; then
+                 REBUILD=1;
+             fi
+         done
+@@ -28,19 +30,15 @@
+ 
+ # If rebuilding or cleaning then delete the built products
+ if [[ $ACTION = "clean" ]] || [[ $REBUILD = 1 ]]; then
+-    make distclean 2>/dev/null
+-    rm -r "${BUILT_PRODUCTS_DIR}/libevent"* 2>/dev/null
++    if [[ -f Makefile ]]; then make distclean; fi
++    rm -rf "${BUILT_PRODUCTS_DIR}/libevent"* 2>/dev/null
+ fi
+ 
+ if [[ $REBUILD = 0 ]]; then
+     exit;
+ fi
+ 
+-if [[ "${BITCODE_GENERATION_MODE}" = "bitcode" ]]; then
+-    BITCODE_CFLAGS="-fembed-bitcode"
+-elif [[ "${BITCODE_GENERATION_MODE}" = "marker" ]]; then
+-    BITCODE_CFLAGS="-fembed-bitcode-marker"
+-fi
++# Bitcode is disabled by quiet-simulator-build.sh.
+ 
+ if [[ "${CONFIGURATION}" = "Debug" ]]; then
+     DEBUG_CFLAGS="-g -O0"
+@@ -64,10 +62,10 @@
+ # Build each architecture one by one using clang
+ for ARCH in "${ARCHS[@]}"
+ do
+-    make clean
++    if [[ -f Makefile ]]; then make clean; fi
+     PREFIX="${CONFIGURATION_TEMP_DIR}/libevent-${ARCH}"
+-    ./configure --disable-shared --disable-openssl --enable-static --enable-gcc-hardening ${DEBUG_FLAGS} --prefix="${PREFIX}" CC="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -arch ${ARCH}" CPP="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -E -arch ${ARCH}" CFLAGS="${DEBUG_CFLAGS} ${BITCODE_CFLAGS} -I${XPC_INCLUDE_DIR}" LDFLAGS="-L${BUILT_PRODUCTS_DIR} ${BITCODE_CFLAGS}" cross_compiling="yes" ac_cv_func_clock_gettime="no"
+-    make -j$(sysctl hw.ncpu | awk '{print $2}')
++    ./configure --host=aarch64-apple-darwin --disable-shared --disable-openssl --enable-static --enable-gcc-hardening ${DEBUG_FLAGS} --prefix="${PREFIX}" CC="$(xcrun -f --sdk ${PLATFORM_NAME} clang) ${QUIET_TOR_TARGET_FLAGS}" CPP="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -E ${QUIET_TOR_TARGET_FLAGS}" CFLAGS="${DEBUG_CFLAGS} ${BITCODE_CFLAGS} -I${XPC_INCLUDE_DIR}" LDFLAGS="-L${BUILT_PRODUCTS_DIR} ${BITCODE_CFLAGS}" cross_compiling="yes" ac_cv_func_clock_gettime="no"
++    make
+     make install
+     #make distclean
+ done
+@@ -93,4 +91,4 @@
+ xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/libevent_core."*.a -output "${BUILT_PRODUCTS_DIR}/libevent_core.a"
+ xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/libevent_pthreads."*.a -output "${BUILT_PRODUCTS_DIR}/libevent_pthreads.a"
+ xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/libevent_extra."*.a -output "${BUILT_PRODUCTS_DIR}/libevent_extra.a"
+-rm "${BUILT_PRODUCTS_DIR}/libevent"*.*.a
++rm -f "${BUILT_PRODUCTS_DIR}/libevent"*.*.a
+--- a/Tor/xz.sh
++++ b/Tor/xz.sh
+@@ -1,4 +1,6 @@
+ #!/bin/bash
++
++source "${SRCROOT}/Tor/quiet-simulator-build.sh"
+ 
+ ARCHS=($ARCHS)
+ 
+@@ -8,8 +10,7 @@
+ 
+ # Generate the configure script (necessary for version control distributions)
+ if [[ ! -f ./configure ]]; then
+-    LIBTOOLIZE=glibtoolize
+-    ./autogen.sh
++    LIBTOOLIZE=glibtoolize ./autogen.sh --no-po4a
+ fi
+ 
+ REBUILD=0
+@@ -20,7 +21,7 @@
+     do
+         for ARCH in $ARCHS
+         do
+-            if [[ $(lipo -info "${LIBRARY}" 2>&1) != *"${ARCH}"* ]]; then
++            if ! lipo "${LIBRARY}" -verify_arch "${ARCH}" >/dev/null 2>&1; then
+                 REBUILD=1;
+             fi
+         done
+@@ -29,19 +30,15 @@
+ 
+ # If rebuilding or cleaning then delete the built products
+ if [[ $ACTION = "clean" ]] || [[ $REBUILD = 1 ]]; then
+-    make distclean 2>/dev/null
+-    rm -r "${BUILT_PRODUCTS_DIR}/liblzma"* 2>/dev/null
++    if [[ -f Makefile ]]; then make distclean; fi
++    rm -rf "${BUILT_PRODUCTS_DIR}/liblzma"* 2>/dev/null
+ fi
+ 
+ if [[ $REBUILD = 0 ]]; then
+     exit;
+ fi
+ 
+-if [[ "${BITCODE_GENERATION_MODE}" = "bitcode" ]]; then
+-    BITCODE_CFLAGS="-fembed-bitcode"
+-elif [[ "${BITCODE_GENERATION_MODE}" = "marker" ]]; then
+-    BITCODE_CFLAGS="-fembed-bitcode-marker"
+-fi
++# Bitcode is disabled by quiet-simulator-build.sh.
+ 
+ if [[ "${CONFIGURATION}" = "Debug" ]]; then
+     DEBUG_CFLAGS="-g -O0"
+@@ -61,8 +58,8 @@
+ for ARCH in "${ARCHS[@]}"
+ do
+     PREFIX="${CONFIGURATION_TEMP_DIR}/liblzma-${ARCH}"
+-    ./configure --disable-shared --enable-static --disable-doc --disable-scripts --disable-xz --disable-xzdec --disable-lzmadec --disable-lzmainfo --disable-lzma-links ${DEBUG_FLAGS} --prefix="${PREFIX}" CC="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -arch ${ARCH}" CPP="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -E -arch ${ARCH}" CFLAGS="${DEBUG_CFLAGS} ${BITCODE_CFLAGS}" LDFLAGS="-L${BUILT_PRODUCTS_DIR} ${BITCODE_CFLAGS}" cross_compiling="yes" ac_cv_func_clock_gettime="no"
+-    make -j$(sysctl hw.ncpu | awk '{print $2}')
++    ./configure --host=aarch64-apple-darwin --disable-shared --enable-static --disable-doc --disable-scripts --disable-xz --disable-xzdec --disable-lzmadec --disable-lzmainfo --disable-lzma-links ${DEBUG_FLAGS} --prefix="${PREFIX}" CC="$(xcrun -f --sdk ${PLATFORM_NAME} clang) ${QUIET_TOR_TARGET_FLAGS}" CPP="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -E ${QUIET_TOR_TARGET_FLAGS}" CFLAGS="${DEBUG_CFLAGS} ${BITCODE_CFLAGS}" LDFLAGS="-L${BUILT_PRODUCTS_DIR} ${BITCODE_CFLAGS}" cross_compiling="yes" ac_cv_func_clock_gettime="no"
++    make
+     make install
+     make distclean
+ done
+@@ -84,4 +81,4 @@
+ 
+ # Combine the built products into a fat binary
+ xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/liblzma."*.a -output "${BUILT_PRODUCTS_DIR}/liblzma.a"
+-rm "${BUILT_PRODUCTS_DIR}/liblzma"*.*.a
++rm -f "${BUILT_PRODUCTS_DIR}/liblzma"*.*.a
+--- a/Tor/tor.sh
++++ b/Tor/tor.sh
+@@ -1,4 +1,6 @@
+ #!/bin/bash
++
++source "${SRCROOT}/Tor/quiet-simulator-build.sh"
+ 
+ ARCHS=($ARCHS)
+ 
+@@ -11,11 +13,7 @@
+ mkdir -p "${PSEUDO_SYS_INCLUDE_DIR}/sys"
+ touch "${PSEUDO_SYS_INCLUDE_DIR}/sys/ptrace.h"
+ 
+-if [[ "${BITCODE_GENERATION_MODE}" = "bitcode" ]]; then
+-    BITCODE_CFLAGS="-fembed-bitcode"
+-elif [[ "${BITCODE_GENERATION_MODE}" = "marker" ]]; then
+-    BITCODE_CFLAGS="-fembed-bitcode-marker"
+-fi
++# Bitcode is disabled by quiet-simulator-build.sh.
+ 
+ if [[ "${CONFIGURATION}" = "Debug" ]]; then
+     DEBUG_CFLAGS="-g -O0"
+@@ -38,7 +36,7 @@
+     # off with `-DOPENSSL_NO_ENGINE`. Remove that, when the underlying problem
+     # is fixed!
+ 
+-    ./configure --enable-silent-rules --enable-pic --disable-module-relay --disable-tool-name-check --disable-unittests --enable-static-openssl --enable-static-libevent --disable-asciidoc --disable-system-torrc --disable-linker-hardening --disable-dependency-tracking --disable-manpage --disable-html-manual --prefix="${CONFIGURATION_TEMP_DIR}/tor-${ARCH}" --with-libevent-dir="${BUILT_PRODUCTS_DIR}" --with-openssl-dir="${BUILT_PRODUCTS_DIR}" --enable-lzma --enable-zstd=no CC="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -arch ${ARCH} -isysroot ${SDKROOT}" CPP="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -E -arch ${ARCH} -isysroot ${SDKROOT}" CPPFLAGS="${DEBUG_CFLAGS} ${BITCODE_CFLAGS} -I${SRCROOT}/Tor/tor/src/core -I${SRCROOT}/Tor/include -I${SRCROOT}/Tor/openssl/include -I${BUILT_PRODUCTS_DIR}/openssl-${ARCH} -I${SRCROOT}/Tor/libevent/include -I${BUILT_PRODUCTS_DIR}/libevent-${ARCH} -I${BUILT_PRODUCTS_DIR}/liblzma-${ARCH} -I${PSEUDO_SYS_INCLUDE_DIR} -isysroot ${SDKROOT} -DOPENSSL_NO_ENGINE" cross_compiling="yes" ac_cv_func__NSGetEnviron="no" ac_cv_func_clock_gettime="no" ac_cv_func_getentropy="no" LDFLAGS="-lz ${BITCODE_CFLAGS}"
++    ./configure --host=aarch64-apple-darwin --enable-silent-rules --enable-pic --disable-module-relay --disable-tool-name-check --disable-unittests --enable-static-openssl --enable-static-libevent --disable-asciidoc --disable-system-torrc --disable-linker-hardening --disable-dependency-tracking --disable-manpage --disable-html-manual --prefix="${CONFIGURATION_TEMP_DIR}/tor-${ARCH}" --with-libevent-dir="${BUILT_PRODUCTS_DIR}" --with-openssl-dir="${BUILT_PRODUCTS_DIR}" --enable-lzma --enable-zstd=no CC="$(xcrun -f --sdk ${PLATFORM_NAME} clang) ${QUIET_TOR_TARGET_FLAGS}" CPP="$(xcrun -f --sdk ${PLATFORM_NAME} clang) -E ${QUIET_TOR_TARGET_FLAGS}" CPPFLAGS="${DEBUG_CFLAGS} ${BITCODE_CFLAGS} -I${SRCROOT}/Tor/tor/src/core -I${SRCROOT}/Tor/include -I${SRCROOT}/Tor/openssl/include -I${BUILT_PRODUCTS_DIR}/openssl-${ARCH} -I${SRCROOT}/Tor/libevent/include -I${BUILT_PRODUCTS_DIR}/libevent-${ARCH} -I${BUILT_PRODUCTS_DIR}/liblzma-${ARCH} -I${PSEUDO_SYS_INCLUDE_DIR} -isysroot ${SDKROOT} -DOPENSSL_NO_ENGINE" cross_compiling="yes" ac_cv_func__NSGetEnviron="no" ac_cv_func_clock_gettime="no" ac_cv_func_getentropy="no" LDFLAGS="-lz ${BITCODE_CFLAGS}"
+ 
+     LAST_CONFIGURED_ARCH=$ARCH
+ }
+@@ -61,7 +59,12 @@
+     REBUILD=1
+ fi
+ 
+-declare -a LIBS=$(make show-libs)
++# A previous configure may have failed after generating ./configure; retry it
++# once dependency libraries are present before asking make for the library list.
++configure ${ARCHS[0]}
++LIBS_TEXT=$(make --no-print-directory show-libs)
++LIBS=($LIBS_TEXT)
++[[ ${#LIBS[@]} -gt 0 ]] || { echo "Tor produced no static library list" >&2; exit 1; }
+ echo "LIBRARIES: ${LIBS[@]}"
+ 
+ # If the built binaries include a different set of architectures, then rebuild the target.
+@@ -70,7 +73,7 @@
+     do
+         for ARCH in ${ARCHS[@]}
+         do
+-            if [[ $(lipo -info "${BUILT_PRODUCTS_DIR}/$(basename $LIB)" 2>&1) != *"${ARCH}"* ]]; then
++            if ! lipo "${BUILT_PRODUCTS_DIR}/$(basename $LIB)" -verify_arch "${ARCH}" >/dev/null 2>&1; then
+                 REBUILD=1;
+             fi
+         done
+@@ -82,7 +85,7 @@
+     make clean 2> /dev/null
+     for LIB in ${LIBS[@]}
+     do
+-        rm "${BUILT_PRODUCTS_DIR}/$(basename $LIB)" 2> /dev/null
++        rm -f "${BUILT_PRODUCTS_DIR}/$(basename $LIB)" 2> /dev/null
+     done
+ fi
+ 
+@@ -102,10 +105,12 @@
+     # There seems to be a race condition with the above configure and the later cp.
+     # Just sleep a little so the correct file is copied and delete the old one before.
+     sleep 2s
+-    rm src/lib/cc/orconfig.h
++    rm -f src/lib/cc/orconfig.h
+     cp orconfig.h "src/lib/cc/"
++    # Source archives lack .git; retain the exact pinned Tor revision in its metadata.
++    echo '"d0ed04d50e80fe1c1"' > micro-revision.i
+ 
+-    make -j$(sysctl hw.ncpu | awk '{print $2}')
++    make
+ 
+     cp micro-revision.i "${BUILT_PRODUCTS_DIR}/micro-revision.i"
+ 
+@@ -123,5 +128,5 @@
+     FILENAME=$(basename $LIB)
+ 
+     xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/$FILENAME."*.a -output "${BUILT_PRODUCTS_DIR}/$FILENAME"
+-    rm "${BUILT_PRODUCTS_DIR}/$FILENAME."*.a
++    rm -f "${BUILT_PRODUCTS_DIR}/$FILENAME."*.a
+ done
+--- a/Tor/openssl/Configurations/90-quiet-ios-simulator.conf
++++ b/Tor/openssl/Configurations/90-quiet-ios-simulator.conf
+@@ -0,0 +1,9 @@
++my %targets = (
++    "quiet-iossimulator-arm64" => {
++        inherit_from => [ "ios-common", asm("aarch64_asm") ],
++        CC => "xcrun --sdk iphonesimulator clang",
++        cflags => add("-arch arm64 -fno-common"),
++        bn_ops => "SIXTY_FOUR_BIT_LONG RC4_CHAR",
++        perlasm_scheme => "ios64",
++    },
++);
+--- a/Tor.xcodeproj/project.pbxproj
++++ b/Tor.xcodeproj/project.pbxproj
+@@ -1334,7 +1334,6 @@
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = D0401AD61D2CB8C300602E9B /* Tor-iOS.xcconfig */;
+ 			buildSettings = {
+-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+ 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+ 				SUPPORTS_MACCATALYST = NO;
+ 			};
+@@ -1344,7 +1343,6 @@
+ 			isa = XCBuildConfiguration;
+ 			baseConfigurationReference = D0401AD61D2CB8C300602E9B /* Tor-iOS.xcconfig */;
+ 			buildSettings = {
+-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+ 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+ 				SUPPORTS_MACCATALYST = NO;
+ 			};
+--- a/Tor/version.sh
++++ b/Tor/version.sh
+@@ -30,7 +30,7 @@
+ 
+ #####
+ # minutes_since_date
+-SECONDS_FROM_EPOCH_TO_NOW=$( date "+%s" )
++SECONDS_FROM_EPOCH_TO_NOW=${SOURCE_DATE_EPOCH:-$( date "+%s" )}
+ SECONDS_FROM_EPOCH_TO_DATE=$( date -j -f "%Y-%m-%d %H:%M:%S %Z" "${TOR_BUNDLE_SHORT_VERSION_DATE}" "+%s" )
+ 
+ MINUTES_SINCE_DATE=$(( $(( ${SECONDS_FROM_EPOCH_TO_NOW}-${SECONDS_FROM_EPOCH_TO_DATE} ))/60 ))
+@@ -49,7 +49,10 @@
+ # We must prefix the git hash with a 1
+ # If it starts with a zero, when we decimalize it,
+ # and later hexify it, we'll lose the zero.
+-ONE_PREFIXED_GIT_HASH=1"$( git rev-parse --short=7 HEAD )"
++# The build recipe supplies the archive's verified upstream commit, not a local git HEAD.
++SOURCE_COMMIT=${QUIET_TOR_SOURCE_COMMIT:-$( git rev-parse HEAD )}
++[[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || { echo "Invalid Tor source commit" >&2; exit 1; }
++ONE_PREFIXED_GIT_HASH=1"${SOURCE_COMMIT:0:7}"
+ 
+ # bc requires hex to be uppercase because
+ # lowercase letters are reserved for bc variables
+--- a/Tor/tor/scripts/build/combine_libs
++++ b/Tor/tor/scripts/build/combine_libs
+@@ -1,6 +1,15 @@
+ #!/bin/sh
+ 
+ set -e
++
++# Darwin ar extracts archive symbol indexes as ordinary files. Re-archiving those
++# files produces duplicate __.SYMDEF members rejected by modern Apple linkers.
++# Apple libtool combines the input archives while generating one fresh index.
++if [ "$(uname -s)" = Darwin ]; then
++    quiet_archive_target=$1
++    shift
++    exec xcrun libtool -static -o "$quiet_archive_target" "$@"
++fi
+ 
+ TMPDIR="$(mktemp -d -t tor_lib_combining.XXXXXX)"
+ ORIGDIR="$(pwd)"

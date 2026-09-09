@@ -78,6 +78,12 @@ Bundler 2.6.9, and CocoaPods 1.16.2. This is an unsigned Debug compatibility
 build with an empty, temporary Firebase plist; signing, push delivery, and
 device runtime behavior are not established by compilation.
 
+The notification extension's Debug and Release deployment targets now match
+the app's iOS 17.1 minimum instead of requiring 26.2. Its source APIs support
+17.1. A separate arm64 device rebuild verifies both the generated plist and
+Mach-O minimum; the app and extension also compile for an arm64 simulator at
+17.1. This does not validate push delivery without real Firebase configuration.
+
 The regenerated CocoaPods lockfile contains RN/Hermes 0.81.5 and the matching
 native library versions. Firebase, Tor, Sodium, and unrelated pod versions
 remain unchanged. RN's new post-install plist scan tried to read and rewrite
@@ -143,12 +149,30 @@ FORCE_BUNDLING=1 ENVFILE=.env.storybook RCT_NO_LAUNCH_PACKAGER=1 xcodebuild buil
 
 The x86_64 iOS 18.5 simulator did not finish booting on the 8 GB Apple Silicon
 validation Mac. Apple service crashes and substantial swap/disk pressure occurred
-before Quiet was installed or launched. Both attempts were stopped; this does
+before Quiet was installed or launched. The attempts were stopped; this does
 not establish an app runtime failure or success. The iOS crypto smoke and
 [embedded Node database fixture](../e2e/fixtures/README_embedded_node_database.md)
 remain unexecuted on iOS. The fixture runs inside a separate copy of the built
 app and verifies the real native bridge, addon loading, and database persistence
 across app-process restarts; passing host tests do not replace that device check.
+
+For Apple Silicon, the optional [pinned Tor simulator recipe](../scripts/tor-ios-simulator/README.md)
+builds Tor.framework 405.9.1 from its exact Tor 0.4.5.9, OpenSSL 1.1.1k,
+libevent 2.1.12, and xz 5.2.5 sources. Build fixes address simulator targeting,
+archive indexes, dependency detection, and obsolete bitcode flags. Its public
+headers match the existing pod. The source preparer verifies all downloads and
+the patch before creating an isolated source tree.
+
+The guarded opt-in Storybook builder temporarily selects that simulator framework,
+builds an unsigned arm64 app with bundled Hermes, and restores the complete
+original Tor pod with hash verification. This app build passed, including matching
+embedded Tor bytes and simulator platform checks for NodeMobile, classic-level,
+Hermes, the app, and its extension. The recipe does not change the default pod,
+shipped Tor device binaries, or embedded Node version. Seventeen filesystem and
+child-process tests cover restoration on success, failure, interruption, and low
+disk space. iOS 26 simulator startup subsequently exhausted the available disk
+headroom; the database runner stopped before installing Quiet. Runtime validation
+is still pending on a usable simulator or connected device.
 
 ## RN 0.79.7 checkpoint
 

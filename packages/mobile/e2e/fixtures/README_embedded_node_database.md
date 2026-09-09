@@ -2,7 +2,7 @@
 
 This fixture runs inside Quiet's real iOS app, through `RNNodeJsMobile`, vendored
 Node Mobile 18.20.4, the linked `rn_bridge` module, and the existing `dlopen` path
-override. It requires the x86_64 simulator framework and uses a dedicated directory
+override. It supports arm64 and x86_64 simulator builds and uses a dedicated directory
 under the native bridge's Documents directory. It exercises the addon separately
 from the production backend, which remains unchanged in the original built app.
 
@@ -13,15 +13,43 @@ is ready, including in Storybook. The normal native launcher preloads the path
 override before that entry point. A missing verdict can therefore precede Node
 startup; it does not by itself establish an addon failure.
 
-Build Storybook with `FORCE_BUNDLING=1`. React Native's existing bundle fallback
-then loads `main.jsbundle` when Metro is stopped. After that build completes,
-run from `packages/mobile` on the Mac. Set `DETOX_IOS_SIMULATOR_ID` to a fresh
-x86_64 iOS 18.5 simulator created for this test.
+Run from `packages/mobile` on the Mac. Set `DETOX_IOS_SIMULATOR_ID` to a fresh
+simulator created for this test and `DETOX_IOS_ARCH` to its build architecture,
+`arm64` or `x86_64`. The installed simulator runtime must support that architecture
+and the app's deployment targets, including the notification service extension.
+All embedded frameworks must include the selected simulator architecture. In
+particular, the original Tor 405.9.1 framework needs a separately built arm64
+simulator variant before this probe can run on arm64.
+
+Build Storybook with the selected architecture and `FORCE_BUNDLING=1`. React
+Native's existing bundle fallback then loads `main.jsbundle` when Metro is stopped;
+no production AppDelegate change is needed. The explicit command below overrides
+the architecture rather than relying on the x86_64 Detox build preset.
+
+```sh
+: "${DETOX_IOS_SIMULATOR_ID:?Set this to the owned, fresh simulator UUID}"
+: "${DETOX_IOS_ARCH:?Set arm64 or x86_64 to match the simulator runtime}"
+case "$DETOX_IOS_ARCH" in
+  arm64) quiet_smoke_node_arch=arm64 ;;
+  x86_64) quiet_smoke_node_arch=x64 ;;
+  *) printf '%s\n' 'DETOX_IOS_ARCH must be arm64 or x86_64' >&2; exit 1 ;;
+esac
+FORCE_BUNDLING=1 ENVFILE=.env.storybook xcodebuild \
+  -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug \
+  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath ios/build/storybook -jobs 2 \
+  ARCHS="$DETOX_IOS_ARCH" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO
+```
+
+After the build completes, stop Metro before booting the owned simulator if host
+memory is limited. Boot that simulator with the matching architecture and wait
+for it to finish starting before installing the app copy below.
 Choose a new public run ID for each independent attempt; reuse it only for the
 intentional second launch below.
 
 ```sh
 : "${DETOX_IOS_SIMULATOR_ID:?Set this to the owned, fresh simulator UUID}"
+: "${quiet_smoke_node_arch:?Run the architecture selection above first}"
 quiet_smoke_simulator="$DETOX_IOS_SIMULATOR_ID"
 quiet_smoke_run="rn081-$(date -u +%Y%m%d-%H%M%S)-$$"
 quiet_storybook_app="$PWD/ios/build/storybook/Build/Products/Debug-iphonesimulator/Quiet.app"
@@ -35,6 +63,7 @@ if codesign -d "$quiet_storybook_app" >/dev/null 2>&1; then
 fi
 xcrun simctl install "$quiet_smoke_simulator" "$quiet_smoke_directory/Quiet.app"
 SIMCTL_CHILD_QUIET_EMBEDDED_NODE_DATABASE_RUN_ID="$quiet_smoke_run" \
+  SIMCTL_CHILD_QUIET_EMBEDDED_NODE_DATABASE_ARCH="$quiet_smoke_node_arch" \
   xcrun simctl launch --terminate-running-process "$quiet_smoke_simulator" "$quiet_smoke_bundle"
 quiet_smoke_data=$(xcrun simctl get_app_container "$quiet_smoke_simulator" "$quiet_smoke_bundle" data)
 quiet_smoke_result="$quiet_smoke_data/Documents/quiet-embedded-node-smoke/$quiet_smoke_run/result.json"
@@ -49,8 +78,8 @@ output: the existing NodeRunner prints environment values during initialization.
 If the native bridge itself cannot load, the fixture can only emit a sanitized
 `QUIET_EMBEDDED_NODE_DATABASE` console marker because it has no native data directory.
 
-The first verdict must report `nativeBridge: true`, `node: "18.20.4"`,
-`platform: "ios"`, `architecture: "x64"`, ABI `108`, `preloadCached: true`,
+The first verdict must report `fixtureVersion: 2`, `nativeBridge: true`, `node: "18.20.4"`,
+`platform: "ios"`, `architecture` matching `quiet_smoke_node_arch`, ABI `108`, `preloadCached: true`,
 `placeholderBytes: 0`, and `launch: 1`. Database assertions verify:
 
 - Eight distinct values written synchronously, and sixteen successful reads.
@@ -65,14 +94,17 @@ Then verify persistence across an actual app-process restart:
 ```sh
 xcrun simctl terminate "$quiet_smoke_simulator" "$quiet_smoke_bundle"
 SIMCTL_CHILD_QUIET_EMBEDDED_NODE_DATABASE_RUN_ID="$quiet_smoke_run" \
+  SIMCTL_CHILD_QUIET_EMBEDDED_NODE_DATABASE_ARCH="$quiet_smoke_node_arch" \
   xcrun simctl launch "$quiet_smoke_simulator" "$quiet_smoke_bundle"
 cat "$quiet_smoke_result"
 ```
 
 Wait for a new passing verdict with `launch: 2`, a different `pid`, and
 `database.created: false`, `rowsWritten: 0`, `rowsRead: 16`, and both iterator
-counts equal to eight. The fixture rejects incomplete/failed prior runs; use a
-fresh run ID when retrying a failure. It never exits the embedded Node process
+counts equal to eight. The Node version, platform, architecture, module ABI and
+Node-API version must match the previous launch. The fixture rejects changed
+runtime identities and incomplete/failed prior runs; use a fresh run ID when
+changing the fixture or runtime, or retrying a failure. It never exits the embedded Node process
 or imports the production backend. The real bridge handles pause/resume events.
 
 Restore the original app for ordinary Storybook or backend testing:

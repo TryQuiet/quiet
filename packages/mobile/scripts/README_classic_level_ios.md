@@ -29,7 +29,14 @@ changes only the path, so no registration shim is needed. N-API calls resolve
 from the already-loaded NodeMobile framework. The simulator's framework name and
 embedded path match the existing override mapping.
 
-Before integrating the artifact, run the real host addon test:
+The project selects the integrated artifact at
+`packages/mobile/ios/classic-level/classic-level.xcframework`. Its sibling
+`build-manifest.json` and `licenses` directory record the build inputs and source
+licenses. The original `ios/classic-level.framework` remains the preserved device
+input for rebuilding. Regenerating an artifact does not automatically replace
+the integrated copy.
+
+Before replacing the integrated artifact, run the real host addon test:
 
 ```sh
 node --test packages/mobile/scripts/build-classic-level-ios.test.cjs
@@ -47,17 +54,22 @@ JavaScript unit suite. The host test does not establish iOS runtime compatibilit
 The simulator build also validates each Mach-O platform, architecture and Node-API
 initializer export. An app build and launch remain necessary after integration.
 
-For acceptance on a simulator, repeat the database smoke inside the app's
-embedded Node process: confirm `process.versions.node` is `18.20.4`, load
-`deps/ios/universal/classic-level/classic_level.node` after Quiet's normal preload,
-write a value, close and reopen the database, and verify the persisted value.
-The host test's exercise provides the binding calls. Also create a community in
+For acceptance on a simulator, follow the
+[embedded Node database smoke instructions](../e2e/fixtures/README_embedded_node_database.md).
+The standalone fixture runs inside a separate copy of the real app, asserts the
+native bridge and Node 18.20.4 identity, and loads the addon through Quiet's normal
+preload and framework mapping. It checks writes, reads, forward/reverse iteration,
+compressed persistent tables and reopening, then repeats the reads after an actual
+app-process restart. Select `DETOX_IOS_ARCH=arm64` or `x86_64` to match the installed
+simulator runtime and all native frameworks; a relaunch must preserve that runtime
+identity. These instructions do not establish an iOS runtime pass on their own.
+Also create a community in
 the standard app and confirm it survives an app relaunch; a successful frontend
 render alone does not validate the embedded addon or its framework linkage.
 
-Integration should select the XCFramework's correct variant while retaining the
-app's existing weak linkage and embedded `classic-level.framework/classic-level`
-path. Do not rewrite the device binary's unusual install name as part of this
+The project selects the XCFramework's correct variant while retaining the app's
+existing weak linkage and embedded `classic-level.framework/classic-level` path.
+Do not rewrite the device binary's unusual install name as part of this
 change. The pinned Tor 405.9.1 framework is a separate limitation: it has an
-x86_64 simulator slice but no arm64 simulator slice. A full app launch currently
-needs a compatible x86_64/Rosetta simulator, or a separate Tor simulator build.
+x86_64 simulator slice but no arm64 simulator slice. A full app launch needs a
+compatible x86_64/Rosetta simulator, or a separate Tor arm64 simulator build.
