@@ -1,6 +1,6 @@
 # Pinned Tor.framework 405.9.1: isolated arm64 iOS Simulator preparation
 
-The source recipe builds the missing arm64 simulator slice only. It does not upgrade Tor, OpenSSL, libevent, or xz, and source compilation never reads or modifies Quiet's shipped device framework. The expected product is a dynamic `Tor.framework`, preserving the existing Objective-C `TORController` / `TORThread` API. The separate opt-in Storybook build below temporarily installs this simulator framework and restores the original pod before returning.
+The source recipe builds the missing arm64 simulator slice only. It does not upgrade Tor, OpenSSL, libevent, or xz, and source compilation never reads or modifies Quiet's shipped device framework. The expected product is a dynamic `Tor.framework`, preserving the existing Objective-C `TORController` / `TORThread` API. The separate opt-in simulator build below temporarily installs this simulator framework and restores the original pod before returning.
 
 Source pins and archive SHA256s are recorded in `source-manifest.json`:
 
@@ -69,13 +69,25 @@ python3 packages/mobile/scripts/tor-ios-simulator/build-storybook.py \
   --output /tmp/quiet-storybook-arm64-validation
 ```
 
-The output directory must be new and outside both inputs. The wrapper requires Quiet's Podfile/workspace, Tor podspec405.9.1, and the original installed Tor binary SHA256 `6cc459716e6ff20c75b653f6534b98d5b5d1cb488a447d77d077f5a06ba57cc5`. It verifies that the supplied framework retains version405.9.1, contains only arm64 simulator code, uses `@rpath/Tor.framework/Tor`, and has no non-system external library dependencies. No framework download or pod update runs in this step.
+The output directory must be new and outside both inputs; its parent must already exist. The wrapper requires Quiet's Podfile/workspace, Tor podspec405.9.1, and the original installed Tor binary SHA256 `6cc459716e6ff20c75b653f6534b98d5b5d1cb488a447d77d077f5a06ba57cc5`. It verifies that the supplied framework retains version405.9.1, contains only arm64 simulator code, uses `@rpath/Tor.framework/Tor`, and has no non-system external library dependencies. No framework download or pod update runs in this step.
 
-The wrapper moves the entire original pod framework aside and copies the simulator framework into its place. This avoids modifying files that CocoaPods may hard-link to its cache. It compiles Storybook without provisioning, using two Xcode jobs and a bundled JavaScript payload, monitors a 2 GiB free-disk floor, and stops its child process before restoring the original tree on success, failure, or `INT`/`TERM`/`HUP`. Restoration verifies every original file hash, mode, and symbolic link. Do not run another app build or pod install in that checkout until the wrapper finishes. An uncatchable kill can leave `Pods/Tor/Build/iOS/Tor.framework.quiet-original` or a stale lock; recover and verify the original tree using the saved `original-tree.json` evidence before removing the lock or rerunning.
+The historical script name and Storybook defaults are preserved. These are the only supported `--scheme`, `--configuration`, and `--env-file` combinations:
+
+| Build | Scheme | Configuration | Environment file |
+| --- | --- | --- | --- |
+| Storybook (default) | `Storybook` | `Debug` | `.env.storybook` |
+| Standard Debug | `Quiet` | `Debug` | `.env.staging` |
+| Standard E2E | `Quiet` | `Debug` | `.env.e2e` |
+| QSS E2E | `Quiet` | `Debug` | `.env.e2e.qss` |
+| Release | `Quiet` | `Release` | `.env.production` |
+
+The selected environment must exist as a regular file in `packages/mobile`. Invalid combinations and missing files fail before changing the pod or creating output. Both Xcode scheme preactions honor `ENVFILE`, with their existing defaults when it is unset; this prevents their `/tmp/envfile` selection from overriding E2E or production builds. Because that selector is shared, serialize builds across Quiet checkouts on the same host as well.
+
+The wrapper moves the entire original pod framework aside and copies the simulator framework into its place. This avoids modifying files that CocoaPods may hard-link to its cache. It compiles the selected scheme without provisioning, using two Xcode jobs and a bundled JavaScript payload, monitors a 2 GiB free-disk floor, and stops its child process before restoring the original tree on success, failure, or `INT`/`TERM`/`HUP`. Restoration verifies every original file hash, mode, and symbolic link. Do not run another app build or pod install in that checkout until the wrapper finishes. An uncatchable kill can leave `Pods/Tor/Build/iOS/Tor.framework.quiet-original` or a stale lock; recover and verify the original tree using the saved `original-tree.json` evidence before removing the lock or rerunning.
 
 After compilation, the wrapper signs only the outer simulator app with `codesign --force --sign - --preserve-metadata=entitlements,identifier,flags`, then requires `codesign --verify --strict` to pass. This local ad hoc signature supplies the resource envelope needed for simulator installation; the linker's executable-only signature is insufficient. It uses no production signing identity, key or provisioning profile. The embedded Tor binary must retain the selected source hash after signing.
 
-Outputs include `DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app`, `xcodebuild.log`, `Storybook.xcresult`, framework tree snapshots and `result.json`. A passing result requires the app to contain its bundled JavaScript and to embed the selected simulator Tor binary byte for byte, with `originalRestored: true` and `appSignature: {"identity": "ad-hoc", "strictVerification": true}`. This build command does not boot a simulator, launch the app, change the device framework used by later builds, or demonstrate runtime correctness by itself.
+Outputs include `DerivedData/Build/Products/<configuration>-iphonesimulator/Quiet.app`, `xcodebuild.log`, `<scheme>.xcresult`, framework tree snapshots and `result.json`. The result records the scheme, configuration and environment filename. A passing result requires the app to contain its bundled JavaScript and to embed the selected simulator Tor binary byte for byte, with `originalRestored: true` and `appSignature: {"identity": "ad-hoc", "strictVerification": true}`. This build command does not boot a simulator, launch the app, change the device framework used by later builds, or demonstrate runtime correctness by itself.
 
 After that guarded build passes, run the Hermes/WebView crypto smoke test using the ARM Detox configuration. From the Quiet repository root:
 
@@ -88,19 +100,39 @@ DETOX_IOS_ARM64_STORYBOOK_APP=/tmp/quiet-storybook-arm64-validation/DerivedData/
 
 `ios.sim.storybook` and its compatibility alias `ios.sim.storybook.arm64` consume the same prebuilt app; neither has a build command. Run the guarded build above before `detox test`. `DETOX_IOS_ARM64_STORYBOOK_APP` selects a different guarded build output, and defaults to the path shown above. The simulator defaults to `iPhone 15 Pro` on `iOS 18.5` with `--arch=arm64`; set `DETOX_IOS_SIMULATOR_ID` to select an existing simulator. Node Mobile 24 provides only an arm64 iOS simulator slice, so Intel Storybook builds are no longer supported on this branch. A bundled app does not need Metro for this test.
 
-The other iOS Debug/E2E/Release Detox aliases still contain their earlier Intel build commands. They need follow-up ARM build integration before use with Node Mobile 24; this guarded builder currently supports Storybook only.
+The standard simulator configurations invoke this same guarded builder through `detox build`:
 
-The portable rollback tests use disposable framework trees and actual child processes, including signal and low-disk cancellation. They also reject signing failures, failed signature verification, and changes to Tor during signing. Native Xcode, Mach-O inspection and codesign operations are substituted; these tests do not require a native build:
+| Detox configuration | Environment | Default output directory | Output override |
+| --- | --- | --- | --- |
+| `ios.sim.debug`, `ios.sim.debug.ci` | staging | `/tmp/quiet-debug-arm64-validation` | `DETOX_IOS_ARM64_DEBUG_OUTPUT` |
+| `ios.sim.e2e` | E2E | `/tmp/quiet-e2e-arm64-validation` | `DETOX_IOS_ARM64_E2E_OUTPUT` |
+| `ios.sim.e2e.qss` | QSS E2E | `/tmp/quiet-e2e.qss-arm64-validation` | `DETOX_IOS_ARM64_E2E_QSS_OUTPUT` |
+| `ios.sim.release` | production | `/tmp/quiet-release-arm64-validation` | `DETOX_IOS_ARM64_RELEASE_OUTPUT` |
+
+Set `DETOX_IOS_ARM64_TOR_FRAMEWORK` if the prepared framework is elsewhere; its default is the framework path in the example above. Each output override selects both the builder destination and Detox app path. Keep it the same for `detox build` and `detox test`, and select a fresh directory for the next build. All iOS simulator configurations use ARM and accept `DETOX_IOS_SIMULATOR_ID`; the standard local and CI device model defaults remain `iPhone 15 Pro` and `iPhone 15`. The invalid `ios.att.e2e` and `ios.att.e2e.qss` aliases, which paired iOS apps with Android attached devices, have been removed; use `ios.sim.e2e` and `ios.sim.e2e.qss` for simulator testing.
+
+The existing manual workflow `.github/workflows/e2e-ios.yml` calls `ios.sim.debug.ci` but does not prepare the ARM simulator Tor framework. That workflow still needs an ARM Tor preparation step and the matching framework path before it can run this configuration; the configuration change alone does not make the workflow ready.
+
+For example, from `packages/mobile`, after preparing Tor and stopping other builds:
+
+```sh
+DETOX_IOS_ARM64_E2E_OUTPUT=/tmp/quiet-e2e-arm64-run-1 npx detox build -c ios.sim.e2e
+DETOX_IOS_ARM64_E2E_OUTPUT=/tmp/quiet-e2e-arm64-run-1 npx detox test starter -c ios.sim.e2e
+```
+
+The portable rollback tests use disposable framework trees and actual child processes, including signal and low-disk cancellation. They cover all five build selections, the Release signing path, rejection before mutation, and execution of the checked-in scheme shell commands with disposable output paths. They also reject signing failures, failed signature verification, and changes to Tor during signing. Native Xcode, Mach-O inspection and codesign operations are substituted; these tests do not require a native build:
 
 ```sh
 python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_storybook.py
 ```
 
+When mobile dependencies are installed and Node is on `PATH`, the same suite also resolves the actual Detox configurations and executes their generated build commands with a disposable argument-recording child. These checks cover ARM app/device selection, output overrides and shell quoting without invoking Xcode or a device; only this Detox portion is skipped when its dependencies are unavailable.
+
 Validation completed on Xcode26.3 (17C529), iOS Simulator SDK26.2, Apple Silicon, with one job: the original Tor executable and Objective-C framework both linked successfully. No C/Objective-C source changes were required. The resulting framework is arm64 / IOSSIMULATOR / minimum iOS17.1, retains framework405.9.1, Tor0.4.5.9 + revision d0ed04d50e80fe1c1, and OpenSSL1.1.1k. Its OpenSSL headers use SIXTY_FOUR_BIT_LONG. The binary exports all five original TOR public classes. Binary size: 6,944,832 bytes; observed SHA256: `611f5193a83f981895a88000a1aef2e0c74704115619b547513dcb8ec6db116b` (toolchain/build paths can affect binary hashes).
 
 Source recreation from all six pinned archives plus the final patch was independently checked against all 5,859 prepared source files/symlinks. Shell syntax checks passed. The corrected cache check was verified with actual Apple lipo; no broad warning/error suppressions were added.
 
-Source compilation and the opt-in Storybook build remain separate from runtime validation. Any shipped integration must retain the existing device slices and include app/runtime checks before a replacement build input is shipped.
+Source compilation and the opt-in simulator build remain separate from runtime validation. Any shipped integration must retain the existing device slices and include app/runtime checks before a replacement build input is shipped.
 
 Primary sources:
 

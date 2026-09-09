@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Opt-in arm64 Storybook validation build; restores the checkout's Tor pod.
+"""Opt-in arm64 iOS Simulator build; restores the checkout's Tor pod.
 
 Never run alongside another app build or pod install in this checkout.
 An uncatchable kill can leave Tor.framework.quiet-original or a stale lock;
@@ -22,6 +22,13 @@ TOR_VERSION = '405.9.1'
 TOR_PODSPEC_URL = 'https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec'
 ORIGINAL_SHA256 = '6cc459716e6ff20c75b653f6534b98d5b5d1cb488a447d77d077f5a06ba57cc5'
 MIN_FREE_BYTES = 2 * 1024**3
+BUILD_SELECTIONS = {
+    ('Storybook', 'Debug', '.env.storybook'),
+    ('Quiet', 'Debug', '.env.staging'),
+    ('Quiet', 'Debug', '.env.e2e'),
+    ('Quiet', 'Debug', '.env.e2e.qss'),
+    ('Quiet', 'Release', '.env.production'),
+}
 stop_signal = None
 
 
@@ -116,10 +123,14 @@ def restore(target, backup, staged, original):
 
 def build(args):
     require(sys.platform == 'darwin', 'This build wrapper requires macOS')
+    selection = (args.scheme, args.configuration, args.env_file)
+    require(selection in BUILD_SELECTIONS, 'Unsupported scheme/configuration/environment combination')
     checkout_arg = Path(args.checkout).expanduser().absolute()
     require(checkout_arg.is_dir() and not checkout_arg.is_symlink(), 'Checkout must be a real directory')
     checkout = checkout_arg.resolve()
     mobile = checkout / 'packages/mobile'
+    env_file = mobile / args.env_file
+    require(env_file.is_file() and not env_file.is_symlink(), 'Selected environment file must be a real file in packages/mobile')
     podfile = mobile / 'ios/Podfile'
     require(podfile.is_file() and (mobile / 'ios/Quiet.xcworkspace/contents.xcworkspacedata').is_file(),
             'Checkout must contain Quiet mobile Podfile and installed workspace')
@@ -152,7 +163,7 @@ def build(args):
            ['HOME', 'USER', 'LOGNAME', 'TMPDIR', 'LANG', 'LC_ALL', 'PATH', 'DEVELOPER_DIR']
            if key in os.environ}
     env.setdefault('PATH', os.defpath)
-    env.update(ENVFILE='.env.storybook', RCT_NO_LAUNCH_PACKAGER='1', FORCE_BUNDLING='1')
+    env.update(ENVFILE=args.env_file, RCT_NO_LAUNCH_PACKAGER='1', FORCE_BUNDLING='1')
     require(shutil.which('node', path=env['PATH']) is not None, 'Select the supported host Node on PATH first')
     require(command(['xcrun', 'lipo', '-archs', str(source / 'Tor')], env) == 'arm64', 'Source must contain only arm64')
     platform = command(['xcrun', 'vtool', '-show-build', str(source / 'Tor')], env)
@@ -180,7 +191,8 @@ def build(args):
     output.mkdir()
     log_path = output / 'xcodebuild.log'
     result = {'status': 'failed', 'originalRestored': False, 'output': str(output),
-              'log': str(log_path), 'xcresult': str(output / 'Storybook.xcresult'),
+              'log': str(log_path), 'xcresult': str(output / f'{args.scheme}.xcresult'),
+              'scheme': args.scheme, 'configuration': args.configuration, 'envFile': args.env_file,
               'originalTorSHA256': ORIGINAL_SHA256,
               'simulatorTorSHA256': sha256(source / 'Tor')}
     (output / 'original-tree.json').write_text(json.dumps(original, indent=2) + '\n')
@@ -197,13 +209,14 @@ def build(args):
         target.rename(backup)
         staged.rename(target)
         derived = output / 'DerivedData'
-        app = derived / 'Build/Products/Debug-iphonesimulator/Quiet.app'
+        app = derived / f'Build/Products/{args.configuration}-iphonesimulator/Quiet.app'
         argv = ['xcodebuild', 'build', '-hideShellScriptEnvironment', '-workspace', 'ios/Quiet.xcworkspace',
-                '-scheme', 'Storybook', '-configuration', 'Debug', '-sdk', 'iphonesimulator',
+                '-scheme', args.scheme, '-configuration', args.configuration, '-sdk', 'iphonesimulator',
                 '-destination', 'generic/platform=iOS Simulator', '-derivedDataPath', str(derived),
                 '-resultBundlePath', result['xcresult'],
                 '-jobs', '2', 'ARCHS=arm64', 'ONLY_ACTIVE_ARCH=YES', 'CODE_SIGNING_ALLOWED=NO',
                 'CODE_SIGNING_REQUIRED=NO', 'CODE_SIGN_IDENTITY=', 'ENABLE_BITCODE=NO',
+                f'ENVFILE={args.env_file}',
                 'COMPILER_INDEX_STORE_ENABLE=NO', 'GCC_GENERATE_DEBUGGING_SYMBOLS=NO', 'DEBUG_INFORMATION_FORMAT=']
         with log_path.open('w') as log:
             child = subprocess.Popen(argv, cwd=mobile, env=env, stdout=log, stderr=subprocess.STDOUT,
@@ -214,7 +227,7 @@ def build(args):
                 time.sleep(1)
         check_stop()
         result['exitCode'] = child.returncode
-        require(child.returncode == 0, 'Storybook xcodebuild failed; see the task log')
+        require(child.returncode == 0, 'Simulator xcodebuild failed; see the task log')
         require((app / 'main.jsbundle').is_file(), 'Built app is missing its bundled JS payload')
         embedded = app / 'Frameworks/Tor.framework/Tor'
         require(sha256(embedded) == result['simulatorTorSHA256'], 'Built app did not embed the selected simulator Tor binary unchanged')
@@ -254,6 +267,10 @@ if __name__ == '__main__':
     parser.add_argument('--checkout', required=True, help='Quiet repository root with installed iOS pods')
     parser.add_argument('--framework', required=True, help='Separately built arm64 simulator Tor.framework')
     parser.add_argument('--output', required=True, help='New output directory outside checkout and framework')
+    parser.add_argument('--scheme', default='Storybook', choices=['Storybook', 'Quiet'])
+    parser.add_argument('--configuration', default='Debug', choices=['Debug', 'Release'])
+    parser.add_argument('--env-file', default='.env.storybook',
+                        help='Supported environment file in packages/mobile; must match the scheme/configuration')
     args = parser.parse_args()
     for signum in [signal.SIGINT, signal.SIGTERM, signal.SIGHUP]:
         signal.signal(signum, request_stop)

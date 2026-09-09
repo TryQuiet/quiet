@@ -1,3 +1,40 @@
+const path = require('path')
+
+const shellQuote = value => `'${value.replace(/'/g, "'\\''")}'`
+
+// The installed Tor pod lacks an arm64 simulator slice. Every standard simulator
+// build must use the guarded wrapper with a separately prepared Tor.framework.
+const iosSimulatorApp = (name, envFile, configuration = 'Debug') => {
+  const output =
+    process.env[`DETOX_IOS_ARM64_${name.toUpperCase().replace(/\./g, '_')}_OUTPUT`] ||
+    `/tmp/quiet-${name}-arm64-validation`
+  const framework =
+    process.env.DETOX_IOS_ARM64_TOR_FRAMEWORK ||
+    '/tmp/quiet-tor4059-source/build/Build/Products/Release-iphonesimulator/Tor.framework'
+  return {
+    type: 'ios.app',
+    binaryPath: path.join(output, 'DerivedData/Build/Products', `${configuration}-iphonesimulator/Quiet.app`),
+    build: [
+      'python3',
+      path.join(__dirname, 'scripts/tor-ios-simulator/build-storybook.py'),
+      '--checkout',
+      path.resolve(__dirname, '../..'),
+      '--framework',
+      framework,
+      '--output',
+      output,
+      '--scheme',
+      'Quiet',
+      '--configuration',
+      configuration,
+      '--env-file',
+      envFile,
+    ]
+      .map(shellQuote)
+      .join(' '),
+  }
+}
+
 /** @type {Detox.DetoxConfig} */
 module.exports = {
   testRunner: {
@@ -43,24 +80,9 @@ module.exports = {
       build:
         'cd android && ENVFILE=../.env.production ./gradlew assembleStandardRelease assembleStandardReleaseAndroidTest -DtestBuildType=release',
     },
-    'ios.debug': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
-      build:
-        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
-    },
-    'ios.e2e': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
-      build:
-        'ENVFILE=.env.e2e xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
-    },
-    'ios.e2e.qss': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
-      build:
-        'ENVFILE=.env.e2e.qss xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
-    },
+    'ios.debug': iosSimulatorApp('debug', '.env.staging'),
+    'ios.e2e': iosSimulatorApp('e2e', '.env.e2e'),
+    'ios.e2e.qss': iosSimulatorApp('e2e.qss', '.env.e2e.qss'),
     'ios.storybook.arm64': {
       type: 'ios.app',
       // Prebuilt by scripts/tor-ios-simulator/build-storybook.py; the installed Tor pod lacks an arm64 simulator slice.
@@ -68,19 +90,15 @@ module.exports = {
         process.env.DETOX_IOS_ARM64_STORYBOOK_APP ||
         '/tmp/quiet-storybook-arm64-validation/DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app',
     },
-    'ios.release': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/release/Build/Products/Release-iphonesimulator/Quiet.app',
-      build:
-        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build/release -arch x86_64',
-    },
+    'ios.release': iosSimulatorApp('release', '.env.production', 'Release'),
   },
   devices: {
     simulator: {
       type: 'ios.simulator',
-      device: {
-        type: 'iPhone 15 Pro',
-      },
+      bootArgs: '--arch=arm64',
+      device: process.env.DETOX_IOS_SIMULATOR_ID
+        ? { id: process.env.DETOX_IOS_SIMULATOR_ID }
+        : { type: 'iPhone 15 Pro' },
     },
     simulator_storybook_arm64: {
       type: 'ios.simulator',
@@ -91,9 +109,8 @@ module.exports = {
     },
     simulator_ci: {
       type: 'ios.simulator',
-      device: {
-        type: 'iPhone 15',
-      },
+      bootArgs: '--arch=arm64',
+      device: process.env.DETOX_IOS_SIMULATOR_ID ? { id: process.env.DETOX_IOS_SIMULATOR_ID } : { type: 'iPhone 15' },
     },
     attached: {
       type: 'android.attached',
@@ -169,19 +186,9 @@ module.exports = {
       device: 'simulator',
       app: 'ios.release',
     },
-    'ios.att.e2e': {
-      device: 'attached',
+    'ios.sim.e2e': {
+      device: 'simulator',
       app: 'ios.e2e',
-      artifacts: {
-        rootDir: './e2e/artifacts/ios',
-        plugins: {
-          instruments: 'all',
-        },
-      },
-    },
-    'ios.att.e2e.qss': {
-      device: 'attached',
-      app: 'ios.e2e.qss',
       artifacts: {
         rootDir: './e2e/artifacts/ios',
         plugins: {

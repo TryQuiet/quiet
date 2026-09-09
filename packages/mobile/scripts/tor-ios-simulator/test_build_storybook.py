@@ -12,12 +12,15 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import shlex
+import shutil
 import signal
 import subprocess
 import sys
 import tempfile
 import time
 import unittest
+import xml.etree.ElementTree as ET
 from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('tor_wrapper', Path(__file__).with_name('build-storybook.py'))
@@ -60,7 +63,10 @@ class StorybookBuildTests(unittest.TestCase):
             plistlib.dump({'CFBundleShortVersionString': '405.9.1', 'CFBundleExecutable': 'Tor',
                           'CFBundleSupportedPlatforms': ['iPhoneSimulator']}, info)
         self.output = self.root / 'result'
-        self.args = argparse.Namespace(checkout=str(self.checkout), framework=str(self.source), output=str(self.output))
+        for name in ['.env.storybook', '.env.staging', '.env.e2e', '.env.e2e.qss', '.env.production']:
+            (self.mobile / name).write_text('TEST_ONLY=1\n')
+        self.args = argparse.Namespace(checkout=str(self.checkout), framework=str(self.source), output=str(self.output),
+                                       scheme='Storybook', configuration='Debug', env_file='.env.storybook')
         self.children = []
         self.commands = []
         self.environments = []
@@ -112,7 +118,9 @@ class StorybookBuildTests(unittest.TestCase):
         def spawn(argv, **kwargs):
             self.commands.append(argv)
             self.environments.append(kwargs['env'])
-            app = self.output / 'DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app'
+            derived = Path(argv[argv.index('-derivedDataPath') + 1])
+            configuration = argv[argv.index('-configuration') + 1]
+            app = derived / f'Build/Products/{configuration}-iphonesimulator/Quiet.app'
             # Observe termination before restoration, not merely a final stopped PID.
             if interrupt or low_disk:
                 program = ('import signal,time; from pathlib import Path; '
@@ -179,6 +187,12 @@ class StorybookBuildTests(unittest.TestCase):
                         self.assertEqual(result['embeddedTorSHA256'], wrapper.sha256(self.source / 'Tor'))
                         self.assertEqual(result['appSignature'], {'identity': 'ad-hoc', 'strictVerification': True})
                         self.assertEqual(len(self.signing_commands), 2)
+                        expected_app = self.output / f'DerivedData/Build/Products/{self.args.configuration}-iphonesimulator/Quiet.app'
+                        self.assertEqual(result['app'], str(expected_app))
+                        self.assertTrue((expected_app / '_CodeSignature/CodeResources').is_file())
+                        self.assertEqual(result['scheme'], self.args.scheme)
+                        self.assertEqual(result['configuration'], self.args.configuration)
+                        self.assertEqual(result['envFile'], self.args.env_file)
                     elif signing_failure or signing_changes_tor:
                         self.assertNotIn('appSignature', result)
                     if interrupt or low_disk:
@@ -187,7 +201,7 @@ class StorybookBuildTests(unittest.TestCase):
                 self.assertNotIn('UNRELATED_SECRET', env)
                 self.assertEqual(env['PATH'], selected_path)
                 self.assertEqual(env['DEVELOPER_DIR'], '/caller/selected-Xcode.app/Contents/Developer')
-                self.assertEqual(env['ENVFILE'], '.env.storybook')
+                self.assertEqual(env['ENVFILE'], self.args.env_file)
                 self.assertEqual(env['FORCE_BUNDLING'], '1')
             if self.commands:
                 command = self.commands[0]
@@ -195,6 +209,9 @@ class StorybookBuildTests(unittest.TestCase):
                 self.assertIn('-hideShellScriptEnvironment', command)
                 self.assertIn('-resultBundlePath', command)
                 self.assertIn('CODE_SIGNING_ALLOWED=NO', command)
+                self.assertEqual(command[command.index('-scheme') + 1], self.args.scheme)
+                self.assertEqual(command[command.index('-configuration') + 1], self.args.configuration)
+                self.assertIn(f'ENVFILE={self.args.env_file}', command)
             return
         finally:
             for sig, handler in handlers.items():
@@ -207,6 +224,52 @@ class StorybookBuildTests(unittest.TestCase):
 
     def test_success_restores_original_hardlinked_device_tree(self):
         self.run_build()
+        self.assert_original_intact()
+
+    def test_standard_debug_selects_staging(self):
+        self.args.scheme, self.args.env_file = 'Quiet', '.env.staging'
+        self.run_build()
+        self.assert_original_intact()
+
+    def test_standard_e2e_selects_e2e(self):
+        self.args.scheme, self.args.env_file = 'Quiet', '.env.e2e'
+        self.run_build()
+        self.assert_original_intact()
+
+    def test_standard_qss_selects_qss(self):
+        self.args.scheme, self.args.env_file = 'Quiet', '.env.e2e.qss'
+        self.run_build()
+        self.assert_original_intact()
+
+    def test_release_signs_the_release_product(self):
+        self.args.scheme, self.args.configuration, self.args.env_file = 'Quiet', 'Release', '.env.production'
+        self.run_build()
+        self.assertFalse((self.output / 'DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app').exists())
+        self.assert_original_intact()
+
+    def test_unsupported_selection_rejected_before_any_mutation(self):
+        for selection in [('Quiet', 'Debug', '.env.storybook'), ('Storybook', 'Release', '.env.production'),
+                          ('Quiet', 'Release', '.env.e2e'), ('Quiet', 'Debug', '../outside.env')]:
+            with self.subTest(selection=selection):
+                self.args.scheme, self.args.configuration, self.args.env_file = selection
+                self.run_build(prepare_error='Unsupported scheme/configuration/environment')
+                self.assertFalse(self.output.exists())
+                self.assertEqual(self.environments, [])
+                self.assert_original_intact()
+
+    def test_missing_environment_rejected_before_any_mutation(self):
+        (self.mobile / '.env.storybook').unlink()
+        self.run_build(prepare_error='Selected environment file')
+        self.assertFalse(self.output.exists())
+        self.assertEqual(self.environments, [])
+        self.assert_original_intact()
+
+    def test_symlink_environment_rejected_before_any_mutation(self):
+        env_file = self.mobile / '.env.storybook'
+        env_file.unlink()
+        env_file.symlink_to(self.mobile / '.env.staging')
+        self.run_build(prepare_error='Selected environment file')
+        self.assertFalse(self.output.exists())
         self.assert_original_intact()
 
     def test_failed_build_restores_original(self):
@@ -306,6 +369,106 @@ class StorybookBuildTests(unittest.TestCase):
         self.run_build(prepare_error='recover it first')
         self.assertEqual(marker.read_text(), 'recover me')
         self.assertEqual(wrapper.snapshot(self.target), self.original)
+
+
+class SchemeEnvironmentTests(unittest.TestCase):
+    def test_actual_preactions_honor_selected_environment_and_keep_defaults(self):
+        mobile = Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory(prefix='quiet-scheme-env-') as temporary:
+            output = Path(temporary) / 'envfile'
+            for scheme, default in [('Quiet', '.env.staging'), ('Storybook', '.env.storybook')]:
+                project = mobile / f'ios/Quiet.xcodeproj/xcshareddata/xcschemes/{scheme}.xcscheme'
+                action = ET.parse(project).find('./BuildAction/PreActions/ExecutionAction/ActionContent')
+                # Execute the actual checked-in shell command, redirecting only its
+                # global /tmp output into the disposable test directory.
+                script = action.attrib['scriptText'].replace('/tmp/envfile', shlex.quote(str(output)))
+                for selected in [None, '', '.env.storybook', '.env.staging', '.env.e2e', '.env.e2e.qss', '.env.production']:
+                    with self.subTest(scheme=scheme, selected=selected):
+                        output.write_text('stale environment\n')
+                        env = {'PATH': os.defpath}
+                        if selected is not None:
+                            env['ENVFILE'] = selected
+                        subprocess.run(['/bin/sh', '-c', script], env=env, check=True, capture_output=True)
+                        self.assertEqual(output.read_text(), (selected or default) + '\n')
+
+
+class DetoxConfigurationTests(unittest.TestCase):
+    def setUp(self):
+        self.mobile = Path(__file__).resolve().parents[2]
+        self.node = shutil.which('node')
+        if not self.node or not (self.mobile / 'node_modules/detox/internals.js').is_file():
+            self.skipTest('Detox resolution checks require installed mobile dependencies and Node on PATH')
+
+    def resolve(self, configuration, overrides=None):
+        env = {key: value for key, value in os.environ.items() if not key.startswith('DETOX_IOS_')}
+        env.update(overrides or {})
+        script = """require('detox/internals').resolveConfig({argv: {configuration: process.argv[1]}})
+          .then(({apps, device}) => process.stdout.write(JSON.stringify({apps, device})))
+          .catch(error => { process.stderr.write(error.message); process.exitCode = 1 })"""
+        result = subprocess.run([self.node, '-e', script, configuration], cwd=self.mobile,
+                                env=env, check=True, capture_output=True, text=True, timeout=30)
+        return json.loads(result.stdout)
+
+    def test_actual_standard_arm_routes_resolve_with_distinct_products(self):
+        selections = [
+            ('ios.sim.debug', 'debug', '.env.staging', 'Debug'),
+            ('ios.sim.debug.ci', 'debug', '.env.staging', 'Debug'),
+            ('ios.sim.e2e', 'e2e', '.env.e2e', 'Debug'),
+            ('ios.sim.e2e.qss', 'e2e.qss', '.env.e2e.qss', 'Debug'),
+            ('ios.sim.release', 'release', '.env.production', 'Release'),
+        ]
+        for route, name, env_file, configuration in selections:
+            with self.subTest(route=route):
+                resolved = self.resolve(route)
+                self.assertEqual(resolved['device']['type'], 'ios.simulator')
+                self.assertEqual(resolved['device']['bootArgs'], '--arch=arm64')
+                app = resolved['apps']['default']
+                argv = shlex.split(app['build'])
+                output = f'/tmp/quiet-{name}-arm64-validation'
+                self.assertEqual(argv[argv.index('--output') + 1], output)
+                self.assertEqual(argv[argv.index('--scheme') + 1], 'Quiet')
+                self.assertEqual(argv[argv.index('--configuration') + 1], configuration)
+                self.assertEqual(argv[argv.index('--env-file') + 1], env_file)
+                self.assertEqual(app['binaryPath'], f'{output}/DerivedData/Build/Products/{configuration}-iphonesimulator/Quiet.app')
+
+    def test_storybook_alias_and_android_routes_remain_compatible(self):
+        storybook = self.resolve('ios.sim.storybook')
+        self.assertEqual(storybook, self.resolve('ios.sim.storybook.arm64'))
+        self.assertNotIn('build', storybook['apps']['default'])
+        for route, device in [('android.att.storybook', 'android.attached'),
+                              ('android.emu.storybook', 'android.emulator')]:
+            with self.subTest(route=route):
+                resolved = self.resolve(route)
+                self.assertEqual(resolved['device']['type'], device)
+                self.assertEqual(resolved['apps']['default']['type'], 'android.apk')
+                self.assertIn('assembleStorybookDebug', resolved['apps']['default']['build'])
+
+    def test_overrides_reach_real_shell_as_literal_arguments(self):
+        with tempfile.TemporaryDirectory(prefix='quiet-detox-command-') as temporary:
+            root = Path(temporary)
+            marker = root / 'must-not-execute'
+            framework = str(root / f"Tor's $(touch {marker}).framework")
+            output = str(root / "output's directory")
+            resolved = self.resolve('ios.sim.e2e', {
+                'DETOX_IOS_ARM64_TOR_FRAMEWORK': framework,
+                'DETOX_IOS_ARM64_E2E_OUTPUT': output,
+                'DETOX_IOS_SIMULATOR_ID': 'owned-simulator-id',
+            })
+            self.assertEqual(resolved['device']['device'], {'id': 'owned-simulator-id'})
+            app = resolved['apps']['default']
+            self.assertEqual(app['binaryPath'], f'{output}/DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app')
+            fake_python = root / 'python3'
+            recorded = root / 'argv.json'
+            fake_python.write_text(f'#!{sys.executable}\nimport json,os,sys\n'
+                                   'with open(os.environ["TEST_ARGV"], "w") as stream: json.dump(sys.argv[1:], stream)\n')
+            fake_python.chmod(0o700)
+            subprocess.run(['/bin/sh', '-c', app['build']], cwd=root, check=True, capture_output=True,
+                           env={'PATH': str(root) + os.pathsep + os.defpath, 'TEST_ARGV': str(recorded)})
+            argv = json.loads(recorded.read_text())
+            self.assertEqual(argv[argv.index('--framework') + 1], framework)
+            self.assertEqual(argv[argv.index('--output') + 1], output)
+            self.assertEqual(argv[argv.index('--env-file') + 1], '.env.e2e')
+            self.assertFalse(marker.exists())
 
 
 if __name__ == '__main__':
