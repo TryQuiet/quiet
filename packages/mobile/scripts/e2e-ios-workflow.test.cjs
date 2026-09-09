@@ -53,7 +53,7 @@ function fixture(t) {
   const run = (name, overrides = {}, cwd = checkout) =>
     spawnSync('bash', ['--noprofile', '--norc', '-e', '-o', 'pipefail', '-c', step(name).run], {
       cwd,
-      env: { ...env, ...overrides },
+      env: { ...env, ...step(name).env, ...overrides },
       encoding: 'utf8',
       timeout: 30000,
     })
@@ -223,7 +223,8 @@ test('QSS suites prepare independent runs, keep private failure logs, and preser
   fs.mkdirSync(path.dirname(detox), { recursive: true })
   fs.writeFileSync(detox, `#!${process.execPath}\n` +
     `const fs = require('node:fs');\n` +
-    `fs.appendFileSync(process.env.QUIET_TEST_LOG, JSON.stringify({tool:'detox',args:process.argv.slice(2),run:process.env.QUIET_QSS_E2E_RUN_DIR})+'\\n');\n` +
+    `const runtime = Object.fromEntries(['IS_E2E','TEST_MODE','IS_LOCAL','LOG_TO_FILE'].filter(key => process.env[key] !== undefined).map(key => [key, process.env[key]]));\n` +
+    `fs.appendFileSync(process.env.QUIET_TEST_LOG, JSON.stringify({tool:'detox',args:process.argv.slice(2),run:process.env.QUIET_QSS_E2E_RUN_DIR,runtime})+'\\n');\n` +
     `console.error('PRIVATE-INVITATION-CANARY'); process.exit(Number(process.env.QUIET_DETOX_EXIT || 0));\n`, { mode: 0o755 })
   for (const [name, output, args] of [
     ['Run single-player QSS test', f.env.QUIET_QSS_SINGLE_RUN, ['test', 'qss-community', '-c', 'ios.sim.e2e.qss']],
@@ -236,7 +237,10 @@ test('QSS suites prepare independent runs, keep private failure logs, and preser
     assert.equal(fs.statSync(path.join(output, 'detox-private.log')).mode & 0o777, 0o600)
     const calls = f.commands().slice(-2)
     assert.deepEqual(calls[0], { tool: 'python3', args: ['scripts/qss-e2e/fixture.py', 'prepare-run', '--output', f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, '--run-output', output] })
-    assert.deepEqual(calls[1], { tool: 'detox', run: output, args: [...args, '--artifacts-location', path.join(output, 'artifacts'), '--json', '--outputFile', path.join(output, 'jest-private.json')] })
+    const runtime = name === 'Run desktop and iOS QSS tests'
+      ? { IS_E2E: 'true', TEST_MODE: 'true', IS_LOCAL: 'true', LOG_TO_FILE: 'false' }
+      : {}
+    assert.deepEqual(calls[1], { tool: 'detox', run: output, runtime, args: [...args, '--artifacts-location', path.join(output, 'artifacts'), '--json', '--outputFile', path.join(output, 'jest-private.json')] })
     assert.notEqual(f.run(name, {}, fakeMobile).status, 0, 'Existing run directory must not be reused')
   }
 })

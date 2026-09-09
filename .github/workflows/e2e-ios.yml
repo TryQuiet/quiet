@@ -209,6 +209,11 @@ jobs:
       - name: Run desktop and iOS QSS tests
         id: qss_mixed
         working-directory: packages/mobile
+        env:
+          IS_E2E: 'true'
+          TEST_MODE: 'true'
+          IS_LOCAL: 'true'
+          LOG_TO_FILE: 'false'
         run: |
           umask 077
           export QUIET_QSS_E2E_RUN_DIR="$QUIET_QSS_MIXED_RUN"
