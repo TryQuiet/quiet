@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [9.0.0-alpha.17](https://github.com/TryQuiet/quiet-private/compare/@quiet/mobile@9.0.0-alpha.16...@quiet/mobile@9.0.0-alpha.17) (2026-09-09)
+
+
+### Bug Fixes
+
+* **push:** store native push prerequisites after a fresh join; stop duplicate websocket start from cancelling the join ([#346](https://github.com/TryQuiet/quiet-private/issues/346), [#347](https://github.com/TryQuiet/quiet-private/issues/347)) ([#348](https://github.com/TryQuiet/quiet-private/issues/348)) ([2abea2f](https://github.com/TryQuiet/quiet-private/commit/2abea2ffce87cd94c8653fa58a50eb6e602bbe51))
+
+
+
+
+
 # [9.0.0-alpha.16](https://github.com/TryQuiet/quiet-private/compare/@quiet/mobile@9.0.0-alpha.15...@quiet/mobile@9.0.0-alpha.16) (2026-09-09)
 
 **Note:** Version bump only for package @quiet/mobile
