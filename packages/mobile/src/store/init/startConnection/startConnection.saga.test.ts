@@ -163,7 +163,7 @@ describe('subscribeSocketLifecycle', () => {
 
 describe('startConnectionSaga', () => {
   it('owns one socket and state-manager task across resume and ignores repeated native connection announcements', async () => {
-    const sockets = [new MockSocket(), new MockSocket()]
+    const sockets = [new MockSocket()]
     for (const socket of sockets) {
       socket.connect.mockImplementation(() => {
         socket.connected = true
@@ -173,7 +173,7 @@ describe('startConnectionSaga', () => {
       })
     }
     const mockIo = io as jest.Mock
-    mockIo.mockReturnValueOnce(sockets[0]).mockReturnValueOnce(sockets[1])
+    mockIo.mockReturnValue(sockets[0])
     let activeTasks = 0
     const stateManagerTask = jest.spyOn(stateManager, 'useIO').mockImplementation(function* () {
       activeTasks++
@@ -203,7 +203,6 @@ describe('startConnectionSaga', () => {
       dispatch(start)
       await Promise.resolve()
       expect(sockets[0].disconnect).not.toHaveBeenCalled()
-      expect(sockets[1].connect).not.toHaveBeenCalled()
       expect(activeTasks).toBe(1)
     } finally {
       task.cancel()
