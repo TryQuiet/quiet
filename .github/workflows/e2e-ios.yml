@@ -2,10 +2,23 @@ name: Detox E2E iOS
 
 on: workflow_dispatch
 
+permissions:
+  contents: read
+
 jobs:
   detox-ios:
-    timeout-minutes: 25
-    runs-on: [macos-14-xlarge]
+    timeout-minutes: 90
+    # ARM image with Xcode 26.3 and the iOS 18.5 simulator runtime installed.
+    runs-on: macos-15-xlarge
+    defaults:
+      run:
+        shell: bash
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+      BUNDLE_GEMFILE: ${{ github.workspace }}/packages/mobile/Gemfile
+      BUNDLE_FROZEN: 'true'
+      RCT_NO_LAUNCH_PACKAGER: '1'
+      QUIET_TOR_BUILD_JOBS: '2'
 
     steps:
       - uses: actions/checkout@v5
@@ -13,71 +26,131 @@ jobs:
           submodules: recursive
           token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
           lfs: true
+          persist-credentials: false
 
-      - uses: actions/setup-node@master
+      - uses: actions/setup-node@v5
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: .nvmrc
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Set up CocoaPods
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.12'
+          bundler: '2.6.9'
+          working-directory: packages/mobile
+
+      - name: Check native toolchain
+        run: |
+          test "$(uname -m)" = arm64
+          xcodebuild -version
+          xcrun --sdk iphonesimulator --show-sdk-version
+
+      - name: Set build paths
+        run: |
+          echo "QUIET_TOR_SOURCE=$RUNNER_TEMP/quiet-tor4059-source" >> "$GITHUB_ENV"
+          echo "DETOX_IOS_ARM64_TOR_FRAMEWORK=$RUNNER_TEMP/quiet-tor4059-source/build/Build/Products/Release-iphonesimulator/Tor.framework" >> "$GITHUB_ENV"
+          echo "DETOX_IOS_ARM64_E2E_OUTPUT=$RUNNER_TEMP/quiet-e2e-arm64-validation" >> "$GITHUB_ENV"
+
+      - name: Create owned simulator
+        id: simulator
+        run: |
+          quiet_simulator_id=$(xcrun simctl create "Quiet E2E ${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro \
+            com.apple.CoreSimulator.SimRuntime.iOS-18-5)
+          [[ "$quiet_simulator_id" =~ ^[0-9A-Fa-f-]{36}$ ]]
+          echo "udid=$quiet_simulator_id" >> "$GITHUB_OUTPUT"
+          echo "DETOX_IOS_SIMULATOR_ID=$quiet_simulator_id" >> "$GITHUB_ENV"
 
       - name: Install dependencies
         run: |
+          python3 -m pip install setuptools
           npm ci
-          npm run bootstrap -- --scope=\'{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle}\'
+          # Keep checkout's exact gitlinks, including the Node 24 auth fix.
+          npm run build:submodules:ci
+          ./node_modules/.bin/lerna bootstrap --scope '{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common}'
 
-      - name: Pull binaries
+      - name: Check simulator build tooling
         run: |
-          git lfs install --force
-          git lfs pull
+          node --test packages/mobile/scripts/e2e-ios-workflow.test.cjs
+          python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_storybook.py
 
-      - name: Install pods
-        run: |
-          cd packages/mobile/ios
-          pod install
-
-      - name: List simulator devices
-        run: xcrun simctl list devices
-
-      - name: Boot simulator
-        run: |
-          UDID=$(xcrun simctl list devices | grep 'iPhone 15 (' | awk -F '[()]' '{print $2}' | awk 'NR==2')
-          xcrun simctl boot "$UDID"
-
-      - name: Install pm2
-        run: npm install pm2@latest -g
-
-      - name: Start metro
-        run: |
-          cd packages/mobile
-          pm2 --name METRO start npm -- start
-
-      - name: Install Detox CLI
-        run: npm install detox-cli --global
-
-      - name: Install applesimutils
+      - name: Install native build tools
         run: |
           brew tap wix/brew
-          brew install applesimutils
+          brew install autoconf automake libtool gettext applesimutils
 
-      - name: Build Detox
+      - name: Install pods from lockfile
+        working-directory: packages/mobile
         run: |
-          cd packages/mobile
-          detox build -c ios.sim.debug.ci
+          bundle install
+          cd ios
+          bundle exec pod install --deployment
+
+      - name: Prepare pinned ARM simulator Tor
+        run: |
+          python3 packages/mobile/scripts/tor-ios-simulator/reproduce-source.py "$QUIET_TOR_SOURCE"
+          "$QUIET_TOR_SOURCE/build-arm64-simulator.sh"
+
+      - name: Prepare simulator build resource
+        id: firebase
+        working-directory: packages/mobile/ios
+        run: |
+          # Xcode copies this resource; an empty plist leaves Firebase unconfigured.
+          # This simulator test does not require push service credentials.
+          python3 - <<'PY'
+          import plistlib
+          with open('GoogleService-Info.plist', 'xb') as resource:
+              plistlib.dump({}, resource)
+          PY
+
+      - name: Build bundled Detox app
+        working-directory: packages/mobile
+        run: ./node_modules/.bin/detox build -c ios.sim.e2e
+
+      - name: Boot owned simulator
+        run: |
+          xcrun simctl boot "$DETOX_IOS_SIMULATOR_ID"
+          xcrun simctl bootstatus "$DETOX_IOS_SIMULATOR_ID" -b
 
       - name: Run basic tests
-        run: |
-          cd packages/mobile
-          detox test starter -c ios.sim.debug.ci
+        working-directory: packages/mobile
+        run: ./node_modules/.bin/detox test starter -c ios.sim.e2e --artifacts-location "$RUNNER_TEMP/quiet-ios-starter-artifacts"
 
-      - name: Stop metro
-        run: pm2 stop METRO
+      - name: Verify message acknowledgment and persistence
+        working-directory: packages/mobile
+        run: ./node_modules/.bin/detox test native-community -c ios.sim.e2e --artifacts-location "$RUNNER_TEMP/quiet-ios-community-artifacts"
 
       - name: Take screenshot
-        if: always()
-        run: |
-          /usr/bin/xcrun simctl io booted screenshot screenshot.png
+        if: always() && steps.simulator.outputs.udid != ''
+        continue-on-error: true
+        run: xcrun simctl io "$DETOX_IOS_SIMULATOR_ID" screenshot "$RUNNER_TEMP/quiet-ios-screenshot.png"
 
-      - name: Upload screenshot
+      - name: Remove owned simulator
+        if: always() && steps.simulator.outputs.udid != ''
+        run: |
+          xcrun simctl shutdown "$DETOX_IOS_SIMULATOR_ID" || true
+          xcrun simctl delete "$DETOX_IOS_SIMULATOR_ID"
+
+      - name: Remove temporary build resource
+        if: always() && steps.firebase.outcome == 'success'
+        run: rm -- packages/mobile/ios/GoogleService-Info.plist
+
+      - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: screenshot.png
-          path: screenshot.png
+          name: ios-e2e-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/quiet-tor4059-source/build-arm64-simulator.log
+            ${{ runner.temp }}/quiet-tor4059-source/build-platform.txt
+            ${{ runner.temp }}/quiet-e2e-arm64-validation/result.json
+            ${{ runner.temp }}/quiet-e2e-arm64-validation/runs
+            ${{ runner.temp }}/quiet-ios-starter-artifacts
+            ${{ runner.temp }}/quiet-ios-community-artifacts
+            ${{ runner.temp }}/quiet-ios-screenshot.png
+          if-no-files-found: ignore
+          retention-days: 7
