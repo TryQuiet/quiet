@@ -77,22 +77,26 @@ class NSENetworkClient: NSEAuthNetworking {
         request.httpMethod = "GET"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        return try await perform(request: request, as: LogEntriesResponse.self, maxResponseBytes: Self.maximumLogResponseBytes) { code in
+        return try await perform(request: request, as: LogEntriesResponse.self) { code in
             throw NSEAuthError.logFetchFailed(statusCode: code)
         }
     }
 
     // MARK: - Private helper
 
-    /// The relay is untrusted and the extension runs under a tight memory limit, so a 2xx body
-    /// is rejected before decoding when it is larger than the endpoint could legitimately need.
+    /// The relay is untrusted and the extension runs under a tight memory limit, so a 2xx
+    /// challenge or token body is rejected before decoding when it is larger than the
+    /// protocol could legitimately need. This is checked after `URLSession` has buffered the
+    /// body, so it bounds the parse work (the challenge is scanned twice), not the download;
+    /// enforcing it while receiving needs a delegate-based session and is a follow-up.
+    /// Log fetches are not capped: the server does not page them, so a cap would permanently
+    /// stall a device whose valid backlog exceeded it.
     static let maximumAuthResponseBytes = 16 * 1024
-    static let maximumLogResponseBytes = 4 * 1024 * 1024
 
     private func perform<T: Decodable>(
         request: URLRequest,
         as type: T.Type,
-        maxResponseBytes: Int,
+        maxResponseBytes: Int? = nil,
         onError: (Int) throws -> Void
     ) async throws -> T {
         let method = request.httpMethod ?? "GET"
@@ -121,7 +125,7 @@ class NSENetworkClient: NSEAuthNetworking {
             throw NSEAuthError.invalidResponse // unreachable; onError always throws
         }
 
-        guard data.count <= maxResponseBytes else {
+        if let maxResponseBytes, data.count > maxResponseBytes {
             os_log("perform: %{public}@ response of %{public}d bytes exceeds limit %{public}d", log: netLog, type: .error, urlStr, data.count, maxResponseBytes)
             throw NSEAuthError.invalidResponse
         }
