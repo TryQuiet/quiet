@@ -14,6 +14,225 @@ enum NSEJSON {
     }
 }
 
+// MARK: - Strict JSON token scan
+
+/// Reports what `JSONDecoder` cannot: duplicate member names and the exact text of number
+/// tokens. `JSONDecoder` keeps the first of two duplicate members and `JSONSerialization`
+/// keeps the last, so a check that re-parses a document with a second parser must first
+/// establish that the document has no duplicates at all; otherwise the two parsers can be
+/// looking at different values. Member names are compared after unescaping, so
+/// `"issuedAtMs"` and `"issuedAtMs"` count as the same name, as they do for `JSONDecoder`.
+indirect enum NSEJSONToken {
+    case object([String: NSEJSONToken])
+    case array([NSEJSONToken])
+    case string(String)
+    case number(String)
+    case literal(String)
+
+    struct ScanError: Error, CustomStringConvertible {
+        let description: String
+    }
+
+    static let maximumDepth = 32
+
+    static func scan(_ data: Data) throws -> NSEJSONToken {
+        var cursor = Cursor(bytes: [UInt8](data))
+        cursor.skipWhitespace()
+        let value = try cursor.value(depth: 0)
+        cursor.skipWhitespace()
+        guard cursor.atEnd else { throw ScanError(description: "trailing characters after JSON value") }
+        return value
+    }
+
+    /// True for an integer literal as the server and the Android client emit and accept them.
+    static func isIntegerLiteral(_ text: String) -> Bool {
+        text.range(of: "^-?(0|[1-9][0-9]*)$", options: .regularExpression) != nil
+    }
+
+    private struct Cursor {
+        let bytes: [UInt8]
+        var index = 0
+
+        init(bytes: [UInt8]) { self.bytes = bytes }
+
+        var atEnd: Bool { index >= bytes.count }
+        var current: UInt8? { atEnd ? nil : bytes[index] }
+
+        mutating func skipWhitespace() {
+            while let c = current, c == 0x20 || c == 0x09 || c == 0x0A || c == 0x0D { index += 1 }
+        }
+
+        mutating func expect(_ byte: UInt8) throws {
+            guard current == byte else {
+                throw ScanError(description: "expected '\(UnicodeScalar(byte))' at byte \(index)")
+            }
+            index += 1
+        }
+
+        mutating func value(depth: Int) throws -> NSEJSONToken {
+            guard depth <= NSEJSONToken.maximumDepth else { throw ScanError(description: "JSON nested too deeply") }
+            guard let c = current else { throw ScanError(description: "unexpected end of JSON") }
+            switch c {
+            case UInt8(ascii: "{"): return try object(depth: depth)
+            case UInt8(ascii: "["): return try array(depth: depth)
+            case UInt8(ascii: "\""): return .string(try string())
+            case UInt8(ascii: "-"), UInt8(ascii: "0")...UInt8(ascii: "9"): return .number(try number())
+            default: return .literal(try literal())
+            }
+        }
+
+        mutating func object(depth: Int) throws -> NSEJSONToken {
+            try expect(UInt8(ascii: "{"))
+            var members: [String: NSEJSONToken] = [:]
+            skipWhitespace()
+            if current == UInt8(ascii: "}") { index += 1; return .object(members) }
+            while true {
+                skipWhitespace()
+                let name = try string()
+                skipWhitespace()
+                try expect(UInt8(ascii: ":"))
+                skipWhitespace()
+                let member = try value(depth: depth + 1)
+                guard members.updateValue(member, forKey: name) == nil else {
+                    throw ScanError(description: "duplicate member \"\(name)\"")
+                }
+                skipWhitespace()
+                if current == UInt8(ascii: ",") { index += 1; continue }
+                try expect(UInt8(ascii: "}"))
+                return .object(members)
+            }
+        }
+
+        mutating func array(depth: Int) throws -> NSEJSONToken {
+            try expect(UInt8(ascii: "["))
+            var items: [NSEJSONToken] = []
+            skipWhitespace()
+            if current == UInt8(ascii: "]") { index += 1; return .array(items) }
+            while true {
+                skipWhitespace()
+                items.append(try value(depth: depth + 1))
+                skipWhitespace()
+                if current == UInt8(ascii: ",") { index += 1; continue }
+                try expect(UInt8(ascii: "]"))
+                return .array(items)
+            }
+        }
+
+        mutating func string() throws -> String {
+            try expect(UInt8(ascii: "\""))
+            var result = String.UnicodeScalarView()
+            var pending: [UInt8] = []
+            func flush() throws {
+                guard !pending.isEmpty else { return }
+                guard let text = String(bytes: pending, encoding: .utf8) else {
+                    throw ScanError(description: "invalid UTF-8 in string")
+                }
+                result.append(contentsOf: text.unicodeScalars)
+                pending.removeAll(keepingCapacity: true)
+            }
+            while true {
+                guard let c = current else { throw ScanError(description: "unterminated string") }
+                index += 1
+                switch c {
+                case UInt8(ascii: "\""):
+                    try flush()
+                    return String(result)
+                case UInt8(ascii: "\\"):
+                    try flush()
+                    guard let e = current else { throw ScanError(description: "unterminated escape") }
+                    index += 1
+                    switch e {
+                    case UInt8(ascii: "\""): result.append("\"")
+                    case UInt8(ascii: "\\"): result.append("\\")
+                    case UInt8(ascii: "/"): result.append("/")
+                    case UInt8(ascii: "b"): result.append("\u{08}")
+                    case UInt8(ascii: "f"): result.append("\u{0C}")
+                    case UInt8(ascii: "n"): result.append("\n")
+                    case UInt8(ascii: "r"): result.append("\r")
+                    case UInt8(ascii: "t"): result.append("\t")
+                    case UInt8(ascii: "u"):
+                        var unit = try hex4()
+                        if (0xD800...0xDBFF).contains(unit) {
+                            guard current == UInt8(ascii: "\\") else { throw ScanError(description: "lone high surrogate") }
+                            index += 1
+                            guard current == UInt8(ascii: "u") else { throw ScanError(description: "lone high surrogate") }
+                            index += 1
+                            let low = try hex4()
+                            guard (0xDC00...0xDFFF).contains(low) else { throw ScanError(description: "invalid low surrogate") }
+                            unit = 0x10000 + ((unit - 0xD800) << 10) + (low - 0xDC00)
+                        } else if (0xDC00...0xDFFF).contains(unit) {
+                            throw ScanError(description: "lone low surrogate")
+                        }
+                        guard let scalar = UnicodeScalar(unit) else { throw ScanError(description: "invalid unicode escape") }
+                        result.append(scalar)
+                    default:
+                        throw ScanError(description: "invalid escape")
+                    }
+                case 0x00...0x1F:
+                    throw ScanError(description: "control character in string")
+                default:
+                    pending.append(c)
+                }
+            }
+        }
+
+        mutating func hex4() throws -> UInt32 {
+            guard index + 4 <= bytes.count else { throw ScanError(description: "short unicode escape") }
+            var value: UInt32 = 0
+            for _ in 0..<4 {
+                let c = bytes[index]
+                index += 1
+                let digit: UInt32
+                switch c {
+                case UInt8(ascii: "0")...UInt8(ascii: "9"): digit = UInt32(c - UInt8(ascii: "0"))
+                case UInt8(ascii: "a")...UInt8(ascii: "f"): digit = UInt32(c - UInt8(ascii: "a") + 10)
+                case UInt8(ascii: "A")...UInt8(ascii: "F"): digit = UInt32(c - UInt8(ascii: "A") + 10)
+                default: throw ScanError(description: "invalid hex digit in unicode escape")
+                }
+                value = value * 16 + digit
+            }
+            return value
+        }
+
+        mutating func number() throws -> String {
+            let start = index
+            if current == UInt8(ascii: "-") { index += 1 }
+            guard let first = current, (UInt8(ascii: "0")...UInt8(ascii: "9")).contains(first) else {
+                throw ScanError(description: "invalid number")
+            }
+            if first == UInt8(ascii: "0") { index += 1 } else { digits() }
+            if current == UInt8(ascii: ".") { index += 1; try requireDigits() }
+            if current == UInt8(ascii: "e") || current == UInt8(ascii: "E") {
+                index += 1
+                if current == UInt8(ascii: "+") || current == UInt8(ascii: "-") { index += 1 }
+                try requireDigits()
+            }
+            return String(decoding: bytes[start..<index], as: UTF8.self)
+        }
+
+        mutating func digits() {
+            while let c = current, (UInt8(ascii: "0")...UInt8(ascii: "9")).contains(c) { index += 1 }
+        }
+
+        mutating func requireDigits() throws {
+            let start = index
+            digits()
+            guard index > start else { throw ScanError(description: "invalid number") }
+        }
+
+        mutating func literal() throws -> String {
+            for word in ["true", "false", "null"] {
+                let expected = Array(word.utf8)
+                if index + expected.count <= bytes.count, Array(bytes[index..<index + expected.count]) == expected {
+                    index += expected.count
+                    return word
+                }
+            }
+            throw ScanError(description: "unexpected token at byte \(index)")
+        }
+    }
+}
+
 // MARK: - Error Types
 
 enum NSEAuthError: Error, LocalizedError {
@@ -133,19 +352,21 @@ struct ChallengePayload: Decodable {
         nonce = try values.decode(String.self, forKey: .nonce)
         issuedAtMs = try values.decode(Int64.self, forKey: .issuedAtMs)
         expiresAtMs = try values.decode(Int64.self, forKey: .expiresAtMs)
-        try Self.requireIntegerLiterals(decoder: decoder, keys: [.issuedAtMs, .expiresAtMs])
+        try Self.requireIntegerLiterals(decoder: decoder, keys: [.protocolVersion, .issuedAtMs, .expiresAtMs])
     }
 
-    /// Rejects timestamps that were not integer JSON literals.
+    /// Rejects integers that were not integer JSON literals.
     ///
-    /// `JSONDecoder` accepts any number whose `Double` value is integral when decoding
-    /// `Int64`, so `1700000000000.0001` (below `Double` precision), `1e12` and
-    /// `1700000000000.0` all decode as plain integers, while the server and the Android
-    /// client only accept an integer literal. `Decimal` does not help: on iOS 17 Foundation
-    /// builds it from a `Double`, and it accepts exponent forms. So look at the token itself.
-    /// `JSONSerialization` keeps the integer/floating-point distinction of the literal in the
-    /// `NSNumber` it produces, and the raw response bytes reach this initializer through the
-    /// decoder's `userInfo` (see `NSEJSON.decode`). Decoding without the raw bytes fails closed.
+    /// `JSONDecoder` accepts any number whose `Double` value is integral when decoding an
+    /// integer type, so `1700000000000.0001` (below `Double` precision), `1e12`, `1.0` and
+    /// `1700000000000.0` all decode as plain integers, while the server and the Android client
+    /// only accept an integer literal. `Decimal` does not help: on iOS 17 Foundation builds it
+    /// from a `Double`, and it accepts exponent forms. So look at the token itself: the raw
+    /// response bytes reach this initializer through the decoder's `userInfo` (see
+    /// `NSEJSON.decode`), a strict scan of the whole document rejects duplicate member names
+    /// anywhere (which is what guarantees the walk below lands on the object `JSONDecoder`
+    /// decoded), and the number tokens must be integer literals. Decoding without the raw bytes
+    /// fails closed.
     private static func requireIntegerLiterals(decoder: Decoder, keys: [CodingKeys]) throws {
         func corrupted(_ message: String) -> DecodingError {
             DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: message))
@@ -153,23 +374,30 @@ struct ChallengePayload: Decodable {
         guard let raw = decoder.userInfo[NSEJSON.rawDataKey] as? Data else {
             throw corrupted("Challenge was decoded without its raw JSON")
         }
-        var node = try JSONSerialization.jsonObject(with: raw)
+        var node: NSEJSONToken
+        do {
+            node = try NSEJSONToken.scan(raw)
+        } catch {
+            throw corrupted("Challenge JSON was not strict: \(error)")
+        }
         for key in decoder.codingPath {
-            if let index = key.intValue, let array = node as? [Any], array.indices.contains(index) {
-                node = array[index]
-            } else if let object = node as? [String: Any], let child = object[key.stringValue] {
+            switch (node, key.intValue) {
+            case (.array(let items), let index?) where items.indices.contains(index):
+                node = items[index]
+            case (.object(let members), nil):
+                guard let child = members[key.stringValue] else {
+                    throw corrupted("Challenge path was not found in the raw JSON")
+                }
                 node = child
-            } else {
+            default:
                 throw corrupted("Challenge path was not found in the raw JSON")
             }
         }
-        guard let object = node as? [String: Any] else {
+        guard case .object(let members) = node else {
             throw corrupted("Challenge was not a JSON object in the raw JSON")
         }
         for key in keys {
-            guard let number = object[key.rawValue] as? NSNumber,
-                  CFGetTypeID(number) != CFBooleanGetTypeID(),
-                  !CFNumberIsFloatType(number) else {
+            guard case .number(let text)? = members[key.rawValue], NSEJSONToken.isIntegerLiteral(text) else {
                 throw corrupted("\(key.rawValue) was not an integer JSON literal")
             }
         }

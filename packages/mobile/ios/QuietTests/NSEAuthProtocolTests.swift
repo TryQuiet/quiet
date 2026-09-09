@@ -72,19 +72,39 @@ final class NSEAuthProtocolTests: XCTestCase {
         XCTAssertThrowsError(try challenge(overrides: ["issuedAtMs": "1700000000000"]))
         XCTAssertThrowsError(try challenge(overrides: ["type": 7]))
 
-        // Only an integer literal is acceptable for a timestamp, matching the server and
-        // Android. Every one of these decodes as an integral Int64 through JSONDecoder alone.
-        func literal(issuedAtMs: String) -> Data {
+        // Only an integer literal is acceptable for an integer field, matching the server and
+        // Android. Every one of these decodes as an integral value through JSONDecoder alone.
+        func document(issuedAtMs: String = "1700000000000", protocolVersion: String = "1", extraMembers: String = "") -> Data {
             """
-            {"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":\(issuedAtMs),"expiresAtMs":1700000030000}
+            {"protocolVersion":\(protocolVersion),"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":\(issuedAtMs)\(extraMembers),"expiresAtMs":1700000030000}
             """.data(using: .utf8)!
         }
-        XCTAssertNoThrow(try NSEJSON.decode(ChallengePayload.self, from: literal(issuedAtMs: "1700000000000")))
+        XCTAssertNoThrow(try NSEJSON.decode(ChallengePayload.self, from: document()))
         for bad in ["1700000000000.0001", "1700000000000.0", "1700000000000.5", "1.7e12", "1E12", "true"] {
-            XCTAssertThrowsError(try NSEJSON.decode(ChallengePayload.self, from: literal(issuedAtMs: bad)), bad)
+            XCTAssertThrowsError(try NSEJSON.decode(ChallengePayload.self, from: document(issuedAtMs: bad)), bad)
         }
+        for bad in ["1e0", "1.0"] {
+            XCTAssertThrowsError(try NSEJSON.decode(ChallengePayload.self, from: document(protocolVersion: bad)), bad)
+        }
+
+        // Duplicate members make JSONDecoder and any second parser see different values, so
+        // the whole document must be free of them, including escape-equivalent names.
+        XCTAssertThrowsError(try NSEJSON.decode(
+            ChallengePayload.self, from: document(issuedAtMs: "1.7e12", extraMembers: #","issuedAtMs":1700000000000"#)
+        ))
+        XCTAssertThrowsError(try NSEJSON.decode(
+            ChallengePayload.self, from: document(extraMembers: #","issuedAtMs":1700000000000"#)
+        ))
+        XCTAssertThrowsError(try NSEJSON.decode(
+            ChallengePayload.self, from: document(extraMembers: #","type":"DEVICE""#)
+        ))
+        let duplicateChallenge = """
+        {"challengeId":"00112233445566778899aabbccddeeff","challenge":{"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":1.7e12,"expiresAtMs":1700000030000},"challenge":{"protocolVersion":1,"type":"DEVICE","deviceId":"device-test-1","teamId":"team-test-1","qssServerId":"qss-test-1","challengeId":"00112233445566778899aabbccddeeff","nonce":"11111111111111111111111111111111","issuedAtMs":1700000000000,"expiresAtMs":1700000030000}}
+        """.data(using: .utf8)!
+        XCTAssertThrowsError(try NSEJSON.decode(ChallengeResponse.self, from: duplicateChallenge))
+
         // The literal check needs the raw bytes; decoding without them must fail closed.
-        XCTAssertThrowsError(try JSONDecoder().decode(ChallengePayload.self, from: literal(issuedAtMs: "1700000000000")))
+        XCTAssertThrowsError(try JSONDecoder().decode(ChallengePayload.self, from: document()))
     }
 
     func testAuthenticateRejectsEveryMaliciousChallengeBeforePrivateKeySigningOrTokenRequest() async throws {

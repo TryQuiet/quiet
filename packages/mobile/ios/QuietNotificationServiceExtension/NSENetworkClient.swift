@@ -40,7 +40,7 @@ class NSENetworkClient: NSEAuthNetworking {
         let body = ["deviceId": deviceId, "teamId": teamId]
         request.httpBody = try Self.encoder.encode(body)
 
-        return try await perform(request: request, as: ChallengeResponse.self) { code in
+        return try await perform(request: request, as: ChallengeResponse.self, maxResponseBytes: Self.maximumAuthResponseBytes) { code in
             throw NSEAuthError.challengeRequestFailed(statusCode: code)
         }
     }
@@ -56,7 +56,7 @@ class NSENetworkClient: NSEAuthNetworking {
         let body = TokenRequest(challengeId: challengeId, deviceId: deviceId, signature: signature)
         request.httpBody = try Self.encoder.encode(body)
 
-        return try await perform(request: request, as: TokenResponse.self) { code in
+        return try await perform(request: request, as: TokenResponse.self, maxResponseBytes: Self.maximumAuthResponseBytes) { code in
             throw NSEAuthError.tokenRequestFailed(statusCode: code)
         }
     }
@@ -77,16 +77,22 @@ class NSENetworkClient: NSEAuthNetworking {
         request.httpMethod = "GET"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        return try await perform(request: request, as: LogEntriesResponse.self) { code in
+        return try await perform(request: request, as: LogEntriesResponse.self, maxResponseBytes: Self.maximumLogResponseBytes) { code in
             throw NSEAuthError.logFetchFailed(statusCode: code)
         }
     }
 
     // MARK: - Private helper
 
+    /// The relay is untrusted and the extension runs under a tight memory limit, so a 2xx body
+    /// is rejected before decoding when it is larger than the endpoint could legitimately need.
+    static let maximumAuthResponseBytes = 16 * 1024
+    static let maximumLogResponseBytes = 4 * 1024 * 1024
+
     private func perform<T: Decodable>(
         request: URLRequest,
         as type: T.Type,
+        maxResponseBytes: Int,
         onError: (Int) throws -> Void
     ) async throws -> T {
         let method = request.httpMethod ?? "GET"
@@ -113,6 +119,11 @@ class NSENetworkClient: NSEAuthNetworking {
             os_log("perform: error body: %{public}@", log: netLog, type: .error, body)
             try onError(http.statusCode)
             throw NSEAuthError.invalidResponse // unreachable; onError always throws
+        }
+
+        guard data.count <= maxResponseBytes else {
+            os_log("perform: %{public}@ response of %{public}d bytes exceeds limit %{public}d", log: netLog, type: .error, urlStr, data.count, maxResponseBytes)
+            throw NSEAuthError.invalidResponse
         }
 
         do {
