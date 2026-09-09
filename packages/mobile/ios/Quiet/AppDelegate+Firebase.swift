@@ -39,12 +39,8 @@ extension AppDelegate: MessagingDelegate {
 
     @objc func sendFCMTokenToReactNative(token: String) {
         DispatchQueue.main.async {
-            if let bridge = self.bridge {
-                if let communicationModule = bridge.module(for: CommunicationModule.self)
-                    as? CommunicationModule
-                {
-                    communicationModule.sendDeviceToken(token)
-                }
+            if let communicationModule = self.communicationModule as? CommunicationModule {
+                communicationModule.sendDeviceToken(token)
             }
         }
     }
@@ -63,16 +59,6 @@ extension AppDelegate: MessagingDelegate {
         // Print notification payload for debugging
         print("Notification received in foreground: \(userInfo)")
 
-        // Forward to React Native if needed
-        if let bridge = self.bridge {
-            if let communicationModule = bridge.module(for: CommunicationModule.self)
-                as? CommunicationModule
-            {
-                // You can add a method to CommunicationModule to handle this
-                // communicationModule.handleNotification(userInfo)
-            }
-        }
-
         // Show notification even when app is in foreground
         if #available(iOS 14.0, *) {
             completionHandler([[.banner, .sound, .badge]])
@@ -90,16 +76,6 @@ extension AppDelegate: MessagingDelegate {
         let userInfo = response.notification.request.content.userInfo
 
         print("Notification tapped: \(userInfo)")
-
-        // Forward to React Native
-        if let bridge = self.bridge {
-            if let communicationModule = bridge.module(for: CommunicationModule.self)
-                as? CommunicationModule
-            {
-                // You can add a method to CommunicationModule to handle notification taps
-                // communicationModule.handleNotificationTap(userInfo)
-            }
-        }
 
         completionHandler()
     }

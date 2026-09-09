@@ -2,7 +2,10 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
+#import <React/RCTModuleRegistry.h>
 #import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
+// RCTHost exposes C++ runtime types, so this AppDelegate is compiled as Objective-C++.
+#import <ReactCommon/RCTHost.h>
 
 // Firebase imports
 @import FirebaseCore;
@@ -67,6 +70,17 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 };
+
+- (id)communicationModule
+{
+  // Bridgeless React Native owns modules through its host, leaving self.bridge nil.
+  // Always resolve the managed instance so its event emitter is attached to JS.
+  RCTModuleRegistry *registry = self.rootViewFactory.reactHost.moduleRegistry;
+  if (registry != nil) {
+    return (CommunicationModule *)[registry moduleForName:"CommunicationModule"];
+  }
+  return (CommunicationModule *)[self.bridge moduleForName:@"CommunicationModule"];
+}
 
 - (void) createDataDirectory {
   DataDirectory *dataDirectory = [DataDirectory new];
@@ -158,7 +172,7 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
     NSTimeInterval delayInSeconds = 0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[self.bridge moduleForName:@"CommunicationModule"] appPause];
+      [self.communicationModule appPause];
     });
   });
 }
@@ -171,7 +185,7 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
     NSTimeInterval delayInSeconds = 0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[self.bridge moduleForName:@"CommunicationModule"] appResume];
+      [self.communicationModule appResume];
     });
   });
 
@@ -181,28 +195,6 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 - (void)applicationWillTerminate:(UIApplication *)application
 {
   [self.tor shutdown];
-}
-
-/// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
-///
-/// @see: https://reactjs.org/blog/2022/03/29/react-v18.html
-/// @note: This requires to be rendering on Fabric (i.e. on the New Architecture).
-/// @return: `true` if the `concurrentRoot` feture is enabled. Otherwise, it returns `false`.
-- (BOOL)concurrentRootEnabled
-{
-  // Switch this bool to turn on and off the concurrent root
-  return true;
-}
-
-- (NSDictionary *)prepareInitialProps
-{
-  NSMutableDictionary *initProps = [NSMutableDictionary new];
-
-#ifdef RCT_NEW_ARCH_ENABLED
-  initProps[kRNConcurrentRoot] = @([self concurrentRootEnabled]);
-#endif
-
-  return initProps;
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
@@ -218,45 +210,6 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
 }
-
-#if RCT_NEW_ARCH_ENABLED
-
-#pragma mark - RCTCxxBridgeDelegate
-
-- (std::unique_ptr<facebook::react::JSExecutorFactory>)jsExecutorFactoryForBridge:(RCTBridge *)bridge
-{
-  _turboModuleManager = [[RCTTurboModuleManager alloc] initWithBridge:bridge
-                                                             delegate:self
-                                                            jsInvoker:bridge.jsCallInvoker];
-  return RCTAppSetupDefaultJsExecutorFactory(bridge, _turboModuleManager);
-}
-
-#pragma mark RCTTurboModuleManagerDelegate
-
-- (Class)getModuleClassFromName:(const char *)name
-{
-  return RCTCoreModulesClassProvider(name);
-}
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const std::string &)name
-                                                      jsInvoker:(std::shared_ptr<facebook::react::CallInvoker>)jsInvoker
-{
-  return nullptr;
-}
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const std::string &)name
-                                                     initParams:
-                                                         (const facebook::react::ObjCTurboModule::InitParams &)params
-{
-  return nullptr;
-}
-
-- (id<RCTTurboModule>)getModuleInstanceFromClass:(Class)moduleClass
-{
-  return RCTAppSetupDefaultModuleFromClass(moduleClass);
-}
-
-#endif
 
 #pragma mark - Push Notification Registration
 
