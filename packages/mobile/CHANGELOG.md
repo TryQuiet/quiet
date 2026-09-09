@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [9.0.0-alpha.15](https://github.com/TryQuiet/quiet-private/compare/@quiet/mobile@9.0.0-alpha.14...@quiet/mobile@9.0.0-alpha.15) (2026-09-09)
+
+
+### Bug Fixes
+
+* **mobile:** suppress self and unknown-user notifications on Android and iOS ([#339](https://github.com/TryQuiet/quiet-private/issues/339)) ([e98e974](https://github.com/TryQuiet/quiet-private/commit/e98e974712e6d939d13908553be60f453cf2af2a))
+
+
+
+
+
 # Changelog
 
 ## [9.0.0]
