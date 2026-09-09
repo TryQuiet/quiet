@@ -140,7 +140,7 @@ async function runEmbeddedSmoke() {
     assert.ok(path.isAbsolute(documents), 'Native data directory must be absolute')
     report.nativeBridge = true
     report.stage = 'validate-run-id'
-    const runId = process.env.QUIET_EMBEDDED_NODE_DATABASE_RUN_ID || 'rn081-classic-level-v2'
+    const runId = process.env.QUIET_EMBEDDED_NODE_DATABASE_RUN_ID || 'rn-newarch-classic-level-v3'
     assert.match(runId, /^[a-z0-9][a-z0-9_-]{0,63}$/, 'Use a simple, public test run ID')
     report.runId = runId
     const runDirectory = path.join(documents, 'quiet-embedded-node-smoke', runId)

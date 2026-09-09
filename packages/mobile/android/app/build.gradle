@@ -228,6 +228,7 @@ android {
     }
     sourceSets {
         main.assets.srcDirs += "../install/resources/nodejs-modules"
+        androidTest.assets.srcDirs += "../../e2e/fixtures"
     }
     flavorDimensions += "version"
     productFlavors {
@@ -268,6 +269,7 @@ dependencies {
     androidTestImplementation("com.wix:detox:${new groovy.json.JsonSlurper().parse(file("$rootDir/../node_modules/detox/package.json")).version}")
     androidTestImplementation("androidx.test:core:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.work:work-testing:2.11.1")
 
     if (hermesEnabled.toBoolean()) {
         // Match the Hermes runtime and bytecode compiler to React Native's version.
