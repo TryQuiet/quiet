@@ -60,6 +60,7 @@ upgrades the separate Node runtime that executes Quiet's backend.
 
 | Check | Result |
 | --- | --- |
+| Mobile TypeScript and ESLint | Pass; 12 existing lint warnings |
 | Mobile Jest | 55 suites, 136 tests, 44 snapshots pass; 3 existing skips |
 | Package execution, CLI XML, Promise, and Screens patch regressions | 15 tests pass |
 | Runtime archive installer | 275 installed files verified; 6 archive/rollback tests pass |
@@ -69,7 +70,11 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Storybook APK and universal release APK native alignment | All 24 ELF files, including the addon, pass every 16 KB LOAD check; APK ZIP alignment passes |
 | Actual Hermes, Fabric, bridgeless mode, WebView crypto, and native events | Pass on API 35 and 36 with default Detox synchronization |
 | Keyboard and modal Back, edge gestures, rotation, activity recreation, and real photo selection/cancellation | Pass on API 35 and 36; 9 tests in 5 suites on each |
-| iOS dependency compilation | All 109 pods compile; corrected AppDelegate Objective-C++ compile passes; full linking and runtime validation continue |
+| iOS ARM Storybook app | Builds with Xcode 26.3; all 109 pods compile; strict simulator app signature and exact Tor restoration pass |
+| iOS ARM simulator runtime | 2 tests pass on iOS 18.5: actual Fabric/bridgeless/Hermes/WebView crypto and managed native event/background/resume routing |
+| Android embedded Node database | Node 24.18.0 / ABI 137 / Node-API 10; native JNI event correlation and existing addon pass write/read/iterate/reopen across 2 actual app processes |
+| iOS embedded Node database | Same runtime identity; native bridge, existing addon, 8 compressed tables, and persistence across 2 app processes pass |
+| Standard iOS simulator build support | Debug/E2E/QSS/Release ARM routes use the guarded builder; 31 portable tests pass; actual standard app build continues |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
 debug signing. The fixture was removed afterward; these checks do not validate
@@ -78,10 +83,26 @@ production push delivery or store credentials.
 The UI fixtures use production components without starting the full community
 backend. Separate tests must establish embedded Node startup, bridge transport,
 database persistence across processes, authentication, and Tor/community behavior.
-A supplemental Node 24 host run passed 51 existing storage/lifecycle/bridge tests
-but exposed a MessagePack 1.10.2 authentication serialization failure; the same
-three authentication tests pass on Node 20. Resolving that dependency is required
-before accepting the runtime upgrade.
+A supplemental Node 24 host run exposed a MessagePack 1.10.2 authentication
+serialization failure. A separate auth dependency update to 1.11.8 fixes it:
+all 54 focused backend tests pass, and a new six-test crypto regression covers
+long Unicode payloads, hashing, signatures, encryption and tamper rejection.
+The auth update is committed locally and awaits repository write access before
+its companion PR and this branch's submodule pointer can be published. The
+rebuilt backend bundle contains no old serializer or unsafe Buffer write calls.
+Fresh-data behavior is the requested scope; cross-version data migration is not
+an acceptance requirement.
+
+The full auth suite ran 490 tests on Node 24: 402 passed and 88 failed. Node 20
+controls reproduced all 88 failures by exact test name, with no Node 24-only
+failures. This comparison does not establish that the pre-update dependency
+suite was green.
+
+The normal Android app reaches community creation and channel navigation with
+the updated backend. Its full starter run passed 18/25 checks and exposed a
+composer/keyboard visibility problem during message sending, with subsequent
+navigation failures. That flow is still under investigation; it is not recorded
+as a full community/messaging pass.
 
 The requested physical iPhone check of the previous PR (#3422) is also pending:
 the paired device and provisioning profiles are available, but the Mac login
