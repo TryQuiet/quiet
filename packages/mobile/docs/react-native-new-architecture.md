@@ -61,7 +61,7 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Check | Result |
 | --- | --- |
 | Mobile TypeScript and ESLint | Pass; 12 existing lint warnings |
-| Mobile Jest | 55 suites, 136 tests, 44 snapshots pass; 3 existing skips |
+| Mobile Jest | 56 suites, 137 tests, 44 snapshots pass; 3 existing skips |
 | Package execution, CLI XML, Promise, and Screens patch regressions | 15 tests pass |
 | Runtime archive installer | 275 installed files verified; 6 archive/rollback tests pass |
 | Host classic-level addon built with Node 24 headers | 6 tests pass on Node 24.13.0 |
@@ -70,11 +70,13 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Storybook APK and universal release APK native alignment | All 24 ELF files, including the addon, pass every 16 KB LOAD check; APK ZIP alignment passes |
 | Actual Hermes, Fabric, bridgeless mode, WebView crypto, and native events | Pass on API 35 and 36 with default Detox synchronization |
 | Keyboard and modal Back, edge gestures, rotation, activity recreation, and real photo selection/cancellation | Pass on API 35 and 36; 9 tests in 5 suites on each |
+| Keyboard fix from #3422 | Strengthened four-case keyboard/Back/modal/rotation suite passes on both API 35 and 36, including fully visible input and Send with the portrait keyboard open |
 | iOS ARM Storybook app | Builds with Xcode 26.3; all 109 pods compile; strict simulator app signature and exact Tor restoration pass |
 | iOS ARM simulator runtime | 2 tests pass on iOS 18.5: actual Fabric/bridgeless/Hermes/WebView crypto and managed native event/background/resume routing |
 | Android embedded Node database | Node 24.18.0 / ABI 137 / Node-API 10; native JNI event correlation and existing addon pass write/read/iterate/reopen across 2 actual app processes |
 | iOS embedded Node database | Same runtime identity; native bridge, existing addon, 8 compressed tables, and persistence across 2 app processes pass |
-| Standard iOS simulator build support | Debug/E2E/QSS/Release ARM routes use the guarded builder; 31 portable tests pass; actual standard app build continues |
+| Standard iOS simulator build support | Debug/E2E/QSS/Release ARM routes use the guarded builder; 31 portable tests pass; actual standard Debug app builds and passes strict signing and Tor restoration checks |
+| Standard iOS community and messaging | Fresh community, username, visible keyboard-open input/Send, exact message's backend storage acknowledgment, process restart, and restored community/message pass with default Detox synchronization |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
 debug signing. The fixture was removed afterward; these checks do not validate
@@ -93,16 +95,23 @@ rebuilt backend bundle contains no old serializer or unsafe Buffer write calls.
 Fresh-data behavior is the requested scope; cross-version data migration is not
 an acceptance requirement.
 
-The full auth suite ran 490 tests on Node 24: 402 passed and 88 failed. Node 20
-controls reproduced all 88 failures by exact test name, with no Node 24-only
-failures. This comparison does not establish that the pre-update dependency
-suite was green.
+The full auth suite ran 490 tests on Node 24: 402 passed and 88 failed. An
+isolated original auth checkout with MessagePack 1.10.2 on Node 20 reproduced
+the exact same 88 failing test names (396 passed). The six added regression
+tests account for the passing-test difference; no new failing test appears.
 
-The normal Android app reaches community creation and channel navigation with
-the updated backend. Its full starter run passed 18/25 checks and exposed a
-composer/keyboard visibility problem during message sending, with subsequent
-navigation failures. That flow is still under investigation; it is not recorded
-as a full community/messaging pass.
+The normal Android app completes Tor bootstrap (100%) and initializes storage.
+The composer fix from #3422 allows creating a community, typing and sending with
+the keyboard open, and reopening the displayed message after a process restart.
+That earlier check could pass using the optimistic frontend cache. A stronger
+test now requires the exact message's backend storage acknowledgment before
+restarting. Native traces confirm the original message is acknowledged, but the
+stronger Android check is encountering intermittent startup network/animation
+idle timeouts before sending. The full focused flow passes on the standard iOS
+app, including backend acknowledgment before restarting. Its test targets the
+actual native multiline composer because Fabric can drop a reused test
+identifier when replacing a single-line field. Explicit native hierarchy anchors
+keep each message's text under its own pending/stored marker on both platforms.
 
 The requested physical iPhone check of the previous PR (#3422) is also pending:
 the paired device and provisioning profiles are available, but the Mac login
