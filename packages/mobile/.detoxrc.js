@@ -65,7 +65,7 @@ module.exports = {
       type: 'ios.app',
       binaryPath: 'ios/build/storybook/Build/Products/Debug-iphonesimulator/Quiet.app',
       build:
-        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/storybook -arch x86_64',
+        'ENVFILE=.env.storybook xcodebuild -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath ios/build/storybook',
     },
     'ios.release': {
       type: 'ios.app',
