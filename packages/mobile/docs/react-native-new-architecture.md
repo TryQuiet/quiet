@@ -85,6 +85,7 @@ upgrades the separate Node runtime that executes Quiet's backend.
 | Standard Android community and messaging | The same full focused flow passes on API 35 with the corrected Tor detector and supported Detox idle defaults |
 | Native ARM Android 16 KB community and messaging | The complete focused flow passes on the Mac-hosted ARM64 API 36 emulator with 16 KB pages, no CPU translation, and default synchronization |
 | Full Android starter suite | All 25 tests pass on both API 35 and native ARM64 API 36 with 16 KB pages, notifications enabled and synchronization enabled throughout |
+| Full iOS starter suite | All 25 tests pass on ARM iOS 18.5 using the bundled staging app, fresh installation, notifications enabled and default synchronization; the exact final test file also passes all 25 tests on API 35 |
 | Manual iOS CI preparation | 7 executable workflow tests, actionlint and shell syntax checks pass; hosted execution remains pending publication |
 
 Release packaging used a temporary nonproduction Firebase configuration and local
@@ -129,6 +130,14 @@ SystemUI hierarchy and removes its temporary file; notifications remain enabled
 and the original UI actions and assertions remain in place. The two previous
 onboarding synchronization bypasses have been removed.
 
+The same full suite passes on iOS, including both community registrations and
+message sends. It explicitly handles the staging build's optional server offer.
+Fabric's recycled native text inputs can lose their test identifiers when
+switching between single-line and multiline fields. The test checks the unique
+visible native single-line field's exact placeholder, and scopes the multiline
+composer to the chat screen. It retains the screen, text and navigation
+assertions; ambiguous field matches fail instead of selecting by position.
+
 Full backend runs on x86 Android emulators can still hang when forking a child
 process: a captured native stack identifies the ARM translation cache mutex in
 `libndk_translation`. This is separate from the corrected Tor detector. The
@@ -145,10 +154,10 @@ build command failed on its second invocation. Commit `77ba01240` fixes this
 with owned reusable workspaces, exclusive workspace/pod locks, retained run
 evidence and atomic result publication. Two consecutive native builds and 42
 portable tests verify the fix, including failure, interruption, retry and
-concurrency. Daybreak's follow-up closed the finding with no open material
-findings in the reviewed implementation. The review did not independently rerun
-native tests or establish binary reproducibility, production signing or physical
-iPhone behavior.
+concurrency. Daybreak's follow-up closed the finding and reviewed the later
+workflow and starter changes through `be1889d95`, with no open material findings.
+The review did not independently rerun native tests or establish binary
+reproducibility, production signing or physical iPhone behavior.
 
 The manual iOS workflow now prepares the pinned ARM simulator Tor framework,
 selects Xcode 26.3 and one owned iPhone 16 Pro/iOS 18.5 simulator, and runs the
