@@ -100,9 +100,9 @@ A supplemental Node 24 host run exposed a MessagePack 1.10.2 authentication
 serialization failure. A separate auth dependency update to 1.11.8 fixes it:
 all 54 focused backend tests pass, and a new six-test crypto regression covers
 long Unicode payloads, hashing, signatures, encryption and tamper rejection.
-The auth update is committed locally and awaits repository write access before
-its companion PR and this branch's submodule pointer can be published. The
-rebuilt backend bundle contains no old serializer or unsafe Buffer write calls.
+The auth update is published in [TryQuiet/auth#35](https://github.com/TryQuiet/auth/pull/35),
+and this branch pins its fetchable commit. The rebuilt backend bundle contains
+no old serializer or unsafe Buffer write calls.
 Fresh-data behavior is the requested scope; cross-version data migration is not
 an acceptance requirement.
 
@@ -147,6 +147,11 @@ pages, without CPU translation or false managed-Tor restart events.
 The requested physical iPhone check of the previous PR (#3422) is also pending:
 the paired device and provisioning profiles are available, but the Mac login
 keychain is locked and cannot sign the fresh build.
+
+The validated iOS app also launches normally over Tailscale on the MacBook Air,
+outside the Detox runner. It restores the saved community and channel list;
+the process loads Hermes, NodeMobile, Tor and classic-level and opens its saved
+database files. The simulator and app are left open for interactive use.
 
 The requested independent Daybreak Blue review covered the implementation and
 auth dependency update. Its medium finding identified that the standard iOS
