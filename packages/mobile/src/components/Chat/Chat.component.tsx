@@ -383,11 +383,14 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         contextMenu={contextMenu}
       />
       <KeyboardAvoidingView
-        // Android's adjustResize already resizes our parent. Applying a cached
-        // KeyboardAvoidingView height can exceed that parent after recreation.
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        // Android 15+ enforces edge-to-edge when targeting API 35+, so
+        // adjustResize no longer shrinks the window and the composer ends up
+        // under the keyboard. "padding" measures the actual overlap between this
+        // view and the keyboard, so it adds nothing when the window did resize
+        // (older Android) and avoids the cached-height problem of "height"
+        // after Activity recreation.
+        behavior="padding"
         keyboardVerticalOffset={insets.bottom}
-        enabled={Platform.OS === 'ios'}
         style={styles.keyboardAvoidingView}
       >
         {messages.count === 0 ? (
