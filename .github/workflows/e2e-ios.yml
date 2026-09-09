@@ -7,9 +7,9 @@ permissions:
 
 jobs:
   detox-ios:
-    timeout-minutes: 90
+    timeout-minutes: 180
     # ARM image with Xcode 26.3 and the iOS 18.5 simulator runtime installed.
-    runs-on: macos-15-xlarge
+    runs-on: macos-15
     defaults:
       run:
         shell: bash
@@ -49,11 +49,23 @@ jobs:
           xcodebuild -version
           xcrun --sdk iphonesimulator --show-sdk-version
 
+      - name: Prepare hosted runner disk
+        # Only unused versioned Xcode bundles on this ephemeral runner are removed.
+        # Keep the selected Xcode and all simulator runtime locations.
+        run: python3 packages/mobile/scripts/qss-e2e/prepare-runner.py
+
       - name: Set build paths
         run: |
           echo "QUIET_TOR_SOURCE=$RUNNER_TEMP/quiet-tor4059-source" >> "$GITHUB_ENV"
           echo "DETOX_IOS_ARM64_TOR_FRAMEWORK=$RUNNER_TEMP/quiet-tor4059-source/build/Build/Products/Release-iphonesimulator/Tor.framework" >> "$GITHUB_ENV"
           echo "DETOX_IOS_ARM64_DEBUG_OUTPUT=$RUNNER_TEMP/quiet-debug-arm64-validation" >> "$GITHUB_ENV"
+          # Each environment has its own guarded workspace; retire the first cache before the second build.
+          echo "DETOX_IOS_ARM64_E2E_QSS_OUTPUT=$RUNNER_TEMP/quiet-qss-arm64-validation" >> "$GITHUB_ENV"
+          echo "QUIET_QSS_LOCAL_FIXTURE_OUTPUT=$RUNNER_TEMP/quiet-qss-native-fixture" >> "$GITHUB_ENV"
+          echo "QUIET_QSS_SINGLE_RUN=$RUNNER_TEMP/quiet-qss-one-player" >> "$GITHUB_ENV"
+          echo "QUIET_QSS_MIXED_RUN=$RUNNER_TEMP/quiet-qss-mixed" >> "$GITHUB_ENV"
+          echo "QUIET_QSS_NODE=$RUNNER_TEMP/quiet-qss-tools/node-v22.14.0-darwin-arm64" >> "$GITHUB_ENV"
+          echo "QUIET_DESKTOP_BINARY=$GITHUB_WORKSPACE/packages/desktop/dist/mac-arm64/Quiet.app/Contents/MacOS/Quiet" >> "$GITHUB_ENV"
 
       - name: Create owned simulator
         id: simulator
@@ -71,17 +83,44 @@ jobs:
           npm ci
           # Keep checkout's exact gitlinks, including the Node 24 auth fix.
           npm run build:submodules:ci
-          ./node_modules/.bin/lerna bootstrap --scope '{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common}'
+          ./node_modules/.bin/lerna bootstrap --scope '{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,@quiet/desktop,e2e-tests,backend-bundle,helia,@quiet/node-common}'
 
       - name: Check simulator build tooling
         run: |
           node --test packages/mobile/scripts/e2e-ios-workflow.test.cjs
           python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_storybook.py
+          python3 -B -m unittest discover -s packages/mobile/scripts/qss-e2e -p 'test_*.py'
+          node --test packages/mobile/scripts/qss-community-harness.test.cjs packages/mobile/scripts/desktop-processes.test.cjs
 
       - name: Install native build tools
         run: |
+          brew update
           brew tap wix/brew
-          brew install autoconf automake libtool gettext applesimutils
+          brew install autoconf automake libtool gettext applesimutils postgresql@18 redis
+
+      - name: Prepare pinned QSS Node
+        run: |
+          umask 077
+          mkdir "$RUNNER_TEMP/quiet-qss-tools"
+          quiet_node_archive="$RUNNER_TEMP/quiet-qss-tools/node-v22.14.0-darwin-arm64.tar.gz"
+          curl --fail --location --retry 3 https://nodejs.org/dist/v22.14.0/node-v22.14.0-darwin-arm64.tar.gz -o "$quiet_node_archive"
+          echo "e9404633bc02a5162c5c573b1e2490f5fb44648345d64a958b17e325729a5e42  $quiet_node_archive" | shasum -a 256 -c -
+          tar -xzf "$quiet_node_archive" -C "$RUNNER_TEMP/quiet-qss-tools"
+
+      - name: Build desktop and shared backend for QSS
+        working-directory: packages/desktop
+        env:
+          ENVFILE: .env.e2e.qss
+          TEST_MODE: 'true'
+          IS_E2E: 'true'
+          IS_LOCAL: 'true'
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        # Backend webpack updates both consumers: finish it before either iOS build.
+        run: |
+          npm --prefix ../backend run webpack:prod
+          npm run copyBinariesDarwin
+          npm run build:prod
+          ./node_modules/.bin/electron-builder --mac --arm64 --dir -p never -c.mac.identity=null
 
       - name: Install pods from lockfile
         working-directory: packages/mobile
@@ -111,6 +150,9 @@ jobs:
         working-directory: packages/mobile
         run: ./node_modules/.bin/detox build -c ios.sim.debug.ci
 
+      - name: Preserve baseline build receipt
+        run: cp "$DETOX_IOS_ARM64_DEBUG_OUTPUT/result.json" "$RUNNER_TEMP/quiet-ios-baseline-build.json"
+
       - name: Boot owned simulator
         run: |
           xcrun simctl boot "$DETOX_IOS_SIMULATOR_ID"
@@ -128,6 +170,73 @@ jobs:
         if: always() && steps.simulator.outputs.udid != ''
         continue-on-error: true
         run: xcrun simctl io "$DETOX_IOS_SIMULATOR_ID" screenshot "$RUNNER_TEMP/quiet-ios-screenshot.png"
+
+      - name: Build bundled QSS Detox app
+        working-directory: packages/mobile
+        run: |
+          xcrun simctl shutdown "$DETOX_IOS_SIMULATOR_ID"
+          python3 scripts/qss-e2e/prepare-runner.py --retire-baseline "$DETOX_IOS_ARM64_DEBUG_OUTPUT" --checkout "$GITHUB_WORKSPACE"
+          ./node_modules/.bin/detox build -c ios.sim.e2e.qss
+
+      - name: Start native QSS fixture
+        run: |
+          umask 077
+          python3 packages/mobile/scripts/qss-e2e/fixture.py up --runtime native \
+            --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" \
+            --node "$QUIET_QSS_NODE/bin/node" --corepack "$QUIET_QSS_NODE/bin/corepack" \
+            --postgres-bin "$(brew --prefix postgresql@18)/bin" \
+            --redis-server "$(brew --prefix redis)/bin/redis-server" \
+            > "$RUNNER_TEMP/quiet-qss-start-private.log" 2>&1
+
+      - name: Boot owned simulator for QSS
+        run: |
+          xcrun simctl boot "$DETOX_IOS_SIMULATOR_ID"
+          xcrun simctl bootstatus "$DETOX_IOS_SIMULATOR_ID" -b
+
+      - name: Run single-player QSS test
+        id: qss_single
+        working-directory: packages/mobile
+        run: |
+          umask 077
+          export QUIET_QSS_E2E_RUN_DIR="$QUIET_QSS_SINGLE_RUN"
+          python3 scripts/qss-e2e/fixture.py prepare-run \
+            --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --run-output "$QUIET_QSS_E2E_RUN_DIR"
+          ./node_modules/.bin/detox test qss-community -c ios.sim.e2e.qss \
+            --artifacts-location "$QUIET_QSS_E2E_RUN_DIR/artifacts" \
+            --json --outputFile "$QUIET_QSS_E2E_RUN_DIR/jest-private.json" \
+            > "$QUIET_QSS_E2E_RUN_DIR/detox-private.log" 2>&1
+
+      - name: Run desktop and iOS QSS tests
+        id: qss_mixed
+        working-directory: packages/mobile
+        run: |
+          umask 077
+          export QUIET_QSS_E2E_RUN_DIR="$QUIET_QSS_MIXED_RUN"
+          python3 scripts/qss-e2e/fixture.py prepare-run \
+            --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --run-output "$QUIET_QSS_E2E_RUN_DIR"
+          ./node_modules/.bin/detox test -c ios.sim.e2e.qss --config e2e/jest.desktop.config.js \
+            --artifacts-location "$QUIET_QSS_E2E_RUN_DIR/artifacts" \
+            --json --outputFile "$QUIET_QSS_E2E_RUN_DIR/jest-private.json" \
+            > "$QUIET_QSS_E2E_RUN_DIR/detox-private.log" 2>&1
+
+      - name: Summarize QSS results
+        if: always()
+        env:
+          QUIET_SINGLE_OUTCOME: ${{ steps.qss_single.outcome }}
+          QUIET_MIXED_OUTCOME: ${{ steps.qss_mixed.outcome }}
+        run: |
+          python3 packages/mobile/scripts/qss-e2e/summary.py \
+            --fixture "$RUNNER_TEMP/quiet-qss-native-fixture" \
+            --single "$RUNNER_TEMP/quiet-qss-one-player" --mixed "$RUNNER_TEMP/quiet-qss-mixed" \
+            --single-outcome "${QUIET_SINGLE_OUTCOME:-unknown}" --mixed-outcome "${QUIET_MIXED_OUTCOME:-unknown}" \
+            --output "$RUNNER_TEMP/quiet-qss-ci-summary.json"
+
+      - name: Stop owned QSS fixture
+        if: always()
+        run: |
+          if [[ -f "$RUNNER_TEMP/quiet-qss-native-fixture/native-processes.json" ]]; then
+            python3 packages/mobile/scripts/qss-e2e/fixture.py stop --output "$RUNNER_TEMP/quiet-qss-native-fixture"
+          fi
 
       - name: Remove owned simulator
         if: always() && steps.simulator.outputs.udid != ''
@@ -149,8 +258,11 @@ jobs:
             ${{ runner.temp }}/quiet-tor4059-source/build-platform.txt
             ${{ runner.temp }}/quiet-debug-arm64-validation/result.json
             ${{ runner.temp }}/quiet-debug-arm64-validation/runs
+            ${{ runner.temp }}/quiet-qss-arm64-validation/result.json
+            ${{ runner.temp }}/quiet-ios-baseline-build.json
             ${{ runner.temp }}/quiet-ios-starter-artifacts
             ${{ runner.temp }}/quiet-ios-community-artifacts
             ${{ runner.temp }}/quiet-ios-screenshot.png
+            ${{ runner.temp }}/quiet-qss-ci-summary.json
           if-no-files-found: ignore
           retention-days: 7

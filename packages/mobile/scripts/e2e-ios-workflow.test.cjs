@@ -27,6 +27,7 @@ function fixture(t) {
     PATH: `${bin}${path.delimiter}${process.env.PATH}`,
     GITHUB_RUN_ID: '1234',
     GITHUB_RUN_ATTEMPT: '2',
+    GITHUB_WORKSPACE: checkout,
     GITHUB_ENV: path.join(directory, 'environment'),
     GITHUB_OUTPUT: path.join(directory, 'output'),
     RUNNER_TEMP: directory,
@@ -44,6 +45,7 @@ function fixture(t) {
         `const args = process.argv.slice(2);\n` +
         `fs.appendFileSync(process.env.QUIET_TEST_LOG, JSON.stringify({ tool: ${JSON.stringify(name)}, args }) + '\\n');\n` +
         `if (args.includes(process.env.QUIET_TEST_FAIL)) process.exit(23);\n` +
+        `if (args.includes('prepare-run')) fs.mkdirSync(args[args.indexOf('--run-output') + 1], {mode: 0o700});\n` +
         `if (args[0] === 'simctl' && args[1] === 'create') console.log(process.env.QUIET_TEST_UDID);\n`,
       { mode: 0o755 }
     )
@@ -194,4 +196,80 @@ test('workflow prepares Tor before compiling and uses the same staging app for b
     const syntax = spawnSync('bash', ['-n'], { input: entry.run, encoding: 'utf8' })
     assert.equal(syntax.status, 0, `${entry.name}: ${syntax.stderr}`)
   }
+})
+
+test('QSS build retires the baseline cache and uses a separate guarded environment workspace', t => {
+  const f = fixture(t)
+  assert.notEqual(f.env.DETOX_IOS_ARM64_E2E_QSS_OUTPUT, f.env.DETOX_IOS_ARM64_DEBUG_OUTPUT)
+  const result = f.run('Build bundled QSS Detox app', { DETOX_IOS_SIMULATOR_ID: udid }, mobile)
+  assert.equal(result.status, 0, result.stderr)
+  assert.deepEqual(f.commands(), [
+    { tool: 'xcrun', args: ['simctl', 'shutdown', udid] },
+    { tool: 'python3', args: ['scripts/qss-e2e/prepare-runner.py', '--retire-baseline', f.env.DETOX_IOS_ARM64_DEBUG_OUTPUT, '--checkout', checkout] },
+    { tool: 'python3', args: [
+      path.join(mobile, 'scripts/tor-ios-simulator/build-storybook.py'),
+      '--checkout', checkout, '--framework', f.env.DETOX_IOS_ARM64_TOR_FRAMEWORK,
+      '--output', f.env.DETOX_IOS_ARM64_E2E_QSS_OUTPUT,
+      '--scheme', 'Quiet', '--configuration', 'Debug', '--env-file', '.env.e2e.qss',
+    ] },
+  ])
+  assert.notEqual(f.run('Build bundled QSS Detox app', { DETOX_IOS_SIMULATOR_ID: udid, QUIET_TEST_FAIL: '--scheme' }, mobile).status, 0)
+})
+
+test('QSS suites prepare independent runs, keep private failure logs, and preserve exit failures', t => {
+  const f = fixture(t)
+  const fakeMobile = path.join(f.directory, 'mobile')
+  const detox = path.join(fakeMobile, 'node_modules/.bin/detox')
+  fs.mkdirSync(path.dirname(detox), { recursive: true })
+  fs.writeFileSync(detox, `#!${process.execPath}\n` +
+    `const fs = require('node:fs');\n` +
+    `fs.appendFileSync(process.env.QUIET_TEST_LOG, JSON.stringify({tool:'detox',args:process.argv.slice(2),run:process.env.QUIET_QSS_E2E_RUN_DIR})+'\\n');\n` +
+    `console.error('PRIVATE-INVITATION-CANARY'); process.exit(Number(process.env.QUIET_DETOX_EXIT || 0));\n`, { mode: 0o755 })
+  for (const [name, output, args] of [
+    ['Run single-player QSS test', f.env.QUIET_QSS_SINGLE_RUN, ['test', 'qss-community', '-c', 'ios.sim.e2e.qss']],
+    ['Run desktop and iOS QSS tests', f.env.QUIET_QSS_MIXED_RUN, ['test', '-c', 'ios.sim.e2e.qss', '--config', 'e2e/jest.desktop.config.js']],
+  ]) {
+    const result = f.run(name, { QUIET_DETOX_EXIT: '37' }, fakeMobile)
+    assert.equal(result.status, 37)
+    assert.doesNotMatch(result.stdout + result.stderr, /PRIVATE-INVITATION-CANARY/)
+    assert.match(fs.readFileSync(path.join(output, 'detox-private.log'), 'utf8'), /PRIVATE-INVITATION-CANARY/)
+    assert.equal(fs.statSync(path.join(output, 'detox-private.log')).mode & 0o777, 0o600)
+    const calls = f.commands().slice(-2)
+    assert.deepEqual(calls[0], { tool: 'python3', args: ['scripts/qss-e2e/fixture.py', 'prepare-run', '--output', f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, '--run-output', output] })
+    assert.deepEqual(calls[1], { tool: 'detox', run: output, args: [...args, '--artifacts-location', path.join(output, 'artifacts'), '--json', '--outputFile', path.join(output, 'jest-private.json')] })
+    assert.notEqual(f.run(name, {}, fakeMobile).status, 0, 'Existing run directory must not be reused')
+  }
+})
+
+test('QSS cleanup runs only for initialized owned native process state', t => {
+  const f = fixture(t)
+  assert.equal(step('Stop owned QSS fixture').if, 'always()')
+  assert.equal(f.run('Stop owned QSS fixture').status, 0)
+  assert.equal(fs.existsSync(f.env.QUIET_TEST_LOG), false)
+  fs.mkdirSync(f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT)
+  fs.writeFileSync(path.join(f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, 'native-processes.json'), '{}')
+  assert.equal(f.run('Stop owned QSS fixture').status, 0)
+  assert.deepEqual(f.commands(), [{ tool: 'python3', args: ['packages/mobile/scripts/qss-e2e/fixture.py', 'stop', '--output', f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT] }])
+  assert.equal(f.run('Stop owned QSS fixture', { QUIET_TEST_FAIL: 'stop' }).status, 23)
+})
+
+test('workflow orders resource-limited builds and baseline/QSS coverage without publishing QSS secrets', () => {
+  assert.equal(job['runs-on'], 'macos-15')
+  assert.equal(job.env.DEVELOPER_DIR, '/Applications/Xcode_26.3.app/Contents/Developer')
+  const order = [
+    'Prepare hosted runner disk', 'Install dependencies', 'Build desktop and shared backend for QSS',
+    'Build bundled Detox app', 'Preserve baseline build receipt', 'Run basic tests',
+    'Verify message acknowledgment and persistence', 'Take screenshot',
+    'Build bundled QSS Detox app', 'Start native QSS fixture', 'Boot owned simulator for QSS',
+    'Run single-player QSS test', 'Run desktop and iOS QSS tests', 'Stop owned QSS fixture', 'Remove owned simulator',
+  ].map(name => job.steps.indexOf(step(name)))
+  assert.deepEqual([...order].sort((a, b) => a - b), order)
+  assert.equal(job.env.TEST_MODE, undefined)
+  assert.equal(step('Build desktop and shared backend for QSS').env.TEST_MODE, 'true')
+  assert.match(step('Install dependencies').run, /@quiet\/desktop,e2e-tests/)
+  assert.match(step('Start native QSS fixture').run, /up --runtime native/)
+  assert.doesNotMatch(step('Start native QSS fixture').run, /docker|ssh|brew services/)
+  assert.match(step('Prepare pinned QSS Node').run, /e9404633bc02a5162c5c573b1e2490f5fb44648345d64a958b17e325729a5e42/)
+  const uploads = step('Upload diagnostics').with.path.trim().split('\n')
+  assert.deepEqual(uploads.filter(entry => entry.includes('qss')), ['${{ runner.temp }}/quiet-qss-arm64-validation/result.json', '${{ runner.temp }}/quiet-qss-ci-summary.json'])
 })
