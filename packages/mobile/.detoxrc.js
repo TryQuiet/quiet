@@ -4,6 +4,7 @@ const shellQuote = value => `'${value.replace(/'/g, "'\\''")}'`
 
 // The installed Tor pod lacks an arm64 simulator slice. Every standard simulator
 // build must use the guarded wrapper with a separately prepared Tor.framework.
+// Its owned output workspace reuses DerivedData while keeping evidence per run.
 const iosSimulatorApp = (name, envFile, configuration = 'Debug') => {
   const output =
     process.env[`DETOX_IOS_ARM64_${name.toUpperCase().replace(/\./g, '_')}_OUTPUT`] ||
