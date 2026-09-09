@@ -389,7 +389,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         // view and the keyboard, so it adds nothing when the window did resize
         // (older Android) and avoids the cached-height problem of "height"
         // after Activity recreation.
-        behavior="padding"
+        behavior='padding'
         keyboardVerticalOffset={insets.bottom}
         style={styles.keyboardAvoidingView}
       >
