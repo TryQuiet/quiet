@@ -3,6 +3,7 @@ import write from './utils/write'
 import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
 import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
+import waitForAndroidNotification from './utils/waitForAndroidNotification'
 import { BASIC, LONG, STARTUP } from './utils/consts/timeouts'
 import { deleteChannelMessage, generalChannelDeletionMessage } from '@quiet/common'
 
@@ -44,7 +45,6 @@ describe('User', () => {
 
     if (!ios) await device.pressBack()
 
-    await device.disableSynchronization()
     await press(element(by.text('Continue')), true)
   })
 
@@ -58,7 +58,6 @@ describe('User', () => {
     await write(element(by.id('input')), 'rick')
 
     await press(element(by.text('Continue')), true)
-    await device.enableSynchronization()
   })
 
   // test('should see connection process screen', async () => {
@@ -128,6 +127,7 @@ describe('User', () => {
   })
 
   test('opens context menu', async () => {
+    await waitForAndroidNotification(device)
     await press(element(by.id('open_menu')))
 
     await waitFor(element(by.id('context_menu_Rockets')))
@@ -155,6 +155,7 @@ describe('User', () => {
   })
 
   test('deletes channel', async () => {
+    await waitForAndroidNotification(device)
     await press(element(by.id('open_menu')))
 
     await press(element(by.id('Delete channel')))
@@ -182,6 +183,7 @@ describe('User', () => {
   })
 
   test('deletes #general channel', async () => {
+    await waitForAndroidNotification(device)
     await press(element(by.id('open_menu')))
 
     await press(element(by.id('Delete channel')))
@@ -208,6 +210,7 @@ describe('User', () => {
   test('leaves community', async () => {
     await press(element(by.id('appbar_action_item')))
 
+    await waitForAndroidNotification(device)
     await press(element(by.id('open_menu')))
 
     await press(element(by.id('Leave community')))
@@ -255,7 +258,6 @@ describe('User', () => {
 
     if (!ios) await device.pressBack()
 
-    await device.disableSynchronization()
     await press(element(by.text('Continue')), true)
   })
 
@@ -270,7 +272,6 @@ describe('User', () => {
     await write(element(by.id('input')), 'rick')
 
     await press(element(by.text('Continue')), true)
-    await device.enableSynchronization()
   })
 
   test('should see channels list again', async () => {
