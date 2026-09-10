@@ -12,7 +12,8 @@ import {
   Sidebar,
 } from '../selectors'
 import { MessageIds } from '../types'
-import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller, sleep } from '../utils'
+import { BuildSetup, downloadInstaller, sleep } from '../utils'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION, compatibilityBaseline } from '../compatibilityBaseline'
 import { createLogger } from '../logger'
 
 const logger = createLogger('backwardsCompatibility')
@@ -31,6 +32,7 @@ describe('Backwards Compatibility', () => {
   let generalChannelMessageIds: MessageIds
   let dataDir: string
   let settings: Settings
+  let baselineVersion: string
 
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
@@ -39,15 +41,18 @@ describe('Backwards Compatibility', () => {
   const generalChannelName = 'general'
   const newChannelName = 'mid-night-club'
 
-  const isAlpha = BuildSetup.getEnvFileName()?.toString().includes('alpha')
-
   beforeAll(async () => {
-    // download the old version of the app
-    const appFilename = downloadInstaller()
-    const copiedFilename = copyInstallerFile(appFilename)
-    const chromeDriver126Path = require.resolve('electron-chromedriver-126/chromedriver.js')
+    const currentFileName = BuildSetup.getEnvFileName()
+    if (!currentFileName) throw new Error('FILE_NAME must identify the supplied AppImage')
+    const currentVersion = new BuildSetup({ fileName: currentFileName }).getVersionFromEnv()
+    const baseline = compatibilityBaseline(currentVersion, currentFileName, downloadInstaller)
+    baselineVersion = baseline.version
+    logger.info(baseline.isPlaceholder ? 'Same-build restart placeholder' : 'Released-version upgrade', {
+      baseline: baselineVersion,
+      current: currentVersion,
+    })
     dataDir = `e2e_back_compat_${(Math.random() * 10 ** 18).toString(36)}`
-    ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename, chromeDriverPath: chromeDriver126Path })
+    ownerAppOldVersion = new App({ dataDir, fileName: baseline.fileName })
   })
 
   beforeEach(async () => {
@@ -61,7 +66,7 @@ describe('Backwards Compatibility', () => {
     await ownerAppOldVersion?.cleanup(true)
   })
 
-  describe(`Old version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, () => {
+  describe(`Baseline - ${BACKWARD_COMPATIBILITY_BASE_VERSION} (same-build placeholder before release)`, () => {
     describe(`Owner opens older version of the app`, () => {
       itif(process.platform == 'linux')('Owner opens the app', async () => {
         await ownerAppOldVersion.open()
@@ -115,14 +120,14 @@ describe('Backwards Compatibility', () => {
         expect(await generalChannel.isReady()).toBeTruthy()
 
         const generalChannelText = await generalChannel.element.getText()
-        expect(generalChannelText).toEqual('# general')
+        expect(generalChannelText).toEqual('general')
       })
 
-      itif(process.platform == 'linux')(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
+      itif(process.platform == 'linux')('Verify baseline build version', async () => {
         settings = await new Sidebar(ownerAppOldVersion.driver).openSettings()
         expect(await settings.isReady()).toBeTruthy()
         const settingVersion = await settings.getVersion()
-        expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
+        expect(settingVersion).toEqual(baselineVersion)
       })
 
       itif(process.platform == 'linux')(`Close settings modal`, async () => {
@@ -148,8 +153,8 @@ describe('Backwards Compatibility', () => {
     describe('Second channel', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
-        await sidebar.addNewChannel(newChannelName, true, false)
-        await sidebar.switchChannel(newChannelName, true, false)
+        await sidebar.addNewChannel(newChannelName)
+        await sidebar.switchChannel(newChannelName)
         const channels = await sidebar.getChannelList()
         expect(channels.length).toEqual(2)
       })
