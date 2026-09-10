@@ -1058,7 +1058,7 @@ describe('ConnectionsManagerService', () => {
           channelSpecificPermissions: [
             expect.objectContaining({
               addMembers: true,
-              removeMembers: true,
+              removeMembers: false,
               delete: true,
             }),
           ],
@@ -1137,7 +1137,7 @@ describe('ConnectionsManagerService', () => {
             channelSpecificPermissions: [
               expect.objectContaining({
                 addMembers: true,
-                removeMembers: true,
+                removeMembers: false,
                 delete: true,
               }),
             ],
