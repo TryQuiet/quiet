@@ -569,6 +569,12 @@ export class Libp2pAuth {
     authConnection.start()
   }
 
+  /** Records durable completion without emitting events or unblocking paused connections. */
+  public markAdmissionCommitted(): void {
+    this.joinStatus = JoinStatus.JOINED
+    this.failedAdmissionPeers.clear()
+  }
+
   private async handleAdmissionCandidate(
     authConnection: Auth.Connection,
     connection: Connection,
@@ -584,8 +590,7 @@ export class Libp2pAuth {
       return
     }
     admission.gate.deliver(() => {
-      this.joinStatus = JoinStatus.JOINED
-      this.failedAdmissionPeers.clear()
+      this.markAdmissionCommitted()
       this.emit(Libp2pEvents.AUTH_JOINED, {
         teamId: payload.team.id,
         userId: payload.user.userId,

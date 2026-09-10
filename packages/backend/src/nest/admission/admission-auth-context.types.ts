@@ -11,7 +11,7 @@ export interface AdmissionAuthContext {
   readonly chain: SigChain
   readonly gate: Pick<
     AdmissionProtocolGate,
-    'frozen' | 'published' | 'closed' | 'assertCurrent' | 'deliver' | 'run' | 'revoke'
+    'frozen' | 'published' | 'adopted' | 'closed' | 'assertCurrent' | 'deliver' | 'run' | 'revoke'
   >
   joined(payload: { team: Team; user: UserWithSecrets }): Promise<AdmissionResult>
   fail(error: unknown): void

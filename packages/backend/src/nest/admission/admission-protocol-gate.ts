@@ -4,6 +4,7 @@ import { AdmissionError } from './admission.types'
 /** Buffers protocol delivery while a selected candidate is being committed. */
 export class AdmissionProtocolGate {
   private mode: 'open' | 'frozen' | 'published' | 'closed' = 'open'
+  private _adopted = false
   private readonly buffered: Array<() => void> = []
 
   constructor(private owner: AdmissionOperationOwner) {}
@@ -13,6 +14,10 @@ export class AdmissionProtocolGate {
   }
   get published(): boolean {
     return this.mode === 'published'
+  }
+  /** Ownership handoff can complete even when a paused lifecycle cannot resume delivery. */
+  get adopted(): boolean {
+    return this._adopted
   }
   get closed(): boolean {
     return this.mode === 'closed' || this.owner.signal.aborted
@@ -31,6 +36,7 @@ export class AdmissionProtocolGate {
   }
   adopt(owner: AdmissionOperationOwner): void {
     this.owner = owner
+    this._adopted = true
   }
   freeze(): void {
     this.assertCurrent()

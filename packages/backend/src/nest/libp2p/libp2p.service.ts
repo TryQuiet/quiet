@@ -360,9 +360,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public pause = async (): Promise<boolean> => {
     this.logger.debug('Pausing libp2p')
-    if (this.admissionContext?.gate.published) {
+    // A commit handed to a paused lifecycle never resumes its frozen gate.
+    if (this.admissionContext?.gate.adopted) {
       this.admissionContext.gate.revoke()
       this.admissionContext = undefined
+      this.authService?.markAdmissionCommitted()
     }
     this.setState(Libp2pState.Paused)
     this.pauseDialQueue()
