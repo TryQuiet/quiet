@@ -17,6 +17,7 @@ import { identitySelectors } from '../identity/identity.selectors'
 import { usersActions } from '../users/users.slice'
 
 const logger = createLogger('connection.selectors.test')
+const INVITE_TEAM_ID = '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as Base58
 
 describe('communitiesSelectors', () => {
   setupCrypto()
@@ -150,10 +151,16 @@ describe('communitiesSelectors', () => {
         seed: '5ah8uYodiwuwVybT',
         salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
+        teamId: INVITE_TEAM_ID,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({
+      seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
+      id: '5ah8uYodiwuwVybT',
+      teamId: INVITE_TEAM_ID,
+    })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     const community = communitiesSelectors.currentCommunity(store.getState())
     const authData: InvitationAuthDataV4 = {
@@ -205,10 +212,16 @@ describe('communitiesSelectors', () => {
         seed: '5ah8uYodiwuwVybT',
         salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
+        teamId: teamId as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({
+      seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
+      id: '5ah8uYodiwuwVybT',
+      teamId,
+    })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     const authData = {
       seed: '5ah8uYodiwuwVybT',
@@ -260,10 +273,16 @@ describe('communitiesSelectors', () => {
         seed: '5ah8uYodiwuwVybT',
         salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
+        teamId: INVITE_TEAM_ID,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({
+      seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
+      id: '5ah8uYodiwuwVybT',
+      teamId: INVITE_TEAM_ID,
+    })
     try {
       const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
       expect(selectorInvitationUrl).toBe('')
@@ -301,10 +320,16 @@ describe('communitiesSelectors', () => {
         seed: '5ah8uYodiwuwVybT',
         salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
+        teamId: teamId as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({
+      seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
+      id: '5ah8uYodiwuwVybT',
+      teamId,
+    })
     try {
       const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
       expect(selectorInvitationUrl).toBe('')
@@ -338,6 +363,7 @@ describe('communitiesSelectors', () => {
         seed: '5ah8uYodiwuwVybT',
         salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
+        teamId: INVITE_TEAM_ID,
       })
     )
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
@@ -366,6 +392,7 @@ describe('communitiesSelectors', () => {
         seed: '5ah8uYodiwuwVybT',
         salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
+        teamId: INVITE_TEAM_ID,
       })
     )
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())

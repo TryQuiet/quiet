@@ -4,6 +4,7 @@ import { setEngine as setIdentityEngine } from '../../identity/node_modules/pkij
 import React from 'react'
 
 import { io } from 'socket.io-client'
+import { saveChannelMetadataInKeychainSaga } from './store/channelMetadata/saveChannelMetadataInKeychain/saveChannelMetadataInKeychain.saga'
 
 setEngine(
   'newEngine',
@@ -28,6 +29,7 @@ setIdentityEngine(
 jest.mock('react-native-config', () => ({
   NODE_ENV: 'staging',
   QSS_ALLOWED: 'true',
+  PRIVATE_CHANNEL_CREATION_ALLOWED: 'false',
   FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED: 'true',
 }))
 
@@ -50,6 +52,7 @@ jest.mock('react-native', () => {
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),
     saveKeysInKeychain: jest.fn(),
+    saveChannelMetadataInKeychain: jest.fn(),
     saveDeviceCredentials: jest.fn(),
     saveUserMetadata: jest.fn(),
     saveNseQssUrl: jest.fn(),
@@ -57,6 +60,9 @@ jest.mock('react-native', () => {
     setTeamQssEnabled: jest.fn(),
     setUserBackgroundTorEnabled: jest.fn(),
     clearSensitiveData: jest.fn(),
+    completeAppPause: jest.fn(),
+    setPauseListenerReady: jest.fn(),
+    setLifecycleListenerReady: jest.fn(),
   }
   rn.NativeModules.FirebaseMessagingModule = {
     getToken: jest.fn(),

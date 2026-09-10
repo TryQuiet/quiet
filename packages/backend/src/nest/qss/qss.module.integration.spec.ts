@@ -407,7 +407,6 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     const ownerSigChain = await owner.sigChainService.createChain(true)
     teamId = ownerSigChain.team!.id
     invite = ownerSigChain.invites.createLongLivedUserInvite() as { seed: string; salt: string }
-    ownerSigChain.lockbox.createInviteLockboxes(invite.seed, invite.salt)
     await owner.sigChainService.saveChain(teamId)
 
     await setCurrentCommunity(owner, {

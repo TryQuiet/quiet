@@ -5,4 +5,5 @@ export enum StoreKeys {
   PushNotifications = 'PushNotifications',
   Keys = 'Keys',
   UsersMetadata = 'UsersMetadata',
+  ChannelMetadata = 'ChannelMetadata',
 }

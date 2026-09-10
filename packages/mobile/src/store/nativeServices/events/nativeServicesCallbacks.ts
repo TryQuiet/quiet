@@ -1,4 +1,5 @@
-import { eventChannel } from 'redux-saga'
+import { buffers, eventChannel, EventChannel } from 'redux-saga'
+import { NativeModules, Platform } from 'react-native'
 import { call, put, take, cancelled } from 'typed-redux-saga'
 import { app, publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL, network } from '@quiet/state-manager'
 import { initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
@@ -8,18 +9,37 @@ import nativeEventEmitter from './nativeEventEmitter'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { nativeServicesActions } from '../nativeServices.slice'
 import { createLogger } from '../../../utils/logger'
+import { AppPauseEvent, BackendEvent, NativeServicesEventAction } from './nativeServicesCallbacks.types'
 
 const logger = createLogger('nativeServicesCallbacks')
 
 export function* nativeServicesCallbacksSaga(): Generator {
   logger.info('nativeServicesCallbacksSaga starting')
+  let channel: EventChannel<NativeServicesEventAction> | undefined
   try {
-    const channel = yield* call(deviceEvents)
+    channel = yield* call(deviceEvents)
+    const setPauseListenerReady = NativeModules.CommunicationModule?.setPauseListenerReady
+    if (setPauseListenerReady) {
+      yield* call([NativeModules.CommunicationModule, setPauseListenerReady], true)
+    }
+    const setLifecycleListenerReady = NativeModules.CommunicationModule?.setLifecycleListenerReady
+    if (setLifecycleListenerReady) {
+      yield* call([NativeModules.CommunicationModule, setLifecycleListenerReady], true)
+    }
     while (true) {
       const action = yield* take(channel)
       yield put(action)
     }
   } finally {
+    channel?.close()
+    const setPauseListenerReady = NativeModules.CommunicationModule?.setPauseListenerReady
+    if (setPauseListenerReady) {
+      yield* call([NativeModules.CommunicationModule, setPauseListenerReady], false)
+    }
+    const setLifecycleListenerReady = NativeModules.CommunicationModule?.setLifecycleListenerReady
+    if (setLifecycleListenerReady) {
+      yield* call([NativeModules.CommunicationModule, setLifecycleListenerReady], false)
+    }
     logger.info('nativeServicesCallbacksSaga stopping')
     if (yield cancelled()) {
       logger.info('nativeServicesCallbacksSaga cancelled')
@@ -27,23 +47,10 @@ export function* nativeServicesCallbacksSaga(): Generator {
   }
 }
 
-export interface BackendEvent {
-  channelName: string
-  payload: string
-}
-
-export const deviceEvents = () => {
-  return eventChannel<
-    | ReturnType<typeof initActions.startWebsocketConnection>
-    | ReturnType<typeof initActions.updateInitCheck>
-    | ReturnType<typeof navigationActions.navigation>
-    | ReturnType<typeof navigationActions.setPendingNavigation>
-    | ReturnType<typeof publicChannels.actions.setCurrentChannel>
-    | ReturnType<typeof navigationActions.navigation>
-    | ReturnType<typeof nativeServicesActions.flushPersistor>
-    | ReturnType<typeof app.actions.stopBackend>
-    | ReturnType<typeof network.actions.removeInitializedCommunities>
-  >(emit => {
+export const deviceEvents = (): EventChannel<NativeServicesEventAction> => {
+  const handledPauseTransitions = new Set<string>()
+  const handledPauseTransitionOrder: string[] = []
+  return eventChannel<NativeServicesEventAction>(emit => {
     const subscriptions = [
       nativeEventEmitter?.addListener(NativeEventKeys.Backend, (event: BackendEvent) => {
         if (event.channelName === WEBSOCKET_CONNECTION_CHANNEL) {
@@ -74,16 +81,36 @@ export const deviceEvents = () => {
       nativeEventEmitter?.addListener(NativeEventKeys.Stop, () => {
         emit(app.actions.stopBackend())
       }),
-      nativeEventEmitter?.addListener(NativeEventKeys.AppPause, () => {
-        emit(nativeServicesActions.flushPersistor())
-        emit(network.actions.removeInitializedCommunities())
+      nativeEventEmitter?.addListener(NativeEventKeys.AppPause, (event?: AppPauseEvent) => {
+        const transitionId = event?.transitionId
+        if (transitionId && handledPauseTransitions.has(transitionId)) return
+        if (transitionId) {
+          handledPauseTransitions.add(transitionId)
+          handledPauseTransitionOrder.push(transitionId)
+          if (handledPauseTransitionOrder.length > 64) {
+            handledPauseTransitions.delete(handledPauseTransitionOrder.shift() as string)
+          }
+        }
+
+        emit(nativeServicesActions.flushPersistor(transitionId ? { transitionId } : {}))
+        if (event?.isBackground !== false) {
+          emit(network.actions.removeInitializedCommunities())
+        }
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.AppResume, () => {
-        // emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
+        emit(initActions.resumeWebsocketConnection())
       }),
     ]
+    if (Platform.OS === 'android') {
+      subscriptions.push(
+        nativeEventEmitter?.addListener(NativeEventKeys.AppBackground, () => {
+          // Android keeps the local socket and state-manager sagas alive during hibernation.
+          emit(nativeServicesActions.flushPersistor({}))
+        })
+      )
+    }
     return () => {
       subscriptions.forEach(subscription => subscription?.remove())
     }
-  })
+  }, buffers.expanding())
 }

@@ -19,6 +19,8 @@ import { MessagesAccessController } from './MessagesAccessController'
 import { type EventsType } from '@orbitdb/core'
 import { EventsWithStorage } from '../../../orbitDb/eventsWithStorage'
 import { EncryptedMessage } from '../messages.types'
+import { PublicChannelMessagesService } from '../public-channel-messages.service'
+import { ChannelMessage, MessageType, PublicChannel } from '@quiet/types'
 
 const logger = createLogger('baseMessagesAccessController:test')
 
@@ -29,6 +31,7 @@ describe('BaseMessagesAccessController', () => {
   let orbitDbService: OrbitDbService
   let localDbService: LocalDbService
   let sigchainService: SigChainService
+  let publicMessagesService: PublicChannelMessagesService
   let libp2pParams: Libp2pNodeParams
 
   beforeAll(async () => {
@@ -45,6 +48,7 @@ describe('BaseMessagesAccessController', () => {
     localDbService = await module.resolve(LocalDbService)
 
     sigchainService = module.get<SigChainService>(SigChainService)
+    publicMessagesService = module.get(PublicChannelMessagesService)
     await sigchainService.createChain(true)
 
     orbitDbService = await module.resolve(OrbitDbService)
@@ -77,7 +81,12 @@ describe('BaseMessagesAccessController', () => {
   it('loads the ACL write list from a persisted access-controller address', async () => {
     const controller = new MessagesAccessController(sigchainService)
     const write = [orbitDbService.orbitDb.identity.id]
-    const factory = controller.createAccessControllerFunc({ write, sigchainService })
+    const factory = controller.createAccessControllerFunc({
+      write,
+      sigchainService,
+      channelId: 'channel-id',
+      teamId: sigchainService.team.id,
+    })
 
     const orbitdb = orbitDbService.orbitDb
     const identities = orbitDbService.identities
@@ -97,13 +106,17 @@ describe('BaseMessagesAccessController', () => {
     const write = [orbitDbService.orbitDb.identity.id]
     const dbName = 'channels.message-access-controller-reopen'
 
+    const createAccessController = () =>
+      new MessagesAccessController(sigchainService).createAccessControllerFunc({
+        write,
+        sigchainService,
+        channelId: 'channel-id',
+        teamId: sigchainService.team.id,
+      })
     const created = await orbitDbService.open<EventsType<EncryptedMessage>>(dbName, {
       type: 'events',
       Database: EventsWithStorage(),
-      AccessController: new MessagesAccessController(sigchainService).createAccessControllerFunc({
-        write,
-        sigchainService,
-      }),
+      AccessController: createAccessController(),
       sync: false,
     })
     const dbAddress = created.address
@@ -118,12 +131,33 @@ describe('BaseMessagesAccessController', () => {
 
     const reopened = await orbitDbService.open<EventsType<EncryptedMessage>>(dbAddress, {
       Database: EventsWithStorage(),
+      AccessController: createAccessController(),
       sync: false,
     })
 
     expect(reopened.address).toEqual(dbAddress)
     expect(reopened.access.address).toEqual(created.access.address)
     expect(reopened.access.write).toEqual(write)
+
+    const channel: PublicChannel = {
+      id: 'channel-id',
+      name: 'test-channel',
+      description: 'test channel',
+      owner: sigchainService.user.userId,
+      timestamp: Date.now(),
+      public: true,
+      teamId: sigchainService.team.id,
+    }
+    const message: ChannelMessage = {
+      id: 'message-after-address-reopen',
+      channelId: channel.id,
+      userId: sigchainService.user.userId,
+      createdAt: Date.now(),
+      type: MessageType.Basic,
+      message: 'valid message after reopen',
+    }
+    const hash = await reopened.add(await publicMessagesService.onSend(message, channel))
+    expect(await reopened.log.get(hash)).toBeDefined()
   })
 
   it('reopens a real message database by name when the access controller is passed again', async () => {
@@ -133,6 +167,8 @@ describe('BaseMessagesAccessController', () => {
       new MessagesAccessController(sigchainService).createAccessControllerFunc({
         write,
         sigchainService,
+        channelId: 'channel-id',
+        teamId: sigchainService.team.id,
       })
 
     const created = await orbitDbService.open<EventsType<EncryptedMessage>>(dbName, {
