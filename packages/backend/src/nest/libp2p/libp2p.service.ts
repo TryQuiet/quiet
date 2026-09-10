@@ -19,7 +19,13 @@ import { EventEmitter } from 'events'
 import { DateTime } from 'luxon'
 
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
-import { ConnectionProcessInfo, type NetworkDataPayload, NetworkStats, SocketEvents } from '@quiet/types'
+import {
+  ConnectionProcessInfo,
+  type NetworkDataPayload,
+  NetworkStats,
+  SocketEvents,
+  type AuthenticatedPeerIdentity,
+} from '@quiet/types'
 
 import { LIBP2P_DB_PATH, SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
@@ -68,6 +74,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   public state: Libp2pState = Libp2pState.Stopped
   private torBootstrap?: TorBootstrapProvider
   private waitingForTorBootstrapToResumeDialQueue = false
+  private readonly authenticatedPeers = new Map<string, AuthenticatedPeerIdentity>()
 
   private logger = createLogger(Libp2pService.name)
 
@@ -98,6 +105,27 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       this.logger.debug(`Transitioning libp2p state: ${this.state} -> ${state}`)
     }
     this.state = state
+  }
+
+  /** Records an LFA identity for reconnect hints, checked against the active graph before use. */
+  public rememberAuthenticatedPeer(peerId: string, identity: AuthenticatedPeerIdentity): void {
+    this.authenticatedPeers.set(peerId, identity)
+  }
+
+  public getAuthenticatedPeerIdentity(peerId: string): AuthenticatedPeerIdentity | undefined {
+    return this.authenticatedPeers.get(peerId)
+  }
+
+  public isAuthenticatedPeerAuthorized(identity: AuthenticatedPeerIdentity): boolean {
+    const team = this.sigchainService.getActiveChain(false)?.team
+    if (!team || team.id !== identity.teamId) return false
+    return team
+      .members()
+      .some(
+        member =>
+          member.userId === identity.userId &&
+          member.devices?.some(device => device.deviceId === identity.deviceId && device.removedAt == null)
+      )
   }
 
   public onModuleDestroy() {
@@ -180,6 +208,17 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       return
     }
 
+    // A queued retry can outlive a member/device removal. Recheck the binding at
+    // execution time; an old authenticated address does not grant continued access.
+    const authenticatedIdentity =
+      this.getAuthenticatedPeerIdentity(peerId) ??
+      (await this.localDbService.getPeerStats(peerId))?.authenticatedIdentity
+    if (authenticatedIdentity && !this.isAuthenticatedPeerAuthorized(authenticatedIdentity)) {
+      this.logger.debug('Not dialing a peer whose authenticated identity is no longer authorized', peerId)
+      this.dialedPeers.delete(peerAddress)
+      return
+    }
+
     this.logger.debug(`Dialing peer address: ${peerAddress}`)
     if (!peerAddress.includes(this.libp2pInstance.peerId.toString())) {
       try {
@@ -233,6 +272,10 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       if (addr === this.localAddress) continue
       if (this.redialQueue.hasTask(addr)) continue
       if (this.connectedPeers.has(peerId)) continue
+      const authenticatedIdentity =
+        this.getAuthenticatedPeerIdentity(peerId) ??
+        (await this.localDbService.getPeerStats(peerId))?.authenticatedIdentity
+      if (authenticatedIdentity && !this.isAuthenticatedPeerAuthorized(authenticatedIdentity)) continue
       const delayMs = this.dialedPeers.has(addr) ? undefined : 0 // dial immediately if this is our first attempt at dialing this address
 
       await this.redialQueue.enqueue({
@@ -794,6 +837,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
+    this.authenticatedPeers.clear()
     this.setState(Libp2pState.Stopped)
   }
 

@@ -411,8 +411,30 @@ export class Libp2pAuth {
       persistAdmission: this.persistAdmission,
     } as ConnectionParams)
 
+    // This identity scopes an existing reconnect address; it does not establish
+    // ownership of the transport peer ID or grant access to the community.
+    const rememberPeerIdentity = () => {
+      const { team, peer, theirDevice } = authConnection._context
+      if (team && peer && theirDevice) {
+        this.libp2pService.rememberAuthenticatedPeer(peerId.toString(), {
+          teamId: team.id,
+          userId: peer.userId,
+          deviceId: theirDevice.deviceId,
+        })
+      }
+    }
+    authConnection.on('connectionSecured', () => {
+      // A validated invitation checks the expected team before this event. It
+      // precedes JOINED, whose listeners initialize storage before profiles
+      // necessarily replicate. Established sessions wait for graph sync below.
+      if (authConnection._context.invitationAcceptanceResult?.isValid === true) {
+        rememberPeerIdentity()
+      }
+    })
+
     // Set up auth connection event handlers.
     authConnection.on(LFAEvents.CONNECTED, () => {
+      rememberPeerIdentity()
       if (this.sigChainService.activeChainTeamId != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const team = this.sigChainService.team
