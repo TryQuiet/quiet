@@ -10,10 +10,11 @@ import { RetryConfig } from './types'
 import { config } from 'dotenv'
 
 import { createLogger } from './logger'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
 
 const logger = createLogger('utils')
 
-export const BACKWARD_COMPATIBILITY_BASE_VERSION = '7.0.1' // version to test against
+export { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
 const appImagesPath = `${__dirname}/../Quiet`
 const defaultChromeDriverPath = require.resolve('electron-chromedriver/chromedriver.js')
 
