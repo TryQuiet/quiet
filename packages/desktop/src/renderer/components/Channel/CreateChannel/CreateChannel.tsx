@@ -20,8 +20,7 @@ export const CreateChannel = () => {
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
   const canCreateChannel = channelPermissions.public.create
-  const canCreatePrivateChannel =
-    process.env.PRIVATE_CHANNEL_CREATION_ALLOWED === 'true' && channelPermissions.private.create
+  const canCreatePrivateChannel = channelPermissions.private.create
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]

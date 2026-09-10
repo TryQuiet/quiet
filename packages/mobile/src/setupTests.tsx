@@ -29,7 +29,6 @@ setIdentityEngine(
 jest.mock('react-native-config', () => ({
   NODE_ENV: 'staging',
   QSS_ALLOWED: 'true',
-  PRIVATE_CHANNEL_CREATION_ALLOWED: 'false',
   FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED: 'true',
 }))
 
