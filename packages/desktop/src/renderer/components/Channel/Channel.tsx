@@ -19,7 +19,7 @@ import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
 
-const Channel = () => {
+const ChannelContent = () => {
   const dispatch = useDispatch()
 
   const user = useSelector(users.selectors.myUserProfile)
@@ -131,11 +131,13 @@ const Channel = () => {
       fileName: `${id}${ext}`,
       fileBuffer: new Uint8Array(imageBuffer),
       ext: ext,
+      channelId: currentChannelId,
     })
   }
 
   useEffect(() => {
-    ipcRenderer.on('writeTempFileReply', (_event, arg) => {
+    const onTempFile = (_event: Electron.IpcRendererEvent, arg: any) => {
+      if (arg.channelId !== currentChannelId) return
       setAttachingFiles(existingFiles => {
         const updatedFiles = {
           ...existingFiles,
@@ -148,18 +150,27 @@ const Channel = () => {
 
         return updatedFiles
       })
-    })
-  }, [])
+    }
+    ipcRenderer.on('writeTempFileReply', onTempFile)
+    return () => {
+      ipcRenderer.removeListener('writeTempFileReply', onTempFile)
+    }
+  }, [currentChannelId])
 
   useEffect(() => {
-    ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
+    const onOpenedFiles = (_event: Electron.IpcRendererEvent, filesData: FilePreviewData, channelId: string) => {
+      if (channelId !== currentChannelId) return
       updateAttachingFiles(filesData)
-    })
-  }, [])
+    }
+    ipcRenderer.on('openedFiles', onOpenedFiles)
+    return () => {
+      ipcRenderer.removeListener('openedFiles', onOpenedFiles)
+    }
+  }, [currentChannelId])
 
   const openFilesDialog = useCallback(() => {
-    ipcRenderer.send('openUploadFileDialog')
-  }, [])
+    ipcRenderer.send('openUploadFileDialog', currentChannelId)
+  }, [currentChannelId])
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -246,6 +257,11 @@ const Channel = () => {
       )}
     </>
   )
+}
+
+const Channel = () => {
+  const channelId = useSelector(publicChannels.selectors.currentChannelId)
+  return <ChannelContent key={channelId} />
 }
 
 export default Channel

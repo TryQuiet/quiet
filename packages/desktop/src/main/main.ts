@@ -874,10 +874,11 @@ app.on('ready', async () => {
       id,
       name,
       ext: arg.ext,
+      channelId: arg.channelId,
     })
   })
 
-  ipcMain.on('openUploadFileDialog', async e => {
+  ipcMain.on('openUploadFileDialog', async (e, channelId: string) => {
     logger.info('ipcMain: openUploadFileDialog')
     let filesDialogResult: Electron.OpenDialogReturnValue
     if (!mainWindow) {
@@ -902,7 +903,8 @@ app.on('ready', async () => {
           filesDialogResult.filePaths.map(filePath => {
             return { path: filePath }
           })
-        )
+        ),
+        channelId
       )
     }
   })
