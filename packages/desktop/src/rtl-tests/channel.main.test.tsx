@@ -49,6 +49,14 @@ import { cleanup } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
+const withTransportVerification = <T extends ChannelMessage>(
+  message: T,
+  verified = true
+): T & { verified: boolean } => ({
+  ...message,
+  verified,
+})
+
 describe('PublicChannel', () => {
   let socket: MockedSocket
   let notification: any
@@ -234,17 +242,15 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [authenticMessage],
+          messages: [withTransportVerification(authenticMessage)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [spoofedMessage],
+          messages: [withTransportVerification(spoofedMessage, false)],
           communityId: community.id,
-          isVerified: false,
         },
       ])
     }
@@ -303,9 +309,8 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [aliceMessage],
+          messages: [withTransportVerification(aliceMessage)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
     }
@@ -433,6 +438,7 @@ describe('PublicChannel', () => {
     store.dispatch(
       messages.actions.addMessages({
         messages: [sentMessage],
+        isLocal: true,
       })
     )
 
@@ -444,7 +450,7 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [sentMessage],
+          messages: [withTransportVerification(sentMessage)],
           communityId: community.id,
         },
       ])
@@ -509,25 +515,22 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message1],
+          messages: [withTransportVerification(message1)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message3],
+          messages: [withTransportVerification(message3)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message2],
+          messages: [withTransportVerification(message2)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
     }
@@ -785,7 +788,7 @@ describe('PublicChannel', () => {
         const data = input[1] as ChannelMessage
         const payload = data
         return socket.socketClient.emit<MessagesLoadedPayload>(SocketEvents.MESSAGES_STORED, {
-          messages: [payload],
+          messages: [withTransportVerification(payload)],
         })
       } else if (action === SocketEvents.MESSAGES_STORED) {
         const data = input[1] as MessagesLoadedPayload
@@ -1215,8 +1218,7 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message],
-          isVerified: true,
+          messages: [withTransportVerification(message)],
         } as MessagesLoadedPayload,
       ])
     }
@@ -1333,8 +1335,7 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message],
-          isVerified: true,
+          messages: [withTransportVerification(message)],
         },
       ])
     }
@@ -1470,8 +1471,7 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message],
-          isVerfied: true,
+          messages: [withTransportVerification(message)],
         },
       ])
     }

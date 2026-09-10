@@ -80,6 +80,9 @@
 		A11600000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
 		A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000004 /* QuietBackgroundTaskTests.m */; };
 		A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000006 /* TorHandlerLifecycleTests.swift */; };
+		A11600000000000000000008 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
+		A11700000000000000000001 /* TorBackgroundTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11700000000000000000003 /* TorBackgroundTransitions.swift */; };
+		A11700000000000000000002 /* TorBackgroundTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11700000000000000000003 /* TorBackgroundTransitions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -688,6 +691,7 @@
 		A11600000000000000000004 /* QuietBackgroundTaskTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTaskTests.m; sourceTree = "<group>"; };
 		A11600000000000000000006 /* TorHandlerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandlerLifecycleTests.swift; sourceTree = "<group>"; };
 		A11600000000000000000007 /* QuietBackgroundTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietBackgroundTask.h; sourceTree = "<group>"; };
+		A11700000000000000000003 /* TorBackgroundTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorBackgroundTransitions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -798,6 +802,7 @@
 				EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */,
 				EB5F93032F5FC50100B5C60D /* Quiet-Bridging-Header.h */,
 				189814392934CF70001F39E7 /* TorHandler.swift */,
+				A11700000000000000000003 /* TorBackgroundTransitions.swift */,
 				EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */,
 				EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */,
 				1889CA4D26E763E1004ECFBD /* Extensions.swift */,
@@ -5317,8 +5322,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11600000000000000000008 /* QuietBackgroundTask.m in Sources */,
 				A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */,
 				A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */,
+				A11700000000000000000002 /* TorBackgroundTransitions.swift in Sources */,
 				A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */,
 				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
 				A11400000000000000000005 /* SharedDefaults.swift in Sources */,
@@ -5343,6 +5350,7 @@
 				955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */,
 				1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */,
 				1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */,
+				A11700000000000000000001 /* TorBackgroundTransitions.swift in Sources */,
 				663DC8C12F621139005D2086 /* UserMetadataHandler.swift in Sources */,
 				1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */,
 				EB5F92FC2F5FBB2100B5C60D /* FirebaseMessagingModule.m in Sources */,

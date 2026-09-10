@@ -1,9 +1,9 @@
 import XCTest
-@testable import Quiet
 
 final class TorHandlerLifecycleTests: XCTestCase {
   func testDormantStateDoesNotCompleteWhileAConflictingModeCommandIsPending() {
-    XCTAssertFalse(TorHandler.canAcknowledgeBackgroundTransition(
+    let transitions = TorBackgroundTransitions()
+    XCTAssertFalse(transitions.finishIfDormant(
       desiresDormant: true,
       isDormant: true,
       commandPending: true
@@ -11,12 +11,13 @@ final class TorHandlerLifecycleTests: XCTestCase {
   }
 
   func testConfirmedDormantWithNoPendingCommandCanComplete() {
-    XCTAssertTrue(TorHandler.canAcknowledgeBackgroundTransition(
+    let transitions = TorBackgroundTransitions()
+    XCTAssertTrue(transitions.finishIfDormant(
       desiresDormant: true,
       isDormant: true,
       commandPending: false
     ))
-    XCTAssertFalse(TorHandler.canAcknowledgeBackgroundTransition(
+    XCTAssertFalse(transitions.finishIfDormant(
       desiresDormant: false,
       isDormant: true,
       commandPending: false
@@ -24,32 +25,34 @@ final class TorHandlerLifecycleTests: XCTestCase {
   }
 
   func testBackgroundCompletesWhenTorHasNotStarted() {
-    let handler = TorHandler()
+    let transitions = TorBackgroundTransitions()
     let completed = expectation(description: "background completion")
     var results: [Bool] = []
 
-    handler.enterBackground(transitionId: "pause-1") { success in
+    XCTAssertTrue(transitions.register("pause-1") { success in
       XCTAssertTrue(Thread.isMainThread)
       results.append(success)
       completed.fulfill()
-    }
+    })
+    XCTAssertTrue(transitions.finishIfTorUnavailable(hasTorThread: false, torThreadIsFinished: false))
 
     wait(for: [completed], timeout: 1)
     XCTAssertEqual(results, [true])
   }
 
   func testCancellationAfterCompletionDoesNotInvokeCallbackAgain() {
-    let handler = TorHandler()
+    let transitions = TorBackgroundTransitions()
     let completed = expectation(description: "background completion")
     var callbackCount = 0
 
-    handler.enterBackground(transitionId: "pause-2") { _ in
+    XCTAssertTrue(transitions.register("pause-2") { _ in
       callbackCount += 1
       completed.fulfill()
-    }
+    })
+    transitions.finishAll(success: true)
     wait(for: [completed], timeout: 1)
 
-    handler.cancelBackgroundTransition("pause-2")
+    transitions.cancel("pause-2")
     let queueDrained = expectation(description: "lifecycle queue drained")
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
       queueDrained.fulfill()
