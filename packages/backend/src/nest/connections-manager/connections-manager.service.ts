@@ -1,3 +1,4 @@
+import { AdmissionLifecycle } from '../admission/admission-lifecycle'
 import * as uint8arrays from 'uint8arrays'
 import fs from 'fs'
 import path from 'path'
@@ -94,12 +95,7 @@ import { SigChain } from '../auth/sigchain'
 import { Member } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
 import { AdmissionCoordinator } from '../admission/admission-coordinator.service'
-import {
-  AdmissionKind,
-  AdmissionTransport,
-  CommunityAdmissionMetadata,
-  QssAdmissionStartResult,
-} from '../admission/admission.types'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 
 const INVITATION_ADMISSION_TIMEOUT_MS = 120_000
 
@@ -110,6 +106,8 @@ const INVITATION_ADMISSION_TIMEOUT_MS = 120_000
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
   public communityState: ServiceState
+  private admissionLifecycle?: AdmissionLifecycle
+  private launchGeneration = 0
   private hibernating = false
   private hibernateInFlight: Promise<void> | null = null
   private wakeInFlight: Promise<void> | null = null
@@ -325,7 +323,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async pause() {
     this.logger.info('Pausing!')
-    await this.admissionCoordinator.cancelActive(new Error('Admission cancelled while services paused'))
+    const reason = new Error('Admission cancelled while services paused')
+    this.launchGeneration += 1
+    this.admissionLifecycle?.revoke(reason)
+    await this.admissionCoordinator.cancelActive(reason)
+    await this.admissionLifecycle?.resources.idle()
     this.qssService.pause()
     await this.libp2pService?.pause()
     this.logger.info('Pausing libp2pService!')
@@ -461,7 +463,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   ) {
     this.logger.info('Closing services', options)
-    await this.admissionCoordinator.cancelActive(new Error('Admission cancelled while services closed'))
+    const reason = new Error('Admission cancelled while services closed')
+    this.launchGeneration += 1
+    this.admissionLifecycle?.revoke(reason)
+    await this.admissionCoordinator.cancelActive(reason)
+    await this.admissionLifecycle?.drain(reason)
+    this.admissionLifecycle = undefined
 
     if (!options.deleteChainFromDisk) {
       this.logger.info('Saving active sigchain')
@@ -953,6 +960,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launch(community: Community) {
+    const generation = ++this.launchGeneration
+    const assertGeneration = () => {
+      if (generation !== this.launchGeneration) throw new Error('Community launch generation was revoked')
+    }
     this.logger.info(`Launching community ${community.id}`)
 
     const identity = await this.storageService.getIdentity(community.id)
@@ -989,10 +1000,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       torBootstrap: useLocalTransport ? undefined : this.tor,
     }
 
+    assertGeneration()
+    const qssAdmissionEndpoint =
+      community.qssEnabled === true &&
+      community.inviteData?.version === InvitationDataVersion.v5 &&
+      community.inviteData.qssEnabled
+        ? community.inviteData.qssEndpoint
+        : undefined
+    const lease = new AdmissionLifecycle(community.id, generation, params, qssAdmissionEndpoint)
+    this.admissionLifecycle = lease
     let libp2pStartPromise: Promise<void> | undefined
     const ensureLibp2pStarted = async (): Promise<void> => {
       if (libp2pStartPromise == null) {
-        libp2pStartPromise = this.libp2pService.createInstance(params).then(() => undefined)
+        libp2pStartPromise = lease.run(async () => {
+          await this.libp2pService.createInstance(params, lease.signal)
+          lease.assertCurrent()
+        })
       }
       return libp2pStartPromise
     }
@@ -1010,11 +1033,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         return setupStorageWithTeamMetaPromise
       }
 
-      setupStorageWithTeamMetaPromise = (async () => {
+      setupStorageWithTeamMetaPromise = lease.run(async () => {
         this.logger.info('Setting up storage')
         await this.storageService.init(teamId)
+        lease.assertCurrent()
         this.qssService.markTeamStorageReady(teamId)
-      })()
+      })
 
       return setupStorageWithTeamMetaPromise
     }
@@ -1025,22 +1049,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
       await ensureLibp2pStarted()
       await setupStorageWithTeamMeta(activeChain.team!.id)
-      void this.qssService.connect(community.qssEndpoint)
-      await this._updateTeamIdOnStoredCommunity(community, activeChain)
+      void lease
+        .run(async () => {
+          await this.qssService.connect(community.qssEndpoint)
+        })
+        .catch(error => {
+          this.logger.warn('Restored community QSS startup stopped', error)
+        })
+      await lease.run(async () => this._updateTeamIdOnStoredCommunity(community, activeChain))
     } else {
       const inviteData = community.inviteData
       if (inviteData == null) {
         throw new Error(`Cannot coordinate admission for community ${community.id} without invitation data`)
       }
       const teamId = community.teamId ?? inviteData.authData.teamId
-      const qssAdmissionEndpoint =
-        community.qssEnabled === true &&
-        inviteData.version === InvitationDataVersion.v5 &&
-        inviteData.qssEnabled &&
-        inviteData.qssEndpoint
-          ? inviteData.qssEndpoint
-          : undefined
-      const admission = await this.admissionCoordinator.coordinate(
+      const handle = this.admissionCoordinator.start(
         {
           communityId: community.id,
           teamId,
@@ -1048,50 +1071,36 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           expectedDeviceId: activeChain.device.deviceId,
           kind: activeChain.isPendingDeviceAdmission ? AdmissionKind.DEVICE : AdmissionKind.MEMBER,
           preferredTransport: qssAdmissionEndpoint != null ? AdmissionTransport.QSS : AdmissionTransport.P2P,
-          storedTransport: (community as Community & CommunityAdmissionMetadata).admissionTransport,
           timeoutMs: INVITATION_ADMISSION_TIMEOUT_MS,
         },
-        {
-          startQss: async () => {
-            if (qssAdmissionEndpoint == null) {
-              return QssAdmissionStartResult.UNAVAILABLE
-            }
-            const result = await this.qssService.connect(qssAdmissionEndpoint)
-            return result === QSSOperationResult.SUCCESS
-              ? QssAdmissionStartResult.READY
-              : QssAdmissionStartResult.UNAVAILABLE
-          },
-          pauseQss: () => this.qssService.pause(),
-          startP2p: async finalize => {
-            const admission = this.libp2pService.beginAdmission(finalize)
-            try {
-              await ensureLibp2pStarted()
-              return await admission
-            } catch (error) {
-              this.libp2pService.cancelAdmission(error instanceof Error ? error : new Error(String(error)))
-              throw error
-            }
-          },
-          stopP2p: async () => this.libp2pService.close(false),
-          convergeQssAfterP2p: async () => {
-            if (qssAdmissionEndpoint == null) {
-              return
-            }
-            await this.qssService.resume()
-            const result = await this.qssService.connect(qssAdmissionEndpoint)
-            if (result === QSSOperationResult.SUCCESS) {
-              await this.qssService.authenticateCurrentCommunity()
-            }
-          },
-        }
+        lease
       )
+      const admission = await handle.result
+      lease.assertCurrent()
 
       await ensureLibp2pStarted()
+      lease.assertCurrent()
       await setupStorageWithTeamMeta(admission.teamId)
-      await this.qssService.syncNativePushPrerequisites(admission.teamId, activeChain, 'coordinated join completed')
-      await this._updateTeamIdOnStoredCommunity(community, admission.teamId)
+      await lease.run(async () => {
+        await this.qssService.syncNativePushPrerequisites(
+          admission.teamId,
+          this.sigChainService.getActiveChain(),
+          'coordinated join completed'
+        )
+        lease.assertCurrent()
+        await this._updateTeamIdOnStoredCommunity(community, admission.teamId)
+        lease.assertCurrent()
+        if (admission.transport === AdmissionTransport.P2P && qssAdmissionEndpoint != null) {
+          await this.qssService.resume()
+          lease.assertCurrent()
+          const result = await this.qssService.connect(qssAdmissionEndpoint)
+          lease.assertCurrent()
+          if (result === QSSOperationResult.SUCCESS) await this.qssService.authenticateCurrentCommunity()
+        }
+      })
     }
 
+    lease.assertCurrent()
     if (useLocalTransport || this.tor.bootstrapped) {
       this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
     }
@@ -1110,7 +1119,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     this.logger.debug(`Updating team ID for stored community ${community.id}`)
     const teamId = chainOrTeamId instanceof SigChain ? chainOrTeamId.team!.id : chainOrTeamId
-    await this.localDbService.setCommunity({ ...community, teamId })
+    await this.localDbService.updateCommunity(community.id, { teamId })
     const payload: UpdateCommunityPayload = {
       id: community.id,
       updates: {

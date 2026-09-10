@@ -1,216 +1,278 @@
 import { jest } from '@jest/globals'
 import { AdmissionCoordinator } from './admission-coordinator.service'
+import { AdmissionClock } from './admission-clock'
+import { AdmissionLifecycle } from './admission-lifecycle'
 import {
-  AdmissionCandidate,
-  AdmissionFinalizer,
+  AdmissionAttemptOptions,
+  AdmissionBusyError,
+  AdmissionError,
   AdmissionKind,
+  AdmissionRecoveryRequiredError,
   AdmissionRequest,
-  AdmissionRuntime,
   AdmissionTransport,
-  PreparedQssAdmission,
-  QssAdmissionStartResult,
 } from './admission.types'
 
-describe('AdmissionCoordinator', () => {
-  const teamId = 'team'
-  const userId = 'user'
-  const deviceId = 'device'
+function deferred<T = void>() {
+  let resolve!: (value: T) => void
+  let reject!: (error: Error) => void
+  const promise = new Promise<T>((yes, no) => {
+    resolve = yes
+    reject = no
+  })
+  return { promise, resolve, reject }
+}
+const flush = async () => {
+  for (let i = 0; i < 30; i++) await Promise.resolve()
+}
 
-  let qssService: {
-    prepareAdmission: jest.Mock<() => Promise<PreparedQssAdmission>>
-    startPreparedAdmission: jest.Mock<(prepared: PreparedQssAdmission, finalize: AdmissionFinalizer) => Promise<any>>
-  }
-  let commit: jest.Mock<() => Promise<void>>
-  let sigChainService: {
-    withAdmissionPersistence: jest.Mock<
-      <T>(team: string, operation: (scope: { commit(): Promise<void> }) => Promise<T>) => Promise<T>
-    >
-    getActiveChain: jest.Mock<() => any>
-  }
-  let localDbService: {
-    claimAdmissionTransport: jest.Mock<() => Promise<'claimed' | 'already-owned' | 'conflict'>>
-  }
-  let runtime: AdmissionRuntime
+describe('AdmissionCoordinator lifecycle regressions', () => {
   let coordinator: AdmissionCoordinator
   let request: AdmissionRequest
+  let lease: AdmissionLifecycle
+  let options: AdmissionAttemptOptions[]
+  let prepare: ReturnType<typeof jest.fn<() => Promise<void>>>
+  let start: ReturnType<typeof jest.fn<() => Promise<void>>>
+  let cleanup: ReturnType<typeof jest.fn<() => Promise<void>>>
+  let commit: ReturnType<typeof jest.fn<() => Promise<void>>>
+  let claim: ReturnType<typeof jest.fn<() => Promise<string>>>
+  let stored: AdmissionTransport | undefined
+  let synchronousStart: boolean
+  let discard: ReturnType<typeof jest.fn>
 
   beforeEach(() => {
-    commit = jest.fn(async () => undefined)
-    sigChainService = {
-      withAdmissionPersistence: jest.fn(async (_team, operation) => operation({ commit })),
-      getActiveChain: jest.fn(() => ({
-        team: { id: teamId, hasDevice: (candidateDeviceId: string) => candidateDeviceId === deviceId },
-        user: { userId },
-        device: { deviceId },
-        roles: { amIMemberOfRole: () => true },
-      })),
-    }
-    qssService = {
-      prepareAdmission: jest.fn(async () => ({ teamId, kind: request.kind })),
-      startPreparedAdmission: jest.fn(async (_prepared, finalize) =>
-        finalize(candidate(AdmissionTransport.QSS, request.kind))
-      ),
-    }
-    localDbService = {
-      claimAdmissionTransport: jest.fn(async () => 'claimed'),
-    }
-    runtime = {
-      startQss: jest.fn(async () => QssAdmissionStartResult.READY),
-      pauseQss: jest.fn(),
-      startP2p: jest.fn(async (finalize: AdmissionFinalizer) =>
-        finalize(candidate(AdmissionTransport.P2P, request.kind))
-      ),
-      stopP2p: jest.fn(async () => undefined),
-      convergeQssAfterP2p: jest.fn(async () => undefined),
-    }
+    jest.useFakeTimers()
     request = {
       communityId: 'community',
-      teamId,
-      expectedUserId: userId,
-      expectedDeviceId: deviceId,
+      teamId: 'team',
+      expectedUserId: 'user',
+      expectedDeviceId: 'device',
       kind: AdmissionKind.DEVICE,
       preferredTransport: AdmissionTransport.QSS,
-      timeoutMs: 10_000,
+      timeoutMs: 120_000,
     }
-    coordinator = new AdmissionCoordinator(qssService as any, sigChainService as any, localDbService as any)
-  })
-
-  afterEach(async () => {
-    await coordinator.cancelActive(new Error('test cleanup'))
-  })
-
-  it('admits a device through QSS only after persistence commits', async () => {
-    await expect(coordinator.coordinate(request, runtime)).resolves.toEqual({
-      teamId,
-      userId,
-      deviceId,
-      transport: AdmissionTransport.QSS,
-    })
-    expect(commit).toHaveBeenCalledTimes(1)
-    expect(runtime.startP2p).not.toHaveBeenCalled()
-  })
-
-  it('falls back to P2P after terminal QSS device failure', async () => {
-    qssService.startPreparedAdmission.mockRejectedValueOnce(new Error('terminal QSS failure'))
-
-    await expect(coordinator.coordinate(request, runtime)).resolves.toMatchObject({
-      transport: AdmissionTransport.P2P,
-    })
-
-    expect(runtime.pauseQss).toHaveBeenCalled()
-    expect(runtime.startP2p).toHaveBeenCalled()
-    expect(runtime.convergeQssAfterP2p).toHaveBeenCalled()
-  })
-
-  it('falls back before claim when ordinary-member QSS preparation fails', async () => {
-    request.kind = AdmissionKind.MEMBER
-    qssService.prepareAdmission.mockRejectedValueOnce(new Error('sign-in was not acknowledged'))
-
-    await expect(coordinator.coordinate(request, runtime)).resolves.toMatchObject({
-      transport: AdmissionTransport.P2P,
-    })
-    expect(localDbService.claimAdmissionTransport).toHaveBeenCalledWith(request.communityId, AdmissionTransport.P2P)
-  })
-
-  it('refuses ordinary-member fallback after QSS ownership is claimed', async () => {
-    request.kind = AdmissionKind.MEMBER
-    qssService.startPreparedAdmission.mockRejectedValueOnce(new Error('LFA start failed'))
-
-    await expect(coordinator.coordinate(request, runtime)).rejects.toThrow('LFA start failed')
-    expect(localDbService.claimAdmissionTransport).toHaveBeenCalledWith(request.communityId, AdmissionTransport.QSS)
-    expect(runtime.startP2p).not.toHaveBeenCalled()
-  })
-
-  it('honors stored P2P ownership without starting QSS or claiming again', async () => {
-    request.kind = AdmissionKind.MEMBER
-    request.storedTransport = AdmissionTransport.P2P
-
-    const first = coordinator.coordinate(request, runtime)
-    const repeated = coordinator.coordinate(request, runtime)
-
-    expect(repeated).toBe(first)
-    await expect(first).resolves.toMatchObject({ transport: AdmissionTransport.P2P })
-    expect(runtime.startQss).not.toHaveBeenCalled()
-    expect(localDbService.claimAdmissionTransport).not.toHaveBeenCalled()
-  })
-
-  it('fails on a durable transport claim conflict', async () => {
-    request.kind = AdmissionKind.MEMBER
-    localDbService.claimAdmissionTransport.mockResolvedValueOnce('conflict')
-
-    await expect(coordinator.coordinate(request, runtime)).rejects.toThrow('claim conflict')
-    expect(commit).not.toHaveBeenCalled()
-  })
-
-  it('rejects validation failures and does not commit persistence', async () => {
-    qssService.startPreparedAdmission.mockImplementationOnce(async (_prepared, finalize) =>
-      finalize(candidate(AdmissionTransport.QSS, AdmissionKind.DEVICE, { userId: 'unexpected-user' }))
+    lease = new AdmissionLifecycle('community', 1, {} as any, 'wss://qss')
+    options = []
+    stored = undefined
+    synchronousStart = false
+    prepare = jest.fn(async () => undefined)
+    start = jest.fn(async () => undefined)
+    cleanup = jest.fn(async () => undefined)
+    commit = jest.fn(async () => undefined)
+    claim = jest.fn(async () => 'claimed')
+    discard = jest.fn()
+    const adapter = {
+      create: (option: AdmissionAttemptOptions) => {
+        options.push(option)
+        option.scope.own(cleanup)
+        return {
+          context: option.context,
+          prepare: () => option.scope.run(prepare),
+          start: () => (synchronousStart ? start() : option.scope.run(start)),
+          stop: (error: Error) => {
+            option.context.revoke()
+            return option.scope.drain(error)
+          },
+        }
+      },
+    }
+    const clock = new AdmissionClock()
+    jest.spyOn(clock, 'now').mockImplementation(() => Date.now())
+    coordinator = new AdmissionCoordinator(
+      adapter as any,
+      adapter as any,
+      {
+        beginAdmission: () => ({ stage: () => ({ device: { deviceId: 'device' } }), commit, discard }),
+      } as any,
+      { getCommunity: async () => ({ admissionTransport: stored }), claimAdmissionTransport: claim } as any,
+      clock
     )
-
-    await expect(coordinator.coordinate(request, runtime)).rejects.toThrow('Admission user mismatch')
-    expect(commit).not.toHaveBeenCalled()
   })
+  afterEach(() => jest.useRealTimers())
+  const payload = () => ({ team: { id: 'team' } as any, user: { userId: 'user' } as any })
 
-  it('propagates persistence failure through the transport promise', async () => {
-    commit.mockRejectedValueOnce(new Error('disk full'))
-
-    await expect(coordinator.coordinate(request, runtime)).rejects.toThrow('disk full')
-  })
-
-  it('finalizes only the first candidate when a transport completes concurrently', async () => {
-    let resolveCommit!: () => void
-    commit.mockImplementationOnce(
-      () =>
-        new Promise<void>(resolve => {
-          resolveCommit = resolve
-        })
-    )
-    jest.mocked(runtime.startP2p).mockImplementationOnce(async (finalize: AdmissionFinalizer) => {
-      const first = finalize(candidate(AdmissionTransport.P2P, request.kind))
-      const second = finalize(candidate(AdmissionTransport.P2P, request.kind))
-      expect(second).toBe(first)
-      resolveCommit()
-      return first
-    })
-    request.preferredTransport = AdmissionTransport.P2P
-
-    await expect(coordinator.coordinate(request, runtime)).resolves.toMatchObject({
-      transport: AdmissionTransport.P2P,
-    })
-    expect(commit).toHaveBeenCalledTimes(1)
-  })
-
-  it('cancels the active transport and rejects the operation', async () => {
-    let rejectAdmission!: (error: Error) => void
-    qssService.startPreparedAdmission.mockImplementationOnce(
-      async () =>
-        new Promise((_resolve, reject) => {
-          rejectAdmission = reject
-        })
-    )
-    runtime.pauseQss = jest.fn(() => rejectAdmission(new Error('paused')))
-
-    const result = coordinator.coordinate(request, runtime)
+  it('settles a deadline during hung preparation, fencing ownership until late startup drains', async () => {
+    const pending = deferred()
+    prepare.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
     await flush()
-    await coordinator.cancelActive(new Error('paused'))
-
-    await expect(result).rejects.toThrow('paused')
-    expect(runtime.pauseQss).toHaveBeenCalled()
+    jest.advanceTimersByTime(120_000)
+    await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
+    expect(() => coordinator.start({ ...request, expectedDeviceId: 'other' }, lease)).toThrow(AdmissionBusyError)
+    expect(start).not.toHaveBeenCalled()
+    pending.resolve()
+    await handle.drained
+    expect(cleanup).toHaveBeenCalledTimes(1)
+    expect(start).not.toHaveBeenCalled()
   })
 
-  const candidate = (
-    transport: AdmissionTransport,
-    kind: AdmissionKind,
-    overrides: Partial<{ teamId: string; userId: string; deviceId: string }> = {}
-  ): AdmissionCandidate => ({
-    transport,
-    kind,
-    teamId: overrides.teamId ?? teamId,
-    userId: overrides.userId ?? userId,
-    deviceId: overrides.deviceId ?? deviceId,
+  it('never starts P2P after cancellation races with its durable ownership write', async () => {
+    request.kind = AdmissionKind.MEMBER
+    request.preferredTransport = AdmissionTransport.P2P
+    const pending = deferred<string>()
+    claim.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
+    await flush()
+    expect(claim).toHaveBeenCalledTimes(1)
+    const reason = new Error('switch community')
+    const cancelled = handle.cancel(reason)
+    await expect(handle.result).rejects.toBe(reason)
+    expect(start).not.toHaveBeenCalled()
+    pending.resolve('claimed')
+    await cancelled
+    expect(start).not.toHaveBeenCalled()
+    expect(discard).toHaveBeenCalledTimes(1)
   })
 
-  const flush = async (): Promise<void> => {
-    await new Promise<void>(resolve => setImmediate(resolve))
-  }
+  it('irrevocably disables fallback and cancellation once a candidate starts committing', async () => {
+    const pending = deferred()
+    commit.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
+    await flush()
+    jest.advanceTimersByTime(59_999)
+    const candidate = payload()
+    const ack = options[0].context.joined(candidate)
+    expect(options[0].context.joined(candidate)).toBe(ack)
+    await expect(options[0].context.joined(payload())).rejects.toMatchObject({ kind: 'cancelled' })
+    await flush()
+    const cancel = handle.cancel(new Error('shutdown'))
+    options[0].context.fail(new AdmissionError('transport', 'disconnected'))
+    jest.advanceTimersByTime(200_000)
+    expect(options).toHaveLength(1)
+    expect(cleanup).not.toHaveBeenCalled()
+    pending.resolve()
+    await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.QSS })
+    await cancel
+    await ack
+    expect(commit).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not acknowledge an unrelated candidate submitted reentrantly from a start effect', async () => {
+    synchronousStart = true
+    let rejected!: Promise<unknown>
+    start.mockImplementationOnce(async () => {
+      void options[0].context.joined(payload())
+      rejected = options[0].context.joined(payload()).catch(error => error)
+    })
+    const handle = coordinator.start(request, lease)
+    await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.QSS })
+    await expect(rejected).resolves.toMatchObject({ kind: 'cancelled' })
+    expect(commit).toHaveBeenCalledTimes(1)
+  })
+
+  it('transfers a successful commit to a revoked lifecycle without resuming networking', async () => {
+    const pending = deferred()
+    commit.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
+    await flush()
+    const resume = jest.spyOn(options[0].context, 'resume')
+    const ack = options[0].context.joined(payload())
+    await flush()
+    const reason = new Error('shutdown during commit')
+    lease.revoke(reason)
+    const cancelled = handle.cancel(reason)
+    pending.resolve()
+    await ack
+    await cancelled
+    await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.QSS })
+    expect(resume).not.toHaveBeenCalled()
+    await lease.drain(reason)
+    expect(cleanup).toHaveBeenCalledTimes(1)
+  })
+
+  it('drains QSS before starting device fallback and rejects retired candidates', async () => {
+    const pending = deferred()
+    cleanup.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
+    await flush()
+    jest.advanceTimersByTime(60_000)
+    await flush()
+    expect(options).toHaveLength(1)
+    pending.resolve()
+    await flush()
+    expect(options).toHaveLength(2)
+    expect(() => options[0].context.joined(payload())).toThrow('closed')
+    await options[1].context.joined(payload())
+    await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.P2P })
+  })
+
+  it('does not start fallback if QSS retirement exhausts the acquisition budget', async () => {
+    const pending = deferred()
+    cleanup.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
+    await flush()
+    jest.advanceTimersByTime(60_000)
+    await flush()
+    jest.advanceTimersByTime(60_000)
+    await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
+    pending.resolve()
+    await handle.drained
+    expect(options).toHaveLength(1)
+  })
+
+  it('rejects candidate selection after the deadline wins', async () => {
+    const handle = coordinator.start(request, lease)
+    await flush()
+    jest.advanceTimersByTime(120_000)
+    expect(() => options[0].context.joined(payload())).toThrow('closed')
+    await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
+    await handle.drained
+    expect(commit).not.toHaveBeenCalled()
+  })
+
+  it.each([AdmissionTransport.QSS, AdmissionTransport.P2P])(
+    'reloads durable %s ownership instead of caller preference',
+    async transport => {
+      request.kind = AdmissionKind.MEMBER
+      stored = transport
+      const handle = coordinator.start(request, lease)
+      await flush()
+      expect(options[0].context.transport).toBe(transport)
+      expect(claim).not.toHaveBeenCalled()
+      options[0].context.fail(new AdmissionError('availability', 'offline'))
+      await expect(handle.result).rejects.toMatchObject({ kind: 'availability' })
+      await handle.drained
+      expect(options).toHaveLength(1)
+    }
+  )
+
+  it('allows member fallback only for classified pre-claim unavailability', async () => {
+    request.kind = AdmissionKind.MEMBER
+    prepare.mockRejectedValueOnce(new AdmissionError('availability', 'offline'))
+    const handle = coordinator.start(request, lease)
+    await flush()
+    expect(options).toHaveLength(2)
+    expect(claim).toHaveBeenCalledWith('community', AdmissionTransport.P2P)
+    await options[1].context.joined(payload())
+    await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.P2P })
+  })
+
+  it.each(['validation', 'persistence', 'protocol'] as const)('does not fall back on %s failure', async kind => {
+    prepare.mockRejectedValueOnce(new AdmissionError(kind, 'failed'))
+    const handle = coordinator.start(request, lease)
+    await expect(handle.result).rejects.toMatchObject({ kind })
+    await handle.drained
+    expect(options).toHaveLength(1)
+  })
+
+  it('retains ownership and reports recovery when the write outcome is uncertain', async () => {
+    commit.mockRejectedValueOnce(new AdmissionRecoveryRequiredError('uncertain write'))
+    const handle = coordinator.start(request, lease)
+    await flush()
+    await expect(options[0].context.joined(payload())).rejects.toMatchObject({ kind: 'recovery' })
+    await expect(handle.result).rejects.toMatchObject({ kind: 'recovery' })
+    expect(() => coordinator.start({ ...request, timeoutMs: 1 }, lease)).toThrow(AdmissionBusyError)
+    expect(discard).not.toHaveBeenCalled()
+  })
+
+  it('deduplicates normalized requests and rejects changed configuration', async () => {
+    const handle = coordinator.start(request, lease)
+    expect(coordinator.start({ ...request }, lease)).toBe(handle)
+    expect(() => coordinator.start({ ...request, timeoutMs: 1 }, lease)).toThrow(AdmissionBusyError)
+    expect(() => coordinator.start(request, new AdmissionLifecycle('community', 2, {} as any))).toThrow(
+      AdmissionBusyError
+    )
+    await handle.cancel(new Error('cancel immediately'))
+    await expect(handle.result).rejects.toThrow('cancel immediately')
+    expect(start).not.toHaveBeenCalled()
+  })
 })

@@ -1,3 +1,5 @@
+import { AdmissionAuthContext } from '../admission/admission-auth-context'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
 import waitForExpect from 'wait-for-expect'
@@ -92,6 +94,65 @@ describe('QSSAuthConnection - durable join', () => {
     }
     jest.restoreAllMocks()
     await module.close()
+  })
+
+  it('uses the private admission context and gates protocol input until durable publication', async () => {
+    const base = await sigChainService.createChain(true)
+    const team = base.team!
+    const user = base.user
+    base.context = { ...base.localUserContext, invitationSeed: 'seed', expectedTeamId: team.id }
+    const request = {
+      communityId: 'community',
+      teamId: team.id,
+      expectedUserId: base.userId,
+      expectedDeviceId: base.device.deviceId,
+      kind: AdmissionKind.MEMBER,
+      preferredTransport: AdmissionTransport.QSS,
+      timeoutMs: 120_000,
+    }
+    const transaction = sigChainService.beginAdmission(request)
+    const staged = transaction.stage()
+    const pending = deferred()
+    const write = jest.spyOn(localDbService, 'setSigChainData').mockImplementation(async () => pending.promise)
+    const context = new AdmissionAuthContext(
+      'session',
+      1,
+      request,
+      AdmissionTransport.QSS,
+      staged,
+      async candidate => {
+        context.freeze()
+        await transaction.commit(candidate)
+        context.resume()
+        return {
+          teamId: candidate.teamId,
+          userId: candidate.userId,
+          deviceId: candidate.deviceId,
+          transport: candidate.transport,
+        }
+      },
+      jest.fn()
+    )
+    const conn = new QSSAuthConnection(sigChainService, qssClient)
+    conn.teamId = team.id
+    conn.admissionContext = context
+    await (conn as any)._initNewConn(staged)
+    openConnections.push(conn)
+    const joined = jest.fn()
+    conn.on(QSSEvents.QSS_AUTH_JOINED, joined)
+    const deliver = jest.spyOn((conn as any)._authConnection, 'deliver').mockImplementation(() => undefined)
+    emitJoined(conn, { team, user })
+    await waitForExpect(() => expect(write).toHaveBeenCalledTimes(1))
+    emitConnected(conn)
+    conn.deliver(new Uint8Array([1]))
+    expect(deliver).not.toHaveBeenCalled()
+    expect(sigChainService.getActiveChain()).toBe(base)
+    expect(base.team).toBeNull()
+    expect(joined).not.toHaveBeenCalled()
+    pending.resolve()
+    await waitForExpect(() => expect(joined).toHaveBeenCalledTimes(1))
+    expect(sigChainService.getActiveChain()).toBe(staged)
+    expect(deliver).toHaveBeenCalledTimes(1)
   })
 
   describe('when we already hold the team', () => {

@@ -7,7 +7,7 @@ import { Libp2pService, Libp2pState } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
-import { AdmissionFinalizer, AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 import { Libp2pEvents } from './libp2p.types'
 
 describe('Libp2pService', () => {
@@ -170,40 +170,15 @@ describe('Libp2pService', () => {
     expect(uint8ArrayToString(generatedKey.fullKey)).toEqual(expectedFullKeyString)
   })
 
-  it('resolves the admission promise after candidate finalization', async () => {
-    const candidate = {
-      teamId: 'team',
-      userId: 'user',
-      deviceId: 'device',
-      kind: AdmissionKind.DEVICE,
-      transport: AdmissionTransport.P2P,
-    }
-    const expected = {
-      teamId: candidate.teamId,
-      userId: candidate.userId,
-      deviceId: candidate.deviceId,
-      transport: candidate.transport,
-    }
-    const finalize = jest.fn(async () => expected)
-    const admission = libp2pService.beginAdmission(finalize)
-
-    await expect(libp2pService.completeAdmission(candidate)).resolves.toEqual(expected)
-    await expect(admission).resolves.toEqual(expected)
-    expect(finalize).toHaveBeenCalledWith(candidate)
-  })
-
-  it('rejects the admission promise when admission is cancelled', async () => {
-    const finalize: AdmissionFinalizer = async candidate => ({
-      teamId: candidate.teamId,
-      userId: candidate.userId,
-      deviceId: candidate.deviceId,
-      transport: candidate.transport,
-    })
-    const admission = libp2pService.beginAdmission(finalize)
-
-    libp2pService.cancelAdmission(new Error('cancelled'))
-
-    await expect(admission).rejects.toThrow('cancelled')
+  it('retains the exact attempt context and rejects competing owners', () => {
+    const context = { revoke: jest.fn() } as any
+    libp2pService.setAdmissionContext(context)
+    expect(libp2pService.admissionContext).toBe(context)
+    expect(() => libp2pService.setAdmissionContext({} as any)).toThrow('already has')
+    libp2pService.clearAdmissionContext({} as any)
+    expect(libp2pService.admissionContext).toBe(context)
+    libp2pService.clearAdmissionContext(context)
+    expect(libp2pService.admissionContext).toBeUndefined()
   })
 
   it('redials sorted peers even when no peers were previously dialed', async () => {

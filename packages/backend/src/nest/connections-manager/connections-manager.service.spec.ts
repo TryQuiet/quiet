@@ -207,7 +207,8 @@ describe('ConnectionsManagerService', () => {
           targetPort: persistedPort,
           agent: undefined,
           torBootstrap: undefined,
-        })
+        }),
+        expect.any(AbortSignal)
       )
     } finally {
       if (previousLocalTransport == null) {
@@ -520,7 +521,12 @@ describe('ConnectionsManagerService', () => {
       jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
       jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
       jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue(pendingChain as any)
-      const coordinateSpy = jest.spyOn(admissionCoordinator, 'coordinate').mockReturnValue(admissionPromise)
+      const coordinateSpy = jest.spyOn(admissionCoordinator, 'start').mockReturnValue({
+        id: 'session',
+        result: admissionPromise,
+        drained: Promise.resolve(),
+        cancel: async () => undefined,
+      })
       connectionsManagerService['ports'] = {
         socksPort: 9001,
         libp2pHiddenService: 9002,
@@ -589,7 +595,9 @@ describe('ConnectionsManagerService', () => {
     }
     const storageInitSpy = jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
     jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue(pendingChain as any)
-    jest.spyOn(admissionCoordinator, 'coordinate').mockRejectedValue(new Error('Invitation was not accepted'))
+    jest.spyOn(admissionCoordinator, 'start').mockImplementation(() => {
+      throw new Error('Invitation was not accepted')
+    })
 
     await expect(connectionsManagerService.launch(linkedCommunity)).rejects.toThrow('Invitation was not accepted')
     expect(libp2pCreateSpy).not.toHaveBeenCalled()

@@ -1,3 +1,5 @@
+import { AdmissionAuthContext } from '../admission/admission-auth-context'
+import { AdmissionLifecycle } from '../admission/admission-lifecycle'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
 import { QSSModule } from './qss.module'
@@ -500,63 +502,74 @@ describe('QSSService', () => {
       expect(requestSignInSpy).toHaveBeenCalledWith(teamId, pendingChain, false)
       expect(startAuthSpy).not.toHaveBeenCalled()
 
-      const admission = qssService.startPreparedAdmission(prepared, async candidate => ({
-        teamId: candidate.teamId,
-        userId: candidate.userId,
-        deviceId: candidate.deviceId,
-        transport: candidate.transport,
-      }))
-      expect(startAuthSpy).toHaveBeenCalledWith(teamId)
-      await waitForExpect(() => expect(startSyncSpy).toHaveBeenCalledWith(teamId, pendingChain))
+      const context = { assertCurrent: jest.fn(), fail: jest.fn() } as any
+      const startNew = jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      await qssService.startPreparedAdmission(prepared, context)
+      expect(startNew).toHaveBeenCalledWith(teamId, context)
+      expect(startSyncSpy).not.toHaveBeenCalled()
       jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
       qssService.pause()
-      await expect(admission).rejects.toThrow('aborted while service paused')
+      expect(context.fail).toHaveBeenCalled()
     })
 
-    it('resolves prepared admission through the supplied finalizer', async () => {
+    it('passes the private context to auth without publishing readiness during startup', async () => {
       const chain = sigchainService.activeChain
       const teamId = chain.team!.id
       jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
-      jest.spyOn(qssService as any, 'startAuthConnection').mockResolvedValue(true)
-      jest.spyOn(qssService as any, 'emitNseQssUrl').mockResolvedValue(undefined)
-      jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+      const start = jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      const push = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockResolvedValue(undefined)
       const prepared = await qssService.prepareAdmission(teamId, chain)
-      const expected = {
-        teamId,
-        userId: chain.user.userId,
-        deviceId: chain.device.deviceId,
-        transport: AdmissionTransport.QSS,
-      }
-      const finalize = jest.fn(async () => expected)
-      const admission = qssService.startPreparedAdmission(prepared, finalize)
-      await waitForExpect(() => expect(qssService['preparedAdmissions'].get(teamId)?.finalize).toBe(finalize))
-
-      await qssService['completePreparedAdmission'](teamId, prepared.kind)
-
-      await expect(admission).resolves.toEqual(expected)
-      expect(finalize).toHaveBeenCalledWith({
-        ...expected,
-        kind: prepared.kind,
-      })
+      const context = { assertCurrent: jest.fn(), fail: jest.fn() } as any
+      await qssService.startPreparedAdmission(prepared, context)
+      expect(start).toHaveBeenCalledWith(teamId, context)
+      expect(push).not.toHaveBeenCalled()
     })
 
-    it('discards prepared admission state when startup fails after installing the finalizer', async () => {
+    it('propagates startup errors to the owning adapter', async () => {
       const chain = sigchainService.activeChain
       const teamId = chain.team!.id
       jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
-      jest.spyOn(qssService as any, 'startAuthConnection').mockResolvedValue(true)
-      jest.spyOn(qssService as any, 'emitNseQssUrl').mockRejectedValue(new Error('NSE setup failed'))
+      jest.spyOn(qssAuthConnManager, 'startNewConnection').mockRejectedValue(new Error('auth startup failed'))
       const prepared = await qssService.prepareAdmission(teamId, chain)
-
       await expect(
-        qssService.startPreparedAdmission(prepared, async candidate => ({
-          teamId: candidate.teamId,
-          userId: candidate.userId,
-          deviceId: candidate.deviceId,
-          transport: candidate.transport,
-        }))
-      ).rejects.toThrow('NSE setup failed')
-      expect(qssService['preparedAdmissions'].has(teamId)).toBe(false)
+        qssService.startPreparedAdmission(prepared, { assertCurrent: jest.fn(), fail: jest.fn() } as any)
+      ).rejects.toThrow('auth startup failed')
+    })
+
+    it('does not resume QSS when shutdown races with post-admission push setup', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const lease = new AdmissionLifecycle('community', 1, {} as any)
+      const context = new AdmissionAuthContext(
+        'session',
+        1,
+        {} as any,
+        AdmissionTransport.QSS,
+        chain,
+        jest.fn() as any,
+        jest.fn()
+      )
+      context.adopt(lease)
+      context.resume()
+      await qssService.startPreparedAdmission(prepared, context)
+      let finish!: () => void
+      const push = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockImplementation(
+        async () =>
+          new Promise<void>(resolve => {
+            finish = resolve
+          })
+      )
+      const resume = jest.spyOn(qssSyncManager, 'resume')
+      const joined = qssService['handleQssAuthJoined'](teamId)
+      await waitForExpect(() => expect(push).toHaveBeenCalled())
+      lease.revoke(new Error('shutdown'))
+      finish()
+      await expect(joined).rejects.toThrow('closed')
+      await lease.resources.idle()
+      expect(resume).not.toHaveBeenCalled()
     })
 
     it('retries a retryable pending-device auth failure without surfacing it as terminal', async () => {

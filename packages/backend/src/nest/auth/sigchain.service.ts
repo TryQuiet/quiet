@@ -1,3 +1,6 @@
+import { RoleName } from './services/roles/roles'
+import { AdmissionTransaction } from './admission-transaction'
+import { AdmissionError, AdmissionRecoveryRequiredError, AdmissionRequest } from '../admission/admission.types'
 import { Inject, Injectable } from '@nestjs/common'
 import { SigChain } from './sigchain'
 import {
@@ -853,6 +856,57 @@ export class SigChainService extends EventEmitter {
     await this.enqueueSnapshot(teamId, this.captureSnapshot(teamId))
   }
 
+  beginAdmission(request: AdmissionRequest): AdmissionTransaction {
+    const base = this.getActiveChain()
+    const barrier = this.beginAdmissionPersistenceBarrier(request.teamId)
+    return new AdmissionTransaction(request, base, {
+      grantMember: async chain => {
+        if (chain.roles.amIMemberOfRole(RoleName.MEMBER)) return
+        const community = await this.localDbService.getCommunity(request.communityId)
+        const invite = community?.inviteData
+        if (
+          invite?.version !== 'v5' ||
+          !('authData' in invite) ||
+          invite.authData.teamId !== request.teamId ||
+          !('salt' in invite.authData)
+        ) {
+          throw new Error('Admission requires the stored member invitation grant')
+        }
+        chain.roles.addSelf(RoleName.MEMBER, invite.authData.seed, invite.authData.salt)
+      },
+      persist: async chain => {
+        const state = this.stateFor(request.teamId)
+        if (state.waiters >= SigChainService.MAX_PENDING_PERSISTS_PER_TEAM) {
+          throw new AdmissionError('persistence', 'Admission persistence backlog is full')
+        }
+        // Capture before any await; queued writes cannot serialize later mutations.
+        const snapshot = this.captureSnapshot(request.teamId, chain)
+        await this._ensureDb()
+        try {
+          await this.enqueueSnapshot(request.teamId, snapshot)
+        } catch (error) {
+          // LocalDb does not expose proof that a rejected write did not land.
+          throw new AdmissionRecoveryRequiredError('Admission write outcome requires reconciliation', error)
+        }
+      },
+      publish: chain => {
+        try {
+          const barrierState = this.requireAdmissionBarrier(barrier)
+          if (this.getActiveChain() !== base) throw new Error('Active chain changed during admission')
+          this.detachSocketListeners(base)
+          this.chains.set(request.teamId, chain)
+          this.activeChainTeamId = request.teamId
+          this.attachSocketListeners(chain)
+          this.admissionPersistenceBarriers.delete(request.teamId)
+          for (const waiter of barrierState.waiters) waiter.resolve()
+        } catch (error) {
+          throw new AdmissionRecoveryRequiredError('Durable admission could not be published', error)
+        }
+      },
+      discard: () => this.cancelAdmissionPersistence(barrier),
+    })
+  }
+
   async withAdmissionPersistence<T>(
     teamId: string,
     operation: (persistence: AdmissionPersistenceScope) => Promise<T>
@@ -931,15 +985,14 @@ export class SigChainService extends EventEmitter {
     return state
   }
 
-  private captureSnapshot(teamId: string): SigChainSaveData {
-    const chain = this.getChain(teamId)
+  private captureSnapshot(teamId: string, chain = this.getChain(teamId)): SigChainSaveData {
     if (chain.context == null || !('user' in chain.context)) {
       throw new Error(`Cannot persist pending device invitation context for team ${teamId}`)
     }
     return {
       serializedTeam: chain.team == null ? undefined : Buffer.from(chain.save()).toString('base64'),
-      localUserContext: { user: { ...chain.context.user }, device: { ...chain.context.device } },
-      teamKeyRing: chain.team?.teamKeyring(),
+      localUserContext: structuredClone({ user: chain.context.user, device: chain.context.device }),
+      teamKeyRing: chain.team == null ? undefined : structuredClone(chain.team.teamKeyring()),
     }
   }
 

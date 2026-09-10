@@ -220,6 +220,21 @@ class SigChain extends EventEmitter {
     return new SigChain(context, { teamId: expectedTeamId, userId: expectedUserId })
   }
 
+  /** An admission attempt never lends its mutable context to global chain readers. */
+  public forkForAdmission(): SigChain {
+    if (this.team != null) {
+      return SigChain.load(
+        this.save(),
+        structuredClone(this.localUserContext),
+        structuredClone(this.team.teamKeyring())
+      )
+    }
+    return new SigChain(
+      structuredClone(this.context),
+      this._pendingDeviceAdmission && { ...this._pendingDeviceAdmission }
+    )
+  }
+
   public completeInvitation(team: auth.Team, user: auth.UserWithSecrets): void {
     if ('team' in this.context) {
       return

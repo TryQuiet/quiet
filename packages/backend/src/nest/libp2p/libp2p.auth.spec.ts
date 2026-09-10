@@ -1,3 +1,4 @@
+import { Libp2pState } from './libp2p.service'
 import { jest } from '@jest/globals'
 import EventEmitter from 'node:events'
 import waitForExpect from 'wait-for-expect'
@@ -12,7 +13,8 @@ import { JoinStatus, Libp2pAuth, type Libp2pAuthComponents } from './libp2p.auth
 import type { Libp2pService } from './libp2p.service'
 import { LFAEvents } from '../auth/types'
 import { Libp2pEvents } from './libp2p.types'
-import type { AdmissionCandidate } from '../admission/admission.types'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { AdmissionAuthContext } from '../admission/admission-auth-context'
 
 describe('Libp2pAuth buffered connections', () => {
   const teamId = 'pending-device-team'
@@ -59,13 +61,6 @@ describe('Libp2pAuth buffered connections', () => {
     }) as unknown as QSSService
     redialPeers = jest.fn<() => Promise<void>>().mockResolvedValue()
     libp2pEvents = Object.assign(new EventEmitter(), {
-      hasAdmissionHandler: true,
-      completeAdmission: jest.fn(async (candidate: AdmissionCandidate) => ({
-        teamId: candidate.teamId,
-        userId: candidate.userId,
-        deviceId: candidate.deviceId,
-        transport: candidate.transport,
-      })),
       redialPeers,
     })
     const components = {
@@ -93,6 +88,16 @@ describe('Libp2pAuth buffered connections', () => {
 
     expect(auth['joinStatus']).toBe(JoinStatus.PENDING_MEMBER)
   })
+
+  it.each([Libp2pState.Paused, Libp2pState.Stopping, Libp2pState.Stopped])(
+    'does not allocate auth connections while the service is %s',
+    async state => {
+      ;(libp2pEvents as any).state = state
+      const peer = peerId('late-peer')
+      await auth['onPeerConnected'](peer, connection(peer.toString()))
+      expect(auth['authConnections'].size).toBe(0)
+    }
+  )
 
   it('does not start joining through a closed peer connection', async () => {
     const closedPeer = peerId('closed-peer')
@@ -169,72 +174,33 @@ describe('Libp2pAuth buffered connections', () => {
     expect(pendingChain.team).toBeNull()
   })
 
-  it('advances to a valid buffered peer after rejecting an invalid admission candidate', async () => {
-    const invalidPeer = peerId('invalid-peer')
-    const validPeer = peerId('valid-peer')
-
-    await auth['onPeerConnected'](invalidPeer, connection(invalidPeer.toString()))
-    await auth['onPeerConnected'](validPeer, connection(validPeer.toString()))
-
-    const invalidAuth = auth['authConnections'].get(invalidPeer.toString())!
-    invalidAuth.emit(LFAEvents.JOINED, {
-      team: {
-        id: 'wrong-team',
-        hasDevice: jest.fn().mockReturnValue(true),
-      },
-      user: { userId, userName: 'alice' } as UserWithSecrets,
-    } as any)
-
-    await waitForExpect(() => {
-      expect(auth['authConnections'].has(invalidPeer.toString())).toBe(false)
-      expect(auth['authConnections'].has(validPeer.toString())).toBe(true)
-      expect(auth['bufferedConnections']).toHaveLength(0)
-      expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
-    })
-
-    const validAuth = auth['authConnections'].get(validPeer.toString())!
-    validAuth.emit(LFAEvents.JOINED, {
-      team: {
-        id: teamId,
-        hasDevice: jest.fn().mockReturnValue(true),
-        memberHasRole: jest.fn().mockReturnValue(true),
-        on: jest.fn(),
-        removeListener: jest.fn(),
-      },
-      user: { userId, userName: 'alice' } as UserWithSecrets,
-    } as any)
-
-    await waitForExpect(() => {
-      expect(auth['joinStatus']).toBe(JoinStatus.JOINED)
-      expect(pendingChain.team?.id).toBe(teamId)
-    })
-  })
-
-  it('cleans up and redials when admission persistence fails', async () => {
-    const admittingPeer = peerId('admitting-peer')
-    jest.mocked((libp2pEvents as any).completeAdmission).mockRejectedValueOnce(new Error('persistence failed'))
-
-    await auth['onPeerConnected'](admittingPeer, connection(admittingPeer.toString()))
-    const admittingAuth = auth['authConnections'].get(admittingPeer.toString())!
-    admittingAuth.emit(LFAEvents.JOINED, {
-      team: {
-        id: teamId,
-        hasDevice: jest.fn().mockReturnValue(true),
-        memberHasRole: jest.fn().mockReturnValue(true),
-        on: jest.fn(),
-        removeListener: jest.fn(),
-      },
-      user: { userId, userName: 'alice' } as UserWithSecrets,
-    } as any)
-
-    await waitForExpect(() => {
-      expect(auth['joinStatus']).toBe(JoinStatus.PENDING)
-      expect(auth['authConnections'].has(admittingPeer.toString())).toBe(false)
-      expect(auth['failedAdmissionPeers'].has(admittingPeer.toString())).toBe(true)
-      expect(redialPeers).toHaveBeenCalledTimes(1)
+  it.each(['invalid candidate', 'persistence failed'])(
+    'leaves %s settlement and teardown to the coordinator',
+    async error => {
+      const admittingPeer = peerId('admitting-peer')
+      const submit = jest.fn(async () => {
+        throw new Error(error)
+      })
+      const context = new AdmissionAuthContext(
+        'session',
+        1,
+        { kind: AdmissionKind.DEVICE } as any,
+        AdmissionTransport.P2P,
+        pendingChain.forkForAdmission(),
+        submit,
+        jest.fn()
+      )
+      ;(libp2pEvents as any).admissionContext = context
+      await auth['onPeerConnected'](admittingPeer, connection(admittingPeer.toString()))
+      const admittingAuth = auth['authConnections'].get(admittingPeer.toString())!
+      admittingAuth.emit(LFAEvents.JOINED, { team: { id: teamId }, user: { userId } } as any)
+      await new Promise<void>(resolve => setImmediate(resolve))
+      expect(submit).toHaveBeenCalledTimes(1)
       expect(pendingChain.team).toBeNull()
-    })
-  })
+      expect(redialPeers).not.toHaveBeenCalled()
+      expect(auth['joinStatus']).not.toBe(JoinStatus.JOINED)
+    }
+  )
 
   it('advances to the next buffered peer when minimal auth disconnects with a remote error', async () => {
     const failingPeer = peerId('failing-peer')
@@ -380,15 +346,26 @@ describe('Libp2pAuth buffered connections', () => {
     })
     const joined = jest.fn()
     libp2pEvents.on(Libp2pEvents.AUTH_JOINED, joined)
-    jest.mocked((libp2pEvents as any).completeAdmission).mockImplementation(async (candidate: AdmissionCandidate) => {
-      await persistence
-      return {
-        teamId: candidate.teamId,
-        userId: candidate.userId,
-        deviceId: candidate.deviceId,
-        transport: candidate.transport,
-      }
-    })
+    const context = new AdmissionAuthContext(
+      'session',
+      1,
+      { kind: AdmissionKind.DEVICE } as any,
+      AdmissionTransport.P2P,
+      pendingChain.forkForAdmission(),
+      async candidate => {
+        context.freeze()
+        await persistence
+        context.resume()
+        return {
+          teamId: candidate.teamId,
+          userId: candidate.userId,
+          deviceId: candidate.deviceId,
+          transport: candidate.transport,
+        }
+      },
+      jest.fn()
+    )
+    ;(libp2pEvents as any).admissionContext = context
 
     await auth['onPeerConnected'](admittingPeer, connection(admittingPeer.toString()))
     const admittingAuth = auth['authConnections'].get(admittingPeer.toString())!
@@ -408,6 +385,7 @@ describe('Libp2pAuth buffered connections', () => {
     await new Promise<void>(resolve => setImmediate(resolve))
 
     expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+    expect(pendingChain.team).toBeNull()
     expect(joined).not.toHaveBeenCalled()
 
     resolvePersistence()

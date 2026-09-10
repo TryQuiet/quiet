@@ -19,6 +19,7 @@ describe('expireDeviceLinkSaga', () => {
 
   const createInvite = (expiresAt: number): DeviceLinkInvite => ({
     id: '5ah8uYodiwuwVybT' as DeviceLinkInvite['id'],
+    teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as DeviceLinkInvite['teamId'],
     seed: '5ah8uYodiwuwVybT',
     expiresAt,
     userId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3',

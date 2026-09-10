@@ -1,3 +1,4 @@
+import type { AdmissionAuthContext } from '../admission/admission-auth-context'
 /**
  * Abstraction of LFA auth sync connection logic for QSS
  */
@@ -39,6 +40,7 @@ export class QSSAuthConnection extends EventEmitter {
   /**
    * LFA auth sync connection instance
    */
+  public admissionContext?: AdmissionAuthContext
   private _authConnection: AuthConnection | undefined = undefined
   /**
    * Status of joining via QSS
@@ -215,6 +217,7 @@ export class QSSAuthConnection extends EventEmitter {
    * if it is active or attempt to restart.
    */
   public async start(): Promise<void> {
+    this.admissionContext?.assertCurrent()
     if (this.teamId == null) {
       throw new Error('Must set team ID prior to starting connection!')
     }
@@ -228,7 +231,7 @@ export class QSSAuthConnection extends EventEmitter {
     // get the chain by ID and check for an existing auth connection
     let sigChain: SigChain | undefined = undefined
     try {
-      sigChain = this.sigChainService.getChain(this.teamId)
+      sigChain = this.admissionContext?.chain ?? this.sigChainService.getChain(this.teamId)
     } catch (e) {
       this.logger.error('No chain found', e)
       throw e
@@ -249,7 +252,8 @@ export class QSSAuthConnection extends EventEmitter {
     this._clientSocket = clientSocket
     this.logger.info(`Auth connection established with QSS`)
     this._connStatus = QSSAuthConnStatus.STARTING
-    await this._initNewConn(sigChain)
+    await this._initNewConn(sigChain!)
+    this.admissionContext?.assertCurrent()
     this._authConnection!.start()
   }
 
@@ -260,6 +264,7 @@ export class QSSAuthConnection extends EventEmitter {
    */
   private async _initNewConn(sigChain: SigChain): Promise<void> {
     this.logger.info('Initializing new auth connection with QSS')
+    const admission = this.admissionContext
     const startedAsPendingDeviceAdmission = sigChain.isPendingDeviceAdmission
     let authAttemptSettled = false
     const emitAttemptFailure = (
@@ -286,7 +291,15 @@ export class QSSAuthConnection extends EventEmitter {
               message: uint8arrays.toString(message, 'base64'),
             },
           }
-          this.qssClient.sendMessage(WebsocketEvents.AUTH_SYNC, socketMessage, false)
+          const send = () => {
+            const operation = async () => {
+              await this.qssClient.sendMessage(WebsocketEvents.AUTH_SYNC, socketMessage, false)
+            }
+            const sending = admission == null ? operation() : admission.run(operation)
+            void sending.catch(error => emitAttemptFailure(error, 'local'))
+          }
+          if (admission != null) admission.deliver(send)
+          else send()
         } catch (e) {
           this.logger.error('Error while sending auth sync message to QSS on LFA connection', e)
           authConnection.emit('localError', {
@@ -308,6 +321,16 @@ export class QSSAuthConnection extends EventEmitter {
 
     // Handle connected events and update the sigchain/join status
     authConnection.on(LFAEvents.CONNECTED, () => {
+      if (admission != null && !admission.published) {
+        if (!admission.frozen && !admission.closed && admission.chain.team != null) {
+          authConnection.emit(LFAEvents.JOINED, {
+            team: admission.chain.team,
+            user: admission.chain.user,
+            teamKeyring: admission.chain.team.teamKeyring(),
+          })
+        }
+        return
+      }
       this._connStatus = QSSAuthConnStatus.CONNECTED
       if (this.sigChainService.activeChainTeamId != null && this._joinStatus === JoinStatus.NOT_STARTED) {
         const sigChain = this.sigChainService.getActiveChain()
@@ -350,48 +373,29 @@ export class QSSAuthConnection extends EventEmitter {
     // all, so a freshly accepted graph lived only in memory until some later
     // chain mutation happened to flush it.
     authConnection.on(LFAEvents.JOINED, payload => {
-      if (!this.sigChainService.hasAdmissionPersistenceBarrier(this.teamId!)) {
-        void this._handleJoined(payload, () => {
-          authAttemptSettled = true
-        }).catch(error => {
-          emitAttemptFailure(error, 'client-validation', 'CLIENT_ADMISSION_VALIDATION_FAILED')
-          this.logger.error('Failed to handle LFA joined event', error)
-        })
+      if (admission != null) {
+        if (admission.closed) return
+        void admission
+          .joined(payload)
+          .then(() => {
+            if (admission.closed) return
+            // The coordinator resumes the gate only after publication and handoff.
+            admission.deliver(() => {
+              authAttemptSettled = true
+              this._connStatus = QSSAuthConnStatus.CONNECTED
+              this._joinStatus = JoinStatus.JOINED
+              this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId)
+            })
+          })
+          .catch(error => emitAttemptFailure(error, 'client-validation', 'CLIENT_ADMISSION_VALIDATION_FAILED'))
         return
       }
-      const { team, user } = payload
-
-      const sigChain = this.sigChainService.getActiveChain()
-      const wasPendingDeviceAdmission = sigChain.isPendingDeviceAdmission
-      this.logger.info(`${sigChain.userId}: Joined team ${team.id} (userid: ${user.userId})!`)
-      // Complete invitation contexts from the QSS-delivered team graph. New users still need to self-assign the
-      // member role, while a linked device inherits its existing user's membership immediately.
-      if (sigChain.team == null) {
-        try {
-          sigChain.completeInvitation(team, user)
-        } catch (error) {
-          this._joinStatus = JoinStatus.PENDING
-          this.logger.error('Rejected QSS invitation admission', error)
-          emitAttemptFailure(error, 'client-validation', 'CLIENT_ADMISSION_VALIDATION_FAILED')
-          this.stop(true)
-          return
-        }
-
-        this.logger.info(`${user.userId}: Created SigChain for user with name ${user.userName} and team ${team.id}`)
-        this.sigChainService.setActiveChain(sigChain.teamId!)
-
-        if (wasPendingDeviceAdmission) {
-          this._joinStatus = JoinStatus.JOINED
-        } else {
-          this._joinStatus = JoinStatus.PENDING_MEMBER
-          this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
-          this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
-        }
-      } else {
-        this._joinStatus = JoinStatus.JOINED
-      }
-      authAttemptSettled = true
-      this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
+      void this._handleJoined(payload, () => {
+        authAttemptSettled = true
+      }).catch(error => {
+        emitAttemptFailure(error, 'client-validation', 'CLIENT_ADMISSION_VALIDATION_FAILED')
+        this.logger.error('Failed to handle LFA joined event', error)
+      })
     })
 
     authConnection.on(LFAEvents.CHANGE, payload => {
@@ -584,7 +588,9 @@ export class QSSAuthConnection extends EventEmitter {
     }
 
     try {
-      this._authConnection.deliver(message)
+      const connection = this._authConnection
+      if (this.admissionContext != null) this.admissionContext.deliver(() => connection.deliver(message))
+      else connection.deliver(message)
     } catch (e) {
       this.logger.error(`Error handling auth sync message`, e)
       this._authConnection.emit('localError', {

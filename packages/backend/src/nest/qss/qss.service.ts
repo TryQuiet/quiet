@@ -1,15 +1,9 @@
+import { AdmissionAuthContext } from '../admission/admission-auth-context'
 /**
  * Abstraction layer for interacting with QSS
  */
 import { Mutex } from 'async-mutex'
-import {
-  AdmissionCandidate,
-  AdmissionFinalizer,
-  AdmissionKind,
-  AdmissionResult,
-  AdmissionTransport,
-  PreparedQssAdmission,
-} from '../admission/admission.types'
+import { AdmissionKind, AdmissionError, PreparedQssAdmission } from '../admission/admission.types'
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
@@ -84,9 +78,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     {
       prepared: PreparedQssAdmission
       sigChain: SigChain
-      finalize?: AdmissionFinalizer
-      resolve?: (result: AdmissionResult) => void
-      reject?: (error: Error) => void
+      context?: AdmissionAuthContext
     }
   >()
   private readonly deviceAdmissionRetries = new Map<
@@ -150,12 +142,23 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   private async handleQssAuthJoined(teamId: string): Promise<void> {
     this.logger.debug('Auth connection joined via QSS')
     this.clearDeviceAdmissionRetry(teamId)
-    const prepared = this.preparedAdmissions.get(teamId)?.prepared
-    if (prepared?.kind === AdmissionKind.MEMBER) {
+    const prepared = this.preparedAdmissions.get(teamId)
+    if (prepared != null) {
+      if (!prepared.context?.published) return
+      const context = prepared.context
+      await context.run(async () => {
+        this.preparedAdmissions.delete(teamId)
+        const chain = this.sigChainService.getChain(teamId)
+        await this.syncNativePushPrerequisites(teamId, chain, 'admission committed')
+        context.assertCurrent()
+        this.qssSyncManager.resume()
+        this.qssAuthConnManager.markMemberRoleReady(teamId)
+        this.qssSyncManager.markMemberRoleReady(teamId)
+        this.qssSyncManager.startLogSyncForSignedInTeam(teamId, chain)
+        this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+        this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
+      })
       return
-    }
-    if (prepared?.kind === AdmissionKind.DEVICE) {
-      await this.completePreparedAdmission(teamId, prepared.kind)
     }
     this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
   }
@@ -172,6 +175,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
   /** Starts retry-or-fail processing for an unsuccessful QSS authentication attempt. */
   private _handleQssAuthAttemptFailed = (payload: QSSAuthAttemptFailurePayload): void => {
+    const admission = this.preparedAdmissions.get(payload.teamId)
+    if (admission?.context != null) {
+      const kind =
+        payload.source === 'client-validation'
+          ? 'validation'
+          : ['TIMEOUT', 'DISCONNECTED', 'ClientAuthSyncError'].includes(payload.code)
+            ? 'transport'
+            : 'protocol'
+      admission.context.fail(new AdmissionError(kind, payload.code))
+      return
+    }
     void this.processQssAuthAttemptFailure(payload)
   }
 
@@ -301,11 +315,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         sigchain.roles.memberHasRole(sigchain.userId, RoleName.MEMBER)
       )
 
-      if (this.preparedAdmissions.get(teamId)?.prepared.kind === AdmissionKind.MEMBER) {
-        await this.completePreparedAdmission(teamId, AdmissionKind.MEMBER)
-      } else {
-        await this.sigChainService.saveChain(teamId)
-      }
+      await this.sigChainService.saveChain(teamId)
 
       // The sign-in that preceded this ran against an invitee chain with no team, so the
       // native push prerequisites could not be emitted then. Now the chain is complete.
@@ -321,35 +331,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
-  /**
-   * Builds a QSS admission candidate and resolves the prepared admission after
-   * the coordinator validates and persists it.
-   */
-  private async completePreparedAdmission(teamId: string, kind: AdmissionKind): Promise<void> {
-    const state = this.preparedAdmissions.get(teamId)
-    if (state?.finalize == null) {
-      throw new Error(`QSS admission finalizer is unavailable for team ${teamId}`)
-    }
-    const chain = this.sigChainService.getChain(teamId)
-    const candidate: AdmissionCandidate = {
-      transport: AdmissionTransport.QSS,
-      teamId,
-      userId: chain.user.userId,
-      deviceId: chain.device.deviceId,
-      kind,
-    }
-    try {
-      const result = await state.finalize(candidate)
-      this.preparedAdmissions.delete(teamId)
-      state.resolve?.(result)
-    } catch (error) {
-      const normalizedError = error instanceof Error ? error : new Error(String(error))
-      this.preparedAdmissions.delete(teamId)
-      state.reject?.(normalizedError)
-      throw normalizedError
-    }
-  }
-
   /** Rejects and removes a prepared admission for a team, if one exists. */
   private rejectPreparedAdmission(teamId: string, error: Error): void {
     const state = this.preparedAdmissions.get(teamId)
@@ -357,13 +338,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return
     }
     this.preparedAdmissions.delete(teamId)
-    state.reject?.(error)
+    state.context?.fail(error)
   }
 
   /** Rejects and removes every prepared admission with the supplied error. */
   private abortPreparedAdmissions(error: Error): void {
     for (const state of this.preparedAdmissions.values()) {
-      state.reject?.(error)
+      state.context?.fail(error)
     }
     this.preparedAdmissions.clear()
   }
@@ -1028,6 +1009,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    * Signs in without starting authentication and retains the resulting state
    * until {@link startPreparedAdmission} supplies a finalizer.
    */
+  public connectForAdmission(endpoint: string): Promise<QSSOperationResult> {
+    this._paused = false
+    this._configureEventHandlers()
+    return this.connect(endpoint)
+  }
+
   public async prepareAdmission(teamId: string, sigChain: SigChain): Promise<PreparedQssAdmission> {
     this.clearDeviceAdmissionRetry(teamId)
     const kind = sigChain.isPendingDeviceAdmission ? AdmissionKind.DEVICE : AdmissionKind.MEMBER
@@ -1046,37 +1033,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    *
    * @throws When the preparation is stale or the auth connection cannot start.
    */
-  public async startPreparedAdmission(
-    prepared: PreparedQssAdmission,
-    finalize: AdmissionFinalizer
-  ): Promise<AdmissionResult> {
+  public async startPreparedAdmission(prepared: PreparedQssAdmission, context: AdmissionAuthContext): Promise<void> {
+    context.assertCurrent()
     const state = this.preparedAdmissions.get(prepared.teamId)
-    if (state == null || state.prepared !== prepared) {
-      throw new Error(`QSS admission preparation is stale for team ${prepared.teamId}`)
-    }
-    let resolve!: (result: AdmissionResult) => void
-    let reject!: (error: Error) => void
-    const completion = new Promise<AdmissionResult>((resolvePromise, rejectPromise) => {
-      resolve = resolvePromise
-      reject = rejectPromise
-    })
-    state.finalize = finalize
-    state.resolve = resolve
-    state.reject = reject
-    try {
-      const started = await this.startAuthConnection(prepared.teamId)
-      if (!started) {
-        throw new Error(`Failed to start prepared QSS admission for team ${prepared.teamId}`)
-      }
-      await this.syncNativePushPrerequisites(prepared.teamId, state.sigChain, 'prepared admission started')
-      this.qssSyncManager.startLogSyncForSignedInTeam(prepared.teamId, state.sigChain)
-    } catch (error) {
-      if (this.preparedAdmissions.get(prepared.teamId) === state) {
-        this.preparedAdmissions.delete(prepared.teamId)
-      }
-      throw error
-    }
-    return completion
+    if (state == null || state.prepared !== prepared) throw new Error('QSS admission preparation is stale')
+    state.context = context
+    await this.qssAuthConnManager.startNewConnection(prepared.teamId, context)
+    context.assertCurrent()
   }
 
   /** Runs QSS authentication for the currently stored community immediately. */

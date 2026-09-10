@@ -1,3 +1,4 @@
+import type { AdmissionAuthContext } from '../admission/admission-auth-context'
 /**
  * Manages auth sync connections with QSS
  */
@@ -103,14 +104,14 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    *
    * @param teamId Team ID to start a new auth sync connection with QSS for
    */
-  public async startNewConnection(teamId: string): Promise<void> {
+  public async startNewConnection(teamId: string, admission?: AdmissionAuthContext): Promise<void> {
     const existingStartPromise = this.startConnectionPromises.get(teamId)
     if (existingStartPromise != null) {
       this.logger.warn('QSS auth connection start already in progress for team ID', teamId)
       return existingStartPromise
     }
 
-    const startPromise = this._startNewConnection(teamId)
+    const startPromise = this._startNewConnection(teamId, admission)
     this.startConnectionPromises.set(teamId, startPromise)
     try {
       await startPromise
@@ -121,7 +122,8 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     }
   }
 
-  private async _startNewConnection(teamId: string): Promise<void> {
+  private async _startNewConnection(teamId: string, admission?: AdmissionAuthContext): Promise<void> {
+    admission?.assertCurrent()
     const currentClientSocket = this.qssClient.getClientSocket()
     if (currentClientSocket == null || !currentClientSocket.connected || !currentClientSocket.active) {
       throw new Error('Must have an active QSS client socket prior to starting an auth connection!')
@@ -163,6 +165,11 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     const authConnection = await this.moduleRef.create<QSSAuthConnection>(QSSAuthConnection, {
       id: randomInt(1_000_000),
     })
+    if (admission?.closed) {
+      authConnection.stop(false)
+      admission.assertCurrent()
+    }
+    authConnection.admissionContext = admission
     authConnection.teamId = teamId
     authConnection.on(QSSEvents.QSS_AUTH_CONNECTED, (eventTeamId: string) => {
       if (this.authConnMap.get(teamId) !== authConnection) return

@@ -20,6 +20,7 @@ describe('createDeviceLink', () => {
   it('stores a newly generated device invitation', async () => {
     const invite: DeviceLinkInvite = {
       id: '5ah8uYodiwuwVybT' as DeviceLinkInvite['id'],
+      teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as DeviceLinkInvite['teamId'],
       seed: '5ah8uYodiwuwVybT',
       expiresAt: 1_700_001_800_000,
       userId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3',

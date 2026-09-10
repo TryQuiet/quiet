@@ -152,6 +152,7 @@ describe('communitiesSelectors', () => {
     const deviceInvite = {
       seed: '5ah8uYodiwuwVybT',
       id: '5ah8uYodiwuwVybT' as Base58,
+      teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as Base58,
       expiresAt: Date.now() + 1_800_000,
       userId: 'q5ck86uuhihx5w00zhknit60',
       userName: 'Alice device owner',
@@ -204,6 +205,7 @@ describe('communitiesSelectors', () => {
       const deviceInvite = {
         seed: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
+        teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as Base58,
         expiresAt,
         userId: 'q5ck86uuhihx5w00zhknit60',
         userName: 'Alice device owner',
@@ -244,6 +246,7 @@ describe('communitiesSelectors', () => {
       connectionActions.setDeviceLinkInvite({
         seed: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
+        teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as Base58,
         expiresAt: Date.now() + 1_800_000,
         userId: 'q5ck86uuhihx5w00zhknit60',
         userName: 'Alice device owner',
