@@ -19,6 +19,7 @@ import { createLibp2pAddress, validInvitationDatav4 } from '@quiet/common'
 import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
 import { StorageModule } from '../storage/storage.module'
+import { StorageService } from '../storage/storage.service'
 import { QSSService } from '../qss/qss.service'
 import { QSSSyncManager } from '../qss/qss-sync-manager.service'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
@@ -184,6 +185,44 @@ describe('ConnectionsManagerService', () => {
 
     expect(loadChainSpy).toHaveBeenCalledWith(community.teamId, true)
     expect(launchSpy).toHaveBeenCalledWith(community)
+  })
+
+  /**
+   * Reproduces the leaveCommunity teardown deadlock.
+   * See docs/leave-community-teardown-hang.md and issue #3243.
+   *
+   * leaveCommunity() awaits storageService.clean() directly. When that teardown
+   * deadlocks - as OrbitDB/IPFS channel-store cleanup intermittently does on
+   * device - leaveCommunity() never resolves, so it never reaches openSocket():
+   * the backend socket stays closed and the app is stranded on "Starting
+   * backend" forever.
+   *
+   * Marked `it.failing` (xfail): the assertion below fails today because
+   * leaveCommunity hangs, which is how `it.failing` reports the test as passing.
+   * Once leaveCommunity is made resilient to a hung teardown, this test will
+   * genuinely pass and `it.failing` will fail - the signal to drop `.failing`.
+   */
+  it.failing('leaveCommunity completes even when storage teardown hangs', async () => {
+    await localDbService.setCommunity(community)
+    await localDbService.setCurrentCommunityId(community.id)
+
+    const storageService = await module.resolve(StorageService)
+    // Simulate the on-device OrbitDB/IPFS channel-store teardown deadlock.
+    const neverResolves = new Promise<void>(() => {
+      // intentionally never settles
+    })
+    jest.spyOn(storageService, 'clean').mockReturnValue(neverResolves)
+    // Isolate the test to the storage teardown hang.
+    jest.spyOn(connectionsManagerService, 'closeAllServices').mockResolvedValue()
+    jest.spyOn(qpsService, 'tombstoneCurrentUserNotificationTokens').mockResolvedValue(true)
+
+    // leaveCommunity must not hang forever when teardown is stuck.
+    const TIMED_OUT = Symbol('timed-out')
+    const outcome = await Promise.race([
+      connectionsManagerService.leaveCommunity(),
+      new Promise<typeof TIMED_OUT>(resolve => setTimeout(() => resolve(TIMED_OUT), 2_000)),
+    ])
+    expect(outcome).not.toBe(TIMED_OUT)
   })
 
   it('pauses and resumes qss alongside the mobile lifecycle', async () => {
