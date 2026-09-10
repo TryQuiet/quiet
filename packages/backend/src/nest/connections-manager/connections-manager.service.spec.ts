@@ -19,6 +19,8 @@ import { QUIET_DIR, SERVER_IO_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { SocketModule } from '../socket/socket.module'
+import { SocketService } from '../socket/socket.service'
+import { io } from 'socket.io-client'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
 import { createLibp2pAddress, validInvitationDatav4 } from '@quiet/common'
@@ -130,6 +132,69 @@ describe('ConnectionsManagerService', () => {
   it('should be defined', () => {
     expect(connectionsManagerService).toBeDefined()
   })
+
+  it.each([SocketActions.JOIN_COMMUNITY, SocketActions.CREATE_COMMUNITY])(
+    'holds %s arriving after START until the real onboarding handlers are installed',
+    async event => {
+      const socketService = await module.resolve(SocketService)
+      const generatePorts = connectionsManagerService['generatePorts'].bind(connectionsManagerService)
+      let releasePorts!: () => void
+      const portsPending = new Promise<void>(resolve => {
+        releasePorts = resolve
+      })
+      jest.spyOn(connectionsManagerService as any, 'generatePorts').mockImplementation(async () => {
+        await portsPending
+        await generatePorts()
+      })
+      const operation = jest
+        .spyOn(connectionsManagerService, event === SocketActions.JOIN_COMMUNITY ? 'joinCommunity' : 'createCommunity')
+        .mockResolvedValue(undefined)
+      const forwarded = jest.spyOn(socketService, 'emit')
+      const received = jest.fn()
+      serverIoProvider.io.on('connection', socket => socket.onAny(received))
+      const socketInitialization = socketService.init()
+      await waitForExpect(() => expect(serverIoProvider.server.listening).toBe(true))
+      const port = (serverIoProvider.server.address() as { port: number }).port
+      const client = io(`http://127.0.0.1:${port}`, { transports: ['websocket'], reconnection: false })
+      let managerInitialization: Promise<void> | undefined
+
+      try {
+        await waitForExpect(() => expect(client.connected).toBe(true))
+        client.emit(SocketActions.START)
+        await socketInitialization
+        managerInitialization = connectionsManagerService.init()
+
+        const payload = { id: 'restored-draft', name: 'Test community', username: 'alice', tosAccepted: true }
+        const acknowledgement = client.timeout(5000).emitWithAck(event, payload)
+        // Teardown may disconnect before acknowledgement if an assertion fails.
+        void acknowledgement.catch(() => undefined)
+        await waitForExpect(() => expect(received).toHaveBeenCalledWith(event, payload, expect.any(Function)))
+        expect(socketService.listenerCount(event)).toBe(0)
+        expect(forwarded).not.toHaveBeenCalledWith(event, payload, expect.any(Function))
+        expect(operation).not.toHaveBeenCalled()
+
+        // Use the actual ConnectionsManager initialization, including port
+        // allocation and listener setup. Community/Tor readiness stays pending.
+        releasePorts()
+        await managerInitialization
+        expect(await acknowledgement).toBeNull()
+        expect(operation).toHaveBeenCalledTimes(1)
+        expect(operation).toHaveBeenCalledWith(payload)
+
+        // Repeated native resume/START announcements do not replay held work.
+        socketService.markOnboardingReady()
+        client.emit(SocketActions.START)
+        await waitForExpect(() => {
+          expect(received.mock.calls.filter(([type]) => type === SocketActions.START)).toHaveLength(2)
+        })
+        expect(operation).toHaveBeenCalledTimes(1)
+      } finally {
+        releasePorts()
+        await managerInitialization
+        client.close()
+      }
+    }
+  )
 
   it('launches community on init if its data exists in local db', async () => {
     logger.info('launches community on init if its data exists in local db')

@@ -178,6 +178,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     void this.initializeStoredCommunity().catch(error => {
       this.logger.error('Stored community initialization failed', error)
     })
+    this.socketService.markOnboardingReady()
   }
 
   /**
