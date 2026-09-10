@@ -67,18 +67,19 @@ const Channel = () => {
 
   const onInputEnter = useCallback(
     (message: string) => {
+      if (!currentChannelId) return
       // Send message out of input value
       if (message) {
-        dispatch(messages.actions.sendMessage({ message }))
+        dispatch(messages.actions.sendMessage({ message, channelId: currentChannelId }))
       }
       // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach((fileData: FileContent) => {
-        dispatch(files.actions.attachFile(fileData))
+        dispatch(files.actions.attachFile({ ...fileData, channelId: currentChannelId }))
       })
       // Reset file previews for input state
       setAttachingFiles({})
     },
-    [dispatch]
+    [dispatch, currentChannelId]
   )
 
   React.useEffect(() => {

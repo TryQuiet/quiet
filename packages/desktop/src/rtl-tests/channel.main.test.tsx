@@ -409,8 +409,15 @@ describe('PublicChannel', () => {
     )
 
     const messageText = 'Hello!'
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
 
-    store.dispatch(messages.actions.sendMessage({ message: messageText }))
+    store.dispatch(
+      messages.actions.sendMessage({
+        message: messageText,
+        channelId,
+      })
+    )
 
     await act(async () => {})
 
@@ -831,7 +838,14 @@ describe('PublicChannel', () => {
       store
     )
 
-    store.dispatch(files.actions.attachFile(fileContent))
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
+    store.dispatch(
+      files.actions.attachFile({
+        ...fileContent,
+        channelId,
+      })
+    )
 
     await act(async () => {
       await new Promise(resolve => {
@@ -1101,8 +1115,15 @@ describe('PublicChannel', () => {
       </>,
       store
     )
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
     await act(async () => {
-      store.dispatch(files.actions.attachFile(fileContent))
+      store.dispatch(
+        files.actions.attachFile({
+          ...fileContent,
+          channelId,
+        })
+      )
     })
     // Confirm file component displays in HOSTED state
     expect(await screen.findByText('Show in folder')).toBeVisible()
