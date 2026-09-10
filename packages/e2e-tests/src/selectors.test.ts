@@ -1,20 +1,21 @@
 import { error, Session, WebDriver, WebElement, type ThenableWebDriver } from 'selenium-webdriver'
 import { Command, Name } from 'selenium-webdriver/lib/command'
-import { Channel } from './selectors'
+import { Channel, UserProfileContextMenu } from './selectors'
+import { PhotoExt } from './enums'
+
+const advanceTime = async (milliseconds: number) => {
+  // Let WebDriver's promise chain finish before advancing each poll timer.
+  await new Promise<void>(resolve => setImmediate(resolve))
+  for (let elapsed = 0; elapsed < milliseconds; elapsed += 500) {
+    jest.advanceTimersByTime(Math.min(500, milliseconds - elapsed))
+    await new Promise<void>(resolve => setImmediate(resolve))
+  }
+}
 
 describe('Channel message polling', () => {
   let visibleMessageIds: string[]
   let channel: Channel
   let execute: jest.Mock
-
-  const advanceTime = async (milliseconds: number) => {
-    // Let WebDriver's promise chain finish before advancing each poll timer.
-    await new Promise<void>(resolve => setImmediate(resolve))
-    for (let elapsed = 0; elapsed < milliseconds; elapsed += 500) {
-      jest.advanceTimersByTime(Math.min(500, milliseconds - elapsed))
-      await new Promise<void>(resolve => setImmediate(resolve))
-    }
-  }
 
   beforeEach(() => {
     jest.useFakeTimers({ doNotFake: ['setImmediate'] })
@@ -76,6 +77,83 @@ describe('Channel message polling', () => {
     const failure = new error.NoSuchSessionError('Browser session closed')
     execute.mockRejectedValueOnce(failure)
     await expect(channel.getAtleastNumUserMessages('owner', 2)).rejects.toBe(failure)
+    expect(execute).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Profile photo polling', () => {
+  let photoSrc: string | undefined
+  let menu: UserProfileContextMenu
+  let execute: jest.Mock
+
+  beforeEach(() => {
+    jest.useFakeTimers({ doNotFake: ['setImmediate'] })
+    photoSrc = 'file:///uploads/previous-profile.jpg'
+    // Use real Selenium waits and element commands. Only the browser transport
+    // and clock are controlled, as in the channel polling regressions above.
+    execute = jest.fn(async (command: Command) => {
+      switch (command.getName()) {
+        case Name.FIND_ELEMENTS:
+          return photoSrc === undefined ? [] : [WebElement.buildId('profile-photo')]
+        case Name.GET_ELEMENT_ATTRIBUTE:
+          if (command.getParameter('name') !== 'src') {
+            throw new Error(`Unexpected image attribute: ${command.getParameter('name')}`)
+          }
+          return photoSrc
+        default:
+          throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
+      }
+    })
+    const driver = new WebDriver(new Session('profile-photo-polling', {}), { execute })
+    menu = new UserProfileContextMenu(driver as ThenableWebDriver)
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('waits for the uploaded PNG while the previous JPG remains visible', async () => {
+    let settled = false
+    const outcome = menu.getProfilePhotoSrc(PhotoExt.PNG).then(
+      value => ({ value }),
+      failure => ({ failure })
+    )
+    void outcome.then(() => {
+      settled = true
+    })
+
+    // The actual GUI failure persisted the PNG roughly nine seconds after
+    // upload; five immediate reads of the old JPG must not end this wait.
+    await advanceTime(9_000)
+    expect(settled).toBe(false)
+    photoSrc = 'file:///uploads/new-profile.png'
+    await advanceTime(500)
+
+    await expect(outcome).resolves.toEqual({ value: photoSrc })
+  })
+
+  it.each(['previous JPG', 'missing image'])('keeps the original fifteen-second deadline for %s', async state => {
+    if (state === 'missing image') photoSrc = undefined
+    let settled = false
+    const failure = menu.getProfilePhotoSrc(PhotoExt.PNG).catch(err => err)
+    void failure.then(() => {
+      settled = true
+    })
+
+    await advanceTime(14_500)
+    expect(settled).toBe(false)
+    await advanceTime(500)
+    expect(settled).toBe(true)
+    const err = await failure
+    expect(err).toBeInstanceOf(error.TimeoutError)
+    expect(err.message).toContain('Failed to find image with data type png within timeout')
+    expect(err.message).toContain('15000ms')
+  })
+
+  it('propagates a lost browser session while waiting for a profile image', async () => {
+    const failure = new error.NoSuchSessionError('Browser session closed')
+    execute.mockRejectedValueOnce(failure)
+    await expect(menu.getProfilePhotoSrc(PhotoExt.PNG)).rejects.toBe(failure)
     expect(execute).toHaveBeenCalledTimes(1)
   })
 })
