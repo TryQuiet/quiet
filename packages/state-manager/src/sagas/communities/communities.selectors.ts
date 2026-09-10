@@ -39,6 +39,8 @@ export const invitationCodes = createSelector(communitiesSlice, reducerState => 
   return reducerState.invitationCodes
 })
 
+export const pendingJoin = createSelector(communitiesSlice, reducerState => reducerState.pendingJoin ?? null)
+
 export const inviteData = createSelector(currentCommunity, currentCommunity => {
   return currentCommunity?.inviteData
 })
@@ -66,6 +68,7 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   invitationCodes,
+  pendingJoin,
   inviteData,
   ownerOrbitDbIdentity,
   psk,
