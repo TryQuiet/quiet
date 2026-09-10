@@ -13,6 +13,8 @@ The backend probes its local TCP listener and rebinds an unreachable listener,
 retaining Socket.IO's authentication and application handlers. Recovery requests
 coalesce and cannot reopen a backend explicitly being shut down. Native recovery
 does not change Tor, keys, community data or the backend process.
+An explicit reopen after leaving a community enables recovery for the new listener
+lifetime; pending callbacks from the previous lifetime cannot reopen or replace it.
 
 The frontend recreates an unhealthy Engine.IO session even when Socket.IO still
 considers its automatic reconnect loop active. Fresh native connection details
@@ -46,7 +48,8 @@ Socket.IO server. They interrupt a working listener, recover the same port or
 refresh a changed port and credential, then assert exactly one join action. They
 also check healthy resumes and repeated native announcements. Backend tests
 exercise the real bridge codecs and TCP listener, authentication after recovery,
-a stale listening flag, coalescing, shutdown exclusion and a failed/retried bind.
+a stale listening flag, coalescing, shutdown exclusion, explicit reopen after leave,
+stale recovery callbacks across reopen, and a failed/retried bind.
 The bounded UI test invokes the actual retry callback with its original invite,
 including when native bridge calls throw.
 

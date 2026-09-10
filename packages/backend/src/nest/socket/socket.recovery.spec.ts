@@ -4,6 +4,7 @@ import type { Socket as TcpSocket } from 'net'
 import { Server as SocketIOServer } from 'socket.io'
 import { io, type Socket } from 'socket.io-client'
 import waitForExpect from 'wait-for-expect'
+import { SocketActions } from '@quiet/types'
 import { SocketService } from './socket.service'
 import type { ConfigOptions } from '../types'
 import { registerMobileSocketRecovery } from '../../mobile-socket-recovery'
@@ -135,6 +136,76 @@ describe('native bridge local listener recovery', () => {
     native.processData('recoverSocket')
     await service.recoverLocalConnection()
     expect(server.listening).toBe(false)
+  })
+
+  it('recovers a listener explicitly reopened with the frontend handshake after leaving a community', async () => {
+    await service.close()
+    const startup = service.init()
+    const client = connect()
+    client.on('connect', () => client.emit(SocketActions.START))
+    await startup
+    expect(client.connected).toBe(true)
+
+    await interruptListener()
+    await waitForExpect(() => expect(client.connected).toBe(false))
+    await service.recoverLocalConnection()
+    expect(server.listening).toBe(true)
+    await waitForExpect(() => expect(client.connected).toBe(true))
+  })
+
+  it('does not enable recovery after an explicit reopen fails', async () => {
+    await service.close()
+    const occupied = createServer()
+    await new Promise<void>(resolve => occupied.listen(port, '127.0.0.1', resolve))
+    try {
+      await expect(service.listen()).rejects.toMatchObject({ code: 'EADDRINUSE' })
+    } finally {
+      await new Promise<void>(resolve => occupied.close(() => resolve()))
+    }
+    await service.recoverLocalConnection()
+    expect(server.listening).toBe(false)
+  })
+
+  it('does not reuse or apply recovery from a closed lifetime after explicit reopen', async () => {
+    await interruptListener()
+    let finishConnectionCheck: (error: Error | null, count: number) => void = () => undefined
+    let connectionCheckStarted: () => void = () => undefined
+    const checkingConnections = new Promise<void>(resolve => {
+      connectionCheckStarted = resolve
+    })
+    const getConnections = jest.spyOn(server, 'getConnections').mockImplementationOnce(callback => {
+      finishConnectionCheck = callback
+      connectionCheckStarted()
+      return server
+    })
+    const oldRecovery = service.recoverLocalConnection()
+    try {
+      await checkingConnections
+      await service.close()
+      await service.listen()
+      const client = connect()
+      await waitForExpect(() => expect(client.connected).toBe(true))
+
+      await interruptListener()
+      await waitForExpect(() => expect(client.connected).toBe(false))
+      const newRecovery = service.recoverLocalConnection()
+      expect(newRecovery).not.toBe(oldRecovery)
+      await newRecovery
+      expect(server.listening).toBe(true)
+      await waitForExpect(() => expect(client.connected).toBe(true))
+      const currentId = client.id
+      const disconnected = jest.fn()
+      client.on('disconnect', disconnected)
+
+      finishConnectionCheck(null, 0)
+      await expect(oldRecovery).resolves.toBeUndefined()
+      expect(client.id).toBe(currentId)
+      expect(disconnected).not.toHaveBeenCalled()
+    } finally {
+      finishConnectionCheck(null, 0)
+      await oldRecovery
+      getConnections.mockRestore()
+    }
   })
 
   it('does not reopen when shutdown finishes during the asynchronous recovery connection check', async () => {

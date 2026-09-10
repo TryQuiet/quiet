@@ -50,6 +50,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   private sockets: Set<net.Socket>
   private recoveryInFlight?: Promise<void>
   private closing = false
+  private listenerGeneration = 0
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -293,9 +294,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     this.serverIoProvider.io.close()
   }
 
-  public listen = (): Promise<void> => this.openListener(false)
+  public listen = (): Promise<void> => this.openListener(false, this.listenerGeneration)
 
-  private async openListener(isRecovery: boolean): Promise<void> {
+  private async openListener(isRecovery: boolean, generation: number): Promise<void> {
     this.logger.info(`Opening data server on port ${this.configOptions.socketIOPort}`)
 
     if (this.serverIoProvider.server.listening) {
@@ -305,9 +306,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
     const numConnections = await this.getConnections()
 
-    // A shutdown can finish while getConnections is pending on a closed server.
-    // Only recovery is excluded: explicit listen() retains its existing lifecycle.
-    if (isRecovery && this.closing) return
+    // Closing invalidates work already waiting on the old listener, even when an
+    // explicit reopen has since enabled recovery for a new listener lifetime.
+    if (generation !== this.listenerGeneration || (isRecovery && this.closing)) return
 
     if (numConnections > 0) {
       this.logger.warn('Failed to listen. Connections still open:', numConnections)
@@ -322,6 +323,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       }
       const onListening = () => {
         server.off('error', onError)
+        if (!isRecovery && generation === this.listenerGeneration) this.closing = false
         this.logger.info(`Data server running on port ${this.configOptions.socketIOPort}`)
         resolve()
       }
@@ -340,7 +342,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   public recoverLocalConnection(): Promise<void> {
     if (this.closing) return Promise.resolve()
     if (this.recoveryInFlight) return this.recoveryInFlight
-    const recovery = this.recoverListener()
+    const recovery = this.recoverListener(this.listenerGeneration)
     this.recoveryInFlight = recovery
     void recovery
       .finally(() => {
@@ -350,9 +352,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     return recovery
   }
 
-  private async recoverListener(): Promise<void> {
+  private async recoverListener(generation: number): Promise<void> {
     if (this.serverIoProvider.server.listening && (await this.probeListener())) return
-    if (this.closing) return
+    if (this.closing || generation !== this.listenerGeneration) return
     this.logger.warn('Reopening unreachable local frontend listener')
 
     // Do not call io.close(): it removes Engine.IO's request/upgrade handlers.
@@ -366,7 +368,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     })
     this.sockets.forEach(socket => socket.destroy())
     await closed
-    if (!this.closing) await this.openListener(true)
+    if (!this.closing && generation === this.listenerGeneration) await this.openListener(true, generation)
   }
 
   private probeListener(): Promise<boolean> {
@@ -384,6 +386,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   public close = (): Promise<void> => {
     this.closing = true
+    this.listenerGeneration++
+    // Recovery for a deliberately reopened listener must not wait for callbacks
+    // belonging to the old lifetime. Its finally handler checks promise identity.
+    this.recoveryInFlight = undefined
     return new Promise(resolve => {
       this.logger.info(`Closing data server on port ${this.configOptions.socketIOPort}`)
 
