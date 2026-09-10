@@ -35,6 +35,7 @@ import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
 import type { SigChain } from '../auth/sigchain'
+import { CommunityLifecycle } from '../admission/community-lifecycle'
 import { AdmissionCoordinator } from '../admission/admission-coordinator.service'
 import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 import { ServiceState } from './connections-manager.types'
@@ -477,11 +478,13 @@ describe('ConnectionsManagerService', () => {
   })
 
   it.each([
-    { admission: AdmissionKind.MEMBER, isPendingDeviceAdmission: false },
-    { admission: AdmissionKind.DEVICE, isPendingDeviceAdmission: true },
+    { admission: AdmissionKind.MEMBER, isPendingDeviceAdmission: false, transport: AdmissionTransport.QSS },
+    { admission: AdmissionKind.DEVICE, isPendingDeviceAdmission: true, transport: AdmissionTransport.QSS },
+    { admission: AdmissionKind.DEVICE, isPendingDeviceAdmission: true, transport: AdmissionTransport.P2P },
+    { admission: AdmissionKind.MEMBER, isPendingDeviceAdmission: false, transport: AdmissionTransport.P2P },
   ])(
-    'waits for coordinated $admission admission before starting libp2p and storage',
-    async ({ admission, isPendingDeviceAdmission }) => {
+    'launches after $admission admission through $transport without waiting for optional QSS',
+    async ({ admission, isPendingDeviceAdmission, transport }) => {
       const qssEndpoint = 'https://qss.example.test'
       const baseInviteData = admission === AdmissionKind.MEMBER ? validInvitationDatav5[0] : deviceInvitationData
       const teamId = baseInviteData.authData.teamId
@@ -535,6 +538,15 @@ describe('ConnectionsManagerService', () => {
         httpTunnelPort: 9005,
       }
 
+      let finishQss!: () => void
+      const qssPending = new Promise<void>(resolve => {
+        finishQss = resolve
+      })
+      const qssResume = jest.spyOn(qssService, 'resume').mockImplementation(() => qssPending)
+      const qssAuth = jest.spyOn(qssService, 'authenticateCurrentCommunity').mockResolvedValue()
+      if (transport === AdmissionTransport.P2P && admission === AdmissionKind.MEMBER) {
+        qssResume.mockRejectedValue(new Error('QSS unavailable'))
+      }
       const launchPromise = connectionsManagerService.launch(linkedCommunity)
       await waitForExpect(() => expect(coordinateSpy).toHaveBeenCalledTimes(1))
       expect(libp2pCreateSpy).not.toHaveBeenCalled()
@@ -551,9 +563,18 @@ describe('ConnectionsManagerService', () => {
         teamId,
         userId: userIdentity.userId,
         deviceId: 'admitted-device',
-        transport: AdmissionTransport.QSS,
+        transport,
       })
-      await launchPromise
+      try {
+        await launchPromise
+        if (transport === AdmissionTransport.P2P) {
+          expect(qssResume).toHaveBeenCalledTimes(1)
+          expect(qssAuth).not.toHaveBeenCalled()
+        }
+      } finally {
+        connectionsManagerService['communityLifecycle']?.revoke(new Error('test launch finished'))
+        finishQss()
+      }
 
       expect(libp2pCreateSpy).toHaveBeenCalledTimes(1)
       expect(connectionsManagerService['storageService'].init).toHaveBeenCalledWith(teamId)
@@ -595,11 +616,14 @@ describe('ConnectionsManagerService', () => {
     }
     const storageInitSpy = jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
     jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue(pendingChain as any)
+    const existingLifecycle = new CommunityLifecycle(community.id, {} as any)
+    connectionsManagerService['communityLifecycle'] = existingLifecycle
     jest.spyOn(admissionCoordinator, 'start').mockImplementation(() => {
       throw new Error('Invitation was not accepted')
     })
 
     await expect(connectionsManagerService.launch(linkedCommunity)).rejects.toThrow('Invitation was not accepted')
+    expect(connectionsManagerService['communityLifecycle']).toBe(existingLifecycle)
     expect(libp2pCreateSpy).not.toHaveBeenCalled()
     expect(storageInitSpy).not.toHaveBeenCalled()
   })

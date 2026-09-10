@@ -14,7 +14,8 @@ import type { Libp2pService } from './libp2p.service'
 import { LFAEvents } from '../auth/types'
 import { Libp2pEvents } from './libp2p.types'
 import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
-import { AdmissionAuthContext } from '../admission/admission-auth-context'
+import { createAdmissionAuthContext } from '../admission/admission-auth-context'
+import { AdmissionResourceScope } from '../admission/admission-resource-scope'
 
 describe('Libp2pAuth buffered connections', () => {
   const teamId = 'pending-device-team'
@@ -181,15 +182,15 @@ describe('Libp2pAuth buffered connections', () => {
       const submit = jest.fn(async () => {
         throw new Error(error)
       })
-      const context = new AdmissionAuthContext(
-        'session',
-        1,
-        { kind: AdmissionKind.DEVICE } as any,
-        AdmissionTransport.P2P,
-        pendingChain.forkForAdmission(),
+      const { context } = createAdmissionAuthContext({
+        attemptId: 1,
+        request: { kind: AdmissionKind.DEVICE } as any,
+        transport: AdmissionTransport.P2P,
+        chain: pendingChain.forkForAdmission(),
         submit,
-        jest.fn()
-      )
+        fail: jest.fn(),
+        scope: new AdmissionResourceScope(),
+      })
       ;(libp2pEvents as any).admissionContext = context
       await auth['onPeerConnected'](admittingPeer, connection(admittingPeer.toString()))
       const admittingAuth = auth['authConnections'].get(admittingPeer.toString())!
@@ -346,16 +347,15 @@ describe('Libp2pAuth buffered connections', () => {
     })
     const joined = jest.fn()
     libp2pEvents.on(Libp2pEvents.AUTH_JOINED, joined)
-    const context = new AdmissionAuthContext(
-      'session',
-      1,
-      { kind: AdmissionKind.DEVICE } as any,
-      AdmissionTransport.P2P,
-      pendingChain.forkForAdmission(),
-      async candidate => {
-        context.freeze()
+    const { context, gate } = createAdmissionAuthContext({
+      attemptId: 1,
+      request: { kind: AdmissionKind.DEVICE } as any,
+      transport: AdmissionTransport.P2P,
+      chain: pendingChain.forkForAdmission(),
+      submit: async candidate => {
+        gate.freeze()
         await persistence
-        context.resume()
+        gate.resume()
         return {
           teamId: candidate.teamId,
           userId: candidate.userId,
@@ -363,8 +363,9 @@ describe('Libp2pAuth buffered connections', () => {
           transport: candidate.transport,
         }
       },
-      jest.fn()
-    )
+      fail: jest.fn(),
+      scope: new AdmissionResourceScope(),
+    })
     ;(libp2pEvents as any).admissionContext = context
 
     await auth['onPeerConnected'](admittingPeer, connection(admittingPeer.toString()))

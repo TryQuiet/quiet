@@ -1,4 +1,5 @@
-import { AdmissionAuthContext } from '../admission/admission-auth-context'
+import { createAdmissionAuthContext } from '../admission/admission-auth-context'
+import { AdmissionResourceScope } from '../admission/admission-resource-scope'
 import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -114,16 +115,15 @@ describe('QSSAuthConnection - durable join', () => {
     const staged = transaction.stage()
     const pending = deferred()
     const write = jest.spyOn(localDbService, 'setSigChainData').mockImplementation(async () => pending.promise)
-    const context = new AdmissionAuthContext(
-      'session',
-      1,
+    const { context, gate } = createAdmissionAuthContext({
+      attemptId: 1,
       request,
-      AdmissionTransport.QSS,
-      staged,
-      async candidate => {
-        context.freeze()
+      transport: AdmissionTransport.QSS,
+      chain: staged,
+      submit: async candidate => {
+        gate.freeze()
         await transaction.commit(candidate)
-        context.resume()
+        gate.resume()
         return {
           teamId: candidate.teamId,
           userId: candidate.userId,
@@ -131,8 +131,9 @@ describe('QSSAuthConnection - durable join', () => {
           transport: candidate.transport,
         }
       },
-      jest.fn()
-    )
+      fail: jest.fn(),
+      scope: new AdmissionResourceScope(),
+    })
     const conn = new QSSAuthConnection(sigChainService, qssClient)
     conn.teamId = team.id
     conn.admissionContext = context

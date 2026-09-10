@@ -11,7 +11,6 @@ export class QssAdmissionAdapter {
     let prepared: PreparedQssAdmission | undefined
     // The launch lease grants exclusive ownership of QSS during acquisition.
     scope.own(() => {
-      context.revoke()
       this.qss.pause()
     })
     return {
@@ -31,10 +30,7 @@ export class QssAdmissionAdapter {
           if (prepared == null) throw new AdmissionError('protocol', 'QSS admission was not prepared')
           await this.qss.startPreparedAdmission(prepared, context)
         }),
-      stop: reason => {
-        context.revoke()
-        return scope.drain(reason)
-      },
+      stop: reason => scope.drain(reason),
     }
   }
 }

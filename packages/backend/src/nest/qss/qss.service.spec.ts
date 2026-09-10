@@ -1,5 +1,6 @@
-import { AdmissionAuthContext } from '../admission/admission-auth-context'
-import { AdmissionLifecycle } from '../admission/admission-lifecycle'
+import { createAdmissionAuthContext } from '../admission/admission-auth-context'
+import { AdmissionResourceScope } from '../admission/admission-resource-scope'
+import { CommunityLifecycle } from '../admission/community-lifecycle'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
 import { QSSModule } from './qss.module'
@@ -462,6 +463,27 @@ describe('QSSService', () => {
   })
 
   describe('connect', () => {
+    it('classifies a missing sign-in acknowledgment as availability for admission fallback', async () => {
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      jest.spyOn(qssService, 'connected', 'get').mockReturnValue(true)
+      jest.spyOn(qssClient, 'sendMessage').mockResolvedValue(undefined)
+      const chain = sigchainService.activeChain
+      await expect(qssService.prepareAdmission(chain.teamId!, chain)).rejects.toMatchObject({ kind: 'availability' })
+    })
+
+    it('preserves explicit sign-in rejection instead of treating it as unavailability', async () => {
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      jest.spyOn(qssService, 'connected', 'get').mockReturnValue(true)
+      jest.spyOn(qssClient, 'sendMessage').mockResolvedValue({
+        status: CommunityOperationStatus.UNAUTHORIZED,
+        reason: 'Invitation rejected',
+      } as any)
+      const chain = sigchainService.activeChain
+      await expect(qssService.prepareAdmission(chain.teamId!, chain)).rejects.not.toMatchObject({
+        kind: 'availability',
+      })
+    })
+
     it('leaves pending invited-device authentication to the admission coordinator', async () => {
       const teamId = 'pending-device-team'
       await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)
@@ -502,7 +524,7 @@ describe('QSSService', () => {
       expect(requestSignInSpy).toHaveBeenCalledWith(teamId, pendingChain, false)
       expect(startAuthSpy).not.toHaveBeenCalled()
 
-      const context = { assertCurrent: jest.fn(), fail: jest.fn() } as any
+      const context = { gate: { assertCurrent: jest.fn() }, fail: jest.fn() } as any
       const startNew = jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
       await qssService.startPreparedAdmission(prepared, context)
       expect(startNew).toHaveBeenCalledWith(teamId, context)
@@ -519,7 +541,7 @@ describe('QSSService', () => {
       const start = jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
       const push = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockResolvedValue(undefined)
       const prepared = await qssService.prepareAdmission(teamId, chain)
-      const context = { assertCurrent: jest.fn(), fail: jest.fn() } as any
+      const context = { gate: { assertCurrent: jest.fn() }, fail: jest.fn() } as any
       await qssService.startPreparedAdmission(prepared, context)
       expect(start).toHaveBeenCalledWith(teamId, context)
       expect(push).not.toHaveBeenCalled()
@@ -532,7 +554,7 @@ describe('QSSService', () => {
       jest.spyOn(qssAuthConnManager, 'startNewConnection').mockRejectedValue(new Error('auth startup failed'))
       const prepared = await qssService.prepareAdmission(teamId, chain)
       await expect(
-        qssService.startPreparedAdmission(prepared, { assertCurrent: jest.fn(), fail: jest.fn() } as any)
+        qssService.startPreparedAdmission(prepared, { gate: { assertCurrent: jest.fn() }, fail: jest.fn() } as any)
       ).rejects.toThrow('auth startup failed')
     })
 
@@ -542,18 +564,19 @@ describe('QSSService', () => {
       jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
       jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
       const prepared = await qssService.prepareAdmission(teamId, chain)
-      const lease = new AdmissionLifecycle('community', 1, {} as any)
-      const context = new AdmissionAuthContext(
-        'session',
-        1,
-        {} as any,
-        AdmissionTransport.QSS,
+      const lease = new CommunityLifecycle('community', {} as any)
+      const scope = new AdmissionResourceScope()
+      const { context, gate } = createAdmissionAuthContext({
+        attemptId: 1,
+        request: {} as any,
+        transport: AdmissionTransport.QSS,
         chain,
-        jest.fn() as any,
-        jest.fn()
-      )
-      context.adopt(lease)
-      context.resume()
+        submit: jest.fn() as any,
+        fail: jest.fn(),
+        scope,
+      })
+      lease.adopt(scope, gate)
+      gate.resume()
       await qssService.startPreparedAdmission(prepared, context)
       let finish!: () => void
       const push = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockImplementation(
@@ -568,7 +591,7 @@ describe('QSSService', () => {
       lease.revoke(new Error('shutdown'))
       finish()
       await expect(joined).rejects.toThrow('closed')
-      await lease.resources.idle()
+      await lease.idle()
       expect(resume).not.toHaveBeenCalled()
     })
 

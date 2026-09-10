@@ -25,7 +25,7 @@ import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
-import type { AdmissionAuthContext } from '../admission/admission-auth-context'
+import type { AdmissionAuthContext } from '../admission/admission-auth-context.types'
 import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
 import { BoundedRetry } from '../common/boundedRetry'
 
@@ -318,7 +318,7 @@ export class Libp2pAuth {
               } else {
                 const message = data.subarray().slice()
                 const admission = this.admissionContexts.get(authConn)
-                if (admission != null) admission.deliver(() => authConn.deliver(message))
+                if (admission != null) admission.gate.deliver(() => authConn.deliver(message))
                 else authConn.deliver(message)
               }
             } catch (e) {
@@ -358,7 +358,7 @@ export class Libp2pAuth {
         negotiateFully: false,
         signal: abortController.signal,
       })
-      if (admission?.closed) {
+      if (admission?.gate.closed) {
         await stream.close()
         return
       }
@@ -439,8 +439,8 @@ export class Libp2pAuth {
     }
 
     const activeAdmission = this.libp2pService.admissionContext
-    if (activeAdmission?.closed) return
-    const admission = activeAdmission?.published ? undefined : activeAdmission
+    if (activeAdmission?.gate.closed) return
+    const admission = activeAdmission?.gate.published ? undefined : activeAdmission
     const context = (admission?.chain ?? this.sigChainService.getActiveChain()).context
 
     if (this.authConnections.has(peerIdString)) {
@@ -467,12 +467,12 @@ export class Libp2pAuth {
         // Fire-and-forget: send message using an ephemeral stream.
         const send = () => {
           const operation = () => this.sendMessage(peerId, message, admission)
-          const sending = admission == null ? operation() : admission.run(operation)
+          const sending = admission == null ? operation() : admission.gate.run(operation)
           void sending.catch(err => {
             this.logger.error(`Error in sendMessage callback for ${peerId.toString()}`, err)
           })
         }
-        if (admission != null) admission.deliver(send)
+        if (admission != null) admission.gate.deliver(send)
         else send()
       },
       createLogger: this.createLfaLogger,
@@ -483,8 +483,8 @@ export class Libp2pAuth {
 
     // Set up auth connection event handlers.
     authConnection.on(LFAEvents.CONNECTED, () => {
-      if (admission != null && !admission.published) {
-        if (!admission.frozen && !admission.closed && admission.chain.team != null) {
+      if (admission != null && !admission.gate.published) {
+        if (!admission.gate.frozen && !admission.gate.closed && admission.chain.team != null) {
           authConnection.emit(LFAEvents.JOINED, {
             team: admission.chain.team,
             user: admission.chain.user,
@@ -544,7 +544,7 @@ export class Libp2pAuth {
     })
 
     authConnection.on(LFAEvents.UPDATED, payload => {
-      if (admission != null && !admission.published) return
+      if (admission != null && !admission.gate.published) return
       this.emit(Libp2pEvents.AUTH_UPDATED, payload)
       void this.handleJoinViaQSS().catch(err => {
         this.logger.error('Failed to complete QSS join handling on chain update', err)
@@ -575,7 +575,7 @@ export class Libp2pAuth {
     payload: { team: Auth.Team; user: Auth.UserWithSecrets },
     admission: AdmissionAuthContext
   ): Promise<void> {
-    if (admission.closed || this.authConnections.get(connection.remotePeer.toString()) !== authConnection) return
+    if (admission.gate.closed || this.authConnections.get(connection.remotePeer.toString()) !== authConnection) return
     try {
       await admission.joined(payload)
     } catch (error) {
@@ -583,7 +583,7 @@ export class Libp2pAuth {
       this.logger.warn('Admission candidate was rejected', { attemptId: admission.attemptId })
       return
     }
-    admission.deliver(() => {
+    admission.gate.deliver(() => {
       this.joinStatus = JoinStatus.JOINED
       this.failedAdmissionPeers.clear()
       this.emit(Libp2pEvents.AUTH_JOINED, {
@@ -598,7 +598,7 @@ export class Libp2pAuth {
 
   private async advanceAfterAdmissionFailure(authConnection: Auth.Connection, connection: Connection): Promise<void> {
     const admission = this.admissionContexts.get(authConnection)
-    if (admission?.closed || admission?.frozen) return
+    if (admission?.gate.closed || admission?.gate.frozen) return
     if (this.joinStatus !== JoinStatus.JOINING) {
       return
     }
@@ -767,7 +767,7 @@ export class Libp2pAuth {
   }
 
   private async onPeerDisconnected(peerId: PeerId) {
-    if (this.libp2pService.admissionContext?.frozen || this.libp2pService.admissionContext?.closed) return
+    if (this.libp2pService.admissionContext?.gate.frozen || this.libp2pService.admissionContext?.gate.closed) return
     const disconnectedAdmissionPeer =
       this.joinStatus === JoinStatus.JOINING && this.authConnections.has(peerId.toString())
     if (this.authConnections.has(peerId.toString())) {

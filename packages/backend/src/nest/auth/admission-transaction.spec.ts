@@ -28,7 +28,6 @@ function fixture() {
   const transaction = service.beginAdmission(request)
   const chain = transaction.stage()
   const candidate: AdmissionCandidate = {
-    token: Symbol(),
     chain,
     team: admitted.team!,
     user: admitted.user,
@@ -123,4 +122,55 @@ it('does not publish when the persistence backlog definitively refuses the snaps
   expect(f.write).not.toHaveBeenCalled()
   expect(f.service.getActiveChain()).toBe(f.base)
   f.transaction.discard()
+})
+
+it('keeps the selected snapshot immutable while ordinary saves wait for publication', async () => {
+  const f = fixture()
+  let finish!: () => void
+  f.write.mockImplementationOnce(
+    () =>
+      new Promise<void>(resolve => {
+        finish = resolve
+      })
+  )
+  const commit = f.transaction.commit(f.candidate)
+  await flush()
+  const snapshot = f.write.mock.calls[0][0]
+  const savedName = snapshot.localUserContext.user.userName
+  f.chain.user.userName = 'changed after capture'
+  let saved = false
+  const blocked = f.service.saveChain(f.request.teamId).then(() => {
+    saved = true
+  })
+  await flush()
+  expect(saved).toBe(false)
+  expect(snapshot.localUserContext.user.userName).toBe(savedName)
+  finish()
+  await commit
+  await blocked
+  expect(f.write).toHaveBeenCalledTimes(1)
+  expect(f.service.getActiveChain()).toBe(f.chain)
+})
+
+it('rejects saves waiting on an admission that is discarded', async () => {
+  const f = fixture()
+  const blocked = f.service.saveChain(f.request.teamId)
+  await flush()
+  f.transaction.discard()
+  await expect(blocked).rejects.toThrow('Admission persistence cancelled')
+  expect(f.write).not.toHaveBeenCalled()
+  expect(f.service.getActiveChain()).toBe(f.base)
+})
+
+it('rejects waiting and future saves after an uncertain write while retaining the barrier', async () => {
+  const f = fixture()
+  const blocked = f.service.saveChain(f.request.teamId)
+  const blockedResult = expect(blocked).rejects.toMatchObject({ kind: 'recovery' })
+  await flush()
+  f.write.mockRejectedValueOnce(new Error('write outcome unknown'))
+  await expect(f.transaction.commit(f.candidate)).rejects.toMatchObject({ kind: 'recovery' })
+  await blockedResult
+  await expect(f.service.saveChain(f.request.teamId)).rejects.toMatchObject({ kind: 'recovery' })
+  expect(f.service.hasAdmissionPersistenceBarrier(f.request.teamId)).toBe(true)
+  expect(f.write).toHaveBeenCalledTimes(1)
 })

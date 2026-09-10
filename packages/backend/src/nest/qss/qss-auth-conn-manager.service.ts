@@ -1,4 +1,4 @@
-import type { AdmissionAuthContext } from '../admission/admission-auth-context'
+import type { AdmissionAuthContext } from '../admission/admission-auth-context.types'
 /**
  * Manages auth sync connections with QSS
  */
@@ -123,7 +123,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
   }
 
   private async _startNewConnection(teamId: string, admission?: AdmissionAuthContext): Promise<void> {
-    admission?.assertCurrent()
+    admission?.gate.assertCurrent()
     const currentClientSocket = this.qssClient.getClientSocket()
     if (currentClientSocket == null || !currentClientSocket.connected || !currentClientSocket.active) {
       throw new Error('Must have an active QSS client socket prior to starting an auth connection!')
@@ -165,9 +165,9 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     const authConnection = await this.moduleRef.create<QSSAuthConnection>(QSSAuthConnection, {
       id: randomInt(1_000_000),
     })
-    if (admission?.closed) {
+    if (admission?.gate.closed) {
       authConnection.stop(false)
-      admission.assertCurrent()
+      admission.gate.assertCurrent()
     }
     authConnection.admissionContext = admission
     authConnection.teamId = teamId

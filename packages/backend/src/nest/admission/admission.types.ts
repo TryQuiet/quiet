@@ -1,8 +1,10 @@
 import type { Team, UserWithSecrets } from '../../../../../3rd-party/auth/packages/auth/dist'
 import type { SigChain } from '../auth/sigchain'
-import type { AdmissionAuthContext } from './admission-auth-context'
-import type { AdmissionLifecycle } from './admission-lifecycle'
+import type { AdmissionAuthContext } from './admission-auth-context.types'
+import type { AdmissionTransaction } from '../auth/admission-transaction'
+import type { CommunityLifecycle } from './community-lifecycle'
 import type { AdmissionResourceScope } from './admission-resource-scope'
+import type { AdmissionProtocolGate } from './admission-protocol-gate'
 
 export enum AdmissionKind {
   MEMBER = 'member',
@@ -30,7 +32,6 @@ export interface AdmissionResult {
 }
 export interface AdmissionCandidate extends AdmissionResult {
   kind: AdmissionKind
-  token: symbol
   chain: SigChain
   team: Team
   user: UserWithSecrets
@@ -38,6 +39,7 @@ export interface AdmissionCandidate extends AdmissionResult {
 export interface AdmissionHandle {
   readonly id: string
   readonly result: Promise<AdmissionResult>
+  /** Rejects when cleanup cannot safely finish without process recovery. */
   readonly drained: Promise<void>
   cancel(reason: Error): Promise<void>
 }
@@ -50,7 +52,7 @@ export interface AdmissionAttempt {
 export interface AdmissionAttemptOptions {
   context: AdmissionAuthContext
   scope: AdmissionResourceScope
-  lease: AdmissionLifecycle
+  lease: CommunityLifecycle
 }
 export interface PreparedQssAdmission {
   teamId: string
@@ -95,18 +97,32 @@ export function admissionError(error: unknown, kind: AdmissionFailureKind = 'pro
     : new AdmissionError(kind, error instanceof Error ? error.message : String(error), error)
 }
 
-export type AttemptState = { attemptId: number; transport: AdmissionTransport; claimed: boolean }
+export interface AdmissionOwnedAttempt extends AdmissionAttempt {
+  readonly gate: AdmissionProtocolGate
+  readonly id: number
+  readonly transport: AdmissionTransport
+  readonly scope: AdmissionResourceScope
+}
+export interface AttemptState {
+  transaction: AdmissionTransaction
+  attempt: AdmissionOwnedAttempt
+  claimed: boolean
+}
+export interface AdmissionCleanup {
+  attempt?: AdmissionOwnedAttempt
+}
 export type AdmissionState =
   | { status: 'loading' }
   | ({ status: 'preparing' | 'claiming' | 'admitting' | 'retiring' } & AttemptState)
-  | ({ status: 'finalizing'; token: symbol } & AttemptState)
-  | { status: 'draining'; error: Error }
-  | { status: 'succeeded' | 'failed' }
-  | { status: 'recovery-required'; error: Error }
+  | ({ status: 'finalizing'; candidate: AdmissionCandidate } & AttemptState)
+  | ({ status: 'draining' | 'recovery-required'; error: Error } & AdmissionCleanup)
+  | { status: 'succeeded'; candidate: AdmissionCandidate; attempt: AdmissionOwnedAttempt }
+  | { status: 'failed' }
 export type AdmissionEvent =
-  | { type: 'LOADED'; transport: AdmissionTransport; claimed: boolean }
-  | { type: 'PREPARED' | 'CLAIMED' | 'FALLBACK_DUE' | 'ATTEMPT_DRAINED'; attemptId: number }
-  | { type: 'CANDIDATE'; attemptId: number; token: symbol }
+  | ({ type: 'LOADED' } & AttemptState)
+  | { type: 'PREPARED' | 'CLAIMED' | 'FALLBACK_DUE'; attemptId: number }
+  | { type: 'ATTEMPT_DRAINED'; attemptId: number; nextAttempt: AdmissionOwnedAttempt }
+  | { type: 'CANDIDATE'; attemptId: number; candidate: AdmissionCandidate }
   | { type: 'ATTEMPT_FAILED'; attemptId: number; error: AdmissionError }
   | { type: 'CANCEL' | 'DEADLINE' | 'FAILED' | 'RECOVERY_REQUIRED'; error: Error }
   | { type: 'COMMIT_SUCCEEDED' | 'DRAINED' }
@@ -114,5 +130,5 @@ export type AdmissionEffect =
   'prepare' | 'claim' | 'start' | 'retire' | 'finalize' | 'drain' | 'succeed' | 'release' | 'recover'
 export interface AdmissionTransition {
   state: AdmissionState
-  effects: AdmissionEffect[]
+  effect?: AdmissionEffect
 }

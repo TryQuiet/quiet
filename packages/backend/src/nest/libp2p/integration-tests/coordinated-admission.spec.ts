@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 import type { TestingModule } from '@nestjs/testing'
 import waitForExpect from 'wait-for-expect'
 import { AdmissionCoordinator } from '../../admission/admission-coordinator.service'
-import { AdmissionLifecycle } from '../../admission/admission-lifecycle'
+import { CommunityLifecycle } from '../../admission/community-lifecycle'
 import { AdmissionKind, AdmissionTransport } from '../../admission/admission.types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { LocalDbService } from '../../local-db/local-db.service'
@@ -46,7 +46,7 @@ it('admits through the real P2P adapter without exposing provisional state and r
         preferredTransport: AdmissionTransport.P2P,
         timeoutMs: 30_000,
       },
-      new AdmissionLifecycle('coordinated-community', 1, params[1])
+      new CommunityLifecycle('coordinated-community', params[1])
     )
     await waitForExpect(() => expect(network.admissionContext).toBeDefined())
     await network.dialPeer(ownerNetwork.localAddress)

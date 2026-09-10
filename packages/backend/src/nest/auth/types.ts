@@ -1,3 +1,4 @@
+import type { AdmissionRecoveryRequiredError } from '../admission/admission.types'
 import { Keyring, LocalUserContext, Context } from '@localfirst/auth'
 
 export type PendingDeviceAdmission = {
@@ -23,8 +24,10 @@ export interface AdmissionPersistenceBarrier {
   readonly id: symbol
 }
 
-export interface AdmissionPersistenceScope {
-  commit(): Promise<void>
+export interface AdmissionPersistenceState {
+  barrier: AdmissionPersistenceBarrier
+  waiters: Array<{ resolve(): void; reject(error: Error): void }>
+  recovery?: AdmissionRecoveryRequiredError
 }
 
 /**

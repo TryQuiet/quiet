@@ -8,7 +8,6 @@ export class P2pAdmissionAdapter {
 
   create({ context, scope, lease }: AdmissionAttemptOptions): AdmissionAttempt {
     scope.own(async () => {
-      context.revoke()
       this.libp2p.clearAdmissionContext(context)
       await this.libp2p.close(false)
     })
@@ -23,10 +22,7 @@ export class P2pAdmissionAdapter {
           await this.libp2p.createInstance(lease.libp2pParams, scope.signal)
           scope.assertCurrent()
         }),
-      stop: reason => {
-        context.revoke()
-        return scope.drain(reason)
-      },
+      stop: reason => scope.drain(reason),
     }
   }
 }

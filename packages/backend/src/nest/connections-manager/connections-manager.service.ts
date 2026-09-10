@@ -1,4 +1,4 @@
-import { AdmissionLifecycle } from '../admission/admission-lifecycle'
+import { CommunityLifecycle } from '../admission/community-lifecycle'
 import * as uint8arrays from 'uint8arrays'
 import fs from 'fs'
 import path from 'path'
@@ -106,7 +106,7 @@ const INVITATION_ADMISSION_TIMEOUT_MS = 120_000
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
   public communityState: ServiceState
-  private admissionLifecycle?: AdmissionLifecycle
+  private communityLifecycle?: CommunityLifecycle
   private launchGeneration = 0
   private hibernating = false
   private hibernateInFlight: Promise<void> | null = null
@@ -325,9 +325,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Pausing!')
     const reason = new Error('Admission cancelled while services paused')
     this.launchGeneration += 1
-    this.admissionLifecycle?.revoke(reason)
-    await this.admissionCoordinator.cancelActive(reason)
-    await this.admissionLifecycle?.resources.idle()
+    await this.communityLifecycle?.pause(reason)
     this.qssService.pause()
     await this.libp2pService?.pause()
     this.logger.info('Pausing libp2pService!')
@@ -465,10 +463,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Closing services', options)
     const reason = new Error('Admission cancelled while services closed')
     this.launchGeneration += 1
-    this.admissionLifecycle?.revoke(reason)
-    await this.admissionCoordinator.cancelActive(reason)
-    await this.admissionLifecycle?.drain(reason)
-    this.admissionLifecycle = undefined
+    await this.communityLifecycle?.drain(reason)
+    this.communityLifecycle = undefined
 
     if (!options.deleteChainFromDisk) {
       this.logger.info('Saving active sigchain')
@@ -1007,8 +1003,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       community.inviteData.qssEnabled
         ? community.inviteData.qssEndpoint
         : undefined
-    const lease = new AdmissionLifecycle(community.id, generation, params, qssAdmissionEndpoint)
-    this.admissionLifecycle = lease
+    const lease = new CommunityLifecycle(community.id, params, qssAdmissionEndpoint)
     let libp2pStartPromise: Promise<void> | undefined
     const ensureLibp2pStarted = async (): Promise<void> => {
       if (libp2pStartPromise == null) {
@@ -1046,6 +1041,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const activeChain = this.sigChainService.getActiveChain()
     const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
     if (hasStorageReadyChain) {
+      this.communityLifecycle = lease
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
       await ensureLibp2pStarted()
       await setupStorageWithTeamMeta(activeChain.team!.id)
@@ -1075,6 +1071,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         },
         lease
       )
+      // A rejected concurrent start must not replace the lifecycle that still owns admission.
+      this.communityLifecycle = lease
       const admission = await handle.result
       lease.assertCurrent()
 
@@ -1090,14 +1088,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         lease.assertCurrent()
         await this._updateTeamIdOnStoredCommunity(community, admission.teamId)
         lease.assertCurrent()
-        if (admission.transport === AdmissionTransport.P2P && qssAdmissionEndpoint != null) {
-          await this.qssService.resume()
-          lease.assertCurrent()
-          const result = await this.qssService.connect(qssAdmissionEndpoint)
-          lease.assertCurrent()
-          if (result === QSSOperationResult.SUCCESS) await this.qssService.authenticateCurrentCommunity()
-        }
       })
+      if (admission.transport === AdmissionTransport.P2P && qssAdmissionEndpoint != null) {
+        void lease
+          .run(async () => {
+            await this.qssService.resume()
+            lease.assertCurrent()
+            const result = await this.qssService.connect(qssAdmissionEndpoint)
+            lease.assertCurrent()
+            if (result === QSSOperationResult.SUCCESS) await this.qssService.authenticateCurrentCommunity()
+          })
+          .catch(error => this.logger.warn('Post-admission QSS synchronization stopped', error))
+      }
     }
 
     lease.assertCurrent()

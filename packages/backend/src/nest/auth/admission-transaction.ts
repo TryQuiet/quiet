@@ -5,7 +5,7 @@ import type { AdmissionTransactionOperations } from './admission-transaction.typ
 
 /** Sole owner of local completion, validation, durable snapshot, and active-chain publication. */
 export class AdmissionTransaction {
-  private selected?: symbol
+  private selected = false
   private readonly attempts = new Set<SigChain>()
   constructor(
     private readonly request: AdmissionRequest,
@@ -20,8 +20,8 @@ export class AdmissionTransaction {
   }
 
   async commit(candidate: AdmissionCandidate): Promise<void> {
-    if (this.selected != null) throw new AdmissionError('validation', 'Admission transaction already selected')
-    this.selected = candidate.token
+    if (this.selected) throw new AdmissionError('validation', 'Admission transaction already selected')
+    this.selected = true
     const request = this.request
     const chain = candidate.chain
     if (

@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 import { AdmissionCoordinator } from './admission-coordinator.service'
 import { AdmissionClock } from './admission-clock'
-import { AdmissionLifecycle } from './admission-lifecycle'
+import { CommunityLifecycle } from './community-lifecycle'
 import {
   AdmissionAttemptOptions,
   AdmissionBusyError,
@@ -28,7 +28,7 @@ const flush = async () => {
 describe('AdmissionCoordinator lifecycle regressions', () => {
   let coordinator: AdmissionCoordinator
   let request: AdmissionRequest
-  let lease: AdmissionLifecycle
+  let lease: CommunityLifecycle
   let options: AdmissionAttemptOptions[]
   let prepare: ReturnType<typeof jest.fn<() => Promise<void>>>
   let start: ReturnType<typeof jest.fn<() => Promise<void>>>
@@ -50,7 +50,7 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
       preferredTransport: AdmissionTransport.QSS,
       timeoutMs: 120_000,
     }
-    lease = new AdmissionLifecycle('community', 1, {} as any, 'wss://qss')
+    lease = new CommunityLifecycle('community', {} as any, 'wss://qss')
     options = []
     stored = undefined
     synchronousStart = false
@@ -69,7 +69,7 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
           prepare: () => option.scope.run(prepare),
           start: () => (synchronousStart ? start() : option.scope.run(start)),
           stop: (error: Error) => {
-            option.context.revoke()
+            option.context.gate.revoke()
             return option.scope.drain(error)
           },
         }
@@ -164,7 +164,9 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     commit.mockReturnValueOnce(pending.promise)
     const handle = coordinator.start(request, lease)
     await flush()
-    const resume = jest.spyOn(options[0].context, 'resume')
+    const state = coordinator['activeSession']!.state
+    if (state.status !== 'admitting') throw new Error('Expected an admitting attempt')
+    const resume = jest.spyOn(state.attempt.gate, 'resume')
     const ack = options[0].context.joined(payload())
     await flush()
     const reason = new Error('shutdown during commit')
@@ -226,7 +228,7 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
       stored = transport
       const handle = coordinator.start(request, lease)
       await flush()
-      expect(options[0].context.transport).toBe(transport)
+      expect((coordinator as any).activeSession.state.attempt.transport).toBe(transport)
       expect(claim).not.toHaveBeenCalled()
       options[0].context.fail(new AdmissionError('availability', 'offline'))
       await expect(handle.result).rejects.toMatchObject({ kind: 'availability' })
@@ -235,16 +237,20 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     }
   )
 
-  it('allows member fallback only for classified pre-claim unavailability', async () => {
-    request.kind = AdmissionKind.MEMBER
-    prepare.mockRejectedValueOnce(new AdmissionError('availability', 'offline'))
-    const handle = coordinator.start(request, lease)
-    await flush()
-    expect(options).toHaveLength(2)
-    expect(claim).toHaveBeenCalledWith('community', AdmissionTransport.P2P)
-    await options[1].context.joined(payload())
-    await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.P2P })
-  })
+  it.each([AdmissionKind.MEMBER, AdmissionKind.DEVICE])(
+    'falls back on pre-claim QSS unavailability for %s admission',
+    async kind => {
+      request.kind = kind
+      prepare.mockRejectedValueOnce(new AdmissionError('availability', 'offline'))
+      const handle = coordinator.start(request, lease)
+      await flush()
+      expect(options).toHaveLength(2)
+      if (kind === AdmissionKind.MEMBER) expect(claim).toHaveBeenCalledWith('community', AdmissionTransport.P2P)
+      else expect(claim).not.toHaveBeenCalled()
+      await options[1].context.joined(payload())
+      await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.P2P })
+    }
+  )
 
   it.each(['validation', 'persistence', 'protocol'] as const)('does not fall back on %s failure', async kind => {
     prepare.mockRejectedValueOnce(new AdmissionError(kind, 'failed'))
@@ -262,15 +268,29 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     await expect(handle.result).rejects.toMatchObject({ kind: 'recovery' })
     expect(() => coordinator.start({ ...request, timeoutMs: 1 }, lease)).toThrow(AdmissionBusyError)
     expect(discard).not.toHaveBeenCalled()
+    await expect(handle.drained).rejects.toMatchObject({ kind: 'recovery' })
+    await expect(lease.pause(new Error('pause'))).rejects.toMatchObject({ kind: 'recovery' })
+    await expect(lease.drain(new Error('shutdown'))).rejects.toMatchObject({ kind: 'recovery' })
+    expect(cleanup).not.toHaveBeenCalled()
+  })
+
+  it('reports teardown recovery to lifecycle callers without releasing uncertain ownership', async () => {
+    cleanup.mockRejectedValueOnce(new Error('cleanup failed'))
+    const handle = coordinator.start(request, lease)
+    await flush()
+    const reason = new Error('shutdown')
+    await expect(lease.drain(reason)).rejects.toMatchObject({ kind: 'recovery' })
+    await expect(handle.result).rejects.toBe(reason)
+    await expect(handle.drained).rejects.toMatchObject({ kind: 'recovery' })
+    expect(() => coordinator.start({ ...request, timeoutMs: 1 }, lease)).toThrow(AdmissionBusyError)
+    expect(discard).not.toHaveBeenCalled()
   })
 
   it('deduplicates normalized requests and rejects changed configuration', async () => {
     const handle = coordinator.start(request, lease)
     expect(coordinator.start({ ...request }, lease)).toBe(handle)
     expect(() => coordinator.start({ ...request, timeoutMs: 1 }, lease)).toThrow(AdmissionBusyError)
-    expect(() => coordinator.start(request, new AdmissionLifecycle('community', 2, {} as any))).toThrow(
-      AdmissionBusyError
-    )
+    expect(() => coordinator.start(request, new CommunityLifecycle('community', {} as any))).toThrow(AdmissionBusyError)
     await handle.cancel(new Error('cancel immediately'))
     await expect(handle.result).rejects.toThrow('cancel immediately')
     expect(start).not.toHaveBeenCalled()

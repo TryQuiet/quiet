@@ -45,7 +45,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { TimedQueue } from '../common/timed-queue'
 import { defaultLogger } from './libp2p.logger'
 import { QSSService } from '../qss/qss.service'
-import type { AdmissionAuthContext } from '../admission/admission-auth-context'
+import type { AdmissionAuthContext } from '../admission/admission-auth-context.types'
 
 const CONNECTION_LIMIT = 20
 const AUTH_ERROR_HANGUP_GRACE_MS = 1_000
@@ -143,7 +143,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           // time to flush before hangUpPeer removes the connection it uses.
           const timer = setTimeout(() => {
             this.authErrorTimers.delete(timer)
-            if (this.admissionContext?.frozen || this.admissionContext?.closed) return
+            if (this.admissionContext?.gate.frozen || this.admissionContext?.gate.closed) return
             const pending = this.hangUpPeer(peerAddress, redial)
             this.authHangups.add(pending)
             void pending
@@ -360,8 +360,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public pause = async (): Promise<boolean> => {
     this.logger.debug('Pausing libp2p')
-    if (this.admissionContext?.published) {
-      this.admissionContext.revoke()
+    if (this.admissionContext?.gate.published) {
+      this.admissionContext.gate.revoke()
       this.admissionContext = undefined
     }
     this.setState(Libp2pState.Paused)
@@ -817,7 +817,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public async close(closeDatastore = true): Promise<void> {
     this.logger.debug('Closing libp2p service:', this.localAddress)
-    this.admissionContext?.revoke()
+    this.admissionContext?.gate.revoke()
     this.admissionContext = undefined
     this.setState(Libp2pState.Stopping)
     for (const timer of this.authErrorTimers) clearTimeout(timer)

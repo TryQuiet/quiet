@@ -1,4 +1,4 @@
-import type { AdmissionAuthContext } from '../admission/admission-auth-context'
+import type { AdmissionAuthContext } from '../admission/admission-auth-context.types'
 /**
  * Abstraction of LFA auth sync connection logic for QSS
  */
@@ -217,7 +217,7 @@ export class QSSAuthConnection extends EventEmitter {
    * if it is active or attempt to restart.
    */
   public async start(): Promise<void> {
-    this.admissionContext?.assertCurrent()
+    this.admissionContext?.gate.assertCurrent()
     if (this.teamId == null) {
       throw new Error('Must set team ID prior to starting connection!')
     }
@@ -253,7 +253,7 @@ export class QSSAuthConnection extends EventEmitter {
     this.logger.info(`Auth connection established with QSS`)
     this._connStatus = QSSAuthConnStatus.STARTING
     await this._initNewConn(sigChain!)
-    this.admissionContext?.assertCurrent()
+    this.admissionContext?.gate.assertCurrent()
     this._authConnection!.start()
   }
 
@@ -295,10 +295,10 @@ export class QSSAuthConnection extends EventEmitter {
             const operation = async () => {
               await this.qssClient.sendMessage(WebsocketEvents.AUTH_SYNC, socketMessage, false)
             }
-            const sending = admission == null ? operation() : admission.run(operation)
+            const sending = admission == null ? operation() : admission.gate.run(operation)
             void sending.catch(error => emitAttemptFailure(error, 'local'))
           }
-          if (admission != null) admission.deliver(send)
+          if (admission != null) admission.gate.deliver(send)
           else send()
         } catch (e) {
           this.logger.error('Error while sending auth sync message to QSS on LFA connection', e)
@@ -321,8 +321,8 @@ export class QSSAuthConnection extends EventEmitter {
 
     // Handle connected events and update the sigchain/join status
     authConnection.on(LFAEvents.CONNECTED, () => {
-      if (admission != null && !admission.published) {
-        if (!admission.frozen && !admission.closed && admission.chain.team != null) {
+      if (admission != null && !admission.gate.published) {
+        if (!admission.gate.frozen && !admission.gate.closed && admission.chain.team != null) {
           authConnection.emit(LFAEvents.JOINED, {
             team: admission.chain.team,
             user: admission.chain.user,
@@ -374,13 +374,13 @@ export class QSSAuthConnection extends EventEmitter {
     // chain mutation happened to flush it.
     authConnection.on(LFAEvents.JOINED, payload => {
       if (admission != null) {
-        if (admission.closed) return
+        if (admission.gate.closed) return
         void admission
           .joined(payload)
           .then(() => {
-            if (admission.closed) return
+            if (admission.gate.closed) return
             // The coordinator resumes the gate only after publication and handoff.
-            admission.deliver(() => {
+            admission.gate.deliver(() => {
               authAttemptSettled = true
               this._connStatus = QSSAuthConnStatus.CONNECTED
               this._joinStatus = JoinStatus.JOINED
@@ -589,7 +589,7 @@ export class QSSAuthConnection extends EventEmitter {
 
     try {
       const connection = this._authConnection
-      if (this.admissionContext != null) this.admissionContext.deliver(() => connection.deliver(message))
+      if (this.admissionContext != null) this.admissionContext.gate.deliver(() => connection.deliver(message))
       else connection.deliver(message)
     } catch (e) {
       this.logger.error(`Error handling auth sync message`, e)

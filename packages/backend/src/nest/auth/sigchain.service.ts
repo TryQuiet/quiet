@@ -30,7 +30,7 @@ import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import {
   AdmissionPersistenceBarrier,
-  AdmissionPersistenceScope,
+  AdmissionPersistenceState,
   SigChainSaveData,
   SigchainEvents,
   StoredKeyType,
@@ -110,14 +110,7 @@ export class SigChainService extends EventEmitter {
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
   private readonly _chainListeners: Map<SigChain, () => void> = new Map()
-  private readonly admissionPersistenceBarriers = new Map<
-    string,
-    {
-      barrier: AdmissionPersistenceBarrier
-      waiters: Array<{ resolve: () => void; reject: (error: Error) => void }>
-      version: number
-    }
-  >()
+  private readonly admissionPersistenceBarriers = new Map<string, AdmissionPersistenceState>()
   /** Coalescing write state per team; see persistChain. */
   private readonly _persistQueue: Map<string, TeamPersistState> = new Map()
   /**
@@ -848,7 +841,7 @@ export class SigChainService extends EventEmitter {
     await this._ensureDb()
     const barrierState = this.admissionPersistenceBarriers.get(teamId)
     if (barrierState != null) {
-      barrierState.version += 1
+      if (barrierState.recovery != null) throw barrierState.recovery
       return new Promise<void>((resolve, reject) => {
         barrierState.waiters.push({ resolve, reject })
       })
@@ -886,7 +879,7 @@ export class SigChainService extends EventEmitter {
           await this.enqueueSnapshot(request.teamId, snapshot)
         } catch (error) {
           // LocalDb does not expose proof that a rejected write did not land.
-          throw new AdmissionRecoveryRequiredError('Admission write outcome requires reconciliation', error)
+          throw this.requireAdmissionRecovery(barrier, 'Admission write outcome requires reconciliation', error)
         }
       },
       publish: chain => {
@@ -900,31 +893,26 @@ export class SigChainService extends EventEmitter {
           this.admissionPersistenceBarriers.delete(request.teamId)
           for (const waiter of barrierState.waiters) waiter.resolve()
         } catch (error) {
-          throw new AdmissionRecoveryRequiredError('Durable admission could not be published', error)
+          throw this.requireAdmissionRecovery(barrier, 'Durable admission could not be published', error)
         }
       },
       discard: () => this.cancelAdmissionPersistence(barrier),
     })
   }
 
-  async withAdmissionPersistence<T>(
-    teamId: string,
-    operation: (persistence: AdmissionPersistenceScope) => Promise<T>
-  ): Promise<T> {
-    const barrier = this.beginAdmissionPersistenceBarrier(teamId)
-    let committed = false
-    try {
-      return await operation({
-        commit: async () => {
-          await this.commitAdmissionPersistence(barrier)
-          committed = true
-        },
-      })
-    } finally {
-      if (!committed) {
-        this.cancelAdmissionPersistence(barrier)
-      }
+  private requireAdmissionRecovery(
+    barrier: AdmissionPersistenceBarrier,
+    message: string,
+    cause: unknown
+  ): AdmissionRecoveryRequiredError {
+    const error = new AdmissionRecoveryRequiredError(message, cause)
+    const state = this.admissionPersistenceBarriers.get(barrier.teamId)
+    if (state?.barrier === barrier) {
+      state.recovery = error
+      for (const waiter of state.waiters) waiter.reject(error)
+      state.waiters.length = 0
     }
+    return error
   }
 
   private beginAdmissionPersistenceBarrier(teamId: string): AdmissionPersistenceBarrier {
@@ -932,33 +920,8 @@ export class SigChainService extends EventEmitter {
       throw new Error(`Admission persistence barrier already active for team ${teamId}`)
     }
     const barrier: AdmissionPersistenceBarrier = { teamId, id: Symbol(`admission:${teamId}`) }
-    this.admissionPersistenceBarriers.set(teamId, { barrier, waiters: [], version: 0 })
+    this.admissionPersistenceBarriers.set(teamId, { barrier, waiters: [] })
     return barrier
-  }
-
-  private async commitAdmissionPersistence(barrier: AdmissionPersistenceBarrier): Promise<void> {
-    const state = this.requireAdmissionBarrier(barrier)
-    try {
-      await this._ensureDb()
-      let persistedVersion = -1
-      while (persistedVersion !== state.version) {
-        const versionToPersist = state.version
-        await this.enqueueSnapshot(barrier.teamId, this.captureSnapshot(barrier.teamId))
-        persistedVersion = versionToPersist
-      }
-      if (this.admissionPersistenceBarriers.get(barrier.teamId)?.barrier.id === barrier.id) {
-        this.admissionPersistenceBarriers.delete(barrier.teamId)
-      }
-      for (const waiter of state.waiters) {
-        waiter.resolve()
-      }
-    } catch (error) {
-      const normalizedError = error instanceof Error ? error : new Error(String(error))
-      for (const waiter of state.waiters) {
-        waiter.reject(normalizedError)
-      }
-      throw error
-    }
   }
 
   hasAdmissionPersistenceBarrier(teamId: string): boolean {
