@@ -179,11 +179,9 @@ describe('User', () => {
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
-        "Messages/addMessageVerificationStatus",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
-        "Messages/addMessageVerificationStatus",
       ]
     `)
   })
