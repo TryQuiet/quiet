@@ -22,7 +22,7 @@
       pointer whose tag has been truncated, and scudo aborts the process. Seen
       intermittently under onTrimMemory -> JSIExecutor::handleMemoryPressure.
       Remove once we migrate to Hermes or JSC is fixed upstream.
-      https://github.com/TryQuiet/quiet-private/issues/325
+      https://github.com/TryQuiet/quiet/issues/3450
     -->
     <application
       android:name=".MainApplication"
