@@ -11,7 +11,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { createLogger } from './logger'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '@quiet/common'
-import { type BackendLeaveCommunityMessage } from '@quiet/types'
+import { createLeaveCommunityHandler } from './leaveCommunity'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { registerExternalLinkHandler } from './externalLinks'
 const ElectronStore = require('electron-store')
@@ -666,17 +666,6 @@ app.on('ready', async () => {
     )
   }
 
-  function isLeftCommunityMessage(msg: unknown): msg is BackendLeaveCommunityMessage {
-    return (
-      typeof msg === 'object' &&
-      msg !== null &&
-      'type' in msg &&
-      (msg as { type: string }).type === 'leftCommunity' &&
-      'success' in msg &&
-      typeof (msg as { success: unknown }).success === 'boolean'
-    )
-  }
-
   let sentSecret = false
   backendProcess.on('message', msg => {
     logger.info('Received message from backend:', msg)
@@ -782,80 +771,16 @@ app.on('ready', async () => {
     }
   })
 
-  ipcMain.handle('clear-community', async () => {
-    logger.info('ipcMain: clear-community')
-    resetting = true
-
-    return await new Promise<boolean>(resolve => {
-      const currentBackendProcess = backendProcess
-      if (!currentBackendProcess) {
-        resetting = false
-        resolve(false)
-        return
-      }
-
-      let settled = false
-
-      const cleanup = () => {
-        currentBackendProcess.removeListener('message', leftCommunityHandler)
-        currentBackendProcess.removeListener('close', backendCloseHandler)
-        currentBackendProcess.removeListener('error', backendErrorHandler)
-        currentBackendProcess.removeListener('disconnect', backendDisconnectHandler)
-        resetting = false
-      }
-
-      const finish = (success: boolean) => {
-        if (settled) return
-
-        settled = true
-        cleanup()
-        resolve(success)
-      }
-
-      const leftCommunityHandler = (msg: unknown) => {
-        if (isLeftCommunityMessage(msg)) {
-          finish(msg.success)
-          return
-        }
-
-        if (msg === 'leftCommunity') {
-          finish(true)
-        }
-      }
-
-      const backendCloseHandler = (code: number | null, signal: NodeJS.Signals | null) => {
-        logger.warn('Backend closed before clear-community completed', code, signal)
-        finish(false)
-      }
-
-      const backendErrorHandler = (error: Error) => {
-        logger.error('Backend error before clear-community completed', error)
-        finish(false)
-      }
-
-      const backendDisconnectHandler = () => {
-        logger.warn('Backend disconnected before clear-community completed')
-        finish(false)
-      }
-
-      currentBackendProcess.on('message', leftCommunityHandler)
-      currentBackendProcess.once('close', backendCloseHandler)
-      currentBackendProcess.once('error', backendErrorHandler)
-      currentBackendProcess.once('disconnect', backendDisconnectHandler)
-
-      try {
-        currentBackendProcess.send('leaveCommunity', error => {
-          if (error) {
-            logger.error('Failed to send leaveCommunity to backend', error)
-            finish(false)
-          }
-        })
-      } catch (error) {
-        logger.error('Failed to send leaveCommunity to backend', error)
-        finish(false)
-      }
+  ipcMain.handle(
+    'clear-community',
+    createLeaveCommunityHandler({
+      getBackendProcess: () => backendProcess,
+      setResetting: value => {
+        resetting = value
+      },
+      logger,
     })
-  })
+  )
 
   ipcMain.on('restart-app', () => {
     logger.info('ipcMain: restart-app')
