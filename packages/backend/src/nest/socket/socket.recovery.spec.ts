@@ -137,6 +137,36 @@ describe('native bridge local listener recovery', () => {
     expect(server.listening).toBe(false)
   })
 
+  it('does not reopen when shutdown finishes during the asynchronous recovery connection check', async () => {
+    await interruptListener()
+    let finishConnectionCheck: (error: Error | null, count: number) => void = () => undefined
+    let connectionCheckStarted: () => void = () => undefined
+    const checkingConnections = new Promise<void>(resolve => {
+      connectionCheckStarted = resolve
+    })
+    const getConnections = jest.spyOn(server, 'getConnections').mockImplementationOnce(callback => {
+      finishConnectionCheck = callback
+      connectionCheckStarted()
+      return server
+    })
+    const reopened = jest.fn()
+    server.on('listening', reopened)
+    try {
+      const recovery = service.recoverLocalConnection()
+      await checkingConnections
+      // close() resolves immediately because recovery has already closed the
+      // listener. Its pending getConnections callback must not reopen it later.
+      await service.close()
+      finishConnectionCheck(null, 0)
+      await recovery
+      expect(server.listening).toBe(false)
+      expect(reopened).not.toHaveBeenCalled()
+    } finally {
+      getConnections.mockRestore()
+      server.off('listening', reopened)
+    }
+  })
+
   it('reports bind failure over the bridge instead of crashing or hanging', async () => {
     await interruptListener()
     const occupied = createServer()

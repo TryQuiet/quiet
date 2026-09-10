@@ -293,7 +293,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     this.serverIoProvider.io.close()
   }
 
-  public listen = async (): Promise<void> => {
+  public listen = (): Promise<void> => this.openListener(false)
+
+  private async openListener(isRecovery: boolean): Promise<void> {
     this.logger.info(`Opening data server on port ${this.configOptions.socketIOPort}`)
 
     if (this.serverIoProvider.server.listening) {
@@ -302,6 +304,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     }
 
     const numConnections = await this.getConnections()
+
+    // A shutdown can finish while getConnections is pending on a closed server.
+    // Only recovery is excluded: explicit listen() retains its existing lifecycle.
+    if (isRecovery && this.closing) return
 
     if (numConnections > 0) {
       this.logger.warn('Failed to listen. Connections still open:', numConnections)
@@ -360,7 +366,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     })
     this.sockets.forEach(socket => socket.destroy())
     await closed
-    if (!this.closing) await this.listen()
+    if (!this.closing) await this.openListener(true)
   }
 
   private probeListener(): Promise<boolean> {
