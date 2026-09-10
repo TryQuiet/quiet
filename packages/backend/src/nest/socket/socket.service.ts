@@ -47,6 +47,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   public resolveReadyness: (value: void | PromiseLike<void>) => void
   public readyness: Promise<void>
+  private resolveOnboardingReady: () => void
+  private readonly onboardingReady: Promise<void>
   private sockets: Set<net.Socket>
   private recoveryInFlight?: Promise<void>
   private closing = false
@@ -61,6 +63,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     this.readyness = new Promise<void>(resolve => {
       this.resolveReadyness = resolve
     })
+    this.onboardingReady = new Promise<void>(resolve => {
+      this.resolveOnboardingReady = resolve
+    })
 
     this.sockets = new Set<net.Socket>()
 
@@ -70,6 +75,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   public emit(event: string | symbol, ...args: any[]): boolean {
     this.logger.info(`Emitting event: ${String(event)}`)
     return super.emit(event, ...args)
+  }
+
+  public markOnboardingReady(): void {
+    this.resolveOnboardingReady()
   }
 
   async onModuleInit() {
@@ -108,6 +117,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.use(async (event, next) => {
         const type = event[0]
+        if (type === SocketActions.CREATE_COMMUNITY || type === SocketActions.JOIN_COMMUNITY) {
+          // A restored draft can arrive immediately after START, before the
+          // ConnectionsManager has installed its handlers. This gate must stay
+          // separate from community/Tor readiness, which onboarding establishes.
+          await this.onboardingReady
+        }
         if (suspendableSocketEvents.includes(type)) {
           this.logger.info('Awaiting readyness before emitting: ', type)
           await this.readyness

@@ -101,6 +101,7 @@
     "lint-staged": "lint-staged --no-stash",
     "type-check": "tsc -p tsconfig.build.json --noEmit",
     "test": "TZ=UTC LOG_TO_FILE=false jest --runInBand",
+    "test:appimage-host-helpers": "node scripts/test-appimage-host-helpers.cjs",
     "test:watch": "TZ=UTC LOG_TO_FILE=false jest --watchAll",
     "rtl-test": "TZ=UTC LOG_TO_FILE=false jest ./src/rtl-tests",
     "cypress:open": "cypress open --component",
