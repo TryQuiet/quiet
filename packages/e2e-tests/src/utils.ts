@@ -1,5 +1,5 @@
 import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
-import { spawn, exec, execSync, type ChildProcessWithoutNullStreams, ChildProcess } from 'child_process'
+import { spawn, exec, execSync, execFileSync, type ChildProcessWithoutNullStreams, ChildProcess } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
@@ -25,6 +25,8 @@ export interface BuildSetupInit {
   fileName?: string
   chromeDriverPath?: string
   username?: string
+  // Exercise a released binary's own default directory inside an isolated root.
+  releaseProfile?: { appDataRoot: string; directoryName: string }
 }
 
 export class BuildSetup {
@@ -38,6 +40,7 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
   private chromeDriverPath?: string
+  private releaseProfile?: BuildSetupInit['releaseProfile']
 
   constructor({
     port,
@@ -47,6 +50,7 @@ export class BuildSetup {
     fileName,
     chromeDriverPath,
     username,
+    releaseProfile,
   }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
@@ -54,12 +58,17 @@ export class BuildSetup {
     this.dataDir = dataDir
     this.fileName = fileName
     this.chromeDriverPath = chromeDriverPath
+    this.releaseProfile = releaseProfile
+    if (releaseProfile && (dataDir || defaultDataDir)) {
+      throw new Error('A release profile cannot override the binary data directory')
+    }
     this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
-    if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
+    if (releaseProfile) this.dataDir = releaseProfile.directoryName
+    else if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (this.dataDir == null) {
       this.dataDir = `e2e_${this.id}`
     }
-    this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
+    this.dataDirPath = getAppDataPath({ dataDir: this.dataDir, appDataPath: releaseProfile?.appDataRoot })
     logger.info('Running app from directory', this.dataDirPath)
   }
 
@@ -170,13 +179,24 @@ export class BuildSetup {
     }
 
     const chromeDriver = this.getChromeDriverSpawnConfig()
+    const childEnv = { ...process.env, ...env }
+    if (this.releaseProfile) {
+      // Electron uses XDG_CONFIG_HOME on Linux; APPDATA alone does not isolate
+      // app.getPath('appData'). Leave DATA_DIR unset so the binary picks Quiet7,
+      // Quiet9, etc. itself, just as it does after a real release upgrade.
+      childEnv.XDG_CONFIG_HOME = this.releaseProfile.appDataRoot
+      childEnv.XDG_CACHE_HOME = path.join(this.releaseProfile.appDataRoot, '.cache')
+      childEnv.XDG_DATA_HOME = path.join(this.releaseProfile.appDataRoot, '.local', 'share')
+      childEnv.APPDATA = this.releaseProfile.appDataRoot
+      delete childEnv.DATA_DIR
+    }
     if (process.platform === 'win32' && !this.chromeDriverPath) {
       logger.info('!WINDOWS!')
     }
     this.child = spawn(chromeDriver.command, chromeDriver.args, {
       shell: chromeDriver.shell,
       detached: false,
-      env: Object.assign(process.env, env),
+      env: childEnv,
     })
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>
@@ -251,7 +271,11 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary,
-              args: [`--remote-debugging-port=${this.debugPort}`, '--enable-logging'],
+              args: [
+                `--remote-debugging-port=${this.debugPort}`,
+                '--enable-logging',
+                ...(process.env.E2E_NO_SANDBOX === 'true' ? ['--no-sandbox'] : []),
+              ],
             },
           })
           .forBrowser(Browser.CHROME)
@@ -387,26 +411,28 @@ const quietAppImage = (version = BACKWARD_COMPATIBILITY_BASE_VERSION) => {
   return `Quiet-${version}.AppImage`
 }
 
-export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION) => {
+export const downloadInstaller = (
+  version = BACKWARD_COMPATIBILITY_BASE_VERSION,
+  targetFileName = quietAppImage(version)
+) => {
   if (process.platform !== 'linux') throw new Error('Linux support only')
 
   const appImage = quietAppImage(version)
-  const appImageTargetPath = path.join(appImagesPath, appImage)
+  const appImageTargetPath = path.join(appImagesPath, targetFileName)
   if (fs.existsSync(appImageTargetPath)) {
-    logger.info(`${appImage} already exists. Skipping download.`)
-    return appImage
+    logger.info(`${targetFileName} already exists. Skipping download.`)
+    return targetFileName
   }
   const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
   logger.info(`Downloading Quiet version: ${version} from ${downloadUrl}`)
-  // With newer curl: execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
-  execSync(`curl -LO ${downloadUrl}`)
-  const appImageDownloadPath = path.join(process.cwd(), appImage)
-  logger.info(`Downloaded to ${appImageDownloadPath}`)
+  // Download atomically so an interrupted download is never reused as a fixture.
+  const appImageDownloadPath = `${appImageTargetPath}.download`
+  execFileSync('curl', ['--fail', '--location', '--output', appImageDownloadPath, downloadUrl])
   fs.renameSync(appImageDownloadPath, appImageTargetPath)
   logger.info('Moved to', appImageTargetPath)
   // Make it executable
   fs.chmodSync(appImageTargetPath, 0o755)
-  return appImage
+  return targetFileName
 }
 
 export const copyInstallerFile = (file: string) => {
