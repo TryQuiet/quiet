@@ -6,6 +6,8 @@ import {
   serviceCapabilities,
   Stream,
   Topology,
+  type TypedEventTarget,
+  type Libp2pEvents as TransportEvents,
 } from '@libp2p/interface'
 import type { ConnectionManager, IncomingStreamData, Registrar } from '@libp2p/interface-internal'
 import * as Auth from '../../../../../3rd-party/auth/packages/auth/dist'
@@ -34,6 +36,7 @@ export interface Libp2pAuthComponents {
   registrar: Registrar
   connectionManager: ConnectionManager
   logger: ComponentLogger
+  events: TypedEventTarget<TransportEvents>
 }
 
 export interface Libp2pAuthStatus {
@@ -75,6 +78,8 @@ export class Libp2pAuth {
   private bufferedConnections: { peerId: PeerId; connection: Connection }[]
   private unblockInterval: NodeJS.Timeout
   private joinStatus: JoinStatus
+  private joiningConnectionId?: string
+  private stopped = false
   private logger: QuietLogger = createLogger('libp2p:auth')
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst:libp2p')
   /** Bounded re-attempts for joins that failed on our own persistence. */
@@ -143,6 +148,7 @@ export class Libp2pAuth {
 
   // Process any connections that were buffered because we were waiting for a chain
   private async unblockConnections(conns: { peerId: PeerId; connection: Connection }[]) {
+    if (this.stopped) return
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamId != null) {
       this.logger.info(`Unblocking ${conns.length} connections now that we have an active chain`)
       this.joinStatus = this.sigChainService.getActiveChain()!.team != null ? JoinStatus.JOINED : JoinStatus.PENDING
@@ -156,15 +162,16 @@ export class Libp2pAuth {
     )
     if (
       conns.length === 0 ||
-      (this.joinStatus !== JoinStatus.JOINED && this.joinStatus !== JoinStatus.PENDING_MEMBER)
+      ![JoinStatus.JOINED, JoinStatus.PENDING_MEMBER, JoinStatus.PENDING].includes(this.joinStatus)
     ) {
       return
     }
 
     this.logger.info(`Unblocking ${conns.length} buffered connections now that we've joined the chain`)
-    while (conns.length > 0) {
-      const conn = conns.pop()
-      if (conn != null) {
+    // A fresh join can rebuffer the remaining transports. Process a snapshot
+    // so that this cannot loop over a just-rebuffered connection indefinitely.
+    for (const conn of conns.splice(0)) {
+      if (conn.connection.status === 'open') {
         await this.onPeerConnected(conn.peerId, conn.connection)
       }
     }
@@ -176,6 +183,8 @@ export class Libp2pAuth {
     this.onPeerConnected = this.onPeerConnected.bind(this)
     this.onPeerDisconnected = this.onPeerDisconnected.bind(this)
     this.onIncomingStream = this.onIncomingStream.bind(this)
+    this.stopped = false
+    this.components.events.addEventListener('connection:close', this.onConnectionClosed)
     const topology: Topology = {
       onConnect: this.onPeerConnected,
       onDisconnect: this.onPeerDisconnected,
@@ -196,6 +205,9 @@ export class Libp2pAuth {
   async stop() {
     this.logger.info('stop')
 
+    this.stopped = true
+    this.components.events.removeEventListener('connection:close', this.onConnectionClosed)
+    this.bufferedConnections.splice(0)
     // Clear the unblock interval
     clearInterval(this.unblockInterval)
     // Nothing should re-attempt a join against a stopped service
@@ -203,8 +215,8 @@ export class Libp2pAuth {
     this.localWriteRetry.clearAll()
 
     // Close all auth connections
-    for (const peerId of this.authConnections.keys()) {
-      this.closeAuthConnection(peerId)
+    for (const connection of this.peerConnections.values()) {
+      this.closeTransportAuthConnection(connection, false)
     }
 
     await this.components.registrar.unhandle(this.protocol)
@@ -230,7 +242,7 @@ export class Libp2pAuth {
     const abortController = new AbortController()
 
     // Process messages from the stream
-    this.handleIncomingMessages(peerId, stream, abortController)
+    this.handleIncomingMessages(connection, stream, abortController)
       .catch(err => {
         if (err instanceof Error && err.name === 'AbortError') {
           this.logger.debug(`Incoming stream from ${peerId.toString()} aborted (connection closed)`)
@@ -252,7 +264,8 @@ export class Libp2pAuth {
    * Process incoming messages by decoding the length-prefixed data and delivering
    * it to the corresponding auth connection.
    */
-  private async handleIncomingMessages(peerId: PeerId, stream: Stream, abortController: AbortController) {
+  private async handleIncomingMessages(connection: Connection, stream: Stream, abortController: AbortController) {
+    const peerId = connection.remotePeer
     await pipe(
       stream,
       source => decode(source),
@@ -260,7 +273,7 @@ export class Libp2pAuth {
         try {
           for await (const data of abortableAsyncIterable(source, abortController.signal)) {
             try {
-              const authConn = this.authConnections.get(peerId.toString())
+              const authConn = this.authConnections.get(connection.id)
               if (!authConn) {
                 this.logger.error(`No auth connection established for ${peerId.toString()}`)
               } else {
@@ -288,10 +301,10 @@ export class Libp2pAuth {
    * Send an outgoing message using an ephemeral stream.
    * This method opens a new stream, writes the encoded message, and then closes it.
    */
-  private async sendMessage(peerId: PeerId, message: Uint8Array) {
-    const connection = this.peerConnections.get(peerId.toString())
-    if (!connection) {
-      this.logger.warn(`No connection available for ephemeral stream to ${peerId.toString()}`)
+  private async sendMessage(connection: Connection, message: Uint8Array) {
+    const peerId = connection.remotePeer
+    if (this.stopped || connection.status !== 'open' || !this.authConnections.has(connection.id)) {
+      this.logger.debug(`No live auth transport for ephemeral stream to ${peerId.toString()}`)
       return
     }
 
@@ -356,10 +369,7 @@ export class Libp2pAuth {
    * store the underlying libp2p connection for ephemeral stream use.
    */
   private async onPeerConnected(peerId: PeerId, connection: Connection) {
-    if (this.authConnections.has(peerId.toString())) {
-      this.logger.info(`Auth connection with ${peerId.toString()} already exists`)
-      return
-    }
+    if (this.stopped || connection.status !== 'open' || this.authConnections.has(connection.id)) return
     if (this.joinStatus === JoinStatus.JOINING) {
       this.logger.warn(`Connection to ${peerId.toString()} will be buffered due to a concurrent join`)
       this.bufferedConnections.push({ peerId, connection })
@@ -373,6 +383,7 @@ export class Libp2pAuth {
 
     if (this.joinStatus === JoinStatus.PENDING) {
       this.joinStatus = JoinStatus.JOINING
+      this.joiningConnectionId = connection.id
     }
 
     this.logger.info(`Peer connected (direction = ${connection.direction})! (status = ${connection.status})`)
@@ -383,27 +394,14 @@ export class Libp2pAuth {
 
     const context = this.sigChainService.getActiveChain().context
 
-    if (this.authConnections.has(peerId.toString())) {
-      const oldAuthConnection = this.authConnections.get(peerId.toString())!
-      const oldPeerConnection = this.peerConnections.get(peerId.toString())
-      if (oldPeerConnection != null && oldPeerConnection.status === 'open') {
-        this.logger.warn(
-          `A connection with ${peerId.toString()} was already available, skipping connection initialization!`
-        )
-        return
-      }
-      this.logger.warn('Replacing closed auth connection with a new one', oldPeerConnection?.remotePeer)
-      oldAuthConnection.stop()
-      this.authConnections.delete(peerId.toString())
-      this.peerConnections.delete(peerId.toString())
-    }
-
-    // Create an auth connection using an ephemeral sendMessage callback.
+    // LFA message numbers belong to a session. Each physical transport owns
+    // one session; an overlapping transport must not feed a fresh handshake
+    // into an older session or send through that session's closed connection.
     const authConnection = new Auth.Connection({
       context,
       sendMessage: (message: Uint8Array) => {
         // Fire-and-forget: send message using an ephemeral stream.
-        this.sendMessage(peerId, message).catch(err => {
+        this.sendMessage(connection, message).catch(err => {
           this.logger.error(`Error in sendMessage callback for ${peerId.toString()}`, err)
         })
       },
@@ -494,8 +492,8 @@ export class Libp2pAuth {
     })
 
     // Store the auth connection and also the underlying libp2p connection
-    this.authConnections.set(peerId.toString(), authConnection)
-    this.peerConnections.set(peerId.toString(), connection)
+    this.authConnections.set(connection.id, authConnection)
+    this.peerConnections.set(connection.id, connection)
 
     this.logger.info(`Auth connection established with ${peerId.toString()}`)
     authConnection.start()
@@ -592,7 +590,7 @@ export class Libp2pAuth {
       // JOINING would make the retry buffer the peer instead of re-admitting us,
       // so hand back a status the join path will actually act on.
       this.joinStatus = previousJoinStatus === JoinStatus.JOINING ? JoinStatus.PENDING : previousJoinStatus
-      this.closeAuthConnection(peerId, false)
+      this.closeTransportAuthConnection(connection, false)
       this.scheduleJoinRetry(peerId, connection)
       return
     }
@@ -643,14 +641,16 @@ export class Libp2pAuth {
   }
 
   private async onPeerDisconnected(peerId: PeerId) {
-    if (this.authConnections.has(peerId.toString())) {
-      this.logger.warn(`Auth connection with ${peerId.toString()} was disconnected`)
-      this.closeAuthConnection(peerId, false)
-    }
+    // A delayed topology callback can follow a replacement transport's open.
+    // Connection-close events already retire individual dead sessions.
+    if (this.components.connectionManager.getConnections(peerId).some(connection => connection.status === 'open'))
+      return
+    this.closeAuthConnection(peerId, false)
 
     if (this.joinStatus === JoinStatus.JOINED) {
       return
     }
+    if (this.joinStatus === JoinStatus.JOINING && this.sigChainService.getActiveChain(false)?.team) return
 
     let id: string
     try {
@@ -677,20 +677,42 @@ export class Libp2pAuth {
 
   public closeAuthConnection(peerId: PeerId | string, sendPeerDisconnect = true) {
     this.logger.info(`Attempting to close auth connection with ${peerId.toString()}`)
-    const key = peerId.toString()
-
-    // Remove the stored connection (ephemeral streams are used for each message)
-    if (this.peerConnections.has(key)) {
-      this.peerConnections.delete(key)
-    }
-
-    if (this.authConnections.has(key)) {
-      try {
-        this.authConnections.get(key)?.stop(sendPeerDisconnect)
-      } catch (e) {
-        // do nothing
+    for (const connection of this.peerConnections.values()) {
+      if (connection.remotePeer.toString() === peerId.toString()) {
+        this.closeTransportAuthConnection(connection, sendPeerDisconnect)
       }
-      this.authConnections.delete(key)
+    }
+  }
+
+  public closeTransportAuthConnection(connection: Connection, sendPeerDisconnect = false) {
+    const authConnection = this.authConnections.get(connection.id)
+    if (!authConnection) return
+    try {
+      // A requested final disconnect must still use this session's transport.
+      authConnection.stop(sendPeerDisconnect)
+    } catch (error) {
+      this.logger.warn('Failed to stop auth connection', connection.id, error)
+    } finally {
+      authConnection.removeAllListeners()
+      this.authConnections.delete(connection.id)
+      this.peerConnections.delete(connection.id)
+    }
+  }
+
+  private readonly onConnectionClosed = ({ detail: connection }: CustomEvent<Connection>) => {
+    this.closeTransportAuthConnection(connection)
+    for (let index = this.bufferedConnections.length - 1; index >= 0; index--) {
+      if (this.bufferedConnections[index].connection.id === connection.id) this.bufferedConnections.splice(index, 1)
+    }
+    if (this.joiningConnectionId !== connection.id) return
+    this.joiningConnectionId = undefined
+    // An accepted graph awaiting its durable local write still owns admission.
+    // Only an interrupted handshake releases another buffered transport.
+    if (this.joinStatus === JoinStatus.JOINING && !this.sigChainService.getActiveChain(false)?.team) {
+      this.joinStatus = JoinStatus.PENDING
+      void this.unblockConnections(this.bufferedConnections).catch(error =>
+        this.logger.error('Failed to start buffered auth transport after disconnect', error)
+      )
     }
   }
 
