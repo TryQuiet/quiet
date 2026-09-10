@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [9.0.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@9.0.0-alpha.7...@quiet/desktop@9.0.1) (2026-09-10)
+
+
+### Features
+
+* **channels:** gate private channel creation ([816424c](https://github.com/TryQuiet/quiet/commit/816424c6e471f39e2219acc427e2603920bfbf19))
+
+
+
+
+
 # Changelog
 
 ## [9.0.0]
