@@ -1,4 +1,4 @@
-import { clearCommunityWithDependencies } from './clearCommunity'
+import { clearCommunityWithDependencies, createClearCommunity } from './clearCommunity'
 
 const createDeferred = <T = void>() => {
   let resolve!: (value: T | PromiseLike<T>) => void
@@ -11,6 +11,62 @@ const createDeferred = <T = void>() => {
 }
 
 describe('clearCommunityWithDependencies', () => {
+  it('shares one backend leave and one renderer reset through the entire persistence purge', async () => {
+    const backendLeave = createDeferred<boolean>()
+    const purge = createDeferred<void>()
+    const deps = {
+      persistor: {
+        pause: jest.fn(),
+        flush: jest.fn(async () => {}),
+        purge: jest.fn(() => purge.promise),
+        persist: jest.fn(),
+      },
+      dispatch: jest.fn(),
+      resetAppAction: { type: 'Communities/resetApp' },
+      requestBackendLeave: jest.fn(() => backendLeave.promise),
+      remountRoot: jest.fn(),
+    }
+    const clear = createClearCommunity(deps)
+    const first = clear()
+    expect(clear()).toBe(first)
+    backendLeave.resolve(true)
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(deps.persistor.purge).toHaveBeenCalledTimes(1)
+    expect(clear()).toBe(first)
+    expect(deps.requestBackendLeave).toHaveBeenCalledTimes(1)
+    expect(deps.remountRoot).not.toHaveBeenCalled()
+    purge.resolve()
+    await first
+    expect(deps.dispatch).toHaveBeenCalledTimes(1)
+    expect(deps.remountRoot).toHaveBeenCalledTimes(1)
+    expect(deps.persistor.persist).toHaveBeenCalledTimes(1)
+  })
+
+  it('allows a retry after failed backend cleanup or persistence without leaving persistence paused', async () => {
+    const deps = {
+      persistor: {
+        pause: jest.fn(),
+        flush: jest.fn(async () => {}),
+        purge: jest.fn().mockRejectedValueOnce(new Error('purge failed')).mockResolvedValue(undefined),
+        persist: jest.fn(),
+      },
+      dispatch: jest.fn(),
+      resetAppAction: { type: 'Communities/resetApp' },
+      requestBackendLeave: jest.fn().mockResolvedValueOnce(false).mockResolvedValue(true),
+      remountRoot: jest.fn(),
+    }
+    const clear = createClearCommunity(deps)
+    await expect(clear()).rejects.toThrow('Backend failed to leave community')
+    expect(deps.persistor.pause).not.toHaveBeenCalled()
+    await expect(clear()).rejects.toThrow('purge failed')
+    expect(deps.persistor.persist).toHaveBeenCalledTimes(1)
+    expect(deps.remountRoot).not.toHaveBeenCalled()
+    await clear()
+    expect(deps.remountRoot).toHaveBeenCalledTimes(1)
+    expect(deps.persistor.persist).toHaveBeenCalledTimes(2)
+  })
+
   it('waits for backend leave before clearing renderer state so late old-community events cannot leak into the next community', async () => {
     const backendLeave = createDeferred<boolean>()
     const events: string[] = []
