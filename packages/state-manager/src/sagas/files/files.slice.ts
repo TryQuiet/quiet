@@ -28,7 +28,7 @@ export const filesSlice = createSlice({
       downloadStatusAdapter.removeOne(state.downloadStatus, cid)
     },
     cancelDownload: (state, _action: PayloadAction<CancelDownload>) => state,
-    attachFile: (state, _action: PayloadAction<FileContent>) => state,
+    attachFile: (state, _action: PayloadAction<FileContent & { channelId: string }>) => state,
     broadcastHostedFile: (state, _action: PayloadAction<FileMetadata>) => state,
     downloadFile: (state, _action: PayloadAction<FileMetadata>) => state,
     updateMessageMedia: (state, _action: PayloadAction<FileMetadata>) => state,
