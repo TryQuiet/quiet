@@ -375,12 +375,27 @@ export class StorageService extends EventEmitter {
   }
 
   public async updatePeerStore() {
-    const members: Member[] | undefined = this.sigchainService.getActiveChain().team?.members()
-    if (!members) return
+    const team = this.sigchainService.getActiveChain().team
+    if (!team) return
     // existing peers uses the peerId as the key
     const existingPeers = await this.localDbService.getPeerStats()
+    const profiles = await this.userProfileStore.getUserProfiles()
+    if (this.sigchainService.getActiveChain(false)?.team !== team) return
+    const members: Member[] = team.members()
+    const libp2p = this.ipfsService.libp2pService
+    const peers: Record<string, NetworkStats> = {}
+
+    // Profile replication can lag behind LFA admission. Keep a known reachable
+    // address only when its secured-session binding still names a current device
+    // of a current member. Persist the binding for a restart during that gap.
+    for (const [peerId, stats] of Object.entries(existingPeers ?? {})) {
+      const authenticatedIdentity = libp2p.getAuthenticatedPeerIdentity(peerId) ?? stats.authenticatedIdentity
+      if (stats.address && authenticatedIdentity && libp2p.isAuthenticatedPeerAuthorized(authenticatedIdentity)) {
+        peers[peerId] = { ...stats, authenticatedIdentity }
+      }
+    }
     // filter user profiles to only those that are in the team
-    const currentUserData = (await this.userProfileStore.getUserProfiles())
+    const currentUserData = profiles
       .filter(profile => {
         return members.some(member => member.userId === profile.userId)
       })
@@ -390,13 +405,11 @@ export class StorageService extends EventEmitter {
       })
     // if existing peers has an entry for the user, use that
     // otherwise, create a new entry
-    const peers: Record<string, NetworkStats> = {}
     for (const userData of currentUserData) {
       const multiaddr = createLibp2pAddress(userData.onionAddress, userData.peerId)
-      const existingStats = existingPeers[userData.peerId]
+      const existingStats = peers[userData.peerId] ?? existingPeers?.[userData.peerId]
       if (existingStats) {
-        peers[userData.peerId] = existingPeers[userData.peerId]
-        peers[userData.peerId].address = multiaddr
+        peers[userData.peerId] = { ...existingStats, address: multiaddr }
       } else {
         peers[userData.peerId] = {
           peerId: userData.peerId,
