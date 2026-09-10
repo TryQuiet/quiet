@@ -8,7 +8,6 @@ import { type Libp2p, type Connection } from '@libp2p/interface'
 import { kadDHT } from '@libp2p/kad-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { ping } from '@libp2p/ping'
-import { preSharedKey } from '@libp2p/pnet'
 import * as filters from '@libp2p/websockets/filters'
 import { ConnectionMonitorInit, createLibp2p } from 'libp2p'
 
@@ -49,6 +48,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { TimedQueue } from '../common/timed-queue'
 import { defaultLogger } from './libp2p.logger'
 import { QSSService } from '../qss/qss.service'
+import { CONNECTION_UPGRADE_TIMEOUT_MS, createConnectionProtector } from './libp2p.connection-protector'
 
 const CONNECTION_LIMIT = 20
 
@@ -542,8 +542,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           maxConnections: CONNECTION_LIMIT, // TODO: increase?
           dialTimeout: 120_000,
           maxParallelDials: 10,
-          inboundUpgradeTimeout: 60_000,
-          outboundUpgradeTimeout: 60_000,
+          inboundUpgradeTimeout: CONNECTION_UPGRADE_TIMEOUT_MS,
+          outboundUpgradeTimeout: CONNECTION_UPGRADE_TIMEOUT_MS,
           protocolNegotiationTimeout: 30_000,
           maxDialQueueLength: 500,
           reconnectRetries: 0,
@@ -557,7 +557,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         } satisfies ConnectionMonitorInit,
         connectionProtector:
           params.useConnectionProtector || params.useConnectionProtector == null
-            ? preSharedKey({ psk: params.psk })
+            ? createConnectionProtector(params.psk)
             : undefined,
         streamMuxers: [
           yamux({
@@ -591,7 +591,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
                 },
                 localAddress: params.localAddress,
                 targetPort: params.targetPort,
-                inboundConnectionUpgradeTimeout: 60_000,
+                inboundConnectionUpgradeTimeout: CONNECTION_UPGRADE_TIMEOUT_MS,
                 closeOnEnd: false,
               }),
             ],
