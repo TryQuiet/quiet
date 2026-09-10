@@ -128,6 +128,8 @@ describe('Peer address recovery while profiles replicate', () => {
     libp2p.resumeDialQueue()
     await libp2p.redialPeerAfterDelay(bootstrap.address!, 50)
     members = members.filter(member => member.userId !== 'founder')
+    await storage.updatePeerStore()
+    expect(await db.getPeerStats(remotePeer.toString())).toBeNull()
     await waitForExpect(() => expect(libp2p['redialQueue'].hasTask(bootstrap.address!)).toBe(false), 2_000, 20)
     expect(dial).not.toHaveBeenCalled()
   })
