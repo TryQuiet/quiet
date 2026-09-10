@@ -1034,23 +1034,16 @@ export class UserProfileContextMenu {
   }
 
   async getProfilePhotoSrc(ext: PhotoExt): Promise<string> {
-    return await this.driver.wait(
+    return await this.driver.wait<string>(
       async () => {
-        let i = 0
-        while (i < 5) {
-          const photoElement = await this.waitForPhoto()
+        // Uploading can leave the previous image visible for several polls.
+        // Let this wait own the deadline, including when no image exists yet.
+        const [photoElement] = await this.driver.findElements(By.className('UserProfileContextMenuprofilePhoto'))
+        if (!photoElement) return undefined
 
-          logger.info(`found photoElement ${photoElement}`)
-          const src = await photoElement.getAttribute('src')
-
-          logger.info(`photoElement src ${src}`)
-
-          if (src.endsWith(ext)) {
-            return src
-          }
-          i++
-        }
-        throw new Error(`Failed to find image with data type ${ext} after 5 tries`)
+        const src = await photoElement.getAttribute('src')
+        logger.info(`photoElement src ${src}`)
+        return src?.endsWith(ext) ? src : undefined
       },
       15_000,
       `Failed to find image with data type ${ext} within timeout`,
