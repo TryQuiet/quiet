@@ -1488,9 +1488,15 @@ export class Channel {
         500
       )
     } else {
-      titleText = `# ${this.name}`
+      titleText = `#${this.name}`
     }
-    return (await titleElement.getText()) === titleText
+    await this.driver.wait(
+      until.elementTextIs(titleElement, titleText),
+      timeout,
+      `Channel title did not change to ${titleText} within timeout`,
+      100
+    )
+    return true
   }
 
   async isMessageInputReady(): Promise<boolean> {
@@ -2715,7 +2721,6 @@ export class Settings {
 
   async closeTabThenModal() {
     await this.closeTab()
-    await sleep(1_000)
     await this.close()
   }
 
@@ -2734,6 +2739,7 @@ export class Settings {
       500
     )
     await closeButton.click()
+    await this.driver.wait(until.stalenessOf(closeButton), 10_000, 'Settings drawer did not finish closing', 100)
   }
 
   async closeTab() {
@@ -2751,6 +2757,7 @@ export class Settings {
       500
     )
     await closeTabButton.click()
+    await this.driver.wait(until.stalenessOf(closeTabButton), 10_000, 'Settings tab did not finish closing', 100)
   }
 
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {
