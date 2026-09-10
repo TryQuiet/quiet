@@ -10,7 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
           lfs: true
 
       - uses: actions/setup-node@master

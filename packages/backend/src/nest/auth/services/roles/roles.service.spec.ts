@@ -1,10 +1,9 @@
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 import { RoleName } from './roles'
-import { base58, hash, randomBytes } from '@localfirst/crypto'
-import * as uint8arrays from 'uint8arrays'
-import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@localfirst/auth'
-import { InviteLockboxMetadata } from '../crypto/types'
+import { base58 } from '@localfirst/crypto'
+import { InviteResult, MemberContext, Team } from '@localfirst/auth'
+import { InviteService } from '../invites/invite.service'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
 import { RANDOM_USERNAME_LENGTH } from '../members/types'
 
@@ -15,9 +14,6 @@ describe('roles', () => {
   let secondSigChain: SigChain
   const teamName = 'test'
   let invite: InviteResult
-  let seed: string
-  let salt: string
-  let generatedKeys: InviteLockboxMetadata
 
   it('should initialize a new sigchain and be admin', () => {
     adminSigChain = SigChain.create()
@@ -39,36 +35,16 @@ describe('roles', () => {
     invite = adminSigChain.invites.createUserInvite()
     expect(invite).toBeDefined()
   })
-  it('should create keys from seed and salt for lockboxes', () => {
-    seed = invite.seed
-    salt = uint8arrays.toString(randomBytes(32), 'hex')
-    generatedKeys = adminSigChain.lockbox.generateLockboxKeys(seed, salt)
-    expect(generatedKeys.id).toBe(hash(salt, seed))
-    expect(generatedKeys.keys.name).toBe(generatedKeys.id)
-    expect(generatedKeys.keys.generation).toBe(0)
-  })
-  it('should create a lockbox encrypted to our generated keys with MEMBER keys', () => {
-    const lockboxes = adminSigChain.lockbox.createInviteLockboxes(seed, salt)
-    expect(lockboxes).toHaveLength(1)
-    const keysFromLockbox = adminSigChain.team?.allKeys(generatedKeys.keys)
-    expect(keysFromLockbox).toBeDefined()
-    expect(keysFromLockbox!['ROLE'][RoleName.MEMBER].length).toBe(1)
-  })
   it('should create second user who is not admin', () => {
-    secondSigChain = SigChain.createFromInvite({ seed: invite.seed })
+    secondSigChain = SigChain.createFromInvite({ seed: invite.seed }, adminSigChain.team!.id)
     expect(secondSigChain).toBeDefined()
     expect(secondSigChain.context).toBeDefined()
     expect(base58.detect(secondSigChain.user.userName)).toBeTruthy()
     expect(secondSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
   })
   it('should add second user to team', () => {
-    const proof = generateProof(invite.seed)
-    adminSigChain.invites.admitMemberFromInvite(
-      proof,
-      secondSigChain.user.userName,
-      secondSigChain.context.user.userId,
-      redactKeys(secondSigChain.context.user.keys)
-    )
+    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: secondSigChain.context })
+    adminSigChain.invites.admitMemberFromInvite(admission)
     expect(() => adminSigChain.users.getUserById(secondSigChain.user.userId)).not.toThrow()
 
     const teamBytes = adminSigChain.save()
@@ -90,16 +66,13 @@ describe('roles', () => {
     } as MemberContext
     expect(secondSigChain.team).toBeDefined()
   })
-  it('should self-assign MEMBER role on second user', () => {
-    secondSigChain.roles.addSelf(RoleName.MEMBER, seed, salt)
+  it('should grant the MEMBER role when admitting the second user', () => {
     expect(secondSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
     expect(secondSigChain.roles.canICreateRole()).toBe(false)
-    expect(secondSigChain.roles.canIAddMembersToRole(RoleName.MEMBER)).toBe(true)
+    // A plain member may hold MEMBER but may not put anyone *else* in it. MEMBER being
+    // self-assignable grants self-assignment only; adding another member is an admin act.
+    expect(secondSigChain.roles.canIAddMembersToRole(RoleName.MEMBER)).toBe(false)
     expect(secondSigChain.roles.canIRemoveMembersFromRole(RoleName.MEMBER)).toBe(false)
     expect(secondSigChain.roles.canIDeleteRole(RoleName.MEMBER)).toBe(false)
-  })
-  it('should fail to self-assign ADMIN role on second user', () => {
-    const failedSelfAssign = () => secondSigChain.roles.addSelf(RoleName.ADMIN, seed, salt)
-    expect(failedSelfAssign).toThrow()
   })
 })

@@ -20,9 +20,12 @@ import { RoleName } from '../../../auth/services/roles/roles'
 import { SigChainService } from '../../../auth/sigchain.service'
 import { EncryptedAndSignedPayload } from '../../../auth/services/crypto/types'
 import { createLogger } from '../../../common/logger'
+import { getVerifiedEntryWriter } from '../../orbitDb/identity/lfa/entry-writer'
 import { QuietLogger } from '@quiet/logger'
 import { posixJoin } from '../../orbitDb/util'
 import type { SigChain } from '../../../auth/sigchain'
+import { OrbitDbOp } from '../../orbitDb/orbitdb.types'
+import type { PrivateChannelMappings } from '../channels.types'
 
 const TYPE = 'channelmetadataaccess'
 const codec = dagCbor
@@ -60,11 +63,7 @@ interface ChannelMetadataAccessControllerConfig {
   write: string[]
   sigchainService: SigChainService
   isPublic: boolean
-}
-
-interface ChannelMetadataWriterIdentity {
-  id: string
-  teamId?: string
+  getPrivateChannelsByRolename: () => Promise<PrivateChannelMappings>
 }
 
 @Injectable()
@@ -134,16 +133,12 @@ export class ChannelMetadataAccessController {
     getLog: () => LogType | undefined
   ): CanAppendFunc {
     return async (entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> => {
-      const writerIdentity = (await identities.getIdentity(entry.identity)) as ChannelMetadataWriterIdentity
-      if (!writerIdentity) {
+      const writerIdentity = await getVerifiedEntryWriter(identities, entry)
+      if (writerIdentity == null) {
         return false
       }
 
       if (!config.write.includes(writerIdentity.id) && !config.write.includes('*')) {
-        return false
-      }
-
-      if (!(await identities.verifyIdentity(writerIdentity as any))) {
         return false
       }
 
@@ -169,18 +164,41 @@ export class ChannelMetadataAccessController {
       }
 
       if (
-        entry.payload.op === 'PUT' &&
+        entry.payload.op === OrbitDbOp.PUT &&
         !(await this.canAppendPutForKey(entry, getLog(), writerIdentity.id, chain, config))
       ) {
         return false
       }
 
-      const canDelete = config.isPublic
-        ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
-        : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, entry.key)
-      if (entry.payload.op === 'DEL' && !canDelete) {
+      let canDelete: boolean
+      if (config.isPublic) {
+        canDelete = chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
+      } else {
+        const key = entry.payload.key
+        if (key == null) {
+          this.logger.warn(`Channel metadata DEL rejected due to missing key`, {
+            writerId: writerIdentity.id,
+            isPublic: config.isPublic,
+          })
+          return false
+        }
+        try {
+          const channelRoleMappings = await config.getPrivateChannelsByRolename()
+          const channelRoleName = channelRoleMappings.idToRoleName[key]
+          canDelete = chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channelRoleName)
+        } catch (e) {
+          this.logger.warn(`Private channel metadata DEL rejected because role name couldn't be resolved`, {
+            writerId: writerIdentity.id,
+            channelId: key,
+            isPublic: config.isPublic,
+          })
+          return false
+        }
+      }
+      if (entry.payload.op === OrbitDbOp.DEL && !canDelete) {
         this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
           writerId: writerIdentity.id,
+          isPublic: config.isPublic,
         })
         return false
       }
@@ -224,7 +242,7 @@ export class ChannelMetadataAccessController {
       for await (const existingEntry of log.traverse(null, async () => false)) {
         if (
           existingEntry.hash !== entry.hash &&
-          existingEntry.payload.op === 'PUT' &&
+          existingEntry.payload.op === OrbitDbOp.PUT &&
           existingEntry.payload.key === channelId
         ) {
           this.logger.warn(`Channel metadata PUT rejected because the channel id already has a PUT entry`, {

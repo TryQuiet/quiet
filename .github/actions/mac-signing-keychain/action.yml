@@ -1,0 +1,102 @@
+name: 'Prepare macOS signing keychain'
+description: >
+  Creates a dedicated keychain, imports the Developer ID certificate into it,
+  and exports CSC_KEYCHAIN so electron-builder signs with it instead of
+  creating its own keychain. See issue #334.
+inputs:
+  csc-link:
+    description: 'Signing certificate (.p12): base64 string, https:// URL, file:// URL, or path'
+    required: true
+  csc-key-password:
+    description: 'Password of the .p12 file'
+    required: true
+outputs:
+  keychain:
+    description: 'Path to the keychain that holds the signing identity'
+    value: ${{ steps.create.outputs.keychain }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create signing keychain
+      id: create
+      shell: bash
+      env:
+        MAC_CSC_LINK: ${{ inputs.csc-link }}
+        MAC_CSC_KEY_PASSWORD: ${{ inputs.csc-key-password }}
+      run: |
+        set -euo pipefail
+
+        KEYCHAIN="$RUNNER_TEMP/quiet-signing.keychain-db"
+        CERT="$RUNNER_TEMP/quiet-signing-cert.p12"
+        KC_PASS="$(openssl rand -base64 32)"
+        echo "::add-mask::$KC_PASS"
+
+        # Never leave the p12 behind, and if anything below fails, drop the
+        # half-built keychain too (the job's cleanup step only knows about the
+        # keychain once CSC_KEYCHAIN has been exported at the very end).
+        READY=0
+        cleanup() {
+          rm -f "$CERT"
+          if [ "$READY" -ne 1 ]; then
+            security delete-keychain "$KEYCHAIN" 2>/dev/null || true
+          fi
+        }
+        trap cleanup EXIT
+
+        # Materialise the certificate. Accept the forms electron-builder
+        # accepts for CSC_LINK (app-builder-lib/out/codeSign/codesign.js).
+        case "$MAC_CSC_LINK" in
+          https://*)
+            curl --fail --silent --show-error --location "$MAC_CSC_LINK" -o "$CERT" ;;
+          file://*)
+            cp "${MAC_CSC_LINK#file://}" "$CERT" ;;
+          \~/*)
+            cp "$HOME/${MAC_CSC_LINK#\~/}" "$CERT" ;;
+          /*|./*)
+            cp "$MAC_CSC_LINK" "$CERT" ;;
+          *)
+            if [ -f "$MAC_CSC_LINK" ]; then
+              cp "$MAC_CSC_LINK" "$CERT"
+            else
+              # raw base64 or data URI; drop whitespace so wrapped input decodes
+              printf '%s' "${MAC_CSC_LINK#data:*;base64,}" | tr -d '[:space:]' | base64 --decode > "$CERT"
+            fi ;;
+        esac
+        [ -s "$CERT" ] || { echo "::error::signing certificate is empty"; exit 1; }
+
+        # Fresh keychain with a password we control. electron-builder's own
+        # keychain step passes the p12 password to set-key-partition-list -k,
+        # which macOS 26.6+ rejects (issue #333); here the keychain password
+        # is used where a keychain password is required.
+        security delete-keychain "$KEYCHAIN" 2>/dev/null || true
+        security create-keychain -p "$KC_PASS" "$KEYCHAIN"
+        security set-keychain-settings "$KEYCHAIN"   # no auto-lock, no lock-on-sleep
+        security unlock-keychain -p "$KC_PASS" "$KEYCHAIN"
+        security import "$CERT" -k "$KEYCHAIN" -P "$MAC_CSC_KEY_PASSWORD" \
+          -T /usr/bin/codesign -T /usr/bin/productbuild -T /usr/bin/security
+        security set-key-partition-list -S apple-tool:,apple: -s -k "$KC_PASS" "$KEYCHAIN" > /dev/null
+
+        # Put the keychain on the user search list so codesign can resolve the
+        # certificate chain; keep the existing entries (same as electron-builder).
+        EXISTING=()
+        while IFS= read -r line; do
+          line="${line#"${line%%[![:space:]]*}"}"   # ltrim
+          line="${line%\"}"; line="${line#\"}"       # strip quotes
+          [ -n "$line" ] && EXISTING+=("$line")
+        done < <(security list-keychains -d user)
+        security list-keychains -d user -s "$KEYCHAIN" "${EXISTING[@]}"
+
+        # Fail fast if the identity is not usable. electron-builder never
+        # checked this; it just skipped signing with a warning.
+        if ! security find-identity -v -p codesigning "$KEYCHAIN" | grep -q "Developer ID Application"; then
+          echo "::group::identities in $KEYCHAIN (valid and invalid)"
+          security find-identity -p codesigning "$KEYCHAIN" || true
+          echo "::endgroup::"
+          echo "::error::no valid 'Developer ID Application' identity in $KEYCHAIN"
+          exit 1
+        fi
+
+        READY=1
+        echo "CSC_KEYCHAIN=$KEYCHAIN" >> "$GITHUB_ENV"
+        echo "keychain=$KEYCHAIN" >> "$GITHUB_OUTPUT"
