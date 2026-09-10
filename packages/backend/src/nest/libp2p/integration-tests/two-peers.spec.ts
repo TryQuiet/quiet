@@ -133,7 +133,10 @@ describe('Libp2pAuth', () => {
           eventTimelineA.includes(Libp2pEvents.PEER_DISCONNECTED) &&
           eventTimelineB.includes(Libp2pEvents.PEER_DISCONNECTED)
         ) {
-          expect(eventTimeline).toMatchSnapshot('eventTimeline after disconnection')
+          // Both sessions and transports close; cross-peer scheduling does not
+          // promise a single combined order. Retain each complete peer timeline.
+          expect(eventTimeline.filter(event => event === Libp2pEvents.AUTH_DISCONNECTED)).toHaveLength(2)
+          expect(eventTimeline.filter(event => event === Libp2pEvents.PEER_DISCONNECTED)).toHaveLength(2)
           expect(eventTimelineA).toMatchSnapshot('disconnectEventsA')
           expect(eventTimelineB).toMatchSnapshot('disconnectEventsB')
           clearTimeout(timeout)
