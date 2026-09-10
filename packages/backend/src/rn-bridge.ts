@@ -140,11 +140,15 @@ class EventChannel extends ChannelSuper {
   }
 }
 
-class SystemEventLock {
+export class SystemEventLock {
   private _locksAcquired: number
   private _callback: () => void
   private _hasReleased: boolean
-  constructor(callback: () => void, startingLocks: number) {
+  constructor(
+    callback: () => void,
+    startingLocks: number,
+    public readonly eventId?: string
+  ) {
     this._locksAcquired = startingLocks
     this._callback = callback
     this._hasReleased = false
@@ -172,15 +176,27 @@ class SystemChannel extends ChannelSuper {
   emitWrapper(type: string): void {
     if (type.startsWith('pause')) {
       setImmediate(() => {
-        let releaseMessage = 'release-pause-event'
         const eventArguments = type.split('|')
-        if (eventArguments.length >= 2) {
-          releaseMessage = releaseMessage + '|' + eventArguments[1]
-        }
-        const eventLock = new SystemEventLock(() => {
-          NativeBridge.sendMessage(this.name, releaseMessage)
-        }, this.listenerCount('pause'))
+        const eventId = eventArguments.length >= 2 ? eventArguments[1] : undefined
+        const releaseMessage = eventId ? `release-pause-event|${eventId}` : 'release-pause-event'
+        const eventLock = new SystemEventLock(
+          () => {
+            NativeBridge.sendMessage(this.name, releaseMessage)
+          },
+          this.listenerCount('pause'),
+          eventId
+        )
         this.emitLocal('pause', eventLock)
+      })
+    } else if (type.startsWith('lifecycle|')) {
+      const envelope = MessageCodec.deserialize(type.slice('lifecycle|'.length))
+      if (envelope.event !== 'open' && envelope.event !== 'resume') {
+        logger.warn('Ignoring unsupported system lifecycle event', { event: envelope.event })
+        return
+      }
+      logger.info('SystemChannel received lifecycle event', getMessageEnvelopeLogMetadata(envelope))
+      setImmediate(() => {
+        this.emitLocal(envelope.event, envelope.payload)
       })
     } else {
       setImmediate(() => {

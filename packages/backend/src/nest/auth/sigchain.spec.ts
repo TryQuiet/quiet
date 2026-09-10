@@ -83,6 +83,19 @@ describe('SigChain', () => {
       expect(pendingChain.team?.id).toBe(expectedTeamId)
     })
 
+    it('can validate completion again after restoring its pending context', () => {
+      const pendingContext = pendingChain.context
+      const pendingDeviceId = pendingChain.device.deviceId
+      const team = admittedTeam(pendingDeviceId)
+
+      pendingChain.completeInvitation(team, admittedUser)
+      pendingChain.context = pendingContext
+
+      expect(pendingChain.isPendingDeviceAdmission).toBe(true)
+      expect(() => pendingChain.completeInvitation(team, admittedUser)).not.toThrow()
+      expect(pendingChain.team).toBe(team)
+    })
+
     it.each([
       ['team', admittedTeam('device', { id: 'tampered-team' }), admittedUser],
       ['user', admittedTeam('device'), { ...admittedUser, userId: 'tampered-user' }],

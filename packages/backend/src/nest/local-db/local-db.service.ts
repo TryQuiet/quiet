@@ -19,6 +19,7 @@ import {
 } from './local-db.types'
 import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
+import { type LocalUserContext, type Team } from '@localfirst/auth'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
 import EventEmitter from 'events'
@@ -313,24 +314,47 @@ export class LocalDbService extends EventEmitter {
     if (sigChain.context == null || !('user' in sigChain.context)) {
       throw new Error(`Cannot persist pending device invitation context for team ${teamId}`)
     }
-    let serializedTeam: string | undefined = undefined
-    let teamKeyring: Keyring | undefined = undefined
+    // Route every write that has a team through the one writer, so a caller that
+    // wants to observe or fail chain writes has a single place to do it.
     if (sigChain.team) {
-      serializedTeam = Buffer.from(sigChain.save()).toString('base64')
-      teamKeyring = sigChain.team.teamKeyring()
+      await this.setSigChainFromTeam(sigChain.team, sigChain.localUserContext, teamId)
+      return
     }
+    const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
     const serializedSigChain: SigChainSaveData = {
-      serializedTeam: serializedTeam,
-      localUserContext: { user: sigChain.context.user, device: sigChain.context.device },
-      teamKeyRing: teamKeyring,
+      serializedTeam: undefined,
+      localUserContext: sigChain.localUserContext,
+      teamKeyRing: undefined,
     }
-    await this.setSigChainData(serializedSigChain, teamId)
+    this.logger.info('Saving sigchain with no team yet', teamId)
+    await this.put(key, serializedSigChain)
+  }
+
+  /**
+   * Stores an exact team, rather than whatever a wrapper currently holds.
+   *
+   * The durable-admission gate has to commit the graph the admission was
+   * appended to. Reading the team back off the wrapper would let a replacement
+   * installed in between be written instead, and the gate would then report
+   * success for an admission that never reached disk.
+   *
+   * @param team The team to serialize
+   * @param localUserContext User and device to store alongside it
+   * @param teamId Team ID to store under
+   */
+  public async setSigChainFromTeam(team: Team, localUserContext: LocalUserContext, teamId: string) {
+    const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
+    const serializedSigChain: SigChainSaveData = {
+      serializedTeam: Buffer.from(team.save()).toString('base64'),
+      localUserContext,
+      teamKeyRing: team.teamKeyring(),
+    }
+    this.logger.info('Saving sigchain from an explicit team', teamId)
+    await this.put(key, serializedSigChain)
   }
 
   public async setSigChainData(serializedSigChain: SigChainSaveData, teamId: string): Promise<void> {
-    const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
-    this.logger.info('Saving sigchain', teamId)
-    await this.put(key, serializedSigChain)
+    await this.put(`${LocalDBKeys.SIGCHAINS}${teamId}`, serializedSigChain)
   }
 
   public async getSigChain(teamId: string): Promise<SerializedSigChain | undefined> {

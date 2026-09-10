@@ -470,10 +470,7 @@ describe('QPSService', () => {
         WebsocketEvents.SEND_BATCH_PUSH,
         expect.objectContaining({
           status: CommunityOperationStatus.SENDING,
-          payload: expect.objectContaining({
-            ucans: UCANS,
-            data: { teamId: TEAM_ID },
-          }),
+          payload: { ucans: UCANS },
         }),
         true
       )
@@ -539,10 +536,7 @@ describe('QPSService', () => {
         1,
         WebsocketEvents.SEND_BATCH_PUSH,
         expect.objectContaining({
-          payload: expect.objectContaining({
-            ucans: manyUcans.slice(0, 500),
-            data: { teamId: TEAM_ID },
-          }),
+          payload: { ucans: manyUcans.slice(0, 500) },
         }),
         true
       )
@@ -550,10 +544,7 @@ describe('QPSService', () => {
         2,
         WebsocketEvents.SEND_BATCH_PUSH,
         expect.objectContaining({
-          payload: expect.objectContaining({
-            ucans: manyUcans.slice(500),
-            data: { teamId: TEAM_ID },
-          }),
+          payload: { ucans: manyUcans.slice(500) },
         }),
         true
       )
@@ -584,10 +575,23 @@ describe('QPSService', () => {
       qssClient.sendMessage.mockResolvedValue(pushSuccessResponse)
     })
 
+    it('sends only the recipient UCAN in the push envelope', async () => {
+      await qpsService.sendPush('ucan-user-a')
+
+      expect(qssClient.sendMessage).toHaveBeenCalledWith(
+        WebsocketEvents.SEND_PUSH,
+        expect.objectContaining({
+          status: CommunityOperationStatus.SENDING,
+          payload: { ucan: 'ucan-user-a' },
+        }),
+        true
+      )
+    })
+
     it('skips single push when QSS is not connected', async () => {
       qssClient.connected = false
 
-      await qpsService.sendPush('ucan-user-a', 'title', 'body', { cid: 'cid-1' })
+      await qpsService.sendPush('ucan-user-a')
 
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })

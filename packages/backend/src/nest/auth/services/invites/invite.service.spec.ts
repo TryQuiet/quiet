@@ -9,6 +9,7 @@ import { DeviceService } from '../members/device.service'
 import { base58 } from '@localfirst/crypto'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
 import { RANDOM_USERNAME_LENGTH } from '../members/types'
+import { invitation } from '@localfirst/auth'
 
 const logger = createLogger('auth:services:invite.spec')
 
@@ -33,16 +34,64 @@ describe('invites', () => {
     expect(adminSigChain.invites.getAllInvites().length).toBe(1)
     expect(adminSigChain.invites.getById(newInvite.id)).toBeDefined()
   })
+  it('should identify a non-expiring member invite as long-lived', () => {
+    const invite = adminSigChain.invites.createLongLivedUserInvite()
+    const invitationState = adminSigChain.invites.getById(invite.id)
+
+    expect(invitationState.kind).toBe('member')
+    expect(invitationState.expiration).toBe(0)
+    expect(invitationState.roleNames).toEqual([RoleName.MEMBER])
+    const roleGrantKeys = invitation.generateRoleGrantKeys(invite.seed)
+    expect(adminSigChain.team!.roleKeys(RoleName.MEMBER, undefined, roleGrantKeys)).toEqual(
+      adminSigChain.team!.roleKeys(RoleName.MEMBER)
+    )
+    expect(adminSigChain.invites.isValidLongLivedUserInvite(invite.id)).toBe(true)
+  })
+  it('should let an admitted user self-assign MEMBER from a long-lived invite grant', () => {
+    const invite = adminSigChain.invites.createLongLivedUserInvite()
+    const prospectiveMember = UserService.createFromInviteSeed({ seed: invite.seed })
+    const admission = InviteService.createMemberAdmission({
+      seed: invite.seed,
+      context: prospectiveMember,
+    })
+
+    // Model a QSS acceptor: admission supplies TEAM keys but does not author a role assignment.
+    adminSigChain.invites.admitUser(admission)
+    const admittedSigChain = SigChain.joinForTesting(
+      prospectiveMember,
+      adminSigChain.team!.save(),
+      adminSigChain.team!.teamKeyring()
+    )
+
+    expect(admittedSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(false)
+    admittedSigChain.roles.addSelf(RoleName.MEMBER, invite.seed, invite.salt)
+    expect(admittedSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+    expect(admittedSigChain.team!.roleKeys(RoleName.MEMBER)).toEqual(adminSigChain.team!.roleKeys(RoleName.MEMBER))
+  })
+  it('should reject a legacy long-lived invite without a MEMBER grant', () => {
+    const isolatedSigChain = SigChain.create()
+    const legacyInvite = isolatedSigChain.team!.inviteMember()
+
+    expect(isolatedSigChain.invites.isValidLongLivedUserInvite(legacyInvite.id)).toBe(false)
+  })
+  it('should reject a long-lived invite after MEMBER keys rotate', () => {
+    const isolatedSigChain = SigChain.create()
+    const invite = isolatedSigChain.invites.createLongLivedUserInvite()
+    isolatedSigChain.roles.revokeMembership(isolatedSigChain.user.userId, RoleName.MEMBER)
+
+    expect(isolatedSigChain.invites.isValidLongLivedUserInvite(invite.id)).toBe(false)
+  })
   it('admin should generate an invite seed and create a new user from it', () => {
     const invite = adminSigChain.invites.createUserInvite()
     expect(invite).toBeDefined()
     const prospectiveMember = UserService.createFromInviteSeed({ seed: invite.seed })
-    const inviteProof = InviteService.generateProof(invite.seed)
-    expect(inviteProof).toBeDefined()
-    expect(adminSigChain.invites.validateProof(inviteProof)).toBe(true)
+    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: prospectiveMember })
+    expect(admission.proof).toBeDefined()
+    expect(adminSigChain.invites.validateProof(admission.proof, admission.claim, admission.possessionProof)).toBe(true)
     expect(prospectiveMember).toBeDefined()
+    expect(adminSigChain.invites.admitMemberFromInvite(admission)).toBeDefined()
     newMemberSigChain = SigChain.joinForTesting(
-      prospectiveMember.context,
+      prospectiveMember,
       adminSigChain.team!.save(),
       adminSigChain.team!.teamKeyring()
     )
@@ -55,44 +104,45 @@ describe('invites', () => {
     expect(base58.detect(newMemberSigChain.user.userName)).toBeTruthy()
     expect(newMemberSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
     expect(newMemberSigChain.user.userId).not.toBe(adminSigChain.user.userId)
-    expect(newMemberSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(false)
+    expect(newMemberSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
     expect(newMemberSigChain.roles.amIAdmin()).toBe(false)
-    expect(
-      adminSigChain.invites.admitMemberFromInvite(
-        inviteProof,
-        newMemberSigChain.user.userName,
-        newMemberSigChain.user.userId,
-        newMemberSigChain.user.keys
-      )
-    ).toBeDefined()
-    expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+    expect(adminSigChain.roles.memberHasRole(newMemberSigChain.user.userId, RoleName.MEMBER)).toBe(true)
   })
   it('admin should be able to revoke an invite', () => {
     const inviteToRevoke = adminSigChain.invites.createUserInvite()
     expect(inviteToRevoke).toBeDefined()
     adminSigChain.invites.revoke(inviteToRevoke.id)
-    const InvalidInviteProof = InviteService.generateProof(inviteToRevoke.seed)
-    expect(InvalidInviteProof).toBeDefined()
-    expect(adminSigChain.invites.validateProof(InvalidInviteProof)).toBe(false)
+    const prospectiveMember = UserService.createFromInviteSeed({ seed: inviteToRevoke.seed })
+    const revokedAdmission = InviteService.createMemberAdmission({
+      seed: inviteToRevoke.seed,
+      context: prospectiveMember,
+    })
+    expect(revokedAdmission.proof).toBeDefined()
+    expect(
+      adminSigChain.invites.validateProof(
+        revokedAdmission.proof,
+        revokedAdmission.claim,
+        revokedAdmission.possessionProof
+      )
+    ).toBe(false)
   })
   it('admitting a new member with an invalid invite should fail', () => {
-    const invalidInviteProof = InviteService.generateProof('invalidseed')
-    expect(invalidInviteProof).toBeDefined()
-    expect(adminSigChain.invites.validateProof(invalidInviteProof)).toBe(false)
     const prospectiveMember = UserService.createFromInviteSeed({ seed: 'invalidseed' })
-    expect(prospectiveMember).toBeDefined()
-    const newSigchain = SigChain.joinForTesting(
-      prospectiveMember.context,
-      adminSigChain.team!.save(),
-      adminSigChain.team!.teamKeyring()
-    )
-    expect(() => {
-      adminSigChain.invites.admitMemberFromInvite(
-        invalidInviteProof,
-        prospectiveMember.context.user.userName,
-        prospectiveMember.context.user.userId,
-        prospectiveMember.publicKeys
+    const invalidAdmission = InviteService.createMemberAdmission({
+      seed: 'invalidseed',
+      context: prospectiveMember,
+    })
+    expect(invalidAdmission.proof).toBeDefined()
+    expect(
+      adminSigChain.invites.validateProof(
+        invalidAdmission.proof,
+        invalidAdmission.claim,
+        invalidAdmission.possessionProof
       )
+    ).toBe(false)
+    expect(prospectiveMember).toBeDefined()
+    expect(() => {
+      adminSigChain.invites.admitMemberFromInvite(invalidAdmission)
     }).toThrowError()
   })
   it('should invite device', () => {
@@ -102,7 +152,7 @@ describe('invites', () => {
     try {
       const deviceInvite = adminSigChain.invites.createDeviceInvite()
       const storedInvite = adminSigChain.invites.getById(deviceInvite.id)
-      const inviteProof = InviteService.generateProof(deviceInvite.seed)
+      const admission = InviteService.createDeviceAdmission({ seed: deviceInvite.seed, device: newDevice })
 
       expect(deviceInvite).toMatchObject({
         expiresAt: now + DEFAULT_DEVICE_INVITATION_VALID_FOR_MS,
@@ -110,10 +160,11 @@ describe('invites', () => {
         userName: adminSigChain.user.userName,
       })
       expect(storedInvite.expiration).toBe(deviceInvite.expiresAt)
-      expect(storedInvite.maxUses).toBe(1)
-      expect(inviteProof).toBeDefined()
-      expect(adminSigChain.invites.validateProof(inviteProof)).toBe(true)
-      adminSigChain.invites.admitDeviceFromInvite(inviteProof, DeviceService.redactDevice(newDevice))
+      expect(admission.proof).toBeDefined()
+      expect(adminSigChain.invites.validateProof(admission.proof, admission.claim, admission.possessionProof)).toBe(
+        true
+      )
+      adminSigChain.invites.admitDeviceFromInvite(admission)
       expect(adminSigChain.team!.hasDevice(newDevice.deviceId)).toBe(true)
     } finally {
       dateNowSpy.mockRestore()

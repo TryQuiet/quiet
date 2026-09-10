@@ -20,6 +20,7 @@ class ChannelService extends ChainServiceBase {
     const roleName = this.generateChannelRoleName()
     logger.info(`Adding new channel role with name ${roleName}`)
     this.sigChain.roles.create(roleName)
+    this.sigChain.roles.addMember(this.sigChain.user.userId, roleName)
     return roleName
   }
 

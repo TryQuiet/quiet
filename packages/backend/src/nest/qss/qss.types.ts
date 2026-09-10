@@ -64,7 +64,7 @@ export interface QSSAuthAttemptFailurePayload {
 
 export interface QSSAuthErrorPayload {
   teamId: string
-  error: Error
+  error: unknown
   attempts?: number
 }
 
@@ -152,6 +152,8 @@ export interface AuthSyncMessage extends BaseWebsocketMessage<AuthSyncMessagePay
 
 export interface GeneratePublicKeysMessagePayload {
   teamId: string
+  serverId?: string
+  identityKeys?: Keyset
   keys?: Keyset
 }
 
@@ -264,9 +266,6 @@ export interface GetCaptchaSiteKeyResponse extends BaseWebsocketMessage<GetCaptc
 
 export interface SendPushPayload {
   ucan: string
-  title?: string
-  body?: string
-  data?: Record<string, string>
 }
 
 export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {

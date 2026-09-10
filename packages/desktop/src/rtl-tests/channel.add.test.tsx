@@ -32,9 +32,11 @@ describe('Add new channel', () => {
   let socket: MockedSocket
   let socketFactory: FactoryGirl
   let channelIdCounter = 0
+  const originalPrivateChannelCreationAllowed = process.env.PRIVATE_CHANNEL_CREATION_ALLOWED
   const createBackendChannelId = () => `created-channel-id-${++channelIdCounter}`
 
   beforeEach(async () => {
+    process.env.PRIVATE_CHANNEL_CREATION_ALLOWED = 'true'
     channelIdCounter = 0
     socketFactory = await getSocketFactory()
     socket = new MockedSocket()
@@ -48,6 +50,38 @@ describe('Add new channel', () => {
 
   afterEach(() => {
     cleanup()
+  })
+
+  afterAll(() => {
+    if (originalPrivateChannelCreationAllowed == null) {
+      delete process.env.PRIVATE_CHANNEL_CREATION_ALLOWED
+    } else {
+      process.env.PRIVATE_CHANNEL_CREATION_ALLOWED = originalPrivateChannelCreationAllowed
+    }
+  })
+
+  it('hides channel creation when only private creation is permitted and the feature flag is off', async () => {
+    process.env.PRIVATE_CHANNEL_CREATION_ALLOWED = 'false'
+    const { store } = await prepareStore({}, socket)
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Community')
+    await factory.create('Identity', { nickname: 'alice' })
+    await factory.create('ChannelPermissions', {
+      genericPermissions: {
+        public: { create: false, delete: false },
+        private: { create: true },
+      },
+    })
+
+    renderComponent(
+      <>
+        <Sidebar />
+        <CreateChannel />
+      </>,
+      store
+    )
+
+    expect(screen.queryByTestId('addChannelButton')).toBeNull()
   })
 
   it('Opens modal on button click', async () => {

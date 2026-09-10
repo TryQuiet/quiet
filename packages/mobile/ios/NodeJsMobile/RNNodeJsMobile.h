@@ -1,6 +1,8 @@
 
 #import <React/RCTBridgeModule.h>
 
+FOUNDATION_EXPORT NSString *const QuietBackendReadyNotification;
+
 @interface RNNodeJsMobile : NSObject <RCTBridgeModule>
   @property (nonatomic, strong) NSString *socketIOSecret;
   -(void) startNodeProjectInBackground:(NSString *)command;

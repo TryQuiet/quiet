@@ -11,6 +11,7 @@ import {
   UserWithSecrets,
   DeviceWithSecrets,
   FirstUseDeviceWithSecrets,
+  Base58,
 } from '@localfirst/auth'
 import { KeyMetadata } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -39,14 +40,73 @@ import type {
   CreateUserInput,
 } from './services/members/types'
 
+/**
+ * Durable writes for sigchains, and the admission gate built on them.
+ *
+ * On the admission path this device is fail-closed but does not undo. If the
+ * write fails, the gate rejects and nothing reaches the invitee, which is the
+ * QSS-006 property; the ADMIT link stays on the live team and may be committed
+ * by a later successful write, and the invitee's retry is served that link with
+ * the failed handshake's proof and rejects it. Convergence with that invitee
+ * needs a restart of this device, which reloads the durable graph without the
+ * link. This was chosen over rolling the team back in memory: the threat is a
+ * member holding keys with no record, and this can only produce a record with no
+ * keys. QSS, the admitter for offline joins, does roll back (private#302).
+ * See persistAdmittedTeam for the full reasoning and the availability follow-up.
+ */
+/** Why a write was requested; only admissions are refused past the bound. */
+export type PersistKind = 'update' | 'admission'
+
+/** The admitting team was replaced before its write could commit. */
+export class AdmittingTeamReplacedError extends Error {
+  constructor(teamId: string) {
+    super(`The team admitting into ${teamId} is no longer the one this device holds`)
+    this.name = 'AdmittingTeamReplacedError'
+  }
+}
+
+/** Too many callers are already waiting on a write for this team. */
+export class PersistenceBacklogError extends Error {
+  constructor(teamId: string, pending: number) {
+    super(`Refusing to queue another admission write for team ${teamId}: ${pending} already pending`)
+    this.name = 'PersistenceBacklogError'
+  }
+}
+
+/**
+ * Write state for one team: at most one write talking to the database and one
+ * queued behind it, plus the callers waiting on that queued write.
+ *
+ */
+type TeamPersistState = {
+  /** Settled chain of every write for this team; never rejects. */
+  tail: Promise<void>
+  /** An ordinary update not yet started, which later callers can join. */
+  coalescedUpdate: Promise<void> | undefined
+  waiters: number
+  /** Heads already on disk, so a repeated gate for one costs no write. */
+  durableHeads: Set<string>
+  /** One write per head in flight, so repeated gates share a completion. */
+  admissionsInFlight: Map<string, Promise<void>>
+}
+
 @Injectable()
 export class SigChainService extends EventEmitter {
+  /**
+   * Ceiling on callers waiting for one team's write.
+   *
+   * Reached only when something is generating admissions far faster than the
+   * disk retires them, which in practice means a peer is driving it.
+   */
+  private static readonly MAX_PENDING_PERSISTS_PER_TEAM = 64
+  /** Heads remembered as durable per team; enough to absorb a retry burst. */
+  private static readonly MAX_DURABLE_HEADS_PER_TEAM = 32
+
   public activeChainTeamId: string | undefined
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
   private readonly _chainListeners: Map<SigChain, () => void> = new Map()
-  private readonly persistenceQueues = new Map<string, Promise<void>>()
   private readonly admissionPersistenceBarriers = new Map<
     string,
     {
@@ -55,6 +115,16 @@ export class SigChainService extends EventEmitter {
       version: number
     }
   >()
+  /** Coalescing write state per team; see persistChain. */
+  private readonly _persistQueue: Map<string, TeamPersistState> = new Map()
+  /**
+   * Admission writes that failed, per team.
+   *
+   * With no rollback on this device, this counter and the log line beside it are
+   * the operator's only signal that a team is carrying an admission it never
+   * stored; see the note on persistAdmittedTeam.
+   */
+  private readonly _failedAdmissionWrites: Map<string, number> = new Map()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -171,25 +241,47 @@ export class SigChainService extends EventEmitter {
     this.attachSocketListeners(nextChain)
   }
 
-  private handleChainUpdate = async (teamId: string) => {
-    try {
-      await this.saveChain(teamId)
-    } catch (error) {
-      this.logger.error('Failed to persist chain update', error)
-      return
-    }
-    void this._updateKeysOnChainUpdate(teamId).catch(err => {
+  /**
+   * Handles an in-memory mutation of a team's sigchain.
+   *
+   * The chain is written to disk *before* the UPDATED event goes out. Anything
+   * downstream of that event may release material that only makes sense if the
+   * entry we just appended survives a restart (QSS-006): if we emit first and
+   * crash before the write lands, we come back without an admission the peer is
+   * already relying on, and that peer is then rejected as an unknown device.
+   *
+   * This used to fire two un-awaited writes of the same value, so the emit
+   * raced both of them and neither failure was visible to any caller. It is now
+   * a single awaited write through the per-team queue, and a rejection
+   * propagates to the caller so admission paths can fail closed.
+   */
+  private handleChainUpdate = async (teamId: string): Promise<void> => {
+    await this.persistChain(teamId)
+    void this.updateKeysInNativeStorage(teamId).catch(err => {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
-    this._updateDeviceCredentials(teamId)
+    this.updateDeviceCredentials(teamId)
     this.emit(SigchainEvents.UPDATED, teamId)
-    this.logger.info('Chain updated, emitted updated event')
+    this.logger.info('Chain updated and persisted, emitted updated event', teamId)
   }
 
   /**
-   * Update mobile native storage with any new keys on chain update.
+   * Update mobile native storage with any new keys.
+   *
+   * Like updateDeviceCredentials, this must run on steady state (QSS sign-in),
+   * not only on chain mutation: the native push handler needs the LFA role keys
+   * to decrypt fetched entries, and a device that joined and then saw no chain
+   * update would otherwise throw MissingQssNotificationKeyException on every push.
+   *
+   * The local "stored in keychain" ledger only proves we *emitted* a key once, not
+   * that native storage still holds it (dropped emit, saga not yet listening, app
+   * reinstalled while the backend db persisted). So callers at steady state pass
+   * resendAll=true to emit every key regardless of the ledger; native storage is a
+   * put, so this is idempotent. The ledger is still only appended with new names.
+   *
+   * @param resendAll Emit all keys even if the ledger says they were already sent
    */
-  private async _updateKeysOnChainUpdate(teamId: string): Promise<void> {
+  public async updateKeysInNativeStorage(teamId: string, resendAll = false): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') {
       this.logger.trace('Skipping key update because we are not on mobile, current platform =', process.platform)
@@ -225,8 +317,11 @@ export class SigChainService extends EventEmitter {
             type: keyTypeGenData.type,
             generation: keyTypeGenData.generation,
           })
-          if (!alreadySentKeys.has(keyName)) {
+          const isNew = !alreadySentKeys.has(keyName)
+          if (resendAll || isNew) {
             keysToSend.push({ key: keyTypeGenData.secretKey, keyName })
+          }
+          if (isNew) {
             keyNamesSent.push(keyName)
           }
         }
@@ -241,8 +336,11 @@ export class SigChainService extends EventEmitter {
         type: keySet.type,
         generation: keySet.generation,
       })
-      if (!alreadySentKeys.has(publicKeyName)) {
+      const isNewPublicKey = !alreadySentKeys.has(publicKeyName)
+      if (resendAll || isNewPublicKey) {
         keysToSend.push({ key: keySet.encryption, keyName: publicKeyName })
+      }
+      if (isNewPublicKey) {
         keyNamesSent.push(publicKeyName)
       }
 
@@ -251,8 +349,11 @@ export class SigChainService extends EventEmitter {
         type: keySet.type,
         generation: keySet.generation,
       })
-      if (!alreadySentKeys.has(sigKeyName)) {
+      const isNewSigKey = !alreadySentKeys.has(sigKeyName)
+      if (resendAll || isNewSigKey) {
         keysToSend.push({ key: keySet.signature, keyName: sigKeyName })
+      }
+      if (isNewSigKey) {
         keyNamesSent.push(sigKeyName)
       }
     }
@@ -262,19 +363,30 @@ export class SigChainService extends EventEmitter {
       return
     }
 
-    // send new keys to the state manager to add to the keychain and update list of key names in
+    // send keys to the state manager to add to native storage; only record names not
+    // already in the ledger so forced resends do not grow it
     const keyUpdateEvent: KeysUpdatedEvent = {
       keys: keysToSend,
     }
-    await this.localDbService.updateKeysStoredInKeychain(teamId, keyNamesSent)
+    if (keyNamesSent.length > 0) {
+      await this.localDbService.updateKeysStoredInKeychain(teamId, keyNamesSent)
+    }
     this.serverIoProvider.io.emit(SocketEvents.KEYS_UPDATED, keyUpdateEvent)
+    this.logger.info(
+      `Emitted ${keysToSend.length} keys to native storage (${keyNamesSent.length} new, resendAll=${resendAll})`
+    )
   }
 
   /**
    * Emit device credentials to mobile clients so native background handlers can
    * authenticate with QSS.
+   *
+   * Must be emitted whenever the client reaches a steady state for a team, not
+   * only when the chain mutates: the native FCM handler cannot fetch log entries
+   * without a device id, so a device that joins and then sees no membership
+   * changes would never be able to render a push notification.
    */
-  private _updateDeviceCredentials(teamId: string): void {
+  public updateDeviceCredentials(teamId: string): void {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') return
     if (process.env.QPS_ALLOWED !== 'true') {
@@ -292,6 +404,7 @@ export class SigChainService extends EventEmitter {
       const event: DeviceCredentialsUpdatedEvent = {
         deviceId: device.deviceId,
         teamId,
+        userId: sigchain.user.userId,
         signingPrivateKey: device.keys.signature.secretKey,
       }
       this.serverIoProvider.io.emit(SocketEvents.DEVICE_CREDENTIALS_UPDATED, event)
@@ -308,7 +421,13 @@ export class SigChainService extends EventEmitter {
     }
     this.logger.info('Attaching socket listeners')
     const listener = (): void => {
-      this.handleChainUpdate(chain.teamId!)
+      // EventEmitter cannot await us, so a rejected persist would otherwise
+      // surface as an unhandled rejection. Log it loudly with the team ID.
+      // Wrapped rather than chained directly: tests stub handleChainUpdate with a
+      // plain function, and a void return has no catch to call.
+      void Promise.resolve(this.handleChainUpdate(chain.teamId!)).catch(err => {
+        this.logger.error(`Failed to handle chain update for team ${chain.teamId}`, err)
+      })
     }
     this._chainListeners.set(chain, listener)
     chain.on(SigchainEvents.UPDATED, listener)
@@ -354,13 +473,26 @@ export class SigChainService extends EventEmitter {
     if (barrierState != null) {
       this.cancelAdmissionPersistence(barrierState.barrier)
     }
-    await this.persistenceQueues.get(teamId)?.catch(() => undefined)
+    await this._persistQueue.get(teamId)?.tail
     const chain = this.chains.get(teamId)
     if (chain) {
       this.detachSocketListeners(chain)
     }
     if (fromDisk) {
+      // Abandon anything queued and wait for whatever is mid-write before
+      // deleting, or a write already holding serialized bytes lands afterwards
+      // and puts the record straight back.
+      const state = this._persistQueue.get(teamId)
+      if (state != null) {
+        // Stop new callers joining, then let everything queued finish before the
+        // delete: a write already holding serialized bytes would otherwise land
+        // afterwards and put the record straight back.
+        state.coalescedUpdate = undefined
+        state.durableHeads.clear()
+        await state.tail
+      }
       await this.localDbService.deleteSigChain(teamId)
+      this._persistQueue.delete(teamId)
     }
     this.chains.delete(teamId)
     if (this.activeChainTeamId === teamId) {
@@ -388,7 +520,7 @@ export class SigChainService extends EventEmitter {
     setActive: boolean
   ): Promise<SigChain> {
     this.logger.info('Creating chain from invite')
-    const sigChain = SigChain.createFromInvite(createFromInviteSeedInput)
+    const sigChain = SigChain.createFromInvite(createFromInviteSeedInput, teamId as Base58)
     this.addChain(sigChain, setActive, teamId)
     await this.saveChain(teamId)
     return sigChain
@@ -456,8 +588,257 @@ export class SigChainService extends EventEmitter {
   }
 
   /**
-   * Saves a chain to disk
-   * @param teamName Name of the team to save
+   * Durably writes a team's sigchain (graph + team keyring) to disk.
+   *
+   * Writes for a given team are queued one behind another. Without that, two
+   * overlapping writes each serialize the live team object at the moment they
+   * reach LevelDB, so a write that started earlier can land after a write that
+   * started later and commit a stale graph over a newer one - silently dropping
+   * an entry we already told a peer about.
+   *
+   * The returned promise rejects if the write fails. Callers that are about to
+   * release credentials or an acceptance message must await it and fail closed,
+   * rather than treating persistence as best effort (QSS-006).
+   *
+   * @param teamId ID of the team whose chain should be persisted
+   */
+  public persistChain(teamId: string, kind: PersistKind = 'update'): Promise<void> {
+    if (this.hasAdmissionPersistenceBarrier(teamId)) {
+      return this.saveChain(teamId)
+    }
+    const state = this.stateFor(teamId)
+
+    if (kind === 'admission' && state.waiters >= SigChainService.MAX_PENDING_PERSISTS_PER_TEAM) {
+      const error = new PersistenceBacklogError(teamId, state.waiters)
+      this.logger.error(error.message)
+      return Promise.reject(error)
+    }
+
+    let write = state.coalescedUpdate
+    if (write == null) {
+      const slot: { write?: Promise<void> } = {}
+      write = this.enqueue(state, async () => {
+        // Free the slot as this write starts, never when it finishes, so a
+        // caller arriving now opens a fresh one that covers its own mutation.
+        if (state.coalescedUpdate === slot.write) {
+          state.coalescedUpdate = undefined
+        }
+        await this.writeLiveChain(teamId)
+      })
+      slot.write = write
+      state.coalescedUpdate = write
+    }
+    return this.track(state, write)
+  }
+
+  /**
+   * Durably writes the exact team an LFA connection has just admitted into.
+   *
+   * This is the durable-admission gate. It is bound to the object it is handed
+   * rather than to the team ID, so a different team installed on this chain in
+   * the meantime cannot be written in its place and report success for an
+   * admission that never reached disk. Repeated gates for one head share a
+   * single write and a head already on disk costs none, so a peer re-running the
+   * handshake cannot spend the team's write capacity.
+   *
+   * What happens when the write fails, and why this device does not undo it.
+   *
+   * The gate rejects, so @localfirst/auth fails the connection with
+   * ADMISSION_NOT_PERSISTED and the invitee receives no graph, no keyring and no
+   * member-only material. That is the property QSS-006 is about, and it holds.
+   *
+   * What this device does NOT do is take the admission back out of memory. The
+   * ADMIT link stays on the live team and a later successful write may commit
+   * it. Until this device restarts it will also keep serving that link to the
+   * invitee on any retry, through the library's idempotent path, and the link
+   * carries the proof from the handshake that failed; the invitee's own
+   * validator requires the current handshake's proof and rejects it. So that
+   * invitee cannot converge with this device until it restarts, at which point
+   * the durable graph loads without the link and the invitee is admitted afresh.
+   *
+   * This is deliberate (private#203 / QSS-006). The threat is a member who holds
+   * keys this device has no record of; this failure mode can only produce the
+   * opposite, a record with no keys released, which is safe. Undoing the
+   * admission in memory would mean reloading the team underneath every live
+   * connection, and the machinery to make that safe was judged to cost more than
+   * the availability it buys. QSS, which is the admitter for offline joins, does
+   * roll back; see private#302. The availability follow-up for this device is
+   * the deferred hardening from the audit: re-present the invitation on
+   * DEVICE_UNKNOWN, or authenticate as the already-registered device.
+   *
+   * failedAdmissionWriteCount and the error logged here are the operator's
+   * signal that a team is in this state.
+   *
+   * @param team The team the connection appended the admission to
+   * @throws AdmittingTeamReplacedError if this is no longer the team we hold,
+   *   PersistenceBacklogError past the bound, or the underlying write failure
+   */
+  public async persistAdmittedTeam(team: Team): Promise<void> {
+    const teamId = team.id
+    this.assertAdmittingTeamIsCurrent(team)
+
+    const state = this.stateFor(teamId)
+    const head = SigChainService.headKey(team)
+
+    if (state.durableHeads.has(head)) {
+      this.logger.info(`Admission for team ${teamId} at head ${head} is already durable`)
+      return
+    }
+
+    const inFlight = state.admissionsInFlight.get(head)
+    if (inFlight != null) {
+      this.logger.info(`Joining the in-flight admission write for team ${teamId}`)
+      await inFlight
+      return
+    }
+
+    if (state.waiters >= SigChainService.MAX_PENDING_PERSISTS_PER_TEAM) {
+      const error = new PersistenceBacklogError(teamId, state.waiters)
+      this.logger.error(error.message)
+      throw error
+    }
+
+    const write = this.track(
+      state,
+      this.enqueue(state, async () => this.writeAdmittedTeam(teamId, team))
+    )
+    state.admissionsInFlight.set(head, write)
+    try {
+      await write
+      SigChainService.rememberDurableHead(state, head)
+    } catch (err) {
+      const failures = (this._failedAdmissionWrites.get(teamId) ?? 0) + 1
+      this._failedAdmissionWrites.set(teamId, failures)
+      this.logger.error(
+        `Admission write failed for team ${teamId} at head ${head} (${failures} so far). ` +
+          `The link stays in memory and this device cannot admit that invitee until it restarts.`,
+        err
+      )
+      throw err
+    } finally {
+      state.admissionsInFlight.delete(head)
+    }
+  }
+
+  /**
+   * Fails closed unless this is still exactly the team this device holds.
+   *
+   * @param team The team an admission was appended to
+   */
+  private assertAdmittingTeamIsCurrent(team: Team): void {
+    const chain = this.getChain(team.id, false)
+    if (chain == null || chain.team !== team) {
+      const error = new AdmittingTeamReplacedError(team.id)
+      this.logger.error(error.message)
+      throw error
+    }
+  }
+
+  /** Write state for a team, created on first use. */
+  private stateFor(teamId: string): TeamPersistState {
+    let state = this._persistQueue.get(teamId)
+    if (state == null) {
+      state = {
+        tail: Promise.resolve(),
+        coalescedUpdate: undefined,
+        waiters: 0,
+        durableHeads: new Set<string>(),
+        admissionsInFlight: new Map<string, Promise<void>>(),
+      }
+      this._persistQueue.set(teamId, state)
+    }
+    return state
+  }
+
+  /**
+   * Queues one write behind everything already queued for this team.
+   *
+   * @param state That team's write state
+   * @param run The write itself
+   */
+  private enqueue(state: TeamPersistState, run: () => Promise<void>): Promise<void> {
+    // Order after the previous write either way: a failed write must not wedge
+    // the queue, and the stored tail must never be a rejection nobody handles.
+    const current = state.tail.then(run, run)
+    state.tail = current.then(
+      () => undefined,
+      () => undefined
+    )
+    return current
+  }
+
+  /** Counts a caller against the team's backlog for as long as it waits. */
+  private track(state: TeamPersistState, write: Promise<void>): Promise<void> {
+    state.waiters += 1
+    return write.finally(() => {
+      state.waiters -= 1
+    })
+  }
+
+  /** Writes whatever the chain currently holds. */
+  private async writeLiveChain(teamId: string): Promise<void> {
+    try {
+      this.logger.info(`Saving chain to disk`, teamId)
+      await this._ensureDb()
+      await this.localDbService.setSigChain(this.getChain(teamId), teamId)
+    } catch (err) {
+      this.logger.error(`Failed to persist sigchain for team ${teamId}`, err)
+      throw err
+    }
+  }
+
+  /** Writes exactly the team an admission was appended to, or refuses. */
+  private async writeAdmittedTeam(teamId: string, team: Team): Promise<void> {
+    try {
+      this.logger.info(`Saving the admitting team to disk`, teamId)
+      await this._ensureDb()
+      // Re-check identity immediately before the bytes are produced. The awaits
+      // above are where the invitee join path can install a different team on
+      // this chain, and those bytes must be the ones we admitted into.
+      const chain = this.getChain(teamId)
+      if (chain.team !== team) {
+        throw new AdmittingTeamReplacedError(teamId)
+      }
+      await this.localDbService.setSigChainFromTeam(team, chain.localUserContext, teamId)
+    } catch (err) {
+      this.logger.error(`Failed to persist the admitting team for ${teamId}`, err)
+      throw err
+    }
+  }
+
+  /** Canonical key for a team's current graph heads. */
+  private static headKey(team: Team): string {
+    const graph = team.graph as unknown as { head: string[] }
+    return [...graph.head].sort().join(',')
+  }
+
+  /** Records a head as durable, keeping the record bounded. */
+  private static rememberDurableHead(state: TeamPersistState, head: string): void {
+    state.durableHeads.add(head)
+    while (state.durableHeads.size > SigChainService.MAX_DURABLE_HEADS_PER_TEAM) {
+      const oldest = state.durableHeads.values().next().value
+      if (oldest == null) break
+      state.durableHeads.delete(oldest)
+    }
+  }
+
+  /** Admission writes that have failed for this team; for diagnostics. */
+  public failedAdmissionWriteCount(teamId: string): number {
+    return this._failedAdmissionWrites.get(teamId) ?? 0
+  }
+
+  /** Callers currently waiting on a write for this team; for tests and diagnostics. */
+  public pendingPersistCount(teamId: string): number {
+    return this._persistQueue.get(teamId)?.waiters ?? 0
+  }
+
+  /**
+   * Saves a chain to disk.
+   *
+   * Retained as the historical name for persistChain; both go through the same
+   * per-team write queue.
+   *
+   * @param teamId ID of the team to save
    */
   async saveChain(teamId: string): Promise<void> {
     this.logger.info(`Saving chain to disk`, teamId)
@@ -563,18 +944,11 @@ export class SigChainService extends EventEmitter {
   }
 
   private async enqueueSnapshot(teamId: string, snapshot: SigChainSaveData): Promise<void> {
-    const previous = this.persistenceQueues.get(teamId) ?? Promise.resolve()
-    const persistence = previous
-      .catch(() => undefined)
-      .then(() => this.localDbService.setSigChainData(snapshot, teamId))
-    this.persistenceQueues.set(teamId, persistence)
-    try {
-      await persistence
-    } finally {
-      if (this.persistenceQueues.get(teamId) === persistence) {
-        this.persistenceQueues.delete(teamId)
-      }
-    }
+    const state = this.stateFor(teamId)
+    await this.track(
+      state,
+      this.enqueue(state, async () => this.localDbService.setSigChainData(snapshot, teamId))
+    )
   }
 
   private async _ensureDb(): Promise<void> {

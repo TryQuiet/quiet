@@ -59,6 +59,7 @@ describe('Libp2pAuth buffered connections', () => {
     }) as unknown as QSSService
     redialPeers = jest.fn<() => Promise<void>>().mockResolvedValue()
     libp2pEvents = Object.assign(new EventEmitter(), {
+      hasAdmissionHandler: true,
       completeAdmission: jest.fn(async (candidate: AdmissionCandidate) => ({
         teamId: candidate.teamId,
         userId: candidate.userId,
@@ -231,6 +232,7 @@ describe('Libp2pAuth buffered connections', () => {
       expect(auth['authConnections'].has(admittingPeer.toString())).toBe(false)
       expect(auth['failedAdmissionPeers'].has(admittingPeer.toString())).toBe(true)
       expect(redialPeers).toHaveBeenCalledTimes(1)
+      expect(pendingChain.team).toBeNull()
     })
   })
 

@@ -19,6 +19,7 @@ import { libp2pInstanceParams } from '../../common/utils'
 import { TestConfig } from '../../const'
 import { LogEntry } from '@orbitdb/core'
 import { EncryptedAndSignedPayload } from '../../auth/services/crypto/types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const logger = createLogger('notificationTokensStore:test')
 
@@ -156,7 +157,7 @@ describe('NotificationTokensStore/validateEntry', () => {
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     const entry = {
       hash: 'fakehash',
-      payload: { key: bobUserId, op: 'PUT', value: encPayload },
+      payload: { key: bobUserId, op: OrbitDbOp.PUT, value: encPayload },
     } as unknown as LogEntry<EncryptedAndSignedPayload>
 
     const result = await store.validateEntry(entry)
@@ -178,7 +179,7 @@ describe('NotificationTokensStore/validateEntry', () => {
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     const entry = {
       hash: 'fakehash',
-      payload: { key: aliceUserId, op: 'PUT', value: encPayload },
+      payload: { key: aliceUserId, op: OrbitDbOp.PUT, value: encPayload },
     } as unknown as LogEntry<EncryptedAndSignedPayload>
 
     const result = await store.validateEntry(entry)
@@ -203,7 +204,7 @@ describe('NotificationTokensStore/validateEntry', () => {
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     const entry = {
       hash: 'fakehash',
-      payload: { key: aliceUserId, op: 'PUT', value: encPayload },
+      payload: { key: aliceUserId, op: OrbitDbOp.PUT, value: encPayload },
     } as unknown as LogEntry<EncryptedAndSignedPayload>
 
     const result = await store.validateEntry(entry)
@@ -224,7 +225,7 @@ describe('NotificationTokensStore/validateEntry', () => {
     jest.spyOn(store, 'decryptEntry').mockRejectedValue(new Error('decryption failed'))
     const entry = {
       hash: 'fakehash',
-      payload: { key: aliceUserId, op: 'PUT', value: encPayload },
+      payload: { key: aliceUserId, op: OrbitDbOp.PUT, value: encPayload },
     } as unknown as LogEntry<EncryptedAndSignedPayload>
 
     const result = await store.validateEntry(entry)

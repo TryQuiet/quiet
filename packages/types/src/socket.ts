@@ -20,6 +20,7 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   type SetChannelPermissionsPayload,
+  type MobileChannelMetadataUpdatedPayload,
 } from './channel'
 import {
   DownloadStatus,
@@ -140,6 +141,7 @@ export enum SocketEvents {
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CHANNELS_STORED = 'channelsStored',
   CHANNEL_PERMISSIONS_UPDATED = 'channelPermissionsUpdated',
+  MOBILE_CHANNEL_METADATA_UPDATED = 'mobileChannelMetadataUpdated',
 
   // ====== Messages ======
   MESSAGE_IDS_STORED = 'messageIdsStored',
@@ -265,6 +267,7 @@ export interface SocketEventsMap {
   [SocketEvents.CHANNEL_SUBSCRIBED]: EmitEvent<ChannelSubscribedPayload>
   [SocketEvents.CHANNELS_STORED]: EmitEvent<ChannelsReplicatedPayload>
   [SocketEvents.CHANNEL_PERMISSIONS_UPDATED]: EmitEvent<SetChannelPermissionsPayload>
+  [SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED]: EmitEvent<MobileChannelMetadataUpdatedPayload>
 
   // ====== Messages ======
   [SocketEvents.MESSAGE_IDS_STORED]: EmitEvent<ChannelMessageIdsResponse>

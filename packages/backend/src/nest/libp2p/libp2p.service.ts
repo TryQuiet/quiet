@@ -163,6 +163,10 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     return super.emit(event, ...args)
   }
 
+  public get hasAdmissionHandler(): boolean {
+    return this.admissionAttempt != null || this.admissionFinalizer != null
+  }
+
   public beginAdmission(finalize: AdmissionFinalizer): Promise<AdmissionResult> {
     if (this.admissionAttempt != null) {
       return this.admissionAttempt.promise
@@ -353,16 +357,20 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   }
 
   private async resumeDialQueueWhenTorReady(onReady?: () => Promise<void>): Promise<boolean> {
+    const canResume = () => [Libp2pState.Starting, Libp2pState.Started].includes(this.state)
     const resumeDialing = async () => {
+      if (!canResume()) return false
       if (onReady) {
         await onReady()
       }
+      if (!canResume()) return false
       this.resumeDialQueue()
+      return true
     }
 
+    if (!canResume()) return false
     if (this.torBootstrap == null || this.torBootstrap.bootstrapped) {
-      await resumeDialing()
-      return true
+      return await resumeDialing()
     }
 
     if (this.waitingForTorBootstrapToResumeDialQueue) {
@@ -380,8 +388,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       }
 
       void resumeDialing()
-        .then(() => {
-          if (this.state === Libp2pState.Starting) {
+        .then(resumed => {
+          if (resumed && this.state === Libp2pState.Starting) {
             this.setState(Libp2pState.Started)
           }
         })
@@ -395,12 +403,12 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public pause = async (): Promise<boolean> => {
     this.logger.debug('Pausing libp2p')
-    if (this.libp2pInstance == null) {
-      this.logger.warn('Libp2p not initialized, cannot pause')
-      return false
-    }
     this.setState(Libp2pState.Paused)
     this.pauseDialQueue()
+    if (this.libp2pInstance == null) {
+      this.logger.debug('Libp2p not initialized; retaining paused state')
+      return false
+    }
     const peerInfo = this.getCurrentPeerInfo()
     await this.hangUpPeers()
     this.dialedPeers.clear()
@@ -411,11 +419,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public resume = async (peersToDial?: string[]): Promise<boolean> => {
     this.logger.debug('Resuming libp2p')
+    this.setState(Libp2pState.Starting)
     if (this.libp2pInstance == null) {
-      this.logger.warn('Libp2p not initialized, cannot resume')
+      this.logger.debug('Libp2p not initialized; retaining resume request')
       return false
     }
-    this.setState(Libp2pState.Starting)
     // await this.libp2pInstance?.start()
     const resumed = await this.resumeDialQueueWhenTorReady(async () => {
       if (peersToDial && peersToDial.length > 0) {
@@ -423,7 +431,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         await this.redialPeers(peersToDial)
       }
     })
-    if (resumed) {
+    if (resumed && this.state === Libp2pState.Starting) {
       this.setState(Libp2pState.Started)
     }
     return true
@@ -517,6 +525,12 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       this.logger.warn(`Found an existing instance of libp2p, returning...`)
       return this.libp2pInstance
     }
+
+    if (this.state === Libp2pState.Stopping) {
+      throw new Error('Cannot create libp2p while it is stopping')
+    }
+    // Record startup before its first await so completion preserves later lifecycle requests.
+    if (this.state !== Libp2pState.Paused) this.setState(Libp2pState.Starting)
 
     this.logger.debug(`Creating or opening existing level datastore for libp2p`)
     this.libp2pDatastore = new Libp2pDatastore({
@@ -795,13 +809,18 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       this.serverIoProvider.io.emit(SocketEvents.PEER_DISCONNECTED, peerStat)
     })
 
+    if ([Libp2pState.Stopping, Libp2pState.Stopped].includes(this.state)) return
     this.logger.debug(`Starting libp2p`)
-    this.setState(Libp2pState.Starting)
     await this.libp2pInstance.start()
-    this.setState(Libp2pState.Started)
-    this.logger.debug('Queueing peers for initial dialing')
-    await this.resumeDialQueueWhenTorReady()
+    if (this.state === Libp2pState.Paused) {
+      await this.pause()
+    } else if (this.state === Libp2pState.Starting) {
+      this.setState(Libp2pState.Started)
+      this.logger.debug('Queueing peers for initial dialing')
+      await this.resumeDialQueueWhenTorReady()
+    }
 
+    if ([Libp2pState.Stopping, Libp2pState.Stopped].includes(this.state)) return
     this._connectedPeersInterval = setInterval(async () => {
       const connections: Libp2pConnectedPeer[] = []
       for (const [peerId, peer] of this.connectedPeers.entries()) {

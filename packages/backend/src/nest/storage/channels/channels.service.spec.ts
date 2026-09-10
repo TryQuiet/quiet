@@ -45,12 +45,12 @@ import { SigChain } from '../../auth/sigchain'
 import { RoleName } from '../../auth/services/roles/roles'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { InviteService } from '../../auth/services/invites/invite.service'
-import { UserService } from '../../auth/services/members/user.service'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { SigchainEvents } from '../../auth/types'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const logger = createLogger('channelsService:test')
 
@@ -119,6 +119,7 @@ describe('ChannelsService', () => {
 
     channel = await factory.build<PublicChannel>('PublicChannel', {
       owner: aliceUserId,
+      teamId: sigChainService.team.id,
     })
 
     message = await factory.build('ChannelMessage', {
@@ -130,17 +131,10 @@ describe('ChannelsService', () => {
   const createNonAdminMemberChain = (username: string): SigChain => {
     const adminChain = sigChainService.getActiveChain()
     const invite = adminChain.invites.createUserInvite()
-    const salt = `${username}-metadata-validation-salt`
 
-    adminChain.lockbox.createInviteLockboxes(invite.seed, salt, RoleName.MEMBER)
-
-    const invitedChain = SigChain.createFromInvite({ seed: invite.seed })
-    adminChain.invites.admitMemberFromInvite(
-      InviteService.generateProof(invite.seed),
-      invitedChain.user.userName,
-      invitedChain.user.userId,
-      UserService.redactUser(invitedChain.user).keys
-    )
+    const invitedChain = SigChain.createFromInvite({ seed: invite.seed }, adminChain.team!.id)
+    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: invitedChain.localUserContext })
+    adminChain.invites.admitMemberFromInvite(admission)
 
     const joinedChain = SigChain.joinForTesting(
       {
@@ -150,8 +144,6 @@ describe('ChannelsService', () => {
       adminChain.save(),
       adminChain.team!.teamKeyring()
     )
-    joinedChain.roles.addSelf(RoleName.MEMBER, invite.seed, salt)
-
     expect(joinedChain.roles.amIAdmin()).toBe(false)
     expect(joinedChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
 
@@ -169,8 +161,9 @@ describe('ChannelsService', () => {
       id: storeId,
       hash,
       identity,
+      key: 'writer-public-key',
       payload: {
-        op: 'PUT',
+        op: OrbitDbOp.PUT,
         key,
         value,
       },
@@ -186,17 +179,20 @@ describe('ChannelsService', () => {
       id: storeId,
       hash,
       identity,
+      key: 'writer-public-key',
       payload: {
-        op: 'DEL',
+        op: OrbitDbOp.DEL,
         key,
       },
     }) as unknown as LogEntry<EncryptedAndSignedPayload>
 
-  const mockChannelEntryIdentity = (userId: string): (() => void) => {
+  const mockChannelEntryIdentity = (userId: string, publicKey: string): (() => void) => {
     const identities = orbitDbService.identities
     expect(identities).toBeDefined()
     const teamId = sigChainService.getActiveChain().team!.id
-    const getIdentitySpy = jest.spyOn(identities!, 'getIdentity').mockResolvedValue({ id: userId, teamId } as any)
+    const getIdentitySpy = jest
+      .spyOn(identities!, 'getIdentity')
+      .mockResolvedValue({ id: userId, teamId, publicKey } as any)
     const verifyIdentitySpy = jest.spyOn(identities!, 'verifyIdentity').mockResolvedValue(true)
     const entryVerifySpy = jest.spyOn(Entry, 'verify').mockResolvedValue(true)
 
@@ -211,9 +207,10 @@ describe('ChannelsService', () => {
     entry: LogEntry<EncryptedAndSignedPayload>,
     writerUserId: string,
     expected: boolean,
-    validator: 'public' | 'private' = 'public'
+    validator: 'public' | 'private' = 'public',
+    identityPublicKey: string = entry.key
   ): Promise<void> => {
-    const restoreIdentityMocks = mockChannelEntryIdentity(writerUserId)
+    const restoreIdentityMocks = mockChannelEntryIdentity(writerUserId, identityPublicKey)
 
     try {
       switch (validator) {
@@ -718,11 +715,11 @@ describe('ChannelsService', () => {
       logger.info('Creating several channels and deleting one')
       const channel1 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
-        teamId: community.teamId!,
+        teamId: sigChainService.team.id,
       })
       const channel2 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
-        teamId: community.teamId!,
+        teamId: sigChainService.team.id,
       })
 
       await channelsService.subscribeToChannel(channel1)
@@ -863,7 +860,7 @@ describe('ChannelsService', () => {
       }
       const metadataEntries = await metadataLog.values()
       const channelPuts = metadataEntries.filter(
-        entry => entry.payload.op === 'PUT' && entry.payload.key === publicChannel.id
+        entry => entry.payload.op === OrbitDbOp.PUT && entry.payload.key === publicChannel.id
       )
       expect(channelPuts).toHaveLength(1)
       await expect(channelsService.getChannel(publicChannel.id)).resolves.toEqual(publicChannel)
@@ -967,6 +964,16 @@ describe('ChannelsService', () => {
       const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
 
       await expectChannelEntryValidation(channelPutEntry(publicChannel.id, encryptedEntry), aliceUserId, true)
+    })
+
+    it('rejects channel metadata signed by a key other than the claimed writer identity key', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const entry = channelPutEntry(publicChannel.id, channelsService.encryptChannelEntry(publicChannel))
+
+      await expectChannelEntryValidation(entry, aliceUserId, false, 'public', 'different-public-key')
     })
 
     it('rejects public channel metadata when owner does not match the encrypted signature author', async () => {
@@ -1226,8 +1233,34 @@ describe('ChannelsService', () => {
       )
     })
 
-    it('accepts channel metadata deletion from a sigchain admin', async () => {
-      await expectChannelEntryValidation(channelDelEntry('channel-id-to-delete'), aliceUserId, true)
+    it('accepts public channel metadata deletion from a sigchain admin', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+        public: true,
+      })
+      await channelsService.setChannel(publicChannel)
+      await expectChannelEntryValidation(channelDelEntry(publicChannel.id), aliceUserId, true, 'public')
+    })
+
+    it('accepts public channel metadata deletion from a sigchain admin even if no channel is found', async () => {
+      await expectChannelEntryValidation(channelDelEntry('this-is-a-random-channel-id'), aliceUserId, true, 'public')
+    })
+
+    it('accepts private channel metadata deletion from a sigchain admin with found channel', async () => {
+      const channelRoleName = sigChainService.activeChain.channels.create()
+      const privateChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+        public: false,
+        roleName: channelRoleName,
+      })
+      await channelsService.setChannel(privateChannel)
+      await expectChannelEntryValidation(channelDelEntry(privateChannel.id), aliceUserId, true, 'private')
+    })
+
+    it('rejects private channel metadata deletion from a sigchain admin when no channel is found', async () => {
+      await expectChannelEntryValidation(channelDelEntry('this-is-a-random-channel-id'), aliceUserId, false, 'private')
     })
 
     it('rejects channel metadata deletion from a non-admin member', async () => {

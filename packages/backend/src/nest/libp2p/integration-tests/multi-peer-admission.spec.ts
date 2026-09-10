@@ -89,8 +89,10 @@ type AdmissionGraphLink = {
   body: {
     type: string
     payload?: {
-      memberKeys?: { name: string }
-      device?: { deviceId: string }
+      claim?: {
+        memberKeys?: { name: string }
+        device?: { deviceId: string }
+      }
     }
   }
 }
@@ -187,8 +189,8 @@ const matchingAdmissionLinks = (peer: TestPeer, actionType: 'ADMIT_MEMBER' | 'AD
   return links.filter(link => {
     if (link.body.type !== actionType) return false
     return actionType === 'ADMIT_MEMBER'
-      ? link.body.payload?.memberKeys?.name === admittedId
-      : link.body.payload?.device?.deviceId === admittedId
+      ? link.body.payload?.claim?.memberKeys?.name === admittedId
+      : link.body.payload?.claim?.device?.deviceId === admittedId
   })
 }
 

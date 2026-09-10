@@ -333,6 +333,7 @@ describe('LocalDbService', () => {
     const dummySigChain = {
       ...localUserContext,
       context: localUserContext,
+      localUserContext,
       save: () => Uint8Array.from([1, 2, 3]),
       team: {
         save: () => Uint8Array.from([4, 5, 6]),

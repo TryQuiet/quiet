@@ -106,6 +106,14 @@ class SigChain extends EventEmitter {
     return 'user' in this.context ? this.context.user.userName : this.context.userName
   }
 
+  /** The user and device halves of the context, as storage wants them. */
+  get localUserContext(): auth.LocalUserContext {
+    if (!('user' in this.context)) {
+      throw new Error('Cannot store a pending device invitation context')
+    }
+    return { user: this.context.user, device: this.context.device }
+  }
+
   get device(): auth.DeviceWithSecrets | auth.FirstUseDeviceWithSecrets {
     return this.context.device
   }
@@ -140,8 +148,10 @@ class SigChain extends EventEmitter {
     } as auth.MemberContext
     const sigChain = new SigChain(adminContext)
 
-    // Initialize member role (your own user is added by default to the role)
+    // Role creation no longer grants membership implicitly, so initialize the
+    // member role and explicitly add the founding user.
     sigChain.roles.create(RoleName.MEMBER)
+    sigChain.roles.addMember(sigChain.user.userId, RoleName.MEMBER)
 
     return sigChain
   }
@@ -187,13 +197,14 @@ class SigChain extends EventEmitter {
    * @param input Create user input with invite seed
    * @returns LoadedSigChain instance with the given user context
    */
-  public static createFromInvite(input: CreateUserFromInviteSeedInput): SigChain {
+  public static createFromInvite(input: CreateUserFromInviteSeedInput, expectedTeamId: auth.Base58): SigChain {
     const { seed } = input
     const prospectiveUser = UserService.createFromInviteSeed(input)
     const context = {
-      user: prospectiveUser.context.user,
-      device: prospectiveUser.context.device,
+      user: prospectiveUser.user,
+      device: prospectiveUser.device,
       invitationSeed: seed,
+      expectedTeamId,
     } as auth.InviteeMemberContext
     return new SigChain(context)
   }
@@ -203,6 +214,7 @@ class SigChain extends EventEmitter {
     const context = {
       device: DeviceService.generateFirstUseDevice(deviceName),
       invitationSeed: seed,
+      expectedTeamId: expectedTeamId as auth.Base58,
       userName,
     } satisfies auth.InviteeDeviceContext
     return new SigChain(context, { teamId: expectedTeamId, userId: expectedUserId })
@@ -233,7 +245,9 @@ class SigChain extends EventEmitter {
         team,
         user,
       }
-      this._pendingDeviceAdmission = undefined
+      // Keep the expected IDs after completion. A caller may need to restore
+      // the original invitee-device context when a later persistence step
+      // fails; retaining these values lets the same SigChain validate a retry.
       return
     }
 

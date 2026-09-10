@@ -666,22 +666,44 @@ export class ChannelContextMenu {
     )
   }
 
+  /**
+   * Waits until an element matching `locator` is present and displayed, re-locating it on every poll.
+   *
+   * The context menu re-renders whenever channel/permission state changes (e.g. right after a
+   * membership update), which discards the DOM node behind any previously located WebElement handle.
+   * Holding a handle across separate `elementLocated` and `elementIsVisible` calls therefore fails
+   * with a stale element reference. Re-locating on each poll treats a stale or missing element as
+   * "not there yet" and keeps waiting until the timeout instead of failing on the first re-render.
+   */
+  private async waitForVisibleElement(locator: By, reason: string, timeoutMs = 15_000): Promise<WebElement> {
+    // `driver.wait` only resolves once the condition returns a truthy value, so the result is never null.
+    return (await this.driver.wait(
+      async () => {
+        try {
+          const element = await this.driver.findElement(locator)
+          return (await element.isDisplayed()) ? element : null
+        } catch (e) {
+          const message = e instanceof Error ? e.message : String(e)
+          if (message.includes('stale element reference') || message.includes('no such element')) {
+            return null
+          }
+          throw e
+        }
+      },
+      timeoutMs,
+      reason,
+      500
+    )) as WebElement
+  }
+
   async openMenu(
     expectChannelTypeIcon = true
   ): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean | undefined }> {
     let menu: WebElement
     try {
-      menu = await this.driver.wait(
-        until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
-        15_000,
-        `Channel context menu couldn't be located within timeout`,
-        500
-      )
-      await this.driver.wait(
-        until.elementIsVisible(menu),
-        15_000,
-        `Channel context menu was not visibile within timeout`,
-        500
+      menu = await this.waitForVisibleElement(
+        By.xpath('//div[@data-testid="channelContextMenuButton"]'),
+        `Channel context menu button was not visible within timeout`
       )
     } catch (e) {
       logger.error('Error while checking for channel context menu button', e)
@@ -702,17 +724,9 @@ export class ChannelContextMenu {
     }
     if (expectChannelTypeIcon) {
       try {
-        const channelTypeIcon = this.driver.wait(
-          until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
-          15_000,
-          `Channel context menu lock/hash icon couldn't be located within timeout`,
-          500
-        )
-        await this.driver.wait(
-          until.elementIsVisible(channelTypeIcon),
-          15_000,
-          `Channel context menu lock/hash icon was not visibile within timeout`,
-          500
+        await this.waitForVisibleElement(
+          By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`),
+          `Channel context menu lock/hash icon was not visible within timeout`
         )
         return {
           menuButton: true,

@@ -11,6 +11,7 @@ import {
   MessageType,
   type PublicChannel,
   MessagesLoadedPayload,
+  type ConsumedChannelMessage,
   UserProfile,
   User,
 } from '@quiet/types'
@@ -115,28 +116,66 @@ describe('verifyMessage saga test', () => {
       .run()
   })
 
-  it('verify standard message - fail', async () => {
-    logger.info('verify standard message')
+  it('does not promote a known-author message rejected by backend signature verification', async () => {
     const action = await factory.build('AddMessages', {
       messages: [
         await baseTypes.build('ChannelMessage', {
-          userId: 'unknownUser',
+          userId: owner.userId,
           channelId: generalChannel.id,
           type: MessageType.Basic,
+          verified: false,
         }),
       ],
-      isVerified: false,
+      // A blanket batch assertion must not override the per-message rejection.
+      isVerified: true,
+      isLocal: false,
     })
+    const message = action.payload.messages[0]
 
     await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
-      .put(
+      .not.select(userProfileSelectors.getUserProfileById(message.userId))
+      .not.put(
         messagesActions.addMessageVerificationStatus({
-          id: action.payload.messages[0].id,
-          isVerified: false,
+          id: message.id,
+          isVerified: true,
         })
       )
+      .run()
+  })
+
+  it.each([
+    ['an explicit rejection', false],
+    ['no preserved verdict', undefined],
+  ])('does not promote a known-author retry carrying %s', async (_label, verified) => {
+    const message = (await baseTypes.build('ChannelMessage', {
+      userId: owner.userId,
+      channelId: generalChannel.id,
+      type: MessageType.Basic,
+      ...(verified === undefined ? {} : { verified }),
+    })) as ConsumedChannelMessage
+
+    await expectSaga(verifyMessagesSaga, messagesActions.verifyMessages({ messages: [message], isVerified: false }))
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .not.select(userProfileSelectors.getUserProfileById(message.userId))
+      .not.put(messagesActions.addMessageVerificationStatus({ id: message.id, isVerified: true }))
+      .run()
+  })
+
+  it('still allows semantic retry when the valid backend verdict was preserved', async () => {
+    const message = (await baseTypes.build('ChannelMessage', {
+      userId: owner.userId,
+      channelId: generalChannel.id,
+      type: MessageType.Basic,
+      verified: true,
+    })) as ConsumedChannelMessage
+
+    await expectSaga(verifyMessagesSaga, messagesActions.verifyMessages({ messages: [message], isVerified: false }))
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .put(messagesActions.addMessageVerificationStatus({ id: message.id, isVerified: true }))
       .run()
   })
 
