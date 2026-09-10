@@ -46,4 +46,4 @@ jobs:
           token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: 'Dependency Review'
-        uses: actions/dependency-review-action@6c5ccdad469c9f8a2996bfecaec55a631a347034 # v3.1.0
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
