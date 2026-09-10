@@ -144,7 +144,7 @@ const ChannelContent = () => {
           [arg.id]: {
             ext: arg.ext,
             name: arg.name,
-            path: webUtils.getPathForFile(arg),
+            path: arg.path,
           },
         }
 

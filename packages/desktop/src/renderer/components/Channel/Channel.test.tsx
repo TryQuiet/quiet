@@ -24,7 +24,12 @@ jest.mock('electron', () => ({
       mockListeners.get(event)?.delete(listener)
     },
   },
-  webUtils: { getPathForFile: (file: { path: string }) => file.path },
+  webUtils: {
+    getPathForFile: (file: File & { path?: string }) => {
+      if (!(file instanceof File)) throw new TypeError('Expected a File object')
+      return file.path ?? ''
+    },
+  },
 }))
 jest.mock('../../containers/hooks', () => ({ useModal: () => ({}) }))
 jest.mock('../../../hooks/useContextMenu', () => ({ useContextMenu: () => ({}) }))
@@ -32,7 +37,15 @@ jest.mock('./ChannelComponent', () => ({
   __esModule: true,
   default: ({ onInputEnter, handleFileDrop, openFilesDialog, handleClipboardFiles }: ChannelComponentProps) => (
     <>
-      <button onClick={() => handleFileDrop({ files: [{ path: '/file.txt' }] })}>Attach</button>
+      <button
+        onClick={() => {
+          // Stand in for a native dropped File whose disk path is supplied by Electron.
+          const file = Object.assign(new File([], 'file.txt'), { path: '/file.txt' })
+          handleFileDrop({ files: [file] })
+        }}
+      >
+        Attach
+      </button>
       <button onClick={() => onInputEnter('message')}>Send</button>
       <button onClick={openFilesDialog}>Dialog</button>
       <button onClick={() => handleClipboardFiles(new ArrayBuffer(1), '.png', 'clipboard')}>Paste</button>
