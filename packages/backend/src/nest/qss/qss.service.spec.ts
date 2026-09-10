@@ -346,7 +346,8 @@ describe('QSSService', () => {
 
     it('surfaces a terminal auth error without marking readiness when no invite grant is available', async () => {
       const teamId = sigchainService.activeChain.team!.id
-      sigchainService.activeChain.roles.revokeMembership(sigchainService.activeChain.user.userId, RoleName.MEMBER)
+      // Model admission before the invitation's MEMBER grant is claimed; removal is disabled.
+      jest.spyOn(sigchainService.activeChain.roles, 'amIMemberOfRole').mockReturnValue(false)
       const saveSpy = jest.spyOn(sigchainService, 'saveChain')
       const stopSpy = jest.spyOn(qssAuthConnManager, 'stopConnection')
       const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
