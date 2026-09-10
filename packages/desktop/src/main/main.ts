@@ -1,4 +1,5 @@
-import './loadMainEnvs' // Needs to be at the top of imports
+import './appImageEnvironment' // Clean host-child environment before other imports can spawn processes.
+import './loadMainEnvs'
 import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog } from 'electron'
 import fs from 'fs'
 import path from 'path'
@@ -12,6 +13,7 @@ import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '@quiet/common'
 import { type BackendLeaveCommunityMessage } from '@quiet/types'
 import { updateDesktopFile, processInvitationCode } from './invitation'
+import { registerExternalLinkHandler } from './externalLinks'
 const ElectronStore = require('electron-store')
 const contextMenu = require('electron-context-menu')
 import sodium from 'libsodium-wrappers-sumo'
@@ -20,6 +22,7 @@ const remote = require('@electron/remote/main')
 remote.initialize()
 
 const logger = createLogger('main')
+registerExternalLinkHandler()
 let resetting = false
 let SOCKET_IO_SECRET: string | undefined = undefined
 let updating = false
