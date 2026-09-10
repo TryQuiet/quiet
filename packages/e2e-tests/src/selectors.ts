@@ -1867,7 +1867,11 @@ export class Channel {
   async getAtleastNumUserMessages(username: string, num: number): Promise<WebElement[] | null> {
     return await this.driver.wait(
       async (): Promise<WebElement[] | null> => {
-        const messages = await this.getUserMessages(username)
+        // An empty initial replication is a normal polling result. Nesting
+        // getUserMessages here would reject after its own shorter timeout.
+        const messages = await this.driver.findElements(
+          By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`)
+        )
         return messages.length >= num ? messages : null
       },
       60_000,

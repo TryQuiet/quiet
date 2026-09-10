@@ -251,7 +251,11 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary,
-              args: [`--remote-debugging-port=${this.debugPort}`, '--enable-logging'],
+              args: [
+                `--remote-debugging-port=${this.debugPort}`,
+                '--enable-logging',
+                ...(process.env.E2E_NO_SANDBOX === 'true' ? ['--no-sandbox'] : []),
+              ],
             },
           })
           .forBrowser(Browser.CHROME)
