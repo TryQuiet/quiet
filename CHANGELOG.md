@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.1]
+
+### Chores
+
+* Adds manual update prompt for 9.0.0
+
 ## [8.0.0]
 
 ### Features
