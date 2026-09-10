@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { type ModuleRef } from '@nestjs/core'
+import EventEmitter from 'events'
+import * as uint8arrays from 'uint8arrays'
 import { TestModule } from '../common/test.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSAuthConnection } from './qss-auth-conn'
@@ -12,8 +14,50 @@ import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSS_ALLOWED } from '../const'
-import { QSSEvents } from './qss.types'
+import { AuthSyncMessage, CommunityOperationStatus, QSSEvents, WebsocketEvents } from './qss.types'
 import { QSSAuthConnStatus } from './qss.const'
+
+describe('QSSAuthConnectionManager auth frame ordering', () => {
+  it('preserves the first auth sync frame received before auth connection initialization', async () => {
+    const teamId = 'notification-resume-team'
+    const firstAuthFrame = Uint8Array.from([1, 2, 3, 4])
+    const deliver = jest.fn()
+    const clientSocket = { connected: true, active: true }
+    const qssClient = Object.assign(new EventEmitter(), {
+      getClientSocket: jest.fn(() => clientSocket),
+    }) as unknown as QSSClient
+    const authConnection = {
+      id: 3376,
+      teamId: undefined,
+      active: true,
+      on: jest.fn(),
+      start: jest.fn(async () => {}),
+      stop: jest.fn(),
+      deliver,
+      isForClientSocket: jest.fn(() => true),
+    } as unknown as QSSAuthConnection
+    const moduleRef = {
+      create: jest.fn(async () => authConnection),
+    } as unknown as ModuleRef
+    const manager = new QSSAuthConnectionManager(qssClient, moduleRef)
+
+    // QSS can send this frame before acknowledging SIGN_IN_COMMUNITY. The
+    // client currently initializes its auth connection only after that ack.
+    qssClient.emit(WebsocketEvents.AUTH_SYNC, {
+      ts: Date.now(),
+      status: CommunityOperationStatus.SUCCESS,
+      payload: {
+        userId: 'notification-resume-user',
+        teamId,
+        message: uint8arrays.toString(firstAuthFrame, 'base64'),
+      },
+    } as AuthSyncMessage)
+    await manager.startNewConnection(teamId)
+
+    expect(deliver).toHaveBeenCalledWith(firstAuthFrame)
+    manager.close()
+  })
+})
 
 describe('QSSAuthConnectionManager', () => {
   let module: TestingModule
