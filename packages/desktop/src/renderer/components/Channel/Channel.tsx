@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 
 import { shell, ipcRenderer, webUtils } from 'electron'
+import { openExternal } from '../../openExternal'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
@@ -162,7 +163,7 @@ const Channel = () => {
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    shell.openExternal(url)
+    openExternal(url)
   }, [])
 
   const openContainingFolder = useCallback((path: string) => {

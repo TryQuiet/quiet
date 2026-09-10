@@ -721,6 +721,36 @@ describe('QSSService', () => {
   })
 
   describe('createCommunity', () => {
+    it.each(['serverId', 'identityKeys'] as const)(
+      'identifies a missing %s in a received key response without logging key material',
+      async missingField => {
+        await initCommunity()
+        const payload: Partial<ReturnType<typeof generateQssServerKeys>> = generateQssServerKeys(
+          sigchainService.team.id
+        )
+        delete payload[missingField]
+        mockedSendMessage = jest.spyOn(qssClient, 'sendMessage').mockResolvedValue({
+          ts: Date.now(),
+          status: CommunityOperationStatus.SUCCESS,
+          payload,
+        })
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        await qssService.connect('ws://localhost:3000')
+        mockCaptchaVerification()
+        const logError = jest.spyOn(qssService['logger'], 'error')
+
+        await expect(qssService.createCommunity(sigchainService.activeChain)).resolves.toBe(false)
+        expect(logError).toHaveBeenCalledWith('Failed to generate server keys', {
+          reason: 'Invalid server key response',
+          responseReceived: true,
+          status: CommunityOperationStatus.SUCCESS,
+          teamIdMatches: true,
+          missingFields: [missingField],
+        })
+        expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      }
+    )
+
     it(`creates a community on QSS`, async () => {
       await initCommunity()
       const initStatusOrig = await qssService.getQssInitStatus()
