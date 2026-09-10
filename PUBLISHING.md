@@ -48,7 +48,7 @@
 - [ ] Release branch is created from `develop` branch with the production version number, e.g. `2.1.0`. (Choose version number based on [semantic versioning](https://semver.org/) and our [last release](https://github.com/TryQuiet/quiet/releases).)
 - [ ] Review the base `CHANGELOG.md` file (Package level `CHANGELOG.md` files are automatically updated during the release process) and ensured that it is up to date with all changes included in the release since the last production release and update the version number.
 - [ ] Review the [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) and ensured all issues contained in the release candidate are in the `Ready for QA` column.
-- [ ] Run an AI-assisted security audit of every new feature in the release (e.g. point Claude Code at the diff since the last production release and ask it to look for authorization, validation, and impersonation issues). File each finding as an issue; blocking findings go to the `Sprint` column and must be fixed before the alpha ships.
+- [ ] Run an AI-assisted security audit of every new feature in the release. File each finding as an issue; blocking findings go to the `Sprint` column and must be fixed before the alpha ships.
 
 ## Preparing a Release Candidate (Alpha)
 
