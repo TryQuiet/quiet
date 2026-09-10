@@ -183,9 +183,17 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
    * @param peerAddress Peer address to redial
    */
   public redialPeerAfterDelay = async (peerAddress: string, delayMs?: number): Promise<void> => {
+    const peerId = peerAddress.split('/').pop()!
+    const authenticatedIdentity =
+      this.getAuthenticatedPeerIdentity(peerId) ??
+      (await this.localDbService.getPeerStats(peerId))?.authenticatedIdentity
+    if (authenticatedIdentity && !this.isAuthenticatedPeerAuthorized(authenticatedIdentity)) return
     await this.redialQueue.enqueue({
       key: peerAddress,
       task: async (): Promise<void> => {
+        // Removal can prune the stored peer before this task runs. Keep its
+        // identity with the task so a missing record cannot erase that guard.
+        if (authenticatedIdentity && !this.isAuthenticatedPeerAuthorized(authenticatedIdentity)) return
         await this.dialPeer(peerAddress, { throwOnError: true, redialOnError: false })
       },
       delayMs,
@@ -272,17 +280,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       if (addr === this.localAddress) continue
       if (this.redialQueue.hasTask(addr)) continue
       if (this.connectedPeers.has(peerId)) continue
-      const authenticatedIdentity =
-        this.getAuthenticatedPeerIdentity(peerId) ??
-        (await this.localDbService.getPeerStats(peerId))?.authenticatedIdentity
-      if (authenticatedIdentity && !this.isAuthenticatedPeerAuthorized(authenticatedIdentity)) continue
       const delayMs = this.dialedPeers.has(addr) ? undefined : 0 // dial immediately if this is our first attempt at dialing this address
 
-      await this.redialQueue.enqueue({
-        key: addr,
-        delayMs,
-        task: async () => this.dialPeer(addr, { throwOnError: true, redialOnError: false }),
-      })
+      await this.redialPeerAfterDelay(addr, delayMs)
     }
   }
 
