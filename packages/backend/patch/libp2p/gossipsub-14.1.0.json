@@ -1,0 +1,30 @@
+{
+  "name": "@chainsafe/libp2p-gossipsub",
+  "version": "14.1.0",
+  "files": {
+    "src/index.ts": {
+      "before": "61715d96bc18b101178c77d5db2254963be4fe511c0f36697af61e99c441913b",
+      "after": "e03e1ee1bcc27dec0ba1e9492b5f10c2ca62581b5aae55e963340491d5f98189"
+    },
+    "src/stream.ts": {
+      "before": "4aab28c4bd16b397705467cce237518b886147480bedf08416294ea503e2728e",
+      "after": "2986c6769fd6b1ab12b490af55bf614e69bbd676f6b87ee8b88282ed51358b8a"
+    },
+    "dist/src/index.js": {
+      "before": "2d1093925d5ae327ada8602822f0f559ba89982fa25b635b720d4a107a3c6453",
+      "after": "840acd5e34f54687ef915f305605830c9c301a01cb3e7cd388f91442fbd7544f"
+    },
+    "dist/src/stream.js": {
+      "before": "242361daefaaa4d72bc880673176117355756775941f15c90d00ea447d703141",
+      "after": "ec40a41bd5cd79acfbeabca872f1d118dac586eb5c321279edb64c628dc4c6f2"
+    },
+    "dist/src/index.d.ts": {
+      "before": "778b9fa06a6e1339a6c0c242ac50d003d8308c14520354c6c7ebad9687073a9a",
+      "after": "8cd6807e636c6404bdc394081cbdd4b602476500cf2058451915364556d91516"
+    },
+    "dist/src/stream.d.ts": {
+      "before": "80f785467374612007d19f3d9765e8ac69df18cdb04265b4f0a75270a6844295",
+      "after": "2ba7cf90d5749f6cfd5d3d1b134af4bc88e6ce98155092673eb91ea5b227d3c3"
+    }
+  }
+}
