@@ -4,7 +4,7 @@ import { yamux } from '@chainsafe/libp2p-yamux'
 import { mplex } from '@libp2p/mplex'
 import { FaultTolerance } from '@libp2p/interface-transport'
 import { identify, identifyPush } from '@libp2p/identify'
-import { type Libp2p } from '@libp2p/interface'
+import { type Libp2p, type Connection } from '@libp2p/interface'
 import { kadDHT } from '@libp2p/kad-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { ping } from '@libp2p/ping'
@@ -159,16 +159,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
             innerEvent.payload.message === UNKNOWN_THIS_PEER) ||
           (innerEvent.type === 'LOCAL_ERROR' && innerEvent.payload.type === 'TIMEOUT')
 
-        const remotePeerId = args[0].connection?.remotePeerId?.toString() ?? args[0].connection?.remotePeer?.toString()
-        this.logger.trace('Got this peer ID from this auth connection', remotePeerId)
-        const peerAddress = this.connectedPeers.get(remotePeerId)?.address
-        if (peerAddress) {
-          this.hangUpPeer(peerAddress, redial)
+        const connection: Connection | undefined = args[0].connection
+        if (connection) {
+          void this.hangUpAuthTransport(connection, redial)
         } else {
-          this.logger.warn(
-            `No peer address associated with this peer's connection, can't hang up or redial`,
-            remotePeerId
-          )
+          this.logger.warn('No transport associated with failed auth session')
         }
       } catch (e) {
         this.logger.debug('Error while deciding to redial', e)
@@ -455,6 +450,27 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
     if (redial) {
       await this.redialPeerAfterDelay(peerAddress)
+    }
+  }
+
+  private async hangUpAuthTransport(connection: Connection, redial: boolean) {
+    try {
+      this.authService?.closeTransportAuthConnection(connection)
+      if (connection.status !== 'closed') await connection.close()
+      // An auth failure belongs to one transport. A retired session must not
+      // hang up a replacement, delete its peer store, or enqueue another dial.
+      if (
+        !redial ||
+        !this.libp2pInstance ||
+        [Libp2pState.Stopping, Libp2pState.Stopped].includes(this.state) ||
+        this.libp2pInstance.getConnections(connection.remotePeer).some(candidate => candidate.status === 'open')
+      )
+        return
+      const stats = await this.localDbService.getPeerStats(connection.remotePeer.toString())
+      const address = stats?.address ?? connection.remoteAddr.toString()
+      await this.redialPeerAfterDelay(address)
+    } catch (error) {
+      this.logger.warn('Failed to close auth transport', connection.id, error)
     }
   }
 
