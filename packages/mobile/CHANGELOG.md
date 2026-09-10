@@ -1,25 +1,10 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [8.0.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@8.0.0...@quiet/mobile@8.0.1) (2026-09-10)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
-## [8.0.1-alpha.0](https://github.com/TryQuiet/quiet-private/compare/@quiet/mobile@8.0.0...@quiet/mobile@8.0.1-alpha.0) (2026-09-08)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
+
+## [8.0.1]
+
+### Chores
+
+* Adds manual update prompt for 9.0.0
 
 ## [8.0.0]
 
