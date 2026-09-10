@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@6c5ccdad469c9f8a2996bfecaec55a631a347034 # v3.1.0

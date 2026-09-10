@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           submodules: recursive
-          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -47,7 +47,7 @@ jobs:
 
       - name: 'Init submodules except 3rd-party/qss'
         env:
-          GH_TOKEN: ${{ secrets.SUBMODULE_READ_TOKEN }}
+          GH_TOKEN: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
         run: |
           auth_url="https://x-access-token:${GH_TOKEN}@github.com/"
           git config --global url."${auth_url}".insteadOf "https://github.com/"

@@ -37,7 +37,7 @@ jobs:
         if: steps.filter.outputs.desktop == 'true'
         with:
           submodules: recursive
-          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Setup environment
         uses: ./.github/actions/setup-env

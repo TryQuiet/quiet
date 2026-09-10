@@ -37,7 +37,7 @@ jobs:
         if: steps.filter.outputs.backend == 'true'
         with:
           submodules: recursive
-          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: "Setup environment"
         if: steps.filter.outputs.backend == 'true'
@@ -77,7 +77,7 @@ jobs:
         if: steps.filter.outputs.backend == 'true'
         with:
           submodules: recursive
-          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: "Setup environment"
         if: steps.filter.outputs.backend == 'true'
@@ -117,7 +117,7 @@ jobs:
         if: steps.filter.outputs.backend == 'true'
         with:
           submodules: recursive
-          token: ${{ secrets.SUBMODULE_READ_TOKEN }}
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: "Setup environment"
         if: steps.filter.outputs.backend == 'true'
