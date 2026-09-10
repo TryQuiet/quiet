@@ -13,6 +13,7 @@
 - (void) startEngineWithArguments:(NSArray*)arguments :(NSString*)builtinModulesPath;
 - (void) setCurrentRNNodeJsMobile:(RNNodeJsMobile*)module;
 - (void) sendMessageToNode:(NSString*)channelName :(NSString*)message;
+- (void) requestSocketRecovery;
 - (void) sendMessageBackToReact:(NSString*)channelName :(NSString*)message;
 @property(assign, nonatomic, readwrite) bool startedNodeAlready;
 @property(nonatomic, readonly) QuietBackgroundTask *backgroundTask;

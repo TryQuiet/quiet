@@ -33,7 +33,7 @@ import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { createLogger } from '../common/logger'
-import type net from 'node:net'
+import net from 'node:net'
 import { Base58 } from '@localfirst/auth'
 
 /**
@@ -48,6 +48,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   public resolveReadyness: (value: void | PromiseLike<void>) => void
   public readyness: Promise<void>
   private sockets: Set<net.Socket>
+  private recoveryInFlight?: Promise<void>
+  private closing = false
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -267,11 +269,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   }
 
   public getConnections = (): Promise<number> => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       this.serverIoProvider.server.getConnections((err, count) => {
         if (err) {
           this.logger.error(`Error occurred while getting connection`, err)
-          throw new Error(`Error occurred while getting connection: ${err.message}`)
+          reject(new Error(`Error occurred while getting connection: ${err.message}`))
+          return
         }
         resolve(count)
       })
@@ -305,15 +308,76 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       return
     }
 
-    return new Promise(resolve => {
-      this.serverIoProvider.server.listen(this.configOptions.socketIOPort, '127.0.0.1', () => {
+    return new Promise((resolve, reject) => {
+      const server = this.serverIoProvider.server
+      const onError = (error: Error) => {
+        server.off('listening', onListening)
+        reject(error)
+      }
+      const onListening = () => {
+        server.off('error', onError)
         this.logger.info(`Data server running on port ${this.configOptions.socketIOPort}`)
         resolve()
+      }
+      server.once('error', onError)
+      server.once('listening', onListening)
+      try {
+        server.listen(this.configOptions.socketIOPort, '127.0.0.1')
+      } catch (error) {
+        server.off('error', onError)
+        onError(error as Error)
+      }
+    })
+  }
+
+  /** Repair the local listener without closing Socket.IO or any community state. */
+  public recoverLocalConnection(): Promise<void> {
+    if (this.closing) return Promise.resolve()
+    if (this.recoveryInFlight) return this.recoveryInFlight
+    const recovery = this.recoverListener()
+    this.recoveryInFlight = recovery
+    void recovery
+      .finally(() => {
+        if (this.recoveryInFlight === recovery) this.recoveryInFlight = undefined
       })
+      .catch(() => undefined)
+    return recovery
+  }
+
+  private async recoverListener(): Promise<void> {
+    if (this.serverIoProvider.server.listening && (await this.probeListener())) return
+    if (this.closing) return
+    this.logger.warn('Reopening unreachable local frontend listener')
+
+    // Do not call io.close(): it removes Engine.IO's request/upgrade handlers.
+    // Close only the underlying transports so the existing authenticated server
+    // and its event handlers continue accepting connections after listen().
+    const closed = new Promise<void>((resolve, reject) => {
+      this.serverIoProvider.server.close((error?: Error & { code?: string }) => {
+        if (error && error.code !== 'ERR_SERVER_NOT_RUNNING') reject(error)
+        else resolve()
+      })
+    })
+    this.sockets.forEach(socket => socket.destroy())
+    await closed
+    if (!this.closing) await this.listen()
+  }
+
+  private probeListener(): Promise<boolean> {
+    return new Promise(resolve => {
+      const probe = net.createConnection({ host: '127.0.0.1', port: this.configOptions.socketIOPort })
+      const finish = (healthy: boolean) => {
+        probe.destroy()
+        resolve(healthy)
+      }
+      probe.once('connect', () => finish(true))
+      probe.once('error', () => finish(false))
+      probe.setTimeout(1000, () => finish(false))
     })
   }
 
   public close = (): Promise<void> => {
+    this.closing = true
     return new Promise(resolve => {
       this.logger.info(`Closing data server on port ${this.configOptions.socketIOPort}`)
 

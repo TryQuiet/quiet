@@ -13,6 +13,7 @@ import {
   takeEvery,
   FixedTask,
   apply,
+  delay,
 } from 'typed-redux-saga'
 import type { Task } from 'redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -37,6 +38,12 @@ import { channelMetadataActions } from '../../channelMetadata/channelMetadata.sl
 import { ActiveWebsocketConnection } from '../init.types'
 
 const logger = createLogger('startConnection')
+
+// This request uses the native bridge, which remains available when localhost
+// networking is broken. Native also reannounces the current port and secret.
+export const RECOVER_WEBSOCKET_CHANNEL = '_RECOVER_WEBSOCKET_'
+const RECOVERY_ATTEMPTS = 3
+const RECOVERY_INTERVAL_MS = 4000
 
 let activeWebsocketConnection: ActiveWebsocketConnection | undefined
 
@@ -103,6 +110,7 @@ export function* startConnectionSaga(
 
   logger.info('Connecting to backend')
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
+    forceNew: true,
     autoConnect: false,
     withCredentials: true,
     extraHeaders: {
@@ -131,7 +139,19 @@ export function* startConnectionSaga(
 }
 
 export function* resumeWebsocketConnectionSaga(): Generator {
-  yield* call(reconcileWebsocketConnection, activeWebsocketConnection)
+  for (let attempt = 0; attempt < RECOVERY_ATTEMPTS; attempt++) {
+    try {
+      yield* call(reconcileWebsocketConnection, activeWebsocketConnection)
+    } catch (error) {
+      // A temporarily unavailable native bridge must not cancel the app's root
+      // saga and the deep-link retry UI along with it.
+      logger.warn('Could not request local connection recovery', error)
+    }
+    if (activeWebsocketConnection?.socket.connected) return
+    yield* delay(RECOVERY_INTERVAL_MS)
+    if (activeWebsocketConnection?.socket.connected) return
+  }
+  logger.warn('Local connection recovery did not complete; another retry can be requested')
 }
 
 export function* reconcileWebsocketConnection(connection?: ActiveWebsocketConnection): Generator {
@@ -142,6 +162,7 @@ export function* reconcileWebsocketConnection(connection?: ActiveWebsocketConnec
       yield* put(initActions.suspendWebsocketConnection())
     }
     yield* call(NativeModules.CommunicationModule.handleIncomingEvents, APP_READY_CHANNEL, null, null)
+    yield* call(NativeModules.CommunicationModule.handleIncomingEvents, RECOVER_WEBSOCKET_CHANNEL, null, null)
     return
   }
 
@@ -158,9 +179,20 @@ export function* reconcileWebsocketConnection(connection?: ActiveWebsocketConnec
     yield* put(initActions.suspendWebsocketConnection())
   }
 
-  if (!socket.active) {
-    yield* apply(socket, socket.connect, [])
-  }
+  const wasActiveConnection = activeWebsocketConnection === connection
+  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, RECOVER_WEBSOCKET_CHANNEL, null, null)
+  // Native replies can dispatch while this effect is executing. Let the
+  // connection watcher consume those queued announcements before using socket.
+  yield* delay(0)
+  // A native reply can replace the backend while the bridge call is in flight.
+  // Never reconnect that obsolete socket or disturb a newly healthy one.
+  if (wasActiveConnection && activeWebsocketConnection !== connection) return
+  if (socket.connected) return
+
+  // An active automatic retry loop can retain a broken native HTTP transport.
+  // Recreate its Engine.IO session even when socket.active is still true.
+  yield* apply(socket, socket.disconnect, [])
+  yield* apply(socket, socket.connect, [])
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
