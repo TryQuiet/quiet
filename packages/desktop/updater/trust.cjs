@@ -11,8 +11,18 @@ function publisherNames(value) {
 }
 
 function subjectsEqual(a, b) {
-  const left = parseDn(a)
-  const right = parseDn(b)
+  // Windows renders the stateOrProvinceName OID as S; OpenSSL uses ST.
+  const normalize = subject => {
+    const result = parseDn(subject)
+    if (result.has('S')) {
+      if (result.has('ST') && result.get('S') !== result.get('ST')) throw new Error('Conflicting state attributes in publisher subject')
+      result.set('ST', result.get('S'))
+      result.delete('S')
+    }
+    return result
+  }
+  const left = normalize(a)
+  const right = normalize(b)
   return left.size === right.size && [...left].every(([key, value]) => right.get(key) === value)
 }
 

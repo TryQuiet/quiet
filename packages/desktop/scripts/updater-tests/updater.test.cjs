@@ -7,7 +7,7 @@ const { httpExecutor } = require('builder-util')
 httpExecutor.download = require('electron-updater/out/electronHttpExecutor').ElectronHttpExecutor.prototype.download
 const { AuthenticatedAppImageUpdater, AuthenticatedNsisUpdater } = require('../../updater/index.cjs')
 const { repository, KeyPair, encode, expires } = require('./repository.cjs')
-const { publisherNames } = require('../../updater/trust.cjs')
+const { publisherNames, subjectsEqual } = require('../../updater/trust.cjs')
 
 // Only the app adapter and Electron's final quit notification are replaced.
 // Provider, HTTP transfer, TUF crypto, cache and AppImage install are real.
@@ -183,6 +183,8 @@ test('Windows missing, empty or mismatched installed publisher fails before any 
   }
   assert.equal(repo.requests.length, 0)
   for (const names of [undefined, [], '', ['Quiet'], ['CN=Quiet']]) assert.throws(() => publisherNames(names))
+  assert(subjectsEqual('CN=Quiet, O=Quiet, ST=Massachusetts', 'S=Massachusetts, O=Quiet, CN=Quiet'))
+  assert(!subjectsEqual('CN=Quiet, O=Quiet, ST=Massachusetts', 'CN=Quiet, O=Quiet, S=Elsewhere'))
 })
 
 test('differential AppImage reconstruction verifies the authenticated final bytes', async t => {
