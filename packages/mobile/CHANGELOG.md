@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixes
+
+* Fixed "Add Members > Copy Link" not copying the invite link to the clipboard on Android 13+ [#3369](https://github.com/TryQuiet/quiet/issues/3369) — thanks @JohnieWalkerCZ!
+
 ## [9.0.0]
 
 ### Features
