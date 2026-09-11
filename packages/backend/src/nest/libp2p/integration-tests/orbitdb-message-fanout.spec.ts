@@ -22,7 +22,8 @@ import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { StorageEvents } from '../../storage/storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { generateProof, InviteResult, redactKeys, Team } from '@localfirst/auth'
+import { InviteResult, Team } from '@localfirst/auth'
+import { InviteService } from '../../auth/services/invites/invite.service'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
 
@@ -576,8 +577,13 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       adminSigchainService.activeTeamId!,
       true
     )
-    const proof = generateProof(inviteResult.seed)
-    adminSigchainService.activeChain.team!.admitMember(proof, redactKeys(sigchain.context.user.keys), username)
+    const admission = InviteService.createMemberAdmission({ seed: inviteResult.seed, context: sigchain.context })
+    // Admit the user onto the graph *without* granting the MEMBER role. `admitMemberFromInvite`
+    // also calls `roles.addMember(..., MEMBER)`, which would put the MEMBER role keys in a lockbox
+    // addressed to this peer -- exactly the keys channel metadata is encrypted to -- so the
+    // "cannot decrypt" assertion below would no longer be testing anything. The MEMBER role is
+    // granted later, over the libp2p connection, as the comment above describes.
+    adminSigchainService.activeChain.invites.admitUser(admission)
     const teamBytes = adminSigchainService.activeChain.save()
     const teamKeyring = adminSigchainService.activeChain.team!.teamKeyring()
     expect(teamKeyring).toBeDefined()

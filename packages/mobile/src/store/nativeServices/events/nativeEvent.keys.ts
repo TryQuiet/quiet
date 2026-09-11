@@ -4,4 +4,5 @@ export enum NativeEventKeys {
   Stop = 'stop',
   AppPause = 'apppause',
   AppResume = 'appresume',
+  AppBackground = 'appbackground',
 }

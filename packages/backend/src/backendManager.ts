@@ -16,6 +16,9 @@ import { randomBytes } from 'crypto'
 import { sleep } from './nest/common/sleep'
 import { type BackendLeaveCommunityMessage } from '@quiet/types'
 import { MobileLifecycleCoordinator } from './mobile-lifecycle-coordinator'
+import { registerMobileSystemPause } from './mobile-system-pause'
+import { registerMobileSocketRecovery } from './mobile-socket-recovery'
+import { SocketService } from './nest/socket/socket.service'
 
 // Shutdown helper constants
 const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
@@ -222,15 +225,23 @@ export const runBackendDesktop = async (secret: string) => {
       logger.info('Received close message from parent process')
       await shutdown.gracefulCloseServices()
     }
-    if (message === 'leaveCommunity') {
+    if (
+      typeof message === 'object' &&
+      message !== null &&
+      'type' in message &&
+      message.type === 'leaveCommunity' &&
+      'requestId' in message &&
+      typeof message.requestId === 'string'
+    ) {
       let success = false
       try {
         success = await connectionsManager.leaveCommunity()
       } catch (e) {
         logger.error('Error occurred while leaving community', e)
-        await shutdown.initiateShutdown(1, 'leaveCommunity error')
+        // The transition gate blocks create/join until cleanup succeeds. Keep IPC
+        // available so the user can retry even when the frontend socket was closed.
       }
-      const response: BackendLeaveCommunityMessage = { type: 'leftCommunity', success }
+      const response: BackendLeaveCommunityMessage = { type: 'leftCommunity', requestId: message.requestId, success }
       if (process.connected) process.send?.(response)
     }
   })
@@ -269,26 +280,26 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
   const tor = app.get<Tor>(Tor)
   const proxyAgent = app.get<HttpsProxyAgent<string>>(SOCKS_PROXY_AGENT)
+  const rewireNativeServices = (msg: OpenServices) => {
+    const torControlPort = parseMobilePort(msg.torControlPort, 'Tor control port')
+    const httpTunnelPort = parseMobilePort(msg.httpTunnelPort, 'HTTP tunnel port')
+    tor.rewireNativeTor({
+      controlPort: torControlPort,
+      httpTunnelPort,
+      authCookie: msg.authCookie,
+    })
+    proxyAgent.connectOpts.port = httpTunnelPort
+    proxyAgent.proxy.port = httpTunnelPort.toString()
+  }
   const mobileLifecycle = new MobileLifecycleCoordinator({
     pause: async () => connectionsManager.pause(),
-    activate: async (msg: OpenServices) => {
-      const torControlPort = parseMobilePort(msg.torControlPort, 'Tor control port')
-      const httpTunnelPort = parseMobilePort(msg.httpTunnelPort, 'HTTP tunnel port')
-      tor.rewireNativeTor({
-        controlPort: torControlPort,
-        httpTunnelPort,
-        authCookie: msg.authCookie,
-      })
-      proxyAgent.connectOpts.port = httpTunnelPort
-      proxyAgent.proxy.port = httpTunnelPort.toString()
-      await connectionsManager.resume()
-    },
+    activate: async () => connectionsManager.resume(),
   })
   let shutdownRequestedFromBridge = false
-  rn_bridge.channel.on('close', () => {
-    void mobileLifecycle.pause().catch(error => {
-      logger.error('Failed to pause mobile services', error)
-    })
+  registerMobileSystemPause(rn_bridge.app, mobileLifecycle, logger)
+  const lifecycleChannels = [rn_bridge.channel, rn_bridge.app]
+  registerMobileSocketRecovery(lifecycleChannels, app.get<SocketService>(SocketService), error => {
+    logger.error('Failed to recover local frontend listener', error)
   })
   rn_bridge.channel.on('hibernate', async () => {
     logger.info('Received hibernate message from RN bridge')
@@ -310,9 +321,24 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
       logger.error('Error occurred while waking backend', e)
     }
   })
-  rn_bridge.channel.on('open', (msg: OpenServices) => {
-    void mobileLifecycle.activate(msg).catch(error => {
-      logger.error('Failed to activate mobile services', error)
+  lifecycleChannels.forEach(channel => {
+    channel.on('open', (msg: OpenServices) => {
+      try {
+        // Rewire synchronously so a network resume already in flight cannot
+        // prevent newly available Tor credentials from taking effect.
+        rewireNativeServices(msg)
+      } catch (error) {
+        logger.error('Failed to rewire native Tor services', error)
+        return
+      }
+      void mobileLifecycle.activate(msg).catch(error => {
+        logger.error('Failed to activate mobile services', error)
+      })
+    })
+    channel.on('resume', () => {
+      void mobileLifecycle.resume().catch(error => {
+        logger.error('Failed to resume mobile services', error)
+      })
     })
   })
   const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))

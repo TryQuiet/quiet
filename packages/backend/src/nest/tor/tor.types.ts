@@ -33,6 +33,12 @@ export interface TorControlParams {
   }
 }
 
+export interface TorControlCredentialsWaiter {
+  promise: Promise<void>
+  resolve: () => void
+  reject: (error: Error) => void
+}
+
 export interface IParams {
   port: number
   family: number
@@ -61,6 +67,8 @@ export interface HiddenServiceData {
   virtPort: number
   onionAddress: string
 }
+
+export type SpawnHiddenServiceParams = Omit<HiddenServiceData, 'virtPort'> & { virtPort?: number }
 
 export type BootstrapStatus = {
   rawMessage: string

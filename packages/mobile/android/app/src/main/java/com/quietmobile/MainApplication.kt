@@ -12,6 +12,7 @@ import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.quietmobile.Communication.CommunicationModulePackage
+import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.Push.QuietStorage
 import com.quietmobile.Utils.Const
 
@@ -40,6 +41,7 @@ class MainApplication : Application(), ReactApplication {
         loadReactNative(this)
         QuietStorage.init(this)
         QuietStorage.setAppForeground(false)
+        CommunicationModule.initializeLifecycle(this)
         createForegroundServiceNotificationChannel()
         createNotificationChannel()
     }

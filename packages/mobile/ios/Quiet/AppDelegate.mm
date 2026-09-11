@@ -12,9 +12,11 @@
 #import <FirebaseMessaging/FirebaseMessaging.h>
 
 #import "RNNodeJsMobile.h"
+#import "NodeRunner.hpp"
 #import "Quiet-Swift.h"
 
 @interface AppDelegate () <TorHandlerDelegate>
+@property (nonatomic) BOOL backendReady;
 @end
 
 @implementation AppDelegate
@@ -66,6 +68,10 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   // Call only once per nodejs thread
   [self createDataDirectory];
 
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(backgroundTransitionFinished:)
+                                               name:QuietBackgroundTransitionFinishedNotification
+                                             object:nil];
   [self startTorAndBackend];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
@@ -113,12 +119,37 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:arc4random_uniform(65000 - 1024) + 1024];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:arc4random_uniform(65000 - 1024) + 1024];
 
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(backendDidBecomeReady:)
+                                               name:QuietBackendReadyNotification
+                                             object:nil];
+  // Local storage and the frontend transport must work while Tor is unavailable.
+  // The real authentication cookie is supplied later through rewireServices.
+  [self launchBackend:controlPort httpTunnelPort:httpTunnelPort];
 
   // Spawn one Tor instance for the lifetime of this app process. App
   // background/foreground transitions switch it between DORMANT and ACTIVE.
   self.tor = [TorHandler new];
   self.tor.delegate = self;
   [self.tor startWithSocksPort:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
+}
+
+- (BOOL)applicationIsInBackground {
+  // Delegate intent changes before UIKit necessarily updates applicationState.
+  return [[[NodeRunner sharedInstance] backgroundTask] isBackground];
+}
+
+- (void)backendDidBecomeReady:(NSNotification *)notification {
+  self.backendReady = YES;
+  if ([self applicationIsInBackground]) {
+    // Backgrounding during Node startup may have preceded its bridge listeners.
+    // NodeRunner replays the authoritative system pause when backendReady arrives.
+    [[[NodeRunner sharedInstance] backgroundTask] backendDidBecomeReady];
+  } else {
+    [self.nodeJsMobile sendMessageToNode:@"resume":@"app:resume"];
+    // Request fresh readiness even if Tor's first callback preceded backendReady.
+    [self.tor enterForeground];
+  }
 }
 
 - (void)torHandlerReady:(TorHandler *)handler
@@ -130,21 +161,17 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 
   // A readiness callback can race with a background transition. The next
   // foreground callback will request readiness again, so do nothing here.
-  if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+  if (!self.backendReady || [self applicationIsInBackground]) {
     return;
   }
 
-  if (self.nodeJsMobile == nil) {
-    [self launchBackend:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
-  } else {
-    [self rewireServices:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
-  }
+  [self rewireServices:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
 }
 
-- (void)launchBackend:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort authCookie:(NSString *)authCookie {
+- (void)launchBackend:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort {
   self.nodeJsMobile = [RNNodeJsMobile new];
   [self.nodeJsMobile setSocketIOSecret:self.socketIOSecret];
-  NSString *command = [NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform];
+  NSString *command = [NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, platform];
   [self.nodeJsMobile startNodeProjectInBackground:command];
 }
 
@@ -161,32 +188,45 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
+  QuietBackgroundTask *task = [[NodeRunner sharedInstance] backgroundTask];
+  if (task.isBackground) return;
+  NSString *transition = [task beginTransition];
   QuietSetAppForegroundFlag(NO);
-  [self.tor enterBackground];
 
-  NSString * message = [NSString stringWithFormat:@"app:close"];
-  [self.nodeJsMobile sendMessageToNode:@"close":message];
+  if (self.tor) {
+    [self.tor enterBackgroundWithTransitionId:transition completion:^(BOOL success) {
+      [task acknowledgeTransition:transition participant:@"native" success:success];
+    }];
+    if (![[task pendingTransitionsForParticipant:@"native"] containsObject:transition]) {
+      [self.tor cancelBackgroundTransition:transition];
+    }
+  } else {
+    [task acknowledgeTransition:transition participant:@"native" success:YES];
+  }
 
-  // Flush persistor before app goes idle
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [self.communicationModule appPause];
-    });
+  // Module setup/event delivery is deferred so this delegate returns promptly.
+  // If the bridge is still starting, JS readiness replays the pending flush.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self.communicationModule appPause:transition];
   });
+}
+
+- (void)backgroundTransitionFinished:(NSNotification *)notification {
+  // Expiration drops callback storage without changing Tor's latest intent.
+  [self.tor cancelBackgroundTransition:notification.userInfo[@"transitionId"]];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+  [[[NodeRunner sharedInstance] backgroundTask] enterForeground];
   QuietSetAppForegroundFlag(YES);
-  // Display splash screen until services become available again
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+  // Resume non-Tor services immediately. Tor supplies credentials separately.
+  [self.nodeJsMobile sendMessageToNode:@"resume":@"app:resume"];
+  // Preserve callback order and avoid replaying an old resume after a newer pause.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (![[[NodeRunner sharedInstance] backgroundTask] isBackground]) {
       [self.communicationModule appResume];
-    });
+    }
   });
 
   [self.tor enterForeground];

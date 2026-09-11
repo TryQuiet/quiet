@@ -372,4 +372,40 @@ describe('Add new channel', () => {
       `Your channel will be created as #${corrected}`
     )
   })
+
+  it('hides private channel creation when permissions disallow it', async () => {
+    const { store } = await prepareStore({}, socket)
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Identity', { nickname: 'alice' })
+    await factory.create('ChannelPermissions', {
+      genericPermissions: {
+        public: { create: true, delete: true },
+        private: { create: false },
+      },
+    })
+
+    renderComponent(<CreateChannel />, store)
+    await act(async () => {
+      store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+    })
+
+    expect(await screen.findByText('Create a new channel')).toBeVisible()
+    expect(screen.queryByText('Private Channel')).toBeNull()
+    expect(screen.queryByTestId('createChannel-private-form-control-toggle')).toBeNull()
+  })
+
+  it('shows private channel creation when permissions allow it', async () => {
+    const { store } = await prepareStore({}, socket)
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Identity', { nickname: 'alice' })
+    await factory.create('ChannelPermissions')
+
+    renderComponent(<CreateChannel />, store)
+    await act(async () => {
+      store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+    })
+
+    expect(await screen.findByText('Private Channel')).toBeVisible()
+    expect(screen.getByTestId('createChannel-private-form-control-toggle')).toBeVisible()
+  })
 })

@@ -72,8 +72,208 @@ describe('Tor native session rewiring', () => {
 
   const registerHiddenService = async (torService: Tor, torControl: TorControl) => {
     jest.spyOn(torControl, 'sendCommand').mockResolvedValue(addOnionResponse())
-    await torService.spawnHiddenService({ targetPort: 4343, privKey })
+    await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
   }
+
+  it('converges after a generated service survives a deletion timeout and Tor restarts', async () => {
+    const { torControl, torService } = createTorService()
+    const sendCommand = jest.spyOn(torControl, 'sendCommand').mockResolvedValueOnce({
+      code: 250,
+      messages: [`250-ServiceID=${onionAddress}`, `250-PrivateKey=${privKey}`, '250 OK'],
+    })
+    await torService.createNewHiddenService({ targetPort: 4343 })
+    sendCommand.mockRejectedValueOnce(new Error('DEL_ONION response timeout'))
+    expect(await torService.destroyHiddenService(`${onionAddress}.onion`)).toBe(false)
+    torService.resetBootstrapState()
+    sendCommand.mockResolvedValue(addOnionResponse())
+
+    // Bound the old non-converging microtask loop so a regression fails instead of hanging Jest.
+    const spawnHiddenServices = torService.spawnHiddenServices.bind(torService)
+    let passes = 0
+    jest.spyOn(torService, 'spawnHiddenServices').mockImplementation(async generation => {
+      if (++passes > 3) throw new Error('Bootstrap publication did not converge')
+      await spawnHiddenServices(generation)
+    })
+    await torService['markBootstrapped'](torService['bootstrapGeneration'])
+
+    expect(torService.bootstrapped).toBe(true)
+    expect(passes).toBe(1)
+    expect([...torService['hiddenServices'].keys()]).toEqual([onionAddress])
+    expect([...torService['initializedHiddenServices'].keys()]).toEqual([onionAddress])
+  })
+
+  it('does not record a newly generated service from a replaced Tor session', async () => {
+    const { torControl, torService } = createTorService()
+    const creation = deferred<{ code: number; messages: string[] }>()
+    jest.spyOn(torControl, 'sendCommand').mockReturnValue(creation.promise)
+    const result = torService.createNewHiddenService({ targetPort: 4343 })
+    torService.resetBootstrapState()
+    creation.resolve({
+      code: 250,
+      messages: [`250-ServiceID=${onionAddress}`, `250-PrivateKey=${privKey}`, '250 OK'],
+    })
+    await expect(result).rejects.toThrow('Tor generation changed while creating hidden service')
+    expect(torService['hiddenServices'].size).toBe(0)
+    expect(torService['initializedHiddenServices'].size).toBe(0)
+  })
+
+  it('does not republish a newly generated service in the same Tor session', async () => {
+    const { torControl, torService } = createTorService()
+    const sendCommand = jest.spyOn(torControl, 'sendCommand').mockResolvedValue({
+      code: 250,
+      messages: [`250-ServiceID=${onionAddress}`, `250-PrivateKey=${privKey}`, '250 OK'],
+    })
+    await torService.createNewHiddenService({ targetPort: 4343 })
+    await torService['markBootstrapped'](torService['bootstrapGeneration'])
+    expect(sendCommand).toHaveBeenCalledTimes(1)
+    expect(torService.bootstrapped).toBe(true)
+  })
+
+  it('deletes normalized service state so the same address can be published again', async () => {
+    const { torControl, torService } = createTorService()
+    await registerHiddenService(torService, torControl)
+    expect(await torService.destroyHiddenService(`${onionAddress}.onion`)).toBe(true)
+    expect(torControl.sendCommand).toHaveBeenCalledWith(`DEL_ONION ${onionAddress}`)
+    expect(torService['hiddenServices'].size).toBe(0)
+    expect(torService['initializedHiddenServices'].size).toBe(0)
+    await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
+    expect(torControl.sendCommand).toHaveBeenCalledTimes(3)
+  })
+
+  it('starts watching immediately but skips control I/O until native credentials arrive', async () => {
+    jest.useFakeTimers()
+    const previousBackend = process.env.BACKEND
+    process.env.BACKEND = 'mobile'
+    const { torService, torControl } = createTorService()
+    torService.configOptions.torAuthCookie = undefined
+    const sendCommand = jest.spyOn(torControl, 'sendCommand').mockResolvedValue({
+      code: 250,
+      messages: [bootstrapDone],
+    })
+
+    try {
+      await torService.onModuleInit()
+      expect(torService['interval']).toBeDefined()
+      await jest.advanceTimersByTimeAsync(5000)
+      expect(sendCommand).not.toHaveBeenCalled()
+      expect(torService.bootstrapped).toBe(false)
+
+      torService.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
+      await jest.advanceTimersByTimeAsync(2500)
+      expect(sendCommand).toHaveBeenCalledTimes(1)
+      expect(torService.bootstrapped).toBe(true)
+    } finally {
+      torService['stopBootstrapWatcher']()
+      jest.useRealTimers()
+      if (previousBackend === undefined) {
+        delete process.env.BACKEND
+      } else {
+        process.env.BACKEND = previousBackend
+      }
+    }
+  })
+
+  it('keeps a registered hidden service queued until Tor can publish it', async () => {
+    const { torControl, torService } = createTorService()
+    const sendCommand = jest.spyOn(torControl, 'sendCommand').mockResolvedValue(addOnionResponse())
+
+    torService.registerHiddenService({
+      targetPort: 4343,
+      privKey,
+      onionAddress: `${onionAddress}.onion`,
+      virtPort: 80,
+    })
+
+    expect(sendCommand).not.toHaveBeenCalled()
+    await torService.spawnHiddenServices()
+    expect(sendCommand).toHaveBeenCalledWith(`ADD_ONION ${privKey} Flags=Detach Port=80,127.0.0.1:4343`)
+  })
+
+  it('publishes a hidden service registered while bootstrap publication is in flight', async () => {
+    const { torControl, torService } = createTorService()
+    const firstPublication = deferred<ReturnType<typeof addOnionResponse>>()
+    const latePrivKey = `${privKey}-late`
+    const sendCommand = jest
+      .spyOn(torControl, 'sendCommand')
+      .mockReturnValueOnce(firstPublication.promise)
+      .mockResolvedValue({ code: 250, messages: ['250-ServiceID=late', '250 OK'] })
+
+    torService.registerHiddenService({
+      targetPort: 4343,
+      privKey,
+      onionAddress: `${onionAddress}.onion`,
+      virtPort: 80,
+    })
+    const markBootstrapped = torService['markBootstrapped'](torService['bootstrapGeneration'])
+    await Promise.resolve()
+
+    torService.registerHiddenService({
+      targetPort: 5454,
+      privKey: latePrivKey,
+      onionAddress: 'late.onion',
+      virtPort: 80,
+    })
+    firstPublication.resolve(addOnionResponse())
+    await markBootstrapped
+
+    expect(sendCommand).toHaveBeenCalledTimes(2)
+    expect(sendCommand).toHaveBeenCalledWith(`ADD_ONION ${latePrivKey} Flags=Detach Port=80,127.0.0.1:5454`)
+    expect(torService.bootstrapped).toBe(true)
+  })
+
+  it('cancels a failed publication retry when the Tor generation changes', async () => {
+    jest.useFakeTimers()
+    const { torControl, torService } = createTorService()
+    torService.bootstrapped = true
+    const sendCommand = jest.spyOn(torControl, 'sendCommand').mockRejectedValue(new Error('control unavailable'))
+
+    try {
+      torService.registerHiddenService({
+        targetPort: 4343,
+        privKey,
+        onionAddress: `${onionAddress}.onion`,
+        virtPort: 80,
+      })
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(sendCommand).toHaveBeenCalledTimes(1)
+
+      torService.resetBootstrapState()
+      await jest.advanceTimersByTimeAsync(2500)
+
+      expect(sendCommand).toHaveBeenCalledTimes(1)
+      expect(torService['hiddenServiceRetryTimers'].size).toBe(0)
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('retries a failed hidden-service publication while Tor remains ready', async () => {
+    jest.useFakeTimers()
+    const { torControl, torService } = createTorService()
+    torService.bootstrapped = true
+    const sendCommand = jest
+      .spyOn(torControl, 'sendCommand')
+      .mockRejectedValueOnce(new Error('control unavailable'))
+      .mockResolvedValue(addOnionResponse())
+
+    try {
+      torService.registerHiddenService({
+        targetPort: 4343,
+        privKey,
+        onionAddress: `${onionAddress}.onion`,
+        virtPort: 80,
+      })
+      await Promise.resolve()
+      await Promise.resolve()
+      await jest.advanceTimersByTimeAsync(2500)
+
+      expect(sendCommand).toHaveBeenCalledTimes(2)
+      expect(torService['initializedHiddenServices'].has(onionAddress)).toBe(true)
+    } finally {
+      jest.useRealTimers()
+    }
+  })
 
   it('preserves bootstrap and initialized hidden services when the native Tor session is unchanged', async () => {
     const { torControl, torService } = createTorService()
@@ -82,7 +282,7 @@ describe('Tor native session rewiring', () => {
     jest.mocked(torControl.sendCommand).mockClear()
 
     torService.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
-    await torService.spawnHiddenService({ targetPort: 4343, privKey })
+    await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
 
     expect(torService.bootstrapped).toBe(true)
     expect(torControl.sendCommand).not.toHaveBeenCalled()
@@ -97,7 +297,7 @@ describe('Tor native session rewiring', () => {
     jest.mocked(torControl.sendCommand).mockClear()
 
     torService.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
-    await torService.spawnHiddenService({ targetPort: 4343, privKey })
+    await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
 
     expect(torService.bootstrapped).toBe(true)
     expect(startBootstrapWatcher).not.toHaveBeenCalled()
@@ -205,7 +405,7 @@ describe('Tor native session rewiring', () => {
       expect(torService.interval).toBe(replacementWatcher)
 
       sendCommand.mockResolvedValue(addOnionResponse())
-      await torService.spawnHiddenService({ targetPort: 4343, privKey })
+      await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
       expect(sendCommand).toHaveBeenCalledTimes(3)
     } finally {
       torService.resetBootstrapState()
@@ -234,19 +434,19 @@ describe('Tor native session rewiring', () => {
 
     await torService.kill()
     torService.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
-    await torService.spawnHiddenService({ targetPort: 4343, privKey })
+    await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
 
     expect(torService.bootstrapped).toBe(true)
     expect(torControl.sendCommand).not.toHaveBeenCalled()
   })
 
-  it('deduplicates concurrent hidden-service initialization by private key', async () => {
+  it('deduplicates concurrent hidden-service initialization by normalized onion address', async () => {
     const { torControl, torService } = createTorService()
     const initialization = deferred<{ code: number; messages: string[] }>()
     const sendCommand = jest.spyOn(torControl, 'sendCommand').mockReturnValue(initialization.promise)
 
-    const first = torService.spawnHiddenService({ targetPort: 4343, privKey })
-    const second = torService.spawnHiddenService({ targetPort: 4343, privKey })
+    const first = torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
+    const second = torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress: `${onionAddress}.onion` })
 
     expect(sendCommand).toHaveBeenCalledTimes(1)
     initialization.resolve(addOnionResponse())
@@ -259,13 +459,13 @@ describe('Tor native session rewiring', () => {
     const sendCommand = jest.spyOn(torControl, 'sendCommand').mockReturnValue(staleInitialization.promise)
     const startBootstrapWatcher = jest.spyOn(torService, 'startBootstrapWatcher').mockImplementation(() => {})
 
-    const staleResult = torService.spawnHiddenService({ targetPort: 4343, privKey })
+    const staleResult = torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
     torService.rewireNativeTor({ controlPort, httpTunnelPort, authCookie: 'cookie-b' })
     staleInitialization.resolve(addOnionResponse())
     await expect(staleResult).rejects.toThrow('Tor generation changed while initializing hidden service')
 
     sendCommand.mockResolvedValue(addOnionResponse())
-    await torService.spawnHiddenService({ targetPort: 4343, privKey })
+    await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
 
     expect(startBootstrapWatcher).toHaveBeenCalledTimes(1)
     expect(sendCommand).toHaveBeenCalledTimes(2)

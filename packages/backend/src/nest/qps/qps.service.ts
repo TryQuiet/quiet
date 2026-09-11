@@ -219,12 +219,7 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  public async sendBatchPush(
-    teamId: string,
-    title?: string,
-    body?: string,
-    data?: Record<string, string>
-  ): Promise<void> {
+  public async sendBatchPush(teamId: string): Promise<void> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping push trigger')
       return
@@ -247,11 +242,6 @@ export class QPSService implements OnModuleInit {
       batches.push(ucans.slice(i, i + PUSH_BATCH_SIZE))
     }
 
-    const mergedData: Record<string, string> = {
-      teamId,
-      ...data,
-    }
-
     this.logger.info(
       `Triggering push notifications for team ${teamId} with ${ucans.length} UCAN(s) in ${batches.length} batch(es)`
     )
@@ -262,7 +252,9 @@ export class QPSService implements OnModuleInit {
           {
             ts: DateTime.utc().toMillis(),
             status: CommunityOperationStatus.SENDING,
-            payload: { ucans: batch, title, body, data: mergedData },
+            // QSS derives teamId from each signed recipient UCAN. Keep this
+            // client-authorized envelope free of notification presentation.
+            payload: { ucans: batch },
           },
           true
         )
@@ -277,12 +269,7 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  public async sendPush(
-    ucan: string,
-    title?: string,
-    body?: string,
-    data?: Record<string, string>
-  ): Promise<SendPushResponse | undefined> {
+  public async sendPush(ucan: string): Promise<SendPushResponse | undefined> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping push')
       return undefined
@@ -299,7 +286,7 @@ export class QPSService implements OnModuleInit {
         {
           ts: DateTime.utc().toMillis(),
           status: CommunityOperationStatus.SENDING,
-          payload: { ucan, title, body, data },
+          payload: { ucan },
         },
         true
       )

@@ -20,7 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Extract version
         id: extract_version
@@ -39,6 +40,19 @@ jobs:
               echo "This is NOT a major version"
               echo "match=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Reclaim disk space
+        # The QSS e2e job builds the desktop AppImage and the QSS docker images on
+        # one 14 GB runner and has filled the disk while starting the containers.
+        # Drop toolchains this job never uses, as the mobile jobs already do.
+        run: |
+          set -euxo pipefail
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}/CodeQL"
+          sudo rm -rf /usr/local/lib/android
+          df -h
 
       - name: Install WM
         run: sudo apt install fluxbox

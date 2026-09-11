@@ -107,7 +107,13 @@ describe('Channel photo attachments', () => {
     fireEvent.press(getByTestId('send_message_button'))
 
     expect(dispatch).toHaveBeenCalledWith(
-      files.actions.attachFile({ path: cachedPhoto.uri, name: 'photo', ext: '.jpg', tmpPath: undefined })
+      files.actions.attachFile({
+        channelId: 'general',
+        path: cachedPhoto.uri,
+        name: 'photo',
+        ext: '.jpg',
+        tmpPath: undefined,
+      })
     )
     expect(queryByLabelText('photo')).toBeNull()
   })
@@ -125,9 +131,17 @@ describe('Channel photo attachments', () => {
     fireEvent.press(getByTestId('send_message_button'))
     act(() => jest.advanceTimersByTime(50))
 
-    expect(dispatch).toHaveBeenCalledWith(messages.actions.sendMessage({ message: 'A photo for you' }))
     expect(dispatch).toHaveBeenCalledWith(
-      files.actions.attachFile({ path: cachedPhoto.uri, name: 'photo', ext: '.jpg', tmpPath: undefined })
+      messages.actions.sendMessage({ channelId: 'general', message: 'A photo for you' })
+    )
+    expect(dispatch).toHaveBeenCalledWith(
+      files.actions.attachFile({
+        channelId: 'general',
+        path: cachedPhoto.uri,
+        name: 'photo',
+        ext: '.jpg',
+        tmpPath: undefined,
+      })
     )
     expect(dispatch.mock.calls.filter(([action]) => action.type === files.actions.attachFile.type)).toHaveLength(1)
   })

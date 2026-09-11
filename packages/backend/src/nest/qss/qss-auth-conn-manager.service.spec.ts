@@ -14,6 +14,8 @@ import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSS_ALLOWED } from '../const'
 import { QSSEvents } from './qss.types'
 import { QSSAuthConnStatus } from './qss.const'
+import { LFAEvents } from '../auth/types'
+import { RoleName } from '../auth/services/roles/roles'
 
 describe('QSSAuthConnectionManager', () => {
   let module: TestingModule
@@ -184,6 +186,25 @@ describe('QSSAuthConnectionManager', () => {
     conn.markMemberRoleReady()
 
     expect(conn.joinStatus).toBe(JoinStatus.JOINED)
+  })
+
+  it('keeps a restored team without MEMBER pending and requests a local invitation claim', async () => {
+    const teamId = sigchainService.activeChain.team!.id
+    // Model admission before the invitation's MEMBER grant is claimed; removal is disabled.
+    jest.spyOn(sigchainService.activeChain.roles, 'amIMemberOfRole').mockReturnValue(false)
+    const conn = module.get<QSSAuthConnection>(QSSAuthConnection)
+    conn.teamId = teamId
+    const selfAssignSpy = jest.fn()
+    const authJoinedSpy = jest.fn()
+    conn.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, selfAssignSpy)
+    conn.on(QSSEvents.QSS_AUTH_JOINED, authJoinedSpy)
+
+    await conn.start()
+    ;(conn as any)._authConnection.emit(LFAEvents.CONNECTED)
+
+    expect(conn.joinStatus).toBe(JoinStatus.PENDING_MEMBER)
+    expect(selfAssignSpy).toHaveBeenCalledWith(teamId)
+    expect(authJoinedSpy).toHaveBeenCalledWith(teamId)
   })
 
   it('delegates member role readiness to the stored auth connection', () => {

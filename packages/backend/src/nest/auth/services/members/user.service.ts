@@ -3,7 +3,6 @@
  */
 import { ChainServiceBase } from '../chainServiceBase'
 import {
-  ProspectiveUser,
   MemberSearchOptions,
   DEFAULT_SEARCH_OPTIONS,
   type CreateUserInput,
@@ -13,7 +12,6 @@ import {
 import { DeviceWithSecrets, LocalUserContext, Member, User, UserWithSecrets } from '@localfirst/auth'
 import { SigChain } from '../../sigchain'
 import { DeviceService } from './device.service'
-import { InviteService } from '../invites/invite.service'
 import { KeyMap } from '@localfirst/auth/team/selectors/keyMap'
 import { createLogger } from '../../../common/logger'
 import { randomKey } from '@localfirst/crypto'
@@ -27,17 +25,20 @@ class UserService extends ChainServiceBase {
   /**
    * Generates a brand new QuietUser instance with an initial device
    *
-   * @param input Optional input to set a custom username/user ID
+   * @param input Optional input to set a custom username
    * @returns New QuietUser instance with an initial device
    */
   public static create(input: CreateUserInput = {}): LocalUserContext {
     let name = input.name
-    const id = input.id
     if (name == null) {
       name = UserService.generateArbitraryUsername()
     }
-    const user: UserWithSecrets = SigChain.lfa.createUser(name, id)
-    const device: DeviceWithSecrets = DeviceService.generateDeviceForUser(user.userId)
+    const firstUseDevice = SigChain.lfa.createFirstUseDevice({
+      deviceName: DeviceService.generateDeviceName(),
+    })
+    const userId = SigChain.lfa.deriveUserId(firstUseDevice.deviceId)
+    const user: UserWithSecrets = SigChain.lfa.createUser(name, userId)
+    const device: DeviceWithSecrets = { ...firstUseDevice, userId }
 
     return {
       user,
@@ -48,20 +49,11 @@ class UserService extends ChainServiceBase {
   /**
    * Generates a new prospective user from an invite seed
    *
-   * @param input Input to create a user with the invite seed from the community owne and an optional username/user ID
-   * @returns ProspectiveUser instance
+   * @param input Invite seed and optional username for the new user
+   * @returns Local user context for the invitee
    */
-  public static createFromInviteSeed(input: CreateUserFromInviteSeedInput): ProspectiveUser {
-    const { name, seed } = input
-    const context = this.create({ name })
-    const inviteProof = InviteService.generateProof(seed)
-    const publicKeys = UserService.redactUser(context.user).keys
-
-    return {
-      context,
-      inviteProof,
-      publicKeys,
-    }
+  public static createFromInviteSeed(input: CreateUserFromInviteSeedInput): LocalUserContext {
+    return this.create({ name: input.name })
   }
 
   public getKeys(): KeyMap {

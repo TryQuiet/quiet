@@ -39,3 +39,5 @@ node --test scripts/desktop-processes.test.cjs
 ```
 
 Validated on an ARM Mac with iOS 18.5: all six stages passed in 249.5 seconds, with no skipped tests and default synchronization. Both app artifacts and test sources stayed unchanged throughout the run. This is a five-message conversation; private channels, attachments and long paginated history remain outside this initial mixed suite.
+
+See the [QSS notification regression plan](README_QSS_NOTIFICATIONS.md) for proposed Android and iOS coverage of fresh joins, notification cursors, channel names, suppression and leave/rejoin. Notification E2Es are follow-up work.

@@ -1,7 +1,7 @@
 import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 import { composeStories, setGlobalConfig } from '@storybook/testing-react'
-import { it, beforeEach, cy, Cypress, describe } from 'local-cypress'
+import { it, beforeEach, cy, Cypress, describe, expect } from 'local-cypress'
 
 import * as stories from './Channel.stories'
 import { withTheme } from '../../storybook/decorators'
@@ -17,9 +17,10 @@ declare global {
 
 // Custom command to check if the channel content is scrolled to the bottom
 Cypress.Commands.add('assertScrolledToBottom', { prevSubject: 'element' }, subject => {
-  const el = subject[0]
-  const isScrolledToBottom = Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) <= 1 // Allow 1px difference for rounding
-  cy.wrap(isScrolledToBottom).should('be.true')
+  cy.wrap(subject).should($el => {
+    const el = $el[0]
+    expect(Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight), 'distance from bottom').to.be.at.most(1)
+  })
 })
 
 const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
@@ -79,26 +80,55 @@ describe('Scroll behavior test', () => {
     cy.get(channelContent).assertScrolledToBottom()
   })
 
-  it('PageUp keydown should scroll message list up.', () => {
-    cy.get(messageInput).focus().type('{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}')
+  // The number of pages depends on the viewport and rendered message heights.
+  // Check one page's movement first, then the boundary after enough key presses.
+  for (const viewportHeight of [400, 660]) {
+    it(`PageUp scrolls one page and reaches the top at viewport height ${viewportHeight}`, () => {
+      cy.viewport(1000, viewportHeight)
+      cy.get(messageInput).focus()
+      cy.get(channelContent).assertScrolledToBottom()
+      cy.get(channelContent).then($el => {
+        const container = $el[0]
+        const initialTop = container.scrollTop
+        const pageSize = container.clientHeight * 0.9
+        expect(pageSize, 'visible message page').to.be.greaterThan(1)
+        expect(initialTop, 'history spans more than one page').to.be.greaterThan(pageSize)
 
-    cy.get(channelContent).then($el => {
-      const container = $el[0]
-      const isScrolledToTop = Math.abs(container.scrollTop) <= 1 // Allow 1px difference for rounding
-      cy.wrap(isScrolledToTop).should('be.true')
+        cy.get(messageInput).type('{pageup}')
+        cy.get(channelContent).should($current => {
+          expect($current[0].scrollTop, 'one PageUp').to.be.closeTo(initialTop - pageSize, 1)
+        })
+
+        // Round down the page size to account for integer scroll positions.
+        // The extra press also checks that scrolling clamps at the boundary.
+        cy.get(messageInput).type('{pageup}'.repeat(Math.ceil(initialTop / Math.floor(pageSize))))
+        cy.get(channelContent).should($current => {
+          expect(Math.abs($current[0].scrollTop), 'distance from top').to.be.at.most(1)
+        })
+      })
     })
-  })
 
-  it('PageDown keydown should scroll message list down.', () => {
-    // note that Cypress UI before/after views do not correctly display the scroll position; to see the effect for debugging purposes, insert wait statements to slow down the test
-    cy.get(channelContent).scrollTo(0, 0)
-    cy.get(messageInput)
-      .focus()
-      .type(
-        '{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}'
-      )
-    cy.get(channelContent).assertScrolledToBottom()
-  })
+    it(`PageDown scrolls one page and reaches the bottom at viewport height ${viewportHeight}`, () => {
+      cy.viewport(1000, viewportHeight)
+      cy.get(messageInput).focus()
+      cy.get(channelContent).assertScrolledToBottom()
+      cy.get(channelContent).scrollTo(0, 0).should('have.prop', 'scrollTop', 0)
+      cy.get(channelContent).then($el => {
+        const container = $el[0]
+        const bottom = container.scrollHeight - container.clientHeight
+        const pageSize = container.clientHeight * 0.9
+        expect(pageSize, 'visible message page').to.be.greaterThan(1)
+        expect(bottom, 'history spans more than one page').to.be.greaterThan(pageSize)
+
+        cy.get(messageInput).type('{pagedown}')
+        cy.get(channelContent).should($current => {
+          expect($current[0].scrollTop, 'one PageDown').to.be.closeTo(pageSize, 1)
+        })
+        cy.get(messageInput).type('{pagedown}'.repeat(Math.ceil(bottom / Math.floor(pageSize))))
+        cy.get(channelContent).assertScrolledToBottom()
+      })
+    })
+  }
 
   it('Shift+Enter should not send message', () => {
     cy.get(messageInput)

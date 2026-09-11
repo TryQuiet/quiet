@@ -32,7 +32,14 @@ import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { LocalDbService } from '../local-db/local-db.service'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
-import { CompoundError, NseQssUrlUpdatedEvent, SocketActions, SocketEvents, type InvitationDataV5 } from '@quiet/types'
+import {
+  CompoundError,
+  InvitationDataVersion,
+  NseQssUrlUpdatedEvent,
+  SocketActions,
+  SocketEvents,
+  type InvitationDataV5,
+} from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { QSSSyncManager } from './qss-sync-manager.service'
@@ -175,20 +182,43 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   }
 
   private _handleSelfAssignMember = async (teamId: string): Promise<void> => {
-    this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
-    const initStatus = await this.getQssInitStatus()
-    const sigchain = this.sigChainService.getChain(teamId)
-    const authData = (initStatus.community?.inviteData as InvitationDataV5).authData
-    if (authData.salt != null) {
-      sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)
+    try {
+      this.logger.debug(`Confirming ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
+      const sigchain = this.sigChainService.getChain(teamId)
+
+      // Current auth handshakes claim the invitation grant before JOINED. This fallback repairs a
+      // restored pre-migration chain locally from its saved invite; the seed never crosses QSS.
+      if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+        const initStatus = await this.getQssInitStatus()
+        const inviteData = initStatus.community?.inviteData
+        if (inviteData?.version !== InvitationDataVersion.v5 || inviteData.authData.teamId !== teamId) {
+          throw new Error(`Joined team ${teamId} without a usable invitation ${RoleName.MEMBER} grant`)
+        }
+        sigchain.roles.addSelf(RoleName.MEMBER, inviteData.authData.seed, inviteData.authData.salt)
+      }
+
+      if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+        throw new Error(`Joined team ${teamId} without the ${RoleName.MEMBER} role`)
+      }
+      this.logger.trace(
+        `Does the user have the invitation-granted member role?`,
+        sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
+      )
+
+      await this.sigChainService.saveChain(teamId)
+
+      // The sign-in that preceded this ran against an invitee chain with no team, so the
+      // native push prerequisites could not be emitted then. Now the chain is complete.
+      await this.syncNativePushPrerequisites(teamId, sigchain, 'QSS join completed')
+
+      this.qssAuthConnManager.markMemberRoleReady(teamId)
+      this.qssSyncManager.markMemberRoleReady(teamId)
+      this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+    } catch (error) {
+      this.logger.error(`Failed to finish QSS member-role admission`, teamId, error)
+      this.qssAuthConnManager.stopConnection(teamId, false)
+      this.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error })
     }
-    this.logger.trace(
-      `Is user now member through self-assign?`,
-      sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
-    )
-    this.qssAuthConnManager.markMemberRoleReady(teamId)
-    this.qssSyncManager.markMemberRoleReady(teamId)
-    this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
   }
 
   private _configureEventHandlers(): void {
@@ -301,12 +331,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
   public async connect(qssEndpoint: string | undefined, enabledOverride: boolean = false): Promise<QSSOperationResult> {
     if (this._paused) {
+      // Startup may supply the endpoint after a lifecycle pause. Retain it for resume.
+      if (qssEndpoint != null) this._qssEndpoint = qssEndpoint
+      this._enabledOverride = enabledOverride
       this.logger.debug('Skipping QSS connect because service is paused')
       return QSSOperationResult.DISABLED
     }
 
     return await this._connectMutex.runExclusive(async () => {
       if (this._paused) {
+        if (qssEndpoint != null) this._qssEndpoint = qssEndpoint
+        this._enabledOverride = enabledOverride
         this.logger.debug('Skipping QSS connect because service is paused')
         return QSSOperationResult.DISABLED
       }
@@ -365,11 +400,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   }
 
   public pause(): void {
-    if (!this.canConnect) {
-      this.logger.trace(`Skipping QSS pause because QSS isn't enabled`)
-      return
-    }
-
     this.logger.info('Pausing QSS service')
     this._paused = true
     this._teardownEventHandlers()
@@ -381,16 +411,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   }
 
   public async resume(): Promise<void> {
-    if (!this.canConnect) {
-      this.logger.trace(`Skipping QSS resume because QSS isn't enabled`)
-      return
-    }
-
     this.logger.info(`Resuming QSS service`)
     this._paused = false
     this._configureEventHandlers()
     this.qssSyncManager.resume()
-    await this.connect(this.qssEndpoint, this._enabledOverride)
+    if (this.canConnect) await this.connect(this.qssEndpoint, this._enabledOverride)
   }
 
   /**
@@ -430,11 +455,18 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       }
     }
 
+    // A lifecycle pause can arrive while loading community settings above.
+    if (this._paused) return QSSOperationResult.DISABLED
+
     // wait for our socket to finish connecting
     let connStatus: QSSOperationResult
     try {
       this.logger.info(`Establishing connection with QSS`)
       await this.qssClient.createSocketAndConnect(this._qssEndpoint)
+      if (this._paused) {
+        this.qssClient.close()
+        return QSSOperationResult.DISABLED
+      }
       this.logger.info(`Connection established`)
       connStatus = QSSOperationResult.SUCCESS
     } catch (e) {
@@ -463,15 +495,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return undefined
   }
 
-  private async emitNseQssUrl(wsUrl: string | undefined): Promise<void> {
+  private async emitNseQssUrl(wsUrl: string | undefined, sigChain: SigChain): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') {
       this.logger.debug('Skipping NSE QSS URL emit because platform is not iOS or Android', platform)
       return
     }
     try {
+      if (sigChain.team == null) {
+        this.logger.warn('Skipping NSE QSS URL update because the sigchain has no team yet')
+        return
+      }
       const community = await this.localDbService.getCurrentCommunity()
-      const teamId = community?.teamId ?? this.sigChainService.getActiveChain(false)?.team?.id
+      const teamId = community?.teamId ?? sigChain.team.id
       if (teamId == null) {
         this.logger.warn('Skipping NSE QSS URL update because no active community or team ID found')
         this.logger.warn('Community', community)
@@ -484,9 +520,30 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         return
       }
 
+      const qssHost = url.parse(qssUrl).hostname
+      const normalizedQssHost =
+        qssHost != null &&
+        /^(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|localhost)$/.test(
+          qssHost
+        ) &&
+        process.env.NODE_ENV !== 'production'
+          ? 'localhost'
+          : qssHost
+      const qssServerId = normalizedQssHost == null ? undefined : sigChain.server.getServer(normalizedQssHost)?.serverId
+      if (qssServerId == null) {
+        this.logger.warn('Clearing the NSE QSS configuration because the QSS LFA server identity is not pinned', qssUrl)
+        this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId,
+          qssUrl: '',
+          qssServerId: '',
+        } satisfies NseQssUrlUpdatedEvent)
+        return
+      }
+
       const payload: NseQssUrlUpdatedEvent = {
         teamId,
         qssUrl,
+        qssServerId,
       }
 
       this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, payload)
@@ -555,7 +612,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     // if we don't already have this server in our chain we need to generate keys and add it
-    if (!sigChain.team.hasServer(host)) {
+    if (sigChain.server.getServer(host) == null) {
       // Generating the QSS LFA keyset for this community
       this.logger.info(`Getting server keys for this team`)
       const qssGeneratePublicKeysMessage: GeneratePublicKeysMessage = {
@@ -577,20 +634,32 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         generateKeysResponse.status !== CommunityOperationStatus.SUCCESS ||
         generateKeysResponse.payload == null ||
         generateKeysResponse.payload.teamId != sigChain.team.id ||
+        generateKeysResponse.payload.serverId == null ||
+        generateKeysResponse.payload.identityKeys == null ||
         generateKeysResponse.payload.keys == null
       ) {
-        this.logger.error(`Failed to generate server keys!`, generateKeysResponse?.reason ?? 'Response was nullish')
+        this.logger.error('Failed to generate server keys', {
+          reason: generateKeysResponse?.reason ?? 'Invalid server key response',
+          responseReceived: generateKeysResponse != null,
+          status: generateKeysResponse?.status,
+          teamIdMatches: generateKeysResponse?.payload?.teamId === sigChain.team.id,
+          missingFields: (['teamId', 'serverId', 'identityKeys', 'keys'] as const).filter(
+            field => generateKeysResponse?.payload?.[field] == null
+          ),
+        })
         return false
       }
 
       const lfaServer: Server = {
         host,
+        serverId: generateKeysResponse.payload.serverId,
+        identityKeys: generateKeysResponse.payload.identityKeys,
         keys: generateKeysResponse.payload.keys,
       }
 
       // add this QSS server/cluster to our chain using the keys we generated earlier
       this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
-      if (!sigChain.team.hasServer(host)) {
+      if (!sigChain.team.hasServer(lfaServer.serverId)) {
         sigChain.server.addServer(lfaServer)
       }
     }
@@ -655,11 +724,47 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
     if (result === QSSOperationResult.SUCCESS) {
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once storage is ready', teamId)
-      await this.emitNseQssUrl(this._qssEndpoint)
+      await this.syncNativePushPrerequisites(teamId, sigChain, 'QSS sign-in')
       this.qssSyncManager.startLogSyncForSignedInTeam(teamId, sigChain)
     }
 
     return result
+  }
+
+  /**
+   * Emit everything the native push handler needs to fetch, authenticate and decrypt a
+   * pushed entry while the JS backend is not running: the QSS URL and pinned server
+   * identity (NSE_QSS_URL_UPDATED), the device credentials (DEVICE_CREDENTIALS_UPDATED)
+   * and the LFA keys (KEYS_UPDATED).
+   *
+   * This runs on every successful QSS sign-in and again when a QSS join completes. On a
+   * fresh invite join the sign-in happens while the chain is still an invitee context
+   * with no team (the team arrives through the auth handshake a moment later), so at
+   * that point none of the three values can be derived: ServerService throws "Team is
+   * nullish", device credentials are skipped and the key sync dereferences a null team.
+   * Nothing re-ran them once the join completed, so a freshly joined device dropped
+   * every push with "no QSS URL is stored" until the next app launch (#346).
+   *
+   * Every emit is a put into native storage (keys are resent in full), so running this
+   * at both points is idempotent. Failures are logged and never propagate: a join must
+   * not fail because a push prerequisite could not be emitted. The URL and device
+   * credential emits are awaited so callers can order them before QSS_FULLY_JOINED
+   * (QPS flushes the pending FCM token on that event); the key sync reads the whole
+   * team keyring from the local db, so it stays fire-and-forget and must never gate
+   * admission.
+   */
+  public async syncNativePushPrerequisites(teamId: string, sigChain: SigChain, trigger: string): Promise<void> {
+    if (sigChain.team == null) {
+      this.logger.info(
+        `Deferring native push prerequisites for team ${teamId} until the join completes (trigger: ${trigger})`
+      )
+      return
+    }
+    await this.emitNseQssUrl(this._qssEndpoint, sigChain)
+    this.sigChainService.updateDeviceCredentials(teamId)
+    void this.sigChainService.updateKeysInNativeStorage(teamId, true).catch(err => {
+      this.logger.error(`Failed to sync keys to native storage (trigger: ${trigger})`, err)
+    })
   }
 
   /**

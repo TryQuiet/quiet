@@ -4,7 +4,6 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
-import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { DownloadState, type FileMetadata, imagesExtensions, MessageType } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
@@ -14,9 +13,8 @@ export function* sendFileMessageSaga(
   action: PayloadAction<ReturnType<typeof filesActions.attachFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
-  if (!identity || !currentChannel) return
+  const { channelId, ...file } = action.payload
+  if (!identity || !channelId) return
 
   const fileProtocol = 'file://'
   let filePath = action.payload.path
@@ -33,13 +31,13 @@ export function* sendFileMessageSaga(
   const id = yield* call(generateMessageId)
 
   const media: FileMetadata = {
-    ...action.payload,
+    ...file,
     path: filePath,
     tmpPath: tmpPath,
     cid: `attaching_${id}`,
     message: {
       id,
-      channelId: currentChannel,
+      channelId,
     },
   }
 
@@ -54,6 +52,7 @@ export function* sendFileMessageSaga(
   yield* put(
     messagesActions.sendMessage({
       id,
+      channelId,
       message: '',
       type,
       media,
