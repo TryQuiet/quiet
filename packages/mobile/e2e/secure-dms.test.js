@@ -10,13 +10,13 @@ suite('Authenticated desktop/mobile DM', () => {
   const marker = name => path.join(path.dirname(scenarioPath), name)
   const signal = name => fs.writeFileSync(marker(name), 'ready', { mode: 0o600 })
   const waitForMarker = async name => {
-    const deadline = Date.now() + 180_000
+    const deadline = Date.now() + 480_000
     while (!fs.existsSync(marker(name))) {
       if (Date.now() > deadline) throw new Error(`Desktop did not reach ${name}`)
       await new Promise(resolve => setTimeout(resolve, 250))
     }
   }
-  const visible = async matcher => await waitFor(element(matcher)).toBeVisible().withTimeout(180_000)
+  const visible = async (matcher, timeout = 180_000) => await waitFor(element(matcher)).toBeVisible().withTimeout(timeout)
   const compose = () => element(by.id('input').withAncestor(by.id('message-composer')))
   const send = async text => {
     await compose().tap()
@@ -52,7 +52,9 @@ suite('Authenticated desktop/mobile DM', () => {
     await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
     await visible(by.id(scenario.firstMessage))
     await visible(by.text(scenario.filename))
-    await visible(by.text('Downloaded'))
+    // Fresh onion services can need several minutes to become reachable over Tor.
+    await visible(by.text('Downloaded'), 480_000)
+    console.info('Android completed the authenticated attachment download')
 
     // Compare the actual authenticated output, beyond merely observing a download label.
     const adb = process.env.ADB_PATH || 'adb'
@@ -62,6 +64,7 @@ suite('Authenticated desktop/mobile DM', () => {
     expect(downloads.some(file => execFileSync(adb, [...args, 'cat', file], { encoding: 'utf8' }) === scenario.fileContents)).toBe(true)
     await send(scenario.mobileReply)
     signal('mobile-received')
+    console.info('Android verified the file contents and sent its reply')
     await waitForMarker('desktop-offline')
 
     await device.terminateApp()
@@ -73,5 +76,6 @@ suite('Authenticated desktop/mobile DM', () => {
     await visible(by.text('Downloaded'))
     await send(scenario.offlineReply)
     signal('mobile-finished')
-  }, 600_000)
+    console.info('Android restored DM history and sent while desktop was offline')
+  }, 1_200_000)
 })

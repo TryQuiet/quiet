@@ -13,7 +13,7 @@ import {
   StartingLoadingPanel,
 } from '../selectors'
 import { promiseWithRetries, createArbitraryFile } from '../utils'
-import { MessageIds, UserTestData } from '../types'
+import { MessageIds, TestChannelType, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import * as path from 'path'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
@@ -160,7 +160,7 @@ describe('Multiple Clients', () => {
     describe('Create And Delete Channel Before User Joins', () => {
       it('Owner creates temporary channel', async () => {
         sidebarOwner = new Sidebar(users.owner.app.driver)
-        await sidebarOwner.addNewChannel(tempChannelName, true, true)
+        await sidebarOwner.addNewChannel(tempChannelName)
         await sidebarOwner.switchChannel(tempChannelName)
         const channels = await sidebarOwner.getChannelList()
         expect(channels.length).toEqual(2)
@@ -384,7 +384,7 @@ describe('Multiple Clients', () => {
     describe('Owner Creates New Channel', () => {
       it('Owner creates second channel', async () => {
         sidebarOwner = new Sidebar(users.owner.app.driver)
-        await sidebarOwner.addNewChannel(newChannelName, true, true)
+        await sidebarOwner.addNewChannel(newChannelName)
         await sidebarOwner.switchChannel(newChannelName)
         const channels = await sidebarOwner.getChannelList()
         expect(channels.length).toEqual(2)
@@ -474,7 +474,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Second user sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser3.isOpen(true, true, 30_000)).toBeTruthy()
+        expect(await generalChannelUser3.isOpen(TestChannelType.PUBLIC_CHANNEL, true, 30_000)).toBeTruthy()
         await generalChannelUser3.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
@@ -485,7 +485,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Owner can create channel with the same name and is fresh channel', async () => {
-        await sidebarOwner.addNewChannel(newChannelName, true, true)
+        await sidebarOwner.addNewChannel(newChannelName)
         await sidebarOwner.switchChannel(newChannelName)
         const messages = await secondChannelOwner.getUserMessages(users.owner.username)
         expect(messages.length).toEqual(1)

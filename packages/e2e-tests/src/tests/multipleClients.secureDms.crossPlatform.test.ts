@@ -28,7 +28,7 @@ suite('Participant-only DMs across desktop and Android', () => {
   let mobile: ChildProcess | undefined
   let mobileFinished: Promise<number | null>
   const waitForMarker = async (name: string) => {
-    const deadline = Date.now() + 240_000
+    const deadline = Date.now() + 600_000
     while (!fs.existsSync(path.join(directory, name))) {
       if (mobile?.exitCode != null) throw new Error(`Android exited before ${name}; see ${directory}/android.log`)
       if (Date.now() > deadline) throw new Error(`Android did not reach ${name}; see ${directory}/android.log`)
@@ -140,5 +140,5 @@ suite('Participant-only DMs across desktop and Android', () => {
     await dm.getMessageIdsByText(scenario.firstMessage, desktopUser)
     expect(await new Sidebar(admin.driver).waitForDmChannelsNum(0)).toBe(true)
     fs.unlinkSync(scenarioPath)
-  }, 900_000)
+  }, 1_500_000)
 })
