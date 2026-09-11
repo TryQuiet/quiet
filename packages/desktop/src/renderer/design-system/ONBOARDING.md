@@ -637,6 +637,29 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → choose-a-plan [prototype]; Frame 1612 → captcha-3054-4052 [prototype]
 Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx`
 
+
+## Desktop designs (found after the first pass)
+
+Earlier scans looked only at top-level frames; the desktop onboarding designs are depth-2 library components and instances. Story `onboarding-flow--desktop-designs` shows each one. Use these for the desktop variants instead of inventing 600px modals.
+
+| design | size | file (last edit) | node | mobile counterpart | note |
+|---|---|---|---|---|---|
+| Join community | 798×700 | Quiet Design Library (2025-04-15) | `5984:26026` | `get-started` | Desktop entry. Routes are Join community / Create new account / Recover account — no Link devices route, unlike mobile's Get started; on desktop linking lives in Settings (#3400). |
+| Full screen modal | 816×540 | Quiet Design Library (2025-04-15) | `6177:33782` | `container` | Desktop paste screen; the library calls it an 'invite code'. |
+| Register username | 600×889 | Quiet Design Library (2025-04-15) | `1236:1837` | `username-default` | Library component for registering a username on desktop. |
+| modal/small | 800×636 | Quiet Design Library (2025-04-15) | `6209:16742` | `agree-and-join-server-opt-in-3054-4090` | modal/small at 800 wide — one of a responsive pair. |
+| modal/small | 1064×636 | Quiet Design Library (2025-04-15) | `6209:17520` | `agree-and-join-server-opt-in-3054-4090` | modal/small at 1064 wide — the other of the pair. |
+| Modal full-window | 715×1018 | Device linking (2024-12-11) | `879:20293` | `get-started` | 'Modal full-window' instance: desktop Let's get started with Join / Create / Link devices. From the Device linking file (Dec 2024). |
+| Modal full-window | 715×929 | Subscriptions, plans, upgrade server (2025-01-17) | `2840:6695` | `want-a-server` | 'Modal full-window' with Add members → Want a server? on desktop. |
+| Join community | 816×540 | Mobile + desktop + prototypes (2024-12-23) | `1967:54355` | `open-invite-link` | Older (Dec 2024) desktop join: paste your invite link. |
+| Create world | 712×556 | Mobile + desktop + prototypes (2024-12-23) | `1430:47383` | `create-default` | Desktop Create a community (name only). |
+| Frame 1327 | 816×540 | Mobile + desktop + prototypes (2024-12-23) | `1430:51905` | `open-invite-link` | 'Do you want to join the community Disco-fever?' — the invite-link confirmation; no mobile counterpart in the prototype. |
+| Frame 1331 | 816×540 | Mobile + desktop + prototypes (2024-12-23) | `1430:52275` | `username-populated` | Older (Dec 2024) desktop username modal with the same helper copy. |
+
+**Divergence to decide:** the desktop entry (`Join community` 798×700) offers *Join community / Create new account / Recover account*; the mobile *Get started* offers *Join a community / Create a new community / Link devices*. The Device-linking file's `Modal full-window` (Dec 2024) shows a desktop *Get started* that does include Link devices. Phase 1 should follow the newest desktop design (the library component, 2025-04) for the entry and put linking under Settings as #3400 does — and flag the inconsistency for the designer.
+
+The desktop shell for onboarding is the library's **Modal full-window** (715 wide) for entry screens and **modal/small** (800 / 1064 wide — a responsive pair) for confirmations such as Agree & join.
+
 ## E2E requirements for the implementation PR
 
 - Desktop: extend `packages/e2e-tests/src/tests/` following `multipleClients.test.ts` / `multipleClients.qss.test.ts` (two clients, selenium): cover Get started → three-way join → paste link → username; create → username; and **device linking multiplayer**: client A creates a community and generates a device link (`LinkedDevices` tab); client B joins via that link as the *same user’s second device*; both show the community; a message sent from B appears on A; A’s device list shows B; unlink from A and B loses access.
