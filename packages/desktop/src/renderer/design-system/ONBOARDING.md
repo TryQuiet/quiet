@@ -11,6 +11,10 @@ Generated 2026-09-11 from the Figma prototype **Get started (prototype)** (`f6Nr
 - **No invented screens or copy.** Real components, or the designer's exports/text.
 - **Base branch**: stack on the RN 0.81 line (`upgrade/react-native-081` → `upgrade/react-native-new-architecture-node`), not on `develop`. Bring in `feat/2610-device-linking` (#3400) by merge; align to its vocabulary: `DeviceLinkInvite`, `deviceLinkUrl`, `LinkedDevices` (desktop Settings tab), `LinkedDeviceQRCode` (mobile screen), strings “Generating device link…”, “Device link unavailable”.
 
+## Layout canon (decided 2026-09-11)
+
+**The mobile prototype is canonical** for layout, alignment and copy. Desktop = the same 375-wide content column centered inside the `Modal full-window` shell. Measured in the file: 26 of the 30 onboarding screens have a **centered** title (the exceptions are iOS crop-screen "Done" buttons and in-app chrome — channel names, the plan card, the iOS share sheet). Rule for every onboarding screen, both platforms: centered title and subtitle; centered illustration where one exists (exported as SVG, never redrawn); full-width action rows / inputs / primary button below; the beta caption at the bottom of the entry screen. The older Dec-2024 desktop frames and the app's current desktop modals are left-aligned and are **not** followed.
+
 ## The flow as the prototype wires it
 
 38 of 39 screens are one connected graph (70 prototype links). Ids are the Storybook story ids under `Onboarding flow`.
@@ -636,6 +640,32 @@ Copy:
 Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Button (1), arrow-up (1)
 Goes to: Glyph → choose-a-plan [prototype]; Frame 1612 → captcha-3054-4052 [prototype]
 Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx`
+
+
+## Desktop designs (found after the first pass)
+
+**The desktop model (decided): base every desktop onboarding screen on the library's `Modal full-window` shell** (node `5825:29938`, 715×929). The content inside is the same 375-wide design mobile uses — the library's `Join community` variants are 375 wide — so desktop and mobile share content and differ only in the shell. The library's `Register username` (600×889) is stale cruft and must not be used for copy; desktop username = the mobile prototype's *Choose username* inside the shell, keeping the app's current validation and the parsed-name warning (`CreateUsernameComponent.tsx`).
+
+Earlier scans looked only at top-level frames; the desktop onboarding designs are depth-2 library components and instances. Story `onboarding-flow--desktop-designs` shows each one. Use these for the desktop variants instead of inventing 600px modals.
+
+| design | size | file (last edit) | node | mobile counterpart | note |
+|---|---|---|---|---|---|
+| Join community — From=invite link | 375×528 | Quiet Design Library (2025-04-15) | `5977:35186` | `container` | Post-invite-link state of the desktop join flow: Create new account / Recover account, with the beta warning. Shown after an invite link is opened. |
+| Join community — From=Get started | 375×505 | Quiet Design Library (2025-04-15) | `5984:26019` | `join-community` | Desktop three-way choice: Join with invite link / Join with QR code / Recover account — the same routes as mobile. |
+| Full screen modal | 816×540 | Quiet Design Library (2025-04-15) | `6177:33782` | `container` | Desktop paste screen; the library calls it an 'invite code'. |
+| Register username | 600×889 | Quiet Design Library (2025-04-15) | `1236:1837` | `username-default` | Library component for registering a username on desktop. |
+| modal/small | 800×636 | Quiet Design Library (2025-04-15) | `6209:16742` | `agree-and-join-server-opt-in-3054-4090` | modal/small at 800 wide — one of a responsive pair. |
+| modal/small | 1064×636 | Quiet Design Library (2025-04-15) | `6209:17520` | `agree-and-join-server-opt-in-3054-4090` | modal/small at 1064 wide — the other of the pair. |
+| Modal full-window | 715×1018 | Device linking (2024-12-11) | `879:20293` | `get-started` | 'Modal full-window' instance: desktop Let's get started with Join / Create / Link devices. From the Device linking file (Dec 2024). |
+| Modal full-window | 715×929 | Subscriptions, plans, upgrade server (2025-01-17) | `2840:6695` | `want-a-server` | 'Modal full-window' with Add members → Want a server? on desktop. |
+| Join community | 816×540 | Mobile + desktop + prototypes (2024-12-23) | `1967:54355` | `open-invite-link` | Older (Dec 2024) desktop join: paste your invite link. |
+| Create world | 712×556 | Mobile + desktop + prototypes (2024-12-23) | `1430:47383` | `create-default` | Desktop Create a community (name only). |
+| Frame 1327 | 816×540 | Mobile + desktop + prototypes (2024-12-23) | `1430:51905` | `open-invite-link` | 'Do you want to join the community Disco-fever?' — the invite-link confirmation; no mobile counterpart in the prototype. |
+| Frame 1331 | 816×540 | Mobile + desktop + prototypes (2024-12-23) | `1430:52275` | `username-populated` | Older (Dec 2024) desktop username modal with the same helper copy. |
+
+**Correction (after viewing the exports):** the library's `Join community` 798×700 is the join sub-flow in two states — post-invite (*Create new account / Recover account*) and the three-way choice (*Join with invite link / Join with QR code / Recover account*), i.e. the same three routes as mobile. The only desktop *app entry* found is the Dec-2024 `Modal full-window` (*Let's get started… / Join a community / Create a new community / Link devices*), which matches mobile's Get started. So desktop and mobile agree on routes; desktop's entry design is simply a year older. Phase 1: desktop entry = the Modal full-window layout with the mobile prototype's copy; desktop three-way join = the library component; device linking stays reachable from the entry AND from Settings (#3400).
+
+The desktop shell for onboarding is the library's **Modal full-window** (715 wide) for entry screens and **modal/small** (800 / 1064 wide — a responsive pair) for confirmations such as Agree & join.
 
 ## E2E requirements for the implementation PR
 
