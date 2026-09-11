@@ -38,6 +38,8 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
   let stored: AdmissionTransport | undefined
   let synchronousStart: boolean
   let discard: ReturnType<typeof jest.fn>
+  let load: ReturnType<typeof jest.fn<() => Promise<{ admissionTransport: AdmissionTransport | undefined }>>>
+  let stage: ReturnType<typeof jest.fn<() => { device: { deviceId: string } }>>
 
   beforeEach(() => {
     jest.useFakeTimers()
@@ -60,6 +62,8 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     commit = jest.fn(async () => undefined)
     claim = jest.fn(async () => 'claimed')
     discard = jest.fn()
+    load = jest.fn(async () => ({ admissionTransport: stored }))
+    stage = jest.fn(() => ({ device: { deviceId: 'device' } }))
     const adapter = {
       create: (option: AdmissionAttemptOptions) => {
         options.push(option)
@@ -81,14 +85,125 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
       adapter as any,
       adapter as any,
       {
-        beginAdmission: () => ({ stage: () => ({ device: { deviceId: 'device' } }), commit, discard }),
+        beginAdmission: () => ({ stage, commit, discard }),
       } as any,
-      { getCommunity: async () => ({ admissionTransport: stored }), claimAdmissionTransport: claim } as any,
+      { getCommunity: load, claimAdmissionTransport: claim } as any,
       clock
     )
   })
   afterEach(() => jest.useRealTimers())
   const payload = () => ({ team: { id: 'team' } as any, user: { userId: 'user' } as any })
+
+  it.each(['resolve', 'reject'] as const)('fences cancelled loading until the database read %ss', async outcome => {
+    const pending = deferred<{ admissionTransport: AdmissionTransport | undefined }>()
+    load.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
+    await flush()
+    expect(load).toHaveBeenCalledTimes(1)
+    const reason = new Error('community switched during loading')
+    const draining = lease.drain(reason)
+    await expect(handle.result).rejects.toBe(reason)
+    const nextLease = new CommunityLifecycle('community', {} as any)
+    expect(() => coordinator.start(request, nextLease)).toThrow(AdmissionBusyError)
+    expect(stage).not.toHaveBeenCalled()
+    if (outcome === 'resolve') pending.resolve({ admissionTransport: undefined })
+    else pending.reject(new Error('late database read failure'))
+    await draining
+    expect(options).toHaveLength(0)
+    expect(discard).not.toHaveBeenCalled()
+    const next = coordinator.start(request, nextLease)
+    await flush()
+    await options[0].context.joined(payload())
+    await expect(next.result).resolves.toMatchObject({ teamId: 'team' })
+    await nextLease.drain(new Error('finished'))
+  })
+
+  it('retains ownership when QSS cleanup fails during fallback', async () => {
+    cleanup.mockRejectedValueOnce(new Error('QSS socket did not close'))
+    const handle = coordinator.start(request, lease)
+    await flush()
+    jest.advanceTimersByTime(60_000)
+    await expect(handle.result).rejects.toMatchObject({ kind: 'recovery' })
+    await expect(handle.drained).rejects.toMatchObject({ kind: 'recovery' })
+    expect(options).toHaveLength(1)
+    expect(commit).not.toHaveBeenCalled()
+    expect(discard).not.toHaveBeenCalled()
+    expect(() => options[0].context.joined(payload())).toThrow('closed')
+    expect(() => coordinator.start(request, new CommunityLifecycle('community', {} as any))).toThrow(AdmissionBusyError)
+    await expect(lease.drain(new Error('shutdown'))).rejects.toMatchObject({ kind: 'recovery' })
+    expect(cleanup).toHaveBeenCalledTimes(1)
+  })
+
+  it.each(['initial', 'fallback'] as const)('rolls back if staging the %s attempt throws', async phase => {
+    if (phase === 'initial')
+      stage.mockImplementationOnce(() => {
+        throw new Error('cannot fork chain')
+      })
+    const handle = coordinator.start(request, lease)
+    await flush()
+    if (phase === 'fallback') {
+      stage.mockImplementationOnce(() => {
+        throw new Error('cannot fork chain')
+      })
+      jest.advanceTimersByTime(60_000)
+    }
+    await expect(handle.result).rejects.toThrow('cannot fork chain')
+    await handle.drained
+    expect(discard).toHaveBeenCalledTimes(1)
+    expect(cleanup).toHaveBeenCalledTimes(phase === 'initial' ? 0 : 1)
+    expect(commit).not.toHaveBeenCalled()
+    const nextLease = new CommunityLifecycle('community', {} as any)
+    const next = coordinator.start(request, nextLease)
+    await flush()
+    await options[options.length - 1].context.joined(payload())
+    await expect(next.result).resolves.toMatchObject({ teamId: 'team' })
+    await nextLease.drain(new Error('finished'))
+  })
+
+  it.each(['validation', 'persistence'] as const)(
+    'drains a failed %s commit when shutdown is already waiting',
+    async kind => {
+      const pending = deferred()
+      commit.mockReturnValueOnce(pending.promise)
+      const handle = coordinator.start(request, lease)
+      await flush()
+      const ack = options[0].context.joined(payload())
+      const rejectedAck = expect(ack).rejects.toMatchObject({ kind })
+      await flush()
+      const shutdown = lease.drain(new Error('shutdown during commit'))
+      await flush()
+      expect(cleanup).not.toHaveBeenCalled()
+      pending.reject(new AdmissionError(kind, 'commit definitively refused'))
+      await rejectedAck
+      await expect(handle.result).rejects.toMatchObject({ kind })
+      await shutdown
+      expect(cleanup).toHaveBeenCalledTimes(1)
+      expect(discard).toHaveBeenCalledTimes(1)
+      expect(options).toHaveLength(1)
+      expect(jest.getTimerCount()).toBe(0)
+    }
+  )
+
+  it('ignores retired-session failures and deadlines while a new admission is active', async () => {
+    const old = coordinator.start(request, lease)
+    await flush()
+    const retired = options[0].context
+    jest.advanceTimersByTime(10_000)
+    await old.cancel(new Error('retry admission'))
+    await expect(old.result).rejects.toThrow('retry admission')
+    const nextLease = new CommunityLifecycle('community', {} as any)
+    const next = coordinator.start({ ...request, preferredTransport: AdmissionTransport.P2P }, nextLease)
+    await flush()
+    retired.fail(new AdmissionError('protocol', 'late old socket error'))
+    expect(() => retired.joined(payload())).toThrow('closed')
+    jest.advanceTimersByTime(110_000)
+    await options[1].context.joined(payload())
+    await expect(next.result).resolves.toMatchObject({ transport: AdmissionTransport.P2P })
+    expect(commit).toHaveBeenCalledTimes(1)
+    await nextLease.drain(new Error('finished'))
+    expect(cleanup).toHaveBeenCalledTimes(2)
+    expect(jest.getTimerCount()).toBe(0)
+  })
 
   it('settles a deadline during hung preparation, fencing ownership until late startup drains', async () => {
     const pending = deferred()
