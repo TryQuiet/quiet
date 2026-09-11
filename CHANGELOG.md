@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.0.0]
+
+### Fixes
+
+* Allow authorized historical private-channel deletions to sync without blocking later channels [#3406](https://github.com/TryQuiet/quiet/issues/3406)
+
 ## [9.0.0]
 
 ### Features

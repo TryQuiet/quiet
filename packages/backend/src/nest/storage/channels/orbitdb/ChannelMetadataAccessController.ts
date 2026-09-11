@@ -185,7 +185,12 @@ export class ChannelMetadataAccessController {
         try {
           const channelRoleMappings = await config.getPrivateChannelsByRolename()
           const channelRoleName = channelRoleMappings.idToRoleName[key]
-          canDelete = chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channelRoleName)
+          // Deleted channels may be absent from the local mapping while OrbitDB verifies
+          // their historical entries. Only a verified admin may authorize that DEL.
+          canDelete =
+            channelRoleName == null
+              ? chain.roles.memberIsAdmin(writerIdentity.id)
+              : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channelRoleName)
         } catch (e) {
           this.logger.warn(`Private channel metadata DEL rejected because role name couldn't be resolved`, {
             writerId: writerIdentity.id,
