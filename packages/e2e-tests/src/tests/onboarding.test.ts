@@ -96,11 +96,11 @@ async function getDeviceInvitation(app: App): Promise<string> {
   return link
 }
 
-async function linkedDeviceNamesInSettings(app: App): Promise<string[]> {
+async function linkedDeviceNamesInSettings(app: App, expectedCount = 0): Promise<string[]> {
   const settings = await new Sidebar(app.driver).openSettings()
   expect(await settings.isReady()).toBeTruthy()
   await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-  const names = await new LinkDevicesModal(app.driver).linkedDeviceNames()
+  const names = await new LinkDevicesModal(app.driver).linkedDeviceNames(expectedCount)
   await settings.closeTabThenModal()
   return names
 }
@@ -220,9 +220,9 @@ describe('Onboarding', () => {
     })
 
     it("A's device list shows B", async () => {
-      const names = await linkedDeviceNamesInSettings(owner)
+      const names = await linkedDeviceNamesInSettings(owner, 1)
       expect(names).toHaveLength(1)
-      const namesOnB = await linkedDeviceNamesInSettings(linkedDevice)
+      const namesOnB = await linkedDeviceNamesInSettings(linkedDevice, 1)
       expect(namesOnB).toHaveLength(1)
       expect(namesOnB).not.toEqual(names)
     })
