@@ -14,4 +14,9 @@ test('unrecognized errors remain private', () => {
   error.failureType = secret
   throw error
 })
+test('browser launch diagnostics', () => {
+  const error = new Error(`session not created: Chrome failed to start. No usable sandbox! Private command: ${secret}`)
+  error.name = 'SessionNotCreatedError'
+  throw error
+})
 test('passing body', () => {})

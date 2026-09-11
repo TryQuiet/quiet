@@ -20,7 +20,17 @@ const files = [
 ]
 const codes = new Set(['ERR_TEST_FAILURE', 'ERR_ASSERTION', 'ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'ENOENT', 'EACCES'])
 const types = new Set(['testCodeFailure', 'hookFailed', 'subtestsFailed', 'testTimeoutFailure', 'cancelledByParent'])
-const classes = new Set(['Error', 'AssertionError', 'TypeError', 'RangeError', 'SyntaxError', 'TimeoutError'])
+const classes = new Set(['Error', 'AssertionError', 'TypeError', 'RangeError', 'SyntaxError', 'TimeoutError',
+  'WebDriverError', 'SessionNotCreatedError', 'NoSuchElementError', 'NoSuchSessionError',
+  'ElementClickInterceptedError', 'ElementNotInteractableError', 'StaleElementReferenceError',
+  'UnexpectedAlertOpenError', 'ScriptTimeoutError'])
+const categories = [
+  [/No usable sandbox|SUID sandbox helper|Failed to move to new namespace/, 'chromium-sandbox'],
+  [/DevToolsActivePort|Chrome instance exited|Chrome failed to start|cannot connect to chrome/i, 'browser-startup'],
+  [/only supports Chrome version|Current browser version is/, 'browser-driver-version'],
+  [/Waiting for element to be located|no such element/i, 'element-not-found'],
+  [/Cannot find module|Cannot find package/, 'missing-dependency'],
+]
 const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const patterns = files.map(file => [file, new RegExp(escape(path.join(root, file)) + ':(\\d+):(\\d+)(?=[)\\s]|$)', 'g')])
 
@@ -28,12 +38,16 @@ function failure(data) {
   const errorCodes = new Set()
   const errorTypes = new Set()
   const errorClasses = new Set()
+  const errorCategories = new Set()
   const locations = new Map()
   let error = data.details?.error
   for (let depth = 0; error && depth < 5; depth++, error = error.cause) {
     if (codes.has(error.code)) errorCodes.add(error.code)
     if (types.has(error.failureType)) errorTypes.add(error.failureType)
     if (classes.has(error.name)) errorClasses.add(error.name)
+    if (typeof error.message === 'string') {
+      for (const [pattern, category] of categories) if (pattern.test(error.message)) errorCategories.add(category)
+    }
     if (typeof error.stack !== 'string') continue
     for (const line of error.stack.split('\n').slice(1, 100)) {
       // Only stack frames count. A multi-line exception message must not add
@@ -50,7 +64,7 @@ function failure(data) {
     }
   }
   return { event: 'test-failure', errorCodes: [...errorCodes], errorTypes: [...errorTypes],
-    errorClasses: [...errorClasses], locations: [...locations.values()].slice(0, 20) }
+    errorClasses: [...errorClasses], errorCategories: [...errorCategories], locations: [...locations.values()].slice(0, 20) }
 }
 
 export default async function* reporter(source) {

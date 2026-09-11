@@ -27,14 +27,16 @@ test('real Node failures retain locations and cleanup failure without exposing p
   }
   const events = publicOutput.trim().split('\n').map(line => JSON.parse(line))
   const failures = events.filter(event => event.event === 'test-failure')
-  assert.equal(failures.length, 3)
+  assert.equal(failures.length, 4)
   assert(failures.some(event => event.errorCodes.includes('ERR_ASSERTION')))
   assert(failures.some(event => event.errorTypes.includes('hookFailed')))
+  const browser = failures.find(event => event.errorClasses.includes('SessionNotCreatedError'))
+  assert.deepEqual(browser.errorCategories, ['chromium-sandbox', 'browser-startup'])
   for (const failure of failures) {
     assert(failure.locations.some(location => location.file === 'packages/mobile/e2e/appium/test/fixtures/reporter-failures.mjs'))
     assert(failure.locations.every(location => Number.isInteger(location.line) && location.line > 0))
   }
   const summary = events.findLast(event => event.event === 'report-complete')
-  assert.equal(summary.failedEvents, 3)
+  assert.equal(summary.failedEvents, 4)
   assert.equal(summary.passedEvents, 1)
 })
