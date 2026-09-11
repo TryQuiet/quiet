@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import re
 import shutil
 import signal
 import stat
@@ -185,6 +186,94 @@ def write_result(output, run, result):
             temporary.unlink()
 
 
+def compiler_diagnostics(log_path, checkout, output):
+    """Publish locations and fixed categories, never compiler/source/script text.
+
+    Compiler messages can contain string literals, expanded macros and environment
+    values. Even an otherwise useful `error:` line is therefore not safe to copy.
+    Unknown errors retain only their tool, severity and owned source location.
+    """
+    categories = [
+        (r'file not found|No such file or directory', 'missing-header-or-file'),
+        (r'Build input file cannot be found', 'missing-build-input'),
+        (r'no such module|module .+ not found|Could not build module|could not build module', 'module-unavailable'),
+        (r'cannot find .+ in scope|use of undeclared identifier', 'symbol-not-in-scope'),
+        (r'Undefined symbols|undefined reference', 'undefined-linker-symbol'),
+        (r'building for .+ but linking|incompatible target|incompatible architecture', 'incompatible-platform-or-architecture'),
+        (r'call to consteval function|not a constant expression', 'constant-expression-required'),
+        (r'no member named|has no member', 'member-not-found'),
+        (r'cannot convert|incompatible .+ type|no viable conversion', 'incompatible-type'),
+        (r'linker command failed', 'linker-failed'),
+    ]
+
+    def location(value):
+        if not value or not re.fullmatch(r'[A-Za-z0-9_./ +@()\-]+', value):
+            return None
+        source = Path(value)
+        if '..' in source.parts:
+            return None
+        if not source.is_absolute():
+            source = checkout / 'packages/mobile' / source
+        for label, root in [('checkout', checkout), ('build', output)]:
+            if source.is_relative_to(root):
+                relative = source.relative_to(root)
+                # Config/credential files and external host paths are not source
+                # locations. Missing-input diagnostics can still retain category.
+                if relative.suffix in {'.c', '.cc', '.cpp', '.cxx', '.h', '.hh', '.hpp', '.m', '.mm', '.swift', '.metal'}:
+                    return f'{label}/{relative.as_posix()}'
+        return None
+
+    report = {'status': 'parsed', 'errors': [], 'truncated': False}
+    seen = set()
+    try:
+        with log_path.open(errors='replace') as log:
+            for line in log:
+                # Discard long shell/source lines and terminal control sequences.
+                if len(line) > 8192 or '\x1b' in line:
+                    continue
+                line = line.rstrip('\r\n')
+                match = re.fullmatch(r'(.+):(\d+):(\d+): (fatal error|error): (.+)', line)
+                entry = None
+                message = ''
+                if match:
+                    source, row, column, severity, message = match.groups()
+                    entry = {'tool': 'swift' if source.endswith('.swift') else 'clang', 'severity': severity,
+                             'source': location(source), 'line': int(row), 'column': int(column)}
+                else:
+                    match = re.fullmatch(r'(clang(?:\+\+)?|swiftc|ld): (?:error: )?(.+)', line)
+                    if match:
+                        tool, message = match.groups()
+                        # ld warning lines have the same prefix as errors.
+                        if message.startswith('warning:'):
+                            continue
+                        entry = {'tool': tool, 'severity': 'error'}
+                    elif line.startswith('error: Build input file cannot be found: '):
+                        message = line
+                        entry = {'tool': 'xcodebuild', 'severity': 'error'}
+                        source = re.search(r"cannot be found: '([^']+)'", line)
+                        if source:
+                            entry['source'] = location(source.group(1))
+                    elif re.fullmatch(r'Command (?:CompileC|SwiftCompile|SwiftEmitModule|Ld|PhaseScriptExecution) failed with a nonzero exit code', line):
+                        entry = {'tool': 'xcodebuild', 'severity': 'error', 'category': 'build-phase-failed'}
+                    elif re.fullmatch(r'Undefined symbols for architecture [A-Za-z0-9_]+:', line):
+                        entry = {'tool': 'ld', 'severity': 'error', 'category': 'undefined-linker-symbol'}
+                if entry is None:
+                    continue
+                entry.setdefault('category', next((category for pattern, category in categories
+                                                   if re.search(pattern, message)), 'unclassified-compiler-error'))
+                key = json.dumps(entry, sort_keys=True)
+                if key in seen:
+                    continue
+                if len(report['errors']) == 40:
+                    report['truncated'] = True
+                    break
+                seen.add(key)
+                report['errors'].append(entry)
+    except OSError:
+        report['status'] = 'unavailable'
+    return report
+
+
 def build(args):
     require(sys.platform == 'darwin', 'This build wrapper requires macOS')
     selection = (args.scheme, args.configuration, args.env_file)
@@ -348,6 +437,8 @@ def build_in_workspace(args, checkout, mobile, target, source, env, output):
                           restoreError=type(error).__name__)
         if stop_signal is not None:
             result['signal'] = stop_signal
+        if result['status'] == 'failed':
+            result['compilerDiagnostics'] = compiler_diagnostics(log_path, checkout, output)
         write_result(output, run, result)
     print(json.dumps(result))
     return 0 if result['status'] == 'passed' and result['originalRestored'] else 1
