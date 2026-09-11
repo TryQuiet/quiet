@@ -25,6 +25,7 @@ import {
   SocketActions,
 } from '@quiet/types'
 import { type Socket } from '../../../types'
+import { MAX_PROFILE_PHOTO_SIZE_BYTES, PROFILE_PHOTO_TOO_LARGE_ERROR } from '@quiet/common'
 
 describe('saveUserProfileSaga', () => {
   let store: Store
@@ -50,6 +51,10 @@ describe('saveUserProfileSaga', () => {
 
   const makeFile = (name: string, path: string): File => {
     return Object.assign(new Blob([]), { name, path }) as any as File
+  }
+
+  const makeFileOfSize = (name: string, path: string, bytes: number): File => {
+    return Object.assign(new Blob([new Uint8Array(bytes)]), { name, path }) as any as File
   }
 
   const makeUploadStatusAction = (mid: string, downloadState: DownloadState) =>
@@ -310,6 +315,74 @@ describe('saveUserProfileSaga', () => {
           },
         ],
       })
+      .run()
+  })
+
+  test('rejects an oversized profile photo with an error and never starts the upload', async () => {
+    const photo = makeFileOfSize('huge.jpg', '/tmp/huge.jpg', MAX_PROFILE_PHOTO_SIZE_BYTES + 1)
+
+    await expectSaga(
+      saveUserProfileSaga,
+      socket as unknown as Socket,
+      // @ts-ignore
+      usersActions.saveUserProfile({ photo, nickname: userProfile.nickname, bio: userProfile.bio })
+    )
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .put(usersActions.setSaveUserProfileError(PROFILE_PHOTO_TOO_LARGE_ERROR))
+      // The upload must never start: no message id, no ATTACH_FILE, no Attaching status.
+      .not.call.fn(generateMessageId)
+      .not.call.like({ context: socket, fn: socket.emit })
+      .not.put.like({ action: { type: filesActions.updateDownloadStatus.type } })
+      // And the profile must not be saved.
+      .not.call.like({ context: socket, fn: socket.emitWithAck })
+      .not.put.like({ action: { type: usersActions.setUserProfile.type } })
+      .run()
+  })
+
+  test('accepts a profile photo exactly at the size limit', async () => {
+    const fixedId = 'fixed-at-limit-id'
+    const profilePhotoMessageId = `profile-photo-${identity.userId}-${fixedId}`
+
+    const uploadedMetadata: FileMetadata = {
+      name: `profile-photo-${identity.userId}`,
+      ext: '.jpg',
+      path: '/tmp/at-limit.jpg',
+      cid: 'bafy-at-limit-cid',
+      message: {
+        id: profilePhotoMessageId,
+        channelId: PROFILE_PHOTO_CHANNEL_ID,
+      },
+    }
+
+    let takeCalls = 0
+    const provideTake = () => ({
+      take(effect: any, next: any) {
+        takeCalls += 1
+        if (takeCalls === 1) {
+          return makeUploadStatusAction(profilePhotoMessageId, DownloadState.Hosted)
+        }
+        return next()
+      },
+    })
+
+    const photo = makeFileOfSize('at-limit.jpg', '/tmp/at-limit.jpg', MAX_PROFILE_PHOTO_SIZE_BYTES)
+
+    await expectSaga(
+      saveUserProfileSaga,
+      socket as unknown as Socket,
+      // @ts-ignore
+      usersActions.saveUserProfile({ photo, nickname: userProfile.nickname, bio: userProfile.bio })
+    )
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), fixedId],
+        [select(filesSelectors.profilePhotos), { [profilePhotoMessageId]: uploadedMetadata }],
+        { take: provideTake().take },
+      ])
+      .call.like({ context: socket, fn: socket.emit })
+      .put.like({ action: { type: usersActions.setSaveUserProfileError.type, payload: null } })
       .run()
   })
 })
