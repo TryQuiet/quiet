@@ -180,7 +180,6 @@ describe('Chat component list data', () => {
     },
     pendingMessages: {},
     messages: mockMessages,
-    updateFileAttachments: jest.fn(),
     updateImageAttachments: jest.fn(),
     removeFilePreview: jest.fn(),
   }

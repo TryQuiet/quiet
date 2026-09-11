@@ -1,0 +1,67 @@
+{
+  "frameworkCommit": "8c50f3c74edd9a5cf57c02a7b13311e70ff64657",
+  "sources": [
+    {
+      "name": "Tor.framework",
+      "repository": "https://github.com/iCepa/Tor.framework",
+      "commit": "8c50f3c74edd9a5cf57c02a7b13311e70ff64657",
+      "destination": "Tor.framework",
+      "url": "https://codeload.github.com/iCepa/Tor.framework/tar.gz/8c50f3c74edd9a5cf57c02a7b13311e70ff64657",
+      "archiveSHA256": "cc78e33b73816f9b6671c7bf72fa810b60e7b711d977ae66bc08cc473767be5f",
+      "archiveBytes": 1888304
+    },
+    {
+      "name": "libevent",
+      "version": "2.1.12",
+      "repository": "https://github.com/libevent/libevent",
+      "commit": "5df3037d10556bfcb675bc73e516978b75fc7bc7",
+      "destination": "Tor.framework/Tor/libevent",
+      "url": "https://codeload.github.com/libevent/libevent/tar.gz/5df3037d10556bfcb675bc73e516978b75fc7bc7",
+      "archiveSHA256": "ce3018de962b9c5918364a1d81a856d2cab671e6c832ded429502445d3fe1b79",
+      "archiveBytes": 744072
+    },
+    {
+      "name": "openssl",
+      "version": "1.1.1k",
+      "repository": "https://github.com/openssl/openssl",
+      "commit": "fd78df59b0f656aefe96e39533130454aa957c00",
+      "destination": "Tor.framework/Tor/openssl",
+      "url": "https://codeload.github.com/openssl/openssl/tar.gz/fd78df59b0f656aefe96e39533130454aa957c00",
+      "archiveSHA256": "681d1a3502811e704c3fbab07fae6abf5308ecabb8a60a22ee986887fa2bb760",
+      "archiveBytes": 10002284
+    },
+    {
+      "name": "tor",
+      "version": "0.4.5.9",
+      "repository": "https://gitlab.torproject.org/tpo/core/tor",
+      "commit": "d0ed04d50e80fe1c1ef1bf89edebc51581a6039f",
+      "destination": "Tor.framework/Tor/tor",
+      "url": "https://gitlab.torproject.org/tpo/core/tor/-/archive/d0ed04d50e80fe1c1ef1bf89edebc51581a6039f/tor-d0ed04d50e80fe1c1ef1bf89edebc51581a6039f.tar.gz",
+      "archiveSHA256": "44705c1fa7281fca6c1a57306d394ba92ab0a20c3238ad27c35fa4b3bd32b454",
+      "archiveBytes": 7730197
+    },
+    {
+      "name": "xz",
+      "version": "5.2.5",
+      "repository": "https://github.com/tukaani-project/xz",
+      "commit": "2327a461e1afce862c22269b80d3517801103c1b",
+      "destination": "Tor.framework/Tor/xz",
+      "url": "https://codeload.github.com/tukaani-project/xz/tar.gz/2327a461e1afce862c22269b80d3517801103c1b",
+      "archiveSHA256": "713375521add6e863d08d994f517524f54185ccc433b9dfd735e65c45ea0967e",
+      "archiveBytes": 762682
+    },
+    {
+      "name": "xcconfigs",
+      "repository": "https://github.com/jspahrsummers/xcconfigs",
+      "commit": "4ced0ad5a971220917994a4edfa6abf9702e3818",
+      "destination": "Tor.framework/Carthage/Checkouts/xcconfigs",
+      "url": "https://codeload.github.com/jspahrsummers/xcconfigs/tar.gz/4ced0ad5a971220917994a4edfa6abf9702e3818",
+      "archiveSHA256": "8cb22419f779ec87820e569acfbd1ace4f04f65d9a84d01cd67e248e1ad0645c",
+      "archiveBytes": 9148
+    }
+  ],
+  "frameworkVersion": "405.9.1",
+  "frameworkCommitDate": "2021-06-18T11:58:41Z",
+  "sourceDateEpoch": 1624017521,
+  "patchSHA256": "3ccf49ffbe221bdd8e1ab192858f00c5d7ded05d6c39e05bcbfa88297e64955b"
+}

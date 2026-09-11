@@ -1,3 +1,5 @@
+import './preserve-native-promise'
+
 import { LogBox } from 'react-native'
 
 import { configure, addDecorator, getStorybookUI } from '@storybook/react-native'
@@ -9,6 +11,8 @@ LogBox.ignoreAllLogs()
 addDecorator(withNavigation)
 
 configure(() => {
+  require('../src/components/AndroidCompatibility/AndroidCompatibility.stories')
+  require('../src/components/RuntimeCompatibility/RuntimeCompatibility.stories')
   require('../src/components/JoinCommunity/JoinCommunity.stories')
   require('../src/components/LeaveCommunity/LeaveCommunity.stories')
   require('../src/components/ConnectionProcess/ConnectionProcess.stories')

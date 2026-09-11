@@ -90,10 +90,6 @@ def googleServicesJsonPath = file("google-services.json")
  * ]
  */
 
-project.ext.react = [
-        enableHermes: false,  // clean and rebuild if changing
-]
-
 // Run Proguard to shrink the Java bytecode in release builds.
 def enableProguardInReleaseBuilds = false
 
@@ -113,15 +109,6 @@ def enableProguardInReleaseBuilds = false
  * https://repo1.maven.org/maven2/io/github/react-native-community/jsc-android-intl/
  */
 def jscFlavor = "io.github.react-native-community:jsc-android-intl:2026004.0.1@aar"
-
-/**
- * Whether to enable the Hermes VM.
- *
- * This should be set on project.ext.react and mirrored here.  If it is not set
- * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
- * and the benefits of using Hermes will therefore be sharply reduced.
- */
-def enableHermes = project.ext.react.get("enableHermes", false)
 
 /**
  * Architectures to build native code for.
@@ -281,21 +268,18 @@ dependencies {
     testImplementation("org.json:json:20240303")
     testImplementation("org.mockito:mockito-inline:5.2.0")
 
-    androidTestImplementation("com.wix:detox:+")
+    androidTestImplementation("com.wix:detox:${new groovy.json.JsonSlurper().parse(file("$rootDir/../node_modules/detox/package.json")).version}")
     androidTestImplementation("androidx.test:core:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 
-    if (enableHermes) {
-        //noinspection GradleDynamicVersion
-        implementation("com.facebook.react:hermes-engine:+") { // From node_modules
-            exclude group: "com.facebook.fbjni"
-        }
+    if (hermesEnabled.toBoolean()) {
+        // Match the Hermes runtime and bytecode compiler to React Native's version.
+        implementation("com.facebook.react:hermes-android")
     } else {
         implementation(jscFlavor)
     }
 
-    // TODO these can't be further updated until Quiet targets API 36
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
     implementation("androidx.core:core-ktx:1.16.0")
 
@@ -339,14 +323,21 @@ tasks.register("copyDownloadableDepsToLibs", Copy) {
 // Keys are matched by dotenv.gradle's getCurrentFlavor(), which captures the
 // trailing CamelCase segment of the gradle task name and lowercases it (e.g.
 // installStandardDebug -> "standarddebug"). With product flavors in play the
-// bare buildType keys ("debug", "release") never match, so keys must include
-// the flavor prefix.
+// bare buildType keys ("debug", "release") never match flavor-qualified task
+// names, so those keys are also listed. But some invocations (e.g. plain
+// "assembleDebug", which Android Studio's Make/Run actions can issue) omit
+// the flavor entirely and only resolve to "debug"/"release" - without a
+// fallback here, no env file matches, no BuildConfig fields get generated,
+// and the app fails to compile with "Unresolved reference" errors. The bare
+// keys below cover that case, defaulting to the "standard" flavor's env files.
 project.ext.envConfigFiles = [
         standarddebug   : ".env.development",
         standardrelease : ".env.staging",
         standardprod    : ".env.production",
         storybookdebug  : ".env.storybook",
         storybookrelease: ".env.storybook",
+        debug           : ".env.development",
+        release         : ".env.staging",
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"

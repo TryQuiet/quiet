@@ -87,15 +87,13 @@ describe('Loading component', () => {
               fontSize={12}
               horizontalTextAlign="center"
               style={
-                [
-                  {
-                    "color": "#7F7F7F",
-                    "fontFamily": "Rubik-Regular",
-                    "fontSize": 12,
-                    "textAlign": "center",
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "color": "#7F7F7F",
+                  "fontFamily": "Rubik-Regular",
+                  "fontSize": 12,
+                  "textAlign": "center",
+                  "textAlignVertical": "center",
+                }
               }
               verticalTextAlign="center"
             >

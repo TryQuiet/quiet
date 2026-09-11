@@ -18,15 +18,13 @@ describe('Typography component', () => {
         fontWeight="bold"
         horizontalTextAlign="left"
         style={
-          [
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Bold",
-              "fontSize": 20,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            },
-          ]
+          {
+            "color": "#000000",
+            "fontFamily": "Rubik-Bold",
+            "fontSize": 20,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          }
         }
         verticalTextAlign="center"
       >

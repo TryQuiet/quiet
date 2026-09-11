@@ -42,6 +42,7 @@
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 * Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
+* Fix tapable area in two places in the Appbar [#3372] (https://github.com/TryQuiet/quiet/issues/3372)
 * Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
 * Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
@@ -123,6 +124,7 @@
 
 ### Fixes
 
+* Keep image previews within the available window after rotating to landscape. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 * The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
 * Improved tor lifecycle handling [#3233](https://github.com/TryQuiet/quiet/issues/3233)
 * Fixed Android crash on leaving a community when `google-services.json` was missing from the build [#3238](https://github.com/TryQuiet/quiet/pull/3238)
@@ -142,6 +144,8 @@
 * Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
 
 ### Chores
+
+* Target Android 16 (API 36), preserve Android Back navigation, and handle modal safe areas while retaining the current React Native version. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 
 ## [7.0.1]
 

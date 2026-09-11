@@ -1,30 +1,14 @@
 /* eslint-disable */
-import { setEngine, CryptoEngine } from 'pkijs'
+import { setEngine } from 'pkijs'
 import { setEngine as setIdentityEngine } from '../../identity/node_modules/pkijs'
 import React from 'react'
 
 import { io } from 'socket.io-client'
 import { saveChannelMetadataInKeychainSaga } from './store/channelMetadata/saveChannelMetadataInKeychain/saveChannelMetadataInKeychain.saga'
 
-setEngine(
-  'newEngine',
-  global.crypto,
-  new CryptoEngine({
-    name: '',
-    crypto: global.crypto,
-    subtle: global.crypto.subtle,
-  })
-)
-
-setIdentityEngine(
-  'newEngine',
-  global.crypto,
-  new CryptoEngine({
-    name: '',
-    crypto: global.crypto,
-    subtle: global.crypto.subtle,
-  })
-)
+// Each installed PKI.js version creates its own compatible CryptoEngine.
+setEngine('newEngine', global.crypto, global.crypto.subtle)
+setIdentityEngine('newEngine', global.crypto, global.crypto.subtle)
 
 jest.mock('react-native-config', () => ({
   NODE_ENV: 'staging',
@@ -42,11 +26,13 @@ jest.mock('redux-persist', () => {
   }
 })
 
-jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter')
-
 jest.mock('react-native', () => {
   const rn = jest.requireActual('react-native')
+  // Keep NativeEventEmitter's real JavaScript subscriptions so Keyboard and
+  // KeyboardAvoidingView can receive events and remove listeners on unmount.
   rn.NativeModules.CommunicationModule = {
+    addListener: jest.fn(),
+    removeListeners: jest.fn(),
     requestNotificationPermission: jest.fn(),
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),
@@ -101,12 +87,6 @@ jest.mock('@ronradtke/react-native-markdown-display', () => ({
 jest.mock('socket.io-client', () => ({
   io: jest.fn(),
 }))
-
-// Mocked because of:
-//
-// "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNDocumentPicker'
-// could not be found. Verify that a module by this name is registered in the native binary."
-jest.mock('react-native-document-picker', () => {})
 
 // Mocked because of:
 //

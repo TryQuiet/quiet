@@ -38,8 +38,8 @@
 		03B674212E6103DC00A86655 /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */; };
 		03B674222E6103DC00A86655 /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673F92E6103DC00A86655 /* Rubik-Black.ttf */; };
 		180E120B2AEFB7F900804659 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180E120A2AEFB7F900804659 /* Utils.swift */; };
-		1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1827A9E329783D7600245FD3 /* classic-level.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.xcframework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		1827A9E429783D7600245FD3 /* classic-level.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1868B952292E9211001D6D5E /* NodeRunner.mm */; };
 		1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = 1868B953292E9211001D6D5E /* RNNodeJsMobile.m */; };
 		1868BCF1292E9212001D6D5E /* rn-bridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1868BCEC292E9212001D6D5E /* rn-bridge.cpp */; };
@@ -100,7 +100,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				00A416372EC2EC7F00ACC877 /* NodeMobile.xcframework in Embed Frameworks */,
-				1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */,
+				1827A9E429783D7600245FD3 /* classic-level.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -139,7 +139,7 @@
 		03B674062E6103DC00A86655 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-SemiBoldItalic.ttf"; path = "../src/assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		13B07F961A680F5B00A75B9A /* Quiet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		180E120A2AEFB7F900804659 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		1827A9E129783D6E00245FD3 /* classic-level.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = "classic-level.framework"; sourceTree = "<group>"; };
+		1827A9E129783D6E00245FD3 /* classic-level.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "classic-level.xcframework"; path = "classic-level/classic-level.xcframework"; sourceTree = "<group>"; };
 		183C484F296C7B6700BA2D8B /* v8-platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-platform.h"; sourceTree = "<group>"; };
 		183C4850296C7B6700BA2D8B /* v8-version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-version.h"; sourceTree = "<group>"; };
 		183C4851296C7B6700BA2D8B /* node_api_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node_api_types.h; sourceTree = "<group>"; };
@@ -732,7 +732,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */,
-				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
+				1827A9E329783D7600245FD3 /* classic-level.xcframework in Frameworks */,
 				6204263D91F3440F598B7BB0 /* Pods_Quiet.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4835,7 +4835,7 @@
 			isa = PBXGroup;
 			children = (
 				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
-				1827A9E129783D6E00245FD3 /* classic-level.framework */,
+				1827A9E129783D6E00245FD3 /* classic-level.xcframework */,
 				4656C8360BE2B6E9C1BCF8CF /* Pods_Quiet.framework */,
 				3D609F9D4DF7238B86189CDC /* Pods_QuietNotificationServiceExtension.framework */,
 				5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */,
@@ -5696,6 +5696,8 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers/platform/ios",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
@@ -5781,6 +5783,8 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers/platform/ios",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
@@ -5827,7 +5831,7 @@
 				INFOPLIST_FILE = QuietNotificationServiceExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = QuietNotificationServiceExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5873,7 +5877,7 @@
 				INFOPLIST_FILE = QuietNotificationServiceExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = QuietNotificationServiceExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
