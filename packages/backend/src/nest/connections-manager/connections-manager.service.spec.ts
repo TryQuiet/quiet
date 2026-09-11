@@ -710,6 +710,134 @@ describe('ConnectionsManagerService', () => {
     expect(eraseArtifactsSpy.mock.invocationCallOrder[0]).toBeLessThan(createChainSpy.mock.invocationCallOrder[0])
   })
 
+  describe('leaving while community operations are requested', () => {
+    const deferred = () => {
+      let resolve!: () => void
+      let reject!: (error: Error) => void
+      const promise = new Promise<void>((res, rej) => {
+        resolve = res
+        reject = rej
+      })
+      return { promise, resolve, reject }
+    }
+
+    beforeEach(async () => {
+      const oldChain = await sigChainService.createChain(true)
+      await localDbService.setCommunity({ ...community, teamId: oldChain.teamId! })
+      await localDbService.setCurrentCommunityId(community.id)
+      // Keep real local database, sigchain, create/join and cleanup operations. Only
+      // the external transport and stores not started by this fixture are controlled.
+      jest.spyOn(qpsService, 'tombstoneCurrentUserNotificationTokens').mockResolvedValue(true)
+      jest.spyOn(qssService, 'close').mockImplementation(() => {})
+      jest.spyOn(qssService, 'resume').mockResolvedValue()
+      jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
+      jest.spyOn(connectionsManagerService, 'openSocket').mockResolvedValue()
+      jest.spyOn(storageService, 'clean').mockResolvedValue()
+      jest.spyOn(storageService, 'addUserProfile').mockResolvedValue({ success: true })
+      jest.spyOn(storageService, 'deferUserProfile').mockResolvedValue({ success: true })
+      jest.spyOn(libp2pService, 'cleanDatastore').mockResolvedValue()
+      jest.spyOn(libp2pService, 'closeDatastore').mockResolvedValue()
+      jest.spyOn(connectionsManagerService['tor'], 'resetHiddenServices').mockImplementation(() => {})
+      jest.spyOn(connectionsManagerService, 'getNetworkInfo').mockResolvedValue(userIdentity.networkInfo)
+      jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
+    })
+
+    it.each(['create', 'join'] as const)(
+      'coalesces slow leaves and keeps a queued %s intact after all old teardown completes',
+      async operation => {
+        const closing = deferred()
+        const entered = deferred()
+        const close = jest.spyOn(libp2pService, 'close').mockResolvedValue()
+        close.mockImplementationOnce(async () => {
+          entered.resolve()
+          await closing.promise
+        })
+        const deleteChain = jest.spyOn(sigChainService, 'deleteChain')
+        const oldTeamId = sigChainService.activeChainTeamId
+        const first = connectionsManagerService.leaveCommunity()
+        await entered.promise
+        const second = connectionsManagerService.leaveCommunity()
+        const third = connectionsManagerService.leaveCommunity()
+        expect(second).toBe(first)
+        expect(third).toBe(first)
+
+        const payload = { id: 'new-community', name: 'New community', username: 'owner', useServer: false }
+        const next =
+          operation === 'create'
+            ? connectionsManagerService.createCommunity(payload)
+            : connectionsManagerService.joinCommunity({ ...payload, inviteData: validInvitationDatav4[0] })
+        let finished = false
+        void next.then(() => {
+          finished = true
+        })
+        await new Promise<void>(resolve => setImmediate(resolve))
+        expect(close).toHaveBeenCalledTimes(1)
+        expect(finished).toBe(false)
+        expect(sigChainService.activeChainTeamId).toBe(oldTeamId)
+        expect((await localDbService.getCurrentCommunity())?.id).toBe(community.id)
+
+        closing.resolve()
+        expect(await Promise.all([first, second, third])).toEqual([true, true, true])
+        const created = await next
+        expect(created?.community.id).toBe('new-community')
+        expect((await localDbService.getCurrentCommunity())?.id).toBe('new-community')
+        expect(await localDbService.getCommunity('new-community')).toEqual(created?.community)
+        expect(sigChainService.activeChainTeamId).toBe(created?.community.teamId)
+        expect(deleteChain).toHaveBeenCalledTimes(1)
+        expect(deleteChain).toHaveBeenCalledWith(oldTeamId, true)
+        if (operation === 'create') {
+          const invite = sigChainService.getActiveChain().invites.createLongLivedUserInvite()
+          expect(invite.teamId).toBe(created?.community.teamId)
+          expect(invite.seed).toEqual(expect.any(String))
+        }
+      }
+    )
+
+    it('rejects queued create/join after failed cleanup and permits them after a successful leave retry', async () => {
+      const closing = deferred()
+      const entered = deferred()
+      const close = jest.spyOn(libp2pService, 'close').mockResolvedValue()
+      close.mockImplementationOnce(async () => {
+        entered.resolve()
+        await closing.promise
+      })
+      const first = connectionsManagerService.leaveCommunity()
+      await entered.promise
+      const duplicate = connectionsManagerService.leaveCommunity()
+      const payload = { id: 'retry-community', name: 'Retry community', username: 'owner', useServer: false }
+      const create = connectionsManagerService.createCommunity(payload)
+      const join = connectionsManagerService.joinCommunity({ ...payload, inviteData: validInvitationDatav4[0] })
+      const failures = Promise.allSettled([first, duplicate, create, join])
+      closing.reject(new Error('peer close failed'))
+      const results = await failures
+      expect(results.map(result => result.status)).toEqual(['rejected', 'rejected', 'rejected', 'rejected'])
+      expect((results[0] as PromiseRejectedResult).reason.message).toBe('peer close failed')
+      expect((results[2] as PromiseRejectedResult).reason.message).toContain('retry leaving')
+      expect((results[3] as PromiseRejectedResult).reason.message).toContain('retry leaving')
+      expect((await localDbService.getCurrentCommunity())?.id).toBe(community.id)
+
+      await expect(connectionsManagerService.leaveCommunity()).resolves.toBe(true)
+      const created = await connectionsManagerService.createCommunity(payload)
+      expect(await localDbService.getCommunity(payload.id)).toEqual(created?.community)
+      expect(sigChainService.activeChainTeamId).toBe(created?.community.teamId)
+    })
+
+    it('can retry after a partial teardown has already deleted the chain and closed the database', async () => {
+      jest.spyOn(libp2pService, 'close').mockResolvedValue()
+      jest.spyOn(storageService, 'clean').mockRejectedValueOnce(new Error('storage cleanup interrupted'))
+      await expect(connectionsManagerService.leaveCommunity()).rejects.toThrow('storage cleanup interrupted')
+      expect(sigChainService.activeChainTeamId).toBeUndefined()
+      expect(localDbService.getStatus()).toBe('closed')
+
+      const payload = { id: 'after-partial-leave', name: 'Fresh community', username: 'owner', useServer: false }
+      await expect(connectionsManagerService.createCommunity(payload)).rejects.toThrow('retry leaving')
+      await expect(connectionsManagerService.leaveCommunity()).resolves.toBe(true)
+      const created = await connectionsManagerService.createCommunity(payload)
+      expect((await localDbService.getCurrentCommunity())?.id).toBe(payload.id)
+      expect(sigChainService.activeChainTeamId).toBe(created?.community.teamId)
+    })
+  })
+
   it('erases previous community artifacts before joining a community', async () => {
     const eraseArtifactsSpy = jest
       .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')

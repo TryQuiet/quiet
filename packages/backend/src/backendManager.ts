@@ -223,15 +223,23 @@ export const runBackendDesktop = async (secret: string) => {
       logger.info('Received close message from parent process')
       await shutdown.gracefulCloseServices()
     }
-    if (message === 'leaveCommunity') {
+    if (
+      typeof message === 'object' &&
+      message !== null &&
+      'type' in message &&
+      message.type === 'leaveCommunity' &&
+      'requestId' in message &&
+      typeof message.requestId === 'string'
+    ) {
       let success = false
       try {
         success = await connectionsManager.leaveCommunity()
       } catch (e) {
         logger.error('Error occurred while leaving community', e)
-        await shutdown.initiateShutdown(1, 'leaveCommunity error')
+        // The transition gate blocks create/join until cleanup succeeds. Keep IPC
+        // available so the user can retry even when the frontend socket was closed.
       }
-      const response: BackendLeaveCommunityMessage = { type: 'leftCommunity', success }
+      const response: BackendLeaveCommunityMessage = { type: 'leftCommunity', requestId: message.requestId, success }
       if (process.connected) process.send?.(response)
     }
   })

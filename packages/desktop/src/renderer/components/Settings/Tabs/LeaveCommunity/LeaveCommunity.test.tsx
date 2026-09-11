@@ -1,10 +1,37 @@
 import React from 'react'
+import { act, fireEvent, waitFor } from '@testing-library/react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
 
 import LeaveCommunityComponent from './LeaveCommunityComponent'
 
 describe('LeaveCommunity', () => {
+  it('disables repeated clicks while leaving and lets the user retry a failure', async () => {
+    let reject!: (error: Error) => void
+    const pending = new Promise<void>((_resolve, rej) => {
+      reject = rej
+    })
+    const leave = jest.fn().mockReturnValueOnce(pending).mockResolvedValue(undefined)
+    const result = renderComponent(
+      <LeaveCommunityComponent communityName='Rockets' leaveCommunity={leave} open={true} handleClose={jest.fn()} />
+    )
+    const button = result.getByTestId('leave-community-button') as HTMLButtonElement
+    fireEvent.click(button)
+    fireEvent.click(button)
+    expect(leave).toHaveBeenCalledTimes(1)
+    expect(button.disabled).toBe(true)
+    expect(button.textContent).toBe('Leaving community…')
+    await act(async () => {
+      reject(new Error('backend failed'))
+    })
+    expect(result.getByRole('alert').textContent).toContain('Please try again')
+    expect(button.disabled).toBe(false)
+    fireEvent.click(button)
+    await waitFor(() => expect(button.disabled).toBe(false))
+    expect(leave).toHaveBeenCalledTimes(2)
+    expect(result.queryByRole('alert')).toBeNull()
+  })
+
   it('renders component', () => {
     const result = renderComponent(
       <LeaveCommunityComponent
