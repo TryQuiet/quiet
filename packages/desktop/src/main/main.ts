@@ -877,6 +877,30 @@ app.on('ready', async () => {
     })
   })
 
+  /**
+   * Writes a compressed profile photo to a temp file and returns where it landed.
+   *
+   * Deliberately a separate channel from `writeTempFile` above: that one answers
+   * with a broadcast `writeTempFileReply`, and the channel view listens to it
+   * permanently and appends every reply to the message composer's pending
+   * attachments. Reusing it would make the user's profile photo appear as an
+   * unsent chat attachment. `handle`/`invoke` answers only the caller.
+   */
+  ipcMain.handle('write-profile-photo-temp-file', async (_event, arg) => {
+    logger.info('ipcMain: write-profile-photo-temp-file')
+    if (!arg?.fileBuffer) {
+      throw new Error('write-profile-photo-temp-file requires a fileBuffer')
+    }
+    const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
+    fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
+    const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
+    const name = arg.ext ? arg.fileName.split(arg.ext)[0] : arg.fileName
+    const filePath = `${path.join(temporaryFilesDirectory, `${name}_${id}${arg.ext}`)}`
+    fs.writeFileSync(filePath, Buffer.from(arg.fileBuffer))
+
+    return { path: filePath, name, ext: arg.ext }
+  })
+
   ipcMain.on('openUploadFileDialog', async e => {
     logger.info('ipcMain: openUploadFileDialog')
     let filesDialogResult: Electron.OpenDialogReturnValue

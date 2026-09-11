@@ -6,6 +6,7 @@ import * as backendHelpers from './backendHelpers'
 import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
+import fs from 'fs'
 import path from 'path'
 import { composeInvitationDeepUrl, getValidInvitationUrlTestData, validInvitationCodeTestData } from '@quiet/common'
 import { InvitationData } from '@quiet/types'
@@ -366,5 +367,53 @@ describe('security: socketIOSecret exposure', () => {
     // Should NOT find the call with -scrt
     const secretCall = forkCalls.find((call: (string | string[])[]) => call[1] && call[1].includes('-scrt'))
     expect(secretCall).toBeUndefined()
+  })
+})
+
+describe('write-profile-photo-temp-file IPC handler', () => {
+  const getHandler = () => {
+    const call = (ipcMain.handle as jest.Mock).mock.calls.find(c => c[0] === 'write-profile-photo-temp-file')
+    expect(call).toBeDefined()
+    return call![1] as (event: unknown, arg: unknown) => Promise<{ path: string; name: string; ext: string }>
+  }
+
+  let mkdirSync: jest.SpyInstance
+  let writeFileSync: jest.SpyInstance
+
+  beforeEach(() => {
+    mkdirSync = jest.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined)
+    writeFileSync = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => undefined)
+  })
+
+  afterEach(() => {
+    mkdirSync.mockRestore()
+    writeFileSync.mockRestore()
+  })
+
+  it('writes the buffer to the temporary files directory and returns where it landed', async () => {
+    const fileBuffer = new Uint8Array([1, 2, 3, 4])
+
+    const result = await getHandler()(null, { fileName: 'profile-photo.jpg', ext: '.jpg', fileBuffer })
+
+    expect(mkdirSync).toHaveBeenCalledWith(expect.any(String), { recursive: true })
+    expect(writeFileSync).toHaveBeenCalledTimes(1)
+    const [writtenPath, writtenData] = writeFileSync.mock.calls[0]
+    expect(writtenData).toEqual(Buffer.from(fileBuffer))
+    // The extension is stripped from the returned name, matching writeTempFile,
+    // so that callers can rebuild `name + ext` without doubling it up.
+    expect(result).toEqual({ path: writtenPath, name: 'profile-photo', ext: '.jpg' })
+  })
+
+  it('keeps the whole file name when no extension is given', async () => {
+    const result = await getHandler()(null, { fileName: 'profile-photo', ext: '', fileBuffer: new Uint8Array([9]) })
+
+    expect(result.name).toBe('profile-photo')
+  })
+
+  it('rejects a request with no buffer instead of writing an empty file', async () => {
+    await expect(getHandler()(null, { fileName: 'profile-photo.jpg', ext: '.jpg' })).rejects.toThrow(
+      'write-profile-photo-temp-file requires a fileBuffer'
+    )
+    expect(writeFileSync).not.toHaveBeenCalled()
   })
 })

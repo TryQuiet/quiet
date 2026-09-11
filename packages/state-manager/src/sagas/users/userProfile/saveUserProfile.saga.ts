@@ -11,6 +11,7 @@ import {
   DownloadStatus,
   PROFILE_PHOTO_CHANNEL_ID,
 } from '@quiet/types'
+import { MAX_PROFILE_PHOTO_SIZE_BYTES, PROFILE_PHOTO_TOO_LARGE_ERROR } from '@quiet/common'
 
 import { identitySelectors } from '../../identity/identity.selectors'
 import { type Socket, applyEmitParams } from '../../../types'
@@ -35,6 +36,17 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveU
   let profilePhotoMetadata: FileMetadata | undefined = undefined
 
   if (action.payload.photo) {
+    // Reject oversized photos before the upload starts. Nothing downstream
+    // bounds the size of an attachment-based profile photo, so without this the
+    // user gets no feedback at all and every peer ends up replicating the file.
+    if (action.payload.photo.size > MAX_PROFILE_PHOTO_SIZE_BYTES) {
+      logger.error(
+        `Profile photo is too large: ${action.payload.photo.size} bytes, max ${MAX_PROFILE_PHOTO_SIZE_BYTES} bytes`
+      )
+      yield* put(usersActions.setSaveUserProfileError(PROFILE_PHOTO_TOO_LARGE_ERROR))
+      return
+    }
+
     if (!profilePhotoMetadata) {
       logger.info('No profile photo metadata found, starting upload process')
       const file = action.payload.photo!
