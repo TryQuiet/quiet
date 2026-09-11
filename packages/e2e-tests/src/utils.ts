@@ -26,6 +26,8 @@ export interface BuildSetupInit {
   fileName?: string
   chromeDriverPath?: string
   username?: string
+  /** Per-client overrides inherited by ChromeDriver and the packaged app. */
+  environment?: NodeJS.ProcessEnv
 }
 
 export class BuildSetup {
@@ -39,6 +41,7 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
   private chromeDriverPath?: string
+  private environment: NodeJS.ProcessEnv
 
   constructor({
     port,
@@ -48,6 +51,7 @@ export class BuildSetup {
     fileName,
     chromeDriverPath,
     username,
+    environment = {},
   }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
@@ -55,12 +59,18 @@ export class BuildSetup {
     this.dataDir = dataDir
     this.fileName = fileName
     this.chromeDriverPath = chromeDriverPath
+    this.environment = { ...environment }
     this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (this.dataDir == null) {
       this.dataDir = `e2e_${this.id}`
     }
-    this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
+    const appEnvironment = { ...process.env, ...this.environment }
+    const appDataPath =
+      appEnvironment.APPDATA ||
+      (appEnvironment.HOME &&
+        path.join(appEnvironment.HOME, process.platform === 'darwin' ? 'Library/Application Support' : '.config'))
+    this.dataDirPath = getAppDataPath({ dataDir: this.dataDir, appDataPath })
     logger.info('Running app from directory', this.dataDirPath)
   }
 
@@ -171,7 +181,7 @@ export class BuildSetup {
     }
 
     const chromeDriver = this.getChromeDriverSpawnConfig()
-    const childEnv = { ...process.env, ...env }
+    const childEnv = { ...process.env, ...this.environment, ...env }
     if (process.platform === 'win32' && !this.chromeDriverPath) {
       logger.info('!WINDOWS!')
     }

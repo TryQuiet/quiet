@@ -31,6 +31,11 @@ To run individual tests:
 
 `npm run test oneClient.test.ts`
 
+On Linux, `npm run test oneClient.appImage.test.ts` checks startup URL-handler
+registration and message-link clicks in the packaged AppImage. It uses one
+client with a temporary home directory and fixture XDG helpers. The Linux
+single-client CI step runs it alongside `oneClient.test.ts`.
+
 ### Known Issues & Tips
 
 - For Mac: We may need to manually mount the .dmg and copy to /Applications (need to verify exact steps)
@@ -48,6 +53,7 @@ cannot use Chromium's sandbox, `E2E_NO_SANDBOX=true` opts the E2E launcher into
 
 Current E2E test suite includes:
 - oneClient.test.ts - Basic single client functionality
+- oneClient.appImage.test.ts - Linux AppImage host integration with one client
 - userProfile.test.ts - User profile management
 - multipleClients.test.ts - Multi-client interactions
 - invitationLink.test.ts - Invitation link functionality
