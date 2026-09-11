@@ -199,7 +199,7 @@ describe('NewUsernameRequested component', () => {
                 "backgroundColor": "#521C74",
                 "borderRadius": 8,
                 "justifyContent": "center",
-                "minHeight": 45,
+                "minHeight": 50,
                 "paddingHorizontal": 20,
                 "paddingVertical": 12,
                 "width": 100,
