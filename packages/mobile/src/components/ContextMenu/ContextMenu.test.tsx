@@ -1,8 +1,11 @@
 import React from 'react'
+import { TouchableOpacity } from 'react-native'
+
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 
-import { ContextMenu } from './ContextMenu.component'
+import { ContextMenu, ContextMenuItem } from './ContextMenu.component'
 
 import { ContextMenuItemProps } from './ContextMenu.types'
 
@@ -1435,5 +1438,24 @@ describe('ContextMenu component', () => {
         </View>
       </View>
     `)
+  })
+})
+
+// Issue #1495: rows inside a scrollable list must not dim while the list is
+// being dragged, and the dim must not outlive the tap. Both requirements are
+// expressed entirely through Pressability's two delay knobs, so pinning the
+// props pins the motion -- see utils/const/tapFeedback.ts for the state-machine
+// argument. The `delayPressIn` assertion is the one that fails on develop; the
+// `delayPressOut` assertion guards behaviour that is already correct.
+describe('ContextMenuItem tap feedback (#1495)', () => {
+  const item = () =>
+    renderComponent(<ContextMenuItem title={'Create channel'} action={jest.fn()} />).UNSAFE_getByType(TouchableOpacity)
+
+  it('delays the press so dragging the action sheet never dims a menu item', () => {
+    expect(item().props.delayPressIn).toBe(TAP_FEEDBACK_DELAY_MS)
+  })
+
+  it('keeps delayPressOut unset so the dim clears as soon as the tap ends', () => {
+    expect(item().props.delayPressOut).toBeUndefined()
   })
 })
