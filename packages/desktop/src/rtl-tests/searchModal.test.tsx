@@ -16,7 +16,15 @@ import { getReduxStoreFactory, identity, publicChannels, communities, Store } fr
 import SearchModal from '../renderer/components/SearchModal/SearchModal'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { type Community, SocketActions, SocketEvents, Identity, MessageType, ChannelMessage } from '@quiet/types'
+import {
+  type Community,
+  SocketActions,
+  SocketEvents,
+  Identity,
+  MessageType,
+  ChannelMessage,
+  ChannelType,
+} from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -85,6 +93,8 @@ describe('Switch channels', () => {
           timestamp: channelMock.timestamp,
           owner: alice.userId,
           id: channelMock.name,
+          public: true,
+          type: ChannelType.CHANNEL,
         },
       })
     }

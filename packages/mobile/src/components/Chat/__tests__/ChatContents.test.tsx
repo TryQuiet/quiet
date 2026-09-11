@@ -178,11 +178,17 @@ describe('Chat component list data', () => {
       public: true,
       teamId: 'foobar',
     },
+    connectedPeers: [],
+    channelName: 'test-channel',
+    newChat: false,
+    userProfiles: {},
     pendingMessages: {},
     messages: mockMessages,
     updateFileAttachments: jest.fn(),
     updateImageAttachments: jest.fn(),
     removeFilePreview: jest.fn(),
+    createOrSetDmChannelAction: jest.fn(),
+    setDmChannelOnSelection: jest.fn(),
   }
 
   it('renders the correct number of messages and dividers', () => {
@@ -255,7 +261,7 @@ describe('Chat component list data', () => {
     const { getByTestId } = renderComponent(<Chat {...props} />)
 
     // Find the component with the chat testID
-    const chatComponent = getByTestId(`chat_${props.channel.name}`)
+    const chatComponent = getByTestId(`chat_${props.channel?.name}`)
 
     // Get all child components
     const flatListComponent = chatComponent.findAllByType(require('react-native').FlatList)[0]

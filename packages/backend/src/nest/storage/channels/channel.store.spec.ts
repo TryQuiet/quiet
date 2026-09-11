@@ -33,6 +33,7 @@ describe('ChannelStore', () => {
       messagesService as any,
       {} as any,
       {} as any,
+      {} as any,
       auth as any,
       {} as any,
       {} as any

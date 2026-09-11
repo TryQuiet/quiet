@@ -28,7 +28,8 @@ export function* sendFileMessageSaga(
     return
   }
 
-  const id = yield* call(generateMessageId)
+  const generatedId = yield* call(generateMessageId)
+  const id = channelId.startsWith('dm_') ? identity.userId + ':' + generatedId : generatedId
 
   const media: FileMetadata = {
     ...file,

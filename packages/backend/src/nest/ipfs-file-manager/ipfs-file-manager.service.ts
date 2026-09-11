@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter, setMaxListeners } from 'events'
 import fs, { WriteStream } from 'fs'
 import path from 'path'
+import { finished } from 'stream/promises'
 import crypto from 'crypto'
 import { AddPinEvents, GetBlockProgressEvents, type Helia } from 'helia'
 import { AddEvents, CatOptions, GetEvents, StatOptions, unixfs, UnixFSStats, type UnixFS } from '@helia/unixfs'
@@ -240,6 +241,11 @@ export class IpfsFileManagerService extends EventEmitter {
       throw new Error(`Can't attach file because there was no active sigchain`)
     }
 
+    const dmChannelId = metadata.message.channelId
+    const isDm = dmChannelId.startsWith('dm_')
+    // Never fall back to a community role if a DM descriptor/key has not loaded.
+    if (isDm) sigChain.directMessages.channel(dmChannelId)
+
     let width: number | undefined
     let height: number | undefined
     if (!metadata.path) {
@@ -314,8 +320,8 @@ export class IpfsFileManagerService extends EventEmitter {
     }
 
     const { header, recipient, encryptStream } = sigChain.crypto.encryptStream(fileAttachmentStreamIterable, {
-      type: EncryptionScopeType.ROLE,
-      name: RoleName.MEMBER,
+      type: isDm ? EncryptionScopeType.DM : EncryptionScopeType.ROLE,
+      name: isDm ? dmChannelId : RoleName.MEMBER,
     })
 
     const fileCid = await this.ufs.addByteStream(encryptStream, {
@@ -591,96 +597,111 @@ export class IpfsFileManagerService extends EventEmitter {
       _logger.info(`Downloaded ${downloadedBlocks} blocks (${pendingBlocks.size} blocks pending)`)
     }, UPDATE_STATUS_INTERVAL_MS)
 
-    const baseCatOptions: CatOptions = {
-      onProgress: handleDownloadProgressEvents,
-    }
-
-    const statOptions: StatOptions = {
-      signal: controller.signal,
-    }
-
-    const finishedDownloading = await this.downloadBlocks(fileCid, initialStats, {
-      catOptions: baseCatOptions,
-      statOptions,
-      signal: controller.signal,
-      logger: _logger,
-    })
-
-    if (!finishedDownloading) {
-      if (!controller.signal.aborted) {
-        _logger.warn(`Failed to finish downloading blocks for file, canceling download`)
-        await this.cancelDownload(fileCid.toString())
-      }
-      return DownloadState.Canceled
-    }
-
-    const finishedWriting = await this.writeBlocksToFilesystem(fileCid, fileMetadata, writeStream, {
-      logger: _logger,
-      signal: controller.signal,
-      catOptions: baseCatOptions,
-    })
-    writeStream.end()
-
+    let published = false
     try {
-      clearInterval(updateDownloadStatusWithTransferSpeed)
-    } catch (e) {
-      _logger.error(`Error while clearing status update interval`, e)
-    }
-
-    if (!finishedWriting && !controller.signal.aborted) {
-      _logger.warn(`Failed to finish writing blocks to filesystem, canceling download`)
-      await this.cancelDownload(fileCid.toString())
-      return DownloadState.Canceled
-    }
-
-    const fileState = this.files.get(fileMetadata.cid)
-    if (fileState == null) {
-      _logger.error(`No saved data for file`)
-      return DownloadState.Canceled
-    }
-
-    const finalStats = await this.getFileStats(fileCid, {
-      logger: _logger,
-      signal: controller.signal,
-      statOptions,
-    })
-
-    if (finalStats == null) {
-      if (!controller.signal.aborted) await this.cancelDownload(fileCid.toString())
-
-      return DownloadState.Canceled
-    }
-
-    this.files.set(fileMetadata.cid, {
-      ...fileState,
-      transferSpeed: 0,
-      downloadedBytes: Number(finalStats.localFileSize),
-    })
-
-    const isPinned = await this.pinBlocks(fileCid, {
-      logger: _logger,
-      signal: controller.signal,
-      addOptions: {
-        signal: controller.signal,
+      const baseCatOptions: CatOptions = {
         onProgress: handleDownloadProgressEvents,
-      },
-    })
-
-    if (!isPinned) {
-      if (!controller.signal.aborted) {
-        await this.cancelDownload(fileCid.toString())
       }
 
+      const statOptions: StatOptions = {
+        signal: controller.signal,
+      }
+
+      const finishedDownloading = await this.downloadBlocks(fileCid, initialStats, {
+        catOptions: baseCatOptions,
+        statOptions,
+        signal: controller.signal,
+        logger: _logger,
+      })
+
+      if (!finishedDownloading) {
+        if (!controller.signal.aborted) {
+          _logger.warn(`Failed to finish downloading blocks for file, canceling download`)
+          await this.cancelDownload(fileCid.toString())
+        }
+        return DownloadState.Canceled
+      }
+
+      const finishedWriting = await this.writeBlocksToFilesystem(fileCid, fileMetadata, writeStream, {
+        logger: _logger,
+        signal: controller.signal,
+        catOptions: baseCatOptions,
+      })
+      writeStream.end()
+      await finished(writeStream)
+
+      try {
+        clearInterval(updateDownloadStatusWithTransferSpeed)
+      } catch (e) {
+        _logger.error(`Error while clearing status update interval`, e)
+      }
+
+      if (!finishedWriting || controller.signal.aborted) {
+        _logger.warn(`Failed to finish writing blocks to filesystem, canceling download`)
+        await this.cancelDownload(fileCid.toString())
+        return DownloadState.Canceled
+      }
+
+      const fileState = this.files.get(fileMetadata.cid)
+      if (fileState == null) {
+        _logger.error(`No saved data for file`)
+        return DownloadState.Canceled
+      }
+
+      const finalStats = await this.getFileStats(fileCid, {
+        logger: _logger,
+        signal: controller.signal,
+        statOptions,
+      })
+
+      if (finalStats == null) {
+        if (!controller.signal.aborted) await this.cancelDownload(fileCid.toString())
+
+        return DownloadState.Canceled
+      }
+
+      this.files.set(fileMetadata.cid, {
+        ...fileState,
+        transferSpeed: 0,
+        downloadedBytes: Number(finalStats.localFileSize),
+      })
+
+      const isPinned = await this.pinBlocks(fileCid, {
+        logger: _logger,
+        signal: controller.signal,
+        addOptions: {
+          signal: controller.signal,
+          onProgress: handleDownloadProgressEvents,
+        },
+      })
+
+      if (!isPinned) {
+        if (!controller.signal.aborted) {
+          await this.cancelDownload(fileCid.toString())
+        }
+
+        return DownloadState.Canceled
+      }
+
+      const messageMedia: FileMetadata = {
+        ...fileMetadata,
+        path: writeStream.path.toString(),
+      }
+
+      if (controller.signal.aborted) return DownloadState.Canceled
+      this.emit(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, messageMedia)
+      published = true
+      return DownloadState.Completed
+    } catch {
       return DownloadState.Canceled
+    } finally {
+      clearInterval(updateDownloadStatusWithTransferSpeed)
+      if (!published) {
+        writeStream.destroy()
+        await finished(writeStream).catch(() => undefined)
+        await fs.promises.rm(writeStream.path.toString(), { force: true })
+      }
     }
-
-    const messageMedia: FileMetadata = {
-      ...fileMetadata,
-      path: writeStream.path.toString(),
-    }
-
-    this.emit(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, messageMedia)
-    return DownloadState.Completed
   }
 
   private async updateStatus(cid: string, downloadState = DownloadState.Downloading) {
@@ -942,9 +963,8 @@ export class IpfsFileManagerService extends EventEmitter {
           if (err) {
             this.logger.error(`${cid.toString()} writing to file error`, err)
             reject(err)
-          }
+          } else resolve()
         })
-        resolve()
       })
     }
   }

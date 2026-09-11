@@ -19,6 +19,10 @@ export interface AuthenticatedPeerIdentity {
   deviceId: string
 }
 
+export interface ClearConnectedPeersPayload {
+  communityId: string
+}
+
 export interface NetworkStats {
   peerId: string
   address?: string // multiaddr

@@ -12,6 +12,7 @@ import { LeaveCommunity } from './Tabs/LeaveCommunity/LeaveCommunity'
 
 import SettingsComponent from './SettingsComponent'
 import { DebugInfoComponent } from '../debugInfo/debugInfoComponent'
+import { CommunityMembership } from './Tabs/CommunityMembership/CommunityMembership'
 
 const Settings = () => {
   const modal = useModal(ModalName.accountSettingsModal)
@@ -23,6 +24,7 @@ const Settings = () => {
     invite: Invite,
     qrcode: QRCode,
     leaveCommunity: LeaveCommunity,
+    communityMembership: CommunityMembership,
   }
 
   if (process.env.NODE_ENV === 'development' || process.env.IS_E2E === 'true') {

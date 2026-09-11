@@ -2,57 +2,104 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
-import UserProfileListItem from './UserProfileListItem'
-import { UserProfile } from '@quiet/types'
-import { useContextMenu } from '../../../../hooks/useContextMenu'
+import DirectMessageListItem from './DirectMessageListItem'
+import { PublicChannelStorage, UserProfile } from '@quiet/types'
+import _ from 'lodash'
 
 export interface DirectMessagesPanelProps {
   myUserProfile?: UserProfile
   userProfiles: Record<string, UserProfile>
-  userProfileContextMenu: ReturnType<typeof useContextMenu>
+  dmChannels: PublicChannelStorage[]
+  unreadDms: string[]
+  currentChannelId: string
   connectedPeers: string[]
   isTorInitialized: boolean
+  setCurrentChannel: (channelId: string) => void
+  openNewMessageWindow: () => void
+}
+
+export interface DmChannelUserData {
+  connected: boolean | undefined
+  user: UserProfile
+}
+
+const getUserDataForDmChannel = (
+  dmChannel: PublicChannelStorage,
+  me: UserProfile | undefined,
+  userProfiles: Record<string, UserProfile>,
+  connectedPeers: string[]
+): DmChannelUserData | undefined => {
+  if (dmChannel.memberIds == null || me == null) {
+    return undefined
+  }
+
+  if (dmChannel.memberIds.length === 1) {
+    return {
+      connected: true,
+      user: me,
+    }
+  }
+
+  const notMeId = _.find(dmChannel.memberIds, memberId => memberId != me.userId)
+  if (notMeId == null) {
+    return undefined
+  }
+  const userThatIsntMe = userProfiles[notMeId]
+
+  if (dmChannel.memberIds.length > 2) {
+    return {
+      connected: undefined,
+      user: userThatIsntMe,
+    }
+  }
+
+  const connected =
+    userThatIsntMe.userData != null &&
+    userThatIsntMe.userData.peerId != null &&
+    connectedPeers.includes(userThatIsntMe.userData.peerId)
+  return {
+    connected,
+    user: userThatIsntMe,
+  }
 }
 
 const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   myUserProfile,
   userProfiles,
-  userProfileContextMenu, // TODO: replace with direct message hook once implemented
+  dmChannels = [],
+  unreadDms,
+  currentChannelId,
   connectedPeers,
   isTorInitialized,
+  setCurrentChannel,
+  openNewMessageWindow,
 }) => {
   return (
     <Grid container item xs direction='column'>
-      <SidebarHeader title={'Users'} tooltipText='List of users in this workspace' />
-      <List disablePadding data-testid='usersList'>
-        {myUserProfile && (
-          <UserProfileListItem
-            userProfile={myUserProfile}
-            key={myUserProfile.userId}
-            connected={isTorInitialized}
-            userProfileContextMenu={userProfileContextMenu}
-          />
-        )}
-        {Object.values(userProfiles)
-          .filter(user => !myUserProfile || user.userId !== myUserProfile.userId)
-          .sort((a, b) => {
-            const aConnected =
-              a.userData != null && a.userData.peerId != null && connectedPeers.includes(a.userData.peerId)
-            const bConnected =
-              b.userData != null && b.userData.peerId != null && connectedPeers.includes(b.userData.peerId)
-            if (aConnected === bConnected) {
-              return a.nickname.localeCompare(b.nickname, undefined, { sensitivity: 'base' })
-            }
-            return aConnected ? -1 : 1
-          })
-          .map(user => (
-            <UserProfileListItem
-              userProfile={user}
-              key={user.userId}
-              userProfileContextMenu={userProfileContextMenu}
-              connected={user.userData?.peerId != null && connectedPeers.includes(user.userData.peerId)}
+      <SidebarHeader
+        title={'Direct messages'}
+        tooltipText='Start a new DM'
+        action={openNewMessageWindow}
+        actionTitle={'createNewMessage'}
+      />
+      <List disablePadding data-testid='dm-list'>
+        {dmChannels.map(channel => {
+          const userData = getUserDataForDmChannel(channel, myUserProfile, userProfiles, connectedPeers)
+          const unread = unreadDms.some(unreadDmId => unreadDmId === channel.id)
+          const selected = currentChannelId === channel.id
+          return (
+            <DirectMessageListItem
+              me={myUserProfile}
+              userProfiles={userProfiles}
+              userData={userData}
+              channel={channel}
+              key={channel.id}
+              unread={unread}
+              selected={selected}
+              setCurrentChannel={setCurrentChannel}
             />
-          ))}
+          )
+        })}
       </List>
     </Grid>
   )

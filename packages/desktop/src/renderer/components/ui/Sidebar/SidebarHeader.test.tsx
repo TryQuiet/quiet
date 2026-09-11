@@ -6,7 +6,7 @@ import { SidebarHeader } from './SidebarHeader'
 describe('SidebarHeader', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <SidebarHeader title='sample title' action={jest.fn()} actionTitle={jest.fn()} tooltipText='sample text' />
+      <SidebarHeader title='sample title' action={jest.fn()} actionTitle={'add-channel'} tooltipText='sample text' />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -29,8 +29,7 @@ describe('SidebarHeader', () => {
               <span>
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
-                  data-mui-internal-clone-element="true"
-                  data-testid="addChannelButton"
+                  data-testid="sidebar-button-add-channel"
                   tabindex="0"
                   type="button"
                 >

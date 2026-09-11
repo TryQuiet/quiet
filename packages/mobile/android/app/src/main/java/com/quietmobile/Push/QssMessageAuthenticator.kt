@@ -62,6 +62,7 @@ internal fun authenticateNotificationMessage(
 ): DecryptedNotificationMessage? {
     val id = message["id"] as? String ?: return null
     val channelId = message["channelId"] as? String ?: return null
+    if (channelId.startsWith("dm_") || (payloadValue["channelId"] as? String)?.startsWith("dm_") == true) return null
     val userId = message["userId"] as? String ?: return null
     val messageTeamId = message["teamId"] as? String ?: return null
     val createdAt = numberValue(message["createdAt"]) ?: return null

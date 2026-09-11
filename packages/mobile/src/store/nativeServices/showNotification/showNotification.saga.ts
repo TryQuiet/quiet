@@ -22,7 +22,7 @@ export function* showNotificationSaga(
   if (AppState.currentState === 'background') return
 
   const screen = yield* select(navigationSelectors.currentScreen)
-  if (screen === ScreenNames.ChannelListScreen) return
+  if (screen === ScreenNames.AppHomeScreen) return
 
   const _message = action.payload.message
   if (!_message) return

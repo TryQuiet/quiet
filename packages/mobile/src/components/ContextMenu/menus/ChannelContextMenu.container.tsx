@@ -14,7 +14,11 @@ import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import LockIcon from '../../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
-import { UserProfile } from '@quiet/types'
+import { ChannelType, UserProfile } from '@quiet/types'
+import { generateTruncatedDmTitle } from '../../../utils/functions/dmUtils/dmUtils'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('ChannelContextMenu')
 
 const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE = 'Permissions'
 const CHANNEL_MEMBERSHIP_TITLE = 'Members in this channel'
@@ -27,6 +31,7 @@ export const ChannelContextMenu: FC = () => {
   const [memberCountSuffix, setMemberCountSuffix] = useState<string>('')
   const [canDelete, setCanDelete] = useState<boolean>(false)
   const [canAddMembers, setCanAddMembers] = useState<boolean>(false)
+  const [title, setTitle] = useState<string>('')
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
@@ -38,15 +43,22 @@ export const ChannelContextMenu: FC = () => {
   const _initializeData = () => {
     if (channel == null) return
     const membersInChannel: UserProfile[] = Object.values(userProfiles).filter(profile =>
-      profile.channels?.includes(channel.id)
+      channel.type === ChannelType.DM
+        ? channel.memberIds?.includes(profile.userId)
+        : profile.channels?.includes(channel.id)
     )
     setMemberCountSuffix(`${membersInChannel.length}`)
   }
 
-  let title = ''
-  if (channel?.name) {
-    title = channel.name
-  }
+  useEffect(() => {
+    if (channel?.displayedName) {
+      const resolvedTitle =
+        (channel.type ?? ChannelType.CHANNEL) === ChannelType.CHANNEL
+          ? channel.displayedName
+          : generateTruncatedDmTitle(channel.displayedName)
+      setTitle(resolvedTitle)
+    }
+  }, [channel])
 
   useEffect(() => {
     if (channel == null) {
@@ -85,24 +97,33 @@ export const ChannelContextMenu: FC = () => {
 
   useEffect(() => {
     _initializeData()
-  }, [userProfiles])
+  }, [userProfiles, channel])
 
   let items: ContextMenuItemProps[] = []
 
   if (channel?.public === false) {
+    const isPrivateChannelOwner = canAddMembers && channel.type !== ChannelType.DM
+    const itemTitle = isPrivateChannelOwner
+      ? 'Permissions'
+      : channel.type !== ChannelType.DM
+      ? 'Members in this channel'
+      : 'Members in this DM'
+    const subtitle = isPrivateChannelOwner ? 'Members' : undefined
     items.push({
-      title: canAddMembers ? CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE : CHANNEL_MEMBERSHIP_TITLE,
-      subtitle: canAddMembers ? CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_SUBTITLE : CHANNEL_MEMBERSHIP_SUBTITLE,
+      title: itemTitle,
+      subtitle,
       suffix: memberCountSuffix,
       action: () =>
         redirect(ScreenNames.ChannelMembershipScreen, {
-          channelName: channel?.name,
+          channelTitle: title,
+          channelName: channel?.displayedName,
           channelId: channel?.id,
+          channelType: channel?.type ?? ChannelType.CHANNEL,
         }),
     })
   }
 
-  if (canDelete) {
+  if (canDelete && channel?.type !== ChannelType.DM) {
     items = [
       ...items,
       {
@@ -123,7 +144,15 @@ export const ChannelContextMenu: FC = () => {
   return (
     <ContextMenu
       title={title}
-      titleIcon={channel?.public ?? true ? <PublicChannelIcon /> : <LockIcon fill={true} />}
+      titleIcon={
+        channel?.type === ChannelType.DM ? (
+          <></>
+        ) : channel?.public ?? true ? (
+          <PublicChannelIcon />
+        ) : (
+          <LockIcon fill={true} />
+        )
+      }
       items={items}
       {...channelContextMenu}
     />

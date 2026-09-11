@@ -10,6 +10,7 @@ import {
 import { QuietLogger } from '@quiet/logger'
 import {
   ChannelMessage,
+  ChannelType,
   CompoundError,
   ConsumedChannelMessage,
   MessagesLoadedPayload,
@@ -32,6 +33,7 @@ import { SigChainService } from '../../auth/sigchain.service'
 import { PrivateMessagesAccessController } from './messages/orbitdb/PrivateMessagesAccessController'
 import { PrivateChannelMessagesService } from './messages/private-channel-messages.service'
 import { SigchainEvents } from '../../auth/types'
+import { DirectMessagesService } from './messages/direct-messages.service'
 
 /**
  * Manages storage-level logic for a given channel in Quiet
@@ -40,13 +42,15 @@ import { SigchainEvents } from '../../auth/types'
 export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChannelMessage> {
   private channelData: PublicChannel
   private _subscribing: boolean = false
-  private _messagesService: PublicChannelMessagesService | PrivateChannelMessagesService | undefined = undefined
+  private _messagesService:
+    PublicChannelMessagesService | PrivateChannelMessagesService | DirectMessagesService | undefined = undefined
   private _accessController: typeof AccessController
   private authListenerAttached = false
   private readonly handleAuthUpdated = (): void => {
     void this.refreshMessageIds()
   }
 
+  private readonly deliveredDmIds = new Set<string>()
   private logger: QuietLogger
 
   constructor(
@@ -54,6 +58,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     private readonly localDbService: LocalDbService,
     private readonly _publicMessagesService: PublicChannelMessagesService,
     private readonly _privateMessagesService: PrivateChannelMessagesService,
+    private readonly _directMessagesService: DirectMessagesService,
     private readonly userProfileStore: UserProfileStore,
     private readonly auth: SigChainService,
     private readonly _publicMessagesAccessController: MessagesAccessController,
@@ -62,7 +67,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     super()
   }
 
-  public get messagesService(): PublicChannelMessagesService | PrivateChannelMessagesService {
+  public get messagesService(): PublicChannelMessagesService | PrivateChannelMessagesService | DirectMessagesService {
     if (this._messagesService == null) {
       throw new Error(`Run store.init before accessing the messages service!`)
     }
@@ -102,7 +107,21 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     // send messages stamped with that same team: the `encryptedMessage.teamId !== config.teamId`
     // check would compare two values they supplied and pass. This node only ever serves one chain,
     // and `createChannelStore` already rewrites the stored metadata to this same id.
-    if (channelData.public ?? true) {
+    if (channelData.type === ChannelType.DM) {
+      const trusted = this.auth.getActiveChain().directMessages.channel(channelData.id)
+      this.channelData = trusted
+      const accessController = this._privateMessagesAccessController.createAccessControllerFunc({
+        write: [...trusted.memberIds!],
+        sigchainService: this.auth,
+        channelId: trusted.id,
+        teamId: this.auth.team.id,
+        roleName: '',
+        directMessage: true,
+      })
+      orbitDbUseAccessController(accessController as any)
+      this._accessController = accessController
+      this._messagesService = this._directMessagesService
+    } else if (channelData.public ?? true) {
       this._accessController = this._publicMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
@@ -161,6 +180,10 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger.info('Subscribing to channel ', this.channelData.id)
     this._subscribing = true
 
+    if (this.channelData.type === ChannelType.DM) {
+      for (const message of await this.getEntries()) this.deliveredDmIds.add(message.id)
+    }
+
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
       const entryChannelId = entry.payload.value?.channelId
       // TODO: seperate event bus for each channel so we don't have to check this on every update
@@ -212,6 +235,10 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   }
 
   private async _handleMessageOnUpdate(message: ConsumedChannelMessage): Promise<void> {
+    if (this.channelData.type === ChannelType.DM) {
+      if (this.deliveredDmIds.has(message.id)) return
+      this.deliveredDmIds.add(message.id)
+    }
     this.emit(StorageEvents.MESSAGES_STORED, {
       messages: [message],
       isVerified: message.verified,
@@ -234,7 +261,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         username: username,
       }
 
-      this.logger.info(`Sending push notification`, JSON.stringify(payload))
+      this.logger.info(`Sending authenticated message notification`)
 
       this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
     }
@@ -352,7 +379,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         if (decryptedMessage == null || decryptedMessage === false) {
           continue
         }
-        messages.push(decryptedMessage)
+        if (this.channelData.type !== ChannelType.DM || !messages.some(x => x.id === decryptedMessage.id)) {
+          messages.push(decryptedMessage)
+        }
       }
     }
     this.logger.info(`Got ${messages.length} messages for channel`, this.channelData.id, this.channelData.name)

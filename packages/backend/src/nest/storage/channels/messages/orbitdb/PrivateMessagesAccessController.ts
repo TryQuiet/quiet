@@ -18,6 +18,7 @@ export interface PrivateAccessControllerConfig extends AccessControllerConfig {
   channelId: string
   teamId: string
   roleName: string
+  directMessage?: boolean
 }
 
 @Injectable()
@@ -73,6 +74,16 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
       if (sigchain == null) {
         this.logger.warn(`User is not a member of this team or team hasn't been initialized, sigchain was nullish`)
         return false
+      }
+
+      if (config.directMessage) {
+        try {
+          if (entry.payload.op !== 'ADD') return false
+          sigchain.directMessages.openMessage(entry.payload.value, config.channelId)
+          return true
+        } catch {
+          return false
+        }
       }
 
       if (!sigchain.channels.memberInChannel(id, config.roleName)) {

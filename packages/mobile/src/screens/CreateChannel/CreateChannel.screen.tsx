@@ -119,7 +119,7 @@ export const CreateChannelScreen: FC = () => {
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.ChannelListScreen,
+        screen: ScreenNames.AppHomeScreen,
       })
     )
   }, [dispatch])

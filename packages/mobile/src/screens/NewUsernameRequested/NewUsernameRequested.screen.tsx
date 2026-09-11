@@ -11,7 +11,7 @@ const NewUsernameRequestedScreen: React.FC<NewUsernameRequestedScreenProps> = ()
   const handler = useCallback(() => {
     dispatch(
       navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
+        screen: ScreenNames.AppHomeScreen,
       })
     )
   }, [dispatch])

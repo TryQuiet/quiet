@@ -4,6 +4,7 @@ import { screen } from '@testing-library/dom'
 import { ChannelComponent } from './ChannelComponent'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
+import { ChannelType } from '@quiet/types'
 
 describe('ChannelComponent', () => {
   const renderChannel = (overrides: Partial<React.ComponentProps<typeof ChannelComponent>> = {}) => {
@@ -21,6 +22,8 @@ describe('ChannelComponent', () => {
       },
       channelId: 'general-channel-id',
       channelName: 'general',
+      channelType: ChannelType.CHANNEL,
+      members: [],
       isPublic: true,
       messages: {
         count: 0,

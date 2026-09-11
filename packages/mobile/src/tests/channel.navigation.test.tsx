@@ -5,7 +5,7 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../setupTests'
 import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
-import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
+import { AppHomeScreen } from '../screens/AppHome/AppHome.screen'
 import { ChannelScreen } from '../screens/Channel/Channel.screen'
 import { FactoryGirl } from 'factory-girl'
 import { getReduxStoreFactory, communities, identity } from '@quiet/state-manager'
@@ -33,7 +33,7 @@ describe('Channel navigation', () => {
 
     renderComponent(
       <>
-        <ChannelListScreen />
+        <AppHomeScreen />
         <ChannelScreen />
       </>,
       store

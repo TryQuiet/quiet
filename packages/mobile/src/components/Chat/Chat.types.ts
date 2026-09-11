@@ -6,6 +6,8 @@ import {
   MessagesDailyGroups,
   MessageSendingStatus,
   PublicChannel,
+  type ChannelType,
+  type UserProfile,
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
@@ -35,7 +37,7 @@ export interface ChatProps extends UserLabelHandlers {
   sendMessageAction: (message: string) => void
   loadMessagesAction: (load: boolean) => void
   handleBackButton: () => void
-  channel: PublicChannel
+  channel?: PublicChannel
   messages?: {
     count: number
     groups: MessagesDailyGroups
@@ -52,6 +54,14 @@ export interface ChatProps extends UserLabelHandlers {
   uploadedFiles?: FilePreviewData
   openUrl: (url: string) => void
   ready?: boolean
+  channelName: string
+  channelId?: string
+  newChat: boolean
+  userProfiles: Record<string, UserProfile>
+  me?: UserProfile
+  connectedPeers: string[]
+  createOrSetDmChannelAction: (memberIds: string[], firstMessage: string) => void
+  setDmChannelOnSelection: (selectedIds: string[]) => void
 }
 
 export interface ChannelMessagesComponentProps extends UserLabelHandlers {
@@ -65,4 +75,6 @@ export interface ChannelMessagesComponentProps extends UserLabelHandlers {
 
 export interface ChatAppbarHeaderTitleProps extends HeaderTitleProps {
   isPublic: boolean
+  isNewChat: boolean
+  channelType: ChannelType
 }
