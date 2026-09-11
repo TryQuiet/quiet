@@ -27,7 +27,7 @@ describe('Notifications', () => {
                 class="MuiGrid-root MuiGrid-item Notificationstitle css-13i4rnv-MuiGrid-root"
               >
                 <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
                 >
                   Notifications
                 </h3>
@@ -37,7 +37,7 @@ describe('Notifications', () => {
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <h5
-                class="MuiTypography-root MuiTypography-h5 Notificationssubtitle css-11l3dv4-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h5 Notificationssubtitle css-g8q9rb-MuiTypography-root"
               >
                 Notify me about...
               </h5>
@@ -68,7 +68,7 @@ describe('Notifications', () => {
                     />
                   </span>
                   <span
-                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Notificationsoffset css-1vpwcmr-MuiGrid-root"
@@ -116,7 +116,7 @@ describe('Notifications', () => {
                     />
                   </span>
                   <span
-                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Notificationsoffset css-1vpwcmr-MuiGrid-root"
@@ -145,7 +145,7 @@ describe('Notifications', () => {
                 class="MuiGrid-root MuiGrid-item NotificationssubtitleSoundDiv css-13i4rnv-MuiGrid-root"
               >
                 <h5
-                  class="MuiTypography-root MuiTypography-h5 Notificationssubtitle css-11l3dv4-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-h5 Notificationssubtitle css-g8q9rb-MuiTypography-root"
                 >
                   Sound when receiving a notification
                 </h5>
@@ -177,7 +177,7 @@ describe('Notifications', () => {
                       />
                     </span>
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
                     >
                       Librarian Shhh
                     </span>
@@ -207,7 +207,7 @@ describe('Notifications', () => {
                       />
                     </span>
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
                     >
                       Pow
                     </span>
@@ -238,7 +238,7 @@ describe('Notifications', () => {
                       />
                     </span>
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
                     >
                       Bang
                     </span>
@@ -268,7 +268,7 @@ describe('Notifications', () => {
                       />
                     </span>
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
                     >
                       Splat
                     </span>
@@ -298,7 +298,7 @@ describe('Notifications', () => {
                       />
                     </span>
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
                     >
                       None
                     </span>

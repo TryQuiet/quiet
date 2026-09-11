@@ -48,7 +48,7 @@ describe('UnregisteredModalComponent', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   >
                     Unregistered username
@@ -97,7 +97,7 @@ describe('UnregisteredModalComponent', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-1ihp1v3-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 UnregisteredModalComponent-bodyText css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 UnregisteredModalComponent-bodyText css-1t82dwi-MuiTypography-root"
                   >
                     The username 
                     <strong>

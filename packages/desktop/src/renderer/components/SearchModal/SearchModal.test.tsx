@@ -104,7 +104,7 @@ describe('Search Modal', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <h6
-                      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                       style="margin-left: 36px;"
                     />
                   </div>
@@ -170,7 +170,7 @@ describe('Search Modal', () => {
                               data-testid="searchChannelInput"
                             >
                               <div
-                                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-4l3wau-MuiInputBase-root-MuiInput-root"
+                                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-63unr2-MuiInputBase-root-MuiInput-root"
                               >
                                 <input
                                   aria-invalid="false"
@@ -184,7 +184,7 @@ describe('Search Modal', () => {
                               </div>
                             </div>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 css-6gbt2m-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 css-1nv555-MuiTypography-root"
                             />
                           </div>
                           <img
@@ -215,7 +215,7 @@ describe('Search Modal', () => {
                               tabindex="0"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                               >
                                 # fun
                               </p>
@@ -225,7 +225,7 @@ describe('Search Modal', () => {
                               tabindex="0"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                               >
                                 # random
                               </p>
@@ -235,7 +235,7 @@ describe('Search Modal', () => {
                               tabindex="0"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                               >
                                 # test
                               </p>

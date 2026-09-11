@@ -27,7 +27,7 @@ describe('TextWithLink', () => {
       <body>
         <div>
           <p
-            class="MuiTypography-root MuiTypography-body1 css-rxnbv9-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-ax4fzp-MuiTypography-root"
           >
             <span>
               Here

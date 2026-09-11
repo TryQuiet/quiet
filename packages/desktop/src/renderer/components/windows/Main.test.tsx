@@ -53,7 +53,7 @@ describe('Main', () => {
                             tabindex="0"
                           >
                             <h4
-                              class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-1inrl58-MuiTypography-root"
                               data-testid="current-community-name"
                             >
                               community_1
@@ -103,7 +103,7 @@ describe('Main', () => {
                                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                                     >
                                       <p
-                                        class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                                        class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
                                       >
                                         Channels
                                       </p>
@@ -163,7 +163,7 @@ describe('Main', () => {
                                         class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                                       >
                                         <span
-                                          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                                          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                                         >
                                           <div
                                             class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -177,7 +177,7 @@ describe('Main', () => {
                                                 data-testid="general-channel-link-icon-public"
                                                 fill="currentColor"
                                                 focusable="false"
-                                                style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                                                style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                                                 viewBox="0 0 24 24"
                                               >
                                                 <svg
@@ -213,7 +213,7 @@ describe('Main', () => {
                                                 </svg>
                                               </svg>
                                               <p
-                                                class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                                                class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                                                 data-testid="general-channel-link-text"
                                               >
                                                 general
@@ -239,7 +239,7 @@ describe('Main', () => {
                                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                                   >
                                     <p
-                                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
                                     >
                                       Users
                                     </p>
@@ -300,7 +300,7 @@ describe('Main', () => {
                           >
                             Jdenticon
                             <p
-                              class="MuiTypography-root MuiTypography-body2 UserProfilePanel-nickname css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 UserProfilePanel-nickname css-1t82dwi-MuiTypography-root"
                               data-testid="user-profile-nickname"
                             />
                             <span

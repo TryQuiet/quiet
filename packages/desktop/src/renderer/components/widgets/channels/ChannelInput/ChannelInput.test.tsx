@@ -182,7 +182,7 @@ describe('ChannelInput', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiTypography-root MuiTypography-caption ChannelInputInfoMessageinfo css-1m4pgvy-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-caption ChannelInputInfoMessageinfo css-sb3pb0-MuiTypography-root"
                   >
                     Initializing community. This may take a few minutes...
                   </span>

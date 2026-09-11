@@ -66,14 +66,14 @@ describe('FileComponent', () => {
                   class="FileComponentfilename"
                 >
                   <h5
-                    class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-h5 css-g8q9rb-MuiTypography-root"
                     style="line-height: 20px; color: rgb(0, 0, 0);"
                   >
                     my-file-name-goes-here-an-isnt-truncated
                     .zip
                   </h5>
                   <p
-                    class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                     style="line-height: 20px; color: rgb(127, 127, 127);"
                   >
                     2 KB
@@ -95,7 +95,7 @@ describe('FileComponent', () => {
                     src="test-file-stub"
                   />
                   <p
-                    class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                     style="color: rgb(103, 191, 211); margin-left: 8px;"
                   >
                     Download file

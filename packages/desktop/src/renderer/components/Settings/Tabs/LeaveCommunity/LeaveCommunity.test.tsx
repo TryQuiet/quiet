@@ -51,7 +51,7 @@ describe('LeaveCommunity', () => {
               class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 LeaveCommunitytitleContainer css-s2k0j8-MuiGrid-root"
             >
               <h3
-                class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
               >
                 Leave community?
               </h3>
@@ -60,7 +60,7 @@ describe('LeaveCommunity', () => {
               class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 LeaveCommunitydescContainer css-s2k0j8-MuiGrid-root"
             >
               <p
-                class="MuiTypography-root MuiTypography-body2 MuiTypography-alignCenter css-13v6k8r-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body2 MuiTypography-alignCenter css-7ax5m0-MuiTypography-root"
               >
                 You will no longer have access to this community. This can't be undone.
               </p>
