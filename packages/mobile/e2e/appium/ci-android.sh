@@ -22,6 +22,7 @@ export DISPLAY=:99
 appium_pid=''
 xvfb_pid=''
 wm_pid=''
+stage=emulator-abi
 cleanup() {
   result=$?
   trap - EXIT
@@ -33,6 +34,7 @@ cleanup() {
   fi
   # Compose's runtime file contains provider credentials; do not archive it.
   rm -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/compose.json"
+  if [[ "$result" != 0 ]]; then echo "Android notification lane failed during $stage (exit $result)."; fi
   exit "$result"
 }
 trap cleanup EXIT
@@ -40,6 +42,7 @@ trap cleanup EXIT
 # Quiet's embedded Node/Tor libraries are ARM64. Google's API 36 x86_64 image
 # must expose ARM64 translation, just as in the locally validated emulator.
 adb -s emulator-5554 shell getprop ro.product.cpu.abilist | grep -q 'arm64-v8a'
+stage=display
 Xvfb :99 -screen 0 1920x1080x24 > "$RUNNER_TEMP/notification-display.log" 2>&1 &
 xvfb_pid=$!
 for attempt in $(seq 1 30); do
@@ -50,6 +53,7 @@ xdpyinfo >/dev/null
 fluxbox > "$RUNNER_TEMP/notification-window-manager.log" 2>&1 &
 wm_pid=$!
 
+stage=qss-fixture
 fixture_args=(up --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003)
 if [[ "$QUIET_NOTIFICATION_LANE" == provider ]]; then
   fixture_args+=(--push-credentials "$RUNNER_TEMP/notification-credentials/firebase-accounts.json")
@@ -72,6 +76,7 @@ config = {
 Path(os.environ['QUIET_NOTIFICATION_CONFIG']).write_text(json.dumps(config))
 PY
 
+stage=appium-server
 (
   cd packages/mobile/e2e/appium
   exec ./node_modules/.bin/appium --address 127.0.0.1 --port 4725 --log-level warn
@@ -83,8 +88,10 @@ for attempt in $(seq 1 60); do
 done
 curl --silent --fail http://127.0.0.1:4725/status >/dev/null
 
+stage=appium-journey
 result=0
 npm --prefix packages/mobile/e2e/appium run "$test_script" > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1 || result=$?
+export QUIET_NOTIFICATION_TEST_EXIT="$result"
 # Keep screenshots, invitations, device tokens and raw service logs private.
 # CI publishes only these deliberately selected non-secret proof fields.
 python3 - <<'PY'
@@ -102,6 +109,7 @@ build = proof.get('build', {})
 report = {
     'platform': 'android',
     'lane': os.environ['QUIET_NOTIFICATION_LANE'],
+    'testExitCode': int(os.environ['QUIET_NOTIFICATION_TEST_EXIT']),
     'onboardingPassed': proof.get('onboardingPassed', False) is True,
     'lastStage': progress if progress in stages else None,
     'fullLoopPassed': proof.get('fullLoopPassed', False) is True,
@@ -110,12 +118,15 @@ report = {
     'appSHA256': build.get('appSHA256'),
     'backendSHA256': build.get('backendSHA256'),
 }
+if report['lane'] == 'provider':
+    journey_passed = report['fullLoopPassed'] and report['completedNotificationJourneys'] == 2
+else:
+    journey_passed = report['onboardingPassed'] and not report['fullLoopPassed']
+passed = report['testExitCode'] == 0 and journey_passed
+report['status'] = 'passed' if passed else 'failed'
 Path(os.environ['RUNNER_TEMP'], 'notification-result.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))
-if report['lane'] == 'provider':
-    if not report['fullLoopPassed'] or report['completedNotificationJourneys'] != 2:
-        raise SystemExit('Real provider notification tests did not pass; no injected fallback was run.')
-elif not report['onboardingPassed'] or report['fullLoopPassed']:
-    raise SystemExit('The explicit onboarding smoke did not pass.')
+if not passed:
+    raise SystemExit('The selected Android Appium journey did not pass. No alternate lane was substituted.')
 PY
 exit "$result"
