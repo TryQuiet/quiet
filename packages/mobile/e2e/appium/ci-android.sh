@@ -92,11 +92,18 @@ import json, os
 from pathlib import Path
 source = Path(os.environ['QUIET_QSS_E2E_RUN_DIR']) / 'ui.json'
 proof = json.loads(source.read_text()) if source.exists() else {}
+progress_file = source.with_name('progress.json')
+progress = json.loads(progress_file.read_text()).get('stage') if progress_file.exists() else None
+stages = {'desktop-create', 'mobile-start', 'mobile-join', 'foreground-send', 'foreground-receive',
+          'qss-storage-proof', 'onboarding-complete', 'fresh-join-background', 'fresh-join-send',
+          'fresh-join-notification-tap', 'named-channel-create', 'named-channel-sync',
+          'named-channel-background', 'named-channel-send', 'named-channel-notification-tap', 'provider-complete'}
 build = proof.get('build', {})
 report = {
     'platform': 'android',
     'lane': os.environ['QUIET_NOTIFICATION_LANE'],
     'onboardingPassed': proof.get('onboardingPassed', False) is True,
+    'lastStage': progress if progress in stages else None,
     'fullLoopPassed': proof.get('fullLoopPassed', False) is True,
     'completedNotificationJourneys': len(proof.get('notifications', [])),
     'backendMode': build.get('backendMode'),
