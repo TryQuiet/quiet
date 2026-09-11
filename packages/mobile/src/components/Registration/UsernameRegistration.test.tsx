@@ -1,4 +1,5 @@
 import React from 'react'
+import { screen, fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { UsernameRegistration } from './UsernameRegistration.component'
 import { UsernameVariant } from './UsernameRegistration.types'
@@ -656,4 +657,49 @@ describe('UsernameRegistration', () => {
   //     </View>
   //   `)
   // })
+
+  // https://github.com/TryQuiet/quiet/issues/1306 - a leading hyphen used to be registered as-is.
+  // ' holmes' is included because parseName turns the leading space into a hyphen too.
+  it.each([['-holmes'], ['-1'], ['--'], [' holmes']])(
+    'user inserting name starting with a hyphen "%s" cannot submit and sees an explanation',
+    (name: string) => {
+      const registerUsernameAction = jest.fn()
+
+      renderComponent(
+        <UsernameRegistration
+          variant={UsernameVariant.NEW}
+          registerUsernameAction={registerUsernameAction}
+          usernameRegistered={false}
+          fetching={false}
+        />
+      )
+
+      fireEvent.changeText(screen.getByTestId('input'), name)
+      fireEvent.press(screen.getByTestId('button'))
+
+      expect(registerUsernameAction).not.toBeCalled()
+      expect(screen.getByText('Username must start with a letter or number')).toBeVisible()
+    }
+  )
+
+  it.each([['holmes'], ['1-holmes'], ['holmes-']])(
+    'user inserting name "%s" without a leading hyphen can still submit',
+    (name: string) => {
+      const registerUsernameAction = jest.fn()
+
+      renderComponent(
+        <UsernameRegistration
+          variant={UsernameVariant.NEW}
+          registerUsernameAction={registerUsernameAction}
+          usernameRegistered={false}
+          fetching={false}
+        />
+      )
+
+      fireEvent.changeText(screen.getByTestId('input'), name)
+      fireEvent.press(screen.getByTestId('button'))
+
+      expect(registerUsernameAction).toBeCalledWith(name)
+    }
+  )
 })
