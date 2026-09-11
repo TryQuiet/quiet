@@ -36,6 +36,12 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
     )
   }
 
+  // The conversation list gives every tile a single line of preview text. Collapse each run
+  // of whitespace (newlines, carriage returns, tabs) to one space before truncating: a raw
+  // newline would otherwise render verbatim and stretch the tile, and truncateWords splits on
+  // spaces alone, so 'one\ntwo' counts as one word and slips past the eleven-word limit.
+  const preview = message ? truncateWords(message.replace(/\s+/g, ' ').trim(), 11, 100) : ''
+
   return (
     <GestureHandlerRootView>
       {/* <Swipeable friction={4} renderLeftActions={leftSwipe}> */}
@@ -91,11 +97,11 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
               </View>
               <View style={{ flexDirection: 'row', paddingTop: 3 }}>
                 <View style={{ flex: 10 }}>
-                  {message && (
-                    <Typography fontSize={14} color={'gray50'}>
-                      {truncateWords(message, 11, 100)}
+                  {preview ? (
+                    <Typography fontSize={14} color={'gray50'} numberOfLines={1} ellipsizeMode={'tail'}>
+                      {preview}
                     </Typography>
-                  )}
+                  ) : null}
                 </View>
                 <View style={{ flex: 2, alignItems: 'flex-end' }}>
                   {unread && (

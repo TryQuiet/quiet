@@ -3,6 +3,17 @@ import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { ChannelTile } from './ChannelTile.component'
 
+type RenderedNode = string | { children?: RenderedNode[] | null } | null
+
+// Collects every rendered string in the tree, so a preview can be asserted on as
+// text rather than by matching against the component's internal structure.
+const renderedStrings = (node: RenderedNode | RenderedNode[]): string[] => {
+  if (node === null || node === undefined) return []
+  if (typeof node === 'string') return [node]
+  if (Array.isArray(node)) return node.flatMap(renderedStrings)
+  return renderedStrings(node.children ?? [])
+}
+
 describe('ChannelList component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
@@ -343,8 +354,10 @@ describe('ChannelList component', () => {
                   >
                     <Text
                       color="gray50"
+                      ellipsizeMode="tail"
                       fontSize={14}
                       horizontalTextAlign="left"
+                      numberOfLines={1}
                       style={
                         [
                           {
@@ -717,8 +730,10 @@ describe('ChannelList component', () => {
                   >
                     <Text
                       color="gray50"
+                      ellipsizeMode="tail"
                       fontSize={14}
                       horizontalTextAlign="left"
+                      numberOfLines={1}
                       style={
                         [
                           {
@@ -1107,8 +1122,10 @@ describe('ChannelList component', () => {
                   >
                     <Text
                       color="gray50"
+                      ellipsizeMode="tail"
                       fontSize={14}
                       horizontalTextAlign="left"
+                      numberOfLines={1}
                       style={
                         [
                           {
@@ -1140,5 +1157,45 @@ describe('ChannelList component', () => {
         </View>
       </View>
     `)
+  })
+  it('collapses a multi-line message into a single-line preview', () => {
+    const { getByText, toJSON } = renderComponent(
+      <ChannelTile
+        name={'general'}
+        id={'general'}
+        message={'line one\nline two\n\nline three'}
+        date={'1:55pm'}
+        unread={false}
+        isPublic={true}
+        redirect={jest.fn()}
+      />
+    )
+
+    const preview = renderedStrings(toJSON() as RenderedNode).find(text => text.includes('line one'))
+
+    expect(preview).toEqual('line one line two line three')
+    expect(preview).not.toMatch(/[\n\r\t]/)
+
+    // The tile reserves one line for the preview, so an unusually long single-line
+    // message is ellipsised rather than pushing the rest of the list around.
+    const previewNode = getByText('line one line two line three')
+    expect(previewNode.props.numberOfLines).toEqual(1)
+    expect(previewNode.props.ellipsizeMode).toEqual('tail')
+  })
+
+  it('keeps a preview of a whitespace-only message off the tile', () => {
+    const { toJSON } = renderComponent(
+      <ChannelTile
+        name={'general'}
+        id={'general'}
+        message={'\n\n   \t'}
+        date={'1:55pm'}
+        unread={false}
+        isPublic={true}
+        redirect={jest.fn()}
+      />
+    )
+
+    expect(renderedStrings(toJSON() as RenderedNode)).toEqual(['G', 'general', '1:55pm'])
   })
 })

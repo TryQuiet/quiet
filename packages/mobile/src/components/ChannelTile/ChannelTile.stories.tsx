@@ -53,3 +53,16 @@ storiesOf('ChannelTile', module)
       }}
     />
   ))
+  .add('Multi-line message', () => (
+    <ChannelTile
+      name={'general'}
+      id={'general'}
+      message={'line one\nline two\n\nline three, which carries on for long enough to need an ellipsis at the end'}
+      date={'1:55pm'}
+      unread={false}
+      isPublic={true}
+      redirect={(id: string) => {
+        logger.info(`Clicked ${id}`)
+      }}
+    />
+  ))
