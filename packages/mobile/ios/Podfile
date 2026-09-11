@@ -12,9 +12,8 @@ install! 'cocoapods', :deterministic_uuids => false,
   :parallel_pod_downloads => true,
   :parallel_pod_download_thread_pool_size => 40
 
-# React native 0.76 defaults to using new architecture
-# Disable New Architecture
-ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+# Use Fabric and the bridgeless runtime with legacy native module interop.
+ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 
 # Host-less logic tests for the notification service extension code. Kept outside the
 # app target so they build for the simulator without the app (the Tor pod is device-only).

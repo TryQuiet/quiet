@@ -194,14 +194,14 @@ async function build(output) {
   output = validateOutput(output)
   const versionHeader = fs.readFileSync(path.join(NODE_HEADERS, 'node_version.h'), 'utf8')
   for (const [part, value] of [
-    ['MAJOR', 18],
-    ['MINOR', 20],
-    ['PATCH', 4],
+    ['MAJOR', 24],
+    ['MINOR', 18],
+    ['PATCH', 0],
   ]) {
     assert.match(
       versionHeader,
       new RegExp(`#define NODE_${part}_VERSION\\s+${value}\\b`),
-      'Expected vendored Node 18.20.4 headers'
+      'Expected vendored Node 24.18.0 headers'
     )
   }
   const deviceSnapshot = snapshotTree(DEVICE_FRAMEWORK)
@@ -221,7 +221,7 @@ async function build(output) {
       const target = `${architecture}-apple-ios${MINIMUM_IOS}-simulator`
       console.log(`Building classic-level 1.4.1 for ${target}`)
       // Node's dlopen resolves N-API symbols from the already-loaded NodeMobile framework.
-      // Node 18 uses napi_register_module_v1; do not add constructor registration or link another Node.
+      // The Node-API loader uses napi_register_module_v1; do not add constructor registration or link another Node.
       run('xcrun', [
         '--sdk',
         'iphonesimulator',
@@ -288,7 +288,7 @@ async function build(output) {
       `${JSON.stringify(
         {
           packages: PACKAGES,
-          nodeVersion: '18.20.4',
+          nodeVersion: '24.18.0',
           nodeHeaders: snapshotTree(NODE_HEADERS),
           xcode: run('xcodebuild', ['-version']),
           compiler: run('xcrun', ['clang++', '--version']),

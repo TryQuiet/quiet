@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "cppgc/common.h"
@@ -17,6 +18,7 @@
 #include "v8-data.h"               // NOLINT(build/include_directory)
 #include "v8-debug.h"              // NOLINT(build/include_directory)
 #include "v8-embedder-heap.h"      // NOLINT(build/include_directory)
+#include "v8-exception.h"          // NOLINT(build/include_directory)
 #include "v8-function-callback.h"  // NOLINT(build/include_directory)
 #include "v8-internal.h"           // NOLINT(build/include_directory)
 #include "v8-local-handle.h"       // NOLINT(build/include_directory)
@@ -163,28 +165,6 @@ class V8_EXPORT ResourceConstraints {
 };
 
 /**
- * Option flags passed to the SetRAILMode function.
- * See documentation https://developers.google.com/web/tools/chrome-devtools/
- * profile/evaluate-performance/rail
- */
-enum RAILMode : unsigned {
-  // Response performance mode: In this mode very low virtual machine latency
-  // is provided. V8 will try to avoid JavaScript execution interruptions.
-  // Throughput may be throttled.
-  PERFORMANCE_RESPONSE,
-  // Animation performance mode: In this mode low virtual machine latency is
-  // provided. V8 will try to avoid as many JavaScript execution interruptions
-  // as possible. Throughput may be throttled. This is the default mode.
-  PERFORMANCE_ANIMATION,
-  // Idle performance mode: The embedder is idle. V8 can complete deferred work
-  // in this mode.
-  PERFORMANCE_IDLE,
-  // Load performance mode: In this mode high throughput is provided. V8 may
-  // turn off latency optimizations.
-  PERFORMANCE_LOAD
-};
-
-/**
  * Memory pressure level for the MemoryPressureNotification.
  * kNone hints V8 that there is no memory pressure.
  * kModerate hints V8 to speed up incremental garbage collection at the cost of
@@ -193,6 +173,95 @@ enum RAILMode : unsigned {
  * pauses at this level will be large.
  */
 enum class MemoryPressureLevel { kNone, kModerate, kCritical };
+
+/**
+ * Signal for dependants of contexts. Useful for
+ * `ContextDisposedNotification()` to implement different strategies.
+ */
+enum class ContextDependants {
+  /** Context has no dependants. These are usually top-level contexts. */
+  kNoDependants,
+  /** Context has some dependants, i.e., it may depend on other contexts. This
+     is usually the case for inner contexts.  */
+  kSomeDependants
+};
+
+/**
+ * Indicator for the stack state.
+ */
+using StackState = cppgc::EmbedderStackState;
+
+/**
+ * The set of V8 isolates in a process is partitioned into groups. Each group
+ * has its own sandbox (if V8 was configured with support for the sandbox) and
+ * pointer-compression cage (if configured with pointer compression).
+ *
+ * By default, all isolates are placed in the same group. This is the most
+ * efficient configuration in terms of speed and memory use. However, with
+ * pointer compression enabled, total heap usage of isolates in a group
+ * cannot exceed 4 GB, not counting array buffers and other off-heap storage.
+ * Using multiple isolate groups can allow embedders to allocate more than 4GB
+ * of objects with pointer compression enabled, if the embedder's use case can
+ * span multiple isolates.
+ *
+ * Creating an isolate group reserves a range of virtual memory addresses. A
+ * group's memory mapping will be released when the last isolate in the group is
+ * disposed, and there are no more live IsolateGroup objects that refer to it.
+ *
+ * Note that Isolate groups are reference counted, and
+ * the IsolateGroup type is a reference to one.
+ *
+ * Note that it's not going to be possible to pass shared JS objects
+ * across IsolateGroup boundary.
+ *
+ */
+class V8_EXPORT IsolateGroup {
+ public:
+  /**
+   * Get the default isolate group. If this V8's build configuration only
+   * supports a single group, this is a reference to that single group.
+   * Otherwise this is a group like any other, distinguished only
+   * in that it is the first group.
+   */
+  static IsolateGroup GetDefault();
+
+  /**
+   * Return true if new isolate groups can be created at run-time, or false if
+   * all isolates must be in the same group.
+   */
+  static bool CanCreateNewGroups();
+
+  /**
+   * Create a new isolate group. If this V8's build configuration only supports
+   * a single group, abort.
+   */
+  static IsolateGroup Create();
+
+  IsolateGroup(IsolateGroup&& other);
+  IsolateGroup& operator=(IsolateGroup&& other);
+
+  IsolateGroup(const IsolateGroup&);
+  IsolateGroup& operator=(const IsolateGroup&);
+
+  ~IsolateGroup();
+
+  bool operator==(const IsolateGroup& other) const {
+    return isolate_group_ == other.isolate_group_;
+  }
+
+  bool operator!=(const IsolateGroup& other) const {
+    return !operator==(other);
+  }
+
+ private:
+  friend class Isolate;
+  friend class ArrayBuffer::Allocator;
+
+  // The isolate_group pointer should be already acquired.
+  explicit IsolateGroup(internal::IsolateGroup*&& isolate_group);
+
+  internal::IsolateGroup* isolate_group_;
+};
 
 /**
  * Isolate represents an isolated instance of the V8 engine.  V8 isolates have
@@ -211,6 +280,8 @@ class V8_EXPORT Isolate {
     CreateParams();
     ~CreateParams();
 
+    ALLOW_COPY_AND_MOVE_WITH_DEPRECATED_FIELDS(CreateParams)
+
     /**
      * Allows the host application to provide the address of a function that is
      * notified each time code is added, moved or removed.
@@ -226,7 +297,7 @@ class V8_EXPORT Isolate {
      * Explicitly specify a startup snapshot blob. The embedder owns the blob.
      * The embedder *must* ensure that the snapshot is from a trusted source.
      */
-    StartupData* snapshot_blob = nullptr;
+    const StartupData* snapshot_blob = nullptr;
 
     /**
      * Enables the host application to provide a mechanism for recording
@@ -270,11 +341,6 @@ class V8_EXPORT Isolate {
     bool allow_atomics_wait = true;
 
     /**
-     * Termination is postponed when there is no active SafeForTerminationScope.
-     */
-    bool only_terminate_in_safe_scope = false;
-
-    /**
      * The following parameters describe the offsets for addressing type info
      * for wrapped API objects and are used by the fast C API
      * (for details see v8-fast-api-calls.h).
@@ -289,10 +355,10 @@ class V8_EXPORT Isolate {
     OOMErrorCallback oom_error_callback = nullptr;
 
     /**
-     * The following parameter is experimental and may change significantly.
-     * This is currently for internal testing.
+     * A CppHeap used to construct the Isolate. V8 takes ownership of the
+     * CppHeap passed this way.
      */
-    Isolate* experimental_attach_to_shared_isolate = nullptr;
+    CppHeap* cpp_heap = nullptr;
   };
 
   /**
@@ -301,16 +367,18 @@ class V8_EXPORT Isolate {
    */
   class V8_EXPORT V8_NODISCARD Scope {
    public:
-    explicit Scope(Isolate* isolate) : isolate_(isolate) { isolate->Enter(); }
+    explicit Scope(Isolate* isolate) : v8_isolate_(isolate) {
+      v8_isolate_->Enter();
+    }
 
-    ~Scope() { isolate_->Exit(); }
+    ~Scope() { v8_isolate_->Exit(); }
 
     // Prevent copying of Scope objects.
     Scope(const Scope&) = delete;
     Scope& operator=(const Scope&) = delete;
 
    private:
-    Isolate* const isolate_;
+    Isolate* const v8_isolate_;
   };
 
   /**
@@ -330,12 +398,9 @@ class V8_EXPORT Isolate {
         const DisallowJavascriptExecutionScope&) = delete;
 
    private:
-    OnFailure on_failure_;
-    Isolate* isolate_;
-
-    bool was_execution_allowed_assert_;
-    bool was_execution_allowed_throws_;
-    bool was_execution_allowed_dump_;
+    v8::Isolate* const v8_isolate_;
+    const OnFailure on_failure_;
+    bool was_execution_allowed_;
   };
 
   /**
@@ -353,7 +418,7 @@ class V8_EXPORT Isolate {
         const AllowJavascriptExecutionScope&) = delete;
 
    private:
-    Isolate* isolate_;
+    Isolate* const v8_isolate_;
     bool was_execution_allowed_assert_;
     bool was_execution_allowed_throws_;
     bool was_execution_allowed_dump_;
@@ -376,29 +441,11 @@ class V8_EXPORT Isolate {
         const SuppressMicrotaskExecutionScope&) = delete;
 
    private:
-    internal::Isolate* const isolate_;
+    internal::Isolate* const i_isolate_;
     internal::MicrotaskQueue* const microtask_queue_;
     internal::Address previous_stack_height_;
 
     friend class internal::ThreadLocalTop;
-  };
-
-  /**
-   * This scope allows terminations inside direct V8 API calls and forbid them
-   * inside any recursive API calls without explicit SafeForTerminationScope.
-   */
-  class V8_EXPORT V8_NODISCARD SafeForTerminationScope {
-   public:
-    explicit SafeForTerminationScope(v8::Isolate* isolate);
-    ~SafeForTerminationScope();
-
-    // Prevent copying of Scope objects.
-    SafeForTerminationScope(const SafeForTerminationScope&) = delete;
-    SafeForTerminationScope& operator=(const SafeForTerminationScope&) = delete;
-
-   private:
-    internal::Isolate* isolate_;
-    bool prev_value_;
   };
 
   /**
@@ -414,40 +461,43 @@ class V8_EXPORT Isolate {
    * Features reported via the SetUseCounterCallback callback. Do not change
    * assigned numbers of existing items; add new features to the end of this
    * list.
+   * Dead features can be marked `V8_DEPRECATE_SOON`, then `V8_DEPRECATED`, and
+   * then finally be renamed to `kOBSOLETE_...` to stop embedders from using
+   * them.
    */
   enum UseCounterFeature {
     kUseAsm = 0,
     kBreakIterator = 1,
-    kLegacyConst = 2,
-    kMarkDequeOverflow = 3,
-    kStoreBufferOverflow = 4,
-    kSlotsBufferOverflow = 5,
-    kObjectObserve = 6,
+    kOBSOLETE_LegacyConst = 2,
+    kOBSOLETE_MarkDequeOverflow = 3,
+    kOBSOLETE_StoreBufferOverflow = 4,
+    kOBSOLETE_SlotsBufferOverflow = 5,
+    kOBSOLETE_ObjectObserve = 6,
     kForcedGC = 7,
     kSloppyMode = 8,
     kStrictMode = 9,
-    kStrongMode = 10,
+    kOBSOLETE_StrongMode = 10,
     kRegExpPrototypeStickyGetter = 11,
     kRegExpPrototypeToString = 12,
     kRegExpPrototypeUnicodeGetter = 13,
-    kIntlV8Parse = 14,
-    kIntlPattern = 15,
-    kIntlResolved = 16,
-    kPromiseChain = 17,
-    kPromiseAccept = 18,
-    kPromiseDefer = 19,
+    kOBSOLETE_IntlV8Parse = 14,
+    kOBSOLETE_IntlPattern = 15,
+    kOBSOLETE_IntlResolved = 16,
+    kOBSOLETE_PromiseChain = 17,
+    kOBSOLETE_PromiseAccept = 18,
+    kOBSOLETE_PromiseDefer = 19,
     kHtmlCommentInExternalScript = 20,
     kHtmlComment = 21,
     kSloppyModeBlockScopedFunctionRedefinition = 22,
     kForInInitializer = 23,
-    kArrayProtectorDirtied = 24,
+    kOBSOLETE_ArrayProtectorDirtied = 24,
     kArraySpeciesModified = 25,
     kArrayPrototypeConstructorModified = 26,
-    kArrayInstanceProtoModified = 27,
+    kOBSOLETE_ArrayInstanceProtoModified = 27,
     kArrayInstanceConstructorModified = 28,
-    kLegacyFunctionDeclaration = 29,
-    kRegExpPrototypeSourceGetter = 30,   // Unused.
-    kRegExpPrototypeOldFlagGetter = 31,  // Unused.
+    kOBSOLETE_LegacyFunctionDeclaration = 29,
+    kOBSOLETE_RegExpPrototypeSourceGetter = 30,
+    kOBSOLETE_RegExpPrototypeOldFlagGetter = 31,
     kDecimalWithLeadingZeroInStrictMode = 32,
     kLegacyDateParser = 33,
     kDefineGetterOrSetterWouldThrow = 34,
@@ -455,21 +505,21 @@ class V8_EXPORT Isolate {
     kAssigmentExpressionLHSIsCallInSloppy = 36,
     kAssigmentExpressionLHSIsCallInStrict = 37,
     kPromiseConstructorReturnedUndefined = 38,
-    kConstructorNonUndefinedPrimitiveReturn = 39,
-    kLabeledExpressionStatement = 40,
-    kLineOrParagraphSeparatorAsLineTerminator = 41,
+    kOBSOLETE_ConstructorNonUndefinedPrimitiveReturn = 39,
+    kOBSOLETE_LabeledExpressionStatement = 40,
+    kOBSOLETE_LineOrParagraphSeparatorAsLineTerminator = 41,
     kIndexAccessor = 42,
     kErrorCaptureStackTrace = 43,
     kErrorPrepareStackTrace = 44,
     kErrorStackTraceLimit = 45,
     kWebAssemblyInstantiation = 46,
     kDeoptimizerDisableSpeculation = 47,
-    kArrayPrototypeSortJSArrayModifiedPrototype = 48,
+    kOBSOLETE_ArrayPrototypeSortJSArrayModifiedPrototype = 48,
     kFunctionTokenOffsetTooLongForToString = 49,
     kWasmSharedMemory = 50,
     kWasmThreadOpcodes = 51,
-    kAtomicsNotify = 52,  // Unused.
-    kAtomicsWake = 53,    // Unused.
+    kOBSOLETE_AtomicsNotify = 52,
+    kOBSOLETE_AtomicsWake = 53,
     kCollator = 54,
     kNumberFormat = 55,
     kDateTimeFormat = 56,
@@ -479,7 +529,7 @@ class V8_EXPORT Isolate {
     kListFormat = 60,
     kSegmenter = 61,
     kStringLocaleCompare = 62,
-    kStringToLocaleUpperCase = 63,
+    kOBSOLETE_StringToLocaleUpperCase = 63,
     kStringToLocaleLowerCase = 64,
     kNumberToLocaleString = 65,
     kDateToLocaleString = 66,
@@ -487,14 +537,14 @@ class V8_EXPORT Isolate {
     kDateToLocaleTimeString = 68,
     kAttemptOverrideReadOnlyOnPrototypeSloppy = 69,
     kAttemptOverrideReadOnlyOnPrototypeStrict = 70,
-    kOptimizedFunctionWithOneShotBytecode = 71,  // Unused.
+    kOBSOLETE_OptimizedFunctionWithOneShotBytecode = 71,
     kRegExpMatchIsTrueishOnNonJSRegExp = 72,
     kRegExpMatchIsFalseishOnJSRegExp = 73,
-    kDateGetTimezoneOffset = 74,  // Unused.
+    kOBSOLETE_DateGetTimezoneOffset = 74,
     kStringNormalize = 75,
     kCallSiteAPIGetFunctionSloppyCall = 76,
     kCallSiteAPIGetThisSloppyCall = 77,
-    kRegExpMatchAllWithNonGlobalRegExp = 78,
+    kOBSOLETE_RegExpMatchAllWithNonGlobalRegExp = 78,
     kRegExpExecCalledOnSlowRegExp = 79,
     kRegExpReplaceCalledOnSlowRegExp = 80,
     kDisplayNames = 81,
@@ -525,12 +575,65 @@ class V8_EXPORT Isolate {
     kWasmSimdOpcodes = 106,
     kVarRedeclaredCatchBinding = 107,
     kWasmRefTypes = 108,
-    kWasmBulkMemory = 109,  // Unused.
-    kWasmMultiValue = 110,
+    kOBSOLETE_WasmBulkMemory = 109,
+    kOBSOLETE_WasmMultiValue = 110,
     kWasmExceptionHandling = 111,
     kInvalidatedMegaDOMProtector = 112,
     kFunctionPrototypeArguments = 113,
     kFunctionPrototypeCaller = 114,
+    kTurboFanOsrCompileStarted = 115,
+    kAsyncStackTaggingCreateTaskCall = 116,
+    kDurationFormat = 117,
+    kInvalidatedNumberStringNotRegexpLikeProtector = 118,
+    kOBSOLETE_RegExpUnicodeSetIncompatibilitiesWithUnicodeMode = 119,
+    kOBSOLETE_ImportAssertionDeprecatedSyntax = 120,
+    kLocaleInfoObsoletedGetters = 121,
+    kLocaleInfoFunctions = 122,
+    kCompileHintsMagicAll = 123,
+    kInvalidatedNoProfilingProtector = 124,
+    kWasmMemory64 = 125,
+    kWasmMultiMemory = 126,
+    kWasmGC = 127,
+    kWasmImportedStrings = 128,
+    kSourceMappingUrlMagicCommentAtSign = 129,
+    kTemporalObject = 130,
+    kWasmModuleCompilation = 131,
+    kInvalidatedNoUndetectableObjectsProtector = 132,
+    kWasmJavaScriptPromiseIntegration = 133,
+    kWasmReturnCall = 134,
+    kWasmExtendedConst = 135,
+    kWasmRelaxedSimd = 136,
+    kWasmTypeReflection = 137,
+    kWasmExnRef = 138,
+    kWasmTypedFuncRef = 139,
+    kInvalidatedStringWrapperToPrimitiveProtector = 140,
+    kDocumentAllLegacyCall = 141,
+    kDocumentAllLegacyConstruct = 142,
+    kConsoleContext = 143,
+    kWasmImportedStringsUtf8 = 144,
+    kResizableArrayBuffer = 145,
+    kGrowableSharedArrayBuffer = 146,
+    kArrayByCopy = 147,
+    kArrayFromAsync = 148,
+    kIteratorMethods = 149,
+    kPromiseAny = 150,
+    kSetMethods = 151,
+    kArrayFindLast = 152,
+    kArrayGroup = 153,
+    kArrayBufferTransfer = 154,
+    kPromiseWithResolvers = 155,
+    kAtomicsWaitAsync = 156,
+    kExtendingNonExtensibleWithPrivate = 157,
+    kPromiseTry = 158,
+    kStringReplaceAll = 159,
+    kStringWellFormed = 160,
+    kWeakReferences = 161,
+    kErrorIsError = 162,
+    kInvalidatedTypedArrayLengthLookupChainProtector = 163,
+    kRegExpEscape = 164,
+    kFloat16Array = 165,
+    kExplicitResourceManagement = 166,
+    kWasmBranchHinting = 167,
 
     // If you add new values here, you'll also need to update Chromium's:
     // web_feature.mojom, use_counter_callback.cc, and enums.xml. V8 changes to
@@ -548,6 +651,21 @@ class V8_EXPORT Isolate {
                   kMessageWarning,
   };
 
+  // The different priorities that an isolate can have.
+  enum class Priority {
+    // The isolate does not relate to content that is currently important
+    // to the user. Lowest priority.
+    kBestEffort,
+
+    // The isolate contributes to content that is visible to the user, like a
+    // visible iframe that's not interacted directly with. High priority.
+    kUserVisible,
+
+    // The isolate contributes to content that is of the utmost importance to
+    // the user, like visible content in the focused window. Highest priority.
+    kUserBlocking,
+  };
+
   using UseCounterCallback = void (*)(Isolate* isolate,
                                       UseCounterFeature feature);
 
@@ -556,9 +674,9 @@ class V8_EXPORT Isolate {
    * currently entered isolate.
    *
    * Only Isolate::GetData() and Isolate::SetData(), which access the
-   * embedder-controlled parts of the isolate, are allowed to be called on the
-   * uninitialized isolate. To initialize the isolate, call
-   * Isolate::Initialize().
+   * embedder-controlled parts of the isolate, as well as Isolate::GetGroup(),
+   * are allowed to be called on the uninitialized isolate. To initialize the
+   * isolate, call `Isolate::Initialize()` or initialize a `SnapshotCreator`.
    *
    * When an isolate is no longer used its resources should be freed
    * by calling Dispose().  Using the delete operator is not allowed.
@@ -566,6 +684,12 @@ class V8_EXPORT Isolate {
    * V8::Initialize() must have run prior to this.
    */
   static Isolate* Allocate();
+  static Isolate* Allocate(const IsolateGroup& group);
+
+  /**
+   * Return the group for this isolate.
+   */
+  IsolateGroup GetGroup() const;
 
   /**
    * Initialize an Isolate previously allocated by Isolate::Allocate().
@@ -582,6 +706,7 @@ class V8_EXPORT Isolate {
    * V8::Initialize() must have run prior to this.
    */
   static Isolate* New(const CreateParams& params);
+  static Isolate* New(const IsolateGroup& group, const CreateParams& params);
 
   /**
    * Returns the entered isolate for the current thread or NULL in
@@ -636,11 +761,20 @@ class V8_EXPORT Isolate {
    * This specifies the callback called by the upcoming dynamic
    * import() language feature to load modules.
    */
-  V8_DEPRECATED("Use HostImportModuleDynamicallyCallback")
-  void SetHostImportModuleDynamicallyCallback(
-      HostImportModuleDynamicallyWithImportAssertionsCallback callback);
   void SetHostImportModuleDynamicallyCallback(
       HostImportModuleDynamicallyCallback callback);
+
+  /**
+   * This specifies the callback called by the upcoming dynamic
+   * import() and import.source() language feature to load modules.
+   *
+   * This API is experimental and is expected to be changed or removed in the
+   * future. The callback is currently only called when for source-phase
+   * imports. Evaluation-phase imports use the existing
+   * HostImportModuleDynamicallyCallback callback.
+   */
+  void SetHostImportModuleWithPhaseDynamicallyCallback(
+      HostImportModuleWithPhaseDynamicallyCallback callback);
 
   /**
    * This specifies the callback called by the upcoming import.meta
@@ -657,10 +791,33 @@ class V8_EXPORT Isolate {
       HostCreateShadowRealmContextCallback callback);
 
   /**
+   * Set the callback that checks whether a Error.isError should return true for
+   * a JSApiWrapper object, i.e. whether it represents a native JS error. For
+   * example, in an HTML embedder, DOMExceptions are considered native errors.
+   */
+  void SetIsJSApiWrapperNativeErrorCallback(
+      IsJSApiWrapperNativeErrorCallback callback);
+
+  /**
    * This specifies the callback called when the stack property of Error
    * is accessed.
    */
   void SetPrepareStackTraceCallback(PrepareStackTraceCallback callback);
+
+  /**
+   * Get the stackTraceLimit property of Error.
+   */
+  int GetStackTraceLimit();
+
+#if defined(V8_OS_WIN)
+  /**
+   * This specifies the callback called when an ETW tracing session starts.
+   */
+  V8_DEPRECATE_SOON("Use SetFilterETWSessionByURL2Callback instead")
+  void SetFilterETWSessionByURLCallback(FilterETWSessionByURLCallback callback);
+  void SetFilterETWSessionByURL2Callback(
+      FilterETWSessionByURL2Callback callback);
+#endif  // V8_OS_WIN
 
   /**
    * Optional notification that the system is running low on memory.
@@ -669,6 +826,22 @@ class V8_EXPORT Isolate {
    * the isolate is executing long running JavaScript code.
    */
   void MemoryPressureNotification(MemoryPressureLevel level);
+
+  /**
+   * Optional request from the embedder to tune v8 towards energy efficiency
+   * rather than speed if `battery_saver_mode_enabled` is true, because the
+   * embedder is in battery saver mode. If false, the correct tuning is left
+   * to v8 to decide.
+   */
+  void SetBatterySaverMode(bool battery_saver_mode_enabled);
+
+  /**
+   * Optional request from the embedder to tune v8 towards memory efficiency
+   * rather than speed if `memory_saver_mode_enabled` is true, because the
+   * embedder is in memory saver mode. If false, the correct tuning is left
+   * to v8 to decide.
+   */
+  void SetMemorySaverMode(bool memory_saver_mode_enabled);
 
   /**
    * Drop non-essential caches. Should only be called from testing code.
@@ -699,10 +872,25 @@ class V8_EXPORT Isolate {
   void Exit();
 
   /**
-   * Disposes the isolate.  The isolate must not be entered by any
+   * Deinitializes and frees the isolate. The isolate must not be entered by any
    * thread to be disposable.
    */
   void Dispose();
+
+  /**
+   * Deinitializes the isolate, but does not free the address. The isolate must
+   * not be entered by any thread to be deinitializable. Embedders must call
+   * Isolate::Free() to free the isolate afterwards.
+   */
+  void Deinitialize();
+
+  /**
+   * Frees the memory allocated for the isolate. Can only be called after the
+   * Isolate has already been deinitialized with Isolate::Deinitialize(). After
+   * the isolate is freed, the next call to Isolate::New() or
+   * Isolate::Allocate() might return the same address that just get freed.
+   */
+  static void Free(Isolate* isolate);
 
   /**
    * Dumps activated low-level V8 internal stats. This can be used instead
@@ -744,6 +932,18 @@ class V8_EXPORT Isolate {
    */
   template <class T>
   V8_INLINE MaybeLocal<T> GetDataFromSnapshotOnce(size_t index);
+
+  /**
+   * Returns the value that was set or restored by
+   * SetContinuationPreservedEmbedderData(), if any.
+   */
+  Local<Value> GetContinuationPreservedEmbedderData();
+
+  /**
+   * Sets a value that will be stored on continuations and reset while the
+   * continuation runs.
+   */
+  void SetContinuationPreservedEmbedderData(Local<Value> data);
 
   /**
    * Get statistics about the heap memory usage.
@@ -825,25 +1025,14 @@ class V8_EXPORT Isolate {
                       size_t frames_limit, SampleInfo* sample_info);
 
   /**
-   * Adjusts the amount of registered external memory. Used to give V8 an
-   * indication of the amount of externally allocated memory that is kept alive
-   * by JavaScript objects. V8 uses this to decide when to perform global
-   * garbage collections. Registering externally allocated memory will trigger
-   * global garbage collections more often than it would otherwise in an attempt
-   * to garbage collect the JavaScript objects that keep the externally
-   * allocated memory alive.
+   * Adjusts the amount of registered external memory.
    *
    * \param change_in_bytes the change in externally allocated memory that is
    *   kept alive by JavaScript objects.
    * \returns the adjusted value.
    */
+  V8_DEPRECATE_SOON("Use ExternalMemoryAccounter instead.")
   int64_t AdjustAmountOfExternalAllocatedMemory(int64_t change_in_bytes);
-
-  /**
-   * Returns the number of phantom handles without callbacks that were reset
-   * by the garbage collector since the last call to this function.
-   */
-  size_t NumberOfPhantomHandleResetsSinceLastCall();
 
   /**
    * Returns heap profiler for this isolate. Will return NULL until the isolate
@@ -883,6 +1072,12 @@ class V8_EXPORT Isolate {
   Local<Context> GetIncumbentContext();
 
   /**
+   * Returns the host defined options set for currently running script or
+   * module, if available.
+   */
+  MaybeLocal<Data> GetCurrentHostDefinedOptions();
+
+  /**
    * Schedules a v8::Exception::Error with the given message.
    * See ThrowException for more details. Templatized to provide compile-time
    * errors in case of too long strings (see v8::String::NewFromUtf8Literal).
@@ -901,6 +1096,14 @@ class V8_EXPORT Isolate {
    */
   Local<Value> ThrowException(Local<Value> exception);
 
+  /**
+   * Returns true if an exception was thrown but not processed yet by an
+   * exception handler on JavaScript side or by v8::TryCatch handler.
+   *
+   * This is an experimental feature and may still change significantly.
+   */
+  bool HasPendingException();
+
   using GCCallback = void (*)(Isolate* isolate, GCType type,
                               GCCallbackFlags flags);
   using GCCallbackWithData = void (*)(Isolate* isolate, GCType type,
@@ -908,174 +1111,96 @@ class V8_EXPORT Isolate {
 
   /**
    * Enables the host application to receive a notification before a
-   * garbage collection. Allocations are allowed in the callback function,
-   * but the callback is not re-entrant: if the allocation inside it will
-   * trigger the garbage collection, the callback won't be called again.
-   * It is possible to specify the GCType filter for your callback. But it is
-   * not possible to register the same callback function two times with
-   * different GCType filters.
+   * garbage collection.
+   *
+   * \param callback The callback to be invoked. The callback is allowed to
+   *     allocate but invocation is not re-entrant: a callback triggering
+   *     garbage collection will not be called again. JS execution is prohibited
+   *     from these callbacks. A single callback may only be registered once.
+   * \param gc_type_filter A filter in case it should be applied.
    */
-  void AddGCPrologueCallback(GCCallbackWithData callback, void* data = nullptr,
-                             GCType gc_type_filter = kGCTypeAll);
   void AddGCPrologueCallback(GCCallback callback,
                              GCType gc_type_filter = kGCTypeAll);
 
   /**
-   * This function removes callback which was installed by
-   * AddGCPrologueCallback function.
+   * \copydoc AddGCPrologueCallback(GCCallback, GCType)
+   *
+   * \param data Additional data that should be passed to the callback.
    */
-  void RemoveGCPrologueCallback(GCCallbackWithData, void* data = nullptr);
+  void AddGCPrologueCallback(GCCallbackWithData callback, void* data = nullptr,
+                             GCType gc_type_filter = kGCTypeAll);
+
+  /**
+   * This function removes a callback which was added by
+   * `AddGCPrologueCallback`.
+   *
+   * \param callback the callback to remove.
+   */
   void RemoveGCPrologueCallback(GCCallback callback);
 
   /**
-   * Sets the embedder heap tracer for the isolate.
-   * SetEmbedderHeapTracer cannot be used simultaneously with AttachCppHeap.
+   * \copydoc AddGCPrologueCallback(GCCallback)
+   *
+   * \param data Additional data that was used to install the callback.
    */
-  void SetEmbedderHeapTracer(EmbedderHeapTracer* tracer);
+  void RemoveGCPrologueCallback(GCCallbackWithData, void* data = nullptr);
 
-  /*
-   * Gets the currently active heap tracer for the isolate that was set with
-   * SetEmbedderHeapTracer.
+  /**
+   * Enables the host application to receive a notification after a
+   * garbage collection.
+   *
+   * \copydetails AddGCPrologueCallback(GCCallback, GCType)
    */
-  EmbedderHeapTracer* GetEmbedderHeapTracer();
+  void AddGCEpilogueCallback(GCCallback callback,
+                             GCType gc_type_filter = kGCTypeAll);
+
+  /**
+   * \copydoc AddGCEpilogueCallback(GCCallback, GCType)
+   *
+   * \param data Additional data that should be passed to the callback.
+   */
+  void AddGCEpilogueCallback(GCCallbackWithData callback, void* data = nullptr,
+                             GCType gc_type_filter = kGCTypeAll);
+
+  /**
+   * This function removes a callback which was added by
+   * `AddGCEpilogueCallback`.
+   *
+   * \param callback the callback to remove.
+   */
+  void RemoveGCEpilogueCallback(GCCallback callback);
+
+  /**
+   * \copydoc RemoveGCEpilogueCallback(GCCallback)
+   *
+   * \param data Additional data that was used to install the callback.
+   */
+  void RemoveGCEpilogueCallback(GCCallbackWithData callback,
+                                void* data = nullptr);
 
   /**
    * Sets an embedder roots handle that V8 should consider when performing
-   * non-unified heap garbage collections.
-   *
-   * Using only EmbedderHeapTracer automatically sets up a default handler.
-   * The intended use case is for setting a custom handler after invoking
-   * `AttachCppHeap()`.
+   * non-unified heap garbage collections. The intended use case is for setting
+   * a custom handler after invoking `AttachCppHeap()`.
    *
    * V8 does not take ownership of the handler.
    */
   void SetEmbedderRootsHandler(EmbedderRootsHandler* handler);
 
+  using ReleaseCppHeapCallback = void (*)(std::unique_ptr<CppHeap>);
+
   /**
-   * Attaches a managed C++ heap as an extension to the JavaScript heap. The
-   * embedder maintains ownership of the CppHeap. At most one C++ heap can be
-   * attached to V8.
-   * AttachCppHeap cannot be used simultaneously with SetEmbedderHeapTracer.
-   *
-   * This is an experimental feature and may still change significantly.
+   * Sets a callback on the isolate that gets called when the CppHeap gets
+   * detached. The callback can then either take ownership of the CppHeap, or
+   * the CppHeap gets deallocated.
    */
-  void AttachCppHeap(CppHeap*);
+  void SetReleaseCppHeapCallbackForTesting(ReleaseCppHeapCallback callback);
 
   /**
-   * Detaches a managed C++ heap if one was attached using `AttachCppHeap()`.
-   *
-   * This is an experimental feature and may still change significantly.
-   */
-  void DetachCppHeap();
-
-  /**
-   * This is an experimental feature and may still change significantly.
-
    * \returns the C++ heap managed by V8. Only available if such a heap has been
    *   attached using `AttachCppHeap()`.
    */
   CppHeap* GetCppHeap() const;
-
-  /**
-   * Use for |AtomicsWaitCallback| to indicate the type of event it receives.
-   */
-  enum class AtomicsWaitEvent {
-    /** Indicates that this call is happening before waiting. */
-    kStartWait,
-    /** `Atomics.wait()` finished because of an `Atomics.wake()` call. */
-    kWokenUp,
-    /** `Atomics.wait()` finished because it timed out. */
-    kTimedOut,
-    /** `Atomics.wait()` was interrupted through |TerminateExecution()|. */
-    kTerminatedExecution,
-    /** `Atomics.wait()` was stopped through |AtomicsWaitWakeHandle|. */
-    kAPIStopped,
-    /** `Atomics.wait()` did not wait, as the initial condition was not met. */
-    kNotEqual
-  };
-
-  /**
-   * Passed to |AtomicsWaitCallback| as a means of stopping an ongoing
-   * `Atomics.wait` call.
-   */
-  class V8_EXPORT AtomicsWaitWakeHandle {
-   public:
-    /**
-     * Stop this `Atomics.wait()` call and call the |AtomicsWaitCallback|
-     * with |kAPIStopped|.
-     *
-     * This function may be called from another thread. The caller has to ensure
-     * through proper synchronization that it is not called after
-     * the finishing |AtomicsWaitCallback|.
-     *
-     * Note that the ECMAScript specification does not plan for the possibility
-     * of wakeups that are neither coming from a timeout or an `Atomics.wake()`
-     * call, so this may invalidate assumptions made by existing code.
-     * The embedder may accordingly wish to schedule an exception in the
-     * finishing |AtomicsWaitCallback|.
-     */
-    void Wake();
-  };
-
-  /**
-   * Embedder callback for `Atomics.wait()` that can be added through
-   * |SetAtomicsWaitCallback|.
-   *
-   * This will be called just before starting to wait with the |event| value
-   * |kStartWait| and after finishing waiting with one of the other
-   * values of |AtomicsWaitEvent| inside of an `Atomics.wait()` call.
-   *
-   * |array_buffer| will refer to the underlying SharedArrayBuffer,
-   * |offset_in_bytes| to the location of the waited-on memory address inside
-   * the SharedArrayBuffer.
-   *
-   * |value| and |timeout_in_ms| will be the values passed to
-   * the `Atomics.wait()` call. If no timeout was used, |timeout_in_ms|
-   * will be `INFINITY`.
-   *
-   * In the |kStartWait| callback, |stop_handle| will be an object that
-   * is only valid until the corresponding finishing callback and that
-   * can be used to stop the wait process while it is happening.
-   *
-   * This callback may schedule exceptions, *unless* |event| is equal to
-   * |kTerminatedExecution|.
-   */
-  using AtomicsWaitCallback = void (*)(AtomicsWaitEvent event,
-                                       Local<SharedArrayBuffer> array_buffer,
-                                       size_t offset_in_bytes, int64_t value,
-                                       double timeout_in_ms,
-                                       AtomicsWaitWakeHandle* stop_handle,
-                                       void* data);
-
-  /**
-   * Set a new |AtomicsWaitCallback|. This overrides an earlier
-   * |AtomicsWaitCallback|, if there was any. If |callback| is nullptr,
-   * this unsets the callback. |data| will be passed to the callback
-   * as its last parameter.
-   */
-  void SetAtomicsWaitCallback(AtomicsWaitCallback callback, void* data);
-
-  /**
-   * Enables the host application to receive a notification after a
-   * garbage collection. Allocations are allowed in the callback function,
-   * but the callback is not re-entrant: if the allocation inside it will
-   * trigger the garbage collection, the callback won't be called again.
-   * It is possible to specify the GCType filter for your callback. But it is
-   * not possible to register the same callback function two times with
-   * different GCType filters.
-   */
-  void AddGCEpilogueCallback(GCCallbackWithData callback, void* data = nullptr,
-                             GCType gc_type_filter = kGCTypeAll);
-  void AddGCEpilogueCallback(GCCallback callback,
-                             GCType gc_type_filter = kGCTypeAll);
-
-  /**
-   * This function removes callback which was installed by
-   * AddGCEpilogueCallback function.
-   */
-  void RemoveGCEpilogueCallback(GCCallbackWithData callback,
-                                void* data = nullptr);
-  void RemoveGCEpilogueCallback(GCCallback callback);
 
   using GetExternallyAllocatedMemoryInBytesCallback = size_t (*)();
 
@@ -1146,9 +1271,8 @@ class V8_EXPORT Isolate {
    *
    * This should only be used for testing purposes and not to enforce a garbage
    * collection schedule. It has strong negative impact on the garbage
-   * collection performance. Use IdleNotificationDeadline() or
-   * LowMemoryNotification() instead to influence the garbage collection
-   * schedule.
+   * collection performance. Use MemoryPressureNotification() instead to
+   * influence the garbage collection schedule.
    */
   void RequestGarbageCollectionForTesting(GarbageCollectionType type);
 
@@ -1159,13 +1283,11 @@ class V8_EXPORT Isolate {
    *
    * This should only be used for testing purposes and not to enforce a garbage
    * collection schedule. It has strong negative impact on the garbage
-   * collection performance. Use IdleNotificationDeadline() or
-   * LowMemoryNotification() instead to influence the garbage collection
-   * schedule.
+   * collection performance. Use MemoryPressureNotification() instead to
+   * influence the garbage collection schedule.
    */
-  void RequestGarbageCollectionForTesting(
-      GarbageCollectionType type,
-      EmbedderHeapTracer::EmbedderStackState stack_state);
+  void RequestGarbageCollectionForTesting(GarbageCollectionType type,
+                                          StackState stack_state);
 
   /**
    * Set the callback to invoke for logging event.
@@ -1210,6 +1332,15 @@ class V8_EXPORT Isolate {
    * revocation of such a previous notification once the handler is added.
    */
   void SetPromiseRejectCallback(PromiseRejectCallback callback);
+
+  /**
+   * This is a part of experimental Api and might be changed without further
+   * notice.
+   * Do not use it.
+   *
+   * Set callback to notify about a new exception being thrown.
+   */
+  void SetExceptionPropagationCallback(ExceptionPropagationCallback callback);
 
   /**
    * Runs the default MicrotaskQueue until it gets empty and perform other
@@ -1301,22 +1432,6 @@ class V8_EXPORT Isolate {
   void SetAddCrashKeyCallback(AddCrashKeyCallback);
 
   /**
-   * Optional notification that the embedder is idle.
-   * V8 uses the notification to perform garbage collection.
-   * This call can be used repeatedly if the embedder remains idle.
-   * Returns true if the embedder should stop calling IdleNotificationDeadline
-   * until real work has been done.  This indicates that V8 has done
-   * as much cleanup as it will be able to do.
-   *
-   * The deadline_in_seconds argument specifies the deadline V8 has to finish
-   * garbage collection work. deadline_in_seconds is compared with
-   * MonotonicallyIncreasingTime() and should be based on the same timebase as
-   * that function. There is no guarantee that the actual work will be done
-   * within the time limit.
-   */
-  bool IdleNotificationDeadline(double deadline_in_seconds);
-
-  /**
    * Optional notification that the system is running low on memory.
    * V8 uses these notifications to attempt to free memory.
    */
@@ -1331,45 +1446,59 @@ class V8_EXPORT Isolate {
    * The optional parameter |dependant_context| specifies whether the disposed
    * context was depending on state from other contexts or not.
    */
+  V8_DEPRECATE_SOON("Use version that passes ContextDependants.")
   int ContextDisposedNotification(bool dependant_context = true);
+
+  /**
+   * Optional notification that a context has been disposed. V8 uses these
+   * notifications to guide heuristics on e.g. GC or compilers.
+   *
+   * \param dependants A signal on whether this context possibly had any
+   *     dependants.
+   */
+  void ContextDisposedNotification(ContextDependants dependants);
 
   /**
    * Optional notification that the isolate switched to the foreground.
    * V8 uses these notifications to guide heuristics.
    */
+  V8_DEPRECATE_SOON("Use SetPriority(Priority::kUserBlocking) instead")
   void IsolateInForegroundNotification();
 
   /**
    * Optional notification that the isolate switched to the background.
    * V8 uses these notifications to guide heuristics.
    */
+  V8_DEPRECATE_SOON("Use SetPriority(Priority::kBestEffort) instead")
   void IsolateInBackgroundNotification();
 
   /**
-   * Optional notification which will enable the memory savings mode.
-   * V8 uses this notification to guide heuristics which may result in a
-   * smaller memory footprint at the cost of reduced runtime performance.
+   * Optional notification that the isolate changed `priority`.
+   * V8 uses the priority value to guide heuristics.
    */
-  void EnableMemorySavingsMode();
+  void SetPriority(Priority priority);
 
   /**
-   * Optional notification which will disable the memory savings mode.
-   */
-  void DisableMemorySavingsMode();
-
-  /**
-   * Optional notification to tell V8 the current performance requirements
-   * of the embedder based on RAIL.
+   * Optional notification to tell V8 whether the embedder is currently loading
+   * resources. If the embedder uses this notification, it should call
+   * SetIsLoading(true) when loading starts and SetIsLoading(false) when it
+   * ends.
+   * It's valid to call SetIsLoading(true) again while loading, which will
+   * update the timestamp when V8 considers the load started. Calling
+   * SetIsLoading(false) while not loading does nothing.
    * V8 uses these notifications to guide heuristics.
    * This is an unfinished experimental feature. Semantics and implementation
    * may change frequently.
    */
-  void SetRAILMode(RAILMode rail_mode);
+  void SetIsLoading(bool is_loading);
 
   /**
-   * Update load start time of the RAIL mode
+   * Optional notification to tell V8 whether the embedder is currently frozen.
+   * V8 uses these notifications to guide heuristics.
+   * This is an unfinished experimental feature. Semantics and implementation
+   * may change frequently.
    */
-  void UpdateLoadStartTime();
+  void Freeze(bool is_frozen);
 
   /**
    * Optional notification to tell V8 the current isolate is used for debugging
@@ -1523,17 +1652,28 @@ class V8_EXPORT Isolate {
 
   void SetWasmStreamingCallback(WasmStreamingCallback callback);
 
+  void SetWasmAsyncResolvePromiseCallback(
+      WasmAsyncResolvePromiseCallback callback);
+
   void SetWasmLoadSourceMapCallback(WasmLoadSourceMapCallback callback);
 
-  void SetWasmSimdEnabledCallback(WasmSimdEnabledCallback callback);
-
-  void SetWasmExceptionsEnabledCallback(WasmExceptionsEnabledCallback callback);
-
-  void SetWasmDynamicTieringEnabledCallback(
-      WasmDynamicTieringEnabledCallback callback);
+  void SetWasmImportedStringsEnabledCallback(
+      WasmImportedStringsEnabledCallback callback);
 
   void SetSharedArrayBufferConstructorEnabledCallback(
       SharedArrayBufferConstructorEnabledCallback callback);
+
+  void SetWasmJSPIEnabledCallback(WasmJSPIEnabledCallback callback);
+
+  /**
+   * Register callback to control whether compile hints magic comments are
+   * enabled.
+   */
+  V8_DEPRECATED(
+      "Will be removed, use ScriptCompiler::CompileOptions for enabling the "
+      "compile hints magic comments")
+  void SetJavaScriptCompileHintsMagicEnabledCallback(
+      JavaScriptCompileHintsMagicEnabledCallback callback);
 
   /**
    * This function can be called by the embedder to signal V8 that the dynamic
@@ -1592,26 +1732,6 @@ class V8_EXPORT Isolate {
       StackTrace::StackTraceOptions options = StackTrace::kOverview);
 
   /**
-   * Iterates through all external resources referenced from current isolate
-   * heap.  GC is not invoked prior to iterating, therefore there is no
-   * guarantee that visited objects are still alive.
-   */
-  void VisitExternalResources(ExternalResourceVisitor* visitor);
-
-  /**
-   * Iterates through all the persistent handles in the current isolate's heap
-   * that have class_ids.
-   */
-  void VisitHandlesWithClassIds(PersistentHandleVisitor* visitor);
-
-  /**
-   * Iterates through all the persistent handles in the current isolate's heap
-   * that have class_ids and are weak to be marked as inactive if there is no
-   * pending activity for the handle.
-   */
-  void VisitWeakHandles(PersistentHandleVisitor* visitor);
-
-  /**
    * Check if this isolate is in use.
    * True if at least one thread Enter'ed this isolate.
    */
@@ -1663,6 +1783,17 @@ class V8_EXPORT Isolate {
    */
   void LocaleConfigurationChangeNotification();
 
+  /**
+   * Returns the default locale in a string if Intl support is enabled.
+   * Otherwise returns an empty string.
+   */
+  std::string GetDefaultLocale();
+
+  /**
+   * Returns the hash seed for that isolate, for testing purposes.
+   */
+  uint64_t GetHashSeed();
+
   Isolate() = delete;
   ~Isolate() = delete;
   Isolate(const Isolate&) = delete;
@@ -1677,9 +1808,12 @@ class V8_EXPORT Isolate {
  private:
   template <class K, class V, class Traits>
   friend class PersistentValueMapBase;
+  friend class ExternalMemoryAccounter;
 
-  internal::Address* GetDataFromSnapshotOnce(size_t index);
-  void ReportExternalAllocationLimitReached();
+  internal::ValueHelper::InternalRepresentationType GetDataFromSnapshotOnce(
+      size_t index);
+  int64_t AdjustAmountOfExternalAllocatedMemoryImpl(int64_t change_in_bytes);
+  void HandleExternalMemoryInterrupt();
 };
 
 void Isolate::SetData(uint32_t slot, void* data) {
@@ -1699,9 +1833,12 @@ uint32_t Isolate::GetNumberOfDataSlots() {
 
 template <class T>
 MaybeLocal<T> Isolate::GetDataFromSnapshotOnce(size_t index) {
-  T* data = reinterpret_cast<T*>(GetDataFromSnapshotOnce(index));
-  if (data) internal::PerformCastCheck(data);
-  return Local<T>(data);
+  if (auto repr = GetDataFromSnapshotOnce(index);
+      repr != internal::ValueHelper::kEmpty) {
+    internal::PerformCastCheck(internal::ValueHelper::ReprAsValue<T>(repr));
+    return Local<T>::FromRepr(repr);
+  }
+  return {};
 }
 
 }  // namespace v8

@@ -555,7 +555,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
      *  Commands should output hanging tor pid
      */
     const byPlatform = {
-      android: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
+      // Toybox's command-name flags differ across Android versions. Match full
+      // arguments with -f and exclude the detector shell by its PID instead.
+      android: `pgrep -f "${this.torDataDirectory}" | awk -v detector="$$" '$1 != detector'`,
       linux: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
       darwin: `ps -A | grep "${this.torDataDirectory}" | grep -v grep | awk '{print $1}'`,
       win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(

@@ -2,6 +2,7 @@
 
 exports[`Chat component renders component 1`] = `
 <View
+  collapsable={false}
   style={
     {
       "flex": 1,
@@ -676,6 +677,7 @@ exports[`Chat component renders component 1`] = `
             },
           ]
         }
+        testID="messages_general"
         viewabilityConfig={
           {
             "itemVisiblePercentThreshold": 0,
@@ -712,11 +714,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-vader"
             >
               <View
                 style={
@@ -887,11 +891,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
@@ -921,11 +927,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-windoo"
             >
               <View
                 style={
@@ -1110,11 +1118,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         We cannot grant you the rank of messager
@@ -1144,11 +1154,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-luke"
             >
               <View
                 style={
@@ -1333,11 +1345,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         The more messages the better
@@ -1367,11 +1381,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-leah"
             >
               <View
                 style={
@@ -1542,11 +1558,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Yeah!
@@ -1576,11 +1594,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-wookie"
             >
               <View
                 style={
@@ -1751,11 +1771,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Wrough!
@@ -1785,11 +1807,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-obi"
             >
               <View
                 style={
@@ -1974,22 +1998,26 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         I Agree
                       </div>
                     </View>
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 4,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Of course, I Agree
@@ -2019,11 +2047,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-yoda"
             >
               <View
                 style={
@@ -2194,11 +2224,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Messages more there should be
@@ -2228,11 +2260,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-anakin"
             >
               <View
                 style={
@@ -2403,11 +2437,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Why?
@@ -2437,11 +2473,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-anakin"
             >
               <View
                 style={
@@ -2612,11 +2650,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Uhuhu!
@@ -2646,11 +2686,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-chad"
             >
               <View
                 style={
@@ -2835,33 +2877,39 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Luck, I am your father!
                       </div>
                     </View>
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 4,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         That's impossible!
                       </div>
                     </View>
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 4,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Nooo!

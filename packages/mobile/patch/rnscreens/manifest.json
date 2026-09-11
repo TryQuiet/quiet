@@ -1,0 +1,23 @@
+{
+  "version": "4.24.0",
+  "upstreamCommit": "b3badd012f83679b12f4e29f2e28eceaa4830efd",
+  "upstreamPR": "https://github.com/software-mansion/react-native-screens/pull/4413",
+  "files": {
+    "android/src/main/cpp/NativeProxy.cpp": {
+      "before": "b1295187e684e48ea2620f09a35a646129ada4d705caa258694bb1a06bde36a2",
+      "after": "d1d006db671bf07d62dd8d486eac7d3027efa320cfe5cc25b8981e913ce019a9"
+    },
+    "android/src/main/cpp/NativeProxy.h": {
+      "before": "819ac75f33a7b621c79a5dec27154dc119b4b0c0dc2a561779691d5fad9837b6",
+      "after": "31fa7da8d2d614a3000f461a51bfa3f120c11cb1909c2e029da72cf1c162edcc"
+    },
+    "cpp/RNSScreenRemovalListener.cpp": {
+      "before": "522ce1151eb7a484730ba60360e0c377d2ecd0607c237aef2ebe5ad3dd660b03",
+      "after": "8fce5565911f4241803f851a94e76ad94547e5f9ad4ed547d82971522c2b4613"
+    },
+    "cpp/RNSScreenRemovalListener.h": {
+      "before": "3eb22b7fd1365f6b111b9e065a37b46a3f41d7e5b51c8db3413ddf8a6595cdc8",
+      "after": "a61f5280c833689328c23d7c99c42b840bd8c8492f0a89996e54f9c7c5f75485"
+    }
+  }
+}

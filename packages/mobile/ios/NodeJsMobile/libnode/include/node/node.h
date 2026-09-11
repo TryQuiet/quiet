@@ -67,7 +67,8 @@
 #endif
 
 #ifdef _WIN32
-# define SIGKILL 9
+#define SIGQUIT 3
+#define SIGKILL 9
 #endif
 
 #include "v8.h"  // NOLINT(build/include_order)
@@ -75,11 +76,11 @@
 #include "v8-platform.h"  // NOLINT(build/include_order)
 #include "node_version.h"  // NODE_MODULE_VERSION
 
-#define NAPI_EXPERIMENTAL
 #include "node_api.h"
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <ostream>
 
 // We cannot use __POSIX__ in this header because that's only defined when
@@ -123,10 +124,14 @@
 
 // Forward-declare libuv loop
 struct uv_loop_s;
+struct napi_module;
+struct ssl_ctx_st;  // Forward declaration of SSL_CTX for OpenSSL.
 
 // Forward-declare these functions now to stop MSVS from becoming
 // terminally confused when it's done in node_internals.h
 namespace node {
+
+struct SnapshotData;
 
 namespace tracing {
 
@@ -228,10 +233,8 @@ class Environment;
 class MultiIsolatePlatform;
 class InitializationResultImpl;
 
-namespace ProcessFlags {
-// TODO(addaleax): Switch to uint32_t to match std::atomic<uint32_t>
-// init_process_flags in node.cc
-enum Flags : uint64_t {
+namespace ProcessInitializationFlags {
+enum Flags : uint32_t {
   kNoFlags = 0,
   // Enable stdio inheritance, which is disabled by default.
   // This flag is also implied by kNoStdioInitialization.
@@ -261,6 +264,12 @@ enum Flags : uint64_t {
   kNoUseLargePages = 1 << 11,
   // Skip printing output for --help, --version, --v8-options.
   kNoPrintHelpOrVersionOutput = 1 << 12,
+  // Do not perform cppgc initialization. If set, the embedder must call
+  // cppgc::InitializeProcess() before creating a Node.js environment
+  // and call cppgc::ShutdownProcess() before process shutdown.
+  kNoInitializeCppgc = 1 << 13,
+  // Initialize the process for predictable snapshot generation.
+  kGeneratePredictableSnapshot = 1 << 14,
 
   // Emulate the behavior of InitializeNodeWithArgs() when passing
   // a flags argument to the InitializeOncePerProcess() replacement
@@ -269,11 +278,10 @@ enum Flags : uint64_t {
       kNoStdioInitialization | kNoDefaultSignalHandling | kNoInitializeV8 |
       kNoInitializeNodeV8Platform | kNoInitOpenSSL |
       kNoParseGlobalDebugVariables | kNoAdjustResourceLimits |
-      kNoUseLargePages | kNoPrintHelpOrVersionOutput,
+      kNoUseLargePages | kNoPrintHelpOrVersionOutput | kNoInitializeCppgc,
 };
-}  // namespace ProcessFlags
-// TODO(addaleax): Make this the canonical name, as it is more descriptive.
-namespace ProcessInitializationFlags = ProcessFlags;
+}  // namespace ProcessInitializationFlags
+namespace ProcessFlags = ProcessInitializationFlags;  // Legacy alias.
 
 namespace StopFlags {
 enum Flags : uint32_t {
@@ -286,7 +294,7 @@ enum Flags : uint32_t {
 
 class NODE_EXTERN InitializationResult {
  public:
-  virtual ~InitializationResult();
+  virtual ~InitializationResult() = default;
 
   // Returns a suggested process exit code.
   virtual int exit_code() const = 0;
@@ -319,9 +327,13 @@ NODE_EXTERN int Start(int argc, char* argv[]);
 
 // Tear down Node.js while it is running (there are active handles
 // in the loop and / or actively executing JavaScript code).
-NODE_EXTERN int Stop(Environment* env);
-NODE_EXTERN int Stop(Environment* env, StopFlags::Flags flags);
+NODE_EXTERN int Stop(Environment* env,
+                     StopFlags::Flags flags = StopFlags::kNoFlags);
 
+// Set up per-process state needed to run Node.js. This will consume arguments
+// from argv, fill exec_argv, and possibly add errors resulting from parsing
+// the arguments to `errors`. The return value is a suggested exit code for the
+// program; If it is 0, then initializing Node.js succeeded.
 // This runs a subset of the initialization performed by
 // InitializeOncePerProcess(), which supersedes this function.
 // The subset is roughly equivalent to the one given by
@@ -331,19 +343,15 @@ NODE_DEPRECATED("Use InitializeOncePerProcess() instead",
                     std::vector<std::string>* argv,
                     std::vector<std::string>* exec_argv,
                     std::vector<std::string>* errors,
-                    ProcessInitializationFlags::Flags flags));
-NODE_DEPRECATED("Use InitializeOncePerProcess() instead",
-                NODE_EXTERN int InitializeNodeWithArgs(
-                    std::vector<std::string>* argv,
-                    std::vector<std::string>* exec_argv,
-                    std::vector<std::string>* errors));
+                    ProcessInitializationFlags::Flags flags =
+                        ProcessInitializationFlags::kNoFlags));
 
 // Set up per-process state needed to run Node.js. This will consume arguments
 // from args, and return information about the initialization success,
 // including the arguments split into argv/exec_argv, a list of potential
 // errors encountered during initialization, and a potential suggested
 // exit code.
-NODE_EXTERN std::unique_ptr<InitializationResult> InitializeOncePerProcess(
+NODE_EXTERN std::shared_ptr<InitializationResult> InitializeOncePerProcess(
     const std::vector<std::string>& args,
     ProcessInitializationFlags::Flags flags =
         ProcessInitializationFlags::kNoFlags);
@@ -352,7 +360,7 @@ NODE_EXTERN std::unique_ptr<InitializationResult> InitializeOncePerProcess(
 NODE_EXTERN void TearDownOncePerProcess();
 // Convenience overload for specifying multiple flags without having
 // to worry about casts.
-inline std::unique_ptr<InitializationResult> InitializeOncePerProcess(
+inline std::shared_ptr<InitializationResult> InitializeOncePerProcess(
     const std::vector<std::string>& args,
     std::initializer_list<ProcessInitializationFlags::Flags> list) {
   uint64_t flags_accum = ProcessInitializationFlags::kNoFlags;
@@ -368,10 +376,6 @@ enum OptionEnvvarSettings {
   // Disallow the options to be set via the environment variable, like
   // `NODE_OPTIONS`.
   kDisallowedInEnvvar = 1,
-  // Deprecated, use kAllowedInEnvvar instead.
-  kAllowedInEnvironment = kAllowedInEnvvar,
-  // Deprecated, use kDisallowedInEnvvar instead.
-  kDisallowedInEnvironment = kDisallowedInEnvvar,
 };
 
 // Process the arguments and set up the per-process options.
@@ -444,8 +448,11 @@ class NODE_EXTERN MultiIsolatePlatform : public v8::Platform {
 
   // This function may only be called once per `Isolate`, and discard any
   // pending delayed tasks scheduled for that isolate.
-  // This needs to be called right before calling `Isolate::Dispose()`.
+  // This needs to be called right after calling `Isolate::Dispose()`.
   virtual void UnregisterIsolate(v8::Isolate* isolate) = 0;
+  // This disposes, unregisters and frees up an isolate that's allocated using
+  // v8::Isolate::Allocate() in the correct order to prevent race conditions.
+  void DisposeIsolate(v8::Isolate* isolate);
 
   // The platform should call the passed function once all state associated
   // with the given isolate has been cleaned up. This can, but does not have to,
@@ -465,7 +472,7 @@ enum IsolateSettingsFlags {
   DETAILED_SOURCE_POSITIONS_FOR_PROFILING = 1 << 1,
   SHOULD_NOT_SET_PROMISE_REJECTION_CALLBACK = 1 << 2,
   SHOULD_NOT_SET_PREPARE_STACK_TRACE_CALLBACK = 1 << 3,
-  ALLOW_MODIFY_CODE_GENERATION_FROM_STRINGS_CALLBACK = 1 << 4,
+  ALLOW_MODIFY_CODE_GENERATION_FROM_STRINGS_CALLBACK = 0, /* legacy no-op */
 };
 
 struct IsolateSettings {
@@ -477,6 +484,7 @@ struct IsolateSettings {
   v8::Isolate::AbortOnUncaughtExceptionCallback
       should_abort_on_uncaught_exception_callback = nullptr;
   v8::FatalErrorCallback fatal_error_callback = nullptr;
+  v8::OOMErrorCallback oom_error_callback = nullptr;
   v8::PrepareStackTraceCallback prepare_stack_trace_callback = nullptr;
 
   // Miscellaneous callbacks
@@ -485,6 +493,92 @@ struct IsolateSettings {
       allow_wasm_code_generation_callback = nullptr;
   v8::ModifyCodeGenerationFromStringsCallback2
       modify_code_generation_from_strings_callback = nullptr;
+
+  // When the settings is passed to NewIsolate():
+  // - If cpp_heap is not nullptr, this CppHeap will be used to create
+  //   the isolate and its ownership will be passed to V8.
+  // - If this is nullptr, Node.js will create a CppHeap that will be
+  //   owned by V8.
+  //
+  // When the settings is passed to SetIsolateUpForNode():
+  // cpp_heap will be ignored. Embedders must ensure that the
+  // v8::Isolate has a CppHeap attached while it's still used by
+  // Node.js, for example using v8::CreateParams.
+  //
+  // See https://issues.chromium.org/issues/42203693. In future version
+  // of V8, this CppHeap will be created by V8 if not provided.
+  v8::CppHeap* cpp_heap = nullptr;
+};
+
+// Represents a startup snapshot blob, e.g. created by passing
+// --node-snapshot-main=entry.js to the configure script at build time,
+// or by running Node.js with the --build-snapshot option.
+//
+// If used, the snapshot *must* have been built with the same Node.js
+// version and V8 flags as the version that is currently running, and will
+// be rejected otherwise.
+// The same EmbedderSnapshotData instance *must* be passed to both
+// `NewIsolate()` and `CreateIsolateData()`. The first `Environment` instance
+// should be created with an empty `context` argument and will then
+// use the main context included in the snapshot blob. It can be retrieved
+// using `GetMainContext()`. `LoadEnvironment` can receive an empty
+// `StartExecutionCallback` in this case.
+// If V8 was configured with the shared-readonly-heap option, it requires
+// all snapshots used to create `Isolate` instances to be identical.
+// This option *must* be unset by embedders who wish to use the startup
+// feature during the build step by passing the --disable-shared-readonly-heap
+// flag to the configure script.
+//
+// The snapshot *must* be kept alive during the execution of the Isolate
+// that was created using it.
+//
+// Snapshots are an *experimental* feature. In particular, the embedder API
+// exposed through this class is subject to change or removal between Node.js
+// versions, including possible API and ABI breakage.
+class EmbedderSnapshotData {
+ public:
+  struct DeleteSnapshotData {
+    void operator()(const EmbedderSnapshotData*) const;
+  };
+  using Pointer =
+      std::unique_ptr<const EmbedderSnapshotData, DeleteSnapshotData>;
+
+  // Return an EmbedderSnapshotData object that refers to the built-in
+  // snapshot of Node.js. This can have been configured through e.g.
+  // --node-snapshot-main=entry.js.
+  static Pointer BuiltinSnapshotData();
+
+  // Return an EmbedderSnapshotData object that is based on an input file.
+  // Calling this method will consume but not close the FILE* handle.
+  // The FILE* handle can be closed immediately following this call.
+  // If the snapshot is invalid, this returns an empty pointer.
+  static Pointer FromFile(FILE* in);
+  static Pointer FromBlob(const std::vector<char>& in);
+  static Pointer FromBlob(std::string_view in);
+
+  // Write this EmbedderSnapshotData object to an output file.
+  // Calling this method will not close the FILE* handle.
+  // The FILE* handle can be closed immediately following this call.
+  void ToFile(FILE* out) const;
+  std::vector<char> ToBlob() const;
+
+  // Returns whether custom snapshots can be used. Currently, this always
+  // returns false since V8 enforces shared readonly-heap.
+  static bool CanUseCustomSnapshotPerIsolate();
+
+  EmbedderSnapshotData(const EmbedderSnapshotData&) = delete;
+  EmbedderSnapshotData& operator=(const EmbedderSnapshotData&) = delete;
+  EmbedderSnapshotData(EmbedderSnapshotData&&) = delete;
+  EmbedderSnapshotData& operator=(EmbedderSnapshotData&&) = delete;
+
+ protected:
+  EmbedderSnapshotData(const SnapshotData* impl, bool owns_impl);
+
+ private:
+  const SnapshotData* impl_;
+  bool owns_impl_;
+  friend struct SnapshotData;
+  friend class CommonEnvironmentSetup;
 };
 
 // Overriding IsolateSettings may produce unexpected behavior
@@ -500,15 +594,22 @@ NODE_EXTERN void SetIsolateUpForNode(v8::Isolate* isolate);
 // This is a convenience method equivalent to using SetIsolateCreateParams(),
 // Isolate::Allocate(), MultiIsolatePlatform::RegisterIsolate(),
 // Isolate::Initialize(), and SetIsolateUpForNode().
-NODE_EXTERN v8::Isolate* NewIsolate(ArrayBufferAllocator* allocator,
-                                    struct uv_loop_s* event_loop,
-                                    MultiIsolatePlatform* platform = nullptr);
+NODE_EXTERN v8::Isolate* NewIsolate(
+    ArrayBufferAllocator* allocator,
+    struct uv_loop_s* event_loop,
+    MultiIsolatePlatform* platform,
+    const EmbedderSnapshotData* snapshot_data = nullptr,
+    const IsolateSettings& settings = {});
 NODE_EXTERN v8::Isolate* NewIsolate(
     std::shared_ptr<ArrayBufferAllocator> allocator,
     struct uv_loop_s* event_loop,
-    MultiIsolatePlatform* platform);
+    MultiIsolatePlatform* platform,
+    const EmbedderSnapshotData* snapshot_data = nullptr,
+    const IsolateSettings& settings = {});
 
 // Creates a new context with Node.js-specific tweaks.
+// Call `RegisterContext` after the context been created to register
+// the context with Node.js specific setups like the inspector.
 NODE_EXTERN v8::Local<v8::Context> NewContext(
     v8::Isolate* isolate,
     v8::Local<v8::ObjectTemplate> object_template =
@@ -518,6 +619,18 @@ NODE_EXTERN v8::Local<v8::Context> NewContext(
 // Return value indicates success of operation
 NODE_EXTERN v8::Maybe<bool> InitializeContext(v8::Local<v8::Context> context);
 
+// Associate the context with the given Environment. This registers the context
+// as known to Node.js, makes it available to the inspector. This also registers
+// Node.js promise hooks on the context.
+NODE_EXTERN void RegisterContext(Environment* env,
+                                 v8::Local<v8::Context> context,
+                                 std::string_view name = "",
+                                 std::string_view origin = "");
+// Unregister the context. Call this when the embedder finished all work with
+// this context.
+NODE_EXTERN void UnregisterContext(Environment* env,
+                                   v8::Local<v8::Context> context);
+
 // If `platform` is passed, it will be used to register new Worker instances.
 // It can be `nullptr`, in which case creating new Workers inside of
 // Environments that use this `IsolateData` will not work.
@@ -525,7 +638,8 @@ NODE_EXTERN IsolateData* CreateIsolateData(
     v8::Isolate* isolate,
     struct uv_loop_s* loop,
     MultiIsolatePlatform* platform = nullptr,
-    ArrayBufferAllocator* allocator = nullptr);
+    ArrayBufferAllocator* allocator = nullptr,
+    const EmbedderSnapshotData* snapshot_data = nullptr);
 NODE_EXTERN void FreeIsolateData(IsolateData* isolate_data);
 
 struct ThreadId {
@@ -574,17 +688,54 @@ enum Flags : uint64_t {
   // This control is needed by embedders who may not want to initialize the V8
   // inspector in situations where one has already been created,
   // e.g. Blink's in Chromium.
-  kNoCreateInspector = 1 << 9
+  kNoCreateInspector = 1 << 9,
+  // Controls whether or not the InspectorAgent for this Environment should
+  // call StartDebugSignalHandler. This control is needed by embedders who may
+  // not want to allow other processes to start the V8 inspector.
+  kNoStartDebugSignalHandler = 1 << 10,
+  // Controls whether the InspectorAgent created for this Environment waits for
+  // Inspector frontend events during the Environment creation. It's used to
+  // call node::Stop(env) on a Worker thread that is waiting for the events.
+  kNoWaitForInspectorFrontend = 1 << 11
 };
 }  // namespace EnvironmentFlags
 
+enum class SnapshotFlags : uint32_t {
+  kDefault = 0,
+  // Whether code cache should be generated as part of the snapshot.
+  // Code cache reduces the time spent on compiling functions included
+  // in the snapshot at the expense of a bigger snapshot size and
+  // potentially breaking portability of the snapshot.
+  kWithoutCodeCache = 1 << 0,
+};
+
+struct SnapshotConfig {
+  SnapshotFlags flags = SnapshotFlags::kDefault;
+
+  // When builder_script_path is std::nullopt, the snapshot is generated as a
+  // built-in snapshot instead of a custom one, and it's expected that the
+  // built-in snapshot only contains states that reproduce in every run of the
+  // application. The event loop won't be run when generating a built-in
+  // snapshot, so asynchronous operations should be avoided.
+  //
+  // When builder_script_path is an std::string, it should match args[1]
+  // passed to CreateForSnapshotting(). The embedder is also expected to use
+  // LoadEnvironment() to run a script matching this path. In that case the
+  // snapshot is generated as a custom snapshot and the event loop is run, so
+  // the snapshot builder can execute asynchronous operations as long as they
+  // are run to completion when the snapshot is taken.
+  std::optional<std::string> builder_script_path;
+};
+
 struct InspectorParentHandle {
-  virtual ~InspectorParentHandle();
+  virtual ~InspectorParentHandle() = default;
 };
 
 // TODO(addaleax): Maybe move per-Environment options parsing here.
 // Returns nullptr when the Environment cannot be created e.g. there are
 // pending JavaScript exceptions.
+// `context` may be empty if an `EmbedderSnapshotData` instance was provided
+// to `NewIsolate()` and `CreateIsolateData()`.
 NODE_EXTERN Environment* CreateEnvironment(
     IsolateData* isolate_data,
     v8::Local<v8::Context> context,
@@ -593,6 +744,16 @@ NODE_EXTERN Environment* CreateEnvironment(
     EnvironmentFlags::Flags flags = EnvironmentFlags::kDefaultFlags,
     ThreadId thread_id = {} /* allocates a thread id automatically */,
     std::unique_ptr<InspectorParentHandle> inspector_parent_handle = {});
+
+NODE_EXTERN Environment* CreateEnvironment(
+    IsolateData* isolate_data,
+    v8::Local<v8::Context> context,
+    const std::vector<std::string>& args,
+    const std::vector<std::string>& exec_args,
+    EnvironmentFlags::Flags flags,
+    ThreadId thread_id,
+    std::unique_ptr<InspectorParentHandle> inspector_parent_handle,
+    std::string_view thread_name);
 
 // Returns a handle that can be passed to `LoadEnvironment()`, making the
 // child Environment accessible to the inspector as if it were a Node.js Worker.
@@ -612,20 +773,125 @@ NODE_EXTERN std::unique_ptr<InspectorParentHandle> GetInspectorParentHandle(
     const char* child_url,
     const char* name);
 
+NODE_EXTERN std::unique_ptr<InspectorParentHandle> GetInspectorParentHandle(
+    Environment* parent_env,
+    ThreadId child_thread_id,
+    std::string_view child_url,
+    std::string_view name);
+
 struct StartExecutionCallbackInfo {
   v8::Local<v8::Object> process_object;
   v8::Local<v8::Function> native_require;
+  v8::Local<v8::Function> run_cjs;
+};
+
+enum class ModuleFormat : uint8_t {
+  kCommonJS,
+  kModule,  // i.e. ES Module/SourceTextModule
+  // TODO(joyeecheung): support TypeScriptModule, TypeScriptCommonJS
+};
+
+// Information passed to embedder callbacks during environment startup.
+// This class is created by Node.js and passed to the embedder's callback.
+// The layout is opaque to allow future additions without breaking ABI.
+class NODE_EXTERN StartExecutionCallbackInfoWithModule {
+ public:
+  StartExecutionCallbackInfoWithModule();
+  ~StartExecutionCallbackInfoWithModule();
+
+  StartExecutionCallbackInfoWithModule(
+      const StartExecutionCallbackInfoWithModule&) = delete;
+  StartExecutionCallbackInfoWithModule& operator=(
+      const StartExecutionCallbackInfoWithModule&) = delete;
+  StartExecutionCallbackInfoWithModule(StartExecutionCallbackInfoWithModule&&);
+  StartExecutionCallbackInfoWithModule& operator=(
+      StartExecutionCallbackInfoWithModule&&);
+
+  Environment* env() const;
+  v8::Local<v8::Object> process_object() const;
+  v8::Local<v8::Function> native_require() const;
+  v8::Local<v8::Function> run_module() const;
+
+  void set_env(Environment* env);
+  void set_process_object(v8::Local<v8::Object> process_object);
+  void set_native_require(v8::Local<v8::Function> native_require);
+  void set_run_module(v8::Local<v8::Function> run_module);
+
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
 };
 
 using StartExecutionCallback =
     std::function<v8::MaybeLocal<v8::Value>(const StartExecutionCallbackInfo&)>;
+using StartExecutionCallbackWithModule =
+    std::function<v8::MaybeLocal<v8::Value>(
+        const StartExecutionCallbackInfoWithModule&)>;
+using EmbedderPreloadCallback =
+    std::function<void(Environment* env,
+                       v8::Local<v8::Value> process,
+                       v8::Local<v8::Value> require)>;
+
+// Run initialization for the environment.
+//
+// The |preload| function, usually used by embedders to inject scripts,
+// will be run by Node.js before Node.js executes the entry point.
+// The function is guaranteed to run before the user land module loader running
+// any user code, so it is safe to assume that at this point, no user code has
+// been run yet.
+// The function will be executed with preload(process, require), and the passed
+// require function has access to internal Node.js modules. There is no
+// stability guarantee about the internals exposed to the internal require
+// function. Expect breakages when updating Node.js versions if the embedder
+// imports internal modules with the internal require function.
+// Worker threads created in the environment will also respect The |preload|
+// function, so make sure the function is thread-safe.
+NODE_EXTERN v8::MaybeLocal<v8::Value> LoadEnvironment(
+    Environment* env,
+    StartExecutionCallback cb,
+    EmbedderPreloadCallback preload = nullptr);
 
 NODE_EXTERN v8::MaybeLocal<v8::Value> LoadEnvironment(
     Environment* env,
-    StartExecutionCallback cb);
+    StartExecutionCallbackWithModule cb,
+    EmbedderPreloadCallback preload = nullptr);
+
 NODE_EXTERN v8::MaybeLocal<v8::Value> LoadEnvironment(
     Environment* env,
-    const char* main_script_source_utf8);
+    std::string_view main_script_source_utf8,
+    EmbedderPreloadCallback preload = nullptr);
+
+// Data for specifying an entry point script for LoadEnvironment().
+// This class uses an opaque layout to allow future additions without
+// breaking ABI. Use the setter methods to configure the entry point.
+class NODE_EXTERN ModuleData {
+ public:
+  ModuleData();
+  ~ModuleData();
+
+  ModuleData(const ModuleData&) = delete;
+  ModuleData& operator=(const ModuleData&) = delete;
+  ModuleData(ModuleData&&);
+  ModuleData& operator=(ModuleData&&);
+
+  void set_source(std::string_view source);
+  void set_format(ModuleFormat format);
+  void set_resource_name(std::string_view name);
+
+  std::string_view source() const;
+  ModuleFormat format() const;
+  std::string_view resource_name() const;
+
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
+};
+
+NODE_EXTERN v8::MaybeLocal<v8::Value> LoadEnvironment(
+    Environment* env,
+    const ModuleData* entry_point,
+    EmbedderPreloadCallback preload = nullptr);
+
 NODE_EXTERN void FreeEnvironment(Environment* env);
 
 // Set a callback that is called when process.exit() is called from JS,
@@ -644,6 +910,9 @@ NODE_EXTERN void DefaultProcessExitHandler(Environment* env, int exit_code);
 NODE_EXTERN Environment* GetCurrentEnvironment(v8::Local<v8::Context> context);
 NODE_EXTERN IsolateData* GetEnvironmentIsolateData(Environment* env);
 NODE_EXTERN ArrayBufferAllocator* GetArrayBufferAllocator(IsolateData* data);
+// This is mostly useful for Environment* instances that were created through
+// a snapshot and have a main context that was read from that snapshot.
+NODE_EXTERN v8::Local<v8::Context> GetMainContext(Environment* env);
 
 [[noreturn]] NODE_EXTERN void OnFatalError(const char* location,
                                            const char* message);
@@ -736,6 +1005,8 @@ NODE_EXTERN struct uv_loop_s* GetCurrentEventLoop(v8::Isolate* isolate);
 // This function only works if `env` has an associated `MultiIsolatePlatform`.
 NODE_EXTERN v8::Maybe<int> SpinEventLoop(Environment* env);
 
+NODE_EXTERN std::string GetAnonymousMainPath();
+
 class NODE_EXTERN CommonEnvironmentSetup {
  public:
   ~CommonEnvironmentSetup();
@@ -751,8 +1022,44 @@ class NODE_EXTERN CommonEnvironmentSetup {
       MultiIsolatePlatform* platform,
       std::vector<std::string>* errors,
       EnvironmentArgs&&... env_args);
+  template <typename... EnvironmentArgs>
+  static std::unique_ptr<CommonEnvironmentSetup> CreateFromSnapshot(
+      MultiIsolatePlatform* platform,
+      std::vector<std::string>* errors,
+      const EmbedderSnapshotData* snapshot_data,
+      EnvironmentArgs&&... env_args);
+
+  // Create an embedding setup which will be used for creating a snapshot
+  // using CreateSnapshot().
+  //
+  // This will create and attach a v8::SnapshotCreator to this instance,
+  // and the same restrictions apply to this instance that also apply to
+  // other V8 snapshotting environments.
+  // Not all Node.js APIs are supported in this case. Currently, there is
+  // no support for native/host objects other than Node.js builtins
+  // in the snapshot.
+  //
+  // If the embedder wants to use LoadEnvironment() later to run a snapshot
+  // builder script they should make sure args[1] contains the path of the
+  // snapshot script, which will be used to create __filename and __dirname
+  // in the context where the builder script is run. If they do not want to
+  // include the build-time paths into the snapshot, use the string returned
+  // by GetAnonymousMainPath() as args[1] to anonymize the script.
+  //
+  // Snapshots are an *experimental* feature. In particular, the embedder API
+  // exposed through this class is subject to change or removal between Node.js
+  // versions, including possible API and ABI breakage.
+  static std::unique_ptr<CommonEnvironmentSetup> CreateForSnapshotting(
+      MultiIsolatePlatform* platform,
+      std::vector<std::string>* errors,
+      const std::vector<std::string>& args = {},
+      const std::vector<std::string>& exec_args = {},
+      const SnapshotConfig& snapshot_config = {});
+  EmbedderSnapshotData::Pointer CreateSnapshot();
 
   struct uv_loop_s* event_loop() const;
+  v8::SnapshotCreator* snapshot_creator();
+  // Empty for snapshotting environments.
   std::shared_ptr<ArrayBufferAllocator> array_buffer_allocator() const;
   v8::Isolate* isolate() const;
   IsolateData* isolate_data() const;
@@ -765,12 +1072,25 @@ class NODE_EXTERN CommonEnvironmentSetup {
   CommonEnvironmentSetup& operator=(CommonEnvironmentSetup&&) = delete;
 
  private:
+  enum Flags : uint32_t {
+    kNoFlags = 0,
+    kIsForSnapshotting = 1,
+  };
+
   struct Impl;
   Impl* impl_;
+
   CommonEnvironmentSetup(
       MultiIsolatePlatform*,
       std::vector<std::string>*,
       std::function<Environment*(const CommonEnvironmentSetup*)>);
+  CommonEnvironmentSetup(
+      MultiIsolatePlatform*,
+      std::vector<std::string>*,
+      const EmbedderSnapshotData*,
+      uint32_t flags,
+      std::function<Environment*(const CommonEnvironmentSetup*)>,
+      const SnapshotConfig* config = nullptr);
 };
 
 // Implementation for CommonEnvironmentSetup::Create
@@ -785,6 +1105,29 @@ std::unique_ptr<CommonEnvironmentSetup> CommonEnvironmentSetup::Create(
         return CreateEnvironment(
             setup->isolate_data(), setup->context(),
             std::forward<EnvironmentArgs>(env_args)...);
+      }));
+  if (!errors->empty()) ret.reset();
+  return ret;
+}
+
+// Implementation for ::CreateFromSnapshot -- the ::Create() method
+// could call this with a nullptr snapshot_data in a major version.
+template <typename... EnvironmentArgs>
+std::unique_ptr<CommonEnvironmentSetup>
+CommonEnvironmentSetup::CreateFromSnapshot(
+    MultiIsolatePlatform* platform,
+    std::vector<std::string>* errors,
+    const EmbedderSnapshotData* snapshot_data,
+    EnvironmentArgs&&... env_args) {
+  auto ret = std::unique_ptr<CommonEnvironmentSetup>(new CommonEnvironmentSetup(
+      platform,
+      errors,
+      snapshot_data,
+      Flags::kNoFlags,
+      [&](const CommonEnvironmentSetup* setup) -> Environment* {
+        return CreateEnvironment(setup->isolate_data(),
+                                 setup->context(),
+                                 std::forward<EnvironmentArgs>(env_args)...);
       }));
   if (!errors->empty()) ret.reset();
   return ret;
@@ -805,44 +1148,38 @@ NODE_DEPRECATED("Use v8::Date::ValueOf() directly",
 })
 #define NODE_V8_UNIXTIME node::NODE_V8_UNIXTIME
 
-#define NODE_DEFINE_CONSTANT(target, constant)                                \
-  do {                                                                        \
-    v8::Isolate* isolate = target->GetIsolate();                              \
-    v8::Local<v8::Context> context = isolate->GetCurrentContext();            \
-    v8::Local<v8::String> constant_name =                                     \
-        v8::String::NewFromUtf8(isolate, #constant,                           \
-            v8::NewStringType::kInternalized).ToLocalChecked();               \
-    v8::Local<v8::Number> constant_value =                                    \
-        v8::Number::New(isolate, static_cast<double>(constant));              \
-    v8::PropertyAttribute constant_attributes =                               \
-        static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete);    \
-    (target)->DefineOwnProperty(context,                                      \
-                                constant_name,                                \
-                                constant_value,                               \
-                                constant_attributes).Check();                 \
-  }                                                                           \
-  while (0)
+#define NODE_DEFINE_CONSTANT(target, constant)                                 \
+  do {                                                                         \
+    v8::Isolate* isolate = target->GetIsolate();                               \
+    v8::Local<v8::Context> context = isolate->GetCurrentContext();             \
+    v8::Local<v8::String> constant_name = v8::String::NewFromUtf8Literal(      \
+        isolate, #constant, v8::NewStringType::kInternalized);                 \
+    v8::Local<v8::Number> constant_value =                                     \
+        v8::Number::New(isolate, static_cast<double>(constant));               \
+    v8::PropertyAttribute constant_attributes =                                \
+        static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete);     \
+    (target)                                                                   \
+        ->DefineOwnProperty(                                                   \
+            context, constant_name, constant_value, constant_attributes)       \
+        .Check();                                                              \
+  } while (0)
 
-#define NODE_DEFINE_HIDDEN_CONSTANT(target, constant)                         \
-  do {                                                                        \
-    v8::Isolate* isolate = target->GetIsolate();                              \
-    v8::Local<v8::Context> context = isolate->GetCurrentContext();            \
-    v8::Local<v8::String> constant_name =                                     \
-        v8::String::NewFromUtf8(isolate, #constant,                           \
-                                v8::NewStringType::kInternalized)             \
-                                  .ToLocalChecked();                          \
-    v8::Local<v8::Number> constant_value =                                    \
-        v8::Number::New(isolate, static_cast<double>(constant));              \
-    v8::PropertyAttribute constant_attributes =                               \
-        static_cast<v8::PropertyAttribute>(v8::ReadOnly |                     \
-                                           v8::DontDelete |                   \
-                                           v8::DontEnum);                     \
-    (target)->DefineOwnProperty(context,                                      \
-                                constant_name,                                \
-                                constant_value,                               \
-                                constant_attributes).Check();                 \
-  }                                                                           \
-  while (0)
+#define NODE_DEFINE_HIDDEN_CONSTANT(target, constant)                          \
+  do {                                                                         \
+    v8::Isolate* isolate = target->GetIsolate();                               \
+    v8::Local<v8::Context> context = isolate->GetCurrentContext();             \
+    v8::Local<v8::String> constant_name = v8::String::NewFromUtf8Literal(      \
+        isolate, #constant, v8::NewStringType::kInternalized);                 \
+    v8::Local<v8::Number> constant_value =                                     \
+        v8::Number::New(isolate, static_cast<double>(constant));               \
+    v8::PropertyAttribute constant_attributes =                                \
+        static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete |     \
+                                           v8::DontEnum);                      \
+    (target)                                                                   \
+        ->DefineOwnProperty(                                                   \
+            context, constant_name, constant_value, constant_attributes)       \
+        .Check();                                                              \
+  } while (0)
 
 // Used to be a macro, hence the uppercase name.
 inline void NODE_SET_METHOD(v8::Local<v8::Template> recv,
@@ -914,16 +1251,37 @@ NODE_EXTERN enum encoding ParseEncoding(
 NODE_EXTERN void FatalException(v8::Isolate* isolate,
                                 const v8::TryCatch& try_catch);
 
-NODE_EXTERN v8::Local<v8::Value> Encode(v8::Isolate* isolate,
-                                        const char* buf,
-                                        size_t len,
-                                        enum encoding encoding = LATIN1);
+NODE_EXTERN v8::MaybeLocal<v8::Value> TryEncode(
+    v8::Isolate* isolate,
+    const char* buf,
+    size_t len,
+    enum encoding encoding = LATIN1);
 
 // Warning: This reverses endianness on Big Endian platforms, even though the
 // signature using uint16_t implies that it should not.
-NODE_EXTERN v8::Local<v8::Value> Encode(v8::Isolate* isolate,
-                                        const uint16_t* buf,
-                                        size_t len);
+NODE_EXTERN v8::MaybeLocal<v8::Value> TryEncode(v8::Isolate* isolate,
+                                                const uint16_t* buf,
+                                                size_t len);
+
+// The original Encode(...) functions are deprecated because they do not
+// appropriately propagate exceptions and instead rely on ToLocalChecked()
+// which crashes the process if an exception occurs. We cannot just remove
+// these as it would break ABI compatibility, so we keep them around but
+// deprecate them in favor of the TryEncode(...) variations which return
+// a MaybeLocal<> and do not crash the process if an exception occurs.
+NODE_DEPRECATED(
+    "Use TryEncode(...) instead",
+    NODE_EXTERN v8::Local<v8::Value> Encode(v8::Isolate* isolate,
+                                            const char* buf,
+                                            size_t len,
+                                            enum encoding encoding = LATIN1));
+
+// Warning: This reverses endianness on Big Endian platforms, even though the
+// signature using uint16_t implies that it should not.
+NODE_DEPRECATED("Use TryEncode(...) instead",
+                NODE_EXTERN v8::Local<v8::Value> Encode(v8::Isolate* isolate,
+                                                        const uint16_t* buf,
+                                                        size_t len));
 
 // Returns -1 if the handle was not valid for decoding
 NODE_EXTERN ssize_t DecodeBytes(v8::Isolate* isolate,
@@ -1173,6 +1531,12 @@ NODE_EXTERN void RequestInterrupt(Environment* env,
  * I/O from native code. */
 NODE_EXTERN async_id AsyncHooksGetExecutionAsyncId(v8::Isolate* isolate);
 
+/* Returns the id of the current execution context. If the return value is
+ * zero then no execution has been set. This will happen if the user handles
+ * I/O from native code. */
+NODE_EXTERN async_id
+AsyncHooksGetExecutionAsyncId(v8::Local<v8::Context> context);
+
 /* Return same value as async_hooks.triggerAsyncId(); */
 NODE_EXTERN async_id AsyncHooksGetTriggerAsyncId(v8::Isolate* isolate);
 
@@ -1186,6 +1550,10 @@ NODE_EXTERN async_id AsyncHooksGetTriggerAsyncId(v8::Isolate* isolate);
 NODE_EXTERN async_context EmitAsyncInit(v8::Isolate* isolate,
                                         v8::Local<v8::Object> resource,
                                         const char* name,
+                                        async_id trigger_async_id = -1);
+NODE_EXTERN async_context EmitAsyncInit(v8::Isolate* isolate,
+                                        v8::Local<v8::Object> resource,
+                                        std::string_view name,
                                         async_id trigger_async_id = -1);
 
 NODE_EXTERN async_context EmitAsyncInit(v8::Isolate* isolate,
@@ -1282,6 +1650,10 @@ class NODE_EXTERN AsyncResource {
                 v8::Local<v8::Object> resource,
                 const char* name,
                 async_id trigger_async_id = -1);
+  AsyncResource(v8::Isolate* isolate,
+                v8::Local<v8::Object> resource,
+                std::string_view name,
+                async_id trigger_async_id = -1);
 
   virtual ~AsyncResource();
 
@@ -1316,6 +1688,7 @@ class NODE_EXTERN AsyncResource {
  private:
   Environment* env_;
   v8::Global<v8::Object> resource_;
+  v8::Global<v8::Value> context_frame_;
   async_context async_context_;
 };
 
@@ -1333,6 +1706,29 @@ void RegisterSignalHandler(int signal,
                                            void* ucontext),
                            bool reset_handler = false);
 #endif  // _WIN32
+
+// This is kept as a compatibility layer for addons to wrap cppgc-managed
+// objects on Node.js versions without v8::Object::Wrap(). Addons created to
+// work with only Node.js versions with v8::Object::Wrap() should use that
+// instead.
+NODE_DEPRECATED("Use v8::Object::Wrap()",
+                NODE_EXTERN void SetCppgcReference(v8::Isolate* isolate,
+                                                   v8::Local<v8::Object> object,
+                                                   void* wrappable));
+
+namespace crypto {
+
+// Returns the SSL_CTX* from a SecureContext JS object, as returned by
+// tls.createSecureContext().
+// Returns nullptr if the value is not a SecureContext instance,
+// or if Node.js was built without OpenSSL.
+//
+// The returned pointer is not owned by the caller and must not be freed.
+// It is valid only while the SecureContext JS object remains alive.
+NODE_EXTERN struct ssl_ctx_st* GetSSLCtx(v8::Local<v8::Context> context,
+                                         v8::Local<v8::Value> secure_context);
+
+}  // namespace crypto
 
 }  // namespace node
 

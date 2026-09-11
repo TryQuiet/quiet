@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Text, View } from 'react-native'
+import { Button, NativeEventEmitter, NativeModules, Platform, Text, View } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
 import WebviewCrypto from 'react-native-webview-crypto'
 import { getCrypto, setEngine } from 'pkijs'
@@ -20,12 +20,42 @@ const RuntimeCompatibilityStory = () => {
   const running = useRef(false)
   const isHermes = Boolean(Reflect.get(global, 'HermesInternal'))
   const isWebViewProvider = Reflect.get(global.crypto.subtle, 'fake') === true
+  const isBridgeless = Reflect.get(global, 'RN$Bridgeless') === true
+  const isFabric = Boolean(Reflect.get(global, 'nativeFabricUIManager'))
+  const [nativeRoundTrip, setNativeRoundTrip] = useState('pending')
+  const [notification, setNotification] = useState('none')
+  const [lifecycle, setLifecycle] = useState({ pauses: 0, resumes: 0 })
 
   useEffect(() => {
     mounted.current = true
     return () => {
       mounted.current = false
     }
+  }, [])
+
+  useEffect(() => {
+    const communication = NativeModules.CommunicationModule
+    const emitter = new NativeEventEmitter(communication)
+    const marker = 'quiet-native-round-trip'
+    const subscriptions = [
+      emitter.addListener('backend', event => {
+        const received =
+          Platform.OS === 'android'
+            ? event.channelName === '_INIT_CHECK_' && event.payload === marker
+            : event.channelName === '_WEBSOCKET_CONNECTION_' && typeof event.payload?.dataPort === 'number'
+        // The iOS response also contains the socket secret. Never display it.
+        if (received) setNativeRoundTrip('passed')
+      }),
+      emitter.addListener('notification', channel => setNotification(String(channel))),
+    ]
+    if (Platform.OS === 'ios') {
+      subscriptions.push(
+        emitter.addListener('apppause', () => setLifecycle(value => ({ ...value, pauses: value.pauses + 1 }))),
+        emitter.addListener('appresume', () => setLifecycle(value => ({ ...value, resumes: value.resumes + 1 })))
+      )
+    }
+    communication.handleIncomingEvents('_INIT_CHECK_', marker, '')
+    return () => subscriptions.forEach(subscription => subscription.remove())
   }, [])
 
   const update = (next: Partial<typeof initialResults>) => {
@@ -39,6 +69,7 @@ const RuntimeCompatibilityStory = () => {
 
     try {
       if (!isHermes) throw new Error('The UI must run in Hermes')
+      if (!isBridgeless || !isFabric) throw new Error('The UI must use Fabric and the bridgeless React host')
       if (!isWebViewProvider) throw new Error('WebCrypto must use the mounted WebView bridge')
 
       // Use the same registration as rootSaga, without importing the persisted
@@ -93,6 +124,12 @@ const RuntimeCompatibilityStory = () => {
         <View style={{ padding: 16, gap: 8 }}>
           <Text>React Native runtime compatibility</Text>
           <Text testID='runtime-compatibility-engine'>{isHermes ? 'Hermes' : 'Other engine'}</Text>
+          <Text testID='runtime-compatibility-architecture'>
+            {isBridgeless && isFabric ? 'Fabric bridgeless' : 'Legacy'}
+          </Text>
+          <Text testID='runtime-compatibility-native-module'>{nativeRoundTrip}</Text>
+          <Text testID='runtime-compatibility-notification'>{notification}</Text>
+          <Text testID='runtime-compatibility-lifecycle'>{`${lifecycle.pauses}/${lifecycle.resumes}`}</Text>
           <Text testID='runtime-compatibility-provider'>{isWebViewProvider ? 'WebView bridge' : 'Other provider'}</Text>
           <Text testID='runtime-compatibility-state'>{results.state}</Text>
           <Text testID='runtime-compatibility-digest'>{results.digest}</Text>

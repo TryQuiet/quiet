@@ -5,7 +5,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 const { promisify } = require('node:util')
 
-const FIXTURE_VERSION = 2
+const FIXTURE_VERSION = 3
 const ROW_COUNT = 8
 const valueFor = index => `row-${index}:` + 'compressed-persistent-value'.repeat(8192)
 const entries = Array.from({ length: ROW_COUNT }, (_, index) => [`key-${index}`, valueFor(index)])
@@ -140,7 +140,7 @@ async function runEmbeddedSmoke() {
     assert.ok(path.isAbsolute(documents), 'Native data directory must be absolute')
     report.nativeBridge = true
     report.stage = 'validate-run-id'
-    const runId = process.env.QUIET_EMBEDDED_NODE_DATABASE_RUN_ID || 'rn081-classic-level-v2'
+    const runId = process.env.QUIET_EMBEDDED_NODE_DATABASE_RUN_ID || 'rn-newarch-classic-level-v3'
     assert.match(runId, /^[a-z0-9][a-z0-9_-]{0,63}$/, 'Use a simple, public test run ID')
     report.runId = runId
     const runDirectory = path.join(documents, 'quiet-embedded-node-smoke', runId)
@@ -148,14 +148,14 @@ async function runEmbeddedSmoke() {
     resultPath = path.join(runDirectory, 'result.json')
     const previous = fs.existsSync(resultPath) ? JSON.parse(fs.readFileSync(resultPath, 'utf8')) : null
     progress('validate-runtime')
-    assert.equal(process.versions.node, '18.20.4', 'Smoke must use the vendored embedded Node version')
+    assert.equal(process.versions.node, '24.18.0', 'Smoke must use the vendored embedded Node version')
     assert.equal(process.platform, 'ios', 'Smoke must run inside the iOS app')
-    assert.ok(['arm64', 'x64'].includes(process.arch), 'Smoke requires an arm64 or x86_64 simulator build')
+    assert.equal(process.arch, 'arm64', 'The vendored Node runtime supports the ARM64 iOS simulator')
     const expectedArchitecture = process.env.QUIET_EMBEDDED_NODE_DATABASE_ARCH
     if (expectedArchitecture !== undefined) {
       assert.equal(process.arch, expectedArchitecture, 'Embedded Node must match the requested simulator architecture')
     }
-    assert.equal(process.versions.modules, '108', 'Unexpected embedded Node module ABI')
+    assert.equal(process.versions.modules, '137', 'Unexpected embedded Node module ABI')
     assert.ok(Number(process.versions.napi) >= 3, 'classic-level requires Node-API 3')
     if (previous) {
       assert.equal(previous.status, 'pass', 'A failed or incomplete run needs a fresh run ID')

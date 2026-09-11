@@ -5,7 +5,7 @@
 #import "RNNodeJsMobile.h"
 
 // Forward declarations for Swift classes
-// (Actual imports happen in AppDelegate.m to avoid circular dependencies)
+// (Actual imports happen in AppDelegate.mm to avoid circular dependencies)
 @class TorHandler;
 
 @interface AppDelegate : RCTAppDelegate <UNUserNotificationCenterDelegate>
@@ -19,5 +19,8 @@
 @property (nonatomic, strong) RNNodeJsMobile *nodeJsMobile;
 
 @property (nonatomic, strong) TorHandler *tor;
+
+// Resolve the current React Native instance's module in either architecture.
+@property (nonatomic, readonly, nullable) id communicationModule;
 
 @end
