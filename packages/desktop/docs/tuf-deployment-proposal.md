@@ -1,6 +1,12 @@
 # Consider operating TUF for desktop updates
 
-Status: **proposal for consideration; deployment is not approved or complete**.
+Status: **approach accepted in principle; production deployment remains pending**.
+
+**Blocker for [#3485](https://github.com/TryQuiet/quiet/pull/3485):** TUF
+provisioning and live release validation must be completed before the
+updater/signing work can ship. Merging this proposal does not clear that blocker.
+The existing YubiKey's PIV signing support is unconfirmed; checking it, or
+obtaining a compatible key, is a prerequisite to the root-signing ceremony.
 
 This records the remaining operational work for the authenticated updater in
 [PR #3485](https://github.com/TryQuiet/quiet/pull/3485). The implementation,
@@ -54,8 +60,9 @@ earlier Electron and builder PRs can be evaluated separately.
 
 The implementation session could not create the new signing repository with its
 available GitHub credential, and had no authenticated AWS session. These are
-access prerequisites, not completed setup. Hardware signer availability has
-not been established. Do not use test keys or an arbitrary downloaded root.
+access prerequisites, not completed setup. The operator has a YubiKey, but its
+PIV signing support still needs checking; a compatible replacement can be
+obtained if needed. Do not use test keys or an arbitrary downloaded root.
 
 ## Work to schedule if adopted
 
