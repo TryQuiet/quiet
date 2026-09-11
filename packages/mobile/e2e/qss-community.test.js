@@ -8,44 +8,33 @@ import {
 } from './utils/qssUi'
 
 const {
-  validateBuild,
   validateFixture,
   checkLiveFixture,
   prepareRun,
   writeProof,
   waitForServerProof,
 } = require('./utils/qssCommunity.cjs')
+const { createQssMobile } = require('./utils/qssMobile.cjs')
 
 // This suite only runs against an explicitly prepared, local QSS fixture.
 // Captcha completes in the real WebView with hCaptcha's public test site key.
 describe('QSS community with the real native backend', () => {
   let fixture
   let run
-  let launched = false
+  let mobile
 
   beforeAll(async () => {
     const config = require('detox/internals').config
-    if (device.getPlatform() !== 'ios' || config.configurationName !== 'ios.sim.e2e.qss') {
-      throw new Error('Use the dedicated ios.sim.e2e.qss configuration on an owned simulator')
-    }
-    if (!process.env.DETOX_IOS_SIMULATOR_ID || device.id !== process.env.DETOX_IOS_SIMULATOR_ID) {
-      throw new Error('Select the exact owned simulator using DETOX_IOS_SIMULATOR_ID')
-    }
-    const build = validateBuild(process.env.DETOX_IOS_ARM64_E2E_QSS_OUTPUT)
-    const apps = Object.values(config.apps)
-    if (apps.length !== 1 || require('node:path').resolve(apps[0].binaryPath) !== build.app) {
-      throw new Error('Detox must install the exact app verified by the QSS build receipt')
-    }
+    mobile = createQssMobile(device, config)
     run = prepareRun(process.env.QUIET_QSS_E2E_RUN_DIR)
     fixture = validateFixture(run.fixture)
     await checkLiveFixture()
-    await device.launchApp({ delete: true, newInstance: true, permissions: { notifications: 'YES' } })
-    launched = true
+    await mobile.launch(true)
     await device.setOrientation('portrait')
   })
 
   afterAll(async () => {
-    if (launched) await device.terminateApp()
+    if (mobile) await mobile.stop()
   })
 
   it('registers with QSS, stores a message, exposes its v5 invite, and restores after restart', async () => {
@@ -54,7 +43,14 @@ describe('QSS community with the real native backend', () => {
     await createQssCommunity(communityName, 'qssnativeowner')
     await openGeneral()
     const { metadata } = await readQssInvitation(communityName)
-    const proof = { ...metadata, fixtureProject: fixture.project, messageStored: false, restarted: false }
+    const proof = {
+      ...metadata,
+      fixtureProject: fixture.project,
+      mobilePlatform: mobile.platform,
+      mobileBuild: mobile.build,
+      messageStored: false,
+      restarted: false,
+    }
     writeProof(run, proof)
     // Record aggregate QSS activity for this exact team across the send. The
     // encrypted records cannot identify this message; offline peer retrieval
@@ -70,8 +66,8 @@ describe('QSS community with the real native backend', () => {
     })
     writeProof(run, { ...proof, serverBaseline, serverActivityAfterSend })
 
-    await device.terminateApp()
-    await device.launchApp({ newInstance: true })
+    await mobile.stop()
+    await mobile.launch()
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(120000)

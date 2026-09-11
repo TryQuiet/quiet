@@ -131,3 +131,14 @@ python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p 'test_*.py' -
 `stop` retains containers/native process data and evidence. This helper has no
 data deletion command. Keep raw test output and invitation handoffs private.
 GitHub-hosted execution still needs to be validated in the workflow.
+
+For real provider delivery, `up --push-credentials /absolute/private/accounts.json`
+enables QPS in either runtime for the explicitly supplied Android/iOS Firebase
+service accounts. In the native runtime, only the QSS server process receives
+those values; dependency installation, compilation and migration processes keep
+the push-disabled environment. The mode-0600 runtime file must still match its
+recorded digest before QSS starts, and credentials never enter the public manifest.
+This is a separate lane: the existing Detox messaging preflight
+continues to reject push-enabled fixtures. See the
+[Appium provider recipe](../../e2e/appium/README.md). A healthy fixture receipt
+alone does not establish FCM/APNs delivery.

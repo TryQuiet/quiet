@@ -78,8 +78,10 @@
 		EB5F92FD2F5FBB2100B5C60D /* FirebaseMessagingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */; };
 		EE51651EA363C766EA0DE07A /* Pods_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */; };
 		A11600000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
+		A11700000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
 		A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000004 /* QuietBackgroundTaskTests.m */; };
 		A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000006 /* TorHandlerLifecycleTests.swift */; };
+		BE9027BE228F4086A35829F9 /* QuietFirebaseUnavailableTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +91,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = EB4DC7F82F608A3300EFD23F;
 			remoteInfo = QuietNotificationServiceExtension;
+		};
+		E30552CD3A5B4E708F14ADEB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
+			remoteInfo = Quiet;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -688,6 +697,8 @@
 		A11600000000000000000004 /* QuietBackgroundTaskTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTaskTests.m; sourceTree = "<group>"; };
 		A11600000000000000000006 /* TorHandlerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandlerLifecycleTests.swift; sourceTree = "<group>"; };
 		A11600000000000000000007 /* QuietBackgroundTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietBackgroundTask.h; sourceTree = "<group>"; };
+		D2CFF9D8BC2E46A2BA6F289C /* QuietAppTests.xctest */ = {isa = PBXFileReference; name = "QuietAppTests.xctest"; path = "QuietAppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; explicitFileType = "wrapper.cfbundle"; includeInIndex = 0; };
+		FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */ = {isa = PBXFileReference; name = "QuietFirebaseUnavailableTests.m"; path = "QuietFirebaseUnavailableTests.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -745,6 +756,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1EFDFDDB588E43298CC6A406 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -752,7 +770,6 @@
 			isa = PBXGroup;
 			children = (
 				A11600000000000000000004 /* QuietBackgroundTaskTests.m */,
-				A11600000000000000000006 /* TorHandlerLifecycleTests.swift */,
 				A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */,
 				A11400000000000000000004 /* NSEMessageAuthenticator.swift */,
 				A11400000000000000000006 /* SharedDefaults.swift */,
@@ -4889,6 +4906,7 @@
 				E17A7BE86B5879902AF7BA3A /* QuietNotificationServiceExtension.debug.xcconfig */,
 				E4A82686A95EE5D58359B484 /* QuietNotificationServiceExtension.release.xcconfig */,
 				E079692B46015F1D27CDBBC2 /* Quiet.release.xcconfig */,
+				E49D8F94156C4FB3AB4D5C6D /* QuietAppTests */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -4901,8 +4919,19 @@
 				13B07F961A680F5B00A75B9A /* Quiet.app */,
 				00E356EE1AD99517003FC87E /* QuietTests.xctest */,
 				EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */,
+				D2CFF9D8BC2E46A2BA6F289C /* QuietAppTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E49D8F94156C4FB3AB4D5C6D /* QuietAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */,
+				A11600000000000000000006 /* TorHandlerLifecycleTests.swift */,
+			);
+			name = QuietAppTests;
+			path = QuietAppTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -4981,6 +5010,24 @@
 			productReference = EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		0355805E9B0B4882BDC9173E /* "QuietAppTests" */ = {
+			isa = PBXNativeTarget;
+			name = "QuietAppTests";
+			productName = "QuietAppTests";
+			productReference = D2CFF9D8BC2E46A2BA6F289C;
+			productType = "com.apple.product-type.bundle.unit-test";
+			buildConfigurationList = 55544ACA02A64A438968DB49;
+			buildPhases = (
+				AB6A2671748F4C3E9C439EA2 /* Sources */,
+				1EFDFDDB588E43298CC6A406 /* Frameworks */,
+				F377DE6A1E114599A8284D72 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3AAC75D3296B47B3A834CDC9 /* PBXTargetDependency */,
+			);
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -5002,6 +5049,9 @@
 					EB4DC7F82F608A3300EFD23F = {
 						CreatedOnToolsVersion = 26.3;
 					};
+					0355805E9B0B4882BDC9173E = {
+						TestTargetID = 13B07F861A680F5B00A75B9A;
+					};
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Quiet" */;
@@ -5020,6 +5070,7 @@
 				13B07F861A680F5B00A75B9A /* Quiet */,
 				00E356ED1AD99517003FC87E /* QuietTests */,
 				EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */,
+				0355805E9B0B4882BDC9173E /* "QuietAppTests" */,
 			);
 		};
 /* End PBXProject section */
@@ -5076,6 +5127,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB4DC8172F60A81000EFD23F /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F377DE6A1E114599A8284D72 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5318,7 +5376,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */,
-				A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */,
+				A11700000000000000000001 /* QuietBackgroundTask.m in Sources */,
 				A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */,
 				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
 				A11400000000000000000005 /* SharedDefaults.swift in Sources */,
@@ -5366,6 +5424,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AB6A2671748F4C3E9C439EA2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE9027BE228F4086A35829F9 /* QuietFirebaseUnavailableTests.m in Sources */,
+				A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -5373,6 +5440,11 @@
 			isa = PBXTargetDependency;
 			target = EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */;
 			targetProxy = EB4DC7FE2F608A3300EFD23F /* PBXContainerItemProxy */;
+		};
+		3AAC75D3296B47B3A834CDC9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 13B07F861A680F5B00A75B9A /* Quiet */;
+			targetProxy = E30552CD3A5B4E708F14ADEB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -5899,6 +5971,42 @@
 			};
 			name = Release;
 		};
+		CD90F926CA6E4306B7F9C41A /* Debug */ = {
+			name = Debug;
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				SWIFT_VERSION = 5.0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = QuietAppTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "QuietAppTests";
+				SKIP_INSTALL = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quietmobile.app-tests";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quiet.app/Quiet";
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				CLANG_ENABLE_MODULES = YES;
+			};
+		};
+		CD78069C370B48F89E307721 /* Release */ = {
+			name = Release;
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				SWIFT_VERSION = 5.0;
+				INFOPLIST_FILE = QuietAppTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "QuietAppTests";
+				SKIP_INSTALL = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quietmobile.app-tests";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quiet.app/Quiet";
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				CLANG_ENABLE_MODULES = YES;
+			};
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -5934,6 +6042,15 @@
 			buildConfigurations = (
 				EB4DC8032F608A3300EFD23F /* Debug */,
 				EB4DC8042F608A3300EFD23F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55544ACA02A64A438968DB49 /* Build configuration list for PBXNativeTarget "QuietAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CD90F926CA6E4306B7F9C41A /* Debug */,
+				CD78069C370B48F89E307721 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

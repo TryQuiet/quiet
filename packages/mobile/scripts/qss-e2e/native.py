@@ -1,6 +1,7 @@
 """Native QSS/Postgres/Redis startup for macOS runners; no service manager."""
 import ctypes
 import errno
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -176,10 +177,35 @@ def record_process(manifest, name, pid):
 
 def spawn(manifest, name, command):
     output = Path(manifest["output"])
+    environment = manifest["native"]["environment"]
+    if name == "qss":
+        environment = qss_environment(manifest)
     with (output / "private.log").open("ab") as log:
-        process = subprocess.Popen(command, cwd=output / "context/app", env=manifest["native"]["environment"], stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True)
+        process = subprocess.Popen(command, cwd=output / "context/app", env=environment, stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True)
     record_process(manifest, name, process.pid)
     return process
+
+
+def qss_environment(manifest):
+    """Only the QSS server receives provider secrets, never build tools/receipts."""
+    environment = dict(manifest["native"]["environment"])
+    if not manifest.get("pushNotifications"):
+        return environment
+    filename = Path(manifest["output"]) / "compose.json"
+    if filename.is_symlink() or filename.stat().st_mode & 0o077:
+        raise ValueError("Provider runtime configuration must remain private")
+    data = filename.read_bytes()
+    if hashlib.sha256(data).hexdigest() != manifest["composeSha256"]:
+        raise ValueError("Provider runtime configuration changed")
+    configured = json.loads(data)["services"]["qss"]["environment"]
+    if configured.get("QPS_ENABLED") != "true":
+        raise ValueError("Provider fixture requires QPS_ENABLED=true")
+    for platform in manifest["pushPlatforms"]:
+        for field in ("PROJECT_ID", "CLIENT_EMAIL", "PRIVATE_KEY"):
+            key = f"FIREBASE_{platform.upper()}_{field}"
+            environment[key] = configured[key]
+    environment["QPS_ENABLED"] = "true"
+    return environment
 
 
 def start(manifest):

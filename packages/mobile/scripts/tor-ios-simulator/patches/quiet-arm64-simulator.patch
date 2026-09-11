@@ -340,7 +340,15 @@
 +);
 --- a/Tor.xcodeproj/project.pbxproj
 +++ b/Tor.xcodeproj/project.pbxproj
-@@ -1334,7 +1334,6 @@
+@@ -926 +926,2 @@
+-			inputPaths = (
++			inputPaths = (
++				"$(SRCROOT)/Tor/version.sh",
+@@ -930 +931,2 @@
+-			outputPaths = (
++			outputPaths = (
++				"$(SRCROOT)/Tor/version.h",
+@@ -1334,7 +1336,6 @@
  			isa = XCBuildConfiguration;
  			baseConfigurationReference = D0401AD61D2CB8C300602E9B /* Tor-iOS.xcconfig */;
  			buildSettings = {
@@ -348,7 +356,7 @@
  				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
  				SUPPORTS_MACCATALYST = NO;
  			};
-@@ -1344,7 +1343,6 @@
+@@ -1344,7 +1345,6 @@
  			isa = XCBuildConfiguration;
  			baseConfigurationReference = D0401AD61D2CB8C300602E9B /* Tor-iOS.xcconfig */;
  			buildSettings = {

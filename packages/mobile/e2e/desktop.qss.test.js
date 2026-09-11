@@ -18,7 +18,6 @@ import {
 const fs = require('fs')
 const path = require('path')
 const {
-  validateBuild,
   validateFixture,
   checkLiveFixture,
   prepareRun,
@@ -26,10 +25,12 @@ const {
   waitForServerProof,
 } = require('./utils/qssCommunity.cjs')
 const { snapshotOwnedProcesses, waitForProcessExit } = require('./utils/desktopProcesses.cjs')
+const { createQssMobile } = require('./utils/qssMobile.cjs')
+const { validateDesktopQssOnlyBuild } = require('./utils/qssOnlyBuild.cjs')
 
-// The same macOS host runs Detox and the existing Selenium App/Channel helpers.
+// The same host runs Detox and the existing Selenium App/Channel helpers.
 // Build both applications from this checkout with .env.e2e.qss before running.
-describe('Desktop and iOS clients with QSS', () => {
+describe('Desktop and mobile clients with QSS', () => {
   let desktop
   let general
   let run
@@ -39,20 +40,8 @@ describe('Desktop and iOS clients with QSS', () => {
   let names
   let messages
   let desktopProcesses = []
-  let mobileLaunched = false
-
-  const launchMobile = async fresh => {
-    await device.launchApp({
-      newInstance: true,
-      ...(fresh ? { delete: true, permissions: { notifications: 'YES' } } : {}),
-    })
-    mobileLaunched = true
-  }
-
-  const stopMobile = async () => {
-    if (mobileLaunched) await device.terminateApp()
-    mobileLaunched = false
-  }
+  let mobile
+  let desktopBuild
 
   const stopDesktop = async () => {
     if (desktop?.isOpened) {
@@ -89,45 +78,39 @@ describe('Desktop and iOS clients with QSS', () => {
 
   beforeAll(async () => {
     const config = require('detox/internals').config
-    if (
-      process.platform !== 'darwin' ||
-      device.getPlatform() !== 'ios' ||
-      config.configurationName !== 'ios.sim.e2e.qss'
-    ) {
-      throw new Error('Run both clients on macOS with ios.sim.e2e.qss')
-    }
-    if (!process.env.DETOX_IOS_SIMULATOR_ID || device.id !== process.env.DETOX_IOS_SIMULATOR_ID) {
-      throw new Error('Select the exact owned simulator using DETOX_IOS_SIMULATOR_ID')
-    }
+    if (!['darwin', 'linux'].includes(process.platform)) throw new Error('Run both clients on a macOS or Linux host')
     const binary = process.env.QUIET_DESKTOP_BINARY
     if (!binary || !path.isAbsolute(binary) || !fs.statSync(binary).isFile()) {
-      throw new Error("Set QUIET_DESKTOP_BINARY to this checkout's packaged Quiet.app/Contents/MacOS/Quiet")
+      throw new Error("Set QUIET_DESKTOP_BINARY to this checkout's packaged Quiet executable")
     }
-    const build = validateBuild(process.env.DETOX_IOS_ARM64_E2E_QSS_OUTPUT)
-    const apps = Object.values(config.apps)
-    if (apps.length !== 1 || path.resolve(apps[0].binaryPath) !== build.app) {
-      throw new Error('Detox must install the exact app verified by the QSS build receipt')
+    mobile = createQssMobile(device, config)
+    if (mobile.build.backendMode === 'qss-only') {
+      if (process.env.IS_E2E !== 'true') throw new Error('QSS-only desktop launch requires IS_E2E=true')
+      desktopBuild = validateDesktopQssOnlyBuild(binary, process.env.QUIET_QSS_ONLY_BUILD_RECEIPT)
     }
     run = prepareRun(process.env.QUIET_QSS_E2E_RUN_DIR)
     fixture = validateFixture(run.fixture)
     await checkLiveFixture()
     const suffix = run.runId.slice(-12)
-    names = { community: `mixed-${suffix}`, mobile: `ios-${suffix}`, desktop: `desktop-${suffix}` }
+    names = { community: `mixed-${suffix}`, mobile: `${mobile.platform}-${suffix}`, desktop: `desktop-${suffix}` }
+    // Android's native keyboard capitalizes the beginning of a sentence.
+    // Use the platform's display name and keep exact message assertions.
+    const platformLabel = mobile.platform === 'android' ? 'Android' : 'iOS'
     messages = {
-      seed: `iOS before desktop joined ${suffix}`,
-      desktopOnline: `Desktop to iOS online ${suffix}`,
-      mobileOnline: `iOS to desktop online ${suffix}`,
-      desktopOffline: `Desktop while iOS offline ${suffix}`,
-      mobileOffline: `iOS while desktop offline ${suffix}`,
+      seed: `${platformLabel} before desktop joined ${suffix}`,
+      desktopOnline: `Desktop to ${platformLabel} online ${suffix}`,
+      mobileOnline: `${platformLabel} to desktop online ${suffix}`,
+      desktopOffline: `Desktop while ${platformLabel} offline ${suffix}`,
+      mobileOffline: `${platformLabel} while desktop offline ${suffix}`,
     }
     desktop = new App({ binaryPath: binary, username: names.desktop, qssEndpoint: fixture.endpoint })
-    await launchMobile(true)
+    await mobile.launch(true)
     await device.setOrientation('portrait')
   })
 
   afterAll(async () => {
     try {
-      await stopMobile()
+      if (mobile) await mobile.stop()
     } finally {
       await stopDesktop()
       if (desktop) await desktop.cleanup()
@@ -135,7 +118,7 @@ describe('Desktop and iOS clients with QSS', () => {
   })
 
   describe('Stages', () => {
-    it('iOS creates a server community and stores history before going offline', async () => {
+    it('mobile creates a server community and stores history before going offline', async () => {
       await createQssCommunity(names.community, names.mobile)
       await openGeneral()
       const result = await readQssInvitation(names.community)
@@ -147,11 +130,11 @@ describe('Desktop and iOS clients with QSS', () => {
       await openGeneral()
       await sendStoredMessage(messages.seed)
       await waitForServerProof(run, metadata.teamId, fixture.project, { afterSyncSeq: before.maxSyncSeq })
-      await stopMobile()
+      await mobile.stop()
     })
 
-    it('desktop joins the exact iOS invitation and retrieves history with iOS offline', async () => {
-      assert(mobileLaunched).toBe(false)
+    it('desktop joins the exact mobile invitation and retrieves history with mobile offline', async () => {
+      await mobile.assertStopped()
       await launchDesktop()
       const join = new JoinCommunityModal(desktop.driver)
       assert(await join.isReady()).toBe(true)
@@ -168,10 +151,11 @@ describe('Desktop and iOS clients with QSS', () => {
       await new JoiningLoadingPanel(desktop.driver).waitForJoinToComplete()
       assert(await general.isOpen()).toBe(true)
       await general.waitForExactMessage(messages.seed, names.mobile)
+      await mobile.assertStopped()
     })
 
     it('both clients receive messages from each other while online', async () => {
-      await launchMobile(false)
+      await mobile.launch()
       await openGeneral()
       await general.sendMessage(messages.desktopOnline, names.desktop)
       await mobileMessage(messages.desktopOnline, names.desktop)
@@ -179,30 +163,32 @@ describe('Desktop and iOS clients with QSS', () => {
       await general.waitForExactMessage(messages.mobileOnline, names.mobile)
     })
 
-    it('iOS catches up after being offline, with desktop terminated during retrieval', async () => {
-      await stopMobile()
+    it('mobile catches up after being offline, with desktop terminated during retrieval', async () => {
+      await mobile.stop()
       const before = await waitForServerProof(run, metadata.teamId, fixture.project)
       await general.sendMessage(messages.desktopOffline, names.desktop)
       await waitForServerProof(run, metadata.teamId, fixture.project, { afterSyncSeq: before.maxSyncSeq })
       // Require a real restart to establish desktop persistence, then remove
-      // every owned desktop process before asking iOS to retrieve the message.
+      // every owned desktop process before asking mobile to retrieve the message.
       await stopDesktop()
       await launchDesktop()
       await general.waitForExactMessage(messages.desktopOffline, names.desktop)
       await stopDesktop()
-      await launchMobile(false)
+      await mobile.launch()
       await openGeneral()
       await mobileMessage(messages.desktopOffline, names.desktop)
+      await waitForProcessExit(desktopProcesses)
     })
 
-    it('desktop catches up after being offline, with iOS terminated during retrieval', async () => {
+    it('desktop catches up after being offline, with mobile terminated during retrieval', async () => {
       await waitForProcessExit(desktopProcesses)
       const before = await waitForServerProof(run, metadata.teamId, fixture.project)
       await sendStoredMessage(messages.mobileOffline)
       await waitForServerProof(run, metadata.teamId, fixture.project, { afterSyncSeq: before.maxSyncSeq })
-      await stopMobile()
+      await mobile.stop()
       await launchDesktop()
       await general.waitForExactMessage(messages.mobileOffline, names.mobile)
+      await mobile.assertStopped()
     })
 
     it('both clients preserve the conversation through another restart', async () => {
@@ -215,12 +201,20 @@ describe('Desktop and iOS clients with QSS', () => {
         await general.waitForExactMessage(messages[key], names.desktop)
       }
       await stopDesktop()
-      await launchMobile(false)
+      await mobile.launch()
       await openGeneral()
       for (const [key, text] of Object.entries(messages)) {
         await mobileMessage(text, key.startsWith('desktop') ? names.desktop : names.mobile)
       }
-      writeProof(run, { ...metadata, twoPlayerPassed: true, desktopSource: 'same checkout' })
+      writeProof(run, {
+        ...metadata,
+        twoPlayerPassed: true,
+        mobilePlatform: mobile.platform,
+        mobileBuild: mobile.build,
+        ...(desktopBuild ? { desktopBuild } : {}),
+        mobileOfflineChecks: mobile.offlineProofs,
+        desktopSource: 'same checkout',
+      })
     })
   })
 })

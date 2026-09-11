@@ -63,7 +63,7 @@ class StorybookBuildTests(unittest.TestCase):
             plistlib.dump({'CFBundleShortVersionString': '405.9.1', 'CFBundleExecutable': 'Tor',
                           'CFBundleSupportedPlatforms': ['iPhoneSimulator']}, info)
         self.output = self.root / 'result'
-        for name in ['.env.storybook', '.env.staging', '.env.e2e', '.env.e2e.qss', '.env.production']:
+        for name in ['.env.storybook', '.env.staging', '.env.e2e', '.env.e2e.qss', '.env.e2e.qss.push', '.env.production']:
             (self.mobile / name).write_text('TEST_ONLY=1\n')
         self.args = argparse.Namespace(checkout=str(self.checkout), framework=str(self.source), output=str(self.output),
                                        scheme='Storybook', configuration='Debug', env_file='.env.storybook')
@@ -85,7 +85,7 @@ class StorybookBuildTests(unittest.TestCase):
 
     def run_build(self, *, failure=False, interrupt=None, low_disk=False, wrong_app=False,
                   platform='IOSSIMULATOR', prepare_error=None, baseline=None,
-                  signing_failure=None, signing_changes_tor=False):
+                  signing_failure=None, signing_changes_tor=False, failure_log=''):
         child_count = len(self.children)
         marker = self.root / f'child-stopped-{child_count}'
         ready = self.root / f'child-ready-{child_count}'
@@ -146,7 +146,7 @@ class StorybookBuildTests(unittest.TestCase):
                            '(marker.write_bytes(target.read_bytes()),exit(0))); '
                            f'Path({str(ready)!r}).write_text("ready"); time.sleep(60)')
             elif failure:
-                program = setup + 'raise SystemExit(9)'
+                program = setup + f'print({failure_log!r}, flush=True); raise SystemExit(9)'
             else:
                 program = setup + (f'app=Path({str(app)!r}); '
                            'shutil.rmtree(app) if app.exists() else None; app.mkdir(parents=True); '
@@ -434,6 +434,11 @@ class StorybookBuildTests(unittest.TestCase):
         self.run_build()
         self.assert_original_intact()
 
+    def test_provider_qss_selects_explicit_push_environment(self):
+        self.args.scheme, self.args.env_file = 'Quiet', '.env.e2e.qss.push'
+        self.run_build()
+        self.assert_original_intact()
+
     def test_release_signs_the_release_product(self):
         self.args.scheme, self.args.configuration, self.args.env_file = 'Quiet', 'Release', '.env.production'
         self.run_build()
@@ -467,6 +472,24 @@ class StorybookBuildTests(unittest.TestCase):
 
     def test_failed_build_restores_original(self):
         self.run_build(failure=True)
+        self.assert_original_intact()
+
+    def test_failed_build_publishes_sanitized_compiler_diagnostics_and_restores_original(self):
+        log = (f"{self.mobile}/ios/Quiet/AppDelegate.mm:21:9: fatal error: 'private-token.h' file not found\n"
+               'export FIREBASE_PRIVATE_KEY=private-token\n'
+               'Command CompileC failed with a nonzero exit code\n')
+        result = self.run_build(failure=True, failure_log=log)
+        diagnostics = result['compilerDiagnostics']
+        self.assertEqual(diagnostics['status'], 'parsed')
+        self.assertEqual(diagnostics['errors'][0], {
+            'tool': 'clang', 'severity': 'fatal error', 'line': 21, 'column': 9,
+            'source': 'checkout/packages/mobile/ios/Quiet/AppDelegate.mm',
+            'category': 'missing-header-or-file',
+        })
+        self.assertEqual(diagnostics['errors'][1]['category'], 'build-phase-failed')
+        self.assertNotIn('private-token', json.dumps(result))
+        self.assertIn('private-token', Path(result['log']).read_text())
+        self.assertEqual(json.loads((Path(result['run']) / 'result.json').read_text()), result)
         self.assert_original_intact()
 
     def test_sigint_stops_child_before_restore(self):
@@ -662,6 +685,82 @@ class DetoxConfigurationTests(unittest.TestCase):
             self.assertEqual(argv[argv.index('--output') + 1], output)
             self.assertEqual(argv[argv.index('--env-file') + 1], '.env.e2e')
             self.assertFalse(marker.exists())
+
+
+class CompilerDiagnosticsTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix='quiet-compiler-diagnostics-')
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name).resolve()
+        self.checkout = self.root / 'checkout'
+        self.output = self.root / 'build'
+        self.checkout.mkdir()
+        self.output.mkdir()
+        self.log = self.output / 'xcodebuild.log'
+
+    def parse(self, text):
+        self.log.write_text(text)
+        return wrapper.compiler_diagnostics(self.log, self.checkout, self.output)
+
+    @unittest.skipUnless(shutil.which('clang'), 'A real Clang compiler is required')
+    def test_real_clang_failure_keeps_location_and_hides_source_literals(self):
+        source = self.checkout / 'missing-header.c'
+        source.write_text('#include "PRIVATE_HEADER_TOKEN.h"\n')
+        process = subprocess.run(['clang', '-fsyntax-only', '-fno-color-diagnostics', str(source)],
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        self.assertNotEqual(process.returncode, 0)
+        self.assertIn('PRIVATE_HEADER_TOKEN', process.stdout)
+        report = self.parse(process.stdout)
+        self.assertEqual(report['errors'], [{
+            'tool': 'clang', 'severity': 'fatal error', 'source': 'checkout/missing-header.c',
+            'line': 1, 'column': 10, 'category': 'missing-header-or-file',
+        }])
+        self.assertNotIn('PRIVATE_HEADER_TOKEN', json.dumps(report))
+        self.assertNotIn(str(self.root), json.dumps(report))
+
+    def test_swift_linker_and_xcode_errors_use_only_fixed_categories(self):
+        report = self.parse(
+            f"{self.checkout}/packages/mobile/ios/Tor.swift:14:3: error: cannot find 'PRIVATE_SYMBOL' in scope\n"
+            'Undefined symbols for architecture arm64:\n'
+            '  "_PRIVATE_SYMBOL", referenced from:\n'
+            'clang: error: linker command failed with exit code 1 (use -v to see invocation)\n'
+            f"error: Build input file cannot be found: '{self.checkout}/packages/mobile/ios/Pods/Tor/version.h'. Did you forget to declare this file as an output?\n"
+            'Command SwiftCompile failed with a nonzero exit code\n')
+        self.assertEqual([item['category'] for item in report['errors']], [
+            'symbol-not-in-scope', 'undefined-linker-symbol', 'linker-failed',
+            'missing-build-input', 'build-phase-failed',
+        ])
+        self.assertEqual(report['errors'][0]['tool'], 'swift')
+        self.assertEqual(report['errors'][3]['source'], 'checkout/packages/mobile/ios/Pods/Tor/version.h')
+        self.assertNotIn('PRIVATE_SYMBOL', json.dumps(report))
+
+    def test_unknown_errors_hide_text_and_external_paths_and_ignore_script_output(self):
+        report = self.parse(
+            'export FIREBASE_PRIVATE_KEY=PRIVATE_ENV_VALUE\n'
+            'error: PRIVATE_SCRIPT_OUTPUT\n'
+            '/Users/private-user/PRIVATE_PATH.mm:8:2: error: PRIVATE_DIAGNOSTIC\n'
+            f'{self.checkout}/../PRIVATE_ESCAPE.mm:1:2: error: PRIVATE_DIAGNOSTIC\n'
+            f'{self.checkout}/.env.private:3:4: error: PRIVATE_DIAGNOSTIC\n'
+            f'{self.checkout}/safe.mm:4:5: error: PRIVATE_DIAGNOSTIC\n'
+            'ld: warning: PRIVATE_WARNING\n')
+        self.assertEqual(len(report['errors']), 4)
+        self.assertTrue(all(item['category'] == 'unclassified-compiler-error' for item in report['errors']))
+        self.assertEqual([item['source'] for item in report['errors']], [None, None, None, 'checkout/safe.mm'])
+        self.assertNotIn('PRIVATE', json.dumps(report))
+        self.assertNotIn('private-user', json.dumps(report))
+
+    def test_report_deduplicates_and_bounds_error_count(self):
+        error = f'{self.checkout}/repeated.mm:1:2: error: no member named private\n'
+        report = self.parse(error * 10)
+        self.assertEqual(len(report['errors']), 1)
+        self.assertFalse(report['truncated'])
+        report = self.parse(''.join(f'{self.checkout}/source.mm:{line}:2: error: unknown\n' for line in range(1, 101)))
+        self.assertEqual(len(report['errors']), 40)
+        self.assertTrue(report['truncated'])
+
+    def test_missing_log_does_not_mask_original_build_failure(self):
+        report = wrapper.compiler_diagnostics(self.log, self.checkout, self.output)
+        self.assertEqual(report, {'status': 'unavailable', 'errors': [], 'truncated': False})
 
 
 if __name__ == '__main__':

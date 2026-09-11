@@ -39,6 +39,10 @@ target 'Quiet' do
 
 
 
+  target 'QuietAppTests' do
+    inherit! :complete
+  end
+
   # Make all the other frameworks into static frameworks by overriding the static_framework? function to return true
   pre_install do |installer|
     installer.pod_targets.each do |target|

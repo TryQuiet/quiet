@@ -1,5 +1,6 @@
-/* global element, by, expect, waitFor */
+/* global device, element, by, expect, waitFor */
 import { singleLineInput, channelComposer } from './nativeInputs'
+import waitForAndroidNotification from './waitForAndroidNotification'
 const { parseQssInvitation } = require('./qssCommunity.cjs')
 
 export const createQssCommunity = async (communityName, username) => {
@@ -11,6 +12,7 @@ export const createQssCommunity = async (communityName, username) => {
     .toBeVisible()
     .withTimeout(10000)
   await (await singleLineInput('Community name')).typeText(communityName)
+  if (device.getPlatform() === 'android') await device.pressBack()
   await element(by.text('Continue')).tap()
   await waitFor(element(by.id('server-offer-drawer')))
     .toBeVisible()
@@ -20,6 +22,7 @@ export const createQssCommunity = async (communityName, username) => {
     .toBeVisible()
     .withTimeout(10000)
   await (await singleLineInput('Enter a username')).typeText(username)
+  if (device.getPlatform() === 'android') await device.pressBack()
   await element(by.text('Continue')).tap()
   await waitFor(element(by.id('terms-of-service-component')))
     .toBeVisible()
@@ -36,6 +39,7 @@ export const openGeneral = async () => {
   await waitFor(element(by.id('channels_list')))
     .toBeVisible()
     .withTimeout(120000)
+  await waitForAndroidNotification(device)
   await element(by.id('channel_tile_general')).tap()
   await waitFor(channelComposer('general')).toBeVisible().withTimeout(30000)
 }
@@ -51,9 +55,11 @@ export const sendStoredMessage = async message => {
     .toBeVisible()
     .withTimeout(30000)
   await expect(composer).toHaveText('')
+  if (device.getPlatform() === 'android') await device.pressBack()
 }
 
 export const readQssInvitation = async communityName => {
+  await waitForAndroidNotification(device)
   await element(by.id('appbar_action_item')).tap()
   await waitFor(element(by.id('channels_list')))
     .toBeVisible()
