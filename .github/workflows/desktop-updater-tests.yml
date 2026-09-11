@@ -6,6 +6,7 @@ on:
       - 'packages/desktop/scripts/**'
       - 'packages/desktop/build/update-trust*'
       - 'packages/desktop/build/update-trust/**'
+      - 'packages/desktop/build/tuf-online-signing.cfn.json'
       - 'packages/desktop/src/main/main.ts'
       - 'packages/desktop/package*.json'
       - '.github/workflows/desktop-update*.yml'
@@ -15,6 +16,15 @@ on:
 permissions:
   contents: read
 jobs:
+  provisioning-template:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'cfn-lint==1.56.3'
+      - run: cfn-lint packages/desktop/build/tuf-online-signing.cfn.json
   verify:
     strategy:
       fail-fast: false

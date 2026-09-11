@@ -17,6 +17,11 @@ cached file again. A failed check keeps Quiet running and does not install on qu
 
 ## Required provisioning before a release
 
+For a new installation, follow the concrete [TUF setup commands](tuf-setup.md).
+They create a signing repository, provision AWS KMS access through GitHub OIDC,
+generate hardware signing keys, and import the reviewed public root. No new
+private-key secret is uploaded to GitHub.
+
 This change deliberately includes no production TUF key or bootstrap root.
 `latest` and `alpha` repositories are unconfigured, so production Linux/Windows
 builds fail until provisioning is complete. Preview builds still work, with their
@@ -33,11 +38,15 @@ automatic update path disabled by missing trust. Do not use test fixture keys.
    keep those signing permissions separate from S3 upload credentials. Do not
    import the Windows PFX as a TUF root or give the artifact uploader signing
    authority. TUF-on-ci manages the signing format, role versions and publication.
+   Create the delegated `linux` and `win32` roles before adding the nested target
+   paths below. TUF-on-CI assigns each first-level target directory to its role.
 3. Obtain the initial public `root.json` directly from that reviewed signing
    ceremony. Review its key IDs, role thresholds and expiry independently of
    the artifact server, then commit it as
    `build/update-trust/latest/root.json` and, for a separate prerelease repository,
    `build/update-trust/alpha/root.json`.
+   The initial setup can also use one repository and the same reviewed root for
+   both channels; their distinct signed target paths keep channel selection bound.
 4. Fill each repository entry in `build/update-trust.json` with three fixed HTTPS
    directory URLs, all ending with `/`: `metadataBaseUrl` for TUF metadata,
    `targetBaseUrl` for TUF targets, and `artifactBaseUrl` for existing installers.
