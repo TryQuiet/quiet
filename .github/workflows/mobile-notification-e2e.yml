@@ -135,6 +135,7 @@ jobs:
           path: |
             ${{ runner.temp }}/notification-credentials/availability.json
             ${{ runner.temp }}/notification-result.json
+            ${{ runner.temp }}/notification-failures.jsonl
 
       - name: Remove provider credentials
         if: always()

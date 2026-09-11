@@ -146,6 +146,7 @@ jobs:
           path: |
             ${{ runner.temp }}/notification-credentials/availability.json
             ${{ runner.temp }}/notification-ios-result.json
+            ${{ runner.temp }}/notification-ios-failures.jsonl
             ${{ runner.temp }}/notification-ios-build/result.json
             ${{ runner.temp }}/notification-ios-signing/result.json
       - name: Remove provider runtime credentials

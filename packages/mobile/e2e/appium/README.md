@@ -166,6 +166,9 @@ instrumentation concurrently on it. Backgrounding uses Home, not force-stop.
 Screenshots, UI trees, receiver logs, and raw runner output stay in the private
 run directory because they may contain invitation material. The full-loop
 success receipt requires both OS notification/tap journeys to finish.
+CI also publishes a separate JSON-lines failure report with fixed error categories
+and allowlisted source locations. It omits test titles, exception messages,
+assertion values and raw stacks. Cleanup failures retain a failed process status.
 
 ## CI
 
@@ -182,7 +185,8 @@ either notification journey fails. A passing onboarding result cannot satisfy it
 
 The iOS runner invokes `ci-ios-build.sh` and `ci-ios.sh`; both require a fresh
 GitHub Actions runner and an explicit `QUIET_NOTIFICATION_LANE`. Only selected
-build/result fields and fixed journey stage labels are published. CI execution
+build/result fields, fixed journey stage labels and sanitized failure locations
+are published. CI execution
 results belong in the [validation record](../README_QSS_NOTIFICATIONS.md);
 adding a workflow does not establish an iOS UI pass.
 
@@ -190,8 +194,9 @@ adding a workflow does not establish an iOS UI pass.
 harness, and supports manual dispatch. The Android job validates credentials,
 builds both clients with the QSS-only backend, and runs both full-loop journeys
 on a Google APIs Android 36 emulator. It never substitutes onboarding for a
-failed provider test. Only credential-availability booleans and a small result
-receipt are published; raw logs, screenshots and credentials are not artifacts.
+failed provider test. Credential-availability booleans, a small result receipt
+and sanitized failure locations are published; raw logs, screenshots and
+credentials are not artifacts.
 
 `ANDROID_FIREBASE_KEY` and `IOS_FIREBASE_KEY` decrypt the checked-in native
 Firebase client configurations. They are not credentials for sending pushes.

@@ -7,9 +7,9 @@ test -n "${GITHUB_WORKSPACE:-}"
 cd "$GITHUB_WORKSPACE"
 umask 077
 case "${QUIET_NOTIFICATION_LANE:-}" in
-  onboarding) test_command=test:onboarding; push_args=() ;;
+  onboarding) test_file=onboarding.test.mjs; push_args=() ;;
   provider)
-    test_command=test:full-loop
+    test_file=full-loop.test.mjs
     push_args=(--push-credentials "$RUNNER_TEMP/notification-credentials/firebase-accounts.json")
     ;;
   *) echo 'Select onboarding or provider explicitly.' >&2; exit 1 ;;
@@ -112,7 +112,13 @@ curl --silent --fail http://127.0.0.1:4725/status >/dev/null
 
 stage=appium-journey
 test_exit=0
-npm --prefix packages/mobile/e2e/appium run "$test_command" > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1 || test_exit=$?
+(
+  cd packages/mobile/e2e/appium
+  node --import tsx --test --test-concurrency=1 \
+    --test-reporter=spec --test-reporter-destination=stdout \
+    --test-reporter=./safe-reporter.mjs --test-reporter-destination="$RUNNER_TEMP/notification-ios-failures.jsonl" \
+    "$test_file"
+) > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1 || test_exit=$?
 export QUIET_NOTIFICATION_TEST_EXIT="$test_exit"
 python3 - <<'PY'
 import json, os

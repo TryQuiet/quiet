@@ -5,8 +5,8 @@ test "${GITHUB_ACTIONS:-}" = true
 test -n "${RUNNER_TEMP:-}"
 test -n "${GITHUB_WORKSPACE:-}"
 case "${QUIET_NOTIFICATION_LANE:-}" in
-  onboarding) test_script=test:onboarding ;;
-  provider) test_script=test:full-loop ;;
+  onboarding) test_file=onboarding.test.mjs ;;
+  provider) test_file=full-loop.test.mjs ;;
   *) echo 'Set QUIET_NOTIFICATION_LANE to onboarding or provider'; exit 1 ;;
 esac
 cd "$GITHUB_WORKSPACE"
@@ -90,7 +90,13 @@ curl --silent --fail http://127.0.0.1:4725/status >/dev/null
 
 stage=appium-journey
 result=0
-npm --prefix packages/mobile/e2e/appium run "$test_script" > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1 || result=$?
+(
+  cd packages/mobile/e2e/appium
+  node --import tsx --test --test-concurrency=1 \
+    --test-reporter=spec --test-reporter-destination=stdout \
+    --test-reporter=./safe-reporter.mjs --test-reporter-destination="$RUNNER_TEMP/notification-failures.jsonl" \
+    "$test_file"
+) > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1 || result=$?
 export QUIET_NOTIFICATION_TEST_EXIT="$result"
 # Keep screenshots, invitations, device tokens and raw service logs private.
 # CI publishes only these deliberately selected non-secret proof fields.
