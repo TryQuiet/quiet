@@ -23,7 +23,7 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
           borderRadius: 8,
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: newDesign ? 50 : 45,
+          minHeight: 50,
           width,
         }}
       >
