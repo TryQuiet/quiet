@@ -1,5 +1,8 @@
 # Set up Quiet's TUF signing service
 
+Deployment remains a proposal. Review the [adoption decisions and remaining
+operational tasks](tuf-deployment-proposal.md) before scheduling this setup.
+
 This provisions the first production trust for the updater. It uses the official
 TUF-on-CI v0.20.0 template, one public metadata repository for both channels,
 hardware keys for release authorization, and one AWS KMS key for automatic
