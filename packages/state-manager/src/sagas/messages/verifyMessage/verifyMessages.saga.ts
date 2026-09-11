@@ -1,4 +1,3 @@
-import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put } from 'typed-redux-saga'
 
 import { messagesActions } from '../messages.slice'
@@ -6,16 +5,18 @@ import { ChannelMessage, MessageType, type MessageVerificationStatus } from '@qu
 import { generalChannel, publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { deleteChannelMessageRegex, generalChannelDeletionMessageRegex, verifyUserInfoMessage } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
+import { isMessageTransportVerified } from '../utils/message.utils'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('verifyMessagesSaga')
 
 export function* verifyMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>>['payload']
+  action: ReturnType<typeof messagesActions.addMessages> | ReturnType<typeof messagesActions.verifyMessages>
 ): Generator {
   const messages: ChannelMessage[] = action.payload.messages
 
   for (const message of messages) {
+    if (!isMessageTransportVerified(message, action.payload.isLocal)) continue
     let isVerified = true
     const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
     if (author === null) {

@@ -1,5 +1,4 @@
 import {
-  Entry,
   type LogEntry,
   type IdentityProvider,
   type IdentitiesType,
@@ -14,6 +13,7 @@ import { LocalDbService } from '../../local-db/local-db.service'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import { createLogger } from '../../common/logger'
+import { getVerifiedEntryWriter } from '../orbitDb/identity/lfa/entry-writer'
 import { KeyValueStoreBase } from '../base.store'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
@@ -231,22 +231,14 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
         return false
       }
 
-      const entryIdentity = await identities.getIdentity(entry.identity)
-      if (entryIdentity.id !== ownerOrbitDbIdentity) {
+      // This also verifies the entry signature, so a writer coming back here is authenticated.
+      const writerIdentity = await getVerifiedEntryWriter(identities, entry)
+      if (writerIdentity == null) {
+        logger.error('Failed to verify community metadata entry:', entry.hash, 'entry writer verification failed')
+        return false
+      }
+      if (writerIdentity.id !== ownerOrbitDbIdentity) {
         logger.error('Failed to verify community metadata entry:', entry.hash, 'entry identity != owner identity')
-        return false
-      }
-
-      const entryVerified = await Entry.verify(identities, entry)
-      if (!entryVerified) {
-        logger.error('Failed to verify community metadata entry:', entry.hash, 'invalid entry signature')
-        return false
-      }
-
-      const writerIdentity = await identities.getIdentity(entry.identity)
-      const identityVerified = await identities.verifyIdentity(writerIdentity)
-      if (!identityVerified) {
-        logger.error('Failed to verify community metadata entry:', entry.hash, 'entry identity verification failed')
         return false
       }
 

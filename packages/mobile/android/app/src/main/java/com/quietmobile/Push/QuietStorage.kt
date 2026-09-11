@@ -7,17 +7,35 @@ import androidx.security.crypto.MasterKey
 import com.apicatalog.base.Base58 as CopperBase58
 import org.json.JSONObject
 
+internal data class MissingNotificationKeyRetryState(
+    val syncSeq: Long,
+    val failureCount: Int,
+)
+
+internal fun nextMissingNotificationKeyRetryState(
+    previous: MissingNotificationKeyRetryState?,
+    syncSeq: Long,
+): MissingNotificationKeyRetryState {
+    val previousCount = if (previous?.syncSeq == syncSeq) previous.failureCount else 0
+    val nextCount = if (previousCount == Int.MAX_VALUE) Int.MAX_VALUE else previousCount + 1
+    return MissingNotificationKeyRetryState(syncSeq, nextCount)
+}
+
 object QuietStorage {
     private const val ENCRYPTED_PREFS_NAME = "quiet.secure.storage"
     private const val REGULAR_PREFS_NAME = "quiet.storage"
 
     private const val DEVICE_ID_KEY = "quiet.device.id"
     private const val TEAM_ID_KEY = "quiet.team.id"
+    private const val LOCAL_USER_ID_PREFIX = "quiet.localUser.id."
     private const val DEVICE_PRIVATE_KEY_PREFIX = "quiet.device.privateKey."
     private const val QSS_URLS_KEY = "quiet.nse.qssUrls"
+    private const val QSS_CONFIGURATIONS_KEY = "quiet.nse.qssConfigurations"
     private const val LAST_SYNC_SEQ_KEY = "quiet.nse.lastSyncSeq"
     private const val LAST_SYNC_TEAM_ID_KEY = "quiet.nse.lastSyncTeamId"
     private const val LAST_SYNC_SEQ_BY_TEAM_PREFIX = "quiet.nse.lastSyncSeq."
+    private const val MISSING_KEY_RETRY_SEQ_BY_TEAM_PREFIX = "quiet.nse.missingKeyRetrySeq."
+    private const val MISSING_KEY_RETRY_COUNT_BY_TEAM_PREFIX = "quiet.nse.missingKeyRetryCount."
     private const val APP_FOREGROUND_KEY = "quiet.app.isForeground"
     private const val TEAM_QSS_ENABLED_KEY = "quiet.qss.team.enabled"
     private const val USER_BACKGROUND_TOR_ENABLED_KEY = "quiet.qss.backgroundTor.enabled"
@@ -25,6 +43,7 @@ object QuietStorage {
     private const val DISPLAYED_NOTIFICATION_HASHES_KEY = "quiet.notification.displayedHashes"
     private const val DISPLAYED_NOTIFICATION_HASHES_TTL_MS = 24L * 60L * 60L * 1000L
     private const val DISPLAYED_NOTIFICATION_HASHES_MAX_SIZE = 512
+    private const val CHANNEL_METADATA_KEY_PREFIX = "quiet.channelMetadata."
 
     @Volatile
     private var applicationContext: Context? = null
@@ -43,8 +62,9 @@ object QuietStorage {
     }
 
     @JvmStatic
-    fun saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String) {
+    fun saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String, userId: String) {
         securePrefs().edit()
+            .putString("$LOCAL_USER_ID_PREFIX$teamId", userId)
             .putString(DEVICE_ID_KEY, deviceId)
             .putString(TEAM_ID_KEY, teamId)
             .putString("$DEVICE_PRIVATE_KEY_PREFIX$deviceId", signingPrivateKey)
@@ -53,6 +73,9 @@ object QuietStorage {
 
     @JvmStatic
     fun getDeviceId(): String? = securePrefs().getString(DEVICE_ID_KEY, null)
+
+    @JvmStatic
+    fun getLocalUserId(teamId: String): String? = securePrefs().getString("$LOCAL_USER_ID_PREFIX$teamId", null)
 
     @JvmStatic
     fun getDevicePrivateKey(deviceId: String): ByteArray? {
@@ -69,16 +92,45 @@ object QuietStorage {
     fun getLfaKey(keyName: String): String? = securePrefs().getString(keyName, null)
 
     @JvmStatic
-    fun saveQssUrl(teamId: String, url: String) {
-        val current = JSONObject(regularPrefs().getString(QSS_URLS_KEY, "{}") ?: "{}")
-        current.put(teamId, url)
-        regularPrefs().edit().putString(QSS_URLS_KEY, current.toString()).apply()
+    fun addChannelMetadata(teamId: String, channelId: String, channelName: String) {
+        val keyName = QuietStorage.generateChannelMetadataKeyName(teamId, channelId)
+        securePrefs().edit().putString(keyName, channelName).apply()
+    }
+
+    @JvmStatic
+    fun getChannelName(teamId: String, channelId: String): String? {
+        val keyName = QuietStorage.generateChannelMetadataKeyName(teamId, channelId)
+        return securePrefs().getString(keyName, null)
+    }
+
+    @JvmStatic
+    fun generateChannelMetadataKeyName(teamId: String, channelId: String): String {
+        return "$CHANNEL_METADATA_KEY_PREFIX$teamId.$channelId"
+    }
+
+    @JvmStatic
+    fun saveQssConfiguration(teamId: String, url: String, serverId: String) {
+        val current = JSONObject(regularPrefs().getString(QSS_CONFIGURATIONS_KEY, "{}") ?: "{}")
+        if (url.isEmpty() || serverId.isEmpty()) {
+            current.remove(teamId)
+        } else {
+            current.put(teamId, JSONObject().put("url", url).put("serverId", serverId))
+        }
+        regularPrefs().edit().putString(QSS_CONFIGURATIONS_KEY, current.toString()).apply()
     }
 
     @JvmStatic
     fun getQssUrl(teamId: String): String? {
+        val configurations = JSONObject(regularPrefs().getString(QSS_CONFIGURATIONS_KEY, "{}") ?: "{}")
+        configurations.optJSONObject(teamId)?.optString("url")?.takeIf { it.isNotEmpty() }?.let { return it }
         val current = JSONObject(regularPrefs().getString(QSS_URLS_KEY, "{}") ?: "{}")
         return if (current.has(teamId)) current.optString(teamId) else null
+    }
+
+    @JvmStatic
+    fun getQssServerId(teamId: String): String? {
+        val configurations = JSONObject(regularPrefs().getString(QSS_CONFIGURATIONS_KEY, "{}") ?: "{}")
+        return configurations.optJSONObject(teamId)?.optString("serverId")?.takeIf { it.isNotEmpty() }
     }
 
     @JvmStatic
@@ -108,6 +160,43 @@ object QuietStorage {
         }
 
         return 0L
+    }
+
+    /**
+     * Record a missing notification key for the entry currently blocking this team's cursor.
+     * Only one sequence can block a team's contiguous cursor, so a different sequence resets the
+     * bounded counter instead of growing an attacker-controlled preference map.
+     */
+    @JvmStatic
+    @Synchronized
+    fun recordMissingNotificationKeyFailure(teamId: String, syncSeq: Long): Int {
+        val prefs = regularPrefs()
+        val sequenceKey = missingKeyRetrySeqKey(teamId)
+        val countKey = missingKeyRetryCountKey(teamId)
+        val previous =
+            if (prefs.contains(sequenceKey)) {
+                MissingNotificationKeyRetryState(
+                    prefs.getLong(sequenceKey, -1L),
+                    prefs.getInt(countKey, 0),
+                )
+            } else {
+                null
+            }
+        val next = nextMissingNotificationKeyRetryState(previous, syncSeq)
+        prefs.edit().putLong(sequenceKey, next.syncSeq).putInt(countKey, next.failureCount).apply()
+        return next.failureCount
+    }
+
+    @JvmStatic
+    @Synchronized
+    fun clearMissingNotificationKeyFailure(teamId: String, syncSeq: Long) {
+        val prefs = regularPrefs()
+        val sequenceKey = missingKeyRetrySeqKey(teamId)
+        if (prefs.getLong(sequenceKey, -1L) != syncSeq) return
+        prefs.edit()
+            .remove(sequenceKey)
+            .remove(missingKeyRetryCountKey(teamId))
+            .apply()
     }
 
     @JvmStatic
@@ -218,6 +307,10 @@ object QuietStorage {
     }
 
     private fun lastSyncSeqKey(teamId: String): String = "$LAST_SYNC_SEQ_BY_TEAM_PREFIX$teamId"
+
+    private fun missingKeyRetrySeqKey(teamId: String): String = "$MISSING_KEY_RETRY_SEQ_BY_TEAM_PREFIX$teamId"
+
+    private fun missingKeyRetryCountKey(teamId: String): String = "$MISSING_KEY_RETRY_COUNT_BY_TEAM_PREFIX$teamId"
 
     private fun notificationHash(message: String?): String? {
         if (message.isNullOrBlank()) {

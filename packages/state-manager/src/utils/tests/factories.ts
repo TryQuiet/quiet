@@ -56,6 +56,7 @@ import {
   type InvitationAuthDataV4,
   type SetChannelPermissionsPayload,
   type TestMessage,
+  type ConsumedChannelMessage,
 } from '@quiet/types'
 import { createLogger } from '../logger'
 import { communitiesActions } from '../../sagas/communities/communities.slice'
@@ -355,6 +356,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     {
       messages: [baseTypes.assoc('ChannelMessage')],
       isVerified: true,
+      isLocal: true,
     }
   )
 
@@ -369,11 +371,13 @@ export const getReduxStoreFactory = async (store: Store) => {
         createdAt: DateTime.utc().valueOf(),
         channelId: generateTestChannelId('general'),
         userId: factory.assoc('UserProfile', 'userId'),
+        verified: true,
       },
       verifyAutomatically: true,
     },
     {
       afterBuild: async (action: { payload: TestMessage }) => {
+        action.payload.message = { ...action.payload.message, verified: true } as ConsumedChannelMessage
         if (action.payload.verifyAutomatically) {
           await factory.create('MessageVerificationStatus', {
             message: action.payload.message,
@@ -386,6 +390,7 @@ export const getReduxStoreFactory = async (store: Store) => {
         store.dispatch(
           messagesActions.addMessages({
             messages: [payload.message],
+            isLocal: true,
           })
         )
         return payload

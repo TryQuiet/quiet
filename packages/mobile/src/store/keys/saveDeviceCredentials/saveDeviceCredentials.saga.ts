@@ -8,13 +8,14 @@ import { createLogger } from '../../../utils/logger'
 const logger = createLogger('saveDeviceCredentialsSaga')
 
 export function* saveDeviceCredentialsSaga(action: PayloadAction<DeviceCredentialsUpdatedEvent>): Generator {
-  logger.info('Storing device credentials in iOS keychain')
+  logger.info('Storing device credentials in native storage')
   try {
     yield* call(
       NativeModules.CommunicationModule.saveDeviceCredentials,
       action.payload.deviceId,
       action.payload.teamId,
-      action.payload.signingPrivateKey
+      action.payload.signingPrivateKey,
+      action.payload.userId
     )
   } catch (e) {
     logger.error('Error storing device credentials', e)

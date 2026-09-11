@@ -13,14 +13,15 @@ export const CreateChannel = () => {
   const dispatch = useDispatch()
 
   const [newChannel, setNewChannel] = useState<CreateChannelPayload | null>(null)
-  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
-  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean>(false)
 
   const user = useSelector(identity.selectors.currentIdentity)
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
+  const canCreateChannel = channelPermissions.public.create
+  const canCreatePrivateChannel =
+    process.env.PRIVATE_CHANNEL_CREATION_ALLOWED === 'true' && channelPermissions.private.create
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
@@ -40,11 +41,6 @@ export const CreateChannel = () => {
       createChannelModal.handleClose()
     }
   }, [channels])
-
-  useEffect(() => {
-    setCanCreateChannel(channelPermissions.public.create)
-    setCanCreatePrivateChannel(channelPermissions.private.create)
-  }, [channelPermissions])
 
   const clearErrors = () => {
     if (error) {

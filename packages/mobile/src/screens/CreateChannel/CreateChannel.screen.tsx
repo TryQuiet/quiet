@@ -7,6 +7,7 @@ import { navigationSelectors } from '../../store/navigation/navigation.selectors
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { createLogger } from '../../utils/logger'
+import Config from 'react-native-config'
 
 const logger = createLogger('CreateChannelScreen')
 
@@ -23,6 +24,8 @@ export const CreateChannelScreen: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
+  const canCreatePrivateChannel =
+    Config.PRIVATE_CHANNEL_CREATION_ALLOWED === 'true' && channelPermissions.private.create
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
 
@@ -85,7 +88,7 @@ export const CreateChannelScreen: FC = () => {
         return
       }
 
-      const canCreate = isPublic ? channelPermissions.public.create : channelPermissions.private.create
+      const canCreate = isPublic ? channelPermissions.public.create : canCreatePrivateChannel
       if (!canCreate) {
         dispatch(
           errors.actions.addError({
@@ -112,7 +115,7 @@ export const CreateChannelScreen: FC = () => {
         })
       )
     },
-    [dispatch, channelPermissions]
+    [dispatch, channelPermissions, canCreatePrivateChannel]
   )
 
   const handleBackButton = useCallback(() => {
@@ -130,7 +133,7 @@ export const CreateChannelScreen: FC = () => {
       clearComponent={clearComponent}
       handleBackButton={handleBackButton}
       canCreateChannel={channelPermissions.public.create}
-      canCreatePrivateChannel={channelPermissions.private.create}
+      canCreatePrivateChannel={canCreatePrivateChannel}
     />
   )
 }

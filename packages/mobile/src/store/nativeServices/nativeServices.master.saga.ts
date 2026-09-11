@@ -7,14 +7,16 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('nativeServicesMaster')
 
+export function* flushPersistorWatcherSaga(): Generator {
+  yield* takeEvery(nativeServicesActions.flushPersistor.type, flushPersistorSaga)
+}
+
 export function* nativeServicesMasterSaga(): Generator {
   logger.info('nativeServicesMasterSaga starting')
   try {
-    yield all([
-      fork(nativeServicesCallbacksSaga),
-      takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga),
-      takeEvery(nativeServicesActions.flushPersistor.type, flushPersistorSaga),
-    ])
+    yield* fork(flushPersistorWatcherSaga)
+    yield* fork(nativeServicesCallbacksSaga)
+    yield all([takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga)])
   } finally {
     logger.info('nativeServicesMasterSaga stopping')
     if (yield cancelled()) {

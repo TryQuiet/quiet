@@ -174,8 +174,8 @@ android {
         applicationId = "com.quietmobile"
         minSdkVersion(rootProject.ext.minSdkVersion)
         targetSdkVersion(rootProject.ext.targetSdkVersion)
-        versionCode 634
-        versionName "8.0.0"
+        versionCode 660
+        versionName "9.0.2"
         resValue("string", "build_config_package", "com.quietmobile")
         testBuildType = System.getProperty("testBuildType", "debug")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -277,10 +277,14 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 
     androidTestImplementation("com.wix:detox:+")
     androidTestImplementation("androidx.test:core:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 
     if (enableHermes) {
         //noinspection GradleDynamicVersion
@@ -319,6 +323,8 @@ dependencies {
     implementation("com.apicatalog:copper-multibase:4.1.0")
     implementation("org.msgpack:msgpack-core:0.9.12")
 
+    testImplementation("junit:junit:4.13.2")
+
     implementation("com.google.guava:guava:33.5.0-android")
 }
 
@@ -333,14 +339,21 @@ tasks.register("copyDownloadableDepsToLibs", Copy) {
 // Keys are matched by dotenv.gradle's getCurrentFlavor(), which captures the
 // trailing CamelCase segment of the gradle task name and lowercases it (e.g.
 // installStandardDebug -> "standarddebug"). With product flavors in play the
-// bare buildType keys ("debug", "release") never match, so keys must include
-// the flavor prefix.
+// bare buildType keys ("debug", "release") never match flavor-qualified task
+// names, so those keys are also listed. But some invocations (e.g. plain
+// "assembleDebug", which Android Studio's Make/Run actions can issue) omit
+// the flavor entirely and only resolve to "debug"/"release" - without a
+// fallback here, no env file matches, no BuildConfig fields get generated,
+// and the app fails to compile with "Unresolved reference" errors. The bare
+// keys below cover that case, defaulting to the "standard" flavor's env files.
 project.ext.envConfigFiles = [
         standarddebug   : ".env.development",
         standardrelease : ".env.staging",
         standardprod    : ".env.production",
         storybookdebug  : ".env.storybook",
         storybookrelease: ".env.storybook",
+        debug           : ".env.development",
+        release         : ".env.staging",
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"

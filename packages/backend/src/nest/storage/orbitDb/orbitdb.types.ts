@@ -7,3 +7,8 @@ export interface LogUpdate {
   hash: string
   entry: LogEntry
 }
+
+export enum OrbitDbOp {
+  PUT = 'PUT',
+  DEL = 'DEL',
+}

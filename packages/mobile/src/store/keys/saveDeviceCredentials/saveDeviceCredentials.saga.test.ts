@@ -9,9 +9,10 @@ describe('saveDeviceCredentialsSaga', () => {
     jest.clearAllMocks()
   })
 
-  it('stores device credentials in the iOS keychain bridge', async () => {
+  it('stores device credentials and local user identity in the native bridge', async () => {
     const payload = {
       deviceId: 'device-id',
+      userId: 'self-id',
       teamId: 'team-id',
       signingPrivateKey: 'private-signing-key',
     }
@@ -21,7 +22,8 @@ describe('saveDeviceCredentialsSaga', () => {
         NativeModules.CommunicationModule.saveDeviceCredentials,
         payload.deviceId,
         payload.teamId,
-        payload.signingPrivateKey
+        payload.signingPrivateKey,
+        payload.userId
       )
       .run()
   })
