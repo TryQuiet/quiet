@@ -63,10 +63,14 @@ module.exports = {
     },
     'android.e2e.qss': {
       type: 'android.apk',
-      binaryPath: 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
+      binaryPath:
+        process.env.DETOX_ANDROID_E2E_QSS_APK || 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
+      testBinaryPath:
+        process.env.DETOX_ANDROID_E2E_QSS_TEST_APK ||
+        'android/app/build/outputs/apk/androidTest/standard/debug/app-standard-debug-androidTest.apk',
       build:
         'cd android && ENVFILE=../.env.e2e.qss ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
-      reversePorts: [8081],
+      reversePorts: [8081, 3003],
     },
     'android.storybook': {
       type: 'android.apk',
@@ -117,6 +121,20 @@ module.exports = {
       type: 'android.attached',
       device: {
         adbName: '.*',
+      },
+    },
+    attached_qss: {
+      type: 'android.attached',
+      device: {
+        adbName: process.env.DETOX_ANDROID_DEVICE_ID
+          ? `^${process.env.DETOX_ANDROID_DEVICE_ID.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`
+          : '^$', // QSS scenarios erase app data; require an exact owned device.
+      },
+    },
+    emulator_qss: {
+      type: 'android.emulator',
+      device: {
+        avdName: process.env.DETOX_ANDROID_QSS_AVD || 'quiet_qss_e2e',
       },
     },
     emulator: {
@@ -212,7 +230,7 @@ module.exports = {
       },
     },
     'android.att.e2e.qss': {
-      device: 'attached',
+      device: 'attached_qss',
       app: 'android.e2e.qss',
       artifacts: {
         rootDir: './e2e/artifacts/android',
@@ -236,9 +254,9 @@ module.exports = {
         rootDir: './e2e/artifacts/android',
       },
     },
-    'android.emu.debug.qss': {
-      device: 'emulator',
-      app: 'android.debug.qss',
+    'android.emu.e2e.qss': {
+      device: 'emulator_qss',
+      app: 'android.e2e.qss',
       artifacts: {
         rootDir: './e2e/artifacts/android',
       },

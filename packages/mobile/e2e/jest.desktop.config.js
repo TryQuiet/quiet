@@ -1,7 +1,7 @@
 const path = require('path')
 
 // Keep Detox's lifecycle and reuse the desktop suite's existing TS selectors.
-// Both apps run on the same macOS host; there is no remote desktop controller.
+// Both apps run on the same host; there is no remote desktop controller.
 module.exports = {
   ...require('./jest.config'),
   testMatch: ['<rootDir>/e2e/desktop.qss.test.js'],
