@@ -1,4 +1,5 @@
 import fs from 'fs'
+import assert from 'assert'
 import path from 'path'
 import { execFileSync } from 'child_process'
 
@@ -61,7 +62,10 @@ suite('Authenticated desktop/mobile DM', () => {
     const args = ['-s', process.env.QUIET_DM_ANDROID_DEVICE, 'shell', 'run-as', 'com.quietmobile.debug']
     const listing = execFileSync(adb, [...args, 'find', 'files', '-type', 'f', '-name', '*.txt'], { encoding: 'utf8' })
     const downloads = listing.trim().split('\n').filter(file => file.includes('/downloads/'))
-    expect(downloads.some(file => execFileSync(adb, [...args, 'cat', file], { encoding: 'utf8' }) === scenario.fileContents)).toBe(true)
+    assert(
+      downloads.some(file => execFileSync(adb, [...args, 'cat', file], { encoding: 'utf8' }) === scenario.fileContents),
+      'Downloaded DM attachment must match the original plaintext byte for byte'
+    )
     await send(scenario.mobileReply)
     signal('mobile-received')
     console.info('Android verified the file contents and sent its reply')
