@@ -3036,7 +3036,7 @@ exports[`Chat component renders component 1`] = `
                       style={
                         [
                           {
-                            "height": 54,
+                            "minHeight": 40,
                             "paddingBottom": 0,
                             "paddingTop": 12,
                             "textAlignVertical": "center",

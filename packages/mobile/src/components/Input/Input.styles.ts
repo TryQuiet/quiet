@@ -8,7 +8,21 @@ export const StyledTextInput = styled(TextInput)<{
 }>`
   ${({ height, multiline }) => css`
     text-align-vertical: center;
-    height: ${Math.max(40, height)}px;
+    /*
+     * A multiline input must keep an auto height. Its own box is what React Native measures to
+     * produce onContentSizeChange, so pinning that box to the last reported height freezes the
+     * measurement: on Android a definite height stops Yoga consulting
+     * ReactTextInputShadowNode.measure(), the view is never re-laid-out, ReactEditText.onLayout()
+     * never runs and ReactContentSizeWatcher never dispatches a smaller size. The field could then
+     * only ever grow. See TryQuiet/quiet#2655.
+     */
+    ${multiline
+      ? css`
+          min-height: 40px;
+        `
+      : css`
+          height: ${Math.max(40, height)}px;
+        `}
     ${Platform.select({
       ios: {
         paddingTop: 12,
