@@ -4,4 +4,5 @@ export interface IIconButtonProps {
   onClick: IconButtonProps['onClick']
   children?: React.ReactNode
   dataTestId?: string
+  ariaLabel?: string
 }
