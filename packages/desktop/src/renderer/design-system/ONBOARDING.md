@@ -644,7 +644,8 @@ Earlier scans looked only at top-level frames; the desktop onboarding designs ar
 
 | design | size | file (last edit) | node | mobile counterpart | note |
 |---|---|---|---|---|---|
-| Join community | 798×700 | Quiet Design Library (2025-04-15) | `5984:26026` | `join-community` | Join sub-flow in two states: post-invite (Create new account / Recover account) and the three-way choice — same routes as mobile. |
+| Join community — From=invite link | 375×528 | Quiet Design Library (2025-04-15) | `5977:35186` | `container` | Post-invite-link state of the desktop join flow: Create new account / Recover account, with the beta warning. Shown after an invite link is opened. |
+| Join community — From=Get started | 375×505 | Quiet Design Library (2025-04-15) | `5984:26019` | `join-community` | Desktop three-way choice: Join with invite link / Join with QR code / Recover account — the same routes as mobile. |
 | Full screen modal | 816×540 | Quiet Design Library (2025-04-15) | `6177:33782` | `container` | Desktop paste screen; the library calls it an 'invite code'. |
 | Register username | 600×889 | Quiet Design Library (2025-04-15) | `1236:1837` | `username-default` | Library component for registering a username on desktop. |
 | modal/small | 800×636 | Quiet Design Library (2025-04-15) | `6209:16742` | `agree-and-join-server-opt-in-3054-4090` | modal/small at 800 wide — one of a responsive pair. |

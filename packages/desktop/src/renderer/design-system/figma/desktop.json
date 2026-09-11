@@ -1,28 +1,49 @@
 [
  {
-  "slug": "desktop-join-community-entry",
+  "slug": "desktop-join-post-invite",
   "file": "0j7Nna9zWmfOSNmRmQK1Uh",
   "fileName": "Quiet Design Library",
   "date": "2025-04-15",
-  "node": "5984:26026",
-  "name": "Join community",
-  "width": 798,
-  "height": 700,
-  "png": "desktop-join-community-entry.png",
-  "url": "https://www.figma.com/design/0j7Nna9zWmfOSNmRmQK1Uh?node-id=5984-26026",
+  "node": "5977:35186",
+  "name": "Join community \u2014 From=invite link",
+  "width": 375,
+  "height": 528,
+  "png": "desktop-join-post-invite.png",
+  "url": "https://www.figma.com/design/0j7Nna9zWmfOSNmRmQK1Uh?node-id=5977-35186",
   "copy": [
    "Quiet",
    "Join community",
    "Create new account",
    "Subtitle",
    "Recover account",
-   "\u26a0\ufe0f Quiet is in beta and shouldn't be used for activities requiring security.",
+   "\u26a0\ufe0f Quiet is in beta and shouldn't be used for activities requiring security."
+  ],
+  "counterpart": "container",
+  "note": "Post-invite-link state of the desktop join flow: Create new account / Recover account, with the beta warning. Shown after an invite link is opened.",
+  "bytes": 150224
+ },
+ {
+  "slug": "desktop-join-three-way",
+  "file": "0j7Nna9zWmfOSNmRmQK1Uh",
+  "fileName": "Quiet Design Library",
+  "date": "2025-04-15",
+  "node": "5984:26019",
+  "name": "Join community \u2014 From=Get started",
+  "width": 375,
+  "height": 505,
+  "png": "desktop-join-three-way.png",
+  "url": "https://www.figma.com/design/0j7Nna9zWmfOSNmRmQK1Uh?node-id=5984-26019",
+  "copy": [
+   "Quiet",
+   "Join community",
    "Join with invite link",
-   "Join with QR code"
+   "Subtitle",
+   "Join with QR code",
+   "Recover account"
   ],
   "counterpart": "join-community",
-  "note": "Two states side by side: the post-invite-link 'Join community' (Create new account / Recover account) and the three-way choice (Join with invite link / Join with QR code / Recover account) \u2014 the same three routes as mobile. This is the join sub-flow, not the app entry.",
-  "bytes": 298579
+  "note": "Desktop three-way choice: Join with invite link / Join with QR code / Recover account \u2014 the same routes as mobile.",
+  "bytes": 142230
  },
  {
   "slug": "desktop-full-screen-modal-paste",
