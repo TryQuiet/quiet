@@ -55,11 +55,31 @@ alone does not indicate test success. This fixture clears the disposable app's
 native storage. Run it separately from Appium/Detox device sessions. On a
 private ADB server add its explicit `-P` port to each command.
 
-On a Mac, run `pod install` after the project changes, then test the `Quiet`
-scheme on the selected simulator. `QuietTests` remains the hostless NSE target;
-`QuietAppTests` retains the migration's app-hosted Firebase-unavailable tests.
-The latter deliberately skips when Firebase is already configured. Keep this
-configuration distinct from the provider build.
+On a Mac, run `bundle exec pod install` from `packages/mobile/ios` after the
+project changes, then run the hostless notification/authentication and background
+lifecycle suite from the repository root:
+
+```sh
+export QUIET_IOS_TEST_UDID='<owned simulator UDID>'
+xcodebuild test \
+  -workspace packages/mobile/ios/Quiet.xcworkspace \
+  -scheme QuietTests \
+  -destination "platform=iOS Simulator,id=$QUIET_IOS_TEST_UDID" \
+  -only-testing:QuietTests/NSEMessageAuthenticatorTests \
+  -only-testing:QuietTests/NSEAuthProtocolTests \
+  -only-testing:QuietTests/QuietBackgroundTaskTests \
+  CODE_SIGNING_ALLOWED=NO
+```
+
+Select a full Xcode installation with `DEVELOPER_DIR` if the machine defaults to
+Command Line Tools. These 34 tests compile the production NSE and background
+coordinator sources directly; they do not require launching Quiet, Node or Tor.
+The Mobile tests CI job runs the same three classes.
+
+`QuietAppTests` retains the app-dependent Tor lifecycle tests and the migration's
+Firebase-unavailable tests. Run those with the `Quiet` scheme and a built native
+app. The Firebase-unavailable class deliberately skips when Firebase is already
+configured. Keep this configuration distinct from the provider build.
 
 Portable checks, from the repository root:
 
@@ -92,9 +112,18 @@ node_modules/.bin/jest --runInBand \
   notification fixture generators pass their codec checks.
 - QSS fixture checks: **14 passed, 1 platform-specific check skipped**. The real
   pinned Docker QSS service passed database health and CAPTCHA protocol probes.
-- Actual FCM/APNs journeys and native iOS execution remain **unverified** pending
-  test-provider credentials and a Mac/iOS runner. These are not represented by a
-  green ordinary CI check or by the Android native results above.
+- Attached Apple Silicon Mac, Xcode 26.3, iPhone 16e / iOS 26.3.1 simulator:
+  **34/34 native tests passed**, with no skips: 21 message-authenticator cases,
+  5 auth-protocol cases and 8 background-lifecycle cases. This includes the
+  authenticated HTTP/decryption/presentation fixture through production NSE code.
+  The run exposed and fixed hostless target linkage: the background coordinator
+  implementation is compiled into QuietTests, and app-dependent Tor tests belong
+  to QuietAppTests. The separate app-hosted target has not been executed here.
+- The pinned Appium toolchain installed on that Mac and its **3/3 preflight
+  checks passed**. This does not constitute an iOS UI or provider pass.
+- Actual FCM/APNs journeys remain **unverified** pending test-provider setup and
+  execution. A green native suite does not establish provider delivery or OS
+  activation of the iOS notification extension.
 
 ## Remaining coverage
 

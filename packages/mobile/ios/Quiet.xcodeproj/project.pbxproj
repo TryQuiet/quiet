@@ -78,6 +78,7 @@
 		EB5F92FD2F5FBB2100B5C60D /* FirebaseMessagingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */; };
 		EE51651EA363C766EA0DE07A /* Pods_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */; };
 		A11600000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
+		A11700000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
 		A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000004 /* QuietBackgroundTaskTests.m */; };
 		A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000006 /* TorHandlerLifecycleTests.swift */; };
 		BE9027BE228F4086A35829F9 /* QuietFirebaseUnavailableTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */; };
@@ -769,7 +770,6 @@
 			isa = PBXGroup;
 			children = (
 				A11600000000000000000004 /* QuietBackgroundTaskTests.m */,
-				A11600000000000000000006 /* TorHandlerLifecycleTests.swift */,
 				A11400000000000000000003 /* NSEMessageAuthenticatorTests.swift */,
 				A11400000000000000000004 /* NSEMessageAuthenticator.swift */,
 				A11400000000000000000006 /* SharedDefaults.swift */,
@@ -4928,6 +4928,7 @@
 			isa = PBXGroup;
 			children = (
 				FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */,
+				A11600000000000000000006 /* TorHandlerLifecycleTests.swift */,
 			);
 			name = QuietAppTests;
 			path = QuietAppTests;
@@ -5375,7 +5376,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */,
-				A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */,
+				A11700000000000000000001 /* QuietBackgroundTask.m in Sources */,
 				A11400000000000000000001 /* NSEMessageAuthenticatorTests.swift in Sources */,
 				A11400000000000000000002 /* NSEMessageAuthenticator.swift in Sources */,
 				A11400000000000000000005 /* SharedDefaults.swift in Sources */,
@@ -5428,6 +5429,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE9027BE228F4086A35829F9 /* QuietFirebaseUnavailableTests.m in Sources */,
+				A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5973,6 +5975,7 @@
 			name = Debug;
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				SWIFT_VERSION = 5.0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -5992,6 +5995,7 @@
 			name = Release;
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				SWIFT_VERSION = 5.0;
 				INFOPLIST_FILE = QuietAppTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "QuietAppTests";
