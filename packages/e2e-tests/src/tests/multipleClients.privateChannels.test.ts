@@ -161,7 +161,7 @@ describe('Multiple Clients (Private Channels)', () => {
     describe('Creating and Deleting Private Channel Before User Joins', () => {
       describe('Owner Creates a Temporary Private Channel', () => {
         it('Owner creates a private channel', async () => {
-          await sidebarOwner.addNewChannel(deletedPrivateChannelName, false)
+          await sidebarOwner.addNewChannel(deletedPrivateChannelName, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
           await sidebarOwner.switchChannel(deletedPrivateChannelName, false)
         })
 
@@ -1040,7 +1040,7 @@ describe('Multiple Clients (Private Channels)', () => {
 
       it('Owner recreates a private channel with the deleted channel name', async () => {
         await sidebarUser1.waitForChannels([generalChannelName, privateChannel2Name])
-        await sidebarOwner.addNewChannel(privateChannelName, false)
+        await sidebarOwner.addNewChannel(privateChannelName, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
         privateChannelOwner = await sidebarOwner.switchChannel(privateChannelName, false)
         expect(await privateChannelOwner.isMessageInputReady()).toBeTruthy()
       })

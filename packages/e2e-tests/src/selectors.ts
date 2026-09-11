@@ -2453,7 +2453,7 @@ export class Sidebar {
   /**
    * Get channel link elements in the sidebar
    */
-  private async getChannelList(): Promise<WebElement[]> {
+  async getChannelList(): Promise<WebElement[]> {
     // We use a more generic XPath and then filter out user links to handle backwards compatibility
     const channels = await this.driver.wait(
       this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
