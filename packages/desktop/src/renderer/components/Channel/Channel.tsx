@@ -67,8 +67,9 @@ const Channel = () => {
 
   const onInputEnter = useCallback(
     (message: string) => {
-      // Send message out of input value
-      if (message) {
+      // Send message out of input value. Whitespace-only input has nothing to
+      // send, but any attached files below still go out.
+      if (message.trim()) {
         dispatch(messages.actions.sendMessage({ message }))
       }
       // Upload files, then send corresponding message (contaning cid) for each of them

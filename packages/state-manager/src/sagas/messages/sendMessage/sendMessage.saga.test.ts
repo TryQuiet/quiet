@@ -208,4 +208,103 @@ describe('sendMessageSaga', () => {
       ])
       .run()
   })
+
+  // https://github.com/TryQuiet/quiet/issues/2778 - a text message that is only
+  // whitespace must never be broadcast or shown in the channel.
+  test('drops a whitespace-only text message', async () => {
+    const reducer = combineReducers(testReducers)
+    await expectSaga(sendMessageSaga, socket as unknown as Socket, messagesActions.sendMessage({ message: ' ' }))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), 'whitespace-only'],
+        [call.fn(getCurrentTime), 1],
+      ])
+      // The saga bails out before it does any work at all
+      .not.call.fn(generateMessageId)
+      .not.put.actionType(messagesActions.addMessagesSendingStatus.type)
+      .not.put.actionType(messagesActions.addMessages.type)
+      .run()
+  })
+
+  test('drops a text message made only of newlines and tabs', async () => {
+    const reducer = combineReducers(testReducers)
+    await expectSaga(sendMessageSaga, socket as unknown as Socket, messagesActions.sendMessage({ message: '\n\t  \n' }))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), 'whitespace-only-2'],
+        [call.fn(getCurrentTime), 1],
+      ])
+      .not.call.fn(generateMessageId)
+      .not.put.actionType(messagesActions.addMessages.type)
+      .run()
+  })
+
+  test('sends surrounding whitespace verbatim when the message has content', async () => {
+    // Leading whitespace is markdown-significant (four spaces open a code block),
+    // so message content is never trimmed - only fully blank messages are dropped.
+    const currentChannel = currentChannelId(store.getState())
+    const message = '    const x = 1  '
+    const channelMessage = await baseTypesFactory.build<ChannelMessage>('ChannelMessage', {
+      userId: alice.userId,
+      channelId: currentChannel,
+      message,
+    })
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(sendMessageSaga, socket as unknown as Socket, messagesActions.sendMessage({ message }))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), channelMessage.id],
+        [call.fn(getCurrentTime), channelMessage.createdAt],
+      ])
+      .apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, channelMessage))
+      .run()
+  })
+
+  test('sends an uploaded file message even though its text is empty', async () => {
+    const currentChannel = currentChannelId(store.getState())
+    if (!currentChannel) {
+      throw new Error('no currentChannel')
+    }
+
+    const messageId = 'uploaded-file-message'
+    const media: FileMetadata = {
+      cid: 'QmUploadedFileCid',
+      path: null,
+      name: 'file',
+      ext: '.ext',
+      message: {
+        id: messageId,
+        channelId: currentChannel,
+      },
+    }
+
+    const expectedMessage: ChannelMessage = {
+      id: messageId,
+      userId: alice.userId,
+      type: MessageType.Basic,
+      message: '',
+      createdAt: 8,
+      channelId: currentChannel,
+      media,
+    }
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: '', id: messageId, media })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), messageId],
+        [call.fn(getCurrentTime), 8],
+      ])
+      .apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, expectedMessage))
+      .run()
+  })
 })
