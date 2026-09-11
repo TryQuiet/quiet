@@ -157,7 +157,6 @@ jobs:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.9.x' || 'test.quiet' }}
-      CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
       - uses: actions/checkout@v5
@@ -188,25 +187,21 @@ jobs:
       - name: "Set electron-builder props"
         run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
-      - name: "Release"
+      - name: "Build release candidate"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           ARCH: x86_64
-        run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
+        run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p never --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
-      - name: "Calculate new checksum for electron updater"
-        run: lerna run postBuild --scope @quiet/desktop
+      - name: Stage final update artifacts for independent signing
+        run: node packages/desktop/scripts/releaseUpdate.cjs stage packages/desktop linux release-candidate
 
-      - name: "Push electron-updater new checksum to S3"
-        uses: TryQuiet/upload-s3-action@c1c7c2268c91fbbc1293455e7b4bb2292267d2bd # master
+      - name: Retain immutable release candidate
+        uses: actions/upload-artifact@v4
         with:
-          aws_key_id: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
-          aws_bucket: ${{ env.S3_BUCKET }}
-          source_dir: ${{ env.CHECKSUM_PATH }}
-          destination_dir: ''
+          name: desktop-linux-release-candidate
+          path: release-candidate/
+          retention-days: 30
 
       - name: Get release
         id: get_release
@@ -597,17 +592,6 @@ jobs:
         with:
           path: packages/desktop
 
-      - name: "Fetch jsign"
-        shell: bash
-        run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
-
-      - name: "Add Windows certificate"
-        id: write_file
-        uses: TryQuiet/base64-to-file@64eeb40ad3514f57de3a7dee92aee10fd42452c1 # main
-        with:
-          fileName: 'win-certificate.pfx'
-          encodedString: ${{ secrets.WIN_CSC_LINK }}
-
       - name: "Remove test files workaround (jest types conflicting with cypress types)"
         run: find packages/desktop/src -name '*.test.*' -delete
         shell: bash
@@ -627,17 +611,25 @@ jobs:
         shell: bash
         run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
-      - name: "Release"
+      - name: "Build signed release candidate"
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: cd packages/desktop && node_modules/.bin/electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p never --win ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Verify final Authenticode and stage update artifacts
+        shell: bash
+        run: node packages/desktop/scripts/releaseUpdate.cjs stage packages/desktop win32 release-candidate
+
+      - name: Retain immutable release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows-release-candidate
+          path: release-candidate/
+          retention-days: 30
 
       - name: Get release
         id: get_release

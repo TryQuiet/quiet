@@ -1,0 +1,42 @@
+name: Desktop updater verification
+on:
+  pull_request:
+    paths:
+      - 'packages/desktop/updater/**'
+      - 'packages/desktop/scripts/**'
+      - 'packages/desktop/build/update-trust*'
+      - 'packages/desktop/build/update-trust/**'
+      - 'packages/desktop/build/tuf-online-signing.cfn.json'
+      - 'packages/desktop/src/main/main.ts'
+      - 'packages/desktop/package*.json'
+      - '.github/workflows/desktop-update*.yml'
+      - '.github/workflows/desktop-build.yml'
+      - '.github/actions/setup-updater-tools/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  provisioning-template:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'cfn-lint==1.56.3'
+      - run: cfn-lint packages/desktop/build/tuf-online-signing.cfn.json
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-updater-tools
+      - name: Verify TUF downloads, cache, rotation and AppImage installation
+        if: runner.os == 'Linux'
+        run: node --test packages/desktop/scripts/updater-tests/*.test.cjs
+      - name: Verify actual Windows signatures and downloaded installer execution
+        if: runner.os == 'Windows'
+        run: node --test packages/desktop/scripts/updater-tests/windows.test.cjs

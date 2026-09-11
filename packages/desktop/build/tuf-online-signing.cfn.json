@@ -1,0 +1,116 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Quiet TUF-on-CI online signing. Root and release authorization keys remain offline.",
+  "Parameters": {
+    "GitHubOidcSubject": {
+      "Type": "String",
+      "Description": "Exact OIDC sub for the signing repository's main branch, including immutable IDs if enabled.",
+      "AllowedPattern": "repo:[A-Za-z0-9_.-]+(@[0-9]+)?/[A-Za-z0-9_.-]+(@[0-9]+)?:ref:refs/heads/main"
+    },
+    "ExistingGitHubOidcProviderArn": {
+      "Type": "String",
+      "Default": "",
+      "Description": "Reuse the account's GitHub OIDC provider if one exists; otherwise leave empty to create it.",
+      "AllowedPattern": "^$|^arn:aws:iam::[0-9]{12}:oidc-provider/token\\.actions\\.githubusercontent\\.com$"
+    }
+  },
+  "Conditions": {
+    "CreateOidcProvider": {
+      "Fn::Equals": [{ "Ref": "ExistingGitHubOidcProviderArn" }, ""]
+    }
+  },
+  "Resources": {
+    "GitHubOidcProvider": {
+      "Type": "AWS::IAM::OIDCProvider",
+      "Condition": "CreateOidcProvider",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Url": "https://token.actions.githubusercontent.com",
+        "ClientIdList": ["sts.amazonaws.com"]
+      }
+    },
+    "OnlineSigningKey": {
+      "Type": "AWS::KMS::Key",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Description": "Quiet TUF snapshot and timestamp signatures; never root or targets",
+        "KeySpec": "ECC_NIST_P256",
+        "KeyUsage": "SIGN_VERIFY",
+        "PendingWindowInDays": 30,
+        "KeyPolicy": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "EnableAccountIamAdministration",
+              "Effect": "Allow",
+              "Principal": { "AWS": { "Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:root" } },
+              "Action": "kms:*",
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    },
+    "OnlineSigningRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Description": "Only the TUF signing repository main branch can use the online metadata key",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": {
+                  "Fn::If": [
+                    "CreateOidcProvider",
+                    { "Ref": "GitHubOidcProvider" },
+                    { "Ref": "ExistingGitHubOidcProviderArn" }
+                  ]
+                }
+              },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+                  "token.actions.githubusercontent.com:sub": { "Ref": "GitHubOidcSubject" }
+                }
+              }
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "SignOnlineMetadataOnly",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": ["kms:Sign", "kms:GetPublicKey"],
+                  "Resource": { "Fn::GetAtt": ["OnlineSigningKey", "Arn"] }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "AwsRoleToAssume": {
+      "Description": "Set the signing repository variable AWS_ROLE_TO_ASSUME to this value",
+      "Value": { "Fn::GetAtt": ["OnlineSigningRole", "Arn"] }
+    },
+    "AwsRegion": {
+      "Description": "Set the signing repository variable AWS_REGION to this value",
+      "Value": { "Ref": "AWS::Region" }
+    },
+    "OnlineKeyArn": {
+      "Description": "Select AWS KMS and enter this key ARN during tuf-on-ci-delegate sign/init",
+      "Value": { "Fn::GetAtt": ["OnlineSigningKey", "Arn"] }
+    }
+  }
+}

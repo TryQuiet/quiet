@@ -91,6 +91,9 @@ test('unexpected builder templates stop packaging for review', () => {
 })
 
 test('afterPack writes the customized executable launcher before artifact creation', async t => {
+  const previousLocal = process.env.IS_LOCAL
+  process.env.IS_LOCAL = 'true'
+  t.after(() => { if (previousLocal === undefined) delete process.env.IS_LOCAL; else process.env.IS_LOCAL = previousLocal })
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-afterpack-'))
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }))
   const context = {

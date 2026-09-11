@@ -1,0 +1,22 @@
+name: Install locked updater tooling
+description: Install external desktop dependencies without bootstrapping the application or running lifecycle scripts
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v5
+      with:
+        node-version-file: .nvmrc
+    - shell: bash
+      run: |
+        npm install --global "npm@$(node -p 'require("./package.json").engines.npm')"
+        node - <<'NODE'
+        const fs = require('fs');
+        const path = require('path');
+        const lock = require('./packages/desktop/package-lock.json');
+        const { overrides } = require('./packages/desktop/package.json');
+        fs.mkdirSync('.updater-tools');
+        fs.writeFileSync('.updater-tools/package.json', JSON.stringify({ ...lock.packages[''], overrides }));
+        fs.copyFileSync('packages/desktop/package-lock.json', '.updater-tools/package-lock.json');
+        fs.appendFileSync(process.env.GITHUB_ENV, `NODE_PATH=${path.resolve('.updater-tools/node_modules')}\n`);
+        NODE
+        npm ci --prefix .updater-tools --ignore-scripts --legacy-peer-deps --no-audit --no-fund

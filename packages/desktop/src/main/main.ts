@@ -3,7 +3,9 @@ import './loadMainEnvs'
 import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog } from 'electron'
 import fs from 'fs'
 import path from 'path'
-import { autoUpdater } from 'electron-updater'
+import { AppUpdater } from 'electron-updater'
+const { createUpdater } = require('../../updater/index.cjs')
+const autoUpdater: AppUpdater = createUpdater()
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
@@ -483,7 +485,8 @@ const isNetworkError = (errorObject: { message: string }) => {
 
 export const checkForUpdate = async () => {
   try {
-    await autoUpdater.checkForUpdates()
+    const result = await autoUpdater.checkForUpdates()
+    await result?.downloadPromise
   } catch (error) {
     if (isNetworkError(error)) {
       logger.warn(`updater: ${error.message}`)
@@ -498,6 +501,7 @@ const setupUpdater = async () => {
     logger.info('updater: checking-for-update')
   })
   autoUpdater.on('error', error => {
+    updating = false
     logger.info('updater: error:', error)
   })
   autoUpdater.on('update-not-available', () => {
@@ -511,9 +515,6 @@ const setupUpdater = async () => {
     if (isBrowserWindow(mainWindow)) {
       mainWindow.webContents.send('newUpdateAvailable')
     }
-  })
-  autoUpdater.on('before-quit-for-update', () => {
-    logger.info('updater: before-quit-for-update')
   })
 }
 

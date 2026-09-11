@@ -4,6 +4,7 @@ const { generateAppRunScript } = require('app-builder-lib/out/targets/appimage/a
 const { configureAppRun } = require('./appimage-launcher.cjs')
 
 exports.default = async function afterPack(context) {
+  await require('./updateTrust.cjs').afterPack(context)
   if (context.electronPlatformName !== 'linux') return
 
   const { executableName, appInfo } = context.packager
