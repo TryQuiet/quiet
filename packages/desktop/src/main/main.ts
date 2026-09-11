@@ -1,5 +1,5 @@
 import './loadMainEnvs' // Needs to be at the top of imports
-import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog } from 'electron'
+import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog, powerSaveBlocker } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
@@ -516,6 +516,37 @@ const setupUpdater = async () => {
 
 let ports: ApplicationPorts
 let backendProcess: ChildProcess | null = null
+let powerSaveBlockerId: number | null = null
+
+/**
+ * Ask the OS not to idle-suspend us while the backend is running.
+ *
+ * A suspended machine stops answering as a peer, which is what breaks registration for everyone else
+ * (issue #53). We use 'prevent-app-suspension' and deliberately not 'prevent-display-sleep': we need
+ * the process to keep running, not the screen to stay lit. This blocks *idle* suspension only - an
+ * explicit user sleep (closing the lid, choosing Sleep) still wins on every platform.
+ */
+export const startPowerSaveBlocker = () => {
+  if (powerSaveBlockerId !== null && powerSaveBlocker.isStarted(powerSaveBlockerId)) {
+    logger.trace('Power save blocker already running, id:', powerSaveBlockerId)
+    return
+  }
+  powerSaveBlockerId = powerSaveBlocker.start('prevent-app-suspension')
+  logger.info('Started power save blocker (prevent-app-suspension), id:', powerSaveBlockerId)
+}
+
+export const stopPowerSaveBlocker = () => {
+  if (powerSaveBlockerId === null) {
+    logger.trace('No power save blocker to stop')
+    return
+  }
+  const id = powerSaveBlockerId
+  powerSaveBlockerId = null
+  if (powerSaveBlocker.isStarted(id)) {
+    powerSaveBlocker.stop(id)
+    logger.info('Stopped power save blocker, id:', id)
+  }
+}
 
 app.on('ready', async () => {
   logger.info('Event: app.ready')
@@ -617,6 +648,9 @@ app.on('ready', async () => {
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
+
+  // The backend is what keeps us reachable, so hold the blocker for exactly as long as it lives.
+  startPowerSaveBlocker()
 
   const solveCaptcha = async (siteKey?: string) => {
     const resolvedSiteKey = siteKey ?? process.env.HCAPTCHA_SITEKEY
@@ -972,6 +1006,7 @@ app.on('activate', async () => {
 
 app.on('before-quit', e => {
   quitting = true
+  stopPowerSaveBlocker()
   if (backendProcess !== null) {
     logger.info('App before-quit intercepted waiting for backend to exit', e)
     if (!updating) {
