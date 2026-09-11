@@ -72,6 +72,17 @@ module.exports = {
         'cd android && ENVFILE=../.env.e2e.qss ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
       reversePorts: [8081, 3003],
     },
+    'android.e2e.qss.only': {
+      type: 'android.apk',
+      binaryPath:
+        process.env.DETOX_ANDROID_E2E_QSS_APK || 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
+      testBinaryPath:
+        process.env.DETOX_ANDROID_E2E_QSS_TEST_APK ||
+        'android/app/build/outputs/apk/androidTest/standard/debug/app-standard-debug-androidTest.apk',
+      build:
+        'cd android && ENVFILE=../.env.e2e.qss.only ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
+      reversePorts: [8081, 3003],
+    },
     'android.storybook': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/storybook/debug/app-storybook-debug.apk',
@@ -236,6 +247,11 @@ module.exports = {
         rootDir: './e2e/artifacts/android',
       },
     },
+    'android.att.e2e.qss.only': {
+      device: 'attached_qss',
+      app: 'android.e2e.qss.only',
+      artifacts: { rootDir: './e2e/artifacts/android' },
+    },
     'android.att.storybook': {
       device: 'attached',
       app: 'android.storybook',
@@ -260,6 +276,11 @@ module.exports = {
       artifacts: {
         rootDir: './e2e/artifacts/android',
       },
+    },
+    'android.emu.e2e.qss.only': {
+      device: 'emulator_qss',
+      app: 'android.e2e.qss.only',
+      artifacts: { rootDir: './e2e/artifacts/android' },
     },
     'android.emu.debug.ci': {
       device: 'emulator_ci',

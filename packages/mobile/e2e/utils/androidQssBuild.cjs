@@ -3,6 +3,7 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { createHash } = require('node:crypto')
 const { ENDPOINT } = require('./qssCommunity.cjs')
+const { MARKER, validateQssOnlyBundle } = require('./qssOnlyBuild.cjs')
 
 const ANDROID_APP_ID = 'com.quietmobile.debug'
 const requiredAssets = [
@@ -27,7 +28,7 @@ function androidSdkTool(tool, env = process.env) {
   return path.join(builds, version, tool)
 }
 
-function validateAndroidApkMetadata({ badging, resources, instrumentation, entries }) {
+function validateAndroidApkMetadata({ badging, resources, instrumentation, entries }, { qssOnly = false } = {}) {
   if (!badging.startsWith(`package: name='${ANDROID_APP_ID}' `) || !badging.includes('application-debuggable')) {
     throw new Error('Require the standard debug Quiet APK, not Storybook or a release app')
   }
@@ -38,11 +39,15 @@ function validateAndroidApkMetadata({ badging, resources, instrumentation, entri
     QSS_ALLOWED: 'true',
     SHOULD_RUN_BACKEND_WORKER: 'true',
     NODE_ENV: 'development',
+    ...(qssOnly ? { QUIET_E2E_QSS_ONLY: 'true', IS_E2E: 'true' } : {}),
   })) {
     const block = resources.match(new RegExp(`resource 0x[0-9a-f]+ string/${key}\\n([\\s\\S]*?)(?=    resource |$)`))
     if (!block || block[1].trim() !== `() "${value}"`) {
       throw new Error(`Built Android QSS configuration has an unexpected ${key}`)
     }
+  }
+  if (!qssOnly && /string\/QUIET_E2E_QSS_ONLY\n\s+\(\) "true"/.test(resources)) {
+    throw new Error('Use the explicit QSS-only Detox configuration for this test-only APK')
   }
   if (
     !instrumentation.includes(`package="${ANDROID_APP_ID}.test"`) ||
@@ -57,7 +62,7 @@ function validateAndroidApkMetadata({ badging, resources, instrumentation, entri
   }
 }
 
-function validateAndroidBuild(appConfig, env = process.env) {
+function validateAndroidBuild(appConfig, env = process.env, { qssOnly = false } = {}) {
   const app = path.resolve(appConfig.binaryPath)
   const testApp = path.resolve(appConfig.testBinaryPath)
   for (const filename of [app, testApp]) {
@@ -70,9 +75,14 @@ function validateAndroidBuild(appConfig, env = process.env) {
     resources: inspect(['dump', 'resources', app]),
     instrumentation: inspect(['dump', 'xmltree', testApp, '--file', 'AndroidManifest.xml']),
     entries: execFileSync('unzip', ['-Z1', app], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 }),
-  })
+  }, { qssOnly })
+  const backend = execFileSync('unzip', ['-p', app, 'assets/nodejs-project/bundle.cjs'], { maxBuffer: 256 * 1024 * 1024 })
+  const mode = qssOnly
+    ? validateQssOnlyBundle(backend, env.QUIET_QSS_ONLY_BUILD_RECEIPT)
+    : { backendMode: 'native-tor', backendSHA256: createHash('sha256').update(backend).digest('hex') }
+  if (!qssOnly && backend.includes(Buffer.from(MARKER))) throw new Error('Standard QSS tests cannot use a QSS-only backend')
   const hash = filename => createHash('sha256').update(fs.readFileSync(filename)).digest('hex')
-  return { app, testApp, appSHA256: hash(app), testAppSHA256: hash(testApp) }
+  return { app, testApp, appSHA256: hash(app), testAppSHA256: hash(testApp), ...mode }
 }
 
 module.exports = { ANDROID_APP_ID, androidSdkTool, validateAndroidBuild, validateAndroidApkMetadata }

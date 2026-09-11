@@ -26,6 +26,7 @@ const {
 } = require('./utils/qssCommunity.cjs')
 const { snapshotOwnedProcesses, waitForProcessExit } = require('./utils/desktopProcesses.cjs')
 const { createQssMobile } = require('./utils/qssMobile.cjs')
+const { validateDesktopQssOnlyBuild } = require('./utils/qssOnlyBuild.cjs')
 
 // The same host runs Detox and the existing Selenium App/Channel helpers.
 // Build both applications from this checkout with .env.e2e.qss before running.
@@ -40,6 +41,7 @@ describe('Desktop and mobile clients with QSS', () => {
   let messages
   let desktopProcesses = []
   let mobile
+  let desktopBuild
 
   const stopDesktop = async () => {
     if (desktop?.isOpened) {
@@ -82,6 +84,10 @@ describe('Desktop and mobile clients with QSS', () => {
       throw new Error("Set QUIET_DESKTOP_BINARY to this checkout's packaged Quiet executable")
     }
     mobile = createQssMobile(device, config)
+    if (mobile.build.backendMode === 'qss-only') {
+      if (process.env.IS_E2E !== 'true') throw new Error('QSS-only desktop launch requires IS_E2E=true')
+      desktopBuild = validateDesktopQssOnlyBuild(binary, process.env.QUIET_QSS_ONLY_BUILD_RECEIPT)
+    }
     run = prepareRun(process.env.QUIET_QSS_E2E_RUN_DIR)
     fixture = validateFixture(run.fixture)
     await checkLiveFixture()
@@ -202,6 +208,7 @@ describe('Desktop and mobile clients with QSS', () => {
         twoPlayerPassed: true,
         mobilePlatform: mobile.platform,
         mobileBuild: mobile.build,
+        ...(desktopBuild ? { desktopBuild } : {}),
         mobileOfflineChecks: mobile.offlineProofs,
         desktopSource: 'same checkout',
       })

@@ -26,7 +26,13 @@ python3 scripts/qss-e2e/fixture.py prepare-run \
   --artifacts-location "$QUIET_QSS_E2E_RUN_DIR/artifacts"
 ```
 
-For Android, retain `DETOX_ANDROID_DEVICE_ID`, `ANDROID_HOME`, and any APK overrides from the single-player recipe, then substitute `-c android.att.e2e.qss` in the test command. The same six stages and assertions run on either mobile platform. On Linux, prepare the desktop's Tor and library dependencies as in `.github/actions/before-build`, use `npm run copyBinaries` instead of `copyBinariesDarwin`, package with `electron-builder --linux --dir -p never`, and set `QUIET_DESKTOP_BINARY` to `packages/desktop/dist/linux-unpacked/quiet`. Use an available display or an owned Xvfb display for desktop UI automation.
+For Android, retain `DETOX_ANDROID_DEVICE_ID`, `ANDROID_HOME`, and any APK overrides from the single-player recipe, then substitute `-c android.att.e2e.qss` in the test command. The same six stages and assertions run on either mobile platform. On Linux, prepare the desktop's Tor and library dependencies as in `.github/actions/before-build`, use `npm run copyBinaries` instead of `copyBinariesDarwin`, and set `QUIET_DESKTOP_BINARY` to the produced executable, currently `packages/desktop/dist/linux-unpacked/@quietdesktop`. Use an available display or an owned Xvfb display for desktop UI automation. Package a Linux directory build from `packages/desktop` with the existing AppImage-only hook disabled via the Node API:
+
+```sh
+node -e 'const b = require("electron-builder"); b.build({targets: b.Platform.LINUX.createTarget("dir"), publish: "never", config: {afterAllArtifactBuild: null}}).catch(error => {console.error(error); process.exitCode = 1})'
+```
+
+For environments where the ARM Tor subprocess cannot run, an explicit [QSS-only E2E build](../../backend/e2e/qss-only/README.md) runs these same stages with `android.att.e2e.qss.only`. It replaces Tor metadata and disables all P2P transports. Its mandatory receipt binds both packaged backends to that mode, and the final proof identifies the reduced coverage. It is separate from the standard native-Tor configuration.
 
 Run builds sequentially on machines with limited memory. The suite uses one mobile device, one desktop profile, and one Jest worker. Desktop settings are passed to its child process without changing Detox's environment. Cleanup uses the existing desktop helpers and the exact owned mobile device; it does not remove a user's regular Quiet data.
 

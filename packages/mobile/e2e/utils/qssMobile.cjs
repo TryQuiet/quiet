@@ -11,7 +11,9 @@ const { snapshotOwnedProcesses, waitForProcessExit } = require('./desktopProcess
 
 function validateMobileConfiguration(device, config, env = process.env) {
   const platform = device.getPlatform()
-  const configurations = platform === 'ios' ? ['ios.sim.e2e.qss'] : ['android.att.e2e.qss', 'android.emu.e2e.qss']
+  const configurations = platform === 'ios' ? ['ios.sim.e2e.qss'] : [
+    'android.att.e2e.qss', 'android.emu.e2e.qss', 'android.att.e2e.qss.only', 'android.emu.e2e.qss.only',
+  ]
   if (!['ios', 'android'].includes(platform) || !configurations.includes(config.configurationName)) {
     throw new Error('Use the dedicated ios.sim.e2e.qss or android.att/emu.e2e.qss configuration')
   }
@@ -26,8 +28,9 @@ function validateMobileConfiguration(device, config, env = process.env) {
 function createQssMobile(device, config, env = process.env) {
   const platform = validateMobileConfiguration(device, config, env)
   const appConfig = Object.values(config.apps)[0]
+  const qssOnly = config.configurationName.endsWith('.qss.only')
   const build =
-    platform === 'ios' ? validateBuild(env.DETOX_IOS_ARM64_E2E_QSS_OUTPUT) : validateAndroidBuild(appConfig, env)
+    platform === 'ios' ? validateBuild(env.DETOX_IOS_ARM64_E2E_QSS_OUTPUT) : validateAndroidBuild(appConfig, env, { qssOnly })
   if (path.resolve(appConfig.binaryPath) !== build.app) {
     throw new Error('Detox must install the exact app verified by the QSS build preflight')
   }
