@@ -1,5 +1,10 @@
 param([Parameter(Mandatory=$true)][string]$Directory, [switch]$Cleanup)
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+# Actions may launch us from PowerShell 7: load only Windows PowerShell's own modules.
+$env:PSModulePath = Join-Path $PSHOME 'Modules'
+Import-Module (Join-Path $PSHOME 'Modules/Microsoft.PowerShell.Security/Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
+Import-Module (Join-Path $PSHOME 'Modules/PKI/PKI.psd1') -ErrorAction Stop
 $tracking = Join-Path $Directory 'test-certificates.json'
 if ($Cleanup) {
   if (Test-Path $tracking) {

@@ -20,7 +20,11 @@ test('real Windows Authenticode and NSIS download/cache/install reject unsigned,
   require.cache[require.resolve('electron')] = { exports: { autoUpdater: new EventEmitter() } }
   const names = repo.trust.windowsPublisherNames
   const valid = path.join(repo.directory, 'valid.exe')
-  assert.equal(await verifyWindowsSignature(names, valid), null)
+  // A caller's (for example PowerShell 7's) module path must not select verifier code.
+  const previousModulePath = process.env.PSModulePath
+  process.env.PSModulePath = path.join(repo.directory, 'unrelated-modules')
+  try { assert.equal(await verifyWindowsSignature(names, valid), null) }
+  finally { if (previousModulePath === undefined) delete process.env.PSModulePath; else process.env.PSModulePath = previousModulePath }
   for (const file of ['unsigned.exe', 'wrong.exe']) await assert.rejects(verifyWindowsSignature(names, path.join(repo.directory, file)))
   const special = path.join(repo.directory, "valid'$& update.exe")
   fs.copyFileSync(valid, special)

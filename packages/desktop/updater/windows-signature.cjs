@@ -7,6 +7,8 @@ const { publisherNames, subjectsEqual } = require('./trust.cjs')
 // and an environment argument avoid both cmd.exe and PowerShell interpolation.
 const command = Buffer.from(`
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+Import-Module -Name ([System.IO.Path]::Combine($PSHOME, 'Modules', 'Microsoft.PowerShell.Security', 'Microsoft.PowerShell.Security.psd1')) -ErrorAction Stop
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $signature = Get-AuthenticodeSignature -LiteralPath $env:QUIET_VERIFY_INSTALLER
 [PSCustomObject]@{
@@ -20,10 +22,12 @@ async function verifyWindowsSignature(names, file) {
   publisherNames(names)
   if (process.platform !== 'win32') throw new Error('Authenticode verification requires Windows')
   const executable = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe')
+  // Node chooses the first case-insensitive duplicate environment key on Windows.
+  const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => name.toUpperCase() !== 'PSMODULEPATH'))
   const { stdout, stderr } = await promisify(execFile)(executable,
     ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', command], {
       shell: false, windowsHide: true, timeout: 30_000, maxBuffer: 64 * 1024,
-      env: { ...process.env, PSModulePath: '', QUIET_VERIFY_INSTALLER: path.resolve(file) },
+      env: { ...env, PSModulePath: path.join(path.dirname(executable), 'Modules'), QUIET_VERIFY_INSTALLER: path.resolve(file) },
     })
   if (stderr.trim()) throw new Error('Authenticode verification reported an error')
   const result = JSON.parse(stdout.replace(/^\uFEFF/, ''))
