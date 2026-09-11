@@ -211,7 +211,10 @@ describe('Device linking (P2P)', () => {
 
       awarePeer1.buildSetup.clearProcessOutput()
       const deviceInvitation = await getDeviceInvitation(owner)
-      await awarePeer1.buildSetup.waitForProcessOutput('Chain updated, emitted updated event', timeouts.inviteGraphSync)
+      await awarePeer1.buildSetup.waitForProcessOutput(
+        'Chain updated and persisted, emitted updated event',
+        timeouts.inviteGraphSync
+      )
 
       // The owner and aware-peer-1 are the only peers that know the device invite.
       // Take both offline so every address in the invitation is initially unusable.
