@@ -2,6 +2,7 @@ import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import FileAttachmentPreview from './FileAttachmentPreview.component'
 import { FilePreviewData } from '@quiet/types'
+import { getFilesData } from '@quiet/common'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('attachingPreview:test')
@@ -293,5 +294,25 @@ describe('FileAttachmentPreview component', () => {
         </View>
       </RCTScrollView>
     `)
+  })
+
+  // https://github.com/TryQuiet/quiet/issues/1701
+  it('shows spaces rather than %20 for a file picked through a document picker URI', () => {
+    // what react-native-document-picker hands back in `fileCopyUri` for "My File.pdf"
+    const pickedFiles = getFilesData([
+      { path: 'file:///data/user/0/com.quiet.mobile/cache/My%20File.pdf', isTmp: true },
+    ])
+
+    const { getByText, queryByText } = renderComponent(
+      <FileAttachmentPreview
+        filesData={pickedFiles}
+        removeFile={function (id: string): void {
+          logger.info(`removeFile ${id}`)
+        }}
+      />
+    )
+
+    expect(getByText('My File')).toBeTruthy()
+    expect(queryByText('My%20File')).toBeNull()
   })
 })
