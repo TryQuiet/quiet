@@ -6,9 +6,7 @@ const LOCAL_HOST = '127.0.0.1'
 const LOCAL_ADDRESS_REGEX = /^127\.0\.0\.1:([1-9][0-9]{0,4})$/
 const PEER_ID_PATTERN = '[a-zA-Z0-9]{52}'
 const ONION_MULTIADDR_REGEX = new RegExp(`^/dns4/[a-z0-9]{56}\\.onion/tcp/(443|80)/ws/p2p/${PEER_ID_PATTERN}$`)
-const LOCAL_MULTIADDR_REGEX = new RegExp(
-  `^/ip4/${LOCAL_HOST.replace(/\./g, '\\.')}/tcp/([1-9][0-9]{0,4})/ws/p2p/${PEER_ID_PATTERN}$`
-)
+const LOCAL_MULTIADDR_REGEX = new RegExp(`^/ip4/127\\.0\\.0\\.1/tcp/([1-9][0-9]{0,4})/ws/p2p/${PEER_ID_PATTERN}$`)
 
 export type LocalAddress = {
   host: typeof LOCAL_HOST
