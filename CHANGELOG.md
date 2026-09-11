@@ -2,8 +2,24 @@
 
 ## [10.0.0]
 
+### Features
+
+* Enable administrators to create private channels on desktop and mobile without a feature flag
+
+### Breaking
+
+* Use protocol 4 with member, role, device and server removal and key rotation disabled, including making those operations inert when received from modified clients [#3471](https://github.com/TryQuiet/quiet/pull/3471)
+* Start with new 10.x desktop and mobile data directories; existing 9.x communities and identities are not migrated
+
 ### Fixes
 
+* Recover peer synchronization across reconnects and overlapping transports [#3480](https://github.com/TryQuiet/quiet/pull/3480)
+* Prevent repeated community leave requests from acknowledging teardown early and deleting newly created community state [#3424](https://github.com/TryQuiet/quiet/issues/3424)
+* Fix AppImage external links and desktop protocol registration when launcher library variables are present [#3453](https://github.com/TryQuiet/quiet/issues/3453)
+* Recover from consumed QSS captcha grants and synchronize captcha renewal state [#3428](https://github.com/TryQuiet/quiet/issues/3428)
+* Resume unsent mobile joins safely after a local backend connection is lost [#3426](https://github.com/TryQuiet/quiet/issues/3426)
+* Recover mobile local backend connections and allow stalled QR invitations to be retried [#3427](https://github.com/TryQuiet/quiet/issues/3427)
+* Keep delayed text and attachment sends bound to their originating channel and clear transient composer state on channel changes [#420](https://github.com/TryQuiet/quiet/issues/420) [#534](https://github.com/TryQuiet/quiet/issues/534)
 * Allow authorized historical private-channel deletions to sync without blocking later channels [#3406](https://github.com/TryQuiet/quiet/issues/3406)
 
 ## [9.0.0]
