@@ -23,6 +23,11 @@ public struct NamedKey: Codable {
     let key: String
 }
 
+public struct ChannelMetadata: Codable {
+    let channelName: String
+    let channelId: String
+}
+
 // MARK: - KeychainService
 
 struct KeychainService {
@@ -30,6 +35,9 @@ struct KeychainService {
     private static let devicePrivateKeyPrefix = "quiet.device.privateKey."
     private static let deviceIdKey = "quiet.device.id"
     private static let teamIdKey = "quiet.team.id"
+    private static let localUserIdPrefix = "quiet.localUser.id."
+    private static let channelMetadataKeyPrefix = "quiet.channelMetadata."
+    private static let userNicknameKeyPrefix = "quiet.userNickname."
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.quietmobile",
@@ -197,6 +205,32 @@ struct KeychainService {
         return try writeData(account: keyName, data: keyData, service: lfaKeyService)
     }
 
+    // MARK: - Domain-specific: Channel Metadata
+
+    static func getChannelName(teamId: String, channelId: String) throws -> String {
+        let keyName = KeychainService.generateChannelMetadataKeyName(teamId: teamId, channelId: channelId)
+        return try readString(account: keyName, service: lfaKeyService)
+    }
+
+    static func addChannelMetadata(teamId: String, channelId: String, channelName: String) throws {
+        let keyName = KeychainService.generateChannelMetadataKeyName(teamId: teamId, channelId: channelId)
+      try upsertString(account: keyName, value: channelName, service: lfaKeyService)
+    }
+
+    static func generateChannelMetadataKeyName(teamId: String, channelId: String) -> String {
+        return channelMetadataKeyPrefix + teamId + "." + channelId
+    }
+
+    // MARK: - Domain-specific: User Metadata
+
+    static func getNickname(userId: String) throws -> String {
+        try readString(account: userNicknameKeyPrefix + userId, service: lfaKeyService)
+    }
+
+    static func addNickname(userId: String, nickname: String) throws {
+        try upsertString(account: userNicknameKeyPrefix + userId, value: nickname, service: lfaKeyService)
+    }
+
     // MARK: - Upsert
 
     /// Delete-then-add to allow updating an existing item's value.
@@ -214,7 +248,12 @@ struct KeychainService {
         try readString(account: deviceIdKey)
     }
 
-    static func saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String) throws {
+    static func getLocalUserId(teamId: String) throws -> String {
+        try readString(account: localUserIdPrefix + teamId)
+    }
+
+    static func saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String, userId: String) throws {
+        try upsertString(account: localUserIdPrefix + teamId, value: userId)
         try upsertString(account: deviceIdKey, value: deviceId)
         try upsertString(account: teamIdKey, value: teamId)
         try upsertString(account: devicePrivateKeyPrefix + deviceId, value: signingPrivateKey)
@@ -236,6 +275,9 @@ struct KeychainService {
         logger.info("clearAllQuietData: starting keychain cleanup")
         try deleteAll(matchingPrefix: "quiet_", service: lfaKeyService)
         try deleteAll(matchingPrefix: "quiet.device.privateKey.")
+        try deleteAll(matchingPrefix: localUserIdPrefix)
+        try deleteAll(matchingPrefix: channelMetadataKeyPrefix, service: lfaKeyService)
+        try deleteAll(matchingPrefix: userNicknameKeyPrefix, service: lfaKeyService)
         try delete(account: deviceIdKey)
         try delete(account: teamIdKey)
         logger.info("clearAllQuietData: finished keychain cleanup")

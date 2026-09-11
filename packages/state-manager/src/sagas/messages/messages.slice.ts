@@ -25,6 +25,7 @@ import {
   VerifyMessagesPayload,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import { isMessageTransportVerified } from './utils/message.utils'
 
 const logger = createLogger('messagesSlice')
 
@@ -82,6 +83,10 @@ export const messagesSlice = createSlice({
     addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
+        if (!isMessageTransportVerified(message, action.payload.isLocal)) {
+          logger.warn('Refusing to store message rejected by transport verification', message.id)
+          continue
+        }
         if (!instanceOfChannelMessage(message)) {
           continue
         }

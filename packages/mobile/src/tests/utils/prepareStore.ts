@@ -72,6 +72,12 @@ export const prepareStore = async (
   let root: Task | null = null
   // Fork State manager's sagas (require mocked socket.io-client)
   if (mockedSocket) {
+    Object.assign(mockedSocket, {
+      connect: () => {
+        mockedSocket.socketClient.emit('connect')
+        return mockedSocket
+      },
+    })
     root = sagaMiddleware.run(rootSaga)
 
     // This step is important (mobile-specific) due to combination of state-manager and local store structures

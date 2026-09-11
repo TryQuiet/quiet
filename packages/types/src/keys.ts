@@ -12,6 +12,7 @@ export interface KeysUpdatedEvent {
 export interface DeviceCredentialsUpdatedEvent {
   deviceId: string
   teamId: string
+  userId: string
   /** Base58-encoded 64-byte libsodium Ed25519 signing private key */
   signingPrivateKey: string
 }
@@ -19,6 +20,8 @@ export interface DeviceCredentialsUpdatedEvent {
 export interface NseQssUrlUpdatedEvent {
   teamId: string
   qssUrl: string
+  /** Self-certifying LFA identity of the QSS serving this team. */
+  qssServerId: string
 }
 
 export interface NseSyncSeqUpdatedEvent {

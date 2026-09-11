@@ -12,7 +12,7 @@ import {
 } from '../selectors'
 import { createLogger } from '../logger'
 import { PhotoExt, SettingsModalTabName, X_DATA_TESTID } from '../enums'
-import { UserTestData } from '../types'
+import { MessageIds, UserTestData } from '../types'
 
 const logger = createLogger('userProfile')
 
@@ -22,6 +22,7 @@ describe('User Profile Feature', () => {
   let generalChannelOwner: Channel
   let generalChannelUser1: Channel
   let invitationLink: string
+  let ownerMessageIds: MessageIds
 
   let users: Record<string, UserTestData>
   const communityName = 'testcommunity'
@@ -86,7 +87,7 @@ describe('User Profile Feature', () => {
 
   it('Owner sends a message', async () => {
     expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
-    await generalChannelOwner.sendMessage(users.owner.messages[0], users.owner.username)
+    ownerMessageIds = await generalChannelOwner.sendMessage(users.owner.messages[0], users.owner.username)
   })
 
   it('Owner updates their profile photo with JPEG', async () => {
@@ -177,21 +178,32 @@ describe('User Profile Feature', () => {
   })
 
   it("First user sees owner's message with profile photo", async () => {
-    const messages = await generalChannelUser1.getAtleastNumUserMessages(users.owner.username, 2)
-    const elem = messages?.[1]
-    if (!elem) {
-      fail('Failed to find at least 2 messages')
-    }
+    // Follow the message actually sent by the owner. Its position can change as
+    // historical and system messages arrive during initial replication.
+    const elem = await generalChannelUser1.waitForMessageContentById(ownerMessageIds.messageId)
     await users.user1.app.driver.wait(until.elementIsVisible(elem), 60_000)
     const text = await elem.getText()
     expect(text).toEqual(users.owner.messages[0])
 
-    const fullMessages = await generalChannelUser1.getUserMessagesFull(users.owner.username)
     const img = await users.user1.app.driver.wait(
       async () => {
-        const images = await fullMessages[1].findElements(By.tagName('img'))
+        const message = await users.user1.app.driver.findElement(
+          By.css(`[data-testid="messagesGroupContent-${ownerMessageIds.messageId}"]`)
+        )
+        const wrapper = await message.findElement(
+          By.xpath('./ancestor::*[starts-with(@data-testid, "userMessagesWrapper-")][1]')
+        )
+        const images = await wrapper.findElements(By.css(`img[alt="${users.owner.username}"]`))
         const image = images[0]
-        if (image && (await image.isDisplayed())) {
+        if (
+          image &&
+          (await image.isDisplayed()) &&
+          (await image.getAttribute('src')).endsWith(PhotoExt.PNG) &&
+          (await users.user1.app.driver.executeScript<boolean>(
+            'return arguments[0].complete && arguments[0].naturalWidth > 0',
+            image
+          ))
+        ) {
           return image
         }
         return undefined

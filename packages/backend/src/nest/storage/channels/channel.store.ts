@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common'
 
-import { AccessController, EventsType, LogEntry } from '@orbitdb/core'
+import {
+  AccessController,
+  EventsType,
+  LogEntry,
+  useAccessController as orbitDbUseAccessController,
+} from '@orbitdb/core'
 
 import { QuietLogger } from '@quiet/logger'
 import {
@@ -90,23 +95,34 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger = createLogger(`storage:channels:channelStore:${this.channelData.name}`)
     this.logger.info(`Initializing channel store for channel ${this.channelData.name}`, channelData)
 
+    // The team a message is authorized against comes from the local sigchain, never from
+    // `channelData`. Channel metadata is replicated, so a peer controls `channelData.teamId` for
+    // every channel this node learns about rather than creates. Anchoring the access controller to
+    // it would let an attacker publish channel metadata naming a team of their choosing and then
+    // send messages stamped with that same team: the `encryptedMessage.teamId !== config.teamId`
+    // check would compare two values they supplied and pass. This node only ever serves one chain,
+    // and `createChannelStore` already rewrites the stored metadata to this same id.
     if (channelData.public ?? true) {
       this._accessController = this._publicMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
+        channelId: this.channelData.id,
+        teamId: this.auth.team.id,
       })
       this._messagesService = this._publicMessagesService
     } else {
       if (this.channelData.roleName == null) {
         throw new Error('Invalid role name for private channel!')
       }
-      this._accessController = this._privateMessagesAccessController.createAccessControllerFunc({
+      const accessController = this._privateMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
         channelId: this.channelData.id,
-        teamId: this.channelData.teamId ?? this.auth.team.id,
+        teamId: this.auth.team.id,
         roleName: this.channelData.roleName,
       })
+      orbitDbUseAccessController(accessController as any)
+      this._accessController = accessController
       this._messagesService = this._privateMessagesService
     }
 
@@ -265,7 +281,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     const messages = await this.getEntries(ids)
     return {
       messages,
-      isVerified: true,
+      isVerified: messages.every(message => message.verified === true),
     }
   }
 

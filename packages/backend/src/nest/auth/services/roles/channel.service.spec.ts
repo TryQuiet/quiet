@@ -1,10 +1,9 @@
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 import { DEFAULT_CHANNEL_ROLE_NAME_LENGTH, RoleName } from './roles'
-import { base58, hash, randomBytes } from '@localfirst/crypto'
-import * as uint8arrays from 'uint8arrays'
-import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@localfirst/auth'
-import { InviteLockboxMetadata } from '../crypto/types'
+import { base58 } from '@localfirst/crypto'
+import { InviteResult, MemberContext, Team } from '@localfirst/auth'
+import { InviteService } from '../invites/invite.service'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
 import { RANDOM_USERNAME_LENGTH } from '../members/types'
 import { randomUUID } from 'crypto'
@@ -16,9 +15,6 @@ describe('channels', () => {
   let secondSigChain: SigChain
   const teamName = 'test'
   let invite: InviteResult
-  let seed: string
-  let salt: string
-  let generatedKeys: InviteLockboxMetadata
   let channelRoleName: string
 
   it('should initialize a new sigchain and be admin', () => {
@@ -42,43 +38,23 @@ describe('channels', () => {
     expect(channelRoleName).toHaveLength(DEFAULT_CHANNEL_ROLE_NAME_LENGTH)
     expect(adminSigChain.channels.amIMemberOfChannel(channelRoleName)).toBe(true)
     expect(adminSigChain.channels.canIAddMembersToPrivateChannel(channelRoleName)).toBe(true)
-    expect(adminSigChain.channels.canIRemoveMembersFromPrivateChannel(channelRoleName)).toBe(true)
+    expect(adminSigChain.channels.canIRemoveMembersFromPrivateChannel(channelRoleName)).toBe(false)
     expect(adminSigChain.channels.canIDeletePrivateChannel(channelRoleName)).toBe(true)
   })
   it('should create an invite', () => {
     invite = adminSigChain.invites.createUserInvite()
     expect(invite).toBeDefined()
   })
-  it('should create keys from seed and salt for lockboxes', () => {
-    seed = invite.seed
-    salt = uint8arrays.toString(randomBytes(32), 'hex')
-    generatedKeys = adminSigChain.lockbox.generateLockboxKeys(seed, salt)
-    expect(generatedKeys.id).toBe(hash(salt, seed))
-    expect(generatedKeys.keys.name).toBe(generatedKeys.id)
-    expect(generatedKeys.keys.generation).toBe(0)
-  })
-  it('should create a lockbox encrypted to our generated keys with MEMBER keys', () => {
-    const lockboxes = adminSigChain.lockbox.createInviteLockboxes(seed, salt)
-    expect(lockboxes).toHaveLength(1)
-    const keysFromLockbox = adminSigChain.team?.allKeys(generatedKeys.keys)
-    expect(keysFromLockbox).toBeDefined()
-    expect(keysFromLockbox!['ROLE'][RoleName.MEMBER].length).toBe(1)
-  })
   it('should create second user who is not admin', () => {
-    secondSigChain = SigChain.createFromInvite({ seed: invite.seed })
+    secondSigChain = SigChain.createFromInvite({ seed: invite.seed }, adminSigChain.team!.id)
     expect(secondSigChain).toBeDefined()
     expect(secondSigChain.context).toBeDefined()
     expect(base58.detect(secondSigChain.user.userName)).toBeTruthy()
     expect(secondSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
   })
   it('should add second user to team', () => {
-    const proof = generateProof(invite.seed)
-    adminSigChain.invites.admitMemberFromInvite(
-      proof,
-      secondSigChain.user.userName,
-      secondSigChain.context.user.userId,
-      redactKeys(secondSigChain.context.user.keys)
-    )
+    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: secondSigChain.context })
+    adminSigChain.invites.admitMemberFromInvite(admission)
     expect(() => adminSigChain.users.getUserById(secondSigChain.user.userId)).not.toThrow()
 
     const teamBytes = adminSigChain.save()
@@ -100,13 +76,8 @@ describe('channels', () => {
     } as MemberContext
     expect(secondSigChain.team).toBeDefined()
   })
-  it('should self-assign MEMBER role on second user', () => {
-    secondSigChain.roles.addSelf(RoleName.MEMBER, seed, salt)
+  it('should grant the MEMBER role when admitting the second user', () => {
     expect(secondSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
-  })
-  it('should fail to self-assign channel role on second user', () => {
-    const failedSelfAssign = () => secondSigChain.roles.addSelf(channelRoleName, seed, salt)
-    expect(failedSelfAssign).toThrow()
   })
   it('should add second user to channel', () => {
     adminSigChain.channels.addMember(secondSigChain.context.user.userId, channelRoleName)
@@ -132,5 +103,19 @@ describe('channels', () => {
 
     const failedToCreateChannel = () => secondSigChain.channels.create()
     expect(failedToCreateChannel).toThrow()
+  })
+  it('refuses private membership and role removal while retaining admin channel deletion permission', () => {
+    const before = adminSigChain.save()
+    expect(() => adminSigChain.channels.revokeMembership(secondSigChain.user.userId, channelRoleName)).toThrow(
+      /removal and key rotation are disabled/i
+    )
+    expect(() => adminSigChain.channels.delete(channelRoleName)).toThrow(/removal and key rotation are disabled/i)
+    expect(adminSigChain.save()).toEqual(before)
+    expect(adminSigChain.channels.memberInChannel(secondSigChain.user.userId, channelRoleName)).toBe(true)
+    // Whole-channel deletion uses authenticated OrbitDB DELs, not auth role removal.
+    expect(adminSigChain.channels.canIDeletePrivateChannel(channelRoleName)).toBe(true)
+    expect(adminSigChain.channels.canMemberDeletePrivateChannel(secondSigChain.user.userId, channelRoleName)).toBe(
+      false
+    )
   })
 })

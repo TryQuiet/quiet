@@ -49,6 +49,14 @@ import { cleanup } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
+const withTransportVerification = <T extends ChannelMessage>(
+  message: T,
+  verified = true
+): T & { verified: boolean } => ({
+  ...message,
+  verified,
+})
+
 describe('PublicChannel', () => {
   let socket: MockedSocket
   let notification: any
@@ -60,7 +68,7 @@ describe('PublicChannel', () => {
     window.Notification = notification
     jest.mock('electron', () => {
       return {
-        ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+        ipcRenderer: { on: () => {}, removeListener: jest.fn(), send: jest.fn(), sendSync: jest.fn() },
         remote: {
           BrowserWindow: {
             getAllWindows: () => {
@@ -234,17 +242,15 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [authenticMessage],
+          messages: [withTransportVerification(authenticMessage)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [spoofedMessage],
+          messages: [withTransportVerification(spoofedMessage, false)],
           communityId: community.id,
-          isVerified: false,
         },
       ])
     }
@@ -303,9 +309,8 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [aliceMessage],
+          messages: [withTransportVerification(aliceMessage)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
     }
@@ -409,8 +414,15 @@ describe('PublicChannel', () => {
     )
 
     const messageText = 'Hello!'
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
 
-    store.dispatch(messages.actions.sendMessage({ message: messageText }))
+    store.dispatch(
+      messages.actions.sendMessage({
+        message: messageText,
+        channelId,
+      })
+    )
 
     await act(async () => {})
 
@@ -433,6 +445,7 @@ describe('PublicChannel', () => {
     store.dispatch(
       messages.actions.addMessages({
         messages: [sentMessage],
+        isLocal: true,
       })
     )
 
@@ -444,7 +457,7 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [sentMessage],
+          messages: [withTransportVerification(sentMessage)],
           communityId: community.id,
         },
       ])
@@ -491,6 +504,7 @@ describe('PublicChannel', () => {
 
     for (const msg of messagesText) {
       const message = await baseTypesFactory.build('ChannelMessage', {
+        verified: true,
         createdAt: messagesText.indexOf(msg) + 1,
         channelId: generalId,
         userId: alice.userId,
@@ -509,25 +523,22 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message1],
+          messages: [withTransportVerification(message1)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message3],
+          messages: [withTransportVerification(message3)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message2],
+          messages: [withTransportVerification(message2)],
           communityId: community.id,
-          isVerified: true,
         },
       ])
     }
@@ -783,9 +794,10 @@ describe('PublicChannel', () => {
         })
       } else if (action === SocketActions.SEND_MESSAGE) {
         const data = input[1] as ChannelMessage
-        const payload = data
+        // Model the backend's per-message transport verification marker.
+        const payload = { ...data, verified: true }
         return socket.socketClient.emit<MessagesLoadedPayload>(SocketEvents.MESSAGES_STORED, {
-          messages: [payload],
+          messages: [withTransportVerification(payload)],
         })
       } else if (action === SocketEvents.MESSAGES_STORED) {
         const data = input[1] as MessagesLoadedPayload
@@ -831,7 +843,14 @@ describe('PublicChannel', () => {
       store
     )
 
-    store.dispatch(files.actions.attachFile(fileContent))
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
+    store.dispatch(
+      files.actions.attachFile({
+        ...fileContent,
+        channelId,
+      })
+    )
 
     await act(async () => {
       await new Promise(resolve => {
@@ -1101,8 +1120,15 @@ describe('PublicChannel', () => {
       </>,
       store
     )
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
     await act(async () => {
-      store.dispatch(files.actions.attachFile(fileContent))
+      store.dispatch(
+        files.actions.attachFile({
+          ...fileContent,
+          channelId,
+        })
+      )
     })
     // Confirm file component displays in HOSTED state
     expect(await screen.findByText('Show in folder')).toBeVisible()
@@ -1174,6 +1200,7 @@ describe('PublicChannel', () => {
 
     const baseTypesFactory = await getBaseTypesFactory()
     const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
@@ -1215,8 +1242,7 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message],
-          isVerified: true,
+          messages: [withTransportVerification(message)],
         } as MessagesLoadedPayload,
       ])
     }
@@ -1290,6 +1316,7 @@ describe('PublicChannel', () => {
 
     const baseTypesFactory = await getBaseTypesFactory()
     const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
@@ -1333,8 +1360,7 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message],
-          isVerified: true,
+          messages: [withTransportVerification(message)],
         },
       ])
     }
@@ -1414,6 +1440,7 @@ describe('PublicChannel', () => {
     }
 
     const message = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
@@ -1470,8 +1497,7 @@ describe('PublicChannel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
-          messages: [message],
-          isVerfied: true,
+          messages: [withTransportVerification(message)],
         },
       ])
     }

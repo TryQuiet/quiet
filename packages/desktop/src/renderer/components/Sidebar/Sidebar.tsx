@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { useContextMenu } from '../../../hooks/useContextMenu'
@@ -14,9 +14,6 @@ import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPa
 const Sidebar = () => {
   const dispatch = useDispatch()
 
-  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
-  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean>(false)
-
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
@@ -30,17 +27,14 @@ const Sidebar = () => {
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
   const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
+  const canCreateChannel = channelPermissions.public.create
+  const canCreatePrivateChannel = channelPermissions.private.create
   const userId = userProfile?.userId || ''
 
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
   useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
-
-  useEffect(() => {
-    setCanCreateChannel(channelPermissions.public.create)
-    setCanCreatePrivateChannel(channelPermissions.private.create)
-  }, [channelPermissions])
 
   const setCurrentChannel = (id: string) => {
     dispatch(

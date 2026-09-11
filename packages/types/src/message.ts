@@ -28,7 +28,7 @@ export interface PushNotificationPayload {
 export interface WriteMessagePayload {
   message: string
   id?: string
-  channelId?: string
+  channelId: string
   type?: MessageType
   media?: FileMetadata
 }
