@@ -93,12 +93,15 @@ describe('Desktop and mobile clients with QSS', () => {
     await checkLiveFixture()
     const suffix = run.runId.slice(-12)
     names = { community: `mixed-${suffix}`, mobile: `${mobile.platform}-${suffix}`, desktop: `desktop-${suffix}` }
+    // Android's native keyboard capitalizes the beginning of a sentence.
+    // Use the platform's display name and keep exact message assertions.
+    const platformLabel = mobile.platform === 'android' ? 'Android' : 'iOS'
     messages = {
-      seed: `${mobile.platform} before desktop joined ${suffix}`,
-      desktopOnline: `Desktop to ${mobile.platform} online ${suffix}`,
-      mobileOnline: `${mobile.platform} to desktop online ${suffix}`,
-      desktopOffline: `Desktop while ${mobile.platform} offline ${suffix}`,
-      mobileOffline: `${mobile.platform} while desktop offline ${suffix}`,
+      seed: `${platformLabel} before desktop joined ${suffix}`,
+      desktopOnline: `Desktop to ${platformLabel} online ${suffix}`,
+      mobileOnline: `${platformLabel} to desktop online ${suffix}`,
+      desktopOffline: `Desktop while ${platformLabel} offline ${suffix}`,
+      mobileOffline: `${platformLabel} while desktop offline ${suffix}`,
     }
     desktop = new App({ binaryPath: binary, username: names.desktop, qssEndpoint: fixture.endpoint })
     await mobile.launch(true)
