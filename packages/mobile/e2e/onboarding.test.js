@@ -45,7 +45,11 @@ describe('Onboarding', () => {
 
   test('Join with invite link explains, then offers Paste a link', async () => {
     await press(element(by.id('join-with-invite-link')))
-    await waitFor(element(by.text('Open an invite link from a community admin. (If you just installed Quiet, open the invite again!)')))
+    await waitFor(
+      element(
+        by.text('Open an invite link from a community admin. (If you just installed Quiet, open the invite again!)')
+      )
+    )
       .toBeVisible()
       .withTimeout(BASIC)
     await checkVisualRegression('open-invite-link-component')
