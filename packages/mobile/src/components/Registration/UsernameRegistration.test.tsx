@@ -42,26 +42,28 @@ describe('UsernameRegistration', () => {
         >
           <Text
             color="main"
-            fontSize={24}
+            fontSize={28}
             fontWeight="medium"
             horizontalTextAlign="left"
+            lineHeight={36}
             style={
               [
                 {
                   "color": "#000000",
                   "fontFamily": "Rubik-Medium",
-                  "fontSize": 24,
+                  "fontSize": 28,
+                  "lineHeight": 36,
                   "textAlign": "left",
                   "textAlignVertical": "center",
                 },
                 {
-                  "marginBottom": 30,
+                  "marginBottom": 24,
                 },
               ]
             }
             verticalTextAlign="center"
           >
-            Register a username
+            Choose username
           </Text>
           <View>
             <View>
@@ -86,7 +88,7 @@ describe('UsernameRegistration', () => {
                 }
                 verticalTextAlign="center"
               >
-                Choose your favorite username
+                Enter a username
               </Text>
               <View
                 accessibilityState={
@@ -150,7 +152,7 @@ describe('UsernameRegistration', () => {
                   maxLength={20}
                   onChangeText={[Function]}
                   onContentSizeChange={[Function]}
-                  placeholder="Enter a username"
+                  placeholder="Username"
                   placeholderTextColor="#999999"
                   style={
                     {
@@ -184,7 +186,7 @@ describe('UsernameRegistration', () => {
                 }
                 verticalTextAlign="center"
               >
-                Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.
+                Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only.
               </Text>
             </View>
           </View>

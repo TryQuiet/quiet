@@ -19,6 +19,10 @@ import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity
 import { DeleteChannelScreen } from './screens/DeleteChannel/DeleteChannel.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
+import { GetStartedScreen } from './screens/GetStarted/GetStarted.screen'
+import { OpenInviteLinkScreen } from './screens/OpenInviteLink/OpenInviteLink.screen'
+import { PasteInviteLinkScreen } from './screens/PasteInviteLink/PasteInviteLink.screen'
+import { LinkDevicesScreen } from './screens/LinkDevices/LinkDevices.screen'
 import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
 import { NotifierScreen } from './screens/Notifier/Notifier.screen'
 import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
@@ -123,7 +127,11 @@ function App(): React.JSX.Element {
                   component={PossibleImpersonationAttackScreen}
                   name={ScreenNames.PossibleImpersonationAttackScreen}
                 />
+                <Screen component={GetStartedScreen} name={ScreenNames.GetStartedScreen} />
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
+                <Screen component={OpenInviteLinkScreen} name={ScreenNames.OpenInviteLinkScreen} />
+                <Screen component={PasteInviteLinkScreen} name={ScreenNames.PasteInviteLinkScreen} />
+                <Screen component={LinkDevicesScreen} name={ScreenNames.LinkDevicesScreen} />
                 <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
                 <Screen component={NotifierScreen} name={ScreenNames.NotifierScreen} />
                 <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />

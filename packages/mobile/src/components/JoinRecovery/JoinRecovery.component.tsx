@@ -23,7 +23,7 @@ export const JoinRecovery: FC<PropsWithChildren> = ({ children }) => {
     // Only drafts can be canceled locally: no request has touched backend state.
     if (pendingJoin.status !== 'draft') return
     dispatch(communities.actions.clearInvitationCodes())
-    dispatch(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
+    dispatch(navigationActions.replaceScreen({ screen: ScreenNames.GetStartedScreen }))
   }
 
   return (

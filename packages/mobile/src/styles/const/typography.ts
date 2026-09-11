@@ -5,17 +5,7 @@ import type { FontWeight } from '../../components/Typography/Typography.types'
  * packages/desktop/src/renderer/design-system/tokens/grid-4px.ts (type).
  * Only Rubik 400 (normal) and 500 (medium) are part of the scale.
  */
-export type TypeVariant =
-  | 'overline'
-  | 'caption'
-  | 'body'
-  | 'subtitle'
-  | 'bodyLg'
-  | 'h5'
-  | 'title'
-  | 'h3'
-  | 'h2'
-  | 'h1'
+export type TypeVariant = 'overline' | 'caption' | 'body' | 'subtitle' | 'bodyLg' | 'h5' | 'title' | 'h3' | 'h2' | 'h1'
 
 export interface TypeStyle {
   fontSize: number

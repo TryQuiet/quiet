@@ -3,8 +3,20 @@ import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
 import { Community, InvitationData, UserProfile } from '@quiet/types'
 
+/** Which flow the paste screen belongs to; it sets the heading and the intro. */
+export type PasteInviteLinkVariant = 'inviteLink' | 'qrCode' | 'deviceLink'
+
 // eslint-disable-next-line
 export type RootStackParamList = {
+  [ScreenNames.GetStartedScreen]: undefined
+  [ScreenNames.OpenInviteLinkScreen]: undefined
+  [ScreenNames.PasteInviteLinkScreen]:
+    | {
+        code?: string
+        variant?: PasteInviteLinkVariant
+      }
+    | undefined
+  [ScreenNames.LinkDevicesScreen]: undefined
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
@@ -74,6 +86,8 @@ export type UpdateChannelMembershipRouteProps = RouteProp<RootStackParamList, Sc
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
 
 export type JoinCommunityRouteProp = RouteProp<RootStackParamList, ScreenNames.JoinCommunityScreen>
+
+export type PasteInviteLinkRouteProp = RouteProp<RootStackParamList, ScreenNames.PasteInviteLinkScreen>
 
 export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
 

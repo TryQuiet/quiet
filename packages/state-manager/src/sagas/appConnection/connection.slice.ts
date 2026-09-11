@@ -8,6 +8,7 @@ import {
   type NetworkStats,
   InviteResultWithSalt,
   DeviceLinkInvite,
+  LinkedDevice,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -27,6 +28,8 @@ export class ConnectionState {
   }
   public longLivedInvite: InviteResultWithSalt | undefined = undefined
   public deviceLinkInvite: DeviceLinkInvite | undefined = undefined
+  /** The current user's devices, as last read from the backend (see getLinkedDevices). */
+  public linkedDevices: LinkedDevice[] = []
   public p2pEnabled: boolean = true
 }
 
@@ -100,6 +103,10 @@ export const connectionSlice = createSlice({
     },
     createInvite: (state, _action: PayloadAction<any>) => state,
     createDeviceLink: state => state,
+    getLinkedDevices: state => state,
+    setLinkedDevices: (state, action: PayloadAction<LinkedDevice[]>) => {
+      state.linkedDevices = action.payload
+    },
     toggleP2P: state => state,
     setP2PEnabled: (state, action: PayloadAction<boolean>) => {
       state.p2pEnabled = action.payload

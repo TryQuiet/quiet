@@ -9,6 +9,8 @@ import { createLogger } from '../../utils/logger'
 import { onConnectionProcessInfo } from './onConnectionProcessInfo/onConnectionProcessInfo.saga'
 import { toggleP2PSaga } from './toggleP2P/toggleP2P.saga'
 import { expireDeviceLinkSaga } from './invite/expireDeviceLink.saga'
+import { getLinkedDevicesSaga } from './linkedDevices/getLinkedDevices.saga'
+import { usersActions } from '../users/users.slice'
 
 const logger = createLogger('connectionMasterSaga')
 
@@ -21,6 +23,8 @@ export function* connectionMasterSaga(socket: Socket): Generator {
       takeEvery(connectionActions.createInvite.type, createInviteSaga, socket),
       takeLatest(connectionActions.createDeviceLink.type, createDeviceLinkSaga, socket),
       takeLatest(connectionActions.setDeviceLinkInvite.type, expireDeviceLinkSaga),
+      // The device list lives on the team graph; any member update may carry a new device.
+      takeLatest([connectionActions.getLinkedDevices.type, usersActions.setUsers.type], getLinkedDevicesSaga, socket),
       takeEvery(connectionActions.toggleP2P.type, toggleP2PSaga, socket),
     ])
   } finally {

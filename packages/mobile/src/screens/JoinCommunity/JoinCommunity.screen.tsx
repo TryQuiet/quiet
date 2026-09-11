@@ -1,83 +1,40 @@
-/* eslint-disable padded-blocks */
-import React, { FC, useCallback, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { identity, communities } from '@quiet/state-manager'
-import { InvitationData, isDeviceInvitationData, JoinCommunityPayload, LinkDevicePayload } from '@quiet/types'
-import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
-import { navigationActions } from '../../store/navigation/navigation.slice'
+import React, { FC, useCallback } from 'react'
+import { useDispatch } from 'react-redux'
+
+import { JoinCommunityOptions } from '../../components/JoinCommunityOptions/JoinCommunityOptions.component'
 import { ScreenNames } from '../../const/ScreenNames.enum'
+import { navigationActions } from '../../store/navigation/navigation.slice'
 import { JoinCommunityScreenProps } from './JoinCommunity.types'
-import { initSelectors } from '../../store/init/init.selectors'
-import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('JoinCommunityScreen')
-
-export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => {
+/**
+ * Join community: the three-way choice. Without a scanner on this branch,
+ * "Join with QR code" takes the link the camera would have read.
+ */
+export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = () => {
   const dispatch = useDispatch()
 
-  const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
+  const handleBackButton = useCallback(() => {
+    dispatch(navigationActions.pop())
+  }, [dispatch])
 
-  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
+  const onJoinWithInviteLink = useCallback(() => {
+    dispatch(navigationActions.navigation({ screen: ScreenNames.OpenInviteLinkScreen }))
+  }, [dispatch])
 
-  const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const invitationCodes = useSelector(communities.selectors.invitationCodes)
-
-  const hasReceivedResponse = Boolean(invitationCodes === null)
-
-  // Handle deep linking (opening app with quiet://)
-  useEffect(() => {
-    const code = route.params?.code
-
-    // Screen hasn't been open through a link
-    if (!code) return
-
-    // Change component state
-    setInvitationCode(code)
-  }, [dispatch, currentCommunity, route.params?.code])
-
-  const joinCommunityAction = useCallback(
-    (data: InvitationData) => {
-      if (isDeviceInvitationData(data)) {
-        const payload: LinkDevicePayload = {
-          inviteData: data,
-        }
-        dispatch(communities.actions.linkDevice(payload))
-        dispatch(
-          navigationActions.replaceScreen({
-            screen: ScreenNames.ConnectionProcessScreen,
-          })
-        )
-        return
-      }
-
-      const payload: JoinCommunityPayload = {
-        inviteData: data,
-      }
-      dispatch(communities.actions.joinCommunity(payload))
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    },
-    [dispatch]
-  )
-
-  const redirectionAction = useCallback(() => {
+  const onJoinWithQrCode = useCallback(() => {
     dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.CreateCommunityScreen,
+      navigationActions.navigation({
+        screen: ScreenNames.PasteInviteLinkScreen,
+        params: { variant: 'qrCode' },
       })
     )
   }, [dispatch])
 
   return (
-    <JoinCommunity
-      joinCommunityAction={joinCommunityAction}
-      redirectionAction={redirectionAction}
-      hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
-      invitationCode={invitationCode}
-      ready={isWebsocketConnected}
+    <JoinCommunityOptions
+      onJoinWithInviteLink={onJoinWithInviteLink}
+      onJoinWithQrCode={onJoinWithQrCode}
+      handleBackButton={handleBackButton}
     />
   )
 }

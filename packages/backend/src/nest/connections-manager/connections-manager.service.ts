@@ -49,6 +49,8 @@ import {
   InitDeviceLinkPayload,
   RequestInvitePayload,
   RequestDeviceLinkPayload,
+  RequestLinkedDevicesPayload,
+  LinkedDevice,
   ResponseInvitePayload,
   DeviceLinkInvite,
   LaunchCommunityPayload,
@@ -681,6 +683,29 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return {
       hiddenService,
       peerId: peerIdJson,
+    }
+  }
+
+  /**
+   * The current user's devices as the team graph records them. Read-only: this
+   * line gates removal, so nothing here can unlink a device.
+   */
+  public getLinkedDevices(): LinkedDevice[] {
+    const chain = this.sigChainService.getActiveChain(false)
+    if (chain?.team == null) return []
+    const currentDeviceId = chain.context.device.deviceId
+    try {
+      const devices = chain.users.getMyUser({ includeRemoved: false, throwOnMissing: false })?.devices ?? []
+      return devices.map(device => ({
+        deviceId: device.deviceId,
+        deviceName: device.deviceName,
+        created: device.created,
+        removedAt: device.removedAt,
+        isCurrent: device.deviceId === currentDeviceId,
+      }))
+    } catch (e) {
+      this.logger.warn('Could not read linked devices from the team graph', e)
+      return []
     }
   }
 
@@ -1427,6 +1452,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
             callback({ valid: false })
           }
         }
+      }
+    )
+    this.socketService.on(
+      SocketActions.GET_LINKED_DEVICES,
+      (_args: RequestLinkedDevicesPayload, callback: (response?: LinkedDevice[]) => void) => {
+        callback(this.getLinkedDevices())
       }
     )
     this.socketService.on(

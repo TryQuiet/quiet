@@ -39,7 +39,7 @@ describe('redirectionSaga', () => {
       .withState(store.getState())
       .not.put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
+          screen: ScreenNames.GetStartedScreen,
         })
       )
       .not.put(
@@ -58,7 +58,7 @@ describe('redirectionSaga', () => {
       .withState(store.getState())
       .not.put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
+          screen: ScreenNames.GetStartedScreen,
         })
       )
       .run()

@@ -79,6 +79,10 @@ export const deviceLinkInvite = createSelector(connectionSlice, reducerState => 
   return reducerState.deviceLinkInvite
 })
 
+export const linkedDevices = createSelector(connectionSlice, reducerState => {
+  return reducerState.linkedDevices ?? []
+})
+
 export const invitationUrl = createSelector(
   communitiesSelectors.psk,
   communitiesSelectors.currentCommunity,
@@ -223,4 +227,5 @@ export const connectionSelectors = {
   isJoiningCompleted,
   peerStats,
   p2pEnabled,
+  linkedDevices,
 }

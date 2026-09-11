@@ -99,7 +99,9 @@ describe('deepLinkSaga', () => {
       failure.payload.params.onPress(dispatch)
       await jest.advanceTimersByTimeAsync(0)
       const joins = actions.filter(action => action.type === communities.actions.joinCommunity.type)
-      expect(joins).toEqual([communities.actions.joinCommunity({ inviteData: validData })])
+      expect(joins).toEqual([
+        communities.actions.joinCommunity({ inviteData: { ...validData, kind: InvitationKind.Member } }),
+      ])
       expect(actions).toContainEqual(
         navigationActions.replaceScreen({ screen: ScreenNames.UsernameRegistrationScreen })
       )

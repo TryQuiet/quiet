@@ -271,7 +271,7 @@ describe('joining across a real mobile state-manager disconnect', () => {
         <UsernameRegistrationScreen route={{} as any} />
       </Provider>
     )
-    fireEvent.changeText(screen.getByPlaceholderText('Enter a username'), 'alice')
+    fireEvent.changeText(screen.getByPlaceholderText('Username'), 'alice')
     fireEvent.press(screen.getByText('Continue'))
     expect(pending()?.username).toBe('alice')
     await act(async () => socket.loseTransport())

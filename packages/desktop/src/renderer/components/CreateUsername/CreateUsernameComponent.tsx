@@ -40,7 +40,7 @@ const classes = {
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
   inputLabel: `${PREFIX}inputLabel`,
-  marginMedium: `${PREFIX}marginMedium`,
+  helper: `${PREFIX}helper`,
   buttonModern: `${PREFIX}buttonModern`,
   buttonMargin: `${PREFIX}buttonMargin`,
 }
@@ -132,13 +132,15 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.inputLabel}`]: {
-    marginTop: 24,
-    marginBottom: 2,
+    display: 'block',
+    marginBottom: theme.space.xs,
     color: theme.palette.colors.gray70,
   },
 
-  [`& .${classes.marginMedium}`]: {
-    marginTop: 24,
+  [`& .${classes.helper}`]: {
+    display: 'block',
+    marginTop: theme.space.xs,
+    color: theme.palette.colors.darkGray,
   },
 }))
 
@@ -214,9 +216,11 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
             <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
               <Grid>
                 <Typography variant='h3' className={classes.title}>
-                  Register a username
+                  Choose username
                 </Typography>
-                <Typography variant='body2'>Choose your favorite username</Typography>
+                <Typography variant='body2' className={classes.inputLabel} component='label' htmlFor='userName'>
+                  Enter a username
+                </Typography>
               </Grid>
               <Controller
                 control={control}
@@ -232,7 +236,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                       [classes.margin]: true,
                       [classes.error]: errors.userName,
                     })}
-                    placeholder={'Enter a username'}
+                    id='userName'
+                    placeholder={'Username'}
                     errors={errors}
                     onPaste={e => e.preventDefault()}
                     variant='outlined'
@@ -252,6 +257,10 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                   />
                 )}
               />
+              <Typography variant='caption' className={classes.helper} data-testid={'createUsernameHelper'}>
+                Your username will be public, but you can choose any name you like. No spaces or special characters.
+                Lowercase letters and numbers only.
+              </Typography>
               <div className={classes.gutter}>
                 {!errors.userName && userName.length > 0 && parsedNameDiffers && (
                   <Grid container alignItems='center' direction='row'>
@@ -275,27 +284,14 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                 color='primary'
                 disabled={Boolean(errors.userName)}
                 type='submit'
-                text={'Register'}
+                text={'Continue'}
+                data-testid={'continue-createUsername'}
                 classes={{
                   button: classNames({
                     [classes.button]: true,
                   }),
                 }}
               />
-              <Grid container alignItems='center' direction='row' className={classes.marginMedium}>
-                <Grid item className={classes.iconDiv}>
-                  <WarningIcon className={classes.warrningIcon} />
-                </Grid>
-                <Grid item xs>
-                  <Typography
-                    variant='body2'
-                    className={classes.warrningMessage}
-                    data-testid={'createUsernameBetaWarning'}
-                  >
-                    Quiet is in beta and shouldn't be used for activities requiring security.
-                  </Typography>
-                </Grid>
-              </Grid>
             </Grid>
           </form>
         </>

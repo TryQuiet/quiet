@@ -7,6 +7,7 @@ import { UsernameRegistrationProps, UsernameVariant } from './UsernameRegistrati
 import { icons } from '../../assets'
 import { parseName } from '@quiet/common'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { spacing } from '../../styles/const/spacing'
 import { Appbar } from '../Appbar/Appbar.component'
 
 export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
@@ -89,8 +90,8 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
       >
         {isNewUser ? (
           <>
-            <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
-              {'Register a username'}
+            <Typography variant={'h3'} style={{ marginBottom: spacing.xl }}>
+              {'Choose username'}
             </Typography>
           </>
         ) : (
@@ -105,12 +106,10 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
 
         <Input
           onChangeText={onChangeText}
-          label={isNewUser ? 'Choose your favorite username' : 'Enter a username'}
-          placeholder={isNewUser ? 'Enter a username' : 'Username'}
+          label={'Enter a username'}
+          placeholder={'Username'}
           hint={
-            isNewUser
-              ? 'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.'
-              : 'Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only.'
+            'Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only.'
           }
           disabled={loading}
           validation={inputError}

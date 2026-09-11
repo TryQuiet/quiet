@@ -11,14 +11,149 @@ exports[`Spinner component renders component 1`] = `
   testID="create-community-component"
 >
   <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#ffffff",
+        "borderBottomColor": "#F0F0F0",
+        "borderBottomWidth": 1,
+        "display": "flex",
+        "flexDirection": "row",
+        "justifyContent": "center",
+        "maxHeight": 52,
+        "minHeight": 52,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+        }
+      }
+    >
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "opacity": 1,
+          }
+        }
+        testID="appbar_action_item"
+      >
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "height": 50,
+              "justifyContent": "center",
+              "width": 64,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "#67BFD3",
+                "borderRadius": 4,
+                "height": 36,
+                "justifyContent": "center",
+                "width": 36,
+              }
+            }
+          >
+            <Text
+              color="white"
+              fontSize={14}
+              horizontalTextAlign="left"
+              style={
+                {
+                  "color": "#ffffff",
+                  "fontFamily": "Rubik-Regular",
+                  "fontSize": 14,
+                  "textAlign": "left",
+                  "textAlignVertical": "center",
+                }
+              }
+              verticalTextAlign="center"
+            >
+              cr
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "flex": 4,
+        }
+      }
+    >
+      <Text
+        color="main"
+        fontSize={16}
+        fontWeight="medium"
+        horizontalTextAlign="left"
+        style={
+          {
+            "color": "#000000",
+            "fontFamily": "Rubik-Medium",
+            "fontSize": 16,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          }
+        }
+        verticalTextAlign="center"
+      >
+        Create a community
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "flex": 1,
+        }
+      }
+    />
+  </View>
+  <View
     onLayout={[Function]}
     style={
       [
         {
           "flex": 1,
+          "gap": 24,
           "justifyContent": "center",
-          "paddingLeft": 20,
-          "paddingRight": 20,
+          "paddingHorizontal": 16,
         },
         {
           "paddingBottom": 0,
@@ -28,28 +163,27 @@ exports[`Spinner component renders component 1`] = `
   >
     <Text
       color="main"
-      fontSize={24}
+      fontSize={28}
       fontWeight="medium"
       horizontalTextAlign="left"
+      lineHeight={36}
       style={
-        [
-          {
-            "color": "#000000",
-            "fontFamily": "Rubik-Medium",
-            "fontSize": 24,
-            "textAlign": "left",
-            "textAlignVertical": "center",
-          },
-          {
-            "marginBottom": 30,
-          },
-        ]
+        {
+          "color": "#000000",
+          "fontFamily": "Rubik-Medium",
+          "fontSize": 28,
+          "lineHeight": 36,
+          "textAlign": "left",
+          "textAlignVertical": "center",
+        }
       }
       verticalTextAlign="center"
     >
       Create a community
     </Text>
-    <View>
+    <View
+      testID="create-community-input"
+    >
       <View>
         <Text
           color="main"
@@ -150,269 +284,54 @@ exports[`Spinner component renders component 1`] = `
       </View>
     </View>
     <View
-      style={
+      accessibilityState={
         {
-          "marginTop": 32,
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
         }
       }
-    >
-      <View
-        style={
-          {
-            "alignItems": "flex-start",
-            "display": "flex",
-            "flex": 1,
-            "flexDirection": "row",
-            "flexWrap": "wrap",
-            "minHeight": 500,
-          }
-        }
-      >
-        <Text
-          color="main"
-          fontSize={14}
-          horizontalTextAlign="left"
-          style={
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            }
-          }
-          verticalTextAlign="center"
-        >
-          You
-        </Text>
-        <Text
-          color="main"
-          fontSize={14}
-          horizontalTextAlign="left"
-          style={
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            }
-          }
-          verticalTextAlign="center"
-        >
-           
-        </Text>
-        <Text
-          color="main"
-          fontSize={14}
-          horizontalTextAlign="left"
-          style={
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            }
-          }
-          verticalTextAlign="center"
-        >
-          can
-        </Text>
-        <Text
-          color="main"
-          fontSize={14}
-          horizontalTextAlign="left"
-          style={
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            }
-          }
-          verticalTextAlign="center"
-        >
-           
-        </Text>
-        <Text
-          color="main"
-          fontSize={14}
-          horizontalTextAlign="left"
-          style={
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            }
-          }
-          verticalTextAlign="center"
-        >
-          <Text
-            color="link"
-            fontSize={14}
-            horizontalTextAlign="left"
-            onPress={[Function]}
-            style={
-              {
-                "color": "#67BFD3",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              }
-            }
-            verticalTextAlign="center"
-          >
-            join a community
-          </Text>
-        </Text>
-        <Text
-          color="main"
-          fontSize={14}
-          horizontalTextAlign="left"
-          style={
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            }
-          }
-          verticalTextAlign="center"
-        >
-           
-        </Text>
-        <Text
-          color="main"
-          fontSize={14}
-          horizontalTextAlign="left"
-          style={
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            }
-          }
-          verticalTextAlign="center"
-        >
-          instead
-        </Text>
-      </View>
-    </View>
-    <View
+      accessible={true}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
       style={
         {
-          "marginTop": 44,
-        }
-      }
-    >
-      <View
-        accessibilityState={
-          {
-            "busy": undefined,
-            "checked": undefined,
-            "disabled": undefined,
-            "expanded": undefined,
-            "selected": undefined,
-          }
-        }
-        accessible={true}
-        focusable={true}
-        onClick={[Function]}
-        onResponderGrant={[Function]}
-        onResponderMove={[Function]}
-        onResponderRelease={[Function]}
-        onResponderTerminate={[Function]}
-        onResponderTerminationRequest={[Function]}
-        onStartShouldSetResponder={[Function]}
-        style={
-          {
-            "alignItems": "center",
-            "backgroundColor": "#521C74",
-            "borderRadius": 8,
-            "justifyContent": "center",
-            "minHeight": 45,
-            "paddingHorizontal": 20,
-            "paddingVertical": 12,
-            "width": undefined,
-          }
-        }
-        testID="button"
-      >
-        <Text
-          color="white"
-          fontSize={14}
-          horizontalTextAlign="left"
-          style={
-            {
-              "color": "#ffffff",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            }
-          }
-          verticalTextAlign="center"
-        >
-          Continue
-        </Text>
-      </View>
-    </View>
-    <View
-      style={
-        {
-          "alignItems": "flex-start",
-          "flexDirection": "row",
-          "gap": 4,
+          "alignItems": "center",
+          "backgroundColor": "#521C74",
+          "borderRadius": 8,
           "justifyContent": "center",
-          "marginTop": 44,
+          "minHeight": 45,
+          "paddingHorizontal": 20,
+          "paddingVertical": 12,
+          "width": undefined,
         }
       }
+      testID="create-community-continue"
     >
-      <Image
-        resizeMethod="resize"
-        resizeMode="cover"
-        source={
-          {
-            "testUri": "../../../src/assets/icons/png/icon_warning.png",
-          }
-        }
-        style={
-          {
-            "height": 16,
-            "width": 16,
-          }
-        }
-      />
       <Text
-        color="main"
+        color="white"
         fontSize={14}
         horizontalTextAlign="left"
         style={
-          [
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Regular",
-              "fontSize": 14,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            },
-            {
-              "color": "#999999",
-              "textAlign": "center",
-            },
-          ]
+          {
+            "color": "#ffffff",
+            "fontFamily": "Rubik-Regular",
+            "fontSize": 14,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          }
         }
         verticalTextAlign="center"
       >
-        Quiet is in beta and shouldn't be used for activities requiring security.
+        Continue
       </Text>
     </View>
   </View>

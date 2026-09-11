@@ -103,7 +103,7 @@ describe('Joining process', () => {
 
     expect(registrationScreen).toBeVisible()
 
-    const input = screen.getByPlaceholderText('Enter a username')
+    const input = screen.getByPlaceholderText('Username')
     expect(input).toBeVisible()
 
     fireEvent.changeText(input, userName)

@@ -1,10 +1,11 @@
 import React, { FC, useEffect, useState, useRef } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View, Image } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { spacing } from '../../styles/const/spacing'
+import { Appbar } from '../Appbar/Appbar.component'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
-import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
 import { getInvitationCodes } from '@quiet/state-manager'
@@ -13,15 +14,31 @@ import { Splash } from '../Splash/Splash.component'
 import { InvitationData } from '@quiet/types'
 
 import { createLogger } from '../../utils/logger'
-import { icons } from '../../assets'
 
 const logger = createLogger('joinCommunity:component')
 
+/** Title bar · heading · intro per flow. Copy is the prototype's. */
+const COPY = {
+  inviteLink: { title: 'Join with invite link', heading: 'Paste a link to Join', intro: undefined },
+  qrCode: { title: 'Join with QR code', heading: 'Join with QR code', intro: undefined },
+  deviceLink: {
+    title: 'Link devices',
+    heading: 'Scan QR code',
+    intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
+  },
+} as const
+
+/**
+ * "Paste a link to Join": one input with placeholder "Link" and Continue.
+ * Member and device invitations both land here; the caller decides.
+ * Without a scanner, the QR-code flows also take the link this way.
+ */
 export const JoinCommunity: FC<JoinCommunityProps> = ({
   joinCommunityAction,
-  redirectionAction,
+  handleBackButton,
   invitationCode,
   hasReceivedResponse,
+  variant = 'inviteLink',
   ready = true,
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
@@ -29,6 +46,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   const [loading, setLoading] = useState<boolean>(false)
 
   const inputRef = useRef<TextInput>(null)
+  const copy = COPY[variant]
 
   const onChangeText = (value: string) => {
     setInputError(undefined)
@@ -37,7 +55,6 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
 
   const onPress = () => {
     Keyboard.dismiss()
-    // setLoading(true)
 
     if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
       setLoading(false)
@@ -65,7 +82,6 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     if (invitationCode) {
       setJoinCommunityInput(invitationCode)
       setInputError(undefined)
-      // setLoading(true)
       inputRef.current?.setNativeProps({ text: invitationCode })
     }
   }, [invitationCode])
@@ -88,67 +104,30 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
           testID={'join-community-component'}
         >
+          <Appbar title={copy.title} back={handleBackButton} />
           <KeyboardAvoidingView
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
               flex: 1,
               justifyContent: 'center',
-              paddingLeft: 20,
-              paddingRight: 20,
+              paddingHorizontal: spacing.lg,
+              gap: spacing.xl,
             }}
           >
-            <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
-              {'Join community'}
-            </Typography>
+            <View style={{ gap: spacing.sm }}>
+              <Typography variant={'h3'}>{copy.heading}</Typography>
+              {copy.intro ? <Typography variant={'body'}>{copy.intro}</Typography> : null}
+            </View>
             <Input
               onChangeText={onChangeText}
-              label={'Paste your invite link to join an existing community'}
-              placeholder={'Invite link'}
+              placeholder={'Link'}
               disabled={loading}
               validation={inputError}
               ref={inputRef}
               autoCorrect={false}
+              testID={'paste-link-input'}
             />
-            <View style={{ marginTop: 32 }}>
-              <TextWithLink
-                text={'You can %a instead'}
-                links={[
-                  {
-                    tag: 'a',
-                    label: 'create a new community',
-                    action: redirectionAction,
-                  },
-                ]}
-              />
-            </View>
-            <View style={{ marginTop: 32 + 12 }}>
-              <Button onPress={onPress} title={'Continue'} loading={loading} />
-            </View>
-            <View
-              style={{
-                marginTop: 32 + 12,
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                gap: 4,
-              }}
-            >
-              <Image
-                source={icons.icon_warning}
-                resizeMode='cover'
-                resizeMethod='resize'
-                style={{
-                  width: 16,
-                  height: 16,
-                }}
-              />
-              <Typography
-                fontSize={14}
-                style={{ color: defaultTheme.palette.typography.grayDark, textAlign: 'center' }}
-              >
-                {"Quiet is in beta and shouldn't be used for activities requiring security."}
-              </Typography>
-            </View>
+            <Button onPress={onPress} title={'Continue'} loading={loading} testID={'paste-link-continue'} />
           </KeyboardAvoidingView>
         </View>
       ) : (

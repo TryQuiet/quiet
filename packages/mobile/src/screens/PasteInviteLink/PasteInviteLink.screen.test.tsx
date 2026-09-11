@@ -10,13 +10,13 @@ import { initActions } from '../../store/init/init.slice'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
-import { JoinCommunityScreen } from './JoinCommunity.screen'
-import { type JoinCommunityScreenProps } from './JoinCommunity.types'
+import { PasteInviteLinkScreen } from './PasteInviteLink.screen'
+import { type PasteInviteLinkScreenProps } from './PasteInviteLink.types'
 
-describe('JoinCommunityScreen', () => {
-  const route: JoinCommunityScreenProps['route'] = {
-    key: 'join-community',
-    name: ScreenNames.JoinCommunityScreen,
+describe('PasteInviteLinkScreen', () => {
+  const route: PasteInviteLinkScreenProps['route'] = {
+    key: 'paste-invite-link',
+    name: ScreenNames.PasteInviteLinkScreen,
     params: {},
   }
 
@@ -29,7 +29,7 @@ describe('JoinCommunityScreen', () => {
       })
     )
     const dispatchSpy = jest.spyOn(store, 'dispatch')
-    const result = renderComponent(<JoinCommunityScreen route={route} />, store)
+    const result = renderComponent(<PasteInviteLinkScreen route={route} />, store)
     return { dispatchSpy, result }
   }
 
@@ -45,8 +45,8 @@ describe('JoinCommunityScreen', () => {
     }
     const { dispatchSpy, result } = await renderReadyScreen()
 
-    fireEvent.changeText(result.getByPlaceholderText('Invite link'), composeInvitationShareUrl(deviceInvite))
-    fireEvent.press(result.getByTestId('button'))
+    fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(deviceInvite))
+    fireEvent.press(result.getByTestId('paste-link-continue'))
 
     expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvite }))
     expect(dispatchSpy).toHaveBeenCalledWith(
@@ -70,8 +70,8 @@ describe('JoinCommunityScreen', () => {
     }
     const { dispatchSpy, result } = await renderReadyScreen()
 
-    fireEvent.changeText(result.getByPlaceholderText('Invite link'), composeInvitationShareUrl(memberInvite))
-    fireEvent.press(result.getByTestId('button'))
+    fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(memberInvite))
+    fireEvent.press(result.getByTestId('paste-link-continue'))
 
     expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.joinCommunity({ inviteData: parsedMemberInvite }))
     expect(dispatchSpy).toHaveBeenCalledWith(

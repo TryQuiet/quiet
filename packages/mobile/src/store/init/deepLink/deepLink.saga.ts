@@ -42,7 +42,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
       navigationActions.replaceScreen({
         screen: ScreenNames.ErrorScreen,
         params: {
-          onPress: () => replaceScreen(ScreenNames.JoinCommunityScreen),
+          onPress: () => replaceScreen(ScreenNames.GetStartedScreen),
           icon: icons.quiet_icon_round,
           title: InvalidInvitationLinkError.TITLE,
           message: InvalidInvitationLinkError.MESSAGE,
