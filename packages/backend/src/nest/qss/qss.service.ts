@@ -638,7 +638,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         generateKeysResponse.payload.identityKeys == null ||
         generateKeysResponse.payload.keys == null
       ) {
-        this.logger.error(`Failed to generate server keys!`, generateKeysResponse?.reason ?? 'Response was nullish')
+        this.logger.error('Failed to generate server keys', {
+          reason: generateKeysResponse?.reason ?? 'Invalid server key response',
+          responseReceived: generateKeysResponse != null,
+          status: generateKeysResponse?.status,
+          teamIdMatches: generateKeysResponse?.payload?.teamId === sigChain.team.id,
+          missingFields: (['teamId', 'serverId', 'identityKeys', 'keys'] as const).filter(
+            field => generateKeysResponse?.payload?.[field] == null
+          ),
+        })
         return false
       }
 
