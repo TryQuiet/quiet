@@ -32,8 +32,9 @@ describe('Libp2pAuth buffered connections', () => {
       toString: () => id,
     }) as PeerId
 
-  const connection = (id: string, status: Connection['status'] = 'open'): Connection =>
+  const connection = (id: string, status: Connection['status'] = 'open', connectionId = id): Connection =>
     ({
+      id: connectionId,
       direction: 'inbound',
       remotePeer: peerId(id),
       status,
@@ -66,9 +67,14 @@ describe('Libp2pAuth buffered connections', () => {
     })
     const components = {
       registrar: {
+        register: jest.fn<() => Promise<string>>().mockResolvedValue('registrar-id'),
+        handle: jest.fn<() => Promise<void>>().mockResolvedValue(),
         unhandle: jest.fn<() => Promise<void>>().mockResolvedValue(),
         unregister: jest.fn(),
       },
+      // Topology callbacks consult the live transports; none exist in this state-machine test.
+      connectionManager: { getConnections: () => [] },
+      events: new EventTarget(),
     } as unknown as Libp2pAuthComponents
 
     auth = new Libp2pAuth(sigChainService, qssService, libp2pEvents as unknown as Libp2pService, components)
@@ -121,7 +127,8 @@ describe('Libp2pAuth buffered connections', () => {
     await auth['onPeerConnected'](bufferedPeerB, connection(bufferedPeerB.toString()))
 
     expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
-    expect(auth['bufferedConnections']).toHaveLength(3)
+    // A transport that is already closed never enters the buffer on this line.
+    expect(auth['bufferedConnections']).toHaveLength(2)
 
     const admittedTeam = {
       id: teamId,
@@ -300,22 +307,25 @@ describe('Libp2pAuth buffered connections', () => {
     expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
   })
 
-  it('replaces a stale auth connection when the peer reconnects', async () => {
+  it('retires a stale session on connection close and starts a fresh one on the replacement transport', async () => {
     const reconnectingPeer = peerId('reconnecting-peer')
-    const staleConnection = connection(reconnectingPeer.toString())
+    const staleConnection = connection(reconnectingPeer.toString(), 'open', 'stale-transport')
     auth['joinStatus'] = JoinStatus.JOINED
 
     await auth['onPeerConnected'](reconnectingPeer, staleConnection)
-    const staleAuthConnection = auth['authConnections'].get(reconnectingPeer.toString())!
+    const staleAuthConnection = auth['authConnections'].get('stale-transport')!
     const stopStaleAuthConnection = jest.spyOn(staleAuthConnection, 'stop')
     ;(staleConnection as { status: Connection['status'] }).status = 'closed'
+    // Each physical transport owns one LFA session; the close event retires it.
+    auth['onConnectionClosed']({ detail: staleConnection } as CustomEvent<Connection>)
 
-    const replacementConnection = connection(reconnectingPeer.toString())
+    const replacementConnection = connection(reconnectingPeer.toString(), 'open', 'replacement-transport')
     await auth['onPeerConnected'](reconnectingPeer, replacementConnection)
 
     expect(stopStaleAuthConnection).toHaveBeenCalledTimes(1)
-    expect(auth['authConnections'].get(reconnectingPeer.toString())).not.toBe(staleAuthConnection)
-    expect(auth['peerConnections'].get(reconnectingPeer.toString())).toBe(replacementConnection)
+    expect(auth['authConnections'].has('stale-transport')).toBe(false)
+    expect(auth['authConnections'].get('replacement-transport')).not.toBe(staleAuthConnection)
+    expect(auth['peerConnections'].get('replacement-transport')).toBe(replacementConnection)
   })
 
   it('does not persist a completed candidate while admission persistence is suspended', async () => {
