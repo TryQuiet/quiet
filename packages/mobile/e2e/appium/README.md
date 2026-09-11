@@ -63,14 +63,18 @@ configuration and a bundled notification service extension with the correct
 extension type; its executable hash is recorded too. These artifact checks do not
 prove provider delivery or extension activation.
 
-For the CI simulator build, `sign-ios-simulator.py` signs the app and NSE with
-their checked-in entitlements, resolving the shared keychain group from their
-built configuration. This is required because `CODE_SIGNING_ALLOWED=NO` otherwise
-leaves the linker signature without push or shared-storage entitlements. The
-script uses an ad-hoc simulator signature and verifies both bundles without
-re-signing Tor. Provider preflight checks the actual signed development APNs,
-app-group and keychain-group capabilities. Physical devices still require normal
-development signing and provisioning.
+For the CI simulator build, `sign-ios-simulator.py --prepare` generates the app
+and NSE's simulator entitlement inputs from their checked-in configuration.
+A task-owned `LocalDev.xcconfig` links XML and DER capabilities into the native
+executables, following Xcode's simulator layout. Debug dylib splitting is disabled
+for this CI build. Existing local configuration is never overwritten.
+
+After building, the helper seals both bundles with empty host entitlements and
+verifies their linked APNs, application, app-group and keychain capabilities.
+iOS device entitlements must not be placed in the simulator's macOS signature:
+that signs successfully but prevents the app from launching. The preflight rejects
+that mistake and mismatched XML/DER capabilities. Tor's embedded bytes stay intact.
+Physical devices retain normal development signing and provisioning.
 
 The [QSS-only backend](../../../backend/e2e/qss-only/README.md) is supported on
 Android when Tor is unavailable. Build both consumers from the same receipt and

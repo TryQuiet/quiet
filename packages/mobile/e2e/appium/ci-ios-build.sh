@@ -38,6 +38,9 @@ Path('packages/mobile/ios/.xcode.env.local').write_text(
 PY
 
 (cd packages/backend && npm run webpack:prod)
+python3 packages/mobile/e2e/appium/sign-ios-simulator.py --prepare \
+  --checkout "$GITHUB_WORKSPACE" \
+  --output "$RUNNER_TEMP/notification-ios-entitlements"
 python3 packages/mobile/scripts/tor-ios-simulator/build-storybook.py \
   --checkout "$GITHUB_WORKSPACE" \
   --framework "$RUNNER_TEMP/notification-tor/Tor.framework" \
