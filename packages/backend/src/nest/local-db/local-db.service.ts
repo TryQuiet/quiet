@@ -24,11 +24,14 @@ import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
 import EventEmitter from 'events'
 import { removeFilesFromDir } from '../common/utils'
+import { Mutex } from 'async-mutex'
+import { AdmissionTransport, CommunityAdmissionMetadata } from '../admission/admission.types'
 
 @Injectable()
 export class LocalDbService extends EventEmitter {
   peers: any
   private readonly logger = createLogger(LocalDbService.name)
+  private readonly communityMutex = new Mutex()
   constructor(@Inject(LEVEL_DB) private readonly db: Level) {
     super()
   }
@@ -192,29 +195,58 @@ export class LocalDbService extends EventEmitter {
   }
 
   public async setCommunity(community: Community) {
-    this.logger.info('Setting community', community.id, community.name, community)
-    let communities = await this.get(LocalDBKeys.COMMUNITIES)
-    if (!communities) {
-      communities = {}
-    }
-    communities[community.id] = community
-    await this.put(LocalDBKeys.COMMUNITIES, communities)
+    await this.communityMutex.runExclusive(async () => {
+      this.logger.info('Setting community', community.id, community.name, community)
+      let communities = await this.get(LocalDBKeys.COMMUNITIES)
+      if (!communities) {
+        communities = {}
+      }
+      communities[community.id] = community
+      await this.put(LocalDBKeys.COMMUNITIES, communities)
+    })
   }
 
   public async updateCommunity(id: string, updates: Partial<Community>) {
-    this.logger.info('Updating community', id, updates)
-    let communities: { [id: string]: Community } = await this.get(LocalDBKeys.COMMUNITIES)
-    if (!communities) {
-      communities = {}
-    }
-    if (!Object.keys(communities).includes(id)) {
-      throw new Error(`No community found for id, can't update`)
-    }
-    communities[id] = {
-      ...communities[id],
-      ...updates,
-    }
-    await this.put(LocalDBKeys.COMMUNITIES, communities)
+    await this.communityMutex.runExclusive(async () => {
+      this.logger.info('Updating community', id, updates)
+      let communities: { [id: string]: Community } = await this.get(LocalDBKeys.COMMUNITIES)
+      if (!communities) {
+        communities = {}
+      }
+      if (!Object.keys(communities).includes(id)) {
+        throw new Error(`No community found for id, can't update`)
+      }
+      communities[id] = {
+        ...communities[id],
+        ...updates,
+      }
+      await this.put(LocalDBKeys.COMMUNITIES, communities)
+    })
+  }
+
+  public async claimAdmissionTransport(
+    communityId: string,
+    transport: AdmissionTransport
+  ): Promise<'claimed' | 'already-owned' | 'conflict'> {
+    return this.communityMutex.runExclusive(async () => {
+      const communities: Record<string, Community> = (await this.get(LocalDBKeys.COMMUNITIES)) ?? {}
+      const community = communities[communityId]
+      if (community == null) {
+        throw new Error(`Cannot claim admission transport for missing community ${communityId}`)
+      }
+
+      const storedTransport = (community as Community & CommunityAdmissionMetadata).admissionTransport
+      if (storedTransport === transport) {
+        return 'already-owned'
+      }
+      if (storedTransport != null) {
+        return 'conflict'
+      }
+
+      communities[communityId] = { ...community, admissionTransport: transport } as Community
+      await this.put(LocalDBKeys.COMMUNITIES, communities)
+      return 'claimed'
+    })
   }
 
   public async setCurrentCommunityId(communityId: string) {
@@ -279,16 +311,19 @@ export class LocalDbService extends EventEmitter {
   }
 
   public async setSigChain(sigChain: SigChain, teamId: string) {
+    if (sigChain.context == null || !('user' in sigChain.context)) {
+      throw new Error(`Cannot persist pending device invitation context for team ${teamId}`)
+    }
     // Route every write that has a team through the one writer, so a caller that
     // wants to observe or fail chain writes has a single place to do it.
     if (sigChain.team) {
-      await this.setSigChainFromTeam(sigChain.team, { user: sigChain.user, device: sigChain.device }, teamId)
+      await this.setSigChainFromTeam(sigChain.team, sigChain.localUserContext, teamId)
       return
     }
     const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
     const serializedSigChain: SigChainSaveData = {
       serializedTeam: undefined,
-      localUserContext: { user: sigChain.user, device: sigChain.device },
+      localUserContext: sigChain.localUserContext,
       teamKeyRing: undefined,
     }
     this.logger.info('Saving sigchain with no team yet', teamId)
@@ -316,6 +351,10 @@ export class LocalDbService extends EventEmitter {
     }
     this.logger.info('Saving sigchain from an explicit team', teamId)
     await this.put(key, serializedSigChain)
+  }
+
+  public async setSigChainData(serializedSigChain: SigChainSaveData, teamId: string): Promise<void> {
+    await this.put(`${LocalDBKeys.SIGCHAINS}${teamId}`, serializedSigChain)
   }
 
   public async getSigChain(teamId: string): Promise<SerializedSigChain | undefined> {

@@ -8,7 +8,7 @@ import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
+import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import JoinCommunity from './JoinCommunity'
 import CreateCommunity from '../CreateCommunity/CreateCommunity'
 import { JoinCommunityDictionary, CreateCommunityDictionary } from '../community.dictionary'
@@ -16,7 +16,8 @@ import CreateUsername from '../../CreateUsername/CreateUsername'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { CommunityOwnership } from '@quiet/types'
+import { CommunityOwnership, type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
+import { communities } from '@quiet/state-manager'
 import {
   Site,
   QUIET_JOIN_PAGE,
@@ -29,9 +30,23 @@ import { createLogger } from '../../../logger'
 const logger = createLogger('JoinCommunity.test')
 
 describe('join community', () => {
-  const { code, data } = getValidInvitationUrlTestData(validInvitationDatav4[0])
+  const { code } = getValidInvitationUrlTestData(validInvitationDatav4[0])
+  const data = {
+    ...validInvitationDatav4[0],
+    kind: InvitationKind.Member,
+  }
 
   const validCode = code()
+  const deviceInvitationData: DeviceInvitationDataV4 = {
+    ...validInvitationDatav4[0],
+    kind: InvitationKind.Device,
+    authData: {
+      ...validInvitationDatav4[0].authData,
+      userId: 'device-owner-id',
+      userName: 'device-owner',
+    },
+  }
+  const deviceInvitationCode = getValidInvitationUrlTestData(deviceInvitationData).code()
 
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({
@@ -42,6 +57,7 @@ describe('join community', () => {
       [StoreKeys.Modals]: {
         ...new ModalsInitialState(),
         [ModalName.joinCommunityModal]: { open: true },
+        [ModalName.loadingPanel]: { open: false },
       },
     })
 
@@ -109,6 +125,47 @@ describe('join community', () => {
     // Re-query after closing modal as the DOM node is re-created
     const joinCommunityTitleAgain = await screen.findByText(dictionary.header)
     expect(joinCommunityTitleAgain).toBeVisible()
+  })
+
+  it('links a device without opening username registration', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true,
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.joinCommunityModal]: { open: true },
+      },
+    })
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateUsername />
+      </>,
+      store
+    )
+
+    const dictionary = JoinCommunityDictionary()
+    await userEvent.type(screen.getByPlaceholderText(dictionary.placeholder), deviceInvitationCode)
+    await userEvent.click(screen.getByText(dictionary.button))
+
+    await waitFor(() => {
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        communities.actions.linkDevice({
+          inviteData: deviceInvitationData,
+        })
+      )
+    })
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      modalsActions.openModal({
+        name: ModalName.loadingPanel,
+        args: undefined,
+      })
+    )
+    expect(screen.queryByText('Register a username')).not.toBeInTheDocument()
   })
 
   it('joins community on submit if connection is ready and registrar url is correct', async () => {

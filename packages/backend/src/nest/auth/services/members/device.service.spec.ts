@@ -32,6 +32,14 @@ describe('devices', () => {
     newDevice = DeviceService.generateDeviceForUser(adminSigChain.user.userId)
     expect(newDevice).toBeDefined()
   })
+  it('should generate a first-use device without trusting a user ID', () => {
+    const firstUseDevice = DeviceService.generateFirstUseDevice('Alice’s phone')
+
+    expect(firstUseDevice.deviceName).toBe('Alice’s phone')
+    expect(firstUseDevice.deviceId).toBeDefined()
+    expect(firstUseDevice.keys.signature.secretKey).toBeDefined()
+    expect(firstUseDevice).not.toHaveProperty('userId')
+  })
   it('should redactDevice', () => {
     const redactedDevice = DeviceService.redactDevice(newDevice)
     expect(redactedDevice).toBeDefined()

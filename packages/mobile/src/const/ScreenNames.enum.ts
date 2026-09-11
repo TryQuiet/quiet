@@ -16,6 +16,7 @@ export enum ScreenNames {
   LeaveCommunityScreen = 'LeaveCommunityScreen',
   NotifierScreen = 'NotifierScreen',
   QRCodeScreen = 'QRCodeScreen',
+  LinkedDeviceQRCodeScreen = 'LinkedDeviceQRCodeScreen',
   SplashScreen = 'SplashScreen',
   SuccessScreen = 'SuccessScreen',
   UsernameRegistrationScreen = 'UsernameRegistrationScreen',

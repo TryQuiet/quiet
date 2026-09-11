@@ -43,7 +43,10 @@ describe('roles', () => {
     expect(secondSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
   })
   it('should add second user to team', () => {
-    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: secondSigChain.context })
+    const admission = InviteService.createMemberAdmission({
+      seed: invite.seed,
+      context: secondSigChain.localUserContext,
+    })
     adminSigChain.invites.admitMemberFromInvite(admission)
     expect(() => adminSigChain.users.getUserById(secondSigChain.user.userId)).not.toThrow()
 

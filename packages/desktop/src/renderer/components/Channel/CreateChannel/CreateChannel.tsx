@@ -40,7 +40,7 @@ export const CreateChannel = () => {
       setNewChannel(null)
       createChannelModal.handleClose()
     }
-  }, [channels])
+  }, [channels, newChannel])
 
   const clearErrors = () => {
     if (error) {

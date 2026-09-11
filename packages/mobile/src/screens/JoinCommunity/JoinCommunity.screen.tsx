@@ -2,7 +2,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { InvitationData, JoinCommunityPayload } from '@quiet/types'
+import { InvitationData, isDeviceInvitationData, JoinCommunityPayload, LinkDevicePayload } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -37,6 +37,19 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const joinCommunityAction = useCallback(
     (data: InvitationData) => {
+      if (isDeviceInvitationData(data)) {
+        const payload: LinkDevicePayload = {
+          inviteData: data,
+        }
+        dispatch(communities.actions.linkDevice(payload))
+        dispatch(
+          navigationActions.replaceScreen({
+            screen: ScreenNames.ConnectionProcessScreen,
+          })
+        )
+        return
+      }
+
       const payload: JoinCommunityPayload = {
         inviteData: data,
       }

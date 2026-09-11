@@ -1,14 +1,19 @@
+import { RoleName } from './services/roles/roles'
+import { AdmissionTransaction } from './admission-transaction'
+import { AdmissionError, AdmissionRecoveryRequiredError, AdmissionRequest } from '../admission/admission.types'
 import { Inject, Injectable } from '@nestjs/common'
 import { SigChain } from './sigchain'
 import {
   Connection,
   InviteeMemberContext,
+  InviteeDeviceContext,
   Keyring,
   LocalUserContext,
   MemberContext,
   Team,
   UserWithSecrets,
   DeviceWithSecrets,
+  FirstUseDeviceWithSecrets,
   Base58,
 } from '@localfirst/auth'
 import { KeyMetadata } from '@localfirst/crdx'
@@ -23,10 +28,20 @@ import { type CryptoService } from './services/crypto/crypto.service'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
-import { SigchainEvents, StoredKeyType } from './types'
+import {
+  AdmissionPersistenceBarrier,
+  AdmissionPersistenceState,
+  SigChainSaveData,
+  SigchainEvents,
+  StoredKeyType,
+} from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
-import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
+import type {
+  CreateDeviceFromInviteSeedInput,
+  CreateUserFromInviteSeedInput,
+  CreateUserInput,
+} from './services/members/types'
 
 /**
  * Durable writes for sigchains, and the admission gate built on them.
@@ -95,6 +110,7 @@ export class SigChainService extends EventEmitter {
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
   private readonly _chainListeners: Map<SigChain, () => void> = new Map()
+  private readonly admissionPersistenceBarriers = new Map<string, AdmissionPersistenceState>()
   /** Coalescing write state per team; see persistChain. */
   private readonly _persistQueue: Map<string, TeamPersistState> = new Map()
   /**
@@ -146,7 +162,7 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().team!
   }
 
-  get context(): MemberContext | InviteeMemberContext {
+  get context(): MemberContext | InviteeMemberContext | InviteeDeviceContext {
     return this.getActiveChain().context
   }
 
@@ -154,7 +170,7 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().user
   }
 
-  get device(): DeviceWithSecrets {
+  get device(): DeviceWithSecrets | FirstUseDeviceWithSecrets {
     return this.getActiveChain().device
   }
 
@@ -204,14 +220,21 @@ export class SigChainService extends EventEmitter {
   }
 
   setActiveChain(teamId: string): void {
-    if (this.activeChainTeamId && this.activeChainTeamId !== teamId) {
-      this.detachSocketListeners(this.getChain(this.activeChainTeamId))
-    }
     if (!this.chains.has(teamId)) {
       throw new Error(`No chain found for team ${teamId}, can't set to active!`)
     }
+    const nextChain = this.getChain(teamId)
+    if (this.activeChainTeamId === teamId) {
+      if (!this._chainListeners.has(nextChain)) {
+        this.attachSocketListeners(nextChain)
+      }
+      return
+    }
+    if (this.activeChainTeamId) {
+      this.detachSocketListeners(this.getChain(this.activeChainTeamId))
+    }
     this.activeChainTeamId = teamId
-    this.attachSocketListeners(this.getChain(teamId))
+    this.attachSocketListeners(nextChain)
   }
 
   /**
@@ -388,6 +411,10 @@ export class SigChainService extends EventEmitter {
   }
 
   private attachSocketListeners(chain: SigChain): void {
+    if (this._chainListeners.has(chain)) {
+      this.logger.debug('Socket listeners already attached to chain', chain.teamId)
+      return
+    }
     this.logger.info('Attaching socket listeners')
     const listener = (): void => {
       // EventEmitter cannot await us, so a rejected persist would otherwise
@@ -438,6 +465,11 @@ export class SigChainService extends EventEmitter {
    * @param fromDisk Whether to delete the chain from disk as well
    */
   async deleteChain(teamId: string, fromDisk: boolean): Promise<void> {
+    const barrierState = this.admissionPersistenceBarriers.get(teamId)
+    if (barrierState != null) {
+      this.cancelAdmissionPersistence(barrierState.barrier)
+    }
+    await this._persistQueue.get(teamId)?.tail
     const chain = this.chains.get(teamId)
     if (chain) {
       this.detachSocketListeners(chain)
@@ -474,7 +506,6 @@ export class SigChainService extends EventEmitter {
   async createChain(setActive: boolean, createUserInput: CreateUserInput = {}): Promise<SigChain> {
     const sigChain = SigChain.create(createUserInput)
     this.addChain(sigChain, setActive, sigChain.teamId!)
-    await this.saveChain(sigChain.teamId!)
     await this.handleChainUpdate(sigChain.teamId!)
     return sigChain
   }
@@ -488,6 +519,17 @@ export class SigChainService extends EventEmitter {
     const sigChain = SigChain.createFromInvite(createFromInviteSeedInput, teamId as Base58)
     this.addChain(sigChain, setActive, teamId)
     await this.saveChain(teamId)
+    return sigChain
+  }
+
+  async createChainFromDeviceInvite(
+    createFromDeviceInviteSeedInput: CreateDeviceFromInviteSeedInput,
+    teamId: string,
+    setActive: boolean
+  ): Promise<SigChain> {
+    this.logger.info('Creating pending chain from device invite')
+    const sigChain = SigChain.createFromDeviceInvite(createFromDeviceInviteSeedInput)
+    this.addChain(sigChain, setActive, teamId)
     return sigChain
   }
 
@@ -557,6 +599,9 @@ export class SigChainService extends EventEmitter {
    * @param teamId ID of the team whose chain should be persisted
    */
   public persistChain(teamId: string, kind: PersistKind = 'update'): Promise<void> {
+    if (this.hasAdmissionPersistenceBarrier(teamId)) {
+      return this.saveChain(teamId)
+    }
     const state = this.stateFor(teamId)
 
     if (kind === 'admission' && state.waiters >= SigChainService.MAX_PENDING_PERSISTS_PER_TEAM) {
@@ -792,7 +837,134 @@ export class SigChainService extends EventEmitter {
    * @param teamId ID of the team to save
    */
   async saveChain(teamId: string): Promise<void> {
-    await this.persistChain(teamId)
+    this.logger.info(`Saving chain to disk`, teamId)
+    await this._ensureDb()
+    const barrierState = this.admissionPersistenceBarriers.get(teamId)
+    if (barrierState != null) {
+      if (barrierState.recovery != null) throw barrierState.recovery
+      return new Promise<void>((resolve, reject) => {
+        barrierState.waiters.push({ resolve, reject })
+      })
+    }
+    await this.enqueueSnapshot(teamId, this.captureSnapshot(teamId))
+  }
+
+  beginAdmission(request: AdmissionRequest): AdmissionTransaction {
+    const base = this.getActiveChain()
+    const barrier = this.beginAdmissionPersistenceBarrier(request.teamId)
+    return new AdmissionTransaction(request, base, {
+      grantMember: async chain => {
+        if (chain.roles.amIMemberOfRole(RoleName.MEMBER)) return
+        const community = await this.localDbService.getCommunity(request.communityId)
+        const invite = community?.inviteData
+        if (
+          invite?.version !== 'v5' ||
+          !('authData' in invite) ||
+          invite.authData.teamId !== request.teamId ||
+          !('salt' in invite.authData)
+        ) {
+          throw new Error('Admission requires the stored member invitation grant')
+        }
+        chain.roles.addSelf(RoleName.MEMBER, invite.authData.seed, invite.authData.salt)
+      },
+      persist: async chain => {
+        const state = this.stateFor(request.teamId)
+        if (state.waiters >= SigChainService.MAX_PENDING_PERSISTS_PER_TEAM) {
+          throw new AdmissionError('persistence', 'Admission persistence backlog is full')
+        }
+        // Capture before any await; queued writes cannot serialize later mutations.
+        const snapshot = this.captureSnapshot(request.teamId, chain)
+        await this._ensureDb()
+        try {
+          await this.enqueueSnapshot(request.teamId, snapshot)
+        } catch (error) {
+          // LocalDb does not expose proof that a rejected write did not land.
+          throw this.requireAdmissionRecovery(barrier, 'Admission write outcome requires reconciliation', error)
+        }
+      },
+      publish: chain => {
+        try {
+          const barrierState = this.requireAdmissionBarrier(barrier)
+          if (this.getActiveChain() !== base) throw new Error('Active chain changed during admission')
+          this.detachSocketListeners(base)
+          this.chains.set(request.teamId, chain)
+          this.activeChainTeamId = request.teamId
+          this.attachSocketListeners(chain)
+          this.admissionPersistenceBarriers.delete(request.teamId)
+          for (const waiter of barrierState.waiters) waiter.resolve()
+        } catch (error) {
+          throw this.requireAdmissionRecovery(barrier, 'Durable admission could not be published', error)
+        }
+      },
+      discard: () => this.cancelAdmissionPersistence(barrier),
+    })
+  }
+
+  private requireAdmissionRecovery(
+    barrier: AdmissionPersistenceBarrier,
+    message: string,
+    cause: unknown
+  ): AdmissionRecoveryRequiredError {
+    const error = new AdmissionRecoveryRequiredError(message, cause)
+    const state = this.admissionPersistenceBarriers.get(barrier.teamId)
+    if (state?.barrier === barrier) {
+      state.recovery = error
+      for (const waiter of state.waiters) waiter.reject(error)
+      state.waiters.length = 0
+    }
+    return error
+  }
+
+  private beginAdmissionPersistenceBarrier(teamId: string): AdmissionPersistenceBarrier {
+    if (this.admissionPersistenceBarriers.has(teamId)) {
+      throw new Error(`Admission persistence barrier already active for team ${teamId}`)
+    }
+    const barrier: AdmissionPersistenceBarrier = { teamId, id: Symbol(`admission:${teamId}`) }
+    this.admissionPersistenceBarriers.set(teamId, { barrier, waiters: [] })
+    return barrier
+  }
+
+  hasAdmissionPersistenceBarrier(teamId: string): boolean {
+    return this.admissionPersistenceBarriers.has(teamId)
+  }
+
+  private cancelAdmissionPersistence(barrier: AdmissionPersistenceBarrier): void {
+    const state = this.admissionPersistenceBarriers.get(barrier.teamId)
+    if (state == null || state.barrier.id !== barrier.id) {
+      return
+    }
+    this.admissionPersistenceBarriers.delete(barrier.teamId)
+    const error = new Error(`Admission persistence cancelled for team ${barrier.teamId}`)
+    for (const waiter of state.waiters) {
+      waiter.reject(error)
+    }
+  }
+
+  private requireAdmissionBarrier(barrier: AdmissionPersistenceBarrier) {
+    const state = this.admissionPersistenceBarriers.get(barrier.teamId)
+    if (state == null || state.barrier.id !== barrier.id) {
+      throw new Error(`Admission persistence barrier is not active for team ${barrier.teamId}`)
+    }
+    return state
+  }
+
+  private captureSnapshot(teamId: string, chain = this.getChain(teamId)): SigChainSaveData {
+    if (chain.context == null || !('user' in chain.context)) {
+      throw new Error(`Cannot persist pending device invitation context for team ${teamId}`)
+    }
+    return {
+      serializedTeam: chain.team == null ? undefined : Buffer.from(chain.save()).toString('base64'),
+      localUserContext: structuredClone({ user: chain.context.user, device: chain.context.device }),
+      teamKeyRing: chain.team == null ? undefined : structuredClone(chain.team.teamKeyring()),
+    }
+  }
+
+  private async enqueueSnapshot(teamId: string, snapshot: SigChainSaveData): Promise<void> {
+    const state = this.stateFor(teamId)
+    await this.track(
+      state,
+      this.enqueue(state, async () => this.localDbService.setSigChainData(snapshot, teamId))
+    )
   }
 
   private async _ensureDb(): Promise<void> {
