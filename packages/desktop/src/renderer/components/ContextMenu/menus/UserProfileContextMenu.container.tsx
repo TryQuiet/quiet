@@ -12,7 +12,7 @@ import { ContextMenu, ContextMenuItemList } from '../ContextMenu.component'
 import { MenuName } from '../../../../const/MenuNames.enum'
 import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 import { createLogger } from '../../../logger'
-import { webUtils } from 'electron'
+import { prepareProfilePhotoForUpload } from './profilePhoto/prepareProfilePhoto'
 
 const logger = createLogger('userProfileContextMenu:container')
 
@@ -249,13 +249,21 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
  * A button that shows a file input dialog for attaching a profile
  * photo and passes the chosen file to a callback.
  */
-export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onChange }) => {
+export const EditPhotoButton: FC<{ onChange: (photo?: File) => void; busy?: boolean }> = ({
+  onChange,
+  busy = false,
+}) => {
   const fileInput = React.useRef<HTMLInputElement>(null)
 
   return (
-    <button className={classes.editPhotoButton} onClick={evt => fileInput.current?.click()}>
+    <button
+      className={classes.editPhotoButton}
+      disabled={busy}
+      data-testid='user-profile-edit-photo-button'
+      onClick={evt => fileInput.current?.click()}
+    >
       <Typography variant='body2' style={{ lineHeight: '20px' }}>
-        Edit photo
+        {busy ? 'Resizing photo…' : 'Edit photo'}
       </Typography>
       <input
         ref={fileInput}
@@ -284,11 +292,14 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   const userId = userProfile?.userId || ''
   const contextMenu = useContextMenu(MenuName.UserProfile)
   const saveUserProfileError = useSelector(users.selectors.saveUserProfileError)
-  const onSaveUserProfile = ({ photo }: { photo: File }) => {
-    // since on electron 32+ .path is undefined on File, we need to set the path property before sneding the profile pic to the backend
-    // @ts-ignore
-    photo.path = webUtils.getPathForFile(photo)
-    dispatch(users.actions.saveUserProfile({ photo }))
+  const onSaveUserProfile = async ({ photo }: { photo: File }) => {
+    // Oversized photos are re-encoded down to MAX_PROFILE_PHOTO_SIZE_BYTES here
+    // rather than refused. The result already carries the on-disk `path` the
+    // upload saga reads (since Electron 32+, File.path is gone and the path has
+    // to be resolved explicitly). A photo that already fits, or one that cannot
+    // be compressed, comes back untouched.
+    const preparedPhoto = await prepareProfilePhotoForUpload(photo)
+    dispatch(users.actions.saveUserProfile({ photo: preparedPhoto }))
   }
 
   React.useEffect(() => {
@@ -320,7 +331,7 @@ export interface UserProfileMenuEditViewProps {
     handleClose: () => any
   }
   setRoute: (route: string) => void
-  onSaveUserProfile: ({ photo }: { photo: File }) => void
+  onSaveUserProfile: ({ photo }: { photo: File }) => void | Promise<void>
   errorBanner?: string | null
 }
 
@@ -336,6 +347,9 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   const [contentRef, setContentRef] = useState<HTMLDivElement | null>(null)
   const scrollbarRef = useRef(null)
   const [offset, setOffset] = useState(0)
+  // Re-encoding a multi-megabyte photo takes a moment; keep the button from
+  // being clicked twice while it happens.
+  const [preparingPhoto, setPreparingPhoto] = useState(false)
 
   const theme = useTheme()
 
@@ -358,7 +372,12 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
       return
     }
 
-    onSaveUserProfile({ photo })
+    setPreparingPhoto(true)
+    try {
+      await onSaveUserProfile({ photo })
+    } finally {
+      setPreparingPhoto(false)
+    }
   }
 
   React.useEffect(() => {
@@ -416,7 +435,7 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                         className={classes.profilePhoto}
                         size={96}
                       />
-                      <EditPhotoButton onChange={onChange} />
+                      <EditPhotoButton onChange={onChange} busy={preparingPhoto} />
                     </Grid>
                     <label htmlFor='username' className={classes.editUsernameFieldLabel}>
                       Username
