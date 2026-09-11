@@ -644,7 +644,7 @@ Earlier scans looked only at top-level frames; the desktop onboarding designs ar
 
 | design | size | file (last edit) | node | mobile counterpart | note |
 |---|---|---|---|---|---|
-| Join community | 798×700 | Quiet Design Library (2025-04-15) | `5984:26026` | `get-started` | Desktop entry. Routes are Join community / Create new account / Recover account — no Link devices route, unlike mobile's Get started; on desktop linking lives in Settings (#3400). |
+| Join community | 798×700 | Quiet Design Library (2025-04-15) | `5984:26026` | `join-community` | Join sub-flow in two states: post-invite (Create new account / Recover account) and the three-way choice — same routes as mobile. |
 | Full screen modal | 816×540 | Quiet Design Library (2025-04-15) | `6177:33782` | `container` | Desktop paste screen; the library calls it an 'invite code'. |
 | Register username | 600×889 | Quiet Design Library (2025-04-15) | `1236:1837` | `username-default` | Library component for registering a username on desktop. |
 | modal/small | 800×636 | Quiet Design Library (2025-04-15) | `6209:16742` | `agree-and-join-server-opt-in-3054-4090` | modal/small at 800 wide — one of a responsive pair. |
@@ -656,7 +656,7 @@ Earlier scans looked only at top-level frames; the desktop onboarding designs ar
 | Frame 1327 | 816×540 | Mobile + desktop + prototypes (2024-12-23) | `1430:51905` | `open-invite-link` | 'Do you want to join the community Disco-fever?' — the invite-link confirmation; no mobile counterpart in the prototype. |
 | Frame 1331 | 816×540 | Mobile + desktop + prototypes (2024-12-23) | `1430:52275` | `username-populated` | Older (Dec 2024) desktop username modal with the same helper copy. |
 
-**Divergence to decide:** the desktop entry (`Join community` 798×700) offers *Join community / Create new account / Recover account*; the mobile *Get started* offers *Join a community / Create a new community / Link devices*. The Device-linking file's `Modal full-window` (Dec 2024) shows a desktop *Get started* that does include Link devices. Phase 1 should follow the newest desktop design (the library component, 2025-04) for the entry and put linking under Settings as #3400 does — and flag the inconsistency for the designer.
+**Correction (after viewing the exports):** the library's `Join community` 798×700 is the join sub-flow in two states — post-invite (*Create new account / Recover account*) and the three-way choice (*Join with invite link / Join with QR code / Recover account*), i.e. the same three routes as mobile. The only desktop *app entry* found is the Dec-2024 `Modal full-window` (*Let's get started… / Join a community / Create a new community / Link devices*), which matches mobile's Get started. So desktop and mobile agree on routes; desktop's entry design is simply a year older. Phase 1: desktop entry = the Modal full-window layout with the mobile prototype's copy; desktop three-way join = the library component; device linking stays reachable from the entry AND from Settings (#3400).
 
 The desktop shell for onboarding is the library's **Modal full-window** (715 wide) for entry screens and **modal/small** (800 / 1064 wide — a responsive pair) for confirmations such as Agree & join.
 
