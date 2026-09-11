@@ -111,10 +111,12 @@ validation without changing the pin. Keep version downgrade disabled.
 `npm run test:updater` exercises real TUF metadata signatures and HTTP downloads,
 pending cache reuse, root rotation/rollback, rejected updates and the actual
 AppImage replacement/execution path with a harmless temporary installer.
-On Windows, the dedicated workflow generates temporary code-signing certificates
-in the current user's stores, builds/signs a harmless PE fixture, and tests valid,
-unsigned, wrong-signer, tampered and cached installer behavior, cleaning up only
-its own certificates. These fixtures are never used as production trust.
+On its disposable elevated Windows runner, the dedicated workflow generates
+temporary code-signing certificates in the current user's personal store and
+adds their public roots to the machine Root store (user Root imports need an
+interactive confirmation). It builds/signs a harmless PE fixture and tests valid,
+unsigned, wrong-signer, tampered and cached installer behavior, removing only its
+tracked certificates from the explicit test stores. These fixtures are never used as production trust.
 
 Platform signing/notarization still needs validation on its native runner. Local
 Linux tests do not prove a production Windows certificate or macOS notarization

@@ -9,8 +9,8 @@ $tracking = Join-Path $Directory 'test-certificates.json'
 if ($Cleanup) {
   if (Test-Path $tracking) {
     foreach ($thumbprint in (Get-Content $tracking | ConvertFrom-Json)) {
-      foreach ($store in @('My', 'Root', 'TrustedPublisher')) {
-        $certificate = "Cert:\CurrentUser\$store\$thumbprint"
+      foreach ($store in @('CurrentUser\My', 'LocalMachine\Root', 'CurrentUser\TrustedPublisher')) {
+        $certificate = "Cert:\$store\$thumbprint"
         if (Test-Path $certificate) { Remove-Item $certificate -Force }
       }
     }
@@ -25,7 +25,9 @@ try {
     ConvertTo-Json @($certificates | ForEach-Object Thumbprint) | Set-Content $tracking
     $public = Join-Path $Directory "$name.cer"
     Export-Certificate -Cert $certificate -FilePath $public | Out-Null
-    Import-Certificate -FilePath $public -CertStoreLocation Cert:\CurrentUser\Root | Out-Null
+    # User Root imports require a confirmation UI. The disposable Windows CI runner
+    # is elevated; use its machine Root store and remove only our tracked certificate.
+    Import-Certificate -FilePath $public -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
     Import-Certificate -FilePath $public -CertStoreLocation Cert:\CurrentUser\TrustedPublisher | Out-Null
   }
   $unsigned = Join-Path $Directory 'unsigned.exe'
