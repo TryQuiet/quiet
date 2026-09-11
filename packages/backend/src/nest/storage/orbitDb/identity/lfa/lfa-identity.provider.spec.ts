@@ -80,35 +80,37 @@ describe('LFAIdentityProvider identity binding', () => {
     )
   })
 
-  it('keeps verifying identities and entries across a user key rotation', async () => {
+  it('keeps verifying identities and entries when user key rotation is refused', async () => {
     const alice = SigChain.create()
     const provider = providerFor(alice)
     const identity = identityFor(provider, alice)
     const oldSignature = provider.sign(alice.user.userId, alice.team!.id, 'old-entry')
 
-    alice.team!.changeKeys(createKeyset({ type: KeyType.USER, name: alice.user.userId }))
+    expect(() => alice.team!.changeKeys(createKeyset({ type: KeyType.USER, name: alice.user.userId }))).toThrow(
+      /removal and key rotation are disabled/i
+    )
     const newSignature = provider.sign(alice.user.userId, alice.team!.id, 'new-entry')
 
-    // Entries are bound to the device key, which does not rotate, so nothing about the identity changes
+    // The refused operation must not invalidate existing identities or signatures.
     expect(identityFor(provider, alice)).toEqual(identity)
     await expect(provider.verifyIdentity(identity as never)).resolves.toBe(true)
     expect(provider.verify(oldSignature, identity.publicKey, 'old-entry')).toBe(true)
     expect(provider.verify(newSignature, identity.publicKey, 'new-entry')).toBe(true)
   })
 
-  it('keeps verifying entries from a device that was later removed, until the user is removed', async () => {
+  it('keeps verifying identities and entries when device and member removal are refused', async () => {
     const alice = SigChain.create()
     const bob = addBob(alice)
     const provider = providerFor(alice)
     const bobIdentity = identityFor(provider, bob)
     const bobSignature = providerFor(bob).sign(bob.user.userId, bob.team!.id, 'entry-bytes')
 
-    alice.team!.removeDevice(bob.device.deviceId)
+    expect(() => alice.team!.removeDevice(bob.device.deviceId)).toThrow(/removal and key rotation are disabled/i)
     await expect(provider.verifyIdentity(bobIdentity as never)).resolves.toBe(true)
     expect(provider.verify(bobSignature, bobIdentity.publicKey, 'entry-bytes')).toBe(true)
 
-    alice.team!.remove(bob.user.userId)
-    await expect(provider.verifyIdentity(bobIdentity as never)).resolves.toBe(false)
+    expect(() => alice.team!.remove(bob.user.userId)).toThrow(/removal and key rotation are disabled/i)
+    await expect(provider.verifyIdentity(bobIdentity as never)).resolves.toBe(true)
   })
 
   it('passes the claimed OrbitDB identity key into entry-signature verification', async () => {
