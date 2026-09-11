@@ -389,6 +389,7 @@ describe('Message author impersonation (#125, CLIENT-002)', () => {
       { getCurrentCommunity: async () => ({ id: COMMUNITY_ID }) } as never,
       {} as never,
       {} as never,
+      {} as never,
       { getUsername: async () => undefined } as never,
       alice.sigchainService,
       {} as never,
@@ -653,6 +654,7 @@ describe('Message author impersonation (#125, CLIENT-002)', () => {
       }
       const store = new ChannelStore(
         { open: async () => ({ events: new EventEmitter(), sync: { start: async () => {} } }) } as never,
+        {} as never,
         {} as never,
         {} as never,
         {} as never,

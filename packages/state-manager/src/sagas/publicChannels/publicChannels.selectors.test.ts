@@ -1,19 +1,21 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../store.types'
 import { type FactoryGirl } from 'factory-girl'
-import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
+import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
   currentChannelMessagesMergedBySender,
   sortedCurrentChannelMessages,
   publicChannelsSelectors,
+  dmChannels,
+  sortedDmChannels,
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
 
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
-import { generateTestChannelId } from '@quiet/common'
+import { generateTestChannelId, generateDmChannelDisplayName } from '@quiet/common'
 import {
   type ChannelMessage,
   type Community,
@@ -22,9 +24,11 @@ import {
   MessageType,
   type PublicChannel,
   UserProfile,
+  ChannelType,
 } from '@quiet/types'
-import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
+import { getReduxStoreFactory } from '../../utils/tests/factories'
 import { communitiesSelectors } from '../communities/communities.selectors'
+import { createLogger } from '../../utils/logger'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
@@ -34,12 +38,19 @@ describe('publicChannelsSelectors', () => {
   let owner: Identity
   let alice: UserProfile
   let john: UserProfile
+  let userA: UserProfile
 
   let generalChannel: PublicChannel
-  let channelIdes: string[] = []
+  let channelIds: string[] = []
 
   const msgs: Record<string, ChannelMessage> = {}
   const msgsOwners: Record<string, string> = {}
+
+  const CHANNEL_NAMES: string[] = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
+  const DM_CHANNEL_NAMES: string[] = []
+  const DM_CHANNEL_IDS: string[] = []
+
+  const logger = createLogger('publicChannelsSelectors:test')
 
   beforeAll(async () => {
     setupCrypto()
@@ -66,17 +77,21 @@ describe('publicChannelsSelectors', () => {
 
     expect(generalChannel).not.toBeUndefined()
 
-    channelIdes = [...channelIdes, generalChannel.id]
+    channelIds = [...channelIds, generalChannel.id]
     john = await factory.create('UserProfile', {
       userId: 'userId_john',
       nickname: 'john',
     })
 
+    userA = await factory.create('UserProfile', {
+      userId: 'userId_a',
+      nickname: 'a',
+    })
+
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     // Setup channels
-    const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
-    for (const name of channelNames) {
+    for (const name of CHANNEL_NAMES) {
       const channel = await factory.create('PublicChannel', {
         channel: {
           name,
@@ -84,10 +99,62 @@ describe('publicChannelsSelectors', () => {
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
           id: generateTestChannelId(name),
+          type: ChannelType.CHANNEL,
         },
+        displayedName: name,
       })
-      channelIdes = [...channelIdes, channel.channel.id]
+      channelIds.push(channel.channel.id)
     }
+
+    const dmGroups = [
+      [alice.userId, john.userId],
+      [alice.userId, userA.userId],
+      [alice.userId],
+      [alice.userId, john.userId, userA.userId],
+    ]
+
+    const userProfiles = store.getState().Users.userProfiles
+    for (const dmGroup of dmGroups) {
+      const displayedName = generateDmChannelDisplayName(dmGroup, userProfiles, alice)
+      const dmChannelId = generateTestChannelId(displayedName)
+      const channel = await factory.create('PublicChannel', {
+        channel: {
+          name: dmChannelId,
+          description: '',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.userId,
+          id: dmChannelId,
+          type: ChannelType.DM,
+          memberIds: dmGroup,
+        },
+        displayedName,
+      })
+      CHANNEL_NAMES.push(channel.displayedName)
+      channelIds.push(channel.channel.id)
+      DM_CHANNEL_NAMES.push(channel.displayedName)
+      DM_CHANNEL_IDS.push(channel.channel.id)
+    }
+
+    CHANNEL_NAMES.push('general')
+    CHANNEL_NAMES.sort((nameA: string, nameB: string) => {
+      if (nameA === 'general') {
+        return -1
+      }
+      if (nameB === 'general') {
+        return 1
+      }
+      return nameA.localeCompare(nameB)
+    })
+
+    DM_CHANNEL_NAMES.sort((nameA: string, nameB: string) => {
+      if (nameA === alice.nickname) {
+        return -1
+      }
+      if (nameB === alice.nickname) {
+        return 1
+      }
+      return nameA.localeCompare(nameB)
+    })
 
     const messageData = [
       {
@@ -288,9 +355,8 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('get channel list in a consistent order', async () => {
-    const channels = getPublicChannels(store.getState()).map(channel => channel.name)
-
-    expect(channels).toStrictEqual(['general', 'allergies', 'antiques', 'croatia', 'pets', 'sailing'])
+    const channels = getPublicChannels(store.getState()).map(channel => channel.displayedName)
+    expect(channels).toStrictEqual(CHANNEL_NAMES)
   })
 
   it('unreadChannels return empty object if PublicChannels is in the wrong state (no channelStatus)', async () => {
@@ -301,6 +367,7 @@ describe('publicChannelsSelectors', () => {
 
     const oldState = store.getState()
     const channelId = oldState.PublicChannels.channels.ids[0]
+    const dmChannelId = DM_CHANNEL_IDS[0]
     const newState = {
       ...oldState,
       PublicChannels: {
@@ -312,6 +379,10 @@ describe('publicChannelsSelectors', () => {
               ...oldState.PublicChannels.channels.entities[channelId],
               channelsStatus: undefined,
             },
+            [dmChannelId]: {
+              ...oldState.PublicChannels.channels.entities[dmChannelId],
+              channelsStatus: undefined,
+            },
           },
         },
       },
@@ -321,7 +392,7 @@ describe('publicChannelsSelectors', () => {
     expect(unreadChannels).toEqual([])
   })
 
-  it('unreadChannels selector returns only unread channels', async () => {
+  it('unreadChannels selector returns only unread channels (NOT unread DMs)', async () => {
     const channelId = getPublicChannels(store.getState()).find(channel => channel.name === 'allergies')?.id
     if (!channelId) throw new Error('no channel id')
     store.dispatch(
@@ -329,8 +400,44 @@ describe('publicChannelsSelectors', () => {
         channelId,
       })
     )
+    store.dispatch(
+      publicChannelsActions.markUnreadChannel({
+        channelId: DM_CHANNEL_IDS[0],
+      })
+    )
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
     expect(unreadChannels).toEqual([channelId])
+  })
+
+  it('unreadDms selector returns only unread DMs (not unread channels)', async () => {
+    const channelId = getPublicChannels(store.getState()).find(channel => channel.name === 'allergies')?.id
+    if (!channelId) throw new Error('no channel id')
+    store.dispatch(
+      publicChannelsActions.markUnreadChannel({
+        channelId,
+      })
+    )
+    store.dispatch(
+      publicChannelsActions.markUnreadChannel({
+        channelId: DM_CHANNEL_IDS[0],
+      })
+    )
+    const unreadDms = publicChannelsSelectors.unreadDms(store.getState())
+    expect(unreadDms).toEqual([DM_CHANNEL_IDS[0]])
+  })
+
+  it('dmChannels returns only channels with type === ChannelType.DM', async () => {
+    const channels = dmChannels(store.getState())
+    const names = channels.map(channel => channel.displayedName)
+    expect(channels).toHaveLength(DM_CHANNEL_NAMES.length)
+    expect(names).toStrictEqual([...DM_CHANNEL_NAMES].sort())
+  })
+
+  it('sortedDmChannels returns only channels with type === ChannelType.DM sorted with self first', async () => {
+    const channels = sortedDmChannels(store.getState())
+    const names = channels.map(channel => channel.displayedName)
+    expect(channels).toHaveLength(DM_CHANNEL_NAMES.length)
+    expect(names).toStrictEqual(DM_CHANNEL_NAMES)
   })
 
   it('subscription selectors return only subscribed channels and current channel readiness', async () => {

@@ -23,6 +23,7 @@ export const defaultPalette = {
     grayDark: '#999999',
     gray50: '#7F7F7F',
     gray70: '#4C4C4C',
+    gray90: '#222222',
     white: '#ffffff',
     blue: '#2373EA',
     lightGray: '#B2B2B2',
@@ -43,5 +44,7 @@ export const defaultPalette = {
     lushSky: '#67BFD3',
     lightPurple: '#F3E8FF',
     grassGreen: '#80B857',
+    hotPink: '#E42656',
+    grayBadge: '#C3C3C3',
   },
 }

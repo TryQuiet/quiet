@@ -95,8 +95,12 @@ class QssCryptoService internal constructor(
             return null
         }
 
+        if ((payloadValue["channelId"] as? String)?.startsWith("dm_") == true) return null
         val signature = parseSignature(payloadValue["encSignature"])
         val innerEncrypted = parseQssEncryptedPayload(payloadValue["contents"], "inner channel message")
+        // DM ciphertext has a separate descriptor/membership signature protocol. The native
+        // background reader must not use ordinary channel verification or issue a preview.
+        if (innerEncrypted.scope.type == "DM" || innerEncrypted.scope.type == "DM_DESCRIPTOR") return null
         val decryptedInner = decryptPayload(innerEncrypted, teamId)
         val message = decryptedInner.value as? Map<*, *> ?: return null
 

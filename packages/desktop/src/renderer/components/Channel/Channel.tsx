@@ -1,11 +1,20 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { shell, ipcRenderer, webUtils } from 'electron'
 import { openExternal } from '../../openExternal'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
-import { FileMetadata, CancelDownload, FileContent, FilePreviewData } from '@quiet/types'
+import {
+  FileMetadata,
+  CancelDownload,
+  FileContent,
+  FilePreviewData,
+  ChannelType,
+  UserProfile,
+  CreateChannelPayload,
+  EMPTY_CHANNEL_ID,
+} from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
@@ -13,20 +22,29 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
-import { getFilesData } from '@quiet/common'
+import { generateDmMemberHash, getFilesData, isDefined } from '@quiet/common'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
+import { createLogger } from '../../logger'
+import _ from 'lodash'
+import NewDirectMessageComponent, { NewDirectMessageComponentProps } from './NewDirectMessage.component'
+
+const logger = createLogger('Channel')
 
 const ChannelContent = () => {
   const dispatch = useDispatch()
 
-  const user = useSelector(users.selectors.myUserProfile)
+  const myUserProfile = useSelector(users.selectors.myUserProfile)
+  const userProfiles = useSelector(users.selectors.userProfiles)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
+  const prevChannelId = useSelector(publicChannels.selectors.prevChannelId)
+  const channels = useSelector(publicChannels.selectors.publicChannels)
+  const isNewMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
   const currentChannelSubscribed = useSelector(publicChannels.selectors.currentChannelSubscribed)
 
   const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
@@ -57,14 +75,32 @@ const ChannelContent = () => {
   const { handleOpen: unregisteredUsernameModalHandleOpen } = useModal(ModalName.unregisteredUsernameModal)
 
   const [attachingFiles, setAttachingFiles] = React.useState<FilePreviewData>({})
+  const [channelName, setChannelName] = useState<string>('')
+  const [members, setMembers] = useState<UserProfile[]>([])
+  const [me, setMe] = useState<UserProfile | undefined>(myUserProfile)
 
   const filesRef = React.useRef<FilePreviewData>({})
 
   const contextMenu = useContextMenu(MenuName.Channel)
+  useEffect(() => {
+    if (currentChannel) setChannelName(currentChannelName)
+  }, [currentChannel, currentChannelName, currentChannelId])
+
+  useEffect(() => {
+    if (currentChannel == null || currentChannel.memberIds == null) {
+      setMembers(Object.values(userProfiles))
+      return
+    }
+    setMembers(currentChannel.memberIds.map(memberId => userProfiles[memberId]).filter(isDefined) ?? [])
+  }, [userProfiles, currentChannel, currentChannelId])
 
   const onInputChange = useCallback((_value: string) => {
     // TODO https://github.com/TryQuiet/ZbayLite/issues/442
   }, [])
+
+  useEffect(() => {
+    setMe(myUserProfile)
+  }, [myUserProfile])
 
   const onInputEnter = useCallback(
     (message: string) => {
@@ -83,7 +119,7 @@ const ChannelContent = () => {
     [dispatch, currentChannelId]
   )
 
-  React.useEffect(() => {
+  useEffect(() => {
     filesRef.current = attachingFiles
   }, [attachingFiles])
 
@@ -204,12 +240,99 @@ const ChannelContent = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelId])
 
-  if (!currentChannelId) return null
+  const closeNewMessageWindow = () => {
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
+    dispatch(publicChannels.actions.setCurrentChannel({ channelId: prevChannelId }))
+  }
+
+  const generateDmChannelIdFromMemberIds = (
+    memberIds: string[],
+    me: UserProfile
+  ): { uniqueMemberIds: string[]; memberIdHash: string } => {
+    const uniqueMemberIds = _.uniq([...memberIds, me.userId]).sort()
+    return {
+      memberIdHash: generateDmMemberHash(uniqueMemberIds),
+      uniqueMemberIds,
+    }
+  }
+
+  const handleNewMessageInputChange = (members: UserProfile[]) => {
+    logger.debug('New message - Handling member ID change')
+    const memberIds = members.map(member => member.userId)
+    if (me == null || members.length === 0) {
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
+      return
+    }
+    const { memberIdHash } = generateDmChannelIdFromMemberIds(memberIds, me)
+    const existingDmChannel = channels.find(channel => channel.memberIdHash === memberIdHash)
+    if (existingDmChannel != null) {
+      logger.debug('New message - Found existing DM channel')
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: existingDmChannel.id }))
+    } else {
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
+    }
+  }
+
+  const setOrCreateDmChannel = useCallback(
+    (memberIds: string[], firstMessage: string) => {
+      if (me == null || memberIds.length === 0) {
+        logger.debug('Setting channel ID to empty - missing own user profile or member IDs was empty')
+        dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
+        return
+      }
+
+      const { memberIdHash, uniqueMemberIds } = generateDmChannelIdFromMemberIds(memberIds, me)
+      const dmChannel = channels.find(channel => channel.memberIdHash === memberIdHash)
+      if (dmChannel != null) {
+        logger.debug('Found existing DM channel')
+        dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
+        dispatch(
+          publicChannels.actions.setCurrentChannel({
+            channelId: dmChannel.id,
+          })
+        )
+        if (currentChannelId === dmChannel.id) onInputEnter(firstMessage)
+        else dispatch(messages.actions.sendMessage({ channelId: dmChannel.id, message: firstMessage }))
+      } else {
+        logger.debug('Creating new DM channel')
+        if (community == null || community.teamId == null) {
+          logger.error(`Community or team ID was undefined, can't create DM channel`)
+          return
+        }
+        const payload: CreateChannelPayload = {
+          name: memberIdHash,
+          type: ChannelType.DM,
+          description: 'DM channel',
+          public: false,
+          memberIds: uniqueMemberIds,
+          teamId: community.teamId,
+        }
+        logger.debug('Running create channel action')
+        dispatch(publicChannels.actions.createChannel({ ...payload, firstMessage }))
+      }
+    },
+    [dispatch, me, channels, community, currentChannelId, onInputEnter]
+  )
+
+  if (!currentChannelId) {
+    logger.warn('Current channel ID is nullish')
+    return null
+  }
+  if (!channelName && !isNewMessageOpen) {
+    logger.warn('Channel name is nullish')
+    return null
+  }
+  if (!isNewMessageOpen && currentChannelId === EMPTY_CHANNEL_ID) {
+    logger.warn('New message view is closed but current channel ID is considered empty')
+    return null
+  }
 
   const channelComponentProps: ChannelComponentProps = {
-    user: user,
+    user: me,
     channelId: currentChannelId,
-    channelName: currentChannelName,
+    channelType: currentChannel?.type ?? ChannelType.CHANNEL,
+    channelName,
+    members,
     isPublic: currentChannel?.public ?? true,
     messages: {
       count: currentChannelMessagesCount,
@@ -235,6 +358,35 @@ const ChannelContent = () => {
     duplicatedUsernameModalHandleOpen,
   }
 
+  const newDirectMessageComponentProps: NewDirectMessageComponentProps = {
+    user: me,
+    userProfiles,
+    channelId: currentChannelId,
+    channelName,
+    messages: {
+      count: currentChannelMessagesCount,
+      groups: currentChannelDisplayableMessages,
+    },
+    newestMessage: newestCurrentChannelMessage,
+    pendingMessages: pendingMessages,
+    downloadStatuses: downloadStatusesMapping,
+    maxAutodownloadSizeBytes,
+    lazyLoading: lazyLoading,
+    onInputChange: onInputChange,
+    onInputEnter: onInputEnter,
+    openUrl: openUrl,
+    handleFileDrop: handleFileDrop,
+    openFilesDialog: openFilesDialog,
+    handleClipboardFiles: handleClipboardFiles,
+    uploadedFileModal: uploadedFileModal,
+    pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
+    unregisteredUsernameModalHandleOpen,
+    duplicatedUsernameModalHandleOpen,
+    handleInputChange: handleNewMessageInputChange,
+    handleClose: closeNewMessageWindow,
+    setOrCreateDmChannel,
+  }
+
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
     filesData: attachingFiles,
     removeFile: removeFilePreview,
@@ -248,13 +400,22 @@ const ChannelContent = () => {
 
   return (
     <>
-      {currentChannelId && (
-        <ChannelComponent
-          {...channelComponentProps}
+      {isNewMessageOpen ? (
+        <NewDirectMessageComponent
+          {...newDirectMessageComponentProps}
           {...uploadFilesPreviewProps}
           {...fileActionsProps}
-          key={currentChannelId}
+          key={'new-message'}
         />
+      ) : (
+        currentChannelId && (
+          <ChannelComponent
+            {...channelComponentProps}
+            {...uploadFilesPreviewProps}
+            {...fileActionsProps}
+            key={currentChannelId}
+          />
+        )
       )}
     </>
   )
@@ -262,7 +423,8 @@ const ChannelContent = () => {
 
 const Channel = () => {
   const channelId = useSelector(publicChannels.selectors.currentChannelId)
-  return <ChannelContent key={channelId} />
+  const newMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
+  return <ChannelContent key={newMessageOpen ? 'new-dm' : channelId} />
 }
 
 export default Channel

@@ -4,11 +4,8 @@ import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { messages, publicChannels } from '../../..'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from './../publicChannels.slice'
-import { type identityActions } from '../../identity/identity.slice'
-import { type communitiesActions } from '../../communities/communities.slice'
 import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
@@ -16,6 +13,7 @@ import { messagesActions } from '../../messages/messages.slice'
 import {
   ChannelOperationStatus,
   CommunityOwnership,
+  ChannelType,
   type Community,
   type Identity,
   type PublicChannel,
@@ -67,6 +65,7 @@ describe('channelsReplicatedSaga', () => {
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
           id: generateTestChannelId('sailing'),
+          type: ChannelType.CHANNEL,
         },
       })
     ).payload.channel
@@ -80,6 +79,7 @@ describe('channelsReplicatedSaga', () => {
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
           id: generateTestChannelId('photo'),
+          type: ChannelType.CHANNEL,
         },
       })
     ).payload.channel
@@ -99,6 +99,7 @@ describe('channelsReplicatedSaga', () => {
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          displayedName: sailingChannel.name,
           status: ChannelOperationStatus.SUCCESS,
         })
       )
@@ -118,12 +119,14 @@ describe('channelsReplicatedSaga', () => {
       .not.putResolve(
         publicChannelsActions.addChannel({
           channel: generalChannel,
+          displayedName: generalChannel.name,
           status: ChannelOperationStatus.SUCCESS,
         })
       )
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          displayedName: sailingChannel.name,
           status: ChannelOperationStatus.SUCCESS,
         })
       )
@@ -143,6 +146,7 @@ describe('channelsReplicatedSaga', () => {
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          displayedName: sailingChannel.name,
           status: ChannelOperationStatus.SUCCESS,
         })
       )
@@ -167,6 +171,7 @@ describe('channelsReplicatedSaga', () => {
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          displayedName: sailingChannel.name,
           status: ChannelOperationStatus.SUCCESS,
         })
       )
@@ -178,6 +183,7 @@ describe('channelsReplicatedSaga', () => {
       .not.putResolve(
         publicChannelsActions.addChannel({
           channel: generalChannel,
+          displayedName: generalChannel.name,
           status: ChannelOperationStatus.SUCCESS,
         })
       )
@@ -255,6 +261,7 @@ describe('channelsReplicatedSaga', () => {
       .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
+          displayedName: sailingChannel.name,
           status: ChannelOperationStatus.SUCCESS,
         })
       )

@@ -33,6 +33,8 @@ storiesOf('Chat', module)
         public: true,
         teamId: 'foobar',
       }}
+      channelName='Quiet'
+      connectedPeers={[]}
       messages={{
         count: 16,
         groups: {
@@ -253,8 +255,12 @@ storiesOf('Chat', module)
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))
   .add('Empty', () => (
@@ -280,6 +286,8 @@ storiesOf('Chat', module)
         public: true,
         teamId: 'foobar',
       }}
+      channelName='Quiet'
+      connectedPeers={[]}
       updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateFileAttachments')
       }}
@@ -289,8 +297,12 @@ storiesOf('Chat', module)
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))
   .add('MultiDayChat', () => (
@@ -325,6 +337,8 @@ storiesOf('Chat', module)
         public: true,
         teamId: 'foobar',
       }}
+      connectedPeers={[]}
+      channelName='StickyDateTest'
       messages={{
         count: 40,
         groups: {
@@ -754,7 +768,11 @@ storiesOf('Chat', module)
           ],
         },
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))

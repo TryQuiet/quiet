@@ -1,7 +1,7 @@
 import React from 'react'
 import { act, fireEvent, render } from '@testing-library/react'
 import { ipcRenderer } from 'electron'
-import { files, messages, publicChannels } from '@quiet/state-manager'
+import { files, messages, publicChannels, users } from '@quiet/state-manager'
 import Channel from './Channel'
 import { type ChannelComponentProps } from './ChannelComponent'
 
@@ -56,6 +56,7 @@ jest.mock('./ChannelComponent', () => ({
 beforeEach(() => {
   mockDispatch.mockClear()
   mockSelections.clear()
+  mockSelections.set(users.selectors.userProfiles, {})
   mockListeners.clear()
 })
 
@@ -72,7 +73,7 @@ const emitIpc = (event: string, ...args: any[]) => {
 }
 
 it('submits text and attachments with the channel displayed by that composer', () => {
-  mockSelections.set(publicChannels.selectors.currentChannelId, 'private-channel')
+  selectChannel('private-channel', false)
   const view = render(<Channel />)
   fireEvent.click(view.getByText('Attach'))
   fireEvent.click(view.getByText('Send'))
@@ -83,7 +84,7 @@ it('submits text and attachments with the channel displayed by that composer', (
     files.actions.attachFile({ path: '/file.txt', name: 'file', ext: '.txt', channelId: 'private-channel' })
   )
 
-  mockSelections.set(publicChannels.selectors.currentChannelId, 'public-channel')
+  selectChannel('public-channel', true)
   view.rerender(<Channel />)
   fireEvent.click(view.getByText('Attach'))
   fireEvent.click(view.getByText('Send'))

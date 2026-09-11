@@ -2,6 +2,7 @@ import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 import SearchModalComponent, { SearchModalComponentProps } from './SearchModelComponent'
+import { ChannelType } from '@quiet/types'
 
 const Template: ComponentStory<typeof SearchModalComponent> = args => {
   return <SearchModalComponent {...args} />
@@ -20,6 +21,8 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      type: ChannelType.CHANNEL,
+      displayedName: 'fun',
       teamId: 'foobar',
     },
     {
@@ -30,6 +33,8 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      type: ChannelType.CHANNEL,
+      displayedName: 'mobile',
       teamId: 'foobar',
     },
     {
@@ -40,6 +45,8 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      type: ChannelType.CHANNEL,
+      displayedName: 'new-york-plans',
       teamId: 'foobar',
     },
   ],
@@ -52,6 +59,8 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      type: ChannelType.CHANNEL,
+      displayedName: 'fun',
       teamId: 'foobar',
     },
     {
@@ -62,6 +71,8 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      type: ChannelType.CHANNEL,
+      displayedName: 'mobile',
       teamId: 'foobar',
     },
     {
@@ -72,6 +83,8 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      type: ChannelType.CHANNEL,
+      displayedName: 'new-york-plans',
       teamId: 'foobar',
     },
     {
@@ -82,6 +95,8 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      type: ChannelType.CHANNEL,
+      displayedName: 'general',
       teamId: 'foobar',
     },
   ],

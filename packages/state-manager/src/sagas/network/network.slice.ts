@@ -1,7 +1,7 @@
 import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { connectedPeersAdapter } from './network.adapter'
-import { type CommunityId, type ConnectedPeers, LoadingPanelType } from '@quiet/types'
+import { type CommunityId, type ConnectedPeers, LoadingPanelType, ClearConnectedPeersPayload } from '@quiet/types'
 
 export class NetworkState {
   public initializedCommunities: Record<string, boolean> = {}
@@ -27,6 +27,9 @@ export const networkSlice = createSlice({
     },
     removeConnectedPeer: (state, action: PayloadAction<ConnectedPeers>) => {
       connectedPeersAdapter.removeOne(state.connectedPeers, action.payload[0])
+    },
+    clearConnectedPeers: (state, action: PayloadAction<ClearConnectedPeersPayload>) => {
+      connectedPeersAdapter.removeAll(state.connectedPeers)
     },
     setLoadingPanelType: (state, action) => {
       state.loadingPanelType = action.payload

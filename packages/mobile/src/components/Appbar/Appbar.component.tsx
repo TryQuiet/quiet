@@ -16,13 +16,19 @@ export const Appbar: FC<AppbarProps> = ({
   back,
   submit,
   contextMenu,
+  textColor = 'main',
+  iconColor = defaultTheme.palette.typography.main,
   crossBackIcon = false,
 }) => {
   const arrow_icon = icons.arrow_left
   const cross_icon = icons.icon_close
   const menu_icon = icons.dots
   const displayedTitleComponent =
-    titleComponent != null ? titleComponent : <DefaultAppbarTitle title={title} fontSize={16} fontWeight={'medium'} />
+    titleComponent != null ? (
+      titleComponent
+    ) : (
+      <DefaultAppbarTitle title={title} fontSize={16} fontWeight={'medium'} textColor={textColor} />
+    )
   return (
     <StyledAppbar style={style}>
       <View style={{ flex: 1 }}>
@@ -63,7 +69,7 @@ export const Appbar: FC<AppbarProps> = ({
               >
                 <Typography fontSize={14} color={'white'}>
                   {prefix}
-                  {title?.slice(0, 2).toLowerCase()}
+                  {title?.slice(0, 1).toLocaleUpperCase()}
                 </Typography>
               </View>
             )}
@@ -86,6 +92,7 @@ export const Appbar: FC<AppbarProps> = ({
                 source={menu_icon}
                 resizeMode='contain'
                 resizeMethod='resize'
+                tintColor={iconColor}
                 style={{
                   width: 16,
                   height: 16,

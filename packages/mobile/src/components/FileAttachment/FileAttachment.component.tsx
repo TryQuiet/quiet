@@ -98,6 +98,7 @@ export const FileAttachment: FC<FileAttachmentProps & FileActionsProps> = ({
       onPress={() => Alert.alert('Not supported yet', 'Sorry, opening files is not supported yet on mobile.')}
     >
       <View
+        testID={`file-attachment-${message.id}`}
         style={{
           backgroundColor: defaultTheme.palette.background.white,
           maxWidth: '100%',

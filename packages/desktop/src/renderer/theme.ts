@@ -142,6 +142,17 @@ const lightTheme = createTheme({
         bottom: 2,
       },
     },
+    dmMemberCountIndicator: {
+      minSize: 14, // Total size including border
+      maxSize: 16,
+      borderWidth: 2,
+      fontSize: 9,
+      lineHeight: 12,
+      position: {
+        right: 4,
+        bottom: 4,
+      },
+    },
     userListItem: {
       gap: 8,
     },
@@ -387,6 +398,17 @@ const darkTheme = createTheme({
       position: {
         right: 0,
         bottom: 2,
+      },
+    },
+    dmMemberCountIndicator: {
+      minSize: 14, // Total size including border
+      maxSize: 16,
+      borderWidth: 2,
+      fontSize: 9,
+      lineHeight: 12,
+      position: {
+        right: 4,
+        bottom: 4,
       },
     },
     userListItem: {

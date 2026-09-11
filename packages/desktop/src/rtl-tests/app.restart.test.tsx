@@ -16,7 +16,7 @@ import { ioMock } from '../shared/setupTests'
 import { communities, getReduxStoreFactory, network, publicChannels } from '@quiet/state-manager'
 import { act } from 'react-dom/test-utils'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
-import { LoadingPanelType } from '@quiet/types'
+import { ChannelType, LoadingPanelType } from '@quiet/types'
 import { socketActions } from '../renderer/sagas/socket/socket.slice'
 
 jest.setTimeout(20_000)
@@ -78,6 +78,7 @@ describe('Restart app works correctly', () => {
         publicChannels.actions.sendInitialChannelMessage({
           channelId: generalId,
           channelName: 'general',
+          type: ChannelType.CHANNEL,
         })
       )
     })

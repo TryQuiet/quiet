@@ -54,6 +54,7 @@ describe('verified message persistence migration', () => {
         [channelId]: {
           id: channelId,
           name: 'general',
+          displayedName: 'general',
           description: 'general',
           owner: 'alice',
           timestamp: 1,

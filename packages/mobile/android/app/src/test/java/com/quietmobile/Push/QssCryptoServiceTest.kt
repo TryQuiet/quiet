@@ -69,6 +69,21 @@ class QssCryptoServiceTest {
     }
 
     @Test
+    fun suppressesDmPreviewEvenWhenAConventionalChannelSignatureWouldPass() {
+        var keyLookups = 0
+        val result = authenticateNotificationMessage(
+            envelope() + ("channelId" to "dm_immutable-descriptor"),
+            message() + ("channelId" to "dm_immutable-descriptor"),
+            plaintext, signature(), teamId,
+            { keyLookups += 1; CopperBase58.encode(publicKey) }, verifier,
+        )
+        assertEquals(null, result)
+        assertEquals(0, keyLookups)
+        // The same production authenticator still accepts an ordinary signed message.
+        assertEquals("authenticated body", authenticate(envelope(), message(), plaintext, signature())?.body)
+    }
+
+    @Test
     fun rejectsMissingOrMalformedSignature() {
         assertThrows(IllegalStateException::class.java) { parseMessageSignature(null) }
         assertThrows(IllegalStateException::class.java) {

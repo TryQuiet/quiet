@@ -2,6 +2,8 @@ import { KeyMetadata } from '@localfirst/crdx/'
 import { Base58, KeysetWithSecrets } from '@localfirst/auth'
 
 export enum EncryptionScopeType {
+  DM = 'DM',
+  DM_DESCRIPTOR = 'DM_DESCRIPTOR',
   ROLE = 'ROLE',
   CHANNEL = 'CHANNEL',
   USER = 'USER',

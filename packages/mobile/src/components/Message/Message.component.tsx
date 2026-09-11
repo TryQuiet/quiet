@@ -31,13 +31,13 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
       alt={"Message author's profile image"}
     />
   ) : (
-    <Jdenticon value={message.userId} size={37} />
+    <Jdenticon value={message.userId} size={37} borderRadius={4} />
   )
 }
 
 const MessageInner: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
-  downloadStatus,
+  downloadStatuses,
   maxAutodownloadSizeBytes,
   downloadFile,
   cancelDownload,
@@ -70,7 +70,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             ) : (
               <FileAttachment
                 message={message}
-                downloadStatus={downloadStatus}
+                downloadStatus={downloadStatuses?.[message.id]}
                 downloadFile={downloadFile}
                 cancelDownload={cancelDownload}
               />
@@ -83,7 +83,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
         return (
           <FileAttachment
             message={message}
-            downloadStatus={downloadStatus}
+            downloadStatus={downloadStatuses?.[message.id]}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
           />
@@ -227,6 +227,9 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
           </View>
           <View style={{ flexShrink: 1 }}>
             {data.map((message: DisplayableMessage, index: number) => {
+              if (message.type === MessageType.Empty) {
+                return <></>
+              }
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>

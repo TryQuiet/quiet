@@ -47,6 +47,7 @@ import { SigchainEvents } from '../../auth/types'
 import { ChannelMetadataAccessController } from './orbitdb/ChannelMetadataAccessController'
 import crypto from 'crypto'
 import type { PrivateChannelMappings } from './channels.types'
+import { ChannelType, DMS_METADATA_STORE_NAME } from '@quiet/types'
 import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 /**
@@ -60,6 +61,7 @@ export class ChannelsService extends EventEmitter {
   // Channel metadata store
   public channels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   public privateChannels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  public directMessages: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   private fileManagerEventsAttached = false
   private sigchainListenerAttached = false
   private channelCreationPromises: Map<string, Promise<ChannelStore>> = new Map()
@@ -75,6 +77,7 @@ export class ChannelsService extends EventEmitter {
     try {
       await this.channels.retryIndexingUnindexedEntries()
       await this.privateChannels.retryIndexingUnindexedEntries()
+      await this.directMessages?.retryIndexingUnindexedEntries()
       await this.broadcastCurrentChannels()
     } catch (e) {
       this.logger.warn('Error when attempting to reindex on sigchain update', e)
@@ -134,6 +137,7 @@ export class ChannelsService extends EventEmitter {
     }
     OrbitDbService.updateMetadata(this.channels, { ...metadata, isPublic: true })
     OrbitDbService.updateMetadata(this.privateChannels, { ...metadata, isPublic: false })
+    if (this.directMessages) OrbitDbService.updateMetadata(this.directMessages, { ...metadata, isPublic: false })
     for (const repo of this.channelsRepos.values()) {
       repo.store.updateMetadata(metadata)
     }
@@ -158,6 +162,7 @@ export class ChannelsService extends EventEmitter {
   public async startSync(): Promise<void> {
     await this.channels?.sync.start()
     await this.privateChannels?.sync.start()
+    await this.directMessages?.sync.start()
     this.logger.info(`Started syncing channels management database`)
   }
 
@@ -167,6 +172,7 @@ export class ChannelsService extends EventEmitter {
   public async stopSync(): Promise<void> {
     await this.channels?.sync.stop()
     await this.privateChannels?.sync.stop()
+    await this.directMessages?.sync.stop()
   }
 
   // Channels Database Management
@@ -181,9 +187,16 @@ export class ChannelsService extends EventEmitter {
     this.logger.info('Creating channels database')
     this.channels = await this.openChannelsDb()
     this.privateChannels = await this.openPrivateChannelsDb()
+    this.directMessages = await this.openMetadataDb(
+      DMS_METADATA_STORE_NAME,
+      false,
+      this.validateDirectMessageMetadataEntry,
+      true
+    )
 
     this.attachChannelMetadataUpdateHandler(this.channels)
     this.attachChannelMetadataUpdateHandler(this.privateChannels)
+    this.attachChannelMetadataUpdateHandler(this.directMessages)
 
     if (!this.sigchainListenerAttached) {
       this.sigchainService.on(SigchainEvents.UPDATED, this.handleSigchainUpdated)
@@ -264,13 +277,15 @@ export class ChannelsService extends EventEmitter {
   private async openMetadataDb(
     dbName: string,
     isPublic: boolean,
-    validateFunc: typeof this.validatePublicChannelMetadataEntry | typeof this.validatePrivateChannelMetadataEntry
+    validateFunc: typeof this.validatePublicChannelMetadataEntry | typeof this.validatePrivateChannelMetadataEntry,
+    isDirectMessage = false
   ): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
     const accessController = this.channelMetadataAccessController.createAccessControllerFunc({
       write: ['*'],
       sigchainService: this.sigchainService,
       isPublic,
       getPrivateChannelsByRolename: this.getPrivateChannelsByRolename,
+      isDirectMessage,
     })
     orbitDbUseAccessController(accessController as any)
     return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(dbName, {
@@ -283,6 +298,7 @@ export class ChannelsService extends EventEmitter {
   public encryptChannelEntry(payload: PublicChannel): EncryptedAndSignedPayload {
     try {
       const chain = this.sigchainService.getActiveChain()
+      if (payload.type === ChannelType.DM) return chain.directMessages.descriptor(payload.id)
       let scope: EncryptionScope = {
         type: EncryptionScopeType.ROLE,
         name: RoleName.MEMBER,
@@ -311,6 +327,11 @@ export class ChannelsService extends EventEmitter {
       throw new Error(`No active chain`)
     }
 
+    if (payload.encrypted.scope.type === EncryptionScopeType.DM_DESCRIPTOR) {
+      const channel = chain.directMessages.openDescriptor(payload, id ?? payload.encrypted.scope.name!)
+      if (!channel) throw new NotAMemberError(id)
+      return channel
+    }
     if (
       payload.encrypted.scope.type === EncryptionScopeType.ROLE &&
       payload.encrypted.scope.name != null &&
@@ -677,6 +698,19 @@ export class ChannelsService extends EventEmitter {
     return this.validateChannelMetadataEntry(entry, false, this.privateChannels)
   }
 
+  public async validateDirectMessageMetadataEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    try {
+      if (entry.payload.op !== OrbitDbOp.PUT || !entry.payload.key || !entry.payload.value) return false
+      const writer = await this.getVerifiedChannelEntryWriter(entry, OrbitDbOp.PUT)
+      const chain = this.sigchainService.getActiveChain()
+      if (!writer || writer.teamId !== chain.team!.id || writer.id !== entry.payload.value.userId) return false
+      chain.directMessages.validateDescriptor(entry.payload.value, entry.payload.key)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   private async validateChannelMetadataEntry(
     entry: LogEntry<EncryptedAndSignedPayload>,
     expectedPublic: boolean | undefined,
@@ -686,6 +720,7 @@ export class ChannelsService extends EventEmitter {
       if (entry.payload.op === OrbitDbOp.PUT) {
         const encPayload = entry.payload.value!
         const decEntry = this.decryptChannelEntry(encPayload)
+        if (decEntry.type === ChannelType.DM || decEntry.id?.startsWith('dm_')) return false
         if (!isChannel(decEntry)) {
           this.logger.error('Decrypted channel entry is not a valid channel:', entry.hash, decEntry)
           return false
@@ -763,6 +798,10 @@ export class ChannelsService extends EventEmitter {
   }
 
   private getMetadataStoreForChannel(channel: PublicChannel): KeyValueIndexedValidatedType<EncryptedAndSignedPayload> {
+    if (channel.type === ChannelType.DM) {
+      if (!this.directMessages) throw new Error('Direct messages have not been initialized')
+      return this.directMessages
+    }
     if (channel.public === false) {
       if (this.privateChannels == null) {
         throw new Error('Private channels have not been initialized!')
@@ -815,6 +854,7 @@ export class ChannelsService extends EventEmitter {
     if (this.privateChannels != null) {
       stores.push(this.privateChannels)
     }
+    if (this.directMessages) stores.push(this.directMessages)
     return stores
   }
 
@@ -974,6 +1014,15 @@ export class ChannelsService extends EventEmitter {
    * @returns Response containing metadata for new channel
    */
   public async handleCreateChannel(payload: CreateChannelPayload): Promise<CreateChannelResponse> {
+    if (payload.type === ChannelType.DM) {
+      const chain = this.sigchainService.getActiveChain()
+      if (payload.teamId !== chain.team!.id || !Array.isArray(payload.memberIds)) throw new Error('Invalid DM creation')
+      const channel = chain.directMessages.create(payload.memberIds)
+      await this.createChannel(channel)
+      await this.ensureChannelSubscription(channel)
+      await this.broadcastCurrentChannels()
+      return { status: ChannelOperationStatus.SUCCESS, channel }
+    }
     const id = await this.generateChannelId()
     const sigChain = this.sigchainService.getActiveChain()
     const channelData: PublicChannel = {
@@ -1137,6 +1186,7 @@ export class ChannelsService extends EventEmitter {
       this.logger.error(`Channel ${channelId} not found`)
       return { channelId, deleted: true } as DeleteChannelResponse
     }
+    if (channel.type === ChannelType.DM) return { channelId, deleted: false }
     const iCanDeleteChannel =
       (channel.public ?? true)
         ? this.sigchainService.activeChain.channels.canIDeletePublicChannel()
@@ -1188,7 +1238,7 @@ export class ChannelsService extends EventEmitter {
       return { channelId, status: AddMembersChannelStatus.CHANNEL_MISSING }
     }
 
-    if (channel.public ?? true) {
+    if (channel.type === ChannelType.DM || (channel.public ?? true)) {
       this.logger.error(`Attempted to add members to public channel ${channelId}`)
       return { channelId, status: AddMembersChannelStatus.INVALID_CHANNEL_TYPE }
     }
@@ -1237,7 +1287,7 @@ export class ChannelsService extends EventEmitter {
    * @param message Message to send
    */
   public async sendMessage(message: ChannelMessage): Promise<boolean> {
-    this.logger.info('Sending message', message)
+    this.logger.info('Sending message', message.id)
     let repo = this.channelsRepos.get(message.channelId)
     if (!repo?.subscribed) {
       const channel = await this.getChannel(message.channelId)
@@ -1357,6 +1407,11 @@ export class ChannelsService extends EventEmitter {
    * @emits IpfsFilesManagerEvents.ATTACH_FILE
    */
   public async attachFile(metadata: FileMetadata): Promise<void> {
+    if (metadata.message.channelId.startsWith('dm_')) {
+      const channel = await this.getChannel(metadata.message.channelId)
+      if (channel?.type !== ChannelType.DM) throw new Error('DM is unavailable')
+      this.sigchainService.getActiveChain().directMessages.channel(channel.id)
+    }
     this.filesManager.emit(IpfsFilesManagerEvents.ATTACH_FILE, metadata)
   }
 
@@ -1428,14 +1483,17 @@ export class ChannelsService extends EventEmitter {
     this.channelCreationPromises.clear()
     const channels = this.channels
     const privateChannels = this.privateChannels
+    const directMessages = this.directMessages
     const channelsRepos = this.channelsRepos
     this.channels = undefined
     this.privateChannels = undefined
+    this.directMessages = undefined
     this.channelsRepos = new Map()
 
     this.logger.info('Closing channels DB')
     await this.closeMetadataStore('public', channels)
     await this.closeMetadataStore('private', privateChannels)
+    await this.closeMetadataStore('direct', directMessages)
     this.logger.info('Closed channels DB')
 
     this.logger.info(`Closing each channel's DB`)
@@ -1484,14 +1542,17 @@ export class ChannelsService extends EventEmitter {
     this.channelCreationPromises.clear()
     const channels = this.channels
     const privateChannels = this.privateChannels
+    const directMessages = this.directMessages
     const channelsRepos = this.channelsRepos
     this.channels = undefined
     this.privateChannels = undefined
+    this.directMessages = undefined
     this.channelsRepos = new Map()
 
     this.logger.info('Cleaning channels DB')
     await this.cleanMetadataStore('public', channels)
     await this.cleanMetadataStore('private', privateChannels)
+    await this.cleanMetadataStore('direct', directMessages)
 
     for (const [channelId, channel] of channelsRepos.entries()) {
       try {
