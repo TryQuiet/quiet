@@ -122,9 +122,17 @@ timestamp; it must never also be a root or release authorization key.
 
 Each signer runs this on their own trusted computer with their own YubiKey.
 Install YubiKey Manager (`ykman`) and the Yubico PKCS#11 module (`ykcs11` on
-Debian, `yubico-piv-tool` with Homebrew). Inspect `ykman piv info` first: the
-commands below are for an **unused 9c slot**. Do not reset PIV or overwrite an
-existing signing key.
+Debian, `yubico-piv-tool` with Homebrew). Inspect the exact private-key slot:
+
+```bash
+ykman piv keys info 9c
+```
+
+The generation commands below are for an **unused 9c slot**. Stop if the slot
+contains a key, or if your device cannot establish whether it is empty. Use a
+separate device in that case. Do not reset PIV or overwrite an existing signing
+key. General `ykman piv info` output alone does not establish that the private-key
+slot is empty.
 
 Change the factory PIN, PUK and management key using the interactive prompts;
 store recovery information in your password manager, not the repository:
@@ -133,14 +141,20 @@ store recovery information in your password manager, not the repository:
 ykman piv access change-pin
 ykman piv access change-puk
 ykman piv access change-management-key --algorithm AES256 --protect
-ykman piv keys generate --algorithm ECCP256 9c quiet-tuf-public.pem
+ykman piv keys generate --algorithm ECCP256 --touch-policy ALWAYS 9c quiet-tuf-public.pem
 ykman piv certificates generate 9c --subject 'CN=YOUR_GITHUB_USERNAME' quiet-tuf-public.pem
+ykman piv keys info 9c
 ```
 
+Verify that the final slot information reports **generated on-chip**, **ECCP256**,
+**Touch policy: ALWAYS**, and **PIN policy: ALWAYS** (the default for slot 9c).
+Touch policy must be chosen during key generation; a key generated with the
+default never-touch policy cannot be fixed afterward without replacing it.
 The private key is generated inside the YubiKey. `quiet-tuf-public.pem` is
 public; the tool uploads public TUF key records during initialization. There
 is no PEM private key to copy, upload or derive from CSC. See the upstream
-[YubiKey procedure](https://github.com/theupdateframework/tuf-on-ci/blob/v0.20.0/docs/YUBIKEY-PIV-SETUP.md).
+[YubiKey procedure](https://github.com/theupdateframework/tuf-on-ci/blob/v0.20.0/docs/YUBIKEY-PIV-SETUP.md)
+and [PIN/touch policy documentation](https://docs.yubico.com/yesdk/users-manual/application-piv/pin-touch-policies.html).
 
 Install `tuf-on-ci-sign==0.20.0` with pipx or in a Python virtual environment,
 then create `$QUIET_TUF_CHECKOUT/.tuf-on-ci-sign.ini`:
