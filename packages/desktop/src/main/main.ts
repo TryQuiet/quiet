@@ -1,5 +1,5 @@
 import './loadMainEnvs' // Needs to be at the top of imports
-import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog } from 'electron'
+import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog, screen } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
@@ -12,6 +12,7 @@ import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '@quiet/common'
 import { type BackendLeaveCommunityMessage } from '@quiet/types'
 import { updateDesktopFile, processInvitationCode } from './invitation'
+import type ElectronStoreType from 'electron-store'
 const ElectronStore = require('electron-store')
 const contextMenu = require('electron-context-menu')
 import sodium from 'libsodium-wrappers-sumo'
@@ -90,9 +91,104 @@ interface IWindowSize {
 
 logger.info('electron main')
 
-const windowSize: IWindowSize = {
+// Used on first launch, and whenever the persisted size is missing or unusable.
+const defaultWindowSize: IWindowSize = {
   width: 800,
   height: 540,
+}
+
+// Mirrors mainWindow.setMinimumSize() in createWindow. Electron would enforce this
+// anyway, so there is no point restoring anything smaller.
+const minimumWindowSize: IWindowSize = {
+  width: 600,
+  height: 400,
+}
+
+// Kept in its own file so it can never interfere with the redux-persist store the
+// renderer process keeps in the same data directory.
+const WINDOW_STATE_STORE_NAME = 'window-state'
+const WINDOW_SIZE_STORE_KEY = 'windowSize'
+// 'resize' fires continuously while the user drags; only write once they stop.
+const WINDOW_SIZE_SAVE_DEBOUNCE_MS = 500
+
+type WindowStateStore = ElectronStoreType<{ windowSize?: IWindowSize }>
+
+let windowStateStore: WindowStateStore | null = null
+let windowSizeSaveTimeout: ReturnType<typeof setTimeout> | null = null
+
+const getWindowStateStore = (): WindowStateStore => {
+  // Created lazily: at module load time the app data directory may not exist yet.
+  if (windowStateStore === null) {
+    const store: WindowStateStore = new ElectronStore({ name: WINDOW_STATE_STORE_NAME, cwd: newUserDataPath })
+    windowStateStore = store
+    return store
+  }
+  return windowStateStore
+}
+
+const isUsableDimension = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value) && value > 0
+
+// max can legitimately be smaller than min on a very small display, in which case
+// the minimum wins - Electron enforces it through setMinimumSize regardless.
+const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), Math.max(min, max))
+
+/**
+ * Reconciles a persisted size with the display the window will actually open on, so
+ * a size saved while a bigger (possibly since disconnected) monitor was attached can
+ * never produce a window larger than the current work area. Anything missing or
+ * malformed falls back to the default.
+ */
+const resolveWindowSize = (stored: unknown, workAreaSize: IWindowSize): IWindowSize => {
+  if (typeof stored !== 'object' || stored === null) return { ...defaultWindowSize }
+  const { width, height } = stored as Partial<IWindowSize>
+  if (!isUsableDimension(width) || !isUsableDimension(height)) return { ...defaultWindowSize }
+  return {
+    width: clamp(Math.round(width), minimumWindowSize.width, workAreaSize.width),
+    height: clamp(Math.round(height), minimumWindowSize.height, workAreaSize.height),
+  }
+}
+
+const loadWindowSize = (): IWindowSize => {
+  try {
+    // screen is only usable after the 'ready' event, which is why this is called
+    // from createWindow rather than at module scope.
+    return resolveWindowSize(getWindowStateStore().get(WINDOW_SIZE_STORE_KEY), screen.getPrimaryDisplay().workAreaSize)
+  } catch (e) {
+    logger.warn('Could not read persisted window size, using the default', e)
+    return { ...defaultWindowSize }
+  }
+}
+
+const saveWindowSize = (): void => {
+  const window = mainWindow
+  if (window === null) return
+  try {
+    // A maximised or full-screen window reports the size of the screen; persisting
+    // that would reopen the app un-maximised but screen-sized.
+    if (window.isDestroyed() || window.isMaximized() || window.isFullScreen()) return
+    const [width, height] = window.getSize()
+    if (!isUsableDimension(width) || !isUsableDimension(height)) return
+    getWindowStateStore().set(WINDOW_SIZE_STORE_KEY, { width, height })
+  } catch (e) {
+    logger.warn('Could not persist window size', e)
+  }
+}
+
+const scheduleWindowSizeSave = (): void => {
+  if (windowSizeSaveTimeout !== null) clearTimeout(windowSizeSaveTimeout)
+  windowSizeSaveTimeout = setTimeout(() => {
+    windowSizeSaveTimeout = null
+    saveWindowSize()
+  }, WINDOW_SIZE_SAVE_DEBOUNCE_MS)
+}
+
+const flushWindowSizeSave = (): void => {
+  if (windowSizeSaveTimeout !== null) {
+    clearTimeout(windowSizeSaveTimeout)
+    windowSizeSaveTimeout = null
+  }
+  saveWindowSize()
 }
 
 const crypto = require('crypto').webcrypto
@@ -174,18 +270,16 @@ app.on('open-url', (event, url) => {
   }
 })
 
-let browserWidth: number
-let browserHeight: number
-
 // Default title bar must be hidden for macos because we have custom styles for it
 const titleBarStyle = process.platform === 'darwin' ? 'hidden' : 'default'
 export const createWindow = async () => {
   logger.trace('Creating splash and main windows')
+  const startupWindowSize = loadWindowSize()
   logger.trace('Creating main window')
   logger.time('Created mainWindow')
   mainWindow = new BrowserWindow({
-    width: windowSize.width,
-    height: windowSize.height,
+    width: startupWindowSize.width,
+    height: startupWindowSize.height,
     show: false,
     titleBarStyle,
     webPreferences: {
@@ -200,8 +294,10 @@ export const createWindow = async () => {
   logger.trace('Creating splash window')
   logger.time('Created splash')
   splash = new BrowserWindow({
-    width: windowSize.width,
-    height: windowSize.height,
+    // The splash window has always matched the main window so the hand-over is
+    // seamless; it follows the restored size for the same reason.
+    width: startupWindowSize.width,
+    height: startupWindowSize.height,
     show: false,
     titleBarStyle,
     webPreferences: {
@@ -257,13 +353,8 @@ export const createWindow = async () => {
     rendererReady = false
     mainWindow = null
   })
-  mainWindow.on('resize', () => {
-    if (isBrowserWindow(mainWindow)) {
-      const [width, height] = mainWindow.getSize()
-      browserHeight = height
-      browserWidth = width
-    }
-  })
+  // Remember the size the user chose so the window comes back the same next boot.
+  mainWindow.on('resize', scheduleWindowSizeSave)
   electronLocalshortcut.register(mainWindow, 'CommandOrControl+L', () => {
     if (isBrowserWindow(mainWindow)) {
       mainWindow.webContents.send('openLogs')
@@ -720,6 +811,10 @@ app.on('ready', async () => {
   mainWindow.on('close', e => {
     logger.info('Main window close event received')
     if (resetting) return
+
+    // The debounced save from 'resize' may still be pending; write it out now,
+    // while the window is still alive and can report its size.
+    flushWindowSizeSave()
 
     // --- macOS: hide instead of destroying the renderer ---
     if (process.platform === 'darwin' && !updating && backendProcess !== null) {
