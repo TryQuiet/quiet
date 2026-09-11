@@ -1,3 +1,25 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [10.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@9.0.2...@quiet/desktop@10.0.0-alpha.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **desktop:** launch AppImage host helpers with a clean environment ([#3453](https://github.com/TryQuiet/quiet/issues/3453)) ([5ae6e5b](https://github.com/TryQuiet/quiet/commit/5ae6e5bea3467213d0f7f351c91fab90a19280bc))
+* serialize community leave and creation to prevent stale teardown ([#3424](https://github.com/TryQuiet/quiet/issues/3424)) ([d609771](https://github.com/TryQuiet/quiet/commit/d60977191bd66e429ad2b72c35a6bc5703eacb33))
+
+
+### Features
+
+* enable private channels without a feature flag ([ae16fd1](https://github.com/TryQuiet/quiet/commit/ae16fd1a335a2107499ba9363e55475f7dff914f))
+
+
+
+
+
 # Changelog
 
 ## [9.0.0]
