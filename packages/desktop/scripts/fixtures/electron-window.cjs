@@ -53,9 +53,16 @@ async function main() {
     assert.equal(menu.getMenuItemById('inspect'), null)
     const copyLink = menu.getMenuItemById('copyLink')
     assert.ok(copyLink, 'link menu should offer Copy Link')
-    await copyLink.click(copyLink)
-    assert.deepEqual(errors, [], 'clipboard actions must not open an error dialog')
     const link = 'https://tryquiet.org/invite?code=clipboard-test'
+    await clipboard.writeText('clipboard before Copy Link')
+    copyLink.click({}, window, window.webContents)
+    // MenuItem.click discards the asynchronous handler's return value. Observe
+    // the real clipboard write finishing, including on macOS's pasteboard.
+    for (let i = 0; i < 250; i++) {
+      if ((await clipboard.readText()) === link || errors.length > 0) break
+      await delay(20)
+    }
+    assert.deepEqual(errors, [], 'clipboard actions must not open an error dialog')
     assert.equal(await clipboard.readText(), link)
     await window.webContents.executeJavaScript("document.getElementById('message').focus()")
     window.webContents.paste()
