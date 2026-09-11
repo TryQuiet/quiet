@@ -500,7 +500,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         <Message
           key={item.id}
           data={item.messageGroup}
-          downloadStatus={downloadStatuses?.[item.id]}
+          downloadStatuses={downloadStatuses}
           downloadFile={downloadFile}
           cancelDownload={cancelDownload}
           openImagePreview={openImagePreview}
