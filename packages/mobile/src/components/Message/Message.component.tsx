@@ -37,7 +37,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
 
 const MessageInner: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
-  downloadStatus,
+  downloadStatuses,
   maxAutodownloadSizeBytes,
   downloadFile,
   cancelDownload,
@@ -70,7 +70,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             ) : (
               <FileAttachment
                 message={message}
-                downloadStatus={downloadStatus}
+                downloadStatus={downloadStatuses?.[message.id]}
                 downloadFile={downloadFile}
                 cancelDownload={cancelDownload}
               />
@@ -83,7 +83,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
         return (
           <FileAttachment
             message={message}
-            downloadStatus={downloadStatus}
+            downloadStatus={downloadStatuses?.[message.id]}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
           />
