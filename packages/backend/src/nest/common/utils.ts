@@ -11,7 +11,7 @@ import tmp from 'tmp'
 import crypto from 'crypto'
 import { TestConfig } from '../const'
 import { CreatedLibp2pPeerId, Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
+import { createLibp2pAddress, createLibp2pListenAddress, createLocalAddress, isDefined } from '@quiet/common'
 import { createLogger } from './logger'
 import { pureJsCrypto } from '@chainsafe/libp2p-noise'
 import { webSockets } from '@libp2p/websockets'
@@ -249,16 +249,6 @@ export function generateLibp2pPSK(key?: string) {
   return { psk: psk.toString('base64'), fullKey }
 }
 
-// generate a local multiaddr: /ip4/127.0.0.1/tcp/<PORT>/ws
-function createLocalListenAddr(port: number): string {
-  return `/ip4/127.0.0.1/tcp/${port}/ws`
-}
-
-// for dialPeer(...) we add /p2p/<peerId> at the end
-function createLocalDialAddr(port: number, peerIdStr: string): string {
-  return `/ip4/127.0.0.1/tcp/${port}/ws/p2p/${peerIdStr}`
-}
-
 export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
   const port = await getPort()
   const peerId = await createPeerId()
@@ -282,11 +272,12 @@ export async function getLocalLibp2pInstanceParams(): Promise<Libp2pNodeParams> 
   const port = await getPort()
   const peerId = await createPeerId()
   const libp2pKey = generateLibp2pPSK().fullKey
+  const localAddress = createLocalAddress(port)
   return {
     peerId,
-    listenAddresses: [createLocalListenAddr(port)],
+    listenAddresses: [createLibp2pListenAddress(localAddress)],
     agent: undefined,
-    localAddress: createLocalDialAddr(port, peerId.peerId.toString()),
+    localAddress: createLibp2pAddress(localAddress, peerId.peerId.toString()),
     targetPort: port,
     psk: libp2pKey,
     transport: [webSockets()],

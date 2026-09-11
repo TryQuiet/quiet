@@ -11,7 +11,14 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 
 import { QRCodeProps } from './QRCode.types'
 
-export const QRCode: FC<QRCodeProps> = ({ value, svgRef, shareCode, handleBackButton }) => {
+export const QRCode: FC<QRCodeProps> = ({
+  value,
+  svgRef,
+  shareCode,
+  handleBackButton,
+  title = 'QR Code',
+  description = 'This community QR code is private. If it is shared with someone, they can scan it with their camera to join this community.',
+}) => {
   return (
     <View
       style={{
@@ -19,7 +26,7 @@ export const QRCode: FC<QRCodeProps> = ({ value, svgRef, shareCode, handleBackBu
         backgroundColor: defaultTheme.palette.background.white,
       }}
     >
-      <Appbar title={'QR Code'} back={handleBackButton} />
+      <Appbar title={title} back={handleBackButton} />
       <View
         style={{
           display: 'flex',
@@ -37,8 +44,7 @@ export const QRCode: FC<QRCodeProps> = ({ value, svgRef, shareCode, handleBackBu
         </View>
         <View style={{ marginTop: 16, width: 340 }}>
           <Typography fontSize={14} fontWeight={'normal'} style={{ lineHeight: 20, textAlign: 'center' }}>
-            This community QR code is private. If it is shared with someone, they can scan it with their camera to join
-            this community.
+            {description}
           </Typography>
         </View>
         <View style={{ marginTop: 16 + 12, width: 124 }}>

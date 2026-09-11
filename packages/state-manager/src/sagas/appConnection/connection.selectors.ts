@@ -11,6 +11,8 @@ import { createLogger } from '../../utils/logger'
 import {
   InvitationData,
   InvitationDataVersion,
+  InvitationKind,
+  type DeviceInvitationData,
   type UserProfile,
   type NetworkStats,
   type User,
@@ -71,6 +73,10 @@ export const peerList = createSelector(
 
 export const longLivedInvite = createSelector(connectionSlice, reducerState => {
   return reducerState.longLivedInvite
+})
+
+export const deviceLinkInvite = createSelector(connectionSlice, reducerState => {
+  return reducerState.deviceLinkInvite
 })
 
 export const invitationUrl = createSelector(
@@ -135,6 +141,63 @@ export const invitationUrl = createSelector(
   }
 )
 
+export const deviceLinkUrl = createSelector(
+  communitiesSelectors.psk,
+  communitiesSelectors.currentCommunity,
+  peerList,
+  deviceLinkInvite,
+  (communityPsk, currentCommunity, sortedPeerList, deviceLinkInvite) => {
+    if (
+      !sortedPeerList ||
+      sortedPeerList.length === 0 ||
+      !communityPsk ||
+      !currentCommunity ||
+      !deviceLinkInvite ||
+      deviceLinkInvite.expiresAt <= Date.now()
+    ) {
+      return ''
+    }
+    if (!currentCommunity.name || !currentCommunity.teamId) {
+      logger.warn('Community is missing a name or team ID')
+      return ''
+    }
+
+    const initialPeers = sortedPeerList.slice(0, 3)
+    const pairs = p2pAddressesToPairs(initialPeers)
+    const authData = {
+      communityName: currentCommunity.name,
+      seed: deviceLinkInvite.seed,
+      teamId: currentCommunity.teamId,
+      userId: deviceLinkInvite.userId,
+      userName: deviceLinkInvite.userName,
+    }
+
+    let inviteData: DeviceInvitationData = {
+      kind: InvitationKind.Device,
+      psk: communityPsk,
+      pairs,
+      authData,
+      version: InvitationDataVersion.v4,
+    }
+
+    if (currentCommunity.qssEnabled === true) {
+      if (currentCommunity.qssEndpoint == null) {
+        const message = `QSS is enabled but QSS endpoint was null! You must provide a QSS endpoint to generate a device link.`
+        logger.error(message)
+        throw new Error(message)
+      }
+      inviteData = {
+        ...inviteData,
+        version: InvitationDataVersion.v5,
+        qssEnabled: true,
+        qssEndpoint: currentCommunity.qssEndpoint,
+      }
+    }
+
+    return composeInvitationShareUrl(inviteData)
+  }
+)
+
 export const isJoiningCompleted = createSelector(
   isTorInitialized,
   isCurrentCommunityInitialized,
@@ -150,6 +213,8 @@ export const connectionSelectors = {
   peerList,
   invitationUrl,
   longLivedInvite,
+  deviceLinkInvite,
+  deviceLinkUrl,
   torBootstrapProcess,
   connectionProcess,
   isTorInitialized,
