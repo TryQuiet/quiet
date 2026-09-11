@@ -24,6 +24,7 @@ export enum SettingsModalTabName {
   QR_CODE = 'qr-code',
   LEAVE_COMMUNITY = 'leave-community',
   DEBUG = 'debug',
+  COMMUNITY_MEMBERSHIP = 'community-membership',
 }
 
 export enum PhotoExt {

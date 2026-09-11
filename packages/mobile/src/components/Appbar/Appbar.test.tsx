@@ -245,7 +245,7 @@ describe('Appbar component', () => {
                   }
                   verticalTextAlign="center"
                 >
-                  qu
+                  Q
                 </Text>
               </View>
             </View>
@@ -345,6 +345,7 @@ describe('Appbar component', () => {
                     "width": 16,
                   }
                 }
+                tintColor="#000000"
               />
             </View>
           </View>

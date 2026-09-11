@@ -1,4 +1,4 @@
-import { PublicChannelStorage } from '@quiet/types'
+import { ChannelType, PublicChannelStorage } from '@quiet/types'
 import { createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from './messages'
 import { generateTestChannelId } from './tests'
 
@@ -14,6 +14,8 @@ describe('messages helper', () => {
     id: generateTestChannelId('general'),
     messages: { ids: [], entities: {} },
     public: true,
+    type: ChannelType.CHANNEL,
+    displayedName: 'general',
     teamId: 'foobar',
   }
 
@@ -25,6 +27,8 @@ describe('messages helper', () => {
     id: generateTestChannelId('sport'),
     messages: { ids: [], entities: {} },
     public: true,
+    type: ChannelType.CHANNEL,
+    displayedName: 'sport',
     teamId: 'foobar',
   }
 

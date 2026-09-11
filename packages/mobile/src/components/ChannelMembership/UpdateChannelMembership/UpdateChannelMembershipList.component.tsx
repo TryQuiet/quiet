@@ -9,6 +9,9 @@ import { SelectableListOption, UpdateChannelMembershipListProps } from './Update
 import { Spinner } from '../../Spinner/Spinner.component'
 import { createLogger } from '../../../utils/logger'
 import { uniqueId } from 'lodash'
+import { USER_ROW_HEIGHT } from '../ChannelMembership.types'
+import { ProfilePhotoWithBadge } from '../../ProfilePhoto/ProfilePhotoWithBadge.component'
+import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 
 const logger = createLogger('UpdateChannelMembershipList')
 
@@ -19,7 +22,8 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
   setOptions,
   visibleOptionsIndices,
   channelId,
-  userProfiles,
+  nonMembers,
+  maxVisibleOptions,
 }) => {
   const [hasOptions, setHasOptions] = useState<boolean | undefined>(undefined)
   const updateOptionsOnCheck = (option: SelectableListOption) => {
@@ -35,11 +39,11 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
 
   useEffect(() => {
     setHasOptions(
-      visibleOptionsIndices == null || Object.values(userProfiles ?? {}).length === 0
+      visibleOptionsIndices == null || Object.values(nonMembers ?? {}).length === 0
         ? undefined
         : visibleOptionsIndices.size > 0
     )
-  }, [visibleOptionsIndices, userProfiles])
+  }, [visibleOptionsIndices, nonMembers])
 
   const renderItem = (listItem: ListRenderItemInfo<number>) => {
     // @ts-expect-error
@@ -66,14 +70,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
             paddingVertical: 11,
           }}
         >
-          <ProfilePhoto
-            userId={item.id}
-            username={item.label}
-            photo={userProfiles[item.id]?.photo}
-            profilePhoto={userProfiles[item.id]?.profilePhoto}
-            size={32}
-            borderRadius={4}
-          />
+          <ProfilePhotoWithBadge userData={nonMembers[item.id]} size={ProfilePhotoSize.MEDIUM} />
           <Typography fontSize={16} style={{ color: labelColor }}>
             {item.label}
           </Typography>
@@ -89,7 +86,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
         uncheckedColor={uncheckedColor}
         disabled={!item.mutable}
         onPress={() => updateOptionsOnCheck(item)}
-        viewStyle={{ paddingHorizontal: HORIZ_ELEM_PADDING }}
+        viewStyle={{ paddingHorizontal: HORIZ_ELEM_PADDING, height: 60 }}
       />
     )
   }
@@ -110,17 +107,20 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
             MEMBERS
           </Typography>
           {hasOptions ? (
-            <FlatList
-              data={[...visibleOptionsIndices]}
-              extraData={{ visibleOptionsIndices, options }}
-              keyExtractor={index => (options && options[index].id) ?? `default-id-${uniqueId()}`}
-              renderItem={index => renderItem(index)}
-              ItemSeparatorComponent={() => {
-                return <View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />
-              }}
-              style={{ backgroundColor: defaultTheme.palette.background.white }}
-              testID={`update-channel-membership-list-${channelId}`}
-            />
+            <View style={{ height: maxVisibleOptions != null ? USER_ROW_HEIGHT * maxVisibleOptions : undefined }}>
+              <FlatList
+                data={[...visibleOptionsIndices]}
+                extraData={{ visibleOptionsIndices, options }}
+                keyExtractor={index => (options && options[index].id) ?? `default-id-${uniqueId()}`}
+                renderItem={index => renderItem(index)}
+                ItemSeparatorComponent={() => {
+                  return <View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />
+                }}
+                style={{ backgroundColor: defaultTheme.palette.background.white }}
+                testID={`update-channel-membership-list-${channelId}`}
+                scrollEnabled={true}
+              />
+            </View>
           ) : (
             <Typography
               fontSize={14}

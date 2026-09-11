@@ -60,6 +60,7 @@ const getAccessControllerManifestHash = (address: string): string => {
 }
 
 interface ChannelMetadataAccessControllerConfig {
+  isDirectMessage?: boolean
   write: string[]
   sigchainService: SigChainService
   isPublic: boolean
@@ -109,7 +110,11 @@ export class ChannelMetadataAccessController {
         // @ts-ignore
         write = value.write
       } else {
-        address = await AccessControlList({ storage, params: { write }, isPublic: config.isPublic })
+        address = await AccessControlList({
+          storage,
+          params: config.isDirectMessage ? { write, directMessageVersion: 1 } : { write },
+          isPublic: config.isPublic,
+        })
         address = posixJoin('/', TYPE, address)
       }
 
@@ -161,6 +166,22 @@ export class ChannelMetadataAccessController {
           writerId: writerIdentity.id,
         })
         return false
+      }
+
+      if (config.isDirectMessage) {
+        try {
+          if (entry.payload.op !== OrbitDbOp.PUT || !entry.payload.key || !entry.payload.value) return false
+          if (writerIdentity.teamId !== chain.team!.id || writerIdentity.id !== entry.payload.value.userId) return false
+          chain.directMessages.validateDescriptor(entry.payload.value, entry.payload.key)
+          const log = getLog()
+          if (!log) return false
+          for await (const previous of log.traverse(null, async () => false)) {
+            if (previous.hash !== entry.hash && previous.payload.key === entry.payload.key) return false
+          }
+          return true
+        } catch {
+          return false
+        }
       }
 
       if (

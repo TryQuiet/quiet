@@ -1,5 +1,5 @@
 import { getBaseTypesFactory, getSocketFactory } from '@quiet/state-manager'
-import { UserProfile } from '@quiet/types'
+import { ChannelType, UserProfile } from '@quiet/types'
 import { render } from '@testing-library/react-native'
 import { FactoryGirl } from 'factory-girl'
 import React from 'react'
@@ -9,6 +9,7 @@ import { ReactTestInstance } from 'react-test-renderer'
 import { renderComponent } from '../../../utils/functions/renderComponent/renderComponent'
 import { createLogger } from '../../../utils/logger'
 import { UpdateChannelMembership } from './UpdateChannelMembership.component'
+import type { DmChannelUserData } from '../../ProfilePhoto/ProfilePhoto.types'
 
 const logger = createLogger('UpdateChannelMembership:test')
 
@@ -43,9 +44,11 @@ describe('UpdateChannelMembership component', () => {
     const rendered = renderComponent(
       <UpdateChannelMembership
         channelName={channelName}
+        channelTitle={channelName}
+        channelType={ChannelType.CHANNEL}
         channelId={channelId}
         community={undefined}
-        userProfiles={{}}
+        nonMembers={{}}
         handleBackButton={jest.fn()}
         updateChannelMembership={jest.fn()}
       />
@@ -674,12 +677,21 @@ describe('UpdateChannelMembership component', () => {
         photo: 'foobar',
       }),
     }
+    const nonMembers: { [userId: string]: DmChannelUserData } = {}
+    Object.entries(userProfiles).forEach(([userId, userProfile]) => {
+      nonMembers[userId] = {
+        connected: true,
+        user: userProfile,
+      }
+    })
     const rendered = renderComponent(
       <UpdateChannelMembership
         channelName={channelName}
+        channelTitle={channelName}
+        channelType={ChannelType.CHANNEL}
         channelId={channelId}
         community={undefined}
-        userProfiles={userProfiles}
+        nonMembers={nonMembers}
         handleBackButton={jest.fn()}
         updateChannelMembership={jest.fn()}
       />
@@ -1262,281 +1274,321 @@ describe('UpdateChannelMembership component', () => {
                 >
                   MEMBERS
                 </Text>
-                <RCTScrollView
-                  ItemSeparatorComponent={[Function]}
-                  data={
-                    [
-                      1,
-                    ]
-                  }
-                  extraData={
-                    {
-                      "options": [
-                        {
-                          "hide": true,
-                          "id": "foobar",
-                          "index": 0,
-                          "label": "foo",
-                          "mutable": false,
-                          "selected": true,
-                        },
-                        {
-                          "hide": false,
-                          "id": "barbaz",
-                          "index": 1,
-                          "label": "baz",
-                          "mutable": true,
-                          "selected": false,
-                        },
-                      ],
-                      "visibleOptionsIndices": Set {
-                        1,
-                      },
-                    }
-                  }
-                  getItem={[Function]}
-                  getItemCount={[Function]}
-                  keyExtractor={[Function]}
-                  onContentSizeChange={[Function]}
-                  onLayout={[Function]}
-                  onMomentumScrollBegin={[Function]}
-                  onMomentumScrollEnd={[Function]}
-                  onScroll={[Function]}
-                  onScrollBeginDrag={[Function]}
-                  onScrollEndDrag={[Function]}
-                  removeClippedSubviews={false}
-                  renderItem={[Function]}
-                  scrollEventThrottle={0.0001}
-                  stickyHeaderIndices={[]}
+                <View
                   style={
                     {
-                      "backgroundColor": "#ffffff",
+                      "height": undefined,
                     }
                   }
-                  testID="update-channel-membership-list-abc123"
-                  viewabilityConfigCallbackPairs={[]}
                 >
-                  <View>
-                    <View
-                      onFocusCapture={[Function]}
-                      onLayout={[Function]}
-                      style={null}
-                    >
-                      <View
-                        style={
+                  <RCTScrollView
+                    ItemSeparatorComponent={[Function]}
+                    data={
+                      [
+                        1,
+                      ]
+                    }
+                    extraData={
+                      {
+                        "options": [
                           {
-                            "alignContent": "center",
-                            "alignItems": "center",
-                            "display": "flex",
-                            "flexDirection": "row",
-                            "gap": 8,
-                            "height": "auto",
-                            "paddingHorizontal": 16,
-                            "paddingVertical": 4,
-                          }
-                        }
+                            "hide": true,
+                            "id": "foobar",
+                            "index": 0,
+                            "label": "foo",
+                            "mutable": false,
+                            "selected": true,
+                          },
+                          {
+                            "hide": false,
+                            "id": "barbaz",
+                            "index": 1,
+                            "label": "baz",
+                            "mutable": true,
+                            "selected": false,
+                          },
+                        ],
+                        "visibleOptionsIndices": Set {
+                          1,
+                        },
+                      }
+                    }
+                    getItem={[Function]}
+                    getItemCount={[Function]}
+                    keyExtractor={[Function]}
+                    onContentSizeChange={[Function]}
+                    onLayout={[Function]}
+                    onMomentumScrollBegin={[Function]}
+                    onMomentumScrollEnd={[Function]}
+                    onScroll={[Function]}
+                    onScrollBeginDrag={[Function]}
+                    onScrollEndDrag={[Function]}
+                    removeClippedSubviews={false}
+                    renderItem={[Function]}
+                    scrollEnabled={true}
+                    scrollEventThrottle={0.0001}
+                    stickyHeaderIndices={[]}
+                    style={
+                      {
+                        "backgroundColor": "#ffffff",
+                      }
+                    }
+                    testID="update-channel-membership-list-abc123"
+                    viewabilityConfigCallbackPairs={[]}
+                  >
+                    <View>
+                      <View
+                        onFocusCapture={[Function]}
+                        onLayout={[Function]}
+                        style={null}
                       >
                         <View
-                          accessibilityLiveRegion="polite"
-                          accessibilityRole="checkbox"
-                          accessibilityState={
-                            {
-                              "busy": undefined,
-                              "checked": false,
-                              "disabled": false,
-                              "expanded": undefined,
-                              "selected": undefined,
-                            }
-                          }
-                          accessibilityValue={
-                            {
-                              "max": undefined,
-                              "min": undefined,
-                              "now": undefined,
-                              "text": undefined,
-                            }
-                          }
-                          accessible={true}
-                          collapsable={false}
-                          color="#7F7F7F"
-                          focusable={true}
-                          onBlur={[Function]}
-                          onClick={[Function]}
-                          onFocus={[Function]}
-                          onResponderGrant={[Function]}
-                          onResponderMove={[Function]}
-                          onResponderRelease={[Function]}
-                          onResponderTerminate={[Function]}
-                          onResponderTerminationRequest={[Function]}
-                          onStartShouldSetResponder={[Function]}
                           style={
-                            [
-                              {
-                                "overflow": "hidden",
-                              },
-                              {
-                                "borderRadius": 18,
-                                "height": 36,
-                                "padding": 6,
-                                "width": 36,
-                              },
-                            ]
+                            {
+                              "alignContent": "center",
+                              "alignItems": "center",
+                              "display": "flex",
+                              "flexDirection": "row",
+                              "gap": 8,
+                              "height": 60,
+                              "paddingHorizontal": 16,
+                              "paddingVertical": 4,
+                            }
                           }
-                          testID="update-channel-membership-list-item-abc123-barbaz"
-                          uncheckedColor="#7F7F7F"
                         >
                           <View
+                            accessibilityLiveRegion="polite"
+                            accessibilityRole="checkbox"
+                            accessibilityState={
+                              {
+                                "busy": undefined,
+                                "checked": false,
+                                "disabled": false,
+                                "expanded": undefined,
+                                "selected": undefined,
+                              }
+                            }
+                            accessibilityValue={
+                              {
+                                "max": undefined,
+                                "min": undefined,
+                                "now": undefined,
+                                "text": undefined,
+                              }
+                            }
+                            accessible={true}
                             collapsable={false}
+                            color="#7F7F7F"
+                            focusable={true}
+                            onBlur={[Function]}
+                            onClick={[Function]}
+                            onFocus={[Function]}
+                            onResponderGrant={[Function]}
+                            onResponderMove={[Function]}
+                            onResponderRelease={[Function]}
+                            onResponderTerminate={[Function]}
+                            onResponderTerminationRequest={[Function]}
+                            onStartShouldSetResponder={[Function]}
+                            style={
+                              [
+                                {
+                                  "overflow": "hidden",
+                                },
+                                {
+                                  "borderRadius": 18,
+                                  "height": 36,
+                                  "padding": 6,
+                                  "width": 36,
+                                },
+                              ]
+                            }
+                            testID="update-channel-membership-list-item-abc123-barbaz"
+                            uncheckedColor="#7F7F7F"
+                          >
+                            <View
+                              collapsable={false}
+                              style={
+                                {
+                                  "transform": [
+                                    {
+                                      "scale": 1,
+                                    },
+                                  ],
+                                }
+                              }
+                            >
+                              <Text
+                                accessibilityElementsHidden={true}
+                                allowFontScaling={false}
+                                importantForAccessibility="no-hide-descendants"
+                                pointerEvents="none"
+                                selectable={false}
+                                style={
+                                  [
+                                    {
+                                      "backgroundColor": "transparent",
+                                    },
+                                    {
+                                      "color": "#7F7F7F",
+                                      "fontSize": 24,
+                                    },
+                                  ]
+                                }
+                              >
+                                □
+                              </Text>
+                              <View
+                                style={
+                                  [
+                                    {
+                                      "bottom": 0,
+                                      "left": 0,
+                                      "position": "absolute",
+                                      "right": 0,
+                                      "top": 0,
+                                    },
+                                    {
+                                      "alignItems": "center",
+                                      "justifyContent": "center",
+                                    },
+                                  ]
+                                }
+                              >
+                                <View
+                                  collapsable={false}
+                                  style={
+                                    {
+                                      "borderColor": "#7F7F7F",
+                                      "borderWidth": 0,
+                                      "height": 14,
+                                      "width": 14,
+                                    }
+                                  }
+                                />
+                              </View>
+                            </View>
+                          </View>
+                          <View
+                            accessibilityState={
+                              {
+                                "busy": undefined,
+                                "checked": undefined,
+                                "disabled": undefined,
+                                "expanded": undefined,
+                                "selected": undefined,
+                              }
+                            }
+                            accessibilityValue={
+                              {
+                                "max": undefined,
+                                "min": undefined,
+                                "now": undefined,
+                                "text": undefined,
+                              }
+                            }
+                            accessible={true}
+                            collapsable={false}
+                            focusable={true}
+                            onClick={[Function]}
+                            onResponderGrant={[Function]}
+                            onResponderMove={[Function]}
+                            onResponderRelease={[Function]}
+                            onResponderTerminate={[Function]}
+                            onResponderTerminationRequest={[Function]}
+                            onStartShouldSetResponder={[Function]}
                             style={
                               {
-                                "transform": [
-                                  {
-                                    "scale": 1,
-                                  },
-                                ],
+                                "opacity": 1,
                               }
                             }
                           >
-                            <Text
-                              accessibilityElementsHidden={true}
-                              allowFontScaling={false}
-                              importantForAccessibility="no-hide-descendants"
-                              pointerEvents="none"
-                              selectable={false}
-                              style={
-                                [
-                                  {
-                                    "backgroundColor": "transparent",
-                                  },
-                                  {
-                                    "color": "#7F7F7F",
-                                    "fontSize": 24,
-                                  },
-                                ]
-                              }
-                            >
-                              □
-                            </Text>
                             <View
                               style={
-                                [
-                                  {
-                                    "bottom": 0,
-                                    "left": 0,
-                                    "position": "absolute",
-                                    "right": 0,
-                                    "top": 0,
-                                  },
-                                  {
-                                    "alignItems": "center",
-                                    "justifyContent": "center",
-                                  },
-                                ]
+                                {
+                                  "alignContent": "center",
+                                  "alignItems": "center",
+                                  "display": "flex",
+                                  "flexDirection": "row",
+                                  "gap": 16,
+                                  "paddingVertical": 11,
+                                }
                               }
                             >
                               <View
-                                collapsable={false}
-                                style={
-                                  {
-                                    "borderColor": "#7F7F7F",
-                                    "borderWidth": 0,
-                                    "height": 14,
-                                    "width": 14,
+                                style={{}}
+                              >
+                                <Image
+                                  alt="baz's profile image"
+                                  source={
+                                    {
+                                      "uri": "foobar",
+                                    }
                                   }
+                                  style={
+                                    {
+                                      "borderRadius": 4,
+                                      "height": 37,
+                                      "padding": 0,
+                                      "width": 37,
+                                    }
+                                  }
+                                />
+                                <Text
+                                  collapsable={false}
+                                  numberOfLines={1}
+                                  style={
+                                    {
+                                      "alignSelf": "flex-end",
+                                      "backgroundColor": "#80B857",
+                                      "borderColor": "#ffffff",
+                                      "borderRadius": 5.5,
+                                      "borderWidth": 1,
+                                      "color": "rgba(255, 255, 255, 1)",
+                                      "fontSize": 5.5,
+                                      "height": 11,
+                                      "lineHeight": 5.5,
+                                      "minWidth": 11,
+                                      "opacity": 1,
+                                      "overflow": "hidden",
+                                      "paddingHorizontal": 3,
+                                      "position": "absolute",
+                                      "right": -4,
+                                      "textAlign": "center",
+                                      "textAlignVertical": "center",
+                                      "top": 28,
+                                    }
+                                  }
+                                />
+                              </View>
+                              <Text
+                                color="main"
+                                fontSize={16}
+                                horizontalTextAlign="left"
+                                style={
+                                  [
+                                    {
+                                      "color": "#000000",
+                                      "fontFamily": "Rubik-Regular",
+                                      "fontSize": 16,
+                                      "textAlign": "left",
+                                      "textAlignVertical": "center",
+                                    },
+                                    {
+                                      "color": "#000000",
+                                    },
+                                  ]
                                 }
-                              />
+                                verticalTextAlign="center"
+                              >
+                                baz
+                              </Text>
                             </View>
-                          </View>
-                        </View>
-                        <View
-                          accessibilityState={
-                            {
-                              "busy": undefined,
-                              "checked": undefined,
-                              "disabled": undefined,
-                              "expanded": undefined,
-                              "selected": undefined,
-                            }
-                          }
-                          accessibilityValue={
-                            {
-                              "max": undefined,
-                              "min": undefined,
-                              "now": undefined,
-                              "text": undefined,
-                            }
-                          }
-                          accessible={true}
-                          collapsable={false}
-                          focusable={true}
-                          onClick={[Function]}
-                          onResponderGrant={[Function]}
-                          onResponderMove={[Function]}
-                          onResponderRelease={[Function]}
-                          onResponderTerminate={[Function]}
-                          onResponderTerminationRequest={[Function]}
-                          onStartShouldSetResponder={[Function]}
-                          style={
-                            {
-                              "opacity": 1,
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "alignContent": "center",
-                                "alignItems": "center",
-                                "display": "flex",
-                                "flexDirection": "row",
-                                "gap": 16,
-                                "paddingVertical": 11,
-                              }
-                            }
-                          >
-                            <Image
-                              alt="baz's profile image"
-                              source={
-                                {
-                                  "uri": "foobar",
-                                }
-                              }
-                              style={
-                                {
-                                  "borderRadius": 4,
-                                  "height": 32,
-                                  "width": 32,
-                                }
-                              }
-                            />
-                            <Text
-                              color="main"
-                              fontSize={16}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#000000",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 16,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                  {
-                                    "color": "#000000",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              baz
-                            </Text>
                           </View>
                         </View>
                       </View>
                     </View>
-                  </View>
-                </RCTScrollView>
+                  </RCTScrollView>
+                </View>
                 <View
                   style={
                     {
@@ -1570,12 +1622,21 @@ describe('UpdateChannelMembership component', () => {
         channels: [channelId],
       }),
     }
+    const nonMembers: { [userId: string]: DmChannelUserData } = {}
+    Object.entries(userProfiles).forEach(([userId, userProfile]) => {
+      nonMembers[userId] = {
+        connected: true,
+        user: userProfile,
+      }
+    })
     const rendered = renderComponent(
       <UpdateChannelMembership
         channelName={channelName}
+        channelTitle={channelName}
+        channelType={ChannelType.CHANNEL}
         channelId={channelId}
         community={undefined}
-        userProfiles={userProfiles}
+        nonMembers={nonMembers}
         handleBackButton={jest.fn()}
         updateChannelMembership={jest.fn()}
       />

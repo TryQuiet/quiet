@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { publicChannels } from '@quiet/state-manager'
+import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('ChannelMembership')
 
@@ -20,8 +21,10 @@ const MODIFIABLE_MEMBERSHIP_TITLE = 'Permissions'
 const NON_MODIFIABLE_MEMBERSHIP_TITLE = 'Members'
 
 export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
+  channelTitle,
   channelName,
   channelId,
+  channelType,
   community,
   members,
   memberCount,
@@ -32,6 +35,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   const [displayedName, setDisplayedName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const [headerTitle, setHeaderTitle] = useState<string>('')
+  const mutableMembership = canAddMembers && channelType !== ChannelType.DM
 
   const channel = useSelector(publicChannels.selectors.currentChannel)
 
@@ -41,12 +45,14 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
       navigationActions.replaceScreen({
         screen: ScreenNames.UpdateChannelMembershipScreen,
         params: {
+          channelTitle,
           channelName,
           channelId,
+          channelType,
         },
       })
     )
-  }, [dispatch, channelName, channelId])
+  }, [dispatch, channelTitle, channelId])
 
   const goBack = () => {
     if (!loading) {
@@ -56,14 +62,14 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
 
   // Don't loose channel name during store cleanup
   useEffect(() => {
-    if (channelName !== '') {
-      setDisplayedName(channelName)
+    if (channelTitle !== '') {
+      setDisplayedName(channelTitle)
     }
-  }, [channelName])
+  }, [channelTitle])
 
   useEffect(() => {
-    setHeaderTitle(canAddMembers ? MODIFIABLE_MEMBERSHIP_TITLE : NON_MODIFIABLE_MEMBERSHIP_TITLE)
-  }, [canAddMembers])
+    setHeaderTitle(mutableMembership ? MODIFIABLE_MEMBERSHIP_TITLE : NON_MODIFIABLE_MEMBERSHIP_TITLE)
+  }, [mutableMembership])
 
   return (
     <View
@@ -82,7 +88,8 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
           titleComponent={
             <ChannelMembershipAppbarHeaderTitle
               title={headerTitle}
-              channelName={displayedName}
+              channelTitle={displayedName}
+              channelType={channelType}
               membershipCount={memberCount}
             />
           }
@@ -96,7 +103,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
             gap: 32,
           }}
         >
-          {canAddMembers && (
+          {mutableMembership && (
             <View>
               <View
                 style={{

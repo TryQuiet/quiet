@@ -21,7 +21,7 @@ configure(() => {
   require('../src/components/Appbar/Appbar.stories')
   require('../src/components/Registration/UsernameRegistration.stories')
   require('../src/components/ChannelTile/ChannelTile.stories')
-  require('../src/components/ChannelList/ChannelList.stories')
+  require('../src/components/AppHome/AppHome.stories')
   require('../src/components/CreateChannel/CreateChannel.stories')
   require('../src/components/DeleteChannel/DeleteChannel.stories')
   require('../src/components/QRCode/QRCode.stories')

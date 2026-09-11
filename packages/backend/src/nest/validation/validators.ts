@@ -146,6 +146,10 @@ const encryptedMessageSchema = joi.object({
 })
 
 const channelSchema = joi.object({
+  type: joi.string().valid('channel', 'dm').optional(),
+  memberIds: joi.array().items(joi.string()).optional(),
+  memberIdHash: joi.string().optional(),
+  displayedName: joi.string().optional(),
   name: joi.string().required(),
   description: joi.string().required(),
   owner: joi.string().required(),
@@ -185,13 +189,13 @@ export const isMessage = (msg: ChannelMessage): boolean => {
 
 export const isConsumedChannelMessage = (msg: ChannelMessage): boolean => {
   const value: joi.ValidationResult = consumedChannelMessageSchema.validate(msg, { convert: false })
-  if (value.error) logger.error('isConsumedChannelMessage', value.error)
+  if (value.error) logger.error('Invalid consumed message shape')
   return !value.error
 }
 
 export const isEncryptedMessage = (msg: EncryptedMessage): boolean => {
   const value: joi.ValidationResult = encryptedMessageSchema.validate(msg)
-  if (value.error) logger.error('isEncryptedMessage', value.error)
+  if (value.error) logger.error('Invalid encrypted message shape')
   return !value.error
 }
 

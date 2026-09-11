@@ -24,6 +24,7 @@ import {
   type PublicChannelStatusWithName,
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
+  ChannelType,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 import { currentCommunity } from '../communities/communities.selectors'
@@ -81,6 +82,7 @@ export const selectGeneralChannel = createSelector(selectChannels, currentCommun
     timestamp: draft.timestamp,
     id: draft.id,
     public: draft.public,
+    type: ChannelType.CHANNEL,
     teamId: currentCommunity.teamId,
   }
   return channel
@@ -95,7 +97,7 @@ export const publicChannels = createSelector(selectChannels, selectChannelsSelec
     if (b.name === 'general') {
       return 0
     }
-    return a.name.localeCompare(b.name)
+    return a.displayedName.localeCompare(b.displayedName)
   })
 
   return sorted
@@ -179,7 +181,7 @@ export const currentChannel = createSelector(currentChannelId, selectChannels, (
 
 export const currentChannelName = createSelector(currentChannel, channel => {
   if (!channel) return ''
-  return channel.name
+  return channel.displayedName
 })
 
 export const currentChannelMessages = createSelector(currentChannel, channel => {
@@ -309,15 +311,41 @@ export const channelsStatusSorted = createSelector(selectState, selectChannels, 
     .reverse()
 })
 
-export const unreadChannels = createSelector(channelsStatus, status => {
-  return Object.values(status)
-    .filter(isDefined)
-    .reduce((result: string[], channel: PublicChannelStatus) => {
-      if (channel.unread) {
-        result.push(channel.id)
+export const getUnreadChannelsByType = (channelType: ChannelType) =>
+  createSelector(channelsStatus, status => {
+    const unreadIds: string[] = []
+    Object.values(status).forEach(thisStatus => {
+      if (isDefined(thisStatus) && thisStatus.type === channelType && thisStatus.unread) {
+        unreadIds.push(thisStatus.id)
       }
-      return result
-    }, [])
+    })
+    return unreadIds
+  })
+
+export const unreadChannels = createSelector(getUnreadChannelsByType(ChannelType.CHANNEL), unreadChannels => {
+  return unreadChannels
+})
+
+export const unreadDms = createSelector(getUnreadChannelsByType(ChannelType.DM), unreadDms => {
+  return unreadDms
+})
+
+export const dmChannels = createSelector(publicChannels, channels => {
+  return channels.filter(channel => channel.type === ChannelType.DM)
+})
+
+export const sortedDmChannels = createSelector(dmChannels, dmChannels => {
+  const sorted = dmChannels.sort((a, b) => {
+    if (a.memberIds != null && a.memberIds.length === 1) {
+      return -1
+    }
+    if (b.memberIds != null && b.memberIds.length === 1) {
+      return 1
+    }
+    return a.displayedName.localeCompare(b.displayedName)
+  })
+
+  return sorted
 })
 
 export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySender, currentChannelMessages => {
@@ -328,6 +356,14 @@ export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySe
 export const areChannelsLoaded = createSelector(publicChannels, channels => {
   const channelCount = channels.length
   return channelCount > 0
+})
+
+export const isNewMessageOpen = createSelector(selectState, state => {
+  return state.newMessageOpen
+})
+
+export const prevChannelId = createSelector(selectState, state => {
+  return state.prevChannelId
 })
 
 // TODO: update when we have assignable roles and tie channel operations to specific roles
@@ -385,6 +421,11 @@ export const publicChannelsSelectors = {
   getChannelById,
   areMessagesLoaded,
   areChannelsLoaded,
+  isNewMessageOpen,
+  dmChannels,
+  sortedDmChannels,
+  unreadDms,
+  prevChannelId,
   canCreateChannel,
   canCreatePrivateChannel,
   genericChannelPermissions,

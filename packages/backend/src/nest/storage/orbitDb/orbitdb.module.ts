@@ -12,6 +12,7 @@ import { CommonModule } from '../../common/common.module'
 import { LFAIdentityProvider } from './identity/lfa/lfa-identity.provider'
 import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 import { PrivateChannelMessagesService } from '../channels/messages/private-channel-messages.service'
+import { DirectMessagesService } from '../channels/messages/direct-messages.service'
 import { NotificationTokensStore } from '../notifications/notificationTokens.store'
 import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesAccessController'
 import { PrivateMessagesAccessController } from '../channels/messages/orbitdb/PrivateMessagesAccessController'
@@ -33,6 +34,7 @@ import { UserProfileAccessController } from '../userProfile/UserProfileAccessCon
     ChannelsService,
     PublicChannelMessagesService,
     PrivateChannelMessagesService,
+    DirectMessagesService,
     NotificationTokensStore,
     LFAIdentityProvider,
     LFAIdentities,
@@ -48,6 +50,7 @@ import { UserProfileAccessController } from '../userProfile/UserProfileAccessCon
     ChannelsService,
     PublicChannelMessagesService,
     PrivateChannelMessagesService,
+    DirectMessagesService,
     NotificationTokensStore,
     LFAIdentityProvider,
     LFAIdentities,

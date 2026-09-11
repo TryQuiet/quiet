@@ -1,0 +1,79 @@
+import fs from 'fs'
+import path from 'path'
+import { execFileSync } from 'child_process'
+
+// Launched by the desktop cross-platform suite after it creates the real community.
+const scenarioPath = process.env.QUIET_DM_SCENARIO
+const suite = scenarioPath ? describe : describe.skip
+suite('Authenticated desktop/mobile DM', () => {
+  let scenario
+  const marker = name => path.join(path.dirname(scenarioPath), name)
+  const signal = name => fs.writeFileSync(marker(name), 'ready', { mode: 0o600 })
+  const waitForMarker = async name => {
+    const deadline = Date.now() + 180_000
+    while (!fs.existsSync(marker(name))) {
+      if (Date.now() > deadline) throw new Error(`Desktop did not reach ${name}`)
+      await new Promise(resolve => setTimeout(resolve, 250))
+    }
+  }
+  const visible = async matcher => await waitFor(element(matcher)).toBeVisible().withTimeout(180_000)
+  const compose = () => element(by.id('input').withAncestor(by.id('message-composer')))
+  const send = async text => {
+    await compose().tap()
+    await compose().typeText(text)
+    await element(by.id('send_message_button')).tap()
+    await visible(by.id(text))
+  }
+
+  beforeAll(async () => {
+    scenario = JSON.parse(fs.readFileSync(scenarioPath, 'utf8'))
+    await device.launchApp({ delete: true, newInstance: true, launchArgs: { detoxEnableSynchronization: 0 } })
+    // Tor and QSS deliberately keep network requests active during this test.
+    await device.disableSynchronization()
+  })
+  afterAll(async () => { await device.terminateApp() })
+
+  it('joins through a real invitation, receives authenticated text and a file, and sends after a restart', async () => {
+    await visible(by.text('Join community'))
+    await element(by.id('input')).typeText(scenario.invitation)
+    await device.pressBack()
+    await element(by.text('Continue')).tap()
+    await visible(by.text('Register a username'))
+    await element(by.id('input')).typeText(scenario.mobileUser)
+    await device.pressBack()
+    await element(by.text('Continue')).tap()
+    await visible(by.text('Agree & Continue'))
+    await element(by.text('Agree & Continue')).tap()
+    await visible(by.id('messages-home-container'))
+    signal('mobile-joined')
+
+    await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
+    await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
+    await visible(by.id(scenario.firstMessage))
+    await visible(by.text(scenario.filename))
+    await visible(by.text('Downloaded'))
+
+    // Compare the actual authenticated output, beyond merely observing a download label.
+    const adb = process.env.ADB_PATH || 'adb'
+    const args = ['-s', process.env.QUIET_DM_ANDROID_DEVICE, 'shell', 'run-as', 'com.quietmobile.debug']
+    const listing = execFileSync(adb, [...args, 'find', 'files', '-type', 'f', '-name', '*.txt'], { encoding: 'utf8' })
+    const downloads = listing.trim().split('\n').filter(file => file.includes('/downloads/'))
+    expect(downloads.some(file => execFileSync(adb, [...args, 'cat', file], { encoding: 'utf8' }) === scenario.fileContents)).toBe(true)
+    await send(scenario.mobileReply)
+    signal('mobile-received')
+    await waitForMarker('desktop-offline')
+
+    await device.terminateApp()
+    await device.launchApp({ newInstance: true, launchArgs: { detoxEnableSynchronization: 0 } })
+    await device.disableSynchronization()
+    // Some releases restore the last channel, others restore the home screen.
+    try { await expect(element(by.id(scenario.firstMessage))).toBeVisible() } catch {
+      await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
+      await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
+    }
+    await visible(by.id(scenario.firstMessage))
+    await visible(by.text('Downloaded'))
+    await send(scenario.offlineReply)
+    signal('mobile-finished')
+  }, 600_000)
+})

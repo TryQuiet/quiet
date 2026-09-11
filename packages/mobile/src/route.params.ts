@@ -1,7 +1,7 @@
 import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
-import { Community, InvitationData, UserProfile } from '@quiet/types'
+import { Community, InvitationData, UserProfile, type ChannelType } from '@quiet/types'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
@@ -18,7 +18,7 @@ export type RootStackParamList = {
   [ScreenNames.QRCodeScreen]: undefined
   [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
-  [ScreenNames.ChannelListScreen]: undefined
+  [ScreenNames.AppHomeScreen]: undefined
   [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.CreateChannelScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
@@ -28,9 +28,13 @@ export type RootStackParamList = {
   }
   [ScreenNames.ChannelMembershipScreen]: {
     channelName: string
+    channelTitle: string
     channelId: string
+    channelType: ChannelType
   }
   [ScreenNames.UpdateChannelMembershipScreen]: {
+    channelTitle: string
+    channelType: ChannelType
     channelName: string
     channelId: string
   }

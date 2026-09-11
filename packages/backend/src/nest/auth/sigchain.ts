@@ -8,6 +8,7 @@ import { RoleService } from './services/roles/role.service'
 import { DeviceService } from './services/members/device.service'
 import { InviteService } from './services/invites/invite.service'
 import { CryptoService } from './services/crypto/crypto.service'
+import { DirectMessageCrypto } from './services/crypto/direct-message-crypto'
 import { ServerService } from './services/members/server.service'
 import { RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
 import { createLogger } from '../common/logger'
@@ -29,6 +30,7 @@ class SigChain extends EventEmitter {
   private _channels: ChannelService | null = null
   private _invites: InviteService | null = null
   private _crypto: CryptoService | null = null
+  private _directMessages: DirectMessageCrypto | null = null
   private _server: ServerService | null = null
   private _lockbox: LockboxService | null = null
 
@@ -187,6 +189,7 @@ class SigChain extends EventEmitter {
     this._channels = new ChannelService(this)
     this._invites = new InviteService(this)
     this._crypto = new CryptoService(this)
+    this._directMessages = new DirectMessageCrypto(this)
     this._server = new ServerService(this)
     this._lockbox = new LockboxService(this)
   }
@@ -220,6 +223,10 @@ class SigChain extends EventEmitter {
 
   get crypto(): CryptoService {
     return this._crypto!
+  }
+
+  get directMessages(): DirectMessageCrypto {
+    return this._directMessages!
   }
 
   get server(): ServerService {

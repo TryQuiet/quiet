@@ -11,7 +11,7 @@ import red from '@mui/material/colors/red'
 
 import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 
-import type { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
+import { DisplayableMessage, DownloadStatus, MessageSendingStatus, MessageType } from '@quiet/types'
 
 import { NestedMessageContent } from './NestedMessageContent'
 
@@ -266,25 +266,27 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 style={{ marginTop: '-3px' }}
                 data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}
               >
-                {messages.map((message, index) => {
-                  const pending = pendingMessages[message.id] !== undefined
-                  const downloadStatus = downloadStatuses[message.id]
-                  return (
-                    <NestedMessageContent
-                      key={index}
-                      message={message}
-                      pending={pending}
-                      downloadStatus={downloadStatus}
-                      maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
-                      uploadedFileModal={uploadedFileModal}
-                      openUrl={openUrl}
-                      openContainingFolder={openContainingFolder}
-                      downloadFile={downloadFile}
-                      cancelDownload={cancelDownload}
-                      onMathMessageRendered={onMathMessageRendered}
-                    />
-                  )
-                })}
+                {messages
+                  .filter(message => message.type !== MessageType.Empty)
+                  .map((message, index) => {
+                    const pending = pendingMessages[message.id] !== undefined
+                    const downloadStatus = downloadStatuses[message.id]
+                    return (
+                      <NestedMessageContent
+                        key={index}
+                        message={message}
+                        pending={pending}
+                        downloadStatus={downloadStatus}
+                        maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
+                        uploadedFileModal={uploadedFileModal}
+                        openUrl={openUrl}
+                        openContainingFolder={openContainingFolder}
+                        downloadFile={downloadFile}
+                        cancelDownload={cancelDownload}
+                        onMathMessageRendered={onMathMessageRendered}
+                      />
+                    )
+                  })}
               </Grid>
             </Grid>
           </Grid>
