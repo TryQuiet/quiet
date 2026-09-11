@@ -11,6 +11,10 @@ Generated 2026-09-11 from the Figma prototype **Get started (prototype)** (`f6Nr
 - **No invented screens or copy.** Real components, or the designer's exports/text.
 - **Base branch**: stack on the RN 0.81 line (`upgrade/react-native-081` → `upgrade/react-native-new-architecture-node`), not on `develop`. Bring in `feat/2610-device-linking` (#3400) by merge; align to its vocabulary: `DeviceLinkInvite`, `deviceLinkUrl`, `LinkedDevices` (desktop Settings tab), `LinkedDeviceQRCode` (mobile screen), strings “Generating device link…”, “Device link unavailable”.
 
+## Layout canon (decided 2026-09-11)
+
+**The mobile prototype is canonical** for layout, alignment and copy. Desktop = the same 375-wide content column centered inside the `Modal full-window` shell. Measured in the file: 26 of the 30 onboarding screens have a **centered** title (the exceptions are iOS crop-screen "Done" buttons and in-app chrome — channel names, the plan card, the iOS share sheet). Rule for every onboarding screen, both platforms: centered title and subtitle; centered illustration where one exists (exported as SVG, never redrawn); full-width action rows / inputs / primary button below; the beta caption at the bottom of the entry screen. The older Dec-2024 desktop frames and the app's current desktop modals are left-aligned and are **not** followed.
+
 ## The flow as the prototype wires it
 
 38 of 39 screens are one connected graph (70 prototype links). Ids are the Storybook story ids under `Onboarding flow`.
