@@ -66,7 +66,7 @@ jobs:
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}/CodeQL"
           sudo apt-get update
-          sudo apt-get install -y fluxbox xvfb libevent-dev libfuse2t64 libasound2t64 libnss3
+          sudo apt-get install -y fluxbox xvfb x11-utils libevent-dev libfuse2t64 libasound2t64 libnss3
           sudo chmod 666 /dev/kvm
 
       - uses: actions/setup-java@v4
