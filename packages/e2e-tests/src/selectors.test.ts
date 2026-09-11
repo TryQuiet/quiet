@@ -1,6 +1,6 @@
 import { error, Session, WebDriver, WebElement, type ThenableWebDriver } from 'selenium-webdriver'
 import { Command, Name } from 'selenium-webdriver/lib/command'
-import { Channel, UserProfileContextMenu } from './selectors'
+import { App, Channel, UserProfileContextMenu } from './selectors'
 import { PhotoExt } from './enums'
 
 const advanceTime = async (milliseconds: number) => {
@@ -11,6 +11,22 @@ const advanceTime = async (milliseconds: number) => {
     await new Promise<void>(resolve => setImmediate(resolve))
   }
 }
+
+describe('App teardown', () => {
+  it('can close an unopened client without starting a WebDriver session', async () => {
+    const app = new App({ username: 'unopened-client' })
+    const getDriver = jest.spyOn(app.buildSetup, 'getDriver')
+    try {
+      expect(await app.isSessionOpen()).toBe(false)
+      await app.close()
+      await app.close()
+      expect(getDriver).not.toHaveBeenCalled()
+      expect(app.thenableWebDriver).toBeUndefined()
+    } finally {
+      getDriver.mockRestore()
+    }
+  })
+})
 
 describe('Channel message polling', () => {
   let visibleMessageIds: string[]

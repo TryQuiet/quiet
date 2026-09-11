@@ -13,7 +13,9 @@ This change is stacked on PR #3422 (`upgrade/react-native-081`), including its
 
 Electron's runtime Node is independent of the host build Node and mobile's
 embedded Node. The host version is pinned in `.nvmrc`, the root Volta/engine
-settings, and the desktop engine setting. CI reads `.nvmrc`.
+settings, and the desktop engine setting. CI reads `.nvmrc` and installs the npm
+version from the root engine setting before dependency installation. Node 24's
+bundled npm 11 rejects the existing lockfile; the pinned npm 10.8.2 installs it.
 
 Electron 44 requires host Node >=22.12; electron-context-menu 5 requires Node 24.
 The context-menu update is necessary because Electron 44 replaces the old
@@ -24,6 +26,8 @@ DevTools installation uses version 4 and Electron's `session.extensions` API.
 ChromeDriver can initially select Quiet's splash window. The E2E harness now
 waits for and selects `index.html` before querying the application, so destroying
 the splash does not invalidate its selected window.
+Checking or closing an unopened E2E client also avoids creating a WebDriver
+session against an undefined port, which otherwise crashes Node 24 on teardown.
 
 The updated parent already pins auth `6f534c89b`, with msgpackr 1.11.2, which
 works with Node 24. Keep that pin: the original PR #3422 snapshot used msgpackr

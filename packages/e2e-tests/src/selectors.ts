@@ -367,6 +367,9 @@ export class App {
   }
 
   async isSessionOpen(): Promise<boolean> {
+    // Probing an unopened app must not create a Selenium session. Its driver
+    // server has no port yet, and Node 24 rejects that failed background session.
+    if (!this.thenableWebDriver) return false
     try {
       logger.info('Checking if session is open')
       // Try to get the session; if it fails, the app is not running

@@ -20,6 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          npm install --global "npm@$(node -p 'require("./package.json").engines.npm')"
           npm ci
           npm run bootstrap -- --scope=\'{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle}\'
 
