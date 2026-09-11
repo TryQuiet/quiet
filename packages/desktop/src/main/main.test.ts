@@ -4,7 +4,7 @@ import * as main from './main'
 import * as backendHelpers from './backendHelpers'
 
 import { autoUpdater } from 'electron-updater'
-import { BrowserWindow, app, ipcMain, Menu } from 'electron'
+import { BrowserWindow, app, ipcMain, Menu, powerSaveBlocker } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
 import { composeInvitationDeepUrl, getValidInvitationUrlTestData, validInvitationCodeTestData } from '@quiet/common'
@@ -65,6 +65,9 @@ jest.mock('child_process', () => {
 })
 
 jest.mock('electron', () => {
+  // Faithful little fake: real Electron hands back an id and tracks whether that id is still active.
+  const startedPowerSaveBlockers = new Set<number>()
+  let nextPowerSaveBlockerId = 1
   return {
     ...jest.requireActual('electron'),
     app: {
@@ -117,6 +120,17 @@ jest.mock('electron', () => {
       once: jest.fn(),
       handle: jest.fn(),
       removeListener: jest.fn(),
+    },
+    powerSaveBlocker: {
+      start: jest.fn(() => {
+        const id = nextPowerSaveBlockerId++
+        startedPowerSaveBlockers.add(id)
+        return id
+      }),
+      stop: jest.fn((id: number) => {
+        startedPowerSaveBlockers.delete(id)
+      }),
+      isStarted: jest.fn((id: number) => startedPowerSaveBlockers.has(id)),
     },
   }
 })
@@ -231,6 +245,39 @@ describe('electron app ready event', () => {
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('newUpdateAvailable')
   })
 })
+
+// Issue #53: a suspended machine stops answering as a peer, which breaks registration for everyone
+// else. These run before the quit-flow tests below, while `quitting` is still false.
+describe('power save blocker', () => {
+  const powerSaveBlockerStart = powerSaveBlocker.start as jest.Mock<any, any>
+  const powerSaveBlockerStop = powerSaveBlocker.stop as jest.Mock<any, any>
+
+  it('starts one prevent-app-suspension blocker once the backend is running', () => {
+    expect(powerSaveBlockerStart).toHaveBeenCalledTimes(1)
+    expect(powerSaveBlockerStart).toHaveBeenCalledWith('prevent-app-suspension')
+  })
+
+  it('does not start a second blocker while one is already running', () => {
+    main.startPowerSaveBlocker()
+    expect(powerSaveBlockerStart).toHaveBeenCalledTimes(1)
+  })
+
+  it('stops the blocker it started when the app quits', () => {
+    const startedId = powerSaveBlockerStart.mock.results[0].value
+    const beforeQuitHandler = mockAppOnCalls.find(c => c[0] === 'before-quit')[1]
+
+    beforeQuitHandler({ preventDefault: jest.fn() })
+
+    expect(powerSaveBlockerStop).toHaveBeenCalledTimes(1)
+    expect(powerSaveBlockerStop).toHaveBeenCalledWith(startedId)
+  })
+
+  it('stopping when no blocker is running is a no-op', () => {
+    main.stopPowerSaveBlocker()
+    expect(powerSaveBlockerStop).toHaveBeenCalledTimes(1)
+  })
+})
+
 // --- EXTRA QUIT-FLOW TESTS ---
 describe('additional quit flow scenarios', () => {
   const forkMock = require('child_process').fork as jest.Mock
