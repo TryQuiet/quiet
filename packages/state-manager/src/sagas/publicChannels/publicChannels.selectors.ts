@@ -220,23 +220,33 @@ export const currentChannelMessagesCount = createSelector(displayableCurrentChan
   return messages.length
 })
 
+// Selects PublicChannelsState.dayTick. Its value is never read below - it exists only to
+// invalidate this selector's memoized cache once per local day (see dayTickSaga), since
+// otherwise reselect keeps returning the same 'Today' / 'Yesterday' labels it computed the
+// first time, until the message list itself changes. See #2751 / #1661.
+const selectDayTick = createSelector(selectState, state => state?.dayTick)
+
 /**
  * Channel display messages grouped by day
  */
-export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurrentChannelMessages, messages => {
-  const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
-    const date = formatMessageDisplayDate(message.createdAt)
+export const dailyGroupedCurrentChannelMessages = createSelector(
+  displayableCurrentChannelMessages,
+  selectDayTick,
+  (messages, _dayTick) => {
+    const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
+      const date = formatMessageDisplayDate(message.createdAt)
 
-    if (!groups[date]) {
-      groups[date] = []
-    }
+      if (!groups[date]) {
+        groups[date] = []
+      }
 
-    groups[date].push(message)
-    return groups
-  }, {})
+      groups[date].push(message)
+      return groups
+    }, {})
 
-  return result
-})
+    return result
+  }
+)
 
 /**
  * Channel messages grouped by day and then additionally by sender (if
