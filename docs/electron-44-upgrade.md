@@ -55,6 +55,13 @@ those peers can display messages from the new user. A three-client test uses
 real authentication and encrypted stores, with no direct connection between
 the new user and the existing guest.
 
+When a member returns after another user joined, OrbitDB can receive that user's
+entries before authentication synchronizes the membership graph. Storage now
+repeats the heads exchange after authentication completes, applying the usual
+identity, membership and signature checks. A three-client regression delays
+real authentication packets, verifies the early rejection, and then recovers
+the new profile and historical message. Stores with P2P sync disabled stay idle.
+
 Multiplayer presence checks now assert the returned online status. QSS can
 finish joining before Tor bootstraps, so its direct-peer presence checks allow
 the same six minutes as the peer-to-peer joining panel.
@@ -146,6 +153,8 @@ behavior still require release validation.
   Backend QSS/CAPTCHA checks: 68 tests pass, including real Socket.IO rejection
   and retry with a fresh token.
 - Libp2p delayed heartbeat and admission persistence checks: 3 tests pass.
+- Storage/authentication lifecycle and authenticated heads regression: 45 tests
+  pass across 6 suites.
 - Tor bootstrap/session checks: 28 tests pass. User profile store/access-control
   checks: 28 tests pass. Real peer profile relay/recovery checks: 2 tests pass.
 - Focused backend database/lockbox coverage: 46 tests pass. Auth crypto: 52 tests

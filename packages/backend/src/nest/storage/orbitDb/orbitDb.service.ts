@@ -2,6 +2,9 @@ import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
 import { Inject, Injectable } from '@nestjs/common'
 import EventEmitter from 'events'
+import { type PeerId, type PubSub } from '@libp2p/interface'
+import { pipe } from 'it-pipe'
+import abortableSource from 'abortable-iterator'
 
 import { ORBIT_DB_DIR } from '../../const'
 import { createLogger } from '../../common/logger'
@@ -39,6 +42,7 @@ export class OrbitDbService {
   private openQueue: Promise<void> = Promise.resolve()
   private storeAliases: Record<string, string> = {}
   private orbitDbUpdateListenerAttached = false
+  private readonly peerResyncs = new Map<string, AbortController>()
   public identities: LFAIdentities | undefined = undefined
   public static readonly events = new EventEmitter()
 
@@ -245,6 +249,61 @@ export class OrbitDbService {
     })
   }
 
+  /** Retry heads that arrived before LFA finished synchronizing membership. */
+  public async resyncPeer(peerId: PeerId): Promise<void> {
+    const libp2p = (this.orbitDbInstance?.ipfs as HeliaLibp2p | undefined)?.libp2p
+    const key = peerId.toString()
+    if (libp2p == null || this.peerResyncs.has(key)) return
+
+    const controller = new AbortController()
+    this.peerResyncs.set(key, controller)
+    const timeout = setTimeout(() => controller.abort(), 60_000)
+    try {
+      // Respect stores whose P2P synchronization is stopped (including QSS
+      // mode). Use the existing heads protocol and normal entry validation.
+      const topics = new Set((libp2p.services.pubsub as PubSub).getTopics())
+      await Promise.all(
+        Object.values(this.stores)
+          .filter(store => topics.has(store.log.id))
+          .map(async store => {
+            try {
+              const stream = await libp2p.dialProtocol(peerId, posixJoin('/orbitdb/heads/', store.log.id), {
+                signal: controller.signal,
+              })
+              const abort = () => stream.abort(new Error('Authenticated heads exchange aborted'))
+              controller.signal.addEventListener('abort', abort, { once: true })
+              try {
+                const heads: LogEntry[] = await store.log.heads()
+                await pipe(
+                  abortableSource(
+                    heads.map(head => head.bytes),
+                    controller.signal
+                  ),
+                  stream,
+                  async source => {
+                    for await (const bytes of abortableSource(source, controller.signal)) {
+                      await store.applyOperation(bytes.subarray())
+                    }
+                  }
+                )
+                await stream.close({ signal: controller.signal })
+              } catch (error) {
+                stream.abort(error instanceof Error ? error : new Error(String(error)))
+                throw error
+              } finally {
+                controller.signal.removeEventListener('abort', abort)
+              }
+            } catch (error) {
+              this.logger.warn('Could not refresh database heads after authentication', { store: store.address, error })
+            }
+          })
+      )
+    } finally {
+      clearTimeout(timeout)
+      if (this.peerResyncs.get(key) === controller) this.peerResyncs.delete(key)
+    }
+  }
+
   public async startSync(address?: string) {
     if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
@@ -284,6 +343,8 @@ export class OrbitDbService {
   }
 
   public async stop() {
+    for (const controller of this.peerResyncs.values()) controller.abort()
+    this.peerResyncs.clear()
     this.detachOrbitDbUpdateListener()
     if (this.orbitDbInstance != undefined) {
       this.logger.info('Stopping OrbitDB')

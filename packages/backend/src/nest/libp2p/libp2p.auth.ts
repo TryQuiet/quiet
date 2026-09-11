@@ -449,7 +449,7 @@ export class Libp2pAuth {
         } else {
           this.logger.error('Cannot emit sync event, team is null')
         }
-        this.emit(Libp2pEvents.AUTH_CONNECTED)
+        this.emit(Libp2pEvents.AUTH_CONNECTED, connection.remotePeer)
       }
     })
 
