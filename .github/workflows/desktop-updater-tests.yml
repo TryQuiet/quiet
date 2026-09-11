@@ -5,8 +5,11 @@ on:
       - 'packages/desktop/updater/**'
       - 'packages/desktop/scripts/**'
       - 'packages/desktop/build/update-trust*'
+      - 'packages/desktop/build/update-trust/**'
+      - 'packages/desktop/src/main/main.ts'
       - 'packages/desktop/package*.json'
       - '.github/workflows/desktop-update*.yml'
+      - '.github/workflows/desktop-build.yml'
       - '.github/actions/setup-updater-tools/**'
   workflow_dispatch:
 permissions:

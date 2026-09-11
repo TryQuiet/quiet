@@ -65,6 +65,8 @@ The existing GitHub release asset upload occurs only after this gate.
    between signing and publication.
 2. Run `Publish verified desktop update` for that candidate, with phase
    `artifacts`. This rechecks the staged artifact digest and Windows signature,
+   verifies that the artifact belongs to a successful release-triggered Desktop
+   Build run, and binds its commit/version to the published desktop release tag,
    then uploads only the installer/blockmap to the existing S3 bucket. It does
    not upload a channel YAML.
 3. Copy the candidate's manifest, byte for byte, into the TUF signing repository

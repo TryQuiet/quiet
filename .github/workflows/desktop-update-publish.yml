@@ -34,6 +34,8 @@ jobs:
       EXPECTED_PLATFORM: ${{ inputs.platform }}
       EXPECTED_CHANNEL: ${{ inputs.channel }}
       PUBLISH_PHASE: ${{ inputs.phase }}
+      CANDIDATE_RUN_ID: ${{ inputs.run_id }}
+      CANDIDATE_ARTIFACT_ID: ${{ inputs.artifact_id }}
       S3_BUCKET: ${{ inputs.channel == 'latest' && 'quiet.9.x' || 'test.quiet' }}
     steps:
       - uses: actions/checkout@v5
@@ -45,6 +47,10 @@ jobs:
           github-token: ${{ github.token }}
           path: release-candidate
           merge-multiple: true
+      - name: Bind candidate to its successful release build and current release tag
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node packages/desktop/scripts/verifyCandidateRun.cjs release-candidate/release.json
       - name: Verify the immutable candidate and prepare only authorized files
         shell: bash
         run: |

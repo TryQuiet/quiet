@@ -8,6 +8,7 @@ runs:
         node-version-file: .nvmrc
     - shell: bash
       run: |
+        npm install --global "npm@$(node -p 'require("./package.json").engines.npm')"
         node - <<'NODE'
         const fs = require('fs');
         const path = require('path');
