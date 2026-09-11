@@ -8,6 +8,7 @@ import { UsernameRegistration } from '../../components/Registration/UsernameRegi
 import { createLogger } from '../../utils/logger'
 import { InvitationDataVersion } from '@quiet/types'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
+import { JoinRecovery } from '../../components/JoinRecovery/JoinRecovery.component'
 
 const logger = createLogger('UsernameRegistrationScreen')
 
@@ -33,5 +34,9 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
     logger.info(`TosRequested: ${tosRequested}`)
   }
 
-  return <UsernameRegistration registerUsernameAction={handleAction} usernameRegistered={usernameRegistered} />
+  return (
+    <JoinRecovery>
+      <UsernameRegistration registerUsernameAction={handleAction} usernameRegistered={usernameRegistered} />
+    </JoinRecovery>
+  )
 }

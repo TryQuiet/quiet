@@ -1,5 +1,5 @@
 import { type Socket } from '../../types'
-import { all, takeEvery, cancelled, fork, cancel, take } from 'typed-redux-saga'
+import { all, takeEvery, cancelled, fork, cancel, take, select } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
@@ -7,6 +7,7 @@ import { initCommunitySaga, launchCommunitySaga } from './launchCommunity/launch
 import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 import type { Task } from 'redux-saga'
+import { communitiesSelectors } from './communities.selectors'
 
 const logger = createLogger('communitiesMasterSaga')
 
@@ -32,12 +33,30 @@ type OnboardingAction = CreateCommunityAction | JoinCommunityAction
 
 export function* handleCommunityOnboarding(socket: Socket): Generator {
   let activeTask: Task | undefined
+  let activeJoinAttempt: number | undefined
+
+  // A transport disconnect cancels this entire task tree. Resume only a draft
+  // which has never sent JOIN_COMMUNITY; submitted requests are not safe to replay.
+  const pendingJoin = yield* select(communitiesSelectors.pendingJoin)
+  if (pendingJoin?.status === 'draft') {
+    activeJoinAttempt = pendingJoin.attempt
+    activeTask = yield* fork(joinCommunitySaga, socket)
+  }
 
   while (true) {
     const action = (yield* take([
       communitiesActions.createCommunity.type,
       communitiesActions.joinCommunity.type,
     ])) as OnboardingAction
+
+    if (action.type === communitiesActions.joinCommunity.type) {
+      const pendingJoin = yield* select(communitiesSelectors.pendingJoin)
+      if (!pendingJoin || pendingJoin.status !== 'draft') continue
+      if (activeTask?.isRunning() && activeJoinAttempt === pendingJoin.attempt) continue
+      activeJoinAttempt = pendingJoin.attempt
+    } else {
+      activeJoinAttempt = undefined
+    }
 
     if (activeTask) {
       if (activeTask.isRunning()) {
@@ -52,7 +71,7 @@ export function* handleCommunityOnboarding(socket: Socket): Generator {
       activeTask = yield* fork(createCommunitySaga, socket, action)
     } else {
       logger.info('Starting joinCommunitySaga')
-      activeTask = yield* fork(joinCommunitySaga, socket, action)
+      activeTask = yield* fork(joinCommunitySaga, socket)
     }
   }
 }
