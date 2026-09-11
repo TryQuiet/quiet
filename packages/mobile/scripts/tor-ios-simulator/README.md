@@ -84,6 +84,19 @@ The historical script name and Storybook defaults are preserved. These are the o
 
 The selected environment must exist as a regular file in `packages/mobile`. Invalid combinations and missing files fail before changing the pod or creating output. Both Xcode scheme preactions honor `ENVFILE`, with their existing defaults when it is unset; this prevents their `/tmp/envfile` selection from overriding E2E or production builds. Because that selector is shared, serialize builds across Quiet checkouts on the same host as well.
 
+The pinned source patch declares `Tor/version.sh` as an input and `Tor/version.h`
+as its generated output. Without that dependency, a clean Xcode build can reject
+the version header before preprocessing the framework's Info.plist. The native
+regression below uses the prepared source's actual script phase and version files
+in a tiny framework: removing the output declaration must fail, and restoring it
+must produce framework version `405.9.1`. It does not compile Tor itself.
+
+```sh
+QUIET_TOR_PREPARED_SOURCE=/absolute/path/to/prepared-tor-source \
+  python3 -m unittest discover -s packages/mobile/scripts/tor-ios-simulator \
+  -p test_generated_version.py -v
+```
+
 The wrapper moves the entire original pod framework aside and copies the simulator framework into its place. This avoids modifying files that CocoaPods may hard-link to its cache. It compiles the selected scheme without provisioning, using two Xcode jobs and a bundled JavaScript payload, monitors a 2 GiB free-disk floor, and stops its child process before restoring the original tree on success, failure, or `INT`/`TERM`/`HUP`. Restoration verifies every original file hash, mode, and symbolic link. Exclusive workspace and pod locks reject overlapping invocations; no lock is reclaimed automatically. Do not run another app build or pod install in that checkout until the wrapper finishes. An uncatchable kill can leave `Pods/Tor/Build/iOS/Tor.framework.quiet-original`, the pod lock or the output's `.build.lock`. Confirm the build and its children have stopped, then recover and verify the original tree using that run's saved `original-tree.json` evidence before removing stale locks or rerunning.
 
 After compilation, the wrapper signs only the outer simulator app with `codesign --force --sign - --preserve-metadata=entitlements,identifier,flags`, then requires `codesign --verify --strict` to pass. This local ad hoc signature supplies the resource envelope needed for simulator installation; the linker's executable-only signature is insufficient. It uses no production signing identity, key or provisioning profile. The embedded Tor binary must retain the selected source hash after signing.

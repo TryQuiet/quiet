@@ -50,6 +50,7 @@ jobs:
         run: |
           df -h /
           python3 packages/mobile/scripts/tor-ios-simulator/reproduce-source.py "$RUNNER_TEMP/notification-tor-source"
+          QUIET_TOR_PREPARED_SOURCE="$RUNNER_TEMP/notification-tor-source" python3 -m unittest discover -s packages/mobile/scripts/tor-ios-simulator -p test_generated_version.py -v
           QUIET_TOR_BUILD_JOBS=2 "$RUNNER_TEMP/notification-tor-source/build-arm64-simulator.sh" > "$RUNNER_TEMP/notification-tor-build.log" 2>&1
           tar -czf "$RUNNER_TEMP/notification-tor.tgz" -C "$RUNNER_TEMP/notification-tor-source/build/Build/Products/Release-iphonesimulator" Tor.framework
       - uses: actions/upload-artifact@v4
