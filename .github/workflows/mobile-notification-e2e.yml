@@ -1,4 +1,4 @@
-name: Mobile notification provider preflight
+name: Mobile notification provider tests
 
 on:
   workflow_dispatch:
@@ -17,16 +17,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  provider-preflight:
+  android-provider:
     # Same-repository PRs only: never execute a fork with provider credentials.
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 120
+    env:
+      DISPLAY: ':99'
+      IS_E2E: 'true'
+      TEST_MODE: 'true'
+      IS_LOCAL: 'true'
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
-      - uses: actions/checkout@v5
+      - name: Initialize pinned submodules and LFS binaries
+        uses: actions/checkout@v5
         with:
-          submodules: false
+          submodules: recursive
+          lfs: true
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
           persist-credentials: false
+
+      - name: Test credential handling
+        run: python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p test_ci_credentials.py -v
 
       - name: Validate Firebase client and provider credentials
         env:
@@ -39,7 +51,76 @@ jobs:
           FIREBASE_IOS_PROJECT_ID: ${{ secrets.FIREBASE_IOS_PROJECT_ID || vars.FIREBASE_IOS_PROJECT_ID }}
           FIREBASE_IOS_CLIENT_EMAIL: ${{ secrets.FIREBASE_IOS_CLIENT_EMAIL || vars.FIREBASE_IOS_CLIENT_EMAIL }}
           FIREBASE_IOS_PRIVATE_KEY: ${{ secrets.FIREBASE_IOS_PRIVATE_KEY }}
-        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require android
+          QSS_AWS_ACCESS_KEY_ID: ${{ secrets.QSS_AWS_ACCESS_KEY_ID }}
+          QSS_AWS_SECRET_ACCESS_KEY: ${{ secrets.QSS_AWS_SECRET_ACCESS_KEY }}
+        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require android --qss-development-aws
+
+      - name: Prepare runner tools and disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}/CodeQL"
+          sudo apt-get update
+          sudo apt-get install -y fluxbox xvfb libevent-dev libfuse2t64 libasound2t64 libnss3
+          sudo chmod 666 /dev/kvm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup workspace
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: notification-provider
+          bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common'
+
+      - name: Install Appium and test its provider guards
+        run: |
+          npm --prefix packages/mobile/e2e/appium ci
+          npm --prefix packages/mobile/e2e/appium test
+
+      - name: Build the shared QSS-only backend
+        run: node packages/backend/scripts/build-qss-only.cjs --output "$RUNNER_TEMP/notification-backend" --stage android,desktop
+
+      - name: Build Android with real Firebase and push enabled
+        run: |
+          cp packages/mobile/.env.e2e.qss.push "$RUNNER_TEMP/notification.env"
+          printf '\nQUIET_E2E_QSS_ONLY=true\n' >> "$RUNNER_TEMP/notification.env"
+          cd packages/mobile/android
+          ENVFILE="$RUNNER_TEMP/notification.env" ./gradlew assembleStandardDebug -PreactNativeArchitectures=arm64-v8a --max-workers=2
+
+      - name: Build desktop peer
+        working-directory: packages/desktop
+        env:
+          ENVFILE: .env.e2e.qss
+          SOURCE_PATH: linux
+        run: |
+          npm run copyBinaries
+          npm run pullLibs
+          npm run build:prod
+          node -e 'const b = require("electron-builder"); b.build({targets: b.Platform.LINUX.createTarget("dir"), publish: "never", config: {afterAllArtifactBuild: null}}).catch(error => {console.error(error); process.exitCode = 1})'
+          sudo chown root:root dist/linux-unpacked/chrome-sandbox
+          sudo chmod 4755 dist/linux-unpacked/chrome-sandbox
+
+      - name: Run real FCM notification and tap journeys
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          disable-animations: true
+          script: bash packages/mobile/e2e/appium/ci-android.sh
+
+      - name: Upload notification result only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-notification-result
+          if-no-files-found: ignore
+          path: |
+            ${{ runner.temp }}/notification-credentials/availability.json
+            ${{ runner.temp }}/notification-result.json
 
       - name: Remove provider credentials
         if: always()

@@ -138,6 +138,31 @@ Screenshots, UI trees, receiver logs, and raw runner output stay in the private
 run directory because they may contain invitation material. The full-loop
 success receipt requires both OS notification/tap journeys to finish.
 
+## CI
+
+`Mobile notification provider tests` runs on same-repository PRs touching this
+harness, and supports manual dispatch. The Android job validates credentials,
+builds both clients with the QSS-only backend, and runs both full-loop journeys
+on a Google APIs Android 36 emulator. It never substitutes onboarding for a
+failed provider test. Only credential-availability booleans and a small result
+receipt are published; raw logs, screenshots and credentials are not artifacts.
+
+`ANDROID_FIREBASE_KEY` and `IOS_FIREBASE_KEY` decrypt the checked-in native
+Firebase client configurations. They are not credentials for sending pushes.
+By default the job uses `QSS_AWS_ACCESS_KEY_ID` / `QSS_AWS_SECRET_ACCESS_KEY` to
+read exactly `DEV_FIREBASE_ANDROID_PRIVATE_KEY` and
+`DEV_FIREBASE_IOS_PRIVATE_KEY` from AWS Secrets Manager. Project IDs, service
+account emails and the AWS region come from the pinned QSS `app/.env.dev`,
+matching its `PushService` / `AWSSecretsService` configuration. This performs no
+AWS writes and has no production-secret fallback. A lookup denial is reported
+as a preflight failure before any app build or provider test.
+
+A dedicated `QSS_NOTIFICATION_FIREBASE_CREDENTIALS` JSON map, or the explicit
+`FIREBASE_<PLATFORM>_{PROJECT_ID,CLIENT_EMAIL,PRIVATE_KEY}` fields, can override
+the AWS lookup. The public receipt distinguishes missing credentials from
+client/server project mismatches. A green credential check establishes build
+prerequisites only; the real Appium journeys must also pass.
+
 ## Faster coverage and current limits
 
 Keep cursor/duplicate/filtering/retry cases in the Android instrumented

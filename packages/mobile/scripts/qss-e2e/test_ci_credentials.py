@@ -5,8 +5,9 @@ import plistlib
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
-from ci_credentials import accounts_from_environment, prepare
+from ci_credentials import accounts_from_environment, development_accounts, prepare
 from fixture import push_environment
 
 
@@ -85,6 +86,47 @@ class CiCredentialsTests(unittest.TestCase):
         result = subprocess.run(["python3", str(Path(__file__).with_name("ci_credentials.py")), "--checkout", str(self.root), "--output", str(self.root / "private"), "--require", "android"], env=environment, capture_output=True, text=True)
         self.assertEqual(result.returncode, 1)
         self.assertIn("No notification test has run", result.stdout)
+
+    def aws_config(self):
+        directory = self.root / "3rd-party/qss/app"
+        directory.mkdir(parents=True)
+        (directory / ".env.dev").write_text("AWS_REGION=us-east-1\n" + "\n".join(
+            f"FIREBASE_{platform}_{field}={self.account[field.lower()]}"
+            for platform in ("ANDROID", "IOS") for field in ("PROJECT_ID", "CLIENT_EMAIL")))
+        return {"QSS_AWS_ACCESS_KEY_ID": "fixture-aws-id", "QSS_AWS_SECRET_ACCESS_KEY": "fixture-aws-secret"}
+
+    def test_aws_uses_only_exact_development_names_and_handles_qss_secret_formats(self):
+        environment = self.aws_config()
+        for value in [self.account["private_key"], json.dumps(self.account["private_key"]), json.dumps({"secret": self.account["private_key"]})]:
+            response = subprocess.CompletedProcess([], 0, json.dumps({"SecretString": value}), "")
+            with self.subTest(format=value[:1]), patch("ci_credentials.subprocess.run", return_value=response) as execute:
+                accounts, results = development_accounts(self.root, environment)
+                self.assertEqual(accounts, {"android": self.account, "ios": self.account})
+                self.assertEqual(results, {"android": "retrieved", "ios": "retrieved"})
+                self.assertEqual([call.args[0][4] for call in execute.call_args_list], ["DEV_FIREBASE_ANDROID_PRIVATE_KEY", "DEV_FIREBASE_IOS_PRIVATE_KEY"])
+                for call in execute.call_args_list:
+                    self.assertEqual(call.kwargs["env"]["AWS_ACCESS_KEY_ID"], "fixture-aws-id")
+                    self.assertEqual(call.kwargs["env"]["AWS_SHARED_CREDENTIALS_FILE"], "/dev/null")
+                    self.assertNotIn("AWS_PROFILE", call.kwargs["env"])
+                    self.assertTrue(call.kwargs["capture_output"])
+
+    def test_aws_denial_has_no_production_fallback_or_raw_diagnostics(self):
+        environment = self.aws_config()
+        response = subprocess.CompletedProcess([], 1, "", "An error occurred (AccessDeniedException): fixture-secret-never-log")
+        with patch("ci_credentials.subprocess.run", return_value=response) as execute:
+            accounts, results = development_accounts(self.root, environment)
+        self.assertEqual(accounts, {})
+        self.assertEqual(set(results.values()), {"AccessDeniedException"})
+        self.assertEqual(execute.call_count, 2)
+        self.assertNotIn("fixture-secret-never-log", json.dumps(results))
+
+    def test_aws_requires_explicit_ci_credentials_instead_of_host_defaults(self):
+        self.aws_config()
+        with patch("ci_credentials.subprocess.run") as execute:
+            accounts, results = development_accounts(self.root, {})
+        execute.assert_not_called()
+        self.assertEqual(accounts, {})
+        self.assertEqual(set(results.values()), {"aws-credentials-unavailable"})
 
 
 if __name__ == "__main__":

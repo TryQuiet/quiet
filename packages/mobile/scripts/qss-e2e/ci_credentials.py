@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import re
 import subprocess
 
 from fixture import private_json, push_environment
@@ -30,6 +31,64 @@ def accounts_from_environment(environment):
     return accounts
 
 
+def development_accounts(checkout, environment):
+    """Use QSS's deployed DEV secret names and its pinned public project config.
+
+    Only the two development Firebase keys are read. No AWS defaults, production
+    secret fallback, secret enumeration, account changes or remote QSS are used.
+    """
+    accounts, results = {}, {}
+    config = {}
+    for line in (checkout / "3rd-party/qss/app/.env.dev").read_text().splitlines():
+        key, separator, value = line.partition("=")
+        if separator and (key.startswith("FIREBASE_") or key == "AWS_REGION"):
+            config[key] = value.strip()
+    if not environment.get("QSS_AWS_ACCESS_KEY_ID") or not environment.get("QSS_AWS_SECRET_ACCESS_KEY"):
+        return {}, {platform: "aws-credentials-unavailable" for platform in ("android", "ios")}
+    child_environment = {key: value for key, value in os.environ.items() if not key.startswith(("AWS_", "QSS_AWS_", "FIREBASE_")) and "FIREBASE" not in key}
+    child_environment.update({
+        "AWS_ACCESS_KEY_ID": environment["QSS_AWS_ACCESS_KEY_ID"],
+        "AWS_SECRET_ACCESS_KEY": environment["QSS_AWS_SECRET_ACCESS_KEY"],
+        "AWS_EC2_METADATA_DISABLED": "true", "AWS_CONFIG_FILE": "/dev/null",
+        "AWS_SHARED_CREDENTIALS_FILE": "/dev/null", "AWS_MAX_ATTEMPTS": "3", "AWS_PAGER": "",
+    })
+    for platform in ("android", "ios"):
+        prefix = f"FIREBASE_{platform.upper()}_"
+        secret_name = "DEV_" + prefix + "PRIVATE_KEY"
+        try:
+            result = subprocess.run(
+                ["aws", "secretsmanager", "get-secret-value", "--secret-id", secret_name,
+                 "--region", config["AWS_REGION"], "--output", "json"],
+                env=child_environment, capture_output=True, text=True, timeout=60,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            results[platform] = "aws-request-unavailable"
+            continue
+        if result.returncode:
+            # Fixed allowlist: AWS diagnostics may contain resource identifiers
+            # or credential material, so never print the raw error.
+            match = re.search(r"\((AccessDeniedException|ResourceNotFoundException|InvalidClientTokenId|UnrecognizedClientException|ExpiredTokenException|DecryptionFailure)\)", result.stderr)
+            results[platform] = match[1] if match else "aws-request-failed"
+            continue
+        try:
+            raw = json.loads(result.stdout)["SecretString"]
+            try:
+                parsed = json.loads(raw)
+                private_key = parsed if isinstance(parsed, str) else parsed.get("secret") if isinstance(parsed, dict) else None
+            except ValueError:
+                private_key = raw
+            if not isinstance(private_key, str) or not private_key.strip():
+                raise ValueError()
+            accounts[platform] = {
+                "type": "service_account", "project_id": config[prefix + "PROJECT_ID"],
+                "client_email": config[prefix + "CLIENT_EMAIL"], "private_key": private_key.replace("\\n", "\n"),
+            }
+            results[platform] = "retrieved"
+        except (ValueError, KeyError, TypeError):
+            results[platform] = "invalid-secret-format"
+    return accounts, results
+
+
 def decrypt_client(checkout, platform, passphrase):
     source = "google-services.json" if platform == "android" else "GoogleService-Info.plist"
     # Passphrase goes through stdin, never argv. Suppress GPG diagnostics because
@@ -48,9 +107,12 @@ def decrypt_client(checkout, platform, passphrase):
     return client, result.stdout
 
 
-def prepare(checkout, output, environment):
+def prepare(checkout, output, environment, qss_development_aws=False):
     output.mkdir(mode=0o700, parents=True, exist_ok=False)
     accounts = accounts_from_environment(environment)
+    aws_results = {}
+    if qss_development_aws and not accounts:
+        accounts, aws_results = development_accounts(checkout, environment)
     credentials = output / "firebase-accounts.json"
     if accounts:
         private_json(credentials, accounts)
@@ -66,6 +128,8 @@ def prepare(checkout, output, environment):
             "clientValid": False, "projectMatches": False, "applicationMatches": False, "ready": False,
         }
         report[platform] = status
+        if qss_development_aws:
+            status["developmentAwsSecret"] = aws_results.get(platform, "explicit-credentials-selected")
         if not status["clientSecretAvailable"]:
             continue
         client, raw = decrypt_client(checkout, platform, environment[key])
@@ -93,13 +157,15 @@ def main():
     parser.add_argument("--checkout", type=Path, default=Path(__file__).resolve().parents[4])
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--require", choices=("android", "ios"))
+    parser.add_argument("--qss-development-aws", action="store_true", help="Read QSS's two DEV Firebase keys using the explicitly supplied QSS AWS CI credentials")
     args = parser.parse_args()
     # Remove selected secrets before GPG or any subsequent child processes.
     names = ["QSS_NOTIFICATION_FIREBASE_CREDENTIALS", "ANDROID_FIREBASE_KEY", "IOS_FIREBASE_KEY"]
     names += [f"FIREBASE_{platform}_{field}" for platform in ("ANDROID", "IOS") for field in ("PROJECT_ID", "CLIENT_EMAIL", "PRIVATE_KEY")]
+    names += ["QSS_AWS_ACCESS_KEY_ID", "QSS_AWS_SECRET_ACCESS_KEY"]
     environment = {name: os.environ.pop(name, "") for name in names}
     try:
-        report = prepare(args.checkout.resolve(), args.output.resolve(), environment)
+        report = prepare(args.checkout.resolve(), args.output.resolve(), environment, args.qss_development_aws)
     except ValueError as error:
         # All errors here have fixed messages; never include parsed credentials.
         print(str(error))
