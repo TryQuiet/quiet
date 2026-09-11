@@ -1065,7 +1065,7 @@ export class RegisterUsernameModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Register a username']")),
+      until.elementLocated(By.xpath("//h3[text()='Choose username']")),
       15_000,
       `Username registration modal couldn't be located within timeout`,
       500
@@ -1137,7 +1137,7 @@ export class RegisterUsernameModal {
 
   async submit() {
     const submitButton = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[text()="Register"]')),
+      until.elementLocated(By.xpath('//button[@data-testid="continue-createUsername"]')),
       10_000,
       `Username registration submit button couldn't be found within timeout`,
       500
@@ -1174,6 +1174,59 @@ export class RegisterUsernameModal {
   }
 }
 
+/**
+ * The onboarding entry: Let's get started... with Join / Create / Link devices.
+ */
+export class GetStartedModal {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//h3[text()='Let’s get started...']")),
+      10_000,
+      `Get started modal couldn't be found within timeout`,
+      500
+    )
+  }
+
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
+    await this.driver.wait(until.elementIsVisible(this.element), timeoutMs, `Get started modal wasn't ready`, 500)
+    return true
+  }
+
+  private async clickRow(testId: string) {
+    const row = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='${testId}']`)),
+      10_000,
+      `Get started row ${testId} couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(row), 5_000)
+    await row.click()
+  }
+
+  async joinCommunity() {
+    await this.clickRow('get-started-join')
+  }
+
+  async createCommunity() {
+    await this.clickRow('get-started-create')
+  }
+
+  async linkDevices() {
+    await this.clickRow('get-started-link-devices')
+  }
+}
+
+/**
+ * The join flow: Get started → Join community (three-way choice) → Open invite
+ * link → Paste a link to Join. `isReady` accepts the flow at its entry (Get
+ * started) or on the choice screen, so tests written against the old single
+ * paste field keep describing what a user does.
+ */
 export class JoinCommunityModal {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -1182,9 +1235,18 @@ export class JoinCommunityModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Join community']")),
+      until.elementLocated(By.xpath("//h3[text()='Join community' or text()='Let’s get started...']")),
       10_000,
       `Join community modal couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get optionsElement() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//h3[text()='Join community']")),
+      10_000,
+      `Join community choice couldn't be found within timeout`,
       500
     )
   }
@@ -1199,27 +1261,75 @@ export class JoinCommunityModal {
     return true
   }
 
-  async switchToCreateCommunity() {
-    const link = await this.driver.wait(
-      until.elementLocated(By.linkText('create a new community')),
-      10_000,
-      `Create community button couldn't be found within timeout`,
+  private async findVisible(testId: string, timeoutMs = 10_000) {
+    const element = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='${testId}']`)),
+      timeoutMs,
+      `${testId} couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(link), 5_000)
-    await this.driver.wait(until.elementIsEnabled(link), 5_000)
-    await link.click()
+    await this.driver.wait(until.elementIsVisible(element), 5_000)
+    return element
   }
 
-  async typeCommunityInviteLink(inviteLink: string) {
-    const communityNameInput = await this.driver.wait(
-      until.elementLocated(By.xpath('//input[@placeholder="Invite link"]')),
+  private async isPresent(testId: string): Promise<boolean> {
+    const found = await this.driver.findElements(By.xpath(`//*[@data-testid='${testId}']`))
+    return found.length > 0 && (await found[0].isDisplayed())
+  }
+
+  /** Get started → Join a community, if the flow has not been entered yet. */
+  async enter() {
+    if (await this.isPresent('get-started-join')) {
+      await (await this.findVisible('get-started-join')).click()
+    }
+    await this.driver.wait(until.elementIsVisible(this.optionsElement), 10_000)
+  }
+
+  async joinWithInviteLink() {
+    await this.enter()
+    await (await this.findVisible('join-with-invite-link')).click()
+    await (await this.findVisible('paste-a-link')).click()
+  }
+
+  async joinWithQrCode() {
+    await this.enter()
+    await (await this.findVisible('join-with-qr-code')).click()
+  }
+
+  async isRecoverAccountDisabled(): Promise<boolean> {
+    await this.enter()
+    const row = await this.findVisible('recover-account')
+    return (await row.getAttribute('aria-disabled')) === 'true'
+  }
+
+  /** Back arrow of the join modal (any step). */
+  async back() {
+    const back = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='joinCommunityModalBack']")),
       10_000,
-      `Invite link input couldn't be found within timeout`,
+      `Join community back button couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(communityNameInput), 5_000)
-    await communityNameInput.sendKeys(inviteLink)
+    await back.click()
+  }
+
+  /** From the three-way choice back to Get started, then Create a new community. */
+  async switchToCreateCommunity() {
+    if (await this.isPresent('join-with-invite-link')) {
+      await this.back()
+    }
+    const getStarted = new GetStartedModal(this.driver)
+    expect(await getStarted.isReady()).toBeTruthy()
+    await getStarted.createCommunity()
+  }
+
+  /** Walks to the paste step when needed, then types the link. */
+  async typeCommunityInviteLink(inviteLink: string) {
+    if (!(await this.isPresent('paste-link-input'))) {
+      await this.joinWithInviteLink()
+    }
+    const linkInput = await this.findVisible('paste-link-input')
+    await linkInput.sendKeys(inviteLink)
   }
 
   async submit() {
@@ -1234,6 +1344,81 @@ export class JoinCommunityModal {
     await continueButton.click()
   }
 }
+
+/**
+ * Link devices, from Get started: Display QR code / Scan QR code and the
+ * Linked devices list.
+ */
+export class LinkDevicesModal {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//h3[text()='Link devices']")),
+      10_000,
+      `Link devices modal couldn't be found within timeout`,
+      500
+    )
+  }
+
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
+    await this.driver.wait(until.elementIsVisible(this.element), timeoutMs, `Link devices modal wasn't ready`, 500)
+    return true
+  }
+
+  private async findVisible(testId: string, timeoutMs = 10_000) {
+    const element = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='${testId}']`)),
+      timeoutMs,
+      `${testId} couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(element), 5_000)
+    return element
+  }
+
+  async scanQrCode() {
+    await (await this.findVisible('link-devices-scan-qr')).click()
+  }
+
+  async displayQrCode() {
+    await (await this.findVisible('link-devices-display-qr')).click()
+  }
+
+  async typeDeviceLink(deviceLink: string) {
+    const linkInput = await this.findVisible('paste-link-input')
+    await linkInput.sendKeys(deviceLink)
+  }
+
+  async submit() {
+    const continueButton = await this.findVisible('continue-joinCommunity')
+    await this.driver.wait(until.elementIsEnabled(continueButton), 5_000)
+    await continueButton.click()
+  }
+
+  /** Device names listed under "Linked devices" (this device excluded). */
+  async linkedDeviceNames(): Promise<string[]> {
+    await this.findVisible('linked-devices-list')
+    const rows = await this.driver.findElements(By.xpath("//*[starts-with(@data-testid, 'linked-device-')]"))
+    const names: string[] = []
+    for (const row of rows) names.push((await row.getText()).trim())
+    return names
+  }
+
+  async hasNoLinkedDevices(): Promise<boolean> {
+    const empty = await this.driver.findElements(By.xpath("//*[@data-testid='no-linked-devices']"))
+    return empty.length > 0
+  }
+
+  async back() {
+    const back = await this.findVisible('linkDevicesModalBack')
+    await back.click()
+  }
+}
+
 export class CreateCommunityModal {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -1242,7 +1427,7 @@ export class CreateCommunityModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Create your community']")),
+      until.elementLocated(By.xpath("//h3[text()='Create a community']")),
       10_000,
       `Create community modal couldn't be found within timeout`,
       500

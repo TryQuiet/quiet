@@ -12,13 +12,13 @@ const { ios } = info
 /* eslint-disable no-undef */
 const waitForUsernameRegistration = async () => {
   // Staging offers a server; the e2e build proceeds straight to registration.
-  const registrationStep = element(by.text(/^(Not now|Register a username)$/))
+  const registrationStep = element(by.text(/^(Not now|Choose username)$/))
   await waitFor(registrationStep).toBeVisible().withTimeout(30000)
   const step = await registrationStep.getAttributes()
   if (step.text === 'Not now' || step.label === 'Not now') {
     await press(element(by.text('Not now')))
   }
-  await waitFor(element(by.text('Register a username')))
+  await waitFor(element(by.text('Choose username')))
     .toBeVisible()
     .withTimeout(BASIC)
 }
@@ -53,16 +53,16 @@ describe('User', () => {
   })
 
   test('should see join community screen', async () => {
-    await waitFor(element(by.text('Join community')))
+    await waitFor(element(by.text('Let’s get started...')))
       .toBeVisible()
       .withTimeout(STARTUP)
 
-    const componentName = 'join-community-component'
+    const componentName = 'get-started-component'
     await checkVisualRegression(componentName)
   })
 
   test('switches to create community screen', async () => {
-    await press(element(by.text('create a new community')))
+    await press(element(by.id('get-started-create')))
 
     await waitFor(element(by.text('Create a community')))
       .toBeVisible()
@@ -258,17 +258,17 @@ describe('User', () => {
 
     await press(element(by.text('Leave community')).atIndex(1))
 
-    await waitFor(element(by.text('Join community')))
+    await waitFor(element(by.text('Let’s get started...')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })
 
   test('should see join community screen again', async () => {
-    await waitFor(element(by.text('Join community')))
+    await waitFor(element(by.text('Let’s get started...')))
       .toBeVisible()
       .withTimeout(STARTUP)
 
-    const componentName = 'join-community-component'
+    const componentName = 'get-started-component'
     await checkVisualRegression(componentName)
   })
   test('should not see create community screen', async () => {
@@ -278,7 +278,7 @@ describe('User', () => {
   })
 
   test('switches to create community screen', async () => {
-    await press(element(by.text('create a new community')))
+    await press(element(by.id('get-started-create')))
 
     await waitFor(element(by.text('Create a community')))
       .toBeVisible()

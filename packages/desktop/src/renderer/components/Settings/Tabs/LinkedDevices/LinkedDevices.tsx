@@ -10,12 +10,14 @@ export const LinkedDevices: FC = () => {
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const linkedDevices = useSelector(connection.selectors.linkedDevices)
   const canMintLink = Boolean(currentCommunity)
   const [revealLink, setRevealLink] = useState(false)
 
   useEffect(() => {
     dispatch(connection.actions.setDeviceLinkInvite(undefined))
-  }, [dispatch])
+    if (canMintLink) dispatch(connection.actions.getLinkedDevices())
+  }, [dispatch, canMintLink])
 
   useEffect(() => {
     if (!deviceLinkInvite && canMintLink) {
@@ -29,6 +31,7 @@ export const LinkedDevices: FC = () => {
       isLoading={!deviceLinkInvite && canMintLink}
       revealLink={revealLink}
       onToggleLinkVisibility={() => setRevealLink(currentValue => !currentValue)}
+      linkedDevices={linkedDevices}
     />
   )
 }

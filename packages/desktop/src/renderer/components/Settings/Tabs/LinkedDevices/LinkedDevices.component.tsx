@@ -21,6 +21,10 @@ const classes = {
   linkContainer: `${PREFIX}linkContainer`,
   linkVisibility: `${PREFIX}linkVisibility`,
   title: `${PREFIX}title`,
+  list: `${PREFIX}list`,
+  listLabel: `${PREFIX}listLabel`,
+  device: `${PREFIX}device`,
+  empty: `${PREFIX}empty`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -54,6 +58,23 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     right: 0,
     top: 8,
   },
+  [`& .${classes.list}`]: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.space.sm,
+    marginTop: theme.space.xl,
+  },
+  [`& .${classes.listLabel}`]: {
+    color: theme.palette.colors.darkGray,
+  },
+  [`& .${classes.device}`]: {
+    paddingTop: theme.space.sm,
+    paddingBottom: theme.space.sm,
+    borderBottom: `1px solid ${theme.palette.colors.border01}`,
+  },
+  [`& .${classes.empty}`]: {
+    color: theme.palette.colors.darkGray,
+  },
   [`& .${classes.button}`]: {
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
@@ -75,7 +96,9 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
   isLoading,
   revealLink,
   onToggleLinkVisibility,
+  linkedDevices,
 }) => {
+  const otherDevices = (linkedDevices ?? []).filter(device => !device.isCurrent && device.removedAt == null)
   return (
     <StyledGrid container direction='column'>
       <Grid item className={classes.title}>
@@ -139,6 +162,27 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
           </Grid>
         </>
       )}
+      <Grid item className={classes.list} data-testid='linked-devices-list'>
+        <Typography variant='overline' className={classes.listLabel}>
+          Linked devices
+        </Typography>
+        {otherDevices.length === 0 ? (
+          <Typography variant='body2' className={classes.empty} data-testid='no-linked-devices'>
+            No linked devices
+          </Typography>
+        ) : (
+          otherDevices.map(device => (
+            <Typography
+              variant='body1'
+              className={classes.device}
+              key={device.deviceId}
+              data-testid={`linked-device-${device.deviceName}`}
+            >
+              {device.deviceName}
+            </Typography>
+          ))
+        )}
+      </Grid>
     </StyledGrid>
   )
 }
