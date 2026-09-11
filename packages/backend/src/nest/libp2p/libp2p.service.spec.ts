@@ -136,27 +136,28 @@ describe('Libp2pService', () => {
       deferredHangup = callback
       return {} as NodeJS.Timeout
     }) as typeof setTimeout)
-    const hangUpPeer = jest.spyOn(libp2pService, 'hangUpPeer').mockResolvedValue(undefined)
-    libp2pService.connectedPeers.set('remote-peer', {
-      peerId: 'remote-peer',
-      address: remotePeerAddress,
-      connectedAtSeconds: 1,
-    })
+    // An auth failure belongs to one transport; that transport is hung up, not the peer.
+    const hangUpAuthTransport = jest
+      .spyOn(libp2pService as any, 'hangUpAuthTransport')
+      .mockResolvedValue(undefined as never)
+    const connection = {
+      id: 'failing-transport',
+      status: 'open',
+      remotePeer: { toString: () => 'remote-peer' },
+    }
 
     libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
       event: {
         type: 'LOCAL_ERROR',
         payload: { type: 'INVITATION_PROOF_INVALID' },
       },
-      connection: {
-        remotePeer: { toString: () => 'remote-peer' },
-      },
+      connection,
     })
 
-    expect(hangUpPeer).not.toHaveBeenCalled()
+    expect(hangUpAuthTransport).not.toHaveBeenCalled()
     expect(deferredHangup).toBeDefined()
     deferredHangup!()
-    expect(hangUpPeer).toHaveBeenCalledWith(remotePeerAddress, false)
+    expect(hangUpAuthTransport).toHaveBeenCalledWith(connection, false)
   })
 
   it('Generated libp2p psk matches psk composed from existing key', () => {
