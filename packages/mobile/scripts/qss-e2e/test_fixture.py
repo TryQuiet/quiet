@@ -82,6 +82,34 @@ class FixtureTests(unittest.TestCase):
             self.prepare()
         self.assertFalse(self.output.exists())
 
+    @unittest.skipUnless(shutil.which("docker"), "Docker Compose CLI unavailable")
+    def test_provider_environment_round_trips_through_compose_without_entering_receipt(self):
+        credentials = self.root / "test-push.json"
+        account = {"type": "service_account", "project_id": "quiet-fixture-test", "client_email": "test@example.invalid",
+                   "private_key": "test-only-not-a-key\nsecond-line"}
+        fixture.private_json(credentials, {"android": account})
+        manifest = fixture.prepare(self.checkout, self.output, self.port, False, credentials)
+        self.assertTrue(manifest["pushNotifications"])
+        self.assertEqual(manifest["pushPlatforms"], ["android"])
+        self.assertNotIn(account["private_key"], json.dumps(manifest))
+        self.assertNotIn("FIREBASE", json.dumps(manifest))
+        self.assertEqual((self.output / "compose.json").stat().st_mode & 0o777, 0o600)
+        raw = subprocess.check_output(["docker", "compose", "-f", str(self.output / "compose.json"), "config", "--format", "json"])
+        environment = json.loads(raw)["services"]["qss"]["environment"]
+        self.assertEqual(environment["QPS_ENABLED"], "true")
+        self.assertEqual(environment["FIREBASE_ANDROID_PRIVATE_KEY"], account["private_key"])
+        self.assertNotIn("FIREBASE_IOS_PRIVATE_KEY", environment)
+
+    def test_provider_credentials_are_explicit_complete_and_private(self):
+        credentials = self.root / "push.json"
+        fixture.private_json(credentials, {"android": {"type": "service_account", "project_id": "test"}})
+        with self.assertRaisesRegex(ValueError, "Missing Firebase"):
+            fixture.push_environment(credentials)
+        credentials.chmod(0o644)
+        with self.assertRaisesRegex(ValueError, "private"):
+            fixture.push_environment(credentials)
+        self.assertEqual(fixture.push_environment(None), ({}, []))
+
     def test_refuses_existing_output_and_occupied_port(self):
         with socket.socket() as listener:
             listener.bind(("127.0.0.1", self.port))

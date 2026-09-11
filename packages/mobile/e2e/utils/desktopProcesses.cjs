@@ -41,4 +41,23 @@ async function waitForProcessExit(snapshot, timeout = 20000) {
   } while (true)
 }
 
-module.exports = { snapshotOwnedProcesses, waitForProcessExit }
+async function stopOwnedProcesses(snapshot) {
+  // A failed app shutdown can leave the backend reparented. Never rediscover
+  // ownership by executable name or port; retain each captured process birth.
+  for (const signal of ['SIGTERM', 'SIGKILL']) {
+    const current = processTable()
+    for (const old of [...snapshot].reverse()) {
+      if (current.some(row => row.pid === old.pid && row.started === old.started && !row.state.startsWith('Z'))) {
+        try { process.kill(old.pid, signal) } catch (error) { if (error.code !== 'ESRCH') throw error }
+      }
+    }
+    try {
+      await waitForProcessExit(snapshot, 5000)
+      return
+    } catch (error) {
+      if (signal === 'SIGKILL') throw error
+    }
+  }
+}
+
+module.exports = { snapshotOwnedProcesses, waitForProcessExit, stopOwnedProcesses }

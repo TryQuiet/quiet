@@ -1,42 +1,111 @@
-# QSS notification regression E2E plan
+# QSS notification regressions
 
-Proposed on 2026-09-11; implementation is follow-up work.
+The notification work has two separate lanes: fast native regression tests and
+Appium journeys through the actual provider and phone notification UI. The
+existing six-stage desktop/mobile messaging suite remains on Detox. RN-for-web
+and Cypress do not exercise the native receiver or notification extension.
 
-Extend the [native mobile + desktop QSS suite](README_DESKTOP_QSS.md) with notification regressions on both Android and iOS. The existing suite covers messaging and offline retrieval; its fixture disables push delivery. Those messaging results do not establish FCM, APNs, or notification-extension coverage. This document specifies proposed tests, with no new notification E2Es implemented by this change.
+| Coverage | Runner and fidelity |
+| --- | --- |
+| Fresh UI join, first background delivery without restart, notification tap | Appium: desktop → real QSS/QPS → FCM or FCM/APNs → native receiver/extension → OS notification → exact conversation |
+| Named public channel title, sender/body, tap while another channel is selected | Appium, same provider flow |
+| Android foreground/team/prerequisite gates, pinned identity, same-nickname peer, self/unknown suppression | Android instrumentation: real Firebase service receive method, native storage, authenticated MockWebServer responses, real decryption and OS NotificationManager; wakeup injected in the test process |
+| Android background cursor race, duplicate wake/message, HTTP and missing-key retry | Same native lane; compares cursor and actual notification `postTime`, excluding group summaries |
+| Android leave/re-enrollment | Same native lane; clears real native storage, rejects a delayed old-team wakeup, then verifies re-enrollment can notify |
+| iOS auth/fetch/decrypt/presentation, self/unknown filtering, badge/cursor transaction and retries | Existing hostless NSE XCTest targets, controlled URLSession responses; no provider or OS extension activation claim |
+| Token deletion, permission gating and leave cleanup despite failures | Mobile Jest saga tests |
+| Firebase unavailable behavior on iOS | Separate app-hosted QuietAppTests target; intentionally requires a build without Firebase configuration |
 
-This plan is stacked on [the New Architecture and mobile Node upgrade, #3423](https://github.com/TryQuiet/quiet/pull/3423). The notification source audit uses `631ae351105762e6fc883f33d30fa33f853e6c73`, the audited head of [the React Native migration, #3422](https://github.com/TryQuiet/quiet/pull/3422) after stacking it on `10.0.0`. Before implementation, bring the New Architecture branch onto that updated migration base and verify that the five linked fixes below are present. The plan itself does not restack the implementation branches.
+The Android instrumentation suite contains 13 cases. It invokes the actual
+`QssFirebaseMessagingService.onMessageReceived` with a test RemoteMessage after
+preparing native storage. It therefore covers receiver gates and real OS posting,
+but **does not prove FCM transport, OS activation of the service, or storage
+established through a UI join**. Those are the purpose of the Appium lane.
 
-Existing coverage is useful but leaves an integration gap. Android's [instrumented QssPushHandlerTest](https://github.com/TryQuiet/quiet/blob/631ae351105762e6fc883f33d30fa33f853e6c73/packages/mobile/android/app/src/androidTest/java/com/quietmobile/Push/QssPushHandlerTest.kt) exercises native storage, a MockWebServer, authentication and decryption, then records a notification callback. The iOS [NSEAuthProtocolTests](https://github.com/TryQuiet/quiet/blob/631ae351105762e6fc883f33d30fa33f853e6c73/packages/mobile/ios/QuietTests/NSEAuthProtocolTests.swift) exercise the production notification orchestration through URLSession with an intercepted protocol and fixed credentials. Native cursor/authenticator tests cover rejection and retry cases. These tests do not establish prerequisites through a real UI join, send a second user's message through an actual QSS community, or inspect and tap the resulting OS notification. The New Architecture branch's [runtime-compatibility.test.js](runtime-compatibility.test.js) uses `NotificationIntentHelper` to inject a channel into MainActivity and check the React Native event bridge; it does not post a notification or exercise the real channel screen. That helper is absent from the audited migration base.
+The protocol fixtures include signed message ID, team ID, channel ID and creation
+time in both envelopes and plaintext. Their deterministic generators use the
+pinned auth codecs and public test keys. The Android verifier uses libsodium
+instead of an API-36 KeyFactory provider that rejected the fixture's public-key
+encoding. Production signature checks are unchanged.
 
-Start with these shared scenarios on both Android and iOS. Establish notification permission through the OS prompt and record its granted state before exercising background delivery. Use a unique community and message marker for each case:
+## Run
 
-| Priority | Regression and source | Native E2E sequence | Required observable result |
-| --- | --- | --- | --- |
-| 1 | [Fresh joins did not persist native push prerequisites until relaunch](https://github.com/TryQuiet/quiet/commit/2abea2ffce87cd94c8653fa58a50eb6e602bbe51) | Desktop creates a QSS community. A freshly installed mobile app joins through the visible invitation and completes registration. Without restarting mobile, background it and send a unique desktop message. Trigger the native push receive path. | Native credentials, local identity, pinned QSS identity and keys come from the real join, never test seeding. Authenticated QSS fetch succeeds and the OS shows one message notification with the correct sender, channel and text; exclude Android's group summary from this count. Tap it and assert the correct channel and message. |
-| 2 | [Android backend cursor updates skipped unseen background notifications](https://github.com/TryQuiet/quiet/commit/2a3d3c2c824f32b1c96aaad4dca7b2928b321c1d) | Background the recipient while its ordinary backend still runs; send a burst from desktop. Coordinate a backend sync before the notification fetch, then deliver repeated notification wakeups. Repeat around foreground/background transitions. | Each expected message causes one presentation event. Background backend sync does not move the notification cursor past unseen messages. Duplicate wakeups cause no repost or badge increment. Bringing the app forward preserves the complete conversation. Run the equivalent cursor contract on iOS. |
-| 3 | [Notifications used channel IDs instead of channel names](https://github.com/TryQuiet/quiet/commit/e113e54639b4cd71818afa4cbfbb7b6ece83d0e1) | Create a non-default named channel through the UI, allow metadata to reach mobile, background mobile, then send a desktop message to that channel. Include a private channel the recipient can access. | Android shows the channel name as title and `@sender: message` as body; iOS shows the sender and channel in its title and the message as body. Tapping selects that channel rather than general. No opaque channel ID appears as the display name. |
-| 4 | [Self and unknown-user notifications](https://github.com/TryQuiet/quiet/commit/e98e974712e6d939d13908553be60f453cf2af2a) | Include the recipient's own stored message in a pending batch, followed by a known peer's message. Add a controlled missing-profile case and a same-nickname/different-user case. | No self or unknown-author message preview; neither increments the iOS badge. The known peer's notification still appears. Filtering uses user identity, so a peer sharing the recipient's nickname is not suppressed. No sensitive provider text is used as fallback. |
-| 5 | [Leave/rejoin retained notification state or tokens](https://github.com/TryQuiet/quiet/commit/98de8af3017d702a50c79ca33590c8b54e5a4fff) | Receive a notification, leave through the UI, deliver a delayed wakeup for the departed team, then join a fresh community and receive a new message. | No departed-team preview or navigation into the old community. Old native keys/cursors are cleared. In the provider lane, verify that the previously registered server token is tombstoned. The new community can notify without reinstalling. |
+For full provider setup, native Firebase configuration, disposable-device
+selection, Appium installation, and private artifacts, use the
+[Appium instructions](appium/README.md). Invoking `test:full-loop` without an
+explicit provider-enabled fixture fails; it never silently substitutes an
+injected wakeup. `test:onboarding` is a separate, push-disabled smoke test.
 
-Android uses one notification ID per channel, so a new message replaces that channel's existing notification. Active notification count alone cannot prove that every message was presented or that a duplicate wakeup did not repost. Record posting events for burst assertions; after a completed duplicate handling attempt, compare the child notification's `StatusBarNotification.postTime`, content and cursor against their baseline. Exclude group summaries and backend-service notifications. Observe posting events across foreground return because MainActivity clears active notifications on resume.
+Run Android native regressions with the existing standard debug/test APKs built
+with QSS enabled. Select exactly the owned emulator and grant notification
+permission first:
 
-Keep malformed signatures, wrong-team/server bindings, sequence gaps, missing-key retry limits and failed-delivery cursor transactions in the existing native regression suites. If pending self messages or missing profiles require changing stored state rather than a real UI flow, label those cases as controlled native integration tests. Add a small number of complete-flow cases for recovery after a failed fetch or notification delivery, using a controlled local QSS failure and then a valid message. Do not duplicate every codec/authentication test as a slow UI test.
+```sh
+export ANDROID_SERIAL='<owned emulator serial>'
+adb -s "$ANDROID_SERIAL" install -r '<standard-debug.apk>'
+adb -s "$ANDROID_SERIAL" install -r '<standard-debug-androidTest.apk>'
+adb -s "$ANDROID_SERIAL" shell pm grant com.quietmobile.debug android.permission.POST_NOTIFICATIONS
+adb -s "$ANDROID_SERIAL" shell am instrument -w -r \
+  -e class com.quietmobile.Push.QssPushHandlerTest \
+  com.quietmobile.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
 
-The ordinary regression lane should use a real local QSS service, real app enrollment and real encrypted messages sent by a peer. It may replace the provider wakeup transport with a test-only trigger, but must retain production authentication, decryption and persistent storage. On Android, put the trigger and notification inspection in the instrumentation APK; retain the `QssFirebaseMessagingService` receive gates and real `NotificationHandler`, and do not ship an exported trigger in the app. Calling `QssPushHandler` alone bypasses the service's receive gates and must be labeled accordingly.
+Require `OK (13 tests)` in instrumentation output; the adb process exit code
+alone does not indicate test success. This fixture clears the disposable app's
+native storage. Run it separately from Appium/Detox device sessions. On a
+private ADB server add its explicit `-P` port to each command.
 
-On iOS, native XCTest can invoke the production extension/orchestration with real stored prerequisites and inspect its content-handler output. That invocation alone does not put the returned notification on screen or prove OS extension activation. A separate test adapter can submit the verified content to the OS notification center for presentation and tap assertions; label that as local presentation coverage. The provider lane must prove actual OS activation of the extension. Use Detox for app UI transitions alongside native/system UI tools for notification inspection and tapping. RN-for-web/Cypress cannot exercise either native push receiver or the iOS extension.
+On a Mac, run `pod install` after the project changes, then test the `Quiet`
+scheme on the selected simulator. `QuietTests` remains the hostless NSE target;
+`QuietAppTests` retains the migration's app-hosted Firebase-unavailable tests.
+The latter deliberately skips when Firebase is already configured. Keep this
+configuration distinct from the provider build.
 
-A separate provider smoke test must cover QSS/QPS token registration and the actual FCM/APNs delivery path. Android supports FCM on a [Google APIs emulator](https://firebase.google.com/docs/cloud-messaging/android/get-started); it needs a configured test Firebase project. Apple supports APNs sandbox delivery to suitable simulators and distinguishes that from local `.apns`/`simctl push` injection: [remote delivery supports notification service extensions](https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes). Local push injection alone must not be reported as extension activation coverage. These tests need test-provider configuration and should target only disposable test installations.
+Portable checks, from the repository root:
 
-Use distinct app states. Backgrounding is the main regression state. Process death followed by a provider wakeup is a separate scenario. Deliberately force-stopping Android can prove offline history retrieval, but must not be used to model a push-receivable background app: [FCM does not deliver to force-stopped apps](https://firebase.blog/posts/2024/07/understand-fcm-delivery-rates/).
+```sh
+npm --prefix packages/mobile/e2e/appium ci
+npm --prefix packages/mobile/e2e/appium test
+python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p test_fixture.py
+node packages/mobile/android/app/src/androidTest/java/com/quietmobile/Push/generateNotificationFixture.cjs --check
+node packages/mobile/ios/QuietTests/generateNotificationFixture.cjs --check
+cd packages/mobile
+node_modules/.bin/jest --runInBand \
+  src/store/pushNotifications/pushNotifications.master.saga.test.ts \
+  src/store/nativeServices/leaveCommunity/leaveCommunity.saga.test.ts
+```
 
-Each run should record the source/app hashes, platform, app state, provider-vs-injected trigger, notification IDs, expected text/author/channel, cursor before and after, and Android/iOS-specific presentation evidence. For negative assertions, wait for an explicit completed native handling attempt and compare notification/badge state with its baseline; a sleep with no banner is not sufficient. Preserve exact text assertions, normal Detox synchronization, and private artifacts. The full provider test must fail clearly when required configuration is absent instead of silently substituting an injected trigger.
+## Recorded validation, 2026-09-11
 
-Implement and enable the suite in this order:
+- Android API 36: **13/13 native notification tests passed in 10.367 seconds**.
+  An intentional test-controlled cursor advance made the cursor regression fail
+  because no OS notification was posted; removing the fault passed in 0.232s.
+- Mobile notification/token and leave cleanup sagas: **8/8 passed**.
+- Appium Android enrollment smoke: **passed in 55.2 seconds**. A fresh mobile
+  install joined a desktop-created community and displayed the peer message
+  through real QSS. Both packaged backends matched the QSS-only receipt; Tor
+  metadata was simulated, P2P and push were disabled.
+- Appium provider preflight regressions: **3/3 passed**. Both deterministic
+  notification fixture generators pass their codec checks.
+- QSS fixture checks: **14 passed, 1 platform-specific check skipped**. The real
+  pinned Docker QSS service passed database health and CAPTCHA protocol probes.
+- Actual FCM/APNs journeys and native iOS execution remain **unverified** pending
+  test-provider credentials and a Mac/iOS runner. These are not represented by a
+  green ordinary CI check or by the Android native results above.
 
-1. Update the feature stack to include the audited fixes, then add native trigger, completion and presentation observation helpers. Keep them in test targets and reuse the existing QSS fixture, desktop peer and app onboarding selectors.
-2. Land the fresh-join scenario on Android and iOS, including authenticated message retrieval, OS presentation and tap navigation. Report each platform's result separately and explicitly identify any injected wakeup or local presentation adapter.
-3. Add the cursor/duplicate, channel-name, suppression and leave/rejoin scenarios in the priority order above, with controlled failure/recovery coverage. Require a completed native handling attempt for every negative assertion. Enable the ordinary lane on CI runners with the required native toolchains once these cases pass locally.
-4. Configure disposable FCM/APNs test installations and add a separate provider smoke job for fresh-join delivery and leave/rejoin registration cleanup on each platform. Schedule it only where the required credentials and supported devices or simulators are available; an invoked provider job must fail if configuration is missing.
+## Remaining coverage
 
-Completion requires recorded results for both platforms for all five regressions, a demonstrated retry after a controlled failure, and provider smoke evidence for each platform before claiming FCM/APNs coverage. A regression is useful only if it detects the original behavior: during implementation, demonstrate the corresponding failure with the old behavior restored or a focused fault introduced, then record the passing fixed run. Use an isolated checkout for that verification. Any controlled native integration case, untested app state or missing provider result must remain explicit in the coverage report.
+The five motivating regressions were [fresh-join native prerequisites](https://github.com/TryQuiet/quiet/commit/2abea2ffce87cd94c8653fa58a50eb6e602bbe51),
+[background cursor advancement](https://github.com/TryQuiet/quiet/commit/2a3d3c2c824f32b1c96aaad4dca7b2928b321c1d),
+[channel-name rendering](https://github.com/TryQuiet/quiet/commit/e113e54639b4cd71818afa4cbfbb7b6ece83d0e1),
+[self/unknown-author suppression](https://github.com/TryQuiet/quiet/commit/e98e974712e6d939d13908553be60f453cf2af2a),
+and [leave/rejoin cleanup](https://github.com/TryQuiet/quiet/commit/98de8af3017d702a50c79ca33590c8b54e5a4fff).
+The table distinguishes native regression coverage from complete provider coverage.
+
+Still missing are private-channel provider taps, server token tombstones after
+leave/rejoin, process-death delivery, hardware power-management behavior and a
+provider burst run with presentation-event accounting. Android replaces each
+channel's active notification, so counting visible cards cannot prove every
+message was presented. Quick reply is not covered. A fixture that force-stops
+Android is appropriate for offline history tests, not push-receivable background
+state. The Appium journeys use Home/background instead.

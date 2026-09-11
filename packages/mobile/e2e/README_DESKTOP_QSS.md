@@ -52,4 +52,4 @@ The Android packaging regression builds small real APK resource tables with `aap
 
 Prior iOS validation on an ARM Mac with iOS 18.5: all six stages passed in 249.5 seconds, with no skipped tests and default synchronization. Both app artifacts and test sources stayed unchanged throughout that run. This is a five-message conversation; private channels, attachments and long paginated history remain outside this initial mixed suite. Android native validation must be recorded separately from these prior iOS results.
 
-See the [QSS notification regression plan](README_QSS_NOTIFICATIONS.md) for proposed Android and iOS coverage of fresh joins, notification cursors, channel names, suppression and leave/rejoin. Notification E2Es are follow-up work.
+See [QSS notification regressions](README_QSS_NOTIFICATIONS.md) for the native integration coverage, separate Appium provider journeys, run results, and remaining gaps.

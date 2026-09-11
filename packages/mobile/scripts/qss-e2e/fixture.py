@@ -97,11 +97,36 @@ def private_json(path, value):
     path.chmod(0o600)
 
 
-def prepare(checkout, output, port, sudo_docker):
+def push_environment(credentials_path):
+    """Read explicitly supplied Firebase service accounts; never host defaults."""
+    if credentials_path is None:
+        return {}, []
+    metadata = credentials_path.lstat()
+    if credentials_path.is_symlink() or not credentials_path.is_file() or metadata.st_mode & 0o077:
+        raise ValueError("Push credentials must be a private regular file (mode 0600)")
+    accounts = json.loads(credentials_path.read_text())
+    if not isinstance(accounts, dict) or not accounts or set(accounts) - {"android", "ios"}:
+        raise ValueError("Push credentials require android and/or ios service-account objects")
+    environment = {"QPS_ENABLED": "true"}
+    for platform, account in accounts.items():
+        if not isinstance(account, dict) or account.get("type") != "service_account":
+            raise ValueError("Expected Firebase service-account JSON for each selected platform")
+        for source, field in (("project_id", "PROJECT_ID"), ("client_email", "CLIENT_EMAIL"), ("private_key", "PRIVATE_KEY")):
+            value = account.get(source)
+            if not isinstance(value, str) or not value.strip() or "\x00" in value or "$" in value:
+                raise ValueError(f"Missing Firebase {source} for {platform}")
+            # Firebase project IDs, service-account addresses, and PEM keys do
+            # not contain dollars. Reject them instead of Compose interpolation.
+            environment[f"FIREBASE_{platform.upper()}_{field}"] = value
+    return environment, sorted(accounts)
+
+
+def prepare(checkout, output, port, sudo_docker, push_credentials=None):
     if output.exists() or output.is_symlink():
         raise ValueError("Output must be a new task-owned directory")
     if not 1024 <= port <= 65535:
         raise ValueError("Port must be between 1024 and 65535")
+    push_env, push_platforms = push_environment(push_credentials)
     qss, qss_sha = checked_submodule(checkout, "3rd-party/qss")
     auth, auth_sha = checked_submodule(qss, "3rd-party/auth")
     with socket.socket() as listener:
@@ -127,13 +152,15 @@ def prepare(checkout, output, port, sudo_docker):
     (context / ".dockerignore").write_text(".git\nnode_modules\n3rd-party\n")
     shutil.copyfile(HERE / "probe.mjs", context / "app/fixture-probe.mjs")
     config = compose_config(project, port)
+    config["services"]["qss"]["environment"].update(push_env)
     compose_path = output / "compose.json"
     private_json(compose_path, config)
     manifest = {
         "version": 1, "runtime": "docker", "output": str(output), "project": project, "port": port,
         "sudoDocker": sudo_docker, "qssCommit": qss_sha, "qssAuthCommit": auth_sha,
         "composeSha256": hashlib.sha256(compose_path.read_bytes()).hexdigest(),
-        "endpoint": f"ws://localhost:{port}", "productionQss": False, "pushNotifications": False,
+        "endpoint": f"ws://localhost:{port}", "productionQss": False, "pushNotifications": bool(push_platforms),
+        "pushPlatforms": push_platforms,
     }
     private_json(output / "manifest.json", manifest)
     return manifest
@@ -225,6 +252,7 @@ def main():
     parser.add_argument("--checkout", type=Path, default=HERE.parents[3])
     parser.add_argument("--port", type=int, default=3003)
     parser.add_argument("--sudo-docker", action="store_true")
+    parser.add_argument("--push-credentials", type=Path, help="Private JSON mapping android/ios to test Firebase service accounts (Docker only)")
     parser.add_argument("--runtime", choices=("docker", "native"), default="docker")
     parser.add_argument("--node", type=Path, help="Native mode Node 22.14.0 executable")
     parser.add_argument("--corepack", type=Path, help="Native mode Corepack executable")
@@ -236,7 +264,9 @@ def main():
     os.umask(0o077)
     output = args.output.resolve()
     if args.action == "up":
-        manifest = prepare(args.checkout.resolve(), output, args.port, args.sudo_docker)
+        if args.push_credentials and args.runtime != "docker":
+            parser.error("Provider fixtures currently require Docker; native fixtures disable push")
+        manifest = prepare(args.checkout.resolve(), output, args.port, args.sudo_docker, args.push_credentials)
         if args.runtime == "native":
             import native
             native.prepare(manifest, args.node, args.corepack, args.postgres_bin, args.redis_server)
