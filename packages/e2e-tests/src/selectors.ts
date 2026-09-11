@@ -2374,36 +2374,16 @@ export class NewMessage {
       }
     }
 
-    logger.info('Waiting...')
-    await sleep(5_000)
-
-    logger.info('Entering and sending message')
+    // Capture the old view before sending: acknowledged creation replaces it immediately.
+    const titleBeforeSend = await this.title
     await messageInput.sendKeys(firstMessage)
     await messageInput.sendKeys(Key.ENTER)
-
-    let titleElement: WebElement | undefined = undefined
-    try {
-      logger.info('Waiting for new message view to disappear')
-      titleElement = await this.title
-      if (titleElement) {
-        await this.driver.wait(
-          until.elementIsNotVisible(titleElement),
-          15_000,
-          `New message title element was still visible after sending message`,
-          500
-        )
-      }
-    } catch (e) {
-      if (!(e as Error).message.includes(`New message title element couldn't be found within timeout`)) {
-        logger.error(`Failed to create new DM`, e)
-        return {
-          successfulUsers,
-          failedUsers,
-          success: false,
-          error: e,
-        }
-      }
-    }
+    await this.driver.wait(
+      until.stalenessOf(titleBeforeSend),
+      15_000,
+      'New message view did not close after DM creation',
+      100
+    )
 
     return {
       successfulUsers,
