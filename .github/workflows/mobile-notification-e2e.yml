@@ -17,12 +17,18 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  android-provider:
+  android:
+    name: Android Appium (${{ matrix.lane }})
     # Same-repository PRs only: never execute a fork with provider credentials.
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [onboarding, provider]
     env:
+      QUIET_NOTIFICATION_LANE: ${{ matrix.lane }}
       DISPLAY: ':99'
       IS_E2E: 'true'
       TEST_MODE: 'true'
@@ -41,6 +47,7 @@ jobs:
         run: python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p test_ci_credentials.py -v
 
       - name: Validate Firebase client and provider credentials
+        if: matrix.lane == 'provider'
         env:
           ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
           IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
@@ -67,6 +74,10 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
       - name: Setup workspace
         uses: ./.github/actions/setup-env
         with:
@@ -81,10 +92,13 @@ jobs:
       - name: Build the shared QSS-only backend
         run: node packages/backend/scripts/build-qss-only.cjs --output "$RUNNER_TEMP/notification-backend" --stage android,desktop
 
-      - name: Build Android with real Firebase and push enabled
+      - name: Build Android for the selected lane
         run: |
           cp packages/mobile/.env.e2e.qss.push "$RUNNER_TEMP/notification.env"
           printf '\nQUIET_E2E_QSS_ONLY=true\n' >> "$RUNNER_TEMP/notification.env"
+          if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then
+            sed -i 's/^QPS_ALLOWED=true$/QPS_ALLOWED=false/' "$RUNNER_TEMP/notification.env"
+          fi
           cd packages/mobile/android
           ENVFILE="$RUNNER_TEMP/notification.env" ./gradlew assembleStandardDebug -PreactNativeArchitectures=arm64-v8a --max-workers=2
 
@@ -101,7 +115,7 @@ jobs:
           sudo chown root:root dist/linux-unpacked/chrome-sandbox
           sudo chmod 4755 dist/linux-unpacked/chrome-sandbox
 
-      - name: Run real FCM notification and tap journeys
+      - name: Run Appium ${{ matrix.lane }} journey
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
@@ -116,7 +130,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-notification-result
+          name: android-notification-${{ matrix.lane }}-result
           if-no-files-found: ignore
           path: |
             ${{ runner.temp }}/notification-credentials/availability.json

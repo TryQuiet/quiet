@@ -4,6 +4,11 @@ set -euo pipefail
 test "${GITHUB_ACTIONS:-}" = true
 test -n "${RUNNER_TEMP:-}"
 test -n "${GITHUB_WORKSPACE:-}"
+case "${QUIET_NOTIFICATION_LANE:-}" in
+  onboarding) test_script=test:onboarding ;;
+  provider) test_script=test:full-loop ;;
+  *) echo 'Set QUIET_NOTIFICATION_LANE to onboarding or provider'; exit 1 ;;
+esac
 cd "$GITHUB_WORKSPACE"
 umask 077
 
@@ -45,10 +50,11 @@ xdpyinfo >/dev/null
 fluxbox > "$RUNNER_TEMP/notification-window-manager.log" 2>&1 &
 wm_pid=$!
 
-python3 packages/mobile/scripts/qss-e2e/fixture.py up \
-  --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003 \
-  --push-credentials "$RUNNER_TEMP/notification-credentials/firebase-accounts.json" \
-  > "$RUNNER_TEMP/notification-fixture.log" 2>&1
+fixture_args=(up --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003)
+if [[ "$QUIET_NOTIFICATION_LANE" == provider ]]; then
+  fixture_args+=(--push-credentials "$RUNNER_TEMP/notification-credentials/firebase-accounts.json")
+fi
+python3 packages/mobile/scripts/qss-e2e/fixture.py "${fixture_args[@]}" > "$RUNNER_TEMP/notification-fixture.log" 2>&1
 python3 packages/mobile/scripts/qss-e2e/fixture.py prepare-run \
   --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --run-output "$QUIET_QSS_E2E_RUN_DIR"
 
@@ -78,7 +84,7 @@ done
 curl --silent --fail http://127.0.0.1:4725/status >/dev/null
 
 result=0
-npm --prefix packages/mobile/e2e/appium run test:full-loop > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1 || result=$?
+npm --prefix packages/mobile/e2e/appium run "$test_script" > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1 || result=$?
 # Keep screenshots, invitations, device tokens and raw service logs private.
 # CI publishes only these deliberately selected non-secret proof fields.
 python3 - <<'PY'
@@ -89,6 +95,8 @@ proof = json.loads(source.read_text()) if source.exists() else {}
 build = proof.get('build', {})
 report = {
     'platform': 'android',
+    'lane': os.environ['QUIET_NOTIFICATION_LANE'],
+    'onboardingPassed': proof.get('onboardingPassed', False) is True,
     'fullLoopPassed': proof.get('fullLoopPassed', False) is True,
     'completedNotificationJourneys': len(proof.get('notifications', [])),
     'backendMode': build.get('backendMode'),
@@ -97,7 +105,10 @@ report = {
 }
 Path(os.environ['RUNNER_TEMP'], 'notification-result.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))
-if not report['fullLoopPassed'] or report['completedNotificationJourneys'] != 2:
-    raise SystemExit('Real provider notification tests did not pass; no injected fallback was run.')
+if report['lane'] == 'provider':
+    if not report['fullLoopPassed'] or report['completedNotificationJourneys'] != 2:
+        raise SystemExit('Real provider notification tests did not pass; no injected fallback was run.')
+elif not report['onboardingPassed'] or report['fullLoopPassed']:
+    raise SystemExit('The explicit onboarding smoke did not pass.')
 PY
 exit "$result"
