@@ -49,3 +49,11 @@ jobs:
       - name: "Unit tests"
         if: steps.filter.outputs.desktop == 'true'
         run: lerna run test --scope @quiet/desktop --stream
+
+      - name: "Electron runtime tests (Linux)"
+        if: steps.filter.outputs.desktop == 'true' && runner.os == 'Linux'
+        run: xvfb-run -a npm run test:electron --prefix packages/desktop
+
+      - name: "Electron runtime tests (macOS)"
+        if: steps.filter.outputs.desktop == 'true' && runner.os == 'macOS'
+        run: npm run test:electron --prefix packages/desktop

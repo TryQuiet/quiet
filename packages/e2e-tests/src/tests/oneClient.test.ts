@@ -47,6 +47,7 @@ describe('One Client', () => {
   describe('User opens app for the first time', () => {
     it('User opens app', async () => {
       await app.openWithRetries()
+      expect(new URL(await app.driver.getCurrentUrl()).pathname.endsWith('/index.html')).toBe(true)
     })
 
     it('Get opened app process data', () => {

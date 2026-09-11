@@ -24,6 +24,7 @@
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
       "category": "public.app-category.social-networking",
+      "minimumSystemVersion": "13.0.0",
       "files": [
         "dist/**/*",
         "build/icon.*",
@@ -102,6 +103,7 @@
     "type-check": "tsc -p tsconfig.build.json --noEmit",
     "test": "TZ=UTC LOG_TO_FILE=false jest --runInBand",
     "test:watch": "TZ=UTC LOG_TO_FILE=false jest --watchAll",
+    "test:electron": "npm run build:main && node scripts/test-electron.cjs",
     "rtl-test": "TZ=UTC LOG_TO_FILE=false jest ./src/rtl-tests",
     "cypress:open": "cypress open --component",
     "cypress:run": "cypress run --component",
@@ -138,7 +140,7 @@
     "@quiet/node-common": "^4.0.3",
     "@quiet/types": "^2.0.2-alpha.1",
     "backend-bundle": "^2.0.1-alpha.4",
-    "electron-context-menu": "^3.6.1",
+    "electron-context-menu": "5.0.0",
     "electron-debug": "^3.2.0",
     "electron-localshortcut": "^3.2.1",
     "electron-store": "^8.2.0",
@@ -205,9 +207,9 @@
     "css-loader": "^6.7.2",
     "cypress": "^13.17.0",
     "cypress-storybook": "0.5.1",
-    "electron": "^32",
+    "electron": "44.3.0",
     "electron-builder": "^23.6.0",
-    "electron-devtools-installer": "^3.1.1",
+    "electron-devtools-installer": "4.0.0",
     "electron-store": "^8.2.0",
     "electron-store-webpack-wrapper": "^0.0.2",
     "emoji-picker-react": "^4.12.2",
@@ -297,7 +299,7 @@
     ]
   },
   "engines": {
-    "node": "20.20.1",
+    "node": "24.21.0",
     "npm": "10.8.2"
   },
   "lint-staged": {

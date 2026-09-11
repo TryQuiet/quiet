@@ -34,7 +34,7 @@
     "stop:qss": "cd ./3rd-party/qss && pnpm run run:app docker:down:complete"
   },
   "engines": {
-    "node": "20.20.1",
+    "node": "24.21.0",
     "npm": "10.8.2"
   },
   "devDependencies": {
@@ -44,7 +44,7 @@
     "typescript": "^4.9.5"
   },
   "volta": {
-    "node": "20.20.1",
+    "node": "24.21.0",
     "npm": "10.8.2"
   },
   "dependencies": {

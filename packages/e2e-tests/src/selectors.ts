@@ -46,6 +46,24 @@ export class App {
     this.isOpened = true
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
+    // ChromeDriver can initially attach to the splash, which is destroyed when
+    // the main renderer loads. Select the app window before querying its DOM.
+    await this.driver.wait(
+      async () => {
+        for (const handle of await this.driver.getAllWindowHandles()) {
+          try {
+            await this.driver.switchTo().window(handle)
+            if (new URL(await this.driver.getCurrentUrl()).pathname.endsWith('/index.html')) return true
+          } catch (error) {
+            if (!(error instanceof Error) || error.name !== 'NoSuchWindowError') throw error
+          }
+        }
+        return false
+      },
+      30_000,
+      'Quiet main window did not finish loading',
+      100
+    )
     const startingPanel = new StartingLoadingPanel(this.driver)
     const startingPanelLoaded = startingPanel.waitForLoadingToComplete()
     await startingPanelLoaded
