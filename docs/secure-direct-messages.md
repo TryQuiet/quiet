@@ -26,4 +26,6 @@ On a Linux x86_64 emulator, ARM translation can deadlock while the bundled Node 
 
 Android starts Node through its embedding API without installing process signal handlers or owning the inspector. The standalone `node::Start` entry point replaces the SIGUSR1 handler used by JavaScriptCore's garbage collector, which can freeze the frontend. The React Native bridge uses the embedded environment's event loop. `ANDROID_HOME=... packages/mobile/scripts/test-embedded-node.sh <device-serial>` runs the production startup core on the device and verifies that a frontend handler remains installed and receives a signal during real Node execution. This regression fails with the old standalone entry point.
 
+The Android Tor health check uses Toybox's `pgrep -fl` to match and print full process arguments. `tor-process.android.spec.ts`, enabled with `QUIET_DM_ANDROID_DEVICE` and `ADB_PATH`, exercises the production discovery method against a real emulator process; the old GNU-style `-af` command returns no match and falsely restarts a running Tor instance. The desktop/Android attachment test also requires working Tor peer connectivity.
+
 Final commands, results and the Daybreak Blue review disposition will be recorded in the PR after the local execution and review complete.

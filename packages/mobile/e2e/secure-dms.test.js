@@ -29,9 +29,8 @@ suite('Authenticated desktop/mobile DM', () => {
     scenario = JSON.parse(fs.readFileSync(scenarioPath, 'utf8'))
     const server = new URL(process.env.QSS_ENDPOINT)
     if (['localhost', '127.0.0.1'].includes(server.hostname)) await device.reverseTcpPort(Number(server.port))
-    await device.launchApp({ delete: true, newInstance: true, launchArgs: { detoxEnableSynchronization: 0 } })
-    // Tor and QSS deliberately keep network requests active during this test.
-    await device.disableSynchronization()
+    await device.launchApp({ delete: true, newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
+    // Ignore long-lived Tor/QSS sockets while retaining UI/keyboard synchronization.
   })
   afterAll(async () => { await device.terminateApp() })
 
@@ -66,13 +65,10 @@ suite('Authenticated desktop/mobile DM', () => {
     await waitForMarker('desktop-offline')
 
     await device.terminateApp()
-    await device.launchApp({ newInstance: true, launchArgs: { detoxEnableSynchronization: 0 } })
-    await device.disableSynchronization()
-    // Some releases restore the last channel, others restore the home screen.
-    try { await expect(element(by.id(scenario.firstMessage))).toBeVisible() } catch {
-      await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
-      await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
-    }
+    await device.launchApp({ newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
+    await visible(by.id('messages-home-container'))
+    await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
+    await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
     await visible(by.id(scenario.firstMessage))
     await visible(by.text('Downloaded'))
     await send(scenario.offlineReply)
