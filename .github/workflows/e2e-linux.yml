@@ -68,6 +68,9 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
+      - name: Verify final AppImage packaging
+        run: QUIET_TEST_APPIMAGE="$GITHUB_WORKSPACE/packages/desktop/dist/$FILE_NAME" npm run test:packaged-appimage --prefix packages/desktop
+
       - name: Run one client test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
