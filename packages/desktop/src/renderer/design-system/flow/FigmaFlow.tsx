@@ -235,7 +235,7 @@ export const DesktopDesigns: React.FC<{ flow: Flow }> = ({ flow }) => {
         The Get started prototype is mobile-only, but desktop onboarding designs exist as library components and instances in four files. Each is the designer&rsquo;s export, with the file and its last-edit date — several predate the mobile prototype by over a year.
       </p>
       <p style={{ fontSize: 13, lineHeight: '19px', color: '#A11F24', margin: '0 0 22px', maxWidth: '80ch', paddingLeft: 10, borderLeft: '2px solid #A11F24' }}>
-        Desktop and mobile agree on routes. The library&rsquo;s <em>Join community</em> (2025-04) is the join sub-flow in two states — post-invite (<em>Create new account / Recover account</em>) and the three-way choice (<em>invite link / QR code / recover</em>), the same three as mobile. The only desktop app entry is the Dec-2024 <em>Modal full-window</em> (<em>Join / Create / Link devices</em>), a year older than the mobile prototype but the same routes.
+        The desktop model: every desktop onboarding screen is the library&rsquo;s <em>Modal full-window</em> shell with the same 375-wide content mobile uses inside it — the library&rsquo;s <em>Join community</em> variants are 375 wide. Routes agree with mobile. <em>Register username</em> is stale cruft; desktop username takes the mobile prototype&rsquo;s content.
       </p>
       {DESKTOP.map(d => {
         const cp = d.counterpart ? bySlug[d.counterpart] : undefined

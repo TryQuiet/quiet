@@ -1,5 +1,24 @@
 [
  {
+  "slug": "desktop-modal-full-window-shell",
+  "file": "0j7Nna9zWmfOSNmRmQK1Uh",
+  "fileName": "Quiet Design Library",
+  "date": "2025-04-15",
+  "node": "5825:29938",
+  "name": "Modal full-window (the desktop shell)",
+  "width": 715,
+  "height": 929,
+  "png": "desktop-modal-full-window-shell.png",
+  "url": "https://www.figma.com/design/0j7Nna9zWmfOSNmRmQK1Uh?node-id=5825-29938",
+  "copy": [
+   "Title",
+   "Placeholder\nReplace with content"
+  ],
+  "counterpart": null,
+  "note": "THE DESKTOP MODEL: this library component is the shell every desktop onboarding screen sits in; the content inside it is the same 375-wide design mobile uses. Base all desktop onboarding screens on it.",
+  "bytes": 21883
+ },
+ {
   "slug": "desktop-join-post-invite",
   "file": "0j7Nna9zWmfOSNmRmQK1Uh",
   "fileName": "Quiet Design Library",
@@ -19,7 +38,7 @@
    "\u26a0\ufe0f Quiet is in beta and shouldn't be used for activities requiring security."
   ],
   "counterpart": "container",
-  "note": "Post-invite-link state of the desktop join flow: Create new account / Recover account, with the beta warning. Shown after an invite link is opened.",
+  "note": "Post-invite-link state of the desktop join flow: Create new account / Recover account, with the beta warning. Shown after an invite link is opened. A 375-wide content component (variant of the 'Join community' set); on desktop it sits inside Modal full-window.",
   "bytes": 150224
  },
  {
@@ -42,7 +61,7 @@
    "Recover account"
   ],
   "counterpart": "join-community",
-  "note": "Desktop three-way choice: Join with invite link / Join with QR code / Recover account \u2014 the same routes as mobile.",
+  "note": "Desktop three-way choice: Join with invite link / Join with QR code / Recover account \u2014 the same routes as mobile. A 375-wide content component (variant of the 'Join community' set); on desktop it sits inside Modal full-window.",
   "bytes": 142230
  },
  {
@@ -88,8 +107,8 @@
    "Label",
    "Your username cannot have any spaces or special characters, must be lowercase letters and numbers only."
   ],
-  "counterpart": "username-default",
-  "note": "Library component for registering a username on desktop.",
+  "counterpart": "username-populated",
+  "note": "STALE \u2014 do not use its copy. This 600x889 component carries old cruft ('New Channel', DM-era wording). Desktop username = the mobile prototype's Choose username content (username-default / username-populated) inside Modal full-window, keeping the app's current validation and parsed-name warning.",
   "bytes": 58929
  },
  {

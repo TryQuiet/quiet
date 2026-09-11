@@ -640,6 +640,8 @@ Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `
 
 ## Desktop designs (found after the first pass)
 
+**The desktop model (decided): base every desktop onboarding screen on the library's `Modal full-window` shell** (node `5825:29938`, 715×929). The content inside is the same 375-wide design mobile uses — the library's `Join community` variants are 375 wide — so desktop and mobile share content and differ only in the shell. The library's `Register username` (600×889) is stale cruft and must not be used for copy; desktop username = the mobile prototype's *Choose username* inside the shell, keeping the app's current validation and the parsed-name warning (`CreateUsernameComponent.tsx`).
+
 Earlier scans looked only at top-level frames; the desktop onboarding designs are depth-2 library components and instances. Story `onboarding-flow--desktop-designs` shows each one. Use these for the desktop variants instead of inventing 600px modals.
 
 | design | size | file (last edit) | node | mobile counterpart | note |
