@@ -13,8 +13,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: mobile-notification-provider-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   android-provider:
