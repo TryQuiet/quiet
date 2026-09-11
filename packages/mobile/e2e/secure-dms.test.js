@@ -71,13 +71,18 @@ suite('Authenticated desktop/mobile DM', () => {
     console.info('Android verified the file contents and sent its reply')
     await waitForMarker('desktop-offline')
 
-    await device.terminateApp()
-    await device.launchApp({ newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
-    await visible(by.id('messages-home-container'))
-    await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
-    await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
-    await visible(by.id(scenario.firstMessage))
-    await visible(by.text('Downloaded'))
+    // Restored background workers can load Node before the React Native frontend.
+    // Exercise that native-library load order repeatedly with persisted DM state.
+    for (let restart = 0; restart < 3; restart += 1) {
+      await device.terminateApp()
+      await device.launchApp({ newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
+      await visible(by.id('messages-home-container'))
+      await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
+      await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
+      await visible(by.id(scenario.firstMessage))
+      await visible(by.text('Downloaded'))
+      console.info(`Android restored DM text and attachment after restart ${restart + 1}`)
+    }
     await send(scenario.offlineReply)
     signal('mobile-finished')
     console.info('Android restored DM history and sent while desktop was offline')

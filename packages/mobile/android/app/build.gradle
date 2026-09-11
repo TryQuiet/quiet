@@ -164,7 +164,7 @@ android {
     packagingOptions {
         jniLibs {
             useLegacyPackaging = true
-            pickFirsts += ["lib/arm64-v8a/libc++_shared.so", "lib/arm64-v8a/libc++_shared.so"]
+            pickFirsts += ["**/libc++_shared.so"]
         }
     }
 
@@ -185,6 +185,9 @@ android {
         }
         externalNativeBuild {
             cmake {
+                // React Native and Node share libc++; a second static runtime can
+                // interpose incompatible locale/iostream symbols during process restart.
+                arguments "-DANDROID_STL=c++_shared"
                 cppFlags ""
             }
         }
