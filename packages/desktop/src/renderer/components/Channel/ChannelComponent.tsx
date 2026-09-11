@@ -8,6 +8,7 @@ import PageHeader from '../ui/Page/PageHeader'
 
 import ChannelHeaderComponent from '../widgets/channels/ChannelHeader'
 import ChannelMessagesComponent from '../widgets/channels/ChannelMessages'
+import { ChannelLinkNavigation } from '../widgets/channels/TextMessage'
 import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
@@ -50,6 +51,7 @@ export interface ChannelComponentProps {
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
   openUrl: (url: string) => void
+  channelLinks?: ChannelLinkNavigation
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
@@ -85,6 +87,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   onInputChange,
   onInputEnter,
   openUrl,
+  channelLinks,
   removeFile,
   handleFileDrop,
   filesData,
@@ -240,6 +243,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             onScroll={onScroll}
             uploadedFileModal={uploadedFileModal}
             openUrl={openUrl}
+            channelLinks={channelLinks}
             openContainingFolder={openContainingFolder}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}

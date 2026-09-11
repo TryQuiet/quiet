@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { shell, ipcRenderer, webUtils } from 'electron'
 
@@ -7,6 +7,7 @@ import { users, messages, publicChannels, communities, files, network, settings 
 import { FileMetadata, CancelDownload, FileContent, FilePreviewData } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
+import { ChannelLinkNavigation } from '../widgets/channels/TextMessage'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -27,6 +28,10 @@ const Channel = () => {
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
   const currentChannelSubscribed = useSelector(publicChannels.selectors.currentChannelSubscribed)
+
+  // The channels the user can actually see - the same list the sidebar renders. Channels the user
+  // has no access to are not in the store, so mentions of them stay plain text.
+  const visibleChannels = useSelector(publicChannels.selectors.publicChannels)
 
   const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
@@ -165,6 +170,16 @@ const Channel = () => {
     shell.openExternal(url)
   }, [])
 
+  const channelLinks = useMemo<ChannelLinkNavigation>(
+    () => ({
+      channels: new Map(visibleChannels.map(channel => [channel.name.toLowerCase(), channel.id])),
+      onChannelLinkClick: (channelId: string) => {
+        dispatch(publicChannels.actions.setCurrentChannel({ channelId }))
+      },
+    }),
+    [visibleChannels, dispatch]
+  )
+
   const openContainingFolder = useCallback((path: string) => {
     shell.showItemInFolder(path)
   }, [])
@@ -210,6 +225,7 @@ const Channel = () => {
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
     openUrl: openUrl,
+    channelLinks: channelLinks,
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,

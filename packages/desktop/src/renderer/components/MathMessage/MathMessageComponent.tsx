@@ -49,6 +49,7 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
   messageId,
   pending,
   openUrl,
+  channelLinks,
   index,
 }) => {
   const [renderedHTML, setRenderedHTML] = React.useState<string | null>(null)
@@ -95,6 +96,7 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
       messageId={`${messageId}-${index}`}
       pending={pending}
       openUrl={openUrl}
+      channelLinks={channelLinks}
       key={`${messageId}-${index}`}
     />
   )
@@ -110,6 +112,7 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
   messageId,
   pending,
   openUrl,
+  channelLinks,
   display = false,
   onMathMessageRendered,
 }) => {
@@ -119,7 +122,15 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
     texMessageSplit = splitByTex(String.raw`${message}`, displayMathRegex)
   } catch (e) {
     logger.error('Error extracting tex from message', e)
-    return <TextMessageComponent message={message} messageId={messageId} pending={pending} openUrl={openUrl} />
+    return (
+      <TextMessageComponent
+        message={message}
+        messageId={messageId}
+        pending={pending}
+        openUrl={openUrl}
+        channelLinks={channelLinks}
+      />
+    )
   }
 
   return (
@@ -132,6 +143,7 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
           messageId={messageId}
           pending={pending}
           openUrl={openUrl}
+          channelLinks={channelLinks}
           index={index}
           key={`${messageId}-${index}`}
         />

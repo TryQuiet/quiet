@@ -14,6 +14,7 @@ import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 import type { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
 
 import { NestedMessageContent } from './NestedMessageContent'
+import { ChannelLinkNavigation } from './TextMessage'
 
 import type { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
@@ -162,6 +163,7 @@ export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
   openUrl: (url: string) => void
+  channelLinks?: ChannelLinkNavigation
   downloadStatuses?: Dictionary<DownloadStatus>
   maxAutodownloadSizeBytes: number
   uploadedFileModal?: UseModalType<{
@@ -180,6 +182,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   uploadedFileModal,
   onMathMessageRendered,
   openUrl,
+  channelLinks,
   openContainingFolder,
   downloadFile,
   cancelDownload,
@@ -278,6 +281,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
                       uploadedFileModal={uploadedFileModal}
                       openUrl={openUrl}
+                      channelLinks={channelLinks}
                       openContainingFolder={openContainingFolder}
                       downloadFile={downloadFile}
                       cancelDownload={cancelDownload}
