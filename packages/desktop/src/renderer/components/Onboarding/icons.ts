@@ -10,6 +10,7 @@ import qrCode from '../../static/images/onboarding/qr-code.svg'
 import qrDisplay from '../../static/images/onboarding/qr-display.svg'
 import qrScan from '../../static/images/onboarding/qr-scan.svg'
 import monster from '../../static/images/onboarding/monster@2x.png'
+import logo from '../../static/images/onboarding/logo-icon.svg'
 
 export const onboardingIcons = {
   caretRight,
@@ -25,3 +26,6 @@ export const onboardingIcons = {
 
 /** The "Monster" illustration from the Open invite link frame, exported at 2x (120px box). */
 export const monsterIllustration = monster
+
+/** The Logo-icon from the Get started frame (100px). */
+export const logoIcon = logo

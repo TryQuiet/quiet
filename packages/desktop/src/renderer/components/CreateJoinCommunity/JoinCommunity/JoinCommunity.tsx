@@ -102,6 +102,8 @@ const JoinCommunity = () => {
       title={TITLES[step]}
       canGoBack
       handleBack={handleBack}
+      alignCloseLeft
+      contentWidth={'100%'}
       testIdPrefix={'joinCommunity'}
       zIndex={1300}
     >

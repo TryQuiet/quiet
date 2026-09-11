@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import { Controller, useForm } from 'react-hook-form'
 
 import Typography from '@mui/material/Typography'
-import Grid from '@mui/material/Grid'
 import WarningIcon from '@mui/icons-material/Warning'
 
 import Modal from '../ui/Modal/Modal'
@@ -19,6 +18,7 @@ import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/common'
 
+import { OnboardingBody } from '../Onboarding/OnboardingBody'
 import { createLogger } from '../../logger'
 
 const logger = createLogger('createUsername:component')
@@ -29,25 +29,18 @@ const classes = {
   focus: `${PREFIX}focus`,
   margin: `${PREFIX}margin`,
   error: `${PREFIX}error`,
-  fullContainer: `${PREFIX}fullContainer`,
-  gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
-  title: `${PREFIX}title`,
-  iconDiv: `${PREFIX}iconDiv`,
-  warrningIcon: `${PREFIX}warrningIcon`,
-  warrningMessage: `${PREFIX}warrningMessage`,
-  rootBar: `${PREFIX}rootBar`,
-  progressBar: `${PREFIX}progressBar`,
-  info: `${PREFIX}info`,
   inputLabel: `${PREFIX}inputLabel`,
   helper: `${PREFIX}helper`,
-  buttonModern: `${PREFIX}buttonModern`,
-  buttonMargin: `${PREFIX}buttonMargin`,
+  warning: `${PREFIX}warning`,
+  warningIcon: `${PREFIX}warningIcon`,
+  warningMessage: `${PREFIX}warningMessage`,
 }
 
-const StyledGrid = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  padding: '0px 32px',
+const Form = styled('form')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.space.xl,
 
   [`& .${classes.focus}`]: {
     '& .MuiOutlinedInput-root': {
@@ -59,7 +52,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.margin}`]: {
     '& .MuiFormHelperText-contained': {
-      margin: '5px 0px',
+      margin: `${theme.space.xs}px 0px`,
     },
   },
 
@@ -71,18 +64,10 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     },
   },
 
-  [`& .${classes.fullContainer}`]: {
-    width: '100%',
-    height: '100%',
-  },
-
-  [`& .${classes.gutter}`]: {
-    marginTop: 8,
-    marginBottom: 24,
-  },
-
   [`& .${classes.button}`]: {
-    width: 165,
+    width: '100%',
+    maxWidth: 'none',
+    borderRadius: 8,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
@@ -91,44 +76,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     textTransform: 'none',
     height: 48,
     fontWeight: 'normal',
-  },
-
-  [`& .${classes.buttonModern}`]: {
-    borderRadius: 8,
-    width: 110,
-  },
-
-  [`& .${classes.title}`]: {
-    marginBottom: 24,
-  },
-
-  [`& .${classes.iconDiv}`]: {
-    width: 24,
-    height: 28,
-    marginRight: 8,
-  },
-
-  [`& .${classes.warrningIcon}`]: {
-    color: theme.palette.warning.main,
-  },
-
-  [`& .${classes.warrningMessage}`]: {
-    wordBreak: 'break-word',
-  },
-
-  [`& .${classes.rootBar}`]: {
-    width: 350,
-    marginTop: 32,
-    marginBottom: 16,
-  },
-
-  [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.linkBlue,
-  },
-
-  [`& .${classes.info}`]: {
-    lineHeight: '19px',
-    color: theme.palette.colors.darkGray,
   },
 
   [`& .${classes.inputLabel}`]: {
@@ -142,6 +89,20 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginTop: theme.space.xs,
     color: theme.palette.colors.darkGray,
   },
+
+  [`& .${classes.warning}`]: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.space.sm,
+  },
+
+  [`& .${classes.warningIcon}`]: {
+    color: theme.palette.warning.main,
+  },
+
+  [`& .${classes.warningMessage}`]: {
+    wordBreak: 'break-word',
+  },
 }))
 
 const userFields = {
@@ -152,24 +113,23 @@ interface CreateUserValues {
   userName: string
 }
 
-export interface CreateUsernameComponentProps {
-  open: boolean
-  handleClose: () => void
+export interface CreateUsernameBodyProps {
+  open?: boolean
   registerUsername: (name: string) => void
 }
 
-export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = ({
-  open,
-  registerUsername,
-  handleClose,
-}) => {
+/**
+ * Choose username · Figma 2811:2371 (the prototype's copy and layout; the
+ * library's "Register username" is stale). Validation, the parsed-name warning
+ * and the error states are the app's existing behaviour.
+ */
+export const CreateUsernameBody: React.FC<CreateUsernameBodyProps> = ({ open = true, registerUsername }) => {
   const [userName, setUserName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
   const {
     handleSubmit,
     formState: { errors },
-    setValue,
     setError,
     clearErrors,
     control,
@@ -209,95 +169,98 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   }, [open])
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={false} testIdPrefix={'createUsername'}>
-      <StyledGrid container direction='column'>
-        <>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-              <Grid>
-                <Typography variant='h3' className={classes.title}>
-                  Choose username
-                </Typography>
-                <Typography variant='body2' className={classes.inputLabel} component='label' htmlFor='userName'>
-                  Enter a username
-                </Typography>
-              </Grid>
-              <Controller
-                control={control}
-                defaultValue={''}
-                rules={userFields.userName.validation}
-                name={'userName'}
-                render={({ field }) => (
-                  <TextField
-                    {...userFields.userName.fieldProps}
-                    fullWidth
-                    classes={classNames({
-                      [classes.focus]: true,
-                      [classes.margin]: true,
-                      [classes.error]: errors.userName,
-                    })}
-                    id='userName'
-                    placeholder={'Username'}
-                    errors={errors}
-                    onPaste={e => e.preventDefault()}
-                    variant='outlined'
-                    onchange={event => {
-                      event.persist()
-                      const value = event.target.value
-                      onChange(value)
-                      // Call default
-                      field.onChange(event)
-                    }}
-                    onblur={() => {
-                      field.onBlur()
-                    }}
-                    value={field.value}
-                    spellCheck={false}
-                    autoFocus
-                  />
-                )}
-              />
-              <Typography variant='caption' className={classes.helper} data-testid={'createUsernameHelper'}>
-                Your username will be public, but you can choose any name you like. No spaces or special characters.
-                Lowercase letters and numbers only.
-              </Typography>
-              <div className={classes.gutter}>
-                {!errors.userName && userName.length > 0 && parsedNameDiffers && (
-                  <Grid container alignItems='center' direction='row'>
-                    <Grid item className={classes.iconDiv}>
-                      <WarningIcon className={classes.warrningIcon} />
-                    </Grid>
-                    <Grid item xs>
-                      <Typography
-                        variant='body2'
-                        className={classes.warrningMessage}
-                        data-testid={'createUserNameWarning'}
-                      >
-                        Your username will be registered as <b>{`@${userName}`}</b>
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                )}
-              </div>
-              <LoadingButton
-                variant='contained'
-                color='primary'
-                disabled={Boolean(errors.userName)}
-                type='submit'
-                text={'Continue'}
-                data-testid={'continue-createUsername'}
-                classes={{
-                  button: classNames({
-                    [classes.button]: true,
-                  }),
+    <OnboardingBody heading={'Choose username'} dataTestId='choose-username'>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <Typography variant='body2' className={classes.inputLabel} component='label' htmlFor='userName'>
+            Enter a username
+          </Typography>
+          <Controller
+            control={control}
+            defaultValue={''}
+            rules={userFields.userName.validation}
+            name={'userName'}
+            render={({ field }) => (
+              <TextField
+                {...userFields.userName.fieldProps}
+                id='userName'
+                fullWidth
+                classes={classNames({
+                  [classes.focus]: true,
+                  [classes.margin]: true,
+                  [classes.error]: errors.userName,
+                })}
+                placeholder={'Username'}
+                errors={errors}
+                onPaste={e => e.preventDefault()}
+                variant='outlined'
+                onchange={event => {
+                  event.persist()
+                  const value = event.target.value
+                  onChange(value)
+                  // Call default
+                  field.onChange(event)
                 }}
+                onblur={() => {
+                  field.onBlur()
+                }}
+                value={field.value}
+                spellCheck={false}
+                autoFocus
               />
-            </Grid>
-          </form>
-        </>
-      </StyledGrid>
-    </Modal>
+            )}
+          />
+          <Typography variant='caption' className={classes.helper} data-testid={'createUsernameHelper'}>
+            Your username will be public, but you can choose any name you like. No spaces or special characters.
+            Lowercase letters and numbers only.
+          </Typography>
+        </div>
+        {!errors.userName && userName.length > 0 && parsedNameDiffers ? (
+          <div className={classes.warning}>
+            <WarningIcon className={classes.warningIcon} />
+            <Typography variant='body2' className={classes.warningMessage} data-testid={'createUserNameWarning'}>
+              Your username will be registered as <b>{`@${userName}`}</b>
+            </Typography>
+          </div>
+        ) : null}
+        <LoadingButton
+          variant='contained'
+          color='primary'
+          disabled={Boolean(errors.userName)}
+          type='submit'
+          text={'Continue'}
+          data-testid={'continue-createUsername'}
+          classes={{
+            button: classes.button,
+          }}
+        />
+      </Form>
+    </OnboardingBody>
   )
 }
+
+export interface CreateUsernameComponentProps {
+  open: boolean
+  handleClose: () => void
+  registerUsername: (name: string) => void
+}
+
+export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = ({
+  open,
+  registerUsername,
+  handleClose,
+}) => (
+  <Modal
+    open={open}
+    handleClose={handleClose}
+    title={'Create a community'}
+    isCloseDisabled={false}
+    alignCloseLeft
+    contentWidth={'100%'}
+    testIdPrefix={'createUsername'}
+  >
+    <CreateUsernameBody open={open} registerUsername={registerUsername} />
+  </Modal>
+)
 
 export default CreateUsernameComponent

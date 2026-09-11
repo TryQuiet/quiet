@@ -24,8 +24,10 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
       <Appbar title={'Link devices'} back={handleBackButton} />
       <View style={{ flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, gap: spacing.xl }}>
         <View style={{ gap: spacing.sm }}>
-          <Typography variant={'h3'}>{'Link devices'}</Typography>
-          <Typography variant={'body'}>
+          <Typography variant={'h3'} horizontalTextAlign={'center'}>
+            {'Link devices'}
+          </Typography>
+          <Typography variant={'body'} horizontalTextAlign={'center'}>
             {
               'Display the QR code on one device and scan it with another. Linked devices share all communities, and you will not lose access to anything.'
             }

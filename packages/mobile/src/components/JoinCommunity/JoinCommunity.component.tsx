@@ -115,8 +115,14 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
             }}
           >
             <View style={{ gap: spacing.sm }}>
-              <Typography variant={'h3'}>{copy.heading}</Typography>
-              {copy.intro ? <Typography variant={'body'}>{copy.intro}</Typography> : null}
+              <Typography variant={'h3'} horizontalTextAlign={'center'}>
+                {copy.heading}
+              </Typography>
+              {copy.intro ? (
+                <Typography variant={'body'} horizontalTextAlign={'center'}>
+                  {copy.intro}
+                </Typography>
+              ) : null}
             </View>
             <Input
               onChangeText={onChangeText}

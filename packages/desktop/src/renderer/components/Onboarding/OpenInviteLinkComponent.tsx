@@ -12,7 +12,7 @@ const Illustration = styled('img')(({ theme }) => ({
 }))
 
 const PasteLink = styled('button')(({ theme }) => ({
-  alignSelf: 'flex-start',
+  alignSelf: 'center',
   background: 'none',
   border: 'none',
   padding: 0,

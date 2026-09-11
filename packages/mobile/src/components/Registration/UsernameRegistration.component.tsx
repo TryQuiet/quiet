@@ -78,19 +78,23 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
       }}
       testID={'username-registration-component'}
     >
-      {!isNewUser && <Appbar title={'Username taken'} back={handleBackButton} crossBackIcon />}
+      {isNewUser ? (
+        <Appbar title={'Create a community'} plain />
+      ) : (
+        <Appbar title={'Username taken'} back={handleBackButton} crossBackIcon />
+      )}
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: 'height' })}
         style={{
           flex: 1,
           justifyContent: !isNewUser ? 'flex-start' : 'center',
-          paddingLeft: 20,
-          paddingRight: 20,
+          paddingLeft: spacing.lg,
+          paddingRight: spacing.lg,
         }}
       >
         {isNewUser ? (
           <>
-            <Typography variant={'h3'} style={{ marginBottom: spacing.xl }}>
+            <Typography variant={'h3'} horizontalTextAlign={'center'} style={{ marginBottom: spacing.xl }}>
               {'Choose username'}
             </Typography>
           </>

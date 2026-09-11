@@ -90,6 +90,8 @@ const CreateCommunity = () => {
         title={'Create a community'}
         canGoBack
         handleBack={handleBack}
+        alignCloseLeft
+        contentWidth={'100%'}
         testIdPrefix={'createCommunity'}
         zIndex={1300}
       >

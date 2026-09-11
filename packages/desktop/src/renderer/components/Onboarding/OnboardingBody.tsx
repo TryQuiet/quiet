@@ -8,6 +8,7 @@ const PREFIX = 'OnboardingBody'
 const classes = {
   heading: `${PREFIX}heading`,
   intro: `${PREFIX}intro`,
+  leading: `${PREFIX}leading`,
   section: `${PREFIX}section`,
   betaWarning: `${PREFIX}betaWarning`,
   betaIcon: `${PREFIX}betaIcon`,
@@ -17,19 +18,31 @@ const classes = {
  * The 600px modal body every onboarding screen lives in on desktop. The
  * prototype is 375 wide; the same tokens set the rhythm here.
  */
+/** The prototype's frame width: desktop hosts the same column inside Modal full-window. */
+export const CONTENT_COLUMN_WIDTH = 375
+
 const Root = styled('div')(({ theme }) => ({
   width: '100%',
+  maxWidth: CONTENT_COLUMN_WIDTH,
+  margin: '0 auto',
   boxSizing: 'border-box',
-  padding: `${theme.space.xl}px ${theme.space.xxl}px ${theme.space.xxl}px`,
+  padding: `${theme.space.xl}px ${theme.space.lg}px ${theme.space.xxl}px`,
   display: 'flex',
   flexDirection: 'column',
+  alignItems: 'stretch',
   gap: theme.space.xl,
   backgroundColor: theme.palette.background.default,
   [`& .${classes.heading}`]: {
     margin: 0,
+    textAlign: 'center',
   },
   [`& .${classes.intro}`]: {
     marginTop: theme.space.sm,
+    textAlign: 'center',
+  },
+  [`& .${classes.leading}`]: {
+    display: 'flex',
+    justifyContent: 'center',
   },
   [`& .${classes.section}`]: {
     display: 'flex',
@@ -38,6 +51,7 @@ const Root = styled('div')(({ theme }) => ({
   [`& .${classes.betaWarning}`]: {
     display: 'flex',
     alignItems: 'flex-start',
+    justifyContent: 'center',
     gap: theme.space.xs,
     color: theme.palette.colors.darkGray,
   },
@@ -71,7 +85,7 @@ export const OnboardingBody: React.FC<OnboardingBodyProps> = ({
   children,
 }) => (
   <Root data-testid={dataTestId}>
-    {leading}
+    {leading ? <div className={classes.leading}>{leading}</div> : null}
     {heading || intro ? (
       <div>
         {heading ? (

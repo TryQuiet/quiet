@@ -165,7 +165,7 @@ exports[`Spinner component renders component 1`] = `
       color="main"
       fontSize={28}
       fontWeight="medium"
-      horizontalTextAlign="left"
+      horizontalTextAlign="center"
       lineHeight={36}
       style={
         {
@@ -173,7 +173,7 @@ exports[`Spinner component renders component 1`] = `
           "fontFamily": "Rubik-Medium",
           "fontSize": 28,
           "lineHeight": 36,
-          "textAlign": "left",
+          "textAlign": "center",
           "textAlignVertical": "center",
         }
       }

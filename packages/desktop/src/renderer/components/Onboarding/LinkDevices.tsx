@@ -23,6 +23,13 @@ const logger = createLogger('LinkDevices')
 
 type Step = 'entry' | 'display' | 'scan'
 
+/** Title bar text per step, from the prototype's frames (2811:2575, 2811:2601, 2811:2587). */
+const TITLES: Record<Step, string> = {
+  entry: 'Link devices',
+  display: 'QR code',
+  scan: 'Scan QR code',
+}
+
 /**
  * Link devices, reached from Get started. "Display QR code" shows #3400's
  * Linked devices surface (a link can only be minted from inside a community);
@@ -76,9 +83,11 @@ export const LinkDevices: React.FC = () => {
     <Modal
       open={linkDevicesModal.open}
       handleClose={linkDevicesModal.handleClose}
-      title={'Link devices'}
+      title={TITLES[step]}
       canGoBack
       handleBack={handleBack}
+      alignCloseLeft
+      contentWidth={'100%'}
       testIdPrefix={'linkDevices'}
       zIndex={1300}
     >

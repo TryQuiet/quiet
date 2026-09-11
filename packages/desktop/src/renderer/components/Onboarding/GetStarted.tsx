@@ -56,6 +56,8 @@ export const GetStarted: React.FC = () => {
       handleClose={getStartedModal.handleClose}
       title={'Quiet'}
       isCloseDisabled={!currentCommunity}
+      alignCloseLeft
+      contentWidth={'100%'}
       testIdPrefix={'getStarted'}
       zIndex={1300}
     >

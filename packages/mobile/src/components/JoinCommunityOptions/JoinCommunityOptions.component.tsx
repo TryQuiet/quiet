@@ -25,7 +25,9 @@ export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
   >
     <Appbar title={'Quiet'} back={handleBackButton} />
     <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, gap: spacing.xl }}>
-      <Typography variant={'h3'}>{'Join community'}</Typography>
+      <Typography variant={'h3'} horizontalTextAlign={'center'}>
+        {'Join community'}
+      </Typography>
       <View>
         <ActionRow
           icon={<InviteLinkIcon />}

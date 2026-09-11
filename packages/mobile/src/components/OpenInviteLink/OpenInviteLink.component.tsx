@@ -17,15 +17,22 @@ export const OpenInviteLink: FC<OpenInviteLinkProps> = ({ onPasteLink, handleBac
   >
     <Appbar title={'Join with invite link'} back={handleBackButton} />
     <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, gap: spacing.lg }}>
-      <Image source={icons.monster} style={{ width: 120, height: 120 }} accessible={false} />
+      <Image source={icons.monster} style={{ width: 120, height: 120, alignSelf: 'center' }} accessible={false} />
       <View style={{ gap: spacing.sm }}>
-        <Typography variant={'h3'}>{'Join with invite link'}</Typography>
-        <Typography variant={'body'}>
+        <Typography variant={'h3'} horizontalTextAlign={'center'}>
+          {'Join with invite link'}
+        </Typography>
+        <Typography variant={'body'} horizontalTextAlign={'center'}>
           {'Open an invite link from a community admin. (If you just installed Quiet, open the invite again!)'}
         </Typography>
       </View>
-      <TouchableOpacity onPress={onPasteLink} testID={'paste-a-link'} accessibilityRole='button'>
-        <Typography variant={'bodyLg'} color={'blue'}>
+      <TouchableOpacity
+        onPress={onPasteLink}
+        testID={'paste-a-link'}
+        accessibilityRole='button'
+        style={{ alignSelf: 'center' }}
+      >
+        <Typography variant={'bodyLg'} color={'blue'} horizontalTextAlign={'center'}>
           {'Paste a link'}
         </Typography>
       </TouchableOpacity>

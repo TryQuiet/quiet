@@ -65,7 +65,9 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
               gap: spacing.xl,
             }}
           >
-            <Typography variant={'h3'}>{'Create a community'}</Typography>
+            <Typography variant={'h3'} horizontalTextAlign={'center'}>
+              {'Create a community'}
+            </Typography>
             <Input
               onChangeText={onChangeText}
               label={'Add a name for your community'}
