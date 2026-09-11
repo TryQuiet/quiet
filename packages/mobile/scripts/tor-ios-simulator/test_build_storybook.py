@@ -63,7 +63,7 @@ class StorybookBuildTests(unittest.TestCase):
             plistlib.dump({'CFBundleShortVersionString': '405.9.1', 'CFBundleExecutable': 'Tor',
                           'CFBundleSupportedPlatforms': ['iPhoneSimulator']}, info)
         self.output = self.root / 'result'
-        for name in ['.env.storybook', '.env.staging', '.env.e2e', '.env.e2e.qss', '.env.production']:
+        for name in ['.env.storybook', '.env.staging', '.env.e2e', '.env.e2e.qss', '.env.e2e.qss.push', '.env.production']:
             (self.mobile / name).write_text('TEST_ONLY=1\n')
         self.args = argparse.Namespace(checkout=str(self.checkout), framework=str(self.source), output=str(self.output),
                                        scheme='Storybook', configuration='Debug', env_file='.env.storybook')
@@ -431,6 +431,11 @@ class StorybookBuildTests(unittest.TestCase):
 
     def test_standard_qss_selects_qss(self):
         self.args.scheme, self.args.env_file = 'Quiet', '.env.e2e.qss'
+        self.run_build()
+        self.assert_original_intact()
+
+    def test_provider_qss_selects_explicit_push_environment(self):
+        self.args.scheme, self.args.env_file = 'Quiet', '.env.e2e.qss.push'
         self.run_build()
         self.assert_original_intact()
 

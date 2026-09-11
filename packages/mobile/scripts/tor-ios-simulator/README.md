@@ -79,6 +79,7 @@ The historical script name and Storybook defaults are preserved. These are the o
 | Standard Debug | `Quiet` | `Debug` | `.env.staging` |
 | Standard E2E | `Quiet` | `Debug` | `.env.e2e` |
 | QSS E2E | `Quiet` | `Debug` | `.env.e2e.qss` |
+| QSS provider E2E | `Quiet` | `Debug` | `.env.e2e.qss.push` |
 | Release | `Quiet` | `Release` | `.env.production` |
 
 The selected environment must exist as a regular file in `packages/mobile`. Invalid combinations and missing files fail before changing the pod or creating output. Both Xcode scheme preactions honor `ENVFILE`, with their existing defaults when it is unset; this prevents their `/tmp/envfile` selection from overriding E2E or production builds. Because that selector is shared, serialize builds across Quiet checkouts on the same host as well.
@@ -122,7 +123,7 @@ npx detox build -c ios.sim.e2e
 npx detox test starter -c ios.sim.e2e
 ```
 
-The portable rollback tests use disposable framework trees and actual child processes, including signal and low-disk cancellation. They cover repeated builds with one DerivedData path and separate retained evidence, failure and retry, ownership/path rejection, concurrent workspace locking, all five build selections, the Release signing path, and execution of the checked-in scheme shell commands with disposable output paths. They also reject signing failures, failed signature verification, and changes to Tor during signing. Native Xcode, Mach-O inspection and codesign operations are substituted; these tests do not require a native build:
+The portable rollback tests use disposable framework trees and actual child processes, including signal and low-disk cancellation. They cover repeated builds with one DerivedData path and separate retained evidence, failure and retry, ownership/path rejection, concurrent workspace locking, all six build selections, the Release signing path, and execution of the checked-in scheme shell commands with disposable output paths. They also reject signing failures, failed signature verification, and changes to Tor during signing. Native Xcode, Mach-O inspection and codesign operations are substituted; these tests do not require a native build:
 
 ```sh
 python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_storybook.py

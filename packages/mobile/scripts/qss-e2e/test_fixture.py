@@ -110,6 +110,36 @@ class FixtureTests(unittest.TestCase):
             fixture.push_environment(credentials)
         self.assertEqual(fixture.push_environment(None), ({}, []))
 
+    def test_native_provider_reaches_only_server_process_and_stays_out_of_manifest(self):
+        import native
+        credentials = self.root / "native-push.json"
+        account = {"type": "service_account", "project_id": "quiet-fixture-test",
+                   "client_email": "test@example.invalid", "private_key": "test-only-key\nsecond-line"}
+        fixture.private_json(credentials, {"ios": account})
+        manifest = fixture.prepare(self.checkout, self.output, self.port, False, credentials)
+        binaries = self.native_binaries()
+        native.prepare(manifest, binaries / "node", binaries / "corepack", binaries, binaries / "redis-server")
+        observed = self.output / "observed.json"
+        code = "import json,os,time; from pathlib import Path; Path(%r).write_text(json.dumps({k:v for k,v in os.environ.items() if k.startswith('FIREBASE_') or k=='QPS_ENABLED'})); time.sleep(0.5)" % str(observed)
+        child = native.spawn(manifest, "qss", [sys.executable, "-c", code])
+        self.assertEqual(child.wait(timeout=5), 0)
+        values = json.loads(observed.read_text())
+        self.assertEqual(values["QPS_ENABLED"], "true")
+        self.assertEqual(values["FIREBASE_IOS_PRIVATE_KEY"], account["private_key"])
+        self.assertNotIn("FIREBASE_ANDROID_PRIVATE_KEY", values)
+        build_output = native.run(manifest, [sys.executable, "-c", "import os; print(any(k.startswith('FIREBASE_') for k in os.environ))"], capture=True)
+        self.assertEqual(build_output.strip(), "False")
+        self.assertNotIn("FIREBASE", (self.output / "manifest.json").read_text())
+        self.assertNotIn(account["client_email"], json.dumps(manifest))
+        runtime = self.output / "compose.json"
+        runtime.chmod(0o644)
+        with self.assertRaisesRegex(ValueError, "private"):
+            native.qss_environment(manifest)
+        runtime.chmod(0o600)
+        runtime.write_text(runtime.read_text() + " ")
+        with self.assertRaisesRegex(ValueError, "changed"):
+            native.qss_environment(manifest)
+
     def test_refuses_existing_output_and_occupied_port(self):
         with socket.socket() as listener:
             listener.bind(("127.0.0.1", self.port))

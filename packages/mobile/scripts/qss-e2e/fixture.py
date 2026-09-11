@@ -252,7 +252,7 @@ def main():
     parser.add_argument("--checkout", type=Path, default=HERE.parents[3])
     parser.add_argument("--port", type=int, default=3003)
     parser.add_argument("--sudo-docker", action="store_true")
-    parser.add_argument("--push-credentials", type=Path, help="Private JSON mapping android/ios to test Firebase service accounts (Docker only)")
+    parser.add_argument("--push-credentials", type=Path, help="Private JSON mapping android/ios to test Firebase service accounts")
     parser.add_argument("--runtime", choices=("docker", "native"), default="docker")
     parser.add_argument("--node", type=Path, help="Native mode Node 22.14.0 executable")
     parser.add_argument("--corepack", type=Path, help="Native mode Corepack executable")
@@ -264,8 +264,6 @@ def main():
     os.umask(0o077)
     output = args.output.resolve()
     if args.action == "up":
-        if args.push_credentials and args.runtime != "docker":
-            parser.error("Provider fixtures currently require Docker; native fixtures disable push")
         manifest = prepare(args.checkout.resolve(), output, args.port, args.sudo_docker, args.push_credentials)
         if args.runtime == "native":
             import native

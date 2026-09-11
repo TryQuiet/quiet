@@ -30,6 +30,7 @@ BUILD_SELECTIONS = {
     ('Quiet', 'Debug', '.env.staging'),
     ('Quiet', 'Debug', '.env.e2e'),
     ('Quiet', 'Debug', '.env.e2e.qss'),
+    ('Quiet', 'Debug', '.env.e2e.qss.push'),
     ('Quiet', 'Release', '.env.production'),
 }
 stop_signal = None

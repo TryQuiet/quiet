@@ -46,8 +46,9 @@ ENVFILE=../.env.e2e.qss.push ./gradlew assembleStandardDebug \
 For iOS, build the **Quiet** scheme with `.env.e2e.qss.push`, its bundled JS/backend,
 Firebase plist, and the app plus NSE entitlements/profiles appropriate to the
 test device. Do not resign the extension away or use `simctl push` as provider
-validation. The existing guarded QSS iOS build recipe uses the push-disabled
-environment; it must not be reused unchanged for this lane.
+validation. The [guarded iOS build recipe](../../scripts/tor-ios-simulator/README.md)
+accepts `--scheme Quiet --configuration Debug --env-file .env.e2e.qss.push`
+for this provider lane; `.env.e2e.qss` selects push-disabled onboarding.
 
 For push-disabled iOS onboarding, use `.env.e2e.qss`. An omitted `QPS_ALLOWED`
 uses the app's disabled default. Xcode still requires `ios/GoogleService-Info.plist`
@@ -80,10 +81,12 @@ python3 packages/mobile/scripts/qss-e2e/fixture.py up \
   --push-credentials /absolute/private/firebase-test-accounts.json
 ```
 
-Provider fixture startup currently supports Docker, including Docker on a Mac.
-Use `--sudo-docker` where required. Native QSS fixtures continue to disable push.
-Credentials enter only the private Compose runtime configuration, not its public
-receipt or archived source. Fixture health does not prove successful delivery;
+Provider fixture startup supports Docker and the
+[native macOS runtime](../../scripts/qss-e2e/README.md#native-macos-runtime).
+Use `--sudo-docker` where required, or `--runtime native` with the native tool paths.
+Credentials remain in the private runtime configuration and enter only the QSS
+server process, not build tools, public receipts or archived source.
+Fixture health does not prove successful delivery;
 the Appium assertions do that. For onboarding smoke, omit `--push-credentials`.
 
 ## Run
@@ -152,6 +155,21 @@ run directory because they may contain invitation material. The full-loop
 success receipt requires both OS notification/tap journeys to finish.
 
 ## CI
+
+`iOS notification Appium tests` runs separate `onboarding` and `provider` jobs on
+macOS 26 with Xcode 26.3. It builds the pinned Tor ARM simulator slice from source
+in a separate job, then builds both native clients with the normal Tor backend.
+Postgres, Redis and QSS run directly on the Mac; no Docker service is required.
+Each journey creates and removes its own iPhone simulator. The onboarding lane
+uses a push-disabled fixture and requires no provider credentials. The provider
+lane requires real Firebase/APNs setup and fails if its credential preflight or
+either notification journey fails. A passing onboarding result cannot satisfy it.
+
+The iOS runner invokes `ci-ios-build.sh` and `ci-ios.sh`; both require a fresh
+GitHub Actions runner and an explicit `QUIET_NOTIFICATION_LANE`. Only selected
+build/result fields and fixed journey stage labels are published. CI execution
+results belong in the [validation record](../README_QSS_NOTIFICATIONS.md);
+adding a workflow does not establish an iOS UI pass.
 
 `Mobile notification provider tests` runs on same-repository PRs touching this
 harness, and supports manual dispatch. The Android job validates credentials,

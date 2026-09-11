@@ -1,0 +1,142 @@
+name: iOS notification Appium tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/mobile-notification-ios.yml
+      - packages/mobile/e2e/appium/**
+      - packages/mobile/scripts/qss-e2e/**
+      - packages/mobile/scripts/tor-ios-simulator/**
+      - packages/mobile/ios/**
+      - packages/mobile/.env.e2e.qss*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  tor-simulator:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.3'
+      - name: Install pinned-source build prerequisites
+        run: brew install autoconf automake libtool gettext bc
+      - name: Compile the pinned Tor ARM simulator slice from source
+        run: |
+          python3 packages/mobile/scripts/tor-ios-simulator/reproduce-source.py "$RUNNER_TEMP/notification-tor-source"
+          QUIET_TOR_BUILD_JOBS=2 "$RUNNER_TEMP/notification-tor-source/build-arm64-simulator.sh" > "$RUNNER_TEMP/notification-tor-build.log" 2>&1
+          tar -czf "$RUNNER_TEMP/notification-tor.tgz" -C "$RUNNER_TEMP/notification-tor-source/build/Build/Products/Release-iphonesimulator" Tor.framework
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notification-ios-tor
+          path: ${{ runner.temp }}/notification-tor.tgz
+          if-no-files-found: error
+      - name: Upload source-build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: notification-ios-tor-build-log
+          path: ${{ runner.temp }}/notification-tor-build.log
+          if-no-files-found: ignore
+
+  appium-ios:
+    needs: tor-simulator
+    runs-on: macos-26
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [onboarding, provider]
+    env:
+      QUIET_NOTIFICATION_LANE: ${{ matrix.lane }}
+      IS_E2E: 'true'
+      TEST_MODE: 'true'
+      IS_LOCAL: 'true'
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          lfs: true
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.3'
+      - name: Prepare provider credential tools
+        if: matrix.lane == 'provider'
+        run: |
+          command -v gpg >/dev/null || brew install gnupg
+          command -v aws >/dev/null || brew install awscli
+      - name: Require real provider credentials for the provider lane
+        if: matrix.lane == 'provider'
+        env:
+          IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
+          QSS_NOTIFICATION_FIREBASE_CREDENTIALS: ${{ secrets.QSS_NOTIFICATION_FIREBASE_CREDENTIALS }}
+          FIREBASE_IOS_PROJECT_ID: ${{ secrets.FIREBASE_IOS_PROJECT_ID || vars.FIREBASE_IOS_PROJECT_ID }}
+          FIREBASE_IOS_CLIENT_EMAIL: ${{ secrets.FIREBASE_IOS_CLIENT_EMAIL || vars.FIREBASE_IOS_CLIENT_EMAIL }}
+          FIREBASE_IOS_PRIVATE_KEY: ${{ secrets.FIREBASE_IOS_PRIVATE_KEY }}
+          QSS_AWS_ACCESS_KEY_ID: ${{ secrets.QSS_AWS_ACCESS_KEY_ID }}
+          QSS_AWS_SECRET_ACCESS_KEY: ${{ secrets.QSS_AWS_SECRET_ACCESS_KEY }}
+        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require ios --qss-development-aws
+      - name: Prepare native database tools
+        run: |
+          brew install postgresql@18 redis
+          df -h /
+      - name: Setup workspace
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: notification-ios
+          bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common'
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: packages/mobile
+      - name: Install CocoaPods and Appium dependencies
+        run: |
+          (cd packages/mobile/ios && bundle exec pod install)
+          npm --prefix packages/mobile/e2e/appium ci
+          npm --prefix packages/mobile/e2e/appium test
+          python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p test_fixture.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: notification-ios-tor
+          path: ${{ runner.temp }}
+      - name: Build native clients for the selected lane
+        run: bash packages/mobile/e2e/appium/ci-ios-build.sh
+      - name: Run native iOS Appium journey
+        run: bash packages/mobile/e2e/appium/ci-ios.sh
+      - name: Upload selected results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-notification-${{ matrix.lane }}-result
+          if-no-files-found: ignore
+          path: |
+            ${{ runner.temp }}/notification-credentials/availability.json
+            ${{ runner.temp }}/notification-ios-result.json
+            ${{ runner.temp }}/notification-ios-build/result.json
+      - name: Remove provider runtime credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/notification-credentials/firebase-accounts.json"
+          rm -f "$RUNNER_TEMP/notification-ios-fixture/compose.json"
+          rm -f packages/mobile/ios/GoogleService-Info.plist
