@@ -553,6 +553,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         connectionMonitor: {
           abortConnectionOnPingFailure: true,
           pingInterval: 60_000,
+          // Tor round trips can exceed libp2p's two-second default. Aborting a
+          // live connection here can interrupt a persisted admission handshake.
+          pingTimeout: { minTimeout: 60_000 },
           enabled: true,
         } satisfies ConnectionMonitorInit,
         connectionProtector:

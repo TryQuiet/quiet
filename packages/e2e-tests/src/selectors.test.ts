@@ -1,7 +1,8 @@
 import { error, Session, WebDriver, WebElement, type ThenableWebDriver } from 'selenium-webdriver'
 import { Command, Name } from 'selenium-webdriver/lib/command'
-import { App, Channel, UserProfileContextMenu } from './selectors'
+import { App, Channel, UserProfileContextMenu, UsersList } from './selectors'
 import { PhotoExt } from './enums'
+import { UserListStatus } from './types'
 
 const advanceTime = async (milliseconds: number) => {
   // Let WebDriver's promise chain finish before advancing each poll timer.
@@ -94,6 +95,98 @@ describe('Channel message polling', () => {
     execute.mockRejectedValueOnce(failure)
     await expect(channel.getAtleastNumUserMessages('owner', 2)).rejects.toBe(failure)
     expect(execute).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Channel readiness during a join', () => {
+  beforeEach(() => jest.useFakeTimers({ doNotFake: ['setImmediate'] }))
+  afterEach(() => jest.useRealTimers())
+
+  it.each(['isReady', 'isOpen', 'isMessageInputReady'] as const)(
+    '%s re-finds elements replaced by a render during initial synchronization',
+    async method => {
+      let replaced = false
+      const execute = jest.fn(async (command: Command) => {
+        if (command.getName() === Name.FIND_ELEMENTS) {
+          return [WebElement.buildId(replaced ? 'current-element' : 'replaced-element')]
+        }
+        if (!replaced) {
+          replaced = true
+          throw new error.StaleElementReferenceError('Channel rendered again after lookup')
+        }
+        switch (command.getName()) {
+          case Name.IS_ELEMENT_DISPLAYED:
+          case Name.IS_ELEMENT_ENABLED:
+            return true
+          case Name.GET_ELEMENT_TEXT:
+            return 'general'
+          default:
+            throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
+        }
+      })
+      const driver = new WebDriver(new Session('joining-channel', {}), { execute })
+      const channel = new Channel(driver as ThenableWebDriver, 'general')
+      const outcome = channel[method]().then(
+        value => ({ value }),
+        failure => ({ failure })
+      )
+      await advanceTime(1000)
+      expect(await outcome).toEqual({ value: true })
+      expect(replaced).toBe(true)
+    }
+  )
+
+  it('still reports a lost browser session immediately', async () => {
+    const failure = new error.NoSuchSessionError('Browser session closed')
+    const execute = jest.fn().mockRejectedValue(failure)
+    const driver = new WebDriver(new Session('closed-channel', {}), { execute })
+    const channel = new Channel(driver as ThenableWebDriver, 'general')
+    await expect(channel.isReady()).rejects.toBe(failure)
+    expect(execute).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Initial QSS peer presence', () => {
+  let connected: boolean
+  let users: UsersList
+
+  beforeEach(() => {
+    jest.useFakeTimers({ doNotFake: ['setImmediate'] })
+    connected = false
+    const execute = jest.fn(async (command: Command) => {
+      if (command.getName() === Name.FIND_ELEMENTS) {
+        const badge = String(command.getParameter('value')).includes('status-badge')
+        return [WebElement.buildId(badge ? 'presence-badge' : 'user-item')]
+      }
+      if (command.getName() === Name.IS_ELEMENT_DISPLAYED) {
+        return JSON.stringify(command.getParameters()).includes('presence-badge') ? connected : true
+      }
+      throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
+    })
+    const driver = new WebDriver(new Session('qss-presence', {}), { execute })
+    users = new UsersList(driver as ThenableWebDriver)
+  })
+
+  afterEach(() => jest.useRealTimers())
+
+  it('waits for Tor when QSS joined before the direct peer connection is ready', async () => {
+    let settled = false
+    const result = users.getUser('owner', UserListStatus.ONLINE, 360_000)
+    void result.then(() => {
+      settled = true
+    })
+    // The observed cold Tor bootstrap outlasted the old four-minute check.
+    await advanceTime(250_000)
+    expect(settled).toBe(false)
+    connected = true
+    await advanceTime(500)
+    expect((await result).status).toBe(UserListStatus.ONLINE)
+  })
+
+  it.each([undefined, 360_000])('reports offline when the %s deadline expires', async timeoutMs => {
+    const result = users.getUser('owner', UserListStatus.ONLINE, timeoutMs)
+    await advanceTime(timeoutMs ?? 240_000)
+    expect((await result).status).toBe(UserListStatus.OFFLINE)
   })
 })
 

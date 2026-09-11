@@ -171,7 +171,7 @@ export class BuildSetup {
       env = {
         ...env,
         QSS_ALLOWED: true,
-        QSS_ENDPOINT: 'ws://127.0.0.1:3003',
+        QSS_ENDPOINT: this.environment.QSS_ENDPOINT ?? process.env.QSS_ENDPOINT ?? 'ws://127.0.0.1:3003',
       }
     } else {
       env = {
@@ -381,9 +381,10 @@ export class BuildSetup {
 }
 
 export const tailQssLogs = (): ChildProcess => {
-  const child = spawn('docker compose', ['-f', 'docker-compose.quiet.yml', 'logs', '-f', 'qss-quiet'], {
-    cwd: path.join('../../3rd-party/qss/app/'),
-    shell: true,
+  const composeArgs = process.env.COMPOSE_FILE ? [] : ['-f', 'docker-compose.quiet.yml']
+  const child = spawn('docker', ['compose', ...composeArgs, 'logs', '-f', 'qss-quiet'], {
+    cwd: path.resolve(__dirname, '../../../3rd-party/qss/app'),
+    shell: false,
   })
 
   child.stdout!.on('data', (data: Buffer) => {

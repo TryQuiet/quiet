@@ -311,13 +311,17 @@ describe('Multiple Clients (Private Channels)', () => {
         it('User sees owner in user list', async () => {
           const userList = new UsersList(users.user1.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+          expect((await userList.getUser(users.owner.username, UserListStatus.ONLINE)).status).toBe(
+            UserListStatus.ONLINE
+          )
         })
 
         it('Owner sees user in user list', async () => {
           const userList = new UsersList(users.owner.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+          expect((await userList.getUser(users.user1.username, UserListStatus.ONLINE)).status).toBe(
+            UserListStatus.ONLINE
+          )
         })
 
         it("Owner's message is visible in general channel", async () => {
@@ -596,25 +600,33 @@ describe('Multiple Clients (Private Channels)', () => {
         it('User sees second user in user list', async () => {
           const userList = new UsersList(users.user1.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+          expect((await userList.getUser(users.user2.username, UserListStatus.ONLINE)).status).toBe(
+            UserListStatus.ONLINE
+          )
         })
 
         it('Owner sees second user in user list', async () => {
           const userList = new UsersList(users.owner.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+          expect((await userList.getUser(users.user2.username, UserListStatus.ONLINE)).status).toBe(
+            UserListStatus.ONLINE
+          )
         })
 
         it('Second user sees first user in user list', async () => {
           const userList = new UsersList(users.user2.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+          expect((await userList.getUser(users.user1.username, UserListStatus.ONLINE)).status).toBe(
+            UserListStatus.ONLINE
+          )
         })
 
         it('Second user sees owner in user list', async () => {
           const userList = new UsersList(users.user2.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+          expect((await userList.getUser(users.owner.username, UserListStatus.ONLINE)).status).toBe(
+            UserListStatus.ONLINE
+          )
         })
 
         it('Second user can see messages from before they joined', async () => {

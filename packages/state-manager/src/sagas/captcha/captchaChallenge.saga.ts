@@ -1,6 +1,6 @@
-import { apply, put, select, take } from 'typed-redux-saga'
+import { actionChannel, apply, put, select, take } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { applyEmitParams, Socket } from '../../types'
+import { Socket } from '../../types'
 import { SocketActions } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 import { captchaActions } from './captcha.slice'
@@ -19,34 +19,36 @@ export function* captchaChallengeSaga(
     yield* put(captchaActions.setChallengeResult({ success: true, cancelled: false }))
     return
   }
-  yield* put(captchaActions.setCaptchaRequestPending(true))
-  yield* apply(socket, socket.emit, [SocketActions.HCAPTCHA_REQUEST])
-  while (true) {
-    const responseAction: ReturnType<typeof captchaActions.captchaFormResponse> = yield* take(
-      captchaActions.captchaFormResponse
-    )
-    if (responseAction.payload.error) {
-      logger.warn('hCaptcha challenge resulted in error:', responseAction.payload.error)
-      yield* put(captchaActions.setCaptchaRequestPending(false))
-      yield* put(captchaActions.setChallengeResult({ success: false, cancelled: true }))
-      break
-    } else if (responseAction.payload.token) {
-      logger.info('hCaptcha challenge completed successfully. Verifying token...')
-      while (true) {
-        const captchaVerifiedAction = yield* take(captchaActions.setCaptchaVerified)
-        if (captchaVerifiedAction.payload === true) {
+  // Desktop tokens arrive over IPC, while verification state arrives over
+  // Socket.IO. A connection reset can therefore arrive after the token. Keep
+  // listening to both streams, including while requesting a retry.
+  const responses = yield* actionChannel([
+    captchaActions.captchaFormResponse.type,
+    captchaActions.setCaptchaVerified.type,
+  ])
+  try {
+    yield* put(captchaActions.setCaptchaRequestPending(true))
+    yield* apply(socket, socket.emit, [SocketActions.HCAPTCHA_REQUEST])
+    while (true) {
+      const response = yield* take(responses)
+      if (captchaActions.setCaptchaVerified.match(response)) {
+        if (response.payload) {
           logger.info('Captcha verified')
-          yield* put(captchaActions.setCaptchaRequestPending(false))
           yield* put(captchaActions.setChallengeResult({ success: true, cancelled: false }))
           return
         }
-        if (captchaVerifiedAction.payload === false) {
-          logger.warn('Captcha verification failed')
-          yield* put(captchaActions.setCaptchaRequestPending(false))
-          yield* put(captchaActions.setChallengeResult({ success: false, cancelled: false }))
-          break
-        }
+        // The backend deduplicates requests while verification is in flight.
+        // Retry here: takeLeading ignores another presentChallenge until this
+        // handler finishes, which used to strand the community creation saga.
+        yield* apply(socket, socket.emit, [SocketActions.HCAPTCHA_REQUEST])
+      } else if (captchaActions.captchaFormResponse.match(response) && response.payload.error) {
+        logger.warn('hCaptcha challenge resulted in error:', response.payload.error)
+        yield* put(captchaActions.setChallengeResult({ success: false, cancelled: true }))
+        return
       }
     }
+  } finally {
+    responses.close()
+    yield* put(captchaActions.setCaptchaRequestPending(false))
   }
 }

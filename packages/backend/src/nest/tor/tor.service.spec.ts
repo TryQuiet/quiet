@@ -1,4 +1,7 @@
 import { jest } from '@jest/globals'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { TorControl } from './tor-control.service'
@@ -28,7 +31,7 @@ describe('Tor native session rewiring', () => {
     messages: [`250-ServiceID=${onionAddress}`, '250 OK'],
   })
 
-  const createTorService = () => {
+  const createTorService = (quietDir = '') => {
     const configOptions: ConfigOptions = {
       options: {},
       socketIOPort: 0,
@@ -65,7 +68,14 @@ describe('Tor native session rewiring', () => {
     const serverIoProvider = {
       io: { emit: jest.fn() },
     } as unknown as ServerIoProviderTypes
-    const torService = new Tor(configOptions, '', torParamsProvider, torPasswordProvider, serverIoProvider, torControl)
+    const torService = new Tor(
+      configOptions,
+      quietDir,
+      torParamsProvider,
+      torPasswordProvider,
+      serverIoProvider,
+      torControl
+    )
 
     return { torControl, torService }
   }
@@ -74,6 +84,59 @@ describe('Tor native session rewiring', () => {
     jest.spyOn(torControl, 'sendCommand').mockResolvedValue(addOnionResponse())
     await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
   }
+
+  it.each([true, false])(
+    'allows progressing managed bootstrap and still recovers when it stalls (completes: %s)',
+    async completes => {
+      jest.useFakeTimers()
+      const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-tor-startup-'))
+      const { torService, torControl } = createTorService(directory)
+      torService.torParamsProvider.torPath = 'tor-process-fixture'
+      torService.socksPort = 19050
+      // Replace only the OS process and control response boundaries. Exercise
+      // the actual startup timer, bootstrap watcher, parser and ready event.
+      jest.spyOn(torService, 'clearHangingTorProcess').mockImplementation(() => undefined)
+      jest.spyOn(torService, 'getTorProcessIds').mockReturnValue(['123'])
+      const spawn = jest
+        .spyOn(torService as unknown as { spawnTor: () => Promise<void> }, 'spawnTor')
+        .mockResolvedValue(undefined)
+      let progress = 51
+      jest.spyOn(torControl, 'sendCommand').mockImplementation(async () => ({
+        code: 250,
+        messages: [
+          progress === 100
+            ? bootstrapDone
+            : `250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=${progress} TAG=loading_descriptors SUMMARY="Loading relay descriptors"`,
+          '250 OK',
+        ],
+      }))
+      try {
+        await torService.init()
+        await jest.advanceTimersByTimeAsync(90_000)
+        progress = 59
+        await jest.advanceTimersByTimeAsync(40_000)
+        expect(spawn).toHaveBeenCalledTimes(1)
+        expect(torService.bootstrapped).toBe(false)
+
+        if (completes) {
+          progress = 100
+          await jest.advanceTimersByTimeAsync(5_000)
+          expect(torService.bootstrapped).toBe(true)
+          await jest.advanceTimersByTimeAsync(120_000)
+          expect(spawn).toHaveBeenCalledTimes(1)
+        } else {
+          await jest.advanceTimersByTimeAsync(90_000)
+          expect(spawn).toHaveBeenCalledTimes(2)
+          expect(torService.bootstrapped).toBe(false)
+        }
+      } finally {
+        await torService.onModuleDestroy()
+        jest.restoreAllMocks()
+        jest.useRealTimers()
+        fs.rmdirSync(directory, { recursive: true })
+      }
+    }
+  )
 
   it('converges after a generated service survives a deletion timeout and Tor restarts', async () => {
     const { torControl, torService } = createTorService()

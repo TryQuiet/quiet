@@ -23,6 +23,10 @@ import { deleteChannelMessage } from '@quiet/common'
 
 const logger = createLogger('multipleClients:privateChannels:qss')
 
+// QSS can finish joining before Tor bootstraps. Presence still requires a
+// direct connection, so allow the same six minutes as the P2P joining panel.
+const TOR_CONNECTION_TIMEOUT_MS = 360_000
+
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients (QSS - Private Channels)', () => {
   let generalChannelOwner: Channel
@@ -276,13 +280,17 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
         it('User sees owner in user list', async () => {
           const userList = new UsersList(users.user1.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+          expect(
+            (await userList.getUser(users.owner.username, UserListStatus.ONLINE, TOR_CONNECTION_TIMEOUT_MS)).status
+          ).toBe(UserListStatus.ONLINE)
         })
 
         it('Owner sees user in user list', async () => {
           const userList = new UsersList(users.owner.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+          expect(
+            (await userList.getUser(users.user1.username, UserListStatus.ONLINE, TOR_CONNECTION_TIMEOUT_MS)).status
+          ).toBe(UserListStatus.ONLINE)
         })
 
         it("Owner's message is visible in general channel to user", async () => {
