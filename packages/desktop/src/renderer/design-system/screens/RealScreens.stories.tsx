@@ -14,7 +14,12 @@ import * as ChannelInputStories from '../../components/widgets/channels/ChannelI
 
 type StoryFn = ((args: Record<string, unknown>) => JSX.Element) & { args?: Record<string, unknown> }
 
-const Panel: React.FC<{ tokens: Tokens; width: number; children: React.ReactNode }> = ({ tokens, width, children }) => {
+const Panel: React.FC<{ tokens: Tokens; width: number; height?: number; children: React.ReactNode }> = ({
+  tokens,
+  width,
+  height,
+  children,
+}) => {
   const isCurrent = tokens === current
   return (
     <div style={{ flex: `0 0 ${width}px`, minWidth: 0 }}>
@@ -33,7 +38,7 @@ const Panel: React.FC<{ tokens: Tokens; width: number; children: React.ReactNode
         {isCurrent ? 'ships today' : tokens.name} · body {tokens.type.body.fontSize}/{tokens.type.body.lineHeight} ·
         caption {tokens.type.caption.fontSize}/{tokens.type.caption.lineHeight}
       </div>
-      <div style={{ border: `1px solid ${RULE}`, background: '#fff', overflow: 'hidden' }}>
+      <div style={{ border: `1px solid ${RULE}`, background: '#fff', overflow: height ? 'auto' : 'hidden', height }}>
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={createGridTheme(tokens)}>{children}</ThemeProvider>
         </StyledEngineProvider>
@@ -46,9 +51,11 @@ const Compare: React.FC<{
   title: string
   source: string
   width?: number
+  /** Bound the panel so a 100vh component scrolls inside it rather than scrolling the story. */
+  height?: number
   note?: string
   render: () => React.ReactNode
-}> = ({ title, source, width = 620, note, render }) => (
+}> = ({ title, source, width = 620, height, note, render }) => (
   <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
     <h1 style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
       {title}
@@ -59,10 +66,10 @@ const Compare: React.FC<{
     </p>
     {note ? <p style={{ fontSize: 13, color: '#8A5F09', margin: '0 0 16px' }}>{note}</p> : null}
     <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
-      <Panel tokens={current} width={width}>
+      <Panel tokens={current} width={width} height={height}>
         {render()}
       </Panel>
-      <Panel tokens={grid4px} width={width}>
+      <Panel tokens={grid4px} width={width} height={height}>
         {render()}
       </Panel>
     </div>
@@ -92,6 +99,7 @@ export const ChannelView = () => (
     title="Channel"
     source="Components/Channel → Normal"
     width={680}
+    height={720}
     note="Expected the densest surface to show the biggest change. It shows almost none — TextMessage.tsx and BasicMessage.tsx use no theme typography variants at all, hardcoding fontSize: '0.855rem' / lineHeight: '21px' / fontSize 14, 16, 21. The message list cannot be restyled from the theme."
     render={() => renderStory(ChannelStories.Normal as unknown as StoryFn)}
   />
@@ -105,7 +113,7 @@ export const Sidebar = () => (
     note="Channel rows are 14px at weight 300 with hardcoded 3px vertical padding — a good test of whether type alone changes the rhythm."
     render={() => (
       <div style={{ height: 620, display: 'flex', alignItems: 'stretch' }}>
-        <SidebarStories.Reusable {...({} as never)} />
+        {renderStory(SidebarStories.Reusable as unknown as StoryFn)}
       </div>
     )}
   />
