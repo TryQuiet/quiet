@@ -17,6 +17,8 @@ import { sleep } from './nest/common/sleep'
 import { type BackendLeaveCommunityMessage } from '@quiet/types'
 import { MobileLifecycleCoordinator } from './mobile-lifecycle-coordinator'
 import { registerMobileSystemPause } from './mobile-system-pause'
+import { registerMobileSocketRecovery } from './mobile-socket-recovery'
+import { SocketService } from './nest/socket/socket.service'
 
 // Shutdown helper constants
 const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
@@ -296,6 +298,9 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   let shutdownRequestedFromBridge = false
   registerMobileSystemPause(rn_bridge.app, mobileLifecycle, logger)
   const lifecycleChannels = [rn_bridge.channel, rn_bridge.app]
+  registerMobileSocketRecovery(lifecycleChannels, app.get<SocketService>(SocketService), error => {
+    logger.error('Failed to recover local frontend listener', error)
+  })
   rn_bridge.channel.on('hibernate', async () => {
     logger.info('Received hibernate message from RN bridge')
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)

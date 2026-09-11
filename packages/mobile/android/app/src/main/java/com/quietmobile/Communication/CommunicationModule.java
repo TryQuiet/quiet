@@ -142,6 +142,14 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
             case APP_READY_CHANNEL:
                 runOnLifecycleThread(CommunicationModule::startWebsocketConnection);
                 break;
+            case "_RECOVER_WEBSOCKET_":
+                runOnLifecycleThread(() -> {
+                    startWebsocketConnection();
+                    if (QuietStorage.isAppForeground()) {
+                        sendNodeEvent("recoverSocket", "");
+                    }
+                });
+                break;
             case PUSH_NOTIFICATION_CHANNEL:
                 if (!QuietStorage.isAppForeground()) {
                     Log.i("CommunicationModule", "Skipping foreground push notification because app is backgrounded");
