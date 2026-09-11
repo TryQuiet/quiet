@@ -40,9 +40,10 @@ test('final AppImage resolves production dependencies and has matching update me
       '-e',
       `const assert = require('node:assert/strict');
        const load = require('node:module').createRequire(process.argv[1]);
-       for (const name of ['electron-store', 'electron-updater']) {
+       for (const name of ['electron-store', 'electron-updater', 'pkijs']) {
          assert.ok(load.resolve(name).startsWith(require('node:path').dirname(process.argv[1]) + '/'));
        }
+       assert.equal(load('pkijs/package.json').version, '3.0.15');
        console.log('Packaged runtime dependencies resolved');`,
       path.join(appDir, 'resources/app.asar/package.json'),
     ],
