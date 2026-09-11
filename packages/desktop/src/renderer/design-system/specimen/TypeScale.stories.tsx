@@ -10,14 +10,16 @@ const same = (a: TypeStyle, b: TypeStyle) =>
 
 const fmt = (s: TypeStyle) => `${s.fontSize}/${s.lineHeight} w${s.fontWeight}`
 
-const Spec: React.FC<{ style: TypeStyle; faded?: boolean }> = ({ style, faded }) => (
+// Both columns in the same ink on purpose: this sheet compares size and leading,
+// and a colour difference reads as a weight difference that is not there.
+const Spec: React.FC<{ style: TypeStyle }> = ({ style }) => (
   <p
     style={{
       fontFamily: "'Rubik', sans-serif",
       fontSize: style.fontSize,
       lineHeight: `${style.lineHeight}px`,
       fontWeight: style.fontWeight,
-      color: faded ? INK_3 : INK,
+      color: INK,
       margin: 0,
       maxWidth: 460,
     }}
@@ -42,7 +44,7 @@ const TypeSheet: React.FC<{ tokens: Tokens }> = ({ tokens }) => (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>
               <div>
                 <div style={{ fontFamily: mono, fontSize: 11, color: INK_3, marginBottom: 8 }}>current · {fmt(before)}</div>
-                <Spec style={before} faded />
+                <Spec style={before} />
               </div>
               <div>
                 <div style={{ fontFamily: mono, fontSize: 11, color: changed ? ACCENT : INK_3, marginBottom: 8 }}>
