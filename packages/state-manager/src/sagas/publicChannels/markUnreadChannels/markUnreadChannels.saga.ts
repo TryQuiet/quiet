@@ -7,13 +7,16 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { type MarkUnreadChannelPayload } from '@quiet/types'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
+import { isMessageTransportVerified } from '../../messages/utils/message.utils'
 
 export function* markUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
+  const messages = action.payload.messages.filter(message =>
+    isMessageTransportVerified(message, action.payload.isLocal)
+  )
+  if (messages.length === 0) return
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-
-  const { messages } = action.payload
 
   // Fix for users whose has damaged property with join timestamp and problem with proper checking new message
   yield* put(identityActions.verifyJoinTimestamp())

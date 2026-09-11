@@ -89,11 +89,12 @@ describe('Deep linking', () => {
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Modals/openModal",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
@@ -106,6 +107,7 @@ describe('Deep linking', () => {
       ]
     `)
     const originalPair = communities.selectors.invitationCodes(store.getState())
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
     logger.info('originalPair', originalPair)
     // Redo the action to provoke renewed saga runs
     logger.info('dispatching second custom protocol')
@@ -121,16 +123,18 @@ describe('Deep linking', () => {
     logger.info('currentPair', currentPair)
 
     expect(originalPair).toEqual(currentPair)
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Modals/openModal",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
@@ -196,17 +200,19 @@ describe('Deep linking', () => {
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Modals/openModal",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
         "Network/setLoadingPanelType",
       ]
     `)
     // Check that either emit or emitWithAck was called
     expect(spyEmitWithAck).toHaveBeenCalledTimes(1)
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
 
     // Redo the action to provoke renewed saga runs
     logger.info('dispatching second custom protocol')
@@ -219,24 +225,27 @@ describe('Deep linking', () => {
 
     logger.info('act done')
     expect(spyEmitWithAck).toHaveBeenCalledTimes(2)
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Modals/openModal",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
         "Network/setLoadingPanelType",
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Modals/openModal",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
         "Network/setLoadingPanelType",
       ]

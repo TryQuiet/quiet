@@ -50,6 +50,29 @@ describe('Add new channel', () => {
     cleanup()
   })
 
+  it('shows channel creation when only private creation is permitted', async () => {
+    const { store } = await prepareStore({}, socket)
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Community')
+    await factory.create('Identity', { nickname: 'alice' })
+    await factory.create('ChannelPermissions', {
+      genericPermissions: {
+        public: { create: false, delete: false },
+        private: { create: true },
+      },
+    })
+
+    renderComponent(
+      <>
+        <Sidebar />
+        <CreateChannel />
+      </>,
+      store
+    )
+
+    expect(screen.getByTestId('addChannelButton')).toBeVisible()
+  })
+
   it('Opens modal on button click', async () => {
     const { store } = await prepareStore(
       {},

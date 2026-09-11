@@ -117,7 +117,6 @@ Available package names are:
 - @quiet/common
 - @quiet/types
 - e2e-tests
-- integration-tests
 - quiet (desktop)
 
 ----

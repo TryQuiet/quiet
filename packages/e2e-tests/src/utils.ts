@@ -10,10 +10,11 @@ import { RetryConfig } from './types'
 import { config } from 'dotenv'
 
 import { createLogger } from './logger'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
 
 const logger = createLogger('utils')
 
-export const BACKWARD_COMPATIBILITY_BASE_VERSION = '7.0.1' // version to test against
+export { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
 const appImagesPath = `${__dirname}/../Quiet`
 const defaultChromeDriverPath = require.resolve('electron-chromedriver/chromedriver.js')
 
@@ -25,6 +26,8 @@ export interface BuildSetupInit {
   fileName?: string
   chromeDriverPath?: string
   username?: string
+  /** Per-client overrides inherited by ChromeDriver and the packaged app. */
+  environment?: NodeJS.ProcessEnv
 }
 
 export class BuildSetup {
@@ -38,6 +41,7 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
   private chromeDriverPath?: string
+  private environment: NodeJS.ProcessEnv
 
   constructor({
     port,
@@ -47,6 +51,7 @@ export class BuildSetup {
     fileName,
     chromeDriverPath,
     username,
+    environment = {},
   }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
@@ -54,12 +59,18 @@ export class BuildSetup {
     this.dataDir = dataDir
     this.fileName = fileName
     this.chromeDriverPath = chromeDriverPath
+    this.environment = { ...environment }
     this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (this.dataDir == null) {
       this.dataDir = `e2e_${this.id}`
     }
-    this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
+    const appEnvironment = { ...process.env, ...this.environment }
+    const appDataPath =
+      appEnvironment.APPDATA ||
+      (appEnvironment.HOME &&
+        path.join(appEnvironment.HOME, process.platform === 'darwin' ? 'Library/Application Support' : '.config'))
+    this.dataDirPath = getAppDataPath({ dataDir: this.dataDir, appDataPath })
     logger.info('Running app from directory', this.dataDirPath)
   }
 
@@ -170,13 +181,14 @@ export class BuildSetup {
     }
 
     const chromeDriver = this.getChromeDriverSpawnConfig()
+    const childEnv = { ...process.env, ...this.environment, ...env }
     if (process.platform === 'win32' && !this.chromeDriverPath) {
       logger.info('!WINDOWS!')
     }
     this.child = spawn(chromeDriver.command, chromeDriver.args, {
       shell: chromeDriver.shell,
       detached: false,
-      env: Object.assign(process.env, env),
+      env: childEnv,
     })
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>
@@ -251,7 +263,11 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary,
-              args: [`--remote-debugging-port=${this.debugPort}`, '--enable-logging'],
+              args: [
+                `--remote-debugging-port=${this.debugPort}`,
+                '--enable-logging',
+                ...(process.env.E2E_NO_SANDBOX === 'true' ? ['--no-sandbox'] : []),
+              ],
             },
           })
           .forBrowser(Browser.CHROME)

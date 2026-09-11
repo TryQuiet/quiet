@@ -6,6 +6,8 @@ import {
   serviceCapabilities,
   Stream,
   Topology,
+  type TypedEventTarget,
+  type Libp2pEvents as TransportEvents,
 } from '@libp2p/interface'
 import type { ConnectionManager, IncomingStreamData, Registrar } from '@libp2p/interface-internal'
 import * as Auth from '../../../../../3rd-party/auth/packages/auth/dist'
@@ -14,7 +16,7 @@ import { encode, decode } from 'it-length-prefixed'
 
 import { SigChainService } from '../auth/sigchain.service'
 import { createLogger } from '../common/logger'
-import { ConnectionParams } from '3rd-party/auth/packages/auth/dist/connection/Connection'
+import { ConnectionParams } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Libp2pService } from './libp2p.service'
 import { Libp2pEvents } from './libp2p.types'
 import { abortableAsyncIterable } from '../common/utils'
@@ -25,6 +27,8 @@ import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
+import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
+import { BoundedRetry } from '../common/boundedRetry'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -32,11 +36,24 @@ export interface Libp2pAuthComponents {
   registrar: Registrar
   connectionManager: ConnectionManager
   logger: ComponentLogger
+  events: TypedEventTarget<TransportEvents>
 }
 
 export interface Libp2pAuthStatus {
   started: boolean
   joining: boolean
+}
+
+/** Everything commitJoin needs to finish, or roll back, a received acceptance. */
+type PendingJoin = {
+  teamId: string
+  userId: string
+  peerId: PeerId
+  connection: Connection
+  joiningNow: boolean
+  stagedContext: boolean
+  previousContext: Auth.MemberContext | Auth.InviteeMemberContext
+  previousJoinStatus: JoinStatus
 }
 
 export enum JoinStatus {
@@ -61,8 +78,23 @@ export class Libp2pAuth {
   private bufferedConnections: { peerId: PeerId; connection: Connection }[]
   private unblockInterval: NodeJS.Timeout
   private joinStatus: JoinStatus
+  private joiningConnectionId?: string
+  private stopped = false
   private logger: QuietLogger = createLogger('libp2p:auth')
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst:libp2p')
+  /** Bounded re-attempts for joins that failed on our own persistence. */
+  private readonly joinRetry = new BoundedRetry('libp2p:join')
+  /**
+   * Bounded re-attempts for the local write of an acceptance we already hold.
+   * Separate budget from joinRetry, because this one costs no network work.
+   */
+  private readonly localWriteRetry = new BoundedRetry('libp2p:joinWrite', {
+    maxAttempts: 5,
+    baseDelayMs: 100,
+    maxDelayMs: 2_000,
+  })
+  /** Re-entrancy guard for handleJoinViaQSS, which no longer uses joinStatus. */
+  private joinViaQssInFlight = false
   readonly [serviceCapabilities]: string[] = ['@quiet/auth']
   readonly [Symbol.toStringTag]: string = 'lfaAuth'
 
@@ -116,6 +148,7 @@ export class Libp2pAuth {
 
   // Process any connections that were buffered because we were waiting for a chain
   private async unblockConnections(conns: { peerId: PeerId; connection: Connection }[]) {
+    if (this.stopped) return
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamId != null) {
       this.logger.info(`Unblocking ${conns.length} connections now that we have an active chain`)
       this.joinStatus = this.sigChainService.getActiveChain()!.team != null ? JoinStatus.JOINED : JoinStatus.PENDING
@@ -129,15 +162,16 @@ export class Libp2pAuth {
     )
     if (
       conns.length === 0 ||
-      (this.joinStatus !== JoinStatus.JOINED && this.joinStatus !== JoinStatus.PENDING_MEMBER)
+      ![JoinStatus.JOINED, JoinStatus.PENDING_MEMBER, JoinStatus.PENDING].includes(this.joinStatus)
     ) {
       return
     }
 
     this.logger.info(`Unblocking ${conns.length} buffered connections now that we've joined the chain`)
-    while (conns.length > 0) {
-      const conn = conns.pop()
-      if (conn != null) {
+    // A fresh join can rebuffer the remaining transports. Process a snapshot
+    // so that this cannot loop over a just-rebuffered connection indefinitely.
+    for (const conn of conns.splice(0)) {
+      if (conn.connection.status === 'open') {
         await this.onPeerConnected(conn.peerId, conn.connection)
       }
     }
@@ -149,6 +183,8 @@ export class Libp2pAuth {
     this.onPeerConnected = this.onPeerConnected.bind(this)
     this.onPeerDisconnected = this.onPeerDisconnected.bind(this)
     this.onIncomingStream = this.onIncomingStream.bind(this)
+    this.stopped = false
+    this.components.events.addEventListener('connection:close', this.onConnectionClosed)
     const topology: Topology = {
       onConnect: this.onPeerConnected,
       onDisconnect: this.onPeerDisconnected,
@@ -169,12 +205,18 @@ export class Libp2pAuth {
   async stop() {
     this.logger.info('stop')
 
+    this.stopped = true
+    this.components.events.removeEventListener('connection:close', this.onConnectionClosed)
+    this.bufferedConnections.splice(0)
     // Clear the unblock interval
     clearInterval(this.unblockInterval)
+    // Nothing should re-attempt a join against a stopped service
+    this.joinRetry.clearAll()
+    this.localWriteRetry.clearAll()
 
     // Close all auth connections
-    for (const peerId of this.authConnections.keys()) {
-      this.closeAuthConnection(peerId)
+    for (const connection of this.peerConnections.values()) {
+      this.closeTransportAuthConnection(connection, false)
     }
 
     await this.components.registrar.unhandle(this.protocol)
@@ -200,7 +242,7 @@ export class Libp2pAuth {
     const abortController = new AbortController()
 
     // Process messages from the stream
-    this.handleIncomingMessages(peerId, stream, abortController)
+    this.handleIncomingMessages(connection, stream, abortController)
       .catch(err => {
         if (err instanceof Error && err.name === 'AbortError') {
           this.logger.debug(`Incoming stream from ${peerId.toString()} aborted (connection closed)`)
@@ -222,7 +264,8 @@ export class Libp2pAuth {
    * Process incoming messages by decoding the length-prefixed data and delivering
    * it to the corresponding auth connection.
    */
-  private async handleIncomingMessages(peerId: PeerId, stream: Stream, abortController: AbortController) {
+  private async handleIncomingMessages(connection: Connection, stream: Stream, abortController: AbortController) {
+    const peerId = connection.remotePeer
     await pipe(
       stream,
       source => decode(source),
@@ -230,7 +273,7 @@ export class Libp2pAuth {
         try {
           for await (const data of abortableAsyncIterable(source, abortController.signal)) {
             try {
-              const authConn = this.authConnections.get(peerId.toString())
+              const authConn = this.authConnections.get(connection.id)
               if (!authConn) {
                 this.logger.error(`No auth connection established for ${peerId.toString()}`)
               } else {
@@ -258,10 +301,10 @@ export class Libp2pAuth {
    * Send an outgoing message using an ephemeral stream.
    * This method opens a new stream, writes the encoded message, and then closes it.
    */
-  private async sendMessage(peerId: PeerId, message: Uint8Array) {
-    const connection = this.peerConnections.get(peerId.toString())
-    if (!connection) {
-      this.logger.warn(`No connection available for ephemeral stream to ${peerId.toString()}`)
+  private async sendMessage(connection: Connection, message: Uint8Array) {
+    const peerId = connection.remotePeer
+    if (this.stopped || connection.status !== 'open' || !this.authConnections.has(connection.id)) {
+      this.logger.debug(`No live auth transport for ephemeral stream to ${peerId.toString()}`)
       return
     }
 
@@ -292,15 +335,41 @@ export class Libp2pAuth {
   }
 
   /**
+   * Makes an admission durable before the acceptance that carries the team keys
+   * is released to the invitee.
+   *
+   * The point is to bind membership to its record. Nobody may hold this
+   * community's keys without a durable record of their admission on the device
+   * that admitted them, so the ADMIT_MEMBER / ADMIT_DEVICE link must be on disk
+   * before the acceptance that carries the team graph and keyring leaves this
+   * machine (threat-model C3, option A). The adversary is the joiner, not bad
+   * luck: a peer holding a valid invitation is entitled to join but not to
+   * join unrecorded, and it is exactly the party that cannot be relied on to
+   * report its own admission afterwards.
+   *
+   * This is the callback shape @localfirst/auth calls after the admission has
+   * been appended to the in-memory team and before ACCEPT_INVITATION is queued.
+   * Rejecting fails the connection with ADMISSION_NOT_PERSISTED and sends
+   * nothing. The failure this rules out is a member with keys but no record:
+   * after a crash the admitter has forgotten them and they surface as an
+   * unknown device (QSS-006 / private#203).
+   *
+   * The team LFA hands us is the same object the active SigChain holds, so
+   * persisting by team ID serializes exactly the graph carrying the new entry,
+   * and persistChain's per-team queue keeps it ordered against other writers.
+   */
+  private persistAdmission = async (team: Auth.Team): Promise<void> => {
+    this.logger.info(`Persisting admission for team ${team.id} before releasing acceptance`)
+    await this.sigChainService.persistAdmittedTeam(team)
+  }
+
+  /**
    * Called when a peer connects. If we’re not ready to start (e.g. no active chain),
    * the connection is buffered. Otherwise we create a new auth connection and
    * store the underlying libp2p connection for ephemeral stream use.
    */
   private async onPeerConnected(peerId: PeerId, connection: Connection) {
-    if (this.authConnections.has(peerId.toString())) {
-      this.logger.info(`Auth connection with ${peerId.toString()} already exists`)
-      return
-    }
+    if (this.stopped || connection.status !== 'open' || this.authConnections.has(connection.id)) return
     if (this.joinStatus === JoinStatus.JOINING) {
       this.logger.warn(`Connection to ${peerId.toString()} will be buffered due to a concurrent join`)
       this.bufferedConnections.push({ peerId, connection })
@@ -314,6 +383,7 @@ export class Libp2pAuth {
 
     if (this.joinStatus === JoinStatus.PENDING) {
       this.joinStatus = JoinStatus.JOINING
+      this.joiningConnectionId = connection.id
     }
 
     this.logger.info(`Peer connected (direction = ${connection.direction})! (status = ${connection.status})`)
@@ -324,48 +394,58 @@ export class Libp2pAuth {
 
     const context = this.sigChainService.getActiveChain().context
 
-    if (this.authConnections.has(peerId.toString())) {
-      const oldAuthConnection = this.authConnections.get(peerId.toString())!
-      const oldPeerConnection = this.peerConnections.get(peerId.toString())
-      if (oldPeerConnection != null && oldPeerConnection.status === 'open') {
-        this.logger.warn(
-          `A connection with ${peerId.toString()} was already available, skipping connection initialization!`
-        )
-        return
-      }
-      this.logger.warn('Replacing closed auth connection with a new one', oldPeerConnection?.remotePeer)
-      oldAuthConnection.stop()
-      this.authConnections.delete(peerId.toString())
-      this.peerConnections.delete(peerId.toString())
-    }
-
-    // Create an auth connection using an ephemeral sendMessage callback.
+    // LFA message numbers belong to a session. Each physical transport owns
+    // one session; an overlapping transport must not feed a fresh handshake
+    // into an older session or send through that session's closed connection.
     const authConnection = new Auth.Connection({
       context,
       sendMessage: (message: Uint8Array) => {
         // Fire-and-forget: send message using an ephemeral stream.
-        this.sendMessage(peerId, message).catch(err => {
+        this.sendMessage(connection, message).catch(err => {
           this.logger.error(`Error in sendMessage callback for ${peerId.toString()}`, err)
         })
       },
       createLogger: this.createLfaLogger,
+      persistAdmission: this.persistAdmission,
     } as ConnectionParams)
+
+    // This identity scopes an existing reconnect address; it does not establish
+    // ownership of the transport peer ID or grant access to the community.
+    const rememberPeerIdentity = () => {
+      const { team, peer, theirDevice } = authConnection._context
+      if (team && peer && theirDevice) {
+        this.libp2pService.rememberAuthenticatedPeer(peerId.toString(), {
+          teamId: team.id,
+          userId: peer.userId,
+          deviceId: theirDevice.deviceId,
+        })
+      }
+    }
+    authConnection.on('connectionSecured', () => {
+      // A validated invitation checks the expected team before this event. It
+      // precedes JOINED, whose listeners initialize storage before profiles
+      // necessarily replicate. Established sessions wait for graph sync below.
+      if (authConnection._context.invitationAcceptanceResult?.isValid === true) {
+        rememberPeerIdentity()
+      }
+    })
 
     // Set up auth connection event handlers.
     authConnection.on(LFAEvents.CONNECTED, () => {
+      rememberPeerIdentity()
       if (this.sigChainService.activeChainTeamId != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const team = this.sigChainService.team
         const user = this.sigChainService.user
         if (team) {
           authConnection.emit('sync', { team, user })
-          if (
-            authConnection._context.peer != null &&
-            !(authConnection._context.peer as Member).roles.includes(RoleName.MEMBER)
-          ) {
-            this.sigChainService.roles.addMember((authConnection._context.peer as Member).userId, RoleName.MEMBER)
-          }
-          this.handleJoinViaQSS()
+          grantMissingMemberRoleFromConnectedPeer(
+            this.sigChainService.roles,
+            authConnection._context.peer as Member | undefined
+          )
+          void this.handleJoinViaQSS().catch(err => {
+            this.logger.error('Failed to complete QSS join handling on connect', err)
+          })
         } else {
           this.logger.error('Cannot emit sync event, team is null')
         }
@@ -381,28 +461,15 @@ export class Libp2pAuth {
       })
     })
 
+    // The graph we just accepted has to be on disk before AUTH_JOINED goes out
+    // and before buffered peers are released: everything behind that event
+    // assumes we hold a team that survives a restart, and the peer that admitted
+    // us has already handed over keys (QSS-006). The write used to be
+    // fire-and-forget, so a crash in the gap left us with no team at all.
     authConnection.on(LFAEvents.JOINED, payload => {
-      const { team, user } = payload
-      const sigChain = this.sigChainService.getActiveChain()
-      const teamId = sigChain.teamId!
-      if (sigChain.team == null) {
-        this.logger.info(
-          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${teamId}`
-        )
-        if (!('team' in sigChain.context)) {
-          sigChain.context = {
-            device: (sigChain.context as Auth.InviteeContext).device,
-            team,
-            user,
-          } as Auth.MemberContext
-        }
-        this.logger.info(`Joined team ${teamId} (userid: ${user.userId})!`)
-        this.sigChainService.setActiveChain(sigChain.teamId!)
-      }
-      this.joinStatus = JoinStatus.JOINED
-      this.sigChainService.saveChain(sigChain.teamId!)
-      this.emit(Libp2pEvents.AUTH_JOINED)
-      this.unblockConnections(this.bufferedConnections)
+      void this.handleLfaJoined(payload, peerId, connection).catch(err => {
+        this.logger.error(`Failed to handle LFA joined event from ${peerId.toString()}`, err)
+      })
     })
 
     authConnection.on(LFAEvents.CHANGE, payload => {
@@ -411,7 +478,9 @@ export class Libp2pAuth {
 
     authConnection.on(LFAEvents.UPDATED, payload => {
       this.emit(Libp2pEvents.AUTH_UPDATED, payload)
-      this.handleJoinViaQSS()
+      void this.handleJoinViaQSS().catch(err => {
+        this.logger.error('Failed to complete QSS join handling on chain update', err)
+      })
     })
 
     // Handle errors from local or remote sources.
@@ -423,22 +492,165 @@ export class Libp2pAuth {
     })
 
     // Store the auth connection and also the underlying libp2p connection
-    this.authConnections.set(peerId.toString(), authConnection)
-    this.peerConnections.set(peerId.toString(), connection)
+    this.authConnections.set(connection.id, authConnection)
+    this.peerConnections.set(connection.id, connection)
 
     this.logger.info(`Auth connection established with ${peerId.toString()}`)
     authConnection.start()
   }
 
-  private async onPeerDisconnected(peerId: PeerId) {
-    if (this.authConnections.has(peerId.toString())) {
-      this.logger.warn(`Auth connection with ${peerId.toString()} was disconnected`)
-      this.closeAuthConnection(peerId, false)
+  /**
+   * Records a completed join and publishes it, but only once the accepted graph
+   * is on disk.
+   *
+   * Nothing another code path can read as "we have joined" is published before
+   * the write: not the join status, not the active chain, not AUTH_JOINED, and
+   * not the release of buffered peers. The context is the one exception, since
+   * the chain cannot be serialized until it carries the team, so it is staged
+   * first and rolled back if the write fails.
+   *
+   * Rolling back matters because the failure is local and usually transient. If
+   * we left JOINED behind, every later guard would read it as success while no
+   * team had been stored, buffered peers would stay blocked and nothing would
+   * re-enter this path (private#203 L-2). Instead the status returns to a
+   * retryable one and the join is re-attempted against the same peer with
+   * backoff, up to a bound.
+   *
+   * @param payload The team and user @localfirst/auth admitted us as
+   * @param peerId The peer that admitted us, and that a retry would go back to
+   * @param connection The underlying libp2p connection, reused by a retry
+   */
+  private async handleLfaJoined(
+    payload: { team: Auth.Team; user: Auth.UserWithSecrets },
+    peerId: PeerId,
+    connection: Connection
+  ): Promise<void> {
+    const { team, user } = payload
+    const sigChain = this.sigChainService.getActiveChain()
+    const previousContext = sigChain.context
+    const previousJoinStatus = this.joinStatus
+    const joiningNow = sigChain.team == null
+    let stagedContext = false
+
+    if (joiningNow && !('team' in sigChain.context)) {
+      this.logger.info(`${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.id}`)
+      sigChain.context = {
+        device: (sigChain.context as Auth.InviteeContext).device,
+        team,
+        user,
+      } as Auth.MemberContext
+      stagedContext = true
     }
+
+    await this.commitJoin({
+      teamId: sigChain.teamId!,
+      userId: user.userId,
+      peerId,
+      connection,
+      joiningNow,
+      stagedContext,
+      previousContext,
+      previousJoinStatus,
+    })
+  }
+
+  /**
+   * Writes the accepted team and, only once that lands, publishes the join.
+   *
+   * Re-entered by the local write retry. The acceptance has already been
+   * validated and is held in memory, so a failure here is ours alone: nothing
+   * about it needs the network again, and asking the admitter for a second
+   * acceptance would be both slower and a fresh handshake we do not need.
+   * The local write is therefore retried on its own budget, and only when that
+   * is spent do we roll back and go get a new acceptance.
+   */
+  private async commitJoin(pending: PendingJoin): Promise<void> {
+    const { teamId, userId, peerId, connection, joiningNow, stagedContext, previousContext, previousJoinStatus } =
+      pending
+    const retryKey = `${teamId}:${peerId.toString()}`
+
+    try {
+      await this.sigChainService.persistChain(teamId)
+    } catch (err) {
+      // Keep the staged context while we retry: it is what the write serializes,
+      // and nothing is published from it until the write succeeds.
+      const scheduled = this.localWriteRetry.schedule(retryKey, async () => this.commitJoin(pending))
+      if (scheduled) {
+        this.logger.error(`Failed to persist chain after joining team ${teamId}, retrying the write`, err)
+        return
+      }
+
+      this.logger.error(
+        `Giving up on writing the joined team ${teamId} locally, rolling back and asking for a new acceptance`,
+        err
+      )
+      if (stagedContext) {
+        this.sigChainService.getActiveChain().context = previousContext
+      }
+      // JOINING would make the retry buffer the peer instead of re-admitting us,
+      // so hand back a status the join path will actually act on.
+      this.joinStatus = previousJoinStatus === JoinStatus.JOINING ? JoinStatus.PENDING : previousJoinStatus
+      this.closeTransportAuthConnection(connection, false)
+      this.scheduleJoinRetry(peerId, connection)
+      return
+    }
+
+    this.localWriteRetry.clear(retryKey)
+    if (joiningNow) {
+      this.logger.info(`Joined team ${teamId} (userid: ${userId})!`)
+      this.sigChainService.setActiveChain(teamId)
+    }
+    this.joinStatus = JoinStatus.JOINED
+    this.joinRetry.clear(peerId.toString())
+    this.emit(Libp2pEvents.AUTH_JOINED)
+    this.unblockConnections(this.bufferedConnections)
+  }
+
+  /**
+   * Re-attempts a join that failed on our own persistence, with backoff.
+   *
+   * @param peerId The admitting peer to go back to
+   * @param connection The libp2p connection to reuse, if it is still open
+   */
+  private scheduleJoinRetry(peerId: PeerId, connection: Connection): void {
+    const remoteAddr = connection.remoteAddr.toString()
+    const scheduled = this.joinRetry.schedule(peerId.toString(), async () => {
+      this.logger.info(`Retrying the join with ${peerId.toString()} after a failed admission write`)
+      // Both halves of the handshake have to be rebuilt. Ours is already gone,
+      // but the admitting peer keeps its half for as long as the underlying
+      // libp2p connection is open, and it will not re-admit us over that stale
+      // connection - a fresh auth connection talking into it just sits there
+      // until the 30s protocol timeout. Dropping the transport connection makes
+      // the peer discard its auth connection too, so the reconnect runs a clean
+      // handshake on both sides.
+      try {
+        await connection.close()
+      } catch (err) {
+        this.logger.warn(`Failed to close the connection to ${peerId.toString()} before retrying`, err)
+      }
+      // Let the disconnect propagate before dialing, or the dial is skipped as
+      // already-connected.
+      await new Promise(resolve => setTimeout(resolve, 250))
+      await this.libp2pService.dialPeer(remoteAddr)
+    })
+    if (!scheduled) {
+      this.logger.error(
+        `Giving up on joining via ${peerId.toString()}: the chain could not be persisted after repeated attempts`
+      )
+    }
+  }
+
+  private async onPeerDisconnected(peerId: PeerId) {
+    // A delayed topology callback can follow a replacement transport's open.
+    // Connection-close events already retire individual dead sessions.
+    if (this.components.connectionManager.getConnections(peerId).some(connection => connection.status === 'open'))
+      return
+    this.closeAuthConnection(peerId, false)
 
     if (this.joinStatus === JoinStatus.JOINED) {
       return
     }
+    if (this.joinStatus === JoinStatus.JOINING && this.sigChainService.getActiveChain(false)?.team) return
 
     let id: string
     try {
@@ -465,20 +677,42 @@ export class Libp2pAuth {
 
   public closeAuthConnection(peerId: PeerId | string, sendPeerDisconnect = true) {
     this.logger.info(`Attempting to close auth connection with ${peerId.toString()}`)
-    const key = peerId.toString()
-
-    // Remove the stored connection (ephemeral streams are used for each message)
-    if (this.peerConnections.has(key)) {
-      this.peerConnections.delete(key)
-    }
-
-    if (this.authConnections.has(key)) {
-      try {
-        this.authConnections.get(key)?.stop(sendPeerDisconnect)
-      } catch (e) {
-        // do nothing
+    for (const connection of this.peerConnections.values()) {
+      if (connection.remotePeer.toString() === peerId.toString()) {
+        this.closeTransportAuthConnection(connection, sendPeerDisconnect)
       }
-      this.authConnections.delete(key)
+    }
+  }
+
+  public closeTransportAuthConnection(connection: Connection, sendPeerDisconnect = false) {
+    const authConnection = this.authConnections.get(connection.id)
+    if (!authConnection) return
+    try {
+      // A requested final disconnect must still use this session's transport.
+      authConnection.stop(sendPeerDisconnect)
+    } catch (error) {
+      this.logger.warn('Failed to stop auth connection', connection.id, error)
+    } finally {
+      authConnection.removeAllListeners()
+      this.authConnections.delete(connection.id)
+      this.peerConnections.delete(connection.id)
+    }
+  }
+
+  private readonly onConnectionClosed = ({ detail: connection }: CustomEvent<Connection>) => {
+    this.closeTransportAuthConnection(connection)
+    for (let index = this.bufferedConnections.length - 1; index >= 0; index--) {
+      if (this.bufferedConnections[index].connection.id === connection.id) this.bufferedConnections.splice(index, 1)
+    }
+    if (this.joiningConnectionId !== connection.id) return
+    this.joiningConnectionId = undefined
+    // An accepted graph awaiting its durable local write still owns admission.
+    // Only an interrupted handshake releases another buffered transport.
+    if (this.joinStatus === JoinStatus.JOINING && !this.sigChainService.getActiveChain(false)?.team) {
+      this.joinStatus = JoinStatus.PENDING
+      void this.unblockConnections(this.bufferedConnections).catch(error =>
+        this.logger.error('Failed to start buffered auth transport after disconnect', error)
+      )
     }
   }
 
@@ -488,15 +722,33 @@ export class Libp2pAuth {
     }
 
     if (
-      this.joinedViaQSS(this.sigChainService.team.id) &&
-      this.joinStatus !== JoinStatus.JOINED &&
-      this.sigChainService.roles.amIMemberOfRole(RoleName.MEMBER)
+      this.joinViaQssInFlight ||
+      !this.joinedViaQSS(this.sigChainService.team.id) ||
+      this.joinStatus === JoinStatus.JOINED ||
+      !this.sigChainService.roles.amIMemberOfRole(RoleName.MEMBER)
     ) {
-      this.joinStatus = JoinStatus.JOINED
-      this.unblockConnections(this.bufferedConnections)
-      this.emit(Libp2pEvents.AUTH_JOINED)
-      await this.sigChainService.saveChain(this.sigChainService.activeTeamId!)
+      return
     }
+
+    // Publish nothing before the write. The status used to be set first, which
+    // both signalled a membership we had not stored and, on failure, left a
+    // terminal JOINED that this guard would never let us past again
+    // (QSS-006, private#203 L-2). A separate in-flight flag now keeps concurrent
+    // callers out, so a failed write leaves the join retryable: this runs again
+    // on the next auth connect or chain update.
+    this.joinViaQssInFlight = true
+    try {
+      await this.sigChainService.persistChain(this.sigChainService.activeTeamId!)
+    } catch (err) {
+      this.logger.error(`Failed to persist chain while joining via QSS, leaving the join retryable`, err)
+      return
+    } finally {
+      this.joinViaQssInFlight = false
+    }
+
+    this.joinStatus = JoinStatus.JOINED
+    this.unblockConnections(this.bufferedConnections)
+    this.emit(Libp2pEvents.AUTH_JOINED)
   }
 
   private joinedViaQSS(teamId: string): boolean {

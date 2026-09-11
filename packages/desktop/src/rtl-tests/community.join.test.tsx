@@ -33,6 +33,7 @@ import {
   type InvitationAuthDataV4,
 } from '@quiet/types'
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav5 } from '@quiet/common'
+import { communities } from '@quiet/state-manager'
 
 import { createLogger } from './logger'
 import { socketActions } from '../renderer/sagas/socket/socket.slice'
@@ -177,7 +178,7 @@ describe('User', () => {
       store
     )
 
-    const mockEmitImpl = makeMockEmitImpl(socket)
+    const mockEmitImpl = jest.fn(makeMockEmitImpl(socket))
 
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
     // @ts-ignore
@@ -207,6 +208,10 @@ describe('User', () => {
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
     expect(createUsernameTitle).toBeVisible()
+    expect(communities.selectors.pendingJoin(store.getState())).toMatchObject({
+      status: 'draft',
+      inviteData: validData,
+    })
 
     // Enter username and hit button
     const createUsernameInput = screen.getByPlaceholderText('Enter a username')
@@ -229,16 +234,21 @@ describe('User', () => {
     // Check if channel page is visible
     const channelPage = await screen.findByText('general')
     expect(channelPage).toBeVisible()
+    const joinRequests = mockEmitImpl.mock.calls.filter(([action]) => action === SocketActions.JOIN_COMMUNITY)
+    expect(joinRequests).toHaveLength(1)
+    expect(joinRequests[0][1]).toMatchObject({ username: 'alice', inviteData: validData })
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/joinCommunity",
+        "Communities/setPendingJoinId",
         "Network/setLoadingPanelType",
-        "Communities/setInvitationCodes",
         "Modals/openModal",
         "Modals/closeModal",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "PublicChannels/channelsReplicated",
         "PublicChannels/setChannelSubscribed",
         "PublicChannels/addChannel",

@@ -12,6 +12,7 @@ import { createLogger } from '../utils/logger'
 import { keysMasterSaga } from './keys/keys.master.saga'
 import { usersMetadataMasterSaga } from './userMetadata/usersMetadata.master.saga'
 import { watchAndSyncQssEnabledToNative } from './init/startConnection/startConnection.saga'
+import { channelMetadataMasterSaga } from './channelMetadata/channelMetadata.master.saga'
 
 const logger = createLogger('root')
 
@@ -54,6 +55,7 @@ function* storeReadySaga(): Generator {
       fork(watchAndSyncQssEnabledToNative),
       fork(keysMasterSaga),
       fork(usersMetadataMasterSaga),
+      fork(channelMetadataMasterSaga),
       // Below line is reponsible for displaying notifications about messages from channels other than currently viewing one
       takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga),
       takeLeading(initActions.canceledRootTask.type, clearReduxStore),

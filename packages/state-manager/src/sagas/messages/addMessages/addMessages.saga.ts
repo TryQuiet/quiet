@@ -6,6 +6,7 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { type CacheMessagesPayload, type ChannelMessage } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { isMessageTransportVerified } from '../utils/message.utils'
 
 const logger = createLogger('addMessagesSaga')
 
@@ -13,6 +14,10 @@ export function* addMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
+    if (!isMessageTransportVerified(incomingMessage, action.payload.isLocal)) {
+      logger.warn(`Skipping message rejected by transport verification`, incomingMessage.id)
+      continue
+    }
     // Proceed only for messages from current channel
     // TODO: do we still need this check?
     const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)

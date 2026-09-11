@@ -45,6 +45,7 @@ describe('sendIntroductionMessageSaga', () => {
     await factory.create('PublicChannel')
 
     const generalChannel = publicChannelsSelectors.generalChannel(store.getState())
+    if (!generalChannel) throw new Error('no general channel')
 
     const reducer = combineReducers(testReducers)
 
@@ -60,7 +61,7 @@ describe('sendIntroductionMessageSaga', () => {
         messagesActions.sendMessage({
           type: MessageType.Info,
           message: userJoinedMessage(userProfile.nickname),
-          channelId: generalChannel?.id,
+          channelId: generalChannel.id,
         })
       )
       .put(identityActions.updateIdentity({ ...identity, introMessageSent: true }))

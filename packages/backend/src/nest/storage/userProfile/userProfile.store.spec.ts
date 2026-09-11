@@ -22,6 +22,7 @@ import { libp2pInstanceParams } from '../../common/utils'
 import { TestConfig } from '../../const'
 import { LogEntry } from '@orbitdb/core'
 import { EncryptedAndSignedPayload } from '../../auth/services/crypto/types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const logger = createLogger('messagesService:test')
 
@@ -222,7 +223,7 @@ describe('UserProfileStore/validateEntry', () => {
     jest.spyOn(UserProfileStore, 'validateUserProfile').mockResolvedValue({ success: true })
     const entry = {
       hash: 'fakehash',
-      payload: { key: bobUserId, op: 'PUT', value: encPayload },
+      payload: { key: bobUserId, op: OrbitDbOp.PUT, value: encPayload },
     } as unknown as LogEntry<EncryptedAndSignedPayload>
     // Act
     const result = await store.validateEntry(entry)

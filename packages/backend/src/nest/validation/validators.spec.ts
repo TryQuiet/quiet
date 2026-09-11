@@ -1,8 +1,34 @@
-import { ChannelMessage, PublicChannel } from '@quiet/types'
-import { isMessage, isDirectMessage, isChannel, isEncryptedMessage } from './validators'
+import { ChannelMessage, MessageType, PublicChannel, type FileMetadata } from '@quiet/types'
+import {
+  isMessage,
+  isDirectMessage,
+  isChannel,
+  isEncryptedMessage,
+  MAX_ATTACHMENT_SIZE_BYTES,
+  MAX_IMAGE_DIMENSION,
+} from './validators'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 
 describe('Validators - Messages', () => {
+  const hostedMedia = (overrides: Partial<FileMetadata> = {}): FileMetadata => ({
+    cid: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3rneevh2d5oa4sdh5xj5r6z2a',
+    message: {
+      id: 'fzxjdiasf8ashfisfd',
+      channelId: '123n23l234lk234',
+    },
+    path: null,
+    name: 'file',
+    ext: '.png',
+    size: 1024,
+    width: 640,
+    height: 480,
+    enc: {
+      header: Buffer.alloc(24, 1).toString('base64url'),
+      recipient: { generation: 0, type: 'ROLE', name: 'MEMBER' },
+    },
+    ...overrides,
+  })
+
   test('message is valid', () => {
     // message with media is valid
     const msg = {
@@ -15,26 +41,78 @@ describe('Validators - Messages', () => {
     }
     expect(isMessage(msg)).toBeTruthy()
   })
-  test('message with media is valid', () => {
+  test('hosted image message with bounded encrypted media is valid', () => {
     const msg: ChannelMessage = {
       id: 'fzxjdiasf8ashfisfd',
       userId: 'szakalak',
-      type: 1,
-      message: 'hello',
+      type: MessageType.Image,
+      message: '',
       createdAt: 1234567,
       channelId: '123n23l234lk234',
-      media: {
-        cid: '123',
-        message: {
-          id: 'fzxjdiasf8ashfisfd',
-          channelId: '123n23l234lk234',
-        },
-        path: '/path/to/file',
-        name: 'file',
-        ext: '.png',
-      },
+      media: hostedMedia(),
     }
     expect(isMessage(msg)).toBeTruthy()
+  })
+
+  test.each([
+    ['a local path', { path: '/path/to/file' }],
+    ['a temporary path', { tmpPath: '/tmp/file' }],
+    ['no encryption metadata', { enc: undefined }],
+    ['an empty cid', { cid: '' }],
+    ['an invalid cid', { cid: 'https://example.com/untrusted-file' }],
+    [
+      'an invalid encryption header',
+      {
+        enc: {
+          header: 'not base64url!',
+          recipient: { generation: 0, type: 'ROLE', name: 'MEMBER' },
+        },
+      },
+    ],
+    ['a zero size', { size: 0 }],
+    ['an oversized size', { size: MAX_ATTACHMENT_SIZE_BYTES + 1 }],
+    ['an oversized filename', { name: 'a'.repeat(256) }],
+    ['a coercively trimmed oversized filename', { name: ` ${'a'.repeat(255)} ` }],
+    ['an invalid extension', { ext: '../png' }],
+    ['an oversized width', { width: MAX_IMAGE_DIMENSION + 1 }],
+    ['a missing height', { height: undefined }],
+  ])('hosted image media with %s is invalid', (_description, override) => {
+    const msg: ChannelMessage = {
+      id: 'fzxjdiasf8ashfisfd',
+      userId: 'szakalak',
+      type: MessageType.Image,
+      message: '',
+      createdAt: 1234567,
+      channelId: '123n23l234lk234',
+      media: hostedMedia(override),
+    }
+    expect(isMessage(msg)).toBeFalsy()
+  })
+
+  test('file media rejects image-only dimensions', () => {
+    const msg: ChannelMessage = {
+      id: 'fzxjdiasf8ashfisfd',
+      userId: 'szakalak',
+      type: MessageType.File,
+      message: '',
+      createdAt: 1234567,
+      channelId: '123n23l234lk234',
+      media: hostedMedia(),
+    }
+    expect(isMessage(msg)).toBeFalsy()
+  })
+
+  test('does not coerce a numeric-string message type', () => {
+    const msg: ChannelMessage = {
+      id: 'fzxjdiasf8ashfisfd',
+      userId: 'szakalak',
+      type: '4' as unknown as number,
+      message: '',
+      createdAt: 1234567,
+      channelId: '123n23l234lk234',
+      media: hostedMedia({ width: undefined, height: undefined }),
+    }
+    expect(isMessage(msg)).toBeFalsy()
   })
   test('message is lacking required proprty', () => {
     const msg = {

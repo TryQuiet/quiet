@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 import com.google.gson.Gson;
 import com.quietmobile.Backend.BackendWorkManager;
+import com.quietmobile.Backend.BackendWorker;
 import com.quietmobile.BuildConfig;
 import com.quietmobile.MainApplication;
 import com.quietmobile.Notification.NotificationHandler;
@@ -53,7 +55,9 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     public static final String DEVICE_TOKEN_RECEIVED = "deviceTokenReceived";
     public static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 200;
 
-    private static ReactApplicationContext reactContext;
+    private static volatile ReactApplicationContext reactContext;
+    private static Context applicationContext;
+    private static final AndroidLifecycleState lifecycleState = new AndroidLifecycleState();
     private static int listenerCount = 0;
 
     // Grace period before backgrounding actually triggers hibernate. Absorbs quick
@@ -75,16 +79,76 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
     public CommunicationModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        CommunicationModule.reactContext = reactContext;
+        runOnLifecycleThread(() -> {
+            CommunicationModule.reactContext = reactContext;
+            lifecycleState.setListenerReady(false);
+        });
         notificationHandler = new NotificationHandler(reactContext);
+    }
+
+    public static void initializeLifecycle(Context context) {
+        applicationContext = context.getApplicationContext();
+    }
+
+    public static void onSocketCredentialsReady(int port, String secret) {
+        runOnLifecycleThread(() -> {
+            MainApplication application = (MainApplication) applicationContext;
+            application.setSocketPort(port);
+            application.setSocketIOSecret(secret);
+            // SocketService waits for the frontend START handshake before backendReady.
+            startWebsocketConnection();
+        });
+    }
+
+    private static void runOnLifecycleThread(Runnable action) {
+        if (Looper.myLooper() == Looper.getMainLooper()) action.run();
+        else hibernateHandler.post(action);
+    }
+
+    @ReactMethod
+    public void setLifecycleListenerReady(boolean ready) {
+        ReactApplicationContext owner = getReactApplicationContext();
+        runOnLifecycleThread(() -> {
+            if (reactContext != owner) return;
+            lifecycleState.setListenerReady(ready);
+            if (ready) {
+                startWebsocketConnection();
+                syncBackendWorkerState();
+            }
+        });
+    }
+
+    @Override
+    public void invalidate() {
+        ReactApplicationContext owner = getReactApplicationContext();
+        runOnLifecycleThread(() -> {
+            if (reactContext != owner) return;
+            lifecycleState.setListenerReady(false);
+            reactContext = null;
+        });
+        super.invalidate();
     }
 
     @ReactMethod
     public static void handleIncomingEvents(String event, @Nullable String payload, @Nullable String extra) {
         switch (event) {
             case BACKEND_READY_CHANNEL:
+                // Node may become ready after the grace timer fired or before React exists.
+                runOnLifecycleThread(() -> {
+                    syncBackendWorkerState();
+                    startWebsocketConnection();
+                });
+                break;
             case APP_READY_CHANNEL:
-                startWebsocketConnection();
+                runOnLifecycleThread(CommunicationModule::startWebsocketConnection);
+                break;
+            case "_RECOVER_WEBSOCKET_":
+                runOnLifecycleThread(() -> {
+                    startWebsocketConnection();
+                    if (QuietStorage.isAppForeground()) {
+                        sendNodeEvent("recoverSocket", "");
+                    }
+                });
                 break;
             case PUSH_NOTIFICATION_CHANNEL:
                 if (!QuietStorage.isAppForeground()) {
@@ -98,8 +162,15 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
                 notificationHandler.notify(payload, extra);
                 break;
             case INIT_CHECK_CHANNEL:
-            case BACKEND_CLOSED_CHANNEL:
                 passDataToReact(event, payload);
+                break;
+            case BACKEND_CLOSED_CHANNEL:
+                runOnLifecycleThread(() -> {
+                    MainApplication application = (MainApplication) applicationContext;
+                    application.setSocketPort(0);
+                    application.setSocketIOSecret("");
+                    passDataToReact(event, payload);
+                });
                 break;
             default:
                 break;
@@ -120,9 +191,22 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey) {
+    public static void saveChannelMetadataInKeychain(String teamId, ReadableArray updatedChannelMetadata) {
+        for (int index = 0; index < updatedChannelMetadata.size(); index++) {
+            try {
+                String channelMetadataAsString = updatedChannelMetadata.getString(index);
+                JSONObject channelMetadata = new JSONObject(channelMetadataAsString);
+                QuietStorage.addChannelMetadata(teamId, channelMetadata.getString("channelId"), channelMetadata.getString("channelName"));
+            } catch (Exception e) {
+                Log.e("CommunicationModule", "Error while saving channel metadata in QuietStorage", e);
+            }
+        }
+    }
+
+    @ReactMethod
+    public static void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey, String userId) {
         try {
-            QuietStorage.saveDeviceCredentials(deviceId, teamId, signingPrivateKey);
+            QuietStorage.saveDeviceCredentials(deviceId, teamId, signingPrivateKey, userId);
         } catch (Exception e) {
             Log.e("CommunicationModule", "saveDeviceCredentials failed", e);
         }
@@ -145,8 +229,8 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveNseQssUrl(String teamId, String qssUrl) {
-        QuietStorage.saveQssUrl(teamId, qssUrl);
+    public static void saveNseQssUrl(String teamId, String qssUrl, String qssServerId) {
+        QuietStorage.saveQssConfiguration(teamId, qssUrl, qssServerId);
     }
 
     @ReactMethod
@@ -191,12 +275,13 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     public static void emitToJS(String eventName, @Nullable WritableMap params) {
-        if (reactContext == null) {
-            Log.d("RCTNativeAppEventEmitter", "Tried to send an event but got NULL on reactContext");
+        ReactApplicationContext context = reactContext;
+        if (context == null || !context.hasActiveReactInstance()) {
+            Log.d("RCTNativeAppEventEmitter", "Skipping event because React is unavailable");
             return;
         }
 
-        reactContext.getJSModule(RCTNativeAppEventEmitter.class).emit(eventName, params);
+        context.getJSModule(RCTNativeAppEventEmitter.class).emit(eventName, params);
     }
 
     public static void emitDeviceToken(String token) {
@@ -238,23 +323,32 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     private static void startWebsocketConnection() {
-        Context context = reactContext.getApplicationContext();
-        int port = ((MainApplication) context).getSocketPort();
-        String socketIOSecret = ((MainApplication) context).getSocketIOSecret();
+        if (reactContext == null || !reactContext.hasActiveReactInstance() || applicationContext == null) return;
+        int port = ((MainApplication) applicationContext).getSocketPort();
+        String socketIOSecret = ((MainApplication) applicationContext).getSocketIOSecret();
+        if (!lifecycleState.canAnnounceConnection(port, socketIOSecret)) return;
 
         WebsocketConnectionPayload websocketConnectionPayload = new WebsocketConnectionPayload(port, socketIOSecret);
-        passDataToReact(WEBSOCKET_CONNECTION_CHANNEL, new Gson().toJson(websocketConnectionPayload));
+        // Keep connection and lifecycle events ordered on the same thread.
+        WritableMap params = Arguments.createMap();
+        params.putString("channelName", WEBSOCKET_CONNECTION_CHANNEL);
+        params.putString("payload", new Gson().toJson(websocketConnectionPayload));
+        emitToJS("backend", params);
     }
 
     public static void syncBackendWorkerState() {
-        if (reactContext == null) {
-            return;
-        }
-
-        syncBackendWorkerState(reactContext.getApplicationContext());
+        if (applicationContext != null) syncBackendWorkerState(applicationContext);
     }
 
     public static void syncBackendWorkerState(Context context) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            runOnLifecycleThread(() -> syncBackendWorkerState(context.getApplicationContext()));
+            return;
+        }
+        if (reactContext != null && reactContext.hasActiveReactInstance()) {
+            String event = lifecycleState.nextFrontendEvent(QuietStorage.isAppForeground());
+            if (event != null) emitToJS(event, null);
+        }
         BackendWorkManager workManager = new BackendWorkManager(context);
         Log.i(
                 "CommunicationModule",
@@ -286,6 +380,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
             cancelPendingHibernate();
             Log.i("CommunicationModule", "syncBackendWorkerState -> enqueueRequests (background allowed by user/team)");
             workManager.enqueueRequests();
+            sendNodeEvent("wake", "app:wake");
             return;
         }
 
@@ -295,16 +390,15 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
         scheduleHibernate();
     }
 
-    private static synchronized void scheduleHibernate() {
+    private static void scheduleHibernate() {
         if (pendingHibernate != null) {
             Log.i("CommunicationModule", "syncBackendWorkerState -> hibernate already scheduled, leaving in place");
             return;
         }
 
+        long delay = lifecycleState.remainingHibernateDelay(SystemClock.uptimeMillis(), HIBERNATE_GRACE_PERIOD_MS);
         pendingHibernate = () -> {
-            synchronized (CommunicationModule.class) {
-                pendingHibernate = null;
-            }
+            pendingHibernate = null;
 
             if (QuietStorage.isAppForeground()) {
                 Log.i("CommunicationModule", "Skipping delayed hibernate because app returned to foreground");
@@ -329,12 +423,13 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
         Log.i(
                 "CommunicationModule",
-                "syncBackendWorkerState -> hibernate scheduled in " + HIBERNATE_GRACE_PERIOD_MS + "ms (background, backend services idle)"
+                "syncBackendWorkerState -> hibernate scheduled in " + delay + "ms (background, backend services idle)"
         );
-        hibernateHandler.postDelayed(pendingHibernate, HIBERNATE_GRACE_PERIOD_MS);
+        hibernateHandler.postDelayed(pendingHibernate, delay);
     }
 
-    private static synchronized void cancelPendingHibernate() {
+    private static void cancelPendingHibernate() {
+        lifecycleState.cancelHibernate();
         if (pendingHibernate == null) {
             return;
         }
@@ -351,6 +446,10 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
      * uses via RNNodeJsMobile.sendMessageToNode.
      */
     private static void sendNodeEvent(String event, String payload) {
+        if (!BackendWorker.isNodeRuntimeActive()) {
+            Log.i(TAG, "Deferring '" + event + "' until backend readiness reconciles the current policy");
+            return;
+        }
         String safeEvent = event.replace("\\", "\\\\").replace("\"", "\\\"");
         String safePayload = payload == null ? "" : payload.replace("\\", "\\\\").replace("\"", "\\\"");
         String envelope = "{ \"event\": \"" + safeEvent + "\", \"payload\": \"" + safePayload + "\" }";
@@ -429,7 +528,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
         Context context = reactContext.getApplicationContext();
         try {
-            FileUtils.deleteDirectory(new File(context.getFilesDir(), "backend/files8"));
+            FileUtils.deleteDirectory(new File(context.getFilesDir(), "backend/files10"));
         } catch (IOException e) {
             Log.e("CommunicationModule", e.toString());
         }

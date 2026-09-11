@@ -661,22 +661,44 @@ export class ChannelContextMenu {
     )
   }
 
+  /**
+   * Waits until an element matching `locator` is present and displayed, re-locating it on every poll.
+   *
+   * The context menu re-renders whenever channel/permission state changes (e.g. right after a
+   * membership update), which discards the DOM node behind any previously located WebElement handle.
+   * Holding a handle across separate `elementLocated` and `elementIsVisible` calls therefore fails
+   * with a stale element reference. Re-locating on each poll treats a stale or missing element as
+   * "not there yet" and keeps waiting until the timeout instead of failing on the first re-render.
+   */
+  private async waitForVisibleElement(locator: By, reason: string, timeoutMs = 15_000): Promise<WebElement> {
+    // `driver.wait` only resolves once the condition returns a truthy value, so the result is never null.
+    return (await this.driver.wait(
+      async () => {
+        try {
+          const element = await this.driver.findElement(locator)
+          return (await element.isDisplayed()) ? element : null
+        } catch (e) {
+          const message = e instanceof Error ? e.message : String(e)
+          if (message.includes('stale element reference') || message.includes('no such element')) {
+            return null
+          }
+          throw e
+        }
+      },
+      timeoutMs,
+      reason,
+      500
+    )) as WebElement
+  }
+
   async openMenu(
     expectChannelTypeIcon = true
   ): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean | undefined }> {
     let menu: WebElement
     try {
-      menu = await this.driver.wait(
-        until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
-        15_000,
-        `Channel context menu couldn't be located within timeout`,
-        500
-      )
-      await this.driver.wait(
-        until.elementIsVisible(menu),
-        15_000,
-        `Channel context menu was not visibile within timeout`,
-        500
+      menu = await this.waitForVisibleElement(
+        By.xpath('//div[@data-testid="channelContextMenuButton"]'),
+        `Channel context menu button was not visible within timeout`
       )
     } catch (e) {
       logger.error('Error while checking for channel context menu button', e)
@@ -697,17 +719,9 @@ export class ChannelContextMenu {
     }
     if (expectChannelTypeIcon) {
       try {
-        const channelTypeIcon = this.driver.wait(
-          until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
-          15_000,
-          `Channel context menu lock/hash icon couldn't be located within timeout`,
-          500
-        )
-        await this.driver.wait(
-          until.elementIsVisible(channelTypeIcon),
-          15_000,
-          `Channel context menu lock/hash icon was not visibile within timeout`,
-          500
+        await this.waitForVisibleElement(
+          By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`),
+          `Channel context menu lock/hash icon was not visible within timeout`
         )
         return {
           menuButton: true,
@@ -1020,23 +1034,16 @@ export class UserProfileContextMenu {
   }
 
   async getProfilePhotoSrc(ext: PhotoExt): Promise<string> {
-    return await this.driver.wait(
+    return await this.driver.wait<string>(
       async () => {
-        let i = 0
-        while (i < 5) {
-          const photoElement = await this.waitForPhoto()
+        // Uploading can leave the previous image visible for several polls.
+        // Let this wait own the deadline, including when no image exists yet.
+        const [photoElement] = await this.driver.findElements(By.className('UserProfileContextMenuprofilePhoto'))
+        if (!photoElement) return undefined
 
-          logger.info(`found photoElement ${photoElement}`)
-          const src = await photoElement.getAttribute('src')
-
-          logger.info(`photoElement src ${src}`)
-
-          if (src.endsWith(ext)) {
-            return src
-          }
-          i++
-        }
-        throw new Error(`Failed to find image with data type ${ext} after 5 tries`)
+        const src = await photoElement.getAttribute('src')
+        logger.info(`photoElement src ${src}`)
+        return src?.endsWith(ext) ? src : undefined
       },
       15_000,
       `Failed to find image with data type ${ext} within timeout`,
@@ -1474,9 +1481,15 @@ export class Channel {
         500
       )
     } else {
-      titleText = `# ${this.name}`
+      titleText = `#${this.name}`
     }
-    return (await titleElement.getText()) === titleText
+    await this.driver.wait(
+      until.elementTextIs(titleElement, titleText),
+      timeout,
+      `Channel title did not change to ${titleText} within timeout`,
+      100
+    )
+    return true
   }
 
   async isMessageInputReady(): Promise<boolean> {
@@ -1853,7 +1866,11 @@ export class Channel {
   async getAtleastNumUserMessages(username: string, num: number): Promise<WebElement[] | null> {
     return await this.driver.wait(
       async (): Promise<WebElement[] | null> => {
-        const messages = await this.getUserMessages(username)
+        // An empty initial replication is a normal polling result. Nesting
+        // getUserMessages here would reject after its own shorter timeout.
+        const messages = await this.driver.findElements(
+          By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`)
+        )
         return messages.length >= num ? messages : null
       },
       60_000,
@@ -2701,7 +2718,6 @@ export class Settings {
 
   async closeTabThenModal() {
     await this.closeTab()
-    await sleep(1_000)
     await this.close()
   }
 
@@ -2720,6 +2736,7 @@ export class Settings {
       500
     )
     await closeButton.click()
+    await this.driver.wait(until.stalenessOf(closeButton), 10_000, 'Settings drawer did not finish closing', 100)
   }
 
   async closeTab() {
@@ -2737,6 +2754,7 @@ export class Settings {
       500
     )
     await closeTabButton.click()
+    await this.driver.wait(until.stalenessOf(closeTabButton), 10_000, 'Settings tab did not finish closing', 100)
   }
 
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {

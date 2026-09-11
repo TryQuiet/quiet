@@ -7,6 +7,7 @@ import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 import type { Socket } from '../../types'
 import type { Task } from 'redux-saga'
 import { TASK } from '@redux-saga/symbols'
+import { communitiesSelectors } from './communities.selectors'
 
 const createTaskMock = (overrides: Partial<Task> = {}): Task => {
   const task = {
@@ -59,15 +60,19 @@ describe('handleCommunityOnboarding', () => {
 
     testSaga(handleCommunityOnboarding, socket)
       .next()
+      .select(communitiesSelectors.pendingJoin)
+      .next(null)
       .take([communitiesActions.createCommunity.type, communitiesActions.joinCommunity.type])
       .next(createAction)
       .fork(createCommunitySaga, socket, createAction)
       .next(createTask)
       .take([communitiesActions.createCommunity.type, communitiesActions.joinCommunity.type])
       .next(joinAction)
+      .select(communitiesSelectors.pendingJoin)
+      .next({ attempt: 1, status: 'draft', inviteData: joinAction.payload.inviteData })
       .cancel(createTask)
       .next()
-      .fork(joinCommunitySaga, socket, joinAction)
+      .fork(joinCommunitySaga, socket)
       .next(joinTask)
       .take([communitiesActions.createCommunity.type, communitiesActions.joinCommunity.type])
   })

@@ -54,6 +54,7 @@ export function* updateMessageMediaSaga(
         },
       ],
       isVerified: true,
+      isLocal: true,
     })
   )
 }

@@ -23,7 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
@@ -77,7 +78,7 @@ jobs:
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command: cd packages/e2e-tests && npm run test userProfile.test.ts
+          command: cd packages/e2e-tests && npm run test userProfile.test.ts selectors.test.ts
 
       - name: Run multiple clients test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0

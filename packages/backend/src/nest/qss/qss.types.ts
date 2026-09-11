@@ -39,6 +39,7 @@ export enum WebsocketEvents {
  */
 export enum QSSEvents {
   QSS_AUTH_JOINED = 'qssAuthJoined',
+  QSS_AUTH_ERROR = 'qssAuthError',
   QSS_SELF_ASSIGN_MEMBER = 'qssSelfAssignMember',
   QSS_FULLY_JOINED = 'qssFullyJoined',
   QSS_CONNECTED = 'qssConnected',
@@ -49,6 +50,11 @@ export enum QSSEvents {
   QSS_START_AUTH_CONN = 'qssStartAuthConn',
   QSS_AUTH_CONNECTED = 'qssAuthConnected',
   QSS_LOG_SYNCED = 'qssLogSynced',
+}
+
+export interface QSSAuthErrorPayload {
+  teamId: string
+  error: unknown
 }
 
 export enum QSSOperationResult {
@@ -133,6 +139,8 @@ export interface AuthSyncMessage extends BaseWebsocketMessage<AuthSyncMessagePay
 
 export interface GeneratePublicKeysMessagePayload {
   teamId: string
+  serverId?: string
+  identityKeys?: Keyset
   keys?: Keyset
 }
 
@@ -244,9 +252,6 @@ export interface GetCaptchaSiteKeyResponse extends BaseWebsocketMessage<GetCaptc
 
 export interface SendPushPayload {
   ucan: string
-  title?: string
-  body?: string
-  data?: Record<string, string>
 }
 
 export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
@@ -256,7 +261,6 @@ export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
 export interface SendPushResponse extends BaseWebsocketMessage<undefined> {}
 
 export interface SendBatchPushPayload {
-  teamId: string
   ucans: string[]
 }
 
