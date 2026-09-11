@@ -198,6 +198,18 @@ jest.mock('react-native-zip-archive', () => ({
 
 jest.mock('react-native-share', () => ({ default: { open: jest.fn() } }))
 
+// Mocked because of:
+//
+// "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNCClipboard' could not be found.
+// Verify that a module by this name is registered in the native binary."
+jest.mock('@react-native-clipboard/clipboard', () => ({
+  __esModule: true,
+  default: {
+    setString: jest.fn(),
+    getString: jest.fn(),
+  },
+}))
+
 export const ioMock = io as jest.Mock
 
 jest.resetAllMocks()
