@@ -1,27 +1,26 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [10.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@9.0.2...@quiet/mobile@10.0.0-alpha.0) (2026-09-11)
-
-
-### Bug Fixes
-
-* **backend:** restore recovery after deliberate listener reopen ([eb99b57](https://github.com/TryQuiet/quiet/commit/eb99b57e40a91bab0e54277be76d3bd2d7205469))
-* **mobile:** recover local connections during QR invitation return ([885cc7e](https://github.com/TryQuiet/quiet/commit/885cc7eb9094080493527fd4f1d518214144a1f7))
-* **mobile:** recover unsent joins after local socket disconnects ([#3426](https://github.com/TryQuiet/quiet/issues/3426)) ([c4b7429](https://github.com/TryQuiet/quiet/commit/c4b74291581bf3beb6700ef291268bb530094b25))
-
+## [10.0.0]
 
 ### Features
 
-* enable private channels without a feature flag ([ae16fd1](https://github.com/TryQuiet/quiet/commit/ae16fd1a335a2107499ba9363e55475f7dff914f))
+* Enable administrators to create private channels on desktop and mobile without a feature flag
 
+### Breaking
 
+* Use protocol 4 with member, role, device and server removal and key rotation disabled, including making those operations inert when received from modified clients [#3471](https://github.com/TryQuiet/quiet/pull/3471)
+* Start with new 10.x desktop and mobile data directories; existing 9.x communities and identities are not migrated
 
+### Fixes
 
-
-# Changelog
+* Recover peer synchronization across reconnects and overlapping transports [#3480](https://github.com/TryQuiet/quiet/pull/3480)
+* Prevent repeated community leave requests from acknowledging teardown early and deleting newly created community state [#3424](https://github.com/TryQuiet/quiet/issues/3424)
+* Fix AppImage external links and desktop protocol registration when launcher library variables are present [#3453](https://github.com/TryQuiet/quiet/issues/3453)
+* Recover from consumed QSS captcha grants and synchronize captcha renewal state [#3428](https://github.com/TryQuiet/quiet/issues/3428)
+* Resume unsent mobile joins safely after a local backend connection is lost [#3426](https://github.com/TryQuiet/quiet/issues/3426)
+* Recover mobile local backend connections and allow stalled QR invitations to be retried [#3427](https://github.com/TryQuiet/quiet/issues/3427)
+* Keep delayed text and attachment sends bound to their originating channel and clear transient composer state on channel changes [#420](https://github.com/TryQuiet/quiet/issues/420) [#534](https://github.com/TryQuiet/quiet/issues/534)
+* Allow authorized historical private-channel deletions to sync without blocking later channels [#3406](https://github.com/TryQuiet/quiet/issues/3406)
 
 ## [9.0.0]
 
