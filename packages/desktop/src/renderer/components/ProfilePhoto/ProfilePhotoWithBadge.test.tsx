@@ -6,6 +6,8 @@ import '@testing-library/jest-dom'
 import { FactoryGirl } from 'factory-girl'
 import { prepareStore } from '../../testUtils'
 import React from 'react'
+import { ThemeProvider } from '@mui/material/styles'
+import { lightTheme, darkTheme } from '../../theme'
 import MockedSocket from 'socket.io-mock'
 import { renderComponent } from '../../testUtils/renderComponent'
 import ProfilePhotoWithBadge from './ProfilePhotoWithBadge'
@@ -26,6 +28,19 @@ describe('ProfilePhotoWithBadge', () => {
     )
     store = preparedStore.store
     factory = await getReduxStoreFactory(store)
+  })
+
+  it.each([
+    { name: 'light', theme: lightTheme },
+    { name: 'dark', theme: darkTheme },
+  ])('renders a group DM badge in the $name theme', ({ theme }) => {
+    const channel = { id: 'group-dm', memberIds: ['alice', 'bob', 'carol'] } as PublicChannelStorage
+    const result = renderComponent(
+      <ThemeProvider theme={theme}>
+        <ProfilePhotoWithBadge channel={channel} userData={undefined} />
+      </ThemeProvider>
+    )
+    expect(result.getByTestId('group-dm-profile-photo-status-badge')).toHaveTextContent('2')
   })
 
   it('renderComponent - default icon all undefineds', () => {

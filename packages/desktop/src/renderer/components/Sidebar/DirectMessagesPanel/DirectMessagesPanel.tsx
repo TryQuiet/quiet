@@ -45,6 +45,7 @@ const getUserDataForDmChannel = (
     return undefined
   }
   const userThatIsntMe = userProfiles[notMeId]
+  if (userThatIsntMe == null) return undefined
 
   if (dmChannel.memberIds.length > 2) {
     return {
