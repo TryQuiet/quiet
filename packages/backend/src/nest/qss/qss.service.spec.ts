@@ -558,6 +558,40 @@ describe('QSSService', () => {
       ).rejects.toThrow('auth startup failed')
     })
 
+    it('completes prepared admission once when auth joined notifications arrive together', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const lease = new CommunityLifecycle('community', {} as any)
+      const scope = new AdmissionResourceScope()
+      const { context, gate } = createAdmissionAuthContext({
+        attemptId: 1,
+        request: {} as any,
+        transport: AdmissionTransport.QSS,
+        chain,
+        submit: jest.fn() as any,
+        fail: jest.fn(),
+        scope,
+      })
+      lease.adopt(scope, gate)
+      gate.resume()
+      await qssService.startPreparedAdmission(prepared, context)
+      const push = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockResolvedValue(undefined)
+      const sync = jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+      const fullyJoined = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoined)
+
+      await Promise.all([qssService['handleQssAuthJoined'](teamId), qssService['handleQssAuthJoined'](teamId)])
+
+      expect(push).toHaveBeenCalledTimes(1)
+      expect(sync).toHaveBeenCalledTimes(1)
+      expect(fullyJoined).toHaveBeenCalledTimes(1)
+      expect(fullyJoined).toHaveBeenCalledWith(teamId)
+      await lease.drain(new Error('test complete'))
+    })
+
     it('does not resume QSS when shutdown races with post-admission push setup', async () => {
       const chain = sigchainService.activeChain
       const teamId = chain.team!.id

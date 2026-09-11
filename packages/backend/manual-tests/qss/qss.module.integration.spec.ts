@@ -24,6 +24,8 @@ import {
   SocketActions,
 } from '@quiet/types'
 import { AdmissionCoordinator } from '../../src/nest/admission/admission-coordinator.service'
+import { admissionLifecycleCases } from '../../src/nest/admission/admission-lifecycle.test-cases'
+import { CommunityLifecycle } from '../../src/nest/admission/community-lifecycle'
 import {
   AdmissionKind,
   AdmissionTransport,
@@ -33,6 +35,7 @@ import { SigChainService } from '../../src/nest/auth/sigchain.service'
 import { RoleName } from '../../src/nest/auth/services/roles/roles'
 import { CaptchaService } from '../../src/nest/captcha/captcha.service'
 import { TestModule } from '../../src/nest/common/test.module'
+import { getInMemoryLibp2pInstanceParams } from '../../src/nest/common/utils'
 import { QSS_ALLOWED, QSS_ENDPOINT, TOR_PASSWORD_PROVIDER } from '../../src/nest/const'
 import { ConnectionsManagerModule } from '../../src/nest/connections-manager/connections-manager.module'
 import { ConnectionsManagerService } from '../../src/nest/connections-manager/connections-manager.service'
@@ -52,6 +55,7 @@ import {
   LogEntrySyncMessage,
   LogEntrySyncResponseMessage,
   QSSOperationResult,
+  QSSEvents,
   WebsocketEvents,
 } from '../../src/nest/qss/qss.types'
 import { SocketService } from '../../src/nest/socket/socket.service'
@@ -209,17 +213,20 @@ async function createPeer(name: string, options: CreatePeerOptions = {}): Promis
   if (options.useLocalP2pTransport === true) {
     const port = await getPort()
     const createInstance = peer.libp2pService.createInstance.bind(peer.libp2pService)
-    jest.spyOn(peer.libp2pService, 'createInstance').mockImplementation(async params => {
+    jest.spyOn(peer.libp2pService, 'createInstance').mockImplementation(async (params, signal) => {
       const peerId = params.peerId.peerId.toString()
       const localAddress = `/memory/${port}/p2p/${peerId}`
       peer.localP2pAddress = localAddress
-      return await createInstance({
-        ...params,
-        listenAddresses: [`/memory/${port}`],
-        localAddress,
-        agent: undefined,
-        transport: [memory()],
-      })
+      return await createInstance(
+        {
+          ...params,
+          listenAddresses: [`/memory/${port}`],
+          localAddress,
+          agent: undefined,
+          transport: [memory()],
+        },
+        signal
+      )
     })
   }
 
@@ -629,7 +636,7 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
   const linkedDevice = await createPeer(`p2p-retrying-device-${randomUUID()}`, {
     useLocalP2pTransport: true,
   })
-  const coordinateSpy = jest.spyOn(linkedDevice.admissionCoordinator, 'coordinate')
+  const startSpy = jest.spyOn(linkedDevice.admissionCoordinator, 'start')
   const linkResponse = await linkedDevice.connectionsManager.linkDevice({
     id: randomUUID(),
     inviteData,
@@ -697,19 +704,26 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
     )
   }
   expect(linkedDevice.libp2pService.connectedPeers.has(ownerPeerId)).toBe(true)
-  expect(coordinateSpy).toHaveBeenCalledWith(
+  expect(startSpy).toHaveBeenCalledTimes(1)
+  expect(startSpy).toHaveBeenCalledWith(
     expect.objectContaining({
+      communityId: linkResponse.id,
       teamId,
       kind: AdmissionKind.DEVICE,
       preferredTransport: AdmissionTransport.P2P,
     }),
-    expect.any(Object)
+    expect.any(CommunityLifecycle)
   )
-  await expect(coordinateSpy.mock.results[0].value).resolves.toMatchObject({
+  expect(startSpy.mock.calls[0][1].communityId).toBe(linkResponse.id)
+  const started = startSpy.mock.results[0]
+  if (started.type !== 'return') throw new Error('Admission start did not return a handle')
+  const admission = started.value
+  await expect(admission.result).resolves.toMatchObject({
     teamId,
     userId: deviceInvite.userId,
     transport: AdmissionTransport.P2P,
   })
+  await expect(admission.drained).resolves.toBeUndefined()
 
   const linkedChain = linkedDevice.sigChainService.activeChain
   expect(linkedChain.isPendingDeviceAdmission).toBe(false)
@@ -1048,6 +1062,147 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     await runInviteUnawarePeerRetryScenario(2)
   })
 
+  it.each(admissionLifecycleCases)('admits a $kind and syncs over QSS: $lifecycle', async ({ kind, lifecycle }) => {
+    const fixture = await createOwnerFixture('qss-lifecycle')
+    const { owner, teamId } = fixture
+    const peer = await createPeer(`qss-lifecycle-${randomUUID()}`)
+    const communityId = randomUUID()
+    let prepared
+    if (kind === AdmissionKind.DEVICE) {
+      const invitation = await requestDeviceInvite(owner)
+      const inviteData: DeviceInvitationDataV5 = {
+        ...fixture.inviteData,
+        kind: InvitationKind.Device,
+        authData: {
+          communityName: fixture.teamName,
+          seed: invitation.seed,
+          teamId,
+          userId: invitation.userId,
+          userName: invitation.userName,
+        },
+      }
+      prepared = await peer.connectionsManager.linkDevice({
+        id: communityId,
+        inviteData,
+        deviceName: 'Lifecycle device',
+      })
+    } else {
+      prepared = await peer.connectionsManager.joinCommunity({
+        id: communityId,
+        name: fixture.teamName,
+        username: 'Lifecycle member',
+        inviteData: fixture.inviteData,
+      })
+    }
+    if (prepared == null) throw new Error('Backend did not prepare lifecycle admission')
+
+    const provisional = peer.sigChainService.activeChain
+    const lease = new CommunityLifecycle(communityId, await getInMemoryLibp2pInstanceParams(), QSS_INTEGRATION_ENDPOINT)
+    let finish!: () => void
+    const writing = new Promise<void>(resolve => {
+      finish = resolve
+    })
+    const write = peer.localDbService.setSigChainData.bind(peer.localDbService)
+    const writeSpy = jest.spyOn(peer.localDbService, 'setSigChainData').mockImplementationOnce(async (...args) => {
+      await writing
+      await write(...args)
+    })
+    const joined = jest.fn()
+    peer.qssService.on(QSSEvents.QSS_AUTH_JOINED, joined)
+    const fullyJoined = jest.fn()
+    peer.qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoined)
+    const pause = jest.spyOn(peer.qssService, 'pause')
+    try {
+      const handle = peer.admissionCoordinator.start(
+        {
+          communityId,
+          teamId,
+          expectedUserId: provisional.userId,
+          expectedDeviceId: provisional.device.deviceId,
+          kind,
+          preferredTransport: AdmissionTransport.QSS,
+          timeoutMs: 30_000,
+        },
+        lease
+      )
+      await waitForExpect(() => expect(writeSpy).toHaveBeenCalledTimes(1), 30_000)
+      expect(peer.sigChainService.activeChain).toBe(provisional)
+      expect(provisional.team).toBeNull()
+      expect((await peer.localDbService.getSigChain(teamId))?.serializedTeam).toBeUndefined()
+      expect(joined).not.toHaveBeenCalled()
+      expect(fullyJoined).not.toHaveBeenCalled()
+      let settled = false
+      void handle.result.then(
+        () => {
+          settled = true
+        },
+        () => undefined
+      )
+      const reason = new Error(lifecycle)
+      const stopping =
+        lifecycle === 'pause during commit'
+          ? lease.pause(reason)
+          : lifecycle === 'shutdown during commit'
+            ? lease.drain(reason)
+            : undefined
+      let stopped = false
+      void stopping?.then(
+        () => {
+          stopped = true
+        },
+        () => undefined
+      )
+      // Let queued cancellation and cleanup work run while persistence remains blocked.
+      await new Promise<void>(resolve => setImmediate(resolve))
+      expect(settled).toBe(false)
+      expect(stopped).toBe(false)
+      expect(pause).not.toHaveBeenCalled()
+      finish()
+      await expect(handle.result).resolves.toMatchObject({
+        teamId,
+        userId: provisional.userId,
+        deviceId: provisional.device.deviceId,
+        transport: AdmissionTransport.QSS,
+      })
+      await handle.drained
+      if (stopping != null) {
+        await stopping
+        expect(joined).not.toHaveBeenCalled()
+        expect(fullyJoined).not.toHaveBeenCalled()
+      } else {
+        // Auth connection notifications can repeat; admission completion must happen once.
+        await waitForExpect(() => expect(fullyJoined).toHaveBeenCalledTimes(1))
+        expect(joined).toHaveBeenCalledWith(teamId)
+      }
+      if (lifecycle === 'shutdown during commit') {
+        expect(pause).toHaveBeenCalledTimes(1)
+        await waitForDisconnected(peer, teamId)
+        expect(peer.sigChainService.hasAdmissionPersistenceBarrier(teamId)).toBe(false)
+        await peer.sigChainService.deleteChain(teamId, false)
+        await peer.sigChainService.loadChain(teamId, true)
+      } else if (lifecycle !== 'uninterrupted') {
+        if (lifecycle === 'pause after commit') await lease.pause(reason)
+        await pausePeerQss(peer, teamId)
+      }
+      if (lifecycle !== 'uninterrupted') await resumePeerQss(peer, teamId)
+      else await waitForAuthReady(peer, teamId)
+
+      const chain = peer.sigChainService.activeChain
+      expect(chain).not.toBe(provisional)
+      expect(chain.userId).toBe(provisional.userId)
+      expect(chain.device.deviceId).toBe(provisional.device.deviceId)
+      expect(chain.isPendingDeviceAdmission).toBe(false)
+      expect(chain.team!.hasDevice(provisional.device.deviceId)).toBe(true)
+      expect(peer.sigChainService.hasAdmissionPersistenceBarrier(teamId)).toBe(false)
+      expect((await peer.localDbService.getSigChain(teamId))?.serializedTeam).toBeInstanceOf(Uint8Array)
+      owner.sigChainService.team.setTeamName('after-lifecycle')
+      await waitForExpect(() => expect(chain.team!.teamName).toBe('after-lifecycle'), 30_000)
+    } finally {
+      finish()
+      await lease.drain(new Error('lifecycle test finished'))
+    }
+  })
+
   it('links a device through the production coordinator and syncs history and live writes', async () => {
     const fixture = await createOwnerFixture('qss-linked-device')
     const { owner, teamId, teamName, community } = fixture
@@ -1081,7 +1236,7 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     }
 
     const linkedDevice = await createPeer(`qss-linked-device-${randomUUID()}`)
-    const coordinateSpy = jest.spyOn(linkedDevice.admissionCoordinator, 'coordinate')
+    const startSpy = jest.spyOn(linkedDevice.admissionCoordinator, 'start')
     const linkResponse = await linkedDevice.connectionsManager.linkDevice({
       id: randomUUID(),
       inviteData,
@@ -1096,8 +1251,8 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     await linkedDevice.connectionsManager.launchCommunity(linkResponse.id)
     await waitForBackendLaunch(linkedDevice, teamId)
 
-    expect(coordinateSpy).toHaveBeenCalledTimes(1)
-    expect(coordinateSpy).toHaveBeenCalledWith(
+    expect(startSpy).toHaveBeenCalledTimes(1)
+    expect(startSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         communityId: linkResponse.id,
         teamId,
@@ -1105,16 +1260,21 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
         kind: AdmissionKind.DEVICE,
         preferredTransport: AdmissionTransport.QSS,
       }),
-      expect.objectContaining({
-        startQss: expect.any(Function),
-        startP2p: expect.any(Function),
-      })
+      expect.any(CommunityLifecycle)
     )
-    await expect(coordinateSpy.mock.results[0].value).resolves.toMatchObject({
+    expect(startSpy.mock.calls[0][1]).toMatchObject({
+      communityId: linkResponse.id,
+      qssEndpoint: QSS_INTEGRATION_ENDPOINT,
+    })
+    const started = startSpy.mock.results[0]
+    if (started.type !== 'return') throw new Error('Admission start did not return a handle')
+    const admission = started.value
+    await expect(admission.result).resolves.toMatchObject({
       teamId,
       userId: ownerUserId,
       transport: AdmissionTransport.QSS,
     })
+    await expect(admission.drained).resolves.toBeUndefined()
     expect((await linkedDevice.localDbService.getSigChain(teamId))?.serializedTeam).toBeInstanceOf(Uint8Array)
 
     const linkedChain = linkedDevice.sigChainService.activeChain

@@ -147,6 +147,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       if (!prepared.context?.gate.published) return
       const context = prepared.context
       await context.gate.run(async () => {
+        // Another queued JOINED handler may already have claimed this admission.
+        if (this.preparedAdmissions.get(teamId) !== prepared) return
         this.preparedAdmissions.delete(teamId)
         const chain = this.sigChainService.getChain(teamId)
         await this.syncNativePushPrerequisites(teamId, chain, 'admission committed')
