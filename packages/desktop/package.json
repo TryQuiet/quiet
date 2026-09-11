@@ -82,7 +82,8 @@
     "appImage": {
       "executableArgs": []
     },
-    "afterPack": "scripts/afterPack.cjs"
+    "afterPack": "scripts/afterPack.cjs",
+    "beforeBuild": "scripts/beforeBuild.cjs"
   },
   "homepage": "https://github.com/TryQuiet",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
@@ -138,7 +139,8 @@
     "copyFonts": "cp src/renderer/fonts/* dist/main",
     "setMainEnvs": "node scripts/setMainEnvs.js",
     "test:packaging": "node --test scripts/appimage-launcher.test.cjs",
-    "test:packaged-appimage": "node --test scripts/packaged-appimage.test.cjs"
+    "test:packaged-appimage": "node --test scripts/packaged-appimage.test.cjs",
+    "test:native-rebuild": "node --test scripts/native-rebuild.test.cjs"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "1.39.0",
