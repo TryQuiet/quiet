@@ -27,7 +27,9 @@ suite('Authenticated desktop/mobile DM', () => {
 
   beforeAll(async () => {
     scenario = JSON.parse(fs.readFileSync(scenarioPath, 'utf8'))
-    await device.launchApp({ delete: true, newInstance: true, launchArgs: { detoxEnableSynchronization: 0 } })
+    const server = new URL(process.env.QSS_ENDPOINT)
+    if (['localhost', '127.0.0.1'].includes(server.hostname)) await device.reverseTcpPort(Number(server.port))
+    await device.launchApp({ delete: true, newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
     // Tor and QSS deliberately keep network requests active during this test.
     await device.disableSynchronization()
   })
@@ -64,7 +66,7 @@ suite('Authenticated desktop/mobile DM', () => {
     await waitForMarker('desktop-offline')
 
     await device.terminateApp()
-    await device.launchApp({ newInstance: true, launchArgs: { detoxEnableSynchronization: 0 } })
+    await device.launchApp({ newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
     await device.disableSynchronization()
     // Some releases restore the last channel, others restore the home screen.
     try { await expect(element(by.id(scenario.firstMessage))).toBeVisible() } catch {

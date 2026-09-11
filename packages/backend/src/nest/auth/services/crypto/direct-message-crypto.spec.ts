@@ -1,6 +1,6 @@
 import { randomUUID, createHash } from 'crypto'
 import { asymmetric, symmetric } from '@localfirst/crypto'
-import { invitation, lockbox } from '@localfirst/auth'
+import { invitation, lockbox, createServer, redactServer, loadTeam } from '@localfirst/auth'
 import { MessageType, type ChannelMessage, type PublicChannel } from '@quiet/types'
 import { SigChain } from '../../sigchain'
 import { InviteService } from '../invites/invite.service'
@@ -60,6 +60,44 @@ describe('account-scoped direct message cryptography', () => {
     const reloaded = SigChain.load(carol.save(), carol.localUserContext, carol.team!.teamKeyring())
     reloaded.directMessages.openDescriptor(clone(descriptor), channel.id)
     expect(reloaded.directMessages.openMessage(encrypted, channel.id).message).toBe(plaintext.message)
+  })
+
+  it('keeps boxes, messages and attachment bytes confidential from an admitted QSS server with its full key map', async () => {
+    const { admin, bob, channel, descriptor } = dmFixture()
+    const server = createServer({ host: 'dm-relay.example.invalid' })
+    admin.team!.addServer(redactServer(server))
+    const relay = loadTeam(admin.save(), { server }, admin.team!.teamKeys())
+    expect(relay.members()).toHaveLength(admin.team!.members().length)
+    expect(relay.servers(server.serverId).serverId).toBe(server.serverId)
+    const encrypted = bob.directMessages.sealMessage(dmMessage(bob, channel), channel.id)
+    const attachment = bob.directMessages.encryptStream(
+      chunks([Buffer.from('Server must not read this file')]),
+      channel.id
+    )
+    const fileBytes = await collect(attachment.encryptStream)
+    const [core, boxes] = JSON.parse(Buffer.from(descriptor.encrypted.contents).toString())
+    const keys = [server.keys, server.identityKeys]
+    const keymap = relay.allKeys() as Record<string, Record<string, typeof keys>>
+    for (const scopes of Object.values(keymap))
+      for (const generations of Object.values(scopes)) {
+        keys.push(...Object.values(generations))
+      }
+    expect(keys.length).toBeGreaterThan(2)
+    for (const key of keys) {
+      for (const [, , box] of boxes) {
+        expect(() =>
+          asymmetric.decryptBytes({
+            cipher: Buffer.from(box, 'base64'),
+            senderPublicKey: relay.members(core[3]).keys.encryption,
+            recipientSecretKey: key.encryption.secretKey,
+          })
+        ).toThrow()
+      }
+      expect(() => symmetric.decryptBytes(encrypted.contents.contents, key.secretKey)).toThrow()
+      await expect(
+        collect(symmetric.decryptBytesStream(chunks(fileBytes), attachment.header, key.secretKey))
+      ).rejects.toThrow()
+    }
   })
 
   it.each([
