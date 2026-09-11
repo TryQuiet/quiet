@@ -1,0 +1,29 @@
+name: Desktop updater verification
+on:
+  pull_request:
+    paths:
+      - 'packages/desktop/updater/**'
+      - 'packages/desktop/scripts/**'
+      - 'packages/desktop/build/update-trust*'
+      - 'packages/desktop/package*.json'
+      - '.github/workflows/desktop-update*.yml'
+      - '.github/actions/setup-updater-tools/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-updater-tools
+      - name: Verify TUF downloads, cache, rotation and AppImage installation
+        if: runner.os == 'Linux'
+        run: node --test packages/desktop/scripts/updater-tests/*.test.cjs
+      - name: Verify actual Windows signatures and downloaded installer execution
+        if: runner.os == 'Windows'
+        run: node --test packages/desktop/scripts/updater-tests/windows.test.cjs

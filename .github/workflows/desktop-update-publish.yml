@@ -1,0 +1,71 @@
+name: Publish verified desktop update
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Desktop Build run containing the immutable staged candidate
+        type: string
+        required: true
+      artifact_id:
+        description: Exact upload-artifact ID from that build (never an artifact name)
+        type: string
+        required: true
+      phase:
+        description: Publish artifacts first; publish channel after independent TUF signing
+        type: choice
+        options: [artifacts, channel]
+        required: true
+      platform:
+        type: choice
+        options: [linux, win32]
+        required: true
+      channel:
+        type: choice
+        options: [latest, alpha]
+        required: true
+permissions:
+  contents: read
+  actions: read
+jobs:
+  publish:
+    environment: desktop-update-publishing
+    runs-on: ${{ inputs.platform == 'win32' && 'windows-latest' || 'ubuntu-22.04' }}
+    env:
+      EXPECTED_PLATFORM: ${{ inputs.platform }}
+      EXPECTED_CHANNEL: ${{ inputs.channel }}
+      PUBLISH_PHASE: ${{ inputs.phase }}
+      S3_BUCKET: ${{ inputs.channel == 'latest' && 'quiet.9.x' || 'test.quiet' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-updater-tools
+      - uses: actions/download-artifact@v5
+        with:
+          artifact-ids: ${{ inputs.artifact_id }}
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          path: release-candidate
+          merge-multiple: true
+      - name: Verify the immutable candidate and prepare only authorized files
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const receipt = require('./release-candidate/release.json');
+          if (receipt.platform !== process.env.EXPECTED_PLATFORM || receipt.channel !== process.env.EXPECTED_CHANNEL) {
+            throw new Error('Candidate does not match the selected platform and channel');
+          }
+          NODE
+          if [ "$PUBLISH_PHASE" = channel ]; then
+            node packages/desktop/scripts/releaseUpdate.cjs verify packages/desktop release-candidate verified-publication
+          else
+            node packages/desktop/scripts/releaseUpdate.cjs artifacts packages/desktop release-candidate verified-publication
+          fi
+      - name: Publish verified files
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          for file in verified-publication/*; do
+            aws s3 cp "$file" "s3://$S3_BUCKET/$(basename "$file")"
+          done
