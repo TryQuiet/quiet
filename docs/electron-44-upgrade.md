@@ -165,6 +165,17 @@ behavior still require release validation.
   Coverage includes community creation, messaging, leaving/recreating, uploads,
   persistence after reopening, hanging-backend recovery, shutdown, QSS
   onboarding/aborts and declining the server offer.
+- Packaged QSS multiplayer data/onboarding: 131 tests pass (58 public-channel,
+  73 private-channel). Eight Tor-presence checks are not selected. Coverage
+  includes joining while existing clients are offline, historical messages,
+  private-channel admission while offline, and deletion without public notices.
+- The complete single-player and QSS runs used the AppImage from `e1f5ade4a`.
+  The subsequent change at `aa6d15417` only supersedes pending P2P heads
+  refreshes; the direct-connection matrix above covers that change, including
+  ensuring that stopped P2P synchronization stays stopped in QSS mode.
+- The final `aa6d15417` AppImage rebuild and both host-integration smoke tests
+  pass, including community creation, messaging, URL registration and opening
+  message links through clean host helpers.
 - E2E harness: 19 tests pass. CAPTCHA/community saga checks: 6 tests pass.
   Backend QSS/CAPTCHA checks: 68 tests pass, including real Socket.IO rejection
   and retry with a fresh token.
@@ -177,6 +188,13 @@ behavior still require release validation.
 - Focused backend database/lockbox coverage: 46 tests pass. Auth crypto: 52 tests
   pass. Mobile Metro/CLI/Promise compatibility on host Node 24: 14 tests pass.
 - Desktop/E2E TypeScript and lint for the changed TypeScript files pass.
+
+A complete live Tor public-channel run passed 79/82 tests. The returning owner
+missed a history deadline during connection failures; another returning client
+missed the deletion-notice and sidebar checks. A fresh partial run recovered the
+historical message. Live Tor also exercised joining, messaging and file
+transfers. Full Tor-suite success is not claimed; controlled local delays and
+QSS provide the repeatable catch-up checks.
 
 Headless Linux app checks use Xvfb and the local test-only `--no-sandbox` option
 because this host disallows unprivileged Chromium sandboxing. macOS and Windows
