@@ -8,7 +8,6 @@
   "license": "GPL-3.0-or-later",
   "build": {
     "afterSign": "scripts/notarize.js",
-    "afterAllArtifactBuild": "scripts/setEnvs.js",
     "productName": "Quiet",
     "appId": "Quiet",
     "protocols": {
@@ -34,12 +33,14 @@
     "win": {
       "icon": "./build/icon.ico",
       "target": "NSIS",
-      "sign": "scripts/sign.js",
       "files": [
         "dist/**/*",
         "build/icon.*",
         "package.json"
-      ]
+      ],
+      "signtoolOptions": {
+        "sign": "scripts/sign.js"
+      }
     },
     "linux": {
       "icon": "./build/icon.png",
@@ -68,7 +69,8 @@
         "dist/**/*",
         "build/icon.*",
         "package.json"
-      ]
+      ],
+      "executableName": "quiet"
     },
     "publish": {
       "provider": "s3",
@@ -76,7 +78,12 @@
     },
     "extraResources": [
       "tor/**/*"
-    ]
+    ],
+    "appImage": {
+      "executableArgs": []
+    },
+    "afterPack": "scripts/afterPack.cjs",
+    "beforeBuild": "scripts/beforeBuild.cjs"
   },
   "homepage": "https://github.com/TryQuiet",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
@@ -130,7 +137,10 @@
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
     "rmDist": "rimraf dist/",
     "copyFonts": "cp src/renderer/fonts/* dist/main",
-    "setMainEnvs": "node scripts/setMainEnvs.js"
+    "setMainEnvs": "node scripts/setMainEnvs.js",
+    "test:packaging": "node --test scripts/appimage-launcher.test.cjs",
+    "test:packaged-appimage": "node --test scripts/packaged-appimage.test.cjs",
+    "test:native-rebuild": "node --test scripts/native-rebuild.test.cjs"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "1.39.0",
@@ -149,7 +159,7 @@
     "keymirror": "0.1.1",
     "libsodium-wrappers-sumo": "0.7.15",
     "luxon": "^3.4.4",
-    "pkijs": "^3.0.8",
+    "pkijs": "3.0.15",
     "react-inlinesvg": "^4.3.0",
     "react-markdown": "^6.0.3",
     "react-qr-code": "^2.0.11",
@@ -208,9 +218,8 @@
     "cypress": "^13.17.0",
     "cypress-storybook": "0.5.1",
     "electron": "44.3.0",
-    "electron-builder": "^23.6.0",
+    "electron-builder": "26.15.3",
     "electron-devtools-installer": "4.0.0",
-    "electron-store": "^8.2.0",
     "electron-store-webpack-wrapper": "^0.0.2",
     "emoji-picker-react": "^4.12.2",
     "enzyme": "^3.8.0",
@@ -272,7 +281,12 @@
   },
   "overrides": {
     "@babel/runtime": "7.26.10",
-    "yaml": "1.10.3"
+    "yaml": "1.10.3",
+    "pkijs@3.0.15": {
+      "asn1js": "3.0.5",
+      "pvtsutils": "1.3.2",
+      "pvutils": "1.1.3"
+    }
   },
   "jest": {
     "setupFiles": [
