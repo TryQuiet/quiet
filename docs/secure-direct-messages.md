@@ -24,4 +24,6 @@ The opt-in `multipleClients.secureDms.crossPlatform.test.ts` launches desktop ad
 
 On a Linux x86_64 emulator, ARM translation can deadlock while the bundled Node runtime forks Tor. `packages/mobile/scripts/prepare-android-emulator.sh` prepares pinned x86_64 Node.js Mobile 18.20.4, signed Tor 0.4.9.11 from Tor Browser 15.0.21, and cross-compiles the installed classic-level binding. Then build Android with `-PquietNativeAbi=x86_64 -PreactNativeArchitectures=x86_64`; default builds retain ARM64. The generated binaries are ignored. This changes the native architecture, not the JS application or DM protocol.
 
+Android starts Node through its embedding API without installing process signal handlers or owning the inspector. The standalone `node::Start` entry point replaces the SIGUSR1 handler used by JavaScriptCore's garbage collector, which can freeze the frontend. The React Native bridge uses the embedded environment's event loop. `ANDROID_HOME=... packages/mobile/scripts/test-embedded-node.sh <device-serial>` runs the production startup core on the device and verifies that a frontend handler remains installed and receives a signal during real Node execution. This regression fails with the old standalone entry point.
+
 Final commands, results and the Daybreak Blue review disposition will be recorded in the PR after the local execution and review complete.
