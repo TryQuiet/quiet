@@ -39,7 +39,7 @@ trap cleanup EXIT
 
 # Quiet's embedded Node/Tor libraries are ARM64. Google's API 36 x86_64 image
 # must expose ARM64 translation, just as in the locally validated emulator.
-adb -s emulator-5554 shell getprop ro.product.cpu.abilist | rg -q 'arm64-v8a'
+adb -s emulator-5554 shell getprop ro.product.cpu.abilist | grep -q 'arm64-v8a'
 Xvfb :99 -screen 0 1920x1080x24 > "$RUNNER_TEMP/notification-display.log" 2>&1 &
 xvfb_pid=$!
 for attempt in $(seq 1 30); do
