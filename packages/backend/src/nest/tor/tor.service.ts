@@ -487,15 +487,29 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
 
       const bootstrapGeneration = this.bootstrapGeneration
-      this.initTimeout = setTimeout(async () => {
+      const checkInitTimeout = async () => {
         if (bootstrapGeneration !== this.bootstrapGeneration) return
         this.logger.debug('Checking init timeout')
         const bootstrapDone = await this.isBootstrappingFinished()
         if (bootstrapGeneration !== this.bootstrapGeneration) return
         if (!bootstrapDone) {
+          // Descriptor downloads can take longer than the startup timeout.
+          // Preserve a Tor process that is still progressing; the watcher
+          // records when its progress last changed and handles timeout warnings.
+          const progress = this.bootstrapStallState
+          const idleMs = progress ? Date.now() - progress.firstObservedAt : timeout
+          if (progress?.progress != null && progress.progress > 0 && idleMs < timeout) {
+            this.logger.info('Tor bootstrap is still progressing; extending startup deadline', {
+              progress: progress.progress,
+              idleMs,
+            })
+            this.initTimeout = setTimeout(checkInitTimeout, timeout - idleMs)
+            return
+          }
           await this.init()
         }
-      }, timeout)
+      }
+      this.initTimeout = setTimeout(checkInitTimeout, timeout)
 
       const tryToSpawnTor = async () => {
         if (oldTorPid != null) {

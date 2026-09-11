@@ -30,6 +30,7 @@ import { createLibp2pAddress } from '@quiet/common'
 import { existsSync, readdirSync, rmSync } from 'fs'
 import path from 'path'
 import { SocketService } from '../socket/socket.service'
+import { Libp2pEvents } from '../libp2p/libp2p.types'
 
 const CACHED_USER_PROFILE_REQUEST_TIMEOUT_MS = 5_000
 
@@ -333,6 +334,12 @@ export class StorageService extends EventEmitter {
     if (this.storeListenersAttached) {
       return
     }
+
+    this.ipfsService.libp2pService.on(Libp2pEvents.AUTH_CONNECTED, (peerId: PeerId) => {
+      void this.orbitDbService.resyncPeer(peerId).catch(error => {
+        this.logger.warn('Failed to refresh databases after authentication', error)
+      })
+    })
 
     this.userProfileStore.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.emit(StorageEvents.USER_PROFILES_STORED, payload)
