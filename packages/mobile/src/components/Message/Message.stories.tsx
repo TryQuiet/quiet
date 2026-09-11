@@ -143,3 +143,31 @@ storiesOf('TestMessage', module)
       />
     )
   })
+  .add('ManyBlankLines', () => {
+    // https://github.com/TryQuiet/quiet/issues/1618 - leading, middle and trailing blank lines
+    // should all collapse to at most a single gap, matching desktop.
+    return (
+      <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
+        data={[
+          {
+            id: '7',
+            type: MessageType.Basic,
+            message: '\n\n\n\nFour blank lines above me.\n\n\n\n\n\nSix blank lines above me.\n\n\n\n\n\n\n\n\n\n',
+            createdAt: 0,
+            date: '1:30pm',
+            nickname: 'holmes',
+            userId: 'test',
+            isDuplicated: false,
+            isRegistered: true,
+          },
+        ]}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        openUrl={() => {}}
+        openImagePreview={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
+      />
+    )
+  })
