@@ -147,7 +147,9 @@ export const ChannelScreen: FC = () => {
 
   const sendMessageAction = React.useCallback(
     async (message: string) => {
-      if (message) {
+      // Whitespace-only input has nothing to send, but any attached files below
+      // still go out.
+      if (message.trim()) {
         dispatch(messages.actions.sendMessage({ message }))
       }
       // Attach files, then send corresponding message (contaning cid) for each of them
