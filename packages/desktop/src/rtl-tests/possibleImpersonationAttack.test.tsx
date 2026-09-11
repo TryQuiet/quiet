@@ -18,7 +18,7 @@ jest.mock('../renderer/index', () => ({
 
 jest.mock('electron', () => {
   return {
-    ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+    ipcRenderer: { on: () => {}, removeListener: jest.fn(), send: jest.fn(), sendSync: jest.fn() },
     remote: {
       BrowserWindow: {
         getAllWindows: () => {

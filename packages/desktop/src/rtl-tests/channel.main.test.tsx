@@ -68,7 +68,7 @@ describe('PublicChannel', () => {
     window.Notification = notification
     jest.mock('electron', () => {
       return {
-        ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+        ipcRenderer: { on: () => {}, removeListener: jest.fn(), send: jest.fn(), sendSync: jest.fn() },
         remote: {
           BrowserWindow: {
             getAllWindows: () => {
@@ -414,8 +414,15 @@ describe('PublicChannel', () => {
     )
 
     const messageText = 'Hello!'
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
 
-    store.dispatch(messages.actions.sendMessage({ message: messageText }))
+    store.dispatch(
+      messages.actions.sendMessage({
+        message: messageText,
+        channelId,
+      })
+    )
 
     await act(async () => {})
 
@@ -497,6 +504,7 @@ describe('PublicChannel', () => {
 
     for (const msg of messagesText) {
       const message = await baseTypesFactory.build('ChannelMessage', {
+        verified: true,
         createdAt: messagesText.indexOf(msg) + 1,
         channelId: generalId,
         userId: alice.userId,
@@ -786,7 +794,8 @@ describe('PublicChannel', () => {
         })
       } else if (action === SocketActions.SEND_MESSAGE) {
         const data = input[1] as ChannelMessage
-        const payload = data
+        // Model the backend's per-message transport verification marker.
+        const payload = { ...data, verified: true }
         return socket.socketClient.emit<MessagesLoadedPayload>(SocketEvents.MESSAGES_STORED, {
           messages: [withTransportVerification(payload)],
         })
@@ -834,7 +843,14 @@ describe('PublicChannel', () => {
       store
     )
 
-    store.dispatch(files.actions.attachFile(fileContent))
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
+    store.dispatch(
+      files.actions.attachFile({
+        ...fileContent,
+        channelId,
+      })
+    )
 
     await act(async () => {
       await new Promise(resolve => {
@@ -1104,8 +1120,15 @@ describe('PublicChannel', () => {
       </>,
       store
     )
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
     await act(async () => {
-      store.dispatch(files.actions.attachFile(fileContent))
+      store.dispatch(
+        files.actions.attachFile({
+          ...fileContent,
+          channelId,
+        })
+      )
     })
     // Confirm file component displays in HOSTED state
     expect(await screen.findByText('Show in folder')).toBeVisible()
@@ -1177,6 +1200,7 @@ describe('PublicChannel', () => {
 
     const baseTypesFactory = await getBaseTypesFactory()
     const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
@@ -1292,6 +1316,7 @@ describe('PublicChannel', () => {
 
     const baseTypesFactory = await getBaseTypesFactory()
     const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
@@ -1415,6 +1440,7 @@ describe('PublicChannel', () => {
     }
 
     const message = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
