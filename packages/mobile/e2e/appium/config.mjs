@@ -43,6 +43,46 @@ export function validateProviderFixture(fixture, platform, fullLoop) {
   return manifest
 }
 
+export function inspectIosBuild(config, fullLoop) {
+  assert.equal(process.platform, 'darwin', 'iOS Appium requires a Mac with Xcode')
+  const plist = name => JSON.parse(execFileSync('/usr/bin/plutil', [
+    '-convert', 'json', '-o', '-', path.join(config.app, name),
+  ], { encoding: 'utf8' }))
+  const info = plist('Info.plist')
+  assert.equal(info.CFBundleIdentifier, config.bundleId, 'The iOS app must match the selected application ID')
+  const env = plist('Env.plist')
+  assert.equal(env.QSS_ENDPOINT, ENDPOINT, 'Rebuild iOS for the loopback QSS fixture')
+  assert.equal(env.QSS_ALLOWED, 'true', 'Rebuild iOS with QSS_ALLOWED=true')
+  assert.equal(env.QPS_ALLOWED ?? 'false', fullLoop ? 'true' : 'false', 'The iOS push configuration must match this test lane')
+  // NodeRunner loads Env.plist into the embedded backend; react-native-config
+  // separately compiles the app configuration. Both must target this fixture.
+  const executable = path.join(config.app, 'Quiet.debug.dylib')
+  const native = fs.readFileSync(fs.existsSync(executable) ? executable : path.join(config.app, info.CFBundleExecutable))
+  assert(native.includes(Buffer.from(ENDPOINT)), 'The iOS native configuration lacks the loopback QSS endpoint')
+  for (const endpoint of ['wss://qss-dev.quiet-services.app', 'wss://qss-prod.quiet-services.app']) {
+    assert(!native.includes(Buffer.from(endpoint)), 'The iOS native configuration contains a remote QSS endpoint')
+  }
+  let extensionSHA256
+  if (fullLoop) {
+    const firebase = plist('GoogleService-Info.plist')
+    assert(firebase.GOOGLE_APP_ID, 'Rebuild iOS with the test Firebase configuration; an empty plist cannot deliver push')
+    assert.equal(firebase.BUNDLE_ID, config.bundleId, 'The iOS Firebase configuration must match this application ID')
+    const extension = 'PlugIns/QuietNotificationServiceExtension.appex'
+    const extensionInfo = plist(`${extension}/Info.plist`)
+    assert.equal(extensionInfo.NSExtension?.NSExtensionPointIdentifier, 'com.apple.usernotifications.service', 'The iOS build must embed its notification service extension')
+    assert(extensionInfo.CFBundleIdentifier?.startsWith(`${config.bundleId}.`), 'The notification extension must belong to the selected app')
+    const extensionExecutable = path.join(config.app, extension, extensionInfo.CFBundleExecutable)
+    const extensionDebugLibrary = `${extensionExecutable}.debug.dylib`
+    extensionSHA256 = sha256(fs.existsSync(extensionDebugLibrary) ? extensionDebugLibrary : extensionExecutable)
+  }
+  const backend = fs.readFileSync(path.join(config.app, 'nodejs-project/bundle.cjs'))
+  assert(!backend.includes(Buffer.from(MARKER)), 'The current iOS Appium lane requires the native-Tor backend')
+  return { frontendSHA256: sha256(path.join(config.app, 'main.jsbundle')),
+    nativeSHA256: createHash('sha256').update(native).digest('hex'),
+    backendSHA256: createHash('sha256').update(backend).digest('hex'), backendMode: 'native-tor',
+    ...(extensionSHA256 ? { extensionSHA256 } : {}) }
+}
+
 export async function preflight(fullLoop) {
   const configPath = process.env.QUIET_NOTIFICATION_CONFIG
   assert(configPath && path.isAbsolute(configPath), 'Set QUIET_NOTIFICATION_CONFIG to the private JSON run configuration')
@@ -70,15 +110,7 @@ export async function preflight(fullLoop) {
     } else build = { backendMode: 'native-tor', backendSHA256: createHash('sha256').update(backend).digest('hex') }
     build.appSHA256 = sha256(config.app)
   } else {
-    assert.equal(process.platform, 'darwin', 'iOS Appium requires a Mac with Xcode')
-    const bundleId = execFileSync('/usr/libexec/PlistBuddy', ['-c', 'Print :CFBundleIdentifier', path.join(config.app, 'Info.plist')], { encoding: 'utf8' }).trim()
-    assert.equal(bundleId, config.bundleId, 'The iOS app must match the selected application ID')
-    if (fullLoop) {
-      const plist = path.join(config.app, 'GoogleService-Info.plist')
-      const id = execFileSync('/usr/libexec/PlistBuddy', ['-c', 'Print :GOOGLE_APP_ID', plist], { encoding: 'utf8' }).trim()
-      assert(id, 'The iOS app must include test Firebase configuration')
-    }
-    build = { frontendSHA256: sha256(path.join(config.app, 'main.jsbundle')), backendMode: 'native-tor' }
+    build = inspectIosBuild(config, fullLoop)
   }
   await checkLiveFixture()
   return { config, run, fixture, build }

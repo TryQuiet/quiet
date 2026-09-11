@@ -119,8 +119,13 @@ node_modules/.bin/jest --runInBand \
   The run exposed and fixed hostless target linkage: the background coordinator
   implementation is compiled into QuietTests, and app-dependent Tor tests belong
   to QuietAppTests. The separate app-hosted target has not been executed here.
-- The pinned Appium toolchain installed on that Mac and its **3/3 preflight
-  checks passed**. This does not constitute an iOS UI or provider pass.
+- The pinned Appium toolchain installed on that Mac and its **4/4 preflight
+  checks passed**, including actual binary-plist inspection and mismatched native,
+  Firebase and extension configuration rejection. This does not constitute an iOS UI or provider pass.
+- A fresh iOS app build for the Appium enrollment smoke stopped at the guarded
+  **2 GiB free-disk floor** while compiling React-Fabric. The builder stopped its
+  compiler processes and verified restoration of the original Tor framework.
+  No Appium iOS UI scenario ran; additional Mac build space is still needed.
 - Actual FCM/APNs journeys remain **unverified** pending test-provider setup and
   execution. A green native suite does not establish provider delivery or OS
   activation of the iOS notification extension.

@@ -49,6 +49,19 @@ test device. Do not resign the extension away or use `simctl push` as provider
 validation. The existing guarded QSS iOS build recipe uses the push-disabled
 environment; it must not be reused unchanged for this lane.
 
+For push-disabled iOS onboarding, use `.env.e2e.qss`. An omitted `QPS_ALLOWED`
+uses the app's disabled default. Xcode still requires `ios/GoogleService-Info.plist`
+as a bundle resource: in a disposable smoke checkout without Firebase configuration,
+an empty plist dictionary satisfies the build. The full-loop preflight rejects
+that placeholder. Keep any existing Firebase configuration intact.
+
+iOS preflight inspects the built native executable and `Env.plist` for the local
+QSS endpoint, checks that push configuration matches the selected lane, and records
+frontend/backend/native hashes. Provider runs additionally require matching Firebase
+configuration and a bundled notification service extension with the correct
+extension type; its executable hash is recorded too. These artifact checks do not
+prove provider delivery or extension activation.
+
 The [QSS-only backend](../../../backend/e2e/qss-only/README.md) is supported on
 Android when Tor is unavailable. Build both consumers from the same receipt and
 use a private env file containing `.env.e2e.qss.push` plus
