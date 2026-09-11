@@ -1,0 +1,48 @@
+name: Mobile notification provider preflight
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/mobile-notification-e2e.yml
+      - packages/mobile/e2e/appium/**
+      - packages/mobile/scripts/qss-e2e/**
+      - packages/mobile/.env.e2e.qss.push
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-notification-provider-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  provider-preflight:
+    # Same-repository PRs only: never execute a fork with provider credentials.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: false
+          persist-credentials: false
+
+      - name: Validate Firebase client and provider credentials
+        env:
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
+          IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
+          QSS_NOTIFICATION_FIREBASE_CREDENTIALS: ${{ secrets.QSS_NOTIFICATION_FIREBASE_CREDENTIALS }}
+          FIREBASE_ANDROID_PROJECT_ID: ${{ secrets.FIREBASE_ANDROID_PROJECT_ID || vars.FIREBASE_ANDROID_PROJECT_ID }}
+          FIREBASE_ANDROID_CLIENT_EMAIL: ${{ secrets.FIREBASE_ANDROID_CLIENT_EMAIL || vars.FIREBASE_ANDROID_CLIENT_EMAIL }}
+          FIREBASE_ANDROID_PRIVATE_KEY: ${{ secrets.FIREBASE_ANDROID_PRIVATE_KEY }}
+          FIREBASE_IOS_PROJECT_ID: ${{ secrets.FIREBASE_IOS_PROJECT_ID || vars.FIREBASE_IOS_PROJECT_ID }}
+          FIREBASE_IOS_CLIENT_EMAIL: ${{ secrets.FIREBASE_IOS_CLIENT_EMAIL || vars.FIREBASE_IOS_CLIENT_EMAIL }}
+          FIREBASE_IOS_PRIVATE_KEY: ${{ secrets.FIREBASE_IOS_PRIVATE_KEY }}
+        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require android
+
+      - name: Remove provider credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/notification-credentials/firebase-accounts.json"
+          rm -f packages/mobile/android/app/google-services.json packages/mobile/ios/GoogleService-Info.plist
