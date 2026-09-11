@@ -58,6 +58,10 @@ jobs:
         if: steps.filter.outputs.desktop == 'true' && runner.os == 'Linux'
         run: npm run test:packaging --prefix packages/desktop
 
+      - name: "Electron native dependency rebuild"
+        if: steps.filter.outputs.desktop == 'true' && runner.os == 'Linux'
+        run: npm run test:native-rebuild --prefix packages/desktop
+
       - name: "Electron runtime tests (macOS)"
         if: steps.filter.outputs.desktop == 'true' && runner.os == 'macOS'
         run: npm run test:electron --prefix packages/desktop
