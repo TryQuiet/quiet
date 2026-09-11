@@ -54,7 +54,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
 
     if (!submitValue) {
       setLoading(false)
-      setInputError('Please check your invitation code and try again')
+      setInputError('Please check your invite link and try again')
       return
     }
 
