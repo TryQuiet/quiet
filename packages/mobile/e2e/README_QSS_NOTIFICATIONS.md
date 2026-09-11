@@ -80,8 +80,11 @@ node_modules/.bin/jest --runInBand \
 - Android API 36: **13/13 native notification tests passed in 10.367 seconds**.
   An intentional test-controlled cursor advance made the cursor regression fail
   because no OS notification was posted; removing the fault passed in 0.232s.
+- Android + desktop Detox multiplayer: **6/6 passed in 206.98 seconds** on
+  the updated QSS-only build, including online exchange, both offline-retrieval
+  directions, and restart persistence. This fixture disables push.
 - Mobile notification/token and leave cleanup sagas: **8/8 passed**.
-- Appium Android enrollment smoke: **passed in 55.2 seconds**. A fresh mobile
+- Appium Android enrollment smoke: **passed in 53.4 seconds**. A fresh mobile
   install joined a desktop-created community and displayed the peer message
   through real QSS. Both packaged backends matched the QSS-only receipt; Tor
   metadata was simulated, P2P and push were disabled.
