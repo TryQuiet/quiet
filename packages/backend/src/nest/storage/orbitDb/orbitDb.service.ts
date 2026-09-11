@@ -253,7 +253,12 @@ export class OrbitDbService {
   public async resyncPeer(peerId: PeerId): Promise<void> {
     const libp2p = (this.orbitDbInstance?.ipfs as HeliaLibp2p | undefined)?.libp2p
     const key = peerId.toString()
-    if (libp2p == null || this.peerResyncs.has(key)) return
+    if (libp2p == null) return
+
+    // A replacement transport can authenticate while the old exchange is
+    // delayed. The latest authentication must get a fresh attempt, not be
+    // discarded as a duplicate of work on an older connection.
+    this.peerResyncs.get(key)?.abort()
 
     const controller = new AbortController()
     this.peerResyncs.set(key, controller)
