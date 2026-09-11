@@ -8,7 +8,6 @@
   "license": "GPL-3.0-or-later",
   "build": {
     "afterSign": "scripts/notarize.js",
-    "afterAllArtifactBuild": "scripts/setEnvs.js",
     "productName": "Quiet",
     "appId": "Quiet",
     "protocols": {
@@ -34,12 +33,14 @@
     "win": {
       "icon": "./build/icon.ico",
       "target": "NSIS",
-      "sign": "scripts/sign.js",
       "files": [
         "dist/**/*",
         "build/icon.*",
         "package.json"
-      ]
+      ],
+      "signtoolOptions": {
+        "sign": "scripts/sign.js"
+      }
     },
     "linux": {
       "icon": "./build/icon.png",
@@ -68,7 +69,8 @@
         "dist/**/*",
         "build/icon.*",
         "package.json"
-      ]
+      ],
+      "executableName": "quiet"
     },
     "publish": {
       "provider": "s3",
@@ -76,7 +78,11 @@
     },
     "extraResources": [
       "tor/**/*"
-    ]
+    ],
+    "appImage": {
+      "executableArgs": []
+    },
+    "afterPack": "scripts/afterPack.cjs"
   },
   "homepage": "https://github.com/TryQuiet",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
@@ -130,7 +136,8 @@
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
     "rmDist": "rimraf dist/",
     "copyFonts": "cp src/renderer/fonts/* dist/main",
-    "setMainEnvs": "node scripts/setMainEnvs.js"
+    "setMainEnvs": "node scripts/setMainEnvs.js",
+    "test:packaging": "node --test scripts/appimage-launcher.test.cjs"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "1.39.0",
@@ -208,7 +215,7 @@
     "cypress": "^13.17.0",
     "cypress-storybook": "0.5.1",
     "electron": "44.3.0",
-    "electron-builder": "^23.6.0",
+    "electron-builder": "26.15.3",
     "electron-devtools-installer": "4.0.0",
     "electron-store": "^8.2.0",
     "electron-store-webpack-wrapper": "^0.0.2",
