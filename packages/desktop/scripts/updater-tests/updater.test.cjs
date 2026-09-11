@@ -229,3 +229,17 @@ test('a root rotation without the old root threshold is rejected', async t => {
   repo.objects.set('/metadata/2.root.json', encode(repo.root))
   await assert.rejects(download(updater(repo)))
 })
+
+
+test('authenticated YAML with excessive empty-map merges is rejected by the actual updater parser', async t => {
+  const repo = await setup(t)
+  const ordinary = repo.publish().manifest
+  // Empty source maps must count toward parser work, even though they add no keys.
+  const merge = Buffer.from(Array.from({ length: 101 }, (_, i) => `unused${i}: { <<: [${Array(100).fill('{}').join(',')}] }\n`).join(''))
+  repo.publish(Buffer.concat([ordinary, merge]))
+  const value = updater(repo)
+  await assert.rejects(download(value), /maxTotalMergeKeys/)
+  assert.equal(value.downloads.length, 0)
+  assert.equal(repo.fullArtifactRequests.length, 0)
+  assert(fs.existsSync(repo.oldImage))
+})

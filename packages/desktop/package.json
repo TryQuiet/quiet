@@ -157,7 +157,7 @@
     "electron-store": "^8.2.0",
     "electron-updater": "6.8.9",
     "get-port": "^5.1.1",
-    "js-yaml": "4.1.1",
+    "js-yaml": "4.3.2",
     "keymirror": "0.1.1",
     "libsodium-wrappers-sumo": "0.7.15",
     "luxon": "^3.4.4",

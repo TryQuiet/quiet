@@ -6,7 +6,7 @@ const { promisify } = require('node:util')
 const { execFile } = require('node:child_process')
 const { repository } = require('./repository.cjs')
 const { stage, artifacts } = require('../releaseUpdate.cjs')
-const { buildTrust, beforePack } = require('../updateTrust.cjs')
+const { buildTrust, beforePack, afterPack } = require('../updateTrust.cjs')
 const yaml = require('js-yaml')
 
 test('final staged bytes pass independent HTTPS/TUF publication gate; altered or unsigned candidates do not', async t => {
@@ -20,8 +20,10 @@ test('final staged bytes pass independent HTTPS/TUF publication gate; altered or
   const { rootPath, ...trust } = repo.trust
   fs.writeFileSync(path.join(project, 'build/update-trust.json'), JSON.stringify({ windowsPublisherNames: trust.windowsPublisherNames, repositories: { latest: trust } }))
   fs.copyFileSync(rootPath, path.join(project, 'build/update-trust/latest/root.json'))
-  fs.copyFileSync(rootPath, path.join(resources, 'update-root.json'))
-  fs.writeFileSync(path.join(resources, 'update-trust.json'), JSON.stringify(trust))
+  await afterPack({ electronPlatformName: 'linux', appOutDir: path.dirname(resources), packager: {
+    projectDir: project, appInfo: { version: '2.0.0' }, getResourcesDir: () => resources,
+  } })
+  assert.deepEqual(fs.readFileSync(path.join(resources, 'update-root.json')), fs.readFileSync(rootPath))
   fs.writeFileSync(path.join(project, 'dist/latest-linux.yml'), published.manifest)
   fs.writeFileSync(path.join(project, 'dist', published.artifactName), published.artifact)
   const candidate = path.join(repo.directory, 'candidate')
@@ -56,10 +58,11 @@ test('release trust and Windows publisher generation cannot be bypassed by prere
   const write = () => fs.writeFileSync(path.join(project, 'build/update-trust.json'), JSON.stringify(config))
   write()
   fs.copyFileSync(repo.trust.rootPath, path.join(project, 'build/update-trust/alpha/root.json'))
-  const previous = { TEST_MODE: process.env.TEST_MODE, IS_LOCAL: process.env.IS_LOCAL, GITHUB_EVENT_NAME: process.env.GITHUB_EVENT_NAME }
+  const previous = { TEST_MODE: process.env.TEST_MODE, IS_LOCAL: process.env.IS_LOCAL, IS_E2E: process.env.IS_E2E, GITHUB_EVENT_NAME: process.env.GITHUB_EVENT_NAME }
   process.env.TEST_MODE = 'true'
   delete process.env.IS_LOCAL
-  delete process.env.GITHUB_EVENT_NAME
+  delete process.env.IS_E2E
+  process.env.GITHUB_EVENT_NAME = 'release'
   t.after(() => { for (const [name, value] of Object.entries(previous)) { if (value === undefined) delete process.env[name]; else process.env[name] = value } })
   const packager = { projectDir: project, appInfo: { version: '2.0.0-alpha.0' }, config: { win: {} } }
   await beforePack({ electronPlatformName: 'win32', packager })
@@ -75,4 +78,27 @@ test('release trust and Windows publisher generation cannot be bypassed by prere
   config.repositories.alpha = null
   write()
   assert.throws(() => buildTrust(project, '2.0.0-alpha.0', 'linux'))
+})
+
+
+test('release-triggered E2E workflows explicitly build previews without production trust or signing', async t => {
+  const previous = Object.fromEntries(['GITHUB_EVENT_NAME', 'IS_LOCAL', 'IS_E2E', 'TEST_MODE'].map(name => [name, process.env[name]]))
+  t.after(() => { for (const [name, value] of Object.entries(previous)) { if (value === undefined) delete process.env[name]; else process.env[name] = value } })
+  process.env.GITHUB_EVENT_NAME = 'release'
+  delete process.env.IS_LOCAL
+  const workflows = path.resolve(__dirname, '../../../..', '.github/workflows')
+  for (const name of ['e2e-linux.yml', 'e2e-win.yml', 'e2e-back-compat-linux.yml', 'e2e-qss-linux.yml', 'e2e-mac.yml']) {
+    const workflow = yaml.load(fs.readFileSync(path.join(workflows, name), 'utf8'))
+    const job = Object.values(workflow.jobs)[0]
+    assert.equal(String(job.env.IS_E2E), 'true', name)
+    process.env.IS_E2E = String(job.env.IS_E2E)
+    process.env.TEST_MODE = String(job.env.TEST_MODE)
+    for (const electronPlatformName of ['linux', 'win32']) {
+      // No projectDir/root/certificate exists: invoking either production hook would fail.
+      const context = { electronPlatformName, packager: { config: { win: {} } } }
+      await beforePack(context)
+      await afterPack(context)
+      assert.equal(context.packager.config.forceCodeSigning, undefined)
+    }
+  }
 })

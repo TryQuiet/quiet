@@ -9,6 +9,7 @@ jobs:
 
     env:
       TEST_MODE: true
+      IS_E2E: true
       E2E: true
       IS_CI: true
 

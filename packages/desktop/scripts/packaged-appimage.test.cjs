@@ -40,10 +40,18 @@ test('final AppImage resolves production dependencies and has matching update me
       '-e',
       `const assert = require('node:assert/strict');
        const load = require('node:module').createRequire(process.argv[1]);
-       for (const name of ['electron-store', 'electron-updater', 'pkijs']) {
+       for (const name of ['electron-store', 'electron-updater', 'pkijs', 'tuf-js', 'builder-util-runtime', 'js-yaml', 'semver']) {
          assert.ok(load.resolve(name).startsWith(require('node:path').dirname(process.argv[1]) + '/'));
        }
        assert.equal(load('pkijs/package.json').version, '3.0.15');
+       assert.equal(load('js-yaml/package.json').version, '4.3.2');
+       const updaterLoad = require('node:module').createRequire(load.resolve('electron-updater'));
+       assert.equal(updaterLoad('js-yaml/package.json').version, '4.3.2');
+       assert.equal(typeof load('./updater/index.cjs').createUpdater, 'function');
+       const resources = require('node:path').dirname(require('node:path').dirname(process.argv[1]));
+       if (!require('node:fs').existsSync(require('node:path').join(resources, 'update-trust.json'))) {
+         assert.throws(() => load('./updater/trust.cjs').readTrust(resources));
+       }
        console.log('Packaged runtime dependencies resolved');`,
       path.join(appDir, 'resources/app.asar/package.json'),
     ],

@@ -15,6 +15,7 @@ jobs:
     env:
       DISPLAY: ":99.0"
       TEST_MODE: true
+      IS_E2E: true
       IS_CI: true
 
     steps:
