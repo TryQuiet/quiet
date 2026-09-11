@@ -7,6 +7,7 @@ import { createLogger } from '../common/logger'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { isUint8Array } from 'util/types'
 import { CID } from 'multiformats/cid'
+import { decodeWireBytes } from './byte-encoding'
 
 const logger = createLogger('validators')
 
@@ -125,7 +126,11 @@ const encryptedMessageSchema = joi.object({
     contents: joi
       .any()
       .required()
-      .custom((value, _helpers) => {
+      .custom((value, helpers) => {
+        if (helpers.state.ancestors[0]?.scope?.type === 'DM') {
+          decodeWireBytes(value, 2 * 1024 * 1024)
+          return value
+        }
         if (!Buffer.isBuffer(value) && !isUint8Array(value)) {
           throw new Error('value must be a Uint8Array or Buffer')
         }

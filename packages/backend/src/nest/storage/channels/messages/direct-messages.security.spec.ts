@@ -92,6 +92,19 @@ describe('DM trust boundaries and application effects', () => {
     expect(await messages.onConsume(altered, fixture.channel)).toBeUndefined()
   })
 
+  it('preserves signed descriptors and messages through JSON replication without weakening authentication', async () => {
+    // Metadata indexing/JSON relays turn a cloned Uint8Array into a numeric-key object.
+    const descriptor = JSON.parse(JSON.stringify(fixture.bob.directMessages.descriptor(fixture.channel.id)))
+    expect(fixture.carol.directMessages.openDescriptor(descriptor, fixture.channel.id)).toEqual(fixture.channel)
+    const original = fixture.bob.directMessages.sealMessage(dmMessage(fixture.bob, fixture.channel), fixture.channel.id)
+    const encrypted = JSON.parse(JSON.stringify(original))
+    expect(await canAppend(await sign(bob, { op: 'ADD', value: encrypted }))).toBe(true)
+    expect(await messages.onConsume(encrypted, fixture.channel)).toMatchObject({ id: original.id, verified: true })
+    encrypted.contents.contents[0] = (encrypted.contents.contents[0] + 1) % 256
+    expect(await canAppend(await sign(bob, { op: 'ADD', value: encrypted }))).toBe(false)
+    expect(await messages.onConsume(encrypted, fixture.channel)).toBeUndefined()
+  })
+
   it('accepts only creator-bound immutable DM metadata, including on an admin replica without the DM key', async () => {
     const history: LogEntry[] = []
     const metadataCheck = (new ChannelMetadataAccessController(admin.service) as any).canAppend(

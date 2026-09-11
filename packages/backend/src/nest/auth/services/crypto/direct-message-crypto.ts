@@ -1,11 +1,12 @@
 import { createHash, randomBytes } from 'crypto'
-import { asymmetric, randomKey, symmetric } from '@localfirst/crypto'
+import { asymmetric, symmetric } from '@localfirst/crypto'
 import { ChannelType, type ChannelMessage, type PublicChannel } from '@quiet/types'
 import type { Base58 } from '@localfirst/crypto'
 import { isConsumedChannelMessage } from '../../../validation/validators'
 import type { SigChain } from '../../sigchain'
 import { EncryptionScopeType, type EncryptedAndSignedPayload } from './types'
 import type { EncryptedMessage } from '../../../storage/channels/messages/messages.types'
+import { decodeWireBytes as dmBytes } from '../../../validation/byte-encoding'
 
 const DOMAIN = 'quiet/direct-message/v1'
 export const MAX_DM_PARTICIPANTS = 16
@@ -22,21 +23,6 @@ const requireValid: (value: unknown) => asserts value = value => {
 }
 const text = (value: unknown, max = 256): value is string =>
   typeof value === 'string' && value.length > 0 && value.length <= max
-
-/** Decode only the wire encodings used by OrbitDB/QSS; never interpolate secret data into errors. */
-export function dmBytes(value: unknown, maximum: number): Uint8Array {
-  let result: Uint8Array
-  if (value instanceof Uint8Array) result = value
-  else if (typeof value === 'string' && value.length <= maximum * 2) result = Buffer.from(value, 'base64')
-  else if (Array.isArray(value) && value.length <= maximum) {
-    requireValid(value.every(x => Number.isInteger(x) && x >= 0 && x <= 255))
-    result = Uint8Array.from(value)
-  } else if (value && typeof value === 'object' && (value as any).type === 'Buffer') {
-    return dmBytes((value as any).data, maximum)
-  } else throw new Error('Invalid direct message bytes')
-  requireValid(result.length > 0 && result.length <= maximum)
-  return result
-}
 
 /**
  * DM keys are account-to-account deliveries, never LFA role keys (which admins can read).
@@ -57,7 +43,7 @@ export class DirectMessageCrypto {
   public create(memberIds: string[]): PublicChannel {
     const ids = [...new Set([...memberIds, this.chain.user.userId])].sort()
     this.members(ids)
-    const key = randomKey(32)
+    const key = randomBytes(32).toString('base64url')
     const core: Core = [
       DOMAIN,
       1,
