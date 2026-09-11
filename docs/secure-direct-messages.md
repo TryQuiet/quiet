@@ -30,4 +30,4 @@ The Android JNI bridge also links `c++_shared`, matching Node and React Native. 
 
 The Android Tor health check uses Toybox's `pgrep -fl` to match and print full process arguments. `tor-process.android.spec.ts`, enabled with `QUIET_DM_ANDROID_DEVICE` and `ADB_PATH`, exercises the production discovery method against a real emulator process; the old GNU-style `-af` command returns no match and falsely restarts a running Tor instance. The desktop/Android attachment test also requires working Tor peer connectivity.
 
-Final commands, results and the Daybreak Blue review disposition will be recorded in the PR after the local execution and review complete.
+Local execution passed the focused security and Auth/crypto suites, all desktop and mobile unit suites, the desktop DM and private-channel QSS E2E suites, and the combined desktop/Android DM scenario including three restarts and offline delivery. Commands, counts and the Daybreak Blue review disposition are recorded in [Quiet PR #3486](https://github.com/TryQuiet/quiet/pull/3486).
