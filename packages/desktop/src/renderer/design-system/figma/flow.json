@@ -1,0 +1,1512 @@
+{
+ "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+ "start": "get-started",
+ "sections": [
+  "Onboarding",
+  "Server opt-in (creator)",
+  "Server agree (joiner, v1)"
+ ],
+ "frames": [
+  {
+   "slug": "get-started",
+   "name": "Get started",
+   "display": "Get started",
+   "node": "2811:2550",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "get-started.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2550",
+   "note": null,
+   "links": [
+    {
+     "x": 16,
+     "y": 286,
+     "w": 343,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "join-community"
+    },
+    {
+     "x": 16,
+     "y": 335,
+     "w": 343,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "create-default"
+    },
+    {
+     "x": 16,
+     "y": 384,
+     "w": 343,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "link-devices"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 54983,
+   "id": "onboarding-flow--get-started",
+   "export": "GetStarted"
+  },
+  {
+   "slug": "join-community",
+   "name": "Join community",
+   "display": "Join community",
+   "node": "2811:2562",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "join-community.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2562",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "get-started"
+    },
+    {
+     "x": 24,
+     "y": 302,
+     "w": 327,
+     "h": 48,
+     "label": "Content",
+     "kind": "prototype",
+     "target": "open-invite-link"
+    },
+    {
+     "x": 24,
+     "y": 351,
+     "w": 327,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "sheet-2811-2460"
+    },
+    {
+     "x": 24,
+     "y": 400,
+     "w": 327,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "recover-account-info"
+    }
+   ],
+   "bytes": 143932,
+   "id": "onboarding-flow--join-community",
+   "export": "JoinCommunity"
+  },
+  {
+   "slug": "create-default",
+   "name": "create--default",
+   "display": "create--default",
+   "node": "2811:2451",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "create-default.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2451",
+   "note": null,
+   "links": [
+    {
+     "x": 140,
+     "y": 194,
+     "w": 96,
+     "h": 96,
+     "label": "Edit profile avatar",
+     "kind": "prototype",
+     "target": "ios-photo-gallery-2811-2501"
+    },
+    {
+     "x": 218,
+     "y": 179,
+     "w": 32,
+     "h": 32,
+     "label": "Avatar-action",
+     "kind": "prototype",
+     "target": "ios-photo-gallery-2811-2501"
+    },
+    {
+     "x": 24,
+     "y": 314,
+     "w": 327,
+     "h": 42,
+     "label": "Input3.0",
+     "kind": "prototype",
+     "target": "create-populated-focussed"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 31249,
+   "id": "onboarding-flow--create-default",
+   "export": "CreateDefault"
+  },
+  {
+   "slug": "link-devices",
+   "name": "Link devices",
+   "display": "Link devices",
+   "node": "2811:2575",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "link-devices.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2575",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "get-started"
+    },
+    {
+     "x": 16,
+     "y": 226,
+     "w": 343,
+     "h": 48,
+     "label": "Content",
+     "kind": "prototype",
+     "target": "sheet-2811-2601"
+    },
+    {
+     "x": 16,
+     "y": 275,
+     "w": 343,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "sheet-2811-2587"
+    }
+   ],
+   "bytes": 34297,
+   "id": "onboarding-flow--link-devices",
+   "export": "LinkDevices"
+  },
+  {
+   "slug": "open-invite-link",
+   "name": "Open invite link",
+   "display": "Open invite link",
+   "node": "2811:2455",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "open-invite-link.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2455",
+   "note": null,
+   "links": [
+    {
+     "x": 145,
+     "y": 342,
+     "w": 85,
+     "h": 16,
+     "label": "Button",
+     "kind": "added",
+     "note": "Not wired in the prototype; the 'Paste a link' button on Open invite link is the obvious origin of the drawn paste screen.",
+     "target": "container"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 105536,
+   "id": "onboarding-flow--open-invite-link",
+   "export": "OpenInviteLink"
+  },
+  {
+   "slug": "sheet-2811-2460",
+   "name": "Sheet",
+   "display": "Sheet (2811:2460)",
+   "node": "2811:2460",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 499,
+   "png": "sheet-2811-2460.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2460",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 521659,
+   "id": "onboarding-flow--sheet-2811-2460",
+   "export": "Sheet_2811_2460"
+  },
+  {
+   "slug": "recover-account-info",
+   "name": "recover-account-info",
+   "display": "recover-account-info",
+   "node": "2811:2535",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "recover-account-info.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2535",
+   "note": null,
+   "links": [
+    {
+     "x": 24,
+     "y": 286,
+     "w": 327,
+     "h": 48,
+     "label": "Content",
+     "kind": "prototype",
+     "target": "link-devices"
+    },
+    {
+     "x": 24,
+     "y": 335,
+     "w": 327,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "open-invite-link"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 35733,
+   "id": "onboarding-flow--recover-account-info",
+   "export": "RecoverAccountInfo"
+  },
+  {
+   "slug": "ios-photo-gallery-2811-2501",
+   "name": "iOS photo gallery",
+   "display": "iOS photo gallery (2811:2501)",
+   "node": "2811:2501",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 585,
+   "png": "ios-photo-gallery-2811-2501.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2501",
+   "note": null,
+   "links": [
+    {
+     "x": 126,
+     "y": 353,
+     "w": 123,
+     "h": 123,
+     "label": "Frame 1628",
+     "kind": "prototype",
+     "target": "crop-photo-3"
+    },
+    {
+     "x": 5,
+     "y": 7,
+     "w": 100,
+     "h": 37,
+     "label": "hotspot-back",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 1086572,
+   "id": "onboarding-flow--ios-photo-gallery-2811-2501",
+   "export": "IosPhotoGallery_2811_2501"
+  },
+  {
+   "slug": "create-populated-focussed",
+   "name": "create--populated-focussed",
+   "display": "create--populated-focussed",
+   "node": "2811:2453",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "create-populated-focussed.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2453",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "get-started"
+    },
+    {
+     "x": 140,
+     "y": 194,
+     "w": 96,
+     "h": 96,
+     "label": "Edit profile avatar",
+     "kind": "prototype",
+     "target": "ios-photo-gallery-2811-2467"
+    },
+    {
+     "x": 218,
+     "y": 179,
+     "w": 32,
+     "h": 32,
+     "label": "Avatar-action",
+     "kind": "prototype",
+     "target": "ios-photo-gallery-2811-2467"
+    },
+    {
+     "x": 134,
+     "y": 380,
+     "w": 108,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "username-default"
+    }
+   ],
+   "bytes": 30432,
+   "id": "onboarding-flow--create-populated-focussed",
+   "export": "CreatePopulatedFocussed"
+  },
+  {
+   "slug": "sheet-2811-2601",
+   "name": "Sheet",
+   "display": "Sheet (2811:2601)",
+   "node": "2811:2601",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 442,
+   "png": "sheet-2811-2601.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2601",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 27430,
+   "id": "onboarding-flow--sheet-2811-2601",
+   "export": "Sheet_2811_2601"
+  },
+  {
+   "slug": "sheet-2811-2587",
+   "name": "Sheet",
+   "display": "Sheet (2811:2587)",
+   "node": "2811:2587",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 571,
+   "png": "sheet-2811-2587.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2587",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 535509,
+   "id": "onboarding-flow--sheet-2811-2587",
+   "export": "Sheet_2811_2587"
+  },
+  {
+   "slug": "container",
+   "name": "Container",
+   "display": "Paste a link to Join (frame 'Container', WIP)",
+   "node": "3190:10892",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "container.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3190-10892",
+   "note": "Designer's work in progress: this frame is create--default duplicated with only the heading changed to 'Paste a link to Join' and the input placeholder to 'Link'. Title bar, subtitle and the avatar upload are unchanged.",
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 17181,
+   "id": "onboarding-flow--container",
+   "export": "Container"
+  },
+  {
+   "slug": "crop-photo-3",
+   "name": "crop photo 3",
+   "display": "crop photo 3",
+   "node": "2811:2394",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "crop-photo-3.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2394",
+   "note": null,
+   "links": [
+    {
+     "x": 187,
+     "y": 8,
+     "w": 188,
+     "h": 44,
+     "label": "RightZ",
+     "kind": "prototype",
+     "target": "join-photo-no-name"
+    },
+    {
+     "x": 16,
+     "y": 74,
+     "w": 24,
+     "h": 24,
+     "label": "icon-plus",
+     "kind": "prototype",
+     "target": "crop-photo-4"
+    },
+    {
+     "x": 247,
+     "y": 78,
+     "w": 16,
+     "h": 16,
+     "label": "Ellipse 463",
+     "kind": "prototype",
+     "target": "crop-photo-4"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Close",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 312643,
+   "id": "onboarding-flow--crop-photo-3",
+   "export": "CropPhoto_3"
+  },
+  {
+   "slug": "ios-photo-gallery-2811-2467",
+   "name": "iOS photo gallery",
+   "display": "iOS photo gallery (2811:2467)",
+   "node": "2811:2467",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 585,
+   "png": "ios-photo-gallery-2811-2467.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2467",
+   "note": null,
+   "links": [
+    {
+     "x": 126,
+     "y": 353,
+     "w": 123,
+     "h": 123,
+     "label": "Frame 1628",
+     "kind": "prototype",
+     "target": "crop-photo-1"
+    },
+    {
+     "x": 5,
+     "y": 7,
+     "w": 100,
+     "h": 37,
+     "label": "hotspot-back",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 1086572,
+   "id": "onboarding-flow--ios-photo-gallery-2811-2467",
+   "export": "IosPhotoGallery_2811_2467"
+  },
+  {
+   "slug": "username-default",
+   "name": "username--default",
+   "display": "username--default",
+   "node": "2811:2371",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 679,
+   "png": "username-default.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2371",
+   "note": null,
+   "links": [
+    {
+     "x": 24,
+     "y": 158,
+     "w": 327,
+     "h": 42,
+     "label": "Search input",
+     "kind": "prototype",
+     "target": "username-populated"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 31515,
+   "id": "onboarding-flow--username-default",
+   "export": "UsernameDefault"
+  },
+  {
+   "slug": "join-photo-no-name",
+   "name": "join-photo-no-name",
+   "display": "join-photo-no-name",
+   "node": "2811:2368",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "join-photo-no-name.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2368",
+   "note": null,
+   "links": [
+    {
+     "x": 0,
+     "y": 8,
+     "w": 188,
+     "h": 44,
+     "label": "LeftZ",
+     "kind": "prototype",
+     "target": "get-started"
+    },
+    {
+     "x": 24,
+     "y": 314,
+     "w": 327,
+     "h": 42,
+     "label": "Input3.0",
+     "kind": "prototype",
+     "target": "join-photo-name-true-2811-2366"
+    }
+   ],
+   "bytes": 70653,
+   "id": "onboarding-flow--join-photo-no-name",
+   "export": "JoinPhotoNoName"
+  },
+  {
+   "slug": "crop-photo-4",
+   "name": "crop photo 4",
+   "display": "crop photo 4",
+   "node": "2811:2432",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "crop-photo-4.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2432",
+   "note": null,
+   "links": [
+    {
+     "x": 187,
+     "y": 8,
+     "w": 188,
+     "h": 44,
+     "label": "RightZ",
+     "kind": "prototype",
+     "target": "join-photo-no-name"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Close",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 291223,
+   "id": "onboarding-flow--crop-photo-4",
+   "export": "CropPhoto_4"
+  },
+  {
+   "slug": "crop-photo-1",
+   "name": "crop photo 1",
+   "display": "crop photo 1",
+   "node": "2811:2375",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "crop-photo-1.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2375",
+   "note": null,
+   "links": [
+    {
+     "x": 187,
+     "y": 8,
+     "w": 188,
+     "h": 44,
+     "label": "RightZ",
+     "kind": "prototype",
+     "target": "join-photo-name-true-2811-2364"
+    },
+    {
+     "x": 16,
+     "y": 74,
+     "w": 24,
+     "h": 24,
+     "label": "icon-plus",
+     "kind": "prototype",
+     "target": "crop-photo-2"
+    },
+    {
+     "x": 247,
+     "y": 78,
+     "w": 16,
+     "h": 16,
+     "label": "Ellipse 463",
+     "kind": "prototype",
+     "target": "crop-photo-2"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Close",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 312643,
+   "id": "onboarding-flow--crop-photo-1",
+   "export": "CropPhoto_1"
+  },
+  {
+   "slug": "username-populated",
+   "name": "username-populated",
+   "display": "username-populated",
+   "node": "2811:2373",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 679,
+   "png": "username-populated.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2373",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "create-populated-focussed"
+    },
+    {
+     "x": 134,
+     "y": 284,
+     "w": 108,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "community-home"
+    }
+   ],
+   "bytes": 31405,
+   "id": "onboarding-flow--username-populated",
+   "export": "UsernamePopulated"
+  },
+  {
+   "slug": "join-photo-name-true-2811-2366",
+   "name": "join-photo+name-true",
+   "display": "join-photo+name-true (2811:2366)",
+   "node": "2811:2366",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "join-photo-name-true-2811-2366.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2366",
+   "note": null,
+   "links": [
+    {
+     "x": 0,
+     "y": 8,
+     "w": 188,
+     "h": 44,
+     "label": "LeftZ",
+     "kind": "prototype",
+     "target": "get-started"
+    },
+    {
+     "x": 134,
+     "y": 380,
+     "w": 108,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "username-default"
+    }
+   ],
+   "bytes": 70523,
+   "id": "onboarding-flow--join-photo-name-true-2811-2366",
+   "export": "JoinPhotoNameTrue_2811_2366"
+  },
+  {
+   "slug": "join-photo-name-true-2811-2364",
+   "name": "join-photo+name-true",
+   "display": "join-photo+name-true (2811:2364)",
+   "node": "2811:2364",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "join-photo-name-true-2811-2364.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2364",
+   "note": null,
+   "links": [
+    {
+     "x": 0,
+     "y": 8,
+     "w": 188,
+     "h": 44,
+     "label": "LeftZ",
+     "kind": "prototype",
+     "target": "get-started"
+    },
+    {
+     "x": 134,
+     "y": 380,
+     "w": 108,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "username-default"
+    }
+   ],
+   "bytes": 70523,
+   "id": "onboarding-flow--join-photo-name-true-2811-2364",
+   "export": "JoinPhotoNameTrue_2811_2364"
+  },
+  {
+   "slug": "crop-photo-2",
+   "name": "crop photo 2",
+   "display": "crop photo 2",
+   "node": "2811:2413",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 667,
+   "png": "crop-photo-2.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2413",
+   "note": null,
+   "links": [
+    {
+     "x": 187,
+     "y": 8,
+     "w": 188,
+     "h": 44,
+     "label": "RightZ",
+     "kind": "prototype",
+     "target": "join-photo-name-true-2811-2364"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Close",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 291224,
+   "id": "onboarding-flow--crop-photo-2",
+   "export": "CropPhoto_2"
+  },
+  {
+   "slug": "community-home",
+   "name": "Community home",
+   "display": "Community home",
+   "node": "2811:2370",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 700,
+   "png": "community-home.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2370",
+   "note": "A canvas-level instance rather than a frame — what username-populated's Continue goes to. The prototype goes straight to the community after username; the implementation inserts ToS / captcha here when a server is involved.",
+   "links": [
+    {
+     "x": 16,
+     "y": 18,
+     "w": 158,
+     "h": 28,
+     "label": "Avatar and switcher",
+     "kind": "prototype",
+     "target": "community-switcher-2853-1955"
+    },
+    {
+     "x": 0,
+     "y": 84,
+     "w": 375,
+     "h": 36,
+     "label": "Frame 1452",
+     "kind": "prototype",
+     "target": "want-a-server"
+    }
+   ],
+   "bytes": 35466,
+   "id": "onboarding-flow--community-home",
+   "export": "CommunityHome"
+  },
+  {
+   "slug": "community-switcher-2853-1955",
+   "name": "Community switcher",
+   "display": "Community switcher (2853:1955)",
+   "node": "2853:1955",
+   "section": "Onboarding",
+   "width": 320,
+   "height": 700,
+   "png": "community-switcher-2853-1955.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2853-1955",
+   "note": null,
+   "links": [
+    {
+     "x": 240,
+     "y": 85,
+     "w": 24,
+     "h": 24,
+     "label": "Person add",
+     "kind": "prototype",
+     "target": "want-a-server"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    },
+    {
+     "x": 14,
+     "y": 76,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 143207,
+   "id": "onboarding-flow--community-switcher-2853-1955",
+   "export": "CommunitySwitcher_2853_1955"
+  },
+  {
+   "slug": "want-a-server",
+   "name": "Want a server?",
+   "display": "Want a server?",
+   "node": "2922:10009",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 602,
+   "png": "want-a-server.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2922-10009",
+   "note": "In the prototype this is reached after username → Community home → Community switcher, i.e. once the community exists. Both apps show the equivalent offer during community creation (ServerOffer) instead.",
+   "links": [
+    {
+     "x": 127,
+     "y": 335,
+     "w": 121,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "choose-a-plan"
+    },
+    {
+     "x": 156,
+     "y": 401,
+     "w": 62,
+     "h": 16,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "no-server"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 39499,
+   "id": "onboarding-flow--want-a-server",
+   "export": "WantAServer"
+  },
+  {
+   "slug": "choose-a-plan",
+   "name": "Choose a plan",
+   "display": "Choose a plan",
+   "node": "2924:13381",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 697,
+   "png": "choose-a-plan.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2924-13381",
+   "note": null,
+   "links": [
+    {
+     "x": 32,
+     "y": 334,
+     "w": 96,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "agree-and-join-server-opt-in-3054-4090"
+    },
+    {
+     "x": 32,
+     "y": 673,
+     "w": 104,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "agree-and-join-server-opt-in-2924-13388"
+    },
+    {
+     "x": 32,
+     "y": 1012,
+     "w": 104,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "agree-and-join-server-opt-in-2924-13388"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "community-home"
+    }
+   ],
+   "bytes": 66971,
+   "id": "onboarding-flow--choose-a-plan",
+   "export": "ChooseAPlan"
+  },
+  {
+   "slug": "no-server",
+   "name": "No server?",
+   "display": "No server?",
+   "node": "2922:10050",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 458,
+   "png": "no-server.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2922-10050",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "want-a-server"
+    },
+    {
+     "x": 138,
+     "y": 286,
+     "w": 100,
+     "h": 50,
+     "label": "Button",
+     "kind": "prototype",
+     "target": "want-a-server"
+    }
+   ],
+   "bytes": 25934,
+   "id": "onboarding-flow--no-server",
+   "export": "NoServer"
+  },
+  {
+   "slug": "agree-and-join-server-opt-in-3054-4090",
+   "name": "Agree-and-join (server opt-in)",
+   "display": "Agree-and-join (server opt-in) (3054:4090)",
+   "node": "3054:4090",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 700,
+   "png": "agree-and-join-server-opt-in-3054-4090.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3054-4090",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "choose-a-plan"
+    },
+    {
+     "x": 16,
+     "y": 152,
+     "w": 136,
+     "h": 50,
+     "label": "Frame 1612",
+     "kind": "prototype",
+     "target": "captcha-3054-4052"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "choose-a-plan"
+    },
+    {
+     "x": 16,
+     "y": 152,
+     "w": 136,
+     "h": 50,
+     "label": "Frame 1612",
+     "kind": "prototype",
+     "target": "captcha-3054-4052"
+    }
+   ],
+   "bytes": 31822,
+   "id": "onboarding-flow--agree-and-join-server-opt-in-3054-4090",
+   "export": "AgreeAndJoinServerOptIn_3054_4090"
+  },
+  {
+   "slug": "agree-and-join-server-opt-in-2924-13388",
+   "name": "Agree-and-join (server opt-in)",
+   "display": "Agree-and-join (server opt-in) (2924:13388)",
+   "node": "2924:13388",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 700,
+   "png": "agree-and-join-server-opt-in-2924-13388.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2924-13388",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "choose-a-plan"
+    },
+    {
+     "x": 16,
+     "y": 152,
+     "w": 136,
+     "h": 50,
+     "label": "Frame 1612",
+     "kind": "prototype",
+     "target": "captcha-2924-13413"
+    }
+   ],
+   "bytes": 31822,
+   "id": "onboarding-flow--agree-and-join-server-opt-in-2924-13388",
+   "export": "AgreeAndJoinServerOptIn_2924_13388"
+  },
+  {
+   "slug": "captcha-3054-4052",
+   "name": "Captcha",
+   "display": "Captcha (3054:4052)",
+   "node": "3054:4052",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 700,
+   "png": "captcha-3054-4052.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3054-4052",
+   "note": "Open issues on the implementation: #3428 'Reappearing captcha' (9.0.0 prod, Windows/Linux, intermittent — the captcha closes, the new community shows, then the captcha returns; less likely if you wait before clicking) and #3368 (offline: no loading or timeout message, and a 'joining' screen while creating).",
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "agree-and-join-server-opt-in-3054-4090"
+    },
+    {
+     "x": 266,
+     "y": 535,
+     "w": 81,
+     "h": 29,
+     "label": "Frame",
+     "kind": "prototype",
+     "target": "home-add-members"
+    }
+   ],
+   "bytes": 633654,
+   "id": "onboarding-flow--captcha-3054-4052",
+   "export": "Captcha_3054_4052"
+  },
+  {
+   "slug": "captcha-2924-13413",
+   "name": "Captcha",
+   "display": "Captcha (2924:13413)",
+   "node": "2924:13413",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 700,
+   "png": "captcha-2924-13413.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2924-13413",
+   "note": "Open issues on the implementation: #3428 'Reappearing captcha' (9.0.0 prod, Windows/Linux, intermittent) and #3368 (no loading/timeout message when hCAPTCHA cannot load; 'joining' shown while creating).",
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "agree-and-join-server-opt-in-2924-13388"
+    },
+    {
+     "x": 266,
+     "y": 535,
+     "w": 81,
+     "h": 29,
+     "label": "Frame",
+     "kind": "prototype",
+     "target": "click-to-subscribe"
+    }
+   ],
+   "bytes": 630584,
+   "id": "onboarding-flow--captcha-2924-13413",
+   "export": "Captcha_2924_13413"
+  },
+  {
+   "slug": "home-add-members",
+   "name": "Home add members",
+   "display": "Home add members",
+   "node": "2932:3681",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 700,
+   "png": "home-add-members.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3681",
+   "note": null,
+   "links": [
+    {
+     "x": 0,
+     "y": 0,
+     "w": 375,
+     "h": 700,
+     "label": "Home add members",
+     "kind": "prototype",
+     "target": "add-members-options"
+    },
+    {
+     "x": 16,
+     "y": 18,
+     "w": 158,
+     "h": 28,
+     "label": "Avatar and switcher",
+     "kind": "prototype",
+     "target": "community-switcher-2940-3271"
+    },
+    {
+     "x": 0,
+     "y": 84,
+     "w": 375,
+     "h": 36,
+     "label": "List item",
+     "kind": "prototype",
+     "target": "add-members-options"
+    }
+   ],
+   "bytes": 35466,
+   "id": "onboarding-flow--home-add-members",
+   "export": "HomeAddMembers"
+  },
+  {
+   "slug": "click-to-subscribe",
+   "name": "Click to subscribe",
+   "display": "Click to subscribe",
+   "node": "2930:3493",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 700,
+   "png": "click-to-subscribe.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2930-3493",
+   "note": null,
+   "links": [
+    {
+     "x": 0,
+     "y": 0,
+     "w": 375,
+     "h": 700,
+     "label": "Click to subscribe",
+     "kind": "prototype",
+     "target": "overlay-app-store"
+    }
+   ],
+   "bytes": 56077,
+   "id": "onboarding-flow--click-to-subscribe",
+   "export": "ClickToSubscribe"
+  },
+  {
+   "slug": "add-members-options",
+   "name": "Add members options",
+   "display": "Add members options",
+   "node": "2932:3709",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 404,
+   "png": "add-members-options.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3709",
+   "note": null,
+   "links": [
+    {
+     "x": 0,
+     "y": 201,
+     "w": 375,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "add-members-qr-code"
+    },
+    {
+     "x": 0,
+     "y": 250,
+     "w": 375,
+     "h": 49,
+     "label": "Button row",
+     "kind": "prototype",
+     "target": "ios-views-activity-views-share-dark"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 33319,
+   "id": "onboarding-flow--add-members-options",
+   "export": "AddMembersOptions"
+  },
+  {
+   "slug": "community-switcher-2940-3271",
+   "name": "Community switcher",
+   "display": "Community switcher (2940:3271)",
+   "node": "2940:3271",
+   "section": "Onboarding",
+   "width": 320,
+   "height": 700,
+   "png": "community-switcher-2940-3271.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2940-3271",
+   "note": null,
+   "links": [
+    {
+     "x": 240,
+     "y": 85,
+     "w": 24,
+     "h": 24,
+     "label": "Person add",
+     "kind": "prototype",
+     "target": "add-members-options"
+    },
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    },
+    {
+     "x": 14,
+     "y": 76,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 143208,
+   "id": "onboarding-flow--community-switcher-2940-3271",
+   "export": "CommunitySwitcher_2940_3271"
+  },
+  {
+   "slug": "overlay-app-store",
+   "name": "Overlay: App Store",
+   "display": "Overlay: App Store",
+   "node": "2930:3444",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 432,
+   "png": "overlay-app-store.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2930-3444",
+   "note": null,
+   "links": [
+    {
+     "x": 85,
+     "y": 317,
+     "w": 205,
+     "h": 99,
+     "label": "Hotspot",
+     "kind": "prototype",
+     "target": "home-add-members"
+    },
+    {
+     "x": 326,
+     "y": 16,
+     "w": 33,
+     "h": 34,
+     "label": "Hotspot",
+     "kind": "prototype",
+     "target": "choose-a-plan"
+    }
+   ],
+   "bytes": 132858,
+   "id": "onboarding-flow--overlay-app-store",
+   "export": "OverlayAppStore"
+  },
+  {
+   "slug": "add-members-qr-code",
+   "name": "Add members--QR code",
+   "display": "Add members--QR code",
+   "node": "2932:3707",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 552,
+   "png": "add-members-qr-code.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3707",
+   "note": null,
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Close",
+     "kind": "back",
+     "target": null
+    }
+   ],
+   "bytes": 38336,
+   "id": "onboarding-flow--add-members-qr-code",
+   "export": "AddMembersQrCode"
+  },
+  {
+   "slug": "ios-views-activity-views-share-dark",
+   "name": "iOS / Views / Activity Views / Share - Dark",
+   "display": "iOS / Views / Activity Views / Share - Dark",
+   "node": "2932:3712",
+   "section": "Onboarding",
+   "width": 375,
+   "height": 453,
+   "png": "ios-views-activity-views-share-dark.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3712",
+   "note": null,
+   "links": [],
+   "bytes": 193168,
+   "id": "onboarding-flow--ios-views-activity-views-share-dark",
+   "export": "IosViewsActivityViewsShareDark"
+  },
+  {
+   "slug": "agree-and-join-v-1-before-we-support-multiple-hosts",
+   "name": "Agree-and-join (v1 before we support multiple hosts)",
+   "display": "Agree-and-join (v1 before we support multiple hosts)",
+   "node": "3111:4339",
+   "section": "Server agree (joiner, v1)",
+   "width": 375,
+   "height": 700,
+   "png": "agree-and-join-v-1-before-we-support-multiple-hosts.png",
+   "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3111-4339",
+   "note": "'v1 before we support multiple hosts' — joiner-side agree screen. Not linked from Open invite link or username in the prototype. The implementation shows JoiningOptIn + TermsOfService after username.",
+   "links": [
+    {
+     "x": 14,
+     "y": 16,
+     "w": 28,
+     "h": 28,
+     "label": "Glyph",
+     "kind": "prototype",
+     "target": "choose-a-plan"
+    },
+    {
+     "x": 16,
+     "y": 152,
+     "w": 136,
+     "h": 50,
+     "label": "Frame 1612",
+     "kind": "prototype",
+     "target": "captcha-3054-4052"
+    }
+   ],
+   "bytes": 34161,
+   "id": "onboarding-flow--agree-and-join-v-1-before-we-support-multiple-hosts",
+   "export": "AgreeAndJoinV_1BeforeWeSupportMultipleHosts"
+  }
+ ],
+ "mapId": "onboarding-flow--all-stages"
+}
