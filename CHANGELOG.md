@@ -5,6 +5,7 @@
 ### Features
 
 * Add beta warning message to desktop when creating/joining a community [#3351](https://github.com/TryQuiet/quiet/issues/3351)
+* Increase font size for emoji-only messages on mobile [#2422](https://github.com/TryQuiet/quiet/issues/2422)
 
 ### Breaking
 
