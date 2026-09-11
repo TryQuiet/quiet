@@ -55,6 +55,13 @@ export class PublicChannelsState {
 
   public channelSpecificPermissions: EntityState<PrivateChannelPermissions> =
     channelSpecificPermissionsAdapter.getInitialState()
+
+  // Bumped once per local calendar day by dayTickSaga. Not read for its value -
+  // it exists only so selectors that memoize on it (e.g. dailyGroupedCurrentChannelMessages)
+  // are forced to recompute their 'Today' / 'Yesterday' message-date labels when the
+  // day rolls over, instead of only recomputing when a new message arrives.
+  // See https://github.com/TryQuiet/quiet/issues/2751 and #1661.
+  public dayTick: number = 0
 }
 
 export const publicChannelsSlice = createSlice({
@@ -170,6 +177,17 @@ export const publicChannelsSlice = createSlice({
       const { genericPermissions, channelSpecificPermissions } = action.payload
       state.genericChannelPermissions = genericPermissions
       channelSpecificPermissionsAdapter.setAll(state.channelSpecificPermissions, channelSpecificPermissions)
+    },
+    // Dispatched by dayTickSaga shortly after local midnight. See PublicChannelsState.dayTick.
+    // Guarded rather than a bare `+= 1`: this slice is persisted, and the rehydrate path
+    // (PublicChannelsTransform -> sanitizePublicChannelsPersistenceState) spreads the stored
+    // object instead of constructing a PublicChannelsState, so the class-field default above
+    // does NOT apply to state restored from a build that predates dayTick. An unguarded
+    // increment would yield NaN there, and since reselect compares with === (and NaN !== NaN)
+    // that would permanently defeat memoization of dailyGroupedCurrentChannelMessages.
+    // See dayTick/dayTickRehydration.test.ts.
+    tickCurrentDay: state => {
+      state.dayTick = Number.isFinite(state.dayTick) ? state.dayTick + 1 : 1
     },
     // Utility action for testing purposes
     test_message: (
