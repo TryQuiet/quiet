@@ -52,6 +52,49 @@ async function waitForAndroidProcessExit(adb, snapshot, timeout = 20000) {
   } while (true)
 }
 
+function parseAndroidStoppedState(output, uid) {
+  const user = Math.floor(uid / 100000)
+  const row = output.split(/\r?\n/).find(line =>
+    new RegExp(`^\\s*User ${user}:\\s`).test(line) && /\bstopped=(true|false)\b/.test(line)
+  )
+  if (!row || !/\binstalled=true\b/.test(row)) throw new Error('Android package inspection must identify the installed owned app and user')
+  return /\bstopped=true\b/.test(row)
+}
+
+async function androidOfflineState(adb, snapshot) {
+  const alive = (await processes(adb)).filter(row => row.uid === snapshot.uid && !row.state.startsWith('Z'))
+  const stopped = parseAndroidStoppedState(await adb('shell', 'dumpsys', 'package', ANDROID_APP_ID), snapshot.uid)
+  return { alive, stopped }
+}
+
+async function assertAndroidStopped(adb, snapshot) {
+  const { alive, stopped } = await androidOfflineState(adb, snapshot)
+  // Do not wait for a revived app to exit: it may already have received the
+  // supposedly offline message. Android clears stopped when the app restarts.
+  if (alive.length || !stopped) throw new Error('The owned Android app restarted during its required offline interval')
+}
+
+async function cancelAndroidJobs(adb, snapshot) {
+  await adb('shell', 'cmd', 'jobscheduler', 'cancel', '--user', String(Math.floor(snapshot.uid / 100000)), ANDROID_APP_ID)
+}
+
+async function forceStopAndroidApp(adb, snapshot, { timeout = 20000, stableFor = 1500, pollInterval = 100 } = {}) {
+  await adb('shell', 'am', 'force-stop', '--user', String(Math.floor(snapshot.uid / 100000)), ANDROID_APP_ID)
+  const deadline = Date.now() + timeout
+  let stoppedSince
+  do {
+    const { alive, stopped } = await androidOfflineState(adb, snapshot)
+    if (!alive.length && stopped) {
+      stoppedSince ??= Date.now()
+      if (Date.now() - stoppedSince >= stableFor) return
+    } else {
+      stoppedSince = undefined
+    }
+    if (Date.now() >= deadline) throw new Error('Android must remain force-stopped with no app/backend/Tor processes')
+    await new Promise(resolve => setTimeout(resolve, pollInterval))
+  } while (true)
+}
+
 async function verifyAndroidRouting(adb) {
   await adb('reverse', 'tcp:3003', 'tcp:3003')
   const routes = (await adb('reverse', '--list')).split(/\r?\n/).map(line => line.trim().split(/\s+/))
@@ -65,5 +108,9 @@ module.exports = {
   parseAndroidProcesses,
   snapshotAndroidProcesses,
   waitForAndroidProcessExit,
+  parseAndroidStoppedState,
+  assertAndroidStopped,
+  cancelAndroidJobs,
+  forceStopAndroidApp,
   verifyAndroidRouting,
 }

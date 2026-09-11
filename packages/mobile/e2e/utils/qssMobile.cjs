@@ -4,7 +4,9 @@ const { validateAndroidBuild, ANDROID_APP_ID } = require('./androidQssBuild.cjs'
 const {
   androidCommands,
   snapshotAndroidProcesses,
-  waitForAndroidProcessExit,
+  assertAndroidStopped,
+  cancelAndroidJobs,
+  forceStopAndroidApp,
   verifyAndroidRouting,
 } = require('./androidProcesses.cjs')
 const { snapshotOwnedProcesses, waitForProcessExit } = require('./desktopProcesses.cjs')
@@ -45,7 +47,7 @@ function mobileLifecycle(device, { platform, adb, build }) {
 
   const assertStopped = async () => {
     if (launched || !stopped) throw new Error('Stop the mobile client before accepting offline delivery')
-    if (adb) await waitForAndroidProcessExit(adb, stopped)
+    if (adb) await assertAndroidStopped(adb, stopped)
     else await waitForProcessExit(stopped)
   }
 
@@ -77,13 +79,20 @@ function mobileLifecycle(device, { platform, adb, build }) {
         stopped = adb
           ? await snapshotAndroidProcesses(adb)
           : snapshotOwnedProcesses(Number(device._processes[device._bundleId]))
+        // WorkManager can bind a queued SystemJobService while Detox tears
+        // down instrumentation, resurrecting the app during its offline gap.
+        if (adb) await cancelAndroidJobs(adb, stopped)
       } finally {
         // A failed process preflight must still clean up the owned application.
         await device.terminateApp()
         launched = false
       }
+      if (adb) await forceStopAndroidApp(adb, stopped)
       await assertStopped()
-      offlineProofs.push({ platform, stopped: true, processCount: adb ? stopped.count : stopped.length })
+      offlineProofs.push({
+        platform, stopped: true, processCount: adb ? stopped.count : stopped.length,
+        ...(adb ? { packageStopped: true, scheduledJobsCancelled: true } : {}),
+      })
     },
   }
 }

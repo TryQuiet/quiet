@@ -12,6 +12,10 @@ const {
   snapshotAndroidProcesses,
   waitForAndroidProcessExit,
   verifyAndroidRouting,
+  parseAndroidStoppedState,
+  assertAndroidStopped,
+  cancelAndroidJobs,
+  forceStopAndroidApp,
 } = require('../e2e/utils/androidProcesses.cjs')
 const { validateMobileConfiguration, mobileLifecycle } = require('../e2e/utils/qssMobile.cjs')
 
@@ -89,6 +93,8 @@ test('incomplete process inspection cannot be mistaken for a stopped backend', a
 
 test('shared mobile lifecycle reinstalls only once, checks every restart route, and proves offline intervals', async () => {
   let rows = [unrelated]
+  let stopped = false
+  const shutdown = []
   const launches = []
   let routeChecks = 0
   const adb = async (...args) => {
@@ -96,15 +102,20 @@ test('shared mobile lifecycle reinstalls only once, checks every restart route, 
       if (args[1] === '--list') routeChecks++
       return 'UsbFfs tcp:3003 tcp:3003'
     }
+    if (args.includes('jobscheduler')) { shutdown.push('cancel-jobs'); return '' }
+    if (args.includes('force-stop')) { shutdown.push('force-stop'); stopped = true; return '' }
+    if (args.includes('dumpsys')) return `User 0: installed=true stopped=${stopped} enabled=0\nUser 0:`
     return args.includes('run-as') ? '10123' : table(rows)
   }
   const device = {
     _bundleId: ANDROID_APP_ID,
     async launchApp(options) {
       launches.push(options)
+      stopped = false
       rows = [app, tor, unrelated]
     },
     async terminateApp() {
+      shutdown.push('detox-terminate')
       rows = [unrelated]
     },
   }
@@ -118,10 +129,35 @@ test('shared mobile lifecycle reinstalls only once, checks every restart route, 
   await mobile.stop()
   assert.deepEqual(launches, [{ newInstance: true, delete: true }, { newInstance: true }])
   assert.equal(routeChecks, 4)
+  assert.deepEqual(shutdown, ['cancel-jobs', 'detox-terminate', 'force-stop', 'cancel-jobs', 'detox-terminate', 'force-stop'])
   assert.deepEqual(mobile.offlineProofs, [
-    { platform: 'android', stopped: true, processCount: 2 },
-    { platform: 'android', stopped: true, processCount: 2 },
+    { platform: 'android', stopped: true, processCount: 2, packageStopped: true, scheduledJobsCancelled: true },
+    { platform: 'android', stopped: true, processCount: 2, packageStopped: true, scheduledJobsCancelled: true },
   ])
+})
+
+test('force-stop requires stable package state and cannot accept a brief process gap before WorkManager resurrection', async () => {
+  assert.equal(parseAndroidStoppedState('User 0: installed=true stopped=true enabled=0\nUser 0:', 10123), true)
+  assert.throws(() => parseAndroidStoppedState('User 10: installed=true stopped=true\nUser 0:', 10123), /owned app and user/)
+  let checks = 0
+  const calls = []
+  const resurrectingAdb = async (...args) => {
+    calls.push(args)
+    if (args.includes('ps')) { checks++; return table(checks === 1 ? [] : [app]) }
+    if (args.includes('dumpsys')) return `User 0: installed=true stopped=${checks === 1} enabled=0`
+    return ''
+  }
+  await cancelAndroidJobs(resurrectingAdb, { uid: 10123 })
+  await assert.rejects(forceStopAndroidApp(resurrectingAdb, { uid: 10123 }, { timeout: 60, stableFor: 30, pollInterval: 5 }), /remain force-stopped/)
+  assert(calls.some(args => args.join(' ') === 'shell cmd jobscheduler cancel --user 0 com.quietmobile.debug'))
+  assert(calls.some(args => args.join(' ') === 'shell am force-stop --user 0 com.quietmobile.debug'))
+  // Even if a briefly revived process exits again, stopped=false proves that
+  // the required offline window was broken; no polling may conceal it.
+  const restartedAndExited = async (...args) => args.includes('ps') ? table([]) : 'User 0: installed=true stopped=false enabled=0'
+  await assert.rejects(assertAndroidStopped(restartedAndExited, { uid: 10123 }), /restarted during/)
+  const stable = async (...args) => args.includes('ps') ? table([unrelated]) : 'User 0: installed=true stopped=true enabled=0'
+  await forceStopAndroidApp(stable, { uid: 10123 }, { timeout: 200, stableFor: 20, pollInterval: 5 })
+  await assertAndroidStopped(stable, { uid: 10123 })
 })
 
 test('cleanup terminates the owned app even if process inspection fails', async () => {

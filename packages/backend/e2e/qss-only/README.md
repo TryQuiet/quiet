@@ -45,7 +45,7 @@ python3 scripts/qss-e2e/fixture.py prepare-run \
   --artifacts-location "$QUIET_QSS_E2E_RUN_DIR/artifacts"
 ```
 
-The preflight reads the backend from the actual APK and desktop `app.asar`. Both must match the mandatory receipt; the APK must also contain the QSS-only native flag. Normal Android QSS configurations reject a QSS-only APK/backend. The final `ui.json` records each packaged backend's hash, `backendMode: qss-only`, `tor: simulated-metadata`, and `p2p: false`, together with the native app process-exit checks and the ordinary message-specific assertions.
+The preflight reads the backend from the actual APK and desktop `app.asar`. Both must match the mandatory receipt; the APK must also contain the QSS-only native flag. Normal Android QSS configurations reject a QSS-only APK/backend. The final `ui.json` records each packaged backend's hash, `backendMode: qss-only`, `tor: simulated-metadata`, and `p2p: false`, together with the native app process-exit checks and the ordinary message-specific assertions. The shared Android lifecycle cancels only the test app's scheduled jobs and verifies a stable force-stopped package, preventing WorkManager from reviving the sender during offline retrieval.
 
 Targeted checks:
 
