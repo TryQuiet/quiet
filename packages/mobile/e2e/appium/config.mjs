@@ -83,6 +83,27 @@ export function inspectIosBuild(config, fullLoop) {
     ...(extensionSHA256 ? { extensionSHA256 } : {}) }
 }
 
+export function inspectIosProviderEntitlements(app) {
+  const extension = path.join(app, 'PlugIns/QuietNotificationServiceExtension.appex')
+  const readPlist = bytes => JSON.parse(execFileSync('/usr/bin/plutil', ['-convert', 'json', '-o', '-', '-'], { input: bytes, encoding: 'utf8' }))
+  const entitlements = bundle => {
+    execFileSync('codesign', ['--verify', '--strict', bundle], { stdio: 'pipe' })
+    return readPlist(execFileSync('codesign', ['--display', '--entitlements', ':-', bundle], { stdio: 'pipe' }))
+  }
+  const appEntitlements = entitlements(app)
+  const extensionEntitlements = entitlements(extension)
+  assert.equal(appEntitlements['aps-environment'], 'development', 'Simulator provider delivery requires the development APNs entitlement')
+  const info = readPlist(fs.readFileSync(path.join(app, 'Info.plist')))
+  const extensionInfo = readPlist(fs.readFileSync(path.join(extension, 'Info.plist')))
+  assert.match(info.QuietKeychainAccessGroup || '', /^[A-Z0-9]{10}\.com\.quietmobile$/, 'The native app must resolve its shared keychain group')
+  assert.equal(extensionInfo.QuietKeychainAccessGroup, info.QuietKeychainAccessGroup, 'The app and NSE must use the same keychain group')
+  for (const signed of [appEntitlements, extensionEntitlements]) {
+    assert.deepEqual(signed['com.apple.security.application-groups'], ['group.com.quietmobile'], 'Both native signatures need the shared notification app group')
+    assert.deepEqual(signed['keychain-access-groups'], [info.QuietKeychainAccessGroup], 'Both native signatures need the configured notification keychain group')
+  }
+  return { apsEnvironment: 'development', sharedGroupsMatch: true }
+}
+
 export async function preflight(fullLoop) {
   const configPath = process.env.QUIET_NOTIFICATION_CONFIG
   assert(configPath && path.isAbsolute(configPath), 'Set QUIET_NOTIFICATION_CONFIG to the private JSON run configuration')
@@ -111,6 +132,7 @@ export async function preflight(fullLoop) {
     build.appSHA256 = sha256(config.app)
   } else {
     build = inspectIosBuild(config, fullLoop)
+    if (fullLoop) build.entitlements = inspectIosProviderEntitlements(config.app)
   }
   await checkLiveFixture()
   return { config, run, fixture, build }

@@ -63,6 +63,15 @@ configuration and a bundled notification service extension with the correct
 extension type; its executable hash is recorded too. These artifact checks do not
 prove provider delivery or extension activation.
 
+For the CI simulator build, `sign-ios-simulator.py` signs the app and NSE with
+their checked-in entitlements, resolving the shared keychain group from their
+built configuration. This is required because `CODE_SIGNING_ALLOWED=NO` otherwise
+leaves the linker signature without push or shared-storage entitlements. The
+script uses an ad-hoc simulator signature and verifies both bundles without
+re-signing Tor. Provider preflight checks the actual signed development APNs,
+app-group and keychain-group capabilities. Physical devices still require normal
+development signing and provisioning.
+
 The [QSS-only backend](../../../backend/e2e/qss-only/README.md) is supported on
 Android when Tor is unavailable. Build both consumers from the same receipt and
 use a private env file containing `.env.e2e.qss.push` plus
@@ -159,6 +168,8 @@ success receipt requires both OS notification/tap journeys to finish.
 `iOS notification Appium tests` runs separate `onboarding` and `provider` jobs on
 macOS 26 with Xcode 26.3. It builds the pinned Tor ARM simulator slice from source
 in a separate job, then builds both native clients with the normal Tor backend.
+The compiled framework cache is keyed by source/patch/build-script hashes, runner
+architecture and Xcode version; it never substitutes a device or installed-app binary.
 Postgres, Redis and QSS run directly on the Mac; no Docker service is required.
 Each journey creates and removes its own iPhone simulator. The onboarding lane
 uses a push-disabled fixture and requires no provider credentials. The provider

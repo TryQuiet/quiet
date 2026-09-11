@@ -43,6 +43,10 @@ python3 packages/mobile/scripts/tor-ios-simulator/build-storybook.py \
   --framework "$RUNNER_TEMP/notification-tor/Tor.framework" \
   --output "$RUNNER_TEMP/notification-ios-build" \
   --scheme Quiet --configuration Debug --env-file "$env_file"
+python3 packages/mobile/e2e/appium/sign-ios-simulator.py \
+  --checkout "$GITHUB_WORKSPACE" \
+  --app "$RUNNER_TEMP/notification-ios-build/DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app" \
+  --output "$RUNNER_TEMP/notification-ios-signing"
 
 (
   cd packages/desktop
