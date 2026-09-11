@@ -39,6 +39,11 @@ To run individual tests:
 - Set `DEBUG=backend*,quiet*` for more verbose logging
 - The tests expect a clean state - you may need to clear application data between runs
 
+On a headless Linux host, run under Xvfb and a window manager. Hosts that cannot
+mount AppImages can use `APPIMAGE_EXTRACT_AND_RUN=1`. If an isolated test host
+cannot use Chromium's sandbox, `E2E_NO_SANDBOX=true` opts the E2E launcher into
+`--no-sandbox`; it does not change the packaged application's defaults.
+
 ## Test Suite
 
 Current E2E test suite includes:

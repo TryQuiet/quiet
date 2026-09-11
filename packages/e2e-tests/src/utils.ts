@@ -171,13 +171,14 @@ export class BuildSetup {
     }
 
     const chromeDriver = this.getChromeDriverSpawnConfig()
+    const childEnv = { ...process.env, ...env }
     if (process.platform === 'win32' && !this.chromeDriverPath) {
       logger.info('!WINDOWS!')
     }
     this.child = spawn(chromeDriver.command, chromeDriver.args, {
       shell: chromeDriver.shell,
       detached: false,
-      env: Object.assign(process.env, env),
+      env: childEnv,
     })
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>
@@ -252,7 +253,11 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary,
-              args: [`--remote-debugging-port=${this.debugPort}`, '--enable-logging'],
+              args: [
+                `--remote-debugging-port=${this.debugPort}`,
+                '--enable-logging',
+                ...(process.env.E2E_NO_SANDBOX === 'true' ? ['--no-sandbox'] : []),
+              ],
             },
           })
           .forBrowser(Browser.CHROME)
