@@ -10,6 +10,11 @@ const { buildTrust, beforePack, afterPack } = require('../updateTrust.cjs')
 const yaml = require('js-yaml')
 
 test('final staged bytes pass independent HTTPS/TUF publication gate; altered or unsigned candidates do not', async t => {
+  const previous = Object.fromEntries(['GITHUB_EVENT_NAME', 'IS_LOCAL', 'IS_E2E'].map(name => [name, process.env[name]]))
+  t.after(() => { for (const [name, value] of Object.entries(previous)) { if (value === undefined) delete process.env[name]; else process.env[name] = value } })
+  process.env.GITHUB_EVENT_NAME = 'release'
+  delete process.env.IS_LOCAL
+  delete process.env.IS_E2E
   const repo = await repository(t, 'linux', true)
   const published = repo.publish()
   const project = path.join(repo.directory, 'project')
