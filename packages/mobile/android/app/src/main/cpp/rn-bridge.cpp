@@ -98,8 +98,14 @@ public:
             this->env = env;
             this->function_ref = function_ref;
 
+            uv_loop_t* loop = nullptr;
+            if (napi_get_uv_event_loop(this->env, &loop) != napi_ok || loop == nullptr) {
+                napi_throw_error(env, nullptr, "Node event loop is unavailable");
+                this->uvhandleMutex.unlock();
+                return;
+            }
             this->queue_uv_handle = (uv_async_t*)malloc(sizeof(uv_async_t));
-            uv_async_init(uv_default_loop(), this->queue_uv_handle, FlushMessageQueue);
+            uv_async_init(loop, this->queue_uv_handle, FlushMessageQueue);
             this->queue_uv_handle->data = (void*)this;
             initialized = true;
             uv_async_send(this->queue_uv_handle);
