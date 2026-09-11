@@ -1,4 +1,4 @@
-import { type InvitationDataV4 } from '@quiet/types'
+import { InvitationKind, type InvitationDataV4 } from '@quiet/types'
 import { getInvitationLinks } from './invitationCode'
 import {
   AUTH_DATA_KEY,
@@ -17,6 +17,7 @@ describe('Invitation link helper', () => {
   const peerId = '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'
   const data: InvitationDataV4 = {
     ...validInvitationDatav4[0],
+    kind: InvitationKind.Member,
     pairs: [...validInvitationDatav4[0].pairs, { peerId: peerId, onionAddress: address }],
   }
   const urlParams = [
