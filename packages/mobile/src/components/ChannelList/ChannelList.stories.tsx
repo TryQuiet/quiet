@@ -2,6 +2,7 @@ import React from 'react'
 import { storiesOf } from '@storybook/react-native'
 
 import { ChannelList } from './ChannelList.component'
+import { ChannelTileProps } from '../ChannelTile/ChannelTile.types'
 
 import { createLogger } from '../../utils/logger'
 
@@ -87,3 +88,37 @@ storiesOf('ChannelList', module)
       tiles={[]}
     />
   ))
+  // Exercises the search field: type e.g. "des" to narrow the list down, or "zzz" for the empty state.
+  .add('Searchable', () => {
+    const tiles: ChannelTileProps[] = [
+      'general',
+      'spam',
+      'design',
+      'design-review',
+      'qa',
+      'releases',
+      'random',
+      'private-chat',
+    ].map(name => ({
+      name,
+      id: name,
+      message: 'Text from latest chat message.',
+      date: '1:55pm',
+      unread: false,
+      isPublic: name !== 'private-chat',
+      redirect: (id: string) => {
+        logger.info(`Clicked ${id}`)
+      },
+    }))
+
+    return (
+      <ChannelList
+        // @ts-ignore
+        community={{
+          name: 'Quiet',
+        }}
+        tiles={tiles}
+        communityContextMenu={null}
+      />
+    )
+  })
