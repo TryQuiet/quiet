@@ -660,7 +660,30 @@
    ],
    "bytes": 35466,
    "id": "onboarding-flow--community-home",
-   "export": "CommunityHome"
+   "export": "CommunityHome",
+   "desktop": {
+    "mode": "app",
+    "hotspots": [
+     {
+      "x": 0,
+      "y": 52,
+      "w": 220,
+      "h": 28,
+      "label": "Community header (nyc-activism ▾)",
+      "target": "community-switcher-2853-1955",
+      "kind": "prototype"
+     },
+     {
+      "x": 0,
+      "y": 104,
+      "w": 220,
+      "h": 26,
+      "label": "Add members row",
+      "target": "want-a-server",
+      "kind": "prototype"
+     }
+    ]
+   }
   },
   {
    "slug": "community-switcher-2853-1955",
@@ -708,7 +731,15 @@
    ],
    "bytes": 143207,
    "id": "onboarding-flow--community-switcher-2853-1955",
-   "export": "CommunitySwitcher_2853_1955"
+   "export": "CommunitySwitcher_2853_1955",
+   "desktop": {
+    "mode": "app-panel",
+    "hotspots": []
+   },
+   "pad": {
+    "x": 16,
+    "y": 16
+   }
   },
   {
    "slug": "want-a-server",
@@ -996,7 +1027,30 @@
    ],
    "bytes": 35466,
    "id": "onboarding-flow--home-add-members",
-   "export": "HomeAddMembers"
+   "export": "HomeAddMembers",
+   "desktop": {
+    "mode": "app",
+    "hotspots": [
+     {
+      "x": 0,
+      "y": 52,
+      "w": 220,
+      "h": 28,
+      "label": "Community header (nyc-activism ▾)",
+      "target": "community-switcher-2853-1955",
+      "kind": "prototype"
+     },
+     {
+      "x": 0,
+      "y": 104,
+      "w": 220,
+      "h": 26,
+      "label": "Add members row",
+      "target": "add-members-options",
+      "kind": "prototype"
+     }
+    ]
+   }
   },
   {
    "slug": "add-members-options",
@@ -1107,5 +1161,21 @@
    "export": "AgreeAndJoinV_1BeforeWeSupportMultipleHosts"
   }
  ],
- "mapId": "onboarding-flow--all-stages"
+ "mapId": "onboarding-flow--all-stages",
+ "desktopApp": {
+  "sidebar": {
+   "png": "desktop-sidebar-v1.png",
+   "node": "6218:16416",
+   "width": 220,
+   "height": 755,
+   "bg": "#511974"
+  },
+  "switcher": {
+   "png": "desktop-community-switcher.png",
+   "node": "5476:42949",
+   "width": 352,
+   "height": 699,
+   "inset": 16
+  }
+ }
 }

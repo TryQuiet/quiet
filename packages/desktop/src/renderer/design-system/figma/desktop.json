@@ -24,7 +24,7 @@
   "fileName": "Quiet Design Library",
   "date": "2025-04-15",
   "node": "5977:35186",
-  "name": "Join community \u2014 From=invite link",
+  "name": "Join community — From=invite link",
   "width": 375,
   "height": 528,
   "png": "desktop-join-post-invite.png",
@@ -35,7 +35,7 @@
    "Create new account",
    "Subtitle",
    "Recover account",
-   "\u26a0\ufe0f Quiet is in beta and shouldn't be used for activities requiring security."
+   "⚠️ Quiet is in beta and shouldn't be used for activities requiring security."
   ],
   "counterpart": "container",
   "note": "Post-invite-link state of the desktop join flow: Create new account / Recover account, with the beta warning. Shown after an invite link is opened. A 375-wide content component (variant of the 'Join community' set); on desktop it sits inside Modal full-window.",
@@ -47,7 +47,7 @@
   "fileName": "Quiet Design Library",
   "date": "2025-04-15",
   "node": "5984:26019",
-  "name": "Join community \u2014 From=Get started",
+  "name": "Join community — From=Get started",
   "width": 375,
   "height": 505,
   "png": "desktop-join-three-way.png",
@@ -61,7 +61,7 @@
    "Recover account"
   ],
   "counterpart": "join-community",
-  "note": "Desktop three-way choice: Join with invite link / Join with QR code / Recover account \u2014 the same routes as mobile. A 375-wide content component (variant of the 'Join community' set); on desktop it sits inside Modal full-window.",
+  "note": "Desktop three-way choice: Join with invite link / Join with QR code / Recover account — the same routes as mobile. A 375-wide content component (variant of the 'Join community' set); on desktop it sits inside Modal full-window.",
   "bytes": 142230
  },
  {
@@ -108,7 +108,7 @@
    "Your username cannot have any spaces or special characters, must be lowercase letters and numbers only."
   ],
   "counterpart": "username-populated",
-  "note": "STALE \u2014 do not use its copy. This 600x889 component carries old cruft ('New Channel', DM-era wording). Desktop username = the mobile prototype's Choose username content (username-default / username-populated) inside Modal full-window, keeping the app's current validation and parsed-name warning.",
+  "note": "STALE — do not use its copy. This 600x889 component carries old cruft ('New Channel', DM-era wording). Desktop username = the mobile prototype's Choose username content (username-default / username-populated) inside Modal full-window, keeping the app's current validation and parsed-name warning.",
   "bytes": 58929
  },
  {
@@ -128,7 +128,7 @@
    "Agree & Join"
   ],
   "counterpart": "agree-and-join-server-opt-in-3054-4090",
-  "note": "modal/small at 800 wide \u2014 one of a responsive pair.",
+  "note": "modal/small at 800 wide — one of a responsive pair.",
   "bytes": 203506
  },
  {
@@ -148,7 +148,7 @@
    "Agree & Join"
   ],
   "counterpart": "agree-and-join-server-opt-in-3054-4090",
-  "note": "modal/small at 1064 wide \u2014 the other of the pair.",
+  "note": "modal/small at 1064 wide — the other of the pair.",
   "bytes": 218842
  },
  {
@@ -165,14 +165,14 @@
   "copy": [
    "Title",
    "Quiet",
-   "Let\u2019s get started...",
+   "Let’s get started...",
    "Join a community",
    "Subtitle",
    "Create a new community",
    "Link devices"
   ],
   "counterpart": "get-started",
-  "note": "The only desktop APP ENTRY found: 'Modal full-window' with Let's get started\u2026 / Join a community / Create a new community / Link devices \u2014 same three routes as mobile's Get started. From the Device linking file (Dec 2024), a year older than the mobile prototype.",
+  "note": "The only desktop APP ENTRY found: 'Modal full-window' with Let's get started… / Join a community / Create a new community / Link devices — same three routes as mobile's Get started. From the Device linking file (Dec 2024), a year older than the mobile prototype.",
   "bytes": 44485
  },
  {
@@ -192,13 +192,13 @@
    "Want a server?",
    "It's free!",
    "Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on iPhones.",
-   "Use Quiet\u2019s server",
+   "Use Quiet’s server",
    "Not now",
    "Please fill out your shipping information if you want to include it",
-   "Don\u2019t show this again"
+   "Don’t show this again"
   ],
   "counterpart": "want-a-server",
-  "note": "'Modal full-window' with Add members \u2192 Want a server? on desktop.",
+  "note": "'Modal full-window' with Add members → Want a server? on desktop.",
   "bytes": 49366
  },
  {
@@ -267,7 +267,7 @@
    "Yes"
   ],
   "counterpart": "open-invite-link",
-  "note": "'Do you want to join the community Disco-fever?' \u2014 the invite-link confirmation; no mobile counterpart in the prototype.",
+  "note": "'Do you want to join the community Disco-fever?' — the invite-link confirmation; no mobile counterpart in the prototype.",
   "bytes": 81340
  },
  {
@@ -290,5 +290,76 @@
   "counterpart": "username-populated",
   "note": "Older (Dec 2024) desktop username modal with the same helper copy.",
   "bytes": 34832
+ },
+ {
+  "file": "0j7Nna9zWmfOSNmRmQK1Uh",
+  "fileName": "Quiet Design Library",
+  "date": "2025-04-15",
+  "slug": "desktop-sidebar-v1",
+  "node": "6218:16416",
+  "name": "Desktop sidebar — V1 release (Content=For V1 2025)",
+  "width": 220,
+  "height": 755,
+  "png": "desktop-sidebar-v1.png",
+  "url": "https://www.figma.com/design/0j7Nna9zWmfOSNmRmQK1Uh?node-id=6218-16416",
+  "copy": [
+   "nyc-activism",
+   "Add members",
+   "Channels",
+   "General",
+   "updates",
+   "onboarding",
+   "Direct messages",
+   "WaveDanceg2lgbl…",
+   "MoonThinke8",
+   "LeafLaughu0emn9f…",
+   "LightThink"
+  ],
+  "counterpart": "community-home",
+  "note": "The desktop twin of the prototype's Community home. Decided 2026-09-12: on desktop the community is the two-pane window — this sidebar on the left, the chat filling the rest. The sidebar carries the mac window controls itself."
+ },
+ {
+  "file": "0j7Nna9zWmfOSNmRmQK1Uh",
+  "fileName": "Quiet Design Library",
+  "date": "2025-04-15",
+  "slug": "desktop-channel-template",
+  "node": "5703:36571",
+  "name": "Pages / Channel--D (desktop page template)",
+  "width": 1115,
+  "height": 700,
+  "png": "desktop-channel-template.png",
+  "url": "https://www.figma.com/design/0j7Nna9zWmfOSNmRmQK1Uh?node-id=5703-36571",
+  "copy": [
+   "Thread",
+   "#fundraising",
+   "3 users have the same name. One could be trying to impersonate others. Learn more",
+   "8 replies",
+   "WaterSky889sl…",
+   "Duplicate",
+   "1:55 PM"
+  ],
+  "counterpart": null,
+  "note": "The designer's desktop page layout: 220 sidebar + channel panel + 375 thread panel with skeleton content — a layout, not a screen. It is the only designed chat content, so the prototype's desktop Community home shows the real ChannelComponent in the chat pane."
+ },
+ {
+  "file": "0j7Nna9zWmfOSNmRmQK1Uh",
+  "fileName": "Quiet Design Library",
+  "date": "2025-04-15",
+  "slug": "desktop-community-switcher",
+  "node": "5476:42949",
+  "name": "Community switcher — Type=Desktop",
+  "width": 352,
+  "height": 699,
+  "png": "desktop-community-switcher.png",
+  "url": "https://www.figma.com/design/0j7Nna9zWmfOSNmRmQK1Uh?node-id=5476-42949",
+  "copy": [
+   "Communities",
+   "Nyc activism",
+   "TalkTerrace",
+   "VibeVillage",
+   "Label"
+  ],
+  "counterpart": "community-switcher-2853-1955",
+  "note": "Desktop variant of the switcher the prototype instances (component 320×667; the export carries a 16px shadow margin). Differs from mobile only in hover/icon states; on desktop it drops from the sidebar’s community header over the split view."
  }
 ]

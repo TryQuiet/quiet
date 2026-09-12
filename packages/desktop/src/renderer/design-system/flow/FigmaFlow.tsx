@@ -1,5 +1,11 @@
 import React, { useState } from 'react'
 import { linkTo } from '@storybook/addon-links'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
+
+import { createGridTheme } from '../theme/gridTheme'
+import { tokens } from '../tokens'
+// The chat pane of the desktop split view is the real ChannelComponent, from its own story (no recreation).
+import * as ChannelStories from '../../components/Channel/Channel.stories'
 
 import { IMPLEMENTATION, IMPLEMENTATION_ONLY, Impl } from './implementation'
 import { INK, INK_2, INK_3, mono, RULE } from '../specimen/ui'
@@ -14,11 +20,19 @@ export interface FlowFrame {
   width: number; height: number; png: string; url: string; note?: string | null
   /** The frame's own title bar, if it has one: its height (to crop when composed into the desktop shell) and its title text. */
   titleBar?: { height: number; text: string | null } | null
+  /** Shadow margin the Figma export carries beyond the frame's box (effects render into exports); painted at natural size, offset by it. */
+  pad?: { x: number; y: number } | null
+  /** Desktop in-app rendering: 'app' = V1 desktop sidebar + chat pane, 'app-panel' = the desktop switcher over that view; absent = onboarding modal shell. */
+  desktop?: { mode: 'app' | 'app-panel'; hotspots: FlowLink[] } | null
   links: FlowLink[]
+}
+export interface DesktopApp {
+  sidebar: { png: string; node: string; width: number; height: number; bg: string }
+  switcher: { png: string; node: string; width: number; height: number; inset: number }
 }
 export interface Rect { x: number; y: number; w: number; h: number }
 export interface Shell { file: string; node: string; png: string; width: number; height: number; topBar: { y: number; h: number }; titleBar: { y: number; h: number }; titleZone: Rect; backZone: Rect; content: Rect }
-export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; mapId?: string; frames: FlowFrame[] }
+export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; desktopApp?: DesktopApp; mapId?: string; frames: FlowFrame[] }
 
 export const FLOW_TITLE = 'Onboarding flow'
 
@@ -114,13 +128,49 @@ const Hotspot: React.FC<{ l: FlowLink; rect: Rect; outline: boolean; onClick: ()
 }
 
 /** The screen at a viewport, with hotspots re-mapped so the click-through works at every size. */
+type StoryFn = ((args: Record<string, unknown>) => JSX.Element) & { args?: Record<string, unknown> }
+const renderStory = (s: StoryFn) => s(s.args ?? {})
+
+/** Desktop once the community exists (decided 2026-09-12: "sidebar on left and chat in the rest of the screen"):
+ *  the library's V1 desktop sidebar (220, carries the mac controls) and the chat filling the rest of the window.
+ *  The chat is the real ChannelComponent from its own story — the only designed chat content is a skeleton. */
+const AppAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ flow, frame, vp, outline, follow, describe }) => {
+  const app = flow.desktopApp!; const sb = app.sidebar; const mode = frame.desktop!.mode
+  const winW = Math.max(VIEWPORTS.find(v => v.id === vp)!.width, 1024)
+  const H = flow.shell?.height ?? 929
+  const panelTop = 36 // the switcher drops from the sidebar's community header, below the mac controls
+  return (
+    <div style={{ position: 'relative', width: winW, height: H, background: '#fff', border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, width: sb.width, height: H, background: sb.bg }}>
+        <img src={dsrc(sb.png)} width={sb.width} height={sb.height} alt="Desktop sidebar — V1 release" style={{ display: 'block' }} />
+      </div>
+      <div style={{ position: 'absolute', left: sb.width, top: 0, width: winW - sb.width, height: H, overflow: 'auto', background: '#fff' }}>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={createGridTheme(tokens)}>{renderStory(ChannelStories.Normal as unknown as StoryFn)}</ThemeProvider>
+        </StyledEngineProvider>
+      </div>
+      <div style={{ position: 'absolute', right: 10, top: 8, fontFamily: mono, fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_3, background: '#ffffffcc', padding: '2px 6px', borderRadius: 3 }}>chat = real ChannelComponent (code)</div>
+      {mode === 'app' && frame.desktop!.hotspots.map((l, i) => <Hotspot key={i} l={l} rect={{ x: l.x, y: l.y, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />)}
+      {mode === 'app-panel' && (
+        <>
+          <div style={{ position: 'absolute', left: 0, top: 0, width: winW, height: H, background: '#00000029' }} />
+          <img src={dsrc(app.switcher.png)} width={app.switcher.width} height={app.switcher.height} alt={frame.name} style={{ position: 'absolute', left: -app.switcher.inset, top: panelTop - app.switcher.inset, display: 'block' }} />
+          {frame.links.map((l, i) => <Hotspot key={i} l={l} rect={{ x: l.x, y: panelTop + l.y, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />)}
+        </>
+      )}
+    </div>
+  )
+}
+
 const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ flow, frame, vp, outline, follow, describe }) => {
   const shell = flow.shell
+  if (vp !== 'mobile' && vp !== 'mobile-430' && frame.desktop && flow.desktopApp) return <AppAt flow={flow} frame={frame} vp={vp} outline={outline} follow={follow} describe={describe} />
   if (vp === 'mobile' || vp === 'mobile-430' || !shell) {
     const s = vp === 'mobile-430' ? 430 / frame.width : 1
     return (
       <div style={{ position: 'relative', width: Math.round(frame.width * s), height: Math.round(frame.height * s), border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden', background: '#fff' }}>
-        <img src={src(frame.png)} width={Math.round(frame.width * s)} height={Math.round(frame.height * s)} alt={frame.name} style={{ display: 'block' }} />
+        <img src={src(frame.png)} width={Math.round((frame.width + 2 * (frame.pad?.x ?? 0)) * s)} height={Math.round((frame.height + 2 * (frame.pad?.y ?? 0)) * s)} alt={frame.name}
+          style={{ display: 'block', position: 'relative', left: -Math.round((frame.pad?.x ?? 0) * s), top: -Math.round((frame.pad?.y ?? 0) * s) }} />
         {frame.links.map((l, i) => (
           <Hotspot key={i} l={l} rect={{ x: l.x * s, y: l.y * s, w: l.w * s, h: l.h * s }} outline={outline} onClick={() => follow(l)} describe={describe} />
         ))}
@@ -212,7 +262,7 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
         </div>
         {isDesktop ? (
           <p style={{ fontSize: 12, lineHeight: '17px', color: '#8A5F09', margin: '8px 0 0', maxWidth: 720, paddingLeft: 10, borderLeft: '2px solid #8A5F09' }}>
-            Desktop sizes are a composition per the decided model, not a designed screen: the Modal full-window shell&rsquo;s chrome (window controls, title bar with back arrow) drawn to the window width, a white content area, and this screen&rsquo;s content centered in it — its own title bar removed and its title text set in the shell&rsquo;s bar. The library component is 715 wide; stretching it to wider windows is our interpretation.
+            {frame.desktop ? (<>Desktop in-app view per the decision of 2026-09-12 (&ldquo;sidebar on left and chat in the rest of the screen&rdquo;): the library&rsquo;s V1 desktop sidebar (220) on the left, the chat filling the rest of the window at full height. The chat is the real ChannelComponent from its own story — the only designed chat content is the Pages / Channel--D skeleton. Hotspots follow the mobile frame&rsquo;s own wiring; the 715 size does not apply here (shown at 1024).</>) : (<>Desktop sizes are a composition per the decided model, not a designed screen: the Modal full-window shell&rsquo;s chrome (window controls, title bar with back arrow) drawn to the window width, a white content area, and this screen&rsquo;s content centered in it — its own title bar removed and its title text set in the shell&rsquo;s bar. The library component is 715 wide; stretching it to wider windows is our interpretation.</>)}
           </p>
         ) : vp === 'mobile-430' ? (
           <p style={{ fontSize: 12, lineHeight: '17px', color: INK_3, margin: '8px 0 0', maxWidth: 720 }}>Scaled from the 375-wide frame; the design has no 430-wide variant.</p>
@@ -329,7 +379,7 @@ export const DesktopDesigns: React.FC<{ flow: Flow }> = ({ flow }) => {
         The Get started prototype is mobile-only, but desktop onboarding designs exist as library components and instances in four files. Each is the designer&rsquo;s export, with the file and its last-edit date — several predate the mobile prototype by over a year.
       </p>
       <p style={{ fontSize: 13, lineHeight: '19px', color: '#A11F24', margin: '0 0 22px', maxWidth: '80ch', paddingLeft: 10, borderLeft: '2px solid #A11F24' }}>
-        The desktop model: every desktop onboarding screen is the library&rsquo;s <em>Modal full-window</em> shell with the same 375-wide content mobile uses inside it — the library&rsquo;s <em>Join community</em> variants are 375 wide. Routes agree with mobile. <em>Register username</em> is stale cruft; desktop username takes the mobile prototype&rsquo;s content.
+        The desktop model: every desktop onboarding <em>modal</em> is the library&rsquo;s <em>Modal full-window</em> shell with the same 375-wide content mobile uses inside it; once the community exists the app is the split view — the V1 desktop sidebar on the left, the chat filling the rest (decided 2026-09-12) — the library&rsquo;s <em>Join community</em> variants are 375 wide. Routes agree with mobile. <em>Register username</em> is stale cruft; desktop username takes the mobile prototype&rsquo;s content.
       </p>
       {DESKTOP.map(d => {
         const cp = d.counterpart ? bySlug[d.counterpart] : undefined

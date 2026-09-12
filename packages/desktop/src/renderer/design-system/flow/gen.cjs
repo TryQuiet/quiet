@@ -78,10 +78,41 @@ for (const f of flow.frames) {
   const exp = exportFor(f.slug); const id = toId(TITLE, storyNameFromExport(exp)); const want = expectId(f.slug)
   if (id !== want) { console.error(`ID MISMATCH ${f.slug}: export ${exp} -> ${id}, wanted ${want}`); process.exit(1) }
   f.id = id; f.export = exp; f.display = DISPLAY[f.slug] ?? f.display; rows.push(f)
+  // Figma exports include drop shadows, so a frame with a shadow comes back larger than its box (the switcher:
+  // 352×732 for a 320×700 frame). Record the margin so the image is painted at natural size and hotspots stay true.
+  const png = fs.readFileSync(path.join(__dirname, '..', 'figma', f.png)); const pw = png.readUInt32BE(16) / 2, ph = png.readUInt32BE(20) / 2
+  const padX = Math.round((pw - f.width) / 2), padY = Math.round((ph - f.height) / 2)
+  if (padX || padY) f.pad = { x: padX, y: padY }; else delete f.pad
 }
 for (const k of Object.keys(DISPLAY)) if (!flow.frames.some(f => f.slug === k)) { console.error(`DISPLAY has no frame for slug ${k}`); process.exit(1) }
 const dups = rows.map(f => f.display).filter((d, i, a) => a.indexOf(d) !== i)
 if (dups.length) { console.error(`duplicate display names: ${[...new Set(dups)].join(' | ')}`); process.exit(1) }
+// Desktop in-app stages (user decision, 2026-09-12: "sidebar on left and chat in the rest of the screen").
+// Once the community exists the desktop app is the two-pane window, not the onboarding modal: the library's
+// V1 desktop sidebar (220) on the left, the chat filling the rest. Hotspots are rows of the sidebar component
+// (rects relative to it, from the library JSON), wired to the targets the mobile frame's own links use —
+// resolved by link label, so no target is invented. 'app-panel' = the desktop switcher panel over that view.
+const SIDEBAR_RECTS = {
+  header: { x: 0, y: 52, w: 220, h: 28, label: 'Community header (nyc-activism ▾)' },
+  'add-members': { x: 0, y: 104, w: 220, h: 26, label: 'Add members row' },
+}
+const DESKTOP = {
+  'community-home': { mode: 'app', hotspots: [{ rect: 'header', from: 'Avatar and switcher' }, { rect: 'add-members', from: 'Frame 1452' }] },
+  'home-add-members': { mode: 'app', hotspots: [{ rect: 'header', from: 'Avatar and switcher' }, { rect: 'add-members', from: 'Home add members' }] },
+  'community-switcher-2853-1955': { mode: 'app-panel', hotspots: [] },
+}
+for (const [slug, d] of Object.entries(DESKTOP)) {
+  const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`DESKTOP has no frame for slug ${slug}`); process.exit(1) }
+  const hotspots = d.hotspots.map(h => {
+    const from = f.links.find(l => l.label === h.from && l.kind !== 'back'); if (!from) { console.error(`DESKTOP ${slug}: no link labelled ${h.from}`); process.exit(1) }
+    const r = SIDEBAR_RECTS[h.rect]; return { x: r.x, y: r.y, w: r.w, h: r.h, label: r.label, target: from.target, kind: from.kind }
+  })
+  f.desktop = { mode: d.mode, hotspots }
+}
+flow.desktopApp = {
+  sidebar: { png: 'desktop-sidebar-v1.png', node: '6218:16416', width: 220, height: 755, bg: '#511974' },
+  switcher: { png: 'desktop-community-switcher.png', node: '5476:42949', width: 352, height: 699, inset: 16 },
+}
 const mapId = toId(TITLE, storyNameFromExport('AllStages'))
 flow.mapId = mapId
 fs.writeFileSync(flowPath, JSON.stringify(flow, null, 1))
