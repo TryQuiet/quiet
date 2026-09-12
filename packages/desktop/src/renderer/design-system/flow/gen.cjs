@@ -96,7 +96,7 @@ if (dups.length) { console.error(`duplicate display names: ${[...new Set(dups)].
 // the shell composition of the mobile frame already produces — so they need no entry (see Desktop designs). Hotspots are measured on the export (1×) and
 // wired to the targets of the mobile frame's own links, matched by label — or to 'back'. Nothing else is drawn.
 const DESKTOP = {
-  'community-home': { kind: 'app', png: 'desktop-community-home-empty.png', node: '1430:48044', width: 740, height: 800, stretch: { col: 600, right: 690 }, hotspots: [
+  'community-home': { kind: 'app', png: 'desktop-community-home-empty.png', node: '1430:48044', width: 740, height: 800, stretch: { col: 600, right: 640 }, hotspots: [
     { x: 52, y: 47, w: 126, h: 26, label: 'Community name', from: 'Avatar and switcher' },
     { x: 186, y: 47, w: 24, h: 24, label: 'Gear → community menu (Add members)', to: 'home-add-members', kind: 'added' },
   ] },
