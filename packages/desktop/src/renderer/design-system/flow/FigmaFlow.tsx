@@ -11,9 +11,14 @@ export interface FlowFrame {
   /** Story id, derived from the export name by gen.cjs and verified with @storybook/csf. */
   id: string
   section: string
-  width: number; height: number; png: string; url: string; note?: string | null; links: FlowLink[]
+  width: number; height: number; png: string; url: string; note?: string | null
+  /** The frame's own title bar, if it has one: its height (to crop when composed into the desktop shell) and its title text. */
+  titleBar?: { height: number; text: string | null } | null
+  links: FlowLink[]
 }
-export interface Flow { file: string; start: string; sections: string[]; mapId?: string; frames: FlowFrame[] }
+export interface Rect { x: number; y: number; w: number; h: number }
+export interface Shell { file: string; node: string; png: string; width: number; height: number; topBar: { y: number; h: number }; titleBar: { y: number; h: number }; titleZone: Rect; backZone: Rect; content: Rect }
+export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; mapId?: string; frames: FlowFrame[] }
 
 export const FLOW_TITLE = 'Onboarding flow'
 
@@ -68,8 +73,84 @@ const Eyebrow: React.FC<{ children: React.ReactNode; top?: number }> = ({ childr
   <div style={{ fontFamily: mono, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: INK_3, marginTop: top }}>{children}</div>
 )
 
+// ---- viewport: mobile sizes are the frame itself (scaled); desktop sizes are a COMPOSITION:
+// the library's Modal full-window shell with this screen's content placed in its content area,
+// the screen's own title bar removed and its title moved to the shell's title slot. Composed per
+// the decided desktop model — it is not a designed desktop screen.
+type Viewport = 'mobile' | 'mobile-430' | 'shell' | 'win-1024' | 'win-1280' | 'win-1440'
+const VIEWPORTS: Array<{ id: Viewport; label: string; width: number }> = [
+  { id: 'mobile', label: 'Mobile 375 (native)', width: 375 },
+  { id: 'mobile-430', label: 'Mobile 430 (scaled)', width: 430 },
+  { id: 'shell', label: 'Desktop — Modal full-window 715', width: 715 },
+  { id: 'win-1024', label: 'Desktop window 1024', width: 1024 },
+  { id: 'win-1280', label: 'Desktop window 1280', width: 1280 },
+  { id: 'win-1440', label: 'Desktop window 1440', width: 1440 },
+]
+const VP_KEY = 'onboarding-flow-viewport'
+const readVp = (): Viewport => { try { const v = sessionStorage.getItem(VP_KEY) as Viewport | null; return v && VIEWPORTS.some(x => x.id === v) ? v : 'mobile' } catch { return 'mobile' } }
+const writeVp = (v: Viewport): void => { try { sessionStorage.setItem(VP_KEY, v) } catch { /* private mode */ } }
+
+const Hotspot: React.FC<{ l: FlowLink; rect: Rect; outline: boolean; onClick: () => void; describe: (l: FlowLink) => string }> = ({ l, rect, outline, onClick, describe }) => {
+  const st = KIND_STYLE[l.kind]
+  return (
+    <button
+      type="button"
+      data-kind={l.kind}
+      title={`${l.label} → ${describe(l)} · ${st.word}`}
+      aria-label={`${l.label}: ${l.kind === 'back' ? 'go back' : 'go to ' + describe(l)} (${st.word})`}
+      onClick={onClick}
+      style={{ position: 'absolute', left: rect.x, top: rect.y, width: rect.w, height: rect.h, background: outline ? st.bg : 'transparent', border: outline ? st.border : '1px solid transparent', borderRadius: 4, cursor: 'pointer', padding: 0 }}
+    />
+  )
+}
+
+/** The screen at a viewport, with hotspots re-mapped so the click-through works at every size. */
+const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ flow, frame, vp, outline, follow, describe }) => {
+  const shell = flow.shell
+  if (vp === 'mobile' || vp === 'mobile-430' || !shell) {
+    const s = vp === 'mobile-430' ? 430 / frame.width : 1
+    return (
+      <div style={{ position: 'relative', width: Math.round(frame.width * s), height: Math.round(frame.height * s), border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden', background: '#fff' }}>
+        <img src={src(frame.png)} width={Math.round(frame.width * s)} height={Math.round(frame.height * s)} alt={frame.name} style={{ display: 'block' }} />
+        {frame.links.map((l, i) => (
+          <Hotspot key={i} l={l} rect={{ x: l.x * s, y: l.y * s, w: l.w * s, h: l.h * s }} outline={outline} onClick={() => follow(l)} describe={describe} />
+        ))}
+      </div>
+    )
+  }
+  const winW = VIEWPORTS.find(v => v.id === vp)!.width
+  const shellLeft = Math.round((winW - shell.width) / 2)
+  const crop = frame.titleBar?.height ?? 0
+  const contentLeft = Math.round((shell.width - frame.width) / 2)
+  const contentTop = shell.content.y
+  const title = frame.titleBar?.text ?? ''
+  return (
+    <div style={{ position: 'relative', width: winW, height: shell.height, background: vp === 'shell' ? '#fff' : '#E9EBF0', border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: shellLeft, top: 0, width: shell.width, height: shell.height }}>
+        <img src={dsrc(shell.png.replace(/^desktop\//, ''))} width={shell.width} height={shell.height} alt="Modal full-window shell" style={{ display: 'block' }} />
+        {/* the shell's placeholder "Title" is covered and the frame's own title-bar text is set in its slot */}
+        <div style={{ position: 'absolute', left: shell.titleZone.x, top: shell.titleZone.y, width: shell.titleZone.w, height: shell.titleZone.h, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Rubik', sans-serif", fontSize: 16, fontWeight: 500, color: INK }}>{title}</div>
+        {/* the screen's content, its own title bar cropped away, placed in the shell's content area */}
+        <div style={{ position: 'absolute', left: contentLeft, top: contentTop, width: frame.width, height: Math.max(0, frame.height - crop), overflow: 'hidden' }}>
+          <img src={src(frame.png)} width={frame.width} height={frame.height} alt={frame.name} style={{ display: 'block', transform: `translateY(-${crop}px)` }} />
+        </div>
+        {frame.links.map((l, i) => {
+          if (l.y < crop) {
+            // a link inside the cropped title bar: only the back/close glyph is meaningful — map it to the shell's back arrow
+            return l.kind === 'back' || l.label === 'Glyph' || l.label === 'Close' ? (
+              <Hotspot key={i} l={l} rect={shell.backZone} outline={outline} onClick={() => follow(l)} describe={describe} />
+            ) : null
+          }
+          return <Hotspot key={i} l={l} rect={{ x: contentLeft + l.x, y: contentTop + l.y - crop, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />
+        })}
+      </div>
+    </div>
+  )
+}
+
 export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame }) => {
   const [outline, setOutline] = useState(true)
+  const [vp, setVp] = useState<Viewport>(readVp)
   const bySlug = Object.fromEntries(flow.frames.map(f => [f.slug, f]))
   const impl = IMPLEMENTATION[frame.slug]
   const incoming = flow.frames.filter(f => f.links.some(l => l.target === frame.slug))
@@ -89,35 +170,35 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
     if (t) go(t)
   }
   const describe = (l: FlowLink): string => l.kind === 'back' ? 'back (history)' : (l.target && bySlug[l.target] ? bySlug[l.target].display : String(l.target))
+  const isDesktop = vp !== 'mobile' && vp !== 'mobile-430'
 
   return (
     <div style={{ display: 'flex', gap: 32, padding: 24, alignItems: 'flex-start', fontFamily: "'Rubik', sans-serif", color: INK, flexWrap: 'wrap' }}>
-      <div>
-        <div style={{ position: 'relative', width: frame.width, height: frame.height, border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden', background: '#fff' }}>
-          <img src={src(frame.png)} width={frame.width} height={frame.height} alt={frame.name} style={{ display: 'block' }} />
-          {frame.links.map((l, i) => {
-            const st = KIND_STYLE[l.kind]
-            return (
-              <button
-                key={i}
-                type="button"
-                data-kind={l.kind}
-                title={`${l.label} → ${describe(l)} · ${st.word}`}
-                aria-label={`${l.label}: ${l.kind === 'back' ? 'go back' : 'go to ' + describe(l)} (${st.word})`}
-                onClick={() => follow(l)}
-                style={{ position: 'absolute', left: l.x, top: l.y, width: l.w, height: l.h, background: outline ? st.bg : 'transparent', border: outline ? st.border : '1px solid transparent', borderRadius: 4, cursor: 'pointer', padding: 0 }}
-              />
-            )
-          })}
+      <div style={{ maxWidth: '100%' }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+          {VIEWPORTS.map(v => (
+            <button key={v.id} type="button" data-viewport={v.id} aria-pressed={vp === v.id} onClick={() => { setVp(v.id); writeVp(v.id) }}
+              style={{ font: 'inherit', fontSize: 12, padding: '4px 10px', borderRadius: 4, cursor: 'pointer', border: `1px solid ${vp === v.id ? '#0D6420' : RULE}`, background: vp === v.id ? '#0D642014' : '#fff', color: vp === v.id ? '#0D6420' : INK_2 }}>{v.label}</button>
+          ))}
+        </div>
+        <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
+          <ScreenAt flow={flow} frame={frame} vp={vp} outline={outline} follow={follow} describe={describe} />
         </div>
         <label style={{ display: 'block', marginTop: 8, fontSize: 12, color: INK_3 }}>
           <input type="checkbox" checked={outline} onChange={e => setOutline(e.target.checked)} /> show link targets
         </label>
-        <div style={{ fontSize: 11, color: INK_3, marginTop: 4, lineHeight: '16px' }}>
+        <div style={{ fontSize: 11, color: INK_3, marginTop: 4, lineHeight: '16px', maxWidth: 720 }}>
           <span style={{ color: KIND_INK.prototype }}>green dashed</span> = wired in the Figma prototype ·{' '}
           <span style={{ color: KIND_INK.added }}>amber solid</span> = added for this review ·{' '}
           <span style={{ color: KIND_INK.back }}>blue dotted</span> = drawn back/close, not wired; goes back
         </div>
+        {isDesktop ? (
+          <p style={{ fontSize: 12, lineHeight: '17px', color: '#8A5F09', margin: '8px 0 0', maxWidth: 720, paddingLeft: 10, borderLeft: '2px solid #8A5F09' }}>
+            Desktop sizes are a composition, not a designed screen: the library&rsquo;s Modal full-window shell (its export) with this screen&rsquo;s content in the shell&rsquo;s content area — the screen&rsquo;s own title bar removed and its title text moved to the shell&rsquo;s slot. Larger windows show the shell at native size, centered; how it should stretch is not designed.
+          </p>
+        ) : vp === 'mobile-430' ? (
+          <p style={{ fontSize: 12, lineHeight: '17px', color: INK_3, margin: '8px 0 0', maxWidth: 720 }}>Scaled from the 375-wide frame; the design has no 430-wide variant.</p>
+        ) : null}
       </div>
 
       <div style={{ maxWidth: 420, minWidth: 280, flex: 1 }}>
@@ -126,6 +207,7 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
         <p style={{ fontSize: 12, color: INK_3, margin: '0 0 6px' }}>
           {frame.width}×{frame.height} · node <span style={{ fontFamily: mono }}>{frame.node}</span> ·{' '}
           <a href={frame.url} target="_blank" rel="noreferrer" style={{ color: '#0D6420' }}>open in Figma</a>
+          {frame.titleBar?.text ? <> · title bar &ldquo;{frame.titleBar.text}&rdquo;</> : null}
         </p>
         {frame.note ? <p style={{ fontSize: 13, lineHeight: '19px', color: INK_2, margin: '8px 0 0', paddingLeft: 10, borderLeft: '2px solid #8A5F09' }}>{frame.note}</p> : null}
 
@@ -220,12 +302,6 @@ export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
   </div>
 )
 
-/**
- * The only desktop onboarding design in the account: a storyboard in
- * "Join from invite link + prototype" (dSEZJr9crJjcV3ILogea9C, last edited 2025-02-04).
- * Its screens are pictures pasted onto the board, not frames, so nothing in it can be
- * wired. The Get started prototype (2026-04) is mobile-only: every frame is 375 wide.
- */
 export const DesktopDesigns: React.FC<{ flow: Flow }> = ({ flow }) => {
   const bySlug = Object.fromEntries(flow.frames.map(f => [f.slug, f]))
   return (
@@ -256,16 +332,3 @@ export const DesktopDesigns: React.FC<{ flow: Flow }> = ({ flow }) => {
     </div>
   )
 }
-
-export const DesktopStoryboard: React.FC = () => (
-  <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: INK }}>
-    <h1 style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px' }}>Desktop — the only design that exists</h1>
-    <p style={{ fontSize: 13, lineHeight: '19px', color: INK_2, margin: '0 0 4px', maxWidth: '78ch' }}>
-      &ldquo;Invitee clicks invite link on desktop&rdquo; from <span style={{ fontFamily: mono }}>Join from invite link + prototype</span>, last edited 2025-02-04 — a year older than the mobile prototype. Its screens are pictures pasted onto the board, not frames, so it cannot be wired or exported per screen.
-    </p>
-    <p style={{ fontSize: 13, lineHeight: '19px', color: '#A11F24', margin: '0 0 16px', maxWidth: '78ch', paddingLeft: 10, borderLeft: '2px solid #A11F24' }}>
-      The Get started prototype has no desktop frames at all. Responsive behaviour therefore cannot come from these designs; it comes from implementing the stages on the token system and rendering them at both widths — which is what the &ldquo;Real components&rdquo; stories already do for shipped components.
-    </p>
-    <img src={src('invite-desktop.png')} alt="Desktop invite-link storyboard, February 2025" style={{ width: '100%', height: 'auto', display: 'block', border: `1px solid ${RULE}`, borderRadius: 6 }} />
-  </div>
-)

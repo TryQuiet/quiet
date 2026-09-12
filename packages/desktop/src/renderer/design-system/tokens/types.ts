@@ -80,4 +80,3 @@ export interface Tokens {
   radii: number[]
 }
 
-export type GridName = '2px' | '4px'

@@ -24,15 +24,14 @@ const L = [
   '// One story per screen reachable from "Get started" via the prototype\'s own links.',
   '// Export names are chosen so Storybook\'s derived id equals `onboarding-flow--<slug>`; gen.cjs asserts it.',
   "import React from 'react'", '', "import flowJson from '../figma/flow.json'",
-  "import { DesktopDesigns, DesktopStoryboard, Flow, FlowMap, FLOW_TITLE, Stage } from '../flow/FigmaFlow'", '',
+  "import { DesktopDesigns, Flow, FlowMap, FLOW_TITLE, Stage } from '../flow/FigmaFlow'", '',
   'const flow = flowJson as Flow', 'const frame = (slug: string) => flow.frames.find(f => f.slug === slug)!', '',
   'export default {', '  title: FLOW_TITLE,', "  parameters: { layout: 'fullscreen', chromatic: { disableSnapshot: true } },", '}', '',
   'export const AllStages = () => <FlowMap flow={flow} />', "AllStages.storyName = '— all stages —'", '',
   'export const DesktopDesigns_ = () => <DesktopDesigns flow={flow} />', "DesktopDesigns_.storyName = 'Desktop — designs'", '',
-  'export const DesktopStoryboard_ = () => <DesktopStoryboard />', "DesktopStoryboard_.storyName = 'Desktop — storyboard (Feb 2025)'", '',
 ]
 for (const f of rows) L.push(`export const ${f.export} = () => <Stage flow={flow} frame={frame(${JSON.stringify(f.slug)})} />`, `${f.export}.storyName = ${JSON.stringify(f.display)}`, '')
 fs.writeFileSync(path.join(__dirname, '..', 'screens', 'OnboardingFlow.stories.tsx'), L.join('\n'))
 // gate rows: id<TAB>export-name needle
-fs.writeFileSync('/mnt/storage/holmes-tmp/gate-ids.txt', [[mapId, 'AllStages'], [toId(TITLE, storyNameFromExport('DesktopDesigns_')), 'DesktopDesigns_'], [toId(TITLE, storyNameFromExport('DesktopStoryboard_')), 'DesktopStoryboard_'], ...rows.map(f => [f.id, f.export])].map(r => r.join('\t')).join('\n') + '\n')
+fs.writeFileSync('/mnt/storage/holmes-tmp/gate-ids.txt', [[mapId, 'AllStages'], [toId(TITLE, storyNameFromExport('DesktopDesigns_')), 'DesktopDesigns_'], ...rows.map(f => [f.id, f.export])].map(r => r.join('\t')).join('\n') + '\n')
 console.log(`generated ${rows.length} stories; ids verified with @storybook/csf; map id ${mapId}`)

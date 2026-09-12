@@ -6,6 +6,39 @@
   "Server opt-in (creator)",
   "Server agree (joiner, v1)"
  ],
+ "shell": {
+  "file": "0j7Nna9zWmfOSNmRmQK1Uh",
+  "node": "5825:29938",
+  "png": "desktop/desktop-modal-full-window-shell.png",
+  "width": 715,
+  "height": 929,
+  "topBar": {
+   "y": 0,
+   "h": 36
+  },
+  "titleBar": {
+   "y": 36,
+   "h": 60
+  },
+  "titleZone": {
+   "x": 226,
+   "y": 44,
+   "w": 264,
+   "h": 44
+  },
+  "backZone": {
+   "x": 14,
+   "y": 52,
+   "w": 28,
+   "h": 28
+  },
+  "content": {
+   "x": 0,
+   "y": 96,
+   "w": 715,
+   "h": 833
+  }
+ },
  "frames": [
   {
    "slug": "get-started",
@@ -18,6 +51,10 @@
    "png": "get-started.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2550",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Quiet"
+   },
    "links": [
     {
      "x": 16,
@@ -71,6 +108,10 @@
    "png": "join-community.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2562",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Quiet"
+   },
    "links": [
     {
      "x": 14,
@@ -124,6 +165,10 @@
    "png": "create-default.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2451",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Create a community"
+   },
    "links": [
     {
      "x": 140,
@@ -177,6 +222,10 @@
    "png": "link-devices.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2575",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Link devices"
+   },
    "links": [
     {
      "x": 14,
@@ -221,6 +270,10 @@
    "png": "open-invite-link.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2455",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Join with invite link"
+   },
    "links": [
     {
      "x": 145,
@@ -257,6 +310,10 @@
    "png": "sheet-2811-2460.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2460",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Join with QR code"
+   },
    "links": [
     {
      "x": 14,
@@ -283,6 +340,10 @@
    "png": "recover-account-info.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2535",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Account recovery"
+   },
    "links": [
     {
      "x": 24,
@@ -327,6 +388,7 @@
    "png": "ios-photo-gallery-2811-2501.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2501",
    "note": null,
+   "titleBar": null,
    "links": [
     {
      "x": 126,
@@ -362,6 +424,10 @@
    "png": "create-populated-focussed.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2453",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Create a community"
+   },
    "links": [
     {
      "x": 14,
@@ -415,6 +481,10 @@
    "png": "sheet-2811-2601.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2601",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "QR code"
+   },
    "links": [
     {
      "x": 14,
@@ -441,6 +511,10 @@
    "png": "sheet-2811-2587.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2587",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Scan QR code"
+   },
    "links": [
     {
      "x": 14,
@@ -467,6 +541,10 @@
    "png": "container.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3190-10892",
    "note": "Designer's work in progress: this frame is create--default duplicated with only the heading changed to 'Paste a link to Join' and the input placeholder to 'Link'. Title bar, subtitle and the avatar upload are unchanged.",
+   "titleBar": {
+    "height": 60,
+    "text": "Create a community"
+   },
    "links": [
     {
      "x": 14,
@@ -493,6 +571,10 @@
    "png": "crop-photo-3.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2394",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Crop  photo"
+   },
    "links": [
     {
      "x": 187,
@@ -546,6 +628,7 @@
    "png": "ios-photo-gallery-2811-2467.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2467",
    "note": null,
+   "titleBar": null,
    "links": [
     {
      "x": 126,
@@ -581,6 +664,10 @@
    "png": "username-default.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2371",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Create a community"
+   },
    "links": [
     {
      "x": 24,
@@ -616,6 +703,10 @@
    "png": "join-photo-no-name.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2368",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Create a community"
+   },
    "links": [
     {
      "x": 0,
@@ -651,6 +742,10 @@
    "png": "crop-photo-4.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2432",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Crop  photo"
+   },
    "links": [
     {
      "x": 187,
@@ -686,6 +781,10 @@
    "png": "crop-photo-1.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2375",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Crop  photo"
+   },
    "links": [
     {
      "x": 187,
@@ -739,6 +838,10 @@
    "png": "username-populated.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2373",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Create a community"
+   },
    "links": [
     {
      "x": 14,
@@ -774,6 +877,10 @@
    "png": "join-photo-name-true-2811-2366.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2366",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Create a community"
+   },
    "links": [
     {
      "x": 0,
@@ -809,6 +916,10 @@
    "png": "join-photo-name-true-2811-2364.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2364",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Create a community"
+   },
    "links": [
     {
      "x": 0,
@@ -844,6 +955,10 @@
    "png": "crop-photo-2.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2413",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Crop  photo"
+   },
    "links": [
     {
      "x": 187,
@@ -879,6 +994,10 @@
    "png": "community-home.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2370",
    "note": "A canvas-level instance rather than a frame — what username-populated's Continue goes to. The prototype goes straight to the community after username; the implementation inserts ToS / captcha here when a server is involved.",
+   "titleBar": {
+    "height": 64,
+    "text": "nyc-activism"
+   },
    "links": [
     {
      "x": 16,
@@ -914,6 +1033,10 @@
    "png": "community-switcher-2853-1955.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2853-1955",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Communities"
+   },
    "links": [
     {
      "x": 240,
@@ -958,6 +1081,10 @@
    "png": "want-a-server.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2922-10009",
    "note": "In the prototype this is reached after username → Community home → Community switcher, i.e. once the community exists. Both apps show the equivalent offer during community creation (ServerOffer) instead.",
+   "titleBar": {
+    "height": 60,
+    "text": "Add members"
+   },
    "links": [
     {
      "x": 127,
@@ -1002,6 +1129,10 @@
    "png": "choose-a-plan.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2924-13381",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Choose server plan"
+   },
    "links": [
     {
      "x": 32,
@@ -1055,6 +1186,10 @@
    "png": "no-server.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2922-10050",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": null
+   },
    "links": [
     {
      "x": 14,
@@ -1090,6 +1225,10 @@
    "png": "agree-and-join-server-opt-in-3054-4090.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3054-4090",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Agree & join"
+   },
    "links": [
     {
      "x": 14,
@@ -1143,6 +1282,10 @@
    "png": "agree-and-join-server-opt-in-2924-13388.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2924-13388",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Agree & join"
+   },
    "links": [
     {
      "x": 14,
@@ -1178,6 +1321,10 @@
    "png": "captcha-3054-4052.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3054-4052",
    "note": "Open issues on the implementation: #3428 'Reappearing captcha' (9.0.0 prod, Windows/Linux, intermittent — the captcha closes, the new community shows, then the captcha returns; less likely if you wait before clicking) and #3368 (offline: no loading or timeout message, and a 'joining' screen while creating).",
+   "titleBar": {
+    "height": 60,
+    "text": "CAPTCHA"
+   },
    "links": [
     {
      "x": 14,
@@ -1213,6 +1360,10 @@
    "png": "captcha-2924-13413.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2924-13413",
    "note": "Open issues on the implementation: #3428 'Reappearing captcha' (9.0.0 prod, Windows/Linux, intermittent) and #3368 (no loading/timeout message when hCAPTCHA cannot load; 'joining' shown while creating).",
+   "titleBar": {
+    "height": 60,
+    "text": "CAPTCHA"
+   },
    "links": [
     {
      "x": 14,
@@ -1248,6 +1399,10 @@
    "png": "home-add-members.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3681",
    "note": null,
+   "titleBar": {
+    "height": 64,
+    "text": "nyc-activism"
+   },
    "links": [
     {
      "x": 0,
@@ -1292,6 +1447,7 @@
    "png": "click-to-subscribe.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2930-3493",
    "note": null,
+   "titleBar": null,
    "links": [
     {
      "x": 0,
@@ -1318,6 +1474,10 @@
    "png": "add-members-options.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3709",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Add members"
+   },
    "links": [
     {
      "x": 0,
@@ -1362,6 +1522,10 @@
    "png": "community-switcher-2940-3271.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2940-3271",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "Communities"
+   },
    "links": [
     {
      "x": 240,
@@ -1406,6 +1570,7 @@
    "png": "overlay-app-store.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2930-3444",
    "note": null,
+   "titleBar": null,
    "links": [
     {
      "x": 85,
@@ -1441,6 +1606,10 @@
    "png": "add-members-qr-code.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3707",
    "note": null,
+   "titleBar": {
+    "height": 60,
+    "text": "QR code"
+   },
    "links": [
     {
      "x": 14,
@@ -1467,6 +1636,7 @@
    "png": "ios-views-activity-views-share-dark.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3712",
    "note": null,
+   "titleBar": null,
    "links": [],
    "bytes": 193168,
    "id": "onboarding-flow--ios-views-activity-views-share-dark",
@@ -1483,6 +1653,10 @@
    "png": "agree-and-join-v-1-before-we-support-multiple-hosts.png",
    "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3111-4339",
    "note": "'v1 before we support multiple hosts' — joiner-side agree screen. Not linked from Open invite link or username in the prototype. The implementation shows JoiningOptIn + TermsOfService after username.",
+   "titleBar": {
+    "height": 60,
+    "text": "Use Quiet’s server?"
+   },
    "links": [
     {
      "x": 14,

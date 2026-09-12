@@ -1,12 +1,7 @@
 import { Tokens } from './types'
 
-// Strict 4px grid: one rule, no exceptions, no 10.
-//
-// This is the expensive option. 10px is the second most common spacing value in
-// the system (3,025 onboarding frames in Figma, 20 uses in packages/mobile,
-// 10 in packages/desktop) and has no home here - everything at 10 tightens to 8.
-// 6 and 30 go too. In exchange the scale is eight steps and never needs an
-// asterisk.
+// The design system's spacing and type scale: 4px grid, Rubik at weights 400/500.
+// Decided 2026-09-11; 10px is not a step (it snaps to 8 or 12, decided per use).
 //
 // Line-heights are all multiples of 4, which is what moves bodyLg (26 -> 24),
 // title (18/27 -> 20/28), h3 (34 -> 36) and h2 (34 -> 32/40).
