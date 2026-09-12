@@ -39,13 +39,13 @@ export const Sheet_2811_2460 = () => <Stage flow={flow} frame={frame("sheet-2811
 Sheet_2811_2460.storyName = "Join with QR code (sheet)"
 
 export const RecoverAccountInfo = () => <Stage flow={flow} frame={frame("recover-account-info")} />
-RecoverAccountInfo.storyName = "Recover account"
+RecoverAccountInfo.storyName = "Account recovery"
 
 export const Sheet_2811_2601 = () => <Stage flow={flow} frame={frame("sheet-2811-2601")} />
-Sheet_2811_2601.storyName = "Link devices — display QR code (sheet)"
+Sheet_2811_2601.storyName = "Link devices — QR code (sheet)"
 
 export const Sheet_2811_2587 = () => <Stage flow={flow} frame={frame("sheet-2811-2587")} />
-Sheet_2811_2587.storyName = "Link devices — scan QR code (sheet)"
+Sheet_2811_2587.storyName = "Link devices — Scan QR code (sheet)"
 
 export const Container = () => <Stage flow={flow} frame={frame("container")} />
 Container.storyName = "Paste a link to Join (WIP)"
@@ -81,7 +81,7 @@ export const AgreeAndJoinServerOptIn_3054_4090 = () => <Stage flow={flow} frame=
 AgreeAndJoinServerOptIn_3054_4090.storyName = "Agree & join — server opt-in"
 
 export const Captcha_3054_4052 = () => <Stage flow={flow} frame={frame("captcha-3054-4052")} />
-Captcha_3054_4052.storyName = "Captcha"
+Captcha_3054_4052.storyName = "CAPTCHA"
 
 export const HomeAddMembers = () => <Stage flow={flow} frame={frame("home-add-members")} />
 HomeAddMembers.storyName = "Community home — add members"
@@ -93,4 +93,4 @@ export const AddMembersQrCode = () => <Stage flow={flow} frame={frame("add-membe
 AddMembersQrCode.storyName = "Add members — QR code"
 
 export const AgreeAndJoinV_1BeforeWeSupportMultipleHosts = () => <Stage flow={flow} frame={frame("agree-and-join-v-1-before-we-support-multiple-hosts")} />
-AgreeAndJoinV_1BeforeWeSupportMultipleHosts.storyName = "Agree & join — joiner (v1)"
+AgreeAndJoinV_1BeforeWeSupportMultipleHosts.storyName = "Use Quiet’s server? (v1)"

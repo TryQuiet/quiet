@@ -332,7 +332,7 @@
   {
    "slug": "recover-account-info",
    "name": "recover-account-info",
-   "display": "Recover account",
+   "display": "Account recovery",
    "node": "2811:2535",
    "section": "Onboarding",
    "width": 375,
@@ -380,7 +380,7 @@
   {
    "slug": "sheet-2811-2601",
    "name": "Sheet",
-   "display": "Link devices — display QR code (sheet)",
+   "display": "Link devices — QR code (sheet)",
    "node": "2811:2601",
    "section": "Onboarding",
    "width": 375,
@@ -410,7 +410,7 @@
   {
    "slug": "sheet-2811-2587",
    "name": "Sheet",
-   "display": "Link devices — scan QR code (sheet)",
+   "display": "Link devices — Scan QR code (sheet)",
    "node": "2811:2587",
    "section": "Onboarding",
    "width": 375,
@@ -914,7 +914,7 @@
   {
    "slug": "captcha-3054-4052",
    "name": "Captcha",
-   "display": "Captcha",
+   "display": "CAPTCHA",
    "node": "3054:4052",
    "section": "Onboarding",
    "width": 375,
@@ -1070,7 +1070,7 @@
   {
    "slug": "agree-and-join-v-1-before-we-support-multiple-hosts",
    "name": "Agree-and-join (v1 before we support multiple hosts)",
-   "display": "Agree & join — joiner (v1)",
+   "display": "Use Quiet’s server? (v1)",
    "node": "3111:4339",
    "section": "Server agree (joiner, v1)",
    "width": 375,
