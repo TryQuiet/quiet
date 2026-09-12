@@ -87,8 +87,17 @@ const VIEWPORTS: Array<{ id: Viewport; label: string; width: number }> = [
   { id: 'win-1440', label: 'Desktop window 1440', width: 1440 },
 ]
 const VP_KEY = 'onboarding-flow-viewport'
-const readVp = (): Viewport => { try { const v = sessionStorage.getItem(VP_KEY) as Viewport | null; return v && VIEWPORTS.some(x => x.id === v) ? v : 'mobile' } catch { return 'mobile' } }
 const writeVp = (v: Viewport): void => { try { sessionStorage.setItem(VP_KEY, v) } catch { /* private mode */ } }
+const isVp = (v: string | null): v is Viewport => !!v && VIEWPORTS.some(x => x.id === v)
+// `?vp=<id>` on the iframe URL wins (deep links from the launcher, and the render gate); otherwise the last choice this session.
+const readVp = (): Viewport => {
+  try {
+    const q = new URLSearchParams(window.location.search).get('vp')
+    if (isVp(q)) { writeVp(q); return q }
+    const v = sessionStorage.getItem(VP_KEY)
+    return isVp(v) ? v : 'mobile'
+  } catch { return 'mobile' }
+}
 
 const Hotspot: React.FC<{ l: FlowLink; rect: Rect; outline: boolean; onClick: () => void; describe: (l: FlowLink) => string }> = ({ l, rect, outline, onClick, describe }) => {
   const st = KIND_STYLE[l.kind]
@@ -135,7 +144,7 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
         {[0, 1, 2].map(i => <span key={i} style={{ width: 12, height: 12, borderRadius: 6, background: '#C4C4C4', display: 'inline-block' }} />)}
       </div>
       {/* title bar: back arrow + centered title, divider below */}
-      <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, background: '#fff', borderBottom: '1px solid #E5E5E5' }}>
+      <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, boxSizing: 'border-box', background: '#fff', borderBottom: '1px solid #E5E5E5' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" style={{ position: 'absolute', left: shell.backZone.x + 2, top: shell.backZone.y - shell.titleBar.y + 2 }} aria-hidden="true">
           <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#171B12" />
         </svg>
