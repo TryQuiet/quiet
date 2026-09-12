@@ -118,32 +118,41 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
       </div>
     )
   }
+  // Desktop: the shell's CHROME (36px top bar with window controls, 60px title bar with back
+  // arrow and centered title) drawn to the window width, a white content area to full height,
+  // and the screen's 375-wide content centered in it. The library export is not painted here:
+  // its body is the placeholder slot ("Replace with content"), i.e. grey by design.
   const winW = VIEWPORTS.find(v => v.id === vp)!.width
-  const shellLeft = Math.round((winW - shell.width) / 2)
   const crop = frame.titleBar?.height ?? 0
-  const contentLeft = Math.round((shell.width - frame.width) / 2)
+  const contentLeft = Math.round((winW - frame.width) / 2)
   const contentTop = shell.content.y
   const title = frame.titleBar?.text ?? ''
+  const H = shell.height
   return (
-    <div style={{ position: 'relative', width: winW, height: shell.height, background: vp === 'shell' ? '#fff' : '#E9EBF0', border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: shellLeft, top: 0, width: shell.width, height: shell.height }}>
-        <img src={dsrc(shell.png.replace(/^desktop\//, ''))} width={shell.width} height={shell.height} alt="Modal full-window shell" style={{ display: 'block' }} />
-        {/* the shell's placeholder "Title" is covered and the frame's own title-bar text is set in its slot */}
-        <div style={{ position: 'absolute', left: shell.titleZone.x, top: shell.titleZone.y, width: shell.titleZone.w, height: shell.titleZone.h, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Rubik', sans-serif", fontSize: 16, fontWeight: 500, color: INK }}>{title}</div>
-        {/* the screen's content, its own title bar cropped away, placed in the shell's content area */}
-        <div style={{ position: 'absolute', left: contentLeft, top: contentTop, width: frame.width, height: Math.max(0, frame.height - crop), overflow: 'hidden' }}>
-          <img src={src(frame.png)} width={frame.width} height={frame.height} alt={frame.name} style={{ display: 'block', transform: `translateY(-${crop}px)` }} />
-        </div>
-        {frame.links.map((l, i) => {
-          if (l.y < crop) {
-            // a link inside the cropped title bar: only the back/close glyph is meaningful — map it to the shell's back arrow
-            return l.kind === 'back' || l.label === 'Glyph' || l.label === 'Close' ? (
-              <Hotspot key={i} l={l} rect={shell.backZone} outline={outline} onClick={() => follow(l)} describe={describe} />
-            ) : null
-          }
-          return <Hotspot key={i} l={l} rect={{ x: contentLeft + l.x, y: contentTop + l.y - crop, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />
-        })}
+    <div style={{ position: 'relative', width: winW, height: H, background: '#fff', border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden', fontFamily: "'Rubik', sans-serif" }}>
+      {/* top bar: window controls */}
+      <div style={{ position: 'absolute', left: 0, top: 0, width: winW, height: shell.topBar.h, background: '#fff', display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 14 }}>
+        {[0, 1, 2].map(i => <span key={i} style={{ width: 12, height: 12, borderRadius: 6, background: '#C4C4C4', display: 'inline-block' }} />)}
       </div>
+      {/* title bar: back arrow + centered title, divider below */}
+      <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, background: '#fff', borderBottom: '1px solid #E5E5E5' }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" style={{ position: 'absolute', left: shell.backZone.x + 2, top: shell.backZone.y - shell.titleBar.y + 2 }} aria-hidden="true">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#171B12" />
+        </svg>
+        <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 500, color: INK }}>{title}</div>
+      </div>
+      {/* content area: white to the bottom; the screen's content, its own title bar cropped, centered */}
+      <div style={{ position: 'absolute', left: contentLeft, top: contentTop, width: frame.width, height: H - contentTop, overflow: 'hidden', background: '#fff' }}>
+        <img src={src(frame.png)} width={frame.width} height={frame.height} alt={frame.name} style={{ display: 'block', transform: `translateY(-${crop}px)` }} />
+      </div>
+      {frame.links.map((l, i) => {
+        if (l.y < crop) {
+          return l.kind === 'back' || l.label === 'Glyph' || l.label === 'Close' ? (
+            <Hotspot key={i} l={l} rect={shell.backZone} outline={outline} onClick={() => follow(l)} describe={describe} />
+          ) : null
+        }
+        return <Hotspot key={i} l={l} rect={{ x: contentLeft + l.x, y: contentTop + l.y - crop, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />
+      })}
     </div>
   )
 }
@@ -194,7 +203,7 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
         </div>
         {isDesktop ? (
           <p style={{ fontSize: 12, lineHeight: '17px', color: '#8A5F09', margin: '8px 0 0', maxWidth: 720, paddingLeft: 10, borderLeft: '2px solid #8A5F09' }}>
-            Desktop sizes are a composition, not a designed screen: the library&rsquo;s Modal full-window shell (its export) with this screen&rsquo;s content in the shell&rsquo;s content area — the screen&rsquo;s own title bar removed and its title text moved to the shell&rsquo;s slot. Larger windows show the shell at native size, centered; how it should stretch is not designed.
+            Desktop sizes are a composition per the decided model, not a designed screen: the Modal full-window shell&rsquo;s chrome (window controls, title bar with back arrow) drawn to the window width, a white content area, and this screen&rsquo;s content centered in it — its own title bar removed and its title text set in the shell&rsquo;s bar. The library component is 715 wide; stretching it to wider windows is our interpretation.
           </p>
         ) : vp === 'mobile-430' ? (
           <p style={{ fontSize: 12, lineHeight: '17px', color: INK_3, margin: '8px 0 0', maxWidth: 720 }}>Scaled from the 375-wide frame; the design has no 430-wide variant.</p>
