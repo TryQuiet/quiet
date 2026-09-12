@@ -44,8 +44,6 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     mobile: none('declining is a button on the offer itself; there is no confirmation screen'),
   },
   'choose-a-plan': { desktop: none('no plans or subscriptions exist'), mobile: none('no plans or subscriptions exist') },
-  'click-to-subscribe': { desktop: none('no subscriptions exist'), mobile: none('no subscriptions exist') },
-  'overlay-app-store': { desktop: none('no subscriptions exist'), mobile: none('no subscriptions exist') },
   'agree-and-join-v-1-before-we-support-multiple-hosts': {
     desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
     mobile: on('mobile/src/components/ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx'),
@@ -55,19 +53,10 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
     mobile: on('mobile/src/components/TermsOfService/TermsOfService.component.tsx'),
   },
-  'agree-and-join-server-opt-in-2924-13388': {
-    desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
-    mobile: on('mobile/src/components/TermsOfService/TermsOfService.component.tsx'),
-  },
   'captcha-3054-4052': {
     desktop: on('desktop/src/renderer/captcha.html'),
     mobile: on('mobile/src/components/Captcha/CaptchaModal.component.tsx'),
     divergence: 'hCaptcha. Desktop loads it in captcha.html via preload.captcha.ts; the backend verifies in captcha.service.ts. Open bugs: #3428 reappearing captcha, #3368 no offline/timeout messaging.',
-  },
-  'captcha-2924-13413': {
-    desktop: on('desktop/src/renderer/captcha.html'),
-    mobile: on('mobile/src/components/Captcha/CaptchaModal.component.tsx'),
-    divergence: 'Same implementation as the other Captcha frame; this one leads to subscription in the design. Open bugs: #3428, #3368.',
   },
   'home-add-members': {
     desktop: on('desktop/src/renderer/components/Channel/ChannelComponent.tsx'),
@@ -90,10 +79,6 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     desktop: on('desktop/src/renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity.tsx'),
     mobile: on('mobile/src/components/CreateCommunity/CreateCommunity.component.tsx'),
     divergence: 'Design adds a community icon (upload / crop); neither app has one.',
-  },
-  'create-populated-focussed': {
-    desktop: on('desktop/src/renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity.tsx'),
-    mobile: on('mobile/src/components/CreateCommunity/CreateCommunity.component.tsx'),
   },
   'username-default': {
     desktop: on('desktop/src/renderer/components/CreateUsername/CreateUsernameComponent.tsx'),
