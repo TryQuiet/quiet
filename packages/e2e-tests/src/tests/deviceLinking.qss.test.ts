@@ -40,8 +40,9 @@ type DeviceLinkingUsers = {
 }
 
 const logger = createLogger('deviceLinking:qss')
-const QSS_HOST = '127.0.0.1'
-const QSS_PORT = 3003
+const QSS_HOST = process.env.QSS_HOST ?? '127.0.0.1'
+// The repo's compose stack publishes 3003; a stack started under another project name can publish elsewhere.
+const QSS_PORT = Number(process.env.QSS_PORT ?? 3003)
 const previousLocalTransport = process.env.LOCAL_TRANSPORT
 
 jest.setTimeout(1_200_000) // 20 minutes

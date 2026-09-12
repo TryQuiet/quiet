@@ -413,7 +413,9 @@ export class BuildSetup {
 }
 
 export const tailQssLogs = (): ChildProcess => {
-  const child = spawn('docker compose', ['-f', 'docker-compose.quiet.yml', 'logs', '-f', 'qss-quiet'], {
+  // QSS_COMPOSE_PROJECT names the compose project when the stack was not started under the file's own name.
+  const project = process.env.QSS_COMPOSE_PROJECT ? ['-p', process.env.QSS_COMPOSE_PROJECT] : []
+  const child = spawn('docker compose', [...project, '-f', 'docker-compose.quiet.yml', 'logs', '-f', 'qss-quiet'], {
     cwd: path.join('../../3rd-party/qss/app/'),
     shell: true,
   })
