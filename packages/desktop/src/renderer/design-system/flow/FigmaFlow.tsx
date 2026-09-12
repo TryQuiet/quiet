@@ -294,7 +294,7 @@ export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
   <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: INK, maxWidth: 900 }}>
     <h1 style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px' }}>Onboarding flow — every stage</h1>
     <p style={{ fontSize: 13, color: INK_3, margin: '0 0 20px' }}>
-      {flow.frames.length} screens in file <span style={{ fontFamily: mono }}>{flow.file}</span>, in {flow.sections.length} clusters the prototype does not connect. Click any stage to open it; the frame&rsquo;s buttons then walk the flow.
+      {flow.frames.length} screens in file <span style={{ fontFamily: mono }}>{flow.file}</span>, in {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).length} clusters the prototype does not connect. Click any stage to open it; the frame&rsquo;s buttons then walk the flow.
     </p>
     {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).map(sec => (
       <div key={sec} style={{ marginBottom: 28 }}>
