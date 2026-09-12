@@ -7,4 +7,6 @@ export interface LinkedDevicesComponentProps {
   onToggleLinkVisibility: () => void
   /** The current user's devices from the team graph; this device excluded from the list. */
   linkedDevices?: LinkedDevice[]
+  /** Inside the onboarding modal: centered heading and content, per the layout canon. */
+  centered?: boolean
 }

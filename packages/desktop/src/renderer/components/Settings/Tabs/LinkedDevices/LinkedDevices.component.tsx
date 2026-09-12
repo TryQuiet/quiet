@@ -25,6 +25,7 @@ const classes = {
   listLabel: `${PREFIX}listLabel`,
   device: `${PREFIX}device`,
   empty: `${PREFIX}empty`,
+  centered: `${PREFIX}centered`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -75,6 +76,16 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.empty}`]: {
     color: theme.palette.colors.darkGray,
   },
+  [`&.${classes.centered}`]: {
+    alignItems: 'center',
+    textAlign: 'center',
+    [`& .${classes.linkContainer}`]: {
+      width: '100%',
+    },
+    [`& .${classes.list}`]: {
+      width: '100%',
+    },
+  },
   [`& .${classes.button}`]: {
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
@@ -97,10 +108,11 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
   revealLink,
   onToggleLinkVisibility,
   linkedDevices,
+  centered = false,
 }) => {
   const otherDevices = (linkedDevices ?? []).filter(device => !device.isCurrent && device.removedAt == null)
   return (
-    <StyledGrid container direction='column'>
+    <StyledGrid container direction='column' className={centered ? classes.centered : undefined}>
       <Grid item className={classes.title}>
         <Typography variant='h3' data-testid='linked-devices-title'>
           Linked devices

@@ -5,7 +5,7 @@ import { communities, connection } from '@quiet/state-manager'
 
 import { LinkedDevicesComponent } from './LinkedDevices.component'
 
-export const LinkedDevices: FC = () => {
+export const LinkedDevices: FC<{ centered?: boolean }> = ({ centered = false }) => {
   const dispatch = useDispatch()
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
@@ -32,6 +32,7 @@ export const LinkedDevices: FC = () => {
       revealLink={revealLink}
       onToggleLinkVisibility={() => setRevealLink(currentValue => !currentValue)}
       linkedDevices={linkedDevices}
+      centered={centered}
     />
   )
 }

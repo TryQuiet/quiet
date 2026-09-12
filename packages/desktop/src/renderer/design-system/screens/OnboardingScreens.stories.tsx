@@ -13,7 +13,7 @@ import { LinkDevicesComponent } from '../../components/Onboarding/LinkDevicesCom
 import { LinkedDevicesComponent } from '../../components/Settings/Tabs/LinkedDevices/LinkedDevices.component'
 
 import { CreateUsernameBody } from '../../components/CreateUsername/CreateUsernameComponent'
-import { CONTENT_COLUMN_WIDTH } from '../../components/Onboarding/OnboardingBody'
+import { CONTENT_COLUMN_WIDTH, OnboardingBody } from '../../components/Onboarding/OnboardingBody'
 import BackIcon from '@mui/icons-material/ArrowBack'
 
 // The implemented onboarding screens, one story each. Left: the desktop
@@ -207,14 +207,15 @@ export const DisplayQrCode = () => (
     figma='2811:2601'
     note="#3400's Linked devices surface, shown inside the Link devices modal"
     render={() => (
-      <div style={{ padding: 32 }}>
+      <OnboardingBody dataTestId='link-devices-display'>
         <LinkedDevicesComponent
           deviceLink={'https://tryquiet.org/join#example-device-link'}
           isLoading={false}
           revealLink={false}
           onToggleLinkVisibility={noop}
+          centered
         />
-      </div>
+      </OnboardingBody>
     )}
   />
 )

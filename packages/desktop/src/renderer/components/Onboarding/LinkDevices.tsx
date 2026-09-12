@@ -100,7 +100,7 @@ export const LinkDevices: React.FC = () => {
       ) : null}
       {step === 'display' ? (
         <OnboardingBody dataTestId='link-devices-display'>
-          <LinkedDevicesTab />
+          <LinkedDevicesTab centered />
         </OnboardingBody>
       ) : null}
       {step === 'scan' ? (
