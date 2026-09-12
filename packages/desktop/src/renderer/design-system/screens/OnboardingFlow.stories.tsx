@@ -27,70 +27,46 @@ export const JoinCommunity = () => <Stage flow={flow} frame={frame("join-communi
 JoinCommunity.storyName = "Join community"
 
 export const CreateDefault = () => <Stage flow={flow} frame={frame("create-default")} />
-CreateDefault.storyName = "create--default"
+CreateDefault.storyName = "Create a community"
 
 export const LinkDevices = () => <Stage flow={flow} frame={frame("link-devices")} />
 LinkDevices.storyName = "Link devices"
 
 export const OpenInviteLink = () => <Stage flow={flow} frame={frame("open-invite-link")} />
-OpenInviteLink.storyName = "Open invite link"
+OpenInviteLink.storyName = "Join with invite link"
 
 export const Sheet_2811_2460 = () => <Stage flow={flow} frame={frame("sheet-2811-2460")} />
-Sheet_2811_2460.storyName = "Sheet (2811:2460)"
+Sheet_2811_2460.storyName = "Join with QR code (sheet)"
 
 export const RecoverAccountInfo = () => <Stage flow={flow} frame={frame("recover-account-info")} />
-RecoverAccountInfo.storyName = "recover-account-info"
-
-export const IosPhotoGallery_2811_2501 = () => <Stage flow={flow} frame={frame("ios-photo-gallery-2811-2501")} />
-IosPhotoGallery_2811_2501.storyName = "iOS photo gallery (2811:2501)"
-
-export const CreatePopulatedFocussed = () => <Stage flow={flow} frame={frame("create-populated-focussed")} />
-CreatePopulatedFocussed.storyName = "create--populated-focussed"
+RecoverAccountInfo.storyName = "Recover account"
 
 export const Sheet_2811_2601 = () => <Stage flow={flow} frame={frame("sheet-2811-2601")} />
-Sheet_2811_2601.storyName = "Sheet (2811:2601)"
+Sheet_2811_2601.storyName = "Link devices — display QR code (sheet)"
 
 export const Sheet_2811_2587 = () => <Stage flow={flow} frame={frame("sheet-2811-2587")} />
-Sheet_2811_2587.storyName = "Sheet (2811:2587)"
+Sheet_2811_2587.storyName = "Link devices — scan QR code (sheet)"
 
 export const Container = () => <Stage flow={flow} frame={frame("container")} />
-Container.storyName = "Paste a link to Join (frame 'Container', WIP)"
+Container.storyName = "Paste a link to Join (WIP)"
 
 export const CropPhoto_3 = () => <Stage flow={flow} frame={frame("crop-photo-3")} />
-CropPhoto_3.storyName = "crop photo 3"
-
-export const IosPhotoGallery_2811_2467 = () => <Stage flow={flow} frame={frame("ios-photo-gallery-2811-2467")} />
-IosPhotoGallery_2811_2467.storyName = "iOS photo gallery (2811:2467)"
+CropPhoto_3.storyName = "Crop photo"
 
 export const UsernameDefault = () => <Stage flow={flow} frame={frame("username-default")} />
-UsernameDefault.storyName = "username--default"
-
-export const JoinPhotoNoName = () => <Stage flow={flow} frame={frame("join-photo-no-name")} />
-JoinPhotoNoName.storyName = "join-photo-no-name"
-
-export const CropPhoto_4 = () => <Stage flow={flow} frame={frame("crop-photo-4")} />
-CropPhoto_4.storyName = "crop photo 4"
-
-export const CropPhoto_1 = () => <Stage flow={flow} frame={frame("crop-photo-1")} />
-CropPhoto_1.storyName = "crop photo 1"
+UsernameDefault.storyName = "Choose username"
 
 export const UsernamePopulated = () => <Stage flow={flow} frame={frame("username-populated")} />
-UsernamePopulated.storyName = "username-populated"
+UsernamePopulated.storyName = "Choose username — name typed"
 
 export const JoinPhotoNameTrue_2811_2366 = () => <Stage flow={flow} frame={frame("join-photo-name-true-2811-2366")} />
-JoinPhotoNameTrue_2811_2366.storyName = "join-photo+name-true (2811:2366)"
-
-export const JoinPhotoNameTrue_2811_2364 = () => <Stage flow={flow} frame={frame("join-photo-name-true-2811-2364")} />
-JoinPhotoNameTrue_2811_2364.storyName = "join-photo+name-true (2811:2364)"
-
-export const CropPhoto_2 = () => <Stage flow={flow} frame={frame("crop-photo-2")} />
-CropPhoto_2.storyName = "crop photo 2"
+JoinPhotoNameTrue_2811_2366.storyName = "Create a community — filled"
 
 export const CommunityHome = () => <Stage flow={flow} frame={frame("community-home")} />
 CommunityHome.storyName = "Community home"
 
 export const CommunitySwitcher_2853_1955 = () => <Stage flow={flow} frame={frame("community-switcher-2853-1955")} />
-CommunitySwitcher_2853_1955.storyName = "Community switcher (2853:1955)"
+CommunitySwitcher_2853_1955.storyName = "Community switcher"
 
 export const WantAServer = () => <Stage flow={flow} frame={frame("want-a-server")} />
 WantAServer.storyName = "Want a server?"
@@ -102,37 +78,19 @@ export const NoServer = () => <Stage flow={flow} frame={frame("no-server")} />
 NoServer.storyName = "No server?"
 
 export const AgreeAndJoinServerOptIn_3054_4090 = () => <Stage flow={flow} frame={frame("agree-and-join-server-opt-in-3054-4090")} />
-AgreeAndJoinServerOptIn_3054_4090.storyName = "Agree-and-join (server opt-in) (3054:4090)"
-
-export const AgreeAndJoinServerOptIn_2924_13388 = () => <Stage flow={flow} frame={frame("agree-and-join-server-opt-in-2924-13388")} />
-AgreeAndJoinServerOptIn_2924_13388.storyName = "Agree-and-join (server opt-in) (2924:13388)"
+AgreeAndJoinServerOptIn_3054_4090.storyName = "Agree & join — server opt-in"
 
 export const Captcha_3054_4052 = () => <Stage flow={flow} frame={frame("captcha-3054-4052")} />
-Captcha_3054_4052.storyName = "Captcha (3054:4052)"
-
-export const Captcha_2924_13413 = () => <Stage flow={flow} frame={frame("captcha-2924-13413")} />
-Captcha_2924_13413.storyName = "Captcha (2924:13413)"
+Captcha_3054_4052.storyName = "Captcha"
 
 export const HomeAddMembers = () => <Stage flow={flow} frame={frame("home-add-members")} />
-HomeAddMembers.storyName = "Home add members"
-
-export const ClickToSubscribe = () => <Stage flow={flow} frame={frame("click-to-subscribe")} />
-ClickToSubscribe.storyName = "Click to subscribe"
+HomeAddMembers.storyName = "Community home — add members"
 
 export const AddMembersOptions = () => <Stage flow={flow} frame={frame("add-members-options")} />
-AddMembersOptions.storyName = "Add members options"
-
-export const CommunitySwitcher_2940_3271 = () => <Stage flow={flow} frame={frame("community-switcher-2940-3271")} />
-CommunitySwitcher_2940_3271.storyName = "Community switcher (2940:3271)"
-
-export const OverlayAppStore = () => <Stage flow={flow} frame={frame("overlay-app-store")} />
-OverlayAppStore.storyName = "Overlay: App Store"
+AddMembersOptions.storyName = "Add members"
 
 export const AddMembersQrCode = () => <Stage flow={flow} frame={frame("add-members-qr-code")} />
-AddMembersQrCode.storyName = "Add members--QR code"
-
-export const IosViewsActivityViewsShareDark = () => <Stage flow={flow} frame={frame("ios-views-activity-views-share-dark")} />
-IosViewsActivityViewsShareDark.storyName = "iOS / Views / Activity Views / Share - Dark"
+AddMembersQrCode.storyName = "Add members — QR code"
 
 export const AgreeAndJoinV_1BeforeWeSupportMultipleHosts = () => <Stage flow={flow} frame={frame("agree-and-join-v-1-before-we-support-multiple-hosts")} />
-AgreeAndJoinV_1BeforeWeSupportMultipleHosts.storyName = "Agree-and-join (v1 before we support multiple hosts)"
+AgreeAndJoinV_1BeforeWeSupportMultipleHosts.storyName = "Agree & join — joiner (v1)"

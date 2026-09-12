@@ -107,8 +107,8 @@ Uses: ButtonIcons (5), Divider (4), Button row (3), caret-black-r (3), Join comm
 Goes to: Glyph → get-started [prototype]; Content → open-invite-link [prototype]; Button row → sheet-2811-2460 [prototype]; Button row → recover-account-info [prototype]
 Implemented by: desktop `CreateJoinCommunity/JoinCommunity/JoinCommunity.tsx (paste field)` · mobile `JoinCommunity/JoinCommunity.component.tsx (paste field)`
 
-### create--default  ·  `create-default`
-Section: Onboarding · 375×667 · node `2811:2451` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2451)
+### Create a community  ·  `create-default`
+Figma frame `create--default` · Section: Onboarding · 375×667 · node `2811:2451` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2451)
 
 Copy:
 - Create a community
@@ -140,8 +140,8 @@ Uses: ButtonIcons (5), Divider (3), Button row (2), caret-black-r (2), Title bar
 Goes to: Glyph → get-started [prototype]; Content → sheet-2811-2601 [prototype]; Button row → sheet-2811-2587 [prototype]
 Implemented by: desktop `#3400 Settings/Tabs/LinkedDevices/LinkedDevices.component.tsx` · mobile `#3400 screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen.tsx`
 
-### Open invite link  ·  `open-invite-link`
-Section: Onboarding · 375×667 · node `2811:2455` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2455)
+### Join with invite link  ·  `open-invite-link`
+Figma frame `Open invite link` · Section: Onboarding · 375×667 · node `2811:2455` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2455)
 
 Copy:
 - Join with invite link
@@ -152,8 +152,8 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Button → container [added]; Glyph → back [back]
 Implemented by: desktop `CreateJoinCommunity/PerformCommunityActionComponent.tsx` · mobile `JoinCommunity/JoinCommunity.component.tsx`
 
-### Sheet (2811:2460)  ·  `sheet-2811-2460`
-Section: Onboarding · 375×499 · node `2811:2460` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2460)
+### Join with QR code (sheet)  ·  `sheet-2811-2460`
+Figma frame `Sheet` · Section: Onboarding · 375×499 · node `2811:2460` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2460)
 
 Copy:
 - Join with QR code
@@ -162,8 +162,8 @@ Uses: Join--scan code--QR (1), Title bar/Logged in (1), Divider (1), RightZ (1),
 Goes to: Glyph → back [back]
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### recover-account-info  ·  `recover-account-info`
-Section: Onboarding · 375×667 · node `2811:2535` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2535)
+### Recover account  ·  `recover-account-info`
+Figma frame `recover-account-info` · Section: Onboarding · 375×667 · node `2811:2535` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2535)
 
 Copy:
 - Account recovery
@@ -202,8 +202,8 @@ Uses: Create community (1), Title bar/Logged in (1), Divider (1), RightZ (1), Pl
 Goes to: Glyph → get-started [prototype]; Edit profile avatar → ios-photo-gallery-2811-2467 [prototype]; Avatar-action → ios-photo-gallery-2811-2467 [prototype]; Button → username-default [prototype]
 Implemented by: desktop `CreateCommunity.tsx` · mobile `CreateCommunity.component.tsx`
 
-### Sheet (2811:2601)  ·  `sheet-2811-2601`
-Section: Onboarding · 375×442 · node `2811:2601` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2601)
+### Link devices — display QR code (sheet)  ·  `sheet-2811-2601`
+Figma frame `Sheet` · Section: Onboarding · 375×442 · node `2811:2601` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2601)
 
 Copy:
 - QR code
@@ -214,8 +214,8 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → back [back]
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### Sheet (2811:2587)  ·  `sheet-2811-2587`
-Section: Onboarding · 375×571 · node `2811:2587` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2587)
+### Link devices — scan QR code (sheet)  ·  `sheet-2811-2587`
+Figma frame `Sheet` · Section: Onboarding · 375×571 · node `2811:2587` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2587)
 
 Copy:
 - Scan QR code
@@ -225,8 +225,8 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → back [back]
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### Paste a link to Join (frame 'Container', WIP)  ·  `container`
-Section: Onboarding · 375×667 · node `3190:10892` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3190-10892)
+### Paste a link to Join (WIP)  ·  `container`
+Figma frame `Container` · Section: Onboarding · 375×667 · node `3190:10892` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3190-10892)
 > Designer's work in progress: this frame is create--default duplicated with only the heading changed to 'Paste a link to Join' and the input placeholder to 'Link'. Title bar, subtitle and the avatar upload are unchanged.
 
 Copy:
@@ -243,8 +243,8 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → back [back]
 Implemented by: desktop `PerformCommunityActionComponent.tsx (invite field)` · mobile `JoinCommunity.component.tsx`
 
-### crop photo 3  ·  `crop-photo-3`
-Section: Onboarding · 375×667 · node `2811:2394` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2394)
+### Crop photo  ·  `crop-photo-3`
+Figma frame `crop photo 3` · Section: Onboarding · 375×667 · node `2811:2394` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2394)
 
 Copy:
 - Done
@@ -265,8 +265,8 @@ Uses:
 Goes to: Frame 1628 → crop-photo-1 [prototype]; hotspot-back → back [back]
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### username--default  ·  `username-default`
-Section: Onboarding · 375×679 · node `2811:2371` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2371)
+### Choose username  ·  `username-default`
+Figma frame `username--default` · Section: Onboarding · 375×679 · node `2811:2371` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2371)
 
 Copy:
 - Create a community
@@ -325,8 +325,8 @@ Uses: ButtonIcons (6), Divider (4), Button row (3), check-black (3), caret-black
 Goes to: RightZ → join-photo-name-true-2811-2364 [prototype]; icon-plus → crop-photo-2 [prototype]; Ellipse 463 → crop-photo-2 [prototype]; Close → back [back]
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### username-populated  ·  `username-populated`
-Section: Onboarding · 375×679 · node `2811:2373` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2373)
+### Choose username — name typed  ·  `username-populated`
+Figma frame `username-populated` · Section: Onboarding · 375×679 · node `2811:2373` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2373)
 
 Copy:
 - Create a community
@@ -340,8 +340,8 @@ Uses: Username (1), Title bar/Logged in (1), Divider (1), RightZ (1), Placeholde
 Goes to: Glyph → create-populated-focussed [prototype]; Button → community-home [prototype]
 Implemented by: desktop `CreateUsername/CreateUsernameComponent.tsx` · mobile `Registration/UsernameRegistration.component.tsx`
 
-### join-photo+name-true (2811:2366)  ·  `join-photo-name-true-2811-2366`
-Section: Onboarding · 375×667 · node `2811:2366` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2366)
+### Create a community — filled  ·  `join-photo-name-true-2811-2366`
+Figma frame `join-photo+name-true` · Section: Onboarding · 375×667 · node `2811:2366` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2366)
 
 Copy:
 - Create a community
@@ -404,7 +404,7 @@ Uses: List item (10), badge2 (10), st-#-public (8), Avatar type (2), Community h
 Goes to: Avatar and switcher → community-switcher-2853-1955 [prototype]; Frame 1452 → want-a-server [prototype]
 Implemented by: desktop `Channel/ChannelComponent.tsx` · mobile `Chat/Chat.component.tsx`
 
-### Community switcher (2853:1955)  ·  `community-switcher-2853-1955`
+### Community switcher  ·  `community-switcher-2853-1955`
 Section: Onboarding · 320×700 · node `2853:1955` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2853-1955)
 
 Copy:
@@ -476,8 +476,8 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → want-a-server [prototype]; Button → want-a-server [prototype]
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### Agree-and-join (server opt-in) (3054:4090)  ·  `agree-and-join-server-opt-in-3054-4090`
-Section: Onboarding · 375×700 · node `3054:4090` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3054-4090)
+### Agree & join — server opt-in  ·  `agree-and-join-server-opt-in-3054-4090`
+Figma frame `Agree-and-join (server opt-in)` · Section: Onboarding · 375×700 · node `3054:4090` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3054-4090)
 
 Copy:
 - Agree & join
@@ -500,7 +500,7 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → choose-a-plan [prototype]; Frame 1612 → captcha-2924-13413 [prototype]
 Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `TermsOfService/TermsOfService.component.tsx`
 
-### Captcha (3054:4052)  ·  `captcha-3054-4052`
+### Captcha  ·  `captcha-3054-4052`
 Section: Onboarding · 375×700 · node `3054:4052` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3054-4052)
 > Open issues on the implementation: #3428 'Reappearing captcha' (9.0.0 prod, Windows/Linux, intermittent — the captcha closes, the new community shows, then the captcha returns; less likely if you wait before clicking) and #3368 (offline: no loading or timeout message, and a 'joining' screen while creating).
 
@@ -526,8 +526,8 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → agree-and-join-server-opt-in-2924-13388 [prototype]; Frame → click-to-subscribe [prototype]
 Implemented by: desktop `renderer/captcha.html + main/preload.captcha.ts` · mobile `Captcha/CaptchaModal.component.tsx`
 
-### Home add members  ·  `home-add-members`
-Section: Onboarding · 375×700 · node `2932:3681` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3681)
+### Community home — add members  ·  `home-add-members`
+Figma frame `Home add members` · Section: Onboarding · 375×700 · node `2932:3681` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3681)
 
 Copy:
 - nyc-activism
@@ -551,8 +551,8 @@ Uses: Wireframe text (7), Logo-icon (1)
 Goes to: Click to subscribe → overlay-app-store [prototype]
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### Add members options  ·  `add-members-options`
-Section: Onboarding · 375×404 · node `2932:3709` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3709)
+### Add members  ·  `add-members-options`
+Figma frame `Add members options` · Section: Onboarding · 375×404 · node `2932:3709` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3709)
 
 Copy:
 - Add members
@@ -594,8 +594,8 @@ Uses: Wireframe text (7), Logo-icon (1)
 Goes to: Hotspot → home-add-members [prototype]; Hotspot → choose-a-plan [prototype]
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### Add members--QR code  ·  `add-members-qr-code`
-Section: Onboarding · 375×552 · node `2932:3707` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3707)
+### Add members — QR code  ·  `add-members-qr-code`
+Figma frame `Add members--QR code` · Section: Onboarding · 375×552 · node `2932:3707` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2932-3707)
 
 Copy:
 - QR code
@@ -632,8 +632,8 @@ Macbook Pro
 Uses: os-icon (1), Icon Center Image Artwork (1), Icon / close (1)
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
-### Agree-and-join (v1 before we support multiple hosts)  ·  `agree-and-join-v-1-before-we-support-multiple-hosts`
-Section: Server agree (joiner, v1) · 375×700 · node `3111:4339` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3111-4339)
+### Agree & join — joiner (v1)  ·  `agree-and-join-v-1-before-we-support-multiple-hosts`
+Figma frame `Agree-and-join (v1 before we support multiple hosts)` · Section: Server agree (joiner, v1) · 375×700 · node `3111:4339` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3111-4339)
 > 'v1 before we support multiple hosts' — joiner-side agree screen. Not linked from Open invite link or username in the prototype. The implementation shows JoiningOptIn + TermsOfService after username.
 
 Copy:
