@@ -90,13 +90,13 @@ if (dups.length) { console.error(`duplicate display names: ${[...new Set(dups)].
 // Desktop renderings from the designer's own desktop frames (user, 2026-09-12: "sidebar on left and chat in the
 // rest of the screen" and "there should be plenty of designs on this in figma already"). Per stage: kind 'app' =
 // a 740-wide split-view frame — drawn at 740; wider windows keep [0,right) at the left edge and [right,740) at
-// the right edge and fill the gap by stretching the plain column at `col` (only designer pixels); kind 'modal' =
-// a 715-wide transparent-margin card painted over the desktop Community home with a scrim, centered; kind
-// 'content' = 715-wide content inside the Modal full-window shell. Hotspots are measured on the export (1×) and
+// the right edge and fill the gap by stretching the plain column at `col` (only designer pixels); kind 'content' =
+// 715-wide content inside the Modal full-window shell. Want a server? and CAPTCHA have designer desktop frames
+// too (2840:6698, 2840:6724) but they are the 375 card at (170,64) on a transparent 715 canvas — the geometry
+// the shell composition of the mobile frame already produces — so they need no entry (see Desktop designs). Hotspots are measured on the export (1×) and
 // wired to the targets of the mobile frame's own links, matched by label — or to 'back'. Nothing else is drawn.
-const APP_HOME = { png: 'desktop-community-home-empty.png', node: '1430:48044', width: 740, height: 800, stretch: { col: 600, right: 690 } }
 const DESKTOP = {
-  'community-home': { kind: 'app', ...APP_HOME, hotspots: [
+  'community-home': { kind: 'app', png: 'desktop-community-home-empty.png', node: '1430:48044', width: 740, height: 800, stretch: { col: 600, right: 690 }, hotspots: [
     { x: 52, y: 47, w: 126, h: 26, label: 'Community name', from: 'Avatar and switcher' },
     { x: 186, y: 47, w: 24, h: 24, label: 'Gear → community menu (Add members)', to: 'home-add-members', kind: 'added' },
   ] },
@@ -104,16 +104,9 @@ const DESKTOP = {
     { x: 365, y: 109, w: 375, h: 49, label: 'Add members row', from: 'Home add members' },
     { x: 380, y: 18, w: 28, h: 28, label: 'Back arrow', back: true },
   ] },
-  'community-switcher-2853-1955': { kind: 'app', png: 'desktop-community-switcher-overlay.png', node: '1104:38645', width: 740, height: 658, stretch: { col: 600, right: 640 }, hotspots: [
+  'community-switcher-2853-1955': { kind: 'app', png: 'desktop-community-switcher-overlay.png', node: '1104:38645', width: 740, height: 646, stretch: { col: 600, right: 640 }, hotspots: [
     { x: 288, y: 282, w: 28, h: 26, label: 'Person add (VibeVillage row)', from: 'Person add' },
     { x: 66, y: 100, w: 24, h: 24, label: 'Close', back: true },
-  ] },
-  'want-a-server': { kind: 'modal', png: 'desktop-want-a-server-modal.png', node: '2840:6698', width: 715, height: 558, hotspots: [
-    { x: 270, y: 315, w: 175, h: 50, label: 'Use Quiet’s server', from: 'Button', nth: 0 },
-    { x: 322, y: 377, w: 72, h: 24, label: 'Not now', from: 'Button', nth: 1 },
-  ] },
-  'captcha-3054-4052': { kind: 'modal', png: 'desktop-captcha-modal.png', node: '2840:6724', width: 715, height: 659, hotspots: [
-    { x: 437, y: 539, w: 80, h: 28, label: 'VERIFY', from: 'Frame' },
   ] },
   'choose-a-plan': { kind: 'content', png: 'desktop-choose-a-plan.png', node: '2840:6718', width: 715, height: 929, hotspots: [
     { x: 32, y: 297, w: 103, h: 48, label: 'Upgrade (Free)', from: 'Button', nth: 0 },
@@ -133,7 +126,6 @@ for (const [slug, d] of Object.entries(DESKTOP)) {
   })
   f.desktop = { kind: d.kind, png: d.png, node: d.node, width: d.width, height: d.height, stretch: d.stretch ?? null, hotspots }
 }
-flow.desktopApp = APP_HOME
 const mapId = toId(TITLE, storyNameFromExport('AllStages'))
 flow.mapId = mapId
 fs.writeFileSync(flowPath, JSON.stringify(flow, null, 1))

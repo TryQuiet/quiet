@@ -21,11 +21,10 @@ export interface FlowFrame {
   links: FlowLink[]
 }
 export interface Stretch { col: number; right: number }
-export interface DesktopFrame { kind: 'app' | 'modal' | 'content'; png: string; node: string; width: number; height: number; stretch?: Stretch | null; hotspots: FlowLink[] }
-export interface DesktopApp { png: string; node: string; width: number; height: number; stretch: Stretch }
+export interface DesktopFrame { kind: 'app' | 'content'; png: string; node: string; width: number; height: number; stretch?: Stretch | null; hotspots: FlowLink[] }
 export interface Shell { file: string; node: string; png: string; width: number; height: number; topBar: { y: number; h: number }; titleBar: { y: number; h: number }; titleZone: Rect; backZone: Rect; content: Rect }
 export interface Rect { x: number; y: number; w: number; h: number }
-export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; desktopApp?: DesktopApp; mapId?: string; frames: FlowFrame[] }
+export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; mapId?: string; frames: FlowFrame[] }
 
 export const FLOW_TITLE = 'Onboarding flow'
 
@@ -141,8 +140,8 @@ const Stretched: React.FC<{ png: string; width: number; height: number; stretch:
 const shiftX = (x: number, stretch: Stretch, width: number, winW: number): number => (x >= stretch.right ? x + Math.max(0, winW - width) : x)
 
 /** Desktop rendering of a stage from the designer's own desktop frame (see gen.cjs DESKTOP). */
-const DesktopFrameAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ flow, frame, vp, outline, follow, describe }) => {
-  const d = frame.desktop!; const home = flow.desktopApp!
+const DesktopFrameAt: React.FC<{ frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ frame, vp, outline, follow, describe }) => {
+  const d = frame.desktop!
   const winW = Math.max(VIEWPORTS.find(v => v.id === vp)!.width, d.width)
   const box = (h: number): React.CSSProperties => ({ position: 'relative', width: winW, height: h, background: '#fff', border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden' })
   if (d.kind === 'app') {
@@ -154,21 +153,12 @@ const DesktopFrameAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; out
       </div>
     )
   }
-  // modal: the card frame (transparent margins) centered over the desktop home, behind a scrim
-  const H = home.height; const left = Math.round((winW - d.width) / 2); const top = Math.round((H - d.height) / 2)
-  return (
-    <div style={box(H)}>
-      <Stretched png={home.png} width={home.width} height={home.height} stretch={home.stretch} winW={winW} />
-      <div style={{ position: 'absolute', left: 0, top: 0, width: winW, height: H, background: '#00000066' }} />
-      <img src={dsrc(d.png)} width={d.width} height={d.height} alt={frame.name} style={{ position: 'absolute', left, top, display: 'block' }} />
-      {d.hotspots.map((l, i) => <Hotspot key={i} l={l} rect={{ x: left + l.x, y: top + l.y, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />)}
-    </div>
-  )
+  return null
 }
 
 const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ flow, frame, vp, outline, follow, describe }) => {
   const shell = flow.shell
-  if (vp !== 'mobile' && vp !== 'mobile-430' && frame.desktop && frame.desktop.kind !== 'content' && flow.desktopApp) return <DesktopFrameAt flow={flow} frame={frame} vp={vp} outline={outline} follow={follow} describe={describe} />
+  if (vp !== 'mobile' && vp !== 'mobile-430' && frame.desktop && frame.desktop.kind === 'app') return <DesktopFrameAt frame={frame} vp={vp} outline={outline} follow={follow} describe={describe} />
   if (vp === 'mobile' || vp === 'mobile-430' || !shell) {
     const s = vp === 'mobile-430' ? 430 / frame.width : 1
     return (
@@ -268,7 +258,7 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
         </div>
         {isDesktop ? (
           <p style={{ fontSize: 12, lineHeight: '17px', color: '#8A5F09', margin: '8px 0 0', maxWidth: 720, paddingLeft: 10, borderLeft: '2px solid #8A5F09' }}>
-            {frame.desktop ? (<>Desktop rendering from the designer&rsquo;s own desktop frame (node {frame.desktop.node}, {frame.desktop.width}&times;{frame.desktop.height}), not the mobile content in the shell. {frame.desktop.kind === 'app' ? <>Drawn at {frame.desktop.width}: in wider windows the sidebar and the chat&rsquo;s edges keep their place and the gap is the frame&rsquo;s own plain column stretched — only designer pixels (&ldquo;sidebar on left and chat in the rest of the screen&rdquo;).</> : frame.desktop.kind === 'modal' ? <>A card with transparent margins, painted centered over the designer&rsquo;s desktop Community home behind a scrim.</> : <>715-wide content inside the Modal full-window shell.</>} Hotspots are measured on the export and wired to the same targets as the mobile frame&rsquo;s links.</>) : (<>Desktop sizes are a composition per the decided model, not a designed screen: the Modal full-window shell&rsquo;s chrome (window controls, title bar with back arrow) drawn to the window width, a white content area, and this screen&rsquo;s content centered in it — its own title bar removed and its title text set in the shell&rsquo;s bar. The library component is 715 wide; stretching it to wider windows is our interpretation.</>)}
+            {frame.desktop ? (<>Desktop rendering from the designer&rsquo;s own desktop frame (node {frame.desktop.node}, {frame.desktop.width}&times;{frame.desktop.height}), not the mobile content in the shell. {frame.desktop.kind === 'app' ? <>Drawn at {frame.desktop.width}: in wider windows the sidebar and the chat&rsquo;s edges keep their place and the gap is the frame&rsquo;s own plain column stretched — only designer pixels (&ldquo;sidebar on left and chat in the rest of the screen&rdquo;).</> : <>715-wide content inside the Modal full-window shell.</>} Hotspots are measured on the export and wired to the same targets as the mobile frame&rsquo;s links.</>) : (<>Desktop sizes are a composition per the decided model, not a designed screen: the Modal full-window shell&rsquo;s chrome (window controls, title bar with back arrow) drawn to the window width, a white content area, and this screen&rsquo;s content centered in it — its own title bar removed and its title text set in the shell&rsquo;s bar. The library component is 715 wide; stretching it to wider windows is our interpretation.</>)}
           </p>
         ) : vp === 'mobile-430' ? (
           <p style={{ fontSize: 12, lineHeight: '17px', color: INK_3, margin: '8px 0 0', maxWidth: 720 }}>Scaled from the 375-wide frame; the design has no 430-wide variant.</p>

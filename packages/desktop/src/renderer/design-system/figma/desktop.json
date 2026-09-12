@@ -462,7 +462,7 @@
   "node": "1104:38645",
   "name": "Frame 1619 — Communities panel over the split view",
   "width": 740,
-  "height": 658,
+  "height": 646,
   "png": "desktop-community-switcher-overlay.png",
   "url": "https://www.figma.com/design/8R3jXuoUxhNyczcClFTrDm?node-id=1104-38645",
   "copy": [
@@ -477,7 +477,7 @@
    "Auto-delete"
   ],
   "counterpart": "community-switcher-2853-1955",
-  "note": "Desktop rendering of the Community switcher: the Communities panel dropped from the sidebar's community header over the split view. Frames 1609–1629 in the same file are its other states."
+  "note": "Desktop rendering of the Community switcher: the Communities panel dropped from the sidebar's community header over the split view. Frames 1609–1629 in the same file are its other states. The export carries a 12px shadow margin at the bottom; the frame is 740×646."
  },
  {
   "slug": "desktop-want-a-server-modal",
@@ -485,7 +485,7 @@
   "fileName": "Subscriptions, plans, upgrade server",
   "date": "2025-01-17",
   "node": "2840:6698",
-  "name": "Want a server? — desktop modal",
+  "name": "Want a server? — desktop frame",
   "width": 715,
   "height": 558,
   "png": "desktop-want-a-server-modal.png",
@@ -499,7 +499,7 @@
    "Don’t show this again"
   ],
   "counterpart": "want-a-server",
-  "note": "Desktop rendering of Want a server?: a modal card (374 wide) over the app — the export is the card with transparent surroundings; the prototype paints it over the desktop Community home with a scrim. Answers the open question: on desktop the server offer is a modal over the split view."
+  "note": "The designer's desktop Want a server?: the 375-wide card placed at (170, 64) on a transparent 715 canvas — the same geometry the prototype's shell composition of the mobile frame produces (no scrim in the frame), so the desktop modes show the mobile frame in the shell. Answers the open question: on desktop the server offer sits in the Modal full-window shell, not over the split view."
  },
  {
   "slug": "desktop-choose-a-plan",
@@ -531,7 +531,7 @@
   "fileName": "Subscriptions, plans, upgrade server",
   "date": "2025-01-17",
   "node": "2840:6724",
-  "name": "CAPTCHA — desktop modal",
+  "name": "CAPTCHA — desktop frame",
   "width": 715,
   "height": 659,
   "png": "desktop-captcha-modal.png",
@@ -541,7 +541,7 @@
    "VERIFY"
   ],
   "counterpart": "captcha-3054-4052",
-  "note": "Desktop rendering of CAPTCHA: the hCaptcha card (350 wide) over the app with a scrim. Open bugs #3428 / #3368 apply."
+  "note": "The designer's desktop CAPTCHA: the hCaptcha card at (170, 64) on a transparent 715 canvas — the shell composition of the mobile frame already matches. Open bugs #3428 / #3368 apply."
  },
  {
   "slug": "desktop-channel-upgrade-server",
