@@ -100,7 +100,7 @@ const DESKTOP = {
     { x: 52, y: 47, w: 126, h: 26, label: 'Community name', from: 'Avatar and switcher' },
     { x: 186, y: 47, w: 24, h: 24, label: 'Gear → community menu (Add members)', to: 'home-add-members', kind: 'added' },
   ] },
-  'home-add-members': { kind: 'app', png: 'desktop-community-menu-open.png', node: '1430:48372', width: 740, height: 800, stretch: { col: 290, right: 365 }, hotspots: [
+  'home-add-members': { kind: 'app', png: 'desktop-community-menu-open.png', node: '1430:48372', width: 740, height: 800, stretch: { col: 290, right: 325 }, hotspots: [
     { x: 365, y: 109, w: 375, h: 49, label: 'Add members row', from: 'Home add members' },
     { x: 380, y: 18, w: 28, h: 28, label: 'Back arrow', back: true },
   ] },
