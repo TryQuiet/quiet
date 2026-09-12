@@ -361,5 +361,203 @@
   ],
   "counterpart": "community-switcher-2853-1955",
   "note": "Desktop variant of the switcher the prototype instances (component 320×667; the export carries a 16px shadow margin). Differs from mobile only in hover/icon states; on desktop it drops from the sidebar’s community header over the split view."
+ },
+ {
+  "slug": "desktop-community-home-empty",
+  "file": "y8h6w8PYR9jyI3zjYHL9Cl",
+  "fileName": "Mobile + desktop + prototypes",
+  "date": "2024-12-23",
+  "node": "1430:48044",
+  "name": "Frame 1321 — desktop Community home (new community, empty chat)",
+  "width": 740,
+  "height": 800,
+  "png": "desktop-community-home-empty.png",
+  "url": "https://www.figma.com/design/y8h6w8PYR9jyI3zjYHL9Cl?node-id=1430-48044",
+  "copy": [
+   "nyc-activism",
+   "Threads",
+   "Drafts",
+   "Channels",
+   "general",
+   "fundraising-and-events",
+   "files",
+   "channel-3",
+   "Direct messages",
+   "StoneJump",
+   "WaveDanceg2lgb7fjl…",
+   "MoonThinke8",
+   "LeafLaughu0emn9f…",
+   "LightThink",
+   "# #general",
+   "32 members",
+   "5m",
+   "Auto-delete",
+   "Send a message"
+  ],
+  "counterpart": "community-home",
+  "note": "The designer's desktop landing after creating a community: 220 sidebar on the left, the chat filling the rest — this is the desktop rendering of Community home. Drawn at 740; wider windows keep the sidebar and the chat's edges and extend the chat's plain white (only designer pixels)."
+ },
+ {
+  "slug": "desktop-community-home-populated",
+  "file": "y8h6w8PYR9jyI3zjYHL9Cl",
+  "fileName": "Mobile + desktop + prototypes",
+  "date": "2024-12-23",
+  "node": "1943:52328",
+  "name": "App — desktop Community home, populated",
+  "width": 740,
+  "height": 666,
+  "png": "desktop-community-home-populated.png",
+  "url": "https://www.figma.com/design/y8h6w8PYR9jyI3zjYHL9Cl?node-id=1943-52328",
+  "copy": [
+   "nyc-activism",
+   "general"
+  ],
+  "counterpart": "community-home",
+  "note": "The same split view with messages (jasper / barb / donna). Reference only."
+ },
+ {
+  "slug": "desktop-community-menu-open",
+  "file": "y8h6w8PYR9jyI3zjYHL9Cl",
+  "fileName": "Mobile + desktop + prototypes",
+  "date": "2024-12-23",
+  "node": "1430:48372",
+  "name": "Frame 1323 — community menu open (Create channel / Add members / Settings / Remove community)",
+  "width": 740,
+  "height": 800,
+  "png": "desktop-community-menu-open.png",
+  "url": "https://www.figma.com/design/y8h6w8PYR9jyI3zjYHL9Cl?node-id=1430-48372",
+  "copy": [
+   "rockets",
+   "Create channel",
+   "Add members",
+   "Settings",
+   "Remove community"
+  ],
+  "counterpart": "home-add-members",
+  "note": "Desktop rendering of Community home — add members: the community menu drawer with the Add members row. Discrepancy to note: this draft (Dec 2024) puts Add members in the community menu, while the newer library Desktop sidebar — V1 release (Apr 2025) has an Add members row in the sidebar itself."
+ },
+ {
+  "slug": "desktop-creating-community",
+  "file": "y8h6w8PYR9jyI3zjYHL9Cl",
+  "fileName": "Mobile + desktop + prototypes",
+  "date": "2024-12-23",
+  "node": "1430:48030",
+  "name": "Frame 1320 — Creating community \"Rockets\"",
+  "width": 740,
+  "height": 800,
+  "png": "desktop-creating-community.png",
+  "url": "https://www.figma.com/design/y8h6w8PYR9jyI3zjYHL9Cl?node-id=1430-48030",
+  "copy": [
+   "Creating community \"Rockets\"",
+   "Additional info if needed…"
+  ],
+  "counterpart": null,
+  "note": "The desktop Connecting / creating stage (the map lists it as a stage the apps have that the prototype does not draw): sidebar greyed, progress bar and a line of status text."
+ },
+ {
+  "slug": "desktop-community-switcher-overlay",
+  "file": "8R3jXuoUxhNyczcClFTrDm",
+  "fileName": "Community settings/switcher + dark mode + prototypes",
+  "date": "2025-01-20",
+  "node": "1104:38645",
+  "name": "Frame 1619 — Communities panel over the split view",
+  "width": 740,
+  "height": 646,
+  "png": "desktop-community-switcher-overlay.png",
+  "url": "https://www.figma.com/design/8R3jXuoUxhNyczcClFTrDm?node-id=1104-38645",
+  "copy": [
+   "Communities",
+   "Nyc activism",
+   "TalkTerrace",
+   "VibeVillage",
+   "Label",
+   "# general",
+   "32 members",
+   "5m",
+   "Auto-delete"
+  ],
+  "counterpart": "community-switcher-2853-1955",
+  "note": "Desktop rendering of the Community switcher: the Communities panel dropped from the sidebar's community header over the split view. Frames 1609–1629 in the same file are its other states. The export carries a 12px shadow margin at the bottom; the frame is 740×646."
+ },
+ {
+  "slug": "desktop-want-a-server-modal",
+  "file": "ux7na5q5H8S34vho3NOVcV",
+  "fileName": "Subscriptions, plans, upgrade server",
+  "date": "2025-01-17",
+  "node": "2840:6698",
+  "name": "Want a server? — desktop frame",
+  "width": 715,
+  "height": 558,
+  "png": "desktop-want-a-server-modal.png",
+  "url": "https://www.figma.com/design/ux7na5q5H8S34vho3NOVcV?node-id=2840-6698",
+  "copy": [
+   "Want a server?",
+   "It's free!",
+   "Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on iPhones.",
+   "Use Quiet’s server",
+   "Not now",
+   "Don’t show this again"
+  ],
+  "counterpart": "want-a-server",
+  "note": "The designer's desktop Want a server?: the 375-wide card placed at (170, 64) on a transparent 715 canvas — the same geometry the prototype's shell composition of the mobile frame produces (no scrim in the frame), so the desktop modes show the mobile frame in the shell. Answers the open question: on desktop the server offer sits in the Modal full-window shell, not over the split view."
+ },
+ {
+  "slug": "desktop-choose-a-plan",
+  "file": "ux7na5q5H8S34vho3NOVcV",
+  "fileName": "Subscriptions, plans, upgrade server",
+  "date": "2025-01-17",
+  "node": "2840:6718",
+  "name": "Plans — desktop plan cards",
+  "width": 715,
+  "height": 929,
+  "png": "desktop-choose-a-plan.png",
+  "url": "https://www.figma.com/design/ux7na5q5H8S34vho3NOVcV?node-id=2840-6718",
+  "copy": [
+   "Free",
+   "$0 USD per person/month",
+   "Plan name",
+   "$20 per month",
+   "$40 per month",
+   "Lorem ipsum dolor sit amet consectetur. Sed vulputate id et non nunc aliquam nunc",
+   "Item",
+   "Upgrade"
+  ],
+  "counterpart": "choose-a-plan",
+  "note": "Desktop rendering of Choose a plan: three side-by-side plan cards, its own desktop layout (not the mobile column), shown as 715-wide content in the Modal full-window shell."
+ },
+ {
+  "slug": "desktop-captcha-modal",
+  "file": "ux7na5q5H8S34vho3NOVcV",
+  "fileName": "Subscriptions, plans, upgrade server",
+  "date": "2025-01-17",
+  "node": "2840:6724",
+  "name": "CAPTCHA — desktop frame",
+  "width": 715,
+  "height": 659,
+  "png": "desktop-captcha-modal.png",
+  "url": "https://www.figma.com/design/ux7na5q5H8S34vho3NOVcV?node-id=2840-6724",
+  "copy": [
+   "Select all images with a bicycle.",
+   "VERIFY"
+  ],
+  "counterpart": "captcha-3054-4052",
+  "note": "The designer's desktop CAPTCHA: the hCaptcha card at (170, 64) on a transparent 715 canvas — the shell composition of the mobile frame already matches. Open bugs #3428 / #3368 apply."
+ },
+ {
+  "slug": "desktop-channel-upgrade-server",
+  "file": "ux7na5q5H8S34vho3NOVcV",
+  "fileName": "Subscriptions, plans, upgrade server",
+  "date": "2025-01-17",
+  "node": "2840:6632",
+  "name": "Channel--D with \"Upgrade Server\" — desktop entry to the server offer",
+  "width": 740,
+  "height": 681,
+  "png": "desktop-channel-upgrade-server.png",
+  "url": "https://www.figma.com/design/ux7na5q5H8S34vho3NOVcV?node-id=2840-6632",
+  "copy": [
+   "Upgrade Server"
+  ],
+  "counterpart": null,
+  "note": "Where the server offer is reached from on desktop in the Subscriptions draft: an Upgrade Server button in the sidebar. Reference only; the prototype reaches Want a server? from Community home as mobile does."
  }
 ]
