@@ -149,7 +149,7 @@ const AppAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boo
           <ThemeProvider theme={createGridTheme(tokens)}>{renderStory(ChannelStories.Normal as unknown as StoryFn)}</ThemeProvider>
         </StyledEngineProvider>
       </div>
-      <div style={{ position: 'absolute', right: 10, top: 8, fontFamily: mono, fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_3, background: '#ffffffcc', padding: '2px 6px', borderRadius: 3 }}>chat = real ChannelComponent (code)</div>
+      <div style={{ position: 'absolute', right: 10, top: 8, zIndex: 2, fontFamily: mono, fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_3, background: '#ffffffcc', padding: '2px 6px', borderRadius: 3 }}>chat = real ChannelComponent (code)</div>
       {mode === 'app' && frame.desktop!.hotspots.map((l, i) => <Hotspot key={i} l={l} rect={{ x: l.x, y: l.y, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />)}
       {mode === 'app-panel' && (
         <>
