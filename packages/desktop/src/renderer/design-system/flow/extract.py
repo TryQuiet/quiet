@@ -73,13 +73,28 @@ def base(t):
 counts=collections.Counter(base(nodes[s]["name"]) for s in seen)
 slug={s:(base(nodes[s]["name"]) if counts[base(nodes[s]["name"])]==1 else f"{base(nodes[s]['name'])}-{s.replace(':','-')}") for s in seen}
 disp={s:DISPLAY.get(s, nodes[s]["name"] if counts[base(nodes[s]["name"])]==1 else f"{nodes[s]['name']} ({s})") for s in seen}
+def title_bar(n):
+    for x in [c for c in nodes.values() if False]: pass
+    stack=[n]
+    while stack:
+        x=stack.pop()
+        if x.get("type")=="INSTANCE" and (x.get("name") or "").startswith("Title bar"):
+            h=round((x.get("absoluteBoundingBox") or {}).get("height",0)); q=[x]; text=None
+            while q:
+                y=q.pop()
+                if y.get("type")=="TEXT" and y.get("name")=="Title" and (y.get("characters") or "").strip(): text=y["characters"].strip(); break
+                q.extend(y.get("children") or [])
+            if text=="Title": text=None
+            return {"height":h,"text":text}
+        stack.extend(x.get("children") or [])
+    return None
 frames=[]
 for s in seen:
     n=nodes[s]; bb=n["absoluteBoundingBox"]; fl=[]
     for l in links.get(s,[]):
         d={k:v for k,v in l.items() if k!="dst"}; d["target"]=slug[l["dst"]] if l["dst"] else None; fl.append(d)
     frames.append({"slug":slug[s],"name":n["name"],"display":disp[s],"node":s,"section":section[s],"width":round(bb["width"]),"height":round(bb["height"]),
-                   "png":slug[s]+".png","url":f"https://www.figma.com/design/{KEY}?node-id={s.replace(':','-')}","note":NOTES.get(s),"links":fl})
+                   "png":slug[s]+".png","url":f"https://www.figma.com/design/{KEY}?node-id={s.replace(':','-')}","note":NOTES.get(s),"titleBar":title_bar(n),"links":fl})
 keep={f["png"] for f in frames}|{"invite-desktop.png"}
 for fn in os.listdir(OUT):
     if fn.endswith(".png") and fn not in keep: os.remove(os.path.join(OUT,fn))
@@ -93,7 +108,10 @@ for i in range(0,len(need),20):
         open(os.path.join(OUT,f["png"]),"wb").write(urllib.request.urlopen(u,timeout=300).read())
 for f in frames: f["bytes"]=os.path.getsize(os.path.join(OUT,f["png"]))
 sections=[s for _,s in ROOTS]
-json.dump({"file":KEY,"start":slug[ROOTS[0][0]],"sections":sections,"frames":frames},open(os.path.join(OUT,"flow.json"),"w"),indent=1)
+# the desktop shell (Quiet Design Library 'Modal full-window'): geometry measured from the library file
+SHELL={"file":"0j7Nna9zWmfOSNmRmQK1Uh","node":"5825:29938","png":"desktop/desktop-modal-full-window-shell.png","width":715,"height":929,
+       "topBar":{"y":0,"h":36},"titleBar":{"y":36,"h":60},"titleZone":{"x":226,"y":44,"w":264,"h":44},"backZone":{"x":14,"y":52,"w":28,"h":28},"content":{"x":0,"y":96,"w":715,"h":833}}
+json.dump({"file":KEY,"start":slug[ROOTS[0][0]],"sections":sections,"shell":SHELL,"frames":frames},open(os.path.join(OUT,"flow.json"),"w"),indent=1)
 kinds=collections.Counter(l["kind"] for f in frames for l in f["links"]); per=collections.Counter(f["section"] for f in frames)
 print(f"screens {len(frames)} {dict(per)} (exported {len(need)} new) · links {dict(kinds)} · {sum(f['bytes'] for f in frames)/1048576:.1f} MB")
 print("slugs:", ", ".join(f["slug"] for f in frames))
