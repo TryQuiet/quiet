@@ -30,6 +30,8 @@ import {
   type DeviceLinkInvite,
   type InitDeviceLinkPayload,
   type RequestDeviceLinkPayload,
+  type RequestLinkedDevicesPayload,
+  type LinkedDevice,
   type ResponseLinkDevicePayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
@@ -259,6 +261,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         SocketActions.CREATE_DEVICE_LINK,
         async (payload: RequestDeviceLinkPayload, callback: (response?: DeviceLinkInvite) => void) => {
           this.emit(SocketActions.CREATE_DEVICE_LINK, payload, callback)
+        }
+      )
+
+      socket.on(
+        SocketActions.GET_LINKED_DEVICES,
+        async (payload: RequestLinkedDevicesPayload, callback: (response?: LinkedDevice[]) => void) => {
+          this.emit(SocketActions.GET_LINKED_DEVICES, payload, callback)
         }
       )
 
