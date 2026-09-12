@@ -95,7 +95,7 @@ for s in seen:
         d={k:v for k,v in l.items() if k!="dst"}; d["target"]=slug[l["dst"]] if l["dst"] else None; fl.append(d)
     frames.append({"slug":slug[s],"name":n["name"],"display":disp[s],"node":s,"section":section[s],"width":round(bb["width"]),"height":round(bb["height"]),
                    "png":slug[s]+".png","url":f"https://www.figma.com/design/{KEY}?node-id={s.replace(':','-')}","note":NOTES.get(s),"titleBar":title_bar(n),"links":fl})
-keep={f["png"] for f in frames}|{"invite-desktop.png"}
+keep={f["png"] for f in frames}
 for fn in os.listdir(OUT):
     if fn.endswith(".png") and fn not in keep: os.remove(os.path.join(OUT,fn))
 need=[f for f in frames if not os.path.exists(os.path.join(OUT,f["png"]))]

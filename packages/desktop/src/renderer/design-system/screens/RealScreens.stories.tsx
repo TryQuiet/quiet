@@ -2,12 +2,11 @@ import React from 'react'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 
 import { createGridTheme } from '../theme/gridTheme'
-import { current, grid4px, Tokens } from '../tokens'
+import { tokens, Tokens } from '../tokens'
 import { INK_3, mono, RULE } from '../specimen/ui'
 
-// Real components, driven from the stories that already exist in this repo.
-// Nothing here is a recreation: each panel renders the same component with the
-// same args the existing story uses, only under a different theme.
+// Existing components, driven from the stories that already exist in this repo,
+// rendered under the design system's tokens. Nothing here is a recreation.
 import * as ChannelStories from '../../components/Channel/Channel.stories'
 import * as SidebarStories from '../../components/Sidebar/Sidebar.stories'
 import * as ChannelInputStories from '../../components/widgets/channels/ChannelInput/ChannelInput.stories'
@@ -20,7 +19,7 @@ const Panel: React.FC<{ tokens: Tokens; width: number; height?: number; children
   height,
   children,
 }) => {
-  const isCurrent = tokens === current
+  const isCurrent = false
   return (
     <div style={{ flex: `0 0 ${width}px`, minWidth: 0 }}>
       <div
@@ -61,28 +60,19 @@ const Compare: React.FC<{
       {title}
     </h1>
     <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 4px' }}>
-      The real component, rendered from <span style={{ fontFamily: mono }}>{source}</span> with that story&rsquo;s own
-      args. Left is the theme that ships today; right swaps in the 4px type scale.
+      The existing component, rendered from <span style={{ fontFamily: mono }}>{source}</span> with that story&rsquo;s own
+      args, under the design system&rsquo;s tokens.
     </p>
     {note ? <p style={{ fontSize: 13, color: '#8A5F09', margin: '0 0 16px' }}>{note}</p> : null}
     <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
-      <Panel tokens={current} width={width} height={height}>
-        {render()}
-      </Panel>
-      <Panel tokens={grid4px} width={width} height={height}>
+      <Panel tokens={tokens} width={width} height={height}>
         {render()}
       </Panel>
     </div>
     <p style={{ fontSize: 12, lineHeight: '18px', color: INK_3, marginTop: 20, maxWidth: '70ch' }}>
-      <strong>Read the near-identical panels as the finding, not as a failure.</strong> Repo-wide, 51 component files
-      use a theme typography variant and 39 hardcode <span style={{ fontFamily: mono }}>fontSize</span> — so a theme-level
-      type change reaches only part of the app, and misses the densest parts. Adopting a scale means editing components,
-      not swapping a theme.{' '}
-      Only typography differs between the two panels. The spacing factor is left alone on purpose: about 55% of
-      component files hardcode px literals that no theme can reach, and the ~40{' '}
-      <span style={{ fontFamily: mono }}>theme.spacing(n)</span> call sites were written expecting n×8, so changing the
-      factor would halve or double them rather than snap them to a grid. Spacing has to be migrated in the components
-      themselves.
+      The theme carries the type scale; this component still hardcodes its own font sizes and spacing in places (39
+      desktop component files do), so what you see here is where it stands before migration. Migrating it onto the
+      tokens is the work.
     </p>
   </div>
 )
@@ -90,7 +80,7 @@ const Compare: React.FC<{
 const renderStory = (s: StoryFn) => s(s.args ?? {})
 
 export default {
-  title: 'Screens/Real components',
+  title: 'Components/Existing',
   parameters: { layout: 'fullscreen', chromatic: { disableSnapshot: true } },
 }
 
@@ -100,7 +90,7 @@ export const ChannelView = () => (
     source="Components/Channel → Normal"
     width={680}
     height={720}
-    note="Expected the densest surface to show the biggest change. It shows almost none — TextMessage.tsx and BasicMessage.tsx use no theme typography variants at all, hardcoding fontSize: '0.855rem' / lineHeight: '21px' / fontSize 14, 16, 21. The message list cannot be restyled from the theme."
+    note="TextMessage.tsx and BasicMessage.tsx hardcode fontSize '0.855rem' / lineHeight '21px' / 14, 16, 21 and use no theme variants — the message list is first on the migration list."
     render={() => renderStory(ChannelStories.Normal as unknown as StoryFn)}
   />
 )
@@ -110,7 +100,7 @@ export const Sidebar = () => (
     title="Sidebar"
     source="Components/SidebarComponent → Reusable"
     width={320}
-    note="Channel rows are 14px at weight 300 with hardcoded 3px vertical padding — a good test of whether type alone changes the rhythm."
+    note="Channel rows are 14px at weight 300 with hardcoded 3px vertical padding — to migrate onto the tokens."
     render={() => (
       <div style={{ height: 620, display: 'flex', alignItems: 'stretch' }}>
         {renderStory(SidebarStories.Reusable as unknown as StoryFn)}

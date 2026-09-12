@@ -302,12 +302,6 @@ export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
   </div>
 )
 
-/**
- * The only desktop onboarding design in the account: a storyboard in
- * "Join from invite link + prototype" (dSEZJr9crJjcV3ILogea9C, last edited 2025-02-04).
- * Its screens are pictures pasted onto the board, not frames, so nothing in it can be
- * wired. The Get started prototype (2026-04) is mobile-only: every frame is 375 wide.
- */
 export const DesktopDesigns: React.FC<{ flow: Flow }> = ({ flow }) => {
   const bySlug = Object.fromEntries(flow.frames.map(f => [f.slug, f]))
   return (
@@ -338,16 +332,3 @@ export const DesktopDesigns: React.FC<{ flow: Flow }> = ({ flow }) => {
     </div>
   )
 }
-
-export const DesktopStoryboard: React.FC = () => (
-  <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: INK }}>
-    <h1 style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px' }}>Desktop — the only design that exists</h1>
-    <p style={{ fontSize: 13, lineHeight: '19px', color: INK_2, margin: '0 0 4px', maxWidth: '78ch' }}>
-      &ldquo;Invitee clicks invite link on desktop&rdquo; from <span style={{ fontFamily: mono }}>Join from invite link + prototype</span>, last edited 2025-02-04 — a year older than the mobile prototype. Its screens are pictures pasted onto the board, not frames, so it cannot be wired or exported per screen.
-    </p>
-    <p style={{ fontSize: 13, lineHeight: '19px', color: '#A11F24', margin: '0 0 16px', maxWidth: '78ch', paddingLeft: 10, borderLeft: '2px solid #A11F24' }}>
-      The Get started prototype has no desktop frames at all. Responsive behaviour therefore cannot come from these designs; it comes from implementing the stages on the token system and rendering them at both widths — which is what the &ldquo;Real components&rdquo; stories already do for shipped components.
-    </p>
-    <img src={src('invite-desktop.png')} alt="Desktop invite-link storyboard, February 2025" style={{ width: '100%', height: 'auto', display: 'block', border: `1px solid ${RULE}`, borderRadius: 6 }} />
-  </div>
-)

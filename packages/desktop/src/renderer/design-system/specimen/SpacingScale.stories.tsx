@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { grid2px, grid4px, SEMANTIC_KEYS, Tokens } from '../tokens'
+import { SEMANTIC_KEYS, tokens, Tokens } from '../tokens'
 import { ACCENT, INK_3, mono, Num, Page, Section } from './ui'
 
 const Step: React.FC<{ value: number; max: number }> = ({ value, max }) => (
@@ -22,7 +22,7 @@ const Gap: React.FC<{ value: number }> = ({ value }) => (
   </div>
 )
 
-const Scale: React.FC<{ tokens: Tokens }> = ({ tokens }) => {
+const SpacingSheet: React.FC<{ tokens: Tokens }> = ({ tokens }) => {
   const max = Math.max(...tokens.space)
   return (
     <Page title={tokens.name} subtitle={`Base ${tokens.base}px · ${tokens.space.length} steps`}>
@@ -60,9 +60,8 @@ const Scale: React.FC<{ tokens: Tokens }> = ({ tokens }) => {
 }
 
 export default {
-  title: 'Foundations/Spacing Scale',
+  title: 'Foundations/Spacing',
   parameters: { layout: 'fullscreen', chromatic: { disableSnapshot: true } },
 }
 
-export const TwoPxGrid = () => <Scale tokens={grid2px} />
-export const FourPxGrid = () => <Scale tokens={grid4px} />
+export const Scale = () => <SpacingSheet tokens={tokens} />

@@ -4,7 +4,7 @@
 import React from 'react'
 
 import flowJson from '../figma/flow.json'
-import { DesktopDesigns, DesktopStoryboard, Flow, FlowMap, FLOW_TITLE, Stage } from '../flow/FigmaFlow'
+import { DesktopDesigns, Flow, FlowMap, FLOW_TITLE, Stage } from '../flow/FigmaFlow'
 
 const flow = flowJson as Flow
 const frame = (slug: string) => flow.frames.find(f => f.slug === slug)!
@@ -19,9 +19,6 @@ AllStages.storyName = '— all stages —'
 
 export const DesktopDesigns_ = () => <DesktopDesigns flow={flow} />
 DesktopDesigns_.storyName = 'Desktop — designs'
-
-export const DesktopStoryboard_ = () => <DesktopStoryboard />
-DesktopStoryboard_.storyName = 'Desktop — storyboard (Feb 2025)'
 
 export const GetStarted = () => <Stage flow={flow} frame={frame("get-started")} />
 GetStarted.storyName = "Get started"
