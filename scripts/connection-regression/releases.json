@@ -1,0 +1,50 @@
+[
+  {
+    "version": "8.0.0",
+    "releaseUrl": "https://github.com/TryQuiet/quiet/releases/tag/%40quiet/mobile%408.0.0",
+    "tagCommit": "a45b171dff81338909f7625a1ce6e930be8be1e9",
+    "apkSha256": "2811e53e0911fba1932a18ce2108cc6a8f8965906c3b47ac20706af9254e9733",
+    "assetName": "app-standard-release.apk",
+    "qssCommit": "63b00eb04308eed7264fed07f3fcd961ee211720",
+    "entrySha256": {
+      "assets/index.android.bundle": "d933e8e386bea3fd85cc86373587e79bafea84d40f9a359099f7fd6e33afcf3c",
+      "assets/nodejs-project/bundle.cjs": "8796ab4abdd4559d08bae85cdfd0e219f49b31a3c4902f1520ee98e50c771497",
+      "lib/arm64-v8a/libown-native-lib.so": "0d9244a506e2ab4854565f7118aa22fdce239a8142a78cf9ec225163335045be",
+      "lib/arm64-v8a/libtor.so": "82073c6781737cf0e39f16632f31f67c20ed351621b66da9bb3fd1bfd8dbab1a"
+    },
+    "qssAuthCommit": "018421c01a6840bcf0329ae8144730edda84e5c5",
+    "desktopAppImageSha256": "66aecf6230fe4636ddbe96eec807c13be2f0d09fd69c72c5039e4e05821689e5"
+  },
+  {
+    "version": "9.0.2",
+    "releaseUrl": "https://github.com/TryQuiet/quiet/releases/tag/%40quiet/mobile%409.0.2",
+    "tagCommit": "f8b35679f38f3970f1c56e8070309b3d71d11d4c",
+    "apkSha256": "daaf58bea88efa9c5e7048afef1fe792000bedbe2e74bc4a958af38ccb74ca17",
+    "assetName": "app-standard-release.apk",
+    "qssCommit": "78cfa2ca22e605dfdfdd23265af90ce1976b430f",
+    "entrySha256": {
+      "assets/index.android.bundle": "ed32ade7ce87a9f199ceb6fc743f281e27a150ca41a6970964ad8330cf03986d",
+      "assets/nodejs-project/bundle.cjs": "40026bc8496fef6d1880fe85bb4ce1a481f538ea8e2fb514136cc1847b974c8b",
+      "lib/arm64-v8a/libown-native-lib.so": "0d9244a506e2ab4854565f7118aa22fdce239a8142a78cf9ec225163335045be",
+      "lib/arm64-v8a/libtor.so": "bf713238d66608d1b3931bb581d787d9e6e6c9903ba57ea633a4b2a7473710fc"
+    },
+    "qssAuthCommit": "113909a6242a6e611e03590d8fbeee293841b37c",
+    "desktopAppImageSha256": "0914284dcec16ec59e03eebe5f96633d81cd4f876a775c596fa6f63fcde40bdd"
+  },
+  {
+    "version": "10.0.0-alpha.0",
+    "releaseUrl": "https://github.com/TryQuiet/quiet/releases/tag/%40quiet/mobile%4010.0.0-alpha.0",
+    "tagCommit": "edd51028f3c66c30d0692e8833fa7d0a7266b242",
+    "apkSha256": "27ebe40c00270fbdeba1f7eba00b88d9575e2a7a6c1eb1330bb053becd00c968",
+    "assetName": "app-standard-release.apk",
+    "qssCommit": "4227d340397135b120fd96a80f7538592ef520c5",
+    "entrySha256": {
+      "assets/index.android.bundle": "e544d6bece9fe65676eba52f35ae28a1f732279c14de86ac2e1e825c6875406a",
+      "assets/nodejs-project/bundle.cjs": "0bc7ef0ac262865b7f247001c500cf97bd3b103d8dba77254a54fa83070c265e",
+      "lib/arm64-v8a/libown-native-lib.so": "0d9244a506e2ab4854565f7118aa22fdce239a8142a78cf9ec225163335045be",
+      "lib/arm64-v8a/libtor.so": "bf713238d66608d1b3931bb581d787d9e6e6c9903ba57ea633a4b2a7473710fc"
+    },
+    "qssAuthCommit": "6f534c89bceb875e8c71997943e5e76e48ccbd88",
+    "desktopAppImageSha256": "99dcb5040ba2d8a85d1f4402d79540e1e187c0b28aac1e0ab9d0804d62d61de1"
+  }
+]

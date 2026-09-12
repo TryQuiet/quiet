@@ -24,3 +24,6 @@ clangd/
 # Firebase
 GoogleService-Info.plist
 google-services.json
+
+# Private connection-regression binaries, device state, invitations and logs
+.connection-runs/

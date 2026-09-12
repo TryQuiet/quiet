@@ -1,0 +1,654 @@
+{
+  "schemaVersion": 1,
+  "scope": "Android ARM64 API 30, official releases; exploratory runs are not a release ranking",
+  "exploratory": [
+    {
+      "release": "8.0.0",
+      "scenario": "live",
+      "evidence": ".connection-runs/arm8fresh-live.json",
+      "evidenceSha256": "eb5d09b77c0231e2353a6cc17211bcff2f1b7784d2761a7013466a59be2112c3",
+      "startedAtUnix": 1789243425.112165,
+      "desktopToMobileSeconds": 4.310053780674934,
+      "mobileToDesktopSeconds": 2.119758239015937,
+      "passed": true
+    },
+    {
+      "release": "8.0.0",
+      "scenario": "live",
+      "evidence": ".connection-runs/arm8fresh-tor.json",
+      "evidenceSha256": "08aea3caa7df7b72fb93942e811eed0c40c18e8b232408c4c96d2fb8cde313f5",
+      "startedAtUnix": 1789243470.698088,
+      "desktopToMobileSeconds": 4.236218794248998,
+      "mobileToDesktopSeconds": 2.3124422505497932,
+      "passed": true,
+      "qssPausedThroughout": true
+    },
+    {
+      "release": "8.0.0",
+      "scenario": "resume",
+      "evidence": ".connection-runs/arm8fresh-resume.json",
+      "evidenceSha256": "5328097a0f528fd1e4f2d6a0a5a2d3203ad94b629828ee52edab5bee341b0037",
+      "startedAtUnix": 1789243690.3464592,
+      "passed": true,
+      "backgroundSeconds": 20,
+      "resumeToVisibleSeconds": 5.6578735541552305
+    },
+    {
+      "release": "8.0.0",
+      "scenario": "offline",
+      "evidence": ".connection-runs/arm8fresh-offline.json",
+      "evidenceSha256": "3121ce95276137b8aab9968151b7069156e727423032fa5683e494b4b8320f2d",
+      "startedAtUnix": 1789243747.5740309,
+      "passed": true,
+      "coldStartToQssMessageSeconds": 27.01621847972274
+    },
+    {
+      "release": "9.0.2",
+      "scenario": "live",
+      "evidence": ".connection-runs/arm9fresh-live.json",
+      "evidenceSha256": "25ad075d2c24798f3ccc51eb2e29adc7fae4a0a2c7b5f2fac6330096689caa3a",
+      "startedAtUnix": 1789242973.750984,
+      "desktopToMobileSeconds": 4.290207454003394,
+      "mobileToDesktopSeconds": 1.8349653137847781,
+      "passed": true
+    },
+    {
+      "release": "9.0.2",
+      "scenario": "live",
+      "evidence": ".connection-runs/arm9fresh-tor.json",
+      "evidenceSha256": "7786d022d41af26b2d84fe74c11910a565e9c2779ac17ab6a0ba692fc60eb831",
+      "startedAtUnix": 1789243019.6602705,
+      "desktopToMobileSeconds": 40.04480676073581,
+      "failedAfterSeconds": 35.320977739058435,
+      "passed": false
+    },
+    {
+      "release": "9.0.2",
+      "scenario": "resume",
+      "evidence": ".connection-runs/arm9fresh-resume.json",
+      "evidenceSha256": "eb220d48584f85ce3e9720c4d5de0ab1a0126554ed964d8e9c41c1f159ad5f15",
+      "startedAtUnix": 1789243178.4021342,
+      "passed": true,
+      "backgroundSeconds": 20,
+      "resumeToVisibleSeconds": 5.621161367744207
+    },
+    {
+      "release": "9.0.2",
+      "scenario": "offline",
+      "evidence": ".connection-runs/arm9fresh-offline.json",
+      "evidenceSha256": "10b78f9c86e2ae05a2cf5cd7b374cefd991cd5a50bccf39e980b1d819a49e1f3",
+      "startedAtUnix": 1789243211.7465937,
+      "passed": true,
+      "coldStartToQssMessageSeconds": 27.36663470324129
+    },
+    {
+      "release": "10.0.0-alpha.0",
+      "scenario": "live",
+      "evidence": ".connection-runs/arm10fresh-live.json",
+      "evidenceSha256": "4ebf2ae87779cfa8b093c6a741b1045d8afafea0c2422c20420c3b5f84bbbb64",
+      "startedAtUnix": 1789243855.8835213,
+      "desktopToMobileSeconds": 4.55412978772074,
+      "mobileToDesktopSeconds": 2.086177211254835,
+      "passed": true
+    },
+    {
+      "release": "10.0.0-alpha.0",
+      "scenario": "live",
+      "evidence": ".connection-runs/arm10fresh-tor.json",
+      "evidenceSha256": "2ea3f9171a3d392f3e5d6815e831a256aa82ab605f7ba2d1adf632418fccdfa7",
+      "startedAtUnix": 1789243901.8017676,
+      "desktopToMobileSeconds": 34.652047471143305,
+      "failedAfterSeconds": 35.632771654985845,
+      "passed": false
+    },
+    {
+      "release": "10.0.0-alpha.0",
+      "scenario": "resume",
+      "evidence": ".connection-runs/arm10fresh-resume.json",
+      "evidenceSha256": "02ba3c04ac1cd0cda088102dbc736e69ab75cee3559903fbfc3d186f2d9bee01",
+      "startedAtUnix": 1789244278.8623173,
+      "passed": true,
+      "backgroundSeconds": 20,
+      "resumeToVisibleSeconds": 5.54766081366688
+    },
+    {
+      "release": "10.0.0-alpha.0",
+      "scenario": "offline",
+      "evidence": ".connection-runs/arm10fresh-offline.json",
+      "evidenceSha256": "2953ebaf31d2369fb66690d1a6248213d4918cccd2f0acd32d3fdeac3e1c601f",
+      "startedAtUnix": 1789244322.4922643,
+      "passed": true,
+      "coldStartToQssMessageSeconds": 25.970606250688434
+    }
+  ],
+  "coldReconnect": {
+    "8.0.0": [
+      {
+        "trial": 1,
+        "evidence": ".connection-runs/arm8-cold/trial-1.json",
+        "evidenceSha256": "d6757f60505c5f654404266c9958792124135e6ef7307eab5296a0215a15bb8c",
+        "events": {
+          "torInit": 1789243594.508,
+          "falseMissingProcess": 1789243597.506,
+          "peerConnected": 1789243618.179
+        },
+        "launchToPeerSeconds": 31.610798120498657,
+        "torReadyFlagSeen": false,
+        "passed": true
+      },
+      {
+        "trial": 2,
+        "evidence": ".connection-runs/arm8-cold/trial-2.json",
+        "evidenceSha256": "0b06d5c03c7679ec1e24098f0b12d5186184f33431fc2dc9daadc7744d45fbfd",
+        "events": {
+          "torInit": 1789243630.222,
+          "falseMissingProcess": 1789243632.933,
+          "peerConnected": 1789243640.328
+        },
+        "launchToPeerSeconds": 15.381610870361328,
+        "torReadyFlagSeen": false,
+        "passed": true
+      },
+      {
+        "trial": 3,
+        "evidence": ".connection-runs/arm8-cold/trial-3.json",
+        "evidenceSha256": "301f3ae29fa0e461ff96b3926bfa641cd040f173ef612054df12750958d0df02",
+        "events": {
+          "torInit": 1789243654.007,
+          "falseMissingProcess": 1789243656.644,
+          "peerConnected": 1789243685.579
+        },
+        "launchToPeerSeconds": 36.83087515830994,
+        "torReadyFlagSeen": false,
+        "passed": true
+      }
+    ],
+    "9.0.2": [
+      {
+        "trial": 1,
+        "evidence": ".connection-runs/arm9-cold/trial-1.json",
+        "evidenceSha256": "24d175222475ac11098df84a5722d087327670026f29db041538bf41230d4a31",
+        "events": {
+          "torInit": 1789244518.979,
+          "falseMissingProcess": 1789244521.626,
+          "peerConnected": 1789244540.395
+        },
+        "launchToPeerSeconds": 28.84003496170044,
+        "torReadyFlagSeen": false,
+        "passed": true
+      },
+      {
+        "trial": 2,
+        "evidence": ".connection-runs/arm9-cold/trial-2.json",
+        "evidenceSha256": "d554e88e87f52ea1dda86aa292c4cfcc6c45b38ea1690fb340cbeb11b5cce2df",
+        "events": {
+          "torInit": 1789244555.161,
+          "falseMissingProcess": 1789244557.943,
+          "peerConnected": 1789244568.776
+        },
+        "launchToPeerSeconds": 20.79622220993042,
+        "torReadyFlagSeen": false,
+        "passed": true
+      },
+      {
+        "trial": 3,
+        "evidence": ".connection-runs/arm9-cold/trial-3.json",
+        "evidenceSha256": "7fdf10838d9bbe4980680acd135bb994d1eada5d9ee56c76eefd2eab541a632b",
+        "events": {
+          "torInit": 1789244579.522,
+          "falseMissingProcess": 1789244582.341,
+          "peerConnected": 1789244609.441
+        },
+        "launchToPeerSeconds": 34.72284722328186,
+        "torReadyFlagSeen": false,
+        "passed": true
+      }
+    ],
+    "10.0.0-alpha.0": [
+      {
+        "trial": 1,
+        "evidence": ".connection-runs/arm10-cold/trial-1.json",
+        "evidenceSha256": "963edc9ddc81968cd2d4015a8a0bf8c1541c05a14ad8d7e2568122aaa292421f",
+        "events": {
+          "torInit": 1789244104.588,
+          "falseMissingProcess": 1789244107.392,
+          "peerConnected": 1789244114.188
+        },
+        "launchToPeerSeconds": 15.368185997009277,
+        "torReadyFlagSeen": false,
+        "passed": true
+      },
+      {
+        "trial": 2,
+        "evidence": ".connection-runs/arm10-cold/trial-2.json",
+        "evidenceSha256": "f4768d84b3bac396ea0fa67bd0b983c26329f0ff481dab1ac4916f3c21a7a65c",
+        "events": {
+          "torInit": 1789244127.367,
+          "falseMissingProcess": 1789244130.193,
+          "peerConnected": 1789244137.983
+        },
+        "launchToPeerSeconds": 15.376849889755249,
+        "torReadyFlagSeen": false,
+        "passed": true
+      },
+      {
+        "trial": 3,
+        "evidence": ".connection-runs/arm10-cold/trial-3.json",
+        "evidenceSha256": "0f3d5ee34abf813d3d600c56a95121d73b0966e9b8ab93c7c880be4a55d5d87d",
+        "events": {
+          "torInit": 1789244153.323,
+          "falseMissingProcess": 1789244156.092,
+          "peerConnected": 1789244263.705,
+          "fallbackCheck": 1789244276.095,
+          "torReady": 1789244276.204
+        },
+        "launchToPeerSeconds": 116.60283875465393,
+        "torInitToReadySeconds": 122.88100004196167,
+        "torReadyFlagSeen": true,
+        "passed": true
+      }
+    ]
+  },
+  "processDetectorProbe": [
+    {
+      "command": "pgrep -af TorDataDirectory",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "pgrep -af TorDataDirectory | grep -v pgrep | awk '{print $1}'",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "pgrep -f TorDataDirectory | awk -v detector=\"$$\" '$1 != detector' ",
+      "returncode": 0,
+      "stdout": "2469\n2473\n",
+      "stderr": ""
+    }
+  ],
+  "diagnosticApk": {
+    "sourceApkSha256": "daaf58bea88efa9c5e7048afef1fe792000bedbe2e74bc4a958af38ccb74ca17",
+    "controlApkSha256": "874203d6cdfa8b33e9e3e7d378eeddcd8c9db0491b0facd2881465cf3a5302f2",
+    "changedEntries": [
+      "assets/nodejs-project/bundle.cjs"
+    ],
+    "backendBeforeSha256": "40026bc8496fef6d1880fe85bb4ce1a481f538ea8e2fb514136cc1847b974c8b",
+    "backendAfterSha256": "d47edb560442a490bbc772ca7b8e2d29d1973d2f666dd27cc3d7fd93c0c9fadf",
+    "diagnosticControl": true,
+    "backportedFixCommit": "f314294f4ba2947717e8d577d51e5c11fea1c29a"
+  },
+  "readinessSamples": [
+    {
+      "release": "9.0.2",
+      "events": {
+        "torInit": 1789242894.193,
+        "falseMissingProcess": 1789242896.915,
+        "fallbackCheck": 1789243016.928,
+        "torReady": 1789243017.027,
+        "peerConnected": 1789243056.695
+      },
+      "torInitToReadySeconds": 122.83399987220764,
+      "evidence": ".connection-runs/arm9fresh-native.log",
+      "evidenceSha256": "babdffb3a197a7a0407180074cc8239173ca7d3862bf694fdb8fb77c7d3f69b0"
+    },
+    {
+      "release": "9.0.2",
+      "events": {
+        "torInit": 1789244374.232,
+        "falseMissingProcess": 1789244376.995,
+        "fallbackCheck": 1789244496.993,
+        "torReady": 1789244497.108,
+        "peerConnected": 1789244504.663
+      },
+      "torInitToReadySeconds": 122.87599992752075,
+      "evidence": ".connection-runs/arm9-cold/warmup.private.log",
+      "evidenceSha256": "2a91d2f1251a079ba3a4fc4cf5a72b4d9c189e773b7f3d82c627b6873461e53a"
+    },
+    {
+      "release": "9.0.2 detector fix",
+      "events": {
+        "torInit": 1789244699.95,
+        "torReady": 1789244710.214
+      },
+      "torInitToReadySeconds": 10.263999938964844,
+      "evidence": ".connection-runs/arm9control-native.log",
+      "evidenceSha256": "4386bd5edb0b10c352fcac523add168fd0bac9b855bf283d96727e6caca33a19"
+    }
+  ],
+  "finalIsolatedRuns": [
+    {
+      "release": "8.0.0",
+      "passed": true,
+      "startedAtUnix": 1789247882.1476002,
+      "phases": {
+        "join": {
+          "passed": true,
+          "joinSeconds": 10.896290208009304,
+          "wholeUiSeconds": 53.33660595800029
+        },
+        "live": {
+          "startedAtUnix": 1789247942.512161,
+          "desktopToMobileSeconds": 4.208817767910659,
+          "mobileToDesktopSeconds": 2.0154481045901775,
+          "passed": true
+        },
+        "tor": {
+          "startedAtUnix": 1789247989.8455093,
+          "desktopToMobileSeconds": 4.281032780185342,
+          "mobileToDesktopSeconds": 19.235508672893047,
+          "passed": true,
+          "qssPausedThroughout": true,
+          "transport": "tor",
+          "qssCommit": "63b00eb04308eed7264fed07f3fcd961ee211720"
+        }
+      },
+      "events": {
+        "torInit": 1789247887.779,
+        "falseMissingProcess": 1789247890.455,
+        "torReady": 1789247934.658,
+        "peerConnected": 1789247959.694
+      },
+      "preflight": {
+        "api": 30,
+        "installedApkSha256": "2811e53e0911fba1932a18ce2108cc6a8f8965906c3b47ac20706af9254e9733",
+        "abi": "arm64-v8a",
+        "nativeBridge": "0",
+        "externalRoutePresent": true,
+        "qssHealthFromAndroid": true
+      },
+      "torInitToReadySeconds": 46.87899994850159,
+      "torScenarioStartSinceInitSeconds": 102.06650924682617,
+      "evidence": [
+        {
+          "path": ".connection-runs/final-arm8-retry/result.json",
+          "sha256": "89e298ccb19f276ec4ede4dbbb561ae0b55275a42685f41539ef87ceb483c9ee"
+        },
+        {
+          "path": ".connection-runs/final-arm8-retry/preflight.json",
+          "sha256": "1941151cee21dbddf2dc02a24c5d0a30c3b7f01bed206b1fce8aa50f4236cc01"
+        },
+        {
+          "path": ".connection-runs/final-arm8-retry/after-join.private.log",
+          "sha256": "4a2be0baeba49e3f1d198950b0c97cf375e1a91fab2fee30ec91c5965be4129d"
+        },
+        {
+          "path": ".connection-runs/final-arm8-retry/after-live.private.log",
+          "sha256": "77b8fac2cd34fc9646f32c7a2edc5264d2c8c2daca7a7481c72aa65fa0e024bf"
+        },
+        {
+          "path": ".connection-runs/final-arm8-retry/final.private.log",
+          "sha256": "a4ccf91204cafd587e9e3b3a4e5e2b906ec683acda7ca9e57fcff8fe281dcf41"
+        }
+      ]
+    },
+    {
+      "release": "9.0.2",
+      "passed": true,
+      "startedAtUnix": 1789247684.230512,
+      "phases": {
+        "join": {
+          "passed": true,
+          "joinSeconds": 11.188849250000203,
+          "wholeUiSeconds": 52.890727042016806
+        },
+        "live": {
+          "startedAtUnix": 1789247744.295099,
+          "desktopToMobileSeconds": 4.170249321497977,
+          "mobileToDesktopSeconds": 1.9555904027074575,
+          "passed": true
+        },
+        "tor": {
+          "startedAtUnix": 1789247790.8112726,
+          "desktopToMobileSeconds": 35.266649663448334,
+          "mobileToDesktopSeconds": 1.9944532942026854,
+          "passed": true,
+          "qssPausedThroughout": true,
+          "transport": "tor",
+          "qssCommit": "78cfa2ca22e605dfdfdd23265af90ce1976b430f"
+        }
+      },
+      "events": {
+        "torInit": 1789247689.527,
+        "falseMissingProcess": 1789247692.286,
+        "fallbackCheck": 1789247812.294,
+        "torReady": 1789247812.382,
+        "peerConnected": 1789247823.63
+      },
+      "preflight": {
+        "api": 30,
+        "installedApkSha256": "daaf58bea88efa9c5e7048afef1fe792000bedbe2e74bc4a958af38ccb74ca17",
+        "abi": "arm64-v8a",
+        "nativeBridge": "0",
+        "externalRoutePresent": true,
+        "qssHealthFromAndroid": true
+      },
+      "torInitToReadySeconds": 122.85500001907349,
+      "torScenarioStartSinceInitSeconds": 101.28427267074585,
+      "evidence": [
+        {
+          "path": ".connection-runs/final-arm9/result.json",
+          "sha256": "d1e6fb37c505d1ca0545b107e900d0009b3476527871f01990e5d3823d1bf5b4"
+        },
+        {
+          "path": ".connection-runs/final-arm9/preflight.json",
+          "sha256": "59de101b6a5b42a04786fe85a3256c9fa76a8829b14ee49c9aa7643886537aa7"
+        },
+        {
+          "path": ".connection-runs/final-arm9/after-join.private.log",
+          "sha256": "eca202132dff9f17714ac7bfc021024894c6914c8419c936c7a32fefef6ee698"
+        },
+        {
+          "path": ".connection-runs/final-arm9/after-live.private.log",
+          "sha256": "4303c0406c59b5ef45d7d0c9c765baacb5a477c4c9ab5b3f27bf9c2e7645a6d4"
+        },
+        {
+          "path": ".connection-runs/final-arm9/final.private.log",
+          "sha256": "b5f532687f2d2d4cdbdf87599ec219dd29f779965bcd39bb43d56639d398cb89"
+        }
+      ]
+    },
+    {
+      "release": "10.0.0-alpha.0",
+      "passed": true,
+      "startedAtUnix": 1789247282.6186316,
+      "phases": {
+        "join": {
+          "passed": true,
+          "joinSeconds": 11.277410374983447,
+          "wholeUiSeconds": 52.35880049999105
+        },
+        "live": {
+          "startedAtUnix": 1789247342.0902886,
+          "desktopToMobileSeconds": 4.18702389113605,
+          "mobileToDesktopSeconds": 1.8879221454262733,
+          "passed": true
+        },
+        "tor": {
+          "startedAtUnix": 1789247388.7789557,
+          "desktopToMobileSeconds": 192.6532253427431,
+          "mobileToDesktopSeconds": 1.9902984471991658,
+          "passed": true,
+          "qssPausedThroughout": true,
+          "transport": "tor",
+          "qssCommit": "4227d340397135b120fd96a80f7538592ef520c5"
+        }
+      },
+      "events": {
+        "torInit": 1789247287.921,
+        "falseMissingProcess": 1789247290.683,
+        "fallbackCheck": 1789247410.695,
+        "torReady": 1789247410.802
+      },
+      "preflight": {
+        "api": 30,
+        "installedApkSha256": "27ebe40c00270fbdeba1f7eba00b88d9575e2a7a6c1eb1330bb053becd00c968",
+        "abi": "arm64-v8a",
+        "nativeBridge": "0",
+        "externalRoutePresent": true,
+        "qssHealthFromAndroid": true
+      },
+      "torInitToReadySeconds": 122.88100004196167,
+      "torScenarioStartSinceInitSeconds": 100.85795569419861,
+      "evidence": [
+        {
+          "path": ".connection-runs/final-arm10/result.json",
+          "sha256": "1f7bcbd380362a50497a64186e95e2752e961bc87735f71c4da9910e15fd67e9"
+        },
+        {
+          "path": ".connection-runs/final-arm10/preflight.json",
+          "sha256": "ba8ad54c2f18e4825f24086ba0e71b10548d9321849050080b5c260d0599b328"
+        },
+        {
+          "path": ".connection-runs/final-arm10/after-join.private.log",
+          "sha256": "31ad6ea66a68069ffc6bbeebe72ee748a7ea5887617d4847b8cedc1c1b08c375"
+        },
+        {
+          "path": ".connection-runs/final-arm10/after-live.private.log",
+          "sha256": "6a0f0dadb3b8bb2e103d4ce653730f41f4e7d13b07e930dbe7d3fe5f2eee5077"
+        },
+        {
+          "path": ".connection-runs/final-arm10/final.private.log",
+          "sha256": "16c96976e3a9092b6c492714f1408b87319ee4986924459a08f638d37b0b8c26"
+        }
+      ]
+    }
+  ],
+  "calibrationIsolatedAlpha": {
+    "scope": "Different onboarding pacing; excluded from final matching trio",
+    "release": "10.0.0-alpha.0",
+    "phases": {
+      "join": {
+        "passed": true,
+        "joinSeconds": 22.222372598014772,
+        "wholeUiSeconds": 117.24512587673962
+      },
+      "live": {
+        "scenario": "live",
+        "startedAtUnix": 1789246431.0815718,
+        "desktopToMobileSeconds": 4.262911360710859,
+        "mobileToDesktopSeconds": 1.845767017453909,
+        "passed": true
+      },
+      "tor": {
+        "scenario": "live",
+        "startedAtUnix": 1789246478.1296113,
+        "desktopToMobileSeconds": 182.77840826939791,
+        "mobileToDesktopSeconds": 1.9751113057136536,
+        "passed": true,
+        "qssPausedThroughout": true,
+        "transport": "tor",
+        "qssCommit": "4227d340397135b120fd96a80f7538592ef520c5"
+      }
+    },
+    "startedAtUnix": 1789246309.4794276,
+    "passed": true,
+    "events": {
+      "torInit": 1789246315.368,
+      "falseMissingProcess": 1789246318.214,
+      "fallbackCheck": 1789246438.228,
+      "torReady": 1789246558.362
+    }
+  },
+  "excludedFinalAttempts": [
+    {
+      "evidence": ".connection-runs/final-arm8/result.json",
+      "reason": "UI dump command timed out; subsequent pm-list command also timed out. No completed bidirectional or Tor sample.",
+      "events": {
+        "torInit": 1789247053.107,
+        "falseMissingProcess": 1789247055.755,
+        "torReady": 1789247103.851,
+        "peerConnected": 1789247148.427
+      }
+    },
+    {
+      "evidence": ".connection-runs/final-arm9.log",
+      "reason": "Host/device command timeout before installing or launching 9.0.2; no version measurement."
+    }
+  ],
+  "clockBracket": {
+    "hostBeforeUnix": 1789248053.2456307,
+    "hostAfterUnix": 1789248054.545578,
+    "androidEpoch": "1789248054.497347937",
+    "androidClockOffsetBoundsSeconds": [
+      -0.04823017120361328,
+      1.2517170906066895
+    ]
+  },
+  "diagnosticAndRepeatRuns": {
+    "arm9-ab-baseline-start/trial-1.json": {
+      "evidence": ".connection-runs/arm9-ab-baseline-start/trial-1.json",
+      "evidenceSha256": "1869148a4e36f8f06e712e33c1b125df34e92ed5356259faef8527cb5386d678",
+      "events": {
+        "torInit": 1789245196.61,
+        "falseMissingProcess": 1789245199.419,
+        "peerConnected": 1789245207.349
+      },
+      "launchToPeerSeconds": 15.871477365493774,
+      "torReadyFlagSeen": false,
+      "passed": true
+    },
+    "arm9-ab-fixed-start/trial-1.json": {
+      "evidence": ".connection-runs/arm9-ab-fixed-start/trial-1.json",
+      "evidenceSha256": "249eb0ec80beae7c4de8dba45157bfcda037d37fdec27968f869cfcf390bf7db",
+      "events": {
+        "torInit": 1789245289.963,
+        "torReady": 1789245295.267,
+        "peerConnected": 1789245304.728
+      },
+      "launchToPeerSeconds": 21.334280490875244,
+      "torInitToReadySeconds": 5.303999900817871,
+      "torReadyFlagSeen": true,
+      "passed": true
+    },
+    "arm9-ab-baseline-tor.json": {
+      "evidence": ".connection-runs/arm9-ab-baseline-tor.json",
+      "evidenceSha256": "1f1ffc9bd5320b8036778614a82cc332ffc2a3e7c580035e84d5e0509f4f5102",
+      "passed": true,
+      "desktopToMobileSeconds": 4.256462468765676,
+      "mobileToDesktopSeconds": 1.992163729853928,
+      "qssPausedThroughout": true
+    },
+    "arm9-ab-fixed-tor.json": {
+      "evidence": ".connection-runs/arm9-ab-fixed-tor.json",
+      "evidenceSha256": "276f22c81dcb6c7e8c0f03514af05337cbb2dfb892a41886fc4398582028384f",
+      "passed": true,
+      "desktopToMobileSeconds": 4.225931691937149,
+      "mobileToDesktopSeconds": 22.775210482999682,
+      "qssPausedThroughout": true
+    },
+    "arm9control-live.json": {
+      "evidence": ".connection-runs/arm9control-live.json",
+      "evidenceSha256": "413a0352abcabe8fff523177f4ffb0c7cf9a58ad1173d8bff152af9d8a88f8f0",
+      "passed": true,
+      "desktopToMobileSeconds": 4.235532804392278,
+      "mobileToDesktopSeconds": 1.788885877467692
+    },
+    "arm9control-tor.json": {
+      "evidence": ".connection-runs/arm9control-tor.json",
+      "evidenceSha256": "cd28d14b4f1cb88a30c426a5851e86eb4320e5f8e8987bfe1dd8dd38d8676a2a",
+      "passed": true,
+      "desktopToMobileSeconds": 53.689273511990905,
+      "mobileToDesktopSeconds": 2.2744435342028737,
+      "qssPausedThroughout": true
+    },
+    "arm8repeat-tor.json": {
+      "evidence": ".connection-runs/arm8repeat-tor.json",
+      "evidenceSha256": "99b451a57856a3dc38f69704a52de6a1064be96beb9d6db0998548d51abde000",
+      "passed": true,
+      "desktopToMobileSeconds": 92.34597327373922,
+      "mobileToDesktopSeconds": 33.138533087447286,
+      "qssPausedThroughout": true
+    },
+    "arm9verify-tor.json": {
+      "evidence": ".connection-runs/arm9verify-tor.json",
+      "evidenceSha256": "7bd390e61d3fd32d8d085c78a285b8ecb23083b917867b3847477f15085b6fed",
+      "passed": true,
+      "desktopToMobileSeconds": 31.296925832517445,
+      "mobileToDesktopSeconds": 2.4341054102405906,
+      "qssPausedThroughout": true
+    }
+  }
+}
