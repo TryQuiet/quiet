@@ -1,11 +1,5 @@
 import React, { useState } from 'react'
 import { linkTo } from '@storybook/addon-links'
-import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
-
-import { createGridTheme } from '../theme/gridTheme'
-import { tokens } from '../tokens'
-// The chat pane of the desktop split view is the real ChannelComponent, from its own story (no recreation).
-import * as ChannelStories from '../../components/Channel/Channel.stories'
 
 import { IMPLEMENTATION, IMPLEMENTATION_ONLY, Impl } from './implementation'
 import { INK, INK_2, INK_3, mono, RULE } from '../specimen/ui'
@@ -22,16 +16,15 @@ export interface FlowFrame {
   titleBar?: { height: number; text: string | null } | null
   /** Shadow margin the Figma export carries beyond the frame's box (effects render into exports); painted at natural size, offset by it. */
   pad?: { x: number; y: number } | null
-  /** Desktop in-app rendering: 'app' = V1 desktop sidebar + chat pane, 'app-panel' = the desktop switcher over that view; absent = onboarding modal shell. */
-  desktop?: { mode: 'app' | 'app-panel'; hotspots: FlowLink[] } | null
+  /** The designer's desktop frame for this stage (gen.cjs DESKTOP): 'app' = 740 split view (stretched beyond 740 only in its plain column), 'modal' = card over the desktop home with a scrim, 'content' = 715 content in the shell. Absent = mobile content in the shell. */
+  desktop?: DesktopFrame | null
   links: FlowLink[]
 }
-export interface DesktopApp {
-  sidebar: { png: string; node: string; width: number; height: number; bg: string }
-  switcher: { png: string; node: string; width: number; height: number; inset: number }
-}
-export interface Rect { x: number; y: number; w: number; h: number }
+export interface Stretch { col: number; right: number }
+export interface DesktopFrame { kind: 'app' | 'modal' | 'content'; png: string; node: string; width: number; height: number; stretch?: Stretch | null; hotspots: FlowLink[] }
+export interface DesktopApp { png: string; node: string; width: number; height: number; stretch: Stretch }
 export interface Shell { file: string; node: string; png: string; width: number; height: number; topBar: { y: number; h: number }; titleBar: { y: number; h: number }; titleZone: Rect; backZone: Rect; content: Rect }
+export interface Rect { x: number; y: number; w: number; h: number }
 export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; desktopApp?: DesktopApp; mapId?: string; frames: FlowFrame[] }
 
 export const FLOW_TITLE = 'Onboarding flow'
@@ -128,43 +121,54 @@ const Hotspot: React.FC<{ l: FlowLink; rect: Rect; outline: boolean; onClick: ()
 }
 
 /** The screen at a viewport, with hotspots re-mapped so the click-through works at every size. */
-type StoryFn = ((args: Record<string, unknown>) => JSX.Element) & { args?: Record<string, unknown> }
-const renderStory = (s: StoryFn) => s(s.args ?? {})
-
-/** Desktop once the community exists (decided 2026-09-12: "sidebar on left and chat in the rest of the screen"):
- *  the library's V1 desktop sidebar (220, carries the mac controls) and the chat filling the rest of the window.
- *  The chat is the real ChannelComponent from its own story — the only designed chat content is a skeleton. */
-const AppAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ flow, frame, vp, outline, follow, describe }) => {
-  const app = flow.desktopApp!; const sb = app.sidebar; const mode = frame.desktop!.mode
-  const winW = Math.max(VIEWPORTS.find(v => v.id === vp)!.width, 1024)
-  const H = flow.shell?.height ?? 929
-  const panelTop = 36 // the switcher drops from the sidebar's community header, below the mac controls
+/** A 740-wide designer frame drawn at native size; beyond 740 the left part stays left, the right part (from
+ *  `stretch.right`) stays at the window's right edge, and the gap is the frame's plain column at `stretch.col`
+ *  stretched — so every pixel is the designer's. */
+const Stretched: React.FC<{ png: string; width: number; height: number; stretch: Stretch; winW: number }> = ({ png, width, height, stretch, winW }) => {
+  const gap = Math.max(0, winW - width); const rightW = width - stretch.right
   return (
-    <div style={{ position: 'relative', width: winW, height: H, background: '#fff', border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, width: sb.width, height: H, background: sb.bg }}>
-        <img src={dsrc(sb.png)} width={sb.width} height={sb.height} alt="Desktop sidebar — V1 release" style={{ display: 'block' }} />
-      </div>
-      <div style={{ position: 'absolute', left: sb.width, top: 0, width: winW - sb.width, height: H, overflow: 'auto', background: '#fff' }}>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={createGridTheme(tokens)}>{renderStory(ChannelStories.Normal as unknown as StoryFn)}</ThemeProvider>
-        </StyledEngineProvider>
-      </div>
-      <div style={{ position: 'absolute', right: 10, top: 8, zIndex: 2, fontFamily: mono, fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_3, background: '#ffffffcc', padding: '2px 6px', borderRadius: 3 }}>chat = real ChannelComponent (code)</div>
-      {mode === 'app' && frame.desktop!.hotspots.map((l, i) => <Hotspot key={i} l={l} rect={{ x: l.x, y: l.y, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />)}
-      {mode === 'app-panel' && (
-        <>
-          <div style={{ position: 'absolute', left: 0, top: 0, width: winW, height: H, background: '#00000029' }} />
-          <img src={dsrc(app.switcher.png)} width={app.switcher.width} height={app.switcher.height} alt={frame.name} style={{ position: 'absolute', left: -app.switcher.inset, top: panelTop - app.switcher.inset, display: 'block' }} />
-          {frame.links.map((l, i) => <Hotspot key={i} l={l} rect={{ x: l.x, y: panelTop + l.y, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />)}
-        </>
+    <>
+      <div style={{ position: 'absolute', left: 0, top: 0, width: stretch.right, height, overflow: 'hidden' }}><img src={dsrc(png)} width={width} height={height} alt="" style={{ display: 'block' }} /></div>
+      {gap > 0 && (
+        <div style={{ position: 'absolute', left: stretch.right, top: 0, width: gap, height, overflow: 'hidden' }}>
+          <div style={{ width: 1, height, overflow: 'hidden', transform: `scaleX(${gap})`, transformOrigin: '0 0' }}><img src={dsrc(png)} width={width} height={height} alt="" style={{ display: 'block', position: 'relative', left: -stretch.col }} /></div>
+        </div>
       )}
+      <div style={{ position: 'absolute', left: winW - rightW, top: 0, width: rightW, height, overflow: 'hidden' }}><img src={dsrc(png)} width={width} height={height} alt="" style={{ display: 'block', position: 'relative', left: -stretch.right }} /></div>
+    </>
+  )
+}
+const shiftX = (x: number, stretch: Stretch, width: number, winW: number): number => (x >= stretch.right ? x + Math.max(0, winW - width) : x)
+
+/** Desktop rendering of a stage from the designer's own desktop frame (see gen.cjs DESKTOP). */
+const DesktopFrameAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ flow, frame, vp, outline, follow, describe }) => {
+  const d = frame.desktop!; const home = flow.desktopApp!
+  const winW = Math.max(VIEWPORTS.find(v => v.id === vp)!.width, d.width)
+  const box = (h: number): React.CSSProperties => ({ position: 'relative', width: winW, height: h, background: '#fff', border: `1px solid ${RULE}`, borderRadius: 6, overflow: 'hidden' })
+  if (d.kind === 'app') {
+    const st = d.stretch!
+    return (
+      <div style={box(d.height)}>
+        <Stretched png={d.png} width={d.width} height={d.height} stretch={st} winW={winW} />
+        {d.hotspots.map((l, i) => <Hotspot key={i} l={l} rect={{ x: shiftX(l.x, st, d.width, winW), y: l.y, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />)}
+      </div>
+    )
+  }
+  // modal: the card frame (transparent margins) centered over the desktop home, behind a scrim
+  const H = home.height; const left = Math.round((winW - d.width) / 2); const top = Math.round((H - d.height) / 2)
+  return (
+    <div style={box(H)}>
+      <Stretched png={home.png} width={home.width} height={home.height} stretch={home.stretch} winW={winW} />
+      <div style={{ position: 'absolute', left: 0, top: 0, width: winW, height: H, background: '#00000066' }} />
+      <img src={dsrc(d.png)} width={d.width} height={d.height} alt={frame.name} style={{ position: 'absolute', left, top, display: 'block' }} />
+      {d.hotspots.map((l, i) => <Hotspot key={i} l={l} rect={{ x: left + l.x, y: top + l.y, w: l.w, h: l.h }} outline={outline} onClick={() => follow(l)} describe={describe} />)}
     </div>
   )
 }
 
 const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: boolean; follow: (l: FlowLink) => void; describe: (l: FlowLink) => string }> = ({ flow, frame, vp, outline, follow, describe }) => {
   const shell = flow.shell
-  if (vp !== 'mobile' && vp !== 'mobile-430' && frame.desktop && flow.desktopApp) return <AppAt flow={flow} frame={frame} vp={vp} outline={outline} follow={follow} describe={describe} />
+  if (vp !== 'mobile' && vp !== 'mobile-430' && frame.desktop && frame.desktop.kind !== 'content' && flow.desktopApp) return <DesktopFrameAt flow={flow} frame={frame} vp={vp} outline={outline} follow={follow} describe={describe} />
   if (vp === 'mobile' || vp === 'mobile-430' || !shell) {
     const s = vp === 'mobile-430' ? 430 / frame.width : 1
     return (
@@ -182,8 +186,10 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
   // and the screen's 375-wide content centered in it. The library export is not painted here:
   // its body is the placeholder slot ("Replace with content"), i.e. grey by design.
   const winW = VIEWPORTS.find(v => v.id === vp)!.width
-  const crop = frame.titleBar?.height ?? 0
-  const contentLeft = Math.round((winW - frame.width) / 2)
+  const dc = frame.desktop && frame.desktop.kind === 'content' ? frame.desktop : null
+  const content = dc ? { png: dsrc(dc.png), width: dc.width, height: dc.height, crop: 0, links: dc.hotspots } : { png: src(frame.png), width: frame.width, height: frame.height, crop: frame.titleBar?.height ?? 0, links: frame.links }
+  const crop = content.crop
+  const contentLeft = Math.round((winW - content.width) / 2)
   const contentTop = shell.content.y
   const title = frame.titleBar?.text ?? ''
   const H = shell.height
@@ -201,11 +207,11 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
         <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 500, color: INK }}>{title}</div>
       </div>
       {/* content area: white to the bottom; the screen's content, its own title bar cropped, centered */}
-      <div style={{ position: 'absolute', left: contentLeft, top: contentTop, width: frame.width, height: H - contentTop, overflow: 'hidden', background: '#fff' }}>
-        <img src={src(frame.png)} width={frame.width} height={frame.height} alt={frame.name} style={{ display: 'block', transform: `translateY(-${crop}px)` }} />
+      <div style={{ position: 'absolute', left: contentLeft, top: contentTop, width: content.width, height: H - contentTop, overflow: 'hidden', background: '#fff' }}>
+        <img src={content.png} width={content.width} height={content.height} alt={frame.name} style={{ display: 'block', transform: `translateY(-${crop}px)` }} />
       </div>
-      {frame.links.map((l, i) => {
-        if (l.y < crop) {
+      {content.links.map((l, i) => {
+        if (l.y < crop || l.x < 0) {
           return l.kind === 'back' || l.label === 'Glyph' || l.label === 'Close' ? (
             <Hotspot key={i} l={l} rect={shell.backZone} outline={outline} onClick={() => follow(l)} describe={describe} />
           ) : null
@@ -262,7 +268,7 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
         </div>
         {isDesktop ? (
           <p style={{ fontSize: 12, lineHeight: '17px', color: '#8A5F09', margin: '8px 0 0', maxWidth: 720, paddingLeft: 10, borderLeft: '2px solid #8A5F09' }}>
-            {frame.desktop ? (<>Desktop in-app view per the decision of 2026-09-12 (&ldquo;sidebar on left and chat in the rest of the screen&rdquo;): the library&rsquo;s V1 desktop sidebar (220) on the left, the chat filling the rest of the window at full height. The chat is the real ChannelComponent from its own story — the only designed chat content is the Pages / Channel--D skeleton. Hotspots follow the mobile frame&rsquo;s own wiring; the 715 size does not apply here (shown at 1024).</>) : (<>Desktop sizes are a composition per the decided model, not a designed screen: the Modal full-window shell&rsquo;s chrome (window controls, title bar with back arrow) drawn to the window width, a white content area, and this screen&rsquo;s content centered in it — its own title bar removed and its title text set in the shell&rsquo;s bar. The library component is 715 wide; stretching it to wider windows is our interpretation.</>)}
+            {frame.desktop ? (<>Desktop rendering from the designer&rsquo;s own desktop frame (node {frame.desktop.node}, {frame.desktop.width}&times;{frame.desktop.height}), not the mobile content in the shell. {frame.desktop.kind === 'app' ? <>Drawn at {frame.desktop.width}: in wider windows the sidebar and the chat&rsquo;s edges keep their place and the gap is the frame&rsquo;s own plain column stretched — only designer pixels (&ldquo;sidebar on left and chat in the rest of the screen&rdquo;).</> : frame.desktop.kind === 'modal' ? <>A card with transparent margins, painted centered over the designer&rsquo;s desktop Community home behind a scrim.</> : <>715-wide content inside the Modal full-window shell.</>} Hotspots are measured on the export and wired to the same targets as the mobile frame&rsquo;s links.</>) : (<>Desktop sizes are a composition per the decided model, not a designed screen: the Modal full-window shell&rsquo;s chrome (window controls, title bar with back arrow) drawn to the window width, a white content area, and this screen&rsquo;s content centered in it — its own title bar removed and its title text set in the shell&rsquo;s bar. The library component is 715 wide; stretching it to wider windows is our interpretation.</>)}
           </p>
         ) : vp === 'mobile-430' ? (
           <p style={{ fontSize: 12, lineHeight: '17px', color: INK_3, margin: '8px 0 0', maxWidth: 720 }}>Scaled from the 375-wide frame; the design has no 430-wide variant.</p>

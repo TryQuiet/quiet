@@ -87,32 +87,53 @@ for (const f of flow.frames) {
 for (const k of Object.keys(DISPLAY)) if (!flow.frames.some(f => f.slug === k)) { console.error(`DISPLAY has no frame for slug ${k}`); process.exit(1) }
 const dups = rows.map(f => f.display).filter((d, i, a) => a.indexOf(d) !== i)
 if (dups.length) { console.error(`duplicate display names: ${[...new Set(dups)].join(' | ')}`); process.exit(1) }
-// Desktop in-app stages (user decision, 2026-09-12: "sidebar on left and chat in the rest of the screen").
-// Once the community exists the desktop app is the two-pane window, not the onboarding modal: the library's
-// V1 desktop sidebar (220) on the left, the chat filling the rest. Hotspots are rows of the sidebar component
-// (rects relative to it, from the library JSON), wired to the targets the mobile frame's own links use —
-// resolved by link label, so no target is invented. 'app-panel' = the desktop switcher panel over that view.
-const SIDEBAR_RECTS = {
-  header: { x: 0, y: 52, w: 220, h: 28, label: 'Community header (nyc-activism ▾)' },
-  'add-members': { x: 0, y: 104, w: 220, h: 26, label: 'Add members row' },
-}
+// Desktop renderings from the designer's own desktop frames (user, 2026-09-12: "sidebar on left and chat in the
+// rest of the screen" and "there should be plenty of designs on this in figma already"). Per stage: kind 'app' =
+// a 740-wide split-view frame — drawn at 740; wider windows keep [0,right) at the left edge and [right,740) at
+// the right edge and fill the gap by stretching the plain column at `col` (only designer pixels); kind 'modal' =
+// a 715-wide transparent-margin card painted over the desktop Community home with a scrim, centered; kind
+// 'content' = 715-wide content inside the Modal full-window shell. Hotspots are measured on the export (1×) and
+// wired to the targets of the mobile frame's own links, matched by label — or to 'back'. Nothing else is drawn.
+const APP_HOME = { png: 'desktop-community-home-empty.png', node: '1430:48044', width: 740, height: 800, stretch: { col: 600, right: 690 } }
 const DESKTOP = {
-  'community-home': { mode: 'app', hotspots: [{ rect: 'header', from: 'Avatar and switcher' }, { rect: 'add-members', from: 'Frame 1452' }] },
-  'home-add-members': { mode: 'app', hotspots: [{ rect: 'header', from: 'Avatar and switcher' }, { rect: 'add-members', from: 'Home add members' }] },
-  'community-switcher-2853-1955': { mode: 'app-panel', hotspots: [] },
+  'community-home': { kind: 'app', ...APP_HOME, hotspots: [
+    { x: 52, y: 47, w: 126, h: 26, label: 'Community name', from: 'Avatar and switcher' },
+    { x: 186, y: 47, w: 24, h: 24, label: 'Gear → community menu (Add members)', to: 'home-add-members', kind: 'added' },
+  ] },
+  'home-add-members': { kind: 'app', png: 'desktop-community-menu-open.png', node: '1430:48372', width: 740, height: 800, stretch: { col: 290, right: 365 }, hotspots: [
+    { x: 365, y: 109, w: 375, h: 49, label: 'Add members row', from: 'Home add members' },
+    { x: 380, y: 18, w: 28, h: 28, label: 'Back arrow', back: true },
+  ] },
+  'community-switcher-2853-1955': { kind: 'app', png: 'desktop-community-switcher-overlay.png', node: '1104:38645', width: 740, height: 658, stretch: { col: 600, right: 640 }, hotspots: [
+    { x: 288, y: 282, w: 28, h: 26, label: 'Person add (VibeVillage row)', from: 'Person add' },
+    { x: 66, y: 100, w: 24, h: 24, label: 'Close', back: true },
+  ] },
+  'want-a-server': { kind: 'modal', png: 'desktop-want-a-server-modal.png', node: '2840:6698', width: 715, height: 558, hotspots: [
+    { x: 270, y: 315, w: 175, h: 50, label: 'Use Quiet’s server', from: 'Button', nth: 0 },
+    { x: 322, y: 377, w: 72, h: 24, label: 'Not now', from: 'Button', nth: 1 },
+  ] },
+  'captcha-3054-4052': { kind: 'modal', png: 'desktop-captcha-modal.png', node: '2840:6724', width: 715, height: 659, hotspots: [
+    { x: 437, y: 539, w: 80, h: 28, label: 'VERIFY', from: 'Frame' },
+  ] },
+  'choose-a-plan': { kind: 'content', png: 'desktop-choose-a-plan.png', node: '2840:6718', width: 715, height: 929, hotspots: [
+    { x: 32, y: 297, w: 103, h: 48, label: 'Upgrade (Free)', from: 'Button', nth: 0 },
+    { x: 265, y: 297, w: 104, h: 48, label: 'Upgrade ($20)', from: 'Button', nth: 1 },
+    { x: 498, y: 297, w: 103, h: 48, label: 'Upgrade ($40)', from: 'Button', nth: 2 },
+    { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
+  ] },
 }
 for (const [slug, d] of Object.entries(DESKTOP)) {
   const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`DESKTOP has no frame for slug ${slug}`); process.exit(1) }
   const hotspots = d.hotspots.map(h => {
-    const from = f.links.find(l => l.label === h.from && l.kind !== 'back'); if (!from) { console.error(`DESKTOP ${slug}: no link labelled ${h.from}`); process.exit(1) }
-    const r = SIDEBAR_RECTS[h.rect]; return { x: r.x, y: r.y, w: r.w, h: r.h, label: r.label, target: from.target, kind: from.kind }
+    if (h.back) return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: null, kind: 'back' }
+    if (h.to) { if (!flow.frames.some(x => x.slug === h.to)) { console.error(`DESKTOP ${slug}: unknown target ${h.to}`); process.exit(1) } return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: h.to, kind: h.kind ?? 'added' } }
+    const cands = f.links.filter(l => l.label === h.from && l.kind !== 'back'); const from = cands[h.nth ?? 0]
+    if (!from) { console.error(`DESKTOP ${slug}: no link labelled ${h.from} #${h.nth ?? 0}`); process.exit(1) }
+    return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: from.target, kind: from.kind }
   })
-  f.desktop = { mode: d.mode, hotspots }
+  f.desktop = { kind: d.kind, png: d.png, node: d.node, width: d.width, height: d.height, stretch: d.stretch ?? null, hotspots }
 }
-flow.desktopApp = {
-  sidebar: { png: 'desktop-sidebar-v1.png', node: '6218:16416', width: 220, height: 755, bg: '#511974' },
-  switcher: { png: 'desktop-community-switcher.png', node: '5476:42949', width: 352, height: 699, inset: 16 },
-}
+flow.desktopApp = APP_HOME
 const mapId = toId(TITLE, storyNameFromExport('AllStages'))
 flow.mapId = mapId
 fs.writeFileSync(flowPath, JSON.stringify(flow, null, 1))

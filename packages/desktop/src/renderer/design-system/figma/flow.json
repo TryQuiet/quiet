@@ -662,25 +662,33 @@
    "id": "onboarding-flow--community-home",
    "export": "CommunityHome",
    "desktop": {
-    "mode": "app",
+    "kind": "app",
+    "png": "desktop-community-home-empty.png",
+    "node": "1430:48044",
+    "width": 740,
+    "height": 800,
+    "stretch": {
+     "col": 600,
+     "right": 690
+    },
     "hotspots": [
      {
-      "x": 0,
-      "y": 52,
-      "w": 220,
-      "h": 28,
-      "label": "Community header (nyc-activism ▾)",
+      "x": 52,
+      "y": 47,
+      "w": 126,
+      "h": 26,
+      "label": "Community name",
       "target": "community-switcher-2853-1955",
       "kind": "prototype"
      },
      {
-      "x": 0,
-      "y": 104,
-      "w": 220,
-      "h": 26,
-      "label": "Add members row",
-      "target": "want-a-server",
-      "kind": "prototype"
+      "x": 186,
+      "y": 47,
+      "w": 24,
+      "h": 24,
+      "label": "Gear → community menu (Add members)",
+      "target": "home-add-members",
+      "kind": "added"
      }
     ]
    }
@@ -733,8 +741,35 @@
    "id": "onboarding-flow--community-switcher-2853-1955",
    "export": "CommunitySwitcher_2853_1955",
    "desktop": {
-    "mode": "app-panel",
-    "hotspots": []
+    "kind": "app",
+    "png": "desktop-community-switcher-overlay.png",
+    "node": "1104:38645",
+    "width": 740,
+    "height": 658,
+    "stretch": {
+     "col": 600,
+     "right": 640
+    },
+    "hotspots": [
+     {
+      "x": 288,
+      "y": 282,
+      "w": 28,
+      "h": 26,
+      "label": "Person add (VibeVillage row)",
+      "target": "want-a-server",
+      "kind": "prototype"
+     },
+     {
+      "x": 66,
+      "y": 100,
+      "w": 24,
+      "h": 24,
+      "label": "Close",
+      "target": null,
+      "kind": "back"
+     }
+    ]
    },
    "pad": {
     "x": 16,
@@ -787,7 +822,35 @@
    ],
    "bytes": 39499,
    "id": "onboarding-flow--want-a-server",
-   "export": "WantAServer"
+   "export": "WantAServer",
+   "desktop": {
+    "kind": "modal",
+    "png": "desktop-want-a-server-modal.png",
+    "node": "2840:6698",
+    "width": 715,
+    "height": 558,
+    "stretch": null,
+    "hotspots": [
+     {
+      "x": 270,
+      "y": 315,
+      "w": 175,
+      "h": 50,
+      "label": "Use Quiet’s server",
+      "target": "choose-a-plan",
+      "kind": "prototype"
+     },
+     {
+      "x": 322,
+      "y": 377,
+      "w": 72,
+      "h": 24,
+      "label": "Not now",
+      "target": "no-server",
+      "kind": "prototype"
+     }
+    ]
+   }
   },
   {
    "slug": "choose-a-plan",
@@ -844,7 +907,53 @@
    ],
    "bytes": 66971,
    "id": "onboarding-flow--choose-a-plan",
-   "export": "ChooseAPlan"
+   "export": "ChooseAPlan",
+   "desktop": {
+    "kind": "content",
+    "png": "desktop-choose-a-plan.png",
+    "node": "2840:6718",
+    "width": 715,
+    "height": 929,
+    "stretch": null,
+    "hotspots": [
+     {
+      "x": 32,
+      "y": 297,
+      "w": 103,
+      "h": 48,
+      "label": "Upgrade (Free)",
+      "target": "agree-and-join-server-opt-in-3054-4090",
+      "kind": "prototype"
+     },
+     {
+      "x": 265,
+      "y": 297,
+      "w": 104,
+      "h": 48,
+      "label": "Upgrade ($20)",
+      "target": "agree-and-join-server-opt-in-3054-4090",
+      "kind": "prototype"
+     },
+     {
+      "x": 498,
+      "y": 297,
+      "w": 103,
+      "h": 48,
+      "label": "Upgrade ($40)",
+      "target": "agree-and-join-server-opt-in-3054-4090",
+      "kind": "prototype"
+     },
+     {
+      "x": -1,
+      "y": -1,
+      "w": 0,
+      "h": 0,
+      "label": "Back",
+      "target": null,
+      "kind": "back"
+     }
+    ]
+   }
   },
   {
    "slug": "no-server",
@@ -979,7 +1088,26 @@
    ],
    "bytes": 633654,
    "id": "onboarding-flow--captcha-3054-4052",
-   "export": "Captcha_3054_4052"
+   "export": "Captcha_3054_4052",
+   "desktop": {
+    "kind": "modal",
+    "png": "desktop-captcha-modal.png",
+    "node": "2840:6724",
+    "width": 715,
+    "height": 659,
+    "stretch": null,
+    "hotspots": [
+     {
+      "x": 437,
+      "y": 539,
+      "w": 80,
+      "h": 28,
+      "label": "VERIFY",
+      "target": "home-add-members",
+      "kind": "prototype"
+     }
+    ]
+   }
   },
   {
    "slug": "home-add-members",
@@ -1029,25 +1157,33 @@
    "id": "onboarding-flow--home-add-members",
    "export": "HomeAddMembers",
    "desktop": {
-    "mode": "app",
+    "kind": "app",
+    "png": "desktop-community-menu-open.png",
+    "node": "1430:48372",
+    "width": 740,
+    "height": 800,
+    "stretch": {
+     "col": 290,
+     "right": 365
+    },
     "hotspots": [
      {
-      "x": 0,
-      "y": 52,
-      "w": 220,
-      "h": 28,
-      "label": "Community header (nyc-activism ▾)",
-      "target": "community-switcher-2853-1955",
-      "kind": "prototype"
-     },
-     {
-      "x": 0,
-      "y": 104,
-      "w": 220,
-      "h": 26,
+      "x": 365,
+      "y": 109,
+      "w": 375,
+      "h": 49,
       "label": "Add members row",
       "target": "add-members-options",
       "kind": "prototype"
+     },
+     {
+      "x": 380,
+      "y": 18,
+      "w": 28,
+      "h": 28,
+      "label": "Back arrow",
+      "target": null,
+      "kind": "back"
      }
     ]
    }
@@ -1163,19 +1299,13 @@
  ],
  "mapId": "onboarding-flow--all-stages",
  "desktopApp": {
-  "sidebar": {
-   "png": "desktop-sidebar-v1.png",
-   "node": "6218:16416",
-   "width": 220,
-   "height": 755,
-   "bg": "#511974"
-  },
-  "switcher": {
-   "png": "desktop-community-switcher.png",
-   "node": "5476:42949",
-   "width": 352,
-   "height": 699,
-   "inset": 16
+  "png": "desktop-community-home-empty.png",
+  "node": "1430:48044",
+  "width": 740,
+  "height": 800,
+  "stretch": {
+   "col": 600,
+   "right": 690
   }
  }
 }
