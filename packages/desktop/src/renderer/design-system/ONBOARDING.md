@@ -2,6 +2,10 @@
 
 Generated 2026-09-11 from the Figma prototype **Get started (prototype)** (`f6Nr5b5wtvk6Xoh1HJZ8Dd`, last edited 2026-04-14) and the shipping code on branch `design/storybook-grid`. Every string under *Copy* is the designer's text node, verbatim. Nothing here is invented; where the design is silent it says so.
 
+## Framing (decided 2026-09-12)
+
+Storybook **is the new design library**, being rebuilt from this spec: one design — 4px grid, the Rubik scale, mobile-canonical layout, `Modal full-window` on desktop — scoped to features that exist in the code or are in branches now. There are no before/after or 2px comparisons in Storybook; `design-system/tokens` exports a single `tokens` set. Stories are library entries: `Foundations/*`, `Components/*`, `Screens/*`, `Onboarding flow`, `Desktop — designs`.
+
 ## Decisions already made
 
 - **Spacing grid: 4px** — steps 4 8 12 16 24 32 48 64; semantic roles xs 4 · sm 8 · md 12 · lg 16 · xl 24 · xxl 32 (`design-system/tokens/grid-4px.ts`).
