@@ -740,6 +740,10 @@
    "bytes": 143207,
    "id": "onboarding-flow--community-switcher-2853-1955",
    "export": "CommunitySwitcher_2853_1955",
+   "pad": {
+    "x": 16,
+    "y": 16
+   },
    "desktop": {
     "kind": "app",
     "png": "desktop-community-switcher-overlay.png",
@@ -770,10 +774,6 @@
       "kind": "back"
      }
     ]
-   },
-   "pad": {
-    "x": 16,
-    "y": 16
    }
   },
   {
@@ -822,35 +822,7 @@
    ],
    "bytes": 39499,
    "id": "onboarding-flow--want-a-server",
-   "export": "WantAServer",
-   "desktop": {
-    "kind": "modal",
-    "png": "desktop-want-a-server-modal.png",
-    "node": "2840:6698",
-    "width": 715,
-    "height": 558,
-    "stretch": null,
-    "hotspots": [
-     {
-      "x": 270,
-      "y": 315,
-      "w": 175,
-      "h": 50,
-      "label": "Use Quiet’s server",
-      "target": "choose-a-plan",
-      "kind": "prototype"
-     },
-     {
-      "x": 322,
-      "y": 377,
-      "w": 72,
-      "h": 24,
-      "label": "Not now",
-      "target": "no-server",
-      "kind": "prototype"
-     }
-    ]
-   }
+   "export": "WantAServer"
   },
   {
    "slug": "choose-a-plan",
@@ -1088,26 +1060,7 @@
    ],
    "bytes": 633654,
    "id": "onboarding-flow--captcha-3054-4052",
-   "export": "Captcha_3054_4052",
-   "desktop": {
-    "kind": "modal",
-    "png": "desktop-captcha-modal.png",
-    "node": "2840:6724",
-    "width": 715,
-    "height": 659,
-    "stretch": null,
-    "hotspots": [
-     {
-      "x": 437,
-      "y": 539,
-      "w": 80,
-      "h": 28,
-      "label": "VERIFY",
-      "target": "home-add-members",
-      "kind": "prototype"
-     }
-    ]
-   }
+   "export": "Captcha_3054_4052"
   },
   {
    "slug": "home-add-members",

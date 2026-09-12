@@ -115,6 +115,7 @@ const DESKTOP = {
     { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
   ] },
 }
+for (const f of flow.frames) delete f.desktop // derived; never carried over from a previous run
 for (const [slug, d] of Object.entries(DESKTOP)) {
   const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`DESKTOP has no frame for slug ${slug}`); process.exit(1) }
   const hotspots = d.hotspots.map(h => {
