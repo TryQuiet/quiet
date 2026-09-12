@@ -1,7 +1,7 @@
 import { createTheme, type Theme } from '@mui/material/styles'
 import React, { useEffect, useState } from 'react'
 
-import { grid4px } from './design-system/tokens/grid-4px'
+import { tokens } from './design-system/tokens'
 import type { TypeStyle } from './design-system/tokens/types'
 
 const font = "'Rubik', sans-serif"
@@ -14,8 +14,8 @@ const px = (style: TypeStyle) => ({
 })
 
 /**
- * Rubik scale on the 4px grid (design-system/tokens/grid-4px.ts), keyed by the
- * MUI variant each role maps to (design-system/tokens/types.ts MUI_VARIANT).
+ * The design system's Rubik scale (design-system/tokens), keyed by the MUI
+ * variant each role maps to (design-system/tokens/types.ts MUI_VARIANT).
  * Only weights 400 and 500 are bundled.
  */
 const typography = {
@@ -23,21 +23,21 @@ const typography = {
   fontStyle: 'normal',
   fontWeight: 'normal',
   useNextVariants: true,
-  overline: px(grid4px.type.overline),
-  caption: px(grid4px.type.caption),
-  body1: px(grid4px.type.bodyLg),
-  body2: px(grid4px.type.body),
-  subtitle1: px(grid4px.type.bodyLg),
-  subtitle2: px(grid4px.type.subtitle),
-  h1: px(grid4px.type.h1),
-  h2: px(grid4px.type.h2),
-  h3: px(grid4px.type.h3),
-  h4: px(grid4px.type.title),
-  h5: px(grid4px.type.h5),
+  overline: px(tokens.type.overline),
+  caption: px(tokens.type.caption),
+  body1: px(tokens.type.bodyLg),
+  body2: px(tokens.type.body),
+  subtitle1: px(tokens.type.bodyLg),
+  subtitle2: px(tokens.type.subtitle),
+  h1: px(tokens.type.h1),
+  h2: px(tokens.type.h2),
+  h3: px(tokens.type.h3),
+  h4: px(tokens.type.title),
+  h5: px(tokens.type.h5),
 }
 
 /** Spacing roles on the 4px grid: xs 4 · sm 8 · md 12 · lg 16 · xl 24 · xxl 32. */
-const space = grid4px.semantic
+const space = tokens.semantic
 
 const lightTheme = createTheme({
   typography: {

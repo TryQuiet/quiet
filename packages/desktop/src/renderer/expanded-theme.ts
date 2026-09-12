@@ -27,7 +27,7 @@ declare module '@mui/material/styles/createPalette' {
 
 declare module '@mui/material/styles' {
   interface Theme {
-    /** Spacing roles on the 4px grid (design-system/tokens/grid-4px.ts). */
+    /** Spacing roles on the 4px grid (design-system/tokens). */
     space: SemanticSpace
     componentSizes: {
       avatar: {
