@@ -1,67 +1,50 @@
 import { createTheme, type Theme } from '@mui/material/styles'
 import React, { useEffect, useState } from 'react'
 
+import { tokens } from './design-system/tokens'
+import type { TypeStyle } from './design-system/tokens/types'
+
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
 
+const px = (style: TypeStyle) => ({
+  fontSize: style.fontSize,
+  lineHeight: `${style.lineHeight}px`,
+  fontWeight: style.fontWeight,
+})
+
+/**
+ * The design system's Rubik scale (design-system/tokens), keyed by the MUI
+ * variant each role maps to (design-system/tokens/types.ts MUI_VARIANT).
+ * Only weights 400 and 500 are bundled.
+ */
+const typography = {
+  fontFamily: [font, fontLogs].join(','),
+  fontStyle: 'normal',
+  fontWeight: 'normal',
+  useNextVariants: true,
+  overline: px(tokens.type.overline),
+  caption: px(tokens.type.caption),
+  body1: px(tokens.type.bodyLg),
+  body2: px(tokens.type.body),
+  subtitle1: px(tokens.type.bodyLg),
+  subtitle2: px(tokens.type.subtitle),
+  h1: px(tokens.type.h1),
+  h2: px(tokens.type.h2),
+  h3: px(tokens.type.h3),
+  h4: px(tokens.type.title),
+  h5: px(tokens.type.h5),
+}
+
+/** Spacing roles on the 4px grid: xs 4 · sm 8 · md 12 · lg 16 · xl 24 · xxl 32. */
+const space = tokens.semantic
+
 const lightTheme = createTheme({
   typography: {
-    fontFamily: [font, fontLogs].join(','),
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    useNextVariants: true,
-    overline: {
-      fontSize: 10,
-      lineHeight: '16px',
-      fontWeight: 500,
-    },
-    caption: {
-      fontSize: 12,
-      lineHeight: '20px',
-      color: '#b2b2b2',
-    },
-    body1: {
-      fontSize: 16,
-      lineHeight: '26px',
-    },
-    body2: {
-      fontSize: 14,
-      lineHeight: '24px',
-    },
-    subtitle1: {
-      fontSize: 16,
-      lineHeight: '26px',
-    },
-    subtitle2: {
-      fontSize: 14,
-      lineHeight: '23px',
-    },
-    h1: {
-      fontWeight: 500,
-      fontSize: 48,
-      lineHeight: '40px',
-    },
-    h2: {
-      fontWeight: 500,
-      fontSize: 34,
-      lineHeight: '40px',
-    },
-    h3: {
-      fontWeight: 500,
-      fontSize: 28,
-      lineHeight: '34px',
-    },
-    h4: {
-      fontWeight: 500,
-      fontSize: 18,
-      lineHeight: '27px',
-    },
-    h5: {
-      fontSize: 16,
-      lineHeight: '26px',
-      fontWeight: 500,
-    },
+    ...typography,
+    caption: { ...typography.caption, color: '#b2b2b2' },
   },
+  space,
   palette: {
     mode: 'light',
     background: {
@@ -247,60 +230,7 @@ const lightTheme = createTheme({
 
 const darkTheme = createTheme({
   typography: {
-    fontFamily: [font, fontLogs].join(','),
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    useNextVariants: true,
-    overline: {
-      fontSize: 10,
-      lineHeight: '16px',
-      fontWeight: 500,
-    },
-    caption: {
-      fontSize: 12,
-      lineHeight: '20px',
-    },
-    body1: {
-      fontSize: 16,
-      lineHeight: '26px',
-    },
-    body2: {
-      fontSize: 14,
-      lineHeight: '24px',
-    },
-    subtitle1: {
-      fontSize: 16,
-      lineHeight: '26px',
-    },
-    subtitle2: {
-      fontSize: 14,
-      lineHeight: '23px',
-    },
-    h1: {
-      fontWeight: 500,
-      fontSize: 48,
-      lineHeight: '40px',
-    },
-    h2: {
-      fontWeight: 500,
-      fontSize: 34,
-      lineHeight: '40px',
-    },
-    h3: {
-      fontWeight: 500,
-      fontSize: 28,
-      lineHeight: '34px',
-    },
-    h4: {
-      fontWeight: 500,
-      fontSize: 18,
-      lineHeight: '27px',
-    },
-    h5: {
-      fontSize: 16,
-      lineHeight: '26px',
-      fontWeight: 500,
-    },
+    ...typography,
     h6: {
       fontSize: 16,
       lineHeight: '26px',
@@ -308,6 +238,7 @@ const darkTheme = createTheme({
       color: '#fff',
     },
   },
+  space,
   palette: {
     mode: 'dark',
     background: {

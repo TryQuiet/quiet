@@ -1,3 +1,6 @@
+import { createAdmissionAuthContext } from '../admission/admission-auth-context'
+import { AdmissionResourceScope } from '../admission/admission-resource-scope'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
 import waitForExpect from 'wait-for-expect'
@@ -7,6 +10,7 @@ import { QSS_ALLOWED } from '../const'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { SigChain } from '../auth/sigchain'
+import { InviteService } from '../auth/services/invites/invite.service'
 import { SigChainService } from '../auth/sigchain.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { LFAEvents } from '../auth/types'
@@ -93,6 +97,65 @@ describe('QSSAuthConnection - durable join', () => {
     await module.close()
   })
 
+  it('uses the private admission context and gates protocol input until durable publication', async () => {
+    const base = await sigChainService.createChain(true)
+    const team = base.team!
+    const user = base.user
+    base.context = { ...base.localUserContext, invitationSeed: 'seed', expectedTeamId: team.id }
+    const request = {
+      communityId: 'community',
+      teamId: team.id,
+      expectedUserId: base.userId,
+      expectedDeviceId: base.device.deviceId,
+      kind: AdmissionKind.MEMBER,
+      preferredTransport: AdmissionTransport.QSS,
+      timeoutMs: 120_000,
+    }
+    const transaction = sigChainService.beginAdmission(request)
+    const staged = transaction.stage()
+    const pending = deferred()
+    const write = jest.spyOn(localDbService, 'setSigChainData').mockImplementation(async () => pending.promise)
+    const { context, gate } = createAdmissionAuthContext({
+      attemptId: 1,
+      request,
+      transport: AdmissionTransport.QSS,
+      chain: staged,
+      submit: async candidate => {
+        gate.freeze()
+        await transaction.commit(candidate)
+        gate.resume()
+        return {
+          teamId: candidate.teamId,
+          userId: candidate.userId,
+          deviceId: candidate.deviceId,
+          transport: candidate.transport,
+        }
+      },
+      fail: jest.fn(),
+      scope: new AdmissionResourceScope(),
+    })
+    const conn = new QSSAuthConnection(sigChainService, qssClient)
+    conn.teamId = team.id
+    conn.admissionContext = context
+    await (conn as any)._initNewConn(staged)
+    openConnections.push(conn)
+    const joined = jest.fn()
+    conn.on(QSSEvents.QSS_AUTH_JOINED, joined)
+    const deliver = jest.spyOn((conn as any)._authConnection, 'deliver').mockImplementation(() => undefined)
+    emitJoined(conn, { team, user })
+    await waitForExpect(() => expect(write).toHaveBeenCalledTimes(1))
+    emitConnected(conn)
+    conn.deliver(new Uint8Array([1]))
+    expect(deliver).not.toHaveBeenCalled()
+    expect(sigChainService.getActiveChain()).toBe(base)
+    expect(base.team).toBeNull()
+    expect(joined).not.toHaveBeenCalled()
+    pending.resolve()
+    await waitForExpect(() => expect(joined).toHaveBeenCalledTimes(1))
+    expect(sigChainService.getActiveChain()).toBe(staged)
+    expect(deliver).toHaveBeenCalledTimes(1)
+  })
+
   describe('when we already hold the team', () => {
     it('emits QSS_AUTH_JOINED only after the chain write resolves', async () => {
       const sigChain = await sigChainService.createChain(true)
@@ -162,6 +225,54 @@ describe('QSSAuthConnection - durable join', () => {
       expect(inviteeChain.team).toBeNull()
       return { inviteeChain, team }
     }
+
+    it('restores a pending device invitation after a failed write and completes it on reconnect', async () => {
+      const ownerChain = await ownerSigChainService.createChain(true)
+      const team = ownerChain.team!
+      const invite = ownerChain.invites.createDeviceInvite()
+      const inviteeChain = await sigChainService.createChainFromDeviceInvite(
+        {
+          seed: invite.seed,
+          userName: ownerChain.username,
+          expectedTeamId: team.id,
+          expectedUserId: ownerChain.userId,
+        },
+        team.id,
+        true
+      )
+      ownerChain.invites.admitDeviceFromInvite(
+        InviteService.createDeviceAdmission({ seed: invite.seed, device: inviteeChain.device })
+      )
+      const conn = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
+      const writeSpy = jest
+        .spyOn(localDbService, 'setSigChainFromTeam')
+        .mockRejectedValue(new Error('disk unavailable'))
+      const joined = jest.fn()
+      const selfAssign = jest.fn()
+      conn.on(QSSEvents.QSS_AUTH_JOINED, joined)
+      conn.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, selfAssign)
+
+      emitJoined(conn, { team, user: ownerChain.user })
+      await waitForExpect(() => expect(writeSpy).toHaveBeenCalled())
+      conn.stop(false)
+
+      expect(inviteeChain.team).toBeNull()
+      expect(inviteeChain.isPendingDeviceAdmission).toBe(true)
+      expect(joined).not.toHaveBeenCalled()
+      expect(selfAssign).not.toHaveBeenCalled()
+
+      writeSpy.mockRestore()
+      const reconnected = await buildConnection(sigChainService, qssClient, inviteeChain, team.id)
+      reconnected.on(QSSEvents.QSS_AUTH_JOINED, joined)
+      reconnected.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, selfAssign)
+      emitJoined(reconnected, { team, user: ownerChain.user })
+      await waitForExpect(() => expect(joined).toHaveBeenCalledWith(team.id))
+
+      expect(reconnected.joinStatus).toBe(JoinStatus.JOINED)
+      expect(selfAssign).not.toHaveBeenCalled()
+      const stored = await localDbService.getSigChain(team.id)
+      expect(stored?.localUserContext.device.deviceId).toBe(inviteeChain.device.deviceId)
+    })
 
     it('persists the freshly accepted graph before emitting QSS_AUTH_JOINED', async () => {
       const { inviteeChain, team } = await buildInviteeChain()

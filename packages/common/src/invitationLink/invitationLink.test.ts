@@ -1,4 +1,12 @@
-import { InvitationDataVersion, InvitationPair, type InvitationDataV4, type InvitationDataV5 } from '@quiet/types'
+import {
+  InvitationDataVersion,
+  InvitationKind,
+  InvitationPair,
+  type DeviceInvitationDataV4,
+  type DeviceInvitationDataV5,
+  type InvitationDataV4,
+  type InvitationDataV5,
+} from '@quiet/types'
 import {
   argvInvitationLink,
   composeInvitationDeepUrl,
@@ -15,6 +23,7 @@ import {
   PEER_ADDRESS_KEY,
   QSS_ENABLED_KEY,
   QSS_ENDPOINT_KEY,
+  INVITATION_KIND_KEY,
   VERSION_KEY,
 } from './invitationLink.const'
 import { QUIET_JOIN_PAGE } from '../const'
@@ -88,6 +97,7 @@ describe(`Invitation link helper - unknown version`, () => {
 describe(`Invitation link helper ${InvitationDataVersion.v4}`, () => {
   const data: InvitationDataV4 = {
     ...validInvitationDatav4[0],
+    kind: InvitationKind.Member,
     pairs: [...validInvitationDatav4[0].pairs, ...validInvitationDatav4[1].pairs],
   }
   const urlParams = [
@@ -375,6 +385,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v5}`, () => {
   const peerId = '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF'
   const data: InvitationDataV5 = {
     ...validInvitationDatav5[0],
+    kind: InvitationKind.Member,
     pairs: [...validInvitationDatav5[0].pairs, { peerId: peerId, onionAddress: address }],
   }
   const urlParams = [
@@ -787,5 +798,86 @@ describe(`Invitation link helper ${InvitationDataVersion.v5}`, () => {
     expect(parsed).toEqual({
       ...data,
     })
+  })
+})
+
+describe('device invitation links', () => {
+  const v4Data: DeviceInvitationDataV4 = {
+    ...validInvitationDatav4[0],
+    kind: InvitationKind.Device,
+    authData: {
+      ...validInvitationDatav4[0].authData,
+      userId: 'q5ck86uuhihx5w00zhknit60',
+      userName: 'Alice device owner',
+    },
+  }
+
+  const v5Data: DeviceInvitationDataV5 = {
+    psk: validInvitationDatav5[0].psk,
+    pairs: validInvitationDatav5[0].pairs,
+    kind: InvitationKind.Device,
+    version: InvitationDataVersion.v5,
+    authData: {
+      communityName: validInvitationDatav5[0].authData.communityName,
+      seed: validInvitationDatav5[0].authData.seed,
+      teamId: validInvitationDatav5[0].authData.teamId,
+      userId: 'q5ck86uuhihx5w00zhknit60',
+      userName: 'Alice device owner',
+    },
+    qssEnabled: true,
+    qssEndpoint: validInvitationDatav5[0].qssEndpoint,
+  }
+
+  it.each([
+    ['v4', v4Data],
+    ['v5', v5Data],
+  ])('round-trips a %s device invitation', (_version, data) => {
+    const link = composeInvitationDeepUrl(data)
+    const parsed = parseInvitationLinkDeepUrl(link)
+
+    expect(new URL(link).searchParams.get(INVITATION_KIND_KEY)).toBe(InvitationKind.Device)
+    expect(parsed).toEqual(data)
+  })
+
+  it('does not serialize the member discriminator into existing member links', () => {
+    const memberData: InvitationDataV4 = {
+      ...validInvitationDatav4[0],
+      kind: InvitationKind.Member,
+    }
+    const link = composeInvitationDeepUrl(memberData)
+
+    expect(new URL(link).searchParams.has(INVITATION_KIND_KEY)).toBe(false)
+    expect(parseInvitationLinkDeepUrl(link).kind).toBe(InvitationKind.Member)
+  })
+
+  it('rejects a device invitation without a user ID', () => {
+    const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
+    url.searchParams.append(PEER_ADDRESS_KEY, peerPairsToUrlParamString(v4Data.pairs))
+    url.searchParams.append(PSK_PARAM_KEY, v4Data.psk)
+    url.searchParams.append(
+      AUTH_DATA_KEY,
+      encodeAuthData({
+        communityName: v4Data.authData.communityName,
+        seed: v4Data.authData.seed,
+        teamId: v4Data.authData.teamId,
+      })
+    )
+    url.searchParams.append(INVITATION_KIND_KEY, InvitationKind.Device)
+    url.searchParams.append(VERSION_KEY, InvitationDataVersion.v4)
+
+    expect(() => parseInvitationLinkDeepUrl(url.href)).toThrow(`Missing required key 'a.u' in invitation link`)
+  })
+
+  it('rejects a v5 device invitation containing a member-invite salt', () => {
+    const url = new URL(composeInvitationDeepUrl(v5Data))
+    url.searchParams.set(
+      AUTH_DATA_KEY,
+      encodeAuthData({
+        ...v5Data.authData,
+        salt: validInvitationDatav5[0].authData.salt,
+      })
+    )
+
+    expect(() => parseInvitationLinkDeepUrl(url.href)).toThrow(`Invalid value`)
   })
 })

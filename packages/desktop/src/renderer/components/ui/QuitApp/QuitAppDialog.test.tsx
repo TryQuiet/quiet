@@ -42,7 +42,7 @@ describe('QuitAppDialog', () => {
                 class="MuiDialogContent-root QuitAppDialogdialogContent css-ypiqx9-MuiDialogContent-root"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body2 QuitAppDialoginfo css-16d47hw-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body2 QuitAppDialoginfo css-1t82dwi-MuiTypography-root"
                 >
                   Do you want to quit Quiet?
                 </p>
@@ -57,7 +57,7 @@ describe('QuitAppDialog', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true QuitAppDialogbuttonNo css-1vd824g-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body1 QuitAppDialogtypography css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 QuitAppDialogtypography css-1ql8hfl-MuiTypography-root"
                     >
                       No
                     </p>
@@ -66,7 +66,7 @@ describe('QuitAppDialog', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true QuitAppDialogbuttonYes css-1vd824g-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body1 QuitAppDialogtypography css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 QuitAppDialogtypography css-1ql8hfl-MuiTypography-root"
                     >
                       Yes
                     </p>

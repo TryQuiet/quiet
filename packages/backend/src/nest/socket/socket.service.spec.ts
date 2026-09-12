@@ -6,7 +6,13 @@ import { SocketModule } from './socket.module'
 import { SocketService } from './socket.service'
 import { io, Socket } from 'socket.io-client'
 import waitForExpect from 'wait-for-expect'
-import { SocketActions } from '@quiet/types'
+import {
+  type DeviceLinkInvite,
+  type LinkedDevice,
+  type InitDeviceLinkPayload,
+  type ResponseLinkDevicePayload,
+  SocketActions,
+} from '@quiet/types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { TEST_DATA_PORT } from '../const'
 
@@ -54,6 +60,66 @@ describe('SocketService', () => {
     await waitForExpect(() => {
       expect(spy).toHaveBeenCalledWith(event, undefined, undefined)
     })
+  })
+
+  it('forwards device link requests and acknowledgements', async () => {
+    const deviceLinkInvite = {
+      id: 'device-link-id',
+      seed: 'device-link-seed',
+      expiresAt: Date.now() + 30 * 60 * 1000,
+      userId: 'user-id',
+      userName: 'alice',
+    } as DeviceLinkInvite
+    const listener = jest.fn((_payload: Record<string, never>, callback: (response?: DeviceLinkInvite) => void) =>
+      callback(deviceLinkInvite)
+    )
+
+    socketService.on(SocketActions.CREATE_DEVICE_LINK, listener)
+
+    await expect(client.emitWithAck(SocketActions.CREATE_DEVICE_LINK, {})).resolves.toEqual(deviceLinkInvite)
+    expect(listener).toHaveBeenCalledWith({}, expect.any(Function))
+
+    socketService.off(SocketActions.CREATE_DEVICE_LINK, listener)
+  })
+
+  it('forwards linked-device list requests and acknowledgements', async () => {
+    const devices: LinkedDevice[] = [
+      { deviceId: 'this-device', deviceName: 'this-device', isCurrent: true },
+      { deviceId: 'laptop', deviceName: 'laptop', isCurrent: false },
+    ]
+    const listener = jest.fn((_payload: Record<string, never>, callback: (response?: LinkedDevice[]) => void) =>
+      callback(devices)
+    )
+
+    socketService.on(SocketActions.GET_LINKED_DEVICES, listener)
+
+    await expect(client.emitWithAck(SocketActions.GET_LINKED_DEVICES, {})).resolves.toEqual(devices)
+    expect(listener).toHaveBeenCalledWith({}, expect.any(Function))
+
+    socketService.off(SocketActions.GET_LINKED_DEVICES, listener)
+  })
+
+  it('forwards device admission requests and acknowledgements', async () => {
+    const payload = {
+      id: 'community-id',
+      inviteData: {},
+      deviceName: 'Desktop',
+    } as InitDeviceLinkPayload
+    const response = {
+      id: payload.id,
+      community: { id: payload.id },
+      identity: { id: 'identity-id' },
+    } as unknown as ResponseLinkDevicePayload
+    const listener = jest.fn(
+      (_payload: InitDeviceLinkPayload, callback: (response?: ResponseLinkDevicePayload) => void) => callback(response)
+    )
+
+    socketService.on(SocketActions.LINK_DEVICE, listener)
+
+    await expect(client.emitWithAck(SocketActions.LINK_DEVICE, payload)).resolves.toEqual(response)
+    expect(listener).toHaveBeenCalledWith(payload, expect.any(Function))
+
+    socketService.off(SocketActions.LINK_DEVICE, listener)
   })
 
   it('there are no fragile endpoints in the collection of suspendables', async () => {

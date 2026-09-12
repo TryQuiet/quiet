@@ -39,7 +39,7 @@ describe('Create ChannelCreationModalComponent', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -87,7 +87,7 @@ describe('Create ChannelCreationModalComponent', () => {
                       </svg>
                     </span>
                     <span
-                      class="MuiTypography-root MuiTypography-caption MuiTypography-alignCenter SpinnerLoadermessage css-x82by-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-alignCenter SpinnerLoadermessage css-9qlyj1-MuiTypography-root"
                       style="font-size: 0.9090909090909091rem;"
                     >
                       Channel recreation

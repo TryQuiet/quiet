@@ -45,7 +45,7 @@ describe('WelcomeMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body1 WelcomeMessageusername css-cl2jau-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 WelcomeMessageusername css-rki9d6-MuiTypography-root"
                       >
                         Quiet
                       </p>
@@ -54,7 +54,7 @@ describe('WelcomeMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body1 WelcomeMessagetime css-ghvhpl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 WelcomeMessagetime css-1ql8hfl-MuiTypography-root"
                       >
                         string
                       </p>
@@ -66,7 +66,7 @@ describe('WelcomeMessage', () => {
                 class="MuiGrid-root MuiGrid-item WelcomeMessagemessageInput css-13i4rnv-MuiGrid-root"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body2 WelcomeMessagemessage css-16d47hw-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body2 WelcomeMessagemessage css-1t82dwi-MuiTypography-root"
                 >
                   random message
                 </p>

@@ -50,7 +50,7 @@ describe('CopyLink', () => {
                 class="MuiGrid-root MuiGrid-item InviteToCommunitytitle css-13i4rnv-MuiGrid-root"
               >
                 <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
                   data-testid="invite-a-friend"
                 >
                   Add Members
@@ -64,7 +64,7 @@ describe('CopyLink', () => {
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
               >
                 <h5
-                  class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-h5 css-g8q9rb-MuiTypography-root"
                 >
                   Your community link
                 </h5>
@@ -73,7 +73,7 @@ describe('CopyLink', () => {
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                 >
                   Anyone with Quiet app can follow this link to join this community.
                   <br />
@@ -83,7 +83,7 @@ describe('CopyLink', () => {
                   class="MuiGrid-root MuiGrid-item InviteToCommunitylinkContainer css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-1t82dwi-MuiTypography-root"
                     data-testid="invitation-link"
                   >
                     ••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
@@ -165,7 +165,7 @@ describe('CopyLink', () => {
                 class="MuiGrid-root MuiGrid-item InviteToCommunitytitle css-13i4rnv-MuiGrid-root"
               >
                 <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
                   data-testid="invite-a-friend"
                 >
                   Add Members
@@ -179,7 +179,7 @@ describe('CopyLink', () => {
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
               >
                 <h5
-                  class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-h5 css-g8q9rb-MuiTypography-root"
                 >
                   Your community link
                 </h5>
@@ -188,7 +188,7 @@ describe('CopyLink', () => {
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                 >
                   Anyone with Quiet app can follow this link to join this community.
                   <br />
@@ -198,7 +198,7 @@ describe('CopyLink', () => {
                   class="MuiGrid-root MuiGrid-item InviteToCommunitylinkContainer css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-1t82dwi-MuiTypography-root"
                     data-testid="invitation-link"
                   >
                     https://tryquiet.org/join#p=12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY%2Cp3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345&a=Yz1uYW1lJnM9NWFoOHVZb2Rpd3V3VnliVCZ0PWFiYzEyMw&v=v4
@@ -262,7 +262,7 @@ describe('CopyLink', () => {
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <h5
-                class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h5 css-g8q9rb-MuiTypography-root"
               >
                 Only admins can invite new members
               </h5>
@@ -271,7 +271,7 @@ describe('CopyLink', () => {
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <p
-                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
               >
                 Only admins can invite new members to this community. Ask the community creator for a link to share.
               </p>

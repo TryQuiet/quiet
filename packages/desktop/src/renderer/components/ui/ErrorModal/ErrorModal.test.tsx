@@ -49,7 +49,7 @@ describe('ErrorModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   >
                     Error
@@ -105,7 +105,7 @@ describe('ErrorModal', () => {
                       src="test-file-stub"
                     />
                     <h3
-                      class="MuiTypography-root MuiTypography-h3 ErrorModalComponentmessage css-ptjqt4-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-h3 ErrorModalComponentmessage css-ts8dj1-MuiTypography-root"
                     >
                       Test error message
                     </h3>
@@ -117,7 +117,7 @@ describe('ErrorModal', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body2 ErrorModalComponentinfo css-16d47hw-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 ErrorModalComponentinfo css-1t82dwi-MuiTypography-root"
                       >
                         This error traceback was sent to centralized server.
                       </p>
@@ -129,7 +129,7 @@ describe('ErrorModal', () => {
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-ycm7do-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-1hrzc2g-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <textarea
                             aria-invalid="false"

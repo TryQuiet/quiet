@@ -13,7 +13,9 @@ import { runSaga, stdChannel } from 'redux-saga'
 import { NativeModules } from 'react-native'
 import {
   type Community,
+  type DeviceInvitationDataV4,
   InvitationData,
+  InvitationKind,
   type InvitationDataV4,
   InvitationDataVersion,
   JoinCommunityPayload,
@@ -45,7 +47,10 @@ describe('deepLinkSaga', () => {
       })
     )
     const joinCommunityPayload: JoinCommunityPayload = {
-      inviteData: validData,
+      inviteData: {
+        ...validData,
+        kind: InvitationKind.Member,
+      },
     }
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
@@ -94,7 +99,9 @@ describe('deepLinkSaga', () => {
       failure.payload.params.onPress(dispatch)
       await jest.advanceTimersByTimeAsync(0)
       const joins = actions.filter(action => action.type === communities.actions.joinCommunity.type)
-      expect(joins).toEqual([communities.actions.joinCommunity({ inviteData: validData })])
+      expect(joins).toEqual([
+        communities.actions.joinCommunity({ inviteData: { ...validData, kind: InvitationKind.Member } }),
+      ])
       expect(actions).toContainEqual(
         navigationActions.replaceScreen({ screen: ScreenNames.UsernameRegistrationScreen })
       )
@@ -105,6 +112,44 @@ describe('deepLinkSaga', () => {
       ;(NativeModules.CommunicationModule.handleIncomingEvents as jest.Mock).mockReset()
       jest.useRealTimers()
     }
+  })
+
+  test('links a device without opening username registration', async () => {
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001,
+        socketIOSecret: 'secret',
+      })
+    )
+    const deviceInvite: DeviceInvitationDataV4 = {
+      ...validData,
+      kind: InvitationKind.Device,
+      authData: {
+        ...validData.authData,
+        userId: 'user-id',
+        userName: 'alice',
+      },
+    }
+    const deviceCode = getValidInvitationUrlTestData(deviceInvite).code()
+    const reducer = combineReducers(reducers)
+
+    await expectSaga(deepLinkSaga, initActions.deepLink(deviceCode))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(initActions.resetDeepLink())
+      .put(communities.actions.linkDevice({ inviteData: deviceInvite }))
+      .put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.ConnectionProcessScreen,
+        })
+      )
+      .not.put(communities.actions.joinCommunity({ inviteData: deviceInvite }))
+      .not.put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
+      .run()
   })
 
   test('displays error if user already belongs to a community', async () => {

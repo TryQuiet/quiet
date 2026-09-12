@@ -47,7 +47,7 @@ describe('PossibleImpersonationAttackModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   >
                     Warning!
@@ -101,12 +101,12 @@ describe('PossibleImpersonationAttackModal', () => {
                     src="test-file-stub"
                   />
                   <h4
-                    class="MuiTypography-root MuiTypography-h4 css-ajdqea-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-h4 css-1inrl58-MuiTypography-root"
                   >
                     Possible impersonation attack
                   </h4>
                   <p
-                    class="MuiTypography-root MuiTypography-body2 PossibleImpersonationAttackModalComponent-bodyText css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 PossibleImpersonationAttackModalComponent-bodyText css-1t82dwi-MuiTypography-root"
                   >
                     The owner of 
                     <strong>

@@ -67,6 +67,6 @@ export function* clearReduxStore(): Generator {
   logger.info('Set store ready')
   yield* putResolve(initActions.setStoreReady())
 
-  logger.info('Opening join community screen')
-  yield* putResolve(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
+  logger.info('Opening get started screen')
+  yield* putResolve(navigationActions.replaceScreen({ screen: ScreenNames.GetStartedScreen }))
 }

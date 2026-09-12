@@ -577,7 +577,10 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       adminSigchainService.activeTeamId!,
       true
     )
-    const admission = InviteService.createMemberAdmission({ seed: inviteResult.seed, context: sigchain.context })
+    const admission = InviteService.createMemberAdmission({
+      seed: inviteResult.seed,
+      context: sigchain.localUserContext,
+    })
     // Admit the user onto the graph *without* granting the MEMBER role. `admitMemberFromInvite`
     // also calls `roles.addMember(..., MEMBER)`, which would put the MEMBER role keys in a lockbox
     // addressed to this peer -- exactly the keys channel metadata is encrypted to -- so the
@@ -589,7 +592,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     expect(teamKeyring).toBeDefined()
     const userContext = {
       device: sigchain.context.device,
-      user: sigchain.context.user,
+      user: sigchain.user,
     }
     const loadedTeam = new Team({
       source: teamBytes,
@@ -603,7 +606,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     }
     const newUser = sigchain.users.getUserById(sigchain.user.userId, { includeRemoved: false, throwOnMissing: false })
     expect(newUser).toBeDefined()
-    expect(newUser!.keys.encryption).toBe(sigchain.context.user.keys.encryption.publicKey)
+    expect(newUser!.keys.encryption).toBe(sigchain.user.keys.encryption.publicKey)
 
     // Create libp2p instances (in-memory transport)
     libp2pNodeParams = await spawnLibp2pInstancesInMemory(newPeerModule)

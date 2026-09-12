@@ -19,6 +19,8 @@ const update_graphics = require('./icons/png/update_graphics.png')
 const username_registered = require('./icons/png/username_registered.png')
 const exclamationMark = require('./icons/png/exclamationMark.png')
 const join_community = require('./icons/png/join-community.png')
+// 'Monster' illustration from the Figma prototype's Open invite link frame (exported at 1x/2x/3x, not redrawn)
+const monster = require('./icons/png/monster.png')
 const server_icon = require('./icons/svg/server-icon.tsx')
 
 export const icons = {
@@ -40,6 +42,7 @@ export const icons = {
   username_registered,
   exclamationMark,
   join_community,
+  monster,
   server_icon,
 }
 

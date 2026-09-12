@@ -18,10 +18,10 @@ describe('Native community persistence', () => {
   })
 
   it('creates a community, sends with the keyboard open, and restores the message after a process restart', async () => {
-    await waitFor(element(by.text('Join community')))
+    await waitFor(element(by.text('Let’s get started...')))
       .toBeVisible()
       .withTimeout(120000)
-    await element(by.text('create a new community')).tap()
+    await element(by.id('get-started-create')).tap()
     await waitFor(element(by.id('create-community-component')))
       .toBeVisible()
       .withTimeout(10000)
@@ -30,7 +30,7 @@ describe('Native community persistence', () => {
 
     // Staging offers a server; the e2e build proceeds straight to registration.
     // In both cases this community is created without an external Quiet server.
-    const registrationStep = element(by.text(/^(Not now|Register a username)$/))
+    const registrationStep = element(by.text(/^(Not now|Choose username)$/))
     await waitFor(registrationStep).toBeVisible().withTimeout(30000)
     const step = await registrationStep.getAttributes()
     if (step.text === 'Not now' || step.label === 'Not now') {

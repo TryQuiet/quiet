@@ -1,22 +1,20 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor } from '@testing-library/dom'
-import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
+import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import JoinCommunity from './JoinCommunity'
-import CreateCommunity from '../CreateCommunity/CreateCommunity'
-import { JoinCommunityDictionary, CreateCommunityDictionary } from '../community.dictionary'
+import GetStarted from '../../Onboarding/GetStarted'
 import CreateUsername from '../../CreateUsername/CreateUsername'
-import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
-import { inviteLinkField } from '../../../forms/fields/communityFields'
+import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { CommunityOwnership } from '@quiet/types'
+import { type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
+import { communities } from '@quiet/state-manager'
 import {
   Site,
   QUIET_JOIN_PAGE,
@@ -24,61 +22,88 @@ import {
   PSK_PARAM_KEY,
   validInvitationDatav4,
 } from '@quiet/common'
-import { createLogger } from '../../../logger'
 
-const logger = createLogger('JoinCommunity.test')
+const openModalState = (name: ModalName) => ({
+  [StoreKeys.Socket]: {
+    ...new SocketState(),
+    isConnected: true,
+  },
+  [StoreKeys.Modals]: {
+    ...new ModalsInitialState(),
+    [name]: { open: true },
+    [ModalName.loadingPanel]: { open: false },
+  },
+})
+
+/** Three-way choice → Open invite link → Paste a link. */
+const openPasteStep = async () => {
+  await userEvent.click(screen.getByTestId('join-with-invite-link'))
+  await userEvent.click(await screen.findByTestId('paste-a-link'))
+  return await screen.findByPlaceholderText('Link')
+}
 
 describe('join community', () => {
-  const { code, data } = getValidInvitationUrlTestData(validInvitationDatav4[0])
+  const { code } = getValidInvitationUrlTestData(validInvitationDatav4[0])
+  const data = {
+    ...validInvitationDatav4[0],
+    kind: InvitationKind.Member,
+  }
 
   const validCode = code()
+  const deviceInvitationData: DeviceInvitationDataV4 = {
+    ...validInvitationDatav4[0],
+    kind: InvitationKind.Device,
+    authData: {
+      ...validInvitationDatav4[0].authData,
+      userId: 'device-owner-id',
+      userName: 'device-owner',
+    },
+  }
+  const deviceInvitationCode = getValidInvitationUrlTestData(deviceInvitationData).code()
 
-  it('users switches from join to create', async () => {
-    const { store } = await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: true,
-      },
-      [StoreKeys.Modals]: {
-        ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true },
-      },
-    })
+  it('walks from the three-way choice to the paste step and back to Get started', async () => {
+    const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
 
     renderComponent(
       <>
+        <GetStarted />
         <JoinCommunity />
-        <CreateCommunity />
       </>,
       store
     )
 
-    // Confirm proper modal title is displayed
-    const joinCommunityDictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(joinCommunityDictionary.header)
-    expect(joinCommunityTitle).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+    expect(screen.getByTestId('recover-account')).toHaveAttribute('aria-disabled', 'true')
 
-    // Click redirecting link
-    const link = screen.getByTestId('JoinCommunityLink')
-    await userEvent.click(link)
+    await userEvent.click(screen.getByTestId('join-with-invite-link'))
+    expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
 
-    // Confirm user is being redirected to create community
-    const createCommunityDictionary = CreateCommunityDictionary()
-    const createCommunityTitle = await screen.findByText(createCommunityDictionary.header)
-    expect(createCommunityTitle).toBeVisible()
+    await userEvent.click(screen.getByTestId('paste-a-link'))
+    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+    expect(screen.getByPlaceholderText('Link')).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Let’s get started...', level: 3 })).toBeVisible()
   })
 
-  it('user goes from joning community to username registration, then comes back', async () => {
-    const { store } = await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: true,
-      },
-      [StoreKeys.Modals]: {
-        ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true },
-      },
-    })
+  it('takes the pasted link for "Join with QR code" since desktop has no camera', async () => {
+    const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+
+    renderComponent(<JoinCommunity />, store)
+
+    await userEvent.click(screen.getByTestId('join-with-qr-code'))
+    expect(await screen.findByRole('heading', { name: 'Join with QR code', level: 3 })).toBeVisible()
+    expect(screen.getByPlaceholderText('Link')).toBeVisible()
+  })
+
+  it('user goes from joining community to username registration, then comes back', async () => {
+    const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
 
     renderComponent(
       <>
@@ -88,49 +113,62 @@ describe('join community', () => {
       store
     )
 
-    // Confirm proper modal title is displayed
-    const dictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(dictionary.header)
-    expect(joinCommunityTitle).toBeVisible()
-
-    // Enter community address and hit button
-    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const joinCommunityButton = screen.getByText(dictionary.button)
+    const joinCommunityInput = await openPasteStep()
     await userEvent.type(joinCommunityInput, validCode)
-    await userEvent.click(joinCommunityButton)
+    await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
+    const createUsernameTitle = await screen.findByText('Choose username')
     expect(createUsernameTitle).toBeVisible()
 
     // Close username registration modal by clicking explicit close button
     const closeButton = await screen.findByTestId('createUsernameModalClose')
     await userEvent.click(closeButton)
-    // Re-query after closing modal as the DOM node is re-created
-    const joinCommunityTitleAgain = await screen.findByText(dictionary.header)
-    expect(joinCommunityTitleAgain).toBeVisible()
+    // The join modal reopens on its first step
+    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+  })
+
+  it('links a device without opening username registration', async () => {
+    const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateUsername />
+      </>,
+      store
+    )
+
+    await userEvent.type(await openPasteStep(), deviceInvitationCode)
+    await userEvent.click(screen.getByTestId('continue-joinCommunity'))
+
+    await waitFor(() => {
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        communities.actions.linkDevice({
+          inviteData: deviceInvitationData,
+        })
+      )
+    })
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      modalsActions.openModal({
+        name: ModalName.loadingPanel,
+        args: undefined,
+      })
+    )
+    expect(screen.queryByText('Choose username')).not.toBeInTheDocument()
   })
 
   it('joins community on submit if connection is ready and registrar url is correct', async () => {
     const { store } = await prepareStore()
     const handleCommunityAction = jest.fn()
 
-    const component = (
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
+    const result = renderComponent(
+      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />,
+      store
     )
 
-    const result = renderComponent(component, store)
-
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
+    const textInput = result.queryByPlaceholderText('Link')
     expect(textInput).not.toBeNull()
 
     await userEvent.type(textInput!, validCode)
@@ -150,25 +188,14 @@ describe('join community', () => {
 
       const handleCommunityAction = jest.fn()
 
-      const component = (
-        <PerformCommunityActionComponent
-          open={true}
-          handleClose={() => {}}
-          communityOwnership={CommunityOwnership.User}
-          handleCommunityAction={handleCommunityAction}
-          handleRedirection={() => {}}
-          isConnectionReady={true}
-          isCloseDisabled={true}
-          hasReceivedResponse={false}
-        />
+      const result = renderComponent(
+        <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />,
+        store
       )
 
-      const result = renderComponent(component, store)
-
-      const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
+      const textInput = result.queryByPlaceholderText('Link')
       expect(textInput).not.toBeNull()
-      // @ts-expect-error
-      await userEvent.type(textInput, registrarUrl.href)
+      await userEvent.type(textInput!, registrarUrl.href)
 
       const submitButton = result.getByText('Continue')
       expect(submitButton).toBeEnabled()
@@ -184,25 +211,14 @@ describe('join community', () => {
 
     const handleCommunityAction = jest.fn()
 
-    const component = (
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
+    const result = renderComponent(
+      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />,
+      store
     )
 
-    const result = renderComponent(component, store)
-
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
+    const textInput = result.queryByPlaceholderText('Link')
     expect(textInput).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.type(textInput, registrarUrl)
+    await userEvent.type(textInput!, registrarUrl)
 
     const submitButton = result.getByText('Continue')
     expect(submitButton).toBeEnabled()
@@ -228,20 +244,11 @@ describe('join community', () => {
     const handleCommunityAction = jest.fn()
 
     renderComponent(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />,
+      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />,
       store
     )
 
-    const input = screen.getByPlaceholderText('Invite link')
+    const input = screen.getByPlaceholderText('Link')
     const button = screen.getByText('Continue')
 
     await userEvent.type(input, url)
@@ -257,100 +264,23 @@ describe('join community', () => {
     const { store } = await prepareStore()
     const handleCommunityAction = jest.fn()
 
-    const component = (
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
+    const result = renderComponent(
+      <PasteLinkComponent
+        heading={'Paste a link to Join'}
         handleCommunityAction={handleCommunityAction}
-        handleRedirection={() => {}}
         isConnectionReady={false}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
+      />,
+      store
     )
 
-    const result = renderComponent(component, store)
-
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
+    const textInput = result.queryByPlaceholderText('Link')
     expect(textInput).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.type(textInput, validCode)
+    await userEvent.type(textInput!, validCode)
 
     const submitButton = result.getByTestId('continue-joinCommunity')
     expect(submitButton).not.toBeNull()
     expect(submitButton).toBeDisabled()
 
     expect(handleCommunityAction).not.toBeCalled()
-  })
-
-  // no longer relevant since we switched to non-blocking joinCommunity action
-  it.skip('shows loading spinner on submit button while waiting for the response', async () => {
-    const { rerender } = renderComponent(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
-
-    const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
-    await userEvent.type(textInput, validCode)
-
-    const submitButton = screen.getByText('Continue')
-    expect(submitButton).toBeEnabled()
-    await userEvent.click(submitButton)
-
-    await act(async () => {})
-
-    expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
-
-    // Rerender component to verify circular progress has dissapeared
-    rerender(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={true}
-      />
-    )
-
-    expect(screen.queryByTestId('loading-button-progress')).toBeNull()
-  })
-
-  it('handles redirection to create community page if user clicks on the link', async () => {
-    const { store } = await prepareStore()
-    const handleRedirection = jest.fn()
-
-    const component = (
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={() => {}}
-        handleRedirection={handleRedirection}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
-
-    const result = renderComponent(component, store)
-
-    const switchLink = result.queryByText('create a new community')
-    expect(switchLink).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.click(switchLink)
-
-    expect(handleRedirection).toBeCalled()
   })
 })

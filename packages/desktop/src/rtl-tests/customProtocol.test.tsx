@@ -79,7 +79,7 @@ describe('Opening app through custom protocol', () => {
     })
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
+    const createUsernameTitle = await screen.findByText('Choose username')
     expect(createUsernameTitle).toBeVisible()
   })
 })

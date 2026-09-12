@@ -50,7 +50,7 @@ describe('AddMembersChannel', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -100,7 +100,7 @@ describe('AddMembersChannel', () => {
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 AddMembersChanneldescContainer css-s2k0j8-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-1d2bvqm-MuiTypography-root"
                     >
                       Add members to
                     </p>
@@ -154,7 +154,7 @@ describe('AddMembersChannel', () => {
                       </span>
                     </div>
                     <p
-                      class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-1d2bvqm-MuiTypography-root"
                     >
                       :
                     </p>

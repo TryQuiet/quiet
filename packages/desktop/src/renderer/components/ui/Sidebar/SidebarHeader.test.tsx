@@ -18,7 +18,7 @@ describe('SidebarHeader', () => {
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <p
-                class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
               >
                 sample title
               </p>

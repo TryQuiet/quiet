@@ -39,7 +39,7 @@ describe('Loading', () => {
               class="MuiGrid-root MuiGrid-item LoadingmessageContainer css-13i4rnv-MuiGrid-root"
             >
               <span
-                class="MuiTypography-root MuiTypography-caption Loadingmessage css-1m4pgvy-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption Loadingmessage css-sb3pb0-MuiTypography-root"
               >
                 test Msg
               </span>

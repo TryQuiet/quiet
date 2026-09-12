@@ -48,7 +48,7 @@ describe('DuplicateModalComponent', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   >
                     Warning!
@@ -101,12 +101,12 @@ describe('DuplicateModalComponent', () => {
                     src="test-file-stub"
                   />
                   <h3
-                    class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
                   >
                     Multiple users with same name
                   </h3>
                   <p
-                    class="MuiTypography-root MuiTypography-body2 UserDuplicateModalComponent-bodyText css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 UserDuplicateModalComponent-bodyText css-1t82dwi-MuiTypography-root"
                   >
                     An unregistered user is using the same name as another user. This should be rare, and could mean someone is impersonating another user.
                     <br />
@@ -124,7 +124,7 @@ describe('DuplicateModalComponent', () => {
                         src="test-file-stub"
                       />
                       <span
-                        class="MuiTypography-root MuiTypography-caption UserLabel-wrapper UserLabel-textWhite css-1m4pgvy-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption UserLabel-wrapper UserLabel-textWhite css-sb3pb0-MuiTypography-root"
                       >
                         Duplicate
                       </span>

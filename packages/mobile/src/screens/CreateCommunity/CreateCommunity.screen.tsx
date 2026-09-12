@@ -78,10 +78,10 @@ export const CreateCommunityScreen: FC = () => {
     [dispatch, pendingName]
   )
 
-  const redirectionAction = useCallback(() => {
+  const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.replaceScreen({
-        screen: ScreenNames.JoinCommunityScreen,
+        screen: ScreenNames.GetStartedScreen,
       })
     )
   }, [dispatch])
@@ -90,7 +90,7 @@ export const CreateCommunityScreen: FC = () => {
     <>
       <CreateCommunity
         createCommunityAction={handleCommunityNameSubmit}
-        redirectionAction={redirectionAction}
+        handleBackButton={handleBackButton}
         networkCreated={networkCreated}
         ready={isWebsocketConnected}
       />

@@ -115,11 +115,11 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
   }
 
   public onModuleInit(): void {
-    OrbitDbService.events.on('put', this._handleOrbitDbPut)
+    this.orbitDbService.outboundEvents.on('put', this._handleOrbitDbPut)
   }
 
   public onModuleDestroy(): void {
-    OrbitDbService.events.off('put', this._handleOrbitDbPut)
+    this.orbitDbService.outboundEvents.off('put', this._handleOrbitDbPut)
     this.close()
   }
 
@@ -731,7 +731,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     this.logger.info(`Pulling all log entries from QSS for team ${teamId}`)
     let nextStartSeq = await this.localDbService.getLastSyncSeq(teamId)
     const sigchain = this.sigChainService.getChain(teamId)
-    const userId = sigchain.context.user.userId
+    const userId = sigchain.user.userId
     if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
       this.logger.warn(`User is not a member of team ${teamId}, skipping log entry pull until full join`)
       return {

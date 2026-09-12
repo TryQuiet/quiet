@@ -48,7 +48,7 @@ describe('UpdateModal', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <h6
-                      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                       style="margin-left: 36px;"
                     />
                   </div>
@@ -105,7 +105,7 @@ describe('UpdateModal', () => {
                       class="MuiGrid-root UpdateModal-title css-vj1n65-MuiGrid-root"
                     >
                       <h3
-                        class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
                       >
                         Software update
                       </h3>
@@ -114,7 +114,7 @@ describe('UpdateModal', () => {
                       class="MuiGrid-root UpdateModal-message css-vj1n65-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                       >
                         A new version of Quiet is ready. It will be installed the next time you restart the app, or you can update now.
                       </p>

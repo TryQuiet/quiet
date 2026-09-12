@@ -48,7 +48,7 @@ describe('Create JoiningPanelComponent', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -81,7 +81,7 @@ describe('Create JoiningPanelComponent', () => {
                       src="test-file-stub"
                     />
                     <h2
-                      class="MuiTypography-root MuiTypography-h2 JoiningPanelComponentheading2 css-qahk46-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-h2 JoiningPanelComponentheading2 css-1c2d2db-MuiTypography-root"
                     >
                       Joining now!
                     </h2>
@@ -99,13 +99,13 @@ describe('Create JoiningPanelComponent', () => {
                         />
                       </div>
                       <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                       >
                         Initializing backend
                       </p>
                     </div>
                     <p
-                      class="MuiTypography-root MuiTypography-body2 JoiningPanelComponenttext css-16d47hw-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body2 JoiningPanelComponenttext css-1t82dwi-MuiTypography-root"
                     >
                       <strong>
                         Please leave the app open. 
@@ -122,7 +122,7 @@ describe('Create JoiningPanelComponent', () => {
                     </p>
                     <a>
                       <p
-                        class="MuiTypography-root MuiTypography-body2 JoiningPanelComponentlink css-16d47hw-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 JoiningPanelComponentlink css-1t82dwi-MuiTypography-root"
                       >
                         Learn more about Tor and Quiet
                       </p>
@@ -184,7 +184,7 @@ describe('Create JoiningPanelComponent', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -217,7 +217,7 @@ describe('Create JoiningPanelComponent', () => {
                       src="test-file-stub"
                     />
                     <h2
-                      class="MuiTypography-root MuiTypography-h2 JoiningPanelComponentheading2 css-qahk46-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-h2 JoiningPanelComponentheading2 css-1c2d2db-MuiTypography-root"
                     >
                       Creating your community!
                     </h2>
@@ -235,7 +235,7 @@ describe('Create JoiningPanelComponent', () => {
                         />
                       </div>
                       <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                       >
                         Initializing backend
                       </p>

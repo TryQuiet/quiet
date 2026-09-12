@@ -41,7 +41,7 @@ describe('WarningModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -105,7 +105,7 @@ describe('WarningModal', () => {
                       class="MuiGrid-root MuiGrid-item WarningModaltitle css-13i4rnv-MuiGrid-root"
                     >
                       <h3
-                        class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
                         data-testid="warningModalTitle"
                       >
                         Warning
@@ -119,7 +119,7 @@ describe('WarningModal', () => {
                       class="MuiGrid-root MuiGrid-item WarningModalsubTitle css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                         data-testid="warningModalSubtitle"
                       >
                         This is a warning

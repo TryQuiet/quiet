@@ -133,7 +133,7 @@ describe('ChannelsService', () => {
     const invite = adminChain.invites.createUserInvite()
 
     const invitedChain = SigChain.createFromInvite({ seed: invite.seed }, adminChain.team!.id)
-    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: invitedChain.context })
+    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: invitedChain.localUserContext })
     adminChain.invites.admitMemberFromInvite(admission)
 
     const joinedChain = SigChain.joinForTesting(

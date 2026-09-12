@@ -7,6 +7,8 @@ import { Libp2pService, Libp2pState } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { Libp2pEvents } from './libp2p.types'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -128,6 +130,36 @@ describe('Libp2pService', () => {
     expect(libp2pListenAddress).toStrictEqual(`/dns4/onionAddress.onion/tcp/80/ws`)
   })
 
+  it('lets an auth error stream flush before hanging up the peer', async () => {
+    let deferredHangup: (() => void) | undefined
+    jest.spyOn(global, 'setTimeout').mockImplementation(((callback: () => void) => {
+      deferredHangup = callback
+      return {} as NodeJS.Timeout
+    }) as typeof setTimeout)
+    // An auth failure belongs to one transport; that transport is hung up, not the peer.
+    const hangUpAuthTransport = jest
+      .spyOn(libp2pService as any, 'hangUpAuthTransport')
+      .mockResolvedValue(undefined as never)
+    const connection = {
+      id: 'failing-transport',
+      status: 'open',
+      remotePeer: { toString: () => 'remote-peer' },
+    }
+
+    libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
+      event: {
+        type: 'LOCAL_ERROR',
+        payload: { type: 'INVITATION_PROOF_INVALID' },
+      },
+      connection,
+    })
+
+    expect(hangUpAuthTransport).not.toHaveBeenCalled()
+    expect(deferredHangup).toBeDefined()
+    deferredHangup!()
+    expect(hangUpAuthTransport).toHaveBeenCalledWith(connection, false)
+  })
+
   it('Generated libp2p psk matches psk composed from existing key', () => {
     const generatedKey = generateLibp2pPSK()
     const retrievedKey = generateLibp2pPSK(generatedKey.psk)
@@ -137,6 +169,17 @@ describe('Libp2pService', () => {
     const generatedPskBuffer = Buffer.from(generatedKey.psk, 'base64')
     const expectedFullKeyString = LIBP2P_PSK_METADATA + uint8ArrayToString(generatedPskBuffer, 'base16')
     expect(uint8ArrayToString(generatedKey.fullKey)).toEqual(expectedFullKeyString)
+  })
+
+  it('retains the exact attempt context and rejects competing owners', () => {
+    const context = { revoke: jest.fn() } as any
+    libp2pService.setAdmissionContext(context)
+    expect(libp2pService.admissionContext).toBe(context)
+    expect(() => libp2pService.setAdmissionContext({} as any)).toThrow('already has')
+    libp2pService.clearAdmissionContext({} as any)
+    expect(libp2pService.admissionContext).toBe(context)
+    libp2pService.clearAdmissionContext(context)
+    expect(libp2pService.admissionContext).toBeUndefined()
   })
 
   it('redials sorted peers even when no peers were previously dialed', async () => {

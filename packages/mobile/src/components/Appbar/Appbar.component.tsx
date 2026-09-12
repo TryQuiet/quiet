@@ -17,6 +17,7 @@ export const Appbar: FC<AppbarProps> = ({
   submit,
   contextMenu,
   crossBackIcon = false,
+  plain = false,
 }) => {
   const arrow_icon = icons.arrow_left
   const cross_icon = icons.icon_close
@@ -53,7 +54,7 @@ export const Appbar: FC<AppbarProps> = ({
                   height: 16,
                 }}
               />
-            ) : (
+            ) : plain ? null : (
               <View
                 style={{
                   width: 36,

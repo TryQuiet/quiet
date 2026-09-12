@@ -15,7 +15,7 @@ describe('Create username', () => {
   ])('user inserting wrong name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
     renderComponent(<CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />)
 
-    const input = screen.getByPlaceholderText('Enter a username')
+    const input = screen.getByPlaceholderText('Username')
 
     await userEvent.type(input, name)
     expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(
@@ -30,8 +30,8 @@ describe('Create username', () => {
 
     renderComponent(<CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />)
 
-    const input = screen.getByPlaceholderText('Enter a username')
-    const button = screen.getByText('Register')
+    const input = screen.getByPlaceholderText('Username')
+    const button = screen.getByTestId('continue-createUsername')
 
     await userEvent.type(input, name)
     await userEvent.click(button)
