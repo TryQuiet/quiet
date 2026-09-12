@@ -21,7 +21,7 @@ Storybook **is the new design library**, being rebuilt from this spec: one desig
 
 ## The flow as the prototype wires it
 
-38 of 25 screens are one connected graph (70 prototype links). Ids are the Storybook story ids under `Onboarding flow`.
+24 of 25 screens are one connected graph from Get started (44 prototype links, 15 inferred back/close, 1 added); the 25th is the joiner-side v1 agree screen, unwired by design. Ids are the Storybook story ids under `Onboarding flow`.
 
 ```
 Get started ─┬─ Join community ─┬─ Open invite link ─(added)─ Paste a link to Join (frame 'Container', WIP)
@@ -70,7 +70,7 @@ Agree-and-join (v1, joiner) ─ Captcha          ← drawn, not linked from anyw
 | Illustrations: Monster · group illustration on Join community | static asset (export SVG from Figma node) | static asset (export SVG from Figma node) | Export via Figma images API format=svg; never redraw |
 | Wireframe text · Placeholder | — (design placeholders) | — | Not UI |
 
-98 of the 99 components used by the 25 screens are instances from the published Quiet Design Library; the most-used are Divider, icon glyphs, the Title bar zones, Avatar, Button row, Button, List item, Input3.0.
+The 25 kept screens use 59 distinct library components (the 39 before the purge used 99, the extra 40 mostly iOS system UI and duplicates); all but at most one are instances from the published Quiet Design Library (98 of the original 99 were remote). The most-used are Divider, icon glyphs, the Title bar zones, Avatar, Button row, Button, List item, Input3.0.
 
 ## Screens
 
