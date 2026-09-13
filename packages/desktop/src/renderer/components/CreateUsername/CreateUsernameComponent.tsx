@@ -69,7 +69,7 @@ const Form = styled('form')(({ theme }) => ({
     maxWidth: 'none',
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
-    height: 48,
+    height: 50,
   },
 
   [`& .${classes.inputLabel}`]: {
@@ -218,6 +218,7 @@ export const CreateUsernameBody: React.FC<CreateUsernameBodyProps> = ({ open = t
           </div>
         ) : null}
         <LoadingButton
+          size='large'
           variant='contained'
           color='primary'
           // Choose username (2811:2371): Continue is disabled until the name is valid.
