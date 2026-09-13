@@ -30,6 +30,12 @@ const LoadingPanel = () => {
   const areMessages = useSelector(publicChannels.selectors.areMessagesLoaded)
   const areChannels = useSelector(publicChannels.selectors.areChannelsLoaded)
   const isCurrentCommunityInitialized = useSelector(network.selectors.isCurrentCommunityInitialized)
+  // Which of the two progress screens to draw: a community on a server never
+  // connects over Tor, so the Tor explanation is not true of it.
+  const usesServer = useSelector(communities.selectors.usesServer)
+  const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
+  // Sidebar renders nothing without both of these, so there is nothing to dim.
+  const withSidebar = Boolean(currentCommunity && currentChannelId)
 
   useEffect(() => {
     if (message === LoadingPanelType.Failed) {
@@ -90,6 +96,9 @@ const LoadingPanel = () => {
           openUrl={openUrl}
           connectionInfo={connectionProcessSelector}
           isOwner={owner}
+          usesServer={usesServer}
+          communityName={community?.name}
+          withSidebar={withSidebar}
         />
       )
     } catch (e) {
