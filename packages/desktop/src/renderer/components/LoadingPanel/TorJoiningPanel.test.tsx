@@ -34,6 +34,17 @@ describe('TorJoiningPanel', () => {
     expect(explanation).toContain('your community’s devices')
   })
 
+  it('does not tell a desktop user they can leave', () => {
+    const result = render()
+    const explanation = result.getByTestId('torExplanation').textContent ?? ''
+
+    // Closing the window quits the app and stops the join, and nothing notifies
+    // afterwards, so the frame's opening sentence is not made here.
+    expect(explanation).toContain('Keep Quiet open while you connect.')
+    expect(explanation).not.toContain('You can exit the app')
+    expect(explanation).not.toContain('notify you')
+  })
+
   it('names Tor as the connection under way', () => {
     const result = render()
 

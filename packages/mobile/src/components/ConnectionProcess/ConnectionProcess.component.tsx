@@ -27,8 +27,19 @@ import { shareAllData } from '../../utils/shareAllData'
  * the mobile frames draw the library default blue `#1B6FEC`).
  */
 
-/** The explanation, verbatim from `Joining now` (`5978:19167`). */
-export const TOR_EXPLANATION_LEAD = "You can exit the app - we'll notify you once you're connected!  "
+/**
+ * The explanation, from `Joining now` (`5978:19167`). Every line is the
+ * designer's except the first.
+ *
+ * The frame opens `You can exit the app - we'll notify you once you're
+ * connected!`. Half of that holds here: leaving the app does not stop a Tor
+ * join, because `CommunicationModule.syncBackendWorkerState` keeps the backend
+ * worker running for any community that is not on a server, and the worker is a
+ * dataSync foreground service. Nothing notifies you when the join finishes,
+ * though - the only notifications the app posts are incoming messages and the
+ * foreground service's own. So the promise goes and the permission stays.
+ */
+export const TOR_EXPLANATION_LEAD = 'You can exit the app while you connect.\u00a0 '
 export const TOR_EXPLANATION_EMPHASIS = 'This first time might take 30 seconds, 10 minutes, or even longer.'
 export const TOR_EXPLANATION_REST_BEFORE_YOUR = "\n\nThere's a good reason why it's slow: Quiet stores data on "
 export const TOR_EXPLANATION_REST_AFTER_YOUR =

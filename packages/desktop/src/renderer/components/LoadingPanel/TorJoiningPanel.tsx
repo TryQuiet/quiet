@@ -46,15 +46,17 @@ const GLOBE_WIDTH = 126
 const GLOBE_HEIGHT = 120
 
 /**
- * The explanation, verbatim from `Joining now` (5978:19167). Kept as strings so
- * the copy is one piece of text rather than JSX fragments.
+ * The explanation, from `Joining now` (5978:19167). Kept as strings so the copy
+ * is one piece of text rather than JSX fragments.
  *
- * NOTE: the frame was drawn for mobile, where the app keeps joining in the
- * background and notifies you. On desktop, closing the window does stop the
- * join, which is what this screen used to say. The wording is the designer's
- * and is used as drawn; it wants confirming for desktop.
+ * Every line is the designer's except the first. The frame opens `You can exit
+ * the app - we'll notify you once you're connected!`, which is a mobile frame's
+ * claim: closing the window on desktop quits the app and stops the join, and
+ * nothing notifies you afterwards. The first sentence is therefore the truthful
+ * equivalent in the same register (decided 2026-09-13); the bold timing
+ * sentence and everything after it are drawn as designed.
  */
-export const TOR_EXPLANATION_LEAD = "You can exit the app - we'll notify you once you're connected!  "
+export const TOR_EXPLANATION_LEAD = 'Keep Quiet open while you connect.\u00a0 '
 export const TOR_EXPLANATION_EMPHASIS = 'This first time might take 30 seconds, 10 minutes, or even longer.'
 export const TOR_EXPLANATION_REST_BEFORE_YOUR = " \n\nThere's a good reason why it's slow: Quiet stores data on "
 export const TOR_EXPLANATION_REST_AFTER_YOUR =

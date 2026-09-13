@@ -49,9 +49,12 @@ describe('ConnectionProcessComponent', () => {
       expect(getByTestId('connection-process-tor-explanation')).toHaveTextContent(
         /This first time might take 30 seconds, 10 minutes, or even longer\./
       )
+      // The join keeps running when the app is left, but nothing announces it
+      // afterwards, so the designer's notification promise is not made here.
       expect(getByTestId('connection-process-tor-explanation')).toHaveTextContent(
-        /You can exit the app - we'll notify you once you're connected!/
+        /You can exit the app while you connect\./
       )
+      expect(getByTestId('connection-process-tor-explanation')).not.toHaveTextContent(/notify you/)
     })
   })
 
