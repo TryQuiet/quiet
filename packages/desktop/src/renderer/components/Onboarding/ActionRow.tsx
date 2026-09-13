@@ -4,6 +4,7 @@ import ListItemButton from '@mui/material/ListItemButton'
 import Typography from '@mui/material/Typography'
 
 import { onboardingIcons } from './icons'
+import { rowStates } from '../ui/interactionStates'
 
 const PREFIX = 'ActionRow'
 
@@ -17,8 +18,10 @@ const classes = {
  * The design library's "Button row": icon · label (· subtitle) · caret, with a
  * hairline below. Every distance is a spacing role on the 4px grid and every
  * text style a theme variant, so the row reads the same on both platforms.
+ * Hover / pressed / focus-visible / disabled come from `rowStates`.
  */
 const StyledRow = styled(ListItemButton)(({ theme }) => ({
+  ...rowStates(theme),
   paddingTop: theme.space.md,
   paddingBottom: theme.space.md,
   paddingLeft: 0,
@@ -39,9 +42,6 @@ const StyledRow = styled(ListItemButton)(({ theme }) => ({
     height: 24,
     flex: '0 0 24px',
   },
-  '&.Mui-disabled': {
-    opacity: 0.4,
-  },
 }))
 
 export interface ActionRowProps {
@@ -54,7 +54,7 @@ export interface ActionRowProps {
 }
 
 export const ActionRow: React.FC<ActionRowProps> = ({ icon, label, subtitle, onClick, disabled, dataTestId }) => (
-  <StyledRow onClick={onClick} disabled={disabled} data-testid={dataTestId} disableGutters>
+  <StyledRow onClick={onClick} disabled={disabled} data-testid={dataTestId} disableGutters disableRipple>
     <img className={classes.icon} src={icon} alt='' aria-hidden />
     <div className={classes.text}>
       <Typography variant='body1'>{label}</Typography>
