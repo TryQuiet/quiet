@@ -7,6 +7,15 @@ import { icons } from '../../assets'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { DefaultAppbarTitle } from './DefaultAppbarHeaderTitle.component'
 
+/** The title bar without its title: the library's 60-tall bar zone, glyph box 28 at (14, 16), icon 16. */
+export const BAR_ZONE_HEIGHT = 60
+const GLYPH_BOX = 28
+const GLYPH_LEFT = 14
+const GLYPH_TOP = 16
+const GLYPH_ICON = 16
+/** Widens the 28 box to a 48 touch target. */
+const GLYPH_HIT_SLOP = { top: 10, bottom: 10, left: 10, right: 10 }
+
 export const Appbar: FC<AppbarProps> = ({
   title,
   titleComponent,
@@ -18,12 +27,52 @@ export const Appbar: FC<AppbarProps> = ({
   contextMenu,
   crossBackIcon = false,
   plain = false,
+  withoutTitle = false,
 }) => {
   const arrow_icon = icons.arrow_left
   const cross_icon = icons.icon_close
   const menu_icon = icons.dots
   const displayedTitleComponent =
-    titleComponent != null ? titleComponent : <DefaultAppbarTitle title={title} fontSize={16} fontWeight={'medium'} />
+    titleComponent != null ? (
+      titleComponent
+    ) : (
+      <DefaultAppbarTitle title={title ?? ''} fontSize={16} fontWeight={'medium'} />
+    )
+  if (withoutTitle) {
+    return (
+      <View
+        style={[{ height: BAR_ZONE_HEIGHT, backgroundColor: defaultTheme.palette.background.white }, style]}
+        testID={'appbar_without_title'}
+      >
+        {back ? (
+          <TouchableOpacity
+            onPress={back}
+            testID={'appbar_action_item'}
+            accessibilityRole='button'
+            accessibilityLabel={crossBackIcon ? 'Close' : 'Go back'}
+            hitSlop={GLYPH_HIT_SLOP}
+            style={{
+              position: 'absolute',
+              left: GLYPH_LEFT,
+              top: GLYPH_TOP,
+              width: GLYPH_BOX,
+              height: GLYPH_BOX,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Image
+              source={crossBackIcon ? cross_icon : arrow_icon}
+              resizeMode='cover'
+              resizeMethod='resize'
+              accessible={false}
+              style={{ width: GLYPH_ICON, height: GLYPH_ICON }}
+            />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    )
+  }
   return (
     <StyledAppbar style={style}>
       <View style={{ flex: 1 }}>

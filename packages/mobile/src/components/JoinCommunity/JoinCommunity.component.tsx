@@ -17,12 +17,17 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('joinCommunity:component')
 
-/** Title bar · heading · intro per flow. Copy is the prototype's. */
+/**
+ * Title bar · heading · intro per flow. Copy is the prototype's. Paste a link
+ * (3190:10892) is a full-screen h1 stage whose bar title is hidden in the frame
+ * (glyph only); the two QR flows stand in for titled sheets (2811:2460, 2811:2587).
+ */
 const COPY = {
-  inviteLink: { title: 'Join with invite link', heading: 'Paste a link to Join', intro: undefined },
-  qrCode: { title: 'Join with QR code', heading: 'Join with QR code', intro: undefined },
+  inviteLink: { title: 'Join with invite link', titleHidden: true, heading: 'Paste a link to Join', intro: undefined },
+  qrCode: { title: 'Join with QR code', titleHidden: false, heading: 'Join with QR code', intro: undefined },
   deviceLink: {
     title: 'Link devices',
+    titleHidden: false,
     heading: 'Scan QR code',
     intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
   },
@@ -104,12 +109,12 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
           testID={'join-community-component'}
         >
-          <Appbar title={copy.title} back={handleBackButton} />
+          <Appbar title={copy.title} withoutTitle={copy.titleHidden} back={handleBackButton} />
           <KeyboardAvoidingView
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
               flex: 1,
-              justifyContent: 'center',
+              paddingTop: spacing.xl,
               paddingHorizontal: spacing.lg,
               gap: spacing.xl,
             }}
