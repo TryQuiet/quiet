@@ -250,7 +250,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   <Modal
     open={open}
     handleClose={handleClose}
-    title={'Create a community'}
+    // Choose username (2811:2371) hides its bar title ("Create a community"); only the close glyph shows.
+    withoutTitle
     isCloseDisabled={false}
     alignCloseLeft
     contentWidth={'100%'}
