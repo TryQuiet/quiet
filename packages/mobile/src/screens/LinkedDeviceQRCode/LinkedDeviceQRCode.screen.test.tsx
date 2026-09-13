@@ -9,8 +9,6 @@ import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { LinkedDeviceQRCodeScreen } from './LinkedDeviceQRCode.screen'
 
-jest.mock('@react-native-clipboard/clipboard', () => ({ setString: jest.fn() }))
-
 describe('LinkedDeviceQRCodeScreen', () => {
   it('drops any old link, mints a new one, and shows the sheet with the generating state', async () => {
     const { store } = await prepareStore()
