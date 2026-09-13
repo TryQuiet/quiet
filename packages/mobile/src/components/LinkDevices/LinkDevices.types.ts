@@ -2,6 +2,8 @@ export interface LinkedDeviceRow {
   deviceId: string
   deviceName: string
   isCurrent: boolean
+  /** Set once the device was removed from the team; such devices are not listed. */
+  removedAt?: number | null
 }
 
 export interface LinkDevicesProps {

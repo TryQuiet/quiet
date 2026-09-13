@@ -10,11 +10,22 @@ import { Typography } from '../Typography/Typography.component'
 
 import type { LinkDevicesProps } from './LinkDevices.types'
 
+/** The library's bordered group / card (2811:2575 "Buttons"): 1px #E5E5E5, r16. */
+const card = {
+  borderWidth: 1,
+  borderColor: defaultTheme.palette.border.card,
+  borderRadius: 16,
+  overflow: 'hidden' as const,
+}
+
 /**
- * Link devices · Figma 2811:2575, plus a third Button row, "Paste link", the user
- * asked for on 2026-09-13: the same row as the two above it, with the library's
- * link glyph (the one Join with invite link uses on 2811:2562). Its label is not
- * the designer's.
+ * Link devices · Figma 2811:2575 (states 879:15640 / 879:15644 in the Device-linking
+ * file): the rows in the bordered group, then the Linked devices list — an overline
+ * heading over a bordered card; "No linked devices" 14/20 #767676 when empty, else one
+ * row per device (name over "Active"). The frames' trash glyph is not drawn: #3400 ships
+ * no device removal. Plus a third Button row, "Paste link", the user asked for on
+ * 2026-09-13: the same row as the two above it, with the library's link glyph (the one
+ * Join with invite link uses on 2811:2562). Its label is not the designer's.
  */
 export const LinkDevices: FC<LinkDevicesProps> = ({
   onDisplayQrCode,
@@ -24,7 +35,7 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
   linkedDevices,
   handleBackButton,
 }) => {
-  const others = (linkedDevices ?? []).filter(device => !device.isCurrent)
+  const others = (linkedDevices ?? []).filter(device => !device.isCurrent && device.removedAt == null)
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
       <Appbar title={'Link devices'} back={handleBackButton} />
@@ -39,7 +50,7 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
             }
           </Typography>
         </View>
-        <View>
+        <View style={{ ...card, paddingHorizontal: spacing.lg }} testID={'link-devices-rows'}>
           <ActionRow
             icon={<QrDisplayIcon />}
             label={'Display QR code'}
@@ -57,32 +68,49 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
             icon={<InviteLinkIcon />}
             label={'Paste link'}
             onPress={onPasteLink}
+            divider={false}
             testID={'link-devices-paste-link'}
           />
         </View>
-        <View style={{ gap: spacing.sm }} testID={'linked-devices-list'}>
-          <Typography variant={'overline'} color={'gray50'}>
+        <View testID={'linked-devices-list'}>
+          <Typography
+            variant={'overline'}
+            color={'gray50'}
+            style={{ paddingTop: spacing.xl, paddingBottom: spacing.sm, letterSpacing: 1 }}
+          >
             {'Linked devices'}
           </Typography>
-          {others.length === 0 ? (
-            <Typography variant={'body'} color={'grayDark'} testID={'no-linked-devices'}>
-              {'No linked devices'}
-            </Typography>
-          ) : (
-            others.map(device => (
-              <View
-                key={device.deviceId}
-                style={{
-                  paddingVertical: spacing.sm,
-                  borderBottomWidth: 1,
-                  borderBottomColor: defaultTheme.palette.typography.veryLightGray,
-                }}
-                testID={`linked-device-${device.deviceName}`}
+          <View style={card}>
+            {others.length === 0 ? (
+              <Typography
+                variant={'body'}
+                color={'gray60'}
+                horizontalTextAlign={'center'}
+                style={{ padding: spacing.lg }}
+                testID={'no-linked-devices'}
               >
-                <Typography variant={'bodyLg'}>{device.deviceName}</Typography>
-              </View>
-            ))
-          )}
+                {'No linked devices'}
+              </Typography>
+            ) : (
+              others.map((device, index) => (
+                <View
+                  key={device.deviceId}
+                  style={{
+                    paddingVertical: spacing.md,
+                    paddingHorizontal: spacing.lg,
+                    borderBottomWidth: index === others.length - 1 ? 0 : 1,
+                    borderBottomColor: defaultTheme.palette.border.hairline,
+                  }}
+                  testID={`linked-device-${device.deviceName}`}
+                >
+                  <Typography variant={'bodyLg'}>{device.deviceName}</Typography>
+                  <Typography variant={'caption'} color={'gray50'}>
+                    {'Active'}
+                  </Typography>
+                </View>
+              ))
+            )}
+          </View>
         </View>
       </View>
     </View>

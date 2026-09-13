@@ -22,11 +22,18 @@ export const defaultPalette = {
     veryLightGray: '#F0F0F0',
     grayDark: '#999999',
     gray50: '#7F7F7F',
+    gray60: '#767676', // "No linked devices" (2811:2575)
     gray70: '#4C4C4C',
     white: '#ffffff',
     blue: '#2373EA',
     lightGray: '#B2B2B2',
     darkPurple: '#461863',
+  },
+  // Desktop theme.ts: border01 / border02 / border04
+  border: {
+    hairline: '#F0F0F0',
+    card: '#E5E5E5', // The library's bordered group / card (Link devices 2811:2575)
+    qrBox: '#B3B3B3', // qr-code-box (2811:2601)
   },
   input: {
     border: '#C4C4C4',
