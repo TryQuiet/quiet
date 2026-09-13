@@ -58,9 +58,6 @@ const Form = styled('form')(({ theme }) => ({
     borderRadius: 8,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
-    '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue,
-    },
     textTransform: 'none',
     height: 48,
     fontWeight: 'normal',
