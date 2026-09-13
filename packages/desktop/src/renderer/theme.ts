@@ -1,6 +1,7 @@
 import { createTheme, type Theme } from '@mui/material/styles'
 import React, { useEffect, useState } from 'react'
 
+import { buttonOutlined, designComponents, overlayShadow } from './design-system/theme/components'
 import { tokens } from './design-system/tokens'
 import type { TypeStyle } from './design-system/tokens/types'
 
@@ -42,7 +43,8 @@ const space = tokens.semantic
 const lightTheme = createTheme({
   typography: {
     ...typography,
-    caption: { ...typography.caption, color: '#b2b2b2' },
+    // Caption colour is the library's `Caption` fill #999999 (gray40; Input3.0 5077:43242).
+    caption: { ...typography.caption, color: '#999999' },
   },
   space,
   palette: {
@@ -90,6 +92,8 @@ const lightTheme = createTheme({
       // Grays (including white and black)
       white: '#FFFFFF',
       trueBlack: '#000000', // To be replaced with text color and border color
+      ink: '#222222', // The library's text colour (fill of its text nodes) and the Tooltip-content fill (3490:10102)
+      error10: '#FAEAEB', // The library's 'Light/Error 10' fill style (error banners)
       gray: '#e7e7e7',
       darkGray: '#7F7F7F',
       mediumGray: '#8d8d8d',
@@ -137,8 +141,8 @@ const lightTheme = createTheme({
     '0px 1px 3px rgba(0, 0, 0, 0.0)',
     '0px 2px 25px rgba(0, 0, 0, 0.2)',
     '0px 1px 12px rgba(0, 0, 0, 0.09)',
-    // From here, this is just 19 repeats until we figure out shadows
-    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    overlayShadow, // [6] the library's Overlay menu (5578:43731)
+    // From here, this is just 18 repeats until we figure out shadows
     '0px 0px 4px rgba(0, 0, 0, 0.25)',
     '0px 0px 4px rgba(0, 0, 0, 0.25)',
     '0px 0px 4px rgba(0, 0, 0, 0.25)',
@@ -159,16 +163,8 @@ const lightTheme = createTheme({
     '0px 0px 4px rgba(0, 0, 0, 0.25)',
   ],
   components: {
-    // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          fontSize: '14px',
-          lineHeight: '24px',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
+    // Inputs, tooltips, menus, dialogs and the body text: design-system/theme/components.ts.
+    ...designComponents,
     MuiSnackbarContent: {
       // Replace with atomic Snackbar component. Put styling in that file.
       styleOverrides: {
@@ -202,20 +198,7 @@ const lightTheme = createTheme({
             boxShadow: 'none',
           },
         },
-      },
-    },
-    MuiOutlinedInput: {
-      // Replace with atomic Input component. Put styling in that file.
-      styleOverrides: {
-        input: {},
-      },
-    },
-    MuiPopover: {
-      // Replace with atomic Popover component. Put styling in that file.
-      styleOverrides: {
-        paper: {
-          borderRadius: 8,
-        },
+        outlined: buttonOutlined,
       },
     },
     MuiDrawer: {
@@ -285,6 +268,8 @@ const darkTheme = createTheme({
       // Grays (including white and black)
       white: '#FFFFFF',
       trueBlack: '#000000', // To be replaced with text color and border color
+      ink: '#222222', // The library's text colour (fill of its text nodes) and the Tooltip-content fill (3490:10102)
+      error10: '#FAEAEB', // The library's 'Light/Error 10' fill style (error banners)
       gray: '#e7e7e7',
       darkGray: '#7F7F7F',
       mediumGray: '#8d8d8d',
@@ -332,8 +317,8 @@ const darkTheme = createTheme({
     '0px 1px 3px rgba(1, 1, 1, 0.0)',
     '0px 2px 25px rgba(1, 1, 1, 0.2)',
     '0px 1px 12px rgba(255, 255, 255, 0.1)', // White shadow for floating elements in dark mode
+    overlayShadow, // [6] the library's Overlay menu (5578:43731)
     // Repeats until we design our shadows
-    '0px 0px 4px rgba(1, 1, 1, 0.25)',
     '0px 0px 4px rgba(1, 1, 1, 0.25)',
     '0px 0px 4px rgba(1, 1, 1, 0.25)',
     '0px 0px 4px rgba(1, 1, 1, 0.25)',
@@ -354,16 +339,8 @@ const darkTheme = createTheme({
     '0px 0px 4px rgba(1, 1, 1, 0.25)',
   ],
   components: {
-    // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          fontSize: '14px',
-          lineHeight: '24px',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
+    // Inputs, tooltips, menus, dialogs and the body text: design-system/theme/components.ts.
+    ...designComponents,
     MuiSnackbarContent: {
       // Replace with atomic Snackbar component. Put styling in that file.
       styleOverrides: {
@@ -397,20 +374,7 @@ const darkTheme = createTheme({
             boxShadow: 'none',
           },
         },
-      },
-    },
-    MuiOutlinedInput: {
-      // Replace with atomic Input component. Put styling in that file.
-      styleOverrides: {
-        input: {},
-      },
-    },
-    MuiPopover: {
-      // Replace with atomic Popover component. Put styling in that file.
-      styleOverrides: {
-        paper: {
-          borderRadius: 8,
-        },
+        outlined: buttonOutlined,
       },
     },
     MuiDrawer: {

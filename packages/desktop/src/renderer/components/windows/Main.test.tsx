@@ -35,7 +35,7 @@ describe('Main', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SidebarComponentroot css-1xru4iw-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SidebarComponentroot css-120gc7k-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true SidebarComponentpadding css-1fzha0v-MuiGrid-root"
@@ -44,7 +44,7 @@ describe('Main', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <div
-                          class="css-1c9y83e"
+                          class="css-1qcb2jx"
                         >
                           <span
                             class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"
@@ -97,7 +97,7 @@ describe('Main', () => {
                                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -154,7 +154,7 @@ describe('Main', () => {
                                     data-testid="channelsList"
                                   >
                                     <div
-                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                                       data-testid="general-link"
                                       role="button"
                                       tabindex="0"
@@ -169,7 +169,7 @@ describe('Main', () => {
                                             class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                                           >
                                             <div
-                                              class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                                              class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                                             >
                                               <svg
                                                 aria-hidden="true"
@@ -233,7 +233,7 @@ describe('Main', () => {
                                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
                               >
                                 <div
-                                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+                                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
                                 >
                                   <div
                                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -290,7 +290,7 @@ describe('Main', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <div
-                          class="css-e5hanu"
+                          class="css-pgbdor"
                         >
                           <div
                             class="MuiButtonBase-root MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"

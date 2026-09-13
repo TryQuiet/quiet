@@ -23,7 +23,7 @@ describe('ErrorModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -50,7 +50,7 @@ describe('ErrorModal', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   >
                     Error
                   </h6>
@@ -129,11 +129,11 @@ describe('ErrorModal', () => {
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-1hrzc2g-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-rk57zm-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <textarea
                             aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1qk1us7-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1nexjq2-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id="traceback"
                             rows="10"
@@ -143,7 +143,7 @@ describe('ErrorModal', () => {
                           </textarea>
                           <textarea
                             aria-hidden="true"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1qk1us7-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1nexjq2-MuiInputBase-input-MuiOutlinedInput-input"
                             readonly=""
                             style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
                             tabindex="-1"

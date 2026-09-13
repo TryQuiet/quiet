@@ -22,8 +22,8 @@ const StyledPopper = styled(Popper)(({ theme }) => ({
 
   [`& .${classes.paper}`]: {
     background: theme.palette.background.default,
-    boxShadow: '0px 2px 25px rgba(0, 0, 0, 0.2)',
-    borderRadius: 8,
+    boxShadow: theme.shadows[6],
+    borderRadius: 16,
   },
 
   [`& .${classes.arrow}`]: {
@@ -92,7 +92,12 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
     >
       {({ TransitionProps, placement }) => {
         const splitPlacement: keyof typeof classes = placement.split('-')[0] as
-          'wrapper' | 'paper' | 'bottom' | 'top' | 'arrow' | 'popper'
+          | 'wrapper'
+          | 'paper'
+          | 'bottom'
+          | 'top'
+          | 'arrow'
+          | 'popper'
         return (
           <Grow
             {...TransitionProps}
