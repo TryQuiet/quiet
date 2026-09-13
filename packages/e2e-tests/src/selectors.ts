@@ -1291,9 +1291,22 @@ export class JoinCommunityModal {
     await (await this.findVisible('paste-a-link')).click()
   }
 
+  /** Join with QR code: the camera sheet. Resolves once the scanner is on screen. */
   async joinWithQrCode() {
     await this.enter()
     await (await this.findVisible('join-with-qr-code')).click()
+    await this.findVisible('qr-scanner-viewfinder')
+  }
+
+  /** Camera state of the scanner: requesting | scanning | denied | unavailable | stopped. */
+  async scannerStatus(): Promise<string | null> {
+    return await (await this.findVisible('qr-scanner-viewfinder')).getAttribute('data-status')
+  }
+
+  /** The scanner's "Paste a link" (shown when the camera is denied or absent) → the paste step. */
+  async usePasteLinkFromScanner() {
+    await (await this.findVisible('qr-scanner-paste-link', 30_000)).click()
+    await this.findVisible('paste-link-input')
   }
 
   async isRecoverAccountDisabled(): Promise<boolean> {
@@ -1380,8 +1393,20 @@ export class LinkDevicesModal {
     return element
   }
 
+  /** Scan QR code: the camera sheet. Resolves once the scanner is on screen. */
   async scanQrCode() {
     await (await this.findVisible('link-devices-scan-qr')).click()
+    await this.findVisible('link-devices-scanner-viewfinder')
+  }
+
+  async scannerStatus(): Promise<string | null> {
+    return await (await this.findVisible('link-devices-scanner-viewfinder')).getAttribute('data-status')
+  }
+
+  /** The scanner's "Paste a link" (shown when the camera is denied or absent) → the paste step. */
+  async usePasteLinkFromScanner() {
+    await (await this.findVisible('link-devices-scanner-paste-link', 30_000)).click()
+    await this.findVisible('paste-link-input')
   }
 
   async displayQrCode() {
