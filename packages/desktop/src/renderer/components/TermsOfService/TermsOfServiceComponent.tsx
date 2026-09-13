@@ -1,129 +1,127 @@
 import React from 'react'
-import { shell } from 'electron'
 import { styled } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 
 import Typography from '@mui/material/Typography'
-import Grid from '@mui/material/Grid'
+import Link from '@mui/material/Link'
+import Button from '@mui/material/Button'
 
 import Modal from '../ui/Modal/Modal'
-import Button from '@mui/material/Button'
-import { createLogger } from '../../logger'
-
-const logger = createLogger('TermOfService:component')
 
 const PREFIX = 'TermOfServiceComponent-'
 const classes = {
-  contentWrap: `${PREFIX}contentWrap`,
-  actionsWrap: `${PREFIX}actions`,
-  textWrap: `${PREFIX}text`,
+  column: `${PREFIX}column`,
   info: `${PREFIX}info`,
-  useServerButton: `${PREFIX}useServerButton`,
-  rejectButton: `${PREFIX}rejectButton`,
+  link: `${PREFIX}link`,
+  agreeButton: `${PREFIX}agreeButton`,
 }
 
-const StyledGrid = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  textAlign: 'center',
+/** The library's modal/small is a responsive pair: 800 wide (6209:16742) or 1064 wide (6209:17520), 636 tall. */
+export const CARD_WIDTH = { narrow: 800, wide: 1064 } as const
+export const CARD_HEIGHT = 636
+/** The wide card from the click-through's 1280 desktop size on; the 1024 window gets the 800 card. */
+export const WIDE_CARD_FROM = 1280
+const TITLE_BAR_HEIGHT = 60
+/** The card's content column, centered: 468 wide (166 in at 800, 298 in at 1064 on the exports). */
+const COLUMN_WIDTH = 468
+
+const Root = styled('div')(({ theme }) => ({
+  width: '100%',
+  display: 'flex',
   justifyContent: 'center',
+  backgroundColor: theme.palette.background.default,
 
-  [`&.${classes.contentWrap}`]: {
-    width: '100%',
-    flex: 1,
+  [`& .${classes.column}`]: {
+    width: COLUMN_WIDTH,
+    maxWidth: '100%',
+    boxSizing: 'border-box',
+    paddingTop: theme.space.xxl,
     display: 'flex',
-    gap: theme.spacing(3),
-    padding: theme.spacing(0, 4),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  [`& .${classes.actionsWrap}`]: {
-    gap: theme.spacing(2),
-  },
-
-  [`& .${classes.textWrap}`]: {
-    padding: theme.spacing(0, 3),
-    gap: theme.spacing(2),
-  },
-
-  [`& .${classes.useServerButton}`]: {
-    height: '50px',
-    padding: theme.spacing(1.5, 2.5),
-    width: 'auto',
-    ...theme.typography.body1,
-  },
-
-  [`& .${classes.rejectButton}`]: {
-    minWidth: '62px',
-    padding: 0,
-    ...theme.typography.body1,
-    color: theme.palette.text.secondary,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: theme.space.lg,
   },
 
   [`& .${classes.info}`]: {
-    maxWidth: 520,
-    color: theme.palette.text.secondary,
-    ...theme.typography.body2,
+    textAlign: 'left',
+  },
+
+  [`& .${classes.link}`]: {
+    font: 'inherit',
+    color: 'inherit',
+    verticalAlign: 'baseline',
+  },
+
+  // The library's Button, Large: 50 tall, 12/20 padding, radius 16 from the theme.
+  [`& .${classes.agreeButton}`]: {
+    height: 50,
+    padding: `${theme.space.md}px ${theme.space.xl - theme.space.xs}px`,
+    ...theme.typography.h5,
   },
 }))
 
 export interface TermsOfServiceComponentProps {
   open: boolean
+  /** Back arrow, backdrop and Escape: the user did not agree. */
   handleClose: () => void
-  onChoose: (useServer: boolean) => void
+  onAgree: () => void
   openURL: () => void
+  /** The host the copy names, e.g. api.tryquiet.org. */
   qssEndPoint?: string
 }
 
+/**
+ * Agree & join · the joiner's consent to the community's server. Mobile
+ * prototype 2811:2724 / 3054:4090 (copy); on desktop the library's modal/small
+ * card with its titled bar ("Agree & join", back arrow, hairline), the body
+ * column left-aligned, one button. The prototype's copy is used; the library
+ * card's older wording adds "(Note: server connection is not via Tor!)".
+ */
 export const TermsOfServiceComponent: React.FC<TermsOfServiceComponentProps> = ({
   open,
   handleClose,
-  onChoose,
+  onAgree,
   openURL,
   qssEndPoint,
 }) => {
+  const wide = useMediaQuery(`(min-width:${WIDE_CARD_FROM}px)`)
   return (
-    <Modal open={open} handleClose={handleClose} testIdPrefix='TermOfService' title='Accept Terms of Service'>
-      <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>
-        <StyledGrid container direction='column' alignItems='center' className={classes.textWrap}>
-          <Grid item>
-            <Typography className={classes.info}>
-              This community uses a server {qssEndPoint ? `(${qssEndPoint} )` : ''}for messaging without Tor. By joining
-              you agree to this{' '}
-              <Typography
-                component='span'
-                style={{ textDecorationLine: 'underline', cursor: 'pointer' }}
-                onClick={openURL}
-              >
-                Privacy Policy and Terms of Use.
-              </Typography>
-            </Typography>
-          </Grid>
-        </StyledGrid>
-        <StyledGrid container direction='column' alignItems='center' className={classes.actionsWrap}>
-          <Grid item>
-            <Button
-              variant='contained'
-              className={classes.useServerButton}
-              onClick={() => onChoose(true)}
-              data-testid='TermOfService-UseQuietServer'
-              size='large'
-            >
-              Agree and Join
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              variant='text'
-              className={classes.rejectButton}
-              onClick={() => onChoose(false)}
-              data-testid='TermOfService-Abort'
-              size='small'
-            >
-              Leave Community
-            </Button>
-          </Grid>
-        </StyledGrid>
-      </StyledGrid>
+    <Modal
+      open={open}
+      handleClose={handleClose}
+      title='Agree & join'
+      canGoBack
+      handleBack={handleClose}
+      alignCloseLeft
+      addBorder
+      fullPage={false}
+      contentWidth={wide ? CARD_WIDTH.wide : CARD_WIDTH.narrow}
+      contentHeight={CARD_HEIGHT - TITLE_BAR_HEIGHT}
+      cornerRadius={8}
+      testIdPrefix='TermOfService'
+    >
+      <Root data-testid='agree-and-join'>
+        <div className={classes.column}>
+          <Typography variant='body2' className={classes.info}>
+            This community uses a server {qssEndPoint ? `(${qssEndPoint}) ` : ''}for messaging without Tor. By joining
+            you agree to this{' '}
+            <Link component='button' type='button' underline='always' className={classes.link} onClick={openURL}>
+              Privacy Policy and Terms of Use
+            </Link>
+            .
+          </Typography>
+          <Button
+            variant='contained'
+            color='primary'
+            size='large'
+            className={classes.agreeButton}
+            onClick={onAgree}
+            data-testid='TermOfService-UseQuietServer'
+          >
+            Agree & Join
+          </Button>
+        </div>
+      </Root>
     </Modal>
   )
 }

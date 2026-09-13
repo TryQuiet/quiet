@@ -1609,15 +1609,6 @@ export class TermsOfServiceModal {
     )
   }
 
-  get abortButton() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath("//button[@data-testid='TermOfService-Abort']")),
-      5_000,
-      `Leave Community button couldn't be found within timeout`,
-      500
-    )
-  }
-
   async isReady(timeoutMs: number = 10_000): Promise<boolean> {
     const button = await this.agreeAndJoinButton
     await this.driver.wait(

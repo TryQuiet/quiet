@@ -470,7 +470,7 @@ describe('join community - qss', () => {
     expect(await screen.findByTestId('joiningPanelComponent')).toBeVisible()
   })
 
-  it('user chooses Leave Community and the ui returns to join community', async () => {
+  it('user goes back from Agree & join and the ui returns to join community', async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -518,7 +518,8 @@ describe('join community - qss', () => {
     await userEvent.type(await screen.findByPlaceholderText('Username'), 'alice')
     await userEvent.click(screen.getByTestId('continue-createUsername'))
 
-    const abort = await screen.findByTestId('TermOfService-Abort')
+    // Agree & join has one button; not agreeing is the bar's back arrow
+    const abort = await screen.findByTestId('TermOfServiceModalBack')
     await userEvent.click(abort)
 
     const joinTitle = await screen.findByRole('heading', { name: 'Join community', level: 3 })
