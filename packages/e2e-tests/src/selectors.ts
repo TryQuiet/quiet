@@ -2961,23 +2961,30 @@ export class Settings {
     )
   }
 
-  async deviceLink() {
-    const unlockButton = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="show-device-link"]')),
+  /**
+   * The device link. The tab never shows it (the QR code is what people show to their
+   * phone); Copy link puts it on the clipboard, which is read back here.
+   */
+  async deviceLink(): Promise<string> {
+    const copyButton = await this.driver.wait(
+      until.elementLocated(By.xpath('//button[@data-testid="copy-device-link"]')),
       30_000,
-      `Show device link button couldn't be found within timeout`,
+      `Copy link button couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(unlockButton), 10_000)
+    await this.driver.wait(until.elementIsVisible(copyButton), 10_000)
+    await this.driver.wait(until.elementIsEnabled(copyButton), 30_000, 'Device link was not minted within timeout')
+    await copyButton.click()
+    await this.driver.wait(until.elementLocated(By.xpath("//*[text()='Link copied']")), 10_000)
 
-    await unlockButton.click()
-
-    return await this.driver.wait(
-      until.elementLocated(By.xpath("//p[@data-testid='device-link']")),
-      10_000,
-      `Unhidden device link element couldn't be found within timeout`,
-      500
-    )
+    const link = (await this.driver.executeAsyncScript(
+      `const done = arguments[arguments.length - 1];
+       navigator.clipboard.readText().then(done, error => done('ERROR: ' + error))`
+    )) as string
+    if (!link || link.startsWith('ERROR')) {
+      throw new Error(`Could not read the copied device link from the clipboard: ${link}`)
+    }
+    return link
   }
 
   /**

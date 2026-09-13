@@ -212,7 +212,7 @@ async function getDeviceInvitation(app: App): Promise<string> {
   const settings = await new Sidebar(app.driver).openSettings()
   expect(await settings.isReady()).toBeTruthy()
   await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-  const link = await (await settings.deviceLink()).getText()
+  const link = await settings.deviceLink()
   await settings.closeTabThenModal()
   return link
 }
@@ -471,7 +471,7 @@ describe('Device linking message replication (QSS)', () => {
       const deviceSettings = await new Sidebar(users.primary.app.driver).openSettings()
       expect(await deviceSettings.isReady()).toBeTruthy()
       await deviceSettings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-      deviceLink = await (await deviceSettings.deviceLink()).getText()
+      deviceLink = await deviceSettings.deviceLink()
       expect(deviceLink.length).toBeGreaterThan(0)
       await deviceSettings.closeTabThenModal()
     })
