@@ -57,11 +57,10 @@ const Root = styled('div')(({ theme }) => ({
     verticalAlign: 'baseline',
   },
 
-  // The library's Button, Large: 50 tall, 12/20 padding, radius 16 from the theme.
+  // The library's Button, Large: 50 tall, 12/20 padding; radius 16 and the 16/400 label from the theme.
   [`& .${classes.agreeButton}`]: {
     height: 50,
     padding: `${theme.space.md}px ${theme.space.xl - theme.space.xs}px`,
-    ...theme.typography.h5,
   },
 }))
 

@@ -34,6 +34,9 @@ const typography = {
   h3: px(tokens.type.h3),
   h4: px(tokens.type.title),
   h5: px(tokens.type.h5),
+  // The library's Button (3505:10206) sets its label in bodyLg — 16/24, weight 400 — on
+  // every variant; MUI's default is 500 + uppercase, and 500 reads as bold in Rubik.
+  button: { ...px(tokens.type.bodyLg), textTransform: 'none' as const },
 }
 
 /** Spacing roles on the 4px grid: xs 4 · sm 8 · md 12 · lg 16 · xl 24 · xxl 32. */
@@ -180,9 +183,12 @@ const lightTheme = createTheme({
     MuiButton: {
       // Replace with atomic Button component. Put styling in that file.
       styleOverrides: {
-        // The design library's Button (3505:10206) has cornerRadius 16 on every variant and size.
+        // The design library's Button (3505:10206) has cornerRadius 16 on every variant and size,
+        // and its label is regular weight (typography.button above), never faux-bold.
         root: {
           borderRadius: 16,
+          fontWeight: 400,
+          textTransform: 'none',
         },
         sizeSmall: {
           textTransform: 'none',
@@ -201,7 +207,8 @@ const lightTheme = createTheme({
           fontWeight: 400,
           paddingTop: 12,
           paddingBottom: 12,
-          fontSize: 14,
+          // The library's Button label is 16 on every size (3505:10206); 14 was the app's own.
+          fontSize: 16,
           '&:active': {
             boxShadow: 'none',
           },
@@ -379,9 +386,12 @@ const darkTheme = createTheme({
     MuiButton: {
       // Replace with atomic Button component. Put styling in that file.
       styleOverrides: {
-        // The design library's Button (3505:10206) has cornerRadius 16 on every variant and size.
+        // The design library's Button (3505:10206) has cornerRadius 16 on every variant and size,
+        // and its label is regular weight (typography.button above), never faux-bold.
         root: {
           borderRadius: 16,
+          fontWeight: 400,
+          textTransform: 'none',
         },
         sizeSmall: {
           textTransform: 'none',
@@ -400,7 +410,8 @@ const darkTheme = createTheme({
           fontWeight: 400,
           paddingTop: 12,
           paddingBottom: 12,
-          fontSize: 14,
+          // The library's Button label is 16 on every size (3505:10206); 14 was the app's own.
+          fontSize: 16,
           '&:active': {
             boxShadow: 'none',
           },

@@ -47,7 +47,7 @@ describe('Main', () => {
                           class="css-1c9y83e"
                         >
                           <span
-                            class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1wnujka-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1sw4a9a-MuiButtonBase-root-MuiButton-root"
                             data-testid="settings-panel-button"
                             role="button"
                             tabindex="0"
@@ -293,7 +293,7 @@ describe('Main', () => {
                           class="css-e5hanu"
                         >
                           <div
-                            class="MuiButtonBase-root MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1wnujka-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1sw4a9a-MuiButtonBase-root-MuiButton-root"
                             data-testid="user-profile-menu-button"
                             role="button"
                             tabindex="0"

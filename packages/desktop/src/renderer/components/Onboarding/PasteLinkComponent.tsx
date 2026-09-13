@@ -57,9 +57,7 @@ const Form = styled('form')(({ theme }) => ({
     maxWidth: 'none',
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
-    textTransform: 'none',
     height: 48,
-    fontWeight: 'normal',
   },
 }))
 

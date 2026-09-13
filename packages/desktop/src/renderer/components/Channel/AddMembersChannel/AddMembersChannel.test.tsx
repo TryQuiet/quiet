@@ -236,7 +236,7 @@ describe('AddMembersChannel', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto AddMembersChannelbuttonContainer css-1wrgmsj-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelbutton css-1u62ipv-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelbutton css-1htu02x-MuiButtonBase-root-MuiButton-root"
                       data-testid="general-add-members-button"
                       tabindex="0"
                       type="button"
@@ -253,7 +253,7 @@ describe('AddMembersChannel', () => {
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 AddMembersChannelsecondaryButtonContainer css-s2k0j8-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelsecondaryButton css-1u62ipv-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelsecondaryButton css-1htu02x-MuiButtonBase-root-MuiButton-root"
                       data-testid="general-add-members-leave-button"
                       tabindex="0"
                       type="button"
