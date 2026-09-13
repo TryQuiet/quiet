@@ -190,7 +190,7 @@ describe('Add new channel', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -202,7 +202,7 @@ describe('Add new channel', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ModalClose"
                       tabindex="0"
                       type="button"
@@ -218,9 +218,6 @@ describe('Add new channel', () => {
                           d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                         />
                       </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
                     </button>
                   </div>
                 </div>
@@ -241,12 +238,12 @@ describe('Add new channel', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column CreateChannelComponentfullContainer css-1e5jxqd-MuiGrid-root"
                     >
                       <h3
-                        class="MuiTypography-root MuiTypography-h3 CreateChannelComponenttitle css-ptjqt4-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-h3 CreateChannelComponenttitle css-ts8dj1-MuiTypography-root"
                       >
                         Create a new channel
                       </h3>
                       <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                       >
                         Channel name
                       </p>
@@ -255,7 +252,7 @@ describe('Add new channel', () => {
                         data-testid="createChannelInput"
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-1hwo1uj-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-a81z35-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -283,13 +280,13 @@ describe('Add new channel', () => {
                         </div>
                       </div>
                       <p
-                        class="MuiTypography-root MuiTypography-body2 css-6gbt2m-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nv555-MuiTypography-root"
                       />
                       <div
                         class="CreateChannelComponentgutter"
                       />
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-ak90sa-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-nkduuh-MuiButtonBase-root-MuiButton-root"
                         data-testid="channelNameSubmit"
                         tabindex="0"
                         type="submit"

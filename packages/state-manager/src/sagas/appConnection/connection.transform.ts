@@ -17,6 +17,7 @@ export const ConnectionTransform = createTransform(
       },
       isTorInitialized: false,
       socketIOSecret: null,
+      deviceLinkInvite: undefined,
       p2pEnabled: true,
     }
   },

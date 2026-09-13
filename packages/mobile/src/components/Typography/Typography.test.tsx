@@ -32,4 +32,62 @@ describe('Typography component', () => {
       </Text>
     `)
   })
+
+  it('resolves size, line height and weight from a type-scale variant', () => {
+    const { toJSON } = renderComponent(<Typography variant={'title'}>{'Typography'}</Typography>)
+
+    expect(toJSON()).toMatchInlineSnapshot(`
+      <Text
+        color="main"
+        fontSize={20}
+        fontWeight="medium"
+        horizontalTextAlign="left"
+        lineHeight={28}
+        style={
+          {
+            "color": "#000000",
+            "fontFamily": "Rubik-Medium",
+            "fontSize": 20,
+            "lineHeight": 28,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          }
+        }
+        verticalTextAlign="center"
+      >
+        Typography
+      </Text>
+    `)
+  })
+
+  it('lets an explicit size override the variant', () => {
+    const { toJSON } = renderComponent(
+      <Typography variant={'body'} fontSize={13}>
+        {'Typography'}
+      </Typography>
+    )
+
+    expect(toJSON()).toMatchInlineSnapshot(`
+      <Text
+        color="main"
+        fontSize={13}
+        fontWeight="normal"
+        horizontalTextAlign="left"
+        lineHeight={20}
+        style={
+          {
+            "color": "#000000",
+            "fontFamily": "Rubik-Regular",
+            "fontSize": 13,
+            "lineHeight": 20,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          }
+        }
+        verticalTextAlign="center"
+      >
+        Typography
+      </Text>
+    `)
+  })
 })

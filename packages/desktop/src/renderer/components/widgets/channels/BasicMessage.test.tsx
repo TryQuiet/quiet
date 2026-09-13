@@ -71,7 +71,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
                         >
                           gringo
                         </p>
@@ -80,7 +80,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
                         >
                           12:00 AM
                         </p>
@@ -96,7 +96,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -161,7 +161,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
                         >
                           gringo
                         </p>
@@ -170,7 +170,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
                         >
                           12:00 AM
                         </p>
@@ -186,7 +186,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -196,7 +196,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -264,7 +264,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
                         >
                           Quiet
                         </p>
@@ -273,7 +273,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
                         >
                           12:00 AM
                         </p>
@@ -289,7 +289,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -299,7 +299,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -365,7 +365,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
                         >
                           gringo
                         </p>
@@ -374,7 +374,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
                         >
                           12:00 AM
                         </p>
@@ -390,7 +390,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -400,7 +400,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0

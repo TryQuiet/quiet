@@ -10,7 +10,6 @@ import MockedSocket from 'socket.io-mock'
 import { take } from 'typed-redux-saga'
 import Channel from '../renderer/components/Channel/Channel'
 import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
-import { CreateCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
@@ -109,23 +108,22 @@ describe('User', () => {
     })
 
     // Confirm proper modal title is displayed
-    const dictionary = CreateCommunityDictionary()
-    const createCommunityTitle = screen.getByText(dictionary.header)
+    const createCommunityTitle = screen.getByRole('heading', { name: 'Create a community', level: 3 })
     expect(createCommunityTitle).toBeVisible()
 
     // Enter community name and hit button
-    const createCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const createCommunityButton = screen.getByText(dictionary.button)
+    const createCommunityInput = screen.getByPlaceholderText('Community name')
+    const createCommunityButton = screen.getByTestId('continue-createCommunity')
     await userEvent.type(createCommunityInput, 'rockets')
     await userEvent.click(createCommunityButton)
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
+    const createUsernameTitle = await screen.findByText('Choose username')
     expect(createUsernameTitle).toBeVisible()
 
     // Enter username and hit button
-    const createUsernameInput = await screen.findByPlaceholderText('Enter a username')
-    const createUsernameButton = await screen.findByText('Register')
+    const createUsernameInput = await screen.findByPlaceholderText('Username')
+    const createUsernameButton = await screen.findByTestId('continue-createUsername')
     await userEvent.type(createUsernameInput, 'alice')
     await userEvent.click(createUsernameButton)
 

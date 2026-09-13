@@ -24,7 +24,7 @@ describe('DateDivider', () => {
               class="MuiGrid-root MuiGrid-item DateDividertitleDiv css-13i4rnv-MuiGrid-root"
             >
               <p
-                class="MuiTypography-root MuiTypography-body1 DateDividerdateText css-ghvhpl-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body1 DateDividerdateText css-1ql8hfl-MuiTypography-root"
               >
                 test
               </p>

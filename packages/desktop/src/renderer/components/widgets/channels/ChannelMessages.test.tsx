@@ -69,7 +69,7 @@ describe('ChannelMessages', () => {
                 style="opacity: 0; pointer-events: none;"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body1 FloatingDatedateText css-ghvhpl-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body1 FloatingDatedateText css-1ql8hfl-MuiTypography-root"
                 />
               </div>
               <div
@@ -96,7 +96,7 @@ describe('ChannelMessages', () => {
                     class="MuiGrid-root MuiGrid-item DateDividertitleDiv css-13i4rnv-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body1 DateDividerdateText css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 DateDividerdateText css-1ql8hfl-MuiTypography-root"
                     >
                       Today
                     </p>
@@ -141,7 +141,7 @@ describe('ChannelMessages', () => {
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
                               >
                                 string
                               </p>
@@ -150,7 +150,7 @@ describe('ChannelMessages', () => {
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
                               >
                                 4:58 PM
                               </p>
@@ -166,7 +166,7 @@ describe('ChannelMessages', () => {
                             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string

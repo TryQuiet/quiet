@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles'
 import IconButtonMui from '@mui/material/IconButton'
 
 import { IIconButtonProps } from './IconButton.d'
+import { glyphButtonStates } from '../interactionStates'
 
 const PREFIX = 'IconButton'
 
@@ -11,6 +12,8 @@ const classes = {
 }
 
 const StyledIconButtonMui = styled(IconButtonMui)(({ theme }) => ({
+  // Hover / pressed / focus-visible / disabled for the title-bar glyphs (back, close).
+  ...glyphButtonStates(theme),
   [`& .${classes.root}`]: {
     padding: 6,
     color: theme.typography.body1.color,
@@ -19,7 +22,7 @@ const StyledIconButtonMui = styled(IconButtonMui)(({ theme }) => ({
 
 export const IconButton: React.FC<IIconButtonProps> = ({ children, onClick, dataTestId }) => {
   return (
-    <StyledIconButtonMui classes={{ root: classes.root }} onClick={onClick} data-testid={dataTestId}>
+    <StyledIconButtonMui classes={{ root: classes.root }} onClick={onClick} data-testid={dataTestId} disableRipple>
       {children}
     </StyledIconButtonMui>
   )

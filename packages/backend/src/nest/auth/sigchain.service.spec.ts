@@ -142,6 +142,15 @@ describe('SigChainService - listener lifecycle', () => {
     expect(chainB.listenerCount(SigchainEvents.UPDATED)).toBe(0)
   })
 
+  it('does not attach another update listener when the active chain is selected again', async () => {
+    const chain = await sigChainService.createChain(true)
+
+    sigChainService.setActiveChain(chain.teamId!)
+    sigChainService.setActiveChain(chain.teamId!)
+
+    expect(chain.listenerCount(SigchainEvents.UPDATED)).toBe(1)
+  })
+
   it('does not emit iOS-native key or device events on non-ios platforms', async () => {
     const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
 
@@ -374,6 +383,34 @@ describe('SigChainService - durable chain writes', () => {
     await new Promise(resolve => setTimeout(resolve, 50))
     expect(setSigChainSpy).toHaveBeenCalledTimes(1)
     expect(setSigChainSpy).toHaveBeenCalledWith(chain, teamId)
+  })
+
+  it('coalesces chain-update events that arrive while a write is in progress', async () => {
+    const firstWrite = deferred()
+    let started = 0
+    const setSigChainSpy = jest.spyOn(localDbService, 'setSigChain').mockImplementation(async () => {
+      started += 1
+      if (started === 1) {
+        await firstWrite.promise
+      }
+    })
+
+    chain.emit(SigchainEvents.UPDATED)
+    await waitForExpect(() => {
+      expect(started).toBe(1)
+    })
+
+    for (let index = 0; index < 20; index += 1) {
+      chain.emit(SigchainEvents.UPDATED)
+    }
+
+    expect(sigChainService.pendingPersistCount(teamId)).toBe(21)
+    firstWrite.resolve()
+
+    await waitForExpect(() => {
+      expect(setSigChainSpy).toHaveBeenCalledTimes(2)
+      expect(sigChainService.pendingPersistCount(teamId)).toBe(0)
+    })
   })
 
   it('emits UPDATED only after the write has resolved', async () => {

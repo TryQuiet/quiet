@@ -7,7 +7,13 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { icons } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
+import {
+  InvitationData,
+  InvitationDataVersion,
+  isDeviceInvitationData,
+  JoinCommunityPayload,
+  LinkDevicePayload,
+} from '@quiet/types'
 import {
   AlreadyBelongToCommunityWarning,
   InvalidInvitationLinkError,
@@ -36,7 +42,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
       navigationActions.replaceScreen({
         screen: ScreenNames.ErrorScreen,
         params: {
-          onPress: () => replaceScreen(ScreenNames.JoinCommunityScreen),
+          onPress: () => replaceScreen(ScreenNames.GetStartedScreen),
           icon: icons.quiet_icon_round,
           title: InvalidInvitationLinkError.TITLE,
           message: InvalidInvitationLinkError.MESSAGE,
@@ -129,6 +135,20 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
       })
     )
 
+    return
+  }
+
+  if (isDeviceInvitationData(data)) {
+    const payload: LinkDevicePayload = {
+      inviteData: data,
+    }
+
+    yield* put(communities.actions.linkDevice(payload))
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.ConnectionProcessScreen,
+      })
+    )
     return
   }
 

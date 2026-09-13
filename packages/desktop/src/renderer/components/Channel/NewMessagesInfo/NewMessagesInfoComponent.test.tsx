@@ -16,7 +16,7 @@ describe('NewMessagesInfoComponent', () => {
               class="NewMessagesInfoComponentindicator"
             >
               <p
-                class="MuiTypography-root MuiTypography-body1 NewMessagesInfoComponentlabel css-ghvhpl-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body1 NewMessagesInfoComponentlabel css-1ql8hfl-MuiTypography-root"
               >
                 New messages
               </p>

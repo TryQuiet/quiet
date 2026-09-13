@@ -1,9 +1,16 @@
 import { testSaga } from 'redux-saga-test-plan'
 import { handleCommunityOnboarding } from './communities.master.saga'
 import { communitiesActions } from './communities.slice'
-import { CreateCommunityPayload, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
+import {
+  CreateCommunityPayload,
+  type DeviceInvitationData,
+  InvitationDataVersion,
+  InvitationKind,
+  JoinCommunityPayload,
+} from '@quiet/types'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
+import { linkDeviceSaga } from './linkDevice/linkDevice.saga'
 import type { Socket } from '../../types'
 import type { Task } from 'redux-saga'
 import { TASK } from '@redux-saga/symbols'
@@ -54,19 +61,36 @@ describe('handleCommunityOnboarding', () => {
         },
       },
     } as JoinCommunityPayload)
+    const deviceInvite: DeviceInvitationData = {
+      ...joinAction.payload.inviteData,
+      kind: InvitationKind.Device,
+      authData: {
+        ...joinAction.payload.inviteData.authData,
+        teamId: 'abc123',
+        userId: 'user-id',
+        userName: 'alice',
+      },
+    }
+    const linkAction = communitiesActions.linkDevice({ inviteData: deviceInvite })
 
     const createTask = createTaskMock()
     const joinTask = createTaskMock()
+    const linkTask = createTaskMock()
+    const onboardingActions = [
+      communitiesActions.createCommunity.type,
+      communitiesActions.joinCommunity.type,
+      communitiesActions.linkDevice.type,
+    ]
 
     testSaga(handleCommunityOnboarding, socket)
       .next()
       .select(communitiesSelectors.pendingJoin)
       .next(null)
-      .take([communitiesActions.createCommunity.type, communitiesActions.joinCommunity.type])
+      .take(onboardingActions)
       .next(createAction)
       .fork(createCommunitySaga, socket, createAction)
       .next(createTask)
-      .take([communitiesActions.createCommunity.type, communitiesActions.joinCommunity.type])
+      .take(onboardingActions)
       .next(joinAction)
       .select(communitiesSelectors.pendingJoin)
       .next({ attempt: 1, status: 'draft', inviteData: joinAction.payload.inviteData })
@@ -74,6 +98,12 @@ describe('handleCommunityOnboarding', () => {
       .next()
       .fork(joinCommunitySaga, socket)
       .next(joinTask)
-      .take([communitiesActions.createCommunity.type, communitiesActions.joinCommunity.type])
+      .take(onboardingActions)
+      .next(linkAction)
+      .cancel(joinTask)
+      .next()
+      .fork(linkDeviceSaga, socket, linkAction)
+      .next(linkTask)
+      .take(onboardingActions)
   })
 })

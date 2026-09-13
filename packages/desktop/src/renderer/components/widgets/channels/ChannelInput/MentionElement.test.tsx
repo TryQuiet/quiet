@@ -34,12 +34,12 @@ describe('MentionElement', () => {
               class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true MentionElementdata css-1vd824g-MuiGrid-root"
             >
               <h5
-                class="MuiTypography-root MuiTypography-h5 MentionElementname css-11l3dv4-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h5 MentionElementname css-g8q9rb-MuiTypography-root"
               >
                 test
               </h5>
               <p
-                class="MuiTypography-root MuiTypography-body2 MentionElementcaption MentionElementcaptionHighlight css-16d47hw-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body2 MentionElementcaption MentionElementcaptionHighlight css-1t82dwi-MuiTypography-root"
               >
                 Participant in #test
               </p>
@@ -79,12 +79,12 @@ describe('MentionElement', () => {
               class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true MentionElementdata css-1vd824g-MuiGrid-root"
             >
               <h5
-                class="MuiTypography-root MuiTypography-h5 MentionElementname css-11l3dv4-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h5 MentionElementname css-g8q9rb-MuiTypography-root"
               >
                 test
               </h5>
               <p
-                class="MuiTypography-root MuiTypography-body2 MentionElementcaption css-16d47hw-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body2 MentionElementcaption css-1t82dwi-MuiTypography-root"
               >
                 Participant in #test
               </p>

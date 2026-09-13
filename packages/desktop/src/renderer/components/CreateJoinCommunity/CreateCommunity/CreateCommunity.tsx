@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { communities } from '@quiet/state-manager'
-import { CommunityOwnership, CreateCommunityPayload } from '@quiet/types'
-import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
+import { CreateCommunityPayload } from '@quiet/types'
+import Modal from '../../ui/Modal/Modal'
+import { CreateCommunityComponent } from '../../Onboarding/CreateCommunityComponent'
 import { ServerOfferComponent } from '../../ServerOffer/ServerOfferComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
@@ -19,7 +20,7 @@ const CreateCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
   const createCommunityModal = useModal(ModalName.createCommunityModal)
-  const joinCommunityModal = useModal(ModalName.joinCommunityModal)
+  const getStartedModal = useModal(ModalName.getStartedModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const [pendingCommunityName, setPendingCommunityName] = useState<string | null>(null)
   const [showServerOffer, setShowServerOffer] = useState(false)
@@ -75,28 +76,31 @@ const CreateCommunity = () => {
     }
   }
 
-  // From 'You can join a community instead' link
-  const handleRedirection = () => {
-    if (!joinCommunityModal.open) {
-      joinCommunityModal.handleOpen()
-      createCommunityModal.handleClose()
-    } else {
-      createCommunityModal.handleClose()
-    }
+  // Back arrow: return to Get started while there is nothing to go back into.
+  const handleBack = () => {
+    if (!currentCommunity) getStartedModal.handleOpen()
+    createCommunityModal.handleClose()
   }
 
   return (
     <>
-      <PerformCommunityActionComponent
-        {...createCommunityModal}
-        communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={handleRedirection}
-        isConnectionReady={isConnected}
-        isCloseDisabled={!currentCommunity}
-        hasReceivedResponse={Boolean(currentCommunity)}
-        revealInputValue={true}
-      />
+      <Modal
+        open={createCommunityModal.open}
+        handleClose={createCommunityModal.handleClose}
+        title={'Create a community'}
+        canGoBack
+        handleBack={handleBack}
+        alignCloseLeft
+        contentWidth={'100%'}
+        testIdPrefix={'createCommunity'}
+        zIndex={1300}
+      >
+        <CreateCommunityComponent
+          open={createCommunityModal.open}
+          isConnectionReady={isConnected}
+          handleCommunityAction={handleCommunityAction}
+        />
+      </Modal>
       {showServerOffer && <ServerOfferComponent open={showServerOffer} handleClose={handleServerOfferClose} />}
     </>
   )

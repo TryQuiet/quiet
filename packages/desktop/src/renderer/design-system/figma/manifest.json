@@ -1,0 +1,102 @@
+[
+ {
+  "slug": "get-started",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "Get started",
+  "node": "2811:2550",
+  "role": "entry",
+  "bytes": 54983,
+  "png": "get-started.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2550"
+ },
+ {
+  "slug": "join-community",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "Join community",
+  "node": "2811:2562",
+  "role": "join: three-way choice",
+  "bytes": 143932,
+  "png": "join-community.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2562"
+ },
+ {
+  "slug": "open-invite-link",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "Open invite link",
+  "node": "2811:2455",
+  "role": "join: invite link",
+  "bytes": 105536,
+  "png": "open-invite-link.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2455"
+ },
+ {
+  "slug": "recover-account",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "recover-account-info",
+  "node": "2811:2535",
+  "role": "join: recover",
+  "bytes": 35733,
+  "png": "recover-account.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2535"
+ },
+ {
+  "slug": "agree-and-join",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "Agree-and-join (v1 before we support multiple hosts)",
+  "node": "3111:4339",
+  "role": "join: server opt-in",
+  "bytes": 34161,
+  "png": "agree-and-join.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3111-4339"
+ },
+ {
+  "slug": "captcha",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "Captcha",
+  "node": "2924:13413",
+  "role": "join: captcha",
+  "bytes": 630584,
+  "png": "captcha.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2924-13413"
+ },
+ {
+  "slug": "username",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "username-populated",
+  "node": "2811:2373",
+  "role": "identity",
+  "bytes": 31405,
+  "png": "username.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2373"
+ },
+ {
+  "slug": "create-community",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "create--default",
+  "node": "2811:2451",
+  "role": "create",
+  "bytes": 31249,
+  "png": "create-community.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2451"
+ },
+ {
+  "slug": "link-devices",
+  "file": "f6Nr5b5wtvk6Xoh1HJZ8Dd",
+  "frame": "Link devices",
+  "node": "2811:2575",
+  "role": "devices",
+  "bytes": 34297,
+  "png": "link-devices.png",
+  "url": "https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2575"
+ },
+ {
+  "slug": "invite-desktop",
+  "file": "dSEZJr9crJjcV3ILogea9C",
+  "frame": "Invitee clicks invite link on desktop",
+  "node": "2871:1154",
+  "role": "join: desktop variant",
+  "bytes": 3221358,
+  "png": "invite-desktop.png",
+  "url": "https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2871-1154"
+ }
+]

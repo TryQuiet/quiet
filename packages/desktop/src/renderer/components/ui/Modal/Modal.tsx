@@ -142,6 +142,7 @@ export const Modal: React.FC<IModalProps> = ({
   isBold,
   step,
   setStep,
+  handleBack,
   contentWidth,
   contentHeight,
   isCloseDisabled,
@@ -211,6 +212,9 @@ export const Modal: React.FC<IModalProps> = ({
                 {canGoBack ? (
                   <IconButton
                     onClick={() => {
+                      if (handleBack) {
+                        return handleBack()
+                      }
                       if (setStep && step) {
                         return setStep(step - 1)
                       }

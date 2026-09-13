@@ -27,7 +27,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -55,7 +55,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-w6r0mf-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-1q7dbnv-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -125,7 +125,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-w6r0mf-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-1q7dbnv-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0

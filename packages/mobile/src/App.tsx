@@ -19,9 +19,14 @@ import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity
 import { DeleteChannelScreen } from './screens/DeleteChannel/DeleteChannel.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
+import { GetStartedScreen } from './screens/GetStarted/GetStarted.screen'
+import { OpenInviteLinkScreen } from './screens/OpenInviteLink/OpenInviteLink.screen'
+import { PasteInviteLinkScreen } from './screens/PasteInviteLink/PasteInviteLink.screen'
+import { LinkDevicesScreen } from './screens/LinkDevices/LinkDevices.screen'
 import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
 import { NotifierScreen } from './screens/Notifier/Notifier.screen'
 import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
+import { LinkedDeviceQRCodeScreen } from './screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen'
 import { SplashScreen } from './screens/Splash/Splash.screen'
 import { SuccessScreen } from './screens/Success/Success.screen'
 import { UsernameRegistrationScreen } from './screens/UsernameRegistration/UsernameRegistration.screen'
@@ -42,6 +47,7 @@ import { defaultTheme } from './styles/themes/default.theme'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
 import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
+import { LinkedDevicesContextMenu } from './components/ContextMenu/menus/LinkedDevicesContextMenu.container'
 
 import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
 import { useConfirmationBox } from './hooks/useConfirmationBox'
@@ -121,10 +127,15 @@ function App(): React.JSX.Element {
                   component={PossibleImpersonationAttackScreen}
                   name={ScreenNames.PossibleImpersonationAttackScreen}
                 />
+                <Screen component={GetStartedScreen} name={ScreenNames.GetStartedScreen} />
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
+                <Screen component={OpenInviteLinkScreen} name={ScreenNames.OpenInviteLinkScreen} />
+                <Screen component={PasteInviteLinkScreen} name={ScreenNames.PasteInviteLinkScreen} />
+                <Screen component={LinkDevicesScreen} name={ScreenNames.LinkDevicesScreen} />
                 <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
                 <Screen component={NotifierScreen} name={ScreenNames.NotifierScreen} />
                 <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
+                <Screen component={LinkedDeviceQRCodeScreen} name={ScreenNames.LinkedDeviceQRCodeScreen} />
                 <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={UsernameRegistrationScreen} name={ScreenNames.UsernameRegistrationScreen} />
@@ -133,6 +144,7 @@ function App(): React.JSX.Element {
               <CommunityContextMenu />
               <ChannelContextMenu />
               <InvitationContextMenu />
+              <LinkedDevicesContextMenu />
               <UnregisteredUsernameContextMenu />
               <CaptchaModal />
               <ConfirmationBox {...confirmationBox} />

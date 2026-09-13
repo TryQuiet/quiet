@@ -36,7 +36,7 @@ describe('ChannelHeader', () => {
                           data-testid="channelTitle-icon-public"
                           fill="currentColor"
                           focusable="false"
-                          style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                          style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                           viewBox="0 0 24 24"
                         >
                           <svg
@@ -72,7 +72,7 @@ describe('ChannelHeader', () => {
                           </svg>
                         </svg>
                         <h6
-                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-b4jm9l-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-ab5cf7-MuiTypography-root"
                           data-testid="channelTitle"
                           style="max-width: 724px;"
                         >
@@ -122,7 +122,7 @@ describe('ChannelHeader', () => {
                           data-testid="channelTitle-icon-public"
                           fill="currentColor"
                           focusable="false"
-                          style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                          style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                           viewBox="0 0 24 24"
                         >
                           <svg
@@ -158,7 +158,7 @@ describe('ChannelHeader', () => {
                           </svg>
                         </svg>
                         <h6
-                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-b4jm9l-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-ab5cf7-MuiTypography-root"
                           data-testid="channelTitle"
                           style="max-width: 724px;"
                         >
@@ -227,7 +227,7 @@ describe('ChannelHeader', () => {
                           data-testid="channelTitle-icon-private"
                           fill="currentColor"
                           focusable="false"
-                          style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                          style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                           viewBox="0 0 24 24"
                         >
                           <svg
@@ -260,7 +260,7 @@ describe('ChannelHeader', () => {
                           </svg>
                         </svg>
                         <h6
-                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-b4jm9l-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-ab5cf7-MuiTypography-root"
                           data-testid="channelTitle"
                           style="max-width: 724px;"
                         >
@@ -310,7 +310,7 @@ describe('ChannelHeader', () => {
                           data-testid="channelTitle-icon-private"
                           fill="currentColor"
                           focusable="false"
-                          style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                          style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                           viewBox="0 0 24 24"
                         >
                           <svg
@@ -343,7 +343,7 @@ describe('ChannelHeader', () => {
                           </svg>
                         </svg>
                         <h6
-                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-b4jm9l-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-ab5cf7-MuiTypography-root"
                           data-testid="channelTitle"
                           style="max-width: 724px;"
                         >

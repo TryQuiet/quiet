@@ -1,6 +1,6 @@
 import { Base58, InviteResult } from '3rd-party/auth/packages/auth/dist'
 import { type Identity } from './identity'
-import { InvitationData } from './network'
+import { DeviceInvitationData, InvitationData } from './network'
 import { User, UserProfile } from './user'
 
 // ----- Base Types -----
@@ -53,6 +53,15 @@ export interface JoinCommunityPayload {
   inviteData: InvitationData
 }
 
+export interface LinkDevicePayload {
+  inviteData: DeviceInvitationData
+  deviceName?: string
+}
+
+export interface InitDeviceLinkPayload extends LinkDevicePayload {
+  id: string
+}
+
 export interface LaunchCommunityPayload {
   id: string
 }
@@ -101,6 +110,12 @@ export interface ResponseJoinCommunityPayload {
   profile: UserProfile
 }
 
+export interface ResponseLinkDevicePayload {
+  id: string
+  community: Community
+  identity: Identity
+}
+
 export interface ResponseLeaveCommunityPayload {
   id: string
 }
@@ -113,6 +128,26 @@ export interface RequestInvitePayload {
 export interface InviteResultWithSalt extends InviteResult {
   salt: string
 }
+
+export interface DeviceLinkInvite extends InviteResult {
+  expiresAt: number
+  userId: string
+  userName: string
+}
+
+export type RequestDeviceLinkPayload = Record<string, never>
+
+/** A device on the current user's LFA member record, as the Link devices list shows it. */
+export interface LinkedDevice {
+  deviceId: string
+  deviceName: string
+  created?: number
+  removedAt?: number
+  /** The device this backend runs on. */
+  isCurrent: boolean
+}
+
+export type RequestLinkedDevicesPayload = Record<string, never>
 
 export interface ResponseInvitePayload {
   valid: boolean

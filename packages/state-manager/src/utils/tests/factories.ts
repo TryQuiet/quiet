@@ -19,6 +19,9 @@ import {
   DownloadFilePayload,
   GetMessagesPayload,
   InitCommunityPayload,
+  type InitDeviceLinkPayload,
+  type RequestDeviceLinkPayload,
+  type RequestLinkedDevicesPayload,
   MessagesLoadedPayload,
   SendMessagePayload,
   SocketActions,
@@ -33,6 +36,7 @@ import {
   InvitationData,
   InvitationPair,
   InvitationDataVersion,
+  InvitationKind,
   DeleteChannelPayload,
   ErrorPayload,
   ConnectionProcessInfo,
@@ -472,6 +476,28 @@ export const getSocketFactory = async () => {
   })
 
   // Community events
+  factory.define<InitDeviceLinkPayload>(SocketActions.LINK_DEVICE, Object, {
+    id: 'community-id',
+    deviceName: 'Test device',
+    inviteData: {
+      kind: InvitationKind.Device,
+      version: InvitationDataVersion.v4,
+      pairs: [],
+      psk: 'qTJAfwE1dmKA5R6lgzdhEBjgXVZRmbdm99TpKO89MSM=',
+      authData: {
+        communityName: 'Test Community',
+        seed: 'device-invite-seed',
+        teamId: 'abc123',
+        userId: 'user-id',
+        userName: 'test-user',
+      },
+    },
+  })
+
+  factory.define<RequestDeviceLinkPayload>(SocketActions.CREATE_DEVICE_LINK, Object, {})
+
+  factory.define<RequestLinkedDevicesPayload>(SocketActions.GET_LINKED_DEVICES, Object, {})
+
   factory.define<InitCommunityPayload>(SocketActions.JOIN_COMMUNITY, Object, {
     id: 'community-id',
     name: 'Test Community',

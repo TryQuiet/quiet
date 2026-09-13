@@ -94,6 +94,9 @@ describe('LFA transport ownership', () => {
     connected = [0, 0]
     nextPair = 0
     auth = modules.map((module, index) => {
+      // The auth service only ever runs inside a started libp2p; it refuses
+      // sessions while the service is stopped, paused or stopping.
+      services[index].state = Libp2pState.Started
       services[index].on(Libp2pEvents.AUTH_CONNECTED, () => connected[index]++)
       const components = {
         peerId: peers[index],

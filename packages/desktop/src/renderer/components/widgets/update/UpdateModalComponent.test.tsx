@@ -48,7 +48,7 @@ describe('UpdateModal', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <h6
-                      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
                       style="margin-left: 36px;"
                     />
                   </div>
@@ -60,7 +60,7 @@ describe('UpdateModal', () => {
                       data-testid="ModalActions"
                     >
                       <button
-                        class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                        class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                         data-testid="ModalClose"
                         tabindex="0"
                         type="button"
@@ -76,9 +76,6 @@ describe('UpdateModal', () => {
                             d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                           />
                         </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
                       </button>
                     </div>
                   </div>
@@ -105,7 +102,7 @@ describe('UpdateModal', () => {
                       class="MuiGrid-root UpdateModal-title css-vj1n65-MuiGrid-root"
                     >
                       <h3
-                        class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
                       >
                         Software update
                       </h3>
@@ -114,7 +111,7 @@ describe('UpdateModal', () => {
                       class="MuiGrid-root UpdateModal-message css-vj1n65-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                       >
                         A new version of Quiet is ready. It will be installed the next time you restart the app, or you can update now.
                       </p>
@@ -126,7 +123,7 @@ describe('UpdateModal', () => {
                         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth css-l6ws65-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth css-1r3nsvg-MuiButtonBase-root-MuiButton-root"
                           style="height: 55px; font-size: 0.9rem; background-color: rgb(82, 28, 116);"
                           tabindex="0"
                           type="submit"

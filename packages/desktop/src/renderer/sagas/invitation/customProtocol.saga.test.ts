@@ -1,5 +1,11 @@
 import { communities, getReduxStoreFactory, Store } from '@quiet/state-manager'
-import { Community, JoinCommunityPayload, type InvitationDataV4 } from '@quiet/types'
+import {
+  Community,
+  type DeviceInvitationDataV4,
+  InvitationKind,
+  JoinCommunityPayload,
+  type InvitationDataV4,
+} from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
@@ -17,6 +23,8 @@ describe('Handle invitation code', () => {
   let community: Community
   let validInvitationData: InvitationDataV4
   let validInvitationDeepUrl: string
+  let validDeviceInvitationData: DeviceInvitationDataV4
+  let validDeviceInvitationDeepUrl: string
 
   beforeEach(async () => {
     store = (
@@ -30,8 +38,21 @@ describe('Handle invitation code', () => {
 
     factory = await getReduxStoreFactory(store)
 
-    validInvitationData = getValidInvitationUrlTestData(validInvitationDatav4[0]).data
+    validInvitationData = {
+      ...getValidInvitationUrlTestData(validInvitationDatav4[0]).data,
+      kind: InvitationKind.Member,
+    }
     validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav4[0]).deepUrl()
+    validDeviceInvitationData = {
+      ...validInvitationData,
+      kind: InvitationKind.Device,
+      authData: {
+        ...validInvitationData.authData,
+        userId: 'device-owner-id',
+        userName: 'device-owner',
+      },
+    }
+    validDeviceInvitationDeepUrl = getValidInvitationUrlTestData(validDeviceInvitationData).deepUrl()
   })
 
   it('joins network if code is valid', async () => {
@@ -53,9 +74,21 @@ describe('Handle invitation code', () => {
       .run()
   })
 
+  it('links a device without opening username registration', async () => {
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validDeviceInvitationDeepUrl]))
+      .withState(store.getState())
+      .put(modalsActions.openModal({ name: ModalName.loadingPanel }))
+      .put(communities.actions.linkDevice({ inviteData: validDeviceInvitationData }))
+      .not.put(modalsActions.openModal({ name: ModalName.createUsernameModal }))
+      .run()
+  })
+
   // TODO: https://github.com/TryQuiet/quiet/issues/2628
   it('joins network if v4 code is valid', async () => {
-    const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav4[0]).data
+    const validInvitationData: InvitationDataV4 = {
+      ...getValidInvitationUrlTestData(validInvitationDatav4[0]).data,
+      kind: InvitationKind.Member,
+    }
     const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav4[0]).deepUrl()
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,

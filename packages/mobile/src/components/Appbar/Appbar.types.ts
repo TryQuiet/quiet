@@ -13,6 +13,8 @@ export interface AppbarProps {
   submit?: () => void
   contextMenu?: ReturnType<typeof useContextMenu> | null
   crossBackIcon?: boolean
+  /** No back arrow and no community tile on the left (onboarding roots). */
+  plain?: boolean
 }
 
 export interface HeaderTitleProps {
