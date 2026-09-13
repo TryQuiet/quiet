@@ -49,9 +49,10 @@ const JoinCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
   const createUsernameModal = useModal(ModalName.createUsernameModal)
-  const joinCommunityModal = useModal(ModalName.joinCommunityModal)
+  // `step`: the step to reopen on (Link devices' back arrow returns to Account recovery).
+  const joinCommunityModal = useModal<{ step?: 'recoverAccount' }>(ModalName.joinCommunityModal)
   const getStartedModal = useModal(ModalName.getStartedModal)
-  const linkDevicesModal = useModal(ModalName.linkDevicesModal)
+  const linkDevicesModal = useModal<{ returnTo?: 'recoverAccount' }>(ModalName.linkDevicesModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   // The screens visited inside this modal; the back arrow pops one.
@@ -60,7 +61,12 @@ const JoinCommunity = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
-    if (!joinCommunityModal.open) setTrail(['options'])
+    if (!joinCommunityModal.open) {
+      setTrail(['options'])
+      return
+    }
+    // Reopened by Link devices' back arrow: land on the step it was opened from.
+    if (joinCommunityModal.step === 'recoverAccount') setTrail(['options', 'recoverAccount'])
   }, [joinCommunityModal.open])
 
   useEffect(() => {
@@ -92,9 +98,9 @@ const JoinCommunity = () => {
   }
 
   // Account recovery → Link devices: the prototype's own link. The Link devices
-  // modal takes over; its back arrow returns to Get started.
+  // modal takes over; its back arrow returns here, to Account recovery.
   const handleUseLinkedDevice = () => {
-    linkDevicesModal.handleOpen()
+    linkDevicesModal.handleOpen({ returnTo: 'recoverAccount' })
     joinCommunityModal.handleClose()
   }
 

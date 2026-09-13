@@ -178,7 +178,7 @@ Copy:
 
 Uses: ButtonIcons (8), Divider (5), Button row (4), caret-black-r (4), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1)
 Goes to: Content → link-devices [prototype]; Button row → open-invite-link [prototype]; Glyph → back [back]
-Implemented by: desktop `Onboarding/RecoverAccountComponent.tsx` (a step of the Join community modal, title bar *Account recovery*) · mobile `RecoverAccount/RecoverAccount.component.tsx` — the info screen and its two prototype routes only; *More options* has no target in the file and is inert; the fourth row (*Scan QR code*) is hidden in the frame; the illustration is the frame's own `Icon=Vpn key` glyph at 64px; no recovery mechanism exists
+Implemented by: desktop `Onboarding/RecoverAccountComponent.tsx` (a step of the Join community modal, title bar *Account recovery*; *Use linked device* opens Link devices with a way back to this step, on both platforms) · mobile `RecoverAccount/RecoverAccount.component.tsx` — the info screen and its two prototype routes only; *More options* has no target in the file and is inert; the fourth row (*Scan QR code*) is hidden in the frame; the illustration is the frame's own `Icon=Vpn key` glyph at 64px; no recovery mechanism exists
 
 ### Link devices — QR code (sheet)  ·  `sheet-2811-2601`
 Figma frame `Sheet` · Section: Onboarding · 375×442 · node `2811:2601` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2601)

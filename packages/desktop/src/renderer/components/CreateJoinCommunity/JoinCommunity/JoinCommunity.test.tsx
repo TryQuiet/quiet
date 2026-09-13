@@ -113,11 +113,12 @@ describe('join community', () => {
     expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
   })
 
-  it('"Use linked device" on Account recovery hands over to Link devices', async () => {
+  it('"Use linked device" on Account recovery hands over to Link devices, whose back returns to Account recovery', async () => {
     const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
 
     renderComponent(
       <>
+        <GetStarted />
         <JoinCommunity />
         <LinkDevices />
       </>,
@@ -129,6 +130,16 @@ describe('join community', () => {
 
     expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
     expect(screen.queryByRole('heading', { name: 'Recover account' })).not.toBeInTheDocument()
+
+    // Back from Link devices returns to the screen it was opened from, not to Get started
+    await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: 'Link devices' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+
+    // And the trail continues back to the three-way choice
+    await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
   })
 
   it('takes the pasted link for "Join with QR code" since desktop has no camera', async () => {

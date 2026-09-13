@@ -176,7 +176,7 @@ export const RecoverAccount = () => (
     title='Recover account'
     bar='Account recovery'
     figma='2811:2535'
-    note='Use linked device → Link devices, Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
+    note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
     render={() => <RecoverAccountComponent onUseLinkedDevice={noop} onUseInviteLink={noop} />}
   />
 )
@@ -484,7 +484,8 @@ const WalkthroughStory = () => {
     record(`identity.actions.registerUsername({ nickname: '${nickname}' })`)
     finish()
   }
-  // LinkDevices.tsx refreshes the device list when its modal opens.
+  // LinkDevices.tsx refreshes the device list when its modal opens; opened from Account
+  // recovery, its back arrow returns there (here the trail does the same).
   const openLinkDevices = () => {
     record('connection.actions.getLinkedDevices()')
     go('linkDevices')
