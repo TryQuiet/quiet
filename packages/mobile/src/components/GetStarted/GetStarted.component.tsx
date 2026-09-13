@@ -18,7 +18,7 @@ export const GetStarted: FC<GetStartedProps> = ({ onJoinCommunity, onCreateCommu
   <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'get-started-component'}>
     <Appbar title={'Quiet'} plain />
     <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, gap: spacing.xl }}>
-      <Image source={icons.quiet_icon} style={{ width: 100, height: 100, alignSelf: 'center' }} accessible={false} />
+      <Image source={icons.get_started_circle_logo} style={{ width: 120, height: 120, alignSelf: 'center' }} accessible={false} />
       <Typography variant={'h3'} horizontalTextAlign={'center'}>
         {'Let’s get started...'}
       </Typography>
