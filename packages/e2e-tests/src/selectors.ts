@@ -2963,9 +2963,18 @@ export class Settings {
 
   /**
    * The device link. The tab never shows it (the QR code is what people show to their
-   * phone); Copy link puts it on the clipboard, which is read back here.
+   * phone): Display QR code opens the Link devices modal at the QR sheet, whose Copy link
+   * puts the link on the clipboard; it is read back here and the sheet is closed again.
    */
   async deviceLink(): Promise<string> {
+    const displayRow = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='link-devices-display-qr']")),
+      10_000,
+      `Display QR code row couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(displayRow), 5_000)
+    await displayRow.click()
     const copyButton = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="copy-device-link"]')),
       30_000,
@@ -2984,6 +2993,16 @@ export class Settings {
     if (!link || link.startsWith('ERROR')) {
       throw new Error(`Could not read the copied device link from the clipboard: ${link}`)
     }
+
+    // Opened straight at the sheet, its close leaves the Link devices modal (back to the tab)
+    const closeButton = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='linkDevicesModalClose']")),
+      5_000,
+      `QR code sheet close couldn't be found within timeout`,
+      500
+    )
+    await closeButton.click()
+    await this.driver.wait(until.stalenessOf(copyButton), 5_000, `QR code sheet didn't close within timeout`)
     return link
   }
 
@@ -3072,7 +3091,8 @@ export class Settings {
         locator = "//*[@data-testid='invite-a-friend']"
         break
       case SettingsModalTabName.LINKED_DEVICES:
-        locator = "//*[@data-testid='linked-devices-title']"
+        // The tab is the Link devices screen's content (rows + the device list)
+        locator = "//*[@data-testid='link-devices']"
         timeoutMs = 30_000
         break
       case SettingsModalTabName.ABOUT:
