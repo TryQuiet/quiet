@@ -10,6 +10,7 @@ import CopyToClipboard from 'react-copy-to-clipboard'
 import QR from 'react-qr-code'
 
 import type { LinkedDevicesComponentProps } from './LinkedDevices.types'
+import { glyphButtonStates, primaryButtonStates } from '../../../ui/interactionStates'
 
 const PREFIX = 'LinkedDevices'
 
@@ -58,6 +59,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     position: 'absolute',
     right: 0,
     top: 8,
+    ...glyphButtonStates(theme, false),
   },
   [`& .${classes.list}`]: {
     display: 'flex',
@@ -93,10 +95,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginTop: 24,
     textTransform: 'none',
     width: '100%',
-    '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue,
-      opacity: 0.7,
-    },
+    ...primaryButtonStates(theme, false),
   },
 }))
 
@@ -157,6 +156,7 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
               size='small'
               onClick={onToggleLinkVisibility}
               className={classes.linkVisibility}
+              disableRipple
             >
               {revealLink ? (
                 <Visibility color='primary' fontSize='small' />
