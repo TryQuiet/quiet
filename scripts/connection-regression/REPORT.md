@@ -6,6 +6,20 @@ established.** The readiness defect remains in the named alpha. Normal QSS
 delivery, short background/resume, and QSS-only offline retrieval did not show
 a material difference in these samples.
 
+Joining is the leading suspected user-visible scenario, but the exact slow step
+remains uncertain. The completed comparison did **not** reproduce a slower
+username-confirmation-to-channel-list transition: that took about 11 seconds in
+all three versions. Its reproduced delay concerns Tor readiness and delivery
+after joining. It therefore does not yet establish that this defect explains
+the originally perceived joining slowdown.
+
+For a focused follow-up, distinguish invitation submission, channel-list
+appearance, and the first exact message received in each direction. Measure
+normal QSS-enabled behavior as well as isolated Tor behavior. The existing whole
+onboarding sequence took about 53 seconds, and Tor-only sends started about
+101 seconds after Tor initialization; it does not cover rapidly pasting an
+invitation and immediately attempting Tor-only delivery.
+
 ## What actually ran
 
 Published, unmodified ARM64 Android APKs on a dedicated native ARM64 Android 11
