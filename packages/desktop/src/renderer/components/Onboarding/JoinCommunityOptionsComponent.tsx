@@ -7,15 +7,18 @@ import { onboardingIcons } from './icons'
 export interface JoinCommunityOptionsComponentProps {
   onJoinWithInviteLink: () => void
   onJoinWithQrCode: () => void
+  onRecoverAccount: () => void
 }
 
 /**
  * Join community · Figma 2811:2562: the three-way choice. "Recover account"
- * has no mechanism yet, so its row is present but disabled.
+ * opens the Account recovery screen (2811:2535), whose routes are the
+ * existing Link devices and Join with invite link flows.
  */
 export const JoinCommunityOptionsComponent: React.FC<JoinCommunityOptionsComponentProps> = ({
   onJoinWithInviteLink,
   onJoinWithQrCode,
+  onRecoverAccount,
 }) => (
   <OnboardingBody heading={'Join community'} dataTestId='join-community-options'>
     <RowGroup>
@@ -31,7 +34,12 @@ export const JoinCommunityOptionsComponent: React.FC<JoinCommunityOptionsCompone
         onClick={onJoinWithQrCode}
         dataTestId='join-with-qr-code'
       />
-      <ActionRow icon={onboardingIcons.info} label={'Recover account'} disabled dataTestId='recover-account' />
+      <ActionRow
+        icon={onboardingIcons.info}
+        label={'Recover account'}
+        onClick={onRecoverAccount}
+        dataTestId='recover-account'
+      />
     </RowGroup>
   </OnboardingBody>
 )

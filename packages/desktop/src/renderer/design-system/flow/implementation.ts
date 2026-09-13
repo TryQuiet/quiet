@@ -15,24 +15,24 @@ const pr = (path: string): Impl => ({ path, status: 'pr3400' })
 
 export const IMPLEMENTATION: Record<string, StageImpl> = {
   'get-started': {
-    desktop: none('app opens directly into the Join / Create modals'),
-    mobile: none('app opens directly on the JoinCommunity screen'),
-    divergence: 'The design has an entry screen with three routes; both apps skip it.',
+    desktop: on('desktop/src/renderer/components/Onboarding/GetStarted.tsx'),
+    mobile: on('mobile/src/screens/GetStarted/GetStarted.screen.tsx'),
   },
   'join-community': {
-    desktop: on('desktop/src/renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity.tsx'),
-    mobile: on('mobile/src/components/JoinCommunity/JoinCommunity.component.tsx'),
-    divergence:
-      'Design is a three-way choice (invite link / QR code / recover account) — decided: adopt it. Both apps ship a single invite-link paste field.',
+    desktop: on('desktop/src/renderer/components/Onboarding/JoinCommunityOptionsComponent.tsx'),
+    mobile: on('mobile/src/components/JoinCommunityOptions/JoinCommunityOptions.component.tsx'),
+    divergence: 'Join with QR code lands on the paste step: neither app has a scanner on this branch.',
   },
   'open-invite-link': {
-    desktop: on('desktop/src/renderer/components/CreateJoinCommunity/PerformCommunityActionComponent.tsx'),
-    mobile: on('mobile/src/components/JoinCommunity/JoinCommunity.component.tsx'),
+    desktop: on('desktop/src/renderer/components/Onboarding/OpenInviteLinkComponent.tsx'),
+    mobile: on('mobile/src/components/OpenInviteLink/OpenInviteLink.component.tsx'),
+    divergence:
+      'An invite link opened while this screen shows takes the deep-link path (desktop customProtocol.saga.ts, mobile deepLink.saga.ts) straight to Choose username.',
   },
   container: {
-    desktop: on('desktop/src/renderer/components/CreateJoinCommunity/PerformCommunityActionComponent.tsx'),
-    mobile: on('mobile/src/components/JoinCommunity/JoinCommunity.component.tsx'),
-    divergence: 'This is the paste-a-link stage. Both apps implement it as their whole join screen; in the design it is one of three routes.',
+    desktop: on('desktop/src/renderer/components/Onboarding/PasteLinkComponent.tsx'),
+    mobile: on('mobile/src/screens/PasteInviteLink/PasteInviteLink.screen.tsx'),
+    divergence: "The WIP frame reduced to its intent: heading, one input ('Link'), Continue.",
   },
   'want-a-server': {
     desktop: on('desktop/src/renderer/components/ServerOffer/ServerOfferComponent.tsx'),
@@ -72,8 +72,10 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     mobile: on('mobile/src/components/Chat/Chat.component.tsx'),
   },
   'recover-account-info': {
-    desktop: none('no account-recovery flow'),
-    mobile: none('no account-recovery flow'),
+    desktop: on('desktop/src/renderer/components/Onboarding/RecoverAccountComponent.tsx'),
+    mobile: on('mobile/src/components/RecoverAccount/RecoverAccount.component.tsx'),
+    divergence:
+      "The info screen and its two prototype routes (Link devices, Open invite link) only; there is no recovery mechanism. 'More options' leads nowhere in the design and is inert.",
   },
   'create-default': {
     desktop: on('desktop/src/renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity.tsx'),
