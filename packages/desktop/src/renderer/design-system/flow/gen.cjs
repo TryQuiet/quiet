@@ -108,6 +108,18 @@ const DESKTOP = {
     { x: 288, y: 282, w: 28, h: 26, label: 'Person add (VibeVillage row)', from: 'Person add' },
     { x: 66, y: 100, w: 24, h: 24, label: 'Close', back: true },
   ] },
+  // Device linking desktop designs (user pointer 2026-09-13): the Draft-5 frames are whole Modal full-window
+  // instances (715×1018) carrying their own chrome (dots + back arrow, no title bar) — cropped by 96 and set
+  // into the shell composition like any 715 content; the shell's bar shows the stage's title text.
+  'link-devices': { kind: 'content', png: 'devicelink/desktop-link-devices.png', node: '879:20987', width: 715, height: 1018, crop: 96, hotspots: [
+    { x: 122, y: 239, w: 458, h: 46, label: 'Display QR code row', from: 'Content' },
+    { x: 122, y: 286, w: 458, h: 46, label: 'Scan QR code row', from: 'Button row' },
+    { x: 122, y: 333, w: 458, h: 46, label: 'Paste link — added by decision 2026-09-13, not in the Figma frame', to: 'container', kind: 'added' },
+    { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
+  ] },
+  'sheet-2811-2601': { kind: 'content', png: 'devicelink/desktop-link-devices-qr.png', node: '880:17427', width: 715, height: 1018, crop: 96, hotspots: [
+    { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
+  ] },
   'choose-a-plan': { kind: 'content', png: 'desktop-choose-a-plan.png', node: '2840:6718', width: 715, height: 929, hotspots: [
     { x: 32, y: 297, w: 103, h: 48, label: 'Upgrade (Free)', from: 'Button', nth: 0 },
     { x: 265, y: 297, w: 104, h: 48, label: 'Upgrade ($20)', from: 'Button', nth: 1 },
@@ -116,6 +128,16 @@ const DESKTOP = {
   ] },
 }
 for (const f of flow.frames) delete f.desktop // derived; never carried over from a previous run
+// Decisions that add UI the Figma frames do not draw, shown as 'added' (amber) rows in the click-through.
+const ADDED_LINKS = {
+  'link-devices': [{ x: 16, y: 324, w: 343, h: 49, label: 'Paste link — added by decision 2026-09-13, not in the Figma frame', target: 'container', kind: 'added', note: 'User decision: a third Button row with the link glyph; the paste step accepts device links only.' }],
+}
+for (const [slug, links] of Object.entries(ADDED_LINKS)) { const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`ADDED_LINKS has no frame ${slug}`); process.exit(1) }
+  f.links = f.links.filter(l => !(l.kind === 'added' && links.some(a => a.label === l.label))).concat(links) }
+// User decision (2026-09-13): no "Quiet" header on Get started — redundant with the window on desktop, wrong on
+// mobile. The prototype frame still draws it; the desktop composition drops the title bar for this stage.
+const TITLE_BAR = { 'get-started': { height: 60, text: null, removed: true } }
+for (const [slug, tb] of Object.entries(TITLE_BAR)) { const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`TITLE_BAR has no frame ${slug}`); process.exit(1) } f.titleBar = tb }
 for (const [slug, d] of Object.entries(DESKTOP)) {
   const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`DESKTOP has no frame for slug ${slug}`); process.exit(1) }
   const hotspots = d.hotspots.map(h => {
@@ -125,7 +147,7 @@ for (const [slug, d] of Object.entries(DESKTOP)) {
     if (!from) { console.error(`DESKTOP ${slug}: no link labelled ${h.from} #${h.nth ?? 0}`); process.exit(1) }
     return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: from.target, kind: from.kind }
   })
-  f.desktop = { kind: d.kind, png: d.png, node: d.node, width: d.width, height: d.height, stretch: d.stretch ?? null, hotspots }
+  f.desktop = { kind: d.kind, png: d.png, node: d.node, width: d.width, height: d.height, stretch: d.stretch ?? null, crop: d.crop ?? 0, hotspots }
 }
 const mapId = toId(TITLE, storyNameFromExport('AllStages'))
 flow.mapId = mapId

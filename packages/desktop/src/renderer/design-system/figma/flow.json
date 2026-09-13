@@ -53,7 +53,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Quiet"
+    "text": null,
+    "removed": true
    },
    "links": [
     {
@@ -110,7 +111,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Quiet"
+    "text": null,
+    "hiddenTitle": "Quiet"
    },
    "links": [
     {
@@ -167,7 +169,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -224,7 +227,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Link devices"
+    "text": null,
+    "hiddenTitle": "Link devices"
    },
    "links": [
     {
@@ -253,11 +257,68 @@
      "label": "Button row",
      "kind": "prototype",
      "target": "sheet-2811-2587"
+    },
+    {
+     "x": 16,
+     "y": 324,
+     "w": 343,
+     "h": 49,
+     "label": "Paste link — added by decision 2026-09-13, not in the Figma frame",
+     "target": "container",
+     "kind": "added",
+     "note": "User decision: a third Button row with the link glyph; the paste step accepts device links only."
     }
    ],
    "bytes": 34297,
    "id": "onboarding-flow--link-devices",
-   "export": "LinkDevices"
+   "export": "LinkDevices",
+   "desktop": {
+    "kind": "content",
+    "png": "devicelink/desktop-link-devices.png",
+    "node": "879:20987",
+    "width": 715,
+    "height": 1018,
+    "stretch": null,
+    "crop": 96,
+    "hotspots": [
+     {
+      "x": 122,
+      "y": 239,
+      "w": 458,
+      "h": 46,
+      "label": "Display QR code row",
+      "target": "sheet-2811-2601",
+      "kind": "prototype"
+     },
+     {
+      "x": 122,
+      "y": 286,
+      "w": 458,
+      "h": 46,
+      "label": "Scan QR code row",
+      "target": "sheet-2811-2587",
+      "kind": "prototype"
+     },
+     {
+      "x": 122,
+      "y": 333,
+      "w": 458,
+      "h": 46,
+      "label": "Paste link — added by decision 2026-09-13, not in the Figma frame",
+      "target": "container",
+      "kind": "added"
+     },
+     {
+      "x": -1,
+      "y": -1,
+      "w": 0,
+      "h": 0,
+      "label": "Back",
+      "target": null,
+      "kind": "back"
+     }
+    ]
+   }
   },
   {
    "slug": "open-invite-link",
@@ -272,7 +333,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Join with invite link"
+    "text": null,
+    "hiddenTitle": "Join with invite link"
    },
    "links": [
     {
@@ -312,7 +374,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Join with QR code"
+    "text": "Join with QR code",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -342,7 +405,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Account recovery"
+    "text": null,
+    "hiddenTitle": "Account recovery"
    },
    "links": [
     {
@@ -390,7 +454,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "QR code"
+    "text": "QR code",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -405,7 +470,27 @@
    ],
    "bytes": 27430,
    "id": "onboarding-flow--sheet-2811-2601",
-   "export": "Sheet_2811_2601"
+   "export": "Sheet_2811_2601",
+   "desktop": {
+    "kind": "content",
+    "png": "devicelink/desktop-link-devices-qr.png",
+    "node": "880:17427",
+    "width": 715,
+    "height": 1018,
+    "stretch": null,
+    "crop": 96,
+    "hotspots": [
+     {
+      "x": -1,
+      "y": -1,
+      "w": 0,
+      "h": 0,
+      "label": "Back",
+      "target": null,
+      "kind": "back"
+     }
+    ]
+   }
   },
   {
    "slug": "sheet-2811-2587",
@@ -420,7 +505,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Scan QR code"
+    "text": "Scan QR code",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -450,7 +536,8 @@
    "note": "Designer's work in progress: this frame is create--default duplicated with only the heading changed to 'Paste a link to Join' and the input placeholder to 'Link'. Title bar, subtitle and the avatar upload are unchanged.",
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -480,7 +567,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Crop  photo"
+    "text": "Crop  photo",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -519,7 +607,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -558,7 +647,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -597,7 +687,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -636,7 +727,8 @@
    "note": "A canvas-level instance rather than a frame — what username-populated's Continue goes to. The prototype goes straight to the community after username; the implementation inserts ToS / captcha here when a server is involved.",
    "titleBar": {
     "height": 64,
-    "text": "nyc-activism"
+    "text": "nyc-activism",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -671,6 +763,7 @@
      "col": 600,
      "right": 640
     },
+    "crop": 0,
     "hotspots": [
      {
       "x": 52,
@@ -706,7 +799,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Communities"
+    "text": null,
+    "hiddenTitle": "Communities"
    },
    "links": [
     {
@@ -754,6 +848,7 @@
      "col": 600,
      "right": 640
     },
+    "crop": 0,
     "hotspots": [
      {
       "x": 288,
@@ -789,7 +884,8 @@
    "note": "In the prototype this is reached after username → Community home → Community switcher, i.e. once the community exists. Both apps show the equivalent offer during community creation (ServerOffer) instead.",
    "titleBar": {
     "height": 60,
-    "text": "Add members"
+    "text": null,
+    "hiddenTitle": "Add members"
    },
    "links": [
     {
@@ -837,7 +933,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Choose server plan"
+    "text": "Choose server plan",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -887,6 +984,7 @@
     "width": 715,
     "height": 929,
     "stretch": null,
+    "crop": 0,
     "hotspots": [
      {
       "x": 32,
@@ -940,7 +1038,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": null
+    "text": null,
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -979,7 +1078,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Agree & join"
+    "text": "Agree & join",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1036,7 +1136,8 @@
    "note": "Open issues on the implementation: #3428 'Reappearing captcha' (9.0.0 prod, Windows/Linux, intermittent — the captcha closes, the new community shows, then the captcha returns; less likely if you wait before clicking) and #3368 (offline: no loading or timeout message, and a 'joining' screen while creating).",
    "titleBar": {
     "height": 60,
-    "text": "CAPTCHA"
+    "text": "CAPTCHA",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1075,7 +1176,8 @@
    "note": null,
    "titleBar": {
     "height": 64,
-    "text": "nyc-activism"
+    "text": "nyc-activism",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1119,6 +1221,7 @@
      "col": 290,
      "right": 325
     },
+    "crop": 0,
     "hotspots": [
      {
       "x": 365,
@@ -1154,7 +1257,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Add members"
+    "text": "Add members",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1193,7 +1297,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "QR code"
+    "text": "QR code",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1223,7 +1328,8 @@
    "note": "'v1 before we support multiple hosts' — joiner-side agree screen. Not linked from Open invite link or username in the prototype. The implementation shows JoiningOptIn + TermsOfService after username.",
    "titleBar": {
     "height": 60,
-    "text": "Use Quiet’s server?"
+    "text": "Use Quiet’s server?",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1250,15 +1356,5 @@
    "export": "AgreeAndJoinV_1BeforeWeSupportMultipleHosts"
   }
  ],
- "mapId": "onboarding-flow--all-stages",
- "desktopApp": {
-  "png": "desktop-community-home-empty.png",
-  "node": "1430:48044",
-  "width": 740,
-  "height": 800,
-  "stretch": {
-   "col": 600,
-   "right": 690
-  }
- }
+ "mapId": "onboarding-flow--all-stages"
 }
