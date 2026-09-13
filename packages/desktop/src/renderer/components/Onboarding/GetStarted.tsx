@@ -32,9 +32,16 @@ export const GetStarted: React.FC = () => {
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const linkDevicesModal = useModal(ModalName.linkDevicesModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
+  const loadingPanelModal = useModal(ModalName.loadingPanel)
 
+  // The loading panel counts too: while a community is being created or joined (and
+  // while the app starts) the entry must not open over the progress screen.
   const anotherOnboardingModalOpen =
-    joinCommunityModal.open || createCommunityModal.open || linkDevicesModal.open || createUsernameModal.open
+    joinCommunityModal.open ||
+    createCommunityModal.open ||
+    linkDevicesModal.open ||
+    createUsernameModal.open ||
+    loadingPanelModal.open
 
   useEffect(() => {
     if (isConnected && !currentCommunity && !invitationCodes && !getStartedModal.open && !anotherOnboardingModalOpen) {

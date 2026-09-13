@@ -10,7 +10,7 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { SocketState } from '../../sagas/socket/socket.slice'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { ModalsInitialState } from '../../sagas/modals/modals.slice'
+import { modalsActions, ModalsInitialState } from '../../sagas/modals/modals.slice'
 import GetStarted from './GetStarted'
 import LinkDevices from './LinkDevices'
 import JoinCommunity from '../CreateJoinCommunity/JoinCommunity/JoinCommunity'
@@ -43,6 +43,24 @@ describe('Get started', () => {
     expect(screen.getByTestId('getStartedModalActions').closest('.Modalheader')).toHaveClass('Modalnone')
     // There is nothing to close it into: no community yet
     expect(screen.queryByTestId('getStartedModalClose')).not.toBeInTheDocument()
+  })
+
+  it('stays out of the way while the progress screen is up, and appears once it is gone', async () => {
+    const { store } = await prepareStore({
+      ...freshInstall,
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.loadingPanel]: { open: true },
+      },
+    })
+
+    renderComponent(<GetStarted />, store)
+
+    // A community is being created or joined behind the loading panel: no entry screen over it
+    expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+
+    store.dispatch(modalsActions.closeModal(ModalName.loadingPanel))
+    expect(await findEntry()).toBeVisible()
   })
 
   it('stays out of the way while an invitation is being processed', async () => {
