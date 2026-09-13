@@ -2962,29 +2962,29 @@ export class Settings {
   }
 
   /**
-   * The device link. The tab never shows it (the QR code is what people show to their
-   * phone): Display QR code opens the Link devices modal at the QR sheet, whose Copy link
-   * puts the link on the clipboard; it is read back here and the sheet is closed again.
+   * The device link. The tab never shows it: Copy link puts the one-time link on the
+   * clipboard and confirms with the "Copied" toast; it is read back here. The link is
+   * minted when the tab opens, so the row is clicked again until the toast shows.
    */
   async deviceLink(): Promise<string> {
-    const displayRow = await this.driver.wait(
-      until.elementLocated(By.xpath("//*[@data-testid='link-devices-display-qr']")),
+    const copyRow = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='link-devices-copy-link']")),
       10_000,
-      `Display QR code row couldn't be found within timeout`,
+      `Copy link row couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(displayRow), 5_000)
-    await displayRow.click()
-    const copyButton = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="copy-device-link"]')),
-      30_000,
-      `Copy link button couldn't be found within timeout`,
-      500
-    )
-    await this.driver.wait(until.elementIsVisible(copyButton), 10_000)
-    await this.driver.wait(until.elementIsEnabled(copyButton), 30_000, 'Device link was not minted within timeout')
-    await copyButton.click()
-    await this.driver.wait(until.elementLocated(By.xpath("//*[text()='Link copied']")), 10_000)
+    await this.driver.wait(until.elementIsVisible(copyRow), 5_000)
+    let copied = false
+    for (let attempt = 0; attempt < 15 && !copied; attempt++) {
+      await copyRow.click()
+      try {
+        await this.driver.wait(until.elementLocated(By.xpath("//*[text()='Copied']")), 2_000)
+        copied = true
+      } catch {
+        // the link was not minted yet; try again
+      }
+    }
+    if (!copied) throw new Error('Copy link never confirmed within timeout')
 
     const link = (await this.driver.executeAsyncScript(
       `const done = arguments[arguments.length - 1];
@@ -2993,16 +2993,6 @@ export class Settings {
     if (!link || link.startsWith('ERROR')) {
       throw new Error(`Could not read the copied device link from the clipboard: ${link}`)
     }
-
-    // Opened straight at the sheet, its close leaves the Link devices modal (back to the tab)
-    const closeButton = await this.driver.wait(
-      until.elementLocated(By.xpath("//*[@data-testid='linkDevicesModalClose']")),
-      5_000,
-      `QR code sheet close couldn't be found within timeout`,
-      500
-    )
-    await closeButton.click()
-    await this.driver.wait(until.stalenessOf(copyButton), 5_000, `QR code sheet didn't close within timeout`)
     return link
   }
 
