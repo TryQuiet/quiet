@@ -11,7 +11,8 @@ import { JoinCommunityProps } from './JoinCommunity.types'
 import { getInvitationCodes } from '@quiet/state-manager'
 
 import { Splash } from '../Splash/Splash.component'
-import { InvitationData } from '@quiet/types'
+import { InvitationData, isDeviceInvitationData } from '@quiet/types'
+import type { PasteInviteLinkVariant } from '../../route.params'
 
 import { createLogger } from '../../utils/logger'
 
@@ -26,11 +27,20 @@ const COPY = {
     heading: 'Scan QR code',
     intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
   },
+  /** Link devices → Paste link (user addition, 2026-09-13): the paste step under the Link devices title. */
+  pasteDeviceLink: { title: 'Link devices', heading: 'Paste a link to Join', intro: undefined },
 } as const
+
+/** The Link devices flow's variants: only a device link is accepted there. */
+const DEVICE_LINK_VARIANTS: PasteInviteLinkVariant[] = ['deviceLink', 'pasteDeviceLink']
+
+/** Shown under the input for a member link (or any other invitation) in the Link devices flow. Undesigned copy. */
+export const NOT_A_DEVICE_LINK_ERROR = 'This is not a device link. Use the link from Link devices on your other device.'
 
 /**
  * "Paste a link to Join": one input with placeholder "Link" and Continue.
- * Member and device invitations both land here; the caller decides.
+ * Member and device invitations both land here; the caller decides — except in
+ * the Link devices flow, where a member link is an error and stays on this screen.
  * Without a scanner, the QR-code flows also take the link this way.
  */
 export const JoinCommunity: FC<JoinCommunityProps> = ({
@@ -72,6 +82,12 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     if (!submitValue) {
       setLoading(false)
       setInputError('Please check your invitation code and try again')
+      return
+    }
+
+    if (DEVICE_LINK_VARIANTS.includes(variant) && !isDeviceInvitationData(submitValue)) {
+      setLoading(false)
+      setInputError(NOT_A_DEVICE_LINK_ERROR)
       return
     }
 

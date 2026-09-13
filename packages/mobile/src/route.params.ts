@@ -3,8 +3,12 @@ import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
 import { Community, InvitationData, UserProfile } from '@quiet/types'
 
-/** Which flow the paste screen belongs to; it sets the heading and the intro. */
-export type PasteInviteLinkVariant = 'inviteLink' | 'qrCode' | 'deviceLink'
+/**
+ * Which flow the paste screen belongs to; it sets the heading and the intro.
+ * `deviceLink` (Scan QR code without a scanner) and `pasteDeviceLink` (the Paste
+ * link row) accept device links only.
+ */
+export type PasteInviteLinkVariant = 'inviteLink' | 'qrCode' | 'deviceLink' | 'pasteDeviceLink'
 
 // eslint-disable-next-line
 export type RootStackParamList = {

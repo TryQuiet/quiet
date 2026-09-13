@@ -10,7 +10,8 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
  * Link devices, reached from Get started (and later from the community menu).
  * "Display QR code" opens #3400's device-link QR screen; it needs a community
  * to mint a link, so the row is disabled until there is one. "Scan QR code"
- * has no scanner on this branch and takes the pasted device link instead.
+ * has no scanner on this branch and takes the pasted device link instead;
+ * "Paste link" opens the same paste step under the Link devices title.
  */
 export const LinkDevicesScreen: FC = () => {
   const dispatch = useDispatch()
@@ -38,10 +39,20 @@ export const LinkDevicesScreen: FC = () => {
     )
   }, [dispatch])
 
+  const onPasteLink = useCallback(() => {
+    dispatch(
+      navigationActions.navigation({
+        screen: ScreenNames.PasteInviteLinkScreen,
+        params: { variant: 'pasteDeviceLink' },
+      })
+    )
+  }, [dispatch])
+
   return (
     <LinkDevices
       onDisplayQrCode={onDisplayQrCode}
       onScanQrCode={onScanQrCode}
+      onPasteLink={onPasteLink}
       canDisplayQrCode={Boolean(currentCommunity)}
       linkedDevices={linkedDevices}
       handleBackButton={handleBackButton}

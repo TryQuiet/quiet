@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { QrDisplayIcon, QrScanIcon } from '../../assets/icons/svg/onboarding-icons'
+import { InviteLinkIcon, QrDisplayIcon, QrScanIcon } from '../../assets/icons/svg/onboarding-icons'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { ActionRow } from '../ActionRow/ActionRow.component'
@@ -10,10 +10,16 @@ import { Typography } from '../Typography/Typography.component'
 
 import type { LinkDevicesProps } from './LinkDevices.types'
 
-/** Link devices · Figma 2811:2575. */
+/**
+ * Link devices · Figma 2811:2575, plus a third Button row, "Paste link", the user
+ * asked for on 2026-09-13: the same row as the two above it, with the library's
+ * link glyph (the one Join with invite link uses on 2811:2562). Its label is not
+ * the designer's.
+ */
 export const LinkDevices: FC<LinkDevicesProps> = ({
   onDisplayQrCode,
   onScanQrCode,
+  onPasteLink,
   canDisplayQrCode = true,
   linkedDevices,
   handleBackButton,
@@ -46,6 +52,12 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
             label={'Scan QR code'}
             onPress={onScanQrCode}
             testID={'link-devices-scan-qr'}
+          />
+          <ActionRow
+            icon={<InviteLinkIcon />}
+            label={'Paste link'}
+            onPress={onPasteLink}
+            testID={'link-devices-paste-link'}
           />
         </View>
         <View style={{ gap: spacing.sm }} testID={'linked-devices-list'}>
