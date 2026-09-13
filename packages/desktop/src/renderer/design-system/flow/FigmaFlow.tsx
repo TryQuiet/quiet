@@ -13,7 +13,7 @@ export interface FlowFrame {
   section: string
   width: number; height: number; png: string; url: string; note?: string | null
   /** The frame's own title bar, if it has one: its height (to crop when composed into the desktop shell) and its title text. */
-  titleBar?: { height: number; text: string | null } | null
+  titleBar?: { height: number; text: string | null; removed?: boolean } | null
   /** Shadow margin the Figma export carries beyond the frame's box (effects render into exports); painted at natural size, offset by it. */
   pad?: { x: number; y: number } | null
   /** The designer's desktop frame for this stage (gen.cjs DESKTOP): 'app' = 740 split view (stretched beyond 740 only in its plain column), 'modal' = card over the desktop home with a scrim, 'content' = 715 content in the shell. Absent = mobile content in the shell. */
@@ -180,7 +180,9 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
   const content = dc ? { png: dsrc(dc.png), width: dc.width, height: dc.height, crop: 0, links: dc.hotspots } : { png: src(frame.png), width: frame.width, height: frame.height, crop: frame.titleBar?.height ?? 0, links: frame.links }
   const crop = content.crop
   const contentLeft = Math.round((winW - content.width) / 2)
-  const contentTop = shell.content.y
+  // A stage whose title bar was removed (user decision: Get started) has no bar on desktop either: content starts under the top bar.
+  const noBar = !!frame.titleBar?.removed
+  const contentTop = noBar ? shell.topBar.h : shell.content.y
   const title = frame.titleBar?.text ?? ''
   const H = shell.height
   return (
@@ -189,13 +191,13 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
       <div style={{ position: 'absolute', left: 0, top: 0, width: winW, height: shell.topBar.h, background: '#fff', display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 14 }}>
         {[0, 1, 2].map(i => <span key={i} style={{ width: 12, height: 12, borderRadius: 6, background: '#C4C4C4', display: 'inline-block' }} />)}
       </div>
-      {/* title bar: back arrow + centered title, divider below */}
-      <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, boxSizing: 'border-box', background: '#fff', borderBottom: '1px solid #E5E5E5' }}>
+      {/* title bar: back arrow + centered title, divider below (absent when the stage's bar was removed) */}
+      {!noBar && <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, boxSizing: 'border-box', background: '#fff', borderBottom: '1px solid #E5E5E5' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" style={{ position: 'absolute', left: shell.backZone.x + 2, top: shell.backZone.y - shell.titleBar.y + 2 }} aria-hidden="true">
           <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#171B12" />
         </svg>
         <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 500, color: INK }}>{title}</div>
-      </div>
+      </div>}
       {/* content area: white to the bottom; the screen's content, its own title bar cropped, centered */}
       <div style={{ position: 'absolute', left: contentLeft, top: contentTop, width: content.width, height: H - contentTop, overflow: 'hidden', background: '#fff' }}>
         <img src={content.png} width={content.width} height={content.height} alt={frame.name} style={{ display: 'block', transform: `translateY(-${crop}px)` }} />

@@ -116,6 +116,10 @@ const DESKTOP = {
   ] },
 }
 for (const f of flow.frames) delete f.desktop // derived; never carried over from a previous run
+// User decision (2026-09-13): no "Quiet" header on Get started — redundant with the window on desktop, wrong on
+// mobile. The prototype frame still draws it; the desktop composition drops the title bar for this stage.
+const TITLE_BAR = { 'get-started': { height: 60, text: null, removed: true } }
+for (const [slug, tb] of Object.entries(TITLE_BAR)) { const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`TITLE_BAR has no frame ${slug}`); process.exit(1) } f.titleBar = tb }
 for (const [slug, d] of Object.entries(DESKTOP)) {
   const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`DESKTOP has no frame for slug ${slug}`); process.exit(1) }
   const hotspots = d.hotspots.map(h => {

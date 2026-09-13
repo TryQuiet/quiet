@@ -53,7 +53,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Quiet"
+    "text": null,
+    "removed": true
    },
    "links": [
     {

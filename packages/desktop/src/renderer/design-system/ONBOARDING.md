@@ -8,6 +8,8 @@ Storybook **is the new design library**, being rebuilt from this spec: one desig
 
 ## Decisions already made
 
+- **No "Quiet" header on Get started (user, 2026-09-13):** the prototype's Get started frame (`2811:2550`) and the Dec-2024 desktop *Modal full-window* Get started both carry a title bar reading "Quiet"; it is redundant with the app window on desktop and doesn't feel right on mobile, so the app renders Get started **without a title bar** on both platforms (content starts under the window chrome / at the safe area). The prototype exports still show it; the desktop composition in the click-through drops the bar for this stage (`flow/gen.cjs` `TITLE_BAR`). Join community's bar also reads "Quiet" — unchanged until decided.
+
 - **Spacing grid: 4px** — steps 4 8 12 16 24 32 48 64; semantic roles xs 4 · sm 8 · md 12 · lg 16 · xl 24 · xxl 32 (`design-system/tokens/grid-4px.ts`).
 - **Type scale (Rubik, weights 400/500 only)**: overline 10/16 w500 · caption 12/16 · body 14/20 · subtitle 14/20 w500 · bodyLg 16/24 · h5 16/24 w500 · title 20/28 w500 · h3 28/36 w500 · h2 32/40 w500 · h1 48/56 w500. Adopting it is component work: 39 desktop files hardcode `fontSize`; `TextMessage.tsx`/`BasicMessage.tsx` use no theme variants.
 - **Join community becomes a three-way choice**: *Join with invite link* / *Join with QR code* / *Recover account* — replacing the single paste field both apps ship.
