@@ -288,6 +288,69 @@ export const ChooseUsername = () => (
   />
 )
 
+// Join with invite link as the app wires it: the link itself is the path.
+// Opening it hands Electron a quiet:// URL; customProtocol.saga.ts dispatches
+// joinCommunity({ inviteData }) and opens Choose username on top of the join
+// modal, which keeps its step underneath. Paste a link is the fallback.
+const INVITE_LINK_PATH: { label: string; bar: string; then: string; render: () => React.ReactNode }[] = [
+  {
+    label: '1 · Join community',
+    bar: 'Quiet',
+    then: 'Join with invite link →',
+    render: () => (
+      <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} onRecoverAccount={noop} />
+    ),
+  },
+  {
+    label: '2 · Open invite link',
+    bar: 'Join with invite link',
+    then: 'the user opens the link: quiet://… → customProtocol.saga.ts → joinCommunity({ inviteData }) →',
+    render: () => <OpenInviteLinkComponent onPasteLink={noop} />,
+  },
+  {
+    label: '3 · Choose username',
+    bar: 'Create a community',
+    then: 'registerUsername({ nickname }); close returns to step 2, the screen the link arrived on',
+    render: () => <CreateUsernameBody registerUsername={noop} />,
+  },
+]
+
+export const InviteLinkPath = () => (
+  <StyledEngineProvider injectFirst>
+    <ThemeProvider theme={lightTheme}>
+      <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
+        <h1 style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+          Join with invite link · the wired path
+        </h1>
+        <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
+          Figma <span style={{ fontFamily: mono }}>2811:2562 → 2811:2455 → 2811:2371</span> · the link is the path:
+          opening it hands the app a quiet:// URL and customProtocol.saga.ts joins and asks for a username on top of the
+          join modal · Paste a link is the fallback (Paste a link to Join, above)
+        </p>
+        <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
+          {INVITE_LINK_PATH.map(step => (
+            <Column key={step.label} width={CONTENT_COLUMN_WIDTH} label={`${step.label} · title bar “${step.bar}”`}>
+              {step.render()}
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 11,
+                  lineHeight: '16px',
+                  color: INK_3,
+                  padding: '8px 12px',
+                  borderTop: `1px solid ${RULE}`,
+                }}
+              >
+                {step.then}
+              </div>
+            </Column>
+          ))}
+        </div>
+      </div>
+    </ThemeProvider>
+  </StyledEngineProvider>
+)
+
 // ---------------------------------------------------------------------------
 // Walkthrough: the same screens wired together with in-story state. Rows,
 // buttons and the shell's back arrow navigate the way the app's containers do
