@@ -1413,9 +1413,33 @@ export class LinkDevicesModal {
     await (await this.findVisible('link-devices-display-qr')).click()
   }
 
+  /** The Paste link row → the paste step, under the Link devices title. */
+  async pasteLink() {
+    await (await this.findVisible('link-devices-paste-link')).click()
+    await this.findVisible('paste-link-input')
+  }
+
   async typeDeviceLink(deviceLink: string) {
     const linkInput = await this.findVisible('paste-link-input')
     await linkInput.sendKeys(deviceLink)
+  }
+
+  async clearLink() {
+    const linkInput = await this.findVisible('paste-link-input')
+    await linkInput.sendKeys(Key.CONTROL + 'a')
+    await linkInput.sendKeys(Key.DELETE)
+  }
+
+  /** The error line under the paste input, once it shows `message`. */
+  async waitForPasteLinkError(message: string, timeoutMs = 10_000): Promise<string> {
+    const error = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='paste-link']//*[text()="${message}"]`)),
+      timeoutMs,
+      `paste link error "${message}" couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(error), 5_000)
+    return await error.getText()
   }
 
   async submit() {
