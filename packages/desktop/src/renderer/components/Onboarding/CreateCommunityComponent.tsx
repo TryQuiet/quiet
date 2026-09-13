@@ -97,7 +97,7 @@ export const CreateCommunityComponent: React.FC<CreateCommunityComponentProps> =
 
   const {
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     setValue,
     control,
     clearErrors,
@@ -153,7 +153,7 @@ export const CreateCommunityComponent: React.FC<CreateCommunityComponentProps> =
                   setValue('name', value)
                   controller.onChange(event)
                 }}
-                onblur={() => {}}
+                onblur={controller.onBlur}
                 value={controller.value}
                 autoFocus
               />
@@ -176,7 +176,8 @@ export const CreateCommunityComponent: React.FC<CreateCommunityComponentProps> =
           text={'Continue'}
           data-testid={'continue-createCommunity'}
           classes={{ button: classes.button }}
-          disabled={!isConnectionReady}
+          // Create a community (2811:2451): Continue is disabled until the name is valid.
+          disabled={!isConnectionReady || !isValid}
         />
       </Form>
     </OnboardingBody>
