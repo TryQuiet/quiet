@@ -22,6 +22,7 @@ afterEach(() => {
   camera = undefined
 })
 
+/** Decoding a frame under a loaded box can outlast waitFor's 1 s default. */
 const DECODE_TIMEOUT = { timeout: 5000 }
 
 const status = () => screen.getByTestId('qr-scanner-viewfinder').getAttribute('data-status')
@@ -41,7 +42,8 @@ describe('QrScannerComponent', () => {
     expect(camera.getUserMedia).toHaveBeenCalledWith({ video: { facingMode: 'environment' }, audio: false })
     expect(onDecoded).toHaveBeenCalledTimes(1)
     expect(camera.stop).toHaveBeenCalled()
-    expect(status()).toBe('stopped')
+    // the status re-render is batched after the interval tick that accepted the code
+    await waitFor(() => expect(status()).toBe('stopped'), DECODE_TIMEOUT)
     expect(onUsePasteLink).not.toHaveBeenCalled()
     expect(screen.queryByText(InviteLinkErrors.InvalidCode)).not.toBeInTheDocument()
   })
@@ -71,7 +73,7 @@ describe('QrScannerComponent', () => {
 
     renderComponent(<QrScannerComponent onDecoded={onDecoded} onUsePasteLink={onUsePasteLink} />)
 
-    expect(await screen.findByText(SCANNER_COPY.denied)).toBeVisible()
+    expect(await screen.findByText(SCANNER_COPY.denied, {}, DECODE_TIMEOUT)).toBeVisible()
     expect(status()).toBe('denied')
     await userEvent.click(screen.getByTestId('qr-scanner-paste-link'))
     expect(onUsePasteLink).toHaveBeenCalledTimes(1)
@@ -83,7 +85,7 @@ describe('QrScannerComponent', () => {
 
     renderComponent(<QrScannerComponent onDecoded={jest.fn()} onUsePasteLink={jest.fn()} />)
 
-    expect(await screen.findByText(SCANNER_COPY.unavailable)).toBeVisible()
+    expect(await screen.findByText(SCANNER_COPY.unavailable, {}, DECODE_TIMEOUT)).toBeVisible()
     expect(status()).toBe('unavailable')
     expect(screen.getByText(SCANNER_COPY.pasteLink)).toBeVisible()
   })
@@ -93,7 +95,7 @@ describe('QrScannerComponent', () => {
 
     renderComponent(<QrScannerComponent onDecoded={jest.fn()} onUsePasteLink={jest.fn()} />)
 
-    expect(await screen.findByText(SCANNER_COPY.unavailable)).toBeVisible()
+    expect(await screen.findByText(SCANNER_COPY.unavailable, {}, DECODE_TIMEOUT)).toBeVisible()
   })
 
   it('renders the sheet copy above the camera when given', async () => {
@@ -103,14 +105,14 @@ describe('QrScannerComponent', () => {
     renderComponent(<QrScannerComponent intro={intro} onDecoded={jest.fn()} onUsePasteLink={jest.fn()} />)
 
     expect(screen.getByText(intro)).toBeVisible()
-    await waitFor(() => expect(status()).toBe('scanning'))
+    await waitFor(() => expect(status()).toBe('scanning'), DECODE_TIMEOUT)
   })
 
   it('releases the camera on unmount', async () => {
     camera = mockCamera()
 
     const { unmount } = renderComponent(<QrScannerComponent onDecoded={jest.fn()} onUsePasteLink={jest.fn()} />)
-    await waitFor(() => expect(status()).toBe('scanning'))
+    await waitFor(() => expect(status()).toBe('scanning'), DECODE_TIMEOUT)
     expect(camera.stop).not.toHaveBeenCalled()
 
     act(() => unmount())
