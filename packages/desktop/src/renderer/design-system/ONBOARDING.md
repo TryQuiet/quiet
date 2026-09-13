@@ -499,6 +499,14 @@ Audit of the Android app on `design/onboarding-entry` @ f12463cd2 against the pr
 
 Cross-cutting: bordered row group absent (also on desktop's RowGroup); content vertically centred vs top-anchored; full-screen frames hide the bar title (only sheets show one); Appbar 52 with a permanent divider vs 60 without; Input3.0 and Button (r16, 50, disabled 30%) shapes. Decisions taken: real camera scanning on mobile (vision-camera), No server? built, shared components for the cross-cutting items.
 
+### Device linking — desktop designs (user pointer, 2026-09-13)
+
+`Device linking` file `3RcrYKRTiFY87TpFSqZyj4`, canvas *Draft 5* (`880:17585`, Dec 2024). Exports in `figma/devicelink/`:
+- Desktop (board `879:18182` "Link devices (some desktop examples)"): `879:20987` Link devices in the Modal full-window shell, no linked devices; `880:17196` with linked devices; `880:17427` Display QR code (the QR inside the shell). Rows in this draft carry subtitles ("Scan this code with another device" / "Use this device to scan a code from another device"); the 2026 prototype (`2811:2575`) drops them — prototype copy wins, these frames give the desktop structure. Also in *Desktop designs*.
+- Mobile (board `879:16665`): Link devices basic states `879:15415` etc.; QR sheet `879:15503` (Link devices—QR instance); **Linking devices** progress sheet `879:15508` (Progress-loading-template-mobile `910:33355`); Linked / Without linked / With linked / Removed states `879:15640` / `879:15644` / `879:15648`; QR-scan-code sheets `879:15946` / `879:16178`. Entry points boards `879:14680` (mobile) / `879:19861` (desktop): Get started row and the Communities switcher's "Linked devices" row.
+- Banner promos (`898:8033` mobile, `898:8104` desktop): out of scope.
+- User decisions (2026-09-13): a third row **Paste link** on Link devices (Button row + link glyph; device links only, inline error otherwise); on the QR sheet a primary **Copy link** button in the Add-members "Share code" slot, no raw link shown; desktop Link devices / Linked devices match mobile and these frames.
+
 ### Purged stages (user decision, 2026-09-12)
 
 Removed from the click-through and the exports: Apple system UI captured as stages, frames that are pixel-identical and differ only in prototype wiring, extra input states of one screen, and placeholder art. Both Agree & join screens stay — opt-in consent is a step in the process. Links from kept screens into a purged one were re-targeted to the kept equivalent or dropped (`flow/gen.cjs` `PURGE`).
