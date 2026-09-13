@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
@@ -32,8 +32,10 @@ const BLOCKED: QrScannerStatus[] = ['denied', 'unavailable']
 
 /**
  * Join with QR code (2811:2460) and Scan QR code (2811:2587): close ✕, centred
- * title, the camera edge to edge with the code held in the framed square.
- * Presentational; QrScanner drives it from the camera.
+ * title, the camera edge to edge with the code held in the framed square. Once a
+ * code is read, a spinner sits over the camera while it is acted on — the Device
+ * linking file's scan sheet 879:16178 (Dec 2024; the 2026 prototype has no such
+ * frame). Presentational; QrScanner drives it from the camera.
  */
 export const QrScannerSheet: FC<QrScannerSheetProps> = ({
   title,
@@ -59,6 +61,11 @@ export const QrScannerSheet: FC<QrScannerSheetProps> = ({
       <View style={styles.viewfinder} testID={`${testID}-viewfinder`} accessibilityValue={{ text: status }}>
         {camera}
         {status === 'scanning' ? <View style={styles.frame} pointerEvents={'none'} testID={`${testID}-frame`} /> : null}
+        {status === 'stopped' ? (
+          <View style={styles.overlay} pointerEvents={'none'} testID={`${testID}-decoded`}>
+            <ActivityIndicator size={'large'} color={defaultTheme.palette.background.white} />
+          </View>
+        ) : null}
         {status === 'requesting' ? (
           <View style={styles.overlay}>
             <Typography variant={'body'} color={'white'} horizontalTextAlign={'center'}>

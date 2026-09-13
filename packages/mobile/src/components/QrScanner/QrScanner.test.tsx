@@ -41,6 +41,7 @@ describe('QrScanner', () => {
 
   it('scans with the framed square when the camera is already allowed', () => {
     const { result } = renderScanner()
+    expect(result.queryByTestId('qr-scanner-decoded')).toBeNull()
     expect(result.getByTestId('qr-scanner-viewfinder').props.accessibilityValue).toEqual({ text: 'scanning' })
     expect(result.getByTestId('qr-scanner-frame')).toBeTruthy()
     expect(result.getByTestId('qr-scanner-camera').props.isActive).toBe(true)
@@ -104,6 +105,7 @@ describe('QrScanner', () => {
     expect(result.getByTestId('qr-scanner-camera').props.isActive).toBe(false)
     expect(result.getByTestId('qr-scanner-viewfinder').props.accessibilityValue).toEqual({ text: 'stopped' })
     expect(result.queryByTestId('qr-scanner-frame')).toBeNull()
+    expect(result.getByTestId('qr-scanner-decoded')).toBeTruthy()
     expect(result.queryByTestId('qr-scanner-error')).toBeNull()
   })
 
