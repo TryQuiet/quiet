@@ -47,7 +47,6 @@ import { defaultTheme } from './styles/themes/default.theme'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
 import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
-import { LinkedDevicesContextMenu } from './components/ContextMenu/menus/LinkedDevicesContextMenu.container'
 
 import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
 import { useConfirmationBox } from './hooks/useConfirmationBox'
@@ -144,7 +143,6 @@ function App(): React.JSX.Element {
               <CommunityContextMenu />
               <ChannelContextMenu />
               <InvitationContextMenu />
-              <LinkedDevicesContextMenu />
               <UnregisteredUsernameContextMenu />
               <CaptchaModal />
               <ConfirmationBox {...confirmationBox} />

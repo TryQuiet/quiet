@@ -7,7 +7,9 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 
 /**
- * Link devices, reached from Get started (and later from the community menu).
+ * Link devices, reached from Get started and from the community menu's Linked devices
+ * row — the one full-screen stage both entry points share (Device-linking file, Entry
+ * points 879:14680); back returns to wherever it was opened from.
  * "Display QR code" opens #3400's device-link QR screen; it needs a community
  * to mint a link, so the row is disabled until there is one. "Scan QR code"
  * has no scanner on this branch and takes the pasted device link instead;
