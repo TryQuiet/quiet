@@ -21,7 +21,7 @@ describe('UnregisteredModalComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           data-testid="unregisteredModalComponent"
           role="presentation"
         >
@@ -49,7 +49,7 @@ describe('UnregisteredModalComponent', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   >
                     Unregistered username
                   </h6>
@@ -94,7 +94,7 @@ describe('UnregisteredModalComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-1ihp1v3-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-ykgv7l-MuiGrid-root"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body2 UnregisteredModalComponent-bodyText css-1t82dwi-MuiTypography-root"

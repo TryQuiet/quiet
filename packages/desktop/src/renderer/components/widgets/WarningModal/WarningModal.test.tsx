@@ -15,7 +15,7 @@ describe('WarningModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -42,7 +42,7 @@ describe('WarningModal', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   />
                 </div>
                 <div
@@ -85,7 +85,7 @@ describe('WarningModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-d6kjg-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1aefbod-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container WarningModalinfo css-1lym95h-MuiGrid-root"
@@ -133,7 +133,7 @@ describe('WarningModal', () => {
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth WarningModalbutton css-l6ws65-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth WarningModalbutton css-1rkb65f-MuiButtonBase-root-MuiButton-root"
                         data-testid="warningModalSubmit"
                         tabindex="0"
                         type="submit"

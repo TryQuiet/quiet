@@ -58,7 +58,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               </ListItemButton>
             </div>
             <ListItemText sx={{ textAlign: 'center' }}>
-              <Typography sx={{ fontWeight: '500' }}>Community Settings</Typography>
+              <Typography variant='h5'>Community Settings</Typography>
             </ListItemText>
           </ListItem>
           <Divider />

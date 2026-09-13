@@ -61,7 +61,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.buttonContainer}`]: {
-    marginTop: 25,
+    marginTop: theme.space.xl,
   },
 
   [`& .${classes.button}`]: {
@@ -104,8 +104,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     borderRadius: 4,
     background: theme.palette.background.paper,
     marginBottom: 0,
-    fontSize: '1rem',
-    lineHeight: '1.68',
   },
 
   [`& .${classes.username}`]: {
@@ -115,14 +113,13 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 150,
-    fontSize: '1rem',
+    ...theme.typography.body1,
     whiteSpace: 'nowrap',
-    lineHeight: 1.68,
   },
 
   [`& .${classes.autocompleteBox}`]: {
-    borderRadius: '8px',
-    margin: '5px',
+    borderRadius: 8,
+    margin: theme.space.xs,
     [`&.${autocompleteClasses.option}`]: {
       padding: '8px',
     },
@@ -272,12 +269,13 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
           alignItems: 'center',
           justifyContent: 'left',
           alignContent: 'center',
-          paddingLeft: '2px',
         }}
         data-testid={`${channelName}-add-member-name`}
       >
-        <LockIcon fill='currentColor' style={{ fontWeight: 500, fontSize: 16 }} />
-        <span style={{ fontWeight: 500, fontSize: 16 }}>{channelName}</span>
+        <LockIcon fill='currentColor' style={{ fontSize: 16 }} />
+        <Typography variant='h5' component='span'>
+          {channelName}
+        </Typography>
       </Grid>
     )
   }

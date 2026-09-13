@@ -163,7 +163,7 @@ describe('Add new channel', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           data-testid="createChannelModal"
           role="presentation"
         >
@@ -191,8 +191,10 @@ describe('Add new channel', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
-                  />
+                    style="margin-left: 56px;"
+                  >
+                    Create a new channel
+                  </h6>
                 </div>
                 <div
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -234,17 +236,12 @@ describe('Add new channel', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-7mjq5i-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1fyrula-MuiGrid-root"
                 >
                   <form>
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column CreateChannelComponentfullContainer css-1e5jxqd-MuiGrid-root"
                     >
-                      <h3
-                        class="MuiTypography-root MuiTypography-h3 CreateChannelComponenttitle css-ts8dj1-MuiTypography-root"
-                      >
-                        Create a new channel
-                      </h3>
                       <p
                         class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                       >
@@ -255,11 +252,11 @@ describe('Add new channel', () => {
                         data-testid="createChannelInput"
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-a81z35-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-1jpmxli-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input css-nrutr0-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input css-mwtamm-MuiInputBase-input-MuiOutlinedInput-input"
                             id=":r2:"
                             name="channelName"
                             placeholder="Enter a channel name"
@@ -289,7 +286,7 @@ describe('Add new channel', () => {
                         class="CreateChannelComponentgutter"
                       />
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-ak90sa-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-musr6d-MuiButtonBase-root-MuiButton-root"
                         data-testid="channelNameSubmit"
                         tabindex="0"
                         type="submit"

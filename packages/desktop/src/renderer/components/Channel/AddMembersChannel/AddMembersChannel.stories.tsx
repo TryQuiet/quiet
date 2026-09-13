@@ -34,7 +34,7 @@ const args: ReturnType<typeof useModal> & AddMembersChannelProps = {
 Component.args = args
 
 const component: ComponentMeta<typeof AddMembersChannelComponent> = {
-  title: 'Components/DeleteChannel',
+  title: 'Components/AddMembersChannel',
   decorators: [withTheme],
   component: AddMembersChannelComponent,
 }

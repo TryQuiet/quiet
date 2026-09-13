@@ -53,27 +53,24 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
     display: 'inline-block',
   },
 
-  [`& .${classes.nickname}`]: {
-    fontSize: '16px',
-    fontStyle: 'normal',
-    fontWeight: '500',
-  },
+  [`& .${classes.nickname}`]: {},
 
+  // 'Input3.0' (library 5077:43254): title 14/20 #4C4C4C, box 42 tall radius 8 with a #999999 stroke, 8/16 padding.
   [`& .${classes.editUsernameFieldLabel}`]: {
-    margin: '0px 16px 8px 16px',
-    fontSize: '14px',
-    fontWeight: '400',
-    fontFamily: 'Rubik, sans-serif',
+    margin: `0 ${theme.space.lg}px ${theme.space.sm}px`,
+    ...theme.typography.body2,
+    color: theme.palette.colors.gray70,
   },
 
   [`& .${classes.editUsernameField}`]: {
     background: theme.palette.background.paper,
-    margin: '0px 16px',
-    padding: '16px',
-    border: `1px solid ${theme.palette.colors.border02}`,
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '400',
+    margin: `0 ${theme.space.lg}px`,
+    padding: `${theme.space.sm}px ${theme.space.lg}px`,
+    border: `1px solid ${theme.palette.colors.gray40}`,
+    borderRadius: 8,
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: '24px',
+    fontWeight: 400,
     fontFamily: 'Rubik, sans-serif',
   },
 
@@ -218,7 +215,7 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                         className={classes.profilePhoto}
                         size={96}
                       />
-                      <Typography variant='body2' className={classes.nickname}>
+                      <Typography variant='h5' className={classes.nickname}>
                         {username}
                       </Typography>
                     </Grid>
@@ -399,8 +396,8 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                       <Grid
                         item
                         style={{
-                          background: '#ffebee',
-                          color: '#b71c1c',
+                          background: theme.palette.colors.error10,
+                          color: theme.palette.error.main,
                           padding: '12px 16px',
                           borderRadius: 8,
                           margin: '8px 16px',

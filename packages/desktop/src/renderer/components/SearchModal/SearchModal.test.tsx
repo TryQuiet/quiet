@@ -77,7 +77,7 @@ describe('Search Modal', () => {
             aria-hidden="true"
           />
           <div
-            class="MuiModal-root css-1l68gny-MuiModal-root"
+            class="MuiModal-root css-gsaxwv-MuiModal-root"
             data-testid="searchChannelModal"
             role="presentation"
           >
@@ -105,7 +105,7 @@ describe('Search Modal', () => {
                   >
                     <h6
                       class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                      style="margin-left: 36px;"
+                      style="margin-left: 56px;"
                     />
                   </div>
                   <div
@@ -147,7 +147,7 @@ describe('Search Modal', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent Modaltransparent css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-7qrazo-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-1xpcwiu-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container SearchModalComponentoverlay css-1hbmzt3-MuiGrid-root"

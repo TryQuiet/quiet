@@ -52,9 +52,9 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     width: '120px',
     height: '115px',
   },
+  // The heading is the title role (20/28 - it was 18/27 before the grid), 12 under the image.
   [`& .${classes.heading2}`]: {
-    fontSize: '18px',
-    marginTop: '12px',
+    marginTop: theme.space.md,
   },
   [`& .${classes.link}`]: {
     color: theme.palette.colors.blue,
@@ -133,7 +133,7 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
           data-testid='joiningPanelComponent'
         >
           <img className={isOwner ? classes.image : classes.animatedImage} src={JoinCommunityImg} />
-          <Typography className={classes.heading2} variant='h2'>
+          <Typography className={classes.heading2} variant='h4'>
             {isOwner ? 'Creating your community!' : 'Joining now!'}
           </Typography>
           <div className={classes.progressBarWrapper}>

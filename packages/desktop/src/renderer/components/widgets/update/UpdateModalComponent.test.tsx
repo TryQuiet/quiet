@@ -21,7 +21,7 @@ describe('UpdateModal', () => {
             aria-hidden="true"
           />
           <div
-            class="MuiModal-root css-1yhfcyq-MuiModal-root"
+            class="MuiModal-root css-1w04qul-MuiModal-root"
             data-testid="updateAppModal"
             role="presentation"
           >
@@ -49,7 +49,7 @@ describe('UpdateModal', () => {
                   >
                     <h6
                       class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                      style="margin-left: 36px;"
+                      style="margin-left: 56px;"
                     />
                   </div>
                   <div
@@ -126,7 +126,7 @@ describe('UpdateModal', () => {
                         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth css-l6ws65-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth css-1rkb65f-MuiButtonBase-root-MuiButton-root"
                           style="height: 55px; font-size: 0.9rem; background-color: rgb(82, 28, 116);"
                           tabindex="0"
                           type="submit"

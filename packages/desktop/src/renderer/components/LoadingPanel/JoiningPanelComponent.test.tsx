@@ -22,7 +22,7 @@ describe('Create JoiningPanelComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -49,7 +49,7 @@ describe('Create JoiningPanelComponent', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   />
                 </div>
                 <div
@@ -70,7 +70,7 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-1j55u07-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-135zrjj-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
@@ -80,11 +80,11 @@ describe('Create JoiningPanelComponent', () => {
                       class="JoiningPanelComponentanimatedImage"
                       src="test-file-stub"
                     />
-                    <h2
-                      class="MuiTypography-root MuiTypography-h2 JoiningPanelComponentheading2 css-1c2d2db-MuiTypography-root"
+                    <h4
+                      class="MuiTypography-root MuiTypography-h4 JoiningPanelComponentheading2 css-1inrl58-MuiTypography-root"
                     >
                       Joining now!
-                    </h2>
+                    </h4>
                     <div
                       class="JoiningPanelComponentprogressBarWrapper"
                     >
@@ -158,7 +158,7 @@ describe('Create JoiningPanelComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -185,7 +185,7 @@ describe('Create JoiningPanelComponent', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   />
                 </div>
                 <div
@@ -206,7 +206,7 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-1j55u07-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-135zrjj-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
@@ -216,11 +216,11 @@ describe('Create JoiningPanelComponent', () => {
                       class="JoiningPanelComponentimage"
                       src="test-file-stub"
                     />
-                    <h2
-                      class="MuiTypography-root MuiTypography-h2 JoiningPanelComponentheading2 css-1c2d2db-MuiTypography-root"
+                    <h4
+                      class="MuiTypography-root MuiTypography-h4 JoiningPanelComponentheading2 css-1inrl58-MuiTypography-root"
                     >
                       Creating your community!
-                    </h2>
+                    </h4>
                     <div
                       class="JoiningPanelComponentprogressBarWrapper"
                     >

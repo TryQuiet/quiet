@@ -22,7 +22,6 @@ const classes = {
   fullContainer: `${PREFIX}fullContainer`,
   gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
-  title: `${PREFIX}title`,
   iconDiv: `${PREFIX}iconDiv`,
   warningIcon: `${PREFIX}warningIcon`,
   warningMessage: `${PREFIX}warningMessage`,
@@ -38,9 +37,11 @@ const classes = {
   subtitle: `${PREFIX}subtitle`,
 }
 
+// The shell model (design-system/ONBOARDING.md): the title lives in the Modal's title bar, as in the library's
+// 'Create channel' (5055:16131), and the body is a column under it.
 const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
-  padding: '0px 32px',
+  padding: `${theme.space.xl}px ${theme.space.xxl}px 0`,
 
   [`& .${classes.fullContainer}`]: {
     width: '100%',
@@ -64,10 +65,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     fontWeight: 'normal',
   },
 
-  [`& .${classes.title}`]: {
-    marginBottom: 24,
-  },
-
   [`& .${classes.iconDiv}`]: {
     width: 24,
     height: 28,
@@ -84,7 +81,8 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.errorMessage}`]: {
     color: theme.palette.error.main,
-    fontSize: 12,
+    fontSize: theme.typography.caption.fontSize,
+    lineHeight: theme.typography.caption.lineHeight,
   },
 
   [`& .${classes.rootBar}`]: {
@@ -117,13 +115,12 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.offset}`]: {
-    marginTop: 5,
+    marginTop: theme.space.xs,
   },
 
   [`& .${classes.subtitle}`]: {
     color: theme.palette.colors.gray50,
     fontWeight: 400,
-    marginTop: -2,
   },
 
   [`& .${classes.publicPrivate}`]: {
@@ -210,7 +207,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   return (
     <>
       {canCreateChannel && (
-        <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
+        <Modal open={open} handleClose={handleClose} title='Create a new channel' data-testid={'createChannelModal'}>
           <StyledModalContent container direction='column'>
             <form
               onSubmit={handleSubmit(onSubmit, errors => {
@@ -222,9 +219,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               })}
             >
               <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-                <Typography variant='h3' className={classes.title}>
-                  Create a new channel
-                </Typography>
                 <Typography variant='body2'>Channel name</Typography>
                 <Controller
                   control={control}

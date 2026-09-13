@@ -11,6 +11,7 @@ import {
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import { Divider, Drawer } from '../ui'
 import IconButton from '../ui/Icon/IconButton'
+import { rowHover } from '../../design-system/theme/components'
 
 export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, titleIcon, children }) => {
   const theme = useTheme()
@@ -40,7 +41,6 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             flexDirection: 'row',
             alignItems: 'center',
             textAlign: 'center',
-            paddingTop: '12px',
             height: 60,
             width: '100%',
           }}
@@ -59,12 +59,12 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
               alignContent: 'center',
               display: 'flex',
               flex: 5,
-              gap: '1px',
+              gap: theme.space.xs,
             }}
             data-testid={'contextMenu-title-wrapper'}
           >
             {titleIcon && titleIcon}
-            <Typography fontSize={16} fontWeight={'medium'} data-testid={'contextMenu-title'}>
+            <Typography variant='h5' data-testid={'contextMenu-title'}>
               {title}
             </Typography>
           </Grid>
@@ -86,7 +86,7 @@ export const ContextMenuHint: FC<ContextMenuHintProps> = ({ hint }) => {
       }}
     >
       <Divider />
-      <Typography fontWeight={'normal'}>{hint}</Typography>
+      <Typography>{hint}</Typography>
     </Grid>
   )
 }
@@ -117,10 +117,11 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          padding: '11px 16px',
+          padding: `${theme.space.md}px ${theme.space.lg}px`,
           width: '100%',
           cursor: 'pointer',
         }}
+        sx={{ '&:hover': { backgroundColor: rowHover(theme) } }}
         onClick={action}
         data-testid={`contextMenuItem${title.replace(' ', '_')}`}
       >
@@ -129,7 +130,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
             flex: 8,
           }}
         >
-          <Typography fontWeight={'normal'}>{title}</Typography>
+          <Typography>{title}</Typography>
         </Grid>
         <Grid style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
           <NavigateNextIcon />

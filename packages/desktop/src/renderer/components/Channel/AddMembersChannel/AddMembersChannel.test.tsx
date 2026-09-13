@@ -24,7 +24,7 @@ describe('AddMembersChannel', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -51,7 +51,7 @@ describe('AddMembersChannel', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   />
                 </div>
                 <div
@@ -94,7 +94,7 @@ describe('AddMembersChannel', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container css-1aconu4-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-7r8u3v-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 AddMembersChanneldescContainer css-s2k0j8-MuiGrid-root"
@@ -107,7 +107,7 @@ describe('AddMembersChannel', () => {
                     <div
                       class="MuiGrid-root css-vj1n65-MuiGrid-root"
                       data-testid="general-add-member-name"
-                      style="flex-direction: row; display: flex; align-items: center; justify-content: left; align-content: center; padding-left: 2px;"
+                      style="flex-direction: row; display: flex; align-items: center; justify-content: left; align-content: center;"
                     >
                       <svg
                         aria-hidden="true"
@@ -115,7 +115,7 @@ describe('AddMembersChannel', () => {
                         data-testid="LockIcon"
                         fill="currentColor"
                         focusable="false"
-                        style="font-weight: 500; font-size: 16px;"
+                        style="font-size: 16px;"
                         viewBox="0 0 24 24"
                       >
                         <svg
@@ -148,7 +148,7 @@ describe('AddMembersChannel', () => {
                         </svg>
                       </svg>
                       <span
-                        style="font-weight: 500; font-size: 16px;"
+                        class="MuiTypography-root MuiTypography-h5 css-g8q9rb-MuiTypography-root"
                       >
                         general
                       </span>
@@ -160,7 +160,7 @@ describe('AddMembersChannel', () => {
                     </p>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-mxpema-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-jdo0va-MuiGrid-root"
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-gcwvw8-MuiAutocomplete-root"
@@ -239,7 +239,7 @@ describe('AddMembersChannel', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto AddMembersChannelbuttonContainer css-1wrgmsj-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelbutton css-sdx6r0-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelbutton css-cr43qu-MuiButtonBase-root-MuiButton-root"
                       data-testid="general-add-members-button"
                       tabindex="0"
                       type="button"
@@ -256,7 +256,7 @@ describe('AddMembersChannel', () => {
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 AddMembersChannelsecondaryButtonContainer css-s2k0j8-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelsecondaryButton css-sdx6r0-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelsecondaryButton css-cr43qu-MuiButtonBase-root-MuiButton-root"
                       data-testid="general-add-members-leave-button"
                       tabindex="0"
                       type="button"

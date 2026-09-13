@@ -59,18 +59,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginBottom: 1,
   },
 
-  [`& .${classes.secondaryButton}`]: {
-    width: 160,
-    height: 40,
-    color: theme.palette.colors.darkGray,
-    backgroundColor: theme.palette.colors.white,
-    padding: theme.spacing(2),
-    '&:hover': {
-      boxShadow: 'none',
-      cursor: 'pointer',
-      backgroundColor: theme.palette.colors.white,
-    },
-  },
+  // The secondary action is the theme's outlined button (library 3505:10321), not a white contained one.
+  [`& .${classes.secondaryButton}`]: {},
 }))
 
 export interface LeaveCommunityProps {
@@ -112,7 +102,7 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({ leaveCommunit
       </Grid>
       <Grid item xs={'auto'} className={classes.buttonContainer}>
         <Button
-          variant='contained'
+          variant='outlined'
           onClick={handleLeave}
           disabled={leaving}
           size='small'
