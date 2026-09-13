@@ -15,22 +15,26 @@ import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { JoinCommunityOptionsComponent } from '../../Onboarding/JoinCommunityOptionsComponent'
 import { OpenInviteLinkComponent } from '../../Onboarding/OpenInviteLinkComponent'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
+import { QrScannerComponent } from '../../Onboarding/qrScanner/QrScannerComponent'
 import { createLogger } from '../../../logger'
 
 const logger = createLogger('JoinCommunity')
 
-type Step = 'options' | 'openInviteLink' | 'pasteInviteLink' | 'pasteQrCode'
+type Step = 'options' | 'openInviteLink' | 'pasteInviteLink' | 'scanQrCode' | 'pasteFromQrCode'
 
+/** Title bar text per step, from the prototype's frames (2811:2562, 2811:2455, 3190:10892, 2811:2460). */
 const TITLES: Record<Step, string> = {
   options: 'Quiet',
   openInviteLink: 'Join with invite link',
   pasteInviteLink: 'Join with invite link',
-  pasteQrCode: 'Join with QR code',
+  scanQrCode: 'Join with QR code',
+  pasteFromQrCode: 'Join with invite link',
 }
 
 /**
- * Join community: the three-way choice, then Open invite link → Paste a link.
- * Desktop has no camera, so "Join with QR code" also lands on the paste step.
+ * Join community: the three-way choice, then Open invite link → Paste a link, or
+ * Join with QR code → the camera. A scanned code and a pasted link take the same path;
+ * when the camera cannot be used the scanner offers the paste field.
  */
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -81,8 +85,11 @@ const JoinCommunity = () => {
       case 'pasteInviteLink':
         setStep('openInviteLink')
         return
+      case 'pasteFromQrCode':
+        setStep('scanQrCode')
+        return
       case 'openInviteLink':
-      case 'pasteQrCode':
+      case 'scanQrCode':
         setStep('options')
         return
       default:
@@ -110,13 +117,16 @@ const JoinCommunity = () => {
       {step === 'options' ? (
         <JoinCommunityOptionsComponent
           onJoinWithInviteLink={() => setStep('openInviteLink')}
-          onJoinWithQrCode={() => setStep('pasteQrCode')}
+          onJoinWithQrCode={() => setStep('scanQrCode')}
         />
       ) : null}
       {step === 'openInviteLink' ? <OpenInviteLinkComponent onPasteLink={() => setStep('pasteInviteLink')} /> : null}
-      {step === 'pasteInviteLink' || step === 'pasteQrCode' ? (
+      {step === 'scanQrCode' ? (
+        <QrScannerComponent onDecoded={handleCommunityAction} onUsePasteLink={() => setStep('pasteFromQrCode')} />
+      ) : null}
+      {step === 'pasteInviteLink' || step === 'pasteFromQrCode' ? (
         <PasteLinkComponent
-          heading={step === 'pasteQrCode' ? 'Join with QR code' : 'Paste a link to Join'}
+          heading={'Paste a link to Join'}
           open={joinCommunityModal.open}
           isConnectionReady={isConnected}
           revealInputValue={revealInputValue}

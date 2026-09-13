@@ -12,6 +12,8 @@ import JoinCommunity from './JoinCommunity'
 import GetStarted from '../../Onboarding/GetStarted'
 import CreateUsername from '../../CreateUsername/CreateUsername'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
+import { qrImageData } from '../../../testUtils/qrImage'
+import { cameraError, mockCamera } from '../../../testUtils/mockCamera'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
 import { communities } from '@quiet/state-manager'
@@ -46,7 +48,7 @@ describe('join community', () => {
   const { code } = getValidInvitationUrlTestData(validInvitationDatav4[0])
   const data = {
     ...validInvitationDatav4[0],
-    kind: InvitationKind.Member,
+    kind: InvitationKind.Member as const,
   }
 
   const validCode = code()
@@ -92,14 +94,76 @@ describe('join community', () => {
     expect(await screen.findByRole('heading', { name: 'Let’s get started...', level: 3 })).toBeVisible()
   })
 
-  it('takes the pasted link for "Join with QR code" since desktop has no camera', async () => {
-    const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+  describe('Join with QR code', () => {
+    let camera: ReturnType<typeof mockCamera> | undefined
+    afterEach(() => {
+      camera?.restore()
+      camera = undefined
+    })
 
-    renderComponent(<JoinCommunity />, store)
+    it('scans a member link and goes on to username registration', async () => {
+      camera = mockCamera({ frame: qrImageData(`${QUIET_JOIN_PAGE}#${validCode}`) })
+      const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+      const dispatchSpy = jest.spyOn(store, 'dispatch')
 
-    await userEvent.click(screen.getByTestId('join-with-qr-code'))
-    expect(await screen.findByRole('heading', { name: 'Join with QR code', level: 3 })).toBeVisible()
-    expect(screen.getByPlaceholderText('Link')).toBeVisible()
+      renderComponent(
+        <>
+          <JoinCommunity />
+          <CreateUsername />
+        </>,
+        store
+      )
+
+      await userEvent.click(screen.getByTestId('join-with-qr-code'))
+      expect(await screen.findByTestId('qr-scanner-viewfinder')).toBeVisible()
+      expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
+
+      expect(await screen.findByText('Choose username', {}, { timeout: 5000 })).toBeVisible()
+      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.joinCommunity({ inviteData: data }))
+      expect(camera.stop).toHaveBeenCalled()
+    })
+
+    it('scans a device link and links this device', async () => {
+      camera = mockCamera({ frame: qrImageData(`${QUIET_JOIN_PAGE}#${deviceInvitationCode}`) })
+      const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+      const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+      renderComponent(
+        <>
+          <JoinCommunity />
+          <CreateUsername />
+        </>,
+        store
+      )
+
+      await userEvent.click(screen.getByTestId('join-with-qr-code'))
+      await waitFor(
+        () =>
+          expect(dispatchSpy).toHaveBeenCalledWith(
+            communities.actions.linkDevice({ inviteData: deviceInvitationData })
+          ),
+        { timeout: 5000 }
+      )
+      expect(screen.queryByText('Choose username')).not.toBeInTheDocument()
+    })
+
+    it('falls back to the paste field when the camera is denied, and back returns to the scanner', async () => {
+      camera = mockCamera({ error: cameraError('NotAllowedError') })
+      const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+
+      renderComponent(<JoinCommunity />, store)
+
+      await userEvent.click(screen.getByTestId('join-with-qr-code'))
+      await userEvent.click(await screen.findByTestId('qr-scanner-paste-link'))
+      expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+      expect(screen.getByPlaceholderText('Link')).toBeVisible()
+
+      await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+      expect(await screen.findByTestId('qr-scanner-viewfinder')).toBeVisible()
+
+      await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+      expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+    })
   })
 
   it('user goes from joining community to username registration, then comes back', async () => {

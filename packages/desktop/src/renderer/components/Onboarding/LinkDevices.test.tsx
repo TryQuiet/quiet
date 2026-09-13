@@ -1,0 +1,98 @@
+import React from 'react'
+import '@testing-library/jest-dom/extend-expect'
+import { screen, waitFor } from '@testing-library/dom'
+import userEvent from '@testing-library/user-event'
+
+import { communities } from '@quiet/state-manager'
+import { type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
+import { QUIET_JOIN_PAGE, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
+
+import { renderComponent } from '../../testUtils/renderComponent'
+import { prepareStore } from '../../testUtils/prepareStore'
+import { qrImageData } from '../../testUtils/qrImage'
+import { cameraError, mockCamera } from '../../testUtils/mockCamera'
+import { StoreKeys } from '../../store/store.keys'
+import { SocketState } from '../../sagas/socket/socket.slice'
+import { ModalName } from '../../sagas/modals/modals.types'
+import { modalsActions, ModalsInitialState } from '../../sagas/modals/modals.slice'
+import LinkDevices, { SCAN_QR_CODE_INTRO } from './LinkDevices'
+
+const openState = () => ({
+  [StoreKeys.Socket]: { ...new SocketState(), isConnected: true },
+  [StoreKeys.Modals]: {
+    ...new ModalsInitialState(),
+    [ModalName.linkDevicesModal]: { open: true },
+    [ModalName.loadingPanel]: { open: false },
+  },
+})
+
+const deviceInvitationData: DeviceInvitationDataV4 = {
+  ...validInvitationDatav4[0],
+  kind: InvitationKind.Device,
+  authData: { ...validInvitationDatav4[0].authData, userId: 'device-owner-id', userName: 'device-owner' },
+}
+const deviceLink = `${QUIET_JOIN_PAGE}#${getValidInvitationUrlTestData(deviceInvitationData).code()}`
+
+let camera: ReturnType<typeof mockCamera> | undefined
+afterEach(() => {
+  camera?.restore()
+  camera = undefined
+})
+
+describe('Link devices → Scan QR code', () => {
+  it('opens the camera with the sheet copy and links this device from the scanned code', async () => {
+    camera = mockCamera({ frame: qrImageData(deviceLink) })
+    const { store } = await prepareStore(openState())
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
+    expect(await screen.findByText(SCAN_QR_CODE_INTRO)).toBeVisible()
+    expect(screen.getByTestId('link-devices-scanner-viewfinder')).toBeVisible()
+    expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
+
+    await waitFor(
+      () =>
+        expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData })),
+      { timeout: 5000 }
+    )
+    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined }))
+    expect(camera.stop).toHaveBeenCalled()
+  })
+
+  it('offers the paste field when there is no camera, and the pasted device link links the device', async () => {
+    camera = mockCamera({ error: cameraError('NotFoundError') })
+    const { store } = await prepareStore(openState())
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
+    await userEvent.click(await screen.findByTestId('link-devices-scanner-paste-link'))
+    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+
+    await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)
+    await userEvent.click(screen.getByTestId('continue-joinCommunity'))
+    await waitFor(() =>
+      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData }))
+    )
+  })
+
+  it('back from the paste field returns to the scanner, then to the entry screen', async () => {
+    camera = mockCamera({ error: cameraError('NotAllowedError') })
+    const { store } = await prepareStore(openState())
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
+    await userEvent.click(await screen.findByTestId('link-devices-scanner-paste-link'))
+    expect(await screen.findByPlaceholderText('Link')).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
+    expect(await screen.findByTestId('link-devices-scanner-viewfinder')).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+  })
+})
