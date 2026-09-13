@@ -20,7 +20,8 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
           paddingVertical: 12,
           paddingHorizontal: 20,
           backgroundColor: disabled ? 'grey' : !negative ? defaultTheme.palette.main.brand : 'transparent',
-          borderRadius: 8,
+          // The library's Button is a 16 pill (decided 2026-09-13: one button radius); the old shape stays 8.
+          borderRadius: newDesign ? 16 : 8,
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: newDesign ? 50 : 45,
