@@ -140,6 +140,8 @@ Uses: ButtonIcons (5), Divider (3), Button row (2), caret-black-r (2), Title bar
 Goes to: Glyph → get-started [prototype]; Content → sheet-2811-2601 [prototype]; Button row → sheet-2811-2587 [prototype]
 Implemented by: desktop `#3400 Settings/Tabs/LinkedDevices/LinkedDevices.component.tsx` · mobile `#3400 screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen.tsx`
 
+**User decision (2026-09-13): desktop Link devices matches the mobile screen and the frames.** Structure from the Device-linking desktop frames (`3RcrYKRTiFY87TpFSqZyj4` Draft 5: `879:20987` no linked devices, `880:17196` with linked devices — exports in `figma/desktop/devicelink/`), copy from this frame (the drafts' row subtitles are dropped). The rows sit in the library's bordered group (1px `#E5E5E5` r16, rows padded 16; `RowGroup bordered`, Link devices only — the other screens' groups are the cross-cutting parity item). The *Linked devices* list is the frame's hidden nodes as the desktop frames draw them: overline heading 10/16 `#7F7F7F` (32 above, 8 below) over a bordered card; empty → *No linked devices* 14/20 `#767676` centred, padded 16; else one row per device, name 16 over *Active* 12/16 `#7F7F7F`. The frames' trash glyph is not drawn (#3400 ships no removal). *Display QR code* is disabled without a community, as on mobile. Tokens added: `border04`, `gray60`, `blue02` (desktop `theme.ts`), `border.*` / `gray60` (mobile palette). Implemented by: desktop `Onboarding/LinkDevicesComponent.tsx` + `LinkedDevicesList.tsx` · mobile `LinkDevices/LinkDevices.component.tsx`. Story: Screens/Onboarding → Link devices (with the prototype and desktop frames alongside).
+
 **User decision (2026-09-13): a third Button row, *Paste link*.** Not in the frame. It sits under *Scan QR code* with the same anatomy (49 tall, 16/400 label, left icon, right caret, hairline) and the library's link glyph — the ButtonIcons link that *Join with invite link* uses on 2811:2562 — not a text link like *Paste a link* on Open invite link. It opens the existing paste step (*Paste a link to Join*, 3190:10892) under the *Link devices* title bar; back returns to this screen. Pasted there — and in the scanner's paste fallback — only a **device** link is accepted: a member link, or anything else, shows an inline error under the input and nothing is dispatched. Undesigned copy, to be replaced when designed: the row label *Paste link* (sentence case like the rows above it) and the error *This is not a device link. Use the link from Link devices on your other device.* Implemented by: desktop `Onboarding/LinkDevicesComponent.tsx` + `LinkDevices.tsx` (step `pasteLink`) · mobile `LinkDevices/LinkDevices.component.tsx` + `PasteInviteLink` variant `pasteDeviceLink`. Stories: Screens/Onboarding → Link devices, Paste link on Link devices, Paste link · not a device link.
 
 ### Join with invite link  ·  `open-invite-link`
@@ -182,6 +184,8 @@ Goes to: Content → link-devices [prototype]; Button row → open-invite-link [
 Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
 
 ### Link devices — QR code (sheet)  ·  `sheet-2811-2601`
+
+**User decision (2026-09-13): people display the QR code; the raw link is never shown.** Both platforms render this sheet's content (desktop inside the Link devices modal and in Settings → Linked devices, per the Device-linking desktop frame `880:17427`; mobile as a full screen — the sheet itself is a cross-cutting parity item): title bar *QR code* with close, the QR in the library's `qr-code-box` (220, 1px `#B3B3B3` r4, 188 code), the sentence below verbatim, then **Copy link** — a primary button in exactly the slot the Add members QR sheet (`2932:3707`) gives *Share code* (50 tall, r16, padding 20, hug width, centred) — and *Reset QR code* as the text link (16/26 `#2373EA`), which mints a new one-time link. Copy link puts the link on the clipboard and confirms briefly (*Link copied*: desktop MUI Snackbar, mobile the app's confirmation box); the masked link field with the eye icon and *Copy to clipboard* are gone. Undesigned states, kept with #3400's copy: *Generating device link…* in the box while the backend mints (both actions disabled), *Device link unavailable* without a community (desktop Settings only). Implemented by: desktop `Onboarding/DisplayQrCodeComponent.tsx` (+ `DisplayQrCode.tsx`, reused by `Settings/Tabs/LinkedDevices`) · mobile `LinkedDeviceQRCode/LinkedDeviceQRCode.component.tsx` + `screens/LinkedDeviceQRCode`. Stories: Screens/Onboarding → Display QR code (with 2811:2601, 2932:3707 and 880:17427 alongside), · generating, · no community, Settings · Linked devices. The mobile *Linking devices* progress sheet (`879:15508`) is not part of this change.
 Figma frame `Sheet` · Section: Onboarding · 375×442 · node `2811:2601` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2601)
 
 Copy:
@@ -459,6 +463,13 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → choose-a-plan [prototype]; Frame 1612 → captcha-3054-4052 [prototype]
 Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx`
 
+
+### Device linking — desktop designs (user pointer, 2026-09-13)
+
+`Device linking` file `3RcrYKRTiFY87TpFSqZyj4`, canvas *Draft 5* (`880:17585`, Dec 2024). Exports in `figma/desktop/devicelink/` (brought over from `design/storybook-grid`):
+- Desktop (board `879:18182` "Link devices (some desktop examples)"): `879:20987` Link devices in the Modal full-window shell, no linked devices; `880:17196` with linked devices; `880:17427` Display QR code (the QR inside the shell). Rows in this draft carry subtitles ("Scan this code with another device" / "Use this device to scan a code from another device"); the 2026 prototype (`2811:2575`) drops them — prototype copy wins, these frames give the desktop structure.
+- Mobile (board `879:16665`): QR sheet `879:15503`; **Linking devices** progress sheet `879:15508` (Progress-loading-template-mobile `910:33355`); Linked / Without linked / With linked / Removed states `879:15640` / `879:15644` / `879:15648`; QR-scan-code sheets `879:15946` / `879:16178`.
+- Banner promos (`898:8033` mobile, `898:8104` desktop): out of scope.
 
 ### Purged stages (user decision, 2026-09-12)
 

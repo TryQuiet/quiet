@@ -74,18 +74,14 @@ const QRCode: FC = () => {
   return <QRCodeComponent value={invitationLink} />
 }
 
-const LinkedDevices: FC = () => {
-  const [revealLink, setRevealLink] = useState(false)
-
-  return (
-    <LinkedDevicesComponent
-      deviceLink={invitationLink}
-      isLoading={false}
-      revealLink={revealLink}
-      onToggleLinkVisibility={() => setRevealLink(currentValue => !currentValue)}
-    />
-  )
-}
+const LinkedDevices: FC = () => (
+  <LinkedDevicesComponent
+    deviceLink={invitationLink}
+    isLoading={false}
+    onReset={() => {}}
+    linkedDevices={[{ deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false }]}
+  />
+)
 
 const args: SettingsComponentProps = {
   open: true,

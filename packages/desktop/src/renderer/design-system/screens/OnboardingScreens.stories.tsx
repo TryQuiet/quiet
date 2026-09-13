@@ -10,8 +10,17 @@ import { OpenInviteLinkComponent } from '../../components/Onboarding/OpenInviteL
 import { PasteLinkComponent } from '../../components/Onboarding/PasteLinkComponent'
 import { CreateCommunityComponent } from '../../components/Onboarding/CreateCommunityComponent'
 import { LinkDevicesComponent } from '../../components/Onboarding/LinkDevicesComponent'
+import { DisplayQrCodeComponent } from '../../components/Onboarding/DisplayQrCodeComponent'
 import { LinkedDevicesComponent } from '../../components/Settings/Tabs/LinkedDevices/LinkedDevices.component'
 import { QrScannerComponent } from '../../components/Onboarding/qrScanner/QrScannerComponent'
+
+// The frames these screens are built from, for the side-by-side columns.
+import linkDevicesExport from '../figma/link-devices.png'
+import qrSheetExport from '../figma/sheet-2811-2601.png'
+import addMembersQrExport from '../figma/add-members-qr-code.png'
+import desktopLinkDevicesExport from '../figma/desktop/devicelink/desktop-link-devices.png'
+import desktopLinkDevicesWithLinkedExport from '../figma/desktop/devicelink/desktop-link-devices-with-linked.png'
+import desktopLinkDevicesQrExport from '../figma/desktop/devicelink/desktop-link-devices-qr.png'
 import { installStoryCamera, type StoryCamera } from './storyCamera'
 
 import { CreateUsernameBody } from '../../components/CreateUsername/CreateUsernameComponent'
@@ -52,7 +61,25 @@ const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display 
 
 /** The third row is not in 2811:2575: the user asked for it on 2026-09-13; its label is undesigned. */
 const LINK_DEVICES_NOTE =
-  'the Paste link row is a user addition (2026-09-13) with the library link glyph; its label is undesigned'
+  "rows in the bordered group and the Linked devices list per 2811:2575 and the Device-linking desktop frames (3RcrYKRTiFY87TpFSqZyj4 879:20987 / 880:17196); the Paste link row is a user addition (2026-09-13) with the library link glyph, its label undesigned; the frames' trash glyph is not drawn (no device removal yet)"
+
+const LINK_DEVICES_EXPORTS = (desktop: string, desktopLabel: string): FigmaExport[] => [
+  { label: 'figma · 2811:2575 (prototype, 375)', src: linkDevicesExport, width: CONTENT_COLUMN_WIDTH },
+  { label: desktopLabel, src: desktop, width: SHELL_WIDTH },
+]
+
+const QR_CODE_NOTE =
+  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence and Reset QR code per 2811:2601 / desktop 880:17427; Copy link (user decision 2026-09-13) sits in the slot the Add members QR sheet 2932:3707 gives its primary button — the raw link is never shown; "Link copied" and the generating / unavailable states have no frame'
+
+const QR_CODE_EXPORTS: FigmaExport[] = [
+  { label: 'figma · 2811:2601 (prototype sheet, 375)', src: qrSheetExport, width: CONTENT_COLUMN_WIDTH },
+  {
+    label: 'figma · 2932:3707 (Add members QR sheet: the button slot)',
+    src: addMembersQrExport,
+    width: CONTENT_COLUMN_WIDTH,
+  },
+  { label: 'figma · Device linking 880:17427 (desktop, 715)', src: desktopLinkDevicesQrExport, width: SHELL_WIDTH },
+]
 
 /** Type a value into every paste input under `root` the way a user would (React sees a native input event). */
 const fillPasteInputs = (root: HTMLElement | null, value: string) => {
@@ -147,14 +174,22 @@ const Shell: React.FC<{ title: string; left?: ShellLeft; onLeft?: () => void; ch
   </div>
 )
 
+/** A Figma export drawn next to the rendered columns, at its frame's width (the PNGs are 2×). */
+interface FigmaExport {
+  label: string
+  src: string
+  width: number
+}
+
 const Screen: React.FC<{
   title: string
   bar: string
   figma: string
   left?: ShellLeft
   note?: string
+  exports?: FigmaExport[]
   render: () => React.ReactNode
-}> = ({ title, bar, figma, left, note, render }) => (
+}> = ({ title, bar, figma, left, note, exports = [], render }) => (
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={lightTheme}>
       <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
@@ -177,6 +212,11 @@ const Screen: React.FC<{
           >
             {render()}
           </Column>
+          {exports.map(item => (
+            <Column key={item.label} width={item.width} label={item.label}>
+              <img src={item.src} alt={item.label} style={{ display: 'block', width: item.width }} />
+            </Column>
+          ))}
         </div>
       </div>
     </ThemeProvider>
@@ -348,6 +388,10 @@ export const LinkDevices = () => (
     bar='Link devices'
     figma='2811:2575'
     note={LINK_DEVICES_NOTE}
+    exports={LINK_DEVICES_EXPORTS(
+      desktopLinkDevicesWithLinkedExport,
+      'figma · Device linking 880:17196 (desktop, 715)'
+    )}
     render={() => (
       <LinkDevicesComponent
         onDisplayQrCode={noop}
@@ -367,9 +411,16 @@ export const LinkDevicesEmpty = () => (
     title='Link devices · no linked devices'
     bar='Link devices'
     figma='2811:2575'
-    note={LINK_DEVICES_NOTE}
+    note={`${LINK_DEVICES_NOTE}; Display QR code is disabled without a community, as on mobile`}
+    exports={LINK_DEVICES_EXPORTS(desktopLinkDevicesExport, 'figma · Device linking 879:20987 (desktop, 715)')}
     render={() => (
-      <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} onPasteLink={noop} linkedDevices={[]} />
+      <LinkDevicesComponent
+        onDisplayQrCode={noop}
+        onScanQrCode={noop}
+        onPasteLink={noop}
+        canDisplayQrCode={false}
+        linkedDevices={[]}
+      />
     )}
   />
 )
@@ -430,18 +481,53 @@ export const DisplayQrCode = () => (
   <Screen
     title='Display QR code'
     bar='QR code'
+    left='close'
     figma='2811:2601'
-    note="#3400's Linked devices surface, shown inside the Link devices modal"
+    note={QR_CODE_NOTE}
+    exports={QR_CODE_EXPORTS}
+    render={() => <DisplayQrCodeComponent deviceLink={SAMPLE_DEVICE_LINK} isLoading={false} onReset={noop} />}
+  />
+)
+
+export const DisplayQrCodeGenerating = () => (
+  <Screen
+    title='Display QR code · generating the link'
+    bar='QR code'
+    left='close'
+    figma='2811:2601'
+    note='no frame for this state: while the backend mints the one-time link the box carries #3400’s "Generating device link…", Copy link and Reset QR code are disabled'
+    render={() => <DisplayQrCodeComponent deviceLink={''} isLoading onReset={noop} />}
+  />
+)
+
+export const DisplayQrCodeUnavailable = () => (
+  <Screen
+    title='Display QR code · no community'
+    bar='QR code'
+    left='close'
+    figma='2811:2601'
+    note='no frame for this state: without a community no link can be minted; the Link devices row is disabled then, so this is the Settings tab’s edge case'
+    render={() => <DisplayQrCodeComponent deviceLink={''} isLoading={false} onReset={noop} />}
+  />
+)
+
+export const SettingsLinkedDevices = () => (
+  <Screen
+    title='Settings · Linked devices'
+    bar='Settings'
+    left='close'
+    figma='—'
+    note='the Settings tab reuses the QR sheet content and the Linked devices list, so it matches Link devices'
     render={() => (
-      <OnboardingBody dataTestId='link-devices-display'>
-        <LinkedDevicesComponent
-          deviceLink={'https://tryquiet.org/join#example-device-link'}
-          isLoading={false}
-          revealLink={false}
-          onToggleLinkVisibility={noop}
-          centered
-        />
-      </OnboardingBody>
+      <LinkedDevicesComponent
+        deviceLink={SAMPLE_DEVICE_LINK}
+        isLoading={false}
+        onReset={noop}
+        linkedDevices={[
+          { deviceId: 'this', deviceName: 'this device', isCurrent: true },
+          { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
+        ]}
+      />
     )}
   />
 )
@@ -522,7 +608,7 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   createCommunity: { title: 'Create a community', bar: 'Create a community', left: 'back' },
   chooseUsername: { title: 'Choose username', bar: 'Create a community', left: 'close' },
   linkDevices: { title: 'Link devices', bar: 'Link devices', left: 'back' },
-  displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'back' },
+  displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'close' },
   scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
   pasteFromScan: { title: 'Paste a link to Join', bar: 'Scan QR code', left: 'back' },
   pasteLinkDevice: { title: 'Paste a link to Join', bar: 'Link devices', left: 'back' },
@@ -553,7 +639,6 @@ const WalkthroughStory = () => {
   const [step, setStep] = React.useState<Step>('getStarted')
   const [trail, setTrail] = React.useState<Step[]>([])
   const [dispatched, setDispatched] = React.useState<string[]>([])
-  const [revealLink, setRevealLink] = React.useState(false)
   const [cameraMode, setCameraMode] = React.useState<WalkthroughCamera>('code')
   const rootRef = React.useRef<HTMLDivElement>(null)
 
@@ -649,16 +734,12 @@ const WalkthroughStory = () => {
         )
       case 'displayQrCode':
         return (
-          <OnboardingBody dataTestId='link-devices-display'>
-            <LinkedDevicesComponent
-              deviceLink={SAMPLE_DEVICE_LINK}
-              isLoading={false}
-              revealLink={revealLink}
-              onToggleLinkVisibility={() => setRevealLink(v => !v)}
-              linkedDevices={WALKTHROUGH_DEVICES}
-              centered
-            />
-          </OnboardingBody>
+          <DisplayQrCodeComponent
+            deviceLink={SAMPLE_DEVICE_LINK}
+            isLoading={false}
+            onReset={() => record('connection.actions.setDeviceLinkInvite(undefined) → createDeviceLink()')}
+            dataTestId='link-devices-display'
+          />
         )
       case 'scanQrCode':
         return (
@@ -680,7 +761,8 @@ const WalkthroughStory = () => {
 
   const { title, bar, left } = STEPS[step]
   const isPasteStep = PASTE_STEPS.includes(step)
-  const onLeft = left === 'back' ? back : left === 'close' ? restart : undefined
+  // The QR code sheet's close returns to Link devices (LinkDevices.tsx); Choose username's close restarts.
+  const onLeft = left === 'back' ? back : left === 'close' ? (step === 'displayQrCode' ? back : restart) : undefined
 
   return (
     <StyledEngineProvider injectFirst>
