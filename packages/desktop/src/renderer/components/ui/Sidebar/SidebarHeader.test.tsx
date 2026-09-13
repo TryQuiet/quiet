@@ -12,7 +12,7 @@ describe('SidebarHeader', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"

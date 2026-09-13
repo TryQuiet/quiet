@@ -61,9 +61,10 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     borderRadius: 4,
     background: theme.palette.background.paper,
   },
+  // 'List item--people' (library 4606:16449): name 14/20 w400 at 70%.
   [`& .${classes.nickname}`]: {
     opacity: 0.7,
-    fontWeight: 300,
+    fontWeight: 400,
     paddingLeft: 0,
     paddingRight: 0,
     overflow: 'hidden',

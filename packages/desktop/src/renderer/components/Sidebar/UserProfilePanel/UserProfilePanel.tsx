@@ -35,7 +35,7 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
     textTransform: 'lowercase',
     backgroundColor: 'inherit',
     '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.10)',
+      backgroundColor: theme.palette.colors.sidebarHover,
     },
   },
 
@@ -46,9 +46,10 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
     marginRight: '8px',
   },
 
+  // 'Profile summary' (library 6218:12330): 24px avatar, name 14/20 w400 at 70%.
   [`& .${classes.nickname}`]: {
     opacity: 0.7,
-    fontWeight: 300,
+    fontWeight: 400,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 215,

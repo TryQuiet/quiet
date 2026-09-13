@@ -17,9 +17,10 @@ const classes = {
 
 const StyledButton = styled(Button)(({ theme }) => ({
   [`&.${classes.button}`]: {
-    marginTop: 8,
+    marginTop: theme.space.sm,
     padding: 0,
-    marginLeft: 16,
+    marginLeft: theme.space.lg,
+    gap: theme.space.xs,
     textTransform: 'none',
     '&:hover': {
       backgroundColor: 'inherit',
@@ -30,15 +31,11 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 
   [`& .${classes.icon}`]: {
-    fontSize: 12,
-    marginRight: 2,
-    marginLeft: -2,
-    marginBottom: 2,
+    fontSize: 16,
   },
 
   [`& .${classes.iconDiv}`]: {
-    marginRight: 5,
-    marginBottom: 2,
+    display: 'flex',
   },
 }))
 

@@ -28,7 +28,7 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="css-1c9y83e"
+            class="css-1qcb2jx"
           >
             <span
               class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"
@@ -80,7 +80,7 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="css-1c9y83e"
+            class="css-1qcb2jx"
           >
             <span
               class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"

@@ -24,11 +24,13 @@ const classes = {
 }
 
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
+  // 'List item' (library 3797:16039): 220x26, padding 3/16, gap 4, text 14/20 at 70%;
+  // hover #FFFFFF@0.05 (3797:16112), selected @0.10 (3797:16118). Only Rubik 400/500 exist.
   [`&.${classes.root}`]: {
     width: 220,
     height: 'hug',
     padding: `3px 0px 3px 0px`,
-    gap: 4,
+    gap: theme.space.xs,
     opacity: 1,
     display: 'flex',
     backgroundColor: 'inherit',
@@ -48,7 +50,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 
   [`& .${classes.title}`]: {
     opacity: 0.7,
-    fontWeight: 300,
+    fontWeight: 400,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 215,
@@ -63,20 +65,20 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 
   [`& .${classes.newMessages}`]: {
     opacity: 1,
-    fontWeight: 600,
+    fontWeight: 500,
   },
 
   [`& .${classes.lock}`]: {
     opacity: 0.7,
-    marginLeft: 13.5,
+    marginLeft: theme.space.lg,
     marginRight: 0,
-    fontWeight: 300,
-    paddingRight: 2,
+    fontWeight: 400,
+    paddingRight: 0,
   },
 
   [`& .${classes.lockNewMessages}`]: {
     opacity: 1,
-    fontWeight: 600,
+    fontWeight: 500,
   },
 
   [`& .${classes.connectedIcon}`]: {
@@ -139,7 +141,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
       <ListItemText
         primary={
           <Grid container alignItems='center'>
-            <Grid container alignItems='center' direction='row' gap='1px' display='flex'>
+            <Grid container alignItems='center' direction='row' gap={`${theme.space.xs}px`} display='flex'>
               <ChannelTypeIcon
                 isPublic={isPublic}
                 fill={'currentColor'}

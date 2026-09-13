@@ -22,7 +22,8 @@ const classes = {
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
-    paddingTop: '30px',
+    // The window-controls bar: 'controls - mac' is 36 tall (library 6218:12325 / Modal full-window 5825:29939).
+    paddingTop: 36,
     minHeight: '100%',
     width: '220px',
     position: 'relative',

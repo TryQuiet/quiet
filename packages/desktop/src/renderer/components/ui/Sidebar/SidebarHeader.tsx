@@ -17,12 +17,13 @@ const classes = {
   tooltip: `${PREFIX}tooltip`,
 }
 
-const StyledGrid = styled(Grid)(() => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
+  // Sidebar sections are 32 apart ('Content' gap, library 6218:12285); 'List title' is 14/20 w500 at 70%.
   [`&.${classes.root}`]: {
-    marginTop: 25,
+    marginTop: theme.space.xxl,
     height: 32,
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingLeft: theme.space.lg,
+    paddingRight: theme.space.lg,
   },
 
   [`& .${classes.title}`]: {
@@ -46,10 +47,7 @@ const StyledGrid = styled(Grid)(() => ({
     },
   },
 
-  [`& .${classes.tooltip}`]: {
-    marginTop: -1,
-    backgroundColor: 'blue',
-  },
+  [`& .${classes.tooltip}`]: {},
 }))
 
 interface SidebarHeaderProps {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import { Button } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown'
@@ -15,9 +15,10 @@ const classes = {
 }
 
 const IdentityPanelButtonStyled = styled('div')(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  paddingLeft: 16,
-  paddingRight: 16,
+  // 'Team and search' (library 6218:12324): 16 below the controls bar, 16 side padding.
+  marginTop: theme.space.lg,
+  paddingLeft: theme.space.lg,
+  paddingRight: theme.space.lg,
 
   [`& .${classes.button}`]: {
     color: theme.palette.colors.white,
@@ -46,6 +47,7 @@ export interface IdentityPanelProps {
 }
 
 export const IdentityPanel: React.FC<IdentityPanelProps> = ({ currentCommunity, accountSettingsModal }) => {
+  const theme = useTheme()
   const communityName = currentCommunity?.name || '...'
   return (
     <IdentityPanelButtonStyled>
@@ -61,7 +63,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ currentCommunity, 
         <Typography variant='h4' className={classes.nickname} data-testid='current-community-name'>
           {communityName}
         </Typography>
-        <ArrowDropDown fontSize='small' style={{ marginLeft: 4 }} />
+        <ArrowDropDown fontSize='small' style={{ marginLeft: theme.space.xs }} />
       </Button>
     </IdentityPanelButtonStyled>
   )

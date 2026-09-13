@@ -141,7 +141,7 @@ describe('Channels panel', () => {
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -198,7 +198,7 @@ describe('Channels panel', () => {
                   data-testid="channelsList"
                 >
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="general-link"
                     role="button"
                     tabindex="0"
@@ -213,7 +213,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                           >
                             <svg
                               aria-hidden="true"
@@ -271,7 +271,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="allergies-link"
                     role="button"
                     tabindex="0"
@@ -286,7 +286,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                           >
                             <svg
                               aria-hidden="true"
@@ -344,7 +344,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="antiques-link"
                     role="button"
                     tabindex="0"
@@ -359,7 +359,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                           >
                             <svg
                               aria-hidden="true"
@@ -417,7 +417,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="croatia-link"
                     role="button"
                     tabindex="0"
@@ -432,7 +432,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                           >
                             <svg
                               aria-hidden="true"
@@ -490,7 +490,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="pets-link"
                     role="button"
                     tabindex="0"
@@ -505,7 +505,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                           >
                             <svg
                               aria-hidden="true"
@@ -560,7 +560,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="sailing-link"
                     role="button"
                     tabindex="0"
@@ -575,7 +575,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                           >
                             <svg
                               aria-hidden="true"
@@ -639,7 +639,7 @@ describe('Channels panel', () => {
               class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -656,7 +656,7 @@ describe('Channels panel', () => {
                 data-testid="usersList"
               >
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-12qk6qt-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="user_2-user-link"
                   role="button"
                   tabindex="-1"
@@ -693,7 +693,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-12qk6qt-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="user_4-user-link"
                   role="button"
                   tabindex="-1"
@@ -730,7 +730,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-12qk6qt-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="user_6-user-link"
                   role="button"
                   tabindex="-1"
@@ -778,7 +778,7 @@ describe('Channels panel', () => {
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -835,7 +835,7 @@ describe('Channels panel', () => {
                 data-testid="channelsList"
               >
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="general-link"
                   role="button"
                   tabindex="0"
@@ -850,7 +850,7 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                         >
                           <svg
                             aria-hidden="true"
@@ -908,7 +908,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="allergies-link"
                   role="button"
                   tabindex="0"
@@ -923,7 +923,7 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                         >
                           <svg
                             aria-hidden="true"
@@ -981,7 +981,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="antiques-link"
                   role="button"
                   tabindex="0"
@@ -996,7 +996,7 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                         >
                           <svg
                             aria-hidden="true"
@@ -1054,7 +1054,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="croatia-link"
                   role="button"
                   tabindex="0"
@@ -1069,7 +1069,7 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                         >
                           <svg
                             aria-hidden="true"
@@ -1127,7 +1127,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="pets-link"
                   role="button"
                   tabindex="0"
@@ -1142,7 +1142,7 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                         >
                           <svg
                             aria-hidden="true"
@@ -1197,7 +1197,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-17dsw0v-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="sailing-link"
                   role="button"
                   tabindex="0"
@@ -1212,7 +1212,7 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
                         >
                           <svg
                             aria-hidden="true"
@@ -1276,7 +1276,7 @@ describe('Channels panel', () => {
             class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -1293,7 +1293,7 @@ describe('Channels panel', () => {
               data-testid="usersList"
             >
               <div
-                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-12qk6qt-MuiButtonBase-root-MuiListItemButton-root"
                 data-testid="user_2-user-link"
                 role="button"
                 tabindex="-1"
@@ -1330,7 +1330,7 @@ describe('Channels panel', () => {
                 />
               </div>
               <div
-                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-12qk6qt-MuiButtonBase-root-MuiListItemButton-root"
                 data-testid="user_4-user-link"
                 role="button"
                 tabindex="-1"
@@ -1367,7 +1367,7 @@ describe('Channels panel', () => {
                 />
               </div>
               <div
-                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-12qk6qt-MuiButtonBase-root-MuiListItemButton-root"
                 data-testid="user_6-user-link"
                 role="button"
                 tabindex="-1"
