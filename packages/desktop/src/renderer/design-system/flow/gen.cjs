@@ -108,6 +108,17 @@ const DESKTOP = {
     { x: 288, y: 282, w: 28, h: 26, label: 'Person add (VibeVillage row)', from: 'Person add' },
     { x: 66, y: 100, w: 24, h: 24, label: 'Close', back: true },
   ] },
+  // Device linking desktop designs (user pointer 2026-09-13): the Draft-5 frames are whole Modal full-window
+  // instances (715×1018) carrying their own chrome (dots + back arrow, no title bar) — cropped by 96 and set
+  // into the shell composition like any 715 content; the shell's bar shows the stage's title text.
+  'link-devices': { kind: 'content', png: 'devicelink/desktop-link-devices.png', node: '879:20987', width: 715, height: 1018, crop: 96, hotspots: [
+    { x: 122, y: 239, w: 458, h: 46, label: 'Display QR code row', from: 'Content' },
+    { x: 122, y: 286, w: 458, h: 46, label: 'Scan QR code row', from: 'Button row' },
+    { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
+  ] },
+  'sheet-2811-2601': { kind: 'content', png: 'devicelink/desktop-link-devices-qr.png', node: '880:17427', width: 715, height: 1018, crop: 96, hotspots: [
+    { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
+  ] },
   'choose-a-plan': { kind: 'content', png: 'desktop-choose-a-plan.png', node: '2840:6718', width: 715, height: 929, hotspots: [
     { x: 32, y: 297, w: 103, h: 48, label: 'Upgrade (Free)', from: 'Button', nth: 0 },
     { x: 265, y: 297, w: 104, h: 48, label: 'Upgrade ($20)', from: 'Button', nth: 1 },
@@ -129,7 +140,7 @@ for (const [slug, d] of Object.entries(DESKTOP)) {
     if (!from) { console.error(`DESKTOP ${slug}: no link labelled ${h.from} #${h.nth ?? 0}`); process.exit(1) }
     return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: from.target, kind: from.kind }
   })
-  f.desktop = { kind: d.kind, png: d.png, node: d.node, width: d.width, height: d.height, stretch: d.stretch ?? null, hotspots }
+  f.desktop = { kind: d.kind, png: d.png, node: d.node, width: d.width, height: d.height, stretch: d.stretch ?? null, crop: d.crop ?? 0, hotspots }
 }
 const mapId = toId(TITLE, storyNameFromExport('AllStages'))
 flow.mapId = mapId

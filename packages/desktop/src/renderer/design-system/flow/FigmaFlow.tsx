@@ -21,7 +21,7 @@ export interface FlowFrame {
   links: FlowLink[]
 }
 export interface Stretch { col: number; right: number }
-export interface DesktopFrame { kind: 'app' | 'content'; png: string; node: string; width: number; height: number; stretch?: Stretch | null; hotspots: FlowLink[] }
+export interface DesktopFrame { kind: 'app' | 'content'; png: string; node: string; width: number; height: number; stretch?: Stretch | null; /** 'content' frames that carry their own shell chrome: pixels to crop off the top */ crop?: number; hotspots: FlowLink[] }
 export interface Shell { file: string; node: string; png: string; width: number; height: number; topBar: { y: number; h: number }; titleBar: { y: number; h: number }; titleZone: Rect; backZone: Rect; content: Rect }
 export interface Rect { x: number; y: number; w: number; h: number }
 export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; mapId?: string; frames: FlowFrame[] }
@@ -31,7 +31,7 @@ export const FLOW_TITLE = 'Onboarding flow'
 // Every PNG is the designer's own export of the frame, at 2x, shown at 1x.
 const images = (require as any).context('../figma', false, /\.png$/)
 const src = (png: string): string => images(`./${png}`)
-const desktopImages = (require as any).context('../figma/desktop', false, /\.png$/)
+const desktopImages = (require as any).context('../figma/desktop', true, /\.png$/)
 const dsrc = (png: string): string => desktopImages(`./${png}`)
 import desktopJson from '../figma/desktop.json'
 export interface DesktopDesign { slug: string; file: string; fileName: string; date: string; node: string; name: string; width: number; height: number; png: string; url: string; copy: string[]; counterpart: string | null; note: string }
@@ -177,7 +177,7 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
   // its body is the placeholder slot ("Replace with content"), i.e. grey by design.
   const winW = VIEWPORTS.find(v => v.id === vp)!.width
   const dc = frame.desktop && frame.desktop.kind === 'content' ? frame.desktop : null
-  const content = dc ? { png: dsrc(dc.png), width: dc.width, height: dc.height, crop: 0, links: dc.hotspots } : { png: src(frame.png), width: frame.width, height: frame.height, crop: frame.titleBar?.height ?? 0, links: frame.links }
+  const content = dc ? { png: dsrc(dc.png), width: dc.width, height: dc.height, crop: dc.crop ?? 0, links: dc.hotspots } : { png: src(frame.png), width: frame.width, height: frame.height, crop: frame.titleBar?.height ?? 0, links: frame.links }
   const crop = content.crop
   const contentLeft = Math.round((winW - content.width) / 2)
   // A stage whose title bar was removed (user decision: Get started) has no bar on desktop either: content starts under the top bar.

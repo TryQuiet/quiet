@@ -258,7 +258,45 @@
    ],
    "bytes": 34297,
    "id": "onboarding-flow--link-devices",
-   "export": "LinkDevices"
+   "export": "LinkDevices",
+   "desktop": {
+    "kind": "content",
+    "png": "devicelink/desktop-link-devices.png",
+    "node": "879:20987",
+    "width": 715,
+    "height": 1018,
+    "stretch": null,
+    "crop": 96,
+    "hotspots": [
+     {
+      "x": 122,
+      "y": 239,
+      "w": 458,
+      "h": 46,
+      "label": "Display QR code row",
+      "target": "sheet-2811-2601",
+      "kind": "prototype"
+     },
+     {
+      "x": 122,
+      "y": 286,
+      "w": 458,
+      "h": 46,
+      "label": "Scan QR code row",
+      "target": "sheet-2811-2587",
+      "kind": "prototype"
+     },
+     {
+      "x": -1,
+      "y": -1,
+      "w": 0,
+      "h": 0,
+      "label": "Back",
+      "target": null,
+      "kind": "back"
+     }
+    ]
+   }
   },
   {
    "slug": "open-invite-link",
@@ -406,7 +444,27 @@
    ],
    "bytes": 27430,
    "id": "onboarding-flow--sheet-2811-2601",
-   "export": "Sheet_2811_2601"
+   "export": "Sheet_2811_2601",
+   "desktop": {
+    "kind": "content",
+    "png": "devicelink/desktop-link-devices-qr.png",
+    "node": "880:17427",
+    "width": 715,
+    "height": 1018,
+    "stretch": null,
+    "crop": 96,
+    "hotspots": [
+     {
+      "x": -1,
+      "y": -1,
+      "w": 0,
+      "h": 0,
+      "label": "Back",
+      "target": null,
+      "kind": "back"
+     }
+    ]
+   }
   },
   {
    "slug": "sheet-2811-2587",
@@ -672,6 +730,7 @@
      "col": 600,
      "right": 640
     },
+    "crop": 0,
     "hotspots": [
      {
       "x": 52,
@@ -755,6 +814,7 @@
      "col": 600,
      "right": 640
     },
+    "crop": 0,
     "hotspots": [
      {
       "x": 288,
@@ -888,6 +948,7 @@
     "width": 715,
     "height": 929,
     "stretch": null,
+    "crop": 0,
     "hotspots": [
      {
       "x": 32,
@@ -1120,6 +1181,7 @@
      "col": 290,
      "right": 325
     },
+    "crop": 0,
     "hotspots": [
      {
       "x": 365,
