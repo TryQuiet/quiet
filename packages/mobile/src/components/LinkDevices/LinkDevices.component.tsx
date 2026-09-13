@@ -39,7 +39,7 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
   const others = (linkedDevices ?? []).filter(device => !device.isCurrent && device.removedAt == null)
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
-      <Appbar title={'Link devices'} back={handleBackButton} bare />
+      <Appbar title={'Link devices'} back={handleBackButton} withoutTitle />
       <View style={{ flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, gap: spacing.xl }}>
         <View style={{ gap: spacing.sm }}>
           <Typography variant={'h3'} horizontalTextAlign={'center'}>

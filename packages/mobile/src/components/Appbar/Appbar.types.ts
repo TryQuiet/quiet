@@ -20,7 +20,7 @@ export interface AppbarProps {
    * heading): the glyph alone, no title text and no divider — the h1 is the title. Sheets
    * keep their titled bar.
    */
-  bare?: boolean
+  withoutTitle?: boolean
 }
 
 export interface HeaderTitleProps {

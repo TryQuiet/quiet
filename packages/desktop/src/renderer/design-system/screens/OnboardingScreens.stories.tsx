@@ -443,7 +443,7 @@ const PASTE_LINK_NOTE =
 export const PasteLinkOnLinkDevices = () => (
   <Screen
     title='Paste link'
-    bar='Link devices'
+    bar=''
     figma='—'
     note={PASTE_LINK_NOTE}
     render={() => (
@@ -471,7 +471,7 @@ export const PasteLinkNotADeviceLink = () => (
   <SubmitOnMount link={SAMPLE_MEMBER_LINK}>
     <Screen
       title='Paste link · not a device link'
-      bar='Link devices'
+      bar=''
       figma='—'
       note={`${PASTE_LINK_NOTE}; the sample member link was pasted and submitted — the error copy is undesigned`}
       render={() => (
@@ -622,8 +622,8 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   linkDevices: { title: 'Link devices', bar: '', left: 'back' },
   displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'close' },
   scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
-  pasteFromScan: { title: 'Paste a link to Join', bar: 'Scan QR code', left: 'back' },
-  pasteLinkDevice: { title: 'Paste a link to Join', bar: 'Link devices', left: 'back' },
+  pasteFromScan: { title: 'Paste a link to Join', bar: '', left: 'back' },
+  pasteLinkDevice: { title: 'Paste a link to Join', bar: '', left: 'back' },
 }
 
 const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromScan', 'pasteLinkDevice']

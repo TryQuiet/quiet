@@ -25,17 +25,14 @@ const logger = createLogger('LinkDevices')
 type Step = 'entry' | 'display' | 'scan' | 'paste' | 'pasteLink'
 
 /**
- * Title bar text per step, from the prototype's frames (2811:2575, 2811:2601, 2811:2587).
- * Link devices is a full-screen h1 stage: the frame hides the bar's title (and the
- * Device-linking desktop frame 879:20987 draws dots, arrow, then the h1) — only the back
- * glyph, the h1 is the title. Sheets keep a titled bar.
+ * Only the sheets keep a titled bar (2811:2601 "QR code", 2811:2587 "Scan QR code").
+ * Link devices and the paste step are full-screen h1 stages: the frames hide the bar's
+ * title (the Device-linking desktop frame 879:20987 draws dots, arrow, then the h1) —
+ * only the glyph, the h1 is the title.
  */
-const TITLES: Record<Step, string> = {
-  entry: '',
+const TITLED_STEPS: Partial<Record<Step, string>> = {
   display: 'QR code',
   scan: 'Scan QR code',
-  paste: 'Scan QR code',
-  pasteLink: 'Link devices',
 }
 
 const PASTE_STEPS: Step[] = ['paste', 'pasteLink']
@@ -108,7 +105,7 @@ export const LinkDevices: React.FC = () => {
     <Modal
       open={linkDevicesModal.open}
       handleClose={isSheet ? () => setStep('entry') : linkDevicesModal.handleClose}
-      title={TITLES[step]}
+      title={TITLED_STEPS[step] ?? ''}
       canGoBack={!isSheet}
       handleBack={handleBack}
       alignCloseLeft

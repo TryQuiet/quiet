@@ -89,10 +89,10 @@ describe('PasteInviteLinkScreen', () => {
       params: { variant: 'pasteDeviceLink' },
     }
 
-    it('shows the paste step under the Link devices title', async () => {
+    it('shows the paste step with no bar title (an h1 screen)', async () => {
       const { result } = await renderReadyScreen(pasteLinkRoute)
 
-      expect(result.getByText('Link devices')).toBeTruthy()
+      expect(result.queryByText('Link devices')).toBeNull()
       expect(result.getByText('Paste a link to Join')).toBeTruthy()
       expect(result.getByPlaceholderText('Link')).toBeTruthy()
     })

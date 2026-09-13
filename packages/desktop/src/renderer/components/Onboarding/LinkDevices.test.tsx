@@ -104,7 +104,7 @@ describe('Link devices → Scan QR code', () => {
 })
 
 describe('Link devices → Paste link', () => {
-  it('opens the paste step under the Link devices title, and a device link links this device', async () => {
+  it('opens the paste step with no bar title (an h1 screen), and a device link links this device', async () => {
     const { store } = await prepareStore(openState())
     const dispatchSpy = jest.spyOn(store, 'dispatch')
 
@@ -112,7 +112,7 @@ describe('Link devices → Paste link', () => {
 
     await userEvent.click(screen.getByTestId('link-devices-paste-link'))
     expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
-    expect(screen.getByText('Link devices')).toBeVisible() // the title bar
+    expect(screen.queryByText('Link devices')).not.toBeInTheDocument() // no bar title: the h1 is the title
     expect(screen.queryByTestId('link-devices-scanner-viewfinder')).not.toBeInTheDocument()
 
     await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)

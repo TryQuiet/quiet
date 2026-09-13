@@ -18,7 +18,11 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('joinCommunity:component')
 
-/** Title bar · heading · intro per flow. Copy is the prototype's. */
+/**
+ * Title bar · heading · intro per flow. Copy is the prototype's. `titleHidden`: a
+ * full-screen h1 stage — the bar shows the glyph alone, the h1 is the title (the rule
+ * applies to every paste step; the other variants are the parity pass's job).
+ */
 const COPY = {
   inviteLink: { title: 'Join with invite link', heading: 'Paste a link to Join', intro: undefined },
   qrCode: { title: 'Join with QR code', heading: 'Join with QR code', intro: undefined },
@@ -28,7 +32,7 @@ const COPY = {
     intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
   },
   /** Link devices → Paste link (user addition, 2026-09-13): the paste step under the Link devices title. */
-  pasteDeviceLink: { title: 'Link devices', heading: 'Paste a link to Join', intro: undefined },
+  pasteDeviceLink: { title: 'Link devices', heading: 'Paste a link to Join', intro: undefined, titleHidden: true },
 } as const
 
 /** The Link devices flow's variants: only a device link is accepted there. */
@@ -120,7 +124,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
           testID={'join-community-component'}
         >
-          <Appbar title={copy.title} back={handleBackButton} />
+          <Appbar title={copy.title} back={handleBackButton} withoutTitle={'titleHidden' in copy && copy.titleHidden} />
           <KeyboardAvoidingView
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
