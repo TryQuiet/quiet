@@ -13,8 +13,10 @@ import Modal from '../ui/Modal/Modal'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
+import { ConfirmationToast } from '../ui/ConfirmationToast/ConfirmationToast'
 import { DisplayQrCode } from './DisplayQrCode'
 import { LinkDevicesComponent } from './LinkDevicesComponent'
+import { useCopyDeviceLink } from './useCopyDeviceLink'
 import { PasteLinkComponent } from './PasteLinkComponent'
 import { QrScannerComponent } from './qrScanner/QrScannerComponent'
 import { createLogger } from '../../logger'
@@ -48,12 +50,11 @@ export const SCAN_QR_CODE_INTRO =
   'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /**
- * Link devices, reached from Get started. "Display QR code" shows the QR code
- * sheet (2811:2601) — a link can only be minted from inside a community, so the
- * row is disabled until there is one; the sheet's close returns here. "Scan QR
- * code" opens the camera, and offers the paste field when it cannot; "Paste
- * link" opens the same paste field directly. Pasted here, only a device link is
- * accepted — a member link shows an error under the input.
+ * Link devices, reached from Get started (receive: "Scan QR code" opens the camera
+ * and offers the paste field when it cannot, "Paste link" opens that field directly;
+ * pasted here only a device link is accepted) and, inside a community, from Settings
+ * (share: "Display QR code" shows the QR code sheet 2811:2601, whose close returns
+ * here; "Copy link" copies the same one-time link and confirms).
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
@@ -69,6 +70,9 @@ export const LinkDevices: React.FC = () => {
 
   const [step, setStep] = useState<Step>('entry')
   const [revealInputValue, setRevealInputValue] = useState(false)
+  // Inside a community this device shares (Display QR code, Copy link); without one it receives.
+  const direction = currentCommunity ? 'share' : 'receive'
+  const copyLink = useCopyDeviceLink(linkDevicesModal.open && step === 'entry' && direction === 'share')
 
   useEffect(() => {
     setStep(linkDevicesModal.open ? initialStep : 'entry')
@@ -127,13 +131,19 @@ export const LinkDevices: React.FC = () => {
       zIndex={1300}
     >
       {step === 'entry' ? (
-        <LinkDevicesComponent
-          onDisplayQrCode={() => setStep('display')}
-          onScanQrCode={() => setStep('scan')}
-          onPasteLink={() => setStep('pasteLink')}
-          canDisplayQrCode={Boolean(currentCommunity)}
-          linkedDevices={linkedDevices}
-        />
+        <>
+          <LinkDevicesComponent
+            direction={direction}
+            onDisplayQrCode={() => setStep('display')}
+            deviceLink={copyLink.deviceLink}
+            onCopyLink={copyLink.onCopyLink}
+            onLinkCopied={copyLink.onLinkCopied}
+            onScanQrCode={() => setStep('scan')}
+            onPasteLink={() => setStep('pasteLink')}
+            linkedDevices={linkedDevices}
+          />
+          <ConfirmationToast open={copyLink.copied} message={'Copied'} onClose={copyLink.dismissCopied} />
+        </>
       ) : null}
       {step === 'display' ? <DisplayQrCode dataTestId='link-devices-display' /> : null}
       {step === 'scan' ? (

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
-import Snackbar from '@mui/material/Snackbar'
 import Typography from '@mui/material/Typography'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import QR from 'react-qr-code'
 
 import { ActionProgress } from '../ui/ActionProgress/ActionProgress'
+import { ConfirmationToast } from '../ui/ConfirmationToast/ConfirmationToast'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { OnboardingBody } from './OnboardingBody'
 import { TextLink } from './OpenInviteLinkComponent'
@@ -142,12 +142,10 @@ export const DisplayQrCodeComponent: React.FC<DisplayQrCodeComponentProps> = ({
           </>
         ) : null}
       </Root>
-      <Snackbar
+      <ConfirmationToast
         open={copied}
-        autoHideDuration={2000}
-        onClose={() => setCopied(false)}
         message={DISPLAY_QR_CODE_COPY.copied}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        onClose={() => setCopied(false)}
         data-testid='link-copied'
       />
     </OnboardingBody>

@@ -76,9 +76,10 @@ const QRCode: FC = () => {
 
 const LinkedDevices: FC = () => (
   <LinkDevicesComponent
+    direction='share'
     onDisplayQrCode={() => {}}
-    onScanQrCode={() => {}}
-    onPasteLink={() => {}}
+    deviceLink={invitationLink}
+    onLinkCopied={() => {}}
     linkedDevices={[{ deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false }]}
   />
 )

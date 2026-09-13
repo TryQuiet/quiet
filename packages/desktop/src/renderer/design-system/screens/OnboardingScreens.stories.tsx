@@ -58,7 +58,7 @@ const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
 
 const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
-/** The third row is not in 2811:2575: the user asked for it on 2026-09-13; its label is undesigned. */
+/** The rows follow the direction (user decision, 2026-09-13); the link-glyph rows' labels are undesigned. */
 const LINK_DEVICES_NOTE =
   "rows in the bordered group and the Linked devices list per 2811:2575 and the Device-linking desktop frames (3RcrYKRTiFY87TpFSqZyj4 879:20987 / 880:17196); the Paste link row is a user addition (2026-09-13) with the library link glyph, its label undesigned; the frames' trash glyph is not drawn (no device removal yet)"
 
@@ -392,19 +392,20 @@ export const CreateCommunity = () => (
 
 export const LinkDevices = () => (
   <Screen
-    title='Link devices'
+    title='Link devices · in a community (share)'
     bar=''
     figma='2811:2575'
-    note={LINK_DEVICES_NOTE}
+    note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same one-time link the QR sheet shows), the receive rows are not drawn`}
     exports={LINK_DEVICES_EXPORTS(
       desktopLinkDevicesWithLinkedExport,
       'figma · Device linking 880:17196 (desktop, 715)'
     )}
     render={() => (
       <LinkDevicesComponent
+        direction='share'
         onDisplayQrCode={noop}
-        onScanQrCode={noop}
-        onPasteLink={noop}
+        deviceLink={SAMPLE_DEVICE_LINK}
+        onLinkCopied={noop}
         linkedDevices={[
           { deviceId: 'this', deviceName: 'this device', isCurrent: true },
           { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
@@ -416,19 +417,13 @@ export const LinkDevices = () => (
 
 export const LinkDevicesEmpty = () => (
   <Screen
-    title='Link devices · no linked devices'
+    title='Link devices · no community (receive)'
     bar=''
     figma='2811:2575'
-    note={`${LINK_DEVICES_NOTE}; Display QR code is disabled without a community, as on mobile`}
+    note={`${LINK_DEVICES_NOTE}; without a community this device receives: Scan QR code and Paste link, the share rows are not drawn`}
     exports={LINK_DEVICES_EXPORTS(desktopLinkDevicesExport, 'figma · Device linking 879:20987 (desktop, 715)')}
     render={() => (
-      <LinkDevicesComponent
-        onDisplayQrCode={noop}
-        onScanQrCode={noop}
-        onPasteLink={noop}
-        canDisplayQrCode={false}
-        linkedDevices={[]}
-      />
+      <LinkDevicesComponent direction='receive' onScanQrCode={noop} onPasteLink={noop} linkedDevices={[]} />
     )}
   />
 )
@@ -531,9 +526,10 @@ export const SettingsLinkedDevices = () => (
     note='the in-app entry (the Device-linking file’s Entry points board): the Settings tab shows the same Link devices content with the community’s device list, Display QR code enabled; each row opens the Link devices modal at its step'
     render={() => (
       <LinkDevicesComponent
+        direction='share'
         onDisplayQrCode={noop}
-        onScanQrCode={noop}
-        onPasteLink={noop}
+        deviceLink={SAMPLE_DEVICE_LINK}
+        onLinkCopied={noop}
         linkedDevices={[
           { deviceId: 'this', deviceName: 'this device', isCurrent: true },
           { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
@@ -738,7 +734,7 @@ const WalkthroughStory = () => {
       case 'linkDevices':
         return (
           <LinkDevicesComponent
-            onDisplayQrCode={() => go('displayQrCode')}
+            direction='receive'
             onScanQrCode={() => go('scanQrCode')}
             onPasteLink={() => go('pasteLinkDevice')}
             linkedDevices={WALKTHROUGH_DEVICES}

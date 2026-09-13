@@ -198,13 +198,15 @@ describe('Link devices → Paste link', () => {
 })
 
 describe('Link devices → Display QR code', () => {
-  it('is disabled without a community', async () => {
+  it('without a community this device receives: Scan QR code and Paste link, no share rows', async () => {
     const { store } = await prepareStore(openState())
 
     renderComponent(<LinkDevices />, store)
 
-    expect(screen.getByTestId('link-devices-display-qr')).toHaveAttribute('aria-disabled', 'true')
-    expect(screen.getByTestId('link-devices-rows')).toBeVisible()
+    expect(screen.getByTestId('link-devices-scan-qr')).toBeVisible()
+    expect(screen.getByTestId('link-devices-paste-link')).toBeVisible()
+    expect(screen.queryByTestId('link-devices-display-qr')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('link-devices-copy-link')).not.toBeInTheDocument()
     expect(screen.getByTestId('no-linked-devices')).toHaveTextContent('No linked devices')
   })
 

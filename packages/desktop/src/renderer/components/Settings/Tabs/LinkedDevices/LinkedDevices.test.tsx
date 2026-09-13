@@ -23,9 +23,12 @@ describe('Settings → Linked devices', () => {
     const result = renderComponent(<LinkedDevices />, store)
 
     expect(dispatch).toHaveBeenCalledWith(connection.actions.getLinkedDevices())
+    expect(dispatch).toHaveBeenCalledWith(connection.actions.createDeviceLink()) // Copy link's link, minted up front
     expect(result.getByTestId('link-devices')).toBeVisible()
-    expect(result.getByTestId('link-devices-display-qr')).not.toHaveAttribute('aria-disabled', 'true')
-    expect(result.getByTestId('link-devices-paste-link')).toBeVisible()
+    expect(result.getByTestId('link-devices-display-qr')).toBeVisible()
+    expect(result.getByTestId('link-devices-copy-link')).toBeVisible()
+    expect(result.queryByTestId('link-devices-scan-qr')).toBeNull()
+    expect(result.queryByTestId('link-devices-paste-link')).toBeNull()
     expect(result.getByTestId('no-linked-devices')).toBeVisible()
     expect(result.queryByTestId('copy-device-link')).toBeNull() // no QR here: it lives in the sheet
 
@@ -58,20 +61,33 @@ describe('Settings → Linked devices', () => {
     expect(dispatch).toHaveBeenCalledWith(
       modalsActions.openModal({ name: ModalName.linkDevicesModal, args: { step: 'display' } })
     )
-
-    await userEvent.click(result.getByTestId('link-devices-paste-link'))
-    expect(dispatch).toHaveBeenCalledWith(
-      modalsActions.openModal({ name: ModalName.linkDevicesModal, args: { step: 'pasteLink' } })
-    )
   })
 
-  it('without a community it neither asks for a device list nor enables Display QR code', async () => {
+  it('Copy link before the link exists asks for one; with a link it copies and confirms', async () => {
+    const { store } = await prepareStore()
+    const factory = await getReduxStoreFactory(store)
+    const community = await factory.create('Community', { name: 'devices' })
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+    const dispatch = jest.spyOn(store, 'dispatch')
+
+    const result = renderComponent(<LinkedDevices />, store)
+    dispatch.mockClear()
+
+    // Without peers the selector composes no URL: the click only asks for a link
+    await userEvent.click(result.getByTestId('link-devices-copy-link'))
+    expect(dispatch).toHaveBeenCalledWith(connection.actions.createDeviceLink())
+    expect(result.queryByText('Copied')).toBeNull()
+  })
+
+  it('without a community it receives (Scan / Paste rows) and asks for nothing', async () => {
     const { store } = await prepareStore()
     const dispatch = jest.spyOn(store, 'dispatch')
 
     const result = renderComponent(<LinkedDevices />, store)
 
     expect(dispatch).not.toHaveBeenCalledWith(connection.actions.getLinkedDevices())
-    expect(result.getByTestId('link-devices-display-qr')).toHaveAttribute('aria-disabled', 'true')
+    expect(dispatch).not.toHaveBeenCalledWith(connection.actions.createDeviceLink())
+    expect(result.queryByTestId('link-devices-display-qr')).toBeNull()
+    expect(result.getByTestId('link-devices-scan-qr')).toBeVisible()
   })
 })
