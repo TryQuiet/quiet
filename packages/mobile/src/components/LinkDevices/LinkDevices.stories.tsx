@@ -5,6 +5,7 @@ import { LinkDevices } from './LinkDevices.component'
 
 const actions = {
   onDisplayQrCode: storybookLog('Display QR code'),
+  onCopyLink: storybookLog('Copy link'),
   onScanQrCode: storybookLog('Scan QR code'),
   onPasteLink: storybookLog('Paste link'),
   handleBackButton: storybookLog('Back'),
@@ -12,9 +13,10 @@ const actions = {
 
 // Link devices (2811:2575; Device-linking file 879:15644 with linked devices, 879:15640 without).
 storiesOf('LinkDevices', module)
-  .add('In app, with linked devices', () => (
+  .add('In a community (share: Display QR code, Copy link)', () => (
     <LinkDevices
       {...actions}
+      direction='share'
       linkedDevices={[
         { deviceId: 'this', deviceName: 'this phone', isCurrent: true },
         { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
@@ -22,7 +24,6 @@ storiesOf('LinkDevices', module)
       ]}
     />
   ))
-  .add('In app, without linked devices', () => <LinkDevices {...actions} linkedDevices={[]} />)
-  .add('From Get started (no community)', () => (
-    <LinkDevices {...actions} canDisplayQrCode={false} linkedDevices={[]} />
+  .add('No community (receive: Scan QR code, Paste link)', () => (
+    <LinkDevices {...actions} direction='receive' linkedDevices={[]} />
   ))

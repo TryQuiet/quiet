@@ -24,15 +24,16 @@ const card = {
  * divider); the rows in the bordered group, then the Linked devices list — an overline
  * heading over a bordered card; "No linked devices" 14/20 #767676 when empty, else one
  * row per device (name over "Active"). The frames' trash glyph is not drawn: #3400 ships
- * no device removal. Plus a third Button row, "Paste link", the user asked for on
- * 2026-09-13: the same row as the two above it, with the library's link glyph (the one
- * Join with invite link uses on 2811:2562). Its label is not the designer's.
+ * no device removal. The rows follow the direction (LinkDevicesDirection); Copy link and
+ * Paste link carry the library's link glyph (the one Join with invite link uses on
+ * 2811:2562), their labels are not the designer's (user decisions, 2026-09-13).
  */
 export const LinkDevices: FC<LinkDevicesProps> = ({
+  direction,
   onDisplayQrCode,
+  onCopyLink,
   onScanQrCode,
   onPasteLink,
-  canDisplayQrCode = true,
   linkedDevices,
   handleBackButton,
 }) => {
@@ -52,26 +53,39 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
           </Typography>
         </View>
         <View style={{ ...card, paddingHorizontal: spacing.lg }} testID={'link-devices-rows'}>
-          <ActionRow
-            icon={<QrDisplayIcon />}
-            label={'Display QR code'}
-            onPress={onDisplayQrCode}
-            disabled={!canDisplayQrCode}
-            testID={'link-devices-display-qr'}
-          />
-          <ActionRow
-            icon={<QrScanIcon />}
-            label={'Scan QR code'}
-            onPress={onScanQrCode}
-            testID={'link-devices-scan-qr'}
-          />
-          <ActionRow
-            icon={<InviteLinkIcon />}
-            label={'Paste link'}
-            onPress={onPasteLink}
-            divider={false}
-            testID={'link-devices-paste-link'}
-          />
+          {direction === 'share' ? (
+            <>
+              <ActionRow
+                icon={<QrDisplayIcon />}
+                label={'Display QR code'}
+                onPress={onDisplayQrCode}
+                testID={'link-devices-display-qr'}
+              />
+              <ActionRow
+                icon={<InviteLinkIcon />}
+                label={'Copy link'}
+                onPress={onCopyLink}
+                divider={false}
+                testID={'link-devices-copy-link'}
+              />
+            </>
+          ) : (
+            <>
+              <ActionRow
+                icon={<QrScanIcon />}
+                label={'Scan QR code'}
+                onPress={onScanQrCode}
+                testID={'link-devices-scan-qr'}
+              />
+              <ActionRow
+                icon={<InviteLinkIcon />}
+                label={'Paste link'}
+                onPress={onPasteLink}
+                divider={false}
+                testID={'link-devices-paste-link'}
+              />
+            </>
+          )}
         </View>
         <View testID={'linked-devices-list'}>
           <Typography
