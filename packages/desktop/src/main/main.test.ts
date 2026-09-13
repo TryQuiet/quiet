@@ -4,7 +4,7 @@ import * as main from './main'
 import * as backendHelpers from './backendHelpers'
 
 import { autoUpdater } from 'electron-updater'
-import { BrowserWindow, app, ipcMain, Menu } from 'electron'
+import { BrowserWindow, app, ipcMain, Menu, session } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
 import { composeInvitationDeepUrl, getValidInvitationUrlTestData, validInvitationCodeTestData } from '@quiet/common'
@@ -118,6 +118,16 @@ jest.mock('electron', () => {
       handle: jest.fn(),
       removeListener: jest.fn(),
     },
+    session: {
+      defaultSession: {
+        setPermissionRequestHandler: jest.fn(),
+        setPermissionCheckHandler: jest.fn(),
+      },
+    },
+    systemPreferences: {
+      askForMediaAccess: jest.fn(),
+      getMediaAccessStatus: jest.fn(),
+    },
   }
 })
 
@@ -142,6 +152,12 @@ describe('electron app ready event', () => {
   it('application will trigger ready event, next run listener function of ready event', async () => {
     expect(mockAppOnCalls[2][0]).toBe('ready')
     await mockAppOnCalls[2][1]()
+  })
+
+  it('narrows the media permission to the camera once the window exists', async () => {
+    expect(session.defaultSession.setPermissionRequestHandler).toHaveBeenCalledTimes(1)
+    expect(session.defaultSession.setPermissionCheckHandler).toHaveBeenCalledTimes(1)
+    expect((ipcMain.handle as jest.Mock).mock.calls.some(call => call[0] === 'camera:request-access')).toBe(true)
   })
 
   it('application menu will set one time as null - remove menu bar', async () => {
