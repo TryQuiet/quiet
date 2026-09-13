@@ -111,7 +111,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Quiet"
+    "text": null,
+    "hiddenTitle": "Quiet"
    },
    "links": [
     {
@@ -168,7 +169,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -225,7 +227,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Link devices"
+    "text": null,
+    "hiddenTitle": "Link devices"
    },
    "links": [
     {
@@ -330,7 +333,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Join with invite link"
+    "text": null,
+    "hiddenTitle": "Join with invite link"
    },
    "links": [
     {
@@ -370,7 +374,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Join with QR code"
+    "text": "Join with QR code",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -400,7 +405,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Account recovery"
+    "text": null,
+    "hiddenTitle": "Account recovery"
    },
    "links": [
     {
@@ -448,7 +454,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "QR code"
+    "text": "QR code",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -498,7 +505,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Scan QR code"
+    "text": "Scan QR code",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -528,7 +536,8 @@
    "note": "Designer's work in progress: this frame is create--default duplicated with only the heading changed to 'Paste a link to Join' and the input placeholder to 'Link'. Title bar, subtitle and the avatar upload are unchanged.",
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -558,7 +567,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Crop  photo"
+    "text": "Crop  photo",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -597,7 +607,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -636,7 +647,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -675,7 +687,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Create a community"
+    "text": null,
+    "hiddenTitle": "Create a community"
    },
    "links": [
     {
@@ -714,7 +727,8 @@
    "note": "A canvas-level instance rather than a frame — what username-populated's Continue goes to. The prototype goes straight to the community after username; the implementation inserts ToS / captcha here when a server is involved.",
    "titleBar": {
     "height": 64,
-    "text": "nyc-activism"
+    "text": "nyc-activism",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -785,7 +799,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Communities"
+    "text": null,
+    "hiddenTitle": "Communities"
    },
    "links": [
     {
@@ -869,7 +884,8 @@
    "note": "In the prototype this is reached after username → Community home → Community switcher, i.e. once the community exists. Both apps show the equivalent offer during community creation (ServerOffer) instead.",
    "titleBar": {
     "height": 60,
-    "text": "Add members"
+    "text": null,
+    "hiddenTitle": "Add members"
    },
    "links": [
     {
@@ -917,7 +933,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Choose server plan"
+    "text": "Choose server plan",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1021,7 +1038,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": null
+    "text": null,
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1060,7 +1078,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Agree & join"
+    "text": "Agree & join",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1117,7 +1136,8 @@
    "note": "Open issues on the implementation: #3428 'Reappearing captcha' (9.0.0 prod, Windows/Linux, intermittent — the captcha closes, the new community shows, then the captcha returns; less likely if you wait before clicking) and #3368 (offline: no loading or timeout message, and a 'joining' screen while creating).",
    "titleBar": {
     "height": 60,
-    "text": "CAPTCHA"
+    "text": "CAPTCHA",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1156,7 +1176,8 @@
    "note": null,
    "titleBar": {
     "height": 64,
-    "text": "nyc-activism"
+    "text": "nyc-activism",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1236,7 +1257,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "Add members"
+    "text": "Add members",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1275,7 +1297,8 @@
    "note": null,
    "titleBar": {
     "height": 60,
-    "text": "QR code"
+    "text": "QR code",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1305,7 +1328,8 @@
    "note": "'v1 before we support multiple hosts' — joiner-side agree screen. Not linked from Open invite link or username in the prototype. The implementation shows JoiningOptIn + TermsOfService after username.",
    "titleBar": {
     "height": 60,
-    "text": "Use Quiet’s server?"
+    "text": "Use Quiet’s server?",
+    "hiddenTitle": null
    },
    "links": [
     {
@@ -1332,15 +1356,5 @@
    "export": "AgreeAndJoinV_1BeforeWeSupportMultipleHosts"
   }
  ],
- "mapId": "onboarding-flow--all-stages",
- "desktopApp": {
-  "png": "desktop-community-home-empty.png",
-  "node": "1430:48044",
-  "width": 740,
-  "height": 800,
-  "stretch": {
-   "col": 600,
-   "right": 690
-  }
- }
+ "mapId": "onboarding-flow--all-stages"
 }

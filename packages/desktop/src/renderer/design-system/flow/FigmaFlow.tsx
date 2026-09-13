@@ -13,7 +13,7 @@ export interface FlowFrame {
   section: string
   width: number; height: number; png: string; url: string; note?: string | null
   /** The frame's own title bar, if it has one: its height (to crop when composed into the desktop shell) and its title text. */
-  titleBar?: { height: number; text: string | null; removed?: boolean } | null
+  titleBar?: { height: number; text: string | null; removed?: boolean; /** the frame's title text when the designer hid it (full-screen h1 stages) */ hiddenTitle?: string | null } | null
   /** Shadow margin the Figma export carries beyond the frame's box (effects render into exports); painted at natural size, offset by it. */
   pad?: { x: number; y: number } | null
   /** The designer's desktop frame for this stage (gen.cjs DESKTOP): 'app' = 740 split view (stretched beyond 740 only in its plain column), 'modal' = card over the desktop home with a scrim, 'content' = 715 content in the shell. Absent = mobile content in the shell. */
@@ -194,7 +194,7 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
         {[0, 1, 2].map(i => <span key={i} style={{ width: 12, height: 12, borderRadius: 6, background: '#C4C4C4', display: 'inline-block' }} />)}
       </div>
       {/* title bar: back arrow + centered title, divider below (absent when the stage's bar was removed) */}
-      {!noBar && <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, boxSizing: 'border-box', background: '#fff', borderBottom: '1px solid #E5E5E5' }}>
+      {!noBar && <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, boxSizing: 'border-box', background: '#fff', borderBottom: title ? '1px solid #E5E5E5' : 'none' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" style={{ position: 'absolute', left: shell.backZone.x + 2, top: shell.backZone.y - shell.titleBar.y + 2 }} aria-hidden="true">
           <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#171B12" />
         </svg>
