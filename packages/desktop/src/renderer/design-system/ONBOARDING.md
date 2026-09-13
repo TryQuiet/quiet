@@ -1,6 +1,6 @@
 # Onboarding — design spec for implementation
 
-Generated 2026-09-11 from the Figma prototype **Get started (prototype)** (`f6Nr5b5wtvk6Xoh1HJZ8Dd`, last edited 2026-04-14) and the shipping code on branch `design/storybook-grid`. Every string under *Copy* is the designer's text node, verbatim. Nothing here is invented; where the design is silent it says so.
+Generated 2026-09-11 from the Figma prototype **Get started (prototype)** (`f6Nr5b5wtvk6Xoh1HJZ8Dd`, last edited 2026-04-14) and the shipping code on branch `design/storybook-grid`. Extended 2026-09-13 with the join tail of a second prototype, **Join from invite link + prototype** (`dSEZJr9crJjcV3ILogea9C`, page *Draft 1* `7:2510`, last edited 2025-02-04) — see *Join from invite link* below. Every string under *Copy* is the designer's text node, verbatim. Nothing here is invented; where the design is silent it says so.
 
 ## Framing (decided 2026-09-12)
 
@@ -24,7 +24,7 @@ Storybook **is the new design library**, being rebuilt from this spec: one desig
 
 ## The flow as the prototype wires it
 
-24 of 25 screens are one connected graph from Get started (44 prototype links, 15 inferred back/close, 1 added); the 25th is the joiner-side v1 agree screen, unwired by design. Ids are the Storybook story ids under `Onboarding flow`.
+30 screens across the two prototype files. 24 of the Get started file's 25 are one connected graph from Get started; the 25th is the joiner-side v1 agree screen, unwired by design. The other five come from *Join from invite link* and hang off the paste screen by an added link. 47 prototype links, 16 inferred back/close, 3 added. Ids are the Storybook story ids under `Onboarding flow`. The back/close inference now skips glyphs the designer hid, which dropped two hotspots that pointed at nothing: the entry screen's bar (`2811:2550`) has no visible back arrow, and the community switcher's second, hidden title bar drew a second one.
 
 ```
 Get started ─┬─ Join community ─┬─ Open invite link ─(added)─ Paste a link to Join (frame 'Container', WIP)
@@ -36,6 +36,9 @@ Get started ─┬─ Join community ─┬─ Open invite link ─(added)─ Pa
              └─ Link devices ─┬─ Sheet: QR code (display)
                               └─ Sheet: Scan QR code
 Agree-and-join (v1, joiner) ─ Captcha          ← drawn, not linked from anywhere
+
+Paste a link to Join ─(added)─ Choose a username (join) ─ — name typed ─ Agree & join (joiner) ─ Joining now!   ← second file
+Starting Quiet                                 ← second file, app start, not wired to anything in scope
 ```
 
 **Where QSS fits, per the design:** creator-side, *after* the community exists (Community home → switcher → Want a server?). Both apps show the offer *during* creation and the joiner ToS *after* username. This is a product decision to make explicitly; phase 1 keeps the shipping timing and records the disagreement.
@@ -461,6 +464,113 @@ Goes to: Glyph → choose-a-plan [prototype]; Frame 1612 → captcha-3054-4052 [
 Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx`
 
 
+### Join from invite link — second prototype (added 2026-09-13)
+
+File **Join from invite link + prototype** (`dSEZJr9crJjcV3ILogea9C`), page *Draft 1* (`7:2510`), section *Prototype: Join + Recover* (`2873:5377`). It draws the join path **after** the invite link is pasted — which the Get started prototype stops short of. Scope, per the user: the username screens, the Agree & join screen and the joining-progress screen; account recovery is out. The file's other four sections are screenshots of WhatsApp, a browser and two phones, not Quiet screens.
+
+Five stages, wired by the file's own prototype links: *Choose a username (join)* → *— name typed* → *Agree & join (joiner)* → *Joining now!*, with *Starting Quiet* standing alone. One **added** link joins the cluster to the rest of the flow — the paste screen's Continue button (`3190:10901`, in the Get started file) → `2811:2741` — because neither file wires the paste step to anything.
+
+Not included (`flow/extract.py`, per-file `exclude`; also listed under the section in *— all stages —*):
+
+| node | frame | why |
+|---|---|---|
+| `2811:2732` | recovery-unpopulated | account recovery — out of scope (user, 2026-09-13) |
+| `2811:2688` | recovery-populated 1 | account recovery, key pasted |
+| `2811:2704` | recovery-populated-2 | account recovery, second state |
+| `2811:2660` | recovery-populated-3 | account recovery, third state |
+| `2811:2757` | Join community | the Get started file's own `join-community` (`2811:2562`) is already a stage |
+| `2811:2769` | Community home | already a stage from the Get started file (`2811:2370`) |
+| `2811:2781` | Invite link page | the web invite-link landing page, in a browser |
+| `2811:2821` | Frame 1703 | a screenshot of the invite link in a browser |
+
+Two prototype links point into excluded screens and are dropped, not re-pointed: *Joining now!* → Community home (`2811:2769`) and *Starting Quiet* → Join community (`2811:2757`).
+
+### Choose a username (join)  ·  `username-unpopulated`
+Figma frame `Username-unpopulated` · Section: Join from invite link · 375×679 · node `2811:2741` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2811-2741)
+
+Copy:
+- Choose a username
+- Enter username
+- Username
+- Your username is only visible in this community. No spaces or special characters.
+- Continue
+
+Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Input3.0 (1), Input title (1)
+Goes to: Search input → username-populated-2811-2749 [prototype]; Glyph → back [back]
+Implemented by: desktop `CreateUsername/CreateUsernameComponent.tsx` · mobile `Registration/UsernameRegistration.component.tsx`
+
+Notes, against the create-side *Choose username* (`2811:2371`):
+- The bar title **is** shown here, with its divider (`I2811:2744;3606:13264;3606:13770`) — the bar-title decision already carves the username screen out of the hide-the-title rule, and this frame is why.
+- Different helper copy: "Your username is only visible in this community." against the create-side "Your username will be public…". Both apps ship the create-side string.
+- The label above the input reads *Enter username*, not *Enter a username*, and it is **visible** here (hidden on the create side).
+- The input carries a visibility (eye-slash) icon at its right (`I2811:2746;5077:43540`). Nothing in the flow acts on it and a username is not a secret; treat it as a leftover of the Input3.0 instance unless the designer says otherwise.
+- Continue is drawn disabled (30%) until a name is typed, matching the create side.
+
+### Choose a username (join) — name typed  ·  `username-populated-2811-2749`
+Figma frame `Username-populated` · Section: Join from invite link · 375×679 · node `2811:2749` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2811-2749)
+
+Copy:
+- Choose a username
+- Enter username
+- Julie
+- Your username is only visible in this community. No spaces or special characters.
+- Continue
+
+Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Input3.0 (1), Input title (1)
+Goes to: Frame 1611 → agree-and-join [prototype]; Glyph → back [back]
+Implemented by: desktop `CreateUsername/CreateUsernameComponent.tsx` · mobile `Registration/UsernameRegistration.component.tsx`
+
+The input is drawn focussed (blue 1px border) and Continue is at full strength. Its Continue is wired to Agree & join, so in this prototype the joiner consents **after** choosing a username — which is where mobile already shows JoiningOptIn + TermsOfService.
+
+### Agree & join (joiner)  ·  `agree-and-join`
+Figma frame `agree-and-join` · Section: Join from invite link · 375×667 · node `2811:2724` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2811-2724)
+
+Copy:
+- Agree & join
+- This community uses a server (api.tryquiet.org) for messaging without Tor. By joining you agree to this Privacy Policy and Terms of Use.
+- Agree & Join
+
+Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Button (1), arrow-up (1)
+Goes to: Frame 1612 → globe-animation [prototype]; Glyph → back [back]
+Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx`
+
+The third and newest of three agree screens in the designs, and the only one wired into a join path:
+- this one — titled bar *Agree & join*, one paragraph naming the host (`api.tryquiet.org`), one button;
+- *Agree & join — server opt-in* (`3054:4090`) — creator-side, reached from Choose a plan;
+- *Use Quiet's server? (v1)* (`3111:4339`) — "v1 before we support multiple hosts", unwired.
+
+The host is written into the copy as a literal domain. The implementation has no such string; if this copy ships, the domain has to come from the invite, not from a constant. "Privacy Policy and Terms of Use" is drawn underlined as one link (`2811:2729`) — one target for two documents, which the designer has not resolved.
+
+### Joining now!  ·  `globe-animation`
+Figma frame `Globe animation` · Section: Join from invite link · 375×667 · node `2894:3382` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2894-3382)
+
+Copy:
+- N
+- nyc-activism
+- Joining now!
+
+Uses: Globe animation (2), Avatar type (2), Spinner (2), Community icon top-level (1), Alpha (1), Scheduled send (1), search (1), Online indicator (1), Globe animation scale (1), Progress bar 2 (1)
+Goes to: — (its own link continues to Community home `2811:2769`, excluded)
+Implemented by: desktop `LoadingPanel/JoiningPanelComponent.tsx` · mobile `ConnectionProcess/ConnectionProcess.component.tsx`
+
+**The QSS progress screen of record** — see *Progress while joining / creating* below. It is an in-app screen, not a modal: the community header (`I2894:3382;5978:19130`, 64 tall, purple, community name + search + avatar) is already drawn, with the globe, the heading and the bar over the empty channel. Desktop is the designer's own Draft-6 frame (`1430:48030`), not this content in the modal shell.
+
+### Starting Quiet  ·  `starting-quiet`
+Figma frame `Starting Quiet` · Section: Join from invite link · 375×667 · node `2811:2770` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2811-2770)
+
+Copy:
+- Quiet
+- Starting Quiet
+- Connecting to Tor...
+
+Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Quiet logo (1), Progress bar 2 (1)
+Goes to: — (its own link returns to Join community `2811:2757`, excluded)
+Implemented by: desktop `LoadingPanel/StartingPanelComponent.tsx` · mobile `Splash/Splash.component.tsx`
+
+App start, not the join step, and kept for one reason: it is the drawn evidence for the **status line under the bar** — bar, *Starting Quiet* (`I2811:2777;5390:19572`), *Connecting to Tor...* (`I2811:2778;832:7718`, 12/16 #7F7F7F). The Tor wording is exactly what the QSS variant drops. Two things to settle:
+- neither app draws this today: desktop's `StartingPanelComponent.tsx` renders only the Quiet logo (its `progressBar` / `progress` styles are declared and never used) and mobile's `Splash.component.tsx` shows the logo with "Starting backend" / "This can take some time";
+- the bar reads **Quiet** (`I2811:2773;3606:13264;3606:13770`), the same header the Get started decision removed as redundant with the window. Worth confirming whether it goes here too.
+
 ### Progress while joining / creating (decided 2026-09-13)
 
 **Rule (user):** joining over **Tor** keeps the existing explanatory screen; joining or creating with **QSS** gets a simpler progress bar. The designs exist and are exported to `figma/progress/`:
@@ -470,11 +580,15 @@ Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `
 | Tor join (mobile) | Quiet Design Library › Content/pages › *Joining now* | `5978:19161` | globe illustration, **Joining now!**, progress bar, the explanation ("You can exit the app - we'll notify you once you're connected! **This first time might take 30 seconds, 10 minutes, or even longer.** There's a good reason why it's slow: Quiet stores data on *your* community's devices (not Big Tech's servers!) and uses the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but can take a long time to connect at first."), link **Learn more about Tor and Quiet** |
 | Tor join, status line | Mobile + desktop + prototypes › Prototype › *Joining* | `1316:34596` | the same inside the community chrome, with a status line under the bar: **Connecting via Tor** |
 | QSS join / create (mobile) | Quiet Design Library › Content/pages › *Joining now* | `5978:19142` | globe, **Joining now!**, progress bar — nothing else |
-| QSS join inside a community | Join from invite link + prototype › *Joining now* | `2894:3382` | the simple variant under the community header |
+| QSS join inside a community | Join from invite link + prototype › *Globe animation* | `2894:3382` | **the variant of record** — the simple variant under the community header; a stage in the flow since 2026-09-13 (`onboarding-flow--globe-animation`) |
 | Desktop (QSS) | Mobile + desktop + prototypes › Draft 6 › Frame 1320 | `1430:48030` | the split view with the sidebar greyed; centered in the chat area a progress bar, **Creating community "Rockets"**, and an optional secondary line ("Additional info if needed can go here otherwise this is hidden") — export `figma/desktop/desktop-creating-community.png` |
-| Components | Library › Info, alerts, banners › *Progress bar 2* `5390:19569`, *Progress-loading-template* `6049:26981` | — | the bar itself: track 300×4 #F0F0F0 r100; fill **teal #67BFD3** as the prototypes draw it (user decision 2026-09-13; the library component's blue #1B6FEC is not used) |
+| Components | Library › Info, alerts, banners › *Progress bar 2* `5390:19569`, *Progress-loading-template* `6049:26981` | — | the bar itself: track 300×4 #F0F0F0 r100; fill **teal #67BFD3** (user decision 2026-09-13). *Progress bar 2* also carries the two text slots under the bar: *Status* `5390:19572` and *Additional info* `5390:19573` |
 
-Implementation mapping: desktop `LoadingPanel/StartingPanelComponent.tsx` and mobile `ConnectionProcess/ConnectionProcess.component.tsx` branch on whether the community uses a server: Tor → the explanatory *Joining now* (+ "Connecting via Tor" status); QSS → the simple bar, and on desktop the Draft-6 layout ("Joining community "X"" / "Creating community "X""). Not designed: an error / timeout state (open bug #3368) — keep the app's existing message. Older draft `1031:42695` ("Joining… can take 10 minutes or more!" with a research prompt) is superseded by the library frames.
+**The QSS screen of record and its status line (user, 2026-09-13).** `2894:3382` is what joining with QSS looks like: the community header already drawn, the globe (`I2894:3382;6110:27667`), **Joining now!** (`I2894:3382;5978:19146`) and the 300×4 bar (`I2894:3382;5978:19147`) over the empty channel. No Tor paragraph, no *Learn more* link. The frame itself draws **no status line** under the bar — keep the one both apps already render, by decision: desktop `LoadingPanel/JoiningPanelComponent.tsx` prints `connectionInfo.text` immediately under the bar, mobile `ConnectionProcess/ConnectionProcess.component.tsx` prints `connectionProcess.text` (`testID='connection-process-text'`, 14/20, 8 under the bar); the strings are the `ConnectionProcessInfo` enum in `packages/types/src/connection.ts`. The design backs that up in three places: the library component's own *Status* / *Additional info* slots (`5390:19572` / `5390:19573`), the desktop Draft-6 frame filling them ("Creating community “Rockets”" `I1430:48025;3816:12490` and "Additional info if needed can go here otherwise this is hidden." `I1430:48025;3816:12495`), and the same prototype's *Starting Quiet* frame (`2811:2770`) drawing bar + status + message for app start.
+
+**Correction to the teal decision (2026-09-13).** The decision stands — the fill is teal #67BFD3 — but the reason recorded earlier ("as the prototypes draw it") is wrong: no mobile Figma frame draws teal. The library *Joining now* frames (`5978:19142`, `5978:19161`) and both progress frames in the join prototype (`2894:3382`, `2811:2770`) all draw the *Progress bar 2* default **blue #1B6FEC**. Teal appears in the desktop Draft-6 frame, which uses the older *Progress bar/75%/True* component (`I1430:48025;3816:12501;3816:12486`), and in the shipped mobile app, which animates #67BFD3 while `CONNECTING_TO_COMMUNITY`. Adopting teal means changing every mobile frame, not matching them.
+
+Implementation mapping: desktop `LoadingPanel/JoiningPanelComponent.tsx` and mobile `ConnectionProcess/ConnectionProcess.component.tsx` are the joining screens and branch on whether the community uses a server: Tor → the explanatory *Joining now* (+ "Connecting via Tor" status); QSS → the simple bar, and on desktop the Draft-6 layout ("Joining community "X"" / "Creating community "X""). App start is a different pair — desktop `LoadingPanel/StartingPanelComponent.tsx` (logo only today) and mobile `Splash/Splash.component.tsx` — and is what `2811:2770` draws. Not designed: an error / timeout state (open bug #3368) — keep the app's existing message. Older draft `1031:42695` ("Joining… can take 10 minutes or more!" with a research prompt) is superseded by the library frames.
 
 ### Mobile parity audit (2026-09-13)
 
