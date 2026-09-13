@@ -32,6 +32,9 @@ describe('Agree & join', () => {
     expect(screen.getByTestId('agree-and-join')).toHaveTextContent(
       'This community uses a server (api.tryquiet.org) for messaging without Tor. By joining you agree to this Privacy Policy and Terms of Use.'
     )
+    // The card's height is the body's own (capped at the window), not a fixed 576px on the modal:
+    // a fixed card taller than the window pushed the titled bar above the viewport
+    expect(screen.getByTestId('agree-and-join').parentElement).not.toHaveStyle({ height: '576px' })
     expect(screen.queryByText('Leave Community')).not.toBeInTheDocument()
     expect(screen.queryByTestId('TermOfService-Abort')).not.toBeInTheDocument()
 

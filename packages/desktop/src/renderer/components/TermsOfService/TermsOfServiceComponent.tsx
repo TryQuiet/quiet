@@ -27,6 +27,11 @@ const COLUMN_WIDTH = 468
 
 const Root = styled('div')(({ theme }) => ({
   width: '100%',
+  // The library card is 636 tall (bar included). The Modal centres the card, so a window
+  // shorter than that pushed the titled bar above the viewport (only its hairline showed):
+  // cap the card at the window instead — the bar and the content stay in view.
+  height: `min(${CARD_HEIGHT - TITLE_BAR_HEIGHT}px, calc(100vh - ${TITLE_BAR_HEIGHT}px))`,
+  boxSizing: 'border-box',
   display: 'flex',
   justifyContent: 'center',
   backgroundColor: theme.palette.background.default,
@@ -96,7 +101,6 @@ export const TermsOfServiceComponent: React.FC<TermsOfServiceComponentProps> = (
       addBorder
       fullPage={false}
       contentWidth={wide ? CARD_WIDTH.wide : CARD_WIDTH.narrow}
-      contentHeight={CARD_HEIGHT - TITLE_BAR_HEIGHT}
       cornerRadius={8}
       testIdPrefix='TermOfService'
     >

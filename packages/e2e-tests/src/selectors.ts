@@ -1625,9 +1625,15 @@ export class TermsOfServiceModal {
     await button.click()
   }
 
+  /** Declining is the card's back arrow (there is no abort button on the library card). */
   async chooseAbort() {
-    const button = await this.abortButton
-    await button.click()
+    const back = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='TermOfServiceModalBack']")),
+      5_000,
+      `Agree & join back arrow couldn't be found within timeout`,
+      500
+    )
+    await back.click()
   }
 }
 
