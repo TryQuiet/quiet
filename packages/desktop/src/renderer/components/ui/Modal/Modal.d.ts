@@ -23,5 +23,11 @@ export interface IModalProps {
   children?: React.ReactNode
   isTransparent?: boolean
   withoutHeader?: boolean
+  /**
+   * A full-screen h1 stage: the header keeps its glyph but draws no title and no
+   * divider — the screen's h1 is the title (the prototype hides the bar's title on
+   * screens with a large heading; sheets keep theirs).
+   */
+  withoutTitle?: boolean
   zIndex?: number
 }

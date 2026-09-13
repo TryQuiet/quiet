@@ -40,15 +40,15 @@ const timeouts = {
   joinCompletion: 60_000,
 }
 
-// Chromium plays these clips as the camera (E2E_FAKE_CAMERA_FILE); each is written once the
+// Chromium plays this clip as the camera (E2E_FAKE_CAMERA_FILE); it is written once the
 // link it must show exists, before that client starts.
 const joinCameraClip = fakeCameraFile('join')
-const deviceCameraClip = fakeCameraFile('device')
 
 afterAll(() => {
   removeFakeCameraFile(joinCameraClip)
-  removeFakeCameraFile(deviceCameraClip)
 })
+
+const NOT_A_DEVICE_LINK_ERROR = 'This is not a device link. Use the link from Link devices on your other device.'
 
 async function closeAndCleanupApps(apps: App[]): Promise<void> {
   for (const app of [...apps].reverse()) {
@@ -102,7 +102,7 @@ async function getDeviceInvitation(app: App): Promise<string> {
   const settings = await new Sidebar(app.driver).openSettings()
   expect(await settings.isReady()).toBeTruthy()
   await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-  const link = await (await settings.deviceLink()).getText()
+  const link = await settings.deviceLink()
   expect(link.length).toBeGreaterThan(0)
   await settings.closeTabThenModal()
   return link
@@ -225,21 +225,19 @@ describe('Onboarding', () => {
   describe('device linking (multiplayer)', () => {
     const ownerUsername = 'onboardingdevices'
     const owner = new App({ username: `${ownerUsername}-primary` })
-    const linkedDevice = new App({
-      username: `${ownerUsername}-linked`,
-      environment: { [FAKE_CAMERA_FILE_ENV]: deviceCameraClip },
-    })
+    // B links by pasting the link (the Paste link row); the join scenario above covers the camera.
+    const linkedDevice = new App({ username: `${ownerUsername}-linked` })
     const apps = [owner, linkedDevice]
 
     afterAll(async () => {
       await closeAndCleanupApps(apps)
     })
 
-    it('A creates a community and generates a device link; B links through Get started → Link devices', async () => {
+    it('A creates a community and generates a device link; B links through Get started → Link devices → Paste link', async () => {
       await createCommunity(owner, `onbdev${Date.now().toString(36)}`, ownerUsername)
       expect(await linkedDeviceNamesInSettings(owner)).toEqual([])
+      const memberInvitation = await getMemberInvitation(owner)
       const deviceInvitation = await getDeviceInvitation(owner)
-      writeQrY4m(deviceInvitation, deviceCameraClip)
 
       await linkedDevice.openWithRetries()
       const getStarted = new GetStartedModal(linkedDevice.driver)
@@ -249,9 +247,25 @@ describe('Onboarding', () => {
       const linkDevices = new LinkDevicesModal(linkedDevice.driver)
       expect(await linkDevices.isReady()).toBeTruthy()
       expect(await linkDevices.hasNoLinkedDevices()).toBe(true)
-      // "Scan QR code" opens the camera, which shows the device link's QR code
-      await linkDevices.scanQrCode()
-      expect(await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='paste-link-input']"))).toHaveLength(0)
+      // "Paste link" opens the paste step directly, not the camera
+      await linkDevices.pasteLink()
+      expect(
+        await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='link-devices-scanner-viewfinder']"))
+      ).toHaveLength(0)
+
+      // A member invitation is refused: the error shows under the input and nothing starts
+      await linkDevices.typeDeviceLink(memberInvitation)
+      await linkDevices.submit()
+      expect(await linkDevices.waitForPasteLinkError(NOT_A_DEVICE_LINK_ERROR)).toBe(NOT_A_DEVICE_LINK_ERROR)
+      expect(
+        await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='joiningPanelComponent']"))
+      ).toHaveLength(0)
+      expect(await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='paste-link-input']"))).toHaveLength(1)
+
+      // The real device link links this device
+      await linkDevices.clearLink()
+      await linkDevices.typeDeviceLink(deviceInvitation)
+      await linkDevices.submit()
 
       const joinPanel = new JoiningLoadingPanel(linkedDevice.driver)
       expect(await joinPanel.waitUntilVisible(timeouts.joinPanelVisible)).toBeTruthy()

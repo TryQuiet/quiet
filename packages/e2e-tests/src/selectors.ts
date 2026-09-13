@@ -1413,9 +1413,33 @@ export class LinkDevicesModal {
     await (await this.findVisible('link-devices-display-qr')).click()
   }
 
+  /** The Paste link row → the paste step, under the Link devices title. */
+  async pasteLink() {
+    await (await this.findVisible('link-devices-paste-link')).click()
+    await this.findVisible('paste-link-input')
+  }
+
   async typeDeviceLink(deviceLink: string) {
     const linkInput = await this.findVisible('paste-link-input')
     await linkInput.sendKeys(deviceLink)
+  }
+
+  async clearLink() {
+    const linkInput = await this.findVisible('paste-link-input')
+    await linkInput.sendKeys(Key.CONTROL + 'a')
+    await linkInput.sendKeys(Key.DELETE)
+  }
+
+  /** The error line under the paste input, once it shows `message`. */
+  async waitForPasteLinkError(message: string, timeoutMs = 10_000): Promise<string> {
+    const error = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='paste-link']//*[text()="${message}"]`)),
+      timeoutMs,
+      `paste link error "${message}" couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(error), 5_000)
+    return await error.getText()
   }
 
   async submit() {
@@ -2937,23 +2961,39 @@ export class Settings {
     )
   }
 
-  async deviceLink() {
-    const unlockButton = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="show-device-link"]')),
-      30_000,
-      `Show device link button couldn't be found within timeout`,
-      500
-    )
-    await this.driver.wait(until.elementIsVisible(unlockButton), 10_000)
-
-    await unlockButton.click()
-
-    return await this.driver.wait(
-      until.elementLocated(By.xpath("//p[@data-testid='device-link']")),
+  /**
+   * The device link. The tab never shows it: Copy link puts the one-time link on the
+   * clipboard and confirms with the "Copied" toast; it is read back here. The link is
+   * minted when the tab opens, so the row is clicked again until the toast shows.
+   */
+  async deviceLink(): Promise<string> {
+    const copyRow = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='link-devices-copy-link']")),
       10_000,
-      `Unhidden device link element couldn't be found within timeout`,
+      `Copy link row couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(copyRow), 5_000)
+    let copied = false
+    for (let attempt = 0; attempt < 15 && !copied; attempt++) {
+      await copyRow.click()
+      try {
+        await this.driver.wait(until.elementLocated(By.xpath("//*[text()='Copied']")), 2_000)
+        copied = true
+      } catch {
+        // the link was not minted yet; try again
+      }
+    }
+    if (!copied) throw new Error('Copy link never confirmed within timeout')
+
+    const link = (await this.driver.executeAsyncScript(
+      `const done = arguments[arguments.length - 1];
+       navigator.clipboard.readText().then(done, error => done('ERROR: ' + error))`
+    )) as string
+    if (!link || link.startsWith('ERROR')) {
+      throw new Error(`Could not read the copied device link from the clipboard: ${link}`)
+    }
+    return link
   }
 
   /**
@@ -3041,7 +3081,8 @@ export class Settings {
         locator = "//*[@data-testid='invite-a-friend']"
         break
       case SettingsModalTabName.LINKED_DEVICES:
-        locator = "//*[@data-testid='linked-devices-title']"
+        // The tab is the Link devices screen's content (rows + the device list)
+        locator = "//*[@data-testid='link-devices']"
         timeoutMs = 30_000
         break
       case SettingsModalTabName.ABOUT:

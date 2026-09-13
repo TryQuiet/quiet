@@ -15,6 +15,12 @@ export interface AppbarProps {
   crossBackIcon?: boolean
   /** No back arrow and no community tile on the left (onboarding roots). */
   plain?: boolean
+  /**
+   * A full-screen h1 stage (the prototype hides the bar's title on screens with a large
+   * heading): the glyph alone, no title text and no divider — the h1 is the title. Sheets
+   * keep their titled bar.
+   */
+  withoutTitle?: boolean
 }
 
 export interface HeaderTitleProps {

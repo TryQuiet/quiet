@@ -16,7 +16,6 @@ export class NavigationState {
   public [MenuName.Community] = { open: false, args: {} }
   public [MenuName.Channel] = { open: false, args: {} }
   public [MenuName.Invitation] = { open: false, args: {} }
-  public [MenuName.LinkedDevices] = { open: false, args: {} }
   public [MenuName.UnregisteredUsername] = { open: false, args: {} }
   public pendingNavigation: ScreenNames | null = null
 }

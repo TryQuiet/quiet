@@ -13,33 +13,48 @@ import Modal from '../ui/Modal/Modal'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { LinkedDevices as LinkedDevicesTab } from '../Settings/Tabs/LinkedDevices/LinkedDevices'
+import { ConfirmationToast } from '../ui/ConfirmationToast/ConfirmationToast'
+import { DisplayQrCode } from './DisplayQrCode'
 import { LinkDevicesComponent } from './LinkDevicesComponent'
+import { useCopyDeviceLink } from './useCopyDeviceLink'
 import { PasteLinkComponent } from './PasteLinkComponent'
-import { OnboardingBody } from './OnboardingBody'
 import { QrScannerComponent } from './qrScanner/QrScannerComponent'
 import { createLogger } from '../../logger'
 
 const logger = createLogger('LinkDevices')
 
-type Step = 'entry' | 'display' | 'scan' | 'paste'
+/** `paste` is the scanner's fallback (back returns to the camera); `pasteLink` is the Paste link row's (back returns here). */
+export type LinkDevicesStep = 'entry' | 'display' | 'scan' | 'paste' | 'pasteLink'
+type Step = LinkDevicesStep
 
-/** Title bar text per step, from the prototype's frames (2811:2575, 2811:2601, 2811:2587). */
-const TITLES: Record<Step, string> = {
-  entry: 'Link devices',
+/** Settings → Linked devices opens the modal straight at a row's step; back / close from there leave the modal. */
+export interface LinkDevicesModalArgs {
+  step?: LinkDevicesStep
+}
+
+/**
+ * Only the sheets keep a titled bar (2811:2601 "QR code", 2811:2587 "Scan QR code").
+ * Link devices and the paste step are full-screen h1 stages: the frames hide the bar's
+ * title (the Device-linking desktop frame 879:20987 draws dots, arrow, then the h1) —
+ * only the glyph, the h1 is the title.
+ */
+const TITLED_STEPS: Partial<Record<Step, string>> = {
   display: 'QR code',
   scan: 'Scan QR code',
-  paste: 'Scan QR code',
 }
+
+const PASTE_STEPS: Step[] = ['paste', 'pasteLink']
 
 /** The Scan QR code sheet's copy (2811:2587). */
 export const SCAN_QR_CODE_INTRO =
   'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /**
- * Link devices, reached from Get started. "Display QR code" shows #3400's
- * Linked devices surface (a link can only be minted from inside a community);
- * "Scan QR code" opens the camera, and offers the paste field when it cannot.
+ * Link devices, reached from Get started (receive: "Scan QR code" opens the camera
+ * and offers the paste field when it cannot, "Paste link" opens that field directly;
+ * pasted here only a device link is accepted) and, inside a community, from Settings
+ * (share: "Display QR code" shows the QR code sheet 2811:2601, whose close returns
+ * here; "Copy link" copies the same one-time link and confirms).
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
@@ -47,30 +62,38 @@ export const LinkDevices: React.FC = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const linkedDevices = useSelector(connection.selectors.linkedDevices)
 
-  const linkDevicesModal = useModal(ModalName.linkDevicesModal)
+  const linkDevicesModal = useModal<LinkDevicesModalArgs>(ModalName.linkDevicesModal)
+  const initialStep: Step = linkDevicesModal.step ?? 'entry'
   const getStartedModal = useModal(ModalName.getStartedModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const [step, setStep] = useState<Step>('entry')
   const [revealInputValue, setRevealInputValue] = useState(false)
+  // Inside a community this device shares (Display QR code, Copy link); without one it receives.
+  const direction = currentCommunity ? 'share' : 'receive'
+  const copyLink = useCopyDeviceLink(linkDevicesModal.open && step === 'entry' && direction === 'share')
 
   useEffect(() => {
-    if (!linkDevicesModal.open) setStep('entry')
+    setStep(linkDevicesModal.open ? initialStep : 'entry')
     if (linkDevicesModal.open && isConnected) dispatch(connection.actions.getLinkedDevices())
   }, [linkDevicesModal.open, isConnected])
 
+  const leave = () => {
+    if (!currentCommunity) getStartedModal.handleOpen()
+    linkDevicesModal.handleClose()
+  }
+
   const handleBack = () => {
+    if (step === initialStep) {
+      leave()
+      return
+    }
     if (step === 'paste') {
       setStep('scan')
       return
     }
-    if (step !== 'entry') {
-      setStep('entry')
-      return
-    }
-    if (!currentCommunity) getStartedModal.handleOpen()
-    linkDevicesModal.handleClose()
+    setStep('entry')
   }
 
   const handleCommunityAction = (data: InvitationData) => {
@@ -82,19 +105,25 @@ export const LinkDevices: React.FC = () => {
       linkDevicesModal.handleClose()
       return
     }
-    // A member invitation here still joins, the way Join community does.
+    // A member invitation scanned here still joins, the way Join community does
+    // (the paste field passes device links only).
     const payload: JoinCommunityPayload = { inviteData: data }
     dispatch(communities.actions.joinCommunity(payload))
     createUsernameModal.handleOpen()
     linkDevicesModal.handleClose()
   }
 
+  // The QR code sheet (2811:2601) has a close glyph, not a back arrow; closing it reveals Link devices —
+  // or, opened straight at the sheet from Settings, leaves the modal.
+  const isSheet = step === 'display'
+
   return (
     <Modal
       open={linkDevicesModal.open}
-      handleClose={linkDevicesModal.handleClose}
-      title={TITLES[step]}
-      canGoBack
+      handleClose={isSheet && step !== initialStep ? () => setStep('entry') : leave}
+      title={TITLED_STEPS[step] ?? ''}
+      withoutTitle={!TITLED_STEPS[step]}
+      canGoBack={!isSheet}
       handleBack={handleBack}
       alignCloseLeft
       contentWidth={'100%'}
@@ -102,17 +131,21 @@ export const LinkDevices: React.FC = () => {
       zIndex={1300}
     >
       {step === 'entry' ? (
-        <LinkDevicesComponent
-          onDisplayQrCode={() => setStep('display')}
-          onScanQrCode={() => setStep('scan')}
-          linkedDevices={linkedDevices}
-        />
+        <>
+          <LinkDevicesComponent
+            direction={direction}
+            onDisplayQrCode={() => setStep('display')}
+            deviceLink={copyLink.deviceLink}
+            onCopyLink={copyLink.onCopyLink}
+            onLinkCopied={copyLink.onLinkCopied}
+            onScanQrCode={() => setStep('scan')}
+            onPasteLink={() => setStep('pasteLink')}
+            linkedDevices={linkedDevices}
+          />
+          <ConfirmationToast open={copyLink.copied} message={'Copied'} onClose={copyLink.dismissCopied} />
+        </>
       ) : null}
-      {step === 'display' ? (
-        <OnboardingBody dataTestId='link-devices-display'>
-          <LinkedDevicesTab centered />
-        </OnboardingBody>
-      ) : null}
+      {step === 'display' ? <DisplayQrCode dataTestId='link-devices-display' /> : null}
       {step === 'scan' ? (
         <QrScannerComponent
           intro={SCAN_QR_CODE_INTRO}
@@ -121,13 +154,14 @@ export const LinkDevices: React.FC = () => {
           dataTestId='link-devices-scanner'
         />
       ) : null}
-      {step === 'paste' ? (
+      {PASTE_STEPS.includes(step) ? (
         <PasteLinkComponent
           heading={'Paste a link to Join'}
           open={linkDevicesModal.open}
           isConnectionReady={isConnected}
           revealInputValue={revealInputValue}
           handleClickInputReveal={() => setRevealInputValue(value => !value)}
+          linkKind='device'
           handleCommunityAction={handleCommunityAction}
         />
       ) : null}

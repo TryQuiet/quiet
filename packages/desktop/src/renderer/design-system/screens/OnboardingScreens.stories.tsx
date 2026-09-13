@@ -10,8 +10,16 @@ import { OpenInviteLinkComponent } from '../../components/Onboarding/OpenInviteL
 import { PasteLinkComponent } from '../../components/Onboarding/PasteLinkComponent'
 import { CreateCommunityComponent } from '../../components/Onboarding/CreateCommunityComponent'
 import { LinkDevicesComponent } from '../../components/Onboarding/LinkDevicesComponent'
-import { LinkedDevicesComponent } from '../../components/Settings/Tabs/LinkedDevices/LinkedDevices.component'
+import { DisplayQrCodeComponent } from '../../components/Onboarding/DisplayQrCodeComponent'
 import { QrScannerComponent } from '../../components/Onboarding/qrScanner/QrScannerComponent'
+
+// The frames these screens are built from, for the side-by-side columns.
+import linkDevicesExport from '../figma/link-devices.png'
+import qrSheetExport from '../figma/sheet-2811-2601.png'
+import addMembersQrExport from '../figma/add-members-qr-code.png'
+import desktopLinkDevicesExport from '../figma/desktop/devicelink/desktop-link-devices.png'
+import desktopLinkDevicesWithLinkedExport from '../figma/desktop/devicelink/desktop-link-devices-with-linked.png'
+import desktopLinkDevicesQrExport from '../figma/desktop/devicelink/desktop-link-devices-qr.png'
 import { installStoryCamera, type StoryCamera } from './storyCamera'
 
 import { CreateUsernameBody } from '../../components/CreateUsername/CreateUsernameComponent'
@@ -49,6 +57,38 @@ const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
 })
 
 const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
+
+/** The rows follow the direction (user decision, 2026-09-13); the link-glyph rows' labels are undesigned. */
+const LINK_DEVICES_NOTE =
+  "rows in the bordered group and the Linked devices list per 2811:2575 and the Device-linking desktop frames (3RcrYKRTiFY87TpFSqZyj4 879:20987 / 880:17196); the Paste link row is a user addition (2026-09-13) with the library link glyph, its label undesigned; the frames' trash glyph is not drawn (no device removal yet)"
+
+const LINK_DEVICES_EXPORTS = (desktop: string, desktopLabel: string): FigmaExport[] => [
+  { label: 'figma · 2811:2575 (prototype, 375)', src: linkDevicesExport, width: CONTENT_COLUMN_WIDTH },
+  { label: desktopLabel, src: desktop, width: SHELL_WIDTH },
+]
+
+const QR_CODE_NOTE =
+  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence and Reset QR code per 2811:2601 / desktop 880:17427; Copy link (user decision 2026-09-13) sits in the slot the Add members QR sheet 2932:3707 gives its primary button — the raw link is never shown; "Link copied" and the generating (ActionProgress, #3518) / unavailable states have no frame'
+
+const QR_CODE_EXPORTS: FigmaExport[] = [
+  { label: 'figma · 2811:2601 (prototype sheet, 375)', src: qrSheetExport, width: CONTENT_COLUMN_WIDTH },
+  {
+    label: 'figma · 2932:3707 (Add members QR sheet: the button slot)',
+    src: addMembersQrExport,
+    width: CONTENT_COLUMN_WIDTH,
+  },
+  { label: 'figma · Device linking 880:17427 (desktop, 715)', src: desktopLinkDevicesQrExport, width: SHELL_WIDTH },
+]
+
+/** Type a value into every paste input under `root` the way a user would (React sees a native input event). */
+const fillPasteInputs = (root: HTMLElement | null, value: string) => {
+  if (!root) return
+  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+  root.querySelectorAll<HTMLInputElement>('input[data-testid="paste-link-input"]').forEach(input => {
+    setter?.call(input, value)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+}
 
 /** What JoinCommunity.tsx / LinkDevices.tsx dispatch for a decoded code, recorded under the columns. */
 const describeInvitation = (data: InvitationData) =>
@@ -90,20 +130,26 @@ const Column: React.FC<{ width: number; label: string; children: React.ReactNode
 
 type ShellLeft = 'back' | 'close' | 'none'
 
-/** The Modal full-window shell as the app's Modal renders it: 60px header, back arrow (or close) left, title centered. */
-const Shell: React.FC<{ title: string; left?: ShellLeft; onLeft?: () => void; children: React.ReactNode }> = ({
-  title,
-  left = 'back',
-  onLeft,
-  children,
-}) => (
+/**
+ * The Modal full-window shell as the app's Modal renders it: 60px header, back arrow (or
+ * close) left, title centered. An empty `title` is a full-screen h1 stage (2811:2575,
+ * 879:20987): the glyph alone, no title text and no bar divider — the h1 is the title.
+ * Sheets keep their titled bar; the desktop frames (880:17427) draw it without a divider.
+ */
+const Shell: React.FC<{
+  title: string
+  left?: ShellLeft
+  divider?: boolean
+  onLeft?: () => void
+  children: React.ReactNode
+}> = ({ title, left = 'back', divider = title !== '', onLeft, children }) => (
   <div style={{ width: SHELL_WIDTH, minHeight: 560, background: '#fff' }}>
     <div
       style={{
         height: 60,
         display: 'flex',
         alignItems: 'center',
-        borderBottom: `1px solid #F0F0F0`,
+        borderBottom: divider ? `1px solid #F0F0F0` : 'none',
         fontFamily: "'Rubik', sans-serif",
       }}
     >
@@ -133,14 +179,24 @@ const Shell: React.FC<{ title: string; left?: ShellLeft; onLeft?: () => void; ch
   </div>
 )
 
+/** A Figma export drawn next to the rendered columns, at its frame's width (the PNGs are 2×). */
+interface FigmaExport {
+  label: string
+  src: string
+  width: number
+}
+
 const Screen: React.FC<{
   title: string
   bar: string
   figma: string
   left?: ShellLeft
+  /** The shell's bar divider; off for the desktop sheet frames (880:17427), off by default when the bar has no title. */
+  divider?: boolean
   note?: string
+  exports?: FigmaExport[]
   render: () => React.ReactNode
-}> = ({ title, bar, figma, left, note, render }) => (
+}> = ({ title, bar, figma, left, divider, note, exports = [], render }) => (
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={lightTheme}>
       <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
@@ -148,12 +204,13 @@ const Screen: React.FC<{
           {title}
         </h1>
         <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-          Figma <span style={{ fontFamily: mono }}>{figma}</span> · title bar &ldquo;{bar}&rdquo; · desktop component
-          under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
+          Figma <span style={{ fontFamily: mono }}>{figma}</span> ·{' '}
+          {bar ? <>title bar &ldquo;{bar}&rdquo;</> : 'no bar title (full-screen h1 stage)'} · desktop component under
+          the app&rsquo;s light theme{note ? ` · ${note}` : ''}
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-            <Shell title={bar} left={left}>
+            <Shell title={bar} left={left} divider={divider}>
               {render()}
             </Shell>
           </Column>
@@ -163,6 +220,11 @@ const Screen: React.FC<{
           >
             {render()}
           </Column>
+          {exports.map(item => (
+            <Column key={item.label} width={item.width} label={item.label}>
+              <img src={item.src} alt={item.label} style={{ display: 'block', width: item.width }} />
+            </Column>
+          ))}
         </div>
       </div>
     </ThemeProvider>
@@ -330,13 +392,20 @@ export const CreateCommunity = () => (
 
 export const LinkDevices = () => (
   <Screen
-    title='Link devices'
-    bar='Link devices'
+    title='Link devices · in a community (share)'
+    bar=''
     figma='2811:2575'
+    note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same one-time link the QR sheet shows), the receive rows are not drawn`}
+    exports={LINK_DEVICES_EXPORTS(
+      desktopLinkDevicesWithLinkedExport,
+      'figma · Device linking 880:17196 (desktop, 715)'
+    )}
     render={() => (
       <LinkDevicesComponent
+        direction='share'
         onDisplayQrCode={noop}
-        onScanQrCode={noop}
+        deviceLink={SAMPLE_DEVICE_LINK}
+        onLinkCopied={noop}
         linkedDevices={[
           { deviceId: 'this', deviceName: 'this device', isCurrent: true },
           { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
@@ -348,29 +417,125 @@ export const LinkDevices = () => (
 
 export const LinkDevicesEmpty = () => (
   <Screen
-    title='Link devices · no linked devices'
-    bar='Link devices'
+    title='Link devices · no community (receive)'
+    bar=''
     figma='2811:2575'
-    render={() => <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} linkedDevices={[]} />}
+    note={`${LINK_DEVICES_NOTE}; without a community this device receives: Scan QR code and Paste link, the share rows are not drawn`}
+    exports={LINK_DEVICES_EXPORTS(desktopLinkDevicesExport, 'figma · Device linking 879:20987 (desktop, 715)')}
+    render={() => (
+      <LinkDevicesComponent direction='receive' onScanQrCode={noop} onPasteLink={noop} linkedDevices={[]} />
+    )}
   />
+)
+
+// Link devices → Paste link: the existing paste step under the Link devices title bar,
+// narrowed to device links. No frame; the row and the error copy are the user's
+// (2026-09-13), not the designer's.
+const PASTE_LINK_NOTE =
+  'no frame — the Paste link row is a user addition (2026-09-13); the paste step is 3190:10892 narrowed to device links'
+
+export const PasteLinkOnLinkDevices = () => (
+  <Screen
+    title='Paste link'
+    bar=''
+    figma='—'
+    note={PASTE_LINK_NOTE}
+    render={() => (
+      <PasteLinkComponent heading={'Paste a link to Join'} linkKind='device' handleCommunityAction={noop} />
+    )}
+  />
+)
+
+/** Fills every paste input under `root` with `link` and submits, so the story shows the real error path. */
+const SubmitOnMount: React.FC<{ link: string; children: React.ReactNode }> = ({ link, children }) => {
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    fillPasteInputs(rootRef.current, link)
+    const timer = window.setTimeout(() => {
+      rootRef.current
+        ?.querySelectorAll<HTMLButtonElement>('button[data-testid="continue-joinCommunity"]')
+        .forEach(button => button.click())
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [link])
+  return <div ref={rootRef}>{children}</div>
+}
+
+export const PasteLinkNotADeviceLink = () => (
+  <SubmitOnMount link={SAMPLE_MEMBER_LINK}>
+    <Screen
+      title='Paste link · not a device link'
+      bar=''
+      figma='—'
+      note={`${PASTE_LINK_NOTE}; the sample member link was pasted and submitted — the error copy is undesigned`}
+      render={() => (
+        <PasteLinkComponent
+          heading={'Paste a link to Join'}
+          linkKind='device'
+          revealInputValue
+          handleCommunityAction={noop}
+        />
+      )}
+    />
+  </SubmitOnMount>
 )
 
 export const DisplayQrCode = () => (
   <Screen
     title='Display QR code'
     bar='QR code'
+    left='close'
+    divider={false}
     figma='2811:2601'
-    note="#3400's Linked devices surface, shown inside the Link devices modal"
+    note={QR_CODE_NOTE}
+    exports={QR_CODE_EXPORTS}
+    render={() => <DisplayQrCodeComponent deviceLink={SAMPLE_DEVICE_LINK} isLoading={false} onReset={noop} />}
+  />
+)
+
+export const DisplayQrCodeGenerating = () => (
+  <Screen
+    title='Display QR code · generating the link'
+    bar='QR code'
+    left='close'
+    divider={false}
+    figma='2811:2601'
+    note='no frame for this state: while the backend mints the one-time link the box carries #3400’s "Generating device link…", the actions give way to the library progress bar (ActionProgress, #3518) with the status line'
+    render={() => <DisplayQrCodeComponent deviceLink={''} isLoading onReset={noop} />}
+  />
+)
+
+export const DisplayQrCodeUnavailable = () => (
+  <Screen
+    title='Display QR code · no community'
+    bar='QR code'
+    left='close'
+    divider={false}
+    figma='2811:2601'
+    note='no frame for this state: without a community no link can be minted; there is nothing to act on, so no action is drawn; the Link devices row is disabled then, so this is the Settings tab’s edge case'
+    render={() => <DisplayQrCodeComponent deviceLink={''} isLoading={false} onReset={noop} />}
+  />
+)
+
+export const SettingsLinkedDevices = () => (
+  <Screen
+    title='Settings · Linked devices (in app)'
+    bar='Settings'
+    left='close'
+    figma='879:19861'
+    note='the in-app entry (the Device-linking file’s Entry points board): the Settings tab shows the same Link devices content with the community’s device list, Display QR code enabled; each row opens the Link devices modal at its step'
     render={() => (
-      <OnboardingBody dataTestId='link-devices-display'>
-        <LinkedDevicesComponent
-          deviceLink={'https://tryquiet.org/join#example-device-link'}
-          isLoading={false}
-          revealLink={false}
-          onToggleLinkVisibility={noop}
-          centered
-        />
-      </OnboardingBody>
+      <LinkDevicesComponent
+        direction='share'
+        onDisplayQrCode={noop}
+        deviceLink={SAMPLE_DEVICE_LINK}
+        onLinkCopied={noop}
+        linkedDevices={[
+          { deviceId: 'this', deviceName: 'this device', isCurrent: true },
+          { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
+          { deviceId: 'old', deviceName: 'old-phone', isCurrent: false, removedAt: 1 },
+        ]}
+      />
     )}
   />
 )
@@ -440,6 +605,7 @@ type Step =
   | 'displayQrCode'
   | 'scanQrCode'
   | 'pasteFromScan'
+  | 'pasteLinkDevice'
 
 const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   getStarted: { title: 'Get started', bar: 'Quiet', left: 'none' },
@@ -449,13 +615,14 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   joinWithQrCode: { title: 'Join with QR code', bar: 'Join with QR code', left: 'back' },
   createCommunity: { title: 'Create a community', bar: 'Create a community', left: 'back' },
   chooseUsername: { title: 'Choose username', bar: 'Create a community', left: 'close' },
-  linkDevices: { title: 'Link devices', bar: 'Link devices', left: 'back' },
-  displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'back' },
+  linkDevices: { title: 'Link devices', bar: '', left: 'back' },
+  displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'close' },
   scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
-  pasteFromScan: { title: 'Paste a link to Join', bar: 'Scan QR code', left: 'back' },
+  pasteFromScan: { title: 'Paste a link to Join', bar: '', left: 'back' },
+  pasteLinkDevice: { title: 'Paste a link to Join', bar: '', left: 'back' },
 }
 
-const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromScan']
+const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromScan', 'pasteLinkDevice']
 
 /** What the walkthrough's camera shows; the code is the sample link the current step expects. */
 type WalkthroughCamera = 'code' | 'blank' | 'denied' | 'none'
@@ -465,16 +632,6 @@ const WALKTHROUGH_DEVICES = [
   { deviceId: 'this', deviceName: 'this device', isCurrent: true },
   { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
 ]
-
-/** Type a value into every paste input under `root` the way a user would (React sees a native input event). */
-const fillPasteInputs = (root: HTMLElement | null, value: string) => {
-  if (!root) return
-  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
-  root.querySelectorAll<HTMLInputElement>('input[data-testid="paste-link-input"]').forEach(input => {
-    setter?.call(input, value)
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-  })
-}
 
 const chromeButton: React.CSSProperties = {
   fontFamily: mono,
@@ -490,7 +647,6 @@ const WalkthroughStory = () => {
   const [step, setStep] = React.useState<Step>('getStarted')
   const [trail, setTrail] = React.useState<Step[]>([])
   const [dispatched, setDispatched] = React.useState<string[]>([])
-  const [revealLink, setRevealLink] = React.useState(false)
   const [cameraMode, setCameraMode] = React.useState<WalkthroughCamera>('code')
   const rootRef = React.useRef<HTMLDivElement>(null)
 
@@ -578,23 +734,20 @@ const WalkthroughStory = () => {
       case 'linkDevices':
         return (
           <LinkDevicesComponent
-            onDisplayQrCode={() => go('displayQrCode')}
+            direction='receive'
             onScanQrCode={() => go('scanQrCode')}
+            onPasteLink={() => go('pasteLinkDevice')}
             linkedDevices={WALKTHROUGH_DEVICES}
           />
         )
       case 'displayQrCode':
         return (
-          <OnboardingBody dataTestId='link-devices-display'>
-            <LinkedDevicesComponent
-              deviceLink={SAMPLE_DEVICE_LINK}
-              isLoading={false}
-              revealLink={revealLink}
-              onToggleLinkVisibility={() => setRevealLink(v => !v)}
-              linkedDevices={WALKTHROUGH_DEVICES}
-              centered
-            />
-          </OnboardingBody>
+          <DisplayQrCodeComponent
+            deviceLink={SAMPLE_DEVICE_LINK}
+            isLoading={false}
+            onReset={() => record('connection.actions.setDeviceLinkInvite(undefined) → createDeviceLink()')}
+            dataTestId='link-devices-display'
+          />
         )
       case 'scanQrCode':
         return (
@@ -605,14 +758,19 @@ const WalkthroughStory = () => {
             dataTestId='link-devices-scanner'
           />
         )
+      // LinkDevices.tsx: pasted in the Link devices flow, only a device link is accepted.
       case 'pasteFromScan':
-        return <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={onInvitation} />
+      case 'pasteLinkDevice':
+        return (
+          <PasteLinkComponent heading={'Paste a link to Join'} linkKind='device' handleCommunityAction={onInvitation} />
+        )
     }
   }
 
   const { title, bar, left } = STEPS[step]
   const isPasteStep = PASTE_STEPS.includes(step)
-  const onLeft = left === 'back' ? back : left === 'close' ? restart : undefined
+  // The QR code sheet's close returns to Link devices (LinkDevices.tsx); Choose username's close restarts.
+  const onLeft = left === 'back' ? back : left === 'close' ? (step === 'displayQrCode' ? back : restart) : undefined
 
   return (
     <StyledEngineProvider injectFirst>
@@ -625,15 +783,15 @@ const WalkthroughStory = () => {
               Walkthrough · {title}
             </h1>
             <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-              title bar &ldquo;{bar}&rdquo; · rows, buttons and the back arrow navigate; where the app dispatches, the
-              action is recorded below · trail:{' '}
+              {bar ? <>title bar &ldquo;{bar}&rdquo;</> : 'no bar title'} · rows, buttons and the back arrow navigate;
+              where the app dispatches, the action is recorded below · trail:{' '}
               <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
                 {[...trail, step].map(s => STEPS[s].title).join(' › ')}
               </span>
             </p>
             <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
               <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-                <Shell title={bar} left={left} onLeft={onLeft}>
+                <Shell title={bar} left={left} onLeft={onLeft} divider={step !== 'displayQrCode' && bar !== ''}>
                   {render()}
                 </Shell>
               </Column>

@@ -32,22 +32,28 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
   container: {
     desktop: on('desktop/src/renderer/components/CreateJoinCommunity/PerformCommunityActionComponent.tsx'),
     mobile: on('mobile/src/components/JoinCommunity/JoinCommunity.component.tsx'),
-    divergence: 'This is the paste-a-link stage. Both apps implement it as their whole join screen; in the design it is one of three routes.',
+    divergence:
+      'This is the paste-a-link stage. Both apps implement it as their whole join screen; in the design it is one of three routes.',
   },
   'want-a-server': {
     desktop: on('desktop/src/renderer/components/ServerOffer/ServerOfferComponent.tsx'),
     mobile: on('mobile/src/components/ServerOffer/CreatingOffer/ServerOffer.component.tsx'),
-    divergence: 'Design reaches this from Home → Add members, after the community exists; both apps show the offer during creation instead.',
+    divergence:
+      'Design reaches this from Home → Add members, after the community exists; both apps show the offer during creation instead.',
   },
   'no-server': {
     desktop: none('declining is a button on the offer itself; there is no confirmation screen'),
     mobile: none('declining is a button on the offer itself; there is no confirmation screen'),
   },
-  'choose-a-plan': { desktop: none('no plans or subscriptions exist'), mobile: none('no plans or subscriptions exist') },
+  'choose-a-plan': {
+    desktop: none('no plans or subscriptions exist'),
+    mobile: none('no plans or subscriptions exist'),
+  },
   'agree-and-join-v-1-before-we-support-multiple-hosts': {
     desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
     mobile: on('mobile/src/components/ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx'),
-    divergence: 'Design: one Agree & Join screen reached from nowhere. Implementation: an opt-in drawer plus a separate Terms of Service screen, shown after username (mobile) / on join (desktop).',
+    divergence:
+      'Design: one Agree & Join screen reached from nowhere. Implementation: an opt-in drawer plus a separate Terms of Service screen, shown after username (mobile) / on join (desktop).',
   },
   'agree-and-join-server-opt-in-3054-4090': {
     desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
@@ -56,7 +62,8 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
   'captcha-3054-4052': {
     desktop: on('desktop/src/renderer/captcha.html'),
     mobile: on('mobile/src/components/Captcha/CaptchaModal.component.tsx'),
-    divergence: 'hCaptcha. Desktop loads it in captcha.html via preload.captcha.ts; the backend verifies in captcha.service.ts. Open bugs: #3428 reappearing captcha, #3368 no offline/timeout messaging.',
+    divergence:
+      'hCaptcha. Desktop loads it in captcha.html via preload.captcha.ts; the backend verifies in captcha.service.ts. Open bugs: #3428 reappearing captcha, #3368 no offline/timeout messaging.',
   },
   'home-add-members': {
     desktop: on('desktop/src/renderer/components/Channel/ChannelComponent.tsx'),
@@ -89,7 +96,7 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     mobile: on('mobile/src/components/Registration/UsernameRegistration.component.tsx'),
   },
   'link-devices': {
-    desktop: pr('desktop/src/renderer/components/Settings/Tabs/LinkedDevices/LinkedDevices.component.tsx'),
+    desktop: pr('desktop/src/renderer/components/Settings/Tabs/LinkedDevices/LinkedDevices.tsx'),
     mobile: pr('mobile/src/screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen.tsx'),
     divergence:
       "#3400 vocabulary: DeviceLinkInvite, deviceLinkUrl, LinkedDevices; strings 'Generating device link…', 'Device link unavailable'. It lives under Settings, not onboarding.",
@@ -108,7 +115,15 @@ export const IMPLEMENTATION_ONLY: Array<{ stage: string; desktop?: string; mobil
     desktop: 'desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx',
     mobile: 'mobile/src/components/TermsOfService/TermsOfService.component.tsx',
   },
-  { stage: 'Connecting / loading', desktop: 'desktop/src/renderer/components/LoadingPanel/StartingPanelComponent.tsx', mobile: 'mobile/src/components/ConnectionProcess/ConnectionProcess.component.tsx' },
-  { stage: 'Username created / success', desktop: 'desktop/src/renderer/components/CreateUsername/UsernameCreated/UsernameCreated.tsx', mobile: 'mobile/src/components/Success/Success.component.tsx' },
+  {
+    stage: 'Connecting / loading',
+    desktop: 'desktop/src/renderer/components/LoadingPanel/StartingPanelComponent.tsx',
+    mobile: 'mobile/src/components/ConnectionProcess/ConnectionProcess.component.tsx',
+  },
+  {
+    stage: 'Username created / success',
+    desktop: 'desktop/src/renderer/components/CreateUsername/UsernameCreated/UsernameCreated.tsx',
+    mobile: 'mobile/src/components/Success/Success.component.tsx',
+  },
   { stage: 'Splash', mobile: 'mobile/src/components/Splash/Splash.component.tsx' },
 ]

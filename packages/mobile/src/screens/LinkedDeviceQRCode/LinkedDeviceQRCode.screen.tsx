@@ -1,21 +1,27 @@
-import React, { type FC, useCallback, useEffect, useRef } from 'react'
-import Share from 'react-native-share'
-import SVG from 'react-native-svg'
+import React, { type FC, useCallback, useEffect } from 'react'
+import { Platform } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { connection } from '@quiet/state-manager'
 
-import { QRCode } from '../../components/QRCode/QRCode.component'
+import { LinkedDeviceQRCode } from '../../components/LinkedDeviceQRCode/LinkedDeviceQRCode.component'
+import { useConfirmationBox } from '../../hooks/useConfirmationBox'
 import { navigationActions } from '../../store/navigation/navigation.slice'
-import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('linkedDeviceQrCode:screen')
-
+/**
+ * Link devices → Display QR code: mints a fresh one-time device link when opened and
+ * again on Reset QR code; Copy link puts the link on the clipboard and confirms.
+ */
 export const LinkedDeviceQRCodeScreen: FC = () => {
   const dispatch = useDispatch()
-  const svgRef = useRef<SVG | undefined>(undefined)
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
+  const confirmationBox = useConfirmationBox('Link copied')
+
+  useEffect(() => {
+    dispatch(connection.actions.setDeviceLinkInvite(undefined))
+  }, [dispatch])
 
   useEffect(() => {
     if (!deviceLinkInvite) {
@@ -27,30 +33,25 @@ export const LinkedDeviceQRCodeScreen: FC = () => {
     dispatch(navigationActions.pop())
   }, [dispatch])
 
-  const shareCode = async () => {
+  const onCopyLink = useCallback(async () => {
     if (!deviceLink) return
+    Clipboard.setString(deviceLink)
+    // Android 33+ already confirms copied content.
+    if (Platform.OS === 'android' && Platform.Version >= 33) return
+    await confirmationBox.flash()
+  }, [deviceLink, confirmationBox])
 
-    svgRef.current?.toDataURL(async base64 => {
-      try {
-        await Share.open({
-          title: 'Quiet device link',
-          message: `Link this device to my Quiet community:\n${deviceLink}`,
-          url: `data:image/png;base64,${base64}`,
-        })
-      } catch (error) {
-        logger.error(error)
-      }
-    })
-  }
+  const onReset = useCallback(() => {
+    dispatch(connection.actions.setDeviceLinkInvite(undefined))
+  }, [dispatch])
 
   return (
-    <QRCode
+    <LinkedDeviceQRCode
       value={deviceLink}
-      svgRef={svgRef}
-      shareCode={shareCode}
+      isLoading={!deviceLinkInvite}
+      onCopyLink={onCopyLink}
+      onReset={onReset}
       handleBackButton={handleBackButton}
-      title='Link a device'
-      description='Scan this private, one-time code with Quiet on a device you control. Keep both devices online until linking finishes. The code expires after 30 minutes.'
     />
   )
 }

@@ -1,56 +1,65 @@
 import React from 'react'
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
+import CopyToClipboard from 'react-copy-to-clipboard'
 
 import { ActionRow } from './ActionRow'
 import { OnboardingBody, RowGroup } from './OnboardingBody'
+import { LinkedDevicesList, type LinkedDeviceRow } from './LinkedDevicesList'
 import { onboardingIcons } from './icons'
 
-const PREFIX = 'LinkDevicesComponent'
+export type { LinkedDeviceRow } from './LinkedDevicesList'
 
-const classes = {
-  sectionLabel: `${PREFIX}sectionLabel`,
-  device: `${PREFIX}device`,
-  empty: `${PREFIX}empty`,
-}
-
-const DeviceList = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: theme.space.sm,
-  [`& .${classes.sectionLabel}`]: {
-    color: theme.palette.colors.darkGray,
-  },
-  [`& .${classes.device}`]: {
-    paddingTop: theme.space.sm,
-    paddingBottom: theme.space.sm,
-    borderBottom: `1px solid ${theme.palette.colors.border01}`,
-  },
-  [`& .${classes.empty}`]: {
-    color: theme.palette.colors.darkGray,
-  },
-}))
-
-export interface LinkedDeviceRow {
-  deviceId: string
-  deviceName: string
-  isCurrent: boolean
-}
+/**
+ * Which way this device links (user decision, 2026-09-13): inside a community it
+ * shares — Display QR code and Copy link; without one it receives — Scan QR code and
+ * Paste link. The rows of the other direction are not drawn.
+ */
+export type LinkDevicesDirection = 'share' | 'receive'
 
 export interface LinkDevicesComponentProps {
-  onDisplayQrCode: () => void
-  onScanQrCode: () => void
+  direction: LinkDevicesDirection
+  /** share: opens the QR code sheet. */
+  onDisplayQrCode?: () => void
+  /**
+   * share: the device link to copy (the same one-time link the QR sheet shows); empty
+   * while it is being minted, in which case the row asks for one via `onCopyLink`.
+   */
+  deviceLink?: string
+  onCopyLink?: () => void
+  /** share: after the link was put on the clipboard (show the confirmation). */
+  onLinkCopied?: () => void
+  /** receive: opens the camera. */
+  onScanQrCode?: () => void
+  /** receive: the Paste link row (user addition, 2026-09-13; not in 2811:2575). */
+  onPasteLink?: () => void
   /** Devices linked to this user; undefined while unknown. */
   linkedDevices?: LinkedDeviceRow[]
 }
 
-/** Link devices · Figma 2811:2575. */
+/**
+ * Link devices · Figma 2811:2575, in the shell of the Device-linking desktop frames
+ * 879:20987 / 880:17196: the rows in the library's bordered group, then the Linked
+ * devices list. The rows follow the direction (above). Copy link and Paste link carry
+ * the library's link glyph (the one Join with invite link uses on 2811:2562); their
+ * labels are not the designer's.
+ */
 export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
+  direction,
   onDisplayQrCode,
+  deviceLink = '',
+  onCopyLink,
+  onLinkCopied,
   onScanQrCode,
+  onPasteLink,
   linkedDevices,
 }) => {
-  const others = (linkedDevices ?? []).filter(device => !device.isCurrent)
+  const copyRow = (
+    <ActionRow
+      icon={onboardingIcons.inviteLink}
+      label={'Copy link'}
+      onClick={deviceLink ? undefined : onCopyLink}
+      dataTestId='link-devices-copy-link'
+    />
+  )
   return (
     <OnboardingBody
       heading={'Link devices'}
@@ -59,41 +68,41 @@ export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
       }
       dataTestId='link-devices'
     >
-      <RowGroup>
-        <ActionRow
-          icon={onboardingIcons.qrDisplay}
-          label={'Display QR code'}
-          onClick={onDisplayQrCode}
-          dataTestId='link-devices-display-qr'
-        />
-        <ActionRow
-          icon={onboardingIcons.qrScan}
-          label={'Scan QR code'}
-          onClick={onScanQrCode}
-          dataTestId='link-devices-scan-qr'
-        />
-      </RowGroup>
-      <DeviceList data-testid='linked-devices-list'>
-        <Typography variant='overline' className={classes.sectionLabel}>
-          Linked devices
-        </Typography>
-        {others.length === 0 ? (
-          <Typography variant='body2' className={classes.empty} data-testid='no-linked-devices'>
-            No linked devices
-          </Typography>
+      <RowGroup bordered dataTestId='link-devices-rows'>
+        {direction === 'share' ? (
+          <>
+            <ActionRow
+              icon={onboardingIcons.qrDisplay}
+              label={'Display QR code'}
+              onClick={onDisplayQrCode}
+              dataTestId='link-devices-display-qr'
+            />
+            {deviceLink ? (
+              <CopyToClipboard text={deviceLink} onCopy={onLinkCopied}>
+                {copyRow}
+              </CopyToClipboard>
+            ) : (
+              copyRow
+            )}
+          </>
         ) : (
-          others.map(device => (
-            <Typography
-              variant='body1'
-              className={classes.device}
-              key={device.deviceId}
-              data-testid={`linked-device-${device.deviceName}`}
-            >
-              {device.deviceName}
-            </Typography>
-          ))
+          <>
+            <ActionRow
+              icon={onboardingIcons.qrScan}
+              label={'Scan QR code'}
+              onClick={onScanQrCode}
+              dataTestId='link-devices-scan-qr'
+            />
+            <ActionRow
+              icon={onboardingIcons.inviteLink}
+              label={'Paste link'}
+              onClick={onPasteLink}
+              dataTestId='link-devices-paste-link'
+            />
+          </>
         )}
-      </DeviceList>
+      </RowGroup>
+      <LinkedDevicesList devices={linkedDevices} />
     </OnboardingBody>
   )
 }

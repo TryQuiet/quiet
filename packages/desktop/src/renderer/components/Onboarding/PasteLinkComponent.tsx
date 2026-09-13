@@ -8,7 +8,7 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 import { getInvitationCodes } from '@quiet/state-manager'
-import type { InvitationData } from '@quiet/types'
+import { type InvitationData, isDeviceInvitationData } from '@quiet/types'
 
 import { TextField } from '../ui/TextField/TextField'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
@@ -77,7 +77,12 @@ export interface PasteLinkComponentProps {
   isConnectionReady?: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
-  /** Receives the parsed invitation (member or device). */
+  /**
+   * What the field accepts: any invitation (default), or only a device link — a member
+   * link then shows InviteLinkErrors.NotDeviceLink under the input and nothing is passed on.
+   */
+  linkKind?: 'any' | 'device'
+  /** Receives the parsed invitation (member or device; only device when linkKind is 'device'). */
   handleCommunityAction: (data: InvitationData) => void
 }
 
@@ -85,8 +90,9 @@ const field = inviteLinkField()
 
 /**
  * "Paste a link to Join": the WIP frame's intent — heading, one input with
- * placeholder "Link", Continue. Accepts member and device invitations alike;
- * the caller decides what to do with each kind.
+ * placeholder "Link", Continue. Accepts member and device invitations alike and
+ * the caller decides what to do with each kind — unless `linkKind` narrows it to
+ * device links (Link devices → Paste link).
  */
 export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
   heading,
@@ -95,6 +101,7 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
   isConnectionReady = true,
   revealInputValue = false,
   handleClickInputReveal,
+  linkKind = 'any',
   handleCommunityAction,
 }) => {
   const {
@@ -115,6 +122,10 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
     }
     if (!data) {
       setError('name', { message: InviteLinkErrors.InvalidCode })
+      return
+    }
+    if (linkKind === 'device' && !isDeviceInvitationData(data)) {
+      setError('name', { message: InviteLinkErrors.NotDeviceLink })
       return
     }
     handleCommunityAction(data)

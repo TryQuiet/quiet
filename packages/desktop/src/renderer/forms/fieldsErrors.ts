@@ -14,6 +14,8 @@ export enum CommunityNameErrors {
 
 export enum InviteLinkErrors {
   InvalidCode = 'Please check your invitation code and try again',
+  /** Link devices → Paste link rejects anything but a device link. Undesigned copy (user addition, 2026-09-13). */
+  NotDeviceLink = 'This is not a device link. Use the link from Link devices on your other device.',
 }
 
 export enum ChannelNameErrors {
