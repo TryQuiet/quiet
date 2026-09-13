@@ -51,12 +51,12 @@ export const useQrScanner = ({ onCode, intervalMs = 100 }: UseQrScannerOptions) 
     let canvas: HTMLCanvasElement | null = null
     let lastText: string | null = null
 
+    /** Stop decoding and the camera (the element keeps its ended stream until unmount). */
     const release = () => {
       if (timer) clearInterval(timer)
       timer = undefined
       stream?.getTracks().forEach(track => track.stop())
       stream = null
-      if (videoRef.current) videoRef.current.srcObject = null
     }
 
     const decodeFrame = () => {
@@ -118,6 +118,7 @@ export const useQrScanner = ({ onCode, intervalMs = 100 }: UseQrScannerOptions) 
     return () => {
       cancelled = true
       release()
+      if (videoRef.current) videoRef.current.srcObject = null
     }
   }, [intervalMs])
 

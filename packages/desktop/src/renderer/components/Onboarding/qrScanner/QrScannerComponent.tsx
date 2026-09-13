@@ -25,46 +25,50 @@ export const VIEWFINDER_ASPECT_RATIO = '375 / 384'
 /** The framed square the code is held in (≈215 in the frames). */
 export const TARGET_SIZE = 216
 
-const Viewfinder = styled('div')(({ theme }) => ({
-  position: 'relative',
-  // The frames run the camera edge to edge; the body's side padding is undone here.
-  marginLeft: -theme.space.lg,
-  marginRight: -theme.space.lg,
-  aspectRatio: VIEWFINDER_ASPECT_RATIO,
-  backgroundColor: theme.palette.colors.trueBlack,
-  overflow: 'hidden',
-  [`& .${classes.video}`]: {
-    position: 'absolute',
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-  },
-  [`& .${classes.frame}`]: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    width: TARGET_SIZE,
-    height: TARGET_SIZE,
-    transform: 'translate(-50%, -50%)',
-    borderRadius: theme.space.sm,
-    border: `1px solid rgba(255, 255, 255, 0.8)`,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    pointerEvents: 'none',
-  },
-  [`& .${classes.overlay}`]: {
-    position: 'absolute',
-    inset: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.space.md,
-    padding: theme.space.xl,
-    textAlign: 'center',
-    color: theme.palette.colors.white,
-  },
-}))
+const Viewfinder = styled('div', { shouldForwardProp: prop => prop !== 'flush' })<{ flush: boolean }>(
+  ({ theme, flush }) => ({
+    position: 'relative',
+    // The frames run the camera edge to edge; the body's side padding is undone here, and
+    // its top padding too when nothing sits between the title bar and the camera (2811:2460).
+    marginLeft: -theme.space.lg,
+    marginRight: -theme.space.lg,
+    marginTop: flush ? -theme.space.xl : 0,
+    aspectRatio: VIEWFINDER_ASPECT_RATIO,
+    backgroundColor: theme.palette.colors.trueBlack,
+    overflow: 'hidden',
+    [`& .${classes.video}`]: {
+      position: 'absolute',
+      inset: 0,
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+    },
+    [`& .${classes.frame}`]: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      width: TARGET_SIZE,
+      height: TARGET_SIZE,
+      transform: 'translate(-50%, -50%)',
+      borderRadius: theme.space.sm,
+      border: `1px solid rgba(255, 255, 255, 0.8)`,
+      backgroundColor: 'rgba(255, 255, 255, 0.35)',
+      pointerEvents: 'none',
+    },
+    [`& .${classes.overlay}`]: {
+      position: 'absolute',
+      inset: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.space.md,
+      padding: theme.space.xl,
+      textAlign: 'center',
+      color: theme.palette.colors.white,
+    },
+  })
+)
 
 const ErrorText = styled(Typography)(({ theme }) => ({
   color: theme.palette.colors.red,
@@ -129,7 +133,7 @@ export const QrScannerComponent: React.FC<QrScannerComponentProps> = ({
 
   return (
     <OnboardingBody intro={intro} dataTestId={dataTestId}>
-      <Viewfinder data-testid={`${dataTestId}-viewfinder`} data-status={status}>
+      <Viewfinder flush={!intro} data-testid={`${dataTestId}-viewfinder`} data-status={status}>
         <video ref={videoRef} className={classes.video} muted playsInline data-testid={`${dataTestId}-video`} />
         {status === 'scanning' ? <div className={classes.frame} aria-hidden /> : null}
         {status === 'requesting' ? (

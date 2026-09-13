@@ -456,7 +456,6 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
 }
 
 const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromScan']
-const SCAN_STEPS: Step[] = ['joinWithQrCode', 'scanQrCode']
 
 /** What the walkthrough's camera shows; the code is the sample link the current step expects. */
 type WalkthroughCamera = 'code' | 'blank' | 'denied' | 'none'
@@ -613,7 +612,6 @@ const WalkthroughStory = () => {
 
   const { title, bar, left } = STEPS[step]
   const isPasteStep = PASTE_STEPS.includes(step)
-  const isScanStep = SCAN_STEPS.includes(step)
   const onLeft = left === 'back' ? back : left === 'close' ? restart : undefined
 
   return (
@@ -650,18 +648,17 @@ const WalkthroughStory = () => {
               <button type='button' style={chromeButton} onClick={restart} data-testid='walkthrough-restart'>
                 restart
               </button>
-              {isScanStep &&
-                WALKTHROUGH_CAMERAS.map(mode => (
-                  <button
-                    key={mode}
-                    type='button'
-                    style={{ ...chromeButton, fontWeight: mode === cameraMode ? 700 : 400 }}
-                    onClick={() => setCameraMode(mode)}
-                    data-testid={`walkthrough-camera-${mode}`}
-                  >
-                    camera: {mode === 'code' ? 'sample link QR code' : mode}
-                  </button>
-                ))}
+              {WALKTHROUGH_CAMERAS.map(mode => (
+                <button
+                  key={mode}
+                  type='button'
+                  style={{ ...chromeButton, fontWeight: mode === cameraMode ? 700 : 400 }}
+                  onClick={() => setCameraMode(mode)}
+                  data-testid={`walkthrough-camera-${mode}`}
+                >
+                  camera: {mode === 'code' ? 'sample link QR code' : mode}
+                </button>
+              ))}
               {isPasteStep && (
                 <>
                   <button
