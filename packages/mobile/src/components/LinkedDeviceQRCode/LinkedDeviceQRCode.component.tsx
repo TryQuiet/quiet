@@ -4,6 +4,7 @@ import QR from 'react-native-qrcode-svg'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
+import { ActionProgress } from '../ActionProgress/ActionProgress.component'
 import { Appbar } from '../Appbar/Appbar.component'
 import { Button } from '../Button/Button.component'
 import { Typography } from '../Typography/Typography.component'
@@ -20,7 +21,7 @@ export const LINKED_DEVICE_QR_COPY = {
   scan: 'Scan this from “Link devices” on another device to link the devices.',
   copyLink: 'Copy link',
   reset: 'Reset QR code',
-  /** While the backend mints the one-time link (#3400's copy; the frame draws no such state). */
+  /** While the backend mints the one-time link (#3400's copy; the frame draws no such state) — the ActionProgress status line. */
   generating: 'Generating device link…',
 } as const
 
@@ -28,8 +29,10 @@ export const LINKED_DEVICE_QR_COPY = {
  * Link devices — QR code (2811:2601, 879:15503): the QR in the designed box, the sheet's
  * sentence, then — the user's decision (2026-09-13), in the slot the Add members QR sheet
  * (2932:3707) gives its primary button — Copy link, and Reset QR code as a text link
- * (16/26 #2373EA). The raw link is never shown. A full screen with the sheet's content;
- * the sheet itself is a cross-cutting parity item.
+ * (16/26 #2373EA). The raw link is never shown. While the link is minted the actions give
+ * way to the library's progress bar with the status line (ActionProgress, #3518's rule:
+ * never a greyed-out button). A full screen with the sheet's content; the sheet itself is
+ * a cross-cutting parity item.
  */
 export const LinkedDeviceQRCode: FC<LinkedDeviceQRCodeProps> = ({
   value,
@@ -59,41 +62,24 @@ export const LinkedDeviceQRCode: FC<LinkedDeviceQRCodeProps> = ({
           }}
           testID={'linked-device-qr-code-box'}
         >
-          {ready ? (
-            <QR value={value} size={QR_SIZE} />
-          ) : (
-            <Typography
-              variant={'body'}
-              color={'gray50'}
-              horizontalTextAlign={'center'}
-              testID={'linked-device-qr-code-status'}
-            >
-              {isLoading ? LINKED_DEVICE_QR_COPY.generating : ''}
-            </Typography>
-          )}
+          {ready ? <QR value={value} size={QR_SIZE} /> : null}
         </View>
         <Typography variant={'body'} horizontalTextAlign={'center'}>
           {LINKED_DEVICE_QR_COPY.scan}
         </Typography>
-        <Button
-          title={LINKED_DEVICE_QR_COPY.copyLink}
-          onPress={onCopyLink}
-          disabled={!ready}
-          newDesign
-          testID={'copy-device-link'}
-        />
-        <TouchableOpacity
-          onPress={onReset}
-          disabled={!ready}
-          accessibilityRole='button'
-          accessibilityState={{ disabled: !ready }}
-          style={{ opacity: ready ? 1 : 0.4 }}
-          testID={'reset-qr-code'}
-        >
-          <Typography variant={'bodyLg'} color={'blue'} horizontalTextAlign={'center'}>
-            {LINKED_DEVICE_QR_COPY.reset}
-          </Typography>
-        </TouchableOpacity>
+        {isLoading && !ready ? (
+          <ActionProgress status={LINKED_DEVICE_QR_COPY.generating} testID={'linked-device-qr-code-progress'} />
+        ) : null}
+        {ready ? (
+          <>
+            <Button title={LINKED_DEVICE_QR_COPY.copyLink} onPress={onCopyLink} newDesign testID={'copy-device-link'} />
+            <TouchableOpacity onPress={onReset} accessibilityRole='button' testID={'reset-qr-code'}>
+              <Typography variant={'bodyLg'} color={'blue'} horizontalTextAlign={'center'}>
+                {LINKED_DEVICE_QR_COPY.reset}
+              </Typography>
+            </TouchableOpacity>
+          </>
+        ) : null}
       </View>
     </View>
   )

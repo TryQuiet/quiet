@@ -32,17 +32,20 @@ describe('LinkedDeviceQRCode component', () => {
     expect(onReset).toHaveBeenCalledTimes(1)
   })
 
-  it('while the link is minted the box says so and both actions do nothing', () => {
-    const onCopyLink = jest.fn()
-    const onReset = jest.fn()
+  it('while the link is minted the actions give way to the progress bar with the status line', () => {
     const result = renderComponent(
-      <LinkedDeviceQRCode value={''} isLoading onCopyLink={onCopyLink} onReset={onReset} handleBackButton={jest.fn()} />
+      <LinkedDeviceQRCode
+        value={''}
+        isLoading
+        onCopyLink={jest.fn()}
+        onReset={jest.fn()}
+        handleBackButton={jest.fn()}
+      />
     )
 
     expect(result.getByText(LINKED_DEVICE_QR_COPY.generating)).toBeTruthy()
-    fireEvent.press(result.getByTestId('copy-device-link'))
-    fireEvent.press(result.getByTestId('reset-qr-code'))
-    expect(onCopyLink).not.toHaveBeenCalled()
-    expect(onReset).not.toHaveBeenCalled()
+    expect(result.getByTestId('linked-device-qr-code-progress')).toBeTruthy()
+    expect(result.queryByTestId('copy-device-link')).toBeNull()
+    expect(result.queryByTestId('reset-qr-code')).toBeNull()
   })
 })
