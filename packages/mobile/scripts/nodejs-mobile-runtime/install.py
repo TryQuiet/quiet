@@ -26,6 +26,15 @@ LAYOUT = {
         "include/node": "ios/NodeJsMobile/libnode/include/node",
     },
 }
+# Extra Android ABIs for emulator builds. They are not vendored in git: install one
+# with `--install --abi <abi>`; `--check` verifies it only while its directory exists.
+OPTIONAL_ANDROID_ABIS = ("x86_64",)
+
+
+def android_abi_layout(abi):
+    if abi not in OPTIONAL_ANDROID_ABIS:
+        raise ValueError("Unsupported optional Android ABI: " + abi)
+    return {"bin/" + abi: "android/app/libnode/bin/" + abi}
 
 
 def digest(path):
@@ -73,9 +82,9 @@ def download(metadata, cache):
     return destination
 
 
-def installed_files(root):
+def installed_files(root, mappings=None):
     result = {}
-    for mapping in LAYOUT.values():
+    for mapping in LAYOUT.values() if mappings is None else mappings:
         for relative in mapping.values():
             directory = root / relative
             if directory.is_symlink():
@@ -90,16 +99,32 @@ def installed_files(root):
     return result
 
 
-def check(root, manifest):
-    actual = installed_files(root)
-    expected = manifest["files"]
+def expected_layout(root, manifest):
+    """The vendored runtime plus every optional ABI directory that is present."""
+    mappings = list(LAYOUT.values())
+    expected = dict(manifest["files"])
+    for abi in OPTIONAL_ANDROID_ABIS:
+        mapping = android_abi_layout(abi)
+        if any((root / relative).exists() for relative in mapping.values()):
+            mappings.append(mapping)
+            expected.update(manifest.get("optionalAndroidAbis", {}).get(abi, {}))
+    return mappings, expected
+
+
+def compare(actual, expected):
     differences = sorted(path for path in actual.keys() | expected.keys() if actual.get(path) != expected.get(path))
     if differences:
         raise ValueError("Vendored runtime differs from the manifest:\n" + "\n".join(differences[:20]))
     return len(actual)
 
 
-def stage_archive(archive, platform, stage):
+def check(root, manifest):
+    mappings, expected = expected_layout(root, manifest)
+    return compare(installed_files(root, mappings), expected)
+
+
+def stage_archive(archive, platform, stage, mapping=None):
+    mapping = LAYOUT[platform] if mapping is None else mapping
     with zipfile.ZipFile(archive) as source:
         seen = set()
         for entry in source.infolist():
@@ -111,7 +136,7 @@ def stage_archive(archive, platform, stage):
                 raise ValueError("Unsupported archive entry")
             if entry.is_dir():
                 continue
-            for prefix, relative in LAYOUT[platform].items():
+            for prefix, relative in mapping.items():
                 if path.parts[:len(PurePosixPath(prefix).parts)] != PurePosixPath(prefix).parts:
                     continue
                 suffix = path.relative_to(prefix)
@@ -139,33 +164,57 @@ def install(root, manifest, archives):
         for platform in LAYOUT:
             stage_archive(archives[platform], platform, stage)
         check(stage, manifest)
-        moved = []
-        try:
-            for mapping in LAYOUT.values():
-                for relative in mapping.values():
-                    destination = root / relative
-                    # Refuse symlinked parents, even if the final path is absent.
-                    for parent in (destination, *destination.parents):
-                        if parent == root:
-                            break
-                        if parent.is_symlink():
-                            raise ValueError("Runtime install path is a symlink: " + relative)
-                    backup = temporary / "backup" / relative
-                    existed = destination.exists()
-                    destination.parent.mkdir(parents=True, exist_ok=True)
-                    if existed:
-                        backup.parent.mkdir(parents=True, exist_ok=True)
-                        os.replace(destination, backup)
-                    moved.append((destination, backup, existed))
-                    os.replace(stage / relative, destination)
-            check(root, manifest)
-        except BaseException:
-            for destination, backup, existed in reversed(moved):
-                if destination.exists():
-                    shutil.rmtree(destination)
-                if existed:
-                    os.replace(backup, destination)
-            raise
+        relatives = [relative for mapping in LAYOUT.values() for relative in mapping.values()]
+        replace_directories(root, temporary, stage, relatives, lambda: check(root, manifest))
+
+
+def replace_directories(root, temporary, stage, relatives, verify):
+    moved = []
+    try:
+        for relative in relatives:
+            destination = root / relative
+            # Refuse symlinked parents, even if the final path is absent.
+            for parent in (destination, *destination.parents):
+                if parent == root:
+                    break
+                if parent.is_symlink():
+                    raise ValueError("Runtime install path is a symlink: " + relative)
+            backup = temporary / "backup" / relative
+            existed = destination.exists()
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            if existed:
+                backup.parent.mkdir(parents=True, exist_ok=True)
+                os.replace(destination, backup)
+            moved.append((destination, backup, existed))
+            os.replace(stage / relative, destination)
+        verify()
+    except BaseException:
+        for destination, backup, existed in reversed(moved):
+            if destination.exists():
+                shutil.rmtree(destination)
+            if existed:
+                os.replace(backup, destination)
+        raise
+
+
+def install_android_abi(root, manifest, archive, abi):
+    """Add one optional Android ABI from the pinned Android archive; nothing else changes."""
+    expected = manifest.get("optionalAndroidAbis", {}).get(abi)
+    if not expected:
+        raise ValueError("Manifest has no files for Android ABI " + abi)
+    verify_archive(archive, manifest["archives"]["android"])
+    mapping = android_abi_layout(abi)
+    with tempfile.TemporaryDirectory(prefix=".nodejs-mobile-", dir=root) as temporary:
+        temporary = Path(temporary)
+        stage = temporary / "stage"
+        stage.mkdir()
+        stage_archive(archive, "android", stage, mapping)
+        compare(installed_files(stage, [mapping]), expected)
+        # Verify only the added directory: the vendored runtime (including iOS LFS
+        # objects, which may not be fetched) is untouched and checked by --check.
+        verify = lambda: compare(installed_files(root, [mapping]), expected)
+        replace_directories(root, temporary, stage, list(mapping.values()), verify)
+    return len(expected)
 
 
 def main():
@@ -174,8 +223,16 @@ def main():
     action.add_argument("--check", action="store_true", help="verify vendored files (the default)")
     action.add_argument("--install", action="store_true", help="download, verify, and replace only the pinned runtime files")
     parser.add_argument("--cache", type=Path, default=Path(tempfile.gettempdir()) / "quiet-nodejs-mobile-downloads")
+    parser.add_argument("--abi", action="append", choices=OPTIONAL_ANDROID_ABIS, default=[],
+                        help="with --install: add only this optional Android ABI (emulator builds)")
     args = parser.parse_args()
     manifest = json.loads((HERE / "runtime.json").read_text())
+    if args.install and args.abi:
+        archive = download(manifest["archives"]["android"], args.cache)
+        for abi in args.abi:
+            count = install_android_abi(MOBILE_ROOT, manifest, archive, abi)
+            print("Installed Node " + manifest["nodeVersion"] + " Android " + abi + " runtime: " + str(count) + " files")
+        return
     if args.install:
         archives = {platform: download(metadata, args.cache) for platform, metadata in manifest["archives"].items()}
         install(MOBILE_ROOT, manifest, archives)
