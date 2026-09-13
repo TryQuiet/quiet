@@ -11,7 +11,6 @@ import { PasteLinkComponent } from '../../components/Onboarding/PasteLinkCompone
 import { CreateCommunityComponent } from '../../components/Onboarding/CreateCommunityComponent'
 import { LinkDevicesComponent } from '../../components/Onboarding/LinkDevicesComponent'
 import { DisplayQrCodeComponent } from '../../components/Onboarding/DisplayQrCodeComponent'
-import { LinkedDevicesComponent } from '../../components/Settings/Tabs/LinkedDevices/LinkedDevices.component'
 import { QrScannerComponent } from '../../components/Onboarding/qrScanner/QrScannerComponent'
 
 // The frames these screens are built from, for the side-by-side columns.
@@ -525,19 +524,20 @@ export const DisplayQrCodeUnavailable = () => (
 
 export const SettingsLinkedDevices = () => (
   <Screen
-    title='Settings · Linked devices'
+    title='Settings · Linked devices (in app)'
     bar='Settings'
     left='close'
-    figma='—'
-    note='the Settings tab reuses the QR sheet content and the Linked devices list, so it matches Link devices'
+    figma='879:19861'
+    note='the in-app entry (the Device-linking file’s Entry points board): the Settings tab shows the same Link devices content with the community’s device list, Display QR code enabled; each row opens the Link devices modal at its step'
     render={() => (
-      <LinkedDevicesComponent
-        deviceLink={SAMPLE_DEVICE_LINK}
-        isLoading={false}
-        onReset={noop}
+      <LinkDevicesComponent
+        onDisplayQrCode={noop}
+        onScanQrCode={noop}
+        onPasteLink={noop}
         linkedDevices={[
           { deviceId: 'this', deviceName: 'this device', isCurrent: true },
           { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
+          { deviceId: 'old', deviceName: 'old-phone', isCurrent: false, removedAt: 1 },
         ]}
       />
     )}

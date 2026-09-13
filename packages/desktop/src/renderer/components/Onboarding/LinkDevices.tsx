@@ -22,7 +22,13 @@ import { createLogger } from '../../logger'
 const logger = createLogger('LinkDevices')
 
 /** `paste` is the scanner's fallback (back returns to the camera); `pasteLink` is the Paste link row's (back returns here). */
-type Step = 'entry' | 'display' | 'scan' | 'paste' | 'pasteLink'
+export type LinkDevicesStep = 'entry' | 'display' | 'scan' | 'paste' | 'pasteLink'
+type Step = LinkDevicesStep
+
+/** Settings → Linked devices opens the modal straight at a row's step; back / close from there leave the modal. */
+export interface LinkDevicesModalArgs {
+  step?: LinkDevicesStep
+}
 
 /**
  * Only the sheets keep a titled bar (2811:2601 "QR code", 2811:2587 "Scan QR code").
@@ -55,7 +61,8 @@ export const LinkDevices: React.FC = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const linkedDevices = useSelector(connection.selectors.linkedDevices)
 
-  const linkDevicesModal = useModal(ModalName.linkDevicesModal)
+  const linkDevicesModal = useModal<LinkDevicesModalArgs>(ModalName.linkDevicesModal)
+  const initialStep: Step = linkDevicesModal.step ?? 'entry'
   const getStartedModal = useModal(ModalName.getStartedModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
@@ -64,21 +71,25 @@ export const LinkDevices: React.FC = () => {
   const [revealInputValue, setRevealInputValue] = useState(false)
 
   useEffect(() => {
-    if (!linkDevicesModal.open) setStep('entry')
+    setStep(linkDevicesModal.open ? initialStep : 'entry')
     if (linkDevicesModal.open && isConnected) dispatch(connection.actions.getLinkedDevices())
   }, [linkDevicesModal.open, isConnected])
 
+  const leave = () => {
+    if (!currentCommunity) getStartedModal.handleOpen()
+    linkDevicesModal.handleClose()
+  }
+
   const handleBack = () => {
+    if (step === initialStep) {
+      leave()
+      return
+    }
     if (step === 'paste') {
       setStep('scan')
       return
     }
-    if (step !== 'entry') {
-      setStep('entry')
-      return
-    }
-    if (!currentCommunity) getStartedModal.handleOpen()
-    linkDevicesModal.handleClose()
+    setStep('entry')
   }
 
   const handleCommunityAction = (data: InvitationData) => {
@@ -98,13 +109,14 @@ export const LinkDevices: React.FC = () => {
     linkDevicesModal.handleClose()
   }
 
-  // The QR code sheet (2811:2601) has a close glyph, not a back arrow; closing it reveals Link devices.
+  // The QR code sheet (2811:2601) has a close glyph, not a back arrow; closing it reveals Link devices —
+  // or, opened straight at the sheet from Settings, leaves the modal.
   const isSheet = step === 'display'
 
   return (
     <Modal
       open={linkDevicesModal.open}
-      handleClose={isSheet ? () => setStep('entry') : linkDevicesModal.handleClose}
+      handleClose={isSheet && step !== initialStep ? () => setStep('entry') : leave}
       title={TITLED_STEPS[step] ?? ''}
       withoutTitle={!TITLED_STEPS[step]}
       canGoBack={!isSheet}

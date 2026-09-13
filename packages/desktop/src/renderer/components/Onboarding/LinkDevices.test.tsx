@@ -228,4 +228,31 @@ describe('Link devices → Display QR code', () => {
     expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
     expect(dispatchSpy).not.toHaveBeenCalledWith(modalsActions.closeModal(ModalName.linkDevicesModal))
   })
+
+  it('opened straight at the QR sheet (from Settings), close leaves the modal instead of showing the rows', async () => {
+    const { store } = await prepareStore({
+      ...openState(),
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.linkDevicesModal]: { open: true, args: { step: 'display' } },
+        [ModalName.loadingPanel]: { open: false },
+      },
+    })
+    const factory = await getReduxStoreFactory(store)
+    const community = await factory.create('Community', { name: 'devices' })
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    expect(await screen.findByText('QR code')).toBeVisible()
+    expect(screen.getByTestId('link-devices-display-box')).toBeVisible()
+    expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
+
+    await userEvent.click(screen.getByTestId('linkDevicesModalClose'))
+    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.closeModal(ModalName.linkDevicesModal))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      modalsActions.openModal({ name: ModalName.getStartedModal, args: undefined })
+    )
+  })
 })

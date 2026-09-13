@@ -4,15 +4,16 @@ import { act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { communities, connection, getReduxStoreFactory } from '@quiet/state-manager'
-import type { DeviceLinkInvite } from '@quiet/types'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import { prepareStore } from '../../../../testUtils/prepareStore'
+import { ModalName } from '../../../../sagas/modals/modals.types'
+import { modalsActions } from '../../../../sagas/modals/modals.slice'
 
 import { LinkedDevices } from './LinkedDevices'
 
-describe('LinkedDevices tab', () => {
-  it('asks the backend for the device list and lists the other devices', async () => {
+describe('Settings → Linked devices', () => {
+  it('shows the Link devices content, asks for the device list and lists the other devices', async () => {
     const { store } = await prepareStore()
     const factory = await getReduxStoreFactory(store)
     const community = await factory.create('Community', { name: 'devices' })
@@ -22,22 +23,29 @@ describe('LinkedDevices tab', () => {
     const result = renderComponent(<LinkedDevices />, store)
 
     expect(dispatch).toHaveBeenCalledWith(connection.actions.getLinkedDevices())
+    expect(result.getByTestId('link-devices')).toBeVisible()
+    expect(result.getByTestId('link-devices-display-qr')).not.toHaveAttribute('aria-disabled', 'true')
+    expect(result.getByTestId('link-devices-paste-link')).toBeVisible()
     expect(result.getByTestId('no-linked-devices')).toBeVisible()
+    expect(result.queryByTestId('copy-device-link')).toBeNull() // no QR here: it lives in the sheet
 
     await act(async () => {
       store.dispatch(
         connection.actions.setLinkedDevices([
           { deviceId: 'me', deviceName: 'me', isCurrent: true },
           { deviceId: 'laptop', deviceName: 'laptop', isCurrent: false },
+          { deviceId: 'old', deviceName: 'old-phone', isCurrent: false, removedAt: 1 },
         ])
       )
     })
 
     expect(result.getByTestId('linked-device-laptop')).toHaveTextContent('laptop')
+    expect(result.getByTestId('linked-device-laptop')).toHaveTextContent('Active')
+    expect(result.queryByTestId('linked-device-old-phone')).toBeNull()
     expect(result.queryByTestId('no-linked-devices')).toBeNull()
   })
 
-  it('mints a device link inside a community, and Reset QR code drops it so a new one is minted', async () => {
+  it('Display QR code opens the Link devices modal straight at the QR sheet', async () => {
     const { store } = await prepareStore()
     const factory = await getReduxStoreFactory(store)
     const community = await factory.create('Community', { name: 'devices' })
@@ -46,35 +54,24 @@ describe('LinkedDevices tab', () => {
 
     const result = renderComponent(<LinkedDevices />, store)
 
-    expect(dispatch).toHaveBeenCalledWith(connection.actions.createDeviceLink())
-    expect(result.getByText('Generating device link…')).toBeVisible()
-    expect(result.queryByTestId('reset-qr-code')).toBeNull()
+    await userEvent.click(result.getByTestId('link-devices-display-qr'))
+    expect(dispatch).toHaveBeenCalledWith(
+      modalsActions.openModal({ name: ModalName.linkDevicesModal, args: { step: 'display' } })
+    )
 
-    await act(async () => {
-      store.dispatch(
-        connection.actions.setDeviceLinkInvite({
-          id: 'invite-id' as unknown as DeviceLinkInvite['id'],
-          teamId: 'team-id' as unknown as DeviceLinkInvite['teamId'],
-          seed: 'seed',
-          userId: 'user-id',
-          userName: 'user',
-          expiresAt: Date.now() + 60_000,
-        })
-      )
-    })
-    dispatch.mockClear()
-
-    // Without peers the selector composes no URL; the sheet keeps the generating state, no Reset yet.
-    expect(result.queryByTestId('reset-qr-code')).toBeNull()
-    expect(dispatch).not.toHaveBeenCalledWith(connection.actions.createDeviceLink())
+    await userEvent.click(result.getByTestId('link-devices-paste-link'))
+    expect(dispatch).toHaveBeenCalledWith(
+      modalsActions.openModal({ name: ModalName.linkDevicesModal, args: { step: 'pasteLink' } })
+    )
   })
 
-  it('does not ask for a device list without a community', async () => {
+  it('without a community it neither asks for a device list nor enables Display QR code', async () => {
     const { store } = await prepareStore()
     const dispatch = jest.spyOn(store, 'dispatch')
 
-    renderComponent(<LinkedDevices />, store)
+    const result = renderComponent(<LinkedDevices />, store)
 
     expect(dispatch).not.toHaveBeenCalledWith(connection.actions.getLinkedDevices())
+    expect(result.getByTestId('link-devices-display-qr')).toHaveAttribute('aria-disabled', 'true')
   })
 })

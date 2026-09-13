@@ -12,7 +12,7 @@ import { Typography } from '@mui/material'
 import { QRCodeComponent } from './Tabs/QRCode/QRCode.component'
 import { composeInvitationShareUrl } from '@quiet/common'
 import { InvitationDataVersion } from '@quiet/types'
-import { LinkedDevicesComponent } from './Tabs/LinkedDevices/LinkedDevices.component'
+import { LinkDevicesComponent } from '../Onboarding/LinkDevicesComponent'
 
 const invitationLink = composeInvitationShareUrl({
   version: InvitationDataVersion.v4,
@@ -75,10 +75,10 @@ const QRCode: FC = () => {
 }
 
 const LinkedDevices: FC = () => (
-  <LinkedDevicesComponent
-    deviceLink={invitationLink}
-    isLoading={false}
-    onReset={() => {}}
+  <LinkDevicesComponent
+    onDisplayQrCode={() => {}}
+    onScanQrCode={() => {}}
+    onPasteLink={() => {}}
     linkedDevices={[{ deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false }]}
   />
 )
