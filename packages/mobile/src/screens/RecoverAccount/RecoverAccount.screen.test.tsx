@@ -9,6 +9,10 @@ import { renderComponent } from '../../tests/utils/renderComponent'
 import { LinkDevicesScreen } from '../LinkDevices/LinkDevices.screen'
 import { RecoverAccountScreen } from './RecoverAccount.screen'
 
+// The Link devices screen copies the minted device link (design/link-devices-paste); the
+// native clipboard has no jest binding, so it is mocked the way that screen's own test does.
+jest.mock('@react-native-clipboard/clipboard', () => ({ setString: jest.fn() }))
+
 describe('RecoverAccountScreen', () => {
   const renderScreen = async () => {
     const { store } = await prepareStore()
