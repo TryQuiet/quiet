@@ -29,13 +29,25 @@ def events(log, pid):
     return result
 
 
+def app_pid(phone, timeout=10):
+    # During startup, a freshly forked native child can briefly retain the app's
+    # process name before exec. Wait instead of selecting an arbitrary PID.
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        pids = phone.run('shell', 'pidof com.quietmobile || true').split()
+        if len(pids) == 1 and pids[0].isdigit():
+            return int(pids[0])
+        time.sleep(.1)
+    raise RuntimeError('No unique Quiet application PID after startup')
+
+
 def trial(phone, output, timeout=240):
     output = Path(output)
     stop_phone(phone)
     phone.run('logcat', '-c')
     started = time.time()
     phone.run('shell', 'am', 'start', '-n', 'com.quietmobile/.MainActivity')
-    pid = int(phone.run('shell', 'pidof', 'com.quietmobile').strip())
+    pid = app_pid(phone)
     deadline = time.monotonic() + timeout
     result = {'startedAtUnix': started, 'pid':pid, 'timeoutSeconds':timeout}
     try:
@@ -75,7 +87,7 @@ if __name__ == '__main__':
     phone=Android(args.adb, args.serial, output/'ui')
     private_json(output/'preflight.json', phone.preflight(args.qss_port))
     if args.wait_connected_first:
-        pid=int(phone.run('shell','pidof','com.quietmobile').strip())
+        pid=app_pid(phone)
         deadline=time.monotonic()+240
         while time.monotonic()<deadline:
             raw=phone.run('logcat','-d','-v','epoch')

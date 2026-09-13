@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.quiet.connectiondriver">
+  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28" />
+  <application android:label="Quiet connection test driver" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+    <activity android:name=".ProbeActivity" android:exported="false" />
+  </application>
+  <instrumentation android:name=".Driver" android:targetPackage="org.quiet.connectiondriver" android:functionalTest="true" />
+</manifest>

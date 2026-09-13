@@ -1971,6 +1971,33 @@ export class Channel {
     throw logAndReturnError(`Failed to find content for message with content ${messageContent}`)
   }
 
+  async waitForExactMessage(message: string, username: string, timeoutMs: number = 60_000): Promise<WebElement> {
+    // Match both the displayed author and the entire message. A substring in
+    // another user's message (or the sender's composer) is not delivery proof.
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) throw new Error('Expected a simple E2E username')
+    return this.driver.wait(
+      async () => {
+        const candidates = await this.driver.findElements(
+          By.css(`[data-testid^="userMessages-${username}-"] [data-testid^="messagesGroupContent-"]`)
+        )
+        const matches: WebElement[] = []
+        for (const candidate of candidates) {
+          if (!(await candidate.isDisplayed()) || (await candidate.getText()) !== message) continue
+          const wrapper = await candidate.findElement(
+            By.xpath('./ancestor::*[starts-with(@data-testid, "userMessagesWrapper-")]')
+          )
+          const author = await wrapper.findElement(By.css('.BasicMessageComponentusername')).getText()
+          if (author === username) matches.push(candidate)
+        }
+        if (matches.length > 1) throw new Error('Received duplicate E2E message')
+        return matches[0] || false
+      },
+      timeoutMs,
+      'Expected the exact message from its author in the current channel',
+      500
+    )
+  }
+
   async waitForMessageContentByFilename(
     filename: string,
     fileType: FileAttachmentType,
