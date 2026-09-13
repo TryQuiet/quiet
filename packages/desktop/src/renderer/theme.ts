@@ -112,7 +112,7 @@ const lightTheme = createTheme({
       sidebarSelected: '#FFFFFF19',
       sidebarHover: '#FFFFFF0C',
       // Status colors
-      statusGreen: '#9BD174', // Grass Green - for online status
+      statusGreen: '#80B857', // The library's 'Core/Grass Green' - the Online indicator fill (4610:17230)
     },
   },
   componentSizes: {
@@ -288,7 +288,7 @@ const darkTheme = createTheme({
       sidebarSelected: '#FFFFFF19',
       sidebarHover: '#FFFFFF0C',
       // Status colors
-      statusGreen: '#9BD174', // Grass Green - for online status
+      statusGreen: '#80B857', // The library's 'Core/Grass Green' - the Online indicator fill (4610:17230)
     },
   },
   componentSizes: {

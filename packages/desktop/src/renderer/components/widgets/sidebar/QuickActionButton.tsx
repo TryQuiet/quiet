@@ -30,8 +30,9 @@ const StyledButton = styled(Button)(({ theme }) => ({
     color: theme.palette.colors.white,
   },
 
+  // The row's glyph is 12x12 in the design's 'List item' (library 3797:16037).
   [`& .${classes.icon}`]: {
-    fontSize: 16,
+    fontSize: 12,
   },
 
   [`& .${classes.iconDiv}`]: {

@@ -662,7 +662,7 @@ describe('Channels panel', () => {
                   tabindex="-1"
                 >
                   <span
-                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                    class="MuiBadge-root MuiBadge-root css-w55pzm-MuiBadge-root"
                   >
                     <span
                       class="UserProfileListItemavatar"
@@ -699,7 +699,7 @@ describe('Channels panel', () => {
                   tabindex="-1"
                 >
                   <span
-                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                    class="MuiBadge-root MuiBadge-root css-w55pzm-MuiBadge-root"
                   >
                     <span
                       class="UserProfileListItemavatar"
@@ -736,7 +736,7 @@ describe('Channels panel', () => {
                   tabindex="-1"
                 >
                   <span
-                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                    class="MuiBadge-root MuiBadge-root css-w55pzm-MuiBadge-root"
                   >
                     <span
                       class="UserProfileListItemavatar"
@@ -1299,7 +1299,7 @@ describe('Channels panel', () => {
                 tabindex="-1"
               >
                 <span
-                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  class="MuiBadge-root MuiBadge-root css-w55pzm-MuiBadge-root"
                 >
                   <span
                     class="UserProfileListItemavatar"
@@ -1336,7 +1336,7 @@ describe('Channels panel', () => {
                 tabindex="-1"
               >
                 <span
-                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  class="MuiBadge-root MuiBadge-root css-w55pzm-MuiBadge-root"
                 >
                   <span
                     class="UserProfileListItemavatar"
@@ -1373,7 +1373,7 @@ describe('Channels panel', () => {
                 tabindex="-1"
               >
                 <span
-                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  class="MuiBadge-root MuiBadge-root css-w55pzm-MuiBadge-root"
                 >
                   <span
                     class="UserProfileListItemavatar"

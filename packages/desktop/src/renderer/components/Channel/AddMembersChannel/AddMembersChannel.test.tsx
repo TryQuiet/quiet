@@ -94,7 +94,7 @@ describe('AddMembersChannel', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container css-7r8u3v-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-t69nx5-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 AddMembersChanneldescContainer css-s2k0j8-MuiGrid-root"
@@ -160,7 +160,7 @@ describe('AddMembersChannel', () => {
                     </p>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-jdo0va-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-1wqrd61-MuiGrid-root"
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-gcwvw8-MuiAutocomplete-root"
@@ -256,7 +256,7 @@ describe('AddMembersChannel', () => {
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 AddMembersChannelsecondaryButtonContainer css-s2k0j8-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelsecondaryButton css-cr43qu-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall AddMembersChannelsecondaryButton css-1n6akp1-MuiButtonBase-root-MuiButton-root"
                       data-testid="general-add-members-leave-button"
                       tabindex="0"
                       type="button"
