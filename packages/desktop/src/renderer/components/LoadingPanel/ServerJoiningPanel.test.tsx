@@ -47,6 +47,26 @@ describe('ServerJoiningPanel', () => {
     expect(result.queryByTestId('serverJoiningPanel')).toBeNull()
   })
 
+  // The rule the server screen exists for: a community on a server is not
+  // reached by anything the person is waiting on being told about, so none of
+  // its vocabulary belongs under the bar. Run over every phase the enum can
+  // hold, not just the four the slice currently stores, so a phase added later
+  // cannot reintroduce it.
+  it.each(Object.entries(ConnectionProcessInfo))('says nothing about Tor while %s is the phase', (_key, phase) => {
+    const result = renderComponent(
+      <ServerJoiningPanel
+        open={true}
+        isOwner={false}
+        connectionInfo={{ number: 40, text: phase }}
+        communityName='Rockets'
+      />
+    )
+
+    expect(result.container.textContent).not.toMatch(/tor\b/i)
+    expect(result.container.textContent).not.toMatch(/hidden service/i)
+    expect(result.container.textContent).not.toMatch(/onion/i)
+  })
+
   it('renders component', () => {
     const result = render()
     expect(result.baseElement).toMatchInlineSnapshot(`
