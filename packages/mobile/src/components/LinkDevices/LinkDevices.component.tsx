@@ -91,7 +91,7 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
           <Typography
             variant={'overline'}
             color={'gray50'}
-            style={{ paddingTop: spacing.xl, paddingBottom: spacing.sm, letterSpacing: 1 }}
+            style={{ paddingTop: spacing.xl, paddingBottom: spacing.sm, letterSpacing: 1, textTransform: 'uppercase' }}
           >
             {'Linked devices'}
           </Typography>
