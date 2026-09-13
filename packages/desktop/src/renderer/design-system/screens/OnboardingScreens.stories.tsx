@@ -57,52 +57,59 @@ const Column: React.FC<{ width: number; label: string; children: React.ReactNode
 
 type ShellLeft = 'back' | 'close' | 'none'
 
-/** The Modal full-window shell as the app's Modal renders it: 60px header, back arrow (or close) left, title centered. */
-const Shell: React.FC<{ title: string; left?: ShellLeft; onLeft?: () => void; children: React.ReactNode }> = ({
+/**
+ * The Modal full-window shell as the app's Modal renders it: 60px header, back
+ * arrow (or close) left, title centered. No `title` = no bar (Get started: the
+ * window chrome is the bar), the content column starting at the top.
+ */
+const Shell: React.FC<{ title?: string; left?: ShellLeft; onLeft?: () => void; children: React.ReactNode }> = ({
   title,
   left = 'back',
   onLeft,
   children,
 }) => (
   <div style={{ width: SHELL_WIDTH, minHeight: 560, background: '#fff' }}>
-    <div
-      style={{
-        height: 60,
-        display: 'flex',
-        alignItems: 'center',
-        borderBottom: `1px solid #F0F0F0`,
-        fontFamily: "'Rubik', sans-serif",
-      }}
-    >
-      <div style={{ width: 60, display: 'flex', justifyContent: 'center' }}>
-        {left === 'none' ? null : (
-          <button
-            type='button'
-            aria-label={left}
-            data-testid={`shell-${left}`}
-            onClick={onLeft}
-            style={{
-              border: 0,
-              background: 'none',
-              padding: 0,
-              display: 'flex',
-              cursor: onLeft ? 'pointer' : 'default',
-            }}
-          >
-            {left === 'back' ? <BackIcon /> : <CloseIcon />}
-          </button>
-        )}
+    {title === undefined ? null : (
+      <div
+        style={{
+          height: 60,
+          display: 'flex',
+          alignItems: 'center',
+          borderBottom: `1px solid #F0F0F0`,
+          fontFamily: "'Rubik', sans-serif",
+        }}
+      >
+        <div style={{ width: 60, display: 'flex', justifyContent: 'center' }}>
+          {left === 'none' ? null : (
+            <button
+              type='button'
+              aria-label={left}
+              data-testid={`shell-${left}`}
+              onClick={onLeft}
+              style={{
+                border: 0,
+                background: 'none',
+                padding: 0,
+                display: 'flex',
+                cursor: onLeft ? 'pointer' : 'default',
+              }}
+            >
+              {left === 'back' ? <BackIcon /> : <CloseIcon />}
+            </button>
+          )}
+        </div>
+        <div style={{ flex: 1, textAlign: 'center', fontSize: 16, lineHeight: '24px', fontWeight: 500 }}>{title}</div>
+        <div style={{ width: 60 }} />
       </div>
-      <div style={{ flex: 1, textAlign: 'center', fontSize: 16, lineHeight: '24px', fontWeight: 500 }}>{title}</div>
-      <div style={{ width: 60 }} />
-    </div>
+    )}
     {children}
   </div>
 )
 
 const Screen: React.FC<{
   title: string
-  bar: string
+  /** Title-bar text; omitted = the screen has no bar. */
+  bar?: string
   figma: string
   left?: ShellLeft
   note?: string
@@ -115,8 +122,9 @@ const Screen: React.FC<{
           {title}
         </h1>
         <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-          Figma <span style={{ fontFamily: mono }}>{figma}</span> · title bar &ldquo;{bar}&rdquo; · desktop component
-          under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
+          Figma <span style={{ fontFamily: mono }}>{figma}</span> ·{' '}
+          {bar === undefined ? 'no title bar' : <>title bar &ldquo;{bar}&rdquo;</>} · desktop component under the
+          app&rsquo;s light theme{note ? ` · ${note}` : ''}
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
@@ -144,10 +152,9 @@ export default {
 export const GetStarted = () => (
   <Screen
     title='Get started'
-    bar='Quiet'
     left='none'
     figma='2811:2550'
-    note='the entry: Onboarding/GetStarted.tsx opens it as soon as the app is connected without a community, and the other onboarding modals return to it'
+    note='the entry: Onboarding/GetStarted.tsx opens it as soon as the app is connected without a community, and the other onboarding modals return to it; no title bar on either platform — the window chrome already says Quiet on desktop and the bar did not feel right on mobile (decided 2026-09-13, a deliberate departure from the frame)'
     render={() => <GetStartedComponent onJoinCommunity={noop} onCreateCommunity={noop} onLinkDevices={noop} />}
   />
 )
@@ -373,8 +380,8 @@ type Step =
   | 'displayQrCode'
   | 'scanQrCode'
 
-const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
-  getStarted: { title: 'Get started', bar: 'Quiet', left: 'none' },
+const STEPS: Record<Step, { title: string; bar?: string; left: ShellLeft }> = {
+  getStarted: { title: 'Get started', left: 'none' },
   joinCommunity: { title: 'Join community', bar: 'Quiet', left: 'back' },
   recoverAccount: { title: 'Recover account', bar: 'Account recovery', left: 'back' },
   openInviteLink: { title: 'Open invite link', bar: 'Join with invite link', left: 'back' },
@@ -564,8 +571,8 @@ const WalkthroughStory = () => {
             Walkthrough · {title}
           </h1>
           <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-            title bar &ldquo;{bar}&rdquo; · rows, buttons and the back arrow navigate; where the app dispatches, the
-            action is recorded below · trail:{' '}
+            {bar === undefined ? 'no title bar' : <>title bar &ldquo;{bar}&rdquo;</>} · rows, buttons and the back arrow
+            navigate; where the app dispatches, the action is recorded below · trail:{' '}
             <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
               {[...trail, step].map(s => STEPS[s].title).join(' › ')}
             </span>

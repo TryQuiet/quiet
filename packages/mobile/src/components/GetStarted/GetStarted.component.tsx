@@ -6,17 +6,20 @@ import { LinkDevicesIcon, PersonAddIcon, PlusIcon } from '../../assets/icons/svg
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { ActionRow } from '../ActionRow/ActionRow.component'
-import { Appbar } from '../Appbar/Appbar.component'
 import { Typography } from '../Typography/Typography.component'
 
 import type { GetStartedProps } from './GetStarted.types'
 
 export const BETA_WARNING = "Quiet is in beta and shouldn't be used for activities requiring security."
 
-/** Get started · Figma 2811:2550. */
+/**
+ * Get started · Figma 2811:2550. No app bar: the frame's "Quiet" bar did not
+ * feel right on mobile (decided 2026-09-13, a deliberate departure from the
+ * prototype; the other onboarding screens keep theirs). The content starts at
+ * the safe area App.tsx provides.
+ */
 export const GetStarted: FC<GetStartedProps> = ({ onJoinCommunity, onCreateCommunity, onLinkDevices }) => (
   <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'get-started-component'}>
-    <Appbar title={'Quiet'} plain />
     <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, gap: spacing.xl }}>
       <Image source={icons.quiet_icon} style={{ width: 100, height: 100, alignSelf: 'center' }} accessible={false} />
       <Typography variant={'h3'} horizontalTextAlign={'center'}>

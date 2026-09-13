@@ -15,6 +15,11 @@ const logger = createLogger('GetStarted')
 /**
  * The onboarding entry point. Opens itself when the app is connected and has no
  * community, unless another onboarding modal is already showing.
+ *
+ * No title bar: the window chrome already carries the app's name, so the
+ * frame's "Quiet" bar is left out (decided 2026-09-13, a deliberate departure
+ * from the prototype; the other onboarding screens keep theirs). The content
+ * column starts under the window chrome with the frame's own rhythm.
  */
 export const GetStarted: React.FC = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
@@ -54,9 +59,8 @@ export const GetStarted: React.FC = () => {
     <Modal
       open={getStartedModal.open}
       handleClose={getStartedModal.handleClose}
-      title={'Quiet'}
-      isCloseDisabled={!currentCommunity}
-      alignCloseLeft
+      withoutHeader
+      isCloseDisabled
       contentWidth={'100%'}
       testIdPrefix={'getStarted'}
       zIndex={1300}

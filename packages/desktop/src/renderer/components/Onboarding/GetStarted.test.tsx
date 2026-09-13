@@ -38,6 +38,9 @@ describe('Get started', () => {
 
     expect(await findEntry()).toBeVisible()
     expect(screen.getByTestId('onboardingBetaWarning')).toBeVisible()
+    // No title bar: the window chrome carries the app's name (a deliberate departure from the frame's "Quiet" bar)
+    expect(screen.queryByText('Quiet')).not.toBeInTheDocument()
+    expect(screen.getByTestId('getStartedModalActions').closest('.Modalheader')).toHaveClass('Modalnone')
     // There is nothing to close it into: no community yet
     expect(screen.queryByTestId('getStartedModalClose')).not.toBeInTheDocument()
   })

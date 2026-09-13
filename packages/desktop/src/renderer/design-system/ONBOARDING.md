@@ -91,6 +91,7 @@ Copy:
 Uses: ButtonIcons (5), Divider (4), Button row (3), caret-black-r (3), Get started (1), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1)
 Goes to: Button row → join-community [prototype]; Button row → create-default [prototype]; Button row → link-devices [prototype]; Glyph → back [back]
 Implemented by: desktop `Onboarding/GetStarted.tsx` (opens itself when connected without a community; Join / Create / Link devices return to it) · mobile `screens/GetStarted/GetStarted.screen.tsx`
+Departure (decided 2026-09-13): **no title bar on either platform** — the frame's "Quiet" bar is redundant with the app window on desktop and did not feel right on mobile; the content column starts under the window chrome / at the safe area with the frame's own rhythm minus the bar. Join community and the other onboarding screens keep their bars.
 
 ### Join community  ·  `join-community`
 Section: Onboarding · 375×667 · node `2811:2562` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2562)
