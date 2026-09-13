@@ -8,7 +8,7 @@ import { type CreatedSelectors, type StoreState } from '../store.types'
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
 import type {} from 'pkijs'
 import { createLogger } from '../../utils/logger'
-import { CommunityOwnership } from '@quiet/types'
+import { CommunityOwnership, InvitationDataVersion, type InvitationData } from '@quiet/types'
 
 const logger = createLogger('communitiesSelectors')
 
@@ -41,6 +41,36 @@ export const invitationCodes = createSelector(communitiesSlice, reducerState => 
 
 export const pendingJoin = createSelector(communitiesSlice, reducerState => reducerState.pendingJoin ?? null)
 
+export const pendingUseServer = createSelector(communitiesSlice, reducerState => reducerState.pendingUseServer ?? null)
+
+/**
+ * Whether an invite is to a community hosted on a server (QSS). v5 is the QSS
+ * invite version; older versions are Tor-only. Shared with joinCommunitySaga,
+ * which gates the terms of service on the same question.
+ */
+export const inviteUsesServer = (invite: InvitationData | null | undefined): boolean =>
+  invite?.version === InvitationDataVersion.v5 && Boolean(invite.qssEnabled || invite.qssEndpoint)
+
+/**
+ * Whether the community in play reaches its peers through a server (QSS) rather
+ * than over Tor alone. The progress screens branch on it, and each stage of the
+ * flow knows it from a different place:
+ *
+ * - joining: the invite, before any community record exists;
+ * - creating: the owner's own answer, before the backend has replied;
+ * - afterwards: the community record the backend handed back.
+ */
+export const usesServer = createSelector(
+  pendingJoin,
+  pendingUseServer,
+  currentCommunity,
+  (join, creating, community) => {
+    if (join) return inviteUsesServer(join.inviteData)
+    if (creating !== null) return creating
+    return community?.qssEnabled === true
+  }
+)
+
 export const inviteData = createSelector(currentCommunity, currentCommunity => {
   return currentCommunity?.inviteData
 })
@@ -69,6 +99,8 @@ export const communitiesSelectors = {
   currentCommunityId,
   invitationCodes,
   pendingJoin,
+  pendingUseServer,
+  usesServer,
   inviteData,
   ownerOrbitDbIdentity,
   psk,

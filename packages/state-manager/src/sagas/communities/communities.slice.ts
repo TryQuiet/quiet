@@ -33,6 +33,12 @@ export class CommunitiesState {
   public captchaRequested = false
   public joinAttempt = 0
   public pendingJoin: PendingCommunityJoin | null = null
+  /**
+   * The owner's own answer to "want a server?", kept from the moment they answer
+   * until the backend hands back a community record carrying `qssEnabled`. The
+   * progress screen has to know which of the two it is drawing before then.
+   */
+  public pendingUseServer: boolean | null = null
 }
 
 export const communitiesSlice = createSlice({
@@ -49,6 +55,8 @@ export const communitiesSlice = createSlice({
     addNewCommunity: (state, action: PayloadAction<Community>) => {
       logger.info('Adding new community', action.payload.id)
       communitiesAdapter.addOne(state.communities, action.payload)
+      // The record carries qssEnabled from here on; the remembered answer is spent.
+      state.pendingUseServer = null
     },
     updateCommunityData: (state, action: PayloadAction<UpdateCommunityPayload>) => {
       logger.info('Updating community data', action.payload.id)
@@ -67,17 +75,19 @@ export const communitiesSlice = createSlice({
       }
     },
     resetApp: (state, _action) => state,
-    createCommunity: (state, _action: PayloadAction<CreateCommunityPayload>) => {
+    createCommunity: (state, action: PayloadAction<CreateCommunityPayload>) => {
       if (state.pendingJoin?.status === 'draft') {
         state.pendingJoin = null
         state.invitationCodes = null
       }
+      state.pendingUseServer = action.payload.useServer === true
     },
     joinCommunity: (state, action: PayloadAction<JoinCommunityPayload>) => {
       // A submitted request may have reached the backend, whose join operation
       // erases previous state. Never replay it merely because the socket reconnects.
       if (state.pendingJoin && state.pendingJoin.status !== 'draft') return
       state.joinAttempt = (state.joinAttempt ?? 0) + 1
+      state.pendingUseServer = null
       state.pendingJoin = {
         attempt: state.joinAttempt,
         inviteData: action.payload.inviteData,
@@ -105,6 +115,7 @@ export const communitiesSlice = createSlice({
         state.pendingJoin = null
         state.invitationCodes = null
       }
+      state.pendingUseServer = null
     },
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
@@ -116,6 +127,7 @@ export const communitiesSlice = createSlice({
       logger.info('Clearing invitation codes')
       state.invitationCodes = null
       state.pendingJoin = null
+      state.pendingUseServer = null
       state.tosRequested = false
     },
     requestTermsOfService: state => {
