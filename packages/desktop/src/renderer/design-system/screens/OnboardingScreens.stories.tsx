@@ -50,6 +50,20 @@ const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
 
 const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
+/** The third row is not in 2811:2575: the user asked for it on 2026-09-13; its label is undesigned. */
+const LINK_DEVICES_NOTE =
+  'the Paste link row is a user addition (2026-09-13) with the library link glyph; its label is undesigned'
+
+/** Type a value into every paste input under `root` the way a user would (React sees a native input event). */
+const fillPasteInputs = (root: HTMLElement | null, value: string) => {
+  if (!root) return
+  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+  root.querySelectorAll<HTMLInputElement>('input[data-testid="paste-link-input"]').forEach(input => {
+    setter?.call(input, value)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+}
+
 /** What JoinCommunity.tsx / LinkDevices.tsx dispatch for a decoded code, recorded under the columns. */
 const describeInvitation = (data: InvitationData) =>
   isDeviceInvitationData(data)
@@ -333,10 +347,12 @@ export const LinkDevices = () => (
     title='Link devices'
     bar='Link devices'
     figma='2811:2575'
+    note={LINK_DEVICES_NOTE}
     render={() => (
       <LinkDevicesComponent
         onDisplayQrCode={noop}
         onScanQrCode={noop}
+        onPasteLink={noop}
         linkedDevices={[
           { deviceId: 'this', deviceName: 'this device', isCurrent: true },
           { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
@@ -351,8 +367,63 @@ export const LinkDevicesEmpty = () => (
     title='Link devices · no linked devices'
     bar='Link devices'
     figma='2811:2575'
-    render={() => <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} linkedDevices={[]} />}
+    note={LINK_DEVICES_NOTE}
+    render={() => (
+      <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} onPasteLink={noop} linkedDevices={[]} />
+    )}
   />
+)
+
+// Link devices → Paste link: the existing paste step under the Link devices title bar,
+// narrowed to device links. No frame; the row and the error copy are the user's
+// (2026-09-13), not the designer's.
+const PASTE_LINK_NOTE =
+  'no frame — the Paste link row is a user addition (2026-09-13); the paste step is 3190:10892 narrowed to device links'
+
+export const PasteLinkOnLinkDevices = () => (
+  <Screen
+    title='Paste link'
+    bar='Link devices'
+    figma='—'
+    note={PASTE_LINK_NOTE}
+    render={() => (
+      <PasteLinkComponent heading={'Paste a link to Join'} linkKind='device' handleCommunityAction={noop} />
+    )}
+  />
+)
+
+/** Fills every paste input under `root` with `link` and submits, so the story shows the real error path. */
+const SubmitOnMount: React.FC<{ link: string; children: React.ReactNode }> = ({ link, children }) => {
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    fillPasteInputs(rootRef.current, link)
+    const timer = window.setTimeout(() => {
+      rootRef.current
+        ?.querySelectorAll<HTMLButtonElement>('button[data-testid="continue-joinCommunity"]')
+        .forEach(button => button.click())
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [link])
+  return <div ref={rootRef}>{children}</div>
+}
+
+export const PasteLinkNotADeviceLink = () => (
+  <SubmitOnMount link={SAMPLE_MEMBER_LINK}>
+    <Screen
+      title='Paste link · not a device link'
+      bar='Link devices'
+      figma='—'
+      note={`${PASTE_LINK_NOTE}; the sample member link was pasted and submitted — the error copy is undesigned`}
+      render={() => (
+        <PasteLinkComponent
+          heading={'Paste a link to Join'}
+          linkKind='device'
+          revealInputValue
+          handleCommunityAction={noop}
+        />
+      )}
+    />
+  </SubmitOnMount>
 )
 
 export const DisplayQrCode = () => (
@@ -440,6 +511,7 @@ type Step =
   | 'displayQrCode'
   | 'scanQrCode'
   | 'pasteFromScan'
+  | 'pasteLinkDevice'
 
 const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   getStarted: { title: 'Get started', bar: 'Quiet', left: 'none' },
@@ -453,9 +525,10 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'back' },
   scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
   pasteFromScan: { title: 'Paste a link to Join', bar: 'Scan QR code', left: 'back' },
+  pasteLinkDevice: { title: 'Paste a link to Join', bar: 'Link devices', left: 'back' },
 }
 
-const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromScan']
+const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromScan', 'pasteLinkDevice']
 
 /** What the walkthrough's camera shows; the code is the sample link the current step expects. */
 type WalkthroughCamera = 'code' | 'blank' | 'denied' | 'none'
@@ -465,16 +538,6 @@ const WALKTHROUGH_DEVICES = [
   { deviceId: 'this', deviceName: 'this device', isCurrent: true },
   { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
 ]
-
-/** Type a value into every paste input under `root` the way a user would (React sees a native input event). */
-const fillPasteInputs = (root: HTMLElement | null, value: string) => {
-  if (!root) return
-  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
-  root.querySelectorAll<HTMLInputElement>('input[data-testid="paste-link-input"]').forEach(input => {
-    setter?.call(input, value)
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-  })
-}
 
 const chromeButton: React.CSSProperties = {
   fontFamily: mono,
@@ -580,6 +643,7 @@ const WalkthroughStory = () => {
           <LinkDevicesComponent
             onDisplayQrCode={() => go('displayQrCode')}
             onScanQrCode={() => go('scanQrCode')}
+            onPasteLink={() => go('pasteLinkDevice')}
             linkedDevices={WALKTHROUGH_DEVICES}
           />
         )
@@ -605,8 +669,12 @@ const WalkthroughStory = () => {
             dataTestId='link-devices-scanner'
           />
         )
+      // LinkDevices.tsx: pasted in the Link devices flow, only a device link is accepted.
       case 'pasteFromScan':
-        return <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={onInvitation} />
+      case 'pasteLinkDevice':
+        return (
+          <PasteLinkComponent heading={'Paste a link to Join'} linkKind='device' handleCommunityAction={onInvitation} />
+        )
     }
   }
 

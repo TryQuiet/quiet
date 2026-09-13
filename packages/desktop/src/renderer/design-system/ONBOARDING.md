@@ -140,6 +140,8 @@ Uses: ButtonIcons (5), Divider (3), Button row (2), caret-black-r (2), Title bar
 Goes to: Glyph → get-started [prototype]; Content → sheet-2811-2601 [prototype]; Button row → sheet-2811-2587 [prototype]
 Implemented by: desktop `#3400 Settings/Tabs/LinkedDevices/LinkedDevices.component.tsx` · mobile `#3400 screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen.tsx`
 
+**User decision (2026-09-13): a third Button row, *Paste link*.** Not in the frame. It sits under *Scan QR code* with the same anatomy (49 tall, 16/400 label, left icon, right caret, hairline) and the library's link glyph — the ButtonIcons link that *Join with invite link* uses on 2811:2562 — not a text link like *Paste a link* on Open invite link. It opens the existing paste step (*Paste a link to Join*, 3190:10892) under the *Link devices* title bar; back returns to this screen. Pasted there — and in the scanner's paste fallback — only a **device** link is accepted: a member link, or anything else, shows an inline error under the input and nothing is dispatched. Undesigned copy, to be replaced when designed: the row label *Paste link* (sentence case like the rows above it) and the error *This is not a device link. Use the link from Link devices on your other device.* Implemented by: desktop `Onboarding/LinkDevicesComponent.tsx` + `LinkDevices.tsx` (step `pasteLink`) · mobile `LinkDevices/LinkDevices.component.tsx` + `PasteInviteLink` variant `pasteDeviceLink`. Stories: Screens/Onboarding → Link devices, Paste link on Link devices, Paste link · not a device link.
+
 ### Join with invite link  ·  `open-invite-link`
 Figma frame `Open invite link` · Section: Onboarding · 375×667 · node `2811:2455` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2455)
 
