@@ -180,6 +180,10 @@ const lightTheme = createTheme({
     MuiButton: {
       // Replace with atomic Button component. Put styling in that file.
       styleOverrides: {
+        // The design library's Button (3505:10206) has cornerRadius 16 on every variant and size.
+        root: {
+          borderRadius: 16,
+        },
         sizeSmall: {
           textTransform: 'none',
           boxShadow: 'none',
@@ -375,6 +379,10 @@ const darkTheme = createTheme({
     MuiButton: {
       // Replace with atomic Button component. Put styling in that file.
       styleOverrides: {
+        // The design library's Button (3505:10206) has cornerRadius 16 on every variant and size.
+        root: {
+          borderRadius: 16,
+        },
         sizeSmall: {
           textTransform: 'none',
           boxShadow: 'none',

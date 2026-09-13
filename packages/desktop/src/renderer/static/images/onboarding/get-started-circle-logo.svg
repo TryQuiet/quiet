@@ -1,0 +1,24 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="120" height="120" rx="60" fill="#521C74"/>
+<g clip-path="url(#clip0_0_103)">
+<rect width="100" height="100" transform="translate(10 10)" fill="#521C74"/>
+<g filter="url(#filter0_d_0_103)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M59.5601 36.1516C46.9392 36.1516 36.708 46.4648 36.708 59.1867C36.708 71.9085 46.9392 82.2217 59.5601 82.2217C63.2706 82.2217 66.5748 81.6167 68.6456 80.5271C69.0768 80.3001 69.6174 80.3575 69.9467 80.7185L74.4968 85.7062C74.9195 86.1695 74.8084 86.9087 74.2567 87.2033C69.8672 89.547 64.8618 90.8733 59.5601 90.8733C42.199 90.8733 28.125 76.6867 28.125 59.1867C28.125 41.6866 42.199 27.5 59.5601 27.5C76.9213 27.5 90.9953 41.6866 90.9953 59.1867C90.9953 65.114 89.4428 70.5886 86.635 75.3281C86.3177 75.8637 85.5882 75.942 85.1486 75.503L82.5847 72.943L80.2293 70.5689C79.9248 70.262 79.8577 69.7912 80.0489 69.4022C81.5618 66.3264 82.4123 62.8608 82.4123 59.1867C82.4123 46.4648 72.181 36.1516 59.5601 36.1516Z" fill="#67BFD3"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M88.8404 89.4411C87.1645 91.1304 84.4473 91.1304 82.7714 89.4411L65.2804 71.8102C63.6045 70.1208 63.6045 67.3819 65.2804 65.6925C66.9563 64.0032 69.6735 64.0032 71.3495 65.6925L88.8404 83.3234C90.5164 85.0128 90.5164 87.7517 88.8404 89.4411Z" fill="#E42656"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_103" x="-109.375" y="-97.5" width="338.75" height="340" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="12.5"/>
+<feGaussianBlur stdDeviation="68.75"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_103"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_103" result="shape"/>
+</filter>
+<clipPath id="clip0_0_103">
+<rect width="100" height="100" fill="white" transform="translate(10 10)"/>
+</clipPath>
+</defs>
+</svg>

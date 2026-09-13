@@ -11,7 +11,7 @@ import qrCode from '../../static/images/onboarding/qr-code.svg'
 import qrDisplay from '../../static/images/onboarding/qr-display.svg'
 import qrScan from '../../static/images/onboarding/qr-scan.svg'
 import monster from '../../static/images/onboarding/monster@2x.png'
-import logo from '../../static/images/onboarding/logo-icon.svg'
+import circleLogo from '../../static/images/onboarding/get-started-circle-logo.svg'
 
 export const onboardingIcons = {
   caretRight,
@@ -31,5 +31,10 @@ export const onboardingIcons = {
 /** The "Monster" illustration from the Open invite link frame, exported at 2x (120px box). */
 export const monsterIllustration = monster
 
-/** The Logo-icon from the Get started frame (100px). */
-export const logoIcon = logo
+/**
+ * The Quiet mark as the Get started frame (2811:2550) draws it: a 120px circle
+ * (#521C74, r=60) holding the library's Logo-icon (4309:16912) — exported from
+ * Figma, not redrawn.
+ */
+export const logoIcon = circleLogo
+export const LOGO_SIZE = 120
