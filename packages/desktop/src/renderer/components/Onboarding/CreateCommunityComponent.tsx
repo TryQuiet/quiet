@@ -54,7 +54,6 @@ const Form = styled('form')(({ theme }) => ({
   [`& .${classes.button}`]: {
     width: '100%',
     maxWidth: 'none',
-    borderRadius: 8,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     textTransform: 'none',
