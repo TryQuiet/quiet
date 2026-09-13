@@ -18,7 +18,8 @@
 <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_103" result="shape"/>
 </filter>
 <clipPath id="clip0_0_103">
-<rect width="100" height="100" fill="white" transform="translate(10 10)"/>
+<!-- Frame 1680 clipsContent at cornerRadius 1000: the tile is clipped to the circle, as in the design. -->
+<rect width="120" height="120" rx="60" fill="white"/>
 </clipPath>
 </defs>
 </svg>
