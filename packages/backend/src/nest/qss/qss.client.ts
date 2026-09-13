@@ -343,7 +343,21 @@ export class QSSClient extends EventEmitter {
     }
   }
 
-  public async requestCaptchaVerification(): Promise<boolean> {
+  /** True after the user declined the last hCaptcha challenge and before the client asked again. */
+  get captchaDeclinedByUser(): boolean {
+    return this.captchaService.declinedByUser
+  }
+
+  /**
+   * Verifies a captcha with QSS. `userInitiated` marks a request coming from the
+   * client (the user pressed Agree & join / asked to verify): it lifts the hold
+   * set when the user declined a previous challenge. Automatic requests (QSS
+   * answering "captcha required" on a retry) leave that hold in place.
+   */
+  public async requestCaptchaVerification(options: { userInitiated?: boolean } = {}): Promise<boolean> {
+    if (options.userInitiated) {
+      this.captchaService.acknowledgeClientRequest()
+    }
     if (this.captchaVerified) {
       this.logger.debug('Captcha already verified, skipping verification request')
       this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, true)

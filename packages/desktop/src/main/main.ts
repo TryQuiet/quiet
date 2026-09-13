@@ -430,8 +430,11 @@ export async function openHCaptcha(siteKey: string): Promise<string> {
     }
 
     modalWindow = new BrowserWindow({
+      // The CAPTCHA screen (prototype 3054:4052) lives in its own window: hCaptcha must load from
+      // js.hcaptcha.com under its own CSP and session partition, which the app renderer forbids.
+      // 420 wide keeps room for hCaptcha's 400px challenge popup; the page draws the title bar.
       width: 420,
-      height: 520,
+      height: 600,
       resizable: false,
       minimizable: false,
       maximizable: false,
@@ -439,7 +442,7 @@ export async function openHCaptcha(siteKey: string): Promise<string> {
       parent: hostWindow ?? undefined,
       show: false,
       autoHideMenuBar: true,
-      title: 'Human verification',
+      title: 'CAPTCHA',
       webPreferences: {
         preload: path.join(__dirname, 'preload.captcha.js'),
         contextIsolation: true,

@@ -21,6 +21,9 @@
         --caption-color: #7f7f7f;
         --error-color: #d13135;
         --focus-ring: rgba(82, 28, 116, 0.35);
+        --focus-color: #521c74;
+        --hairline: #f0f0f0;
+        --content-bg: #f7f7f7;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -29,50 +32,68 @@
           --text-primary: #f8fafc;
           --text-secondary: #cfcfcf;
           --caption-color: #9ca3af;
+          --hairline: #3a3a3a;
+          --content-bg: #1b1b1b;
         }
       }
 
       body {
         margin: 0;
-        width: 100vw;
-        height: 100vh;
-        background: var(--bg-color);
+        min-height: 100vh;
+        background: var(--content-bg);
         color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1.4;
+        font-family: 'Rubik', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
       }
 
       .screen {
-        width: min(420px, 100%);
+        width: 100%;
+        min-height: 100vh;
+        box-sizing: border-box;
+        padding: 0 24px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+      }
+
+      /* CAPTCHA (prototype 3054:4052): a 60px title bar with a back arrow and a centered title. */
+      .title-bar {
         display: flex;
         align-items: center;
+        height: 60px;
+        margin: 0 -24px;
+        padding: 0 8px;
+        border-bottom: 1px solid var(--hairline);
+        background: var(--bg-color);
+      }
+
+      .title-bar__back {
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
-        flex-direction: column;
-        gap: 20px;
-        padding: 32px 20px;
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 22px;
+        background: none;
+        color: var(--text-primary);
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .title-bar__back:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 0;
+      }
+
+      .title-bar__title {
+        flex: 1;
+        margin: 0 44px 0 0;
         text-align: center;
-      }
-
-      .screen__header {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .screen__title {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 500;
-        line-height: 34px;
-      }
-
-      .screen__subtitle {
-        margin: 0;
         font-size: 16px;
         line-height: 24px;
-        color: var(--text-secondary);
+        font-weight: 500;
       }
 
       .captcha-container {
@@ -97,50 +118,6 @@
 
       
 
-      .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        min-height: 48px;
-        border-radius: 12px;
-        border: 1px solid transparent;
-        font-weight: 600;
-        font-size: 16px;
-        letter-spacing: 0.01em;
-        cursor: pointer;
-        transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
-      }
-
-      .button:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px var(--focus-ring);
-      }
-
-      .button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      .button--secondary {
-        background: transparent;
-        border: none;
-        color: var(--text-secondary);
-        min-height: auto;
-        padding: 8px 0;
-        font-weight: 500;
-        width: auto;
-      }
-
-      .button--secondary:hover:not(:disabled) {
-        color: var(--text-primary);
-      }
-
-      .button--secondary:focus-visible {
-        box-shadow: none;
-        text-decoration: underline;
-      }
-
       @media (max-width: 480px) {
         .screen {
           padding: 24px 16px;
@@ -150,9 +127,13 @@
   </head>
   <body>
     <div class="screen">
-      <header class="screen__header">
-        <h1 class="screen__title">Verify you are human</h1>
-        <p class="screen__subtitle">Complete the captcha challenge to continue.</p>
+      <header class="title-bar">
+        <button id="back-button" type="button" class="title-bar__back" aria-label="Back">
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor" />
+          </svg>
+        </button>
+        <h1 class="title-bar__title">CAPTCHA</h1>
       </header>
 
       <div id="captcha-container" class="captcha-container">
@@ -161,9 +142,6 @@
 
       <p id="captcha-error" role="alert" class="status-message" hidden></p>
 
-      <div class="screen__actions">
-        <button id="cancel-button" type="button" class="button button--secondary">Cancel</button>
-      </div>
     </div>
     <script>
       ;(() => {
@@ -173,7 +151,7 @@
 
         const container = document.getElementById('captcha-container')
         const errorLabel = document.getElementById('captcha-error')
-        const cancelButton = document.getElementById('cancel-button')
+        const backButton = document.getElementById('back-button')
 
         const bridge = window.CaptchaBridge
         let widgetId
@@ -303,9 +281,15 @@
           }
         }
 
-        cancelButton?.addEventListener('click', () => {
+        // Back (or Escape) closes the challenge; the app returns to Agree & join and does not
+        // present the captcha again until the user asks.
+        const goBack = () => {
           removeWidget()
           bridge.error('Captcha cancelled by user')
+        }
+        backButton?.addEventListener('click', goBack)
+        document.addEventListener('keydown', event => {
+          if (event.key === 'Escape') goBack()
         })
 
         attachColorSchemeListener()

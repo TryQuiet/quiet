@@ -8,6 +8,9 @@ export const QSS_RECONNECT_BACKOFF_FACTOR = 2
 export const QSS_DEVICE_ADMISSION_MAX_ATTEMPTS = 6
 export const QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS = 250
 export const QSS_DEVICE_ADMISSION_RETRY_MAX_MS = 4_000
+// Retrying the QSS community creation (server keys) after a failure: 5s, 10s, 20s … capped at 5 minutes.
+export const QSS_CREATE_COMMUNITY_RETRY_INITIAL_MS = 5_000
+export const QSS_CREATE_COMMUNITY_RETRY_MAX_MS = 5 * 60_000
 
 export enum QSSAuthConnStatus {
   NOT_STARTED = 'NOT_STARTED',

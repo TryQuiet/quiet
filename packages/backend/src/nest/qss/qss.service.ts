@@ -37,12 +37,15 @@ import { RoleName } from '../auth/services/roles/roles'
 import { LocalDbService } from '../local-db/local-db.service'
 import {
   QSS_DEVICE_ADMISSION_MAX_ATTEMPTS,
+  QSS_CREATE_COMMUNITY_RETRY_INITIAL_MS,
+  QSS_CREATE_COMMUNITY_RETRY_MAX_MS,
   QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS,
   QSS_DEVICE_ADMISSION_RETRY_MAX_MS,
   QSS_RECONNECT_BACKOFF_FACTOR,
   QSS_RECONNECT_DELAY_MS,
   QSS_RECONNECT_MAX_DELAY_MS,
 } from './qss.const'
+import { CreateCommunityRetry } from './create-community-retry'
 import {
   CompoundError,
   isDeviceInvitationData,
@@ -86,6 +89,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     { attempts: number; timer?: NodeJS.Timeout; lastFailure: QSSAuthAttemptFailurePayload }
   >()
   private deviceAdmissionRetryGeneration = 0
+  /** Back-off between QSS community-creation (server key) attempts. */
+  private readonly _createCommunityRetry = new CreateCommunityRetry(
+    QSS_CREATE_COMMUNITY_RETRY_INITIAL_MS,
+    QSS_CREATE_COMMUNITY_RETRY_MAX_MS
+  )
+  private _createCommunityRetryTimer?: NodeJS.Timeout
   private _eventHandlersConfigured = false
 
   private readonly logger = createLogger(`qss:service`)
@@ -113,9 +122,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   /** Requests queued captcha verification once the QSS websocket connects. */
   private _requestCaptchaVerificationAfterConnect = (): void => {
     this._captchaVerificationQueued = false
-    this.qssClient.requestCaptchaVerification().catch(error => {
-      this.logger.error('Failed to request captcha verification', error)
-    })
+    this._verifyCaptchaForUser()
+  }
+
+  /** Runs a user-initiated captcha verification and, once verified, retries the community creation right away. */
+  private _verifyCaptchaForUser(): void {
+    this.qssClient
+      .requestCaptchaVerification({ userInitiated: true })
+      .then(verified => {
+        if (verified) this._retryCommunityCreationNow()
+      })
+      .catch(error => {
+        this.logger.error('Failed to request captcha verification', error)
+      })
   }
 
   /** Clears device-admission retries and schedules reconnection after QSS disconnects. */
@@ -209,9 +228,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         this.logger.error('Failed to connect to QSS on hCaptcha request', error)
       })
     } else {
-      this.qssClient.requestCaptchaVerification().catch(error => {
-        this.logger.error('Failed to request captcha verification', error)
-      })
+      this._verifyCaptchaForUser()
     }
   }
 
@@ -265,7 +282,16 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         sigChain.team != null &&
         this.sigChainService.users.getAllUsers().length === 1
       ) {
-        await this.createCommunity(sigChain)
+        if (!this._createCommunityRetry.canAttempt()) {
+          const delayMs = this._createCommunityRetry.msUntilAllowed()
+          this.logger.info(
+            `Backing off QSS community creation for ${delayMs}ms after ${this._createCommunityRetry.attempts} failed attempt(s)`
+          )
+          this._scheduleCreateCommunityRetry(delayMs)
+          return
+        }
+        const created = await this.createCommunity(sigChain)
+        this._recordCreateCommunityResult(created)
       } else {
         const teamId =
           sigChain.team != null
@@ -677,6 +703,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   public pause(): void {
     this.logger.info('Pausing QSS service')
     this._paused = true
+    this._clearCreateCommunityRetry()
     this._teardownEventHandlers()
     this.qssSyncManager.pause()
     this._clearReconnectTimer(true)
@@ -829,6 +856,51 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     } catch (e) {
       this.logger.error('Failed to emit NSE QSS URL update', e)
     }
+  }
+
+  /** Records a community-creation outcome: success clears the back-off, failure schedules the next attempt. */
+  private _recordCreateCommunityResult(created: boolean): void {
+    if (created) {
+      this._createCommunityRetry.reset()
+      this._clearCreateCommunityRetry()
+      return
+    }
+    const delayMs = this._createCommunityRetry.recordFailure()
+    if (this.qssClient.captchaDeclinedByUser) {
+      // The user closed the captcha: no automatic retry (it would only present the challenge
+      // again); the next attempt comes with the user's next verification request.
+      this.logger.info('QSS community creation is waiting for the user to complete the captcha; no automatic retry')
+      this._clearCreateCommunityRetry()
+      return
+    }
+    this.logger.info(
+      `QSS community creation attempt ${this._createCommunityRetry.attempts} failed; retrying in ${delayMs}ms`
+    )
+    this._scheduleCreateCommunityRetry(delayMs)
+  }
+
+  /** Schedules one QSS sign-in pass (which retries the community creation) after `delayMs`. */
+  private _scheduleCreateCommunityRetry(delayMs: number): void {
+    this._clearCreateCommunityRetry()
+    this._createCommunityRetryTimer = setTimeout(() => {
+      this._createCommunityRetryTimer = undefined
+      if (this._paused) return
+      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+    }, delayMs)
+  }
+
+  private _clearCreateCommunityRetry(): void {
+    if (this._createCommunityRetryTimer != null) {
+      clearTimeout(this._createCommunityRetryTimer)
+      this._createCommunityRetryTimer = undefined
+    }
+  }
+
+  /** The user verified a captcha: drop the back-off and retry the community creation now. */
+  private _retryCommunityCreationNow(): void {
+    this._createCommunityRetry.reset()
+    this._clearCreateCommunityRetry()
+    this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
   }
 
   /**
@@ -1161,6 +1233,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._paused = true
     this._clearReconnectTimer(true)
     this.clearDeviceAdmissionRetries()
+    this._clearCreateCommunityRetry()
     this.qssSyncManager.close()
     this.abortPreparedAdmissions(new Error('QSS admission aborted while service closed'))
     this._teardownEventHandlers()

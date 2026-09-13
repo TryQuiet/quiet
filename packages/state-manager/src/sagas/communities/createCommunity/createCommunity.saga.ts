@@ -49,25 +49,31 @@ export function* createCommunitySaga(
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
   if (action.payload.useServer) {
-    yield* put(communitiesActions.requestTermsOfService())
-    acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
-    if (!acceptTerms.payload.accepted) {
-      logger.info('User did not accept terms of service, aborting community creation')
-      return
-    }
-    if (process.env.NODE_ENV !== 'test') {
+    // Agree & join → CAPTCHA. Closing the captcha (its back arrow, or cancel) returns to
+    // Agree & join rather than failing the creation; declining the terms aborts it.
+    let verified = false
+    while (!verified) {
+      yield* put(communitiesActions.requestTermsOfService())
+      acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
+      if (!acceptTerms.payload.accepted) {
+        logger.info('User did not accept terms of service, aborting community creation')
+        return
+      }
+      if (process.env.NODE_ENV === 'test') {
+        break
+      }
       yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.CREATE_COMMUNITY }))
-      while (true) {
+      let cancelled = false
+      while (!verified && !cancelled) {
         const challengeResultAction: ReturnType<typeof captchaActions.setChallengeResult> = yield* take(
           captchaActions.setChallengeResult
         )
         if (challengeResultAction.payload.cancelled === true) {
-          logger.info('Captcha challenge was cancelled, aborting community creation')
-          yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
-          return
+          logger.info('Captcha challenge was cancelled, returning to the terms of service')
+          cancelled = true
         } else if (challengeResultAction.payload.success) {
           logger.info('Captcha challenge succeeded')
-          break
+          verified = true
         } else {
           logger.info('Captcha challenge failed, presenting challenge again')
           yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.CREATE_COMMUNITY }))

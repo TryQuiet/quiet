@@ -13,6 +13,8 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
   private _hcaptchaToken: { token: string; timestamp: number } | null = null
   private _hcaptchaWaiters: Array<(token: string | null) => void> = []
   private _hcaptchaRequestPending = false
+  /** Set when the user closes or cancels the challenge; cleared when the client asks for verification again. */
+  private _declinedByUser = false
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -25,16 +27,36 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
   async onModuleInit() {
     this.socketService.on(SocketActions.HCAPTCHA_FORM_RESPONSE, (payload: HCaptchaFormResponse) => {
       if (!payload.token) {
-        logger.warn('Received empty hCaptcha token from client')
+        // The user closed or cancelled the challenge. Every automatic token request from
+        // here on resolves null without presenting the challenge again, until the client
+        // asks for verification itself (acknowledgeClientRequest) or the service resets.
+        this._declinedByUser = true
+        logger.warn(
+          'Received empty hCaptcha token from client; not presenting the challenge again until the client asks'
+        )
         this.hcaptchaToken = null
         return
       }
+      this._declinedByUser = false
       this.hcaptchaToken = payload.token
     })
   }
 
   get hcaptchaRequestPending(): boolean {
     return this._hcaptchaRequestPending
+  }
+
+  /** True after the user declined the last challenge and before the client asked again. */
+  get declinedByUser(): boolean {
+    return this._declinedByUser
+  }
+
+  /** The client (the user) asked for verification: automatic requests may present the challenge again. */
+  public acknowledgeClientRequest(): void {
+    if (this._declinedByUser) {
+      logger.info('Client requested hCaptcha verification; clearing the declined state')
+    }
+    this._declinedByUser = false
   }
 
   get hcaptchaToken(): string | null {
@@ -120,6 +142,10 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
     if (token) {
       return token
     }
+    if (this._declinedByUser) {
+      logger.info('hCaptcha challenge was declined by the user; waiting for the client to request verification again')
+      return null
+    }
     const received_token = await this.requestHcaptchaToken(siteKey)
     return received_token
   }
@@ -127,6 +153,7 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
   public reset() {
     logger.info('Resetting hCaptcha token and pending requests')
     this._hcaptchaToken = null
+    this._declinedByUser = false
     this.flushHcaptchaWaiters(null)
   }
 }

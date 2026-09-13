@@ -22,6 +22,8 @@ const TermsOfService = () => {
   useEffect(() => {
     if (tosRequested) {
       logger.info('ToS requested by state-manager, opening ToS modal')
+      // Also when the captcha was closed: back to Agree & join, not the joining panel.
+      loadingPanelModal.handleClose()
       termsOfServiceModal.handleOpen()
     }
   }, [tosRequested])

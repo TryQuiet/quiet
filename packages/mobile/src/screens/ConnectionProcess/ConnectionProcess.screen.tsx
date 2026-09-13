@@ -19,6 +19,7 @@ export const ConnectionProcessScreen: FC = () => {
   const loadingPanelType = useSelector(network.selectors.loadingPanelType)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentCommunityErrors = useSelector(errors.selectors.currentCommunityErrors)
+  const tosRequested = useSelector(communities.selectors.tosRequested)
   const hasCurrentCommunityError = Boolean(currentCommunity && currentCommunityErrors[currentCommunity?.id])
 
   const openUrl = useCallback((url: string) => {
@@ -48,6 +49,13 @@ export const ConnectionProcessScreen: FC = () => {
       )
     }
   }, [hasCurrentCommunityError])
+
+  // The captcha was closed: back to Agree & join (the saga requested the terms again).
+  useEffect(() => {
+    if (tosRequested) {
+      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.TermsOfServiceScreen }))
+    }
+  }, [tosRequested])
 
   useEffect(() => {
     if (loadingPanelType === LoadingPanelType.Failed) {

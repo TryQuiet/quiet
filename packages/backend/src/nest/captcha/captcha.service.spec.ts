@@ -45,4 +45,41 @@ describe('CaptchaService', () => {
     await expect(tokenPromise).resolves.toBeNull()
     expect(captchaService.hcaptchaRequestPending).toBe(false)
   })
+
+  it('does not present the challenge again after the user declined it', async () => {
+    const first = captchaService.getToken('site-key')
+    socketService.emit(SocketActions.HCAPTCHA_FORM_RESPONSE, { error: 'Captcha cancelled by user' })
+    await expect(first).resolves.toBeNull()
+    expect(captchaService.declinedByUser).toBe(true)
+    serverIoProvider.io.emit.mockClear()
+
+    // Automatic retries (e.g. QSS reporting "captcha required" again) resolve null without a new challenge.
+    await expect(captchaService.getToken('site-key')).resolves.toBeNull()
+    expect(serverIoProvider.io.emit).not.toHaveBeenCalledWith(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, {})
+    expect(captchaService.hcaptchaRequestPending).toBe(false)
+  })
+
+  it('presents the challenge again once the client asks for verification', async () => {
+    const first = captchaService.getToken('site-key')
+    socketService.emit(SocketActions.HCAPTCHA_FORM_RESPONSE, { error: 'Captcha cancelled by user' })
+    await first
+    serverIoProvider.io.emit.mockClear()
+
+    captchaService.acknowledgeClientRequest()
+    expect(captchaService.declinedByUser).toBe(false)
+    const second = captchaService.getToken('site-key')
+    expect(serverIoProvider.io.emit).toHaveBeenCalledWith(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, {})
+    socketService.emit(SocketActions.HCAPTCHA_FORM_RESPONSE, { token: 'fresh-token' })
+    await expect(second).resolves.toBe('fresh-token')
+    expect(captchaService.declinedByUser).toBe(false)
+  })
+
+  it('clears the declined state on reset', async () => {
+    const first = captchaService.getToken('site-key')
+    socketService.emit(SocketActions.HCAPTCHA_FORM_RESPONSE, {})
+    await first
+    expect(captchaService.declinedByUser).toBe(true)
+    captchaService.reset()
+    expect(captchaService.declinedByUser).toBe(false)
+  })
 })
