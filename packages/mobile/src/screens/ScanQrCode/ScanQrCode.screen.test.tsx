@@ -43,9 +43,10 @@ describe('ScanQrCodeScreen', () => {
     if (connected) {
       store.dispatch(initActions.setWebsocketConnected({ dataPort: 5001, socketIOSecret: 'secret' }))
     }
+    store.dispatch(navigationActions.navigation({ screen: ScreenNames.ScanQrCodeScreen, params: { variant } }))
     const dispatchSpy = jest.spyOn(store, 'dispatch')
     const result = renderComponent(<ScanQrCodeScreen route={routeFor(variant)} />, store)
-    return { dispatchSpy, result }
+    return { store, dispatchSpy, result }
   }
 
   it('joins from a scanned member invite and goes to Choose username, as a pasted link does', async () => {
@@ -116,6 +117,28 @@ describe('ScanQrCodeScreen', () => {
     fireEvent.press(result.getByTestId('join-qr-scanner-paste-link'))
     expect(dispatchSpy).toHaveBeenCalledWith(
       navigationActions.replaceScreen({ screen: ScreenNames.PasteInviteLinkScreen, params: { variant: 'inviteLink' } })
+    )
+  })
+
+  it('pauses the camera under another screen and scans again, even the same code, on return', async () => {
+    const { store, dispatchSpy, result } = await renderScreen('join')
+    const link = composeInvitationShareUrl(memberInvite)
+    scan(result.getByTestId('join-qr-scanner-camera'), link)
+    // The decoded invitation pushed Choose username on top; the camera is off underneath.
+    expect(store.getState().Navigation.backStack.slice(-1)[0]).toBe(ScreenNames.UsernameRegistrationScreen)
+    expect(result.getByTestId('join-qr-scanner-camera').props.isActive).toBe(false)
+    expect(result.queryByTestId('join-qr-scanner-frame')).toBeNull()
+    dispatchSpy.mockClear()
+
+    act(() => {
+      store.dispatch(navigationActions.pop())
+    })
+    expect(result.getByTestId('join-qr-scanner-camera').props.isActive).toBe(true)
+    expect(result.getByTestId('join-qr-scanner-frame')).toBeTruthy()
+
+    scan(result.getByTestId('join-qr-scanner-camera'), link)
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      communities.actions.joinCommunity({ inviteData: { ...memberInvite, kind: InvitationKind.Member } })
     )
   })
 

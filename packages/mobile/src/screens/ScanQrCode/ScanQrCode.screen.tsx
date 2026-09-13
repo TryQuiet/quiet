@@ -7,6 +7,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { useInvitationAction } from '../../hooks/useInvitationAction'
 import type { PasteInviteLinkVariant, ScanQrCodeVariant } from '../../route.params'
 import { initSelectors } from '../../store/init/init.selectors'
+import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScanQrCodeScreenProps } from './ScanQrCode.types'
 
@@ -32,13 +33,15 @@ const COPY: Record<ScanQrCodeVariant, ScanQrCodeCopy> = {
 /**
  * Join with QR code and Link devices → Scan QR code. A scanned code does exactly
  * what the same link pasted into "Paste a link to Join" does; when the camera
- * cannot be used the sheet gives way to that paste form.
+ * cannot be used the sheet gives way to that paste form. The camera runs only
+ * while this is the screen in front.
  */
 export const ScanQrCodeScreen: FC<ScanQrCodeScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
   const copy = COPY[route.params?.variant ?? 'join']
 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
+  const active = useSelector(navigationSelectors.currentScreen) === ScreenNames.ScanQrCodeScreen
 
   const onDecoded = useInvitationAction()
 
@@ -61,6 +64,7 @@ export const ScanQrCodeScreen: FC<ScanQrCodeScreenProps> = ({ route }) => {
     <QrScanner
       title={copy.title}
       intro={copy.intro}
+      active={active}
       onDecoded={onDecoded}
       onClose={onClose}
       onUsePasteLink={onUsePasteLink}

@@ -25,6 +25,7 @@ const logger = createLogger('qrScanner')
 export const QrScanner: FC<QrScannerProps> = ({
   title,
   intro,
+  active = true,
   onDecoded,
   onClose,
   onUsePasteLink,
@@ -59,6 +60,14 @@ export const QrScanner: FC<QrScannerProps> = ({
     }
   }, [hasPermission, requestPermission])
 
+  useEffect(() => {
+    if (!active) return
+    // Back in front (e.g. from Choose username): forget the accepted code and scan again.
+    lastText.current = null
+    setInvalid(false)
+    setStatus(current => (current === 'stopped' ? 'scanning' : current))
+  }, [active])
+
   const onError = useCallback((error: CameraRuntimeError) => {
     logger.warn(`Camera unavailable: ${error.code}`, error.message)
     setStatus(current => (current === 'stopped' ? current : 'unavailable'))
@@ -88,7 +97,7 @@ export const QrScanner: FC<QrScannerProps> = ({
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
-        isActive={status === 'scanning'}
+        isActive={active && status === 'scanning'}
         codeScanner={codeScanner}
         onError={onError}
         testID={`${testID}-camera`}

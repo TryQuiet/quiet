@@ -32,6 +32,11 @@ export interface QrScannerSheetProps {
 export interface QrScannerProps {
   title: string
   intro?: string
+  /**
+   * Whether the sheet is the screen in front. The camera pauses while another screen
+   * covers it and scanning starts over, ready for a new code, when it comes back.
+   */
+  active?: boolean
   /** A scanned Quiet invitation, member or device, parsed exactly as a pasted link is. Called once. */
   onDecoded: (data: InvitationData) => void
   onClose: () => void
