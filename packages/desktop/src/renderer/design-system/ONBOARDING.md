@@ -458,6 +458,21 @@ Goes to: Glyph → choose-a-plan [prototype]; Frame 1612 → captcha-3054-4052 [
 Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx`
 
 
+### Progress while joining / creating (decided 2026-09-13)
+
+**Rule (user):** joining over **Tor** keeps the existing explanatory screen; joining or creating with **QSS** gets a simpler progress bar. The designs exist and are exported to `figma/progress/`:
+
+| use | design | node | what it shows |
+|---|---|---|---|
+| Tor join (mobile) | Quiet Design Library › Content/pages › *Joining now* | `5978:19161` | globe illustration, **Joining now!**, progress bar, the explanation ("You can exit the app - we'll notify you once you're connected! **This first time might take 30 seconds, 10 minutes, or even longer.** There's a good reason why it's slow: Quiet stores data on *your* community's devices (not Big Tech's servers!) and uses the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but can take a long time to connect at first."), link **Learn more about Tor and Quiet** |
+| Tor join, status line | Mobile + desktop + prototypes › Prototype › *Joining* | `1316:34596` | the same inside the community chrome, with a status line under the bar: **Connecting via Tor** |
+| QSS join / create (mobile) | Quiet Design Library › Content/pages › *Joining now* | `5978:19142` | globe, **Joining now!**, progress bar — nothing else |
+| QSS join inside a community | Join from invite link + prototype › *Joining now* | `2894:3382` | the simple variant under the community header |
+| Desktop (QSS) | Mobile + desktop + prototypes › Draft 6 › Frame 1320 | `1430:48030` | the split view with the sidebar greyed; centered in the chat area a progress bar, **Creating community "Rockets"**, and an optional secondary line ("Additional info if needed can go here otherwise this is hidden") — export `figma/desktop/desktop-creating-community.png` |
+| Components | Library › Info, alerts, banners › *Progress bar 2* `5390:19569`, *Progress-loading-template* `6049:26981` | — | the bar itself; take height, colours, radius from the component |
+
+Implementation mapping: desktop `LoadingPanel/StartingPanelComponent.tsx` and mobile `ConnectionProcess/ConnectionProcess.component.tsx` branch on whether the community uses a server: Tor → the explanatory *Joining now* (+ "Connecting via Tor" status); QSS → the simple bar, and on desktop the Draft-6 layout ("Joining community "X"" / "Creating community "X""). Not designed: an error / timeout state (open bug #3368) — keep the app's existing message. Older draft `1031:42695` ("Joining… can take 10 minutes or more!" with a research prompt) is superseded by the library frames.
+
 ### Purged stages (user decision, 2026-09-12)
 
 Removed from the click-through and the exports: Apple system UI captured as stages, frames that are pixel-identical and differ only in prototype wiring, extra input states of one screen, and placeholder art. Both Agree & join screens stay — opt-in consent is a step in the process. Links from kept screens into a purged one were re-targeted to the kept equivalent or dropped (`flow/gen.cjs` `PURGE`).
