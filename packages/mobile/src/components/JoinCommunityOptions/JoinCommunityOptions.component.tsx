@@ -12,11 +12,13 @@ import type { JoinCommunityOptionsProps } from './JoinCommunityOptions.types'
 
 /**
  * Join community · Figma 2811:2562: the three-way choice. "Recover account"
- * has no mechanism yet, so its row is present but disabled.
+ * opens the Account recovery screen (2811:2535), whose routes are the
+ * existing Link devices and Join with invite link flows.
  */
 export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
   onJoinWithInviteLink,
   onJoinWithQrCode,
+  onRecoverAccount,
   handleBackButton,
 }) => (
   <View
@@ -41,7 +43,12 @@ export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
           onPress={onJoinWithQrCode}
           testID={'join-with-qr-code'}
         />
-        <ActionRow icon={<InfoIcon />} label={'Recover account'} disabled testID={'recover-account'} />
+        <ActionRow
+          icon={<InfoIcon />}
+          label={'Recover account'}
+          onPress={onRecoverAccount}
+          testID={'recover-account'}
+        />
       </View>
     </View>
   </View>

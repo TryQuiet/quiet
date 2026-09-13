@@ -9,6 +9,7 @@ import { OpenInviteLinkComponent } from './OpenInviteLinkComponent'
 import { PasteLinkComponent } from './PasteLinkComponent'
 import { CreateCommunityComponent } from './CreateCommunityComponent'
 import { LinkDevicesComponent } from './LinkDevicesComponent'
+import { RecoverAccountComponent } from './RecoverAccountComponent'
 
 import { createLogger } from '../../logger'
 
@@ -26,7 +27,13 @@ export const GetStarted = () => (
 
 export const JoinCommunityOptions = () => (
   <Body>
-    <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} />
+    <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} onRecoverAccount={noop} />
+  </Body>
+)
+
+export const RecoverAccount = () => (
+  <Body>
+    <RecoverAccountComponent onUseLinkedDevice={noop} onUseInviteLink={noop} />
   </Body>
 )
 

@@ -10,6 +10,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import JoinCommunity from './JoinCommunity'
 import GetStarted from '../../Onboarding/GetStarted'
+import LinkDevices from '../../Onboarding/LinkDevices'
 import CreateUsername from '../../CreateUsername/CreateUsername'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
@@ -73,7 +74,7 @@ describe('join community', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
-    expect(screen.getByTestId('recover-account')).toHaveAttribute('aria-disabled', 'true')
+    expect(screen.getByTestId('recover-account')).not.toHaveAttribute('aria-disabled', 'true')
 
     await userEvent.click(screen.getByTestId('join-with-invite-link'))
     expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
@@ -90,6 +91,44 @@ describe('join community', () => {
 
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
     expect(await screen.findByRole('heading', { name: 'Let’s get started...', level: 3 })).toBeVisible()
+  })
+
+  it('opens Account recovery; "Use invite link" continues to Join with invite link and back retraces', async () => {
+    const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+
+    renderComponent(<JoinCommunity />, store)
+
+    await userEvent.click(screen.getByTestId('recover-account'))
+    expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
+    expect(screen.getByText('Account recovery')).toBeVisible()
+    expect(screen.getByTestId('recover-more-options')).toHaveAttribute('aria-disabled', 'true')
+
+    await userEvent.click(screen.getByTestId('recover-use-invite-link'))
+    expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+  })
+
+  it('"Use linked device" on Account recovery hands over to Link devices', async () => {
+    const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <LinkDevices />
+      </>,
+      store
+    )
+
+    await userEvent.click(screen.getByTestId('recover-account'))
+    await userEvent.click(await screen.findByTestId('recover-use-linked-device'))
+
+    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: 'Recover account' })).not.toBeInTheDocument()
   })
 
   it('takes the pasted link for "Join with QR code" since desktop has no camera', async () => {

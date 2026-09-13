@@ -13,16 +13,19 @@ import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { JoinCommunityOptionsComponent } from '../../Onboarding/JoinCommunityOptionsComponent'
+import { RecoverAccountComponent } from '../../Onboarding/RecoverAccountComponent'
 import { OpenInviteLinkComponent } from '../../Onboarding/OpenInviteLinkComponent'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { createLogger } from '../../../logger'
 
 const logger = createLogger('JoinCommunity')
 
-type Step = 'options' | 'openInviteLink' | 'pasteInviteLink' | 'pasteQrCode'
+type Step = 'options' | 'recoverAccount' | 'openInviteLink' | 'pasteInviteLink' | 'pasteQrCode'
 
+/** Title bar text per step, from the prototype's frames (2811:2562, 2811:2535, 2811:2455, 3190:10892, 2811:2460). */
 const TITLES: Record<Step, string> = {
   options: 'Quiet',
+  recoverAccount: 'Account recovery',
   openInviteLink: 'Join with invite link',
   pasteInviteLink: 'Join with invite link',
   pasteQrCode: 'Join with QR code',
@@ -31,6 +34,13 @@ const TITLES: Record<Step, string> = {
 /**
  * Join community: the three-way choice, then Open invite link → Paste a link.
  * Desktop has no camera, so "Join with QR code" also lands on the paste step.
+ * Recover account is the designed info screen: "Use linked device" hands over
+ * to the Link devices modal, "Use invite link" continues to Open invite link.
+ *
+ * An invite link opened while this modal is showing takes the deep-link path
+ * (customProtocolSaga): it dispatches joinCommunity and opens Choose username
+ * on top, and this modal keeps its step underneath, so closing that returns
+ * to the screen the link arrived on.
  */
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -41,13 +51,16 @@ const JoinCommunity = () => {
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const getStartedModal = useModal(ModalName.getStartedModal)
+  const linkDevicesModal = useModal(ModalName.linkDevicesModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
-  const [step, setStep] = useState<Step>('options')
+  // The screens visited inside this modal; the back arrow pops one.
+  const [trail, setTrail] = useState<Step[]>(['options'])
+  const step = trail[trail.length - 1]
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
-    if (!joinCommunityModal.open) setStep('options')
+    if (!joinCommunityModal.open) setTrail(['options'])
   }, [joinCommunityModal.open])
 
   useEffect(() => {
@@ -56,6 +69,8 @@ const JoinCommunity = () => {
       joinCommunityModal.handleClose()
     }
   }, [isConnected, currentCommunity, joinCommunityModal.open])
+
+  const go = (next: Step) => setTrail(visited => [...visited, next])
 
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
@@ -76,19 +91,20 @@ const JoinCommunity = () => {
     joinCommunityModal.handleClose()
   }
 
+  // Account recovery → Link devices: the prototype's own link. The Link devices
+  // modal takes over; its back arrow returns to Get started.
+  const handleUseLinkedDevice = () => {
+    linkDevicesModal.handleOpen()
+    joinCommunityModal.handleClose()
+  }
+
   const handleBack = () => {
-    switch (step) {
-      case 'pasteInviteLink':
-        setStep('openInviteLink')
-        return
-      case 'openInviteLink':
-      case 'pasteQrCode':
-        setStep('options')
-        return
-      default:
-        if (!currentCommunity) getStartedModal.handleOpen()
-        joinCommunityModal.handleClose()
+    if (trail.length > 1) {
+      setTrail(visited => visited.slice(0, -1))
+      return
     }
+    if (!currentCommunity) getStartedModal.handleOpen()
+    joinCommunityModal.handleClose()
   }
 
   const handleClickInputReveal = () => {
@@ -109,11 +125,18 @@ const JoinCommunity = () => {
     >
       {step === 'options' ? (
         <JoinCommunityOptionsComponent
-          onJoinWithInviteLink={() => setStep('openInviteLink')}
-          onJoinWithQrCode={() => setStep('pasteQrCode')}
+          onJoinWithInviteLink={() => go('openInviteLink')}
+          onJoinWithQrCode={() => go('pasteQrCode')}
+          onRecoverAccount={() => go('recoverAccount')}
         />
       ) : null}
-      {step === 'openInviteLink' ? <OpenInviteLinkComponent onPasteLink={() => setStep('pasteInviteLink')} /> : null}
+      {step === 'recoverAccount' ? (
+        <RecoverAccountComponent
+          onUseLinkedDevice={handleUseLinkedDevice}
+          onUseInviteLink={() => go('openInviteLink')}
+        />
+      ) : null}
+      {step === 'openInviteLink' ? <OpenInviteLinkComponent onPasteLink={() => go('pasteInviteLink')} /> : null}
       {step === 'pasteInviteLink' || step === 'pasteQrCode' ? (
         <PasteLinkComponent
           heading={step === 'pasteQrCode' ? 'Join with QR code' : 'Paste a link to Join'}
