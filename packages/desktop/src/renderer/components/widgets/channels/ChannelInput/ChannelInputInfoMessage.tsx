@@ -18,13 +18,13 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.bold}`]: {
-    fontWeight: 'bold',
+    fontWeight: 500,
   },
 
   [`&.${classes.boot}`]: {
     height: '24px',
     width: '100%',
-    padding: '0px 20px',
+    padding: `0 ${theme.space.lg}px`,
   },
 }))
 
