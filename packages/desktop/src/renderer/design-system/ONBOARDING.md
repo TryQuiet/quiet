@@ -475,6 +475,30 @@ Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `
 
 Implementation mapping: desktop `LoadingPanel/StartingPanelComponent.tsx` and mobile `ConnectionProcess/ConnectionProcess.component.tsx` branch on whether the community uses a server: Tor → the explanatory *Joining now* (+ "Connecting via Tor" status); QSS → the simple bar, and on desktop the Draft-6 layout ("Joining community "X"" / "Creating community "X""). Not designed: an error / timeout state (open bug #3368) — keep the app's existing message. Older draft `1031:42695` ("Joining… can take 10 minutes or more!" with a research prompt) is superseded by the library frames.
 
+### Mobile parity audit (2026-09-13)
+
+Audit of the Android app on `design/onboarding-entry` @ f12463cd2 against the prototype (agent `mobile-parity`; phase 2 — the fixes — not started when the session ended). Root cause of "Link devices looks old": the entry screen exists, but *Display QR code* opens #3400's old full-screen "Link a device" (old copy, "Share code", bare QR) instead of the designed *QR code* sheet, and *Scan QR code* opens the paste form.
+
+| stage | node | mobile file | status | what differs |
+|---|---|---|---|---|
+| Get started | 2811:2550 | components/GetStarted | partial | rows not in the bordered group (1px #E5E5E5 r16; rows 48, pad 16/11, gap 16, #F0F0F0 dividers); row title 16/26; beta caption left-aligned 12/16 #222222; content top-anchored (24 under the bar) |
+| Join community | 2811:2562 | components/JoinCommunityOptions | partial | missing the heart-chat illustration (I2815:2504;6181:27547, 219×160); bar title hidden in the frame (glyph only); rows not bordered; 24 side margin |
+| Open invite link | 2811:2455 | components/OpenInviteLink | partial | bar title hidden in frame; top-anchored; link 16/16 #1B6FEC |
+| Paste a link to Join | 3190:10892 | components/JoinCommunity (inviteLink) | partial | close glyph (mobile back); bar title hidden; Input3.0 42 tall r8 1px #999999 placeholder 14/20 #767676; Continue 108×50 r16 centred, 30% until valid |
+| Create a community | 2811:2451 / 2811:2366 | components/CreateCommunity | partial | input label hidden in frame; input/button shapes + disabled-until-valid; bar title hidden; top-anchored |
+| Choose username | 2811:2371 / 2811:2373 | components/Registration/UsernameRegistration | partial | back glyph + divider visible; label hidden; caption 12/16 #7F7F7F; input/button shapes |
+| Link devices | 2811:2575 | components/LinkDevices + screens/LinkDevices | partial | bar title hidden; rows not bordered; Linked devices list styled per the hidden nodes (overline 10/16 #7F7F7F header, bordered card, "No linked devices" 14/20 #767676) |
+| Link devices — QR code (sheet) | 2811:2601 | screens/LinkedDeviceQRCode → components/QRCode | **old design** | full screen not a sheet; title "Link a device"; #3400 copy; "Share code" button (design: "Reset QR code" text link); QR 172 bare (design: qr-code-box 220, 1px #B3B3B3 r4, 188 QR); no "Generating device link…" state |
+| Link devices — Scan QR code (sheet) | 2811:2587 | screens/PasteInviteLink (deviceLink) | **old / camera missing** | paste form instead of the sheet with viewfinder; no camera dependency on any branch |
+| Join with QR code (sheet) | 2811:2460 | screens/PasteInviteLink (qrCode) | **old / camera missing** | same; duplicated heading |
+| Account recovery | 2811:2535 | components/RecoverAccount | partial | bar title hidden; rows not bordered; "More options" drawn enabled in the frame |
+| Want a server? | 2922:10009 | ServerOffer.drawer + CreatingOffer | partial | drawer header vs 60 title bar with close; title 28 bold vs h3 500; "Add server" vs "Use Quiet's server" (121×50 r16); "Not now" text 16/16 #7F7F7F; body #222222 |
+| No server? | 2922:10050 | — | **missing** | "No server?" / "This won't work well for iPhone users in your community." / [Go back] / "Continue without server" (unwired in the file — interpretation: proceed without server) |
+| Community home / switcher | 2811:2370 / 2853:1955 | ChannelList, CommunityContextMenu | old design | in-app, not onboarding; multi-community not in the app — out of scope |
+| Agree & join, CAPTCHA, Add members (+QR), progress | — | — | in flight | design/onboarding-impl (both platforms) |
+
+Cross-cutting: bordered row group absent (also on desktop's RowGroup); content vertically centred vs top-anchored; full-screen frames hide the bar title (only sheets show one); Appbar 52 with a permanent divider vs 60 without; Input3.0 and Button (r16, 50, disabled 30%) shapes. Decisions taken: real camera scanning on mobile (vision-camera), No server? built, shared components for the cross-cutting items.
+
 ### Purged stages (user decision, 2026-09-12)
 
 Removed from the click-through and the exports: Apple system UI captured as stages, frames that are pixel-identical and differ only in prototype wiring, extra input states of one screen, and placeholder art. Both Agree & join screens stay — opt-in consent is a step in the process. Links from kept screens into a purged one were re-targeted to the kept equivalent or dropped (`flow/gen.cjs` `PURGE`).
