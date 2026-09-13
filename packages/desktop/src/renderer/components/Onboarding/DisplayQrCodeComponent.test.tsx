@@ -43,17 +43,22 @@ describe('DisplayQrCodeComponent', () => {
     expect(onReset).toHaveBeenCalledTimes(1)
   })
 
-  it('while the link is minted the box says so and both actions are disabled', () => {
+  it('while the link is minted the actions give way to the progress bar with the status line', () => {
     renderComponent(<DisplayQrCodeComponent deviceLink='' isLoading onReset={jest.fn()} />)
 
-    expect(screen.getByTestId('display-qr-code-status')).toHaveTextContent(DISPLAY_QR_CODE_COPY.generating)
-    expect(screen.getByTestId('copy-device-link')).toBeDisabled()
-    expect(screen.getByTestId('reset-qr-code')).toBeDisabled()
+    expect(screen.getByTestId('display-qr-code-progress')).toBeVisible()
+    expect(screen.getByRole('status')).toHaveTextContent(DISPLAY_QR_CODE_COPY.generating)
+    expect(screen.getByRole('progressbar')).toBeVisible()
+    expect(screen.queryByTestId('copy-device-link')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('reset-qr-code')).not.toBeInTheDocument()
   })
 
-  it('without a link and nothing being minted the box says the link is unavailable', () => {
+  it('without a link and nothing being minted the box says the link is unavailable and no action is drawn', () => {
     renderComponent(<DisplayQrCodeComponent deviceLink='' isLoading={false} onReset={jest.fn()} />)
 
     expect(screen.getByTestId('display-qr-code-status')).toHaveTextContent(DISPLAY_QR_CODE_COPY.unavailable)
+    expect(screen.queryByTestId('display-qr-code-progress')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('copy-device-link')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('reset-qr-code')).not.toBeInTheDocument()
   })
 })

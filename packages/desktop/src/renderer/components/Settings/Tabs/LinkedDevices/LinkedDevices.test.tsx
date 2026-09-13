@@ -48,7 +48,7 @@ describe('LinkedDevices tab', () => {
 
     expect(dispatch).toHaveBeenCalledWith(connection.actions.createDeviceLink())
     expect(result.getByText('Generating device link…')).toBeVisible()
-    expect(result.getByTestId('reset-qr-code')).toBeDisabled()
+    expect(result.queryByTestId('reset-qr-code')).toBeNull()
 
     await act(async () => {
       store.dispatch(
@@ -64,8 +64,8 @@ describe('LinkedDevices tab', () => {
     })
     dispatch.mockClear()
 
-    // Without peers the selector composes no URL; the sheet keeps the generating state and Reset stays disabled.
-    expect(result.getByTestId('reset-qr-code')).toBeDisabled()
+    // Without peers the selector composes no URL; the sheet keeps the generating state, no Reset yet.
+    expect(result.queryByTestId('reset-qr-code')).toBeNull()
     expect(dispatch).not.toHaveBeenCalledWith(connection.actions.createDeviceLink())
   })
 

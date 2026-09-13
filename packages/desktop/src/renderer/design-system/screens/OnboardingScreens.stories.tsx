@@ -69,7 +69,7 @@ const LINK_DEVICES_EXPORTS = (desktop: string, desktopLabel: string): FigmaExpor
 ]
 
 const QR_CODE_NOTE =
-  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence and Reset QR code per 2811:2601 / desktop 880:17427; Copy link (user decision 2026-09-13) sits in the slot the Add members QR sheet 2932:3707 gives its primary button — the raw link is never shown; "Link copied" and the generating / unavailable states have no frame'
+  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence and Reset QR code per 2811:2601 / desktop 880:17427; Copy link (user decision 2026-09-13) sits in the slot the Add members QR sheet 2932:3707 gives its primary button — the raw link is never shown; "Link copied" and the generating (ActionProgress, #3518) / unavailable states have no frame'
 
 const QR_CODE_EXPORTS: FigmaExport[] = [
   { label: 'figma · 2811:2601 (prototype sheet, 375)', src: qrSheetExport, width: CONTENT_COLUMN_WIDTH },
@@ -495,7 +495,7 @@ export const DisplayQrCodeGenerating = () => (
     bar='QR code'
     left='close'
     figma='2811:2601'
-    note='no frame for this state: while the backend mints the one-time link the box carries #3400’s "Generating device link…", Copy link and Reset QR code are disabled'
+    note='no frame for this state: while the backend mints the one-time link the box carries #3400’s "Generating device link…", the actions give way to the library progress bar (ActionProgress, #3518) with the status line'
     render={() => <DisplayQrCodeComponent deviceLink={''} isLoading onReset={noop} />}
   />
 )
@@ -506,7 +506,7 @@ export const DisplayQrCodeUnavailable = () => (
     bar='QR code'
     left='close'
     figma='2811:2601'
-    note='no frame for this state: without a community no link can be minted; the Link devices row is disabled then, so this is the Settings tab’s edge case'
+    note='no frame for this state: without a community no link can be minted; there is nothing to act on, so no action is drawn; the Link devices row is disabled then, so this is the Settings tab’s edge case'
     render={() => <DisplayQrCodeComponent deviceLink={''} isLoading={false} onReset={noop} />}
   />
 )

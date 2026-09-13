@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import QR from 'react-qr-code'
 
+import { ActionProgress } from '../ui/ActionProgress/ActionProgress'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { OnboardingBody } from './OnboardingBody'
 import { TextLink } from './OpenInviteLinkComponent'
@@ -72,7 +73,7 @@ export const DISPLAY_QR_CODE_COPY = {
   reset: 'Reset QR code',
   /** The confirmation after Copy link. Not in a frame. */
   copied: 'Link copied',
-  /** While the backend mints the one-time link (#3400's copy; the frames draw no such state). */
+  /** While the backend mints the one-time link (#3400's copy; the frames draw no such state) — the ActionProgress status line. */
   generating: 'Generating device link…',
   /** No community to mint a link from (#3400's copy; the frames draw no such state). */
   unavailable: 'Device link unavailable',
@@ -92,6 +93,9 @@ export interface DisplayQrCodeComponentProps {
  * sheet's sentence, then — the user's decision (2026-09-13), in the slot the Add members
  * QR sheet gives its primary button — Copy link, and Reset QR code as a text link. The
  * raw link is never shown; Copy link puts it on the clipboard and confirms briefly.
+ * While the link is minted the actions give way to the library's progress bar with the
+ * status line (ActionProgress, #3518's rule: never a greyed-out button); without a
+ * community there is nothing to act on, so the box says so and no action is drawn.
  */
 export const DisplayQrCodeComponent: React.FC<DisplayQrCodeComponentProps> = ({
   deviceLink,
@@ -105,39 +109,38 @@ export const DisplayQrCodeComponent: React.FC<DisplayQrCodeComponentProps> = ({
     <OnboardingBody dataTestId={dataTestId}>
       <Root>
         <div className={classes.box} data-testid={`${dataTestId}-box`}>
-          {ready ? (
-            <QR value={deviceLink} size={QR_SIZE} data-testid={`${dataTestId}-qr`} />
-          ) : (
+          {ready ? <QR value={deviceLink} size={QR_SIZE} data-testid={`${dataTestId}-qr`} /> : null}
+          {!ready && !isLoading ? (
             <Typography variant='body2' className={classes.boxText} role='status' data-testid={`${dataTestId}-status`}>
-              {isLoading ? DISPLAY_QR_CODE_COPY.generating : DISPLAY_QR_CODE_COPY.unavailable}
+              {DISPLAY_QR_CODE_COPY.unavailable}
             </Typography>
-          )}
+          ) : null}
         </div>
         <Typography variant='body2' className={classes.copy} component='p'>
           {DISPLAY_QR_CODE_COPY.scan}
         </Typography>
-        <CopyToClipboard text={deviceLink} onCopy={() => setCopied(true)}>
-          <LoadingButton
-            variant='contained'
-            size='small'
-            color='primary'
-            text={DISPLAY_QR_CODE_COPY.copyLink}
-            disabled={!ready}
-            classes={{ button: classes.button }}
-            data-testid='copy-device-link'
-          />
-        </CopyToClipboard>
-        <TextLink
-          type='button'
-          onClick={onReset}
-          disabled={!ready}
-          className={classes.reset}
-          data-testid='reset-qr-code'
-        >
-          <Typography variant='body1' component='span' color='inherit'>
-            {DISPLAY_QR_CODE_COPY.reset}
-          </Typography>
-        </TextLink>
+        {isLoading && !ready ? (
+          <ActionProgress status={DISPLAY_QR_CODE_COPY.generating} data-testid={`${dataTestId}-progress`} />
+        ) : null}
+        {ready ? (
+          <>
+            <CopyToClipboard text={deviceLink} onCopy={() => setCopied(true)}>
+              <LoadingButton
+                variant='contained'
+                size='small'
+                color='primary'
+                text={DISPLAY_QR_CODE_COPY.copyLink}
+                classes={{ button: classes.button }}
+                data-testid='copy-device-link'
+              />
+            </CopyToClipboard>
+            <TextLink type='button' onClick={onReset} className={classes.reset} data-testid='reset-qr-code'>
+              <Typography variant='body1' component='span' color='inherit'>
+                {DISPLAY_QR_CODE_COPY.reset}
+              </Typography>
+            </TextLink>
+          </>
+        ) : null}
       </Root>
       <Snackbar
         open={copied}

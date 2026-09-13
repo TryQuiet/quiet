@@ -24,12 +24,13 @@ describe('LinkedDevicesComponent (Settings → Linked devices)', () => {
     expect(result.container.querySelector('input')).toBeNull()
   })
 
-  it('shows link generation progress with Copy link and Reset QR code disabled', () => {
+  it('shows link generation as the progress bar, with no Copy link or Reset QR code', () => {
     const result = renderComponent(<LinkedDevicesComponent deviceLink='' isLoading onReset={jest.fn()} />)
 
     expect(result.getByText(DISPLAY_QR_CODE_COPY.generating)).toBeVisible()
-    expect(result.getByTestId('copy-device-link')).toBeDisabled()
-    expect(result.getByTestId('reset-qr-code')).toBeDisabled()
+    expect(result.getByRole('progressbar')).toBeVisible()
+    expect(result.queryByTestId('copy-device-link')).toBeNull()
+    expect(result.queryByTestId('reset-qr-code')).toBeNull()
   })
 
   it('Reset QR code asks for a new link', async () => {
