@@ -3,10 +3,19 @@ import type { CSSObject, Theme } from '@mui/material/styles'
 
 /**
  * Interaction states for the onboarding controls: hover, pressed (:active),
- * focus-visible (keyboard) and disabled. The design library has no state
- * variants for these controls yet, so the values are the MUI theme's action
- * tokens (`theme.palette.action.*`) and the brand palette; when Figma values
- * land they replace the tokens here, in one place.
+ * focus-visible (keyboard) and disabled, from the Quiet Design Library
+ * (0j7Nna9zWmfOSNmRmQK1Uh):
+ *
+ * - Button row set 2989:185 — Hover fill #F0F0F0 (5577:41332); Disabled
+ *   (4776:7879) fill #FFFFFF with title + caret #B3B3B3 (ActionRow colours
+ *   those). No pressed or focus variants: pressed is the theme's
+ *   action.selected, focus-visible the theme's ring.
+ * - Button set 3505:10206 — Primary #521C74, Hover #461863, Disabled = the
+ *   same at 30% opacity. No pressed variant: an inset activatedOpacity overlay.
+ * - Text-only buttons — Hover = same colour + underline; no disabled or
+ *   pressed variant: pressed dims like the app's buttons.
+ * - Glyph buttons (LeftZ 3606:13753 / RightZ 3606:13778, title-bar icons
+ *   4509:18339) — no designed hover or pressed: focus-visible ring only.
  *
  * Every state changes colour, opacity, outline or shadow only — never a size,
  * border or padding — so nothing shifts on hover. Transitions stay at
@@ -44,16 +53,17 @@ const focusRing = (theme: Theme, offset: number): CSSObject => ({
   outlineOffset: offset,
 })
 
-/** List rows (ListItemButton): the three-way choices and the Link devices rows. */
+/** List rows (ListItemButton): the three-way choices and the Link devices rows. Disabled colours live in ActionRow. */
 export const rowStates = (theme: Theme, strong = true): CSSObject => {
   const s = selectors(strong)
   return {
     cursor: 'pointer',
     transition: transition(theme),
-    [s.hover]: { backgroundColor: theme.palette.action.hover },
+    // Button row / Hover: fill #F0F0F0 — the palette's paper surface.
+    [s.hover]: { backgroundColor: theme.palette.background.paper },
     [s.active]: { backgroundColor: theme.palette.action.selected },
     [s.focus]: { ...focusRing(theme, -2), backgroundColor: theme.palette.action.focus },
-    [s.disabled]: { opacity: theme.palette.action.disabledOpacity, cursor: 'default' },
+    [s.disabled]: { cursor: 'default' },
   }
 }
 
@@ -69,10 +79,11 @@ export const primaryButtonStates = (theme: Theme, strong = true): CSSObject => {
       boxShadow: `inset 0 0 0 999px ${alpha(theme.palette.common.black, theme.palette.action.activatedOpacity)}`,
     },
     [s.focus]: focusRing(theme, 2),
+    // Button / Disabled: the primary colours at 30% opacity.
     [s.disabled]: {
-      backgroundColor: alpha(theme.palette.primary.main, theme.palette.action.disabledOpacity),
+      backgroundColor: theme.palette.primary.main,
       color: theme.palette.common.white,
-      opacity: 1,
+      opacity: 0.3,
     },
   }
 }
@@ -94,13 +105,13 @@ export const textLinkStates = (theme: Theme, strong = true): CSSObject => {
   }
 }
 
-/** Glyph buttons (title-bar back / close, reveal): a round tint, no ripple. */
+/** Glyph buttons (title-bar back / close, reveal): no designed hover or pressed — the keyboard ring only, no ripple. */
 export const glyphButtonStates = (theme: Theme, strong = true): CSSObject => {
   const s = selectors(strong)
   return {
     transition: transition(theme),
-    [s.hover]: { backgroundColor: theme.palette.action.hover },
-    [s.active]: { backgroundColor: theme.palette.action.selected },
+    [s.hover]: { backgroundColor: 'transparent' },
+    [s.active]: { backgroundColor: 'transparent' },
     [s.focus]: { ...focusRing(theme, 0), backgroundColor: 'transparent' },
     [s.disabled]: { opacity: theme.palette.action.disabledOpacity },
   }

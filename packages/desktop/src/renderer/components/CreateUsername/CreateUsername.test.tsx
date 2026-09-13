@@ -34,11 +34,29 @@ describe('Create username', () => {
     const button = screen.getByTestId('continue-createUsername')
 
     await userEvent.type(input, name)
-    await userEvent.click(button)
+    await userEvent.tab()
 
-    await waitFor(() => expect(registerUsername).not.toBeCalled())
+    // Continue stays disabled for an invalid name; the error shows once the field is touched.
+    await waitFor(() => expect(button).toBeDisabled())
+    expect(registerUsername).not.toBeCalled()
 
     const message = await screen.findByText(error)
     expect(message).toBeVisible()
+  })
+
+  it('keeps Continue disabled until the username is valid', async () => {
+    const registerUsername = jest.fn()
+
+    renderComponent(<CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />)
+
+    const input = screen.getByPlaceholderText('Username')
+    const button = screen.getByTestId('continue-createUsername')
+    await waitFor(() => expect(button).toBeDisabled())
+
+    await userEvent.type(input, 'alice')
+    await waitFor(() => expect(button).toBeEnabled())
+
+    await userEvent.click(button)
+    await waitFor(() => expect(registerUsername).toBeCalledWith('alice'))
   })
 })
