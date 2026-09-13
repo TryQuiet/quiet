@@ -19,6 +19,9 @@ export const ConnectionProcessScreen: FC = () => {
   const loadingPanelType = useSelector(network.selectors.loadingPanelType)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentCommunityErrors = useSelector(errors.selectors.currentCommunityErrors)
+  // A community on a server never connects over Tor, so the Tor explanation is
+  // not true of it.
+  const usesServer = useSelector(communities.selectors.usesServer)
   const hasCurrentCommunityError = Boolean(currentCommunity && currentCommunityErrors[currentCommunity?.id])
 
   const openUrl = useCallback((url: string) => {
@@ -58,7 +61,11 @@ export const ConnectionProcessScreen: FC = () => {
 
   return (
     <JoinRecovery>
-      <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
+      <ConnectionProcessComponent
+        openUrl={openUrl}
+        connectionProcess={connectionProcessSelector}
+        usesServer={usesServer}
+      />
     </JoinRecovery>
   )
 }

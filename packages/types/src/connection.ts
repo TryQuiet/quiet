@@ -30,7 +30,10 @@ export interface NetworkStats {
 export enum ConnectionProcessInfo {
   REGISTERING_USER_CERTIFICATE = 'Registering user certificate',
   LAUNCHING_COMMUNITY = 'Launching community',
-  SPAWNING_HIDDEN_SERVICE = 'Spawning hidden service for community',
+  // Plain language, and true whether or not the community is on a server: a
+  // hidden service is how the community is reached, and 'hidden service' is Tor
+  // vocabulary for an address. Nothing under the bar names the transport.
+  SPAWNING_HIDDEN_SERVICE = 'Setting up your community’s address',
   INITIALIZING_STORAGE = 'Initializing storage',
   INITIALIZING_LIBP2P = 'Initializing libp2p',
   INITIALIZING_IPFS = 'Initializing IPFS',
@@ -43,7 +46,10 @@ export enum ConnectionProcessInfo {
   LOADING_MESSAGES = 'Loading messages',
   BACKEND_MODULES = 'Initializing backend',
   REGISTERING_OWNER_CERTIFICATE = 'Registering owner certificate',
-  CONNECTING_TO_COMMUNITY = 'Connecting to community members via Tor',
+  // Names the phase, not the transport. A community on a server shows this line
+  // too, and 'via Tor' there described a connection the joiner was not waiting
+  // on; the Tor screen names Tor itself, in its designed status line.
+  CONNECTING_TO_COMMUNITY = 'Connecting to community members',
 }
 
 export interface SetConnectionProcessInfoPayload {
