@@ -114,6 +114,7 @@ const DESKTOP = {
   'link-devices': { kind: 'content', png: 'devicelink/desktop-link-devices.png', node: '879:20987', width: 715, height: 1018, crop: 96, hotspots: [
     { x: 122, y: 239, w: 458, h: 46, label: 'Display QR code row', from: 'Content' },
     { x: 122, y: 286, w: 458, h: 46, label: 'Scan QR code row', from: 'Button row' },
+    { x: 122, y: 333, w: 458, h: 46, label: 'Paste link — added by decision 2026-09-13, not in the Figma frame', to: 'container', kind: 'added' },
     { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
   ] },
   'sheet-2811-2601': { kind: 'content', png: 'devicelink/desktop-link-devices-qr.png', node: '880:17427', width: 715, height: 1018, crop: 96, hotspots: [
@@ -127,6 +128,12 @@ const DESKTOP = {
   ] },
 }
 for (const f of flow.frames) delete f.desktop // derived; never carried over from a previous run
+// Decisions that add UI the Figma frames do not draw, shown as 'added' (amber) rows in the click-through.
+const ADDED_LINKS = {
+  'link-devices': [{ x: 16, y: 324, w: 343, h: 49, label: 'Paste link — added by decision 2026-09-13, not in the Figma frame', target: 'container', kind: 'added', note: 'User decision: a third Button row with the link glyph; the paste step accepts device links only.' }],
+}
+for (const [slug, links] of Object.entries(ADDED_LINKS)) { const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`ADDED_LINKS has no frame ${slug}`); process.exit(1) }
+  f.links = f.links.filter(l => !(l.kind === 'added' && links.some(a => a.label === l.label))).concat(links) }
 // User decision (2026-09-13): no "Quiet" header on Get started — redundant with the window on desktop, wrong on
 // mobile. The prototype frame still draws it; the desktop composition drops the title bar for this stage.
 const TITLE_BAR = { 'get-started': { height: 60, text: null, removed: true } }

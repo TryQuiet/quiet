@@ -114,8 +114,10 @@ const Hotspot: React.FC<{ l: FlowLink; rect: Rect; outline: boolean; onClick: ()
       title={`${l.label} → ${describe(l)} · ${st.word}`}
       aria-label={`${l.label}: ${l.kind === 'back' ? 'go back' : 'go to ' + describe(l)} (${st.word})`}
       onClick={onClick}
-      style={{ position: 'absolute', left: rect.x, top: rect.y, width: rect.w, height: rect.h, background: outline ? st.bg : 'transparent', border: outline ? st.border : '1px solid transparent', borderRadius: 4, cursor: 'pointer', padding: 0 }}
-    />
+      style={{ position: 'absolute', left: rect.x, top: rect.y, width: rect.w, height: rect.h, background: outline ? st.bg : 'transparent', border: outline ? st.border : '1px solid transparent', borderRadius: 4, cursor: 'pointer', padding: 0, font: 'inherit', textAlign: 'left' }}
+    >
+      {l.kind === 'added' && outline ? <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#8A5F09', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: rect.w - 24, textOverflow: 'ellipsis' }}>{l.label}</span> : null}
+    </button>
   )
 }
 

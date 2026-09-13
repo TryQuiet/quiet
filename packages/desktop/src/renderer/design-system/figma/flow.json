@@ -254,6 +254,16 @@
      "label": "Button row",
      "kind": "prototype",
      "target": "sheet-2811-2587"
+    },
+    {
+     "x": 16,
+     "y": 324,
+     "w": 343,
+     "h": 49,
+     "label": "Paste link — added by decision 2026-09-13, not in the Figma frame",
+     "target": "container",
+     "kind": "added",
+     "note": "User decision: a third Button row with the link glyph; the paste step accepts device links only."
     }
    ],
    "bytes": 34297,
@@ -285,6 +295,15 @@
       "label": "Scan QR code row",
       "target": "sheet-2811-2587",
       "kind": "prototype"
+     },
+     {
+      "x": 122,
+      "y": 333,
+      "w": 458,
+      "h": 46,
+      "label": "Paste link — added by decision 2026-09-13, not in the Figma frame",
+      "target": "container",
+      "kind": "added"
      },
      {
       "x": -1,
