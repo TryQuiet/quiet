@@ -89,7 +89,10 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     height: '4px',
   },
   [`& .${classes.progress}`]: {
-    backgroundColor: theme.palette.colors.blue,
+    // Teal, like every other progress fill: the bar these frames were drawn
+    // from fills #67BFD3 (y8h6w8PYR9jyI3zjYHL9Cl 3816:12486). It used to be
+    // colors.blue, which is in no design.
+    backgroundColor: theme.palette.colors.lushSky,
     width: width,
     height: '4px',
     position: 'relative',

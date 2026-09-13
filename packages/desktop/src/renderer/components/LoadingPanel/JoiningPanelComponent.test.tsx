@@ -70,7 +70,7 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-1j55u07-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-177y9q9-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
@@ -206,7 +206,7 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-1j55u07-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-177y9q9-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
