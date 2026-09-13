@@ -110,7 +110,7 @@ describe('UnregisteredModalComponent', () => {
                      will be registered automatically and this alert will go away.
                   </p>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium UnregisteredModalComponent-button css-1wnujka-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium UnregisteredModalComponent-button css-1sw4a9a-MuiButtonBase-root-MuiButton-root"
                     data-testid="unregistered-button"
                     tabindex="0"
                     type="button"

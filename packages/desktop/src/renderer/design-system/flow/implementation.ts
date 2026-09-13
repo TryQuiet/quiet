@@ -96,6 +96,35 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     divergence:
       "#3400 vocabulary: DeviceLinkInvite, deviceLinkUrl, LinkedDevices; strings 'Generating device link…', 'Device link unavailable'. It lives under Settings, not onboarding.",
   },
+  // Join from invite link + prototype (the join path after the link is pasted).
+  'username-unpopulated': {
+    desktop: on('desktop/src/renderer/components/CreateUsername/CreateUsernameComponent.tsx'),
+    mobile: on('mobile/src/components/Registration/UsernameRegistration.component.tsx'),
+    divergence:
+      'Both apps use one username screen for the create and join paths; the design draws them differently — this one keeps the bar title "Choose a username" and its divider, the create-side frames hide the title.',
+  },
+  'username-populated-2811-2749': {
+    desktop: on('desktop/src/renderer/components/CreateUsername/CreateUsernameComponent.tsx'),
+    mobile: on('mobile/src/components/Registration/UsernameRegistration.component.tsx'),
+  },
+  'agree-and-join': {
+    desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
+    mobile: on('mobile/src/components/ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx'),
+    divergence:
+      'The prototype wires consent after username, which is where mobile shows JoiningOptIn + TermsOfService today; desktop shows Terms of Service on join. The design names the server in the body (api.tryquiet.org) instead of in a heading.',
+  },
+  'globe-animation': {
+    desktop: on('desktop/src/renderer/components/LoadingPanel/JoiningPanelComponent.tsx'),
+    mobile: on('mobile/src/components/ConnectionProcess/ConnectionProcess.component.tsx'),
+    divergence:
+      'Both already render "Joining now!", the 300×4 bar and a ConnectionProcessInfo status line under it — the QSS variant keeps exactly that and drops the Tor paragraph and the "Learn more about Tor and Quiet" link both apps still show. Bar fill is teal #67BFD3 by decision; desktop uses lushSky and mobile’s base fill is #2196f3.',
+  },
+  'starting-quiet': {
+    desktop: on('desktop/src/renderer/components/LoadingPanel/StartingPanelComponent.tsx'),
+    mobile: on('mobile/src/components/Splash/Splash.component.tsx'),
+    divergence:
+      'App start, not joining. Desktop renders only the Quiet logo — the progress-bar and status styles are declared in StartingPanelComponent but never rendered; mobile shows the logo with "Starting backend" / "This can take some time" and no bar. The frame draws a bar, "Starting Quiet" and the status message "Connecting to Tor…".',
+  },
 }
 
 /** Stages the apps have that the Figma flow does not draw — divergence in the other direction. */
@@ -110,7 +139,5 @@ export const IMPLEMENTATION_ONLY: Array<{ stage: string; desktop?: string; mobil
     desktop: 'desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx',
     mobile: 'mobile/src/components/TermsOfService/TermsOfService.component.tsx',
   },
-  { stage: 'Connecting / loading', desktop: 'desktop/src/renderer/components/LoadingPanel/StartingPanelComponent.tsx', mobile: 'mobile/src/components/ConnectionProcess/ConnectionProcess.component.tsx' },
   { stage: 'Username created / success', desktop: 'desktop/src/renderer/components/CreateUsername/UsernameCreated/UsernameCreated.tsx', mobile: 'mobile/src/components/Success/Success.component.tsx' },
-  { stage: 'Splash', mobile: 'mobile/src/components/Splash/Splash.component.tsx' },
 ]

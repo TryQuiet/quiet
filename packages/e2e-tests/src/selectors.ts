@@ -1609,15 +1609,6 @@ export class TermsOfServiceModal {
     )
   }
 
-  get abortButton() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath("//button[@data-testid='TermOfService-Abort']")),
-      5_000,
-      `Leave Community button couldn't be found within timeout`,
-      500
-    )
-  }
-
   async isReady(timeoutMs: number = 10_000): Promise<boolean> {
     const button = await this.agreeAndJoinButton
     await this.driver.wait(
@@ -1634,9 +1625,15 @@ export class TermsOfServiceModal {
     await button.click()
   }
 
+  /** Declining is the card's back arrow (there is no abort button on the library card). */
   async chooseAbort() {
-    const button = await this.abortButton
-    await button.click()
+    const back = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='TermOfServiceModalBack']")),
+      5_000,
+      `Agree & join back arrow couldn't be found within timeout`,
+      500
+    )
+    await back.click()
   }
 }
 

@@ -8,6 +8,6 @@ storiesOf('TermsOfService', module).add('Default', () => (
   <TermsOfService
     onAgree={storybookLog('Agreed to terms!')}
     onBack={storybookLog('Navigated back!')}
-    onLeave={storybookLog('Chose to leave community!')}
+    serverHost={'api.tryquiet.org'}
   />
 ))

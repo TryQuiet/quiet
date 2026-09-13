@@ -166,7 +166,7 @@ describe('ErrorModal', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-capmjd-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-6pxt0z-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-e1w01m-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >

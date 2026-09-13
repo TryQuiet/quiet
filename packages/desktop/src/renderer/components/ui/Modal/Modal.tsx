@@ -155,6 +155,7 @@ export const Modal: React.FC<IModalProps> = ({
   isTransparent = false,
   withoutHeader = false,
   withoutTitle = false,
+  cornerRadius,
   ...otherProps
 }) => {
   const zIndex = 1300
@@ -169,6 +170,7 @@ export const Modal: React.FC<IModalProps> = ({
           [classes.window]: !fullPage,
           [classes.transparent]: isTransparent,
         })}
+        style={cornerRadius !== undefined ? { borderRadius: cornerRadius, overflow: 'hidden' } : undefined}
       >
         <Grid
           container

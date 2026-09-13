@@ -8,6 +8,8 @@ export type LinkKind = 'prototype' | 'added' | 'back'
 export interface FlowLink { x: number; y: number; w: number; h: number; label: string; target: string | null; kind: LinkKind; note?: string }
 export interface FlowFrame {
   slug: string; name: string; display: string; node: string
+  /** The Figma file this frame comes from, when it is not the flow's primary file (flow.file). */
+  file?: string; fileName?: string
   /** Story id, derived from the export name by gen.cjs and verified with @storybook/csf. */
   id: string
   section: string
@@ -24,7 +26,9 @@ export interface Stretch { col: number; right: number }
 export interface DesktopFrame { kind: 'app' | 'content'; png: string; node: string; width: number; height: number; stretch?: Stretch | null; /** 'content' frames that carry their own shell chrome: pixels to crop off the top */ crop?: number; hotspots: FlowLink[] }
 export interface Shell { file: string; node: string; png: string; width: number; height: number; topBar: { y: number; h: number }; titleBar: { y: number; h: number }; titleZone: Rect; backZone: Rect; content: Rect }
 export interface Rect { x: number; y: number; w: number; h: number }
-export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; mapId?: string; frames: FlowFrame[] }
+/** A screen the extractor deliberately left out of a section, listed so the scope of the section is visible. */
+export interface Excluded { file: string; fileName: string; section: string; node: string; name: string; why: string }
+export interface Flow { file: string; start: string; sections: string[]; files?: Array<{ key: string; name: string }>; excluded?: Excluded[]; shell?: Shell; mapId?: string; frames: FlowFrame[] }
 
 export const FLOW_TITLE = 'Onboarding flow'
 
@@ -116,7 +120,9 @@ const Hotspot: React.FC<{ l: FlowLink; rect: Rect; outline: boolean; onClick: ()
       onClick={onClick}
       style={{ position: 'absolute', left: rect.x, top: rect.y, width: rect.w, height: rect.h, background: outline ? st.bg : 'transparent', border: outline ? st.border : '1px solid transparent', borderRadius: 4, cursor: 'pointer', padding: 0, font: 'inherit', textAlign: 'left' }}
     >
-      {l.kind === 'added' && outline ? <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#8A5F09', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: rect.w - 24, textOverflow: 'ellipsis' }}>{l.label}</span> : null}
+      {/* The inline label is for added rows that draw UI the frame does not have; over a drawn button it would
+          print on top of the button's own text, so only wide hotspots carry it. The side panel lists them all. */}
+      {l.kind === 'added' && outline && rect.w >= 200 ? <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#8A5F09', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: rect.w - 24, textOverflow: 'ellipsis' }}>{l.label}</span> : null}
     </button>
   )
 }
@@ -274,7 +280,8 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
         <Eyebrow top={0}>stage</Eyebrow>
         <h1 style={{ fontSize: 22, lineHeight: '28px', fontWeight: 500, margin: '2px 0 4px', letterSpacing: '-0.01em' }}>{frame.display}</h1>
         <p style={{ fontSize: 12, color: INK_3, margin: '0 0 6px' }}>
-          {frame.width}×{frame.height} · node <span style={{ fontFamily: mono }}>{frame.node}</span> ·{' '}
+          {frame.width}×{frame.height} · node <span style={{ fontFamily: mono }}>{frame.node}</span>
+          {frame.fileName ? <> · file <em>{frame.fileName}</em></> : null} ·{' '}
           <a href={frame.url} target="_blank" rel="noreferrer" style={{ color: '#0D6420' }}>open in Figma</a>
           {frame.titleBar?.text ? <> · title bar &ldquo;{frame.titleBar.text}&rdquo;</> : null}
         </p>
@@ -339,13 +346,14 @@ const SECTION_NOTE: Record<string, string> = {
   Onboarding: 'Reachable from "Get started" by the prototype\u2019s own links (plus one added link to the paste screen). After username the prototype lands on Community home, and from there the server / plan / captcha / subscription cluster is reachable — creator-side, once the community exists. Both apps show that offer during creation instead.',
   'Server opt-in (creator)': 'The QSS server / plan / captcha / subscription cluster, when not already reached from Onboarding.',
   'Server agree (joiner, v1)': 'The joiner-side agree screen ("v1 before we support multiple hosts") and its captcha. Not linked from the join flow in the prototype; the apps show ToS after username.',
+  'Join from invite link': 'A second prototype file, drawing what happens after the invite link is pasted: choose a username, agree & join, and the progress screen while joining. Scoped to those screens by decision (user, 2026-09-13) — the account-recovery branch and the screens this file duplicates from Get started are excluded below. One added link joins it to the paste screen.',
 }
 
 export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
   <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: INK, maxWidth: 900 }}>
     <h1 style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px' }}>Onboarding flow — every stage</h1>
     <p style={{ fontSize: 13, color: INK_3, margin: '0 0 20px' }}>
-      {flow.frames.length} screens in file <span style={{ fontFamily: mono }}>{flow.file}</span>, in {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).length} clusters the prototype does not connect. Click any stage to open it; the frame&rsquo;s buttons then walk the flow.
+      {flow.frames.length} screens from {(flow.files ?? [{ key: flow.file, name: flow.file }]).map(f => f.name).join(' and ')}, in {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).length} clusters the prototypes do not connect. Click any stage to open it; the frame&rsquo;s buttons then walk the flow.
     </p>
     {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).map(sec => (
       <div key={sec} style={{ marginBottom: 28 }}>
@@ -354,6 +362,16 @@ export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 14 }}>
           {flow.frames.filter(f => f.section === sec).map(f => <Tile key={f.slug} f={f} />)}
         </div>
+        {(flow.excluded ?? []).some(e => e.section === sec) ? (
+          <div style={{ fontSize: 12, lineHeight: '18px', color: INK_3, marginTop: 10 }}>
+            <span style={{ fontFamily: mono, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>not included</span>
+            <ul style={{ margin: '2px 0 0', padding: '0 0 0 16px' }}>
+              {(flow.excluded ?? []).filter(e => e.section === sec).map(e => (
+                <li key={e.node}>{e.name} <span style={{ fontFamily: mono, fontSize: 11 }}>{e.node}</span> — {e.why}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
     ))}
     <h2 style={{ fontSize: 13, fontFamily: mono, letterSpacing: '0.1em', textTransform: 'uppercase', color: INK_3, margin: '28px 0 8px' }}>stages the apps have that the prototype does not draw</h2>

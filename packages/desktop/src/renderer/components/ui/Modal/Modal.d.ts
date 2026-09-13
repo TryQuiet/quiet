@@ -31,5 +31,7 @@ export interface IModalProps {
    * text on them and keeps titled bars only on sheets.
    */
   withoutTitle?: boolean
+  /** Rounded corners for a windowed (`fullPage={false}`) card — the library's modal/small. */
+  cornerRadius?: number
   zIndex?: number
 }

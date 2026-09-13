@@ -38,31 +38,45 @@ describe('ServerOfferComponent', () => {
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader Modalnone css-lx31tv-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-row-reverse MuiGrid-grid-xs-true css-jablly-MuiGrid-root"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
-                >
-                  <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
-                  />
-                </div>
+                />
                 <div
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item Modalactions css-hoc6b0-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item Modalactions css-19hkhe-MuiGrid-root"
                     data-testid="ServerOfferModalActions"
-                  />
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
+                      data-testid="ServerOfferModalClose"
+                      tabindex="0"
+                      type="button"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="ClearIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage ModalwithoutHeader css-1h16bbz-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage css-1h16bbz-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
@@ -128,7 +142,7 @@ describe('ServerOfferComponent', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-1i72s9j-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-1w4ifkx-MuiButtonBase-root-MuiButton-root"
                         data-testid="ServerOffer-UseQuietServer"
                         tabindex="0"
                         type="button"
@@ -143,7 +157,7 @@ describe('ServerOfferComponent', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall ServerOfferComponent-notNowButton css-1a4wy9e-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall ServerOfferComponent-notNowButton css-1ssqpvx-MuiButtonBase-root-MuiButton-root"
                         data-testid="ServerOffer-NotNow"
                         tabindex="0"
                         type="button"
@@ -219,6 +233,19 @@ describe('ServerOfferComponent', () => {
 
     // Divider should be present
     expect(screen.getByRole('separator')).toBeVisible()
+  })
+
+  it('shows the bar with only the close glyph (2922:10009); closing is "No thanks"', async () => {
+    const handleClose = jest.fn()
+    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} />)
+
+    const header = screen.getByTestId('ServerOfferModalActions').closest('.Modalheader')
+    expect(header).not.toHaveClass('Modalnone')
+    expect(header).not.toHaveClass('ModalheaderBorder')
+    expect(header).not.toHaveTextContent(/\S/)
+
+    await userEvent.click(screen.getByTestId('ServerOfferModalClose'))
+    expect(handleClose).toHaveBeenCalledWith(false)
   })
 
   it('renders modal and handles actions (default, no checkbox)', async () => {
