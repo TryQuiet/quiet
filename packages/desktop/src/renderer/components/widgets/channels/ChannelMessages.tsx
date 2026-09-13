@@ -56,10 +56,10 @@ const StyledRoot = styled('div')(({ theme }) => ({
   },
   [`& .${classes.item}`]: {
     backgroundColor: theme.palette.grey[100],
-    padding: '9px 16px',
+    padding: `${theme.space.sm}px ${theme.space.lg}px`,
   },
   [`& .${classes.bold}`]: {
-    fontWeight: 'bold',
+    fontWeight: 500,
   },
 }))
 

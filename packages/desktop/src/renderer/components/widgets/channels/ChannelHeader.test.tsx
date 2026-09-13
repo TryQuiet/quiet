@@ -13,7 +13,7 @@ describe('ChannelHeader', () => {
         <body>
           <div>
             <div
-              class="ChannelHeaderComponentwrapper css-1ii203w"
+              class="ChannelHeaderComponentwrapper css-oeayrk"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -36,7 +36,7 @@ describe('ChannelHeader', () => {
                           data-testid="channelTitle-icon-public"
                           fill="currentColor"
                           focusable="false"
-                          style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
+                          style="font-size: 16px; line-height: 24px; font-weight: 500; font-family: 'Rubik', sans-serif,Menlo Regular;"
                           viewBox="0 0 24 24"
                         >
                           <svg
@@ -71,13 +71,13 @@ describe('ChannelHeader', () => {
                             />
                           </svg>
                         </svg>
-                        <h6
-                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-ab5cf7-MuiTypography-root"
+                        <h5
+                          class="MuiTypography-root MuiTypography-h5 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-88povj-MuiTypography-root"
                           data-testid="channelTitle"
                           style="max-width: 724px;"
                         >
                           general
-                        </h6>
+                        </h5>
                       </div>
                     </div>
                   </div>
@@ -99,7 +99,7 @@ describe('ChannelHeader', () => {
         <body>
           <div>
             <div
-              class="ChannelHeaderComponentwrapper css-1ii203w"
+              class="ChannelHeaderComponentwrapper css-oeayrk"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -122,7 +122,7 @@ describe('ChannelHeader', () => {
                           data-testid="channelTitle-icon-public"
                           fill="currentColor"
                           focusable="false"
-                          style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
+                          style="font-size: 16px; line-height: 24px; font-weight: 500; font-family: 'Rubik', sans-serif,Menlo Regular;"
                           viewBox="0 0 24 24"
                         >
                           <svg
@@ -157,13 +157,13 @@ describe('ChannelHeader', () => {
                             />
                           </svg>
                         </svg>
-                        <h6
-                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-ab5cf7-MuiTypography-root"
+                        <h5
+                          class="MuiTypography-root MuiTypography-h5 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-88povj-MuiTypography-root"
                           data-testid="channelTitle"
                           style="max-width: 724px;"
                         >
                           general
-                        </h6>
+                        </h5>
                       </div>
                     </div>
                   </div>
@@ -204,7 +204,7 @@ describe('ChannelHeader', () => {
         <body>
           <div>
             <div
-              class="ChannelHeaderComponentwrapper css-1ii203w"
+              class="ChannelHeaderComponentwrapper css-oeayrk"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -227,7 +227,7 @@ describe('ChannelHeader', () => {
                           data-testid="channelTitle-icon-private"
                           fill="currentColor"
                           focusable="false"
-                          style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
+                          style="font-size: 16px; line-height: 24px; font-weight: 500; font-family: 'Rubik', sans-serif,Menlo Regular;"
                           viewBox="0 0 24 24"
                         >
                           <svg
@@ -259,13 +259,13 @@ describe('ChannelHeader', () => {
                             />
                           </svg>
                         </svg>
-                        <h6
-                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-ab5cf7-MuiTypography-root"
+                        <h5
+                          class="MuiTypography-root MuiTypography-h5 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-88povj-MuiTypography-root"
                           data-testid="channelTitle"
                           style="max-width: 724px;"
                         >
                           general
-                        </h6>
+                        </h5>
                       </div>
                     </div>
                   </div>
@@ -287,7 +287,7 @@ describe('ChannelHeader', () => {
         <body>
           <div>
             <div
-              class="ChannelHeaderComponentwrapper css-1ii203w"
+              class="ChannelHeaderComponentwrapper css-oeayrk"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -310,7 +310,7 @@ describe('ChannelHeader', () => {
                           data-testid="channelTitle-icon-private"
                           fill="currentColor"
                           focusable="false"
-                          style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
+                          style="font-size: 16px; line-height: 24px; font-weight: 500; font-family: 'Rubik', sans-serif,Menlo Regular;"
                           viewBox="0 0 24 24"
                         >
                           <svg
@@ -342,13 +342,13 @@ describe('ChannelHeader', () => {
                             />
                           </svg>
                         </svg>
-                        <h6
-                          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-ab5cf7-MuiTypography-root"
+                        <h5
+                          class="MuiTypography-root MuiTypography-h5 MuiTypography-noWrap ChannelHeaderComponenttitle ChannelHeaderComponentbold css-88povj-MuiTypography-root"
                           data-testid="channelTitle"
                           style="max-width: 724px;"
                         >
                           general
-                        </h6>
+                        </h5>
                       </div>
                     </div>
                   </div>

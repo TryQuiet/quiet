@@ -40,7 +40,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1o0v020-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -70,17 +70,17 @@ describe('BasicMessage', () => {
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
-                        <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
+                        <h5
+                          class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
                         >
                           gringo
-                        </p>
+                        </h5>
                       </div>
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body2 BasicMessageComponenttime css-1t82dwi-MuiTypography-root"
                         >
                           12:00 AM
                         </p>
@@ -90,13 +90,12 @@ describe('BasicMessage', () => {
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                     data-testid="userMessages-gringo-0"
-                    style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -130,7 +129,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1o0v020-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -160,17 +159,17 @@ describe('BasicMessage', () => {
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
-                        <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
+                        <h5
+                          class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
                         >
                           gringo
-                        </p>
+                        </h5>
                       </div>
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body2 BasicMessageComponenttime css-1t82dwi-MuiTypography-root"
                         >
                           12:00 AM
                         </p>
@@ -180,23 +179,22 @@ describe('BasicMessage', () => {
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                     data-testid="userMessages-gringo-0"
-                    style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -230,7 +228,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding css-1v3s10o-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding css-1o0v020-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -263,17 +261,17 @@ describe('BasicMessage', () => {
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
-                        <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
+                        <h5
+                          class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
                         >
                           Quiet
-                        </p>
+                        </h5>
                       </div>
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body2 BasicMessageComponenttime css-1t82dwi-MuiTypography-root"
                         >
                           12:00 AM
                         </p>
@@ -283,23 +281,22 @@ describe('BasicMessage', () => {
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                     data-testid="userMessages-gringo-0"
-                    style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -334,7 +331,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1o0v020-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -364,17 +361,17 @@ describe('BasicMessage', () => {
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
-                        <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
+                        <h5
+                          class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
                         >
                           gringo
-                        </p>
+                        </h5>
                       </div>
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-1ql8hfl-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body2 BasicMessageComponenttime css-1t82dwi-MuiTypography-root"
                         >
                           12:00 AM
                         </p>
@@ -384,23 +381,22 @@ describe('BasicMessage', () => {
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                     data-testid="userMessages-gringo-0"
-                    style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0

@@ -24,16 +24,17 @@ const classes = {
 }
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
+  // Message text is the body role (14/20; library 'Message' text 4910:23681); emoji-only is twice that on the grid.
   [`&.${classes.message}`]: {
-    fontSize: '0.855rem',
+    fontSize: theme.typography.body2.fontSize,
     whiteSpace: 'pre-line',
-    lineHeight: '21px',
+    lineHeight: theme.typography.body2.lineHeight,
     overflowWrap: 'anywhere',
     fontFamily: '"Rubik", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
   },
   [`&.${classes.emojiMessage}`]: {
-    fontSize: '1.7rem', // Double the normal fontSize
-    lineHeight: '42px', // Double the normal lineHeight
+    fontSize: 28, // Double the body size
+    lineHeight: '40px', // Double the body line-height
     fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
   },
   [`&.${classes.pending}`]: {

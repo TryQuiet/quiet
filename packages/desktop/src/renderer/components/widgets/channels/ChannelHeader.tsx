@@ -14,12 +14,8 @@ const PREFIX = 'ChannelHeaderComponent'
 const classes = {
   root: `${PREFIX}root`,
   title: `${PREFIX}title`,
-  subtitle: `${PREFIX}subtitle`,
-  subtitleSmall: `${PREFIX}subtitleSmall`,
-  spendButton: `${PREFIX}spendButton`,
   actions: `${PREFIX}actions`,
   switch: `${PREFIX}switch`,
-  tab: `${PREFIX}tab`,
   tabs: `${PREFIX}tabs`,
   selected: `${PREFIX}selected`,
   indicator: `${PREFIX}indicator`,
@@ -33,30 +29,16 @@ const classes = {
 }
 
 const Root = styled('div')(({ theme }) => ({
+  // 'Panel title bar / Type=Channel' (library 3526:11541): padding 20/16 around a title block, hairline #F0F0F0.
+  // 16 + (24 + 20) + 16 on the token line-heights = 76; the kebab keeps 20 from the edge (12 + its own 8).
   [`& .${classes.root}`]: {
-    height: '75px',
+    height: 76,
     paddingLeft: 20,
-    paddingRight: 24,
+    paddingRight: theme.space.md,
     borderBottom: `1px solid ${theme.palette.colors.border01}`,
   },
 
-  [`& .${classes.title}`]: {
-    fontSize: '1rem',
-    lineHeight: '1.68',
-  },
-
-  [`& .${classes.subtitle}`]: {
-    fontSize: '0.8rem',
-  },
-
-  [`& .${classes.subtitleSmall}`]: {
-    fontSize: '0.7rem',
-    lineHeight: '0.9',
-  },
-
-  [`& .${classes.spendButton}`]: {
-    fontSize: 13,
-  },
+  [`& .${classes.title}`]: {},
 
   [`& .${classes.actions}`]: {},
 
@@ -66,19 +48,6 @@ const Root = styled('div')(({ theme }) => ({
     borderRadius: 4,
     borderStyle: 'solid',
     borderColor: theme.palette.colors.gray03,
-  },
-
-  [`& .${classes.tab}`]: {
-    fontSize: 12,
-    minHeight: 22,
-    width: 65,
-    minWidth: 0,
-    lineHeight: '18px',
-    padding: 0,
-    textTransform: 'none',
-    backgroundColor: theme.palette.colors.gray03,
-    color: theme.palette.colors.gray40,
-    fontWeight: 'normal',
   },
 
   [`& .${classes.tabs}`]: {
@@ -110,9 +79,15 @@ const Root = styled('div')(({ theme }) => ({
     fontWeight: 500,
   },
 
+  // Hover for the kebab: the library's icon hover is a #F0F0F0 (border01) round tint (4873:18663).
   [`& .${classes.menu}`]: {
-    padding: '20px',
+    display: 'flex',
+    padding: theme.space.sm,
+    borderRadius: 16,
     cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.colors.border01,
+    },
   },
 
   [`& .${classes.lock}`]: {
@@ -178,7 +153,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                 <ChannelTypeIcon
                   isPublic={isPublic}
                   fill={'currentColor'}
-                  style={{ ...theme.typography.subtitle1 }}
+                  style={{ ...theme.typography.h5 }}
                   className={classNames({
                     [classes.title]: true,
                     [classes.bold]: true,
@@ -189,7 +164,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                 <Typography
                   noWrap
                   style={{ maxWidth: wrapperWidth }}
-                  variant='subtitle1'
+                  variant='h5'
                   className={classNames({
                     [classes.title]: true,
                     [classes.bold]: true,
