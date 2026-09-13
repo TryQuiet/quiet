@@ -15,6 +15,8 @@ const icon_send_disabled = require('./icons/png/icon_send_disabled.png')
 const icon_warning = require('./icons/png/icon_warning.png')
 const quiet_icon = require('./icons/png/quiet_icon.png')
 const quiet_icon_round = require('./icons/png/quiet_icon_round.png')
+// The Quiet mark as the Get started frame (2811:2550) draws it: a 120px circle holding the Logo-icon — exported from Figma.
+const get_started_circle_logo = require('./icons/png/get_started_circle_logo.png')
 const update_graphics = require('./icons/png/update_graphics.png')
 const username_registered = require('./icons/png/username_registered.png')
 const exclamationMark = require('./icons/png/exclamationMark.png')
@@ -38,6 +40,7 @@ export const icons = {
   icon_warning,
   quiet_icon,
   quiet_icon_round,
+  get_started_circle_logo,
   update_graphics,
   username_registered,
   exclamationMark,
