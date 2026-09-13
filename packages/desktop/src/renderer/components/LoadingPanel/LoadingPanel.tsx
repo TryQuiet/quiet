@@ -8,7 +8,7 @@ import { modalsActions } from '../../sagas/modals/modals.slice'
 import { openExternal } from '../../openExternal'
 import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
-import { LoadingPanelType, ErrorCodes, CommunityOwnership } from '@quiet/types'
+import { LoadingPanelType, ErrorCodes } from '@quiet/types'
 import { createLogger } from '../../logger'
 
 const logger = createLogger('LoadingPanel')
@@ -22,7 +22,9 @@ const LoadingPanel = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const isChannelReplicated = Boolean(useSelector(publicChannels.selectors.publicChannels)?.length > 0)
   const community = useSelector(communities.selectors.currentCommunity)
-  const owner = Boolean(community?.ownership === CommunityOwnership.Owner)
+  // Not from the record: an owner watches the whole of creation before one
+  // exists, and reading ownership from it heads the first frames "Joining".
+  const { name: communityName, isOwner: owner } = useSelector(communities.selectors.communityInProgress)
   const usersData = Object.keys(useSelector(users.selectors.allUsers))
   const isOnlyOneUser = usersData.length === 1
   const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
@@ -97,7 +99,7 @@ const LoadingPanel = () => {
           connectionInfo={connectionProcessSelector}
           isOwner={owner}
           usesServer={usesServer}
-          communityName={community?.name}
+          communityName={communityName}
           withSidebar={withSidebar}
         />
       )

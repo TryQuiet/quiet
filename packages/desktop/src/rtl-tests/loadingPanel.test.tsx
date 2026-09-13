@@ -23,7 +23,10 @@ import { act } from '@testing-library/react'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { createLogger } from './logger'
-import { CommunityOwnership } from '@quiet/types'
+// state-manager re-exports a LoadingPanelType of its own with only two members
+// (sagas/network/network.types.ts); the four-member one the slice and the panel
+// actually use is this one.
+import { CommunityOwnership, LoadingPanelType as PanelType } from '@quiet/types'
 import { channel } from 'diagnostics_channel'
 
 const logger = createLogger('loadingPanel')
@@ -159,5 +162,33 @@ describe('Loading panel', () => {
 
     // Verify loading panel dissapeared
     expect(screen.queryByTestId('joiningPanelComponent')).toBeNull()
+  })
+  it('Heads the very first frame of creating a community with Creating, not Joining', async () => {
+    const { store } = await prepareStore(
+      {
+        [StoreKeys.Socket]: {
+          ...new SocketState(),
+          isConnected: true,
+        },
+      },
+      socket
+    )
+
+    // The create path: the owner has submitted, and nothing has come back yet.
+    // No community record exists, so ownership and name are only on the action.
+    await act(async () => {
+      store.dispatch(communities.actions.createCommunity({ name: 'Rockets', useServer: true }))
+      store.dispatch(network.actions.setLoadingPanelType(PanelType.Creating))
+      store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
+    })
+
+    await act(async () => {
+      renderComponent(<LoadingPanel />, store)
+    })
+
+    expect(communities.selectors.currentCommunity(store.getState())).toBeUndefined()
+    expect(screen.getByTestId('serverJoiningPanel')).toBeVisible()
+    expect(screen.getByTestId('actionProgressStatus')).toHaveTextContent('Creating community “Rockets”')
+    expect(screen.queryByText(/Joining community/)).toBeNull()
   })
 })

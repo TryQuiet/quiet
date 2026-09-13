@@ -41,7 +41,7 @@ export const invitationCodes = createSelector(communitiesSlice, reducerState => 
 
 export const pendingJoin = createSelector(communitiesSlice, reducerState => reducerState.pendingJoin ?? null)
 
-export const pendingUseServer = createSelector(communitiesSlice, reducerState => reducerState.pendingUseServer ?? null)
+export const pendingCreate = createSelector(communitiesSlice, reducerState => reducerState.pendingCreate ?? null)
 
 /**
  * Whether an invite is to a community hosted on a server (QSS). v5 is the QSS
@@ -60,16 +60,23 @@ export const inviteUsesServer = (invite: InvitationData | null | undefined): boo
  * - creating: the owner's own answer, before the backend has replied;
  * - afterwards: the community record the backend handed back.
  */
-export const usesServer = createSelector(
-  pendingJoin,
-  pendingUseServer,
-  currentCommunity,
-  (join, creating, community) => {
-    if (join) return inviteUsesServer(join.inviteData)
-    if (creating !== null) return creating
-    return community?.qssEnabled === true
-  }
-)
+export const usesServer = createSelector(pendingJoin, pendingCreate, currentCommunity, (join, creating, community) => {
+  if (join) return inviteUsesServer(join.inviteData)
+  if (creating) return creating.useServer
+  return community?.qssEnabled === true
+})
+
+/**
+ * What the progress screen should call the community, and whether the person
+ * waiting is its owner. Both are on the community record, and the record is the
+ * last thing to arrive: an owner watches the whole of creation before it
+ * exists. The pending create carries the name they typed and says, by existing
+ * at all, that they are creating rather than joining.
+ */
+export const communityInProgress = createSelector(pendingCreate, currentCommunity, (creating, community) => ({
+  name: creating?.name ?? community?.name,
+  isOwner: creating !== null || community?.ownership === CommunityOwnership.Owner,
+}))
 
 export const inviteData = createSelector(currentCommunity, currentCommunity => {
   return currentCommunity?.inviteData
@@ -99,8 +106,9 @@ export const communitiesSelectors = {
   currentCommunityId,
   invitationCodes,
   pendingJoin,
-  pendingUseServer,
+  pendingCreate,
   usesServer,
+  communityInProgress,
   inviteData,
   ownerOrbitDbIdentity,
   psk,

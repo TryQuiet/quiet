@@ -24,6 +24,11 @@ export interface PendingCommunityJoin {
   status: 'draft' | 'submitting' | 'interrupted'
 }
 
+export interface PendingCommunityCreate {
+  name: string
+  useServer: boolean
+}
+
 export class CommunitiesState {
   public invitationCodes: InvitationData | null = null
   public currentCommunity = ''
@@ -34,11 +39,13 @@ export class CommunitiesState {
   public joinAttempt = 0
   public pendingJoin: PendingCommunityJoin | null = null
   /**
-   * The owner's own answer to "want a server?", kept from the moment they answer
-   * until the backend hands back a community record carrying `qssEnabled`. The
-   * progress screen has to know which of the two it is drawing before then.
+   * The community the owner is creating, kept from the moment they submit until
+   * the backend hands back a record. The progress screen is up for all of that
+   * and has nothing else to read: without this it would head itself "Joining
+   * community" with no name, because ownership and name only exist on the
+   * record.
    */
-  public pendingUseServer: boolean | null = null
+  public pendingCreate: PendingCommunityCreate | null = null
 }
 
 export const communitiesSlice = createSlice({
@@ -55,8 +62,9 @@ export const communitiesSlice = createSlice({
     addNewCommunity: (state, action: PayloadAction<Community>) => {
       logger.info('Adding new community', action.payload.id)
       communitiesAdapter.addOne(state.communities, action.payload)
-      // The record carries qssEnabled from here on; the remembered answer is spent.
-      state.pendingUseServer = null
+      // The record carries the name, the ownership and qssEnabled from here on,
+      // so the remembered create is spent.
+      state.pendingCreate = null
     },
     updateCommunityData: (state, action: PayloadAction<UpdateCommunityPayload>) => {
       logger.info('Updating community data', action.payload.id)
@@ -80,14 +88,14 @@ export const communitiesSlice = createSlice({
         state.pendingJoin = null
         state.invitationCodes = null
       }
-      state.pendingUseServer = action.payload.useServer === true
+      state.pendingCreate = { name: action.payload.name, useServer: action.payload.useServer === true }
     },
     joinCommunity: (state, action: PayloadAction<JoinCommunityPayload>) => {
       // A submitted request may have reached the backend, whose join operation
       // erases previous state. Never replay it merely because the socket reconnects.
       if (state.pendingJoin && state.pendingJoin.status !== 'draft') return
       state.joinAttempt = (state.joinAttempt ?? 0) + 1
-      state.pendingUseServer = null
+      state.pendingCreate = null
       state.pendingJoin = {
         attempt: state.joinAttempt,
         inviteData: action.payload.inviteData,
@@ -115,7 +123,7 @@ export const communitiesSlice = createSlice({
         state.pendingJoin = null
         state.invitationCodes = null
       }
-      state.pendingUseServer = null
+      state.pendingCreate = null
     },
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
@@ -127,7 +135,7 @@ export const communitiesSlice = createSlice({
       logger.info('Clearing invitation codes')
       state.invitationCodes = null
       state.pendingJoin = null
-      state.pendingUseServer = null
+      state.pendingCreate = null
       state.tosRequested = false
     },
     requestTermsOfService: state => {
