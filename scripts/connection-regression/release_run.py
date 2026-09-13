@@ -9,7 +9,7 @@ import shlex
 from android import Android
 from fast_android import FastAndroid
 from patch_tor_control import verify as verify_tor_control
-from cold_tor import events
+from cold_tor import events, app_pid
 from scenarios import Peer, private_json, run, stop_phone
 from tor_only import load_fixture, tor_only
 
@@ -103,7 +103,7 @@ def main(config):
     def capture(name):
         raw = phone.run('logcat','-d','-v','epoch')
         (output/f'{name}.private.log').write_text(raw)
-        pid = int(phone.run('shell','pidof','com.quietmobile').strip())
+        pid = app_pid(phone)
         private_json(output/f'{name}.events.json', events(raw,pid))
 
     try:

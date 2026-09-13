@@ -6,6 +6,10 @@ Tor code. Each release uses its own pinned real QSS fixture, dedicated community
 and unique participants. Release identities and hashes are in `releases.json`.
 The original comparison is in [REPORT.md](REPORT.md). The repair validation and
 faster fresh-join comparison are in [FIXES.md](FIXES.md).
+The requested five fresh trials per build, comparing 8 with our repaired 10
+branch using one unchanged Android driver, are in [REPEAT5-RESULTS.md](REPEAT5-RESULTS.md).
+That report retains every trial, including the failed 8 reply, and links the
+full JSON/CSV data and paired statistics.
 
 Run from this worktree. Keep requests, invitations, screenshots and native logs
 under `.connection-runs/` with mode 0700: historical builds log private keys and

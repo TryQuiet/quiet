@@ -1,0 +1,975 @@
+{
+  "protocol": "REPEAT5-PROTOCOL.md",
+  "date": "2026-09-13",
+  "branch": "fix/mobile-connection-regressions-8-9-10",
+  "runtimeFixCommit": "3f8e4ac5e28476e9da15894574149b22f95f140e",
+  "androidEnvironment": {
+    "avd": "connection-arm",
+    "androidVersion": "11",
+    "api": 30,
+    "abi": "arm64-v8a",
+    "nativeBridge": "0",
+    "onlineCpuCount": 2,
+    "memTotalKiB": 2030964,
+    "configuredRamMiB": 2048,
+    "logcatBuffers": "main: ring buffer is 16 MiB (95 KiB consumed), max entry is 5120 B, max payload is 4068 B\nsystem: ring buffer is 16 MiB (5 KiB consumed), max entry is 5120 B, max payload is 4068 B\ncrash: ring buffer is 16 MiB (0 B consumed), max entry is 5120 B, max payload is 4068 B\nkernel: ring buffer is 16 MiB (423 B consumed), max entry is 5120 B, max payload is 4068 B\n"
+  },
+  "systemImageVerification": {
+    "zipSha1": "0e66987d6b4db2e278af83d453ce5d74a7e6ced3",
+    "memberSha256": "b8a505ecfc13629aee537f7fa9dcafa0d8d66802a06707f40dac69591e46f70f",
+    "matchesCompressedMacFile": true
+  },
+  "linuxDesktopProcessQuery": {
+    "platform": "linux",
+    "release": "8.0.0",
+    "query": "original Linux pgrep -af pipeline",
+    "ownedTorProcesses": 1,
+    "matchedExpectedTorPids": true,
+    "matchingOwnedTorAndLauncherProcesses": 2,
+    "pgrepVersion": "pgrep from procps-ng 4.0.4"
+  },
+  "units": "seconds",
+  "trials": [
+    {
+      "id": "v8-trial1",
+      "build": "8",
+      "pair": 1,
+      "release": "8.0.0",
+      "artifact": "official",
+      "passed": false,
+      "native": {
+        "torInitUnix": 1789330296.876,
+        "torInitializationCount": 3,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 1,
+        "onionAddressCollisionCount": 2,
+        "unhandledRejectionShutdownCount": 1,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": 233.95800018310547,
+        "torInitToOutgoingPeerSeconds": null
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 4,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 3.5951709747314453,
+            "progress": 30,
+            "tag": "loading_status"
+          },
+          {
+            "sinceTorInitSeconds": 122.82521104812622,
+            "progress": 59,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 242.83397817611694,
+            "progress": 100,
+            "tag": "done"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": 242.83397817611694,
+        "observed100PercentToReadySeconds": null
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 1058.9352414608002,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 930.3932414054871,
+      "apkSha256": "2811e53e0911fba1932a18ce2108cc6a8f8965906c3b47ac20706af9254e9733",
+      "runtimeSha256": "8796ab4abdd4559d08bae85cdfd0e219f49b31a3c4902f1520ee98e50c771497",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 4.470833835999997,
+      "torInitToReadySeconds": null,
+      "torInitToFirstPeerSeconds": 233.95800018310547,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": false
+      },
+      "phaseFailedAfterSeconds": {
+        "tor": 181.8777458909899
+      },
+      "qssPausedThroughout": null,
+      "qssPausedAtFailure": true,
+      "evidenceSha256": {
+        "result.json": "396d53933ef8c91dc9c44e094b7193693209c1611818623d733f10c3cf67d171",
+        "preflight.json": "673b2b08f72b7f4f4842129bd76cb6ba07c0d766592d1f19fab436444f620324",
+        "runtime-bundle.json": "0206d81a52bd33d6b23c887dea10e2981d16008330acee16a0b9dbc01c290050",
+        "final.private.log": "20a7cc7fcaf82eb6aab65881ecbc8ca6b87546ef9312af5a852fdad29e600051",
+        "control.private.pcap": "ee75de49cf87fda7869962ca13d59a2e076a3bf833c880d0151feecf0f1e59e2",
+        "live.json": "9bea32eeda6172eed6468e396e86412097933a528d4f05cc4c9f0ec444d2ffad",
+        "tor.json": "8ebd7ef44f618c01bf336ea53d180b66098c3413570a426cb6c4d461a6be4b61"
+      },
+      "qssDownSeconds": 1.6665863348171115,
+      "qssUpSeconds": 2.090521468780935,
+      "torDownSeconds": 206.5259453523904,
+      "torUpSeconds": null
+    },
+    {
+      "id": "v10-trial1",
+      "build": "10",
+      "pair": 1,
+      "release": "10.0.0-alpha.0",
+      "artifact": "androidProcessQueryFix",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789330813.066,
+        "torInitializationCount": 1,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 0,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": 10.411999940872192,
+        "torInitToFirstPeerSeconds": 19.384999990463257,
+        "torInitToOutgoingPeerSeconds": 19.384999990463257
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 4,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 2.886996030807495,
+            "progress": 25,
+            "tag": "requesting_status"
+          },
+          {
+            "sinceTorInitSeconds": 5.419939994812012,
+            "progress": 50,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 7.805692911148071,
+            "progress": 75,
+            "tag": "enough_dirinfo"
+          },
+          {
+            "sinceTorInitSeconds": 10.352317094802856,
+            "progress": 100,
+            "tag": "done"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": 10.352317094802856,
+        "observed100PercentToReadySeconds": 0.05968284606933594
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 45.06448411941528,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 41.58748388290405,
+      "apkSha256": "d8cfd9661607060f7fd041ae92b7a1349b412c924bfa7426f6fb3a6d80bb9dc6",
+      "runtimeSha256": "b25b33be701f21ad62becbad9d0c2d7b713d3fb72fd4df9d314bfe86f9256a47",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 5.70208904399999,
+      "torInitToReadySeconds": 10.411999940872192,
+      "torInitToFirstPeerSeconds": 19.384999990463257,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "458863a1b4c79e2454f7ced2341a36a782ce96c140d5dbc0217e4c29554d661a",
+        "preflight.json": "972336e94b8a919c41ecc40f269dc55b6df50a2f6e059f5fc812d35280557ca2",
+        "runtime-bundle.json": "7c8a699ecc5751e6050a649fb83529378421ea6fc1c813ca35e304a963042c08",
+        "final.private.log": "5c4934e67a8f78d1705a222f2ef34475069ad98717b962cf3d413babfac36dbe",
+        "control.private.pcap": "bd4fda5bc72bed9eaed17ca5fbeae5ca719d9c94ae055eafe74559ba9356375c",
+        "live.json": "f2cc0c61e3d88350426394df7be1cf88c5b452be983c9b4c7b2415118aa5928b",
+        "tor.json": "8d2842614a3172cf2456383046b557843571961839230c872a11529b6344d70b"
+      },
+      "qssDownSeconds": 1.517511010169983,
+      "qssUpSeconds": 1.9727754155173898,
+      "torDownSeconds": 1.4168325560167432,
+      "torUpSeconds": 2.4062099289149046
+    },
+    {
+      "id": "v8-trial2",
+      "build": "8",
+      "pair": 2,
+      "release": "8.0.0",
+      "artifact": "official",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789330959.574,
+        "torInitializationCount": 2,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 1,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": 36.568000078201294,
+        "torInitToOutgoingPeerSeconds": null
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 2,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 3.362384080886841,
+            "progress": 30,
+            "tag": "loading_status"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": null,
+        "observed100PercentToReadySeconds": null
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 58.621174812316895,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 40.205174684524536,
+      "apkSha256": "2811e53e0911fba1932a18ce2108cc6a8f8965906c3b47ac20706af9254e9733",
+      "runtimeSha256": "8796ab4abdd4559d08bae85cdfd0e219f49b31a3c4902f1520ee98e50c771497",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 4.348159126999917,
+      "torInitToReadySeconds": null,
+      "torInitToFirstPeerSeconds": 36.568000078201294,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "98c72dcf76f0b465c9c354d13f89d8be4d8b25b71e5db35cce5075d85e647b4d",
+        "preflight.json": "673b2b08f72b7f4f4842129bd76cb6ba07c0d766592d1f19fab436444f620324",
+        "runtime-bundle.json": "0206d81a52bd33d6b23c887dea10e2981d16008330acee16a0b9dbc01c290050",
+        "final.private.log": "de2e28efa5e7217f2be98da6865d4bf68a2036bb0fed0623be6166318f2c4a12",
+        "control.private.pcap": "87dacba47798d20b0d27a4e7393acdf7c196cd49546a27f6f179eaf005f96907",
+        "live.json": "b4f46228de1e491a57b621dc71a42b1601aadf48995b13bd43d37904518b9bd2",
+        "tor.json": "49a3826859664b29902cdb56cbd61a2fcb5d8c69bb6665604fdb51ada0f26028"
+      },
+      "qssDownSeconds": 1.6673346040770411,
+      "qssUpSeconds": 1.9669197564944625,
+      "torDownSeconds": 9.231791850179434,
+      "torUpSeconds": 3.0507419519126415
+    },
+    {
+      "id": "v10-trial2",
+      "build": "10",
+      "pair": 2,
+      "release": "10.0.0-alpha.0",
+      "artifact": "androidProcessQueryFix",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789331134.142,
+        "torInitializationCount": 1,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 0,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": 52.77500009536743,
+        "torInitToFirstPeerSeconds": 65.60500001907349,
+        "torInitToOutgoingPeerSeconds": null
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 21,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 2.775588035583496,
+            "progress": 30,
+            "tag": "loading_status"
+          },
+          {
+            "sinceTorInitSeconds": 5.173882961273193,
+            "progress": 45,
+            "tag": "requesting_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 8.676407098770142,
+            "progress": 53,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 37.663514137268066,
+            "progress": 55,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 50.1711061000824,
+            "progress": 75,
+            "tag": "enough_dirinfo"
+          },
+          {
+            "sinceTorInitSeconds": 52.718472957611084,
+            "progress": 100,
+            "tag": "done"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": 52.718472957611084,
+        "observed100PercentToReadySeconds": 0.056527137756347656
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 78.7581467628479,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 40.445146799087524,
+      "apkSha256": "d8cfd9661607060f7fd041ae92b7a1349b412c924bfa7426f6fb3a6d80bb9dc6",
+      "runtimeSha256": "b25b33be701f21ad62becbad9d0c2d7b713d3fb72fd4df9d314bfe86f9256a47",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 5.6206230029999915,
+      "torInitToReadySeconds": 52.77500009536743,
+      "torInitToFirstPeerSeconds": 65.60500001907349,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "042eb7ca61185f357866d6ecfd56493eb3ce3fe3aa8635ffbb8c0bc94e56348c",
+        "preflight.json": "972336e94b8a919c41ecc40f269dc55b6df50a2f6e059f5fc812d35280557ca2",
+        "runtime-bundle.json": "7c8a699ecc5751e6050a649fb83529378421ea6fc1c813ca35e304a963042c08",
+        "final.private.log": "53639957d71e98ee24197b25a71f2f177f845753ab48fdb7b9c6c9812c6c4848",
+        "control.private.pcap": "6ff2b839cad4538abba3ceda9c0fd1843512a483c38dcf212b4707dc134d63d1",
+        "live.json": "53d1484e55a4698c492522520aea67d6e534e3f1074ea9a516f436026adc0241",
+        "tor.json": "9bd3a9db57f1f51b4d4a66329168faf89938b0957c2f32f299d1e5a44e33a422"
+      },
+      "qssDownSeconds": 1.6173170041292906,
+      "qssUpSeconds": 1.928995587863028,
+      "torDownSeconds": 36.8324424745515,
+      "torUpSeconds": 2.4609748870134354
+    },
+    {
+      "id": "v8-trial3",
+      "build": "8",
+      "pair": 3,
+      "release": "8.0.0",
+      "artifact": "official",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789331318.668,
+        "torInitializationCount": 2,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 1,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": 49.426000118255615,
+        "torInitToOutgoingPeerSeconds": null
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 2,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 3.401116132736206,
+            "progress": 30,
+            "tag": "loading_status"
+          },
+          {
+            "sinceTorInitSeconds": 5.88310694694519,
+            "progress": 50,
+            "tag": "loading_descriptors"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": null,
+        "observed100PercentToReadySeconds": null
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 61.700371980667114,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 41.37737202644348,
+      "apkSha256": "2811e53e0911fba1932a18ce2108cc6a8f8965906c3b47ac20706af9254e9733",
+      "runtimeSha256": "8796ab4abdd4559d08bae85cdfd0e219f49b31a3c4902f1520ee98e50c771497",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 4.629643919000046,
+      "torInitToReadySeconds": null,
+      "torInitToFirstPeerSeconds": 49.426000118255615,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "99e73eada9cc25c6d9d0fa50218264250fdc897b9611982a8241b0aebc22399f",
+        "preflight.json": "673b2b08f72b7f4f4842129bd76cb6ba07c0d766592d1f19fab436444f620324",
+        "runtime-bundle.json": "0206d81a52bd33d6b23c887dea10e2981d16008330acee16a0b9dbc01c290050",
+        "final.private.log": "4912dd71a76340cad53ade5a8fcda43922034bf42f4854358b277b730b981c8b",
+        "control.private.pcap": "e6ea1fa24427b121f6d79194be7457be8902ccd50a274fe0e7e3f37e456f3064",
+        "live.json": "d2954a67b5d211cf54be86e1f487e2dc31a4b9a4a563a41972c2b9003f1754a3",
+        "tor.json": "f7914573b44facff84889c33690ca292be3f25b6c98ea9826ce666e37742a3aa"
+      },
+      "qssDownSeconds": 1.7175807291641831,
+      "qssUpSeconds": 2.0131766153499484,
+      "torDownSeconds": 69.44189995992929,
+      "torUpSeconds": 2.0380784049630165
+    },
+    {
+      "id": "v10-trial3",
+      "build": "10",
+      "pair": 3,
+      "release": "10.0.0-alpha.0",
+      "artifact": "androidProcessQueryFix",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789331567.276,
+        "torInitializationCount": 2,
+        "torExit143Count": 1,
+        "falseMissingProcessCount": 0,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": 128.41499996185303,
+        "torInitToFirstPeerSeconds": 152.73099994659424,
+        "torInitToOutgoingPeerSeconds": null
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 49,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 2.9334840774536133,
+            "progress": 14,
+            "tag": "handshake"
+          },
+          {
+            "sinceTorInitSeconds": 5.4283270835876465,
+            "progress": 45,
+            "tag": "requesting_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 8.620205879211426,
+            "progress": 64,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 42.966145038604736,
+            "progress": 65,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 72.95300102233887,
+            "progress": 69,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 105.46884989738464,
+            "progress": 73,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 128.41246700286865,
+            "progress": 100,
+            "tag": "done"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": 128.41246700286865,
+        "observed100PercentToReadySeconds": 0.002532958984375
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 89.0396180152893,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 40.70861792564392,
+      "apkSha256": "d8cfd9661607060f7fd041ae92b7a1349b412c924bfa7426f6fb3a6d80bb9dc6",
+      "runtimeSha256": "b25b33be701f21ad62becbad9d0c2d7b713d3fb72fd4df9d314bfe86f9256a47",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 5.80444829399994,
+      "torInitToReadySeconds": 128.41499996185303,
+      "torInitToFirstPeerSeconds": 152.73099994659424,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "7d7d116f1ae0c7f9e82de453ef2f3f0632e1aca2aa4e02a556d0167a92194114",
+        "preflight.json": "972336e94b8a919c41ecc40f269dc55b6df50a2f6e059f5fc812d35280557ca2",
+        "runtime-bundle.json": "7c8a699ecc5751e6050a649fb83529378421ea6fc1c813ca35e304a963042c08",
+        "final.private.log": "cd3726d65396304943cf444187f6075ef7cd729b61f361ff835686800248381d",
+        "control.private.pcap": "e15dc05a61010101aab3e285e2a7d6832f9e6750660a5f6420d1f255e9cdf4bf",
+        "live.json": "f3f9d3524d24987737630455eba9c1d8ddeb5c9a1c0be3931f580d3d86a8f9be",
+        "tor.json": "ea24c4a8af978f9d30098712476b770292d6f7a6eabd3d60db0b8089287dcb76"
+      },
+      "qssDownSeconds": 1.417119536548853,
+      "qssUpSeconds": 1.913430985994637,
+      "torDownSeconds": 124.73490518145263,
+      "torUpSeconds": 2.489537311717868
+    },
+    {
+      "id": "v8-trial4",
+      "build": "8",
+      "pair": 4,
+      "release": "8.0.0",
+      "artifact": "official",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789331843.466,
+        "torInitializationCount": 2,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 1,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": 67.01099991798401,
+        "torInitToOutgoingPeerSeconds": null
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 2,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 3.689513921737671,
+            "progress": 45,
+            "tag": "requesting_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 7.304747819900513,
+            "progress": 51,
+            "tag": "loading_descriptors"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": null,
+        "observed100PercentToReadySeconds": null
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 49.597636461257935,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 41.20363640785217,
+      "apkSha256": "2811e53e0911fba1932a18ce2108cc6a8f8965906c3b47ac20706af9254e9733",
+      "runtimeSha256": "8796ab4abdd4559d08bae85cdfd0e219f49b31a3c4902f1520ee98e50c771497",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 5.346037169000056,
+      "torInitToReadySeconds": null,
+      "torInitToFirstPeerSeconds": 67.01099991798401,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "8d86331967426cdb86b32ee7ccd7197cc61f4547244f3175cf8e6cc838d460f2",
+        "preflight.json": "673b2b08f72b7f4f4842129bd76cb6ba07c0d766592d1f19fab436444f620324",
+        "runtime-bundle.json": "0206d81a52bd33d6b23c887dea10e2981d16008330acee16a0b9dbc01c290050",
+        "final.private.log": "7b3b387cc4eca3253b1d59c6f88466922d1f6a33543765902630fd9d1a67d4fd",
+        "control.private.pcap": "2e6cd8e17bcc0c2b4fa2cd8e5042cd2be7a869eb9358f5ea0c3556b22fbcd2d5",
+        "live.json": "b6bff004ac918c661981c5465d1f7a136532dcf83828e834619549241c30687e",
+        "tor.json": "60f786808ecfd6507574661ff0d7cc1086fa57ab72308722895ab4c969bb0dd5"
+      },
+      "qssDownSeconds": 1.6672137407585979,
+      "qssUpSeconds": 1.9080896442756057,
+      "torDownSeconds": 39.73407414089888,
+      "torUpSeconds": 2.4191444385796785
+    },
+    {
+      "id": "v10-trial4",
+      "build": "10",
+      "pair": 4,
+      "release": "10.0.0-alpha.0",
+      "artifact": "androidProcessQueryFix",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789332059.814,
+        "torInitializationCount": 1,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 0,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": 17.73900008201599,
+        "torInitToFirstPeerSeconds": 30.94000005722046,
+        "torInitToOutgoingPeerSeconds": 30.94000005722046
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 7,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 2.658708095550537,
+            "progress": 30,
+            "tag": "loading_status"
+          },
+          {
+            "sinceTorInitSeconds": 5.136795997619629,
+            "progress": 45,
+            "tag": "requesting_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 7.624218225479126,
+            "progress": 50,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 10.206942081451416,
+            "progress": 55,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 15.14012598991394,
+            "progress": 95,
+            "tag": "circuit_create"
+          },
+          {
+            "sinceTorInitSeconds": 17.663302183151245,
+            "progress": 100,
+            "tag": "done"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": 17.663302183151245,
+        "observed100PercentToReadySeconds": 0.0756978988647461
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 90.45174837112427,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 42.093748331069946,
+      "apkSha256": "d8cfd9661607060f7fd041ae92b7a1349b412c924bfa7426f6fb3a6d80bb9dc6",
+      "runtimeSha256": "b25b33be701f21ad62becbad9d0c2d7b713d3fb72fd4df9d314bfe86f9256a47",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 5.763915961000066,
+      "torInitToReadySeconds": 17.73900008201599,
+      "torInitToFirstPeerSeconds": 30.94000005722046,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "460bab855f0dd5661fde207d05cff78d69042f266f20a06bcc43791bd2569c70",
+        "preflight.json": "972336e94b8a919c41ecc40f269dc55b6df50a2f6e059f5fc812d35280557ca2",
+        "runtime-bundle.json": "7c8a699ecc5751e6050a649fb83529378421ea6fc1c813ca35e304a963042c08",
+        "final.private.log": "496faae45211820019e80e91f870851e027fed9121f5e42ee03927db27fc0a5e",
+        "control.private.pcap": "14e2b99c738832bc53164a03b38b49a4bd8c47c7beed3c85b10efb3d56c51de1",
+        "live.json": "f543637b22abe6c00212e193324769fcda8e269f9357008e36bdc48f9c831cac",
+        "tor.json": "296b9b3ab344d579f2b6ea99118c0e03bebc1a18801c1d0526237328503ea51d"
+      },
+      "qssDownSeconds": 1.5168867828324437,
+      "qssUpSeconds": 2.010800376534462,
+      "torDownSeconds": 1.4687922522425652,
+      "torUpSeconds": 2.2892318656668067
+    },
+    {
+      "id": "v8-trial5",
+      "build": "8",
+      "pair": 5,
+      "release": "8.0.0",
+      "artifact": "official",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789332347.146,
+        "torInitializationCount": 2,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 1,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": 27.48200011253357,
+        "torInitToOutgoingPeerSeconds": null
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 2,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 4.255988121032715,
+            "progress": 14,
+            "tag": "handshake"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": null,
+        "observed100PercentToReadySeconds": null
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 198.54557704925537,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 39.89557695388794,
+      "apkSha256": "2811e53e0911fba1932a18ce2108cc6a8f8965906c3b47ac20706af9254e9733",
+      "runtimeSha256": "8796ab4abdd4559d08bae85cdfd0e219f49b31a3c4902f1520ee98e50c771497",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 4.544796003000101,
+      "torInitToReadySeconds": null,
+      "torInitToFirstPeerSeconds": 27.48200011253357,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "62e93cf89b5e34fef0d2262921c7e389660b80a01ff3c8050f4fc2d84df564f9",
+        "preflight.json": "673b2b08f72b7f4f4842129bd76cb6ba07c0d766592d1f19fab436444f620324",
+        "runtime-bundle.json": "0206d81a52bd33d6b23c887dea10e2981d16008330acee16a0b9dbc01c290050",
+        "final.private.log": "f9f91844176676c58fa43270328984597f409b768b8abff83f1a8e7dd88bc62e",
+        "control.private.pcap": "fac292db9c4126cea5dee4c15359d53c5e2bcf0c76abeb5118f8e6de15d5b4c7",
+        "live.json": "7fe6fe3647fa1657efda0a9218cda9f0c3e97e0d12d3667d2c88c10c5f079982",
+        "tor.json": "a4c1ea6f8777b6e17bfb21f64300e019a5cc481ea0a33927eca5d76f5e06645b"
+      },
+      "qssDownSeconds": 1.4168069725856185,
+      "qssUpSeconds": 2.0732925087213516,
+      "torDownSeconds": 1.4668628070503473,
+      "torUpSeconds": 22.235288398340344
+    },
+    {
+      "id": "v10-trial5",
+      "build": "10",
+      "pair": 5,
+      "release": "10.0.0-alpha.0",
+      "artifact": "androidProcessQueryFix",
+      "passed": true,
+      "native": {
+        "torInitUnix": 1789332498.215,
+        "torInitializationCount": 1,
+        "torExit143Count": 0,
+        "falseMissingProcessCount": 0,
+        "onionAddressCollisionCount": 0,
+        "unhandledRejectionShutdownCount": 0,
+        "torInitToReadySeconds": 12.745000123977661,
+        "torInitToFirstPeerSeconds": 22.88100004196167,
+        "torInitToOutgoingPeerSeconds": 22.88100004196167
+      },
+      "torControl": {
+        "completeStatusRepliesObserved": 5,
+        "progressChanges": [
+          {
+            "sinceTorInitSeconds": 2.7166380882263184,
+            "progress": 30,
+            "tag": "loading_status"
+          },
+          {
+            "sinceTorInitSeconds": 7.693834066390991,
+            "progress": 50,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 10.151076078414917,
+            "progress": 52,
+            "tag": "loading_descriptors"
+          },
+          {
+            "sinceTorInitSeconds": 12.67684817314148,
+            "progress": 100,
+            "tag": "done"
+          }
+        ],
+        "torInitToObserved100PercentSeconds": 12.67684817314148,
+        "observed100PercentToReadySeconds": 0.06815195083618164
+      },
+      "desktopCommunityReadyBeforeMobileLaunchSeconds": 43.87645483016968,
+      "desktopTorReadyBeforeMobileLaunchSeconds": 40.45645475387573,
+      "apkSha256": "d8cfd9661607060f7fd041ae92b7a1349b412c924bfa7426f6fb3a6d80bb9dc6",
+      "runtimeSha256": "b25b33be701f21ad62becbad9d0c2d7b713d3fb72fd4df9d314bfe86f9256a47",
+      "driverSha256": "c2e1cb095cc0e836f79d848304d0fb74841d7cf8739bc1b48788916ab7a9b51b",
+      "joinSeconds": 4.899761918999957,
+      "torInitToReadySeconds": 12.745000123977661,
+      "torInitToFirstPeerSeconds": 22.88100004196167,
+      "phasePassed": {
+        "join": true,
+        "live": true,
+        "tor": true
+      },
+      "phaseFailedAfterSeconds": {},
+      "qssPausedThroughout": true,
+      "qssPausedAtFailure": null,
+      "evidenceSha256": {
+        "result.json": "d4b0bddab09c3cff789625b92087473be24334c5bd855872a70dbc31a7d70b7d",
+        "preflight.json": "972336e94b8a919c41ecc40f269dc55b6df50a2f6e059f5fc812d35280557ca2",
+        "runtime-bundle.json": "7c8a699ecc5751e6050a649fb83529378421ea6fc1c813ca35e304a963042c08",
+        "final.private.log": "002220868b013fbc3f328a995dedf92e0c1932e0fa8228b609c5a1b3fa1d278b",
+        "control.private.pcap": "0ef3d51356d9a052476b85c778dd36b16f55b9049ac6941260c7102c362a6d62",
+        "live.json": "95839e8abcddeef07bf1e6486ca84810564569c8b0ffc890685648443988d5ae",
+        "tor.json": "ce18910dce36ecf01658f3d4bea2a1a91719afc235aaacb6d9014b884057c80e"
+      },
+      "qssDownSeconds": 1.5676525132730603,
+      "qssUpSeconds": 2.003513790667057,
+      "torDownSeconds": 1.5165124973282218,
+      "torUpSeconds": 2.41526435688138
+    }
+  ],
+  "builds": {
+    "8": {
+      "trials": 5,
+      "passed": 4,
+      "failed": 1,
+      "metrics": {
+        "joinSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 4.6678940108000235,
+          "median": 4.544796003000101,
+          "min": 4.348159126999917,
+          "max": 5.346037169000056
+        },
+        "torInitToReadySeconds": {
+          "planned": 5,
+          "observed": 0,
+          "missing": 5,
+          "mean": null,
+          "median": null,
+          "min": null,
+          "max": null
+        },
+        "torInitToFirstPeerSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 82.889000082016,
+          "median": 49.426000118255615,
+          "min": 27.48200011253357,
+          "max": 233.95800018310547
+        },
+        "qssDownSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 1.6271044762805105,
+          "median": 1.6672137407585979,
+          "min": 1.4168069725856185,
+          "max": 1.7175807291641831
+        },
+        "qssUpSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 2.0103999987244605,
+          "median": 2.0131766153499484,
+          "min": 1.9080896442756057,
+          "max": 2.090521468780935
+        },
+        "torDownSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 65.28011482208967,
+          "median": 39.73407414089888,
+          "min": 1.4668628070503473,
+          "max": 206.5259453523904
+        },
+        "torUpSeconds": {
+          "planned": 5,
+          "observed": 4,
+          "missing": 1,
+          "mean": 7.43581329844892,
+          "median": 2.73494319524616,
+          "min": 2.0380784049630165,
+          "max": 22.235288398340344
+        }
+      }
+    },
+    "10": {
+      "trials": 5,
+      "passed": 5,
+      "failed": 0,
+      "metrics": {
+        "joinSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 5.5581676441999885,
+          "median": 5.70208904399999,
+          "min": 4.899761918999957,
+          "max": 5.80444829399994
+        },
+        "torInitToReadySeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 44.417200040817264,
+          "median": 17.73900008201599,
+          "min": 10.411999940872192,
+          "max": 128.41499996185303
+        },
+        "torInitToFirstPeerSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 58.30840001106262,
+          "median": 30.94000005722046,
+          "min": 19.384999990463257,
+          "max": 152.73099994659424
+        },
+        "qssDownSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 1.5272973693907261,
+          "median": 1.517511010169983,
+          "min": 1.417119536548853,
+          "max": 1.6173170041292906
+        },
+        "qssUpSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 1.9659032313153149,
+          "median": 1.9727754155173898,
+          "min": 1.913430985994637,
+          "max": 2.010800376534462
+        },
+        "torDownSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 33.19389699231833,
+          "median": 1.5165124973282218,
+          "min": 1.4168325560167432,
+          "max": 124.73490518145263
+        },
+        "torUpSeconds": {
+          "planned": 5,
+          "observed": 5,
+          "missing": 0,
+          "mean": 2.4122436700388787,
+          "median": 2.41526435688138,
+          "min": 2.2892318656668067,
+          "max": 2.489537311717868
+        }
+      }
+    }
+  },
+  "pairs": [
+    {
+      "pair": 1,
+      "bothPassed": false,
+      "tenMinusEightSeconds": {
+        "joinSeconds": 1.2312552079999932,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": -214.5730001926422,
+        "qssDownSeconds": -0.14907532464712858,
+        "qssUpSeconds": -0.11774605326354504,
+        "torDownSeconds": -205.10911279637367,
+        "torUpSeconds": null
+      }
+    },
+    {
+      "pair": 2,
+      "bothPassed": true,
+      "tenMinusEightSeconds": {
+        "joinSeconds": 1.2724638760000744,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": 29.036999940872192,
+        "qssDownSeconds": -0.05001759994775057,
+        "qssUpSeconds": -0.03792416863143444,
+        "torDownSeconds": 27.600650624372065,
+        "torUpSeconds": -0.5897670648992062
+      }
+    },
+    {
+      "pair": 3,
+      "bothPassed": true,
+      "tenMinusEightSeconds": {
+        "joinSeconds": 1.1748043749998942,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": 103.30499982833862,
+        "qssDownSeconds": -0.3004611926153302,
+        "qssUpSeconds": -0.0997456293553114,
+        "torDownSeconds": 55.293005221523345,
+        "torUpSeconds": 0.45145890675485134
+      }
+    },
+    {
+      "pair": 4,
+      "bothPassed": true,
+      "tenMinusEightSeconds": {
+        "joinSeconds": 0.41787879200001044,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": -36.07099986076355,
+        "qssDownSeconds": -0.15032695792615414,
+        "qssUpSeconds": 0.1027107322588563,
+        "torDownSeconds": -38.26528188865632,
+        "torUpSeconds": -0.12991257291287184
+      }
+    },
+    {
+      "pair": 5,
+      "bothPassed": true,
+      "tenMinusEightSeconds": {
+        "joinSeconds": 0.3549659159998555,
+        "torInitToReadySeconds": null,
+        "torInitToFirstPeerSeconds": -4.601000070571899,
+        "qssDownSeconds": 0.15084554068744183,
+        "qssUpSeconds": -0.06977871805429459,
+        "torDownSeconds": 0.04964969027787447,
+        "torUpSeconds": -19.820024041458964
+      }
+    }
+  ]
+}

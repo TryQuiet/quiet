@@ -17,4 +17,6 @@ QSS, and Tor. Keep fixes independently reviewable on the exact alpha baseline.
 6. Test the harness using realistic success/failure cases and review the evidence
    against both requested version comparisons. Distinguish a fast invitation
    paste, the channel list appearing, and the first bidirectional message.
-7. Commit the completed work on this same worktree branch before handoff or review.
+7. Complete the fixed five-per-build comparison in REPEAT5-PROTOCOL.md and
+   publish every result, including failures.
+8. Commit the completed work on this same worktree branch before handoff or review.
