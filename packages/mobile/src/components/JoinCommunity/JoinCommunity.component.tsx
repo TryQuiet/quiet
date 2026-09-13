@@ -17,10 +17,12 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('joinCommunity:component')
 
+/** The paste field's error for text that is not a Quiet invitation; the QR scanner shows the same. */
+export const INVALID_INVITATION_ERROR = 'Please check your invitation code and try again'
+
 /** Title bar · heading · intro per flow. Copy is the prototype's. */
 const COPY = {
   inviteLink: { title: 'Join with invite link', heading: 'Paste a link to Join', intro: undefined },
-  qrCode: { title: 'Join with QR code', heading: 'Join with QR code', intro: undefined },
   deviceLink: {
     title: 'Link devices',
     heading: 'Scan QR code',
@@ -31,7 +33,7 @@ const COPY = {
 /**
  * "Paste a link to Join": one input with placeholder "Link" and Continue.
  * Member and device invitations both land here; the caller decides.
- * Without a scanner, the QR-code flows also take the link this way.
+ * The QR scanner sheets fall back to this form when the camera cannot be used.
  */
 export const JoinCommunity: FC<JoinCommunityProps> = ({
   joinCommunityAction,
@@ -71,7 +73,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
 
     if (!submitValue) {
       setLoading(false)
-      setInputError('Please check your invitation code and try again')
+      setInputError(INVALID_INVITATION_ERROR)
       return
     }
 

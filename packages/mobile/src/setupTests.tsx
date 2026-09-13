@@ -72,6 +72,9 @@ jest.mock('react-native-mathjax-html-to-svg', () => {})
 
 jest.mock('react-native-qrcode-svg', () => jest.fn())
 
+// Native camera; tests drive it through src/tests/mocks/reactNativeVisionCamera.tsx.
+jest.mock('react-native-vision-camera', () => require('./tests/mocks/reactNativeVisionCamera'))
+
 jest.mock('react-native-progress', () => ({
   CircleSnail: jest.fn(),
 }))
