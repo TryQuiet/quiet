@@ -203,6 +203,7 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
         <img src={content.png} width={content.width} height={content.height} alt={frame.name} style={{ display: 'block', transform: `translateY(-${crop}px)` }} />
       </div>
       {content.links.map((l, i) => {
+        if (noBar && l.y < (frame.titleBar?.height ?? 0)) return null // the removed bar's back/close: nothing to draw
         if (l.y < crop || l.x < 0) {
           return l.kind === 'back' || l.label === 'Glyph' || l.label === 'Close' ? (
             <Hotspot key={i} l={l} rect={shell.backZone} outline={outline} onClick={() => follow(l)} describe={describe} />
