@@ -22,7 +22,8 @@ import { createLogger } from '../../logger'
 
 const logger = createLogger('LinkDevices')
 
-type Step = 'entry' | 'display' | 'scan' | 'paste'
+/** `paste` is the scanner's fallback (back returns to the camera); `pasteLink` is the Paste link row's (back returns here). */
+type Step = 'entry' | 'display' | 'scan' | 'paste' | 'pasteLink'
 
 /** Title bar text per step, from the prototype's frames (2811:2575, 2811:2601, 2811:2587). */
 const TITLES: Record<Step, string> = {
@@ -30,7 +31,10 @@ const TITLES: Record<Step, string> = {
   display: 'QR code',
   scan: 'Scan QR code',
   paste: 'Scan QR code',
+  pasteLink: 'Link devices',
 }
+
+const PASTE_STEPS: Step[] = ['paste', 'pasteLink']
 
 /** The Scan QR code sheet's copy (2811:2587). */
 export const SCAN_QR_CODE_INTRO =
@@ -39,7 +43,9 @@ export const SCAN_QR_CODE_INTRO =
 /**
  * Link devices, reached from Get started. "Display QR code" shows #3400's
  * Linked devices surface (a link can only be minted from inside a community);
- * "Scan QR code" opens the camera, and offers the paste field when it cannot.
+ * "Scan QR code" opens the camera, and offers the paste field when it cannot;
+ * "Paste link" opens the same paste field directly. Pasted here, only a device
+ * link is accepted — a member link shows an error under the input.
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
@@ -82,7 +88,8 @@ export const LinkDevices: React.FC = () => {
       linkDevicesModal.handleClose()
       return
     }
-    // A member invitation here still joins, the way Join community does.
+    // A member invitation scanned here still joins, the way Join community does
+    // (the paste field passes device links only).
     const payload: JoinCommunityPayload = { inviteData: data }
     dispatch(communities.actions.joinCommunity(payload))
     createUsernameModal.handleOpen()
@@ -105,6 +112,7 @@ export const LinkDevices: React.FC = () => {
         <LinkDevicesComponent
           onDisplayQrCode={() => setStep('display')}
           onScanQrCode={() => setStep('scan')}
+          onPasteLink={() => setStep('pasteLink')}
           linkedDevices={linkedDevices}
         />
       ) : null}
@@ -121,13 +129,14 @@ export const LinkDevices: React.FC = () => {
           dataTestId='link-devices-scanner'
         />
       ) : null}
-      {step === 'paste' ? (
+      {PASTE_STEPS.includes(step) ? (
         <PasteLinkComponent
           heading={'Paste a link to Join'}
           open={linkDevicesModal.open}
           isConnectionReady={isConnected}
           revealInputValue={revealInputValue}
           handleClickInputReveal={() => setRevealInputValue(value => !value)}
+          linkKind='device'
           handleCommunityAction={handleCommunityAction}
         />
       ) : null}

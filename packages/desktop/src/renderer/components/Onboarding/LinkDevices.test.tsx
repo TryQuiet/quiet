@@ -4,8 +4,10 @@ import { screen, waitFor } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 import { communities } from '@quiet/state-manager'
-import { type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
+import { type DeviceInvitationDataV4, type InvitationDataV4, InvitationKind } from '@quiet/types'
 import { QUIET_JOIN_PAGE, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
+
+import { InviteLinkErrors } from '../../forms/fieldsErrors'
 
 import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
@@ -32,6 +34,8 @@ const deviceInvitationData: DeviceInvitationDataV4 = {
   authData: { ...validInvitationDatav4[0].authData, userId: 'device-owner-id', userName: 'device-owner' },
 }
 const deviceLink = `${QUIET_JOIN_PAGE}#${getValidInvitationUrlTestData(deviceInvitationData).code()}`
+const memberLink = getValidInvitationUrlTestData(validInvitationDatav4[0]).shareUrl()
+const memberInvitationData: InvitationDataV4 = { ...validInvitationDatav4[0], kind: InvitationKind.Member }
 
 let camera: ReturnType<typeof mockCamera> | undefined
 afterEach(() => {
@@ -94,5 +98,99 @@ describe('Link devices → Scan QR code', () => {
 
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
     expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+  })
+})
+
+describe('Link devices → Paste link', () => {
+  it('opens the paste step under the Link devices title, and a device link links this device', async () => {
+    const { store } = await prepareStore(openState())
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-paste-link'))
+    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+    expect(screen.getByText('Link devices')).toBeVisible() // the title bar
+    expect(screen.queryByTestId('link-devices-scanner-viewfinder')).not.toBeInTheDocument()
+
+    await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)
+    await userEvent.click(screen.getByTestId('continue-joinCommunity'))
+    await waitFor(() =>
+      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData }))
+    )
+    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined }))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      communities.actions.joinCommunity({ inviteData: memberInvitationData })
+    )
+  })
+
+  it('a member link shows the not-a-device-link error under the input and dispatches nothing', async () => {
+    const { store } = await prepareStore(openState())
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-paste-link'))
+    await userEvent.type(await screen.findByPlaceholderText('Link'), memberLink)
+    await userEvent.click(screen.getByTestId('continue-joinCommunity'))
+
+    expect(await screen.findByText(InviteLinkErrors.NotDeviceLink)).toBeVisible()
+    expect(screen.getByPlaceholderText('Link')).toBeVisible() // still on the paste step
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      communities.actions.joinCommunity({ inviteData: memberInvitationData })
+    )
+    expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: communities.actions.linkDevice.type }))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined })
+    )
+    expect(dispatchSpy).not.toHaveBeenCalledWith(modalsActions.closeModal(ModalName.linkDevicesModal))
+  })
+
+  it('text that is not an invitation shows the invalid-code error', async () => {
+    const { store } = await prepareStore(openState())
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-paste-link'))
+    await userEvent.type(await screen.findByPlaceholderText('Link'), 'https://example.com/')
+    await userEvent.click(screen.getByTestId('continue-joinCommunity'))
+
+    expect(await screen.findByText(InviteLinkErrors.InvalidCode)).toBeVisible()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: communities.actions.linkDevice.type }))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: communities.actions.joinCommunity.type })
+    )
+  })
+
+  it('back from the Paste link step returns to the entry screen', async () => {
+    const { store } = await prepareStore(openState())
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-paste-link'))
+    expect(await screen.findByPlaceholderText('Link')).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+    expect(screen.getByTestId('link-devices-paste-link')).toBeVisible()
+  })
+
+  it("the scanner's paste fallback rejects a member link the same way", async () => {
+    camera = mockCamera({ error: cameraError('NotFoundError') })
+    const { store } = await prepareStore(openState())
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
+    await userEvent.click(await screen.findByTestId('link-devices-scanner-paste-link'))
+    await userEvent.type(await screen.findByPlaceholderText('Link'), memberLink)
+    await userEvent.click(screen.getByTestId('continue-joinCommunity'))
+
+    expect(await screen.findByText(InviteLinkErrors.NotDeviceLink)).toBeVisible()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      communities.actions.joinCommunity({ inviteData: memberInvitationData })
+    )
   })
 })

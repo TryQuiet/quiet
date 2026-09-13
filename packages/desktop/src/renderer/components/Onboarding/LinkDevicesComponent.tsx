@@ -40,14 +40,22 @@ export interface LinkedDeviceRow {
 export interface LinkDevicesComponentProps {
   onDisplayQrCode: () => void
   onScanQrCode: () => void
+  /** The Paste link row (user addition, 2026-09-13; not in 2811:2575). */
+  onPasteLink: () => void
   /** Devices linked to this user; undefined while unknown. */
   linkedDevices?: LinkedDeviceRow[]
 }
 
-/** Link devices · Figma 2811:2575. */
+/**
+ * Link devices · Figma 2811:2575, plus a third Button row, "Paste link", the user
+ * asked for on 2026-09-13: the same row as the two above it, with the library's
+ * link glyph (the one Join with invite link uses on 2811:2562). Its label is not
+ * the designer's.
+ */
 export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
   onDisplayQrCode,
   onScanQrCode,
+  onPasteLink,
   linkedDevices,
 }) => {
   const others = (linkedDevices ?? []).filter(device => !device.isCurrent)
@@ -71,6 +79,12 @@ export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
           label={'Scan QR code'}
           onClick={onScanQrCode}
           dataTestId='link-devices-scan-qr'
+        />
+        <ActionRow
+          icon={onboardingIcons.inviteLink}
+          label={'Paste link'}
+          onClick={onPasteLink}
+          dataTestId='link-devices-paste-link'
         />
       </RowGroup>
       <DeviceList data-testid='linked-devices-list'>
