@@ -20,8 +20,8 @@ const logger = createLogger('joinCommunity:component')
 
 /**
  * Title bar · heading · intro per flow. Copy is the prototype's. `titleHidden`: a
- * full-screen h1 stage — the bar shows the glyph alone, the h1 is the title (the rule
- * applies to every paste step; the other variants are the parity pass's job).
+ * full-screen h1 stage — the bar shows the glyph alone, the h1 is the title. Both Link
+ * devices paste screens hide it; the Join community variants are the parity pass's job.
  */
 const COPY = {
   inviteLink: { title: 'Join with invite link', heading: 'Paste a link to Join', intro: undefined },
@@ -30,6 +30,7 @@ const COPY = {
     title: 'Link devices',
     heading: 'Scan QR code',
     intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
+    titleHidden: true,
   },
   /** Link devices → Paste link (user addition, 2026-09-13): the paste step under the Link devices title. */
   pasteDeviceLink: { title: 'Link devices', heading: 'Paste a link to Join', intro: undefined, titleHidden: true },

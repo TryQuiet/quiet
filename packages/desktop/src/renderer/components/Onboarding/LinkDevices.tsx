@@ -106,6 +106,7 @@ export const LinkDevices: React.FC = () => {
       open={linkDevicesModal.open}
       handleClose={isSheet ? () => setStep('entry') : linkDevicesModal.handleClose}
       title={TITLED_STEPS[step] ?? ''}
+      withoutTitle={!TITLED_STEPS[step]}
       canGoBack={!isSheet}
       handleBack={handleBack}
       alignCloseLeft
