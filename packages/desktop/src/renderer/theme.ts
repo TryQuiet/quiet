@@ -83,6 +83,7 @@ const lightTheme = createTheme({
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
       linkBlue: '#1B6FEC', // Used in a variety of places - likely wants to be split / consolidated
+      blue02: '#2373EA', // The QR sheets' "Reset QR code" text link (2811:2601, 2932:3707); mobile palette `blue`
       // Reds
       red: '#FF0000', // Replace with D13135 ?
       hotRed: '#E42656', // Replaced by theme.palette.secondary.main?
@@ -98,10 +99,12 @@ const lightTheme = createTheme({
       gray30: '#FAFAFA', // Unused and not aligned with Figma
       gray40: '#999999',
       gray50: '#7F7F7F',
+      gray60: '#767676', // "No linked devices" (2811:2575)
       gray70: '#4C4C4C',
       // Border colors
       border01: '#F0F0F0',
       border02: '#B3B3B3',
+      border04: '#E5E5E5', // The library's bordered group / card (Link devices 2811:2575)
       border03: '#D2D2D2',
       // Other custom colors
       sidebarBackground: '#511974',
@@ -278,6 +281,7 @@ const darkTheme = createTheme({
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
       linkBlue: '#59c0d5', // Used in a variety of places - likely wants to be split / consolidated
+      blue02: '#2373EA', // The QR sheets' "Reset QR code" text link (2811:2601, 2932:3707); mobile palette `blue`
       // Reds
       red: '#FF0000', // Replace with D13135 ?
       hotRed: '#E42656', // Replaced by theme.palette.secondary.main?
@@ -293,10 +297,12 @@ const darkTheme = createTheme({
       gray30: '#FAFAFA', // Unused and not aligned with Figma
       gray40: '#999999',
       gray50: '#7F7F7F',
+      gray60: '#767676', // "No linked devices" (2811:2575)
       gray70: '#4C4C4C',
       // Border colors
       border01: '#2F2F2F',
       border02: '#B3B3B3',
+      border04: '#E5E5E5', // The library's bordered group / card (Link devices 2811:2575)
       border03: '#D2D2D2',
       // Gradients and other run-of-the-mill things
       sidebarBackground: '#2F193D',

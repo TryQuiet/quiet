@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
-import { communities } from '@quiet/state-manager'
+import { communities, connection } from '@quiet/state-manager'
 import { type DeviceInvitationDataV4, type InvitationDataV4, InvitationKind } from '@quiet/types'
 import { QUIET_JOIN_PAGE, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
 
@@ -13,6 +13,8 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { qrImageData } from '../../testUtils/qrImage'
 import { cameraError, mockCamera } from '../../testUtils/mockCamera'
+import { getReduxStoreFactory } from '@quiet/state-manager'
+import { DISPLAY_QR_CODE_COPY } from './DisplayQrCodeComponent'
 import { StoreKeys } from '../../store/store.keys'
 import { SocketState } from '../../sagas/socket/socket.slice'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -192,5 +194,38 @@ describe('Link devices → Paste link', () => {
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       communities.actions.joinCommunity({ inviteData: memberInvitationData })
     )
+  })
+})
+
+describe('Link devices → Display QR code', () => {
+  it('is disabled without a community', async () => {
+    const { store } = await prepareStore(openState())
+
+    renderComponent(<LinkDevices />, store)
+
+    expect(screen.getByTestId('link-devices-display-qr')).toHaveAttribute('aria-disabled', 'true')
+    expect(screen.getByTestId('link-devices-rows')).toBeVisible()
+    expect(screen.getByTestId('no-linked-devices')).toHaveTextContent('No linked devices')
+  })
+
+  it('inside a community it opens the QR code sheet, mints a link, and close returns to Link devices', async () => {
+    const { store } = await prepareStore(openState())
+    const factory = await getReduxStoreFactory(store)
+    const community = await factory.create('Community', { name: 'devices' })
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-display-qr'))
+    expect(await screen.findByText('QR code')).toBeVisible() // the title bar
+    expect(screen.getByTestId('link-devices-display-box')).toBeVisible()
+    expect(screen.getByText(DISPLAY_QR_CODE_COPY.scan)).toBeVisible()
+    expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
+    expect(screen.queryByTestId('linkDevicesModalBack')).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByTestId('linkDevicesModalClose'))
+    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(modalsActions.closeModal(ModalName.linkDevicesModal))
   })
 })

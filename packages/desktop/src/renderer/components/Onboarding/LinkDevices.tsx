@@ -13,10 +13,9 @@ import Modal from '../ui/Modal/Modal'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { LinkedDevices as LinkedDevicesTab } from '../Settings/Tabs/LinkedDevices/LinkedDevices'
+import { DisplayQrCode } from './DisplayQrCode'
 import { LinkDevicesComponent } from './LinkDevicesComponent'
 import { PasteLinkComponent } from './PasteLinkComponent'
-import { OnboardingBody } from './OnboardingBody'
 import { QrScannerComponent } from './qrScanner/QrScannerComponent'
 import { createLogger } from '../../logger'
 
@@ -41,11 +40,12 @@ export const SCAN_QR_CODE_INTRO =
   'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /**
- * Link devices, reached from Get started. "Display QR code" shows #3400's
- * Linked devices surface (a link can only be minted from inside a community);
- * "Scan QR code" opens the camera, and offers the paste field when it cannot;
- * "Paste link" opens the same paste field directly. Pasted here, only a device
- * link is accepted — a member link shows an error under the input.
+ * Link devices, reached from Get started. "Display QR code" shows the QR code
+ * sheet (2811:2601) — a link can only be minted from inside a community, so the
+ * row is disabled until there is one; the sheet's close returns here. "Scan QR
+ * code" opens the camera, and offers the paste field when it cannot; "Paste
+ * link" opens the same paste field directly. Pasted here, only a device link is
+ * accepted — a member link shows an error under the input.
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
@@ -96,12 +96,15 @@ export const LinkDevices: React.FC = () => {
     linkDevicesModal.handleClose()
   }
 
+  // The QR code sheet (2811:2601) has a close glyph, not a back arrow; closing it reveals Link devices.
+  const isSheet = step === 'display'
+
   return (
     <Modal
       open={linkDevicesModal.open}
-      handleClose={linkDevicesModal.handleClose}
+      handleClose={isSheet ? () => setStep('entry') : linkDevicesModal.handleClose}
       title={TITLES[step]}
-      canGoBack
+      canGoBack={!isSheet}
       handleBack={handleBack}
       alignCloseLeft
       contentWidth={'100%'}
@@ -113,14 +116,11 @@ export const LinkDevices: React.FC = () => {
           onDisplayQrCode={() => setStep('display')}
           onScanQrCode={() => setStep('scan')}
           onPasteLink={() => setStep('pasteLink')}
+          canDisplayQrCode={Boolean(currentCommunity)}
           linkedDevices={linkedDevices}
         />
       ) : null}
-      {step === 'display' ? (
-        <OnboardingBody dataTestId='link-devices-display'>
-          <LinkedDevicesTab centered />
-        </OnboardingBody>
-      ) : null}
+      {step === 'display' ? <DisplayQrCode dataTestId='link-devices-display' /> : null}
       {step === 'scan' ? (
         <QrScannerComponent
           intro={SCAN_QR_CODE_INTRO}

@@ -1,45 +1,45 @@
 import '@testing-library/jest-dom'
 import React from 'react'
+import userEvent from '@testing-library/user-event'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
 
 import { LinkedDevicesComponent } from './LinkedDevices.component'
+import { DISPLAY_QR_CODE_COPY } from '../../../Onboarding/DisplayQrCodeComponent'
 
-describe('LinkedDevicesComponent', () => {
-  it('shows a private device link and linking instructions', () => {
-    const deviceLink = 'https://tryquiet.org/join#device-link'
+const deviceLink = 'https://tryquiet.org/join#device-link'
+
+describe('LinkedDevicesComponent (Settings → Linked devices)', () => {
+  it('shows the QR code sheet content and never the raw link', () => {
     const result = renderComponent(
-      <LinkedDevicesComponent
-        deviceLink={deviceLink}
-        isLoading={false}
-        revealLink={false}
-        onToggleLinkVisibility={jest.fn()}
-      />
+      <LinkedDevicesComponent deviceLink={deviceLink} isLoading={false} onReset={jest.fn()} />
     )
 
     expect(result.getByTestId('linked-devices-title')).toBeVisible()
-    expect(result.getByText('Link a new device')).toBeVisible()
-    expect(result.getByText(/expires after 30 minutes/)).toBeVisible()
+    expect(result.getByTestId('settings-qr-code-box')).toBeVisible()
+    expect(result.getByText(DISPLAY_QR_CODE_COPY.scan)).toBeVisible()
+    expect(result.getByTestId('copy-device-link')).toBeEnabled()
+    expect(result.getByTestId('reset-qr-code')).toBeEnabled()
     expect(result.queryByText(deviceLink)).toBeNull()
-    expect(result.getByTestId('copy-device-link')).toBeVisible()
+    expect(result.container.querySelector('input')).toBeNull()
   })
 
-  it('reveals the device link when requested', () => {
-    const deviceLink = 'https://tryquiet.org/join#device-link'
-    const result = renderComponent(
-      <LinkedDevicesComponent deviceLink={deviceLink} isLoading={false} revealLink onToggleLinkVisibility={jest.fn()} />
-    )
+  it('shows link generation progress with Copy link and Reset QR code disabled', () => {
+    const result = renderComponent(<LinkedDevicesComponent deviceLink='' isLoading onReset={jest.fn()} />)
 
-    expect(result.getByText(deviceLink)).toBeVisible()
+    expect(result.getByText(DISPLAY_QR_CODE_COPY.generating)).toBeVisible()
+    expect(result.getByTestId('copy-device-link')).toBeDisabled()
+    expect(result.getByTestId('reset-qr-code')).toBeDisabled()
   })
 
-  it('shows link generation progress', () => {
+  it('Reset QR code asks for a new link', async () => {
+    const onReset = jest.fn()
     const result = renderComponent(
-      <LinkedDevicesComponent deviceLink='' isLoading revealLink={false} onToggleLinkVisibility={jest.fn()} />
+      <LinkedDevicesComponent deviceLink={deviceLink} isLoading={false} onReset={onReset} />
     )
 
-    expect(result.getByTestId('linked-devices-title')).toBeVisible()
-    expect(result.getByText('Generating device link…')).toBeVisible()
+    await userEvent.click(result.getByTestId('reset-qr-code'))
+    expect(onReset).toHaveBeenCalledTimes(1)
   })
 
   it('lists the other devices of this user, or says there are none', () => {
@@ -47,8 +47,7 @@ describe('LinkedDevicesComponent', () => {
       <LinkedDevicesComponent
         deviceLink=''
         isLoading={false}
-        revealLink={false}
-        onToggleLinkVisibility={jest.fn()}
+        onReset={jest.fn()}
         linkedDevices={[{ deviceId: 'me', deviceName: 'me', isCurrent: true }]}
       />
     )
@@ -59,8 +58,7 @@ describe('LinkedDevicesComponent', () => {
       <LinkedDevicesComponent
         deviceLink=''
         isLoading={false}
-        revealLink={false}
-        onToggleLinkVisibility={jest.fn()}
+        onReset={jest.fn()}
         linkedDevices={[
           { deviceId: 'me', deviceName: 'me', isCurrent: true },
           { deviceId: 'laptop', deviceName: 'laptop', isCurrent: false },
@@ -69,6 +67,7 @@ describe('LinkedDevicesComponent', () => {
       />
     )
     expect(withDevices.getByTestId('linked-device-laptop')).toHaveTextContent('laptop')
+    expect(withDevices.getByTestId('linked-device-laptop')).toHaveTextContent('Active')
     expect(withDevices.queryByTestId('linked-device-old-phone')).toBeNull()
     expect(withDevices.queryByTestId('no-linked-devices')).toBeNull()
   })
