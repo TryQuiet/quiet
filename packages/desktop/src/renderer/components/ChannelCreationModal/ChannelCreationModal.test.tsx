@@ -61,37 +61,31 @@ describe('Create ChannelCreationModalComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container ChannelCreationModalComponentwrapper css-upjnze-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container ChannelCreationModalComponentwrapper css-wp2m1s-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-ejbsmj-MuiGrid-root"
-                    data-testid="spinnerLoader"
+                    class="MuiGrid-root ActionProgressroot css-ar2mpm-MuiGrid-root"
+                    data-testid="channel-recreation-progress"
                   >
-                    <span
-                      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit SpinnerLoaderspinner css-62e83j-MuiCircularProgress-root"
+                    <div
+                      aria-valuemax="100"
+                      aria-valuemin="0"
+                      class="ActionProgresstrack"
                       role="progressbar"
-                      style="width: 40px; height: 40px;"
                     >
-                      <svg
-                        class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
-                        viewBox="22 22 44 44"
-                      >
-                        <circle
-                          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
-                          cx="44"
-                          cy="44"
-                          fill="none"
-                          r="20.2"
-                          stroke-width="3.6"
-                        />
-                      </svg>
-                    </span>
-                    <span
-                      class="MuiTypography-root MuiTypography-caption MuiTypography-alignCenter SpinnerLoadermessage css-9qlyj1-MuiTypography-root"
-                      style="font-size: 0.9090909090909091rem;"
+                      <div
+                        class="ActionProgressfill"
+                        data-indeterminate="true"
+                        data-testid="actionProgressFill"
+                      />
+                    </div>
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 ActionProgressstatus css-1t82dwi-MuiTypography-root"
+                      data-testid="actionProgressStatus"
+                      role="status"
                     >
                       Channel recreation
-                    </span>
+                    </p>
                   </div>
                 </div>
               </div>
