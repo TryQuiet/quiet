@@ -20,7 +20,8 @@ const card = {
 
 /**
  * Link devices · Figma 2811:2575 (states 879:15640 / 879:15644 in the Device-linking
- * file): the rows in the bordered group, then the Linked devices list — an overline
+ * file): a full-screen h1 stage, so the bar shows the back glyph alone (no title, no
+ * divider); the rows in the bordered group, then the Linked devices list — an overline
  * heading over a bordered card; "No linked devices" 14/20 #767676 when empty, else one
  * row per device (name over "Active"). The frames' trash glyph is not drawn: #3400 ships
  * no device removal. Plus a third Button row, "Paste link", the user asked for on
@@ -38,7 +39,7 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
   const others = (linkedDevices ?? []).filter(device => !device.isCurrent && device.removedAt == null)
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
-      <Appbar title={'Link devices'} back={handleBackButton} />
+      <Appbar title={'Link devices'} back={handleBackButton} bare />
       <View style={{ flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, gap: spacing.xl }}>
         <View style={{ gap: spacing.sm }}>
           <Typography variant={'h3'} horizontalTextAlign={'center'}>

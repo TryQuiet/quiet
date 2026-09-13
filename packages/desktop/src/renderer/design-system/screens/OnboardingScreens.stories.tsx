@@ -131,20 +131,26 @@ const Column: React.FC<{ width: number; label: string; children: React.ReactNode
 
 type ShellLeft = 'back' | 'close' | 'none'
 
-/** The Modal full-window shell as the app's Modal renders it: 60px header, back arrow (or close) left, title centered. */
-const Shell: React.FC<{ title: string; left?: ShellLeft; onLeft?: () => void; children: React.ReactNode }> = ({
-  title,
-  left = 'back',
-  onLeft,
-  children,
-}) => (
+/**
+ * The Modal full-window shell as the app's Modal renders it: 60px header, back arrow (or
+ * close) left, title centered. An empty `title` is a full-screen h1 stage (2811:2575,
+ * 879:20987): the glyph alone, no title text and no bar divider — the h1 is the title.
+ * Sheets keep their titled bar; the desktop frames (880:17427) draw it without a divider.
+ */
+const Shell: React.FC<{
+  title: string
+  left?: ShellLeft
+  divider?: boolean
+  onLeft?: () => void
+  children: React.ReactNode
+}> = ({ title, left = 'back', divider = title !== '', onLeft, children }) => (
   <div style={{ width: SHELL_WIDTH, minHeight: 560, background: '#fff' }}>
     <div
       style={{
         height: 60,
         display: 'flex',
         alignItems: 'center',
-        borderBottom: `1px solid #F0F0F0`,
+        borderBottom: divider ? `1px solid #F0F0F0` : 'none',
         fontFamily: "'Rubik', sans-serif",
       }}
     >
@@ -186,10 +192,12 @@ const Screen: React.FC<{
   bar: string
   figma: string
   left?: ShellLeft
+  /** The shell's bar divider; off for the desktop sheet frames (880:17427), off by default when the bar has no title. */
+  divider?: boolean
   note?: string
   exports?: FigmaExport[]
   render: () => React.ReactNode
-}> = ({ title, bar, figma, left, note, exports = [], render }) => (
+}> = ({ title, bar, figma, left, divider, note, exports = [], render }) => (
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={lightTheme}>
       <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
@@ -197,12 +205,13 @@ const Screen: React.FC<{
           {title}
         </h1>
         <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-          Figma <span style={{ fontFamily: mono }}>{figma}</span> · title bar &ldquo;{bar}&rdquo; · desktop component
-          under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
+          Figma <span style={{ fontFamily: mono }}>{figma}</span> ·{' '}
+          {bar ? <>title bar &ldquo;{bar}&rdquo;</> : 'no bar title (full-screen h1 stage)'} · desktop component under
+          the app&rsquo;s light theme{note ? ` · ${note}` : ''}
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-            <Shell title={bar} left={left}>
+            <Shell title={bar} left={left} divider={divider}>
               {render()}
             </Shell>
           </Column>
@@ -385,7 +394,7 @@ export const CreateCommunity = () => (
 export const LinkDevices = () => (
   <Screen
     title='Link devices'
-    bar='Link devices'
+    bar=''
     figma='2811:2575'
     note={LINK_DEVICES_NOTE}
     exports={LINK_DEVICES_EXPORTS(
@@ -409,7 +418,7 @@ export const LinkDevices = () => (
 export const LinkDevicesEmpty = () => (
   <Screen
     title='Link devices · no linked devices'
-    bar='Link devices'
+    bar=''
     figma='2811:2575'
     note={`${LINK_DEVICES_NOTE}; Display QR code is disabled without a community, as on mobile`}
     exports={LINK_DEVICES_EXPORTS(desktopLinkDevicesExport, 'figma · Device linking 879:20987 (desktop, 715)')}
@@ -482,6 +491,7 @@ export const DisplayQrCode = () => (
     title='Display QR code'
     bar='QR code'
     left='close'
+    divider={false}
     figma='2811:2601'
     note={QR_CODE_NOTE}
     exports={QR_CODE_EXPORTS}
@@ -494,6 +504,7 @@ export const DisplayQrCodeGenerating = () => (
     title='Display QR code · generating the link'
     bar='QR code'
     left='close'
+    divider={false}
     figma='2811:2601'
     note='no frame for this state: while the backend mints the one-time link the box carries #3400’s "Generating device link…", the actions give way to the library progress bar (ActionProgress, #3518) with the status line'
     render={() => <DisplayQrCodeComponent deviceLink={''} isLoading onReset={noop} />}
@@ -505,6 +516,7 @@ export const DisplayQrCodeUnavailable = () => (
     title='Display QR code · no community'
     bar='QR code'
     left='close'
+    divider={false}
     figma='2811:2601'
     note='no frame for this state: without a community no link can be minted; there is nothing to act on, so no action is drawn; the Link devices row is disabled then, so this is the Settings tab’s edge case'
     render={() => <DisplayQrCodeComponent deviceLink={''} isLoading={false} onReset={noop} />}
@@ -607,7 +619,7 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   joinWithQrCode: { title: 'Join with QR code', bar: 'Join with QR code', left: 'back' },
   createCommunity: { title: 'Create a community', bar: 'Create a community', left: 'back' },
   chooseUsername: { title: 'Choose username', bar: 'Create a community', left: 'close' },
-  linkDevices: { title: 'Link devices', bar: 'Link devices', left: 'back' },
+  linkDevices: { title: 'Link devices', bar: '', left: 'back' },
   displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'close' },
   scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
   pasteFromScan: { title: 'Paste a link to Join', bar: 'Scan QR code', left: 'back' },
@@ -775,15 +787,15 @@ const WalkthroughStory = () => {
               Walkthrough · {title}
             </h1>
             <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-              title bar &ldquo;{bar}&rdquo; · rows, buttons and the back arrow navigate; where the app dispatches, the
-              action is recorded below · trail:{' '}
+              {bar ? <>title bar &ldquo;{bar}&rdquo;</> : 'no bar title'} · rows, buttons and the back arrow navigate;
+              where the app dispatches, the action is recorded below · trail:{' '}
               <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
                 {[...trail, step].map(s => STEPS[s].title).join(' › ')}
               </span>
             </p>
             <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
               <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-                <Shell title={bar} left={left} onLeft={onLeft}>
+                <Shell title={bar} left={left} onLeft={onLeft} divider={step !== 'displayQrCode' && bar !== ''}>
                   {render()}
                 </Shell>
               </Column>

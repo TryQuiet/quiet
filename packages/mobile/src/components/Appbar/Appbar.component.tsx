@@ -18,14 +18,18 @@ export const Appbar: FC<AppbarProps> = ({
   contextMenu,
   crossBackIcon = false,
   plain = false,
+  bare = false,
 }) => {
   const arrow_icon = icons.arrow_left
   const cross_icon = icons.icon_close
   const menu_icon = icons.dots
-  const displayedTitleComponent =
-    titleComponent != null ? titleComponent : <DefaultAppbarTitle title={title} fontSize={16} fontWeight={'medium'} />
+  const displayedTitleComponent = bare ? null : titleComponent != null ? (
+    titleComponent
+  ) : (
+    <DefaultAppbarTitle title={title} fontSize={16} fontWeight={'medium'} />
+  )
   return (
-    <StyledAppbar style={style}>
+    <StyledAppbar style={bare ? [{ borderBottomWidth: 0 }, style] : style}>
       <View style={{ flex: 1 }}>
         <TouchableOpacity
           onPress={() => {

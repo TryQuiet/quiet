@@ -24,9 +24,14 @@ const logger = createLogger('LinkDevices')
 /** `paste` is the scanner's fallback (back returns to the camera); `pasteLink` is the Paste link row's (back returns here). */
 type Step = 'entry' | 'display' | 'scan' | 'paste' | 'pasteLink'
 
-/** Title bar text per step, from the prototype's frames (2811:2575, 2811:2601, 2811:2587). */
+/**
+ * Title bar text per step, from the prototype's frames (2811:2575, 2811:2601, 2811:2587).
+ * Link devices is a full-screen h1 stage: the frame hides the bar's title (and the
+ * Device-linking desktop frame 879:20987 draws dots, arrow, then the h1) — only the back
+ * glyph, the h1 is the title. Sheets keep a titled bar.
+ */
 const TITLES: Record<Step, string> = {
-  entry: 'Link devices',
+  entry: '',
   display: 'QR code',
   scan: 'Scan QR code',
   paste: 'Scan QR code',
