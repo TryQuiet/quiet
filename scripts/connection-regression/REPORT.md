@@ -1,5 +1,7 @@
 # Android connection comparison: 8.0.0, 9.0.2, 10.0.0-alpha.0
 
+Follow-up repair validation: [September 13 findings](FIXES.md).
+
 Tested September 12, 2026. **A conditional Android Tor readiness regression is
 reproduced; a consistent regression in end-to-end message delivery is not yet
 established.** The readiness defect remains in the named alpha. Normal QSS

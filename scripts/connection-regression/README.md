@@ -4,7 +4,8 @@ This harness drives published Quiet APKs and published Electron apps through
 visible UI. It does not replace their frontend, backend, authentication, QSS or
 Tor code. Each release uses its own pinned real QSS fixture, dedicated community
 and unique participants. Release identities and hashes are in `releases.json`.
-Findings and sanitized measurements are in [REPORT.md](REPORT.md).
+The original comparison is in [REPORT.md](REPORT.md). The repair validation and
+faster fresh-join comparison are in [FIXES.md](FIXES.md).
 
 Run from this worktree. Keep requests, invitations, screenshots and native logs
 under `.connection-runs/` with mode 0700: historical builds log private keys and
@@ -102,8 +103,9 @@ includes typing the invitation and username.
 
 `release_run.py --config /private/run.json` checks the peer's release identity,
 QSS/auth pins, Android network routes and installed official APK digest, then
-runs fresh join, normal bidirectional delivery and QSS-paused Tor delivery. It
-uninstalls only `com.quietmobile` on the explicitly selected test emulator.
+runs fresh join, normal bidirectional delivery and QSS-paused Tor delivery.
+An explicitly configured diagnostic control is verified against its original
+release and labeled separately in the results. The runner uninstalls only `com.quietmobile` on the explicitly selected test emulator.
 Use a fresh output directory and a fresh desktop community for every run.
 Verify the desktop AppImage against `releases.json` before extracting it.
 
@@ -121,6 +123,35 @@ Verify the desktop AppImage against `releases.json` before extracting it.
 }
 ```
 
+For fast invitation paste and native UI timing, build and install the standalone
+instrumentation driver on the same dedicated emulator:
+
+```sh
+python3 scripts/connection-regression/build_android_driver.py \
+  --sdk /absolute/android-sdk --output /private/new-driver-build
+adb -s emulator-5596 install /private/new-driver-build/driver.apk
+adb -s emulator-5596 shell am instrument -w -r \
+  -e request '{"action":"selftest"}' org.quiet.connectiondriver/.Driver
+```
+
+Retain the build receipt and require `nativeTextAndClickVerified: true` with
+`INSTRUMENTATION_CODE: -1`. The helper instruments its own package and uses
+Android UiAutomation to touch and inspect Quiet's visible UI. It leaves the
+Quiet APK unchanged. It focuses the native input before replacing text, checks
+that replacement, and dismisses the keyboard before pressing buttons. The real
+app must deliver an exact message to the desktop as well as passing the helper's
+input self-test. Button taps wait for stable bounds after keyboard dismissal.
+
+Add `"driver": "instrumentation"` to the run config. Install the same helper APK
+for every comparison; its installed digest is recorded in `preflight.json`.
+Do not combine this option with `remoteJoin`. The driver already runs on Android
+and does not need a host round trip for each onboarding action. `joinSeconds`
+and `wholeUiSeconds` use Android's monotonic clock; `controllerSeconds` includes
+the host command overhead. `transportOrder` defaults to `["live", "tor"]` and
+also accepts `["tor", "live"]`. Keep pacing and phase order consistent within a
+comparison: a slow controller can hide an early connection delay.
+
+The older CLI driver remains available for reproducing the original report.
 When `adb_ssh.py` drives a Mac, `apk` is a path on that Mac. Copy `android.py`
 there and add `remoteJoin` to run the onboarding macro on the emulator host:
 
@@ -192,8 +223,25 @@ Pass `--qss-port`, `--adb`, `--serial`, `--output` and optionally
 backports only the Android Tor PID query from `f314294f4` inside the bundled
 backend. This **changes application code** and is labeled a diagnostic control.
 All other payload entries, including native libraries and frontend, remain
-identical. Zipalign/sign with a disposable test key, then call its
-`verify(source, signed_control)` function and retain the returned receipt.
+identical. Zipalign/sign with a disposable test key, then call
+`verify(source, signed_control)` and retain the returned receipt.
+For a fresh run, set `apk` to the signed control's device-host path
+and add the following local-host paths to the run configuration:
+
+```json
+{
+  "controlApk": {
+    "source": "/private/official-9.0.2.apk",
+    "apk": "/private/signed-9.0.2-detector.apk"
+  }
+}
+```
+
+The runner checks the original release digest, verifies that only the process
+query changed, and checks the installed control digest. The result records
+`artifact: "androidProcessQueryFix"` and the full verification receipt. Compare
+9 and 10 with this same repair applied to both to isolate any additional delay.
+
 For a same-profile A/B, also re-sign the unmodified release with that key, verify
 all non-signature entries against the official release, and install each with
 `adb install -r`. Verify the extracted runtime `files/nodejs-project/bundle.cjs`
@@ -221,6 +269,36 @@ python3 -m unittest discover -s scripts/connection-regression -p 'test_*.py' -v
 node --check scripts/connection-regression/desktop_peer.cjs
 node --check scripts/connection-regression/desktop_command.cjs
 ```
+
+Focused source validation on the alpha baseline:
+
+```sh
+NODE_OPTIONS=--experimental-vm-modules node packages/backend/node_modules/jest/bin/jest.js \
+  --config packages/backend/package.json --runInBand --runTestsByPath \
+  packages/backend/src/nest/tor/tor.service.spec.ts \
+  packages/backend/src/nest/libp2p/libp2p.connection-protector.spec.ts --forceExit
+QUIET_ANDROID_TEST_SERIAL=emulator-5596 QUIET_ANDROID_TEST_AVD=connection-arm \
+  QUIET_ANDROID_TEST_ADB=/absolute/adb \
+  NODE_OPTIONS=--experimental-vm-modules node packages/backend/node_modules/jest/bin/jest.js \
+  --config packages/backend/package.json --runInBand --runTestsByPath \
+  packages/backend/src/nest/tor/tor-processes.android.spec.ts --forceExit
+python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p 'test_*.py' -v
+node --test packages/mobile/scripts/desktop-processes.test.cjs
+```
+
+The Android process test requires the explicitly named owned AVD and uses the
+production PID query against actual native processes. For remote ADB, export
+the adapter's environment as described above. The cold-start controller waits
+for a unique app PID so a transient startup child is not mistaken for Quiet's
+main process.
+
+Optional diagnosis on a rooted dedicated emulator can capture loopback traffic
+with Android's `tcpdump` while the E2E runs. Keep that PCAP private: Tor control
+authentication and local app data may be present. Extract only complete
+`status/bootstrap-phase` response timestamps, progress and tags for a public
+report. Readiness log timestamps and packet timestamps share the device clock;
+UI delivery durations use the controller's monotonic clock. Do not subtract
+host and device timestamps to claim subsecond cross-machine latency.
 
 Unit tests exercise real APK ZIP roundtrips, release/dependency tampering,
 missing loader indexes, exact UI matching, stale/failed peer responses, route
