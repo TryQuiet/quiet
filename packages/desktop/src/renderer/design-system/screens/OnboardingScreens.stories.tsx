@@ -6,6 +6,7 @@ import { INK_3, mono, RULE } from '../specimen/ui'
 
 import { GetStartedComponent } from '../../components/Onboarding/GetStartedComponent'
 import { JoinCommunityOptionsComponent } from '../../components/Onboarding/JoinCommunityOptionsComponent'
+import { RecoverAccountComponent } from '../../components/Onboarding/RecoverAccountComponent'
 import { OpenInviteLinkComponent } from '../../components/Onboarding/OpenInviteLinkComponent'
 import { PasteLinkComponent } from '../../components/Onboarding/PasteLinkComponent'
 import { CreateCommunityComponent } from '../../components/Onboarding/CreateCommunityComponent'
@@ -16,7 +17,7 @@ import { CreateUsernameBody } from '../../components/CreateUsername/CreateUserna
 import { CONTENT_COLUMN_WIDTH, OnboardingBody } from '../../components/Onboarding/OnboardingBody'
 import BackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
-import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
+import { composeInvitationDeepUrl, composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { InvitationKind, isDeviceInvitationData } from '@quiet/types'
 import type { InvitationData } from '@quiet/types'
 
@@ -146,6 +147,7 @@ export const GetStarted = () => (
     bar='Quiet'
     left='none'
     figma='2811:2550'
+    note='the entry: Onboarding/GetStarted.tsx opens it as soon as the app is connected without a community, and the other onboarding modals return to it'
     render={() => <GetStartedComponent onJoinCommunity={noop} onCreateCommunity={noop} onLinkDevices={noop} />}
   />
 )
@@ -155,8 +157,20 @@ export const JoinCommunity = () => (
     title='Join community'
     bar='Quiet'
     figma='2811:2562'
-    note='Recover account has no mechanism yet and is disabled'
-    render={() => <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} />}
+    note='Recover account opens Account recovery (below)'
+    render={() => (
+      <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} onRecoverAccount={noop} />
+    )}
+  />
+)
+
+export const RecoverAccount = () => (
+  <Screen
+    title='Recover account'
+    bar='Account recovery'
+    figma='2811:2535'
+    note='Use linked device → Link devices, Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
+    render={() => <RecoverAccountComponent onUseLinkedDevice={noop} onUseInviteLink={noop} />}
   />
 )
 
@@ -165,6 +179,7 @@ export const OpenInviteLink = () => (
     title='Open invite link'
     bar='Join with invite link'
     figma='2811:2455'
+    note='an invite link opened here takes the deep-link path (customProtocol.saga.ts) straight to Choose username; Paste a link is the fallback'
     render={() => <OpenInviteLinkComponent onPasteLink={noop} />}
   />
 )
@@ -285,6 +300,7 @@ export const ChooseUsername = () => (
 type Step =
   | 'getStarted'
   | 'joinCommunity'
+  | 'recoverAccount'
   | 'openInviteLink'
   | 'pasteALink'
   | 'joinWithQrCode'
@@ -297,6 +313,7 @@ type Step =
 const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   getStarted: { title: 'Get started', bar: 'Quiet', left: 'none' },
   joinCommunity: { title: 'Join community', bar: 'Quiet', left: 'back' },
+  recoverAccount: { title: 'Recover account', bar: 'Account recovery', left: 'back' },
   openInviteLink: { title: 'Open invite link', bar: 'Join with invite link', left: 'back' },
   pasteALink: { title: 'Paste a link to Join', bar: 'Join with invite link', left: 'back' },
   joinWithQrCode: { title: 'Join with QR code', bar: 'Join with QR code', left: 'back' },
@@ -310,6 +327,8 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
 const PASTE_STEPS: Step[] = ['pasteALink', 'joinWithQrCode', 'scanQrCode']
 
 const SAMPLE_MEMBER_LINK = composeInvitationShareUrl({ ...validInvitationDatav4[0], kind: InvitationKind.Member })
+/** What the OS hands the app when the same invitation is opened as a link (quiet://). */
+const SAMPLE_MEMBER_DEEP_LINK = composeInvitationDeepUrl({ ...validInvitationDatav4[0], kind: InvitationKind.Member })
 const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
   ...validInvitationDatav4[0],
   kind: InvitationKind.Device,
@@ -400,6 +419,13 @@ const WalkthroughStory = () => {
     record('connection.actions.getLinkedDevices()')
     go('linkDevices')
   }
+  // customProtocol.saga.ts: an invite link opened while Join with invite link shows joins and asks for a username.
+  const openDeepLink = () => {
+    record(
+      `communities.actions.customProtocol(['${SAMPLE_MEMBER_DEEP_LINK.slice(0, 24)}…']) → joinCommunity({ inviteData })`
+    )
+    go('chooseUsername')
+  }
 
   const render = () => {
     switch (step) {
@@ -416,7 +442,12 @@ const WalkthroughStory = () => {
           <JoinCommunityOptionsComponent
             onJoinWithInviteLink={() => go('openInviteLink')}
             onJoinWithQrCode={() => go('joinWithQrCode')}
+            onRecoverAccount={() => go('recoverAccount')}
           />
+        )
+      case 'recoverAccount':
+        return (
+          <RecoverAccountComponent onUseLinkedDevice={openLinkDevices} onUseInviteLink={() => go('openInviteLink')} />
         )
       case 'openInviteLink':
         return <OpenInviteLinkComponent onPasteLink={() => go('pasteALink')} />
@@ -493,6 +524,16 @@ const WalkthroughStory = () => {
             <button type='button' style={chromeButton} onClick={restart} data-testid='walkthrough-restart'>
               restart
             </button>
+            {step === 'openInviteLink' && (
+              <button
+                type='button'
+                style={chromeButton}
+                onClick={openDeepLink}
+                data-testid='walkthrough-open-deep-link'
+              >
+                open the sample invite link (quiet:// deep link)
+              </button>
+            )}
             {isPasteStep && (
               <>
                 <button
