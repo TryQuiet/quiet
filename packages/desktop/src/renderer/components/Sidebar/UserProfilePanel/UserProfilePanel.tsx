@@ -1,13 +1,10 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
-import { Button, useTheme } from '@mui/material'
-import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-
 import { Identity, UserProfile } from '@quiet/types'
-
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
+import { sidebarMetrics } from '../../ui/Sidebar/sidebarMetrics'
 
 const PREFIX = 'UserProfilePanel-'
 
@@ -15,44 +12,55 @@ const classes = {
   root: `${PREFIX}root`,
   button: `${PREFIX}button`,
   profilePhoto: `${PREFIX}profilePhoto`,
-  circleWrapper: `${PREFIX}circleWrapper`,
-  circle: `${PREFIX}circle`,
   nickname: `${PREFIX}nickname`,
 }
 
-const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
-  marginTop: theme.spacing(1),
+const StyledUserProfilePanel = styled('div')(({ theme }) => ({
+  [`&.${classes.root}`]: {
+    width: '100%',
+    // The library separates the profile summary from the scrolling list with a
+    // hairline rather than a change of colour.
+    borderTop: '1px solid rgba(255, 255, 255, 0.10)',
+  },
 
   [`& .${classes.button}`]: {
-    color: theme.palette.colors.white,
-    padding: '12px 16px',
+    boxSizing: 'border-box',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    transition: 'background-color 0.2s',
     width: '100%',
+    minHeight: sidebarMetrics.profile.height,
+    padding: `${sidebarMetrics.profile.paddingY}px ${sidebarMetrics.profile.paddingX}px`,
+    gap: sidebarMetrics.profile.gap,
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
     textAlign: 'left',
-    textTransform: 'lowercase',
-    backgroundColor: 'inherit',
+    color: theme.palette.colors.white,
+    transition: 'background-color 0.2s',
     '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.10)',
+      backgroundColor: theme.palette.colors.sidebarHover,
+      [`& .${classes.nickname}`]: {
+        opacity: sidebarMetrics.opacity.hover,
+      },
     },
   },
 
   [`& .${classes.profilePhoto}`]: {
-    width: '24px',
-    height: '24px',
-    borderRadius: '4px',
-    marginRight: '8px',
+    flexShrink: 0,
+    display: 'block',
+    width: sidebarMetrics.profile.avatar,
+    height: sidebarMetrics.profile.avatar,
+    borderRadius: sidebarMetrics.profile.avatarRadius,
+    overflow: 'hidden',
   },
 
   [`& .${classes.nickname}`]: {
-    opacity: 0.7,
-    fontWeight: 300,
+    minWidth: 0,
+    opacity: sidebarMetrics.opacity.label,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: 215,
     whiteSpace: 'nowrap',
+    color: theme.palette.colors.white,
   },
 }))
 
@@ -63,18 +71,22 @@ export interface UserProfilePanelProps {
   userProfileContextMenu: ReturnType<typeof useContextMenu>
 }
 
+/**
+ * "Profile summary" from the Quiet Design Library's desktop sidebar
+ * (`6218:16416`) — the signed-in user's avatar and name, pinned to the bottom of
+ * the column. It opens the profile menu the app already has.
+ */
 export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
-  currentIdentity,
   userId: userID,
   userProfile,
   userProfileContextMenu,
 }) => {
-  const theme = useTheme()
-
   const username = userProfile?.nickname || ''
   return (
-    <UserProfilePanelButtonStyled>
-      <Button
+    <StyledUserProfilePanel className={classes.root}>
+      <button
+        type='button'
+        className={classes.button}
         onClick={event => {
           event.persist()
           if (userProfile) {
@@ -83,25 +95,21 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
             userProfileContextMenu.handleOpen()
           }
         }}
-        component='div'
-        classes={{ root: classes.button }}
         data-testid={'user-profile-menu-button'}
       >
-        <ProfilePhoto
-          userProfile={userProfile}
-          userId={userID}
-          className={classes.profilePhoto}
-          size={24}
-          style={{
-            marginRight: '8px',
-            marginBottom: 0,
-          }}
-        />
+        <span className={classes.profilePhoto}>
+          <ProfilePhoto
+            userProfile={userProfile}
+            userId={userID}
+            size={sidebarMetrics.profile.avatar}
+            style={{ marginBottom: 0, borderRadius: sidebarMetrics.profile.avatarRadius }}
+          />
+        </span>
         <Typography variant='body2' className={classes.nickname} data-testid='user-profile-nickname'>
           {username}
         </Typography>
-      </Button>
-    </UserProfilePanelButtonStyled>
+      </button>
+    </StyledUserProfilePanel>
   )
 }
 

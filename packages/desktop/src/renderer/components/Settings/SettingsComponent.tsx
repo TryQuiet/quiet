@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 
@@ -20,6 +20,8 @@ export interface SettingsComponentProps {
   tabs: any
   leaveCommunityModal: ReturnType<typeof useModal>
   isWindows?: boolean
+  /** Tab to open the drawer on, e.g. the sidebar's "Add members" row asks for 'invite'. */
+  focusTab?: string
 }
 
 export const SettingsComponent: React.FC<SettingsComponentProps> = ({
@@ -28,8 +30,15 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   tabs,
   leaveCommunityModal,
   isWindows,
+  focusTab,
 }) => {
   const [currentTab, setCurrentTab] = useState('')
+
+  // Opening the drawer with a tab asked for lands straight on it; opening it
+  // without one always starts at the menu, including after a focused open.
+  useEffect(() => {
+    if (open) setCurrentTab(focusTab ?? '')
+  }, [open, focusTab])
 
   const handleChange = (tab: string) => {
     setCurrentTab(tab)
