@@ -1,15 +1,16 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, publicChannels } from '@quiet/state-manager'
+import { communities, identity, publicChannels, users } from '@quiet/state-manager'
+import { capitalizeFirstLetter } from '@quiet/common'
 
-import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'
-import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
+import { CommunityHome } from '../../components/CommunityHome/CommunityHome.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { DateTime } from 'luxon'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
+
+import type { CommunityHomeChannel, CommunityHomeUser } from '../../components/CommunityHome/CommunityHome.types'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -26,7 +27,15 @@ export const ChannelListScreen: FC = () => {
     }
   }, [dispatch, usernameTaken])
 
-  const redirect = useCallback(
+  const community = useSelector(communities.selectors.currentCommunity)
+  const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
+  const userProfiles = useSelector(users.selectors.userProfiles)
+
+  const communityContextMenu = useContextMenu(MenuName.Community)
+  const invitationContextMenu = useContextMenu(MenuName.Invitation)
+
+  const openChannel = useCallback(
     (id: string) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
@@ -42,53 +51,46 @@ export const ChannelListScreen: FC = () => {
     [dispatch]
   )
 
-  const formatTileDate = (createdAt: number): string => {
-    const tzOffsetHours = -new Date().getTimezoneOffset() / 60
-    const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
+  const createChannel = useCallback(() => {
+    dispatch(
+      navigationActions.navigation({
+        screen: ScreenNames.CreateChannelScreen,
+      })
+    )
+  }, [dispatch])
 
-    const messageTime = DateTime.fromSeconds(createdAt).setZone(formattedOffset)
-    const now = DateTime.now().setZone(formattedOffset)
+  const channels: CommunityHomeChannel[] = channelsStatusSorted.map(status => ({
+    id: status.id,
+    name: status.name,
+    isPublic: status.public ?? true,
+    unread: status.unread,
+  }))
 
-    // Same year?
-    if (messageTime.year === now.year) {
-      // Today?
-      if (messageTime.hasSame(now, 'day')) {
-        return messageTime.toLocaleString(DateTime.TIME_SIMPLE)
-      }
-      // Yesterday?
-      if (messageTime.hasSame(now.minus({ days: 1 }), 'day')) {
-        return 'Yesterday'
-      }
-    }
+  // Quiet has no direct messages, so the design's "Direct messages" section
+  // lists the community's members instead.
+  const members: CommunityHomeUser[] = useMemo(
+    () =>
+      Object.values(userProfiles ?? {})
+        .map(profile => ({
+          userId: profile.userId,
+          nickname: profile.nickname,
+          photo: profile.photo,
+          profilePhoto: profile.profilePhoto,
+        }))
+        .sort((a, b) => a.nickname.localeCompare(b.nickname)),
+    [userProfiles]
+  )
 
-    // Otherwise just return a date/time in the same zone
-    return messageTime.toLocaleString()
-  }
-
-  const community = useSelector(communities.selectors.currentCommunity)
-
-  const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
-
-  const tiles = channelsStatusSorted.map(status => {
-    const newestMessage = status.newestMessage
-
-    const message = newestMessage?.message || '...'
-    const date = newestMessage?.createdAt ? formatTileDate(newestMessage.createdAt) : undefined
-
-    const tile: ChannelTileProps = {
-      name: status.name,
-      isPublic: status.public ?? true,
-      id: status.id,
-      message,
-      date,
-      unread: status.unread,
-      redirect,
-    }
-
-    return tile
-  })
-
-  const communityContextMenu = useContextMenu(MenuName.Community)
-
-  return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
+  return (
+    <CommunityHome
+      communityName={community?.name ? capitalizeFirstLetter(community.name) : '...'}
+      channels={channels}
+      users={members}
+      canCreateChannel={channelPermissions.public.create}
+      openCommunityMenu={() => communityContextMenu.handleOpen()}
+      addMembers={() => invitationContextMenu.handleOpen()}
+      createChannel={createChannel}
+      openChannel={openChannel}
+    />
+  )
 }

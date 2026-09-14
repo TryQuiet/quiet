@@ -169,6 +169,10 @@ describe('User', () => {
   })
 
   test('creates new channel', async () => {
+    // Create channel moved out of the community context menu and onto the
+    // Community home card's Channels header, so close the menu first.
+    await press(element(by.id('context_menu_close')))
+
     await press(element(by.id('Create channel')))
 
     const componentName = 'create-channel-component'
