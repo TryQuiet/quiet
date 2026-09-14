@@ -123,8 +123,11 @@ describe('UsernameRegistration', () => {
                   [
                     {
                       "backgroundColor": "#ffffff",
+                      "borderBottomLeftRadius": 4,
+                      "borderBottomRightRadius": 4,
                       "borderColor": "#C4C4C4",
-                      "borderRadius": 4,
+                      "borderTopLeftRadius": 4,
+                      "borderTopRightRadius": 4,
                       "borderWidth": 1,
                       "flexGrow": 1,
                       "height": 56,
@@ -150,14 +153,12 @@ describe('UsernameRegistration', () => {
                   placeholder="Enter a username"
                   placeholderTextColor="#999999"
                   style={
-                    [
-                      {
-                        "height": 54,
-                        "paddingBottom": 12,
-                        "paddingTop": 12,
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "height": 54,
+                      "paddingBottom": 12,
+                      "paddingTop": 12,
+                      "textAlignVertical": "center",
+                    }
                   }
                   testID="input"
                 />
@@ -232,15 +233,13 @@ describe('UsernameRegistration', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  [
-                    {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  {
+                    "color": "#ffffff",
+                    "fontFamily": "Rubik-Regular",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  }
                 }
                 verticalTextAlign="center"
               >

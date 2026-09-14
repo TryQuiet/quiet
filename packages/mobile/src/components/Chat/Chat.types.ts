@@ -9,7 +9,6 @@ import {
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
-import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
 import { HeaderTitleProps } from '../Appbar/Appbar.types'
@@ -46,7 +45,6 @@ export interface ChatProps extends UserLabelHandlers {
   imagePreview?: FileMetadata | null
   setImagePreview?: (media: FileMetadata | null) => void
   openImagePreview: (media: FileMetadata) => void
-  updateFileAttachments: (filesData: DocumentPickerResponse[]) => void
   updateImageAttachments: (assets: Asset[]) => void
   removeFilePreview: (id: string) => void
   uploadedFiles?: FilePreviewData

@@ -111,12 +111,20 @@ describe('User', () => {
     if (!ios) await device.pressBack()
   })
 
-  test('navigates back to channels list', async () => {
-    await press(element(by.id('appbar_action_item')))
+  test('navigates back to channels list using Android system Back', async () => {
+    // Exercise ChannelScreen's hardwareBackPress handler. Tapping the appbar would
+    // miss Android 16 dropping legacy back events when targeting API 36.
+    if (ios) {
+      await press(element(by.id('appbar_action_item')))
+    } else {
+      await device.pressBack()
+    }
 
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(BASIC)
+
+    await expect(element(by.id('chat_general'))).not.toBeVisible()
   })
 
   test('opens context menu', async () => {

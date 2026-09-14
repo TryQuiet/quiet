@@ -81,19 +81,17 @@ describe('UpdateChannelMembership component', () => {
         >
           <View
             style={
-              [
-                {
-                  "alignItems": "center",
-                  "backgroundColor": "#ffffff",
-                  "borderBottomColor": "#F0F0F0",
-                  "borderBottomWidth": 1,
-                  "display": "flex",
-                  "flexDirection": "row",
-                  "justifyContent": "center",
-                  "maxHeight": 52,
-                  "minHeight": 52,
-                },
-              ]
+              {
+                "alignItems": "center",
+                "backgroundColor": "#ffffff",
+                "borderBottomColor": "#F0F0F0",
+                "borderBottomWidth": 1,
+                "display": "flex",
+                "flexDirection": "row",
+                "justifyContent": "center",
+                "maxHeight": 52,
+                "minHeight": 52,
+              }
             }
           >
             <View
@@ -104,6 +102,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -149,6 +149,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={
@@ -201,15 +202,13 @@ describe('UpdateChannelMembership component', () => {
                     fontWeight="medium"
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Medium",
-                          "fontSize": 16,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Medium",
+                        "fontSize": 16,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -366,15 +365,13 @@ describe('UpdateChannelMembership component', () => {
                     fontSize={12}
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 12,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 12,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -429,7 +426,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "height": 50,
                       "justifyContent": "center",
+                      "minWidth": 64,
                     }
                   }
                 >
@@ -516,8 +515,11 @@ describe('UpdateChannelMembership component', () => {
                     [
                       {
                         "backgroundColor": "#ffffff",
+                        "borderBottomLeftRadius": 4,
+                        "borderBottomRightRadius": 4,
                         "borderColor": "#C4C4C4",
-                        "borderRadius": 4,
+                        "borderTopLeftRadius": 4,
+                        "borderTopRightRadius": 4,
                         "borderWidth": 1,
                         "flexGrow": 1,
                         "height": 56,
@@ -542,14 +544,12 @@ describe('UpdateChannelMembership component', () => {
                     placeholder="E.g. @jane123"
                     placeholderTextColor="#999999"
                     style={
-                      [
-                        {
-                          "height": 54,
-                          "paddingBottom": 12,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "height": 54,
+                        "paddingBottom": 12,
+                        "paddingTop": 12,
+                        "textAlignVertical": "center",
+                      }
                     }
                     testID="input"
                   />
@@ -719,19 +719,17 @@ describe('UpdateChannelMembership component', () => {
         >
           <View
             style={
-              [
-                {
-                  "alignItems": "center",
-                  "backgroundColor": "#ffffff",
-                  "borderBottomColor": "#F0F0F0",
-                  "borderBottomWidth": 1,
-                  "display": "flex",
-                  "flexDirection": "row",
-                  "justifyContent": "center",
-                  "maxHeight": 52,
-                  "minHeight": 52,
-                },
-              ]
+              {
+                "alignItems": "center",
+                "backgroundColor": "#ffffff",
+                "borderBottomColor": "#F0F0F0",
+                "borderBottomWidth": 1,
+                "display": "flex",
+                "flexDirection": "row",
+                "justifyContent": "center",
+                "maxHeight": 52,
+                "minHeight": 52,
+              }
             }
           >
             <View
@@ -742,6 +740,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -787,6 +787,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={
@@ -839,15 +840,13 @@ describe('UpdateChannelMembership component', () => {
                     fontWeight="medium"
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Medium",
-                          "fontSize": 16,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Medium",
+                        "fontSize": 16,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -1004,15 +1003,13 @@ describe('UpdateChannelMembership component', () => {
                     fontSize={12}
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 12,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 12,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -1067,7 +1064,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "height": 50,
                       "justifyContent": "center",
+                      "minWidth": 64,
                     }
                   }
                 >
@@ -1154,8 +1153,11 @@ describe('UpdateChannelMembership component', () => {
                     [
                       {
                         "backgroundColor": "#ffffff",
+                        "borderBottomLeftRadius": 4,
+                        "borderBottomRightRadius": 4,
                         "borderColor": "#C4C4C4",
-                        "borderRadius": 4,
+                        "borderTopLeftRadius": 4,
+                        "borderTopRightRadius": 4,
                         "borderWidth": 1,
                         "flexGrow": 1,
                         "height": 56,
@@ -1180,14 +1182,12 @@ describe('UpdateChannelMembership component', () => {
                     placeholder="E.g. @jane123"
                     placeholderTextColor="#999999"
                     style={
-                      [
-                        {
-                          "height": 54,
-                          "paddingBottom": 12,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "height": 54,
+                        "paddingBottom": 12,
+                        "paddingTop": 12,
+                        "textAlignVertical": "center",
+                      }
                     }
                     testID="input"
                   />
@@ -1615,19 +1615,17 @@ describe('UpdateChannelMembership component', () => {
         >
           <View
             style={
-              [
-                {
-                  "alignItems": "center",
-                  "backgroundColor": "#ffffff",
-                  "borderBottomColor": "#F0F0F0",
-                  "borderBottomWidth": 1,
-                  "display": "flex",
-                  "flexDirection": "row",
-                  "justifyContent": "center",
-                  "maxHeight": 52,
-                  "minHeight": 52,
-                },
-              ]
+              {
+                "alignItems": "center",
+                "backgroundColor": "#ffffff",
+                "borderBottomColor": "#F0F0F0",
+                "borderBottomWidth": 1,
+                "display": "flex",
+                "flexDirection": "row",
+                "justifyContent": "center",
+                "maxHeight": 52,
+                "minHeight": 52,
+              }
             }
           >
             <View
@@ -1638,6 +1636,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -1683,6 +1683,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={
@@ -1735,15 +1736,13 @@ describe('UpdateChannelMembership component', () => {
                     fontWeight="medium"
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Medium",
-                          "fontSize": 16,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Medium",
+                        "fontSize": 16,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -1900,15 +1899,13 @@ describe('UpdateChannelMembership component', () => {
                     fontSize={12}
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 12,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 12,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -1963,7 +1960,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "height": 50,
                       "justifyContent": "center",
+                      "minWidth": 64,
                     }
                   }
                 >
@@ -2050,8 +2049,11 @@ describe('UpdateChannelMembership component', () => {
                     [
                       {
                         "backgroundColor": "#ffffff",
+                        "borderBottomLeftRadius": 4,
+                        "borderBottomRightRadius": 4,
                         "borderColor": "#C4C4C4",
-                        "borderRadius": 4,
+                        "borderTopLeftRadius": 4,
+                        "borderTopRightRadius": 4,
                         "borderWidth": 1,
                         "flexGrow": 1,
                         "height": 56,
@@ -2076,14 +2078,12 @@ describe('UpdateChannelMembership component', () => {
                     placeholder="E.g. @jane123"
                     placeholderTextColor="#999999"
                     style={
-                      [
-                        {
-                          "height": 54,
-                          "paddingBottom": 12,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "height": 54,
+                        "paddingBottom": 12,
+                        "paddingTop": 12,
+                        "textAlignVertical": "center",
+                      }
                     }
                     testID="input"
                   />

@@ -16,6 +16,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEm
 import com.quietmobile.Backend.BackendWorkManager
 import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.Push.QuietStorage
+import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
     companion object {
@@ -36,9 +37,9 @@ class MainActivity : ReactActivity() {
             DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // pass null to super.onCreate
-        // https://github.com/software-mansion/react-native-screens?tab=readme-ov-file#android
-        super.onCreate(null)
+        // Install Screens' restoration factory before Android restores fragments.
+        supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
+        super.onCreate(savedInstanceState)
 
         val intent = intent
         checkAgainstIntentUpdate(intent)

@@ -9,7 +9,6 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { initSelectors } from '../../store/init/init.selectors'
-import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { getFilesData } from '@quiet/common'
 
@@ -85,24 +84,6 @@ const ChannelScreenContent: FC = () => {
     },
     [dispatch]
   )
-
-  // Files
-  const updateFileAttachments = (files: DocumentPickerResponse[]) => {
-    const filesData: FilePreviewData = getFilesData(
-      files.map(fileObj => {
-        return {
-          path: fileObj.fileCopyUri || fileObj.uri,
-          isTmp: !fileObj.copyError,
-        }
-      })
-    )
-
-    // FilePreviewData
-    setAttachingFiles(existingFiles => {
-      const updatedFiles = { ...existingFiles, ...filesData }
-      return updatedFiles
-    })
-  }
 
   const updateImageAttachments = (assets: Asset[]) => {
     const assetData: FilePreviewData = getFilesData(
@@ -193,7 +174,6 @@ const ChannelScreenContent: FC = () => {
       imagePreview={imagePreview}
       setImagePreview={setImagePreview}
       openImagePreview={setImagePreview}
-      updateFileAttachments={updateFileAttachments}
       updateImageAttachments={updateImageAttachments}
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
