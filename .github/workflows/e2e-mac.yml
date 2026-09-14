@@ -86,3 +86,11 @@ jobs:
       - name: Run invitation link test - Includes 2 separate application clients
         timeout-minutes: 25
         run: cd packages/e2e-tests && npm run test invitationLink.test.ts
+
+      - name: Run device linking test - Includes 3 separate application clients
+        timeout-minutes: 25
+        run: cd packages/e2e-tests && npm run test deviceLinking.test.ts
+
+      - name: Run admission timeout recovery test
+        timeout-minutes: 15
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts
