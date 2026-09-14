@@ -9,6 +9,7 @@ import { kadDHT } from '@libp2p/kad-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { ping } from '@libp2p/ping'
 import { preSharedKey } from '@libp2p/pnet'
+import { webSockets } from '@libp2p/websockets'
 import * as filters from '@libp2p/websockets/filters'
 import { ConnectionMonitorInit, createLibp2p } from 'libp2p'
 
@@ -18,7 +19,7 @@ import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import { DateTime } from 'luxon'
 
-import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { createLibp2pAddress, createLibp2pListenAddress, isLocalTransportEnabled } from '@quiet/common'
 import { ConnectionProcessInfo, type NetworkDataPayload, NetworkStats, SocketEvents } from '@quiet/types'
 
 import { LIBP2P_DB_PATH, SERVER_IO_PROVIDER } from '../const'
@@ -519,23 +520,25 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         ],
         // @ts-ignore
         connectionEncrypters: [noise({ crypto: pureJsCrypto })],
-        transports: params.transport
-          ? params.transport
-          : [
-              webSocketsOverTor({
-                filter: filters.all,
-                websocket: {
-                  agent: params.agent,
-                  handshakeTimeout: 90_000,
-                  ciphers: WEBSOCKET_CIPHER_SUITE,
-                  followRedirects: true,
-                },
-                localAddress: params.localAddress,
-                targetPort: params.targetPort,
-                inboundConnectionUpgradeTimeout: 60_000,
-                closeOnEnd: false,
-              }),
-            ],
+        transports:
+          params.transport ??
+          (isLocalTransportEnabled()
+            ? [webSockets()]
+            : [
+                webSocketsOverTor({
+                  filter: filters.all,
+                  websocket: {
+                    agent: params.agent,
+                    handshakeTimeout: 90_000,
+                    ciphers: WEBSOCKET_CIPHER_SUITE,
+                    followRedirects: true,
+                  },
+                  localAddress: params.localAddress,
+                  targetPort: params.targetPort,
+                  inboundConnectionUpgradeTimeout: 60_000,
+                  closeOnEnd: false,
+                }),
+              ]),
         transportManager: {
           faultTolerance: FaultTolerance.NO_FATAL,
         },

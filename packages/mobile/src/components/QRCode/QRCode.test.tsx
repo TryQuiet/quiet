@@ -1,10 +1,44 @@
 import React from 'react'
+import QR from 'react-native-qrcode-svg'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 
 import { QRCode } from './QRCode.component'
 
 describe('QRCode component', () => {
+  it('provides the native QR instance through the share ref', () => {
+    const svgRef = { current: undefined }
+    const nativeQr = { toDataURL: jest.fn() }
+
+    renderComponent(
+      <QRCode
+        value='https://tryquiet.org/join#device'
+        svgRef={svgRef}
+        shareCode={jest.fn()}
+        handleBackButton={jest.fn()}
+      />
+    )
+
+    const getRef = (QR as unknown as jest.Mock).mock.calls[0][0].getRef
+    getRef(nativeQr)
+    expect(svgRef.current).toBe(nativeQr)
+  })
+
+  it('renders a custom title and description for device links', () => {
+    const { getByText } = renderComponent(
+      <QRCode
+        value='https://tryquiet.org/join#device'
+        shareCode={jest.fn()}
+        handleBackButton={jest.fn()}
+        title='Link a device'
+        description='Scan this private device link.'
+      />
+    )
+
+    expect(getByText('Link a device')).toBeTruthy()
+    expect(getByText('Scan this private device link.')).toBeTruthy()
+  })
+
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
       <QRCode value={'https://tryquiet.org/join#'} shareCode={jest.fn()} handleBackButton={jest.fn()} />

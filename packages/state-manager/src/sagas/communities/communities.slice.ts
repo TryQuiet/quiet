@@ -5,11 +5,13 @@ import {
   CreateCommunityPayload,
   InvitationData,
   JoinCommunityPayload,
+  LinkDevicePayload,
   LaunchCommunityPayload,
   UpdateCommunityPayload,
   type Community,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import type { AdmissionResetStatus, JoinCommunityError } from './communities.types'
 
 const logger = createLogger('communitiesSlice')
 
@@ -20,6 +22,8 @@ export class CommunitiesState {
   public connectionInProgress = false
   public tosRequested = false
   public captchaRequested = false
+  public admissionResetStatus: AdmissionResetStatus = 'idle'
+  public joinCommunityError: JoinCommunityError | null = null
 }
 
 export const communitiesSlice = createSlice({
@@ -54,8 +58,19 @@ export const communitiesSlice = createSlice({
       }
     },
     resetApp: (state, _action) => state,
+    resetAdmission: (state, _action: PayloadAction<string>) => state,
+    setAdmissionResetStatus: (state, action: PayloadAction<AdmissionResetStatus>) => {
+      state.admissionResetStatus = action.payload
+    },
+    setJoinCommunityError: (state, action: PayloadAction<JoinCommunityError>) => {
+      state.joinCommunityError = action.payload
+    },
+    clearJoinCommunityError: state => {
+      state.joinCommunityError = null
+    },
     createCommunity: (state, _action: PayloadAction<CreateCommunityPayload>) => state,
     joinCommunity: (state, _action: PayloadAction<JoinCommunityPayload>) => state,
+    linkDevice: (state, _action: PayloadAction<LinkDevicePayload>) => state,
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {

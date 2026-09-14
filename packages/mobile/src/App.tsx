@@ -42,6 +42,8 @@ import { defaultTheme } from './styles/themes/default.theme'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
 import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
+import { LinkedDevicesContextMenu } from './components/ContextMenu/menus/LinkedDevicesContextMenu.container'
+import { LinkedDeviceQRCodeScreen } from './screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen'
 
 import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
 import { useConfirmationBox } from './hooks/useConfirmationBox'
@@ -125,6 +127,7 @@ function App(): JSX.Element {
                 <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
                 <Screen component={NotifierScreen} name={ScreenNames.NotifierScreen} />
                 <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
+                <Screen component={LinkedDeviceQRCodeScreen} name={ScreenNames.LinkedDeviceQRCodeScreen} />
                 <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={UsernameRegistrationScreen} name={ScreenNames.UsernameRegistrationScreen} />
@@ -133,6 +136,7 @@ function App(): JSX.Element {
               <CommunityContextMenu />
               <ChannelContextMenu />
               <InvitationContextMenu />
+              <LinkedDevicesContextMenu />
               <UnregisteredUsernameContextMenu />
               <CaptchaModal />
               <ConfirmationBox {...confirmationBox} />

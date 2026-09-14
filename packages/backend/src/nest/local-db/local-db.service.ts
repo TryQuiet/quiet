@@ -19,7 +19,7 @@ import {
 } from './local-db.types'
 import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
-import { type LocalUserContext, type Team } from '@localfirst/auth'
+import { type InviteeDeviceContext, type LocalUserContext, type Team } from '@localfirst/auth'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
 import EventEmitter from 'events'
@@ -279,6 +279,10 @@ export class LocalDbService extends EventEmitter {
   }
 
   public async setSigChain(sigChain: SigChain, teamId: string) {
+    if (sigChain.isPendingDeviceAdmission) {
+      await this.setPendingDeviceSigChain(sigChain, teamId)
+      return
+    }
     // Route every write that has a team through the one writer, so a caller that
     // wants to observe or fail chain writes has a single place to do it.
     if (sigChain.team) {
@@ -288,10 +292,24 @@ export class LocalDbService extends EventEmitter {
     const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
     const serializedSigChain: SigChainSaveData = {
       serializedTeam: undefined,
-      localUserContext: { user: sigChain.user, device: sigChain.device },
+      localUserContext: sigChain.localUserContext,
       teamKeyRing: undefined,
     }
     this.logger.info('Saving sigchain with no team yet', teamId)
+    await this.put(key, serializedSigChain)
+  }
+
+  public async setPendingDeviceSigChain(sigChain: SigChain, teamId: string): Promise<void> {
+    if (!sigChain.isPendingDeviceAdmission || sigChain.pendingDeviceAdmission == null) {
+      throw new Error(`SigChain for ${teamId} is not a pending device invitation`)
+    }
+    const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
+    const serializedSigChain: SigChainSaveData = {
+      serializedTeam: undefined,
+      inviteeDeviceContext: sigChain.context as InviteeDeviceContext,
+      pendingDeviceAdmission: sigChain.pendingDeviceAdmission,
+      teamKeyRing: undefined,
+    }
     await this.put(key, serializedSigChain)
   }
 
@@ -340,6 +358,8 @@ export class LocalDbService extends EventEmitter {
       return {
         serializedTeam: serializedTeam,
         localUserContext: sigChainBlob.localUserContext,
+        inviteeDeviceContext: sigChainBlob.inviteeDeviceContext,
+        pendingDeviceAdmission: sigChainBlob.pendingDeviceAdmission,
         teamKeyRing: sigChainBlob.teamKeyRing ? sigChainBlob.teamKeyRing : undefined,
       } as SerializedSigChain
     } catch (e) {

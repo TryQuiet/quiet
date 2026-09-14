@@ -11,6 +11,8 @@ import { createLogger } from '../../utils/logger'
 import {
   InvitationData,
   InvitationDataVersion,
+  InvitationKind,
+  type DeviceInvitationData,
   type UserProfile,
   type NetworkStats,
   type User,
@@ -72,6 +74,13 @@ export const peerList = createSelector(
 export const longLivedInvite = createSelector(connectionSlice, reducerState => {
   return reducerState.longLivedInvite
 })
+
+export const deviceLinkInvite = createSelector(connectionSlice, reducerState => reducerState.deviceLinkInvite)
+
+export const deviceLinkCreationFailed = createSelector(
+  connectionSlice,
+  reducerState => reducerState.deviceLinkCreationFailed
+)
 
 export const invitationUrl = createSelector(
   communitiesSelectors.psk,
@@ -135,6 +144,37 @@ export const invitationUrl = createSelector(
   }
 )
 
+export const deviceLinkUrl = createSelector(
+  communitiesSelectors.psk,
+  communitiesSelectors.currentCommunity,
+  peerList,
+  deviceLinkInvite,
+  (communityPsk, currentCommunity, sortedPeerList, invite) => {
+    if (!sortedPeerList?.length || !communityPsk || !currentCommunity || !invite || invite.expiresAt <= Date.now())
+      return ''
+    if (!currentCommunity.name || !currentCommunity.teamId) return ''
+    const authData = {
+      communityName: currentCommunity.name,
+      seed: invite.seed,
+      teamId: currentCommunity.teamId,
+      userId: invite.userId,
+      userName: invite.userName,
+    }
+    let data: DeviceInvitationData = {
+      kind: InvitationKind.Device,
+      psk: communityPsk,
+      pairs: p2pAddressesToPairs(sortedPeerList.slice(0, 3)),
+      authData,
+      version: InvitationDataVersion.v4,
+    }
+    if (currentCommunity.qssEnabled === true) {
+      if (!currentCommunity.qssEndpoint) throw new Error('QSS is enabled but QSS endpoint was null!')
+      data = { ...data, version: InvitationDataVersion.v5, qssEnabled: true, qssEndpoint: currentCommunity.qssEndpoint }
+    }
+    return composeInvitationShareUrl(data)
+  }
+)
+
 export const isJoiningCompleted = createSelector(
   isTorInitialized,
   isCurrentCommunityInitialized,
@@ -150,6 +190,9 @@ export const connectionSelectors = {
   peerList,
   invitationUrl,
   longLivedInvite,
+  deviceLinkInvite,
+  deviceLinkCreationFailed,
+  deviceLinkUrl,
   torBootstrapProcess,
   connectionProcess,
   isTorInitialized,

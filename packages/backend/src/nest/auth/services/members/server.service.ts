@@ -1,4 +1,4 @@
-import { type Server } from '../../../../../../../3rd-party/auth/packages/auth/dist'
+import { type Server } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { SigChain } from '../../sigchain'
 import { ChainServiceBase } from '../chainServiceBase'

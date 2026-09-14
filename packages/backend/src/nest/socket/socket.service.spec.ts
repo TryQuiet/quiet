@@ -6,7 +6,7 @@ import { SocketModule } from './socket.module'
 import { SocketService } from './socket.service'
 import { io, Socket } from 'socket.io-client'
 import waitForExpect from 'wait-for-expect'
-import { SocketActions } from '@quiet/types'
+import { type LaunchCommunityPayload, SocketActions } from '@quiet/types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { TEST_DATA_PORT } from '../const'
 
@@ -40,6 +40,22 @@ describe('SocketService', () => {
     expect(socketService.serverIoProvider.io.engine.opts.cors).toStrictEqual({}) // No cors should be set by default
   })
 
+  it('forwards admission reset with its acknowledgement before backend readiness', async () => {
+    const payload = { id: 'timed-out-community' }
+    const forwarded = jest.fn((receivedPayload: LaunchCommunityPayload, callback: (acknowledged: boolean) => void) => {
+      callback(true)
+    })
+    socketService.once(SocketActions.RESET_ADMISSION, forwarded)
+
+    const acknowledged = await new Promise<boolean>(resolve => {
+      client.emit(SocketActions.RESET_ADMISSION, payload, resolve)
+    })
+
+    expect(acknowledged).toBe(true)
+    expect(forwarded).toHaveBeenCalledTimes(1)
+    expect(forwarded).toHaveBeenCalledWith(payload, expect.any(Function))
+  })
+
   it('suspends events handling until backend is fully initialized', async () => {
     const spy = jest.spyOn(socketService, 'emit')
 
@@ -57,7 +73,11 @@ describe('SocketService', () => {
   })
 
   it('there are no fragile endpoints in the collection of suspendables', async () => {
-    const fragile: string[] = [SocketActions.CREATE_COMMUNITY.valueOf(), SocketActions.JOIN_COMMUNITY.valueOf()]
+    const fragile: string[] = [
+      SocketActions.CREATE_COMMUNITY.valueOf(),
+      SocketActions.JOIN_COMMUNITY.valueOf(),
+      SocketActions.RESET_ADMISSION.valueOf(),
+    ]
 
     fragile.forEach(event => {
       expect(suspendableSocketEvents).not.toContain(event)

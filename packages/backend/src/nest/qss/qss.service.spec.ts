@@ -1165,7 +1165,7 @@ describe('QSSService', () => {
         sigchainService.addChain(inviteeChain, true, team.id)
         // The owner admits the invitee and grants the member role, as the auth handshake does.
         ownerChain.invites.admitMemberFromInvite(
-          InviteService.createMemberAdmission({ seed: invite.seed, context: inviteeChain.context })
+          InviteService.createMemberAdmission({ seed: invite.seed, context: inviteeChain.localUserContext })
         )
         ownerChain.roles.addMember(inviteeChain.user.userId, RoleName.MEMBER)
 

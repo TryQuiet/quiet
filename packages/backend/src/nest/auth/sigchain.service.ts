@@ -6,9 +6,11 @@ import {
   Keyring,
   LocalUserContext,
   MemberContext,
+  type InviteeContext,
   Team,
   UserWithSecrets,
   DeviceWithSecrets,
+  type FirstUseDeviceWithSecrets,
   Base58,
 } from '@localfirst/auth'
 import { KeyMetadata } from '@localfirst/crdx'
@@ -23,10 +25,18 @@ import { type CryptoService } from './services/crypto/crypto.service'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
-import { SigchainEvents, StoredKeyType } from './types'
+import { DeviceAdmissionCompletionState, DeviceAdmissionResult, SigchainEvents, StoredKeyType } from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
+import type { CreateDeviceFromInviteSeedInput } from './services/members/types'
+
+export class DeviceAdmissionStaleError extends Error {
+  constructor(teamId: string) {
+    super(`Pending device admission for ${teamId} is no longer current`)
+    this.name = 'DeviceAdmissionStaleError'
+  }
+}
 
 /**
  * Durable writes for sigchains, and the admission gate built on them.
@@ -105,6 +115,7 @@ export class SigChainService extends EventEmitter {
    * stored; see the note on persistAdmittedTeam.
    */
   private readonly _failedAdmissionWrites: Map<string, number> = new Map()
+  private readonly _deviceAdmissions: WeakMap<SigChain, DeviceAdmissionCompletionState> = new WeakMap()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -146,7 +157,7 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().team!
   }
 
-  get context(): MemberContext | InviteeMemberContext {
+  get context(): MemberContext | InviteeContext {
     return this.getActiveChain().context
   }
 
@@ -154,7 +165,7 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().user
   }
 
-  get device(): DeviceWithSecrets {
+  get device(): DeviceWithSecrets | FirstUseDeviceWithSecrets {
     return this.getActiveChain().device
   }
 
@@ -439,6 +450,8 @@ export class SigChainService extends EventEmitter {
    */
   async deleteChain(teamId: string, fromDisk: boolean): Promise<void> {
     const chain = this.chains.get(teamId)
+    const deviceAdmission = chain && this._deviceAdmissions.get(chain)
+    if (deviceAdmission) deviceAdmission.cancelled = true
     if (chain) {
       this.detachSocketListeners(chain)
     }
@@ -491,6 +504,19 @@ export class SigChainService extends EventEmitter {
     return sigChain
   }
 
+  async createChainFromDeviceInvite(
+    input: CreateDeviceFromInviteSeedInput,
+    teamId: string,
+    setActive: boolean
+  ): Promise<SigChain> {
+    this.logger.info('Creating pending chain from device invite')
+    const sigChain = SigChain.createFromDeviceInvite(input)
+    this.addChain(sigChain, setActive, teamId)
+    await this._ensureDb()
+    await this.localDbService.setPendingDeviceSigChain(sigChain, teamId)
+    return sigChain
+  }
+
   /**
    * Deserializes a chain and adds it to the service
    * @param serializedTeam Serialized chain to deserialize
@@ -527,11 +553,25 @@ export class SigChainService extends EventEmitter {
     if (!chainData) {
       throw new Error(`Chain for team ${teamId} not found`)
     }
+    if (chainData.inviteeDeviceContext && chainData.pendingDeviceAdmission) {
+      if (
+        chainData.pendingDeviceAdmission.teamId !== teamId ||
+        chainData.inviteeDeviceContext.expectedTeamId !== teamId
+      ) {
+        throw new Error(`Pending device admission identity does not match storage key ${teamId}`)
+      }
+      const sigChain = SigChain.restoreDeviceInvite(chainData.inviteeDeviceContext, chainData.pendingDeviceAdmission)
+      this.addChain(sigChain, setActive, teamId)
+      return sigChain
+    }
     if (!chainData.serializedTeam) {
       throw new Error(`Chain for team ${teamId} is missing serialized team`)
     }
     if (!chainData.teamKeyRing) {
       throw new Error(`Chain for team ${teamId} is missing keyring`)
+    }
+    if (!chainData.localUserContext) {
+      throw new Error(`Chain for team ${teamId} is missing local user context`)
     }
     return await this.deserialize(
       chainData.serializedTeam,
@@ -539,6 +579,85 @@ export class SigChainService extends EventEmitter {
       chainData.teamKeyRing,
       setActive
     )
+  }
+
+  /**
+   * The operation has four observable states: pending with no candidate,
+   * selected with one private candidate being saved, published after that save,
+   * or failed with the same retained rejection for every caller. Every
+   * invitation connection is retired synchronously; losing mutable Team
+   * objects never enter the service map.
+   */
+  public completeDeviceAdmission(
+    pending: SigChain,
+    payload: { team: Team; user: UserWithSecrets },
+    retireInvitationConnection: () => void
+  ): DeviceAdmissionResult {
+    const existing = this._deviceAdmissions.get(pending)
+    if (existing) {
+      try {
+        retireInvitationConnection()
+      } catch (error) {
+        existing.cancelled = true
+        this.logger.error('Failed to retire duplicate device invitation connection', error)
+      }
+      return { selected: false, completion: existing.completion }
+    }
+
+    let candidate: SigChain
+    try {
+      this.assertPendingDeviceAdmissionIsCurrent(pending)
+      candidate = pending.completeDeviceInvitation(payload.team, payload.user)
+    } catch (error) {
+      try {
+        retireInvitationConnection()
+      } catch (retireError) {
+        this.logger.error('Failed to retire invalid device invitation connection', retireError)
+      }
+      throw error
+    }
+    const state = { cancelled: false } as DeviceAdmissionCompletionState
+    state.completion = Promise.resolve().then(async () => {
+      const teamId = pending.pendingDeviceAdmission!.teamId
+      this.assertPendingDeviceAdmissionIsCurrent(pending, state)
+      const queue = this.stateFor(teamId)
+      await this.track(
+        queue,
+        this.enqueue(queue, async () => {
+          this.assertPendingDeviceAdmissionIsCurrent(pending, state)
+          await this._ensureDb()
+          this.assertPendingDeviceAdmissionIsCurrent(pending, state)
+          await this.localDbService.setSigChain(candidate, teamId)
+          this.assertPendingDeviceAdmissionIsCurrent(pending, state)
+          this.detachSocketListeners(pending)
+          this.chains.set(teamId, candidate)
+          this.attachSocketListeners(candidate)
+          this.emit(SigchainEvents.DEVICE_ADMITTED, teamId)
+        })
+      )
+      return candidate
+    })
+    this._deviceAdmissions.set(pending, state)
+    try {
+      retireInvitationConnection()
+    } catch (error) {
+      state.cancelled = true
+      this.logger.error('Failed to retire selected device invitation connection', error)
+    }
+    return { selected: true, completion: state.completion }
+  }
+
+  private assertPendingDeviceAdmissionIsCurrent(pending: SigChain, state?: DeviceAdmissionCompletionState): void {
+    const teamId = pending.pendingDeviceAdmission?.teamId
+    if (
+      teamId == null ||
+      !pending.isPendingDeviceAdmission ||
+      state?.cancelled === true ||
+      this.activeChainTeamId !== teamId ||
+      this.chains.get(teamId) !== pending
+    ) {
+      throw new DeviceAdmissionStaleError(teamId ?? 'unknown')
+    }
   }
 
   /**

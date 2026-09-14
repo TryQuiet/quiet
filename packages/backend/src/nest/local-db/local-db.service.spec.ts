@@ -319,7 +319,7 @@ describe('LocalDbService', () => {
 
       const stored = await service.getSigChain(teamId)
       expect(stored).toBeDefined()
-      expect(stored!.localUserContext.user).toEqual(dummySigChain.user)
+      expect(stored!.localUserContext!.user).toEqual(dummySigChain.user)
 
       await service.deleteSigChain(teamId)
       const afterDelete = await service.getSigChain(teamId)

@@ -16,9 +16,10 @@ export const ConnectionProcessScreen: FC = () => {
   const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
   const isJoiningCompletedSelector = useSelector(connection.selectors.isJoiningCompleted)
   const loadingPanelType = useSelector(network.selectors.loadingPanelType)
+  const admissionFailure = useSelector(errors.selectors.admissionFailure)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentCommunityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  const hasCurrentCommunityError = Boolean(currentCommunity && currentCommunityErrors[currentCommunity?.id])
+  const hasCurrentCommunityError = Boolean(currentCommunity && Object.keys(currentCommunityErrors).length > 0)
 
   const openUrl = useCallback((url: string) => {
     void Linking.openURL(url)
@@ -38,7 +39,7 @@ export const ConnectionProcessScreen: FC = () => {
   }, [isJoiningCompletedSelector])
 
   useEffect(() => {
-    if (hasCurrentCommunityError) {
+    if (hasCurrentCommunityError && admissionFailure == null) {
       dispatch(navigationActions.clearBackStack())
       dispatch(
         navigationActions.navigation({
@@ -46,14 +47,14 @@ export const ConnectionProcessScreen: FC = () => {
         })
       )
     }
-  }, [hasCurrentCommunityError])
+  }, [hasCurrentCommunityError, admissionFailure])
 
   useEffect(() => {
-    if (loadingPanelType === LoadingPanelType.Failed) {
+    if (loadingPanelType === LoadingPanelType.Failed && admissionFailure == null) {
       dispatch(navigationActions.clearBackStack())
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.CreateCommunityScreen }))
     }
-  }, [loadingPanelType])
+  }, [loadingPanelType, admissionFailure])
 
   return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
 }

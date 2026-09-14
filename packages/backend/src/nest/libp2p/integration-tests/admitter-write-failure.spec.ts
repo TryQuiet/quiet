@@ -144,7 +144,7 @@ describe('Libp2pAuth admission write failure', () => {
     // durable graph has no admission, so a fresh handshake produces one.
     const stored = await localDbA.getSigChain(teamId)
     expect(stored?.serializedTeam).toBeDefined()
-    const reloaded = SigChain.load(stored!.serializedTeam!, stored!.localUserContext, stored!.teamKeyRing!)
+    const reloaded = SigChain.load(stored!.serializedTeam!, stored!.localUserContext!, stored!.teamKeyRing!)
     const inviteeUserId = sigChainB.getActiveChain().user.userId
     expect(reloaded.team!.members().map(member => member.userId)).not.toContain(inviteeUserId)
 

@@ -577,7 +577,10 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       adminSigchainService.activeTeamId!,
       true
     )
-    const admission = InviteService.createMemberAdmission({ seed: inviteResult.seed, context: sigchain.context })
+    const admission = InviteService.createMemberAdmission({
+      seed: inviteResult.seed,
+      context: sigchain.localUserContext,
+    })
     // Admit the user onto the graph *without* granting the MEMBER role. `admitMemberFromInvite`
     // also calls `roles.addMember(..., MEMBER)`, which would put the MEMBER role keys in a lockbox
     // addressed to this peer -- exactly the keys channel metadata is encrypted to -- so the
@@ -588,8 +591,8 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const teamKeyring = adminSigchainService.activeChain.team!.teamKeyring()
     expect(teamKeyring).toBeDefined()
     const userContext = {
-      device: sigchain.context.device,
-      user: sigchain.context.user,
+      device: sigchain.device,
+      user: sigchain.user,
     }
     const loadedTeam = new Team({
       source: teamBytes,

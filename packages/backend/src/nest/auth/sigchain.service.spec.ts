@@ -11,6 +11,7 @@ import { SocketEvents } from '@quiet/types'
 import waitForExpect from 'wait-for-expect'
 import { SigchainEvents } from './types'
 import { AdmittingTeamReplacedError, PersistenceBacklogError } from './sigchain.service'
+import { InviteService } from './services/invites/invite.service'
 
 const logger = createLogger('auth:sigchainManager.spec')
 
@@ -103,6 +104,246 @@ describe('SigChainService', () => {
     expect(sigChainService.getChain(chain1.teamId!)).toBeDefined()
     expect(sigChainService.getChain(chain2.teamId!)).toBeDefined()
     expect(handleChainUpdateSpy).toBeCalledTimes(2)
+  })
+})
+
+describe('SigChainService - device admission completion', () => {
+  let module: TestingModule
+  let service: SigChainService
+  let db: LocalDbService
+
+  beforeEach(async () => {
+    module = await Test.createTestingModule({ imports: [TestModule, SigChainModule, LocalDbModule] }).compile()
+    service = await module.resolve(SigChainService)
+    db = await module.resolve(LocalDbService)
+    await db.open()
+  })
+
+  afterEach(async () => {
+    await db.close()
+    await module.close()
+  })
+
+  const candidates = async () => {
+    const owner = SigChain.create({ name: 'existing user' })
+    const invite = owner.invites.createDeviceInvite()
+    const pending = await service.createChainFromDeviceInvite(
+      {
+        seed: invite.seed,
+        userName: owner.user.userName,
+        expectedTeamId: owner.team!.id,
+        expectedUserId: owner.user.userId,
+      },
+      owner.team!.id,
+      true
+    )
+    const serialized = owner.save()
+    const keyring = owner.team!.teamKeyring()
+    const candidateA = SigChain.load(serialized, owner.localUserContext, keyring)
+    const candidateB = SigChain.load(serialized, owner.localUserContext, keyring)
+    for (const candidate of [candidateA, candidateB]) {
+      candidate.invites.admitDeviceFromInvite(
+        InviteService.createDeviceAdmission({ seed: invite.seed, device: pending.device })
+      )
+    }
+    return { owner, pending, candidateA, candidateB }
+  }
+
+  it('restores the same pending first-use device and expectations', async () => {
+    const { pending } = await candidates()
+    const teamId = pending.pendingDeviceAdmission!.teamId
+    const deviceId = pending.device.deviceId
+    const signatureSecret = pending.device.keys.signature.secretKey
+    await service.deleteChain(teamId, false)
+
+    const restored = await service.loadChain(teamId, true)
+    expect(restored.isPendingDeviceAdmission).toBe(true)
+    expect(restored.pendingDeviceAdmission).toEqual(pending.pendingDeviceAdmission)
+    expect(restored.device.deviceId).toBe(deviceId)
+    expect(restored.device.keys.signature.secretKey).toBe(signatureSecret)
+  })
+
+  it.each(['A', 'B'] as const)('collapses two accepted mutable teams when candidate %s arrives first', async winner => {
+    const { pending, candidateA, candidateB, owner } = await candidates()
+    const selectedCandidate = winner === 'A' ? candidateA : candidateB
+    const losingCandidate = winner === 'A' ? candidateB : candidateA
+    let releaseWrite!: () => void
+    const writeBlocked = new Promise<void>(resolve => (releaseWrite = resolve))
+    const original = db.setSigChain.bind(db)
+    const write = jest.spyOn(db, 'setSigChain').mockImplementation(async (...args) => {
+      await writeBlocked
+      await original(...args)
+    })
+    const admitted: string[] = []
+    service.on(SigchainEvents.DEVICE_ADMITTED, id => admitted.push(id))
+    let retiredA = 0
+    let retiredB = 0
+
+    const first = service.completeDeviceAdmission(
+      pending,
+      { team: selectedCandidate.team!, user: owner.user },
+      () => retiredA++
+    )
+    const second = service.completeDeviceAdmission(
+      pending,
+      { team: losingCandidate.team!, user: owner.user },
+      () => retiredB++
+    )
+
+    expect(first.selected).toBe(true)
+    expect(second.selected).toBe(false)
+    expect(second.completion).toBe(first.completion)
+    expect(retiredA).toBe(1)
+    expect(retiredB).toBe(1)
+    expect(service.activeChain).toBe(pending)
+    releaseWrite()
+    const completed = await first.completion
+    await second.completion
+    expect(write).toHaveBeenCalledTimes(1)
+    expect(completed.team).toBe(selectedCandidate.team)
+    expect(service.activeChain).toBe(completed)
+    expect(service.activeChain.team).not.toBe(losingCandidate.team)
+    expect(admitted).toEqual([owner.team!.id])
+  })
+
+  it('retains one failed write and never publishes either accepted candidate', async () => {
+    const { pending, candidateA, candidateB, owner } = await candidates()
+    jest.spyOn(db, 'setSigChain').mockRejectedValue(new Error('disk is on fire'))
+    const admitted: string[] = []
+    service.on(SigchainEvents.DEVICE_ADMITTED, id => admitted.push(id))
+    const first = service.completeDeviceAdmission(pending, { team: candidateA.team!, user: owner.user }, () => {})
+    const second = service.completeDeviceAdmission(pending, { team: candidateB.team!, user: owner.user }, () => {})
+    expect(second.completion).toBe(first.completion)
+    await expect(first.completion).rejects.toThrow('disk is on fire')
+    await expect(second.completion).rejects.toThrow('disk is on fire')
+    expect(service.activeChain).toBe(pending)
+    expect(admitted).toHaveLength(0)
+  })
+
+  it('cold-loads the completed snapshot with the original user and linked-device secrets', async () => {
+    const { pending, candidateA, owner } = await candidates()
+    const completed = await service.completeDeviceAdmission(
+      pending,
+      { team: candidateA.team!, user: owner.user },
+      () => {}
+    ).completion
+    const teamId = completed.team!.id
+    const userSecret = completed.user.keys.signature.secretKey
+    const deviceSecret = completed.device.keys.signature.secretKey
+    await service.deleteChain(teamId, false)
+
+    const restored = await service.loadChain(teamId, true)
+    expect(restored.isPendingDeviceAdmission).toBe(false)
+    expect(restored.user.userId).toBe(owner.user.userId)
+    expect(restored.user.keys.signature.secretKey).toBe(userSecret)
+    expect(restored.device.keys.signature.secretKey).toBe(deviceSecret)
+  })
+
+  it('publishes inside the write queue so a following ordinary save cannot restore pending state', async () => {
+    const { pending, candidateA, owner } = await candidates()
+    let releaseWrite!: () => void
+    const blocked = new Promise<void>(resolve => (releaseWrite = resolve))
+    const original = db.setSigChain.bind(db)
+    let calls = 0
+    jest.spyOn(db, 'setSigChain').mockImplementation(async (...args) => {
+      calls += 1
+      if (calls === 1) await blocked
+      await original(...args)
+    })
+    const teamId = pending.pendingDeviceAdmission!.teamId
+    const completion = service.completeDeviceAdmission(
+      pending,
+      { team: candidateA.team!, user: owner.user },
+      () => {}
+    ).completion
+    await waitForExpect(() => expect(calls).toBe(1))
+    const followingSave = service.saveChain(teamId)
+    releaseWrite()
+    const completed = await completion
+    await followingSave
+
+    const stored = await db.getSigChain(teamId)
+    expect(stored!.serializedTeam).toBeDefined()
+    expect(stored!.inviteeDeviceContext).toBeUndefined()
+    expect(stored!.localUserContext!.user.userId).toBe(owner.user.userId)
+    expect(service.activeChain).toBe(completed)
+  })
+
+  it('retains a failed completion when synchronous retirement fails', async () => {
+    const { pending, candidateA, owner } = await candidates()
+    const first = service.completeDeviceAdmission(pending, { team: candidateA.team!, user: owner.user }, () => {
+      throw new Error('stop failed')
+    })
+    const second = service.completeDeviceAdmission(pending, { team: candidateA.team!, user: owner.user }, () => {})
+    expect(second.completion).toBe(first.completion)
+    await expect(first.completion).rejects.toThrow('no longer current')
+    await expect(second.completion).rejects.toThrow('no longer current')
+    expect(service.activeChain).toBe(pending)
+  })
+
+  it('retires rejected candidates without publishing wrong team, user, or missing-device state', async () => {
+    const { pending, candidateA, owner } = await candidates()
+    const other = SigChain.create({ name: 'other user' })
+    const rejected = [
+      { team: other.team!, user: owner.user, message: 'team mismatch' },
+      { team: candidateA.team!, user: other.user, message: 'user mismatch' },
+      { team: owner.team!, user: owner.user, message: `Device ${pending.device.deviceId} not found` },
+    ]
+    const admitted: string[] = []
+    service.on(SigchainEvents.DEVICE_ADMITTED, id => admitted.push(id))
+    let retired = 0
+    for (const payload of rejected) {
+      expect(() => service.completeDeviceAdmission(pending, payload, () => retired++)).toThrow(payload.message)
+    }
+    expect(retired).toBe(rejected.length)
+    expect(admitted).toHaveLength(0)
+    expect(service.activeChain).toBe(pending)
+  })
+
+  it('fences a selected write when the pending chain is deleted', async () => {
+    const { pending, candidateA, owner } = await candidates()
+    const completion = service.completeDeviceAdmission(
+      pending,
+      { team: candidateA.team!, user: owner.user },
+      () => {}
+    ).completion
+    await service.deleteChain(pending.pendingDeviceAdmission!.teamId, false)
+    await expect(completion).rejects.toThrow('no longer current')
+    expect(service.getActiveChain(false)).toBeUndefined()
+  })
+
+  it('retires a stale callback after its pending chain has been removed', async () => {
+    const { pending, candidateA, owner } = await candidates()
+    await service.deleteChain(pending.pendingDeviceAdmission!.teamId, false)
+    let retired = 0
+    expect(() =>
+      service.completeDeviceAdmission(pending, { team: candidateA.team!, user: owner.user }, () => retired++)
+    ).toThrow('no longer current')
+    expect(retired).toBe(1)
+  })
+
+  it('drains an in-flight selected write and removes its record when leaving', async () => {
+    const { pending, candidateA, owner } = await candidates()
+    let releaseWrite!: () => void
+    const blocked = new Promise<void>(resolve => (releaseWrite = resolve))
+    const original = db.setSigChain.bind(db)
+    const write = jest.spyOn(db, 'setSigChain').mockImplementation(async (...args) => {
+      await blocked
+      await original(...args)
+    })
+    const teamId = pending.pendingDeviceAdmission!.teamId
+    const completion = service.completeDeviceAdmission(
+      pending,
+      { team: candidateA.team!, user: owner.user },
+      () => {}
+    ).completion
+    await waitForExpect(() => expect(write).toHaveBeenCalledTimes(1))
+
+    const leave = service.deleteChain(teamId, true)
+    releaseWrite()
+    await expect(completion).rejects.toThrow('no longer current')
+    await leave
+    await expect(service.loadChain(teamId, true)).rejects.toThrow('not found')
   })
 })
 

@@ -2,8 +2,7 @@
  * Abstraction layer for interacting with QSS
  */
 import { Mutex } from 'async-mutex'
-import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
-import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
+import { type Server } from '@localfirst/auth'
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
@@ -39,6 +38,7 @@ import {
   SocketActions,
   SocketEvents,
   type InvitationDataV5,
+  isDeviceInvitationData,
 } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
@@ -191,7 +191,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
         const initStatus = await this.getQssInitStatus()
         const inviteData = initStatus.community?.inviteData
-        if (inviteData?.version !== InvitationDataVersion.v5 || inviteData.authData.teamId !== teamId) {
+        if (
+          inviteData?.version !== InvitationDataVersion.v5 ||
+          isDeviceInvitationData(inviteData) ||
+          inviteData.authData.teamId !== teamId
+        ) {
           throw new Error(`Joined team ${teamId} without a usable invitation ${RoleName.MEMBER} grant`)
         }
         sigchain.roles.addSelf(RoleName.MEMBER, inviteData.authData.seed, inviteData.authData.salt)
@@ -202,7 +206,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       }
       this.logger.trace(
         `Does the user have the invitation-granted member role?`,
-        sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
+        sigchain.roles.memberHasRole(sigchain.user.userId, RoleName.MEMBER)
       )
 
       await this.sigChainService.saveChain(teamId)
@@ -662,7 +666,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     const qssCreateCommunityMessage: CreateCommunity = {
       ts: DateTime.utc().toMillis(),
       payload: {
-        userId: (sigChain.context as MemberContext).user.userId,
+        userId: sigChain.userId,
+        deviceId: sigChain.device.deviceId,
         community: {
           teamId: sigChain.team.id,
           sigChain: uint8arrays.toString(serializedSigChain, 'hex'),
@@ -782,7 +787,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       ts: DateTime.utc().toMillis(),
       status: CommunityOperationStatus.SUCCESS,
       payload: {
-        userId: (sigChain.context as MemberContext).user.userId,
+        userId: sigChain.userId,
+        deviceId: sigChain.device.deviceId,
         teamId,
       },
     }

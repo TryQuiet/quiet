@@ -1,5 +1,11 @@
 import { communities, connection, errors, identity } from '@quiet/state-manager'
-import { CommunityOwnership, InvitationData, JoinCommunityPayload } from '@quiet/types'
+import {
+  CommunityOwnership,
+  ErrorMessages,
+  InvitationData,
+  JoinCommunityPayload,
+  isDeviceInvitationData,
+} from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
@@ -21,10 +27,21 @@ const JoinCommunity = () => {
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
+  const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
+  const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
+
+  const joinCommunityErrorMessage =
+    joinCommunityError?.type === 'interrupted'
+      ? ErrorMessages.ADMISSION_INTERRUPTED
+      : joinCommunityError?.type === 'timeout'
+        ? joinCommunityError.invitationType === 'device'
+          ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+          : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+        : undefined
 
   useEffect(() => {
     if (isConnected && !currentCommunity && !invitationCodes && !joinCommunityModal.open) {
@@ -41,9 +58,17 @@ const JoinCommunity = () => {
   }, [isConnected, currentCommunity, joinCommunityModal.open])
 
   const handleCommunityAction = (data: InvitationData) => {
+    if (isDeviceInvitationData(data)) {
+      dispatch(communities.actions.clearJoinCommunityError())
+      loadingPanelModal.handleOpen()
+      dispatch(communities.actions.linkDevice({ inviteData: data }))
+      joinCommunityModal.handleClose()
+      return
+    }
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
     }
+    dispatch(communities.actions.clearJoinCommunityError())
     dispatch(communities.actions.joinCommunity(joinCommunityPayload))
     createUsernameModal.handleOpen()
     joinCommunityModal.handleClose()
@@ -74,6 +99,8 @@ const JoinCommunity = () => {
       hasReceivedResponse={invitationCodes === null}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
+      fieldError={joinCommunityErrorMessage}
+      onFieldChange={() => dispatch(communities.actions.clearJoinCommunityError())}
     />
   )
 }

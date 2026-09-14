@@ -1,5 +1,11 @@
 import { communities, getReduxStoreFactory, Store } from '@quiet/state-manager'
-import { Community, JoinCommunityPayload, type InvitationDataV4 } from '@quiet/types'
+import {
+  Community,
+  InvitationKind,
+  JoinCommunityPayload,
+  type DeviceInvitationDataV4,
+  type InvitationDataV4,
+} from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
@@ -50,6 +56,27 @@ describe('Handle invitation code', () => {
         })
       )
       .put(communities.actions.joinCommunity(joinCommunityPayload))
+      .run()
+  })
+
+  it('routes a device deep link to linking and loading without member registration', async () => {
+    const deviceInvitationData: DeviceInvitationDataV4 = {
+      ...validInvitationData,
+      kind: InvitationKind.Device,
+      authData: {
+        ...validInvitationData.authData,
+        userId: 'device-owner-id',
+        userName: 'Device owner',
+      },
+    }
+    const deviceInvitationDeepUrl = getValidInvitationUrlTestData(deviceInvitationData).deepUrl()
+
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([deviceInvitationDeepUrl]))
+      .withState(store.getState())
+      .put(modalsActions.openModal({ name: ModalName.loadingPanel }))
+      .put(communities.actions.linkDevice({ inviteData: deviceInvitationData }))
+      .not.put(communities.actions.joinCommunity({ inviteData: deviceInvitationData }))
+      .not.put(modalsActions.openModal({ name: ModalName.createUsernameModal }))
       .run()
   })
 

@@ -38,11 +38,15 @@ import {
   type ResponseLaunchCommunityPayload,
   type ResponseCreateCommunityPayload,
   type ResponseJoinCommunityPayload,
+  type ResponseLinkDevicePayload,
   type ResponseLeaveCommunityPayload,
+  type InitDeviceLinkPayload,
   LaunchCommunityPayload,
   RequestInvitePayload,
+  RequestDeviceLinkPayload,
   ResponseInvitePayload,
   InviteResultWithSalt,
+  DeviceLinkInvite,
   JoinCommunityPayload,
   UpdateCommunityPayload,
 } from './community'
@@ -71,7 +75,9 @@ export enum SocketActions {
 
   CREATE_COMMUNITY = 'createCommunity',
   JOIN_COMMUNITY = 'joinCommunity',
+  LINK_DEVICE = 'linkDevice',
   LAUNCH_COMMUNITY = 'launchCommunity',
+  RESET_ADMISSION = 'resetAdmission',
   LEAVE_COMMUNITY = 'leaveCommunity',
 
   // ====== Channels ======
@@ -100,6 +106,7 @@ export enum SocketActions {
   // ====== Local First Auth ======
 
   VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE = 'validateOrCreateLongLivedLfaInvite',
+  CREATE_DEVICE_LINK = 'createDeviceLink',
 
   // ====== Captcha ======
   HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
@@ -192,11 +199,13 @@ export interface SocketActionsMap {
 
   // ====== Communities ======
   [SocketActions.JOIN_COMMUNITY]: EmitEvent<InitCommunityPayload, (response?: ResponseJoinCommunityPayload) => void>
+  [SocketActions.LINK_DEVICE]: EmitEvent<InitDeviceLinkPayload, (response?: ResponseLinkDevicePayload) => void>
   [SocketActions.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response?: ResponseCreateCommunityPayload) => void>
   [SocketActions.LAUNCH_COMMUNITY]: EmitEvent<
     LaunchCommunityPayload,
     (response?: ResponseLaunchCommunityPayload) => void
   >
+  [SocketActions.RESET_ADMISSION]: EmitEvent<LaunchCommunityPayload, (success: boolean) => void>
   [SocketActions.LEAVE_COMMUNITY]: EmitEvent<LeaveCommunityPayload, (response?: ResponseLeaveCommunityPayload) => void>
 
   // ====== Channels ======
@@ -225,6 +234,7 @@ export interface SocketActionsMap {
     RequestInvitePayload,
     (response?: ResponseInvitePayload) => void
   >
+  [SocketActions.CREATE_DEVICE_LINK]: EmitEvent<RequestDeviceLinkPayload, (response?: DeviceLinkInvite) => void>
 
   // ====== Captcha ======
   [SocketActions.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>

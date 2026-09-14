@@ -8,14 +8,15 @@ import {
   Topology,
 } from '@libp2p/interface'
 import type { ConnectionManager, IncomingStreamData, Registrar } from '@libp2p/interface-internal'
-import * as Auth from '../../../../../3rd-party/auth/packages/auth/dist'
+import * as Auth from '@localfirst/auth'
+import type { ConnectionParams, Member } from '@localfirst/auth'
 import { pipe } from 'it-pipe'
 import { encode, decode } from 'it-length-prefixed'
 
 import { SigChainService } from '../auth/sigchain.service'
+import type { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
-import { ConnectionParams } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
-import { Libp2pService } from './libp2p.service'
+import { Libp2pService, Libp2pState } from './libp2p.service'
 import { Libp2pEvents } from './libp2p.types'
 import { abortableAsyncIterable } from '../common/utils'
 import { QuietLogger } from '@quiet/logger'
@@ -23,7 +24,6 @@ import { createWinstonQuietLogger } from '@quiet/node-common'
 import { RoleName } from '../auth/services/roles/roles'
 import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
-import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
 import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
 import { BoundedRetry } from '../common/boundedRetry'
@@ -49,7 +49,7 @@ type PendingJoin = {
   connection: Connection
   joiningNow: boolean
   stagedContext: boolean
-  previousContext: Auth.MemberContext | Auth.InviteeMemberContext
+  previousContext: Auth.MemberContext | Auth.InviteeContext
   previousJoinStatus: JoinStatus
 }
 
@@ -381,7 +381,8 @@ export class Libp2pAuth {
       return
     }
 
-    const context = this.sigChainService.getActiveChain().context
+    const admissionChain = this.sigChainService.getActiveChain()
+    const context = admissionChain.context
 
     if (this.authConnections.has(peerId.toString())) {
       const oldAuthConnection = this.authConnections.get(peerId.toString())!
@@ -447,6 +448,12 @@ export class Libp2pAuth {
     // us has already handed over keys (QSS-006). The write used to be
     // fire-and-forget, so a crash in the gap left us with no team at all.
     authConnection.on(LFAEvents.JOINED, payload => {
+      if (admissionChain.isPendingDeviceAdmission) {
+        void this.handleDeviceJoined(admissionChain, authConnection, payload, peerId, connection).catch(err => {
+          this.logger.error(`Failed to handle device admission from ${peerId.toString()}`, err)
+        })
+        return
+      }
       void this.handleLfaJoined(payload, peerId, connection).catch(err => {
         this.logger.error(`Failed to handle LFA joined event from ${peerId.toString()}`, err)
       })
@@ -477,6 +484,40 @@ export class Libp2pAuth {
 
     this.logger.info(`Auth connection established with ${peerId.toString()}`)
     authConnection.start()
+  }
+
+  private async handleDeviceJoined(
+    pendingChain: SigChain,
+    authConnection: Auth.Connection,
+    payload: { team: Auth.Team; user: Auth.UserWithSecrets },
+    peerId: PeerId,
+    connection: Connection
+  ): Promise<void> {
+    const remoteAddr = connection.remoteAddr.toString()
+    let closePromise: Promise<void> = Promise.resolve()
+    let ownedInvitationConnection = false
+    const result = this.sigChainService.completeDeviceAdmission(pendingChain, payload, () => {
+      const key = peerId.toString()
+      if (this.authConnections.get(key) === authConnection) {
+        ownedInvitationConnection = true
+        this.authConnections.delete(key)
+        this.peerConnections.delete(key)
+      }
+      authConnection.stop(false)
+      closePromise = connection.close().catch(error => {
+        this.logger.warn(`Failed to close invitation connection to ${key}`, error)
+      })
+    })
+    const completed = await result.completion
+    if (!ownedInvitationConnection) return
+    if (this.sigChainService.getActiveChain(false) !== completed) return
+    this.joinStatus = JoinStatus.JOINED
+    if (![Libp2pState.Started, Libp2pState.Starting].includes(this.libp2pService.state)) return
+    this.unblockConnections(this.bufferedConnections)
+    await closePromise
+    if (this.sigChainService.getActiveChain(false) !== completed) return
+    if (![Libp2pState.Started, Libp2pState.Starting].includes(this.libp2pService.state)) return
+    await this.libp2pService.redialPeerAfterDelay(remoteAddr, 250)
   }
 
   /**

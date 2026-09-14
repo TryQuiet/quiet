@@ -2,7 +2,7 @@
  * Handles generating the chain and aggregating all chain operations
  */
 
-import * as auth from '../../../../../3rd-party/auth/packages/auth/dist'
+import * as auth from '@localfirst/auth'
 import { UserService } from './services/members/user.service'
 import { RoleService } from './services/roles/role.service'
 import { DeviceService } from './services/members/device.service'
@@ -14,15 +14,20 @@ import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/channel.service'
-import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
+import { LFAEvents, PendingDeviceAdmission, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
 import { randomKey } from '@localfirst/crypto'
-import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
+import type {
+  CreateDeviceFromInviteSeedInput,
+  CreateUserFromInviteSeedInput,
+  CreateUserInput,
+} from './services/members/types'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
 
 class SigChain extends EventEmitter {
-  private _context: auth.MemberContext | auth.InviteeMemberContext
+  private _context: auth.MemberContext | auth.InviteeContext
+  private readonly _pendingDeviceAdmission: PendingDeviceAdmission | undefined
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
   private _roles: RoleService | null = null
@@ -32,8 +37,9 @@ class SigChain extends EventEmitter {
   private _server: ServerService | null = null
   private _lockbox: LockboxService | null = null
 
-  private constructor(context: auth.MemberContext | auth.InviteeMemberContext) {
+  private constructor(context: auth.MemberContext | auth.InviteeContext, pending?: PendingDeviceAdmission) {
     super()
+    this._pendingDeviceAdmission = pending
     this.context = context
     this.initServices()
   }
@@ -45,11 +51,11 @@ class SigChain extends EventEmitter {
     return null
   }
 
-  get context(): auth.MemberContext | auth.InviteeMemberContext {
+  get context(): auth.MemberContext | auth.InviteeContext {
     return this._context
   }
 
-  set context(context: auth.MemberContext | auth.InviteeMemberContext) {
+  set context(context: auth.MemberContext | auth.InviteeContext) {
     logger.warn('Setting context', Object.keys(context))
 
     const oldContext = this._context
@@ -77,20 +83,34 @@ class SigChain extends EventEmitter {
   }
 
   get user(): auth.UserWithSecrets {
+    if (!('user' in this.context)) throw new Error('User is unavailable until the invited device is admitted')
     return this.context.user
   }
 
+  get userId(): string {
+    return 'user' in this.context ? this.context.user.userId : this._pendingDeviceAdmission!.userId
+  }
+
   get username(): string {
-    return this.user!.userName
+    return 'user' in this._context ? this._context.user.userName : this._context.userName
   }
 
   /** The user and device halves of the context, as storage wants them. */
   get localUserContext(): auth.LocalUserContext {
+    if (!('user' in this.context)) throw new Error('A pending device invitation has no local user secrets')
     return { user: this.user, device: this.device }
   }
 
-  get device(): auth.DeviceWithSecrets {
-    return this.context.device
+  get device(): auth.DeviceWithSecrets | auth.FirstUseDeviceWithSecrets {
+    return this._context.device
+  }
+
+  get pendingDeviceAdmission(): PendingDeviceAdmission | undefined {
+    return this._pendingDeviceAdmission && { ...this._pendingDeviceAdmission }
+  }
+
+  get isPendingDeviceAdmission(): boolean {
+    return this._pendingDeviceAdmission != null && !('team' in this.context)
   }
 
   private handleTeamUpdate = async (payload: { head: auth.Hash[] }) => {
@@ -178,6 +198,38 @@ class SigChain extends EventEmitter {
       expectedTeamId,
     } as auth.InviteeMemberContext
     return new SigChain(context)
+  }
+
+  public static createFromDeviceInvite(input: CreateDeviceFromInviteSeedInput): SigChain {
+    const context: auth.InviteeDeviceContext = {
+      device: DeviceService.generateFirstUseDevice(input.deviceName),
+      invitationSeed: input.seed,
+      expectedTeamId: input.expectedTeamId as auth.Base58,
+      userName: input.userName,
+    }
+    return new SigChain(context, { teamId: input.expectedTeamId, userId: input.expectedUserId })
+  }
+
+  public static restoreDeviceInvite(context: auth.InviteeDeviceContext, pending: PendingDeviceAdmission): SigChain {
+    return new SigChain(context, pending)
+  }
+
+  public completeDeviceInvitation(team: auth.Team, user: auth.UserWithSecrets): SigChain {
+    const expected = this._pendingDeviceAdmission
+    if (!this.isPendingDeviceAdmission || expected == null || 'user' in this._context) {
+      throw new Error('SigChain is not awaiting a device admission')
+    }
+    if (team.id !== expected.teamId) throw new Error(`Device admission team mismatch: ${team.id}`)
+    if (user.userId !== expected.userId) throw new Error(`Device admission user mismatch: ${user.userId}`)
+    const device = team.device(this._context.device.deviceId)
+    if (device.userId !== expected.userId) throw new Error(`Device admission owner mismatch: ${device.userId}`)
+    if (!team.memberHasRole(expected.userId, RoleName.MEMBER)) {
+      throw new Error(`Linked user ${expected.userId} is not a member`)
+    }
+    return SigChain.createFromTeam(team, {
+      user,
+      device: { ...this._context.device, userId: expected.userId },
+    })
   }
 
   private initServices() {

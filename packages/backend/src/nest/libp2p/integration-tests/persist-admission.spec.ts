@@ -167,7 +167,7 @@ describe('Libp2pAuth durable admission', () => {
     expect(stored!.serializedTeam).toBeDefined()
     expect(stored!.teamKeyRing).toBeDefined()
 
-    const reloaded = SigChain.load(stored!.serializedTeam!, stored!.localUserContext, stored!.teamKeyRing!)
+    const reloaded = SigChain.load(stored!.serializedTeam!, stored!.localUserContext!, stored!.teamKeyRing!)
     expect(reloaded.team!.members().map(member => member.userId)).toContain(inviteeUserId)
   })
 })

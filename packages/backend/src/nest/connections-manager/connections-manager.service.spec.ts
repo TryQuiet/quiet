@@ -563,7 +563,10 @@ describe('ConnectionsManagerService', () => {
     const authErrorListeners = qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)
     const libp2pJoinedListeners = connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_JOINED)
 
-    await expect(connectionsManagerService.launch(community)).rejects.toThrow(authError)
+    await expect(connectionsManagerService.launch(community)).rejects.toMatchObject({
+      kind: 'cancelled',
+      cause: authError,
+    })
 
     expect(qssService.listenerCount(QSSEvents.QSS_FULLY_JOINED)).toBe(fullyJoinedListeners)
     expect(qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)).toBe(authErrorListeners)
@@ -606,7 +609,7 @@ describe('ConnectionsManagerService', () => {
     qssService.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error: authError })
     resolveStorageInit()
 
-    await expect(launchPromise).rejects.toThrow(authError)
+    await expect(launchPromise).rejects.toMatchObject({ kind: 'cancelled', cause: authError })
   })
 
   it('ignores another team auth error without consuming the matching-team listener', async () => {
@@ -636,7 +639,10 @@ describe('ConnectionsManagerService', () => {
     } as any)
     const storageInitSpy = jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
 
-    await expect(connectionsManagerService.launch(community)).rejects.toBe(matchingError)
+    await expect(connectionsManagerService.launch(community)).rejects.toMatchObject({
+      kind: 'cancelled',
+      cause: matchingError,
+    })
     expect(storageInitSpy).not.toHaveBeenCalled()
   })
 
@@ -974,7 +980,7 @@ describe('ConnectionsManagerService', () => {
         expect.objectContaining({
           users: expect.arrayContaining([
             expect.objectContaining({
-              userId: chain.context.user.userId,
+              userId: chain.user.userId,
               channelIds: [],
               isDuplicated: false,
               isRegistered: true,
@@ -1043,7 +1049,7 @@ describe('ConnectionsManagerService', () => {
         expect.objectContaining({
           users: expect.arrayContaining([
             expect.objectContaining({
-              userId: chain.context.user.userId,
+              userId: chain.user.userId,
               channelIds: [privateChannel.id],
               isDuplicated: false,
               isRegistered: true,
@@ -1122,7 +1128,7 @@ describe('ConnectionsManagerService', () => {
           expect.objectContaining({
             users: expect.arrayContaining([
               expect.objectContaining({
-                userId: chain.context.user.userId,
+                userId: chain.user.userId,
                 channelIds: [privateChannel.id],
                 isDuplicated: false,
                 isRegistered: true,

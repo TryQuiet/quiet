@@ -16,8 +16,9 @@ import CreateUsername from '../../CreateUsername/CreateUsername'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { CommunityOwnership } from '@quiet/types'
+import { CommunityOwnership, InvitationKind, type DeviceInvitationDataV4 } from '@quiet/types'
 import {
+  composeInvitationShareUrl,
   Site,
   QUIET_JOIN_PAGE,
   getValidInvitationUrlTestData,
@@ -25,6 +26,8 @@ import {
   validInvitationDatav4,
 } from '@quiet/common'
 import { createLogger } from '../../../logger'
+import { communities } from '@quiet/state-manager'
+import type { StoreState as DesktopStoreState } from '../../../sagas/store.types'
 
 const logger = createLogger('JoinCommunity.test')
 
@@ -32,6 +35,15 @@ describe('join community', () => {
   const { code, data } = getValidInvitationUrlTestData(validInvitationDatav4[0])
 
   const validCode = code()
+  const deviceInvitationData: DeviceInvitationDataV4 = {
+    ...data,
+    kind: InvitationKind.Device,
+    authData: {
+      ...data.authData,
+      userId: 'device-owner-id',
+      userName: 'Device owner',
+    },
+  }
 
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({
@@ -109,6 +121,37 @@ describe('join community', () => {
     // Re-query after closing modal as the DOM node is re-created
     const joinCommunityTitleAgain = await screen.findByText(dictionary.header)
     expect(joinCommunityTitleAgain).toBeVisible()
+  })
+
+  it('links a device invite, shows loading, and skips member registration', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true,
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.joinCommunityModal]: { open: true },
+        [ModalName.loadingPanel]: { open: false },
+      },
+    })
+    jest.spyOn(store, 'dispatch')
+
+    renderComponent(<JoinCommunity />, store)
+
+    await userEvent.type(screen.getByPlaceholderText('Invite link'), composeInvitationShareUrl(deviceInvitationData))
+    await userEvent.click(screen.getByText('Continue'))
+
+    await waitFor(() => {
+      expect(store.dispatch).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData }))
+    })
+    expect(store.dispatch).not.toHaveBeenCalledWith(
+      communities.actions.joinCommunity({ inviteData: deviceInvitationData })
+    )
+    const modalState = (store.getState() as unknown as DesktopStoreState)[StoreKeys.Modals]
+    expect(modalState[ModalName.loadingPanel].open).toBe(true)
+    expect(modalState[ModalName.createUsernameModal].open).toBe(false)
+    expect(modalState[ModalName.joinCommunityModal].open).toBe(false)
   })
 
   it('joins community on submit if connection is ready and registrar url is correct', async () => {

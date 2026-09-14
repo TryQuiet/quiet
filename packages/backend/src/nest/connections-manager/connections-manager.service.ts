@@ -8,7 +8,13 @@ import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
-import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
+import {
+  createLibp2pAddress,
+  createLocalAddress,
+  isLocalTransportEnabled,
+  isPSKcodeValid,
+  parseLocalAddress,
+} from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -60,6 +66,12 @@ import {
   type SetChannelPermissionsPayload,
   type MobileChannelMetadata,
   type MobileChannelMetadataUpdatedPayload,
+  type DeviceInvitationData,
+  isDeviceInvitationData,
+  type InitDeviceLinkPayload,
+  type ResponseLinkDevicePayload,
+  type RequestDeviceLinkPayload,
+  type DeviceLinkInvite,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -72,7 +84,14 @@ import { StorageService } from '../storage/storage.service'
 import { StorageEvents } from '../storage/storage.types'
 import { Tor } from '../tor/tor.service'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
-import { ServiceState, TorInitState } from './connections-manager.types'
+import {
+  AdmissionError,
+  type AdmissionInProgressMarker,
+  type InvitationAdmissionType,
+  type PendingAdmissionAttempt,
+  ServiceState,
+  TorInitState,
+} from './connections-manager.types'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
 import { peerIdFromString } from '@libp2p/peer-id'
@@ -88,6 +107,15 @@ import { SigChain } from '../auth/sigchain'
 import { Member } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
 
+const DEFAULT_INVITATION_ADMISSION_TIMEOUT_MS = 300_000
+const configuredE2eAdmissionTimeout = Number(process.env.INVITATION_ADMISSION_TIMEOUT_MS)
+// Keep production admission timing fixed, while allowing the desktop E2E suite
+// to exercise the complete timeout recovery flow without a five-minute wait.
+const INVITATION_ADMISSION_TIMEOUT_MS =
+  process.env.IS_E2E === 'true' && Number.isFinite(configuredE2eAdmissionTimeout) && configuredE2eAdmissionTimeout > 0
+    ? configuredE2eAdmissionTimeout
+    : DEFAULT_INVITATION_ADMISSION_TIMEOUT_MS
+
 /**
  * A monolith service that handles lots of events received from the state-manager.
  */
@@ -98,6 +126,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private hibernating = false
   private hibernateInFlight: Promise<void> | null = null
   private wakeInFlight: Promise<void> | null = null
+  /** The manager-owned lifecycle for invitation admission. */
+  private pendingAdmissionAttempt?: PendingAdmissionAttempt
+  private admissionGeneration = 0
+  private timedOutAdmissionCommunityId?: string
+  private interruptedAdmissionCommunityId?: string
+  private clearedAdmissionCommunityId?: string
+  private admissionResetInFlight?: Promise<boolean>
+  private restoredAdmissionMarker?: AdmissionInProgressMarker
   private storedCommunityInitialization: Promise<void> | undefined
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
@@ -260,6 +296,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
+    this.restoredAdmissionMarker = this.readAdmissionInProgressMarker()
+    if (this.restoredAdmissionMarker) {
+      this.interruptedAdmissionCommunityId = this.restoredAdmissionMarker.communityId
+      this.logger.info(`Interrupted ${this.restoredAdmissionMarker.invitationType} admission detected at startup`)
+    }
+
     const community: Community | undefined = await this.localDbService.getCurrentCommunity()
     if (!community) {
       // Absent marker + no community = fresh install or a pending LevelDB migration where
@@ -275,6 +317,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.sigChainService.loadChain(community.teamId, true)
       } catch (e) {
         this.logger.error('Failed to load sigchain', e)
+        if (this.restoredAdmissionMarker?.communityId === community.id) {
+          this.communityState = ServiceState.DEFAULT
+          emitError(this.serverIoProvider.io, {
+            type: SocketActions.LAUNCH_COMMUNITY,
+            message: ErrorMessages.ADMISSION_INTERRUPTED,
+            community: community.id,
+            trace: (e as Error).stack,
+          })
+          return
+        }
         await this.localDbService.deleteCommunity(community.id)
         await this.sigChainService.deleteChain(community.teamId, true)
         return
@@ -523,10 +575,119 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return true
   }
 
+  /**
+   * Clear a failed pending device admission. The community id is part of the
+   * contract so a stale recovery action cannot erase a newer community.
+   * Cleanup is shared by concurrent requests and the completed id makes a lost
+   * socket acknowledgement safe to retry.
+   */
+  public async resetAdmission(communityId: string): Promise<boolean> {
+    if (
+      communityId &&
+      communityId === this.clearedAdmissionCommunityId &&
+      this.communityState === ServiceState.DEFAULT
+    ) {
+      return true
+    }
+
+    const isFailedAttempt =
+      !!communityId &&
+      (communityId === this.timedOutAdmissionCommunityId || communityId === this.interruptedAdmissionCommunityId)
+    if (!isFailedAttempt || this.communityState !== ServiceState.DEFAULT) return false
+    if (this.admissionResetInFlight) return this.admissionResetInFlight
+
+    const attempt = this.pendingAdmissionAttempt
+    const reset = (async () => {
+      // Invalidate before any transport or storage cleanup. Every callback from
+      // the old attempt will then fail its generation check.
+      if (attempt && attempt.communityId === communityId) {
+        this.invalidatePendingAdmission(
+          attempt,
+          new AdmissionError('cancelled', `Admission for ${communityId} was interrupted`)
+        )
+        if (attempt.closePromise) {
+          try {
+            await attempt.closePromise
+          } catch (error) {
+            this.logger.warn('Retrying admission transport shutdown after an earlier failure', error)
+            attempt.closePromise = this.closeAdmissionTransports()
+            await attempt.closePromise
+          }
+        } else {
+          attempt.closePromise = this.closeAdmissionTransports()
+          await attempt.closePromise
+        }
+      } else {
+        ++this.admissionGeneration
+        await this.closeAdmissionTransports()
+      }
+
+      // Invalidation stops new work; these promises cover effects already in flight.
+      // They can reject with the admission failure and still must finish before erasure.
+      await Promise.allSettled([attempt?.startup, attempt?.finalization])
+      await this.erasePreviousCommunityArtifacts()
+      this.captchaService.reset()
+      await this.qssService.resume()
+      this.clearAdmissionInProgressMarker()
+      if (attempt) this.finishPendingAdmissionAttempt(attempt)
+      this.timedOutAdmissionCommunityId = undefined
+      this.interruptedAdmissionCommunityId = undefined
+      this.clearedAdmissionCommunityId = communityId
+      return true
+    })()
+    this.admissionResetInFlight = reset
+    try {
+      return await reset
+    } finally {
+      this.admissionResetInFlight = undefined
+    }
+  }
+
   private static readonly LEAVE_IN_PROGRESS_MARKER = '.leave-in-progress'
+  private static readonly ADMISSION_IN_PROGRESS_MARKER = '.admission-in-progress'
 
   private leaveInProgressMarkerPath(): string {
     return path.join(this.storageService.quietDir, ConnectionsManagerService.LEAVE_IN_PROGRESS_MARKER)
+  }
+
+  private admissionInProgressMarkerPath(): string {
+    return path.join(this.storageService.quietDir, ConnectionsManagerService.ADMISSION_IN_PROGRESS_MARKER)
+  }
+
+  private writeAdmissionInProgressMarker(marker: AdmissionInProgressMarker): void {
+    fs.mkdirSync(this.storageService.quietDir, { recursive: true })
+    fs.writeFileSync(this.admissionInProgressMarkerPath(), JSON.stringify(marker))
+  }
+
+  private readAdmissionInProgressMarker(): AdmissionInProgressMarker | undefined {
+    try {
+      const parsed = JSON.parse(
+        fs.readFileSync(this.admissionInProgressMarkerPath(), 'utf8')
+      ) as Partial<AdmissionInProgressMarker>
+      if (
+        typeof parsed.communityId === 'string' &&
+        (parsed.invitationType === 'community' || parsed.invitationType === 'device')
+      ) {
+        return parsed as AdmissionInProgressMarker
+      }
+      this.logger.warn('Ignoring invalid admission-in-progress marker')
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        this.logger.warn('Failed to read admission-in-progress marker', error)
+      }
+    }
+    return undefined
+  }
+
+  private clearAdmissionInProgressMarker(): void {
+    try {
+      fs.unlinkSync(this.admissionInProgressMarkerPath())
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        this.logger.warn('Failed to clear admission-in-progress marker', error)
+      }
+    }
+    this.restoredAdmissionMarker = undefined
   }
 
   private writeLeaveInProgressMarker(): void {
@@ -607,9 +768,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async getNetworkInfo(): Promise<NetworkInfo> {
     this.logger.info('Getting network information')
 
-    this.logger.info('Creating hidden service')
-    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
-    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    const hiddenService = isLocalTransportEnabled()
+      ? {
+          onionAddress: createLocalAddress(this.ports.libp2pHiddenService),
+          privateKey: '',
+        }
+      : await this.createEphemeralHiddenService()
     this.logger.info('Getting peer ID')
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
@@ -624,7 +788,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
+  private async createEphemeralHiddenService(): Promise<NetworkInfo['hiddenService']> {
+    this.logger.info('Creating hidden service')
+    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
+    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    return hiddenService
+  }
+
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
+    if (this.admissionResetInFlight) await this.admissionResetInFlight
     this.logger.info('Creating community', payload.id)
     await this.erasePreviousCommunityArtifacts()
 
@@ -681,6 +853,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
+    if (this.admissionResetInFlight) await this.admissionResetInFlight
     this.logger.info('Joining community', payload.id)
     const inviteData = payload.inviteData
     if (!inviteData) {
@@ -765,6 +938,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       },
     }
     await this.storageService.deferUserProfile(userProfile)
+    this.ensurePendingAdmissionAttempt(community.id, 'community')
 
     return {
       id: community.id,
@@ -774,7 +948,189 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseJoinCommunityPayload
   }
 
+  public async linkDevice(payload: InitDeviceLinkPayload): Promise<ResponseLinkDevicePayload | undefined> {
+    if (this.admissionResetInFlight) await this.admissionResetInFlight
+    this.logger.info('Linking device to community', payload.id)
+    const { inviteData } = payload
+    if (!isDeviceInvitationData(inviteData)) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.LINK_DEVICE,
+        message: ErrorMessages.INVITE_DATA_REQUIRED,
+        community: payload.id,
+      })
+      return
+    }
+    if (!isPSKcodeValid(inviteData.psk)) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.LINK_DEVICE,
+        message: ErrorMessages.NETWORK_SETUP_FAILED,
+        community: payload.id,
+      })
+      return
+    }
+    const communities = (await this.localDbService.getCommunities()) ?? {}
+    if (Object.keys(communities).length > 0) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.LINK_DEVICE,
+        message: ErrorMessages.COMMUNITY_ALREADY_INITIALIZED,
+        community: payload.id,
+      })
+      return
+    }
+
+    await this.erasePreviousCommunityArtifacts()
+    const { seed, teamId, userId, userName } = inviteData.authData
+    await this.sigChainService.createChainFromDeviceInvite(
+      { seed, userName, deviceName: payload.deviceName, expectedTeamId: teamId, expectedUserId: userId },
+      teamId,
+      true
+    )
+
+    const { community, identity } = await this.bootstrapCommunityFromInvitation(payload.id, inviteData, userId)
+    this.ensurePendingAdmissionAttempt(community.id, 'device')
+    return { id: community.id, community, identity }
+  }
+
+  private ensurePendingAdmissionAttempt(
+    communityId: string,
+    invitationType: InvitationAdmissionType
+  ): PendingAdmissionAttempt {
+    const existing = this.pendingAdmissionAttempt
+    if (existing?.communityId === communityId && existing.invitationType === invitationType) return existing
+
+    if (existing) clearTimeout(existing.timer)
+    this.writeAdmissionInProgressMarker({ communityId, invitationType })
+    const generation = ++this.admissionGeneration
+    const attempt: PendingAdmissionAttempt = {
+      communityId,
+      invitationType,
+      deadline: Date.now() + INVITATION_ADMISSION_TIMEOUT_MS,
+      generation,
+      timer: setTimeout(() => {
+        void this.timeoutPendingAdmission(attempt).catch(error => {
+          this.logger.error(`Failed to close transports after admission timeout`, error)
+          const timeoutError = new AdmissionError('timeout', `Admission for ${communityId} timed out`, error)
+          attempt.pendingError = timeoutError
+          attempt.readyToReject = true
+          if (attempt.reject) {
+            attempt.reject(timeoutError)
+          } else {
+            this.emitAdmissionTimeout(attempt)
+          }
+        })
+      }, INVITATION_ADMISSION_TIMEOUT_MS),
+      invalidated: false,
+    }
+    this.pendingAdmissionAttempt = attempt
+    this.logger.info(`Started pending ${invitationType} admission for ${communityId}; deadline ${attempt.deadline}`)
+    return attempt
+  }
+
+  private isPendingAdmissionCurrent(attempt: PendingAdmissionAttempt): boolean {
+    return (
+      this.pendingAdmissionAttempt === attempt &&
+      !attempt.invalidated &&
+      this.admissionGeneration === attempt.generation
+    )
+  }
+
+  private invalidatePendingAdmission(attempt: PendingAdmissionAttempt, error?: Error): void {
+    if (attempt.invalidated) return
+    attempt.invalidated = true
+    clearTimeout(attempt.timer)
+    ++this.admissionGeneration
+    attempt.cleanup?.()
+    if (error) attempt.reject?.(error)
+  }
+
+  private async timeoutPendingAdmission(attempt: PendingAdmissionAttempt): Promise<void> {
+    if (!this.isPendingAdmissionCurrent(attempt)) return
+    this.timedOutAdmissionCommunityId = attempt.communityId
+    this.communityState = ServiceState.DEFAULT
+    this.logger.warn(`Pending ${attempt.invitationType} admission timed out for ${attempt.communityId}`)
+    const error = new AdmissionError('timeout', `Admission for ${attempt.communityId} timed out`)
+    attempt.pendingError = error
+    // Invalidate synchronously, then drain transports before rejecting launch. This
+    // serializes timeout recovery with an explicit RESET_ADMISSION request.
+    this.invalidatePendingAdmission(attempt)
+    // Closing these transports prevents a late JOINED event from creating a team
+    // while launchCommunity is unwinding and leaves the local socket available for
+    // the recovery acknowledgement.
+    attempt.closePromise = this.closeAdmissionTransports()
+    await attempt.closePromise
+    attempt.readyToReject = true
+    if (attempt.reject) {
+      attempt.reject(error)
+    } else {
+      this.emitAdmissionTimeout(attempt)
+    }
+  }
+
+  private emitAdmissionTimeout(attempt: PendingAdmissionAttempt): void {
+    if (attempt.errorEmitted) return
+    attempt.errorEmitted = true
+    emitError(this.serverIoProvider.io, {
+      type: SocketActions.LAUNCH_COMMUNITY,
+      message: ErrorMessages.ADMISSION_TIMEOUT,
+      community: attempt.communityId,
+    })
+  }
+
+  private async closeAdmissionTransports(): Promise<void> {
+    this.qssService?.close()
+    await this.libp2pService?.close(false)
+  }
+
+  private finishPendingAdmissionAttempt(attempt: PendingAdmissionAttempt): void {
+    if (this.pendingAdmissionAttempt !== attempt) return
+    clearTimeout(attempt.timer)
+    this.pendingAdmissionAttempt = undefined
+  }
+
+  private async bootstrapCommunityFromInvitation(
+    id: string,
+    inviteData: DeviceInvitationData,
+    userId: string
+  ): Promise<{ community: Community; identity: Identity }> {
+    const network = await this.getNetworkInfo()
+    const identity: Identity = {
+      communityId: id,
+      userId,
+      networkInfo: network,
+      joinTimestamp: null,
+      introMessageSent: true,
+    }
+    await this.storageService.setIdentity(identity)
+    const localAddress = createLibp2pAddress(network.hiddenService.onionAddress, network.peerId.id)
+    const bootstrapPeerStats: Record<string, NetworkStats> = {}
+    for (const pair of inviteData.pairs) {
+      bootstrapPeerStats[pair.peerId] = {
+        peerId: pair.peerId,
+        address: createLibp2pAddress(pair.onionAddress, pair.peerId),
+        connectionTime: 0,
+        lastSeen: DateTime.utc().toSeconds(),
+      } as NetworkStats
+    }
+    await this.localDbService.updatePeerStats(bootstrapPeerStats)
+    const community: Community = {
+      id,
+      name: inviteData.authData.communityName,
+      peerList: [...new Set([localAddress, ...Object.keys(bootstrapPeerStats)])],
+      inviteData,
+      psk: inviteData.psk,
+      teamId: inviteData.authData.teamId,
+      ownership: CommunityOwnership.User,
+      qssEnabled: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEnabled : undefined,
+      qssEndpoint: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEndpoint : undefined,
+      qssSetup: inviteData.version === InvitationDataVersion.v5 ? true : undefined,
+    }
+    await this.localDbService.setCommunity(community)
+    await this.localDbService.setCurrentCommunityId(id)
+    return { community, identity }
+  }
+
   public async launchCommunity(id: string): Promise<void> {
+    if (this.admissionResetInFlight) await this.admissionResetInFlight
     const community: Community | undefined = await this.localDbService.getCommunity(id)
     if (!community) {
       this.logger.error('No community found in storage')
@@ -817,17 +1173,37 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.warn('No community name found in storage')
     }
 
+    let launchAttempt: PendingAdmissionAttempt | undefined
     try {
-      await this.launch(community)
+      const launch = this.launch(community)
+      launchAttempt = this.pendingAdmissionAttempt
+      await launch
     } catch (e) {
+      // Reset may have completed while this launch was unwinding.
+      if (launchAttempt && this.pendingAdmissionAttempt !== launchAttempt) return
       this.logger.error(`Failed to launch community ${community.id}`, e)
       this.communityState = ServiceState.DEFAULT
-      emitError(this.serverIoProvider.io, {
-        type: SocketActions.LAUNCH_COMMUNITY,
-        message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
-        community: community.id,
-        trace: e.stack,
-      })
+      const admissionTimedOut = e instanceof AdmissionError && e.kind === 'timeout'
+      const admissionInterrupted = e instanceof AdmissionError && e.kind === 'cancelled'
+      if (admissionTimedOut) this.timedOutAdmissionCommunityId = community.id
+      if (admissionInterrupted) this.interruptedAdmissionCommunityId = community.id
+      const attempt = this.pendingAdmissionAttempt
+      if (attempt?.communityId === community.id && !admissionTimedOut) {
+        this.invalidatePendingAdmission(attempt)
+        if (!admissionInterrupted) this.finishPendingAdmissionAttempt(attempt)
+      }
+      if (!(admissionTimedOut && attempt?.errorEmitted)) {
+        emitError(this.serverIoProvider.io, {
+          type: SocketActions.LAUNCH_COMMUNITY,
+          message: admissionTimedOut
+            ? ErrorMessages.ADMISSION_TIMEOUT
+            : admissionInterrupted
+              ? ErrorMessages.ADMISSION_INTERRUPTED
+              : ErrorMessages.COMMUNITY_LAUNCH_FAILED,
+          community: community.id,
+          trace: (e as Error).stack,
+        })
+      }
       return
     }
 
@@ -860,141 +1236,39 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async launch(community: Community) {
     this.logger.info(`Launching community ${community.id}`)
 
-    const identity = await this.storageService.getIdentity(community.id)
-    if (!identity) {
-      throw new Error(ErrorMessages.IDENTITY_NOT_FOUND)
-    }
-
-    const onionAddress = await this.spawnTorHiddenService(community.id, identity)
-
-    const peerIdData: CreatedLibp2pPeerId = {
-      peerId: peerIdFromString(identity.networkInfo.peerId.id),
-      privKey: privateKeyFromRaw(uint8arrays.fromString(identity.networkInfo.peerId.privKey, 'base64')),
-    }
-    const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
-
-    const params: Libp2pNodeParams = {
-      peerId: peerIdData,
-      listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
-      agent: this.socksProxyAgent,
-      localAddress: localAddress,
-      targetPort: this.ports.libp2pHiddenService,
-      psk: generateLibp2pPSK(community.psk).fullKey,
-      torBootstrap: this.tor,
-    }
-    await this.libp2pService.createInstance(params)
-
-    let storageTeamId: string | undefined
-    let setupStorageWithTeamMetaPromise: Promise<void> | undefined
-    const setupStorageWithTeamMeta = async (teamId: string) => {
-      if (storageTeamId != null && storageTeamId !== teamId) {
-        throw new Error(`Storage metadata team mismatch: ${storageTeamId} !== ${teamId}`)
-      }
-      storageTeamId = teamId
-
-      if (setupStorageWithTeamMetaPromise != null) {
-        this.logger.info('Storage metadata setup already in progress, waiting')
-        return setupStorageWithTeamMetaPromise
-      }
-
-      setupStorageWithTeamMetaPromise = (async () => {
-        this.logger.info('Setting up storage')
-        await this.storageService.init(teamId)
-        this.qssService.markTeamStorageReady(teamId)
-      })()
-
-      return setupStorageWithTeamMetaPromise
-    }
-
     const activeChain = this.sigChainService.getActiveChain()
-    const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
-    if (hasStorageReadyChain) {
-      this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
-      await setupStorageWithTeamMeta(activeChain.team!.id)
+    const hasDurableAdmission =
+      activeChain.team != null &&
+      !activeChain.isPendingDeviceAdmission &&
+      activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
+    if (this.restoredAdmissionMarker?.communityId === community.id) {
+      if (hasDurableAdmission) {
+        this.logger.info(`Clearing stale admission marker for fully admitted community ${community.id}`)
+        this.clearAdmissionInProgressMarker()
+        this.interruptedAdmissionCommunityId = undefined
+      } else {
+        throw new AdmissionError('cancelled', `Admission for ${community.id} was interrupted`)
+      }
+    }
+    const isInvitationAdmission = !hasDurableAdmission
+    const pendingAdmissionAttempt = isInvitationAdmission
+      ? this.ensurePendingAdmissionAttempt(community.id, activeChain.isPendingDeviceAdmission ? 'device' : 'community')
+      : undefined
+
+    const startup = this.startCommunityTransport(community, pendingAdmissionAttempt)
+    if (pendingAdmissionAttempt) pendingAdmissionAttempt.startup = startup
+    await startup
+    if (hasDurableAdmission) {
+      await this.initializeCommunityStorage(activeChain.team!.id)
       this.qssService.connect(community.qssEndpoint)
       await this._updateTeamIdOnStoredCommunity(community, activeChain)
     } else {
-      this.logger.debug(
-        'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
-      )
-      const storageReadyPromise = new Promise<void>((resolve, reject) => {
-        let settled = false
-        let joinedViaQss = false
+      await this.waitForCommunityStorage(community, pendingAdmissionAttempt)
+    }
 
-        const cleanup = () => {
-          this.qssService.off(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
-          this.qssService.off(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
-          this.libp2pService.off(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
-        }
-
-        const rejectLaunch = (error: unknown) => {
-          if (settled) return
-          settled = true
-          cleanup()
-          reject(error instanceof Error ? error : new Error(String(error)))
-        }
-
-        const handleStorageReady = async (teamId: string, joinedVia: 'qss' | 'libp2p') => {
-          if (settled) return
-          try {
-            await setupStorageWithTeamMeta(teamId)
-            await this._updateTeamIdOnStoredCommunity(community, teamId)
-            if (joinedVia === 'libp2p' && !joinedViaQss) {
-              // The QSS sign-in that ran before this join completed had no team to work
-              // with, so the native push prerequisites were deferred. The QSS path
-              // re-emits them from _handleSelfAssignMember before QSS_FULLY_JOINED; a
-              // join that completed over libp2p never passes through there, so do it
-              // here unless the QSS path has already done it (#346).
-              await this.qssService.syncNativePushPrerequisites(
-                teamId,
-                this.sigChainService.getActiveChain(),
-                'libp2p join completed'
-              )
-            }
-            if (settled) return
-            settled = true
-            cleanup()
-            resolve()
-          } catch (e) {
-            rejectLaunch(e)
-          }
-        }
-
-        const handleQssFullyJoined = (teamId: string) => {
-          this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
-          joinedViaQss = true
-          void handleStorageReady(teamId, 'qss')
-        }
-        const handleLibp2pAuthJoined = (payload: { peer: string }) => {
-          this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
-          const teamId = this.sigChainService.getActiveChain().team?.id
-          if (teamId == null) {
-            rejectLaunch(
-              new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`)
-            )
-            return
-          }
-          void handleStorageReady(teamId, 'libp2p')
-        }
-        const handleQssAuthError = ({ teamId, error }: QSSAuthErrorPayload) => {
-          if (teamId !== community.teamId) return
-          this.logger.error(`Handling ${QSSEvents.QSS_AUTH_ERROR} event`, teamId, error)
-          rejectLaunch(error)
-        }
-
-        this.qssService.once(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
-        this.qssService.on(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
-        this.libp2pService.once(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
-      })
-
-      this.qssService.connect(community.qssEndpoint)
-
-      if (this.tor.bootstrapped) {
-        this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
-      }
-      this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
-
-      await storageReadyPromise
+    if (pendingAdmissionAttempt) {
+      this.finishPendingAdmissionAttempt(pendingAdmissionAttempt)
+      this.clearAdmissionInProgressMarker()
     }
 
     if (this.tor.bootstrapped) {
@@ -1005,9 +1279,197 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
   }
 
+  private async startCommunityTransport(community: Community, pendingAdmissionAttempt?: PendingAdmissionAttempt) {
+    const identity = await this.storageService.getIdentity(community.id)
+    this.assertPendingAdmissionCurrent(pendingAdmissionAttempt, community.id)
+    if (!identity) {
+      throw new Error(ErrorMessages.IDENTITY_NOT_FOUND)
+    }
+
+    const useLocalTransport = isLocalTransportEnabled()
+    const networkAddress = useLocalTransport
+      ? identity.networkInfo.hiddenService.onionAddress
+      : await this.spawnTorHiddenService(community.id, identity)
+
+    if (useLocalTransport) {
+      // The stored identity owns the port, so adopt it: a restart re-rolls
+      // this.ports.libp2pHiddenService and the peer must keep its old address.
+      const parsedLocalAddress = parseLocalAddress(networkAddress)
+      if (parsedLocalAddress == null) {
+        throw new Error(`Local transport requires a 127.0.0.1:<port> peer address, received: ${networkAddress}`)
+      }
+      this.ports = { ...this.ports, libp2pHiddenService: parsedLocalAddress.port }
+    }
+
+    const peerIdData: CreatedLibp2pPeerId = {
+      peerId: peerIdFromString(identity.networkInfo.peerId.id),
+      privKey: privateKeyFromRaw(uint8arrays.fromString(identity.networkInfo.peerId.privKey, 'base64')),
+    }
+    const localAddress = createLibp2pAddress(networkAddress, peerIdData.peerId.toString())
+
+    const params: Libp2pNodeParams = {
+      peerId: peerIdData,
+      listenAddresses: [this.libp2pService.createLibp2pListenAddress(networkAddress)],
+      agent: useLocalTransport ? undefined : this.socksProxyAgent,
+      localAddress: localAddress,
+      targetPort: this.ports.libp2pHiddenService,
+      psk: generateLibp2pPSK(community.psk).fullKey,
+      torBootstrap: useLocalTransport ? undefined : this.tor,
+    }
+    this.assertPendingAdmissionCurrent(pendingAdmissionAttempt, community.id)
+    await this.libp2pService.createInstance(params)
+    if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) {
+      // The timeout may have closed transports before createInstance published
+      // its node. Close the late node as well so reset cannot be undone by this
+      // continuation.
+      await this.closeAdmissionTransports()
+      throw (
+        pendingAdmissionAttempt.pendingError ??
+        new AdmissionError('cancelled', `Admission for ${community.id} was interrupted`)
+      )
+    }
+  }
+
+  private async initializeCommunityStorage(teamId: string, assertOpen: () => void = () => {}): Promise<void> {
+    assertOpen()
+    this.logger.info('Setting up storage')
+    await this.storageService.init(teamId)
+    assertOpen()
+    this.qssService.markTeamStorageReady(teamId)
+  }
+
+  private async waitForCommunityStorage(community: Community, attempt?: PendingAdmissionAttempt): Promise<void> {
+    const storageReadyPromise = new Promise<void>((resolve, reject) => {
+      let settled = false
+      let terminalError: Error | undefined
+      let joinedViaQss = false
+      let storageTeamId: string | undefined
+      let finalization: Promise<void> | undefined
+
+      const isOpen = () => !settled && (!attempt || this.isPendingAdmissionCurrent(attempt))
+      const assertOpen = () => {
+        if (terminalError) throw terminalError
+        this.assertPendingAdmissionCurrent(attempt, community.id)
+        if (settled) throw new Error('Community storage readiness already settled')
+      }
+      const cleanup = () => {
+        this.qssService.off(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
+        this.qssService.off(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
+        this.libp2pService.off(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
+        this.sigChainService.off(SigchainEvents.DEVICE_ADMITTED, handleDeviceAdmitted)
+        if (attempt?.cleanup === cleanup) attempt.cleanup = undefined
+      }
+      const rejectLaunch = (error: unknown) => {
+        if (settled) return
+        terminalError = error instanceof Error ? error : new Error(String(error))
+        settled = true
+        cleanup()
+        reject(terminalError)
+      }
+
+      const rejectWhileCurrent = (error: unknown) => {
+        // Timeout owns rejection until its transport shutdown has completed.
+        if (!attempt || this.isPendingAdmissionCurrent(attempt)) rejectLaunch(error)
+      }
+
+      const handleStorageReady = (teamId: string, joinedVia: 'qss' | 'libp2p' | 'device') => {
+        if (!isOpen()) return
+        if (storageTeamId != null && storageTeamId !== teamId) {
+          rejectLaunch(new Error(`Storage metadata team mismatch: ${storageTeamId} !== ${teamId}`))
+          return
+        }
+        if (joinedVia === 'qss') joinedViaQss = true
+        if (finalization) return
+        storageTeamId = teamId
+        // Assign before executing any side effects, including synchronous event callbacks.
+        finalization = Promise.resolve().then(async () => {
+          await this.initializeCommunityStorage(teamId, assertOpen)
+          assertOpen()
+          await this._updateTeamIdOnStoredCommunity(community, teamId, assertOpen)
+          assertOpen()
+          // QSS emits these prerequisites before QSS_FULLY_JOINED. A QSS event
+          // arriving during initialization must still suppress the local duplicate.
+          if (!joinedViaQss) {
+            await this.qssService.syncNativePushPrerequisites(
+              teamId,
+              this.sigChainService.getActiveChain(),
+              `${joinedVia} join completed`
+            )
+          }
+          assertOpen()
+          settled = true
+          cleanup()
+          resolve()
+        })
+        if (attempt) attempt.finalization = finalization
+        void finalization.catch(rejectWhileCurrent)
+      }
+      const handleQssFullyJoined = (teamId: string) => handleStorageReady(teamId, 'qss')
+      const handleLibp2pAuthJoined = () => {
+        if (!isOpen()) return
+        const teamId = this.sigChainService.getActiveChain().team?.id
+        if (teamId == null) {
+          rejectLaunch(
+            new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`)
+          )
+          return
+        }
+        handleStorageReady(teamId, 'libp2p')
+      }
+      const handleDeviceAdmitted = (teamId: string) => {
+        if (teamId === community.teamId) handleStorageReady(teamId, 'device')
+      }
+      const handleQssAuthError = ({ teamId, error }: QSSAuthErrorPayload) => {
+        if (!isOpen() || teamId !== community.teamId) return
+        rejectLaunch(
+          attempt ? new AdmissionError('cancelled', `Admission for ${community.id} was interrupted`, error) : error
+        )
+      }
+
+      if (attempt) {
+        attempt.reject = rejectLaunch
+        attempt.cleanup = cleanup
+      }
+      this.qssService.once(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
+      this.qssService.on(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
+      this.libp2pService.once(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
+      this.sigChainService.on(SigchainEvents.DEVICE_ADMITTED, handleDeviceAdmitted)
+
+      if (attempt?.readyToReject && attempt.pendingError) {
+        rejectLaunch(attempt.pendingError)
+      }
+      if (isOpen()) {
+        try {
+          // Listeners must exist before connect, which can emit synchronously.
+          void this.qssService.connect(community.qssEndpoint).catch(rejectWhileCurrent)
+        } catch (error) {
+          rejectLaunch(error)
+        }
+      }
+    })
+
+    if (this.tor.bootstrapped) this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+    this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+    await storageReadyPromise
+  }
+
+  private assertPendingAdmissionCurrent(attempt: PendingAdmissionAttempt | undefined, communityId: string): void {
+    if (!attempt || this.isPendingAdmissionCurrent(attempt)) return
+    throw attempt.pendingError ?? new AdmissionError('cancelled', `Admission for ${communityId} was interrupted`)
+  }
+
   private async _updateTeamIdOnStoredCommunity(community: Community, chain: SigChain): Promise<void>
-  private async _updateTeamIdOnStoredCommunity(community: Community, teamId: string): Promise<void>
-  private async _updateTeamIdOnStoredCommunity(community: Community, chainOrTeamId: SigChain | string): Promise<void> {
+  private async _updateTeamIdOnStoredCommunity(
+    community: Community,
+    teamId: string,
+    assertOpen?: () => void
+  ): Promise<void>
+  private async _updateTeamIdOnStoredCommunity(
+    community: Community,
+    chainOrTeamId: SigChain | string,
+    assertOpen: () => void = () => {}
+  ): Promise<void> {
+    assertOpen()
     if (community.teamId != null) return
     if (chainOrTeamId instanceof SigChain && chainOrTeamId.team == null) {
       this.logger.warn(`Can't update team ID on stored community ${community.id} because sigchain has nullish team`)
@@ -1016,6 +1478,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.debug(`Updating team ID for stored community ${community.id}`)
     const teamId = chainOrTeamId instanceof SigChain ? chainOrTeamId.team!.id : chainOrTeamId
     await this.localDbService.setCommunity({ ...community, teamId })
+    assertOpen()
     const payload: UpdateCommunityPayload = {
       id: community.id,
       updates: {
@@ -1217,6 +1680,29 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         }
       }
     )
+    this.socketService.on(
+      SocketActions.LINK_DEVICE,
+      async (args: InitDeviceLinkPayload, callback: (response?: ResponseLinkDevicePayload) => void) => {
+        try {
+          callback(await this.linkDevice(args))
+        } catch (e) {
+          this.logger.error('Error while handling link device request', e)
+          callback(undefined)
+        }
+      }
+    )
+
+    this.socketService.on(
+      SocketActions.RESET_ADMISSION,
+      async ({ id }: LaunchCommunityPayload, callback: (success: boolean) => void) => {
+        try {
+          callback(await this.resetAdmission(id))
+        } catch (error) {
+          this.logger.error('Failed to reset admission', error)
+          callback(false)
+        }
+      }
+    )
 
     this.socketService.on(SocketActions.LEAVE_COMMUNITY, async (callback: (closed: boolean) => void) => {
       this.logger.info(`socketService - ${SocketActions.LEAVE_COMMUNITY}`)
@@ -1253,6 +1739,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
               : this.logger.error(`Failed to generate a new long lived LFA invite code!`, e)
             callback({ valid: false })
           }
+        }
+      }
+    )
+    this.socketService.on(
+      SocketActions.CREATE_DEVICE_LINK,
+      async (_args: RequestDeviceLinkPayload, callback: (response?: DeviceLinkInvite) => void) => {
+        const teamId = this.sigChainService.activeChainTeamId
+        if (teamId == null) return callback(undefined)
+        try {
+          const invite = this.sigChainService.getActiveChain().invites.createDeviceInvite()
+          await this.sigChainService.saveChain(teamId)
+          callback(invite)
+        } catch (e) {
+          this.logger.error('Failed to generate a device link', e)
+          callback(undefined)
         }
       }
     )

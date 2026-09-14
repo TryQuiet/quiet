@@ -40,8 +40,13 @@ export enum ErrorMessages {
 
   // Community
   COMMUNITY_LAUNCH_FAILED = 'Could not launch community',
+  ADMISSION_TIMEOUT = 'Joining timed out',
+  ADMISSION_INTERRUPTED = 'Joining was interrupted',
+  DEVICE_ADMISSION_TIMEOUT = 'Joining timed out. Please try again and make sure both devices have the app open.',
+  COMMUNITY_ADMISSION_TIMEOUT = 'Joining timed out. Please try again when other peers are online.',
   INVITE_DATA_REQUIRED = 'Invite data is required',
   COMMUNITY_NOT_INITIALIZED = 'Community not initialized',
+  COMMUNITY_ALREADY_INITIALIZED = 'Community already initialized',
   SIGCHAIN_LOAD_FAILED = 'Loading sigchain failed',
 
   // Network
