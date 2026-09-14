@@ -46,6 +46,12 @@ const JoinCommunity = () => {
             : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
           : undefined
 
+  const clearJoinCommunityError = () => {
+    if (joinCommunityError) {
+      dispatch(communities.actions.clearJoinCommunityError())
+    }
+  }
+
   useEffect(() => {
     if (isConnected && !currentCommunity && !invitationCodes && !joinCommunityModal.open) {
       logger.info('Opening join community modal')
@@ -66,7 +72,7 @@ const JoinCommunity = () => {
         inviteData: data,
       }
       loadingPanelModal.handleOpen()
-      dispatch(communities.actions.clearJoinCommunityError())
+      clearJoinCommunityError()
       dispatch(communities.actions.linkDevice(linkDevicePayload))
       joinCommunityModal.handleClose()
       return
@@ -75,7 +81,7 @@ const JoinCommunity = () => {
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
     }
-    dispatch(communities.actions.clearJoinCommunityError())
+    clearJoinCommunityError()
     dispatch(communities.actions.joinCommunity(joinCommunityPayload))
     createUsernameModal.handleOpen()
     joinCommunityModal.handleClose()
@@ -105,7 +111,7 @@ const JoinCommunity = () => {
       isCloseDisabled={!currentCommunity}
       hasReceivedResponse={invitationCodes === null}
       fieldError={joinCommunityErrorMessage}
-      onFieldChange={() => dispatch(communities.actions.clearJoinCommunityError())}
+      onFieldChange={clearJoinCommunityError}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
     />

@@ -415,7 +415,7 @@ describe('ConnectionsManagerService', () => {
     resolveSetCurrentCommunityId()
     await launchCommunityPromise
 
-    expect(loadChainSpy).toHaveBeenCalledWith(community.teamId, true)
+    expect(loadChainSpy).toHaveBeenCalledWith(community.teamId, true, community.name)
     expect(launchSpy).toHaveBeenCalledWith(community)
   })
 

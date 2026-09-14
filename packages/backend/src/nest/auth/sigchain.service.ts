@@ -545,10 +545,18 @@ export class SigChainService extends EventEmitter {
     serializedTeam: Uint8Array,
     localUserContext: LocalUserContext,
     teamKeyRing: Keyring,
-    setActive: boolean
+    setActive: boolean,
+    expectedTeamId: string,
+    persistBeforeRegistration = false
   ): Promise<SigChain> {
     this.logger.info('Deserializing chain')
     const sigChain = SigChain.load(serializedTeam, localUserContext, teamKeyRing)
+    if (sigChain.teamId !== expectedTeamId) {
+      throw new Error(`Stored chain ID ${sigChain.teamId} does not match expected team ${expectedTeamId}`)
+    }
+    if (persistBeforeRegistration) {
+      await this.localDbService.setSigChain(sigChain, expectedTeamId)
+    }
     this.addChain(sigChain, setActive, sigChain.teamId!)
     return sigChain
   }
@@ -559,13 +567,20 @@ export class SigChainService extends EventEmitter {
    * Loads a chain from disk and adds it to the service
    * @param teamId ID of the team to load
    * @param setActive Whether to set the chain as active
+   * @param legacyTeamName Team name used as the storage key by Quiet 7.0.1 and older
    * @returns The SigChain instance loaded from disk
    * @throws Error if the chain doesn't exist
    */
-  async loadChain(teamId: string, setActive: boolean): Promise<SigChain> {
+  async loadChain(teamId: string, setActive: boolean, legacyTeamName?: string): Promise<SigChain> {
     await this._ensureDb()
     this.logger.info(`Loading chain for team ${teamId}`)
-    const chainData = await this.localDbService.getSigChain(teamId)
+    let chainData = await this.localDbService.getSigChain(teamId)
+    let loadedFromLegacyKey = false
+    if (!chainData && legacyTeamName != null && legacyTeamName !== teamId) {
+      this.logger.info(`Trying legacy sigchain key ${legacyTeamName} for team ${teamId}`)
+      chainData = await this.localDbService.getSigChain(legacyTeamName)
+      loadedFromLegacyKey = chainData != null
+    }
     if (!chainData) {
       throw new Error(`Chain for team ${teamId} not found`)
     }
@@ -579,7 +594,9 @@ export class SigChainService extends EventEmitter {
       chainData.serializedTeam,
       chainData.localUserContext,
       chainData.teamKeyRing,
-      setActive
+      setActive,
+      teamId,
+      loadedFromLegacyKey
     )
   }
 

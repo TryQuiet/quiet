@@ -17,7 +17,7 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership, type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
-import { communities } from '@quiet/state-manager'
+import { communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 import {
   Site,
   QUIET_JOIN_PAGE,
@@ -47,6 +47,33 @@ describe('join community', () => {
     },
   }
   const deviceInvitationCode = getValidInvitationUrlTestData(deviceInvitationData).code()
+
+  it('clears an existing join error once when the invitation changes', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true,
+      },
+      [StateManagerStoreKeys.Communities]: {
+        ...new communities.State(),
+        joinCommunityError: { type: 'invalid' },
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.joinCommunityModal]: { open: true },
+      },
+    })
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<JoinCommunity />, store)
+
+    await userEvent.type(screen.getByPlaceholderText(JoinCommunityDictionary().placeholder), 'abc')
+
+    const clearErrorActions = dispatchSpy.mock.calls.filter(
+      ([action]) => action.type === communities.actions.clearJoinCommunityError.type
+    )
+    expect(clearErrorActions).toHaveLength(1)
+  })
 
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({

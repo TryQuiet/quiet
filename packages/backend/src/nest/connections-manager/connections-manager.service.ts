@@ -301,7 +301,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (community.name) {
       try {
         this.logger.info('Loading sigchain for community', community.name)
-        await this.sigChainService.loadChain(community.teamId, true)
+        await this.sigChainService.loadChain(community.teamId, true, community.name)
       } catch (e) {
         this.logger.error('Failed to load sigchain', e)
         this.interruptedAdmissionCommunityId = community.id
@@ -1017,7 +1017,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       try {
         this.logger.info('Loading sigchain for community', community.name)
         if (this.sigChainService.activeChainTeamId !== community.teamId) {
-          await this.sigChainService.loadChain(community.teamId, true)
+          await this.sigChainService.loadChain(community.teamId, true, community.name)
         }
       } catch (e) {
         this.logger.warn('Failed to load sigchain', e)
