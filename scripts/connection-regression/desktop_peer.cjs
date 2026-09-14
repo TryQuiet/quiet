@@ -15,6 +15,7 @@ const {
   RegisterUsernameModal, TermsOfServiceModal, Sidebar,
 } = require(path.join(e2e, 'src/selectors.ts'))
 const {SettingsModalTabName} = require(path.join(e2e, 'src/enums.ts'))
+const {By, until} = require(path.join(e2e, 'node_modules/selenium-webdriver'))
 const {snapshotOwnedProcesses, waitForProcessExit} = require('../../packages/mobile/e2e/utils/desktopProcesses.cjs')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const config = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
@@ -53,6 +54,11 @@ async function isolateDisplay() {
 let channel
 const launch = async () => {
   await app.open(true)
+  if (config.captureDriverOutput) {
+    const capture = chunk => fs.appendFileSync(path.join(output, 'driver.raw.log'), chunk, {mode:0o600})
+    app.buildSetup.child.stdout.on('data', capture)
+    app.buildSetup.child.stderr.on('data', capture)
+  }
   channel = new Channel(app.driver, 'general')
 }
 const stop = async () => {
@@ -65,6 +71,7 @@ const stop = async () => {
 async function main() {
   await isolateDisplay()
   app = new App({binaryPath: config.binary, qssEndpoint:config.endpoint, username:config.username,
+    environment:config.environment,
     ...(config.profile ? {dataDir:config.profile} : {})})
   fs.mkdirSync(app.buildSetup.dataDirPath, {recursive:true, mode:0o700})
   fs.chmodSync(app.buildSetup.dataDirPath, 0o700)
@@ -72,13 +79,18 @@ async function main() {
   if (!config.profile) {
     const join = new JoinCommunityModal(app.driver)
     if (!await join.isReady()) throw new Error('Desktop onboarding is unavailable')
-    await join.switchToCreateCommunity()
-    const create = new CreateCommunityModal(app.driver)
-    await create.typeCommunityName(config.community)
-    await create.submit()
-    const offer = new ServerOfferModal(app.driver)
-    if (!await offer.isReady()) throw new Error('QSS server offer is unavailable')
-    await offer.chooseUseServer()
+    if (config.invitation) {
+      await join.typeCommunityInviteLink(config.invitation)
+      await join.submit()
+    } else {
+      await join.switchToCreateCommunity()
+      const create = new CreateCommunityModal(app.driver)
+      await create.typeCommunityName(config.community)
+      await create.submit()
+      const offer = new ServerOfferModal(app.driver)
+      if (!await offer.isReady()) throw new Error('QSS server offer is unavailable')
+      await offer.chooseUseServer()
+    }
     const register = new RegisterUsernameModal(app.driver)
     await register.isReady()
     await register.typeUsername(config.username)
@@ -86,6 +98,12 @@ async function main() {
     const terms = new TermsOfServiceModal(app.driver)
     await terms.isReady()
     await terms.chooseAgreeAndJoin()
+  }
+  if (config.onboardingTimeoutMs) {
+    // Real CAPTCHA may still be running after terms are accepted. Keep the app
+    // alive until the channel appears instead of using the selector's 10s limit.
+    await app.driver.wait(until.elementLocated(By.css('[data-testid="channelTitle"]')),
+      config.onboardingTimeoutMs, 'Desktop onboarding did not reach a channel')
   }
   if (!await channel.isOpen()) throw new Error('Desktop general channel is unavailable')
   const settings = await new Sidebar(app.driver).openSettings()

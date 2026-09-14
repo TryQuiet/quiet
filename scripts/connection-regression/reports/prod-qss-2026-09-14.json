@@ -1,0 +1,154 @@
+{
+  "date": "2026-09-14",
+  "verdict": "FAIL: fresh website 9.0.2 community cannot register or join through deployed production QSS",
+  "endpoint": "wss://qss-prod.quiet-services.app",
+  "artifact": {
+    "release": "@quiet/desktop@9.0.2",
+    "website": "https://tryquiet.org/",
+    "assetUrl": "https://github.com/TryQuiet/quiet/releases/download/%40quiet/desktop%409.0.2/Quiet-9.0.2.AppImage",
+    "assetSha256": "0914284dcec16ec59e03eebe5f96633d81cd4f876a775c596fa6f63fcde40bdd",
+    "endpoint": "wss://qss-prod.quiet-services.app",
+    "torRealSha256": "42017904b14e2e521018ab658bb23ac807957d2d2a691ed72181b0627ae40340",
+    "torIsolation": "Mount namespace binds wrapper at Tor executable path; original Tor runs with DisableNetwork=1 from launch",
+    "codeSha256": {
+      "@quietdesktop": "ba7475f40751139a9768ebbfd6bbccd8fe4bcb400a24b7f59ee915b520ef8b8f",
+      "resources/app.asar": "7dbd79ed05a344c48d7b59ef2c776f2ce922715fd006c9774636e5345b13385d"
+    },
+    "extractedPayloadsMatchVerifiedAppImage": true,
+    "packagedConfig": {
+      "QSS_ALLOWED": "true",
+      "QSS_ENDPOINT": "wss://qss-prod.quiet-services.app",
+      "ENVFILE": ".env.production"
+    }
+  },
+  "preliminaryChecks": {
+    "health": {
+      "checkedAt": "2026-09-14T19:31:03.218067+00:00",
+      "url": "https://qss-prod.quiet-services.app/health",
+      "httpStatus": 200,
+      "elapsedMs": 343,
+      "body": {
+        "status": "ok",
+        "info": {
+          "postgres": {
+            "status": "up"
+          }
+        },
+        "error": {},
+        "details": {
+          "postgres": {
+            "status": "up"
+          }
+        }
+      }
+    },
+    "websocket": {
+      "checkedAt": "2026-09-14T19:38:19.401Z",
+      "endpoint": "wss://qss-prod.quiet-services.app",
+      "websocketConnected": true,
+      "transport": "websocket",
+      "connectMs": 521,
+      "qssRequestStatus": "success",
+      "captchaSiteKeyReturned": true
+    },
+    "pingReplies": 0,
+    "pingPackets": 2,
+    "tcp443Connected": true,
+    "tcpHealthRecheckedAt": "2026-09-14T19:51:31.944Z"
+  },
+  "primaryRun": {
+    "owner": "owner7",
+    "joiner": "joiner",
+    "releaseSourceCommit": "f8b35679f38f3970f1c56e8070309b3d71d11d4c",
+    "captcha": {
+      "requestAt": "2026-09-14T19:58:12.804Z",
+      "responseStatus": "success",
+      "normalProductionVerification": true
+    },
+    "serverKeys": {
+      "requestAt": "2026-09-14T19:58:13.026Z",
+      "responseStatus": "success",
+      "payloadFields": [
+        "keys",
+        "teamId"
+      ],
+      "teamIdMatchesRequest": true,
+      "missingRequiredFields": [
+        "serverId",
+        "identityKeys"
+      ]
+    },
+    "retry": {
+      "requestAt": "2026-09-14T19:58:13.252Z",
+      "responseStatus": "error",
+      "reason": "Captcha verification required",
+      "captchaReopened": true
+    },
+    "createCommunityRequestSent": false,
+    "join": {
+      "requestAt": "2026-09-14T19:58:52.228Z",
+      "sameTeamAsOwner": true,
+      "responseStatus": "not found",
+      "reason": "No community found for <test-team>",
+      "channelReached": false,
+      "onboardingWaitMs": 90140
+    },
+    "messagesDelivered": false,
+    "messageDeliveryAttempted": false,
+    "messageDeliveryBlockedBy": "Community registration and join failed",
+    "tor": {
+      "networkDisabledFromStartup": true,
+      "processArguments": [
+        {
+          "pid": 515139,
+          "disableNetwork": "1",
+          "controlPort": "40523",
+          "socksPort": "32925"
+        },
+        {
+          "pid": 523992,
+          "disableNetwork": "1",
+          "controlPort": "45653",
+          "socksPort": "33519"
+        }
+      ],
+      "bootstrapCompletions": 0,
+      "releaseSourceContainsDisableNetworkOverride": false
+    }
+  },
+  "cleanup": {
+    "checkedAt": "2026-09-14T20:02:02.108315+00:00",
+    "activeTestProcesses": []
+  },
+  "deploymentsChanged": false,
+  "limitations": [
+    "Tested Linux desktop 9.0.2; not a functional verdict for all existing communities or other production client versions/platforms.",
+    "The exact deployed QSS commit was not obtained.",
+    "No claim of successful QSS message delivery; creation and joining failed first.",
+    "This captures server/client incompatibility, not a failed CAPTCHA answer."
+  ],
+  "validation": {
+    "realChildEnvironmentTestsPassed": 2,
+    "desktopPeerSyntaxCheckPassed": true,
+    "changedTypeScriptPrettierCheckPassed": true,
+    "hostTorPayloadUnchangedAfterCleanup": true,
+    "changedTypeScriptEslintPassed": true
+  },
+  "privateEvidenceRoot": ".connection-runs/prod-qss-check/",
+  "deploymentHistory": {
+    "production": {
+      "version": "v1.1.1",
+      "sha": "9c0c9154d2991638d886428918f9772e8ddb81f4",
+      "completedAt": "2026-06-27T03:31:02Z",
+      "url": "https://github.com/TryQuiet/quiet-storage-service/actions/runs/28276364963"
+    },
+    "staging": {
+      "version": "v1.1.2-alpha.1",
+      "sha": "731bdd14c14d0185fd0f00def04d8ec16e064c87",
+      "completedAt": "2026-07-24T20:22:35Z",
+      "url": "https://github.com/TryQuiet/quiet-storage-service/actions/runs/30122435028"
+    },
+    "source": "GitHub deployment workflow history; live EC2 revision not independently inspected",
+    "september12Metadata": "Two old failures have September 12 updatedAt timestamps, but their jobs started and finished August 8, 2025; those timestamps do not establish September deployments."
+  }
+}

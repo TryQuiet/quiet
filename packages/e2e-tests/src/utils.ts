@@ -170,9 +170,10 @@ export class BuildSetup {
     await this.initPorts()
     let env: any = {
       DEBUG:
-        process.env.TRACE_APP_LOGS === 'true'
+        this.environment.DEBUG ??
+        (process.env.TRACE_APP_LOGS === 'true'
           ? '*:trace'
-          : 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
+          : 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*'),
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
     }
