@@ -77,7 +77,7 @@ describe('CommunityContextMenu (device linking)', () => {
   })
 })
 
-describe('CommunityContextMenu (permissions gate for "Create Channel")', () => {
+describe('CommunityContextMenu (actions that moved to Community home)', () => {
   let store: Store
   let factory: FactoryGirl
   beforeEach(async () => {
@@ -85,14 +85,17 @@ describe('CommunityContextMenu (permissions gate for "Create Channel")', () => {
     factory = await getReduxStoreFactory(store)
   })
 
-  it('hides "Create channel" without permissions', () => {
+  // The Community home card carries these two now (Figma: Community home
+  // 5446:76594); the menu keeps what the card has no row for.
+  it('does not offer "Add members"', () => {
     const { queryByText } = renderComponent(<CommunityContextMenu />, store)
-    expect(queryByText('Create channel')).toBeNull()
+    expect(queryByText('Add members')).toBeNull()
   })
 
-  it('shows "Create channel" with permissions', async () => {
+  it('does not offer "Create channel", with or without the permission', async () => {
+    expect(renderComponent(<CommunityContextMenu />, store).queryByText('Create channel')).toBeNull()
+
     await factory.create('ChannelPermissions')
-    const { queryByText } = renderComponent(<CommunityContextMenu />, store)
-    expect(queryByText('Create channel')).not.toBeNull()
+    expect(renderComponent(<CommunityContextMenu />, store).queryByText('Create channel')).toBeNull()
   })
 })

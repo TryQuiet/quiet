@@ -129,6 +129,8 @@ describe('ContextMenu component', () => {
             }
           >
             <View
+              accessibilityLabel="Close menu"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -161,6 +163,7 @@ describe('ContextMenu component', () => {
                   "opacity": 1,
                 }
               }
+              testID="context_menu_close"
             >
               <View
                 style={
@@ -844,6 +847,8 @@ describe('ContextMenu component', () => {
             }
           >
             <View
+              accessibilityLabel="Close menu"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -876,6 +881,7 @@ describe('ContextMenu component', () => {
                   "opacity": 1,
                 }
               }
+              testID="context_menu_close"
             >
               <View
                 style={
