@@ -1,5 +1,5 @@
 import { combineReducers, AnyAction } from '@reduxjs/toolkit'
-import stateManagerReducers, { resetStateAndSaveTorConnectionData } from '@quiet/state-manager'
+import stateManagerReducers, { communities, resetStateAndSaveTorConnectionData } from '@quiet/state-manager'
 import { StoreKeys } from './store.keys'
 import { initReducer } from './init/init.slice'
 import { navigationReducer } from './navigation/navigation.slice'
@@ -23,6 +23,12 @@ export const reducers = {
 export const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state: any, action: AnyAction) => {
+  if (action.type === communities.actions.resetApp.type) {
+    state = {
+      ...resetStateAndSaveTorConnectionData(),
+      [StoreKeys.Init]: { ...state?.[StoreKeys.Init], deepLinking: false },
+    }
+  }
   if (action.type === nativeServicesActions.resetApp.type) {
     state = resetStateAndSaveTorConnectionData()
   }

@@ -2,7 +2,13 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { InvitationData, isDeviceInvitationData, JoinCommunityPayload, LinkDevicePayload } from '@quiet/types'
+import {
+  ErrorMessages,
+  InvitationData,
+  isDeviceInvitationData,
+  JoinCommunityPayload,
+  LinkDevicePayload,
+} from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -21,6 +27,18 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
+  const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
+
+  const joinCommunityErrorMessage =
+    joinCommunityError?.type === 'invalid'
+      ? ErrorMessages.INVALID_INVITE
+      : joinCommunityError?.type === 'interrupted'
+      ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
+      : joinCommunityError?.type === 'timeout'
+      ? joinCommunityError.invitationType === 'device'
+        ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+        : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+      : undefined
 
   const hasReceivedResponse = Boolean(invitationCodes === null)
 
@@ -37,6 +55,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const joinCommunityAction = useCallback(
     (data: InvitationData) => {
+      dispatch(communities.actions.clearJoinCommunityError())
       if (isDeviceInvitationData(data)) {
         const payload: LinkDevicePayload = {
           inviteData: data,
@@ -78,6 +97,8 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
       hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
       invitationCode={invitationCode}
       ready={isWebsocketConnected}
+      inputError={joinCommunityErrorMessage}
+      onInputChange={() => dispatch(communities.actions.clearJoinCommunityError())}
     />
   )
 }

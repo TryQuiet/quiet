@@ -93,16 +93,10 @@ export class AdmissionCoordinator {
       state: { status: 'loading' },
       scope: new AdmissionResourceScope(),
       startedAt: this.clock.now(),
-      deadlineAt: this.clock.now() + request.timeoutMs,
+      deadlineAt: Number.POSITIVE_INFINITY,
     }
     lease.ownAdmission(handle)
     this.activeSession = session
-    session.deadline = this.clock.after(request.timeoutMs, () =>
-      this.dispatch(session, {
-        type: 'DEADLINE',
-        error: new AdmissionError('timeout', 'Admission acquisition deadline expired'),
-      })
-    )
     this.run(session, async () => {
       const community = await session.scope.run(() => this.db.getCommunity(request.communityId))
       session.scope.assertCurrent()
@@ -127,6 +121,10 @@ export class AdmissionCoordinator {
     const previous = session.state
     const update = transition(previous, event, session.request)
     session.state = update.state
+    const attempt = 'attempt' in update.state ? update.state.attempt : undefined
+    if ((event.type === 'LOADED' || event.type === 'ATTEMPT_DRAINED') && attempt != null) {
+      this.startDeadlineWhenReady(session, attempt.transport)
+    }
     this.logger.info('Admission transition', {
       sessionId: session.id,
       attemptId: 'attempt' in previous ? previous.attempt?.id : undefined,
@@ -352,6 +350,32 @@ export class AdmissionCoordinator {
     this.clock.clear(session.deadline)
     this.clock.clear(session.fallback)
     this.clock.clear(session.watchdog)
+  }
+  private startDeadlineWhenReady(session: AdmissionSession, transport: AdmissionTransport): void {
+    if (session.deadline != null || session.deadlineWaitingForTor) return
+    if (transport === AdmissionTransport.P2P) {
+      const torBootstrap = session.lease.libp2pParams.torBootstrap
+      if (torBootstrap != null && !torBootstrap.bootstrapped) {
+        session.deadlineWaitingForTor = true
+        torBootstrap.once('bootstrapped', () => {
+          session.deadlineWaitingForTor = false
+          if (
+            this.activeSession !== session ||
+            ['draining', 'failed', 'recovery-required', 'succeeded'].includes(session.state.status)
+          )
+            return
+          this.startDeadlineWhenReady(session, transport)
+        })
+        return
+      }
+    }
+    session.deadlineAt = this.clock.now() + session.request.timeoutMs
+    session.deadline = this.clock.after(session.request.timeoutMs, () =>
+      this.dispatch(session, {
+        type: 'DEADLINE',
+        error: new AdmissionError('timeout', 'Admission acquisition deadline expired'),
+      })
+    )
   }
   private watch(session: AdmissionSession): void {
     session.watchdog = this.clock.after(30_000, () =>

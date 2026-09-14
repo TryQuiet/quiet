@@ -1,6 +1,7 @@
 import { communities, connection } from '@quiet/state-manager'
 import {
   CommunityOwnership,
+  ErrorMessages,
   type InvitationData,
   type JoinCommunityPayload,
   type LinkDevicePayload,
@@ -32,6 +33,18 @@ const JoinCommunity = () => {
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
+  const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
+
+  const joinCommunityErrorMessage =
+    joinCommunityError?.type === 'invalid'
+      ? ErrorMessages.INVALID_INVITE
+      : joinCommunityError?.type === 'interrupted'
+        ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
+        : joinCommunityError?.type === 'timeout'
+          ? joinCommunityError.invitationType === 'device'
+            ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+            : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+          : undefined
 
   useEffect(() => {
     if (isConnected && !currentCommunity && !invitationCodes && !joinCommunityModal.open) {
@@ -53,6 +66,7 @@ const JoinCommunity = () => {
         inviteData: data,
       }
       loadingPanelModal.handleOpen()
+      dispatch(communities.actions.clearJoinCommunityError())
       dispatch(communities.actions.linkDevice(linkDevicePayload))
       joinCommunityModal.handleClose()
       return
@@ -61,6 +75,7 @@ const JoinCommunity = () => {
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
     }
+    dispatch(communities.actions.clearJoinCommunityError())
     dispatch(communities.actions.joinCommunity(joinCommunityPayload))
     createUsernameModal.handleOpen()
     joinCommunityModal.handleClose()
@@ -89,6 +104,8 @@ const JoinCommunity = () => {
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
       hasReceivedResponse={invitationCodes === null}
+      fieldError={joinCommunityErrorMessage}
+      onFieldChange={() => dispatch(communities.actions.clearJoinCommunityError())}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
     />

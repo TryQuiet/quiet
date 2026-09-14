@@ -613,6 +613,7 @@ app.on('ready', async () => {
       HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
       IS_E2E: process.env.IS_E2E ?? 'false',
+      INVITATION_ADMISSION_TIMEOUT_MS: process.env.INVITATION_ADMISSION_TIMEOUT_MS,
       NETWORK_LOGGING: process.env.NETWORK_LOGGING ?? 'false',
       LOCAL_TRANSPORT: process.env.LOCAL_TRANSPORT ?? 'false',
     },

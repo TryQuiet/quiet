@@ -95,9 +95,16 @@ import { SigChain } from '../auth/sigchain'
 import { Member } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
 import { AdmissionCoordinator } from '../admission/admission-coordinator.service'
-import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { AdmissionError, AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 
-const INVITATION_ADMISSION_TIMEOUT_MS = 120_000
+const DEFAULT_INVITATION_ADMISSION_TIMEOUT_MS = 300_000
+const configuredE2eAdmissionTimeout = Number(process.env.INVITATION_ADMISSION_TIMEOUT_MS)
+// Keep production admission timing fixed, while allowing the desktop E2E suite
+// to exercise the complete timeout recovery flow without a two-minute wait.
+const INVITATION_ADMISSION_TIMEOUT_MS =
+  process.env.IS_E2E === 'true' && Number.isFinite(configuredE2eAdmissionTimeout) && configuredE2eAdmissionTimeout > 0
+    ? configuredE2eAdmissionTimeout
+    : DEFAULT_INVITATION_ADMISSION_TIMEOUT_MS
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -107,6 +114,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public communityId: string
   public communityState: ServiceState
   private communityLifecycle?: CommunityLifecycle
+  private timedOutAdmissionCommunityId?: string
+  private interruptedAdmissionCommunityId?: string
+  private clearedAdmissionCommunityId?: string
+  private admissionResetInFlight?: Promise<boolean>
+  private closingServices = false
   private launchGeneration = 0
   private hibernating = false
   private hibernateInFlight: Promise<void> | null = null
@@ -260,6 +272,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async launchCommunityFromStorage() {
     this.logger.info('Launching community from storage')
 
+    this.interruptedAdmissionCommunityId ??= this.readInterruptedAdmissionMarker()
+
     // Defense in depth for #3225: if a leaveCommunity crashed mid-way, finish the purge
     // before doing anything else — including reading CURRENT_COMMUNITY_ID. The marker is
     // written at the start of leaveCommunity and cleared at full success, so its presence
@@ -280,6 +294,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // CURRENT_COMMUNITY_ID hasn't been populated from the renderer's persistor yet. Don't
       // purge speculatively — that was the backwards-compatibility regression.
       this.logger.info('No community found in storage')
+      this.reportInterruptedAdmission()
       return
     }
 
@@ -289,15 +304,31 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.sigChainService.loadChain(community.teamId, true)
       } catch (e) {
         this.logger.error('Failed to load sigchain', e)
+        this.interruptedAdmissionCommunityId = community.id
         if (community.inviteData && isDeviceInvitationData(community.inviteData)) {
           this.logger.info('Cleaning interrupted device-link artifacts')
           await this.erasePreviousCommunityArtifacts()
-          return
+        } else {
+          await this.localDbService.deleteCommunity(community.id)
+          await this.sigChainService.deleteChain(community.teamId, true)
         }
-        await this.localDbService.deleteCommunity(community.id)
-        await this.sigChainService.deleteChain(community.teamId, true)
+        this.clearedAdmissionCommunityId = community.id
+        this.reportInterruptedAdmission()
         return
       }
+
+      const chain = this.sigChainService.getActiveChain()
+      const admissionCompleted = chain.team != null && chain.roles.amIMemberOfRole(RoleName.MEMBER)
+      if (!admissionCompleted) {
+        this.logger.info('Cleaning admission interrupted by application restart')
+        this.interruptedAdmissionCommunityId = community.id
+        await this.erasePreviousCommunityArtifacts()
+        this.clearedAdmissionCommunityId = community.id
+        this.reportInterruptedAdmission()
+        return
+      }
+      this.interruptedAdmissionCommunityId = undefined
+      this.clearInterruptedAdmissionMarker()
     } else {
       this.logger.warn('No community name found in storage')
     }
@@ -323,7 +354,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async pause() {
     this.logger.info('Pausing!')
-    const reason = new Error('Admission cancelled while services paused')
+    const reason = new AdmissionError('cancelled', 'Admission interrupted while services paused')
     this.launchGeneration += 1
     await this.communityLifecycle?.pause(reason)
     this.qssService.pause()
@@ -460,8 +491,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       deleteChainFromDisk: false,
     }
   ) {
+    this.closingServices = true
     this.logger.info('Closing services', options)
-    const reason = new Error('Admission cancelled while services closed')
+    const reason = new AdmissionError('cancelled', 'Admission interrupted while services closed')
     this.launchGeneration += 1
     await this.communityLifecycle?.drain(reason)
     this.communityLifecycle = undefined
@@ -503,6 +535,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info('Closing local DB')
       await this.localDbService.close()
     }
+    this.closingServices = false
   }
 
   public async leaveCommunity(): Promise<boolean> {
@@ -553,10 +586,92 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return true
   }
 
+  public async resetAdmission(communityId: string): Promise<boolean> {
+    if (this.closingServices) return false
+    // A lost acknowledgement must not strand the UI after cleanup already succeeded.
+    if (
+      communityId &&
+      communityId === this.clearedAdmissionCommunityId &&
+      this.communityState === ServiceState.DEFAULT
+    ) {
+      this.interruptedAdmissionCommunityId = undefined
+      this.clearInterruptedAdmissionMarker()
+      return true
+    }
+    if (
+      !communityId ||
+      (communityId !== this.timedOutAdmissionCommunityId && communityId !== this.interruptedAdmissionCommunityId) ||
+      this.communityState !== ServiceState.DEFAULT
+    )
+      return false
+    if (this.admissionResetInFlight != null) return this.admissionResetInFlight
+    const reset = async () => {
+      // Keep the frontend socket open: acknowledgement must follow completed cleanup.
+      await this.communityLifecycle?.drain(new Error('Clearing failed invitation admission'))
+      this.communityLifecycle = undefined
+      this.launchGeneration += 1
+      this.qssService.close()
+      this.captchaService.reset()
+      await this.erasePreviousCommunityArtifacts()
+      await this.qssService.resume()
+      this.timedOutAdmissionCommunityId = undefined
+      this.interruptedAdmissionCommunityId = undefined
+      this.clearedAdmissionCommunityId = communityId
+      this.clearInterruptedAdmissionMarker()
+      return true
+    }
+    this.admissionResetInFlight = reset()
+    try {
+      return await this.admissionResetInFlight
+    } finally {
+      this.admissionResetInFlight = undefined
+    }
+  }
+
   private static readonly LEAVE_IN_PROGRESS_MARKER = '.leave-in-progress'
+  private static readonly INTERRUPTED_ADMISSION_MARKER = '.admission-interrupted'
 
   private leaveInProgressMarkerPath(): string {
     return path.join(this.storageService.quietDir, ConnectionsManagerService.LEAVE_IN_PROGRESS_MARKER)
+  }
+
+  private interruptedAdmissionMarkerPath(): string {
+    return path.join(path.dirname(this.storageService.quietDir), ConnectionsManagerService.INTERRUPTED_ADMISSION_MARKER)
+  }
+
+  private writeInterruptedAdmissionMarker(communityId: string): void {
+    try {
+      fs.mkdirSync(path.dirname(this.interruptedAdmissionMarkerPath()), { recursive: true })
+      fs.writeFileSync(this.interruptedAdmissionMarkerPath(), communityId)
+    } catch (e) {
+      this.logger.warn('Failed to write interrupted-admission marker', e)
+    }
+  }
+
+  private readInterruptedAdmissionMarker(): string | undefined {
+    try {
+      const communityId = fs.readFileSync(this.interruptedAdmissionMarkerPath(), 'utf8').trim()
+      return communityId || undefined
+    } catch {
+      return undefined
+    }
+  }
+
+  private clearInterruptedAdmissionMarker(): void {
+    try {
+      fs.unlinkSync(this.interruptedAdmissionMarkerPath())
+    } catch {
+      // Marker is absent after ordinary admissions and after a previous successful reset.
+    }
+  }
+
+  private reportInterruptedAdmission(): void {
+    if (this.interruptedAdmissionCommunityId == null) return
+    emitError(this.serverIoProvider.io, {
+      type: SocketActions.LAUNCH_COMMUNITY,
+      message: ErrorMessages.ADMISSION_INTERRUPTED,
+      community: this.interruptedAdmissionCommunityId,
+    })
   }
 
   private writeLeaveInProgressMarker(): void {
@@ -873,6 +988,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launchCommunity(id: string): Promise<void> {
+    if (this.admissionResetInFlight != null) return
     const community: Community | undefined = await this.localDbService.getCommunity(id)
     if (!community) {
       this.logger.error('No community found in storage')
@@ -892,6 +1008,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
     this.communityState = ServiceState.LAUNCHING
+    this.timedOutAdmissionCommunityId = undefined
+    this.interruptedAdmissionCommunityId = undefined
+    this.clearedAdmissionCommunityId = undefined
     this.logger.info(`Community state is now ${this.communityState}`)
 
     if (community.name) {
@@ -920,9 +1039,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } catch (e) {
       this.logger.error(`Failed to launch community ${community.id}`, e)
       this.communityState = ServiceState.DEFAULT
+      const admissionTimedOut = e instanceof AdmissionError && e.kind === 'timeout'
+      const admissionInterrupted = e instanceof AdmissionError && e.kind === 'cancelled'
+      const invalidInvite =
+        e instanceof AdmissionError &&
+        /INVITATION_PROOF_INVALID|invitation.*(expired|invalid|not accepted)/i.test(e.message)
+      if (admissionTimedOut) this.timedOutAdmissionCommunityId = community.id
+      if (admissionInterrupted) {
+        this.interruptedAdmissionCommunityId = community.id
+        this.writeInterruptedAdmissionMarker(community.id)
+      }
       emitError(this.serverIoProvider.io, {
         type: SocketActions.LAUNCH_COMMUNITY,
-        message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
+        message: admissionTimedOut
+          ? ErrorMessages.ADMISSION_TIMEOUT
+          : admissionInterrupted
+            ? ErrorMessages.ADMISSION_INTERRUPTED
+            : invalidInvite
+              ? ErrorMessages.INVALID_INVITE
+              : ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: community.id,
         trace: e.stack,
       })
@@ -1294,6 +1429,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info(`socketService - ${SocketActions.CONNECTION}`)
     })
 
+    this.socketService.on(SocketActions.START, () => {
+      this.reportInterruptedAdmission()
+    })
+
     this.socketService.on(SocketActions.LAUNCH_COMMUNITY, (args: LaunchCommunityPayload) => {
       this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
       this.launchCommunity(args.id)
@@ -1345,6 +1484,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(false)
       }
     })
+
+    this.socketService.on(
+      SocketActions.RESET_ADMISSION,
+      async ({ id }: LaunchCommunityPayload, callback: (success: boolean) => void) => {
+        try {
+          callback(await this.resetAdmission(id))
+        } catch (error) {
+          this.logger.error('Failed to clear timed-out invitation', error)
+          callback(false)
+        }
+      }
+    )
 
     // Local First Auth
 

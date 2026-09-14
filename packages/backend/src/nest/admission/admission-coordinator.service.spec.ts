@@ -2,6 +2,7 @@ import { jest } from '@jest/globals'
 import { AdmissionCoordinator } from './admission-coordinator.service'
 import { AdmissionClock } from './admission-clock'
 import { CommunityLifecycle } from './community-lifecycle'
+import type { TorBootstrapProvider } from '../libp2p/libp2p.types'
 import {
   AdmissionAttemptOptions,
   AdmissionBusyError,
@@ -132,6 +133,30 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     expect(() => coordinator.start(request, new CommunityLifecycle('community', {} as any))).toThrow(AdmissionBusyError)
     await expect(lease.drain(new Error('shutdown'))).rejects.toMatchObject({ kind: 'recovery' })
     expect(cleanup).toHaveBeenCalledTimes(1)
+  })
+
+  it('starts the P2P deadline only after Tor bootstraps', async () => {
+    let onBootstrapped!: () => void
+    const torBootstrap = { bootstrapped: false } as TorBootstrapProvider
+    const once = jest.fn((_event: 'bootstrapped', listener: () => void) => {
+      onBootstrapped = listener
+      return torBootstrap
+    })
+    torBootstrap.once = once
+    const p2pLease = new CommunityLifecycle('community', { torBootstrap } as any)
+    const handle = coordinator.start({ ...request, preferredTransport: AdmissionTransport.P2P }, p2pLease)
+    await flush()
+
+    expect(torBootstrap.once).toHaveBeenCalledWith('bootstrapped', expect.any(Function))
+    expect(coordinator['activeSession']!.deadline).toBeUndefined()
+    jest.advanceTimersByTime(300_000)
+    expect(coordinator['activeSession']!.state.status).toBe('admitting')
+
+    torBootstrap.bootstrapped = true
+    onBootstrapped()
+    jest.advanceTimersByTime(request.timeoutMs)
+    await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
+    await handle.drained
   })
 
   it.each(['initial', 'fallback'] as const)('rolls back if staging the %s attempt throws', async phase => {

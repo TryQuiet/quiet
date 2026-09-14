@@ -1,5 +1,5 @@
 import { type Socket } from '../../types'
-import { all, takeEvery, cancelled, fork, cancel, take } from 'typed-redux-saga'
+import { all, takeEvery, takeLeading, cancelled, fork, cancel, take } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
@@ -8,6 +8,7 @@ import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 import { linkDeviceSaga } from './linkDevice/linkDevice.saga'
 import type { Task } from 'redux-saga'
+import { resetAdmissionSaga } from './resetAdmission/resetAdmission.saga'
 
 const logger = createLogger('communitiesMasterSaga')
 
@@ -18,6 +19,7 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       takeEvery(connectionActions.setTorInitialized.type, initCommunitySaga),
       fork(handleCommunityOnboarding, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
+      takeLeading(communitiesActions.resetAdmission.type, resetAdmissionSaga, socket),
     ])
   } finally {
     logger.info('communitiesMasterSaga stopping')

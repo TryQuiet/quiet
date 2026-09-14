@@ -264,27 +264,66 @@ describe('Libp2pAuth buffered connections', () => {
     })
   })
 
-  it('does not retry a peer that already failed the pending admission', async () => {
+  it.each(['error', 'disconnect'])('retries failed peers only after the round ends with %s', async ending => {
     const failingPeer = peerId('failing-peer')
     const fallbackPeer = peerId('fallback-peer')
 
     await auth['onPeerConnected'](failingPeer, connection(failingPeer.toString()))
+    await auth['onPeerConnected'](fallbackPeer, connection(fallbackPeer.toString()))
+    await auth['onPeerConnected'](peerId('closed-peer'), connection('closed-peer', 'closed'))
     const failingAuth = auth['authConnections'].get(failingPeer.toString())!
     failingAuth.emit(LFAEvents.REMOTE_ERROR, new Error('peer rejected invitation') as any)
 
     await waitForExpect(() => {
-      expect(auth['joinStatus']).toBe(JoinStatus.PENDING)
+      expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
       expect(auth['authConnections'].has(failingPeer.toString())).toBe(false)
-      expect(redialPeers).toHaveBeenCalledTimes(1)
+      expect(auth['authConnections'].has(fallbackPeer.toString())).toBe(true)
     })
 
     await auth['onPeerConnected'](failingPeer, connection(failingPeer.toString()))
     expect(auth['authConnections'].has(failingPeer.toString())).toBe(false)
-    expect(auth['bufferedConnections']).toHaveLength(0)
+    expect(redialPeers).not.toHaveBeenCalled()
 
-    await auth['onPeerConnected'](fallbackPeer, connection(fallbackPeer.toString()))
-    expect(auth['authConnections'].has(fallbackPeer.toString())).toBe(true)
+    // Reconnect during redial to verify eligibility is restored before dialing starts.
+    redialPeers.mockImplementation(async () => {
+      await auth['onPeerConnected'](failingPeer, connection(failingPeer.toString()))
+    })
+    if (ending === 'error') {
+      auth['authConnections'].get(fallbackPeer.toString())!.emit(LFAEvents.REMOTE_ERROR, new Error('rejected') as any)
+    } else {
+      await auth['onPeerDisconnected'](fallbackPeer)
+    }
+
+    await waitForExpect(() => {
+      expect(redialPeers).toHaveBeenCalledTimes(1)
+      expect(auth['authConnections'].has(failingPeer.toString())).toBe(true)
+      expect(auth['authConnections'].has(fallbackPeer.toString())).toBe(false)
+      expect(auth['bufferedConnections']).toHaveLength(0)
+    })
+    expect(auth['authConnections'].get(failingPeer.toString())).not.toBe(failingAuth)
     expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+
+    failingAuth.emit(LFAEvents.REMOTE_ERROR, new Error('late error from previous round') as any)
+    await new Promise<void>(resolve => setImmediate(resolve))
+    expect(redialPeers).toHaveBeenCalledTimes(1)
+    expect(auth['authConnections'].has(failingPeer.toString())).toBe(true)
+  })
+
+  it('allows a single available peer to participate in successive admission rounds', async () => {
+    const peer = peerId('only-peer')
+    await auth['onPeerConnected'](peer, connection(peer.toString()))
+    for (let round = 1; round <= 2; round++) {
+      const previousAuth = auth['authConnections'].get(peer.toString())!
+      previousAuth.emit(LFAEvents.LOCAL_ERROR, new Error('not ready yet') as any)
+      await waitForExpect(() => {
+        expect(redialPeers).toHaveBeenCalledTimes(round)
+        expect(auth['joinStatus']).toBe(JoinStatus.PENDING)
+      })
+      await auth['onPeerConnected'](peer, connection(peer.toString()))
+      expect(auth['authConnections'].get(peer.toString())).toBeDefined()
+      expect(auth['authConnections'].get(peer.toString())).not.toBe(previousAuth)
+      expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+    }
   })
 
   it('advances to the next buffered peer when the active admission peer disconnects', async () => {

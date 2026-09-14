@@ -1,9 +1,9 @@
 import React from 'react'
-import { fireEvent } from '@testing-library/react-native'
+import { act, fireEvent } from '@testing-library/react-native'
 
 import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
-import { type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
+import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
 
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { initActions } from '../../store/init/init.slice'
@@ -30,7 +30,7 @@ describe('JoinCommunityScreen', () => {
     )
     const dispatchSpy = jest.spyOn(store, 'dispatch')
     const result = renderComponent(<JoinCommunityScreen route={route} />, store)
-    return { dispatchSpy, result }
+    return { dispatchSpy, result, store }
   }
 
   it('consumes a device link without starting member registration', async () => {
@@ -79,5 +79,33 @@ describe('JoinCommunityScreen', () => {
         screen: ScreenNames.UsernameRegistrationScreen,
       })
     )
+  })
+
+  it('shows the timeout error on the Join Community screen', async () => {
+    const { store, result } = await renderReadyScreen()
+    act(() => {
+      store.dispatch(
+        communities.actions.setJoinCommunityError({
+          type: 'timeout',
+          invitationType: 'device',
+        })
+      )
+    })
+
+    expect(await result.findByText(ErrorMessages.DEVICE_ADMISSION_TIMEOUT)).toBeTruthy()
+  })
+
+  it('shows the interrupted error on the Join Community screen', async () => {
+    const { store, result } = await renderReadyScreen()
+    act(() => {
+      store.dispatch(
+        communities.actions.setJoinCommunityError({
+          type: 'interrupted',
+          invitationType: 'community',
+        })
+      )
+    })
+
+    expect(await result.findByText(ErrorMessages.ADMISSION_INTERRUPTED_RETRY)).toBeTruthy()
   })
 })

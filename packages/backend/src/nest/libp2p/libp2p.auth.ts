@@ -614,13 +614,10 @@ export class Libp2pAuth {
 
     this.failedAdmissionPeers.add(peerId.toString())
     this.closeAuthConnection(peerId, false)
-    const advancedToBufferedPeer = await this.advanceToNextBufferedPeer()
-    if (!advancedToBufferedPeer) {
-      await this.libp2pService.redialPeers()
-    }
+    await this.advanceToNextBufferedPeer()
   }
 
-  private async advanceToNextBufferedPeer(): Promise<boolean> {
+  private async advanceToNextBufferedPeer(): Promise<void> {
     this.joinStatus = JoinStatus.PENDING
     while (this.bufferedConnections.length > 0) {
       const next = this.bufferedConnections.shift()!
@@ -628,9 +625,14 @@ export class Libp2pAuth {
         continue
       }
       await this.onPeerConnected(next.peerId, next.connection)
-      return true
+      return
     }
-    return false
+    if (this.failedAdmissionPeers.size > 0) {
+      // Exhaust untried open peers before allowing failures to participate in a new round.
+      // The coordinator's acquisition deadline still bounds the admission attempt.
+      this.failedAdmissionPeers.clear()
+      await this.libp2pService.redialPeers()
+    }
   }
 
   /**

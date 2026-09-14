@@ -83,6 +83,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     const connection = new Promise<void>(resolve => {
       this.serverIoProvider.io.on(SocketActions.CONNECTION, socket => {
         socket.on(SocketActions.START, async () => {
+          this.emit(SocketActions.START)
           resolve()
         })
       })
@@ -212,6 +213,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger.info('Leaving community')
         this.emit(SocketActions.LEAVE_COMMUNITY, callback)
       })
+
+      socket.on(
+        SocketActions.RESET_ADMISSION,
+        (payload: LaunchCommunityPayload, callback: (success: boolean) => void) => {
+          this.emit(SocketActions.RESET_ADMISSION, payload, callback)
+        }
+      )
 
       // ====== Users ======
 

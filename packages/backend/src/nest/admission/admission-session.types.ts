@@ -11,6 +11,7 @@ export interface AdmissionSession {
   startedAt: number
   deadlineAt: number
   deadline?: NodeJS.Timeout
+  deadlineWaitingForTor?: boolean
   fallback?: NodeJS.Timeout
   watchdog?: NodeJS.Timeout
   resolve(result: AdmissionResult): void
