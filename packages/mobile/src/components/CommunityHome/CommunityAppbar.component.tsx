@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Keyboard, TouchableOpacity, View } from 'react-native'
+import { Keyboard, Pressable, View } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
@@ -21,6 +21,14 @@ export const COMMUNITY_APPBAR_HEIGHT = 64
 const COMMUNITY_ICON_SIZE = 28
 
 /**
+ * The title bar is the one dark surface on this screen, so its tapped state is
+ * the library's own value rather than the card's: white at 10%, the overlay the
+ * designer spells out beside the primitives as `rgba(255, 255, 255, 0.10)`
+ * (note 5573:9602 / 5573:9597, and `List item` 3797:16113 State=Selected).
+ */
+const TITLE_BAR_PRESSED = 'rgba(255, 255, 255, 0.10)'
+
+/**
  * The design library's `Title bar / Community` (Figma: 5446:75351, laid out at
  * mobile width in 5497:38082): a brand-purple bar carrying the community icon,
  * the community name and a caret. The whole group opens the community context
@@ -30,6 +38,9 @@ const COMMUNITY_ICON_SIZE = 28
  * Neither is built on mobile — there is no channel search and no profile
  * screen — and the design's own "For V1 2025" variant already drops the search
  * glyph, so the zone is empty here.
+ *
+ * The tapped fill bleeds out of the group through equal negative margins, so
+ * the icon still starts at the frame's 16px and only the highlight grows.
  */
 export const CommunityAppbar: FC<CommunityAppbarProps> = ({ communityName, unread = false, onPress }) => (
   <View
@@ -41,7 +52,7 @@ export const CommunityAppbar: FC<CommunityAppbarProps> = ({ communityName, unrea
       backgroundColor: defaultTheme.palette.main.brand,
     }}
   >
-    <TouchableOpacity
+    <Pressable
       onPress={() => {
         Keyboard.dismiss()
         onPress()
@@ -49,13 +60,19 @@ export const CommunityAppbar: FC<CommunityAppbarProps> = ({ communityName, unrea
       testID={'open_menu'}
       accessibilityRole='button'
       accessibilityLabel={`${communityName}, community options`}
-      style={{
+      style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.sm,
         alignSelf: 'flex-start',
         maxWidth: '100%',
-      }}
+        paddingHorizontal: spacing.sm,
+        marginHorizontal: -spacing.sm,
+        paddingVertical: spacing.xs,
+        marginVertical: -spacing.xs,
+        borderRadius: 4,
+        backgroundColor: pressed ? TITLE_BAR_PRESSED : 'transparent',
+      })}
     >
       <CommunityIcon name={communityName} size={COMMUNITY_ICON_SIZE} unread={unread} />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs, flexShrink: 1 }}>
@@ -64,6 +81,6 @@ export const CommunityAppbar: FC<CommunityAppbarProps> = ({ communityName, unrea
         </Typography>
         <CaretDownIcon />
       </View>
-    </TouchableOpacity>
+    </Pressable>
   </View>
 )

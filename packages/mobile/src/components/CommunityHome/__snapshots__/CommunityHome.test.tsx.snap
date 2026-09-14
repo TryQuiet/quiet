@@ -44,7 +44,9 @@ exports[`CommunityHome component matches the snapshot 1`] = `
       accessible={true}
       collapsable={false}
       focusable={true}
+      onBlur={[Function]}
       onClick={[Function]}
+      onFocus={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
       onResponderRelease={[Function]}
@@ -55,10 +57,15 @@ exports[`CommunityHome component matches the snapshot 1`] = `
         {
           "alignItems": "center",
           "alignSelf": "flex-start",
+          "backgroundColor": "transparent",
+          "borderRadius": 4,
           "flexDirection": "row",
           "gap": 8,
+          "marginHorizontal": -8,
+          "marginVertical": -4,
           "maxWidth": "100%",
-          "opacity": 1,
+          "paddingHorizontal": 8,
+          "paddingVertical": 4,
         }
       }
       testID="open_menu"
@@ -264,7 +271,9 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             accessible={true}
             collapsable={false}
             focusable={true}
+            onBlur={[Function]}
             onClick={[Function]}
+            onFocus={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
             onResponderRelease={[Function]}
@@ -274,10 +283,10 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             style={
               {
                 "alignItems": "center",
+                "backgroundColor": "transparent",
                 "flexDirection": "row",
                 "gap": 4,
                 "height": 36,
-                "opacity": 1,
                 "paddingHorizontal": 16,
                 "paddingVertical": 8,
               }
@@ -535,7 +544,9 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                   "top": 12,
                 }
               }
+              onBlur={[Function]}
               onClick={[Function]}
+              onFocus={[Function]}
               onResponderGrant={[Function]}
               onResponderMove={[Function]}
               onResponderRelease={[Function]}
@@ -544,7 +555,8 @@ exports[`CommunityHome component matches the snapshot 1`] = `
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "opacity": 1,
+                  "height": 16,
+                  "width": 16,
                 }
               }
               testID="Create channel"
@@ -689,7 +701,9 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             accessible={true}
             collapsable={false}
             focusable={true}
+            onBlur={[Function]}
             onClick={[Function]}
+            onFocus={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
             onResponderRelease={[Function]}
@@ -699,10 +713,10 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             style={
               {
                 "alignItems": "center",
+                "backgroundColor": "transparent",
                 "flexDirection": "row",
                 "gap": 4,
                 "height": 36,
-                "opacity": 1,
                 "paddingHorizontal": 16,
                 "paddingVertical": 8,
               }
@@ -912,7 +926,9 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             accessible={true}
             collapsable={false}
             focusable={true}
+            onBlur={[Function]}
             onClick={[Function]}
+            onFocus={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
             onResponderRelease={[Function]}
@@ -922,10 +938,10 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             style={
               {
                 "alignItems": "center",
+                "backgroundColor": "transparent",
                 "flexDirection": "row",
                 "gap": 4,
                 "height": 36,
-                "opacity": 1,
                 "paddingHorizontal": 16,
                 "paddingVertical": 8,
               }
@@ -1147,7 +1163,9 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             accessible={true}
             collapsable={false}
             focusable={true}
+            onBlur={[Function]}
             onClick={[Function]}
+            onFocus={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
             onResponderRelease={[Function]}
@@ -1157,10 +1175,10 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             style={
               {
                 "alignItems": "center",
+                "backgroundColor": "transparent",
                 "flexDirection": "row",
                 "gap": 4,
                 "height": 36,
-                "opacity": 1,
                 "paddingHorizontal": 16,
                 "paddingVertical": 8,
               }

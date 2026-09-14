@@ -1,5 +1,6 @@
 import React from 'react'
-import { fireEvent } from '@testing-library/react-native'
+import type { ReactTestInstance } from 'react-test-renderer'
+import { act, fireEvent } from '@testing-library/react-native'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { CommunityHome } from './CommunityHome.component'
@@ -30,6 +31,50 @@ const setup = (overrides: Partial<CommunityHomeProps> = {}) => {
     ...overrides,
   }
   return { props, ...renderComponent(<CommunityHome {...props} />) }
+}
+
+/**
+ * `Pressable`'s pressed state is driven by the responder system, not by an
+ * `onPressIn` prop, so a press is held by granting the responder and released
+ * by giving it back — the same pair RNTL's own `userEvent.press` dispatches.
+ * Pressability reads `persist` and `currentTarget.measure` off the event, so
+ * the stub carries them.
+ */
+const touchEvent = (registrationName: string) => ({
+  target: {},
+  preventDefault: () => undefined,
+  isDefaultPrevented: () => false,
+  stopPropagation: () => undefined,
+  isPropagationStopped: () => false,
+  persist: () => undefined,
+  isPersistent: () => false,
+  timeStamp: 0,
+  nativeEvent: {
+    changedTouches: [],
+    identifier: 0,
+    locationX: 0,
+    locationY: 0,
+    pageX: 0,
+    pageY: 0,
+    target: 0,
+    timestamp: Date.now(),
+    touches: [],
+  },
+  currentTarget: { measure: () => undefined },
+  dispatchConfig: { registrationName },
+})
+
+const hold = (element: ReactTestInstance) => fireEvent(element, 'responderGrant', touchEvent('onResponderGrant'))
+
+/**
+ * Pressability holds the pressed look for a minimum 130ms after the finger
+ * lifts, so the release only lands once the timers have run.
+ */
+const release = (element: ReactTestInstance) => {
+  fireEvent(element, 'responderRelease', touchEvent('onResponderRelease'))
+  act(() => {
+    jest.advanceTimersByTime(200)
+  })
 }
 
 describe('CommunityHome component', () => {
@@ -94,6 +139,50 @@ describe('CommunityHome component', () => {
   it('hides the members section until profiles arrive', () => {
     const { queryByText } = setup({ users: [] })
     expect(queryByText('Users')).toBeNull()
+  })
+
+  // "Tapped state for all clickable stuff" — the designer's V1 note 6220:24045.
+  describe('tapped states', () => {
+    beforeEach(() => jest.useFakeTimers())
+    afterEach(() => jest.useRealTimers())
+
+    it('fills a channel row while it is held', () => {
+      const { getByTestId } = setup()
+      const row = getByTestId('channel_tile_general')
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+      hold(row)
+      expect(row).toHaveStyle({ backgroundColor: '#F0F0F0' })
+      release(row)
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+    })
+
+    it('fills the Add members row and the create-channel circle while they are held', () => {
+      const { getByTestId } = setup()
+      const addMembers = getByTestId('Add members')
+      hold(addMembers)
+      expect(addMembers).toHaveStyle({ backgroundColor: '#F0F0F0' })
+
+      // The plus keeps its 16px box so the frame's right margin holds; the
+      // tapped disc is a wider circle behind it.
+      const { getByTestId: q, queryByTestId } = setup()
+      expect(queryByTestId('Create channel_pressed')).toBeNull()
+      hold(q('Create channel'))
+      expect(q('Create channel_pressed')).toHaveStyle({ backgroundColor: '#F0F0F0', borderRadius: 14 })
+    })
+
+    it('overlays the title bar group in white at 10% while it is held', () => {
+      const { getByTestId } = setup()
+      const group = getByTestId('open_menu')
+      hold(group)
+      expect(group).toHaveStyle({ backgroundColor: 'rgba(255, 255, 255, 0.10)' })
+      release(group)
+      expect(group).toHaveStyle({ backgroundColor: 'transparent' })
+    })
+
+    it('leaves member rows without a tapped state — there is nothing to open', () => {
+      const { getByTestId } = setup()
+      expect(getByTestId('user_tile_StoneJump').props.onStartShouldSetResponder).toBeUndefined()
+    })
   })
 
   it('shows the connecting placeholder before any channel is known', () => {

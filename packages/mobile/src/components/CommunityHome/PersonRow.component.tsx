@@ -15,6 +15,10 @@ export const PERSON_ROW_HEIGHT = 40
  * The design library's `List item--people`: a 24px avatar and a name, 40px tall
  * with 8px between them (Figma: Community home 5446:76594). Quiet has no direct
  * messages, so these rows are not tappable — they are the community's members.
+ *
+ * Nothing to tap means no tapped state: the library's Hover and Selected fills
+ * for `List item--people` (4606:16448) belong to a row that opens a
+ * conversation, and there is no conversation to open.
  */
 export const PersonRow: FC<PersonRowProps> = ({ user, testID }) => (
   <View
