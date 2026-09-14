@@ -196,7 +196,7 @@ describe('Add new channel', () => {
     expect(screen.getByTestId('channelTitle')).toHaveTextContent(`${channelName.output}`)
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
-    expect(link).toHaveClass('ChannelsListItemselected')
+    expect(link).toHaveClass('SidebarRowselected')
     const linkIcon = screen.getByTestId(`${channelName.output}-channel-link-icon-public`)
     expect(linkIcon).toBeVisible()
   })
@@ -297,7 +297,7 @@ describe('Add new channel', () => {
     expect(screen.getByTestId('channelTitle-icon-private')).toBeVisible()
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
-    expect(link).toHaveClass('ChannelsListItemselected')
+    expect(link).toHaveClass('SidebarRowselected')
   })
 
   it('Input after reopen should be clear', async () => {

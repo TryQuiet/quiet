@@ -1,5 +1,4 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import UserProfileListItem from './UserProfileListItem'
@@ -14,6 +13,12 @@ export interface DirectMessagesPanelProps {
   isTorInitialized: boolean
 }
 
+/**
+ * The library's "Direct messages" section (`6218:16416`), carrying Quiet's
+ * members instead: Quiet has no direct messages, so the section keeps the app's
+ * own title, "Users", and has no (+) — you do not start a conversation here.
+ * The rows are the library's `List item--people`.
+ */
 const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   myUserProfile,
   userProfiles,
@@ -22,7 +27,7 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   isTorInitialized,
 }) => {
   return (
-    <Grid container item xs direction='column'>
+    <div>
       <SidebarHeader title={'Users'} tooltipText='List of users in this workspace' />
       <List disablePadding data-testid='usersList'>
         {myUserProfile && (
@@ -54,7 +59,7 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
             />
           ))}
       </List>
-    </Grid>
+    </div>
   )
 }
 

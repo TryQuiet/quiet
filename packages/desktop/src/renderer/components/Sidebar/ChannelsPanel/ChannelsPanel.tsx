@@ -1,5 +1,4 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import { useModal } from '../../../containers/hooks'
 import { PublicChannel, UserProfile } from '@quiet/types'
@@ -18,6 +17,11 @@ export interface ChannelsPanelProps {
   canCreateChannel: boolean
 }
 
+/**
+ * The "Channels" section of the Quiet Design Library's desktop sidebar
+ * (`6218:16416`): a `List title` with the section's (+), then one `List item`
+ * per channel.
+ */
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
   unreadChannels,
@@ -27,41 +31,30 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   createChannelModal,
 }) => {
   return (
-    <Grid container item xs direction='column'>
-      <Grid item>
-        <SidebarHeader
-          title={'Channels'}
-          action={canCreateChannel ? createChannelModal.handleOpen : undefined}
-          actionTitle={canCreateChannel ? createChannelModal.handleOpen : undefined}
-          tooltipText='Create new channel'
-        />
-      </Grid>
-      <Grid item>
-        <List disablePadding data-testid='channelsList'>
-          {channels.map((channel, _index) => {
-            const unread = unreadChannels.some(id => id === channel.id)
-            const selected = currentChannelId === channel.id
-            return (
-              <ChannelsListItem
-                channel={channel}
-                unread={unread}
-                selected={selected}
-                setCurrentChannel={setCurrentChannel}
-                key={channel.id}
-                disabled={Boolean(channel.disabled)}
-              />
-            )
-          })}
-        </List>
-      </Grid>
-      {/* <Grid item>
-        <QuickActionButton
-          text='Find Channel'
-          action={}
-          icon={<Icon src={SearchIcon} />}
-        />
-      </Grid> */}
-    </Grid>
+    <div>
+      <SidebarHeader
+        title={'Channels'}
+        // The (+) is only drawn for users who may actually create a channel.
+        action={canCreateChannel ? createChannelModal.handleOpen : undefined}
+        tooltipText='Create new channel'
+      />
+      <List disablePadding data-testid='channelsList'>
+        {channels.map(channel => {
+          const unread = unreadChannels.some(id => id === channel.id)
+          const selected = currentChannelId === channel.id
+          return (
+            <ChannelsListItem
+              channel={channel}
+              unread={unread}
+              selected={selected}
+              setCurrentChannel={setCurrentChannel}
+              key={channel.id}
+              disabled={Boolean(channel.disabled)}
+            />
+          )
+        })}
+      </List>
+    </div>
   )
 }
 export default ChannelsPanel

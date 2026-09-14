@@ -247,7 +247,7 @@ describe('Switch channels', () => {
     const generalChannelLinkText = screen.getByTestId('general-channel-link-text')
 
     // Assert channel is selected and not highlighted
-    expect(generalChannelLink).toHaveClass('ChannelsListItemselected')
+    expect(generalChannelLink).toHaveClass('SidebarRowselected')
     expect(generalChannelLinkText).toHaveStyle('opacity: 0.7')
 
     await act(async () => {
@@ -255,7 +255,7 @@ describe('Switch channels', () => {
     })
 
     // Confirm nothing changed
-    expect(generalChannelLink).toHaveClass('ChannelsListItemselected')
+    expect(generalChannelLink).toHaveClass('SidebarRowselected')
     expect(generalChannelLinkText).toHaveStyle('opacity: 0.7')
 
     function* mockIncomingMessages(): Generator {
