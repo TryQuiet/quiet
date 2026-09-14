@@ -6,4 +6,6 @@ export interface JoinCommunityProps {
   hasReceivedResponse: boolean
   invitationCode?: string
   ready?: boolean
+  inputError?: string
+  onInputChange?: () => void
 }

@@ -77,6 +77,7 @@ export enum SocketActions {
   JOIN_COMMUNITY = 'joinCommunity',
   LINK_DEVICE = 'linkDevice',
   LAUNCH_COMMUNITY = 'launchCommunity',
+  RESET_ADMISSION = 'resetAdmission',
   LEAVE_COMMUNITY = 'leaveCommunity',
 
   // ====== Channels ======
@@ -204,6 +205,7 @@ export interface SocketActionsMap {
     LaunchCommunityPayload,
     (response?: ResponseLaunchCommunityPayload) => void
   >
+  [SocketActions.RESET_ADMISSION]: EmitEvent<LaunchCommunityPayload, (success: boolean) => void>
   [SocketActions.LEAVE_COMMUNITY]: EmitEvent<LeaveCommunityPayload, (response?: ResponseLeaveCommunityPayload) => void>
 
   // ====== Channels ======

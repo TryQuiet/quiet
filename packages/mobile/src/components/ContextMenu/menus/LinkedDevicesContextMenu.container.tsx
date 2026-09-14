@@ -68,8 +68,8 @@ export const LinkedDevicesContextMenu: FC = () => {
           deviceLinkCreationFailed
             ? 'Could not generate a device link. Close this menu and try again.'
             : deviceLinkInvite
-              ? 'A device link needs an active community connection. Close this menu and try again when connected.'
-              : 'Generating device link...'
+            ? 'A device link needs an active community connection. Close this menu and try again when connected.'
+            : 'Generating device link...'
         }
         {...menu}
       />

@@ -3,7 +3,7 @@ import { currentCommunityId } from '../communities/communities.selectors'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { errorsAdapter } from './errors.adapter'
-import { type ErrorPayload } from '@quiet/types'
+import { type ErrorPayload, ErrorMessages, SocketActions } from '@quiet/types'
 
 const errorSlice: CreatedSelectors[StoreKeys.Errors] = (state: StoreState) => state[StoreKeys.Errors]
 
@@ -39,6 +39,12 @@ export const currentCommunityErrors = createSelector(currentCommunityId, selectA
 })
 
 export const errorsSelectors = {
+  admissionFailure: createSelector(currentCommunityErrors, errors => {
+    const message = errors[SocketActions.LAUNCH_COMMUNITY]?.message
+    if (message === ErrorMessages.ADMISSION_TIMEOUT) return 'timeout' as const
+    if (message === ErrorMessages.ADMISSION_INTERRUPTED) return 'interrupted' as const
+    return null
+  }),
   generalErrors,
   generalErrorByType,
   currentCommunityErrors,

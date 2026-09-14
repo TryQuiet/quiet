@@ -1,5 +1,6 @@
 import { testSaga } from 'redux-saga-test-plan'
-import { ErrorCodes, ErrorMessages, ErrorTypes } from '@quiet/types'
+import { ErrorCodes, ErrorMessages, ErrorTypes, SocketActions } from '@quiet/types'
+import { communitiesActions } from '../../communities/communities.slice'
 import { errorsActions } from '../errors.slice'
 import { handleErrorsSaga } from './handleErrors.saga'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
@@ -15,4 +16,23 @@ describe('handle errors', () => {
     const addErrorAction = errorsActions.handleError(errorPayload)
     testSaga(handleErrorsSaga, addErrorAction).next().put(errorsActions.addError(errorPayload)).next().isDone()
   })
+
+  test.each([ErrorMessages.ADMISSION_TIMEOUT, ErrorMessages.ADMISSION_INTERRUPTED])(
+    'Recoverable admission error requests cleanup: %s',
+    message => {
+      const errorPayload = {
+        type: SocketActions.LAUNCH_COMMUNITY,
+        message,
+        community: 'pending-community',
+      }
+      const addErrorAction = errorsActions.handleError(errorPayload)
+      testSaga(handleErrorsSaga, addErrorAction)
+        .next()
+        .put(errorsActions.addError(errorPayload))
+        .next()
+        .put(communitiesActions.resetAdmission('pending-community'))
+        .next()
+        .isDone()
+    }
+  )
 })

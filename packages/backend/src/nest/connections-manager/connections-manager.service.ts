@@ -8,7 +8,13 @@ import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
-import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
+import {
+  createLibp2pAddress,
+  createLocalAddress,
+  isLocalTransportEnabled,
+  isPSKcodeValid,
+  parseLocalAddress,
+} from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -78,7 +84,7 @@ import { StorageService } from '../storage/storage.service'
 import { StorageEvents } from '../storage/storage.types'
 import { Tor } from '../tor/tor.service'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
-import { ServiceState, TorInitState } from './connections-manager.types'
+import { AdmissionError, ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
 import { peerIdFromString } from '@libp2p/peer-id'
@@ -94,6 +100,28 @@ import { SigChain } from '../auth/sigchain'
 import { Member } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
 
+const DEFAULT_INVITATION_ADMISSION_TIMEOUT_MS = 300_000
+const configuredE2eAdmissionTimeout = Number(process.env.INVITATION_ADMISSION_TIMEOUT_MS)
+// Keep production admission timing fixed, while allowing the desktop E2E suite
+// to exercise the complete timeout recovery flow without a five-minute wait.
+const INVITATION_ADMISSION_TIMEOUT_MS =
+  process.env.IS_E2E === 'true' && Number.isFinite(configuredE2eAdmissionTimeout) && configuredE2eAdmissionTimeout > 0
+    ? configuredE2eAdmissionTimeout
+    : DEFAULT_INVITATION_ADMISSION_TIMEOUT_MS
+
+type PendingAdmissionAttempt = {
+  communityId: string
+  deadline: number
+  generation: number
+  timer: NodeJS.Timeout
+  invalidated: boolean
+  reject?: (error: Error) => void
+  cleanup?: () => void
+  closePromise?: Promise<void>
+  pendingError?: Error
+  readyToReject?: boolean
+}
+
 /**
  * A monolith service that handles lots of events received from the state-manager.
  */
@@ -104,6 +132,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private hibernating = false
   private hibernateInFlight: Promise<void> | null = null
   private wakeInFlight: Promise<void> | null = null
+  /** The manager-owned lifecycle for a pending device admission only. */
+  private pendingAdmissionAttempt?: PendingAdmissionAttempt
+  private admissionGeneration = 0
+  private timedOutAdmissionCommunityId?: string
+  private interruptedAdmissionCommunityId?: string
+  private clearedAdmissionCommunityId?: string
+  private admissionResetInFlight?: Promise<boolean>
   private storedCommunityInitialization: Promise<void> | undefined
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
@@ -529,6 +564,70 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return true
   }
 
+  /**
+   * Clear a failed pending device admission. The community id is part of the
+   * contract so a stale recovery action cannot erase a newer community.
+   * Cleanup is shared by concurrent requests and the completed id makes a lost
+   * socket acknowledgement safe to retry.
+   */
+  public async resetAdmission(communityId: string): Promise<boolean> {
+    if (
+      communityId &&
+      communityId === this.clearedAdmissionCommunityId &&
+      this.communityState === ServiceState.DEFAULT
+    ) {
+      return true
+    }
+
+    const isFailedAttempt =
+      !!communityId &&
+      (communityId === this.timedOutAdmissionCommunityId || communityId === this.interruptedAdmissionCommunityId)
+    if (!isFailedAttempt || this.communityState !== ServiceState.DEFAULT) return false
+    if (this.admissionResetInFlight) return this.admissionResetInFlight
+
+    const attempt = this.pendingAdmissionAttempt
+    const reset = (async () => {
+      // Invalidate before any transport or storage cleanup. Every callback from
+      // the old attempt will then fail its generation check.
+      if (attempt && attempt.communityId === communityId) {
+        this.invalidatePendingAdmission(
+          attempt,
+          new AdmissionError('cancelled', `Admission for ${communityId} was interrupted`)
+        )
+        if (attempt.closePromise) {
+          try {
+            await attempt.closePromise
+          } catch (error) {
+            this.logger.warn('Retrying admission transport shutdown after an earlier failure', error)
+            attempt.closePromise = this.closeAdmissionTransports()
+            await attempt.closePromise
+          }
+        } else {
+          attempt.closePromise = this.closeAdmissionTransports()
+          await attempt.closePromise
+        }
+      } else {
+        ++this.admissionGeneration
+        await this.closeAdmissionTransports()
+      }
+
+      await this.erasePreviousCommunityArtifacts()
+      this.captchaService.reset()
+      await this.qssService.resume()
+      if (attempt) this.finishPendingAdmissionAttempt(attempt)
+      this.timedOutAdmissionCommunityId = undefined
+      this.interruptedAdmissionCommunityId = undefined
+      this.clearedAdmissionCommunityId = communityId
+      return true
+    })()
+    this.admissionResetInFlight = reset
+    try {
+      return await reset
+    } finally {
+      this.admissionResetInFlight = undefined
+    }
+  }
+
   private static readonly LEAVE_IN_PROGRESS_MARKER = '.leave-in-progress'
 
   private leaveInProgressMarkerPath(): string {
@@ -613,9 +712,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async getNetworkInfo(): Promise<NetworkInfo> {
     this.logger.info('Getting network information')
 
-    this.logger.info('Creating hidden service')
-    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
-    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    const hiddenService = isLocalTransportEnabled()
+      ? {
+          onionAddress: createLocalAddress(this.ports.libp2pHiddenService),
+          privateKey: '',
+        }
+      : await this.createEphemeralHiddenService()
     this.logger.info('Getting peer ID')
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
@@ -628,6 +730,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       hiddenService,
       peerId: peerIdJson,
     }
+  }
+
+  private async createEphemeralHiddenService(): Promise<NetworkInfo['hiddenService']> {
+    this.logger.info('Creating hidden service')
+    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
+    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    return hiddenService
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
@@ -821,6 +930,78 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return { id: community.id, community, identity }
   }
 
+  private ensurePendingAdmissionAttempt(communityId: string): PendingAdmissionAttempt {
+    const existing = this.pendingAdmissionAttempt
+    if (existing && !existing.invalidated && existing.communityId === communityId) return existing
+
+    if (existing) clearTimeout(existing.timer)
+    const generation = ++this.admissionGeneration
+    const attempt: PendingAdmissionAttempt = {
+      communityId,
+      deadline: Date.now() + INVITATION_ADMISSION_TIMEOUT_MS,
+      generation,
+      timer: setTimeout(() => {
+        void this.timeoutPendingAdmission(attempt).catch(error => {
+          this.logger.error(`Failed to close transports after admission timeout`, error)
+          const timeoutError = new AdmissionError('timeout', `Admission for ${communityId} timed out`, error)
+          attempt.pendingError = timeoutError
+          attempt.readyToReject = true
+          attempt.reject?.(timeoutError)
+        })
+      }, INVITATION_ADMISSION_TIMEOUT_MS),
+      invalidated: false,
+    }
+    this.pendingAdmissionAttempt = attempt
+    this.logger.info(`Started pending device admission for ${communityId}; deadline ${attempt.deadline}`)
+    return attempt
+  }
+
+  private isPendingAdmissionCurrent(attempt: PendingAdmissionAttempt): boolean {
+    return (
+      this.pendingAdmissionAttempt === attempt &&
+      !attempt.invalidated &&
+      this.admissionGeneration === attempt.generation
+    )
+  }
+
+  private invalidatePendingAdmission(attempt: PendingAdmissionAttempt, error?: Error): void {
+    if (attempt.invalidated) return
+    attempt.invalidated = true
+    clearTimeout(attempt.timer)
+    ++this.admissionGeneration
+    attempt.cleanup?.()
+    if (error) attempt.reject?.(error)
+  }
+
+  private async timeoutPendingAdmission(attempt: PendingAdmissionAttempt): Promise<void> {
+    if (!this.isPendingAdmissionCurrent(attempt)) return
+    this.timedOutAdmissionCommunityId = attempt.communityId
+    this.logger.warn(`Pending device admission timed out for ${attempt.communityId}`)
+    const error = new AdmissionError('timeout', `Admission for ${attempt.communityId} timed out`)
+    attempt.pendingError = error
+    // Invalidate synchronously, then drain transports before rejecting launch. This
+    // serializes timeout recovery with an explicit RESET_ADMISSION request.
+    this.invalidatePendingAdmission(attempt)
+    // Closing these transports prevents a late JOINED event from creating a team
+    // while launchCommunity is unwinding and leaves the local socket available for
+    // the recovery acknowledgement.
+    attempt.closePromise = this.closeAdmissionTransports()
+    await attempt.closePromise
+    attempt.readyToReject = true
+    attempt.reject?.(error)
+  }
+
+  private async closeAdmissionTransports(): Promise<void> {
+    this.qssService?.close()
+    await this.libp2pService?.close(false)
+  }
+
+  private finishPendingAdmissionAttempt(attempt: PendingAdmissionAttempt): void {
+    if (this.pendingAdmissionAttempt !== attempt) return
+    clearTimeout(attempt.timer)
+    this.pendingAdmissionAttempt = undefined
+  }
+
   private async bootstrapCommunityFromInvitation(
     id: string,
     inviteData: DeviceInvitationData,
@@ -911,11 +1092,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } catch (e) {
       this.logger.error(`Failed to launch community ${community.id}`, e)
       this.communityState = ServiceState.DEFAULT
+      const admissionTimedOut = e instanceof AdmissionError && e.kind === 'timeout'
+      const admissionInterrupted = e instanceof AdmissionError && e.kind === 'cancelled'
+      if (admissionTimedOut) this.timedOutAdmissionCommunityId = community.id
+      if (admissionInterrupted) this.interruptedAdmissionCommunityId = community.id
+      const attempt = this.pendingAdmissionAttempt
+      if (attempt?.communityId === community.id && !admissionTimedOut) {
+        this.invalidatePendingAdmission(attempt)
+        if (!admissionInterrupted) this.finishPendingAdmissionAttempt(attempt)
+      }
       emitError(this.serverIoProvider.io, {
         type: SocketActions.LAUNCH_COMMUNITY,
-        message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
+        message: admissionTimedOut
+          ? ErrorMessages.ADMISSION_TIMEOUT
+          : admissionInterrupted
+            ? ErrorMessages.ADMISSION_INTERRUPTED
+            : ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: community.id,
-        trace: e.stack,
+        trace: (e as Error).stack,
       })
       return
     }
@@ -949,33 +1143,52 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async launch(community: Community) {
     this.logger.info(`Launching community ${community.id}`)
 
+    const activeChain = this.sigChainService.getActiveChain()
+    const pendingAdmissionAttempt = activeChain.isPendingDeviceAdmission
+      ? this.ensurePendingAdmissionAttempt(community.id)
+      : undefined
+
     const identity = await this.storageService.getIdentity(community.id)
     if (!identity) {
       throw new Error(ErrorMessages.IDENTITY_NOT_FOUND)
     }
 
-    const onionAddress = await this.spawnTorHiddenService(community.id, identity)
+    const useLocalTransport = isLocalTransportEnabled()
+    const networkAddress = useLocalTransport
+      ? identity.networkInfo.hiddenService.onionAddress
+      : await this.spawnTorHiddenService(community.id, identity)
+
+    if (useLocalTransport) {
+      // The stored identity owns the port, so adopt it: a restart re-rolls
+      // this.ports.libp2pHiddenService and the peer must keep its old address.
+      const parsedLocalAddress = parseLocalAddress(networkAddress)
+      if (parsedLocalAddress == null) {
+        throw new Error(`Local transport requires a 127.0.0.1:<port> peer address, received: ${networkAddress}`)
+      }
+      this.ports = { ...this.ports, libp2pHiddenService: parsedLocalAddress.port }
+    }
 
     const peerIdData: CreatedLibp2pPeerId = {
       peerId: peerIdFromString(identity.networkInfo.peerId.id),
       privKey: privateKeyFromRaw(uint8arrays.fromString(identity.networkInfo.peerId.privKey, 'base64')),
     }
-    const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
+    const localAddress = createLibp2pAddress(networkAddress, peerIdData.peerId.toString())
 
     const params: Libp2pNodeParams = {
       peerId: peerIdData,
-      listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
-      agent: this.socksProxyAgent,
+      listenAddresses: [this.libp2pService.createLibp2pListenAddress(networkAddress)],
+      agent: useLocalTransport ? undefined : this.socksProxyAgent,
       localAddress: localAddress,
       targetPort: this.ports.libp2pHiddenService,
       psk: generateLibp2pPSK(community.psk).fullKey,
-      torBootstrap: this.tor,
+      torBootstrap: useLocalTransport ? undefined : this.tor,
     }
     await this.libp2pService.createInstance(params)
 
     let storageTeamId: string | undefined
     let setupStorageWithTeamMetaPromise: Promise<void> | undefined
     const setupStorageWithTeamMeta = async (teamId: string) => {
+      if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
       if (storageTeamId != null && storageTeamId !== teamId) {
         throw new Error(`Storage metadata team mismatch: ${storageTeamId} !== ${teamId}`)
       }
@@ -989,13 +1202,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       setupStorageWithTeamMetaPromise = (async () => {
         this.logger.info('Setting up storage')
         await this.storageService.init(teamId)
+        if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
         this.qssService.markTeamStorageReady(teamId)
       })()
 
       return setupStorageWithTeamMetaPromise
     }
 
-    const activeChain = this.sigChainService.getActiveChain()
     const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
     if (hasStorageReadyChain) {
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
@@ -1015,6 +1228,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           this.qssService.off(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
           this.libp2pService.off(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
           this.sigChainService.off(SigchainEvents.DEVICE_ADMITTED, handleDeviceAdmitted)
+          if (pendingAdmissionAttempt?.cleanup === cleanup) pendingAdmissionAttempt.cleanup = undefined
         }
 
         const rejectLaunch = (error: unknown) => {
@@ -1024,11 +1238,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           reject(error instanceof Error ? error : new Error(String(error)))
         }
 
+        if (pendingAdmissionAttempt) {
+          pendingAdmissionAttempt.reject = error => rejectLaunch(error)
+          pendingAdmissionAttempt.cleanup = cleanup
+        }
+
         const handleStorageReady = async (teamId: string, joinedVia: 'qss' | 'libp2p' | 'device') => {
           if (settled) return
+          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
           try {
             await setupStorageWithTeamMeta(teamId)
+            if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
             await this._updateTeamIdOnStoredCommunity(community, teamId)
+            if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
             if (joinedVia !== 'qss' && !joinedViaQss) {
               // The QSS sign-in that ran before this join completed had no team to work
               // with, so the native push prerequisites were deferred. The QSS path
@@ -1041,6 +1263,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
                 `${joinedVia} join completed`
               )
             }
+            if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
             if (settled) return
             settled = true
             cleanup()
@@ -1051,11 +1274,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         }
 
         const handleQssFullyJoined = (teamId: string) => {
+          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
           this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
           joinedViaQss = true
           void handleStorageReady(teamId, 'qss')
         }
         const handleLibp2pAuthJoined = (payload: { peer: string }) => {
+          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
           this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
           const teamId = this.sigChainService.getActiveChain().team?.id
           if (teamId == null) {
@@ -1067,23 +1292,37 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           void handleStorageReady(teamId, 'libp2p')
         }
         const handleDeviceAdmitted = (teamId: string) => {
+          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
           if (teamId !== community.teamId) return
           this.logger.info(`Handling ${SigchainEvents.DEVICE_ADMITTED} event`, teamId)
           void handleStorageReady(teamId, 'device')
         }
         const handleQssAuthError = ({ teamId, error }: QSSAuthErrorPayload) => {
+          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
           if (teamId !== community.teamId) return
           this.logger.error(`Handling ${QSSEvents.QSS_AUTH_ERROR} event`, teamId, error)
-          rejectLaunch(error)
+          rejectLaunch(
+            pendingAdmissionAttempt
+              ? new AdmissionError('cancelled', `Admission for ${community.id} was interrupted`, error)
+              : error
+          )
         }
 
         this.qssService.once(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
         this.qssService.on(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
         this.libp2pService.once(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
         this.sigChainService.on(SigchainEvents.DEVICE_ADMITTED, handleDeviceAdmitted)
+
+        // The deadline can expire while createInstance is still starting. Check
+        // only after listeners exist so rejectLaunch can remove all of them.
+        if (pendingAdmissionAttempt?.readyToReject && pendingAdmissionAttempt.pendingError) {
+          rejectLaunch(pendingAdmissionAttempt.pendingError)
+        }
       })
 
-      this.qssService.connect(community.qssEndpoint)
+      if (!pendingAdmissionAttempt || this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) {
+        this.qssService.connect(community.qssEndpoint)
+      }
 
       if (this.tor.bootstrapped) {
         this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
@@ -1092,6 +1331,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
       await storageReadyPromise
     }
+
+    if (pendingAdmissionAttempt) this.finishPendingAdmissionAttempt(pendingAdmissionAttempt)
 
     if (this.tor.bootstrapped) {
       this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
@@ -1321,6 +1562,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         } catch (e) {
           this.logger.error('Error while handling link device request', e)
           callback(undefined)
+        }
+      }
+    )
+
+    this.socketService.on(
+      SocketActions.RESET_ADMISSION,
+      async ({ id }: LaunchCommunityPayload, callback: (success: boolean) => void) => {
+        try {
+          callback(await this.resetAdmission(id))
+        } catch (error) {
+          this.logger.error('Failed to reset admission', error)
+          callback(false)
         }
       }
     )

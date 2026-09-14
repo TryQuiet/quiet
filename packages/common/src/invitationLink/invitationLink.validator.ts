@@ -34,7 +34,7 @@ import {
   USER_NAME_KEY,
   VERSION_KEY,
 } from './invitationLink.const'
-import { isPSKcodeValid } from '../libp2p'
+import { isPSKcodeValid, parseLocalAddress } from '../libp2p'
 import { createLogger } from '../logger'
 
 import base64url from 'base64url'
@@ -155,8 +155,11 @@ export const validatePeerData = ({ peerId, onionAddress }: { peerId: string; oni
     return false
   }
 
-  if (!onionAddress.trim().match(ONION_ADDRESS_REGEX)) {
-    logger.warn(`Onion address ${onionAddress} is not valid`)
+  // parseLocalAddress returns undefined unless local transport is enabled, so a
+  // production client still rejects a 127.0.0.1 pair supplied by an invite link.
+  const address = onionAddress.trim()
+  if (!address.match(ONION_ADDRESS_REGEX) && parseLocalAddress(address) == null) {
+    logger.warn(`Peer address ${onionAddress} is not valid`)
     return false
   }
 
