@@ -124,7 +124,6 @@ const args: SidebarComponentProps = {
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {},
   },
-  openSearchModal: function (): void {},
 }
 
 const Template: ComponentStory<typeof SidebarComponent> = storyArgs => {
@@ -141,20 +140,25 @@ const Template: ComponentStory<typeof SidebarComponent> = storyArgs => {
   )
 }
 
-/** The library's Mode=Light variant (`5439:58760`) - the app's default theme. */
+/** The V1 variant, `6218:16416` - the purple column, and the only one in scope. */
 export const Component = Template.bind({})
 Component.args = args
-Component.storyName = 'Light'
+Component.storyName = 'V1'
 
-/** The library's Mode=Dark variant (`5439:58627`). */
-export const Dark: ComponentStory<typeof SidebarComponent> = storyArgs => (
+/**
+ * Not a designed variant. V1 is purple only ("No dark mode yet", `6222:13638`),
+ * so this is just the app's dark theme keeping today's `sidebarBackground`; it
+ * is here to catch the column breaking under it, not to review it.
+ */
+export const UndesignedDarkTheme: ComponentStory<typeof SidebarComponent> = storyArgs => (
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={darkTheme}>
       <Template {...storyArgs} />
     </ThemeProvider>
   </StyledEngineProvider>
 )
-Dark.args = args
+UndesignedDarkTheme.args = args
+UndesignedDarkTheme.storyName = 'Dark theme (undesigned)'
 
 /** Unread channels carry the library's red badge; Quiet has no unread counts. */
 export const Unread = Template.bind({})

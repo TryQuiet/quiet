@@ -20,7 +20,11 @@ const StyledUserProfilePanel = styled('div')(({ theme }) => ({
     width: '100%',
     // The library separates the profile summary from the scrolling list with a
     // hairline rather than a change of colour.
-    borderTop: '1px solid rgba(255, 255, 255, 0.10)',
+    borderTop: `1px solid ${sidebarMetrics.profile.border}`,
+    // `Profile summary` (`4716:7702`) sits at 90% in all three of its variants
+    // and in the sidebar instance, which is what recesses your own row relative
+    // to the members above it.
+    opacity: sidebarMetrics.profile.opacity,
   },
 
   [`& .${classes.button}`]: {
@@ -37,11 +41,16 @@ const StyledUserProfilePanel = styled('div')(({ theme }) => ({
     textAlign: 'left',
     color: theme.palette.colors.white,
     transition: 'background-color 0.2s',
+    // `Profile summary` Hover=True (`4716:7702`) carries a white 10% overlay,
+    // not the 5% a list row gets.
     '&:hover': {
-      backgroundColor: theme.palette.colors.sidebarHover,
+      backgroundColor: sidebarMetrics.overlay.selected,
       [`& .${classes.nickname}`]: {
         opacity: sidebarMetrics.opacity.hover,
       },
+    },
+    '&:active': {
+      backgroundColor: sidebarMetrics.overlay.pressed,
     },
   },
 

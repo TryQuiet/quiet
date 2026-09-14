@@ -45,7 +45,7 @@ describe('Main', () => {
                         class="SidebarComponentwindowControls"
                       />
                       <div
-                        class="IdentityPanelroot css-ms7g1q"
+                        class="IdentityPanelroot css-15v2td"
                       >
                         <button
                           class="IdentityPanelbutton"
@@ -87,40 +87,6 @@ describe('Main', () => {
                           </span>
                         </button>
                       </div>
-                      <div
-                        class="SidebarSearchroot css-1wssjc3"
-                      >
-                        <button
-                          class="SidebarSearchbutton"
-                          data-testid="sidebar-search-button"
-                          type="button"
-                        >
-                          <span
-                            class="SidebarSearchglyph"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              fill="none"
-                              focusable="false"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              width="16"
-                            >
-                              <path
-                                clip-rule="evenodd"
-                                d="M9.80667 9.33333H10.3333L13.66 12.6667L12.6667 13.66L9.33333 10.3333V9.80667L9.15333 9.62C8.39333 10.2733 7.40667 10.6667 6.33333 10.6667C3.94 10.6667 2 8.72667 2 6.33333C2 3.94 3.94 2 6.33333 2C8.72667 2 10.6667 3.94 10.6667 6.33333C10.6667 7.40667 10.2733 8.39333 9.62 9.15333L9.80667 9.33333ZM3.33333 6.33333C3.33333 7.99333 4.67333 9.33333 6.33333 9.33333C7.99333 9.33333 9.33333 7.99333 9.33333 6.33333C9.33333 4.67333 7.99333 3.33333 6.33333 3.33333C4.67333 3.33333 3.33333 4.67333 3.33333 6.33333Z"
-                                fill="currentColor"
-                                fill-rule="evenodd"
-                              />
-                            </svg>
-                          </span>
-                          <span
-                            class="MuiTypography-root MuiTypography-caption SidebarSearchlabel css-sb3pb0-MuiTypography-root"
-                          >
-                            Search
-                          </span>
-                        </button>
-                      </div>
                     </div>
                     <div
                       class="SidebarComponentscrollArea"
@@ -144,7 +110,7 @@ describe('Main', () => {
                                 data-testid="prominentActionsList"
                               >
                                 <div
-                                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-gke9y4-MuiButtonBase-root-MuiListItemButton-root"
+                                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-1k15c8s-MuiButtonBase-root-MuiListItemButton-root"
                                   data-testid="add-members-link"
                                   role="button"
                                   tabindex="0"
@@ -194,7 +160,7 @@ describe('Main', () => {
                               </ul>
                               <div>
                                 <div
-                                  class="SidebarHeaderroot css-1c61m4s"
+                                  class="SidebarHeaderroot css-1f72bw8"
                                 >
                                   <h6
                                     class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
@@ -240,7 +206,7 @@ describe('Main', () => {
                                   data-testid="channelsList"
                                 >
                                   <div
-                                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-gke9y4-MuiButtonBase-root-MuiListItemButton-root"
+                                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-1k15c8s-MuiButtonBase-root-MuiListItemButton-root"
                                     data-testid="general-link"
                                     role="button"
                                     tabindex="0"
@@ -301,7 +267,7 @@ describe('Main', () => {
                               </div>
                               <div>
                                 <div
-                                  class="SidebarHeaderroot css-1c61m4s"
+                                  class="SidebarHeaderroot css-1f72bw8"
                                 >
                                   <h6
                                     class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
@@ -352,7 +318,7 @@ describe('Main', () => {
                       </div>
                     </div>
                     <div
-                      class="UserProfilePanel-root css-101ajbh"
+                      class="UserProfilePanel-root css-1baejcn"
                     >
                       <button
                         class="UserProfilePanel-button"

@@ -26,6 +26,7 @@ const StyledRow = styled(ListItemButton)(({ theme }) => ({
     gap: sidebarMetrics.row.gap,
     display: 'flex',
     alignItems: 'center',
+    // State=Default paints no overlay at all.
     backgroundColor: 'transparent',
     color: theme.palette.colors.white,
     borderRadius: 0,
@@ -38,11 +39,18 @@ const StyledRow = styled(ListItemButton)(({ theme }) => ({
   },
 
   [`&.${classes.root}:hover`]: {
-    backgroundColor: theme.palette.colors.sidebarHover,
+    backgroundColor: sidebarMetrics.overlay.hover,
   },
 
   [`&.${classes.selected}, &.${classes.selected}:hover`]: {
-    backgroundColor: theme.palette.colors.sidebarSelected,
+    backgroundColor: sidebarMetrics.overlay.selected,
+  },
+
+  // "Tapped state for all clickable stuff", from the designer's V1 note
+  // (`6222:13638`). The library has no Pressed variant, so pressing reuses the
+  // Selected overlay rather than introducing a third value.
+  [`&.${classes.root}:active`]: {
+    backgroundColor: sidebarMetrics.overlay.pressed,
   },
 
   [`&.${classes.disabled}`]: {

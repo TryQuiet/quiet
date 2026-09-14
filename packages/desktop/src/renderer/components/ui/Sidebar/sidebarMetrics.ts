@@ -1,24 +1,25 @@
 /**
- * Geometry of the desktop sidebar, measured from the Quiet Design Library
- * (Figma file `0j7Nna9zWmfOSNmRmQK1Uh`, page "Structure & Nav"):
+ * Geometry and state overlays for the desktop sidebar, measured from the Quiet
+ * Design Library (Figma file `0j7Nna9zWmfOSNmRmQK1Uh`, page "Structure & Nav",
+ * section "Desktop and mobile sidebar and titlebar" `6107:21330`):
  *
- *   Desktop sidebar          `5439:58626`  Mode=Dark `5439:58627` / Mode=Light `5439:58760`
- *   Desktop sidebar V1       `6218:16416`  Content=For V1 2025
+ *   Desktop sidebar V1       `6218:16416`  Mode=Desktop sidebar - V1 release
+ *   Team                     `4233:12959`  the community header row
+ *   List title               `3797:16103`  Default / Hover
  *   List item                `3797:16113`  Default / Hover / Selected
- *   List title               `3797:16103`
- *   List item--people        `4606:16448`
- *   Search input             `5446:61649`
- *   Community icon top-level `5196:15387`
+ *   List item--people        `4606:16448`  Single / Group, Default / Hover / Selected
+ *   Profile summary          `4716:7702`   the own-user row at the bottom
+ *   controls--mac            `3797:15261`  the window-controls space
  *
  * Numbers are read off those nodes, not invented. They sit on the 4px grid
  * apart from the two the library itself sets off it: the 3px vertical row
  * padding, and the row heights it produces (20px line-height + 2 x 3 = 26,
  * and 24px avatar + 2 x 3 = 30).
  *
- * The colours are not here: the sidebar's background, hover and selected fills
- * are already in `theme.palette.colors` as `sidebarBackground` / `sidebarHover`
- * / `sidebarSelected`, and they already carry the library's values in both
- * modes (light `#511974`, dark `#2F193D`; hover white at 5%, selected at 10%).
+ * V1 is the purple column only. The library's Mode=Dark variant (`5439:58627`)
+ * is out of scope — the designer's V1 note (`6222:13638`) says "No dark mode
+ * yet" — so nothing here varies by theme, and the app's dark theme keeps
+ * today's `sidebarBackground` until a dark sidebar is designed.
  */
 export const sidebarMetrics = {
   /** Column width: every row is this wide so selected and hover fills span it. */
@@ -26,11 +27,11 @@ export const sidebarMetrics = {
 
   /** "Team and search": vertical, 16px gap, 8px bottom padding. */
   header: {
-    /** The macOS window-control strip the sidebar leaves clear (76 x 36). */
+    /** The macOS window-control strip the sidebar leaves clear (`3797:15261`, 76 x 36). */
     windowControlsHeight: 36,
     gap: 16,
     paddingBottom: 8,
-    /** Side padding shared by the community row and the search field. */
+    /** Side padding of the community row (`4233:12959`, 0/16). */
     paddingX: 16,
     /** The community row itself. */
     teamRowHeight: 28,
@@ -84,22 +85,13 @@ export const sidebarMetrics = {
   /** "badge2" — the unread marker at a row's right edge. */
   badge: {
     size: 16,
-    /** Quiet's brand red, `theme.palette.secondary.main`. */
+    /** Quiet's brand red, `theme.palette.secondary.main` (`#E42656`). */
     radius: 100,
     /** Quiet has no unread *counts*, so the badge degenerates to a dot. */
     dot: 8,
   },
 
-  /** "Search input". */
-  search: {
-    height: 32,
-    radius: 8,
-    padding: 8,
-    gap: 5,
-    glyph: 16,
-  },
-
-  /** "Profile summary" — the own-user row pinned to the bottom. */
+  /** "Profile summary" (`4716:7702`) — the own-user row pinned to the bottom. */
   profile: {
     height: 48,
     paddingY: 12,
@@ -107,6 +99,32 @@ export const sidebarMetrics = {
     gap: 8,
     avatar: 24,
     avatarRadius: 4,
+    /** The library separates it from the list with a white 10% hairline. */
+    border: 'rgba(255, 255, 255, 0.10)',
+    /** The whole row is drawn at 90%, in every variant of the set. */
+    opacity: 0.9,
+  },
+
+  /**
+   * The overlays the library paints on an interactive row, annotated by the
+   * designer beside each primitive: "Hover / White 5% opacity" (`5573:9585`)
+   * and "Selected / White 10% opacity" (`5573:9597`) on List item, and
+   * "Hover / White 10% opacity" (`5573:9602`) on Profile summary. Default is
+   * no overlay at all.
+   *
+   * These are the library's exact values. `theme.palette.colors.sidebarHover`
+   * and `sidebarSelected` carry the same two overlays to within one hex step
+   * (`#FFFFFF0C` is 4.7%, `#FFFFFF19` is 9.8%) and are identical in both
+   * themes; the sidebar uses the library's numbers directly so it does not
+   * depend on `theme.ts`, which another branch in this stack is editing.
+   */
+  overlay: {
+    /** `List item` / `List item--people` State=Hover. */
+    hover: 'rgba(255, 255, 255, 0.05)',
+    /** `List item` / `List item--people` State=Selected, and `Profile summary` Hover=True. */
+    selected: 'rgba(255, 255, 255, 0.10)',
+    /** No Pressed variant exists in the library; pressing reuses the Selected overlay. */
+    pressed: 'rgba(255, 255, 255, 0.10)',
   },
 
   /**
@@ -119,12 +137,10 @@ export const sidebarMetrics = {
     label: 0.7,
     /** Row glyphs (#, lock, person-add). */
     glyph: 0.5,
-    /** The (+) in a section header. */
+    /** The (+) in a section header — 1 on hover, per List title State=Hover. */
     titleAction: 0.6,
     communityName: 0.8,
     caret: 0.6,
-    searchGlyph: 0.4,
-    searchLabel: 0.5,
     /** Raised to this on hover for anything interactive. */
     hover: 1,
     disabled: 0.3,

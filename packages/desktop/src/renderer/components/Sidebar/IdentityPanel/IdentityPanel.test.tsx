@@ -28,7 +28,7 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="IdentityPanelroot css-ms7g1q"
+            class="IdentityPanelroot css-15v2td"
           >
             <button
               class="IdentityPanelbutton"
@@ -91,7 +91,7 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="IdentityPanelroot css-ms7g1q"
+            class="IdentityPanelroot css-15v2td"
           >
             <button
               class="IdentityPanelbutton"

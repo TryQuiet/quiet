@@ -4,7 +4,7 @@ exports[`SidebarHeader renders the title and the section action 1`] = `
 <body>
   <div>
     <div
-      class="SidebarHeaderroot css-1c61m4s"
+      class="SidebarHeaderroot css-1f72bw8"
     >
       <h6
         class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"

@@ -8,7 +8,6 @@ import ProminentActionsPanel from './ProminentActionsPanel/ProminentActionsPanel
 import TorStatus, { TorStatusProps } from './TorStatus'
 import UserProfilePanel, { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import DirectMessagesPanel, { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
-import SidebarSearch from '../ui/Sidebar/SidebarSearch'
 import { sidebarMetrics } from '../ui/Sidebar/sidebarMetrics'
 
 const PREFIX = 'SidebarComponent'
@@ -70,14 +69,15 @@ export type SidebarComponentProps = IdentityPanelProps &
   ChannelsPanelProps &
   TorStatusProps &
   UserProfilePanelProps &
-  DirectMessagesPanelProps & {
-    /** Opens the channel-search modal the app already binds to Ctrl/Cmd+K. */
-    openSearchModal?: () => void
-  }
+  DirectMessagesPanelProps
 
 /**
- * The desktop sidebar, following the Quiet Design Library's "Desktop sidebar"
- * (`5439:58626`, Mode=Dark / Mode=Light) with the V1 content of `6218:16416`.
+ * The desktop sidebar, following the Quiet Design Library's V1 variant
+ * "Mode=Desktop sidebar - V1 release, Content=For V1 2025" (`6218:16416`).
+ *
+ * The library's full component set (`5439:58626`) puts a search field under the
+ * community row; V1 does not ("Top bar without search", `6222:13638`), and the
+ * app's channel search stays on Ctrl/Cmd+K.
  */
 const SidebarComponent: React.FC<SidebarComponentProps> = ({ ...props }) => {
   return (
@@ -85,7 +85,6 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ ...props }) => {
       <div className={classes.header}>
         <div className={classes.windowControls} />
         <IdentityPanel {...props} />
-        {props.openSearchModal && <SidebarSearch onClick={props.openSearchModal} />}
       </div>
 
       <div className={classes.scrollArea}>

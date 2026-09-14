@@ -33,6 +33,10 @@ const StyledHeader = styled('div')(({ theme }) => ({
     whiteSpace: 'nowrap',
   },
 
+  // `List title` State=Hover also paints the whole row white 10%, which would
+  // offer a hover affordance the row does not have: in Quiet a section title is
+  // not clickable, only its (+) is. So the hover lives on the (+) alone, where
+  // the library takes it from 60% to full.
   [`& .${classes.action}`]: {
     flexShrink: 0,
     display: 'flex',
@@ -46,8 +50,14 @@ const StyledHeader = styled('div')(({ theme }) => ({
     cursor: 'pointer',
     color: theme.palette.colors.white,
     opacity: sidebarMetrics.opacity.titleAction,
+    borderRadius: '50%',
     '&:hover': {
       opacity: sidebarMetrics.opacity.hover,
+    },
+    // Pressed: the (+) is a glyph, not a row, so it takes the overlay on itself.
+    '&:active': {
+      opacity: sidebarMetrics.opacity.hover,
+      backgroundColor: sidebarMetrics.overlay.pressed,
     },
   },
 }))

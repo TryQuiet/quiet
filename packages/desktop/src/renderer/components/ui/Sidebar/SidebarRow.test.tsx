@@ -5,7 +5,7 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 
 import SidebarRow from './SidebarRow'
 import SidebarUnreadBadge from './SidebarUnreadBadge'
-import { lightTheme } from '../../../theme'
+import { sidebarMetrics } from './sidebarMetrics'
 
 const fill = (testId: string) => getComputedStyle(screen.getByTestId(testId)).backgroundColor
 /** jsdom spells an unpainted background either way depending on the declaration. */
@@ -22,12 +22,15 @@ describe('SidebarRow', () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
-  it('fills a selected row with the library selected colour', () => {
+  it('fills a selected row with the library selected overlay', () => {
     renderComponent(<SidebarRow label='general' selected data-testid='row' />)
 
-    // `List item` State=Selected 3797:16113 - white at 10%, theme token `sidebarSelected`.
-    expect(lightTheme.palette.colors.sidebarSelected).toEqual('#FFFFFF19')
-    expect(unpainted(fill('row'))).toBe(false)
+    // The designer's annotations beside the primitives: hover is white 5%
+    // (`5573:9585`) and selected is white 10% (`5573:9597`), and the two must
+    // not be swapped or collapsed into one.
+    expect(sidebarMetrics.overlay.selected).toEqual('rgba(255, 255, 255, 0.10)')
+    expect(sidebarMetrics.overlay.hover).toEqual('rgba(255, 255, 255, 0.05)')
+    expect(fill('row')).toEqual('rgba(255, 255, 255, 0.1)')
   })
 
   it('leaves an unselected row unfilled, so hover and selection stay distinct', () => {

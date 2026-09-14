@@ -39,15 +39,3 @@ export const PlusCircleIcon: React.FC<{ className?: string }> = ({ className }) 
     <circle cx='8' cy='8' r='7.5' stroke='currentColor' />
   </svg>
 )
-
-/** `search` — the magnifier inside the search input. */
-export const SearchGlyphIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg width='16' height='16' viewBox='0 0 16 16' fill='none' className={className} aria-hidden focusable='false'>
-    <path
-      fillRule='evenodd'
-      clipRule='evenodd'
-      d='M9.80667 9.33333H10.3333L13.66 12.6667L12.6667 13.66L9.33333 10.3333V9.80667L9.15333 9.62C8.39333 10.2733 7.40667 10.6667 6.33333 10.6667C3.94 10.6667 2 8.72667 2 6.33333C2 3.94 3.94 2 6.33333 2C8.72667 2 10.6667 3.94 10.6667 6.33333C10.6667 7.40667 10.2733 8.39333 9.62 9.15333L9.80667 9.33333ZM3.33333 6.33333C3.33333 7.99333 4.67333 9.33333 6.33333 9.33333C7.99333 9.33333 9.33333 7.99333 9.33333 6.33333C9.33333 4.67333 7.99333 3.33333 6.33333 3.33333C4.67333 3.33333 3.33333 4.67333 3.33333 6.33333Z'
-      fill='currentColor'
-    />
-  </svg>
-)

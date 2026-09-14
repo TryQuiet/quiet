@@ -16,7 +16,6 @@ const Sidebar = () => {
 
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
-  const searchChannelModal = useModal(ModalName.searchChannelModal)
 
   const userProfileContextMenu = useContextMenu(MenuName.UserProfile)
 
@@ -87,9 +86,6 @@ const Sidebar = () => {
       {...channelsPanelProps}
       {...userProfilePanelProps}
       {...directMessagesPanelProps}
-      openSearchModal={() => {
-        searchChannelModal.handleOpen()
-      }}
     />
   )
 }

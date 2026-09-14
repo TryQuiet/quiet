@@ -21,9 +21,11 @@ const StyledIdentityPanel = styled('div')(({ theme }) => ({
   [`&.${classes.root}`]: {
     boxSizing: 'border-box',
     width: '100%',
-    padding: `0 ${sidebarMetrics.header.paddingX}px`,
   },
 
+  // `Team` (`4233:12959`) is a 220-wide row with 16px side padding. The padding
+  // is on the button rather than a wrapper so the pressed overlay spans the
+  // whole column, the way every other row's does.
   [`& .${classes.button}`]: {
     boxSizing: 'border-box',
     display: 'flex',
@@ -31,16 +33,22 @@ const StyledIdentityPanel = styled('div')(({ theme }) => ({
     width: '100%',
     minHeight: sidebarMetrics.header.teamRowHeight,
     gap: sidebarMetrics.header.teamGap,
-    padding: 0,
+    padding: `0 ${sidebarMetrics.header.paddingX}px`,
     border: 'none',
     background: 'none',
     cursor: 'pointer',
     textAlign: 'left',
     color: theme.palette.colors.white,
+    // `Team` has no Hover or Pressed variant in the library, so hovering only
+    // brings the name and caret up to full opacity, and pressing reuses the
+    // Selected overlay rather than inventing a colour.
     '&:hover': {
       [`& .${classes.nickname}, & .${classes.caret}`]: {
         opacity: sidebarMetrics.opacity.hover,
       },
+    },
+    '&:active': {
+      backgroundColor: sidebarMetrics.overlay.pressed,
     },
   },
 
@@ -74,13 +82,15 @@ export interface IdentityPanelProps {
 }
 
 /**
- * The "Team" row at the top of the Quiet Design Library's desktop sidebar
- * (`6218:16416`): the community's letter tile, its name, and a caret.
+ * `Team` (`4233:12959`, Type=Community) at the top of the desktop sidebar: the
+ * community's letter tile, its name, and a caret.
  *
  * The caret opens what the community header has always opened, the community
- * settings drawer. The library also puts an unread bubble on the tile; Quiet has
- * one community per window and no unread counts, so there is nothing to put in
- * it and it is left out.
+ * settings drawer. The library also hangs an unread bubble off the tile
+ * (`Community home/Badge--community`, "99+"); Quiet counts no messages, so
+ * there is no number to put in it and it is left out, as the channel badges'
+ * counts are. The set's Placeholder variant is a skeleton, which the app has no
+ * state for: the sidebar renders nothing until there is a community.
  */
 export const IdentityPanel: React.FC<IdentityPanelProps> = ({ currentCommunity, accountSettingsModal }) => {
   const communityName = currentCommunity?.name || '...'
