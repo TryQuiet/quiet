@@ -136,6 +136,7 @@ QSS is released separately in [TryQuiet/quiet-storage-service](https://github.co
 ### Preparing a QSS Production Release
 
 1. Obtain production release approval after QA has tested the QSS alpha. Review the database migrations before deploying.
+1. Check the production CodeDeploy deployment group's instance count and deployment configuration. For a single instance, including a single replacement instance in a blue/green deployment, use `CodeDeployDefault.OneAtATime`. `CodeDeployDefault.HalfAtATime` rounds the number of instances it can update down, so a one-instance environment cannot begin installation. See [AWS's deployment configuration rules](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html).
 1. From the prepared QSS checkout, publish a **full release**, for example:
 
    ```bash
@@ -144,6 +145,8 @@ QSS is released separately in [TryQuiet/quiet-storage-service](https://github.co
 
    Review and accept Lerna's version confirmation. The [production deployment workflow](https://github.com/TryQuiet/quiet-storage-service/blob/main/.github/workflows/deploy_prod.yml) deploys on the `released` event. This event also triggers the development workflow, so a full release deploys to **both production and staging**. The checked-in release workflows do not provide a production-only manual trigger. To update only production, use a separately prepared manual workflow based on `deploy_prod.yml`, with `environment: production` and `CODE_DEPLOY_GROUP_NAME_PROD`.
 1. Watch **Deploy to EC2 (Production)** and **Deploy to EC2 (Development)** in [QSS Actions](https://github.com/TryQuiet/quiet-storage-service/actions). The existing deployment action builds QSS, uploads the release bundle to S3, invokes AWS CodeDeploy, and waits for CodeDeploy to succeed. Each deployment runs its environment's database migrations and starts or restarts the service.
+
+   If deployment fails, inspect the CodeDeploy deployment ID in the workflow log and its deployment details and lifecycle events in AWS. A minimum-healthy-instances error before installation can be caused by the configuration mismatch above. Update the affected deployment group's configuration, then re-run the failed job in that environment's existing GitHub Actions release run. The deployment command uses the group's configured default. This retries the existing release tag; another `pnpm run publish` or version increment is unnecessary. When copying a deployment directly in CodeDeploy instead, explicitly select the corrected deployment configuration and retain the intended revision.
 1. Record the deployed version and commit, including deployments performed manually. Check production health:
 
    ```bash
