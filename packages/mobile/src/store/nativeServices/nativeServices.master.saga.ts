@@ -4,6 +4,8 @@ import { leaveCommunitySaga } from './leaveCommunity/leaveCommunity.saga'
 import { flushPersistorSaga } from './flushPersistor/flushPersistor.saga'
 import { nativeServicesActions } from './nativeServices.slice'
 import { createLogger } from '../../utils/logger'
+import { communities } from '@quiet/state-manager'
+import { finishAdmissionResetSaga } from './resetAdmission/resetAdmission.saga'
 
 const logger = createLogger('nativeServicesMaster')
 
@@ -16,7 +18,10 @@ export function* nativeServicesMasterSaga(): Generator {
   try {
     yield* fork(flushPersistorWatcherSaga)
     yield* fork(nativeServicesCallbacksSaga)
-    yield all([takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga)])
+    yield all([
+      takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga),
+      takeEvery(communities.actions.setAdmissionResetStatus.type, finishAdmissionResetSaga),
+    ])
   } finally {
     logger.info('nativeServicesMasterSaga stopping')
     if (yield cancelled()) {
