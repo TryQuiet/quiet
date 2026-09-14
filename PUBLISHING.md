@@ -111,10 +111,13 @@ QSS is released separately in [TryQuiet/quiet-storage-service](https://github.co
    The bootstrap flags enable verbose output, skip pulling newer submodule commits, and copy the pinned auth packages into the build workspace. If the explicit-version bootstrap above already succeeded, do not repeat it. Verify the tests and build, review any working-tree changes, and start publishing from a clean checkout.
 1. Authenticate Git and the GitHub CLI with credentials that can push the release commit and tag and create a GitHub release. A token that can only push a branch is insufficient. The commands below obtain `GH_TOKEN` from the current `gh` login. Choose an unused QSS version; the versions shown are examples.
 
+   In this checkout, Lerna's `allowBranch: ["*"]` does not match branch names containing `/`. Publishing from `release/9.0.0` therefore fails with `ENOTALLOWED` before changing versions. The commands below explicitly allow that release branch with `--allow-branch release/9.0.0`. When publishing another approved branch, replace this argument with its exact name after checking `git branch --show-current`.
+
    If the global pnpm version is still incorrect, use the same explicit-version wrapper when publishing. For example, the full-release command becomes:
 
    ```bash
-   GH_TOKEN="$(gh auth token)" npm exec --yes --package=pnpm@10.6.0 -- pnpm run publish 1.1.2
+   GH_TOKEN="$(gh auth token)" npm exec --yes --package=pnpm@10.6.0 -- \
+     pnpm run publish 2.0.0 --allow-branch release/9.0.0
    ```
 
 ### Preparing a QSS Alpha (Staging)
@@ -123,7 +126,7 @@ QSS is released separately in [TryQuiet/quiet-storage-service](https://github.co
 1. Publish a QSS **prerelease** using the existing `publish` script:
 
    ```bash
-   GH_TOKEN="$(gh auth token)" pnpm run publish 1.1.2-alpha.2
+   GH_TOKEN="$(gh auth token)" pnpm run publish 2.0.0-alpha.0 --allow-branch release/9.0.0
    ```
 
    Review and accept Lerna's version confirmation. The script commits the version changes, pushes the tag, and creates the GitHub release. The [development deployment workflow](https://github.com/TryQuiet/quiet-storage-service/blob/main/.github/workflows/deploy_dev.yml) deploys to staging (`wss://qss-dev.quiet-services.app`) on `prereleased` and `released` events. Verify that **Deploy to EC2 (Development)** starts for the intended tag and commit. Publishing a prerelease from a draft does not trigger this workflow; see [GitHub's release event documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#release).
@@ -136,7 +139,7 @@ QSS is released separately in [TryQuiet/quiet-storage-service](https://github.co
 1. From the prepared QSS checkout, publish a **full release**, for example:
 
    ```bash
-   GH_TOKEN="$(gh auth token)" pnpm run publish 1.1.2
+   GH_TOKEN="$(gh auth token)" pnpm run publish 2.0.0 --allow-branch release/9.0.0
    ```
 
    Review and accept Lerna's version confirmation. The [production deployment workflow](https://github.com/TryQuiet/quiet-storage-service/blob/main/.github/workflows/deploy_prod.yml) deploys on the `released` event. This event also triggers the development workflow, so a full release deploys to **both production and staging**. The checked-in release workflows do not provide a production-only manual trigger. To update only production, use a separately prepared manual workflow based on `deploy_prod.yml`, with `environment: production` and `CODE_DEPLOY_GROUP_NAME_PROD`.
