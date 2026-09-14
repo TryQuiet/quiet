@@ -125,6 +125,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._scheduleReconnect(QSSOperationResult.ERROR)
   }
 
+  /** Resets recovery backoff after an established member authenticates successfully. */
+  private _handleQssAuthConnected = (teamId: string): void => {
+    if (!this.preparedAdmissions.has(teamId) && this.joinStatus(teamId) === JoinStatus.JOINED) {
+      this._clearReconnectTimer(true)
+    }
+  }
+
   /** Completes QSS join handling and forwards asynchronous failures as auth errors. */
   private _handleQssAuthJoined = (teamId: string): void => {
     void this.handleQssAuthJoined(teamId).catch(error => {
@@ -157,21 +164,28 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         this.qssAuthConnManager.markMemberRoleReady(teamId)
         this.qssSyncManager.markMemberRoleReady(teamId)
         this.qssSyncManager.startLogSyncForSignedInTeam(teamId, chain)
+        this._clearReconnectTimer(true)
         this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
         this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
       })
       return
     }
+    this._clearReconnectTimer(true)
     this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
   }
 
-  /** Rejects prepared admission and emits a QSS authentication error. */
-  private _handleQssAuthError = (payload: QSSAuthErrorPayload): void => {
+  /** Rejects prepared admission, or schedules background auth recovery, and emits the error. */
+  private _handleQssAuthError = (payload: QSSAuthErrorPayload, retry = true): void => {
+    const prepared = this.preparedAdmissions.has(payload.teamId)
     this.logger.warn('QSS auth connection failed', payload.teamId, payload.error)
     this.rejectPreparedAdmission(
       payload.teamId,
       payload.error instanceof Error ? payload.error : new Error(String(payload.error))
     )
+    if (retry && !prepared && !this._paused) {
+      this.qssAuthConnManager.stopConnection(payload.teamId, false)
+      this._scheduleReconnect(QSSOperationResult.ERROR)
+    }
     this.emit(QSSEvents.QSS_AUTH_ERROR, payload)
   }
 
@@ -193,7 +207,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
   /** Starts an auth connection requested through the service event bus. */
   private _handleStartAuthConnection = (teamId: string): void => {
-    void this.startAuthConnection(teamId)
+    void this.startAuthConnection(teamId).then(started => {
+      if (!started) this._scheduleReconnect(QSSOperationResult.ERROR)
+    })
   }
 
   /** Connects to QSS when necessary and requests hCaptcha verification. */
@@ -232,6 +248,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   /** Requests the appropriate authentication operation after QSS connects. */
   private _handleQssConnected = async (): Promise<void> => {
     this.logger.debug('QSS connected, handling appropriate authentication operation')
+    this._clearReconnectTimer()
     this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
   }
 
@@ -240,49 +257,57 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    * and the active sigchain.
    */
   private _handleQssHandleSignIn = async (): Promise<void> => {
-    await this._signInMutex.runExclusive(async () => {
-      const initStatus = await this.getQssInitStatus()
-      if (!initStatus.communityInitialized || initStatus.community == null) {
-        this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
-        return
-      }
-
-      if (!initStatus.qssEnabled) {
-        this.logger.trace('QSS not enabled for this community, skipping sign in')
-        return
-      }
-
-      let sigChain: SigChain
-      try {
-        sigChain = this.sigChainService.activeChain
-      } catch (e) {
-        this.logger.error('No active sigchain present, cannot perform QSS operations')
-        return
-      }
-
-      if (
-        !(initStatus.qssSetup ?? false) &&
-        sigChain.team != null &&
-        this.sigChainService.users.getAllUsers().length === 1
-      ) {
-        await this.createCommunity(sigChain)
-      } else {
-        const teamId =
-          sigChain.team != null
-            ? sigChain.teamId
-            : (initStatus.community?.inviteData as InvitationDataV5).authData.teamId
-        this.logger.trace('QSS Sign in', teamId)
-        if (teamId == null) {
-          this.logger.warn('Attempted to sign into QSS but no team ID was found')
+    await this._signInMutex
+      .runExclusive(async () => {
+        if (this._paused || !this.connected) return
+        const initStatus = await this.getQssInitStatus()
+        if (this._paused || !this.connected) return
+        if (!initStatus.communityInitialized || initStatus.community == null) {
+          this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
           return
         }
-        if (sigChain.team == null) {
-          this.logger.debug('Pending invitation admission is coordinated externally; skipping automatic QSS sign-in')
+
+        if (!initStatus.qssEnabled) {
+          this.logger.trace('QSS not enabled for this community, skipping sign in')
+          this._clearReconnectTimer(true)
           return
         }
-        await this.signInToCommunity(teamId, sigChain)
-      }
-    })
+
+        let sigChain: SigChain
+        try {
+          sigChain = this.sigChainService.activeChain
+        } catch (e) {
+          this.logger.error('No active sigchain present, cannot perform QSS operations')
+          return
+        }
+
+        if (
+          !(initStatus.qssSetup ?? false) &&
+          sigChain.team != null &&
+          this.sigChainService.users.getAllUsers().length === 1
+        ) {
+          if (!(await this.createCommunity(sigChain))) this._scheduleReconnect(QSSOperationResult.ERROR)
+        } else {
+          const teamId =
+            sigChain.team != null
+              ? sigChain.teamId
+              : (initStatus.community?.inviteData as InvitationDataV5).authData.teamId
+          this.logger.trace('QSS Sign in', teamId)
+          if (teamId == null) {
+            this.logger.warn('Attempted to sign into QSS but no team ID was found')
+            return
+          }
+          if (sigChain.team == null) {
+            this.logger.debug('Pending invitation admission is coordinated externally; skipping automatic QSS sign-in')
+            return
+          }
+          await this.signInToCommunity(teamId, sigChain)
+        }
+      })
+      .catch(error => {
+        this.logger.error('Failed to process QSS sign-in', error)
+        this._scheduleReconnect(QSSOperationResult.ERROR)
+      })
   }
 
   /**
@@ -328,8 +353,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
     } catch (error) {
       this.logger.error(`Failed to finish QSS member-role admission`, teamId, error)
-      this.qssAuthConnManager.stopConnection(teamId, false)
-      this.emit(QSSEvents.QSS_AUTH_ERROR, { teamId, error })
+      this._handleQssAuthError({ teamId, error })
     }
   }
 
@@ -357,6 +381,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return
     }
 
+    this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_CONNECTED, this._handleQssAuthConnected)
     this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, this._handleQssAuthJoined)
     this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, this._handleQssAuthAttemptFailed)
     this.on(QSSEvents.QSS_START_AUTH_CONN, this._handleStartAuthConnection)
@@ -376,6 +401,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return
     }
 
+    this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_CONNECTED, this._handleQssAuthConnected)
     this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_JOINED, this._handleQssAuthJoined)
     this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, this._handleQssAuthAttemptFailed)
     this.off(QSSEvents.QSS_START_AUTH_CONN, this._handleStartAuthConnection)
@@ -396,6 +422,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return true
     } catch (e) {
       this.logger.error('Failed to start QSS auth connection', e)
+      this.qssAuthConnManager.stopConnection(teamId, false)
       return false
     }
   }
@@ -453,7 +480,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       attempts >= QSS_DEVICE_ADMISSION_MAX_ATTEMPTS
     ) {
       this.clearDeviceAdmissionRetry(payload.teamId)
-      this._handleQssAuthError({ teamId: payload.teamId, error: payload.error, attempts })
+      this._handleQssAuthError({ teamId: payload.teamId, error: payload.error, attempts }, !payload.deviceAdmission)
       return
     }
 
@@ -643,12 +670,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
-  /** Schedules a reconnect with exponential backoff after a failed operation. */
+  /** Retries connection or authentication using one capped exponential backoff timer. */
   private _scheduleReconnect(connStatus: QSSOperationResult): void {
-    if (connStatus === QSSOperationResult.SUCCESS) {
-      this._clearReconnectTimer(true)
-      return
-    }
+    // A connected socket is not yet authenticated. Preserve backoff until authentication succeeds.
+    if (connStatus === QSSOperationResult.SUCCESS) return
 
     if (connStatus === QSSOperationResult.DISABLED) {
       this.logger.debug('Not scheduling QSS reconnect because QSS is disabled')
@@ -656,7 +681,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return
     }
 
-    if (this._paused || this._reconnectQueueProcessor != null) {
+    if (this._paused || !this.canConnect || this._reconnectQueueProcessor != null) {
       return
     }
 
@@ -666,7 +691,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.logger.debug('Scheduling QSS reconnect in', reconnectDelayMs, 'ms')
     this._reconnectQueueProcessor = setTimeout(() => {
       this._reconnectQueueProcessor = undefined
-      void this.connect(this.qssEndpoint, this._enabledOverride)
+      if (this.connected) {
+        void this._handleQssHandleSignIn()
+      } else {
+        void this.connect(this.qssEndpoint, this._enabledOverride)
+      }
     }, reconnectDelayMs)
   }
 
@@ -996,6 +1025,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     } catch (e) {
       this.logger.error('Failed to sign in to QSS', e)
       result = QSSOperationResult.ERROR
+    }
+
+    // Pending admissions retain their separate bounded/coordinator-owned retry policy.
+    if (result === QSSOperationResult.ERROR && sigChain.team != null && !sigChain.isPendingDeviceAdmission) {
+      this._scheduleReconnect(result)
     }
 
     if (result === QSSOperationResult.SUCCESS) {
