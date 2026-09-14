@@ -622,6 +622,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.closeAdmissionTransports()
       }
 
+      // Invalidation stops new work; these promises cover effects already in flight.
+      // They can reject with the admission failure and still must finish before erasure.
+      await Promise.allSettled([attempt?.startup, attempt?.finalization])
       await this.erasePreviousCommunityArtifacts()
       this.captchaService.reset()
       await this.qssService.resume()
@@ -793,6 +796,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
+    if (this.admissionResetInFlight) await this.admissionResetInFlight
     this.logger.info('Creating community', payload.id)
     await this.erasePreviousCommunityArtifacts()
 
@@ -849,6 +853,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
+    if (this.admissionResetInFlight) await this.admissionResetInFlight
     this.logger.info('Joining community', payload.id)
     const inviteData = payload.inviteData
     if (!inviteData) {
@@ -944,6 +949,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async linkDevice(payload: InitDeviceLinkPayload): Promise<ResponseLinkDevicePayload | undefined> {
+    if (this.admissionResetInFlight) await this.admissionResetInFlight
     this.logger.info('Linking device to community', payload.id)
     const { inviteData } = payload
     if (!isDeviceInvitationData(inviteData)) {
@@ -1124,6 +1130,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launchCommunity(id: string): Promise<void> {
+    if (this.admissionResetInFlight) await this.admissionResetInFlight
     const community: Community | undefined = await this.localDbService.getCommunity(id)
     if (!community) {
       this.logger.error('No community found in storage')
@@ -1166,9 +1173,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.warn('No community name found in storage')
     }
 
+    let launchAttempt: PendingAdmissionAttempt | undefined
     try {
-      await this.launch(community)
+      const launch = this.launch(community)
+      launchAttempt = this.pendingAdmissionAttempt
+      await launch
     } catch (e) {
+      // Reset may have completed while this launch was unwinding.
+      if (launchAttempt && this.pendingAdmissionAttempt !== launchAttempt) return
       this.logger.error(`Failed to launch community ${community.id}`, e)
       this.communityState = ServiceState.DEFAULT
       const admissionTimedOut = e instanceof AdmissionError && e.kind === 'timeout'
@@ -1243,6 +1255,31 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       ? this.ensurePendingAdmissionAttempt(community.id, activeChain.isPendingDeviceAdmission ? 'device' : 'community')
       : undefined
 
+    const startup = this.startCommunityTransport(community, pendingAdmissionAttempt)
+    if (pendingAdmissionAttempt) pendingAdmissionAttempt.startup = startup
+    await startup
+    if (hasDurableAdmission) {
+      await this.initializeCommunityStorage(activeChain.team!.id)
+      this.qssService.connect(community.qssEndpoint)
+      await this._updateTeamIdOnStoredCommunity(community, activeChain)
+    } else {
+      await this.waitForCommunityStorage(community, pendingAdmissionAttempt)
+    }
+
+    if (pendingAdmissionAttempt) {
+      this.finishPendingAdmissionAttempt(pendingAdmissionAttempt)
+      this.clearAdmissionInProgressMarker()
+    }
+
+    if (this.tor.bootstrapped) {
+      this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+    }
+
+    this.logger.info('Storage initialized')
+    this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+  }
+
+  private async startCommunityTransport(community: Community, pendingAdmissionAttempt?: PendingAdmissionAttempt) {
     const identity = await this.storageService.getIdentity(community.id)
     this.assertPendingAdmissionCurrent(pendingAdmissionAttempt, community.id)
     if (!identity) {
@@ -1291,164 +1328,129 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         new AdmissionError('cancelled', `Admission for ${community.id} was interrupted`)
       )
     }
+  }
 
-    let storageTeamId: string | undefined
-    let setupStorageWithTeamMetaPromise: Promise<void> | undefined
-    const setupStorageWithTeamMeta = async (teamId: string) => {
-      if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-      if (storageTeamId != null && storageTeamId !== teamId) {
-        throw new Error(`Storage metadata team mismatch: ${storageTeamId} !== ${teamId}`)
+  private async initializeCommunityStorage(teamId: string, assertOpen: () => void = () => {}): Promise<void> {
+    assertOpen()
+    this.logger.info('Setting up storage')
+    await this.storageService.init(teamId)
+    assertOpen()
+    this.qssService.markTeamStorageReady(teamId)
+  }
+
+  private async waitForCommunityStorage(community: Community, attempt?: PendingAdmissionAttempt): Promise<void> {
+    const storageReadyPromise = new Promise<void>((resolve, reject) => {
+      let settled = false
+      let terminalError: Error | undefined
+      let joinedViaQss = false
+      let storageTeamId: string | undefined
+      let finalization: Promise<void> | undefined
+
+      const isOpen = () => !settled && (!attempt || this.isPendingAdmissionCurrent(attempt))
+      const assertOpen = () => {
+        if (terminalError) throw terminalError
+        this.assertPendingAdmissionCurrent(attempt, community.id)
+        if (settled) throw new Error('Community storage readiness already settled')
       }
-      storageTeamId = teamId
-
-      if (setupStorageWithTeamMetaPromise != null) {
-        this.logger.info('Storage metadata setup already in progress, waiting')
-        return setupStorageWithTeamMetaPromise
+      const cleanup = () => {
+        this.qssService.off(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
+        this.qssService.off(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
+        this.libp2pService.off(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
+        this.sigChainService.off(SigchainEvents.DEVICE_ADMITTED, handleDeviceAdmitted)
+        if (attempt?.cleanup === cleanup) attempt.cleanup = undefined
+      }
+      const rejectLaunch = (error: unknown) => {
+        if (settled) return
+        terminalError = error instanceof Error ? error : new Error(String(error))
+        settled = true
+        cleanup()
+        reject(terminalError)
       }
 
-      setupStorageWithTeamMetaPromise = (async () => {
-        this.logger.info('Setting up storage')
-        await this.storageService.init(teamId)
-        if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-        this.qssService.markTeamStorageReady(teamId)
-      })()
+      const rejectWhileCurrent = (error: unknown) => {
+        // Timeout owns rejection until its transport shutdown has completed.
+        if (!attempt || this.isPendingAdmissionCurrent(attempt)) rejectLaunch(error)
+      }
 
-      return setupStorageWithTeamMetaPromise
-    }
-
-    if (hasDurableAdmission) {
-      this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
-      await setupStorageWithTeamMeta(activeChain.team!.id)
-      this.qssService.connect(community.qssEndpoint)
-      await this._updateTeamIdOnStoredCommunity(community, activeChain)
-    } else {
-      this.logger.debug(
-        'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
-      )
-      const storageReadyPromise = new Promise<void>((resolve, reject) => {
-        let settled = false
-        let joinedViaQss = false
-
-        const cleanup = () => {
-          this.qssService.off(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
-          this.qssService.off(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
-          this.libp2pService.off(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
-          this.sigChainService.off(SigchainEvents.DEVICE_ADMITTED, handleDeviceAdmitted)
-          if (pendingAdmissionAttempt?.cleanup === cleanup) pendingAdmissionAttempt.cleanup = undefined
+      const handleStorageReady = (teamId: string, joinedVia: 'qss' | 'libp2p' | 'device') => {
+        if (!isOpen()) return
+        if (storageTeamId != null && storageTeamId !== teamId) {
+          rejectLaunch(new Error(`Storage metadata team mismatch: ${storageTeamId} !== ${teamId}`))
+          return
         }
-
-        const rejectLaunch = (error: unknown) => {
-          if (settled) return
+        if (joinedVia === 'qss') joinedViaQss = true
+        if (finalization) return
+        storageTeamId = teamId
+        // Assign before executing any side effects, including synchronous event callbacks.
+        finalization = Promise.resolve().then(async () => {
+          await this.initializeCommunityStorage(teamId, assertOpen)
+          assertOpen()
+          await this._updateTeamIdOnStoredCommunity(community, teamId, assertOpen)
+          assertOpen()
+          // QSS emits these prerequisites before QSS_FULLY_JOINED. A QSS event
+          // arriving during initialization must still suppress the local duplicate.
+          if (!joinedViaQss) {
+            await this.qssService.syncNativePushPrerequisites(
+              teamId,
+              this.sigChainService.getActiveChain(),
+              `${joinedVia} join completed`
+            )
+          }
+          assertOpen()
           settled = true
           cleanup()
-          reject(error instanceof Error ? error : new Error(String(error)))
-        }
-
-        if (pendingAdmissionAttempt) {
-          pendingAdmissionAttempt.reject = error => rejectLaunch(error)
-          pendingAdmissionAttempt.cleanup = cleanup
-        }
-
-        const handleStorageReady = async (teamId: string, joinedVia: 'qss' | 'libp2p' | 'device') => {
-          if (settled) return
-          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-          try {
-            await setupStorageWithTeamMeta(teamId)
-            if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-            await this._updateTeamIdOnStoredCommunity(community, teamId)
-            if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-            if (joinedVia !== 'qss' && !joinedViaQss) {
-              // The QSS sign-in that ran before this join completed had no team to work
-              // with, so the native push prerequisites were deferred. The QSS path
-              // re-emits them from _handleSelfAssignMember before QSS_FULLY_JOINED; a
-              // join that completed over libp2p never passes through there, so do it
-              // here unless the QSS path has already done it (#346).
-              await this.qssService.syncNativePushPrerequisites(
-                teamId,
-                this.sigChainService.getActiveChain(),
-                `${joinedVia} join completed`
-              )
-            }
-            if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-            if (settled) return
-            settled = true
-            cleanup()
-            resolve()
-          } catch (e) {
-            rejectLaunch(e)
-          }
-        }
-
-        const handleQssFullyJoined = (teamId: string) => {
-          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-          this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
-          joinedViaQss = true
-          void handleStorageReady(teamId, 'qss')
-        }
-        const handleLibp2pAuthJoined = (payload: { peer: string }) => {
-          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-          this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
-          const teamId = this.sigChainService.getActiveChain().team?.id
-          if (teamId == null) {
-            rejectLaunch(
-              new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`)
-            )
-            return
-          }
-          void handleStorageReady(teamId, 'libp2p')
-        }
-        const handleDeviceAdmitted = (teamId: string) => {
-          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-          if (teamId !== community.teamId) return
-          this.logger.info(`Handling ${SigchainEvents.DEVICE_ADMITTED} event`, teamId)
-          void handleStorageReady(teamId, 'device')
-        }
-        const handleQssAuthError = ({ teamId, error }: QSSAuthErrorPayload) => {
-          if (pendingAdmissionAttempt && !this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) return
-          if (teamId !== community.teamId) return
-          this.logger.error(`Handling ${QSSEvents.QSS_AUTH_ERROR} event`, teamId, error)
+          resolve()
+        })
+        if (attempt) attempt.finalization = finalization
+        void finalization.catch(rejectWhileCurrent)
+      }
+      const handleQssFullyJoined = (teamId: string) => handleStorageReady(teamId, 'qss')
+      const handleLibp2pAuthJoined = () => {
+        if (!isOpen()) return
+        const teamId = this.sigChainService.getActiveChain().team?.id
+        if (teamId == null) {
           rejectLaunch(
-            pendingAdmissionAttempt
-              ? new AdmissionError('cancelled', `Admission for ${community.id} was interrupted`, error)
-              : error
+            new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`)
           )
+          return
         }
-
-        this.qssService.once(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
-        this.qssService.on(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
-        this.libp2pService.once(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
-        this.sigChainService.on(SigchainEvents.DEVICE_ADMITTED, handleDeviceAdmitted)
-
-        // The deadline can expire while createInstance is still starting. Check
-        // only after listeners exist so rejectLaunch can remove all of them.
-        if (pendingAdmissionAttempt?.readyToReject && pendingAdmissionAttempt.pendingError) {
-          rejectLaunch(pendingAdmissionAttempt.pendingError)
-        }
-      })
-
-      if (!pendingAdmissionAttempt || this.isPendingAdmissionCurrent(pendingAdmissionAttempt)) {
-        this.qssService.connect(community.qssEndpoint)
+        handleStorageReady(teamId, 'libp2p')
+      }
+      const handleDeviceAdmitted = (teamId: string) => {
+        if (teamId === community.teamId) handleStorageReady(teamId, 'device')
+      }
+      const handleQssAuthError = ({ teamId, error }: QSSAuthErrorPayload) => {
+        if (!isOpen() || teamId !== community.teamId) return
+        rejectLaunch(
+          attempt ? new AdmissionError('cancelled', `Admission for ${community.id} was interrupted`, error) : error
+        )
       }
 
-      if (this.tor.bootstrapped) {
-        this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+      if (attempt) {
+        attempt.reject = rejectLaunch
+        attempt.cleanup = cleanup
       }
-      this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+      this.qssService.once(QSSEvents.QSS_FULLY_JOINED, handleQssFullyJoined)
+      this.qssService.on(QSSEvents.QSS_AUTH_ERROR, handleQssAuthError)
+      this.libp2pService.once(Libp2pEvents.AUTH_JOINED, handleLibp2pAuthJoined)
+      this.sigChainService.on(SigchainEvents.DEVICE_ADMITTED, handleDeviceAdmitted)
 
-      await storageReadyPromise
-    }
+      if (attempt?.readyToReject && attempt.pendingError) {
+        rejectLaunch(attempt.pendingError)
+      }
+      if (isOpen()) {
+        try {
+          // Listeners must exist before connect, which can emit synchronously.
+          void this.qssService.connect(community.qssEndpoint).catch(rejectWhileCurrent)
+        } catch (error) {
+          rejectLaunch(error)
+        }
+      }
+    })
 
-    if (pendingAdmissionAttempt) {
-      this.finishPendingAdmissionAttempt(pendingAdmissionAttempt)
-      this.clearAdmissionInProgressMarker()
-    }
-
-    if (this.tor.bootstrapped) {
-      this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
-    }
-
-    this.logger.info('Storage initialized')
+    if (this.tor.bootstrapped) this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+    await storageReadyPromise
   }
 
   private assertPendingAdmissionCurrent(attempt: PendingAdmissionAttempt | undefined, communityId: string): void {
@@ -1457,8 +1459,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   private async _updateTeamIdOnStoredCommunity(community: Community, chain: SigChain): Promise<void>
-  private async _updateTeamIdOnStoredCommunity(community: Community, teamId: string): Promise<void>
-  private async _updateTeamIdOnStoredCommunity(community: Community, chainOrTeamId: SigChain | string): Promise<void> {
+  private async _updateTeamIdOnStoredCommunity(
+    community: Community,
+    teamId: string,
+    assertOpen?: () => void
+  ): Promise<void>
+  private async _updateTeamIdOnStoredCommunity(
+    community: Community,
+    chainOrTeamId: SigChain | string,
+    assertOpen: () => void = () => {}
+  ): Promise<void> {
+    assertOpen()
     if (community.teamId != null) return
     if (chainOrTeamId instanceof SigChain && chainOrTeamId.team == null) {
       this.logger.warn(`Can't update team ID on stored community ${community.id} because sigchain has nullish team`)
@@ -1467,6 +1478,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.debug(`Updating team ID for stored community ${community.id}`)
     const teamId = chainOrTeamId instanceof SigChain ? chainOrTeamId.team!.id : chainOrTeamId
     await this.localDbService.setCommunity({ ...community, teamId })
+    assertOpen()
     const payload: UpdateCommunityPayload = {
       id: community.id,
       updates: {

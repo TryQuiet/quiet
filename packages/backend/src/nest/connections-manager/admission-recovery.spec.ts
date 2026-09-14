@@ -1,5 +1,9 @@
 import { expect, jest } from '@jest/globals'
-import { ErrorMessages, SocketActions } from '@quiet/types'
+import { ErrorMessages, SocketActions, SocketEvents, type Community } from '@quiet/types'
+import { EventEmitter } from 'events'
+import { QSSEvents } from '../qss/qss.types'
+import { Libp2pEvents } from '../libp2p/libp2p.types'
+import { SigchainEvents } from '../auth/types'
 
 import { ConnectionsManagerService } from './connections-manager.service'
 import { AdmissionError, ServiceState } from './connections-manager.types'
@@ -57,6 +61,32 @@ describe('invitation admission recovery', () => {
     expect(manager['erasePreviousCommunityArtifacts']).toHaveBeenCalledTimes(1)
 
     await expect(manager.resetAdmission('pending-community')).resolves.toBe(true)
+    expect(manager['erasePreviousCommunityArtifacts']).toHaveBeenCalledTimes(1)
+  })
+
+  it('waits for late startup completion before erasing artifacts on reset', async () => {
+    const manager = createManager()
+    let finishStartup!: () => void
+    const startup = new Promise<void>(resolve => {
+      finishStartup = resolve
+    })
+    const attempt = {
+      communityId: 'pending-community',
+      invitationType: 'device' as const,
+      deadline: Date.now() + 60_000,
+      generation: 1,
+      timer: setTimeout(() => undefined, 60_000),
+      invalidated: false,
+      startup,
+    }
+    const closed = jest.fn(async () => undefined)
+    Object.assign(manager, { pendingAdmissionAttempt: attempt, closeAdmissionTransports: closed })
+    const reset = manager.resetAdmission(attempt.communityId)
+    await new Promise<void>(resolve => setImmediate(resolve))
+    expect(closed).toHaveBeenCalledTimes(1)
+    expect(manager['erasePreviousCommunityArtifacts']).not.toHaveBeenCalled()
+    finishStartup()
+    await expect(reset).resolves.toBe(true)
     expect(manager['erasePreviousCommunityArtifacts']).toHaveBeenCalledTimes(1)
   })
 
@@ -248,5 +278,177 @@ describe('invitation admission recovery', () => {
       manager.launch({ id: 'pending-community' } as Parameters<ConnectionsManagerService['launch']>[0])
     ).rejects.not.toMatchObject({ kind: 'cancelled' })
     expect(clearAdmissionInProgressMarker).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('community storage readiness races', () => {
+  const deferred = () => {
+    let resolve!: () => void
+    const promise = new Promise<void>(done => {
+      resolve = done
+    })
+    return { promise, resolve }
+  }
+
+  const setup = () => {
+    const manager = Object.create(ConnectionsManagerService.prototype) as ConnectionsManagerService
+    const qss = Object.assign(new EventEmitter(), {
+      connect: jest.fn(async () => undefined),
+      markTeamStorageReady: jest.fn(),
+      syncNativePushPrerequisites: jest.fn(async () => undefined),
+    })
+    const libp2p = new EventEmitter()
+    const sigchain = Object.assign(new EventEmitter(), {
+      getActiveChain: () => ({ team: { id: 'team' } }),
+    })
+    const storage = { init: jest.fn(async (): Promise<void> => undefined) }
+    const db = { setCommunity: jest.fn(async (): Promise<void> => undefined) }
+    const io = { emit: jest.fn() }
+    Object.assign(manager, {
+      qssService: qss,
+      libp2pService: libp2p,
+      sigChainService: sigchain,
+      storageService: storage,
+      localDbService: db,
+      serverIoProvider: { io },
+      tor: { bootstrapped: false },
+      logger: { info: jest.fn(), debug: jest.fn() },
+    })
+    const community = { id: 'community' } as Community
+    return { manager, qss, libp2p, sigchain, storage, db, io, community }
+  }
+
+  it('finalizes metadata and push once when device and libp2p join during a write', async () => {
+    const { manager, qss, libp2p, sigchain, db, community } = setup()
+    community.teamId = 'team'
+    const writing = deferred()
+    const started = deferred()
+    const update = jest.fn(async () => {
+      started.resolve()
+      await writing.promise
+    })
+    Object.assign(manager, { _updateTeamIdOnStoredCommunity: update })
+    const ready = manager['waitForCommunityStorage'](community)
+    libp2p.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer' })
+    await started.promise
+    sigchain.emit(SigchainEvents.DEVICE_ADMITTED, 'team')
+    writing.resolve()
+    await ready
+    expect(update).toHaveBeenCalledTimes(1)
+    expect(qss.syncNativePushPrerequisites).toHaveBeenCalledTimes(1)
+    expect(db.setCommunity).not.toHaveBeenCalled()
+  })
+
+  it('observes QSS completion during initialization without repeating push prerequisites', async () => {
+    const { manager, qss, libp2p, storage, db, community } = setup()
+    const initializing = deferred()
+    const started = deferred()
+    storage.init.mockImplementation(async () => {
+      started.resolve()
+      await initializing.promise
+    })
+    const ready = manager['waitForCommunityStorage'](community)
+    libp2p.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer' })
+    await started.promise
+    qss.emit(QSSEvents.QSS_FULLY_JOINED, 'team')
+    initializing.resolve()
+    await ready
+    expect(storage.init).toHaveBeenCalledTimes(1)
+    expect(db.setCommunity).toHaveBeenCalledTimes(1)
+    expect(qss.syncNativePushPrerequisites).not.toHaveBeenCalled()
+  })
+
+  it('suppresses metadata publication and push when auth fails during the database write', async () => {
+    const { manager, qss, libp2p, db, io, community } = setup()
+    const writing = deferred()
+    const started = deferred()
+    db.setCommunity.mockImplementation(async () => {
+      started.resolve()
+      await writing.promise
+    })
+    const error = new Error('admission failed')
+    const ready = manager['waitForCommunityStorage'](community)
+    const rejected = expect(ready).rejects.toThrow(error)
+    libp2p.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer' })
+    await started.promise
+    qss.emit(QSSEvents.QSS_AUTH_ERROR, { teamId: undefined, error })
+    writing.resolve()
+    await rejected
+    // Flush the write continuation before inspecting its observable effects.
+    await new Promise<void>(resolve => setImmediate(resolve))
+    expect(io.emit).not.toHaveBeenCalledWith(SocketEvents.COMMUNITY_UPDATED, expect.anything())
+    expect(qss.syncNativePushPrerequisites).not.toHaveBeenCalled()
+    expect(qss.listenerCount(QSSEvents.QSS_FULLY_JOINED)).toBe(0)
+    expect(libp2p.listenerCount(Libp2pEvents.AUTH_JOINED)).toBe(0)
+  })
+
+  it.each([false, true])(
+    'drains reset work with initialization finishing before shutdown: %s',
+    async finishBeforeClose => {
+      const { manager, qss, libp2p, storage, community } = setup()
+      const initializing = deferred()
+      const started = deferred()
+      const closing = deferred()
+      const attempt = {
+        communityId: community.id,
+        invitationType: 'community' as const,
+        deadline: Date.now() + 60_000,
+        generation: 1,
+        timer: setTimeout(() => undefined, 60_000),
+        invalidated: false,
+      }
+      const erase = jest.fn(async () => undefined)
+      Object.assign(manager, {
+        pendingAdmissionAttempt: attempt,
+        admissionGeneration: 1,
+        logger: { info: jest.fn(), debug: jest.fn(), warn: jest.fn() },
+        closeAdmissionTransports: jest.fn(() => closing.promise),
+        erasePreviousCommunityArtifacts: erase,
+        clearAdmissionInProgressMarker: jest.fn(),
+        captchaService: { reset: jest.fn() },
+      })
+      Object.assign(qss, { resume: jest.fn(async () => undefined) })
+      storage.init.mockImplementation(async () => {
+        started.resolve()
+        await initializing.promise
+      })
+      const ready = manager['waitForCommunityStorage'](community, attempt)
+      let rejected = false
+      const failure = ready.catch(error => {
+        rejected = true
+        return error
+      })
+      libp2p.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer' })
+      await started.promise
+      const timeout = manager['timeoutPendingAdmission'](attempt)
+      const reset = manager.resetAdmission(community.id)
+      expect(rejected).toBe(false)
+      if (finishBeforeClose) {
+        initializing.resolve()
+        await new Promise<void>(resolve => setImmediate(resolve))
+        expect(rejected).toBe(false)
+      }
+      closing.resolve()
+      await timeout
+      expect(await failure).toMatchObject({ kind: 'timeout' })
+      if (!finishBeforeClose) expect(erase).not.toHaveBeenCalled()
+      initializing.resolve()
+      await expect(reset).resolves.toBe(true)
+      expect(erase).toHaveBeenCalledTimes(1)
+      expect(qss.markTeamStorageReady).not.toHaveBeenCalled()
+      expect(qss.syncNativePushPrerequisites).not.toHaveBeenCalled()
+    }
+  )
+
+  it('cleans up listeners when connecting throws synchronously', async () => {
+    const { manager, qss, libp2p, sigchain, community } = setup()
+    qss.connect.mockImplementation(() => {
+      throw new Error('connect failed')
+    })
+    await expect(manager['waitForCommunityStorage'](community)).rejects.toThrow('connect failed')
+    expect(qss.listenerCount(QSSEvents.QSS_FULLY_JOINED)).toBe(0)
+    expect(qss.listenerCount(QSSEvents.QSS_AUTH_ERROR)).toBe(0)
+    expect(libp2p.listenerCount(Libp2pEvents.AUTH_JOINED)).toBe(0)
+    expect(sigchain.listenerCount(SigchainEvents.DEVICE_ADMITTED)).toBe(0)
   })
 })

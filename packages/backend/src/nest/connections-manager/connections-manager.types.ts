@@ -39,6 +39,8 @@ export type PendingAdmissionAttempt = AdmissionInProgressMarker & {
   reject?: (error: Error) => void
   cleanup?: () => void
   closePromise?: Promise<void>
+  startup?: Promise<void>
+  finalization?: Promise<void>
   pendingError?: Error
   readyToReject?: boolean
   errorEmitted?: boolean
