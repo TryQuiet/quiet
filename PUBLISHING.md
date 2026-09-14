@@ -60,6 +60,24 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 1. Promote the alpha release on the [Google Play Console](https://play.google.com/console/) to a closed testing track. Contact @holmesworcester if you need access to the organization.
 1. Notify QA that the alpha release is ready for testing.
 
+## Publishing QSS
+
+QSS is released separately in [TryQuiet/quiet-storage-service](https://github.com/TryQuiet/quiet-storage-service), with its own version numbers. Publishing a Quiet client release does not deploy QSS. QSS deployments are triggered by GitHub releases in the QSS repository.
+
+### Preparing a QSS Alpha (Staging)
+
+1. In the QSS repository, check out the intended release revision and initialize submodules recursively. Prepare the release version and notes, and verify that the tests and build pass.
+1. Publish a QSS **prerelease**. The [development deployment workflow](https://github.com/TryQuiet/quiet-storage-service/blob/main/.github/workflows/deploy_dev.yml) deploys to staging (`wss://qss-dev.quiet-services.app`) on `prereleased` and `released` events. Verify that **Deploy to EC2 (Development)** starts for the intended tag and commit. Publishing a prerelease from a draft does not trigger this workflow; see [GitHub's release event documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#release).
+1. Wait for the workflow and AWS CodeDeploy to succeed. Deployment builds QSS, runs the staging database migrations, and starts or restarts the service.
+1. Record the deployed version and commit. Verify community creation, joining, and message delivery against staging, then notify QA that the QSS alpha is ready for testing.
+
+### Preparing a QSS Production Release
+
+1. Obtain production release approval after QA has tested the QSS alpha. Review the database migrations before deploying.
+1. Publish or promote a QSS **full release**. The [production deployment workflow](https://github.com/TryQuiet/quiet-storage-service/blob/main/.github/workflows/deploy_prod.yml) deploys on the `released` event. This event also triggers the development workflow, so a full release deploys to **both production and staging**.
+1. Wait for both deployment workflows and AWS CodeDeploy to succeed. Each deployment runs its environment's database migrations and starts or restarts the service.
+1. Record the deployed version and commit. Verify community creation, joining, and message delivery against the production endpoint.
+
 ## Checklist Before Production Release
 
 - [ ] Build is working correctly, passes automated tests and self-QA
