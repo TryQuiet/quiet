@@ -106,10 +106,14 @@ async function main() {
       config.onboardingTimeoutMs, 'Desktop onboarding did not reach a channel')
   }
   if (!await channel.isOpen()) throw new Error('Desktop general channel is unavailable')
-  const settings = await new Sidebar(app.driver).openSettings()
-  await settings.switchTab(SettingsModalTabName.INVITE)
-  const invitation = await (await settings.invitationLink()).getText()
-  await settings.closeTabThenModal()
+  // A joiner already has its invitation and may lack permission to create one.
+  let invitation = config.invitation
+  if (!invitation) {
+    const settings = await new Sidebar(app.driver).openSettings()
+    await settings.switchTab(SettingsModalTabName.INVITE)
+    invitation = await (await settings.invitationLink()).getText()
+    await settings.closeTabThenModal()
+  }
   write(path.join(output,'ready.json'), {invitation, profile:app.buildSetup.dataDir,
     profilePath:app.buildSetup.dataDirPath, username:config.username,
     binary:config.binary, endpoint:config.endpoint, release:config.release, readyAt:new Date().toISOString()})
