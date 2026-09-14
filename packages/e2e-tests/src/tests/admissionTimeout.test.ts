@@ -72,6 +72,10 @@ describe('Timed-out P2P admission recovery', () => {
     await settings.switchTab(invitationTab)
     const invitation = await getInvitation(settings)
     await settings.closeTabThenModal()
+    if (process.env.LOCAL_TRANSPORT === 'true') {
+      const parsedInvitation = parseInvitationLink(new URL(invitation).hash.slice(1))
+      expect(parsedInvitation.pairs.every(pair => pair.onionAddress.startsWith('127.0.0.1:'))).toBeTruthy()
+    }
     return invitation
   }
 
@@ -125,6 +129,7 @@ describe('Timed-out P2P admission recovery', () => {
     )
     const invalidInvitationLink = makeInvalidInvitationLink(invitationLink)
     owner.buildSetup.clearProcessOutput()
+    guest.buildSetup.clearProcessOutput()
 
     await guest.openWithRetries()
     const joinModal = new JoinCommunityModal(guest.driver)
@@ -138,7 +143,10 @@ describe('Timed-out P2P admission recovery', () => {
     await registration.submit()
     expect(await new JoiningLoadingPanel(guest.driver).waitUntilVisible(15_000)).toBeTruthy()
 
-    await owner.buildSetup.waitForProcessOutput('INVITATION_PROOF_INVALID', 30_000)
+    // Gate the assertion on the guest reaching the proof exchange so transport startup
+    // time is not mistaken for slow proof validation.
+    await guest.buildSetup.waitForProcessOutput('authenticating:awaitingInvitationAcceptance', 15_000)
+    await owner.buildSetup.waitForProcessOutput('INVITATION_PROOF_INVALID', 15_000)
   })
 
   it('returns a joining peer to Join Community after reopening during admission', async () => {

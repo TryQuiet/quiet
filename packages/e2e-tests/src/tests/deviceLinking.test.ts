@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { parseInvitationLink } from '@quiet/common'
 
 import {
   App,
@@ -44,6 +45,12 @@ function getDeviceLinkingTimeouts() {
       }
 }
 
+function expectLocalInvitation(invitationLink: string): void {
+  if (process.env.LOCAL_TRANSPORT !== 'true') return
+  const invitation = parseInvitationLink(new URL(invitationLink).hash.slice(1))
+  expect(invitation.pairs.every(pair => pair.onionAddress.startsWith('127.0.0.1:'))).toBeTruthy()
+}
+
 async function createP2pCommunity(owner: App, communityName: string, username: string): Promise<Channel> {
   expect(communityName.length).toBeLessThanOrEqual(20)
   await owner.openWithRetries()
@@ -76,6 +83,7 @@ async function getMemberInvitation(app: App): Promise<string> {
   await settings.switchTab(SettingsModalTabName.INVITE)
   const link = await (await settings.invitationLink()).getText()
   expect(link.length).toBeGreaterThan(0)
+  expectLocalInvitation(link)
   await settings.closeTabThenModal()
   return link
 }
@@ -86,6 +94,7 @@ async function getDeviceInvitation(app: App): Promise<string> {
   await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
   const link = await (await settings.deviceLink()).getText()
   expect(link.length).toBeGreaterThan(0)
+  expectLocalInvitation(link)
   await settings.closeTabThenModal()
   return link
 }

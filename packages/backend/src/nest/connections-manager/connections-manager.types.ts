@@ -23,3 +23,23 @@ export class AdmissionError extends Error {
     this.name = 'AdmissionError'
   }
 }
+
+export type InvitationAdmissionType = 'community' | 'device'
+
+export type AdmissionInProgressMarker = {
+  communityId: string
+  invitationType: InvitationAdmissionType
+}
+
+export type PendingAdmissionAttempt = AdmissionInProgressMarker & {
+  deadline: number
+  generation: number
+  timer: NodeJS.Timeout
+  invalidated: boolean
+  reject?: (error: Error) => void
+  cleanup?: () => void
+  closePromise?: Promise<void>
+  pendingError?: Error
+  readyToReject?: boolean
+  errorEmitted?: boolean
+}

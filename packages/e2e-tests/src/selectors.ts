@@ -1188,9 +1188,13 @@ export class JoinCommunityModal {
   }
 
   get element() {
+    return this.findElement()
+  }
+
+  private findElement(timeoutMs: number = 10_000) {
     return this.driver.wait(
       until.elementLocated(By.xpath("//h3[text()='Join community']")),
-      10_000,
+      timeoutMs,
       `Join community modal couldn't be found within timeout`,
       500
     )
@@ -1198,7 +1202,7 @@ export class JoinCommunityModal {
 
   async isReady(timeoutMs: number = 10_000): Promise<boolean> {
     await this.driver.wait(
-      until.elementIsVisible(this.element),
+      until.elementIsVisible(this.findElement(timeoutMs)),
       timeoutMs,
       `Join community modal wasn't ready within timeout`,
       500
@@ -1226,6 +1230,7 @@ export class JoinCommunityModal {
       500
     )
     await this.driver.wait(until.elementIsVisible(communityNameInput), 5_000)
+    await communityNameInput.clear()
     await communityNameInput.sendKeys(inviteLink)
   }
 

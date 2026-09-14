@@ -208,6 +208,14 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActions.LAUNCH_COMMUNITY, payload)
       })
 
+      socket.on(
+        SocketActions.RESET_ADMISSION,
+        (payload: LaunchCommunityPayload, callback: (acknowledged: boolean) => void) => {
+          this.logger.info(`Resetting admission for community ${payload.id}`)
+          this.emit(SocketActions.RESET_ADMISSION, payload, callback)
+        }
+      )
+
       socket.on(SocketActions.LEAVE_COMMUNITY, (callback: (closed: boolean) => void) => {
         this.logger.info('Leaving community')
         this.emit(SocketActions.LEAVE_COMMUNITY, callback)
