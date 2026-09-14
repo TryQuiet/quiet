@@ -106,11 +106,11 @@ export class QPSService implements OnModuleInit {
     }
 
     let teamId: Base58 | undefined
-    let userId: string | undefined
+    let userId: string
     try {
       const sigchain = this.sigChainService.getActiveChain()
       teamId = sigchain?.team?.id
-      userId = sigchain.context.user.userId
+      userId = sigchain.user.userId
     } catch (e) {
       this.logger.warn('Cannot tombstone notification tokens before leave: no active team chain')
       this._pendingDeviceToken = undefined

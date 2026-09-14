@@ -10,7 +10,13 @@ import {
 } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { SigChainService } from '../auth/sigchain.service'
 import { createLogger } from '../common/logger'
-import { AuthSyncMessage, CommunityOperationStatus, QSSEvents, WebsocketEvents } from './qss.types'
+import {
+  AuthSyncMessage,
+  CommunityOperationStatus,
+  CommunitySignInMessage,
+  QSSEvents,
+  WebsocketEvents,
+} from './qss.types'
 
 import { DateTime } from 'luxon'
 import * as uint8arrays from 'uint8arrays'
@@ -82,7 +88,7 @@ export class QSSAuthConnection extends EventEmitter {
     | {
         team: Team
         needsMemberSelfAssign: boolean
-        previousContext: MemberContext | InviteeMemberContext
+        previousContext: MemberContext | InviteeContext
         previousJoinStatus: JoinStatus
       }
     | undefined = undefined
@@ -231,7 +237,8 @@ export class QSSAuthConnection extends EventEmitter {
             ts: DateTime.utc().toMillis(),
             status: CommunityOperationStatus.SUCCESS,
             payload: {
-              userId: (sigChain!.context as MemberContext).user.userId,
+              userId: sigChain.userId,
+              deviceId: sigChain.device.deviceId,
               teamId: this.teamId!,
               message: uint8arrays.toString(message, 'base64'),
             },
@@ -298,6 +305,12 @@ export class QSSAuthConnection extends EventEmitter {
     // all, so a freshly accepted graph lived only in memory until some later
     // chain mutation happened to flush it.
     authConnection.on(LFAEvents.JOINED, payload => {
+      if (sigChain.isPendingDeviceAdmission) {
+        void this._handleDeviceJoined(sigChain, authConnection, payload).catch(error => {
+          this.logger.error(`Failed to handle device admission from QSS`, error)
+        })
+        return
+      }
       void this._handleJoined(payload).catch(error => {
         this.logger.error(`Failed to handle LFA joined event`, error)
       })
@@ -320,6 +333,46 @@ export class QSSAuthConnection extends EventEmitter {
     })
 
     this._authConnection = authConnection
+  }
+
+  private async _handleDeviceJoined(
+    pendingChain: SigChain,
+    authConnection: AuthConnection,
+    payload: { team: Team; user: import('@localfirst/auth').UserWithSecrets }
+  ): Promise<void> {
+    let ownedInvitationConnection = false
+    const result = this.sigChainService.completeDeviceAdmission(pendingChain, payload, () => {
+      if (this._authConnection === authConnection) {
+        ownedInvitationConnection = true
+        this._authConnection = undefined
+        this._clientSocket = undefined
+        this._markDisconnected()
+      }
+      authConnection.stop(true)
+    })
+    const completed = await result.completion
+    if (!ownedInvitationConnection) return
+    if (this.sigChainService.getActiveChain(false) !== completed) return
+    this._joinStatus = JoinStatus.JOINED
+    const clientSocket = this.qssClient.getClientSocket()
+    if (clientSocket == null || !clientSocket.active || !clientSocket.connected) return
+    const signIn: CommunitySignInMessage = {
+      ts: DateTime.utc().toMillis(),
+      status: CommunityOperationStatus.SUCCESS,
+      payload: { teamId: completed.team!.id, userId: completed.user.userId, deviceId: completed.device.deviceId },
+    }
+    const response = await this.qssClient.sendMessage<CommunitySignInMessage>(
+      WebsocketEvents.SIGN_IN_COMMUNITY,
+      signIn,
+      true
+    )
+    if (response?.status !== CommunityOperationStatus.SUCCESS) {
+      throw new Error(`Failed to re-establish QSS device routing after admission: ${response?.reason ?? 'no response'}`)
+    }
+    if (this.sigChainService.getActiveChain(false) !== completed || this.qssClient.getClientSocket() !== clientSocket)
+      return
+    if (!clientSocket.active || !clientSocket.connected) return
+    await this.start()
   }
 
   /**
@@ -390,7 +443,7 @@ export class QSSAuthConnection extends EventEmitter {
   private async _commitJoin(pending: {
     team: Team
     needsMemberSelfAssign: boolean
-    previousContext: MemberContext | InviteeMemberContext
+    previousContext: MemberContext | InviteeContext
     previousJoinStatus: JoinStatus
   }): Promise<void> {
     const { team, needsMemberSelfAssign, previousContext, previousJoinStatus } = pending

@@ -1,7 +1,10 @@
 import {
   InvitationData,
   InvitationDataVersion,
+  InvitationKind,
   InvitationPair,
+  type DeviceInvitationDataV4,
+  type DeviceInvitationDataV5,
   type InvitationDataV4,
   type InvitationDataV5,
 } from '@quiet/types'
@@ -10,6 +13,7 @@ import {
   AUTH_DATA_KEY,
   DEEP_URL_SCHEME,
   DEEP_URL_SCHEME_WITH_SEPARATOR,
+  INVITATION_KIND_KEY,
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
   QSS_ENABLED_KEY,
@@ -41,7 +45,7 @@ interface ParseDeepUrlParams {
  *
  * @returns {InvitationDataV4} Parsed V4 parameters
  */
-const parseLinkV4 = (url: string): InvitationDataV4 => {
+const parseLinkV4 = (url: string): InvitationDataV4 | DeviceInvitationDataV4 => {
   /**
    * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string>&v=v4
    * (`a` decodes to `?c=<community name>&s=<base58 LFA invitation seed>&t=<base 58 LFA team ID>`)
@@ -56,7 +60,7 @@ const parseLinkV4 = (url: string): InvitationDataV4 => {
  *
  * @returns {InvitationDataV5} Parsed V5 parameters
  */
-const parseLinkV5 = (url: string): InvitationDataV5 => {
+const parseLinkV5 = (url: string): InvitationDataV5 | DeviceInvitationDataV5 => {
   /**
    * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string>&q=<boolean, is QSS enabled>&v=v5
    * (`a` decodes to `?c=<community name>&s=<base58 LFA invitation seed>&t=<base58 LFA team ID>`)
@@ -236,7 +240,7 @@ export const peerPairsToUrlParamString = (pairs: InvitationPair[]): string => {
  *
  * @returns {string} Complete invite link URL
  */
-const composeInvitationUrl = (baseUrl: string, data: InvitationDataV4 | InvitationDataV5): string => {
+const composeInvitationUrl = (baseUrl: string, data: InvitationData): string => {
   const url = new URL(baseUrl)
 
   switch (data.version) {
@@ -252,6 +256,9 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationDataV4 | Invitati
       url.searchParams.append(QSS_ENABLED_KEY, `${data.qssEnabled}`)
       url.searchParams.append(QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint))
       break
+  }
+  if (data.kind === InvitationKind.Device) {
+    url.searchParams.append(INVITATION_KIND_KEY, data.kind)
   }
   url.searchParams.append(VERSION_KEY, data.version)
   return url.href

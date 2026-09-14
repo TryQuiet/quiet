@@ -6,6 +6,7 @@ import { createCommunitySaga } from './createCommunity/createCommunity.saga'
 import { initCommunitySaga, launchCommunitySaga } from './launchCommunity/launchCommunity.saga'
 import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
+import { linkDeviceSaga } from './linkDevice/linkDevice.saga'
 import type { Task } from 'redux-saga'
 
 const logger = createLogger('communitiesMasterSaga')
@@ -28,7 +29,8 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
 
 type CreateCommunityAction = ReturnType<typeof communitiesActions.createCommunity>
 type JoinCommunityAction = ReturnType<typeof communitiesActions.joinCommunity>
-type OnboardingAction = CreateCommunityAction | JoinCommunityAction
+type LinkDeviceAction = ReturnType<typeof communitiesActions.linkDevice>
+type OnboardingAction = CreateCommunityAction | JoinCommunityAction | LinkDeviceAction
 
 export function* handleCommunityOnboarding(socket: Socket): Generator {
   let activeTask: Task | undefined
@@ -37,6 +39,7 @@ export function* handleCommunityOnboarding(socket: Socket): Generator {
     const action = (yield* take([
       communitiesActions.createCommunity.type,
       communitiesActions.joinCommunity.type,
+      communitiesActions.linkDevice.type,
     ])) as OnboardingAction
 
     if (activeTask) {
@@ -50,9 +53,12 @@ export function* handleCommunityOnboarding(socket: Socket): Generator {
     if (action.type === communitiesActions.createCommunity.type) {
       logger.info('Starting createCommunitySaga')
       activeTask = yield* fork(createCommunitySaga, socket, action)
-    } else {
+    } else if (action.type === communitiesActions.joinCommunity.type) {
       logger.info('Starting joinCommunitySaga')
       activeTask = yield* fork(joinCommunitySaga, socket, action)
+    } else {
+      logger.info('Starting linkDeviceSaga')
+      activeTask = yield* fork(linkDeviceSaga, socket, action)
     }
   }
 }

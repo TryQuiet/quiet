@@ -974,7 +974,7 @@ describe('ConnectionsManagerService', () => {
         expect.objectContaining({
           users: expect.arrayContaining([
             expect.objectContaining({
-              userId: chain.context.user.userId,
+              userId: chain.user.userId,
               channelIds: [],
               isDuplicated: false,
               isRegistered: true,
@@ -1043,7 +1043,7 @@ describe('ConnectionsManagerService', () => {
         expect.objectContaining({
           users: expect.arrayContaining([
             expect.objectContaining({
-              userId: chain.context.user.userId,
+              userId: chain.user.userId,
               channelIds: [privateChannel.id],
               isDuplicated: false,
               isRegistered: true,
@@ -1122,7 +1122,7 @@ describe('ConnectionsManagerService', () => {
           expect.objectContaining({
             users: expect.arrayContaining([
               expect.objectContaining({
-                userId: chain.context.user.userId,
+                userId: chain.user.userId,
                 channelIds: [privateChannel.id],
                 isDuplicated: false,
                 isRegistered: true,

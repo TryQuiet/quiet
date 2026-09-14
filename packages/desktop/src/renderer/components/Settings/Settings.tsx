@@ -9,6 +9,7 @@ import { Attachments } from './Tabs/Attachments/Attachments'
 import { Invite } from './Tabs/Invite/Invite'
 import { QRCode } from './Tabs/QRCode/QRCode'
 import { LeaveCommunity } from './Tabs/LeaveCommunity/LeaveCommunity'
+import { LinkedDevices } from './Tabs/LinkedDevices/LinkedDevices'
 
 import SettingsComponent from './SettingsComponent'
 import { DebugInfoComponent } from '../debugInfo/debugInfoComponent'
@@ -23,6 +24,7 @@ const Settings = () => {
     invite: Invite,
     qrcode: QRCode,
     leaveCommunity: LeaveCommunity,
+    linkedDevices: LinkedDevices,
   }
 
   if (process.env.NODE_ENV === 'development' || process.env.IS_E2E === 'true') {

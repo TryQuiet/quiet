@@ -131,7 +131,7 @@ describe('Libp2pAuth invitee join persistence failure', () => {
     // And the join is durable, not just in memory.
     const stored = await localDbB.getSigChain(teamId)
     expect(stored?.serializedTeam).toBeDefined()
-    const reloaded = SigChain.load(stored!.serializedTeam!, stored!.localUserContext, stored!.teamKeyRing!)
+    const reloaded = SigChain.load(stored!.serializedTeam!, stored!.localUserContext!, stored!.teamKeyRing!)
     expect(reloaded.team!.id).toBe(teamId)
     logger.info('invitee converged on a retried local write, with no second handshake')
   })

@@ -2,7 +2,7 @@ import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 import { RoleName } from '..//roles/roles'
 import { UserService } from '../members/user.service'
-import { InviteService } from './invite.service'
+import { DEFAULT_DEVICE_INVITATION_VALID_FOR_MS, InviteService } from './invite.service'
 import { DeviceService } from '../members/device.service'
 import { base58 } from '@localfirst/crypto'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
@@ -146,6 +146,9 @@ describe('invites', () => {
   it('should invite device', () => {
     const newDevice = DeviceService.generateDeviceForUser(adminSigChain.user.userId)
     const deviceInvite = adminSigChain.invites.createDeviceInvite()
+    expect(deviceInvite.expiresAt).toBeGreaterThanOrEqual(Date.now() + DEFAULT_DEVICE_INVITATION_VALID_FOR_MS - 1_000)
+    expect(deviceInvite.expiresAt).toBeLessThanOrEqual(Date.now() + DEFAULT_DEVICE_INVITATION_VALID_FOR_MS)
+    expect(deviceInvite.userId).toBe(adminSigChain.user.userId)
     const admission = InviteService.createDeviceAdmission({ seed: deviceInvite.seed, device: newDevice })
     expect(admission.proof).toBeDefined()
     expect(adminSigChain.invites.validateProof(admission.proof, admission.claim, admission.possessionProof)).toBe(true)

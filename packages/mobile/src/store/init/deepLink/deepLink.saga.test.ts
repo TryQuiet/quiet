@@ -13,6 +13,9 @@ import {
   InvitationData,
   type InvitationDataV4,
   InvitationDataVersion,
+  InvitationKind,
+  type DeviceInvitationDataV4,
+  isDeviceInvitationData,
   JoinCommunityPayload,
 } from '@quiet/types'
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
@@ -56,6 +59,25 @@ describe('deepLinkSaga', () => {
         })
       )
       .run()
+  })
+
+  test('routes a device invitation to linking and skips username registration', async () => {
+    store.dispatch(initActions.setWebsocketConnected({ dataPort: 5001, socketIOSecret: 'secret' }))
+    const deviceData: DeviceInvitationDataV4 = {
+      ...validData,
+      kind: InvitationKind.Device,
+      authData: { ...validData.authData, userId: 'existing-user', userName: 'alice' },
+    }
+    const code = composeInvitationShareUrl(deviceData)
+    const reducer = combineReducers(reducers)
+    await expectSaga(deepLinkSaga, initActions.deepLink(code))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(communities.actions.linkDevice({ inviteData: deviceData }))
+      .put(navigationActions.replaceScreen({ screen: ScreenNames.ConnectionProcessScreen }))
+      .not.put(communities.actions.joinCommunity({ inviteData: deviceData }))
+      .run()
+    expect(isDeviceInvitationData(deviceData)).toBe(true)
   })
 
   test('displays error if user already belongs to a community', async () => {

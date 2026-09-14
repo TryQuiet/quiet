@@ -9,8 +9,7 @@ export const useContextMenu = <T extends OpenMenuPayload['args']>(menu: MenuName
   const dispatch = useDispatch()
 
   const visible = useSelector(navigationSelectors.contextMenuVisibility(menu))
-  // @ts-expect-error
-  const props: T = useSelector(navigationSelectors.contextMenuProps(menu))
+  const props = useSelector(navigationSelectors.contextMenuProps(menu)) as T
 
   const handleOpen = (args?: T) =>
     dispatch(

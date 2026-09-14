@@ -1,15 +1,34 @@
-import { Keyring, LocalUserContext, Context } from '@localfirst/auth'
+import { InviteeDeviceContext, Keyring, LocalUserContext } from '@localfirst/auth'
+import type { SigChain } from './sigchain'
+
+export type PendingDeviceAdmission = {
+  teamId: string
+  userId: string
+}
+
+export type DeviceAdmissionResult = {
+  selected: boolean
+  completion: Promise<SigChain>
+}
+
+export type DeviceAdmissionCompletionState = {
+  cancelled: boolean
+  completion: Promise<SigChain>
+}
 
 export type SigChainSaveData = {
   serializedTeam: string | undefined
-  localUserContext: LocalUserContext
-  context?: Context
+  localUserContext?: LocalUserContext
+  inviteeDeviceContext?: InviteeDeviceContext
+  pendingDeviceAdmission?: PendingDeviceAdmission
   teamKeyRing: Keyring | undefined
 }
 
 export type SerializedSigChain = {
   serializedTeam: Uint8Array | undefined
-  localUserContext: LocalUserContext
+  localUserContext?: LocalUserContext
+  inviteeDeviceContext?: InviteeDeviceContext
+  pendingDeviceAdmission?: PendingDeviceAdmission
   teamKeyRing: Keyring | undefined
 }
 
@@ -31,6 +50,7 @@ export enum LFAEvents {
  */
 export enum SigchainEvents {
   UPDATED = 'sigchainUpdated',
+  DEVICE_ADMITTED = 'deviceAdmitted',
 }
 
 export enum StoredKeyType {

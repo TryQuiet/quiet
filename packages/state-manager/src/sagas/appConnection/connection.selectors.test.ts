@@ -4,8 +4,16 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
 import { communitiesActions } from '../communities/communities.slice'
 import { connectionActions } from './connection.slice'
-import { InvitationDataVersion, InvitationPair, UserProfile, type InvitationAuthDataV4 } from '@quiet/types'
-import { composeInvitationShareUrl, createLibp2pAddress } from '@quiet/common'
+import {
+  InvitationDataVersion,
+  InvitationKind,
+  InvitationPair,
+  UserProfile,
+  type DeviceInvitationData,
+  type DeviceLinkInvite,
+  type InvitationAuthDataV4,
+} from '@quiet/types'
+import { composeInvitationShareUrl, createLibp2pAddress, parseInvitationLink } from '@quiet/common'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
@@ -246,6 +254,62 @@ describe('communitiesSelectors', () => {
     })
     expect(expectedUrl).not.toEqual('')
     expect(selectorInvitationUrl).toEqual(expectedUrl)
+  })
+
+  it.each([
+    { qssEnabled: false, version: InvitationDataVersion.v4 },
+    { qssEnabled: true, version: InvitationDataVersion.v5 },
+  ])('deviceLinkUrl returns a $version link for the current user and community', async ({ qssEnabled, version }) => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+    const psk = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='
+    const teamId = INVITE_TEAM_ID
+    const qssEndpoint = 'ws://localhost:3000'
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community',
+      {
+        name: 'Device owner community',
+        psk,
+        teamId,
+        qssEnabled,
+        qssEndpoint,
+      }
+    )
+    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      communityId: community.id,
+    })
+    const invite: DeviceLinkInvite = {
+      id: '5ah8uYodiwuwVybT' as DeviceLinkInvite['id'],
+      teamId,
+      seed: '4kgd5mwq5z4fmfwq',
+      expiresAt: Date.now() + 1_800_000,
+      userId: identity.userId,
+      userName: 'Alice device owner',
+    }
+    store.dispatch(connectionActions.setDeviceLinkInvite(invite))
+
+    const deviceLink = connectionSelectors.deviceLinkUrl(store.getState())
+    const data = parseInvitationLink(deviceLink.split('#')[1]) as DeviceInvitationData
+
+    expect(data).toMatchObject({
+      kind: InvitationKind.Device,
+      version,
+      psk,
+      authData: {
+        communityName: community.name,
+        seed: invite.seed,
+        teamId,
+        userId: identity.userId,
+        userName: invite.userName,
+      },
+      ...(qssEnabled && { qssEnabled: true, qssEndpoint }),
+    })
+    expect(data.pairs).toEqual([
+      {
+        peerId: identity.networkInfo.peerId.id,
+        onionAddress: identity.networkInfo.hiddenService.onionAddress.split('.')[0],
+      },
+    ])
   })
 
   it('invitationUrl selector throws when qss is enabled but no team ID is provided', async () => {

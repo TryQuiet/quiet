@@ -7,7 +7,13 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { icons } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
+import {
+  InvitationData,
+  InvitationDataVersion,
+  JoinCommunityPayload,
+  LinkDevicePayload,
+  isDeviceInvitationData,
+} from '@quiet/types'
 import _ from 'lodash'
 import {
   AlreadyBelongToCommunityWarning,
@@ -111,6 +117,13 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
       })
     )
 
+    return
+  }
+
+  if (isDeviceInvitationData(data)) {
+    const payload: LinkDevicePayload = { inviteData: data }
+    yield* put(communities.actions.linkDevice(payload))
+    yield* put(navigationActions.replaceScreen({ screen: ScreenNames.ConnectionProcessScreen }))
     return
   }
 

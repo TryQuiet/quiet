@@ -4,7 +4,7 @@
 
 import { createId } from '@paralleldrive/cuid2'
 import { ChainServiceBase } from '../chainServiceBase'
-import { Device, DeviceWithSecrets, redactDevice } from '@localfirst/auth'
+import { Device, DeviceWithSecrets, FirstUseDeviceWithSecrets, redactDevice } from '@localfirst/auth'
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 
@@ -27,6 +27,10 @@ class DeviceService extends ChainServiceBase {
     }
 
     return SigChain.lfa.createDevice(params)
+  }
+
+  public static generateFirstUseDevice(deviceName = DeviceService.generateDeviceName()): FirstUseDeviceWithSecrets {
+    return SigChain.lfa.createFirstUseDevice({ deviceName })
   }
 
   /**
