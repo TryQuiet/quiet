@@ -6,9 +6,11 @@ import {
   Keyring,
   LocalUserContext,
   MemberContext,
+  type InviteeContext,
   Team,
   UserWithSecrets,
   DeviceWithSecrets,
+  type FirstUseDeviceWithSecrets,
   Base58,
 } from '@localfirst/auth'
 import { KeyMetadata } from '@localfirst/crdx'
@@ -155,7 +157,7 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().team!
   }
 
-  get context(): MemberContext | import('@localfirst/auth').InviteeContext {
+  get context(): MemberContext | InviteeContext {
     return this.getActiveChain().context
   }
 
@@ -163,7 +165,7 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().user
   }
 
-  get device(): DeviceWithSecrets | import('@localfirst/auth').FirstUseDeviceWithSecrets {
+  get device(): DeviceWithSecrets | FirstUseDeviceWithSecrets {
     return this.getActiveChain().device
   }
 

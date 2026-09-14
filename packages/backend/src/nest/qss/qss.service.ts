@@ -2,7 +2,7 @@
  * Abstraction layer for interacting with QSS
  */
 import { Mutex } from 'async-mutex'
-import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
+import { type Server } from '@localfirst/auth'
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'

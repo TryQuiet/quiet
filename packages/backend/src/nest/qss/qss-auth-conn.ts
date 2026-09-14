@@ -1,13 +1,13 @@
 /**
  * Abstraction of LFA auth sync connection logic for QSS
  */
-import { Connection as AuthConnection, Team, type User } from '../../../../../3rd-party/auth/packages/auth/dist'
+import { Connection as AuthConnection, Team, type User, type UserWithSecrets } from '@localfirst/auth'
 import {
   ConnectionParams as AuthConnectionParams,
   InviteeContext,
   InviteeMemberContext,
   MemberContext,
-} from '../../../../../3rd-party/auth/packages/auth/dist/connection'
+} from '@localfirst/auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { createLogger } from '../common/logger'
 import {
@@ -338,7 +338,7 @@ export class QSSAuthConnection extends EventEmitter {
   private async _handleDeviceJoined(
     pendingChain: SigChain,
     authConnection: AuthConnection,
-    payload: { team: Team; user: import('@localfirst/auth').UserWithSecrets }
+    payload: { team: Team; user: UserWithSecrets }
   ): Promise<void> {
     let ownedInvitationConnection = false
     const result = this.sigChainService.completeDeviceAdmission(pendingChain, payload, () => {

@@ -1,4 +1,4 @@
-import { Connection, type ConnectionParams } from '@localfirst/auth'
+import { Connection, type ConnectionParams, type Team, type UserWithSecrets } from '@localfirst/auth'
 import { SigChain } from './sigchain'
 import { LFAEvents } from './types'
 
@@ -27,8 +27,8 @@ describe('device invitation against real Local First Auth', () => {
     } as ConnectionParams))
 
     const joined = new Promise<{
-      team: import('@localfirst/auth').Team
-      user: import('@localfirst/auth').UserWithSecrets
+      team: Team
+      user: UserWithSecrets
     }>((resolve, reject) => {
       deviceConnection.once(LFAEvents.JOINED, resolve)
       deviceConnection.once(LFAEvents.LOCAL_ERROR, reject)

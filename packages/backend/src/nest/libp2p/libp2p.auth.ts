@@ -8,13 +8,14 @@ import {
   Topology,
 } from '@libp2p/interface'
 import type { ConnectionManager, IncomingStreamData, Registrar } from '@libp2p/interface-internal'
-import * as Auth from '../../../../../3rd-party/auth/packages/auth/dist'
+import * as Auth from '@localfirst/auth'
+import type { ConnectionParams, Member } from '@localfirst/auth'
 import { pipe } from 'it-pipe'
 import { encode, decode } from 'it-length-prefixed'
 
 import { SigChainService } from '../auth/sigchain.service'
+import type { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
-import { ConnectionParams } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Libp2pService, Libp2pState } from './libp2p.service'
 import { Libp2pEvents } from './libp2p.types'
 import { abortableAsyncIterable } from '../common/utils'
@@ -23,7 +24,6 @@ import { createWinstonQuietLogger } from '@quiet/node-common'
 import { RoleName } from '../auth/services/roles/roles'
 import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
-import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
 import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
 import { BoundedRetry } from '../common/boundedRetry'
@@ -487,7 +487,7 @@ export class Libp2pAuth {
   }
 
   private async handleDeviceJoined(
-    pendingChain: import('../auth/sigchain').SigChain,
+    pendingChain: SigChain,
     authConnection: Auth.Connection,
     payload: { team: Auth.Team; user: Auth.UserWithSecrets },
     peerId: PeerId,

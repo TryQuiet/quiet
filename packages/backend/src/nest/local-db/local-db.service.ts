@@ -19,7 +19,7 @@ import {
 } from './local-db.types'
 import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
-import { type LocalUserContext, type Team } from '@localfirst/auth'
+import { type InviteeDeviceContext, type LocalUserContext, type Team } from '@localfirst/auth'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
 import EventEmitter from 'events'
@@ -306,7 +306,7 @@ export class LocalDbService extends EventEmitter {
     const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
     const serializedSigChain: SigChainSaveData = {
       serializedTeam: undefined,
-      inviteeDeviceContext: sigChain.context as import('@localfirst/auth').InviteeDeviceContext,
+      inviteeDeviceContext: sigChain.context as InviteeDeviceContext,
       pendingDeviceAdmission: sigChain.pendingDeviceAdmission,
       teamKeyRing: undefined,
     }
