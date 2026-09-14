@@ -17,23 +17,29 @@ import { LinkedDevices as LinkedDevicesTab } from '../Settings/Tabs/LinkedDevice
 import { LinkDevicesComponent } from './LinkDevicesComponent'
 import { PasteLinkComponent } from './PasteLinkComponent'
 import { OnboardingBody } from './OnboardingBody'
+import { QrScannerComponent } from './qrScanner/QrScannerComponent'
 import { createLogger } from '../../logger'
 
 const logger = createLogger('LinkDevices')
 
-type Step = 'entry' | 'display' | 'scan'
+type Step = 'entry' | 'display' | 'scan' | 'paste'
 
 /** Title bar text per step, from the prototype's frames (2811:2575, 2811:2601, 2811:2587). */
 const TITLES: Record<Step, string> = {
   entry: 'Link devices',
   display: 'QR code',
   scan: 'Scan QR code',
+  paste: 'Scan QR code',
 }
+
+/** The Scan QR code sheet's copy (2811:2587). */
+export const SCAN_QR_CODE_INTRO =
+  'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /**
  * Link devices, reached from Get started. "Display QR code" shows #3400's
  * Linked devices surface (a link can only be minted from inside a community);
- * "Scan QR code" has no camera on desktop, so it takes the pasted device link.
+ * "Scan QR code" opens the camera, and offers the paste field when it cannot.
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
@@ -55,6 +61,10 @@ export const LinkDevices: React.FC = () => {
   }, [linkDevicesModal.open, isConnected])
 
   const handleBack = () => {
+    if (step === 'paste') {
+      setStep('scan')
+      return
+    }
     if (step !== 'entry') {
       setStep('entry')
       return
@@ -66,13 +76,13 @@ export const LinkDevices: React.FC = () => {
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
       const payload: LinkDevicePayload = { inviteData: data }
-      logger.info('Linking this device from a pasted device link')
+      logger.info('Linking this device from a device link')
       loadingPanelModal.handleOpen()
       dispatch(communities.actions.linkDevice(payload))
       linkDevicesModal.handleClose()
       return
     }
-    // A member invitation pasted here still joins, the way Join community does.
+    // A member invitation here still joins, the way Join community does.
     const payload: JoinCommunityPayload = { inviteData: data }
     dispatch(communities.actions.joinCommunity(payload))
     createUsernameModal.handleOpen()
@@ -104,9 +114,16 @@ export const LinkDevices: React.FC = () => {
         </OnboardingBody>
       ) : null}
       {step === 'scan' ? (
+        <QrScannerComponent
+          intro={SCAN_QR_CODE_INTRO}
+          onDecoded={handleCommunityAction}
+          onUsePasteLink={() => setStep('paste')}
+          dataTestId='link-devices-scanner'
+        />
+      ) : null}
+      {step === 'paste' ? (
         <PasteLinkComponent
-          heading={'Scan QR code'}
-          intro={'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'}
+          heading={'Paste a link to Join'}
           open={linkDevicesModal.open}
           isConnectionReady={isConnected}
           revealInputValue={revealInputValue}

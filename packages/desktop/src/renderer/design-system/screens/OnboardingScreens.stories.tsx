@@ -11,6 +11,8 @@ import { PasteLinkComponent } from '../../components/Onboarding/PasteLinkCompone
 import { CreateCommunityComponent } from '../../components/Onboarding/CreateCommunityComponent'
 import { LinkDevicesComponent } from '../../components/Onboarding/LinkDevicesComponent'
 import { LinkedDevicesComponent } from '../../components/Settings/Tabs/LinkedDevices/LinkedDevices.component'
+import { QrScannerComponent } from '../../components/Onboarding/qrScanner/QrScannerComponent'
+import { installStoryCamera, type StoryCamera } from './storyCamera'
 
 import { CreateUsernameBody } from '../../components/CreateUsername/CreateUsernameComponent'
 import { CONTENT_COLUMN_WIDTH, OnboardingBody } from '../../components/Onboarding/OnboardingBody'
@@ -33,6 +35,38 @@ import type { InvitationData } from '@quiet/types'
 
 const SHELL_WIDTH = 715
 const noop = () => {}
+
+// @quiet/common's invitation fixtures, composed by the app's own composeInvitationShareUrl.
+const SAMPLE_MEMBER_LINK = composeInvitationShareUrl({ ...validInvitationDatav4[0], kind: InvitationKind.Member })
+const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
+  ...validInvitationDatav4[0],
+  kind: InvitationKind.Device,
+  authData: {
+    ...validInvitationDatav4[0].authData,
+    userId: 'q5ck86uuhihx5w00zhknit60',
+    userName: 'Alice device owner',
+  },
+})
+
+const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
+
+/** What JoinCommunity.tsx / LinkDevices.tsx dispatch for a decoded code, recorded under the columns. */
+const describeInvitation = (data: InvitationData) =>
+  isDeviceInvitationData(data)
+    ? `communities.actions.linkDevice({ inviteData }) · device link · ${data.authData.userName}`
+    : `communities.actions.joinCommunity({ inviteData }) · member link · ${data.authData.communityName}`
+
+/**
+ * No camera exists under Storybook; `installStoryCamera` makes getUserMedia return a
+ * canvas stream (a real QR code of a real fixture link, a blank feed, or the failure
+ * modes), so the real <video> → canvas → jsQR pipeline runs in the stories.
+ */
+const WithCamera: React.FC<{ camera: StoryCamera; children: React.ReactNode }> = ({ camera, children }) => {
+  const current = React.useRef(camera)
+  current.current = camera
+  React.useLayoutEffect(() => installStoryCamera(() => current.current), [])
+  return <>{children}</>
+}
 
 const Column: React.FC<{ width: number; label: string; children: React.ReactNode }> = ({ width, label, children }) => (
   <div style={{ flex: `0 0 ${width}px`, minWidth: 0 }}>
@@ -179,13 +213,108 @@ export const PasteALink = () => (
   />
 )
 
+// ---------------------------------------------------------------------------
+// The scanner sheets. The prototype draws one state: the camera. The requesting,
+// denied and no-camera states have no frame; their copy is the implementation's
+// minimum (QrScannerComponent SCANNER_COPY), not the designer's.
+
+const ScannerScreen: React.FC<{
+  title: string
+  bar: string
+  figma: string
+  note: string
+  intro?: string
+  camera: StoryCamera
+}> = ({ title, bar, figma, note, intro, camera }) => {
+  const [decoded, setDecoded] = React.useState<string[]>([])
+  const record = (entry: string) => setDecoded(list => [...list, entry])
+  return (
+    <WithCamera camera={camera}>
+      <Screen
+        title={title}
+        bar={bar}
+        figma={figma}
+        note={note}
+        render={() => (
+          <QrScannerComponent
+            intro={intro}
+            onDecoded={data => record(describeInvitation(data))}
+            onUsePasteLink={() => record('→ Paste a link to Join (the paste step)')}
+          />
+        )}
+      />
+      <div
+        style={{ fontFamily: mono, fontSize: 12, lineHeight: '18px', color: INK_3, padding: '0 24px 24px' }}
+        data-testid='scanner-dispatched'
+      >
+        dispatched, both columns ({decoded.length}):{decoded.length === 0 ? ' —' : null}
+        {decoded.map((entry, i) => (
+          <div key={i} style={{ color: '#171B12' }}>
+            {i + 1}. {entry}
+          </div>
+        ))}
+      </div>
+    </WithCamera>
+  )
+}
+
 export const JoinWithQrCode = () => (
-  <Screen
+  <ScannerScreen
     title='Join with QR code'
     bar='Join with QR code'
     figma='2811:2460'
-    note='desktop has no camera: the sheet becomes the paste step'
-    render={() => <PasteLinkComponent heading={'Join with QR code'} handleCommunityAction={noop} />}
+    note='scanning; the camera is a canvas stream with no code in view'
+    camera={{ kind: 'blank' }}
+  />
+)
+
+export const JoinWithQrCodeRequesting = () => (
+  <ScannerScreen
+    title='Join with QR code · requesting camera access'
+    bar='Join with QR code'
+    figma='2811:2460'
+    note='no frame in the prototype for this state; getUserMedia never settles here'
+    camera={{ kind: 'pending' }}
+  />
+)
+
+export const JoinWithQrCodeDecoded = () => (
+  <ScannerScreen
+    title='Join with QR code · decoded'
+    bar='Join with QR code'
+    figma='2811:2460'
+    note='the camera shows a QR code of the sample member link; the decoded link is dispatched below and the camera released'
+    camera={{ kind: 'code', text: SAMPLE_MEMBER_LINK }}
+  />
+)
+
+export const JoinWithQrCodeInvalid = () => (
+  <ScannerScreen
+    title='Join with QR code · not an invitation'
+    bar='Join with QR code'
+    figma='2811:2460'
+    note="the camera shows a QR code of https://example.com/: the paste field's error, scanning continues"
+    camera={{ kind: 'code', text: 'https://example.com/' }}
+  />
+)
+
+export const JoinWithQrCodeDenied = () => (
+  <ScannerScreen
+    title='Join with QR code · camera denied'
+    bar='Join with QR code'
+    figma='2811:2460'
+    note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
+    camera={{ kind: 'denied' }}
+  />
+)
+
+export const JoinWithQrCodeNoCamera = () => (
+  <ScannerScreen
+    title='Join with QR code · no camera'
+    bar='Join with QR code'
+    figma='2811:2460'
+    note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
+    camera={{ kind: 'none' }}
   />
 )
 
@@ -247,18 +376,35 @@ export const DisplayQrCode = () => (
 )
 
 export const ScanQrCode = () => (
-  <Screen
+  <ScannerScreen
     title='Scan QR code'
     bar='Scan QR code'
     figma='2811:2587'
-    note='desktop has no camera: the sheet copy introduces the paste step'
-    render={() => (
-      <PasteLinkComponent
-        heading={'Scan QR code'}
-        intro={'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'}
-        handleCommunityAction={noop}
-      />
-    )}
+    note='scanning, with the sheet copy above the camera; the camera is a canvas stream with no code in view'
+    intro={SCAN_QR_INTRO}
+    camera={{ kind: 'blank' }}
+  />
+)
+
+export const ScanQrCodeDecoded = () => (
+  <ScannerScreen
+    title='Scan QR code · decoded'
+    bar='Scan QR code'
+    figma='2811:2587'
+    note='the camera shows a QR code of the sample device link; linkDevice is dispatched below and the camera released'
+    intro={SCAN_QR_INTRO}
+    camera={{ kind: 'code', text: SAMPLE_DEVICE_LINK }}
+  />
+)
+
+export const ScanQrCodeDenied = () => (
+  <ScannerScreen
+    title='Scan QR code · camera denied'
+    bar='Scan QR code'
+    figma='2811:2587'
+    note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
+    intro={SCAN_QR_INTRO}
+    camera={{ kind: 'denied' }}
   />
 )
 
@@ -293,6 +439,7 @@ type Step =
   | 'linkDevices'
   | 'displayQrCode'
   | 'scanQrCode'
+  | 'pasteFromScan'
 
 const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   getStarted: { title: 'Get started', bar: 'Quiet', left: 'none' },
@@ -305,22 +452,14 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
   linkDevices: { title: 'Link devices', bar: 'Link devices', left: 'back' },
   displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'back' },
   scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
+  pasteFromScan: { title: 'Paste a link to Join', bar: 'Scan QR code', left: 'back' },
 }
 
-const PASTE_STEPS: Step[] = ['pasteALink', 'joinWithQrCode', 'scanQrCode']
+const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromScan']
 
-const SAMPLE_MEMBER_LINK = composeInvitationShareUrl({ ...validInvitationDatav4[0], kind: InvitationKind.Member })
-const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
-  ...validInvitationDatav4[0],
-  kind: InvitationKind.Device,
-  authData: {
-    ...validInvitationDatav4[0].authData,
-    userId: 'q5ck86uuhihx5w00zhknit60',
-    userName: 'Alice device owner',
-  },
-})
-
-const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
+/** What the walkthrough's camera shows; the code is the sample link the current step expects. */
+type WalkthroughCamera = 'code' | 'blank' | 'denied' | 'none'
+const WALKTHROUGH_CAMERAS: WalkthroughCamera[] = ['code', 'blank', 'denied', 'none']
 
 const WALKTHROUGH_DEVICES = [
   { deviceId: 'this', deviceName: 'this device', isCurrent: true },
@@ -352,7 +491,15 @@ const WalkthroughStory = () => {
   const [trail, setTrail] = React.useState<Step[]>([])
   const [dispatched, setDispatched] = React.useState<string[]>([])
   const [revealLink, setRevealLink] = React.useState(false)
+  const [cameraMode, setCameraMode] = React.useState<WalkthroughCamera>('code')
   const rootRef = React.useRef<HTMLDivElement>(null)
+
+  // The story camera (see WithCamera) follows the step: Join with QR code sees the sample
+  // member link, Scan QR code the sample device link.
+  const camera: StoryCamera =
+    cameraMode === 'code'
+      ? { kind: 'code', text: step === 'scanQrCode' ? SAMPLE_DEVICE_LINK : SAMPLE_MEMBER_LINK }
+      : { kind: cameraMode }
 
   const go = (next: Step) => {
     setTrail([...trail, step])
@@ -423,7 +570,7 @@ const WalkthroughStory = () => {
       case 'pasteALink':
         return <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={onInvitation} />
       case 'joinWithQrCode':
-        return <PasteLinkComponent heading={'Join with QR code'} handleCommunityAction={onInvitation} />
+        return <QrScannerComponent onDecoded={onInvitation} onUsePasteLink={() => go('pasteALink')} />
       case 'createCommunity':
         return <CreateCommunityComponent handleCommunityAction={onCreate} />
       case 'chooseUsername':
@@ -451,8 +598,15 @@ const WalkthroughStory = () => {
         )
       case 'scanQrCode':
         return (
-          <PasteLinkComponent heading={'Scan QR code'} intro={SCAN_QR_INTRO} handleCommunityAction={onInvitation} />
+          <QrScannerComponent
+            intro={SCAN_QR_INTRO}
+            onDecoded={onInvitation}
+            onUsePasteLink={() => go('pasteFromScan')}
+            dataTestId='link-devices-scanner'
+          />
         )
+      case 'pasteFromScan':
+        return <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={onInvitation} />
     }
   }
 
@@ -463,70 +617,83 @@ const WalkthroughStory = () => {
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={lightTheme}>
-        <div ref={rootRef} style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
-          <h1
-            style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px', letterSpacing: '-0.02em' }}
-          >
-            Walkthrough · {title}
-          </h1>
-          <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-            title bar &ldquo;{bar}&rdquo; · rows, buttons and the back arrow navigate; where the app dispatches, the
-            action is recorded below · trail:{' '}
-            <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
-              {[...trail, step].map(s => STEPS[s].title).join(' › ')}
-            </span>
-          </p>
-          <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
-            <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-              <Shell title={bar} left={left} onLeft={onLeft}>
-                {render()}
-              </Shell>
-            </Column>
-            <Column
-              width={CONTENT_COLUMN_WIDTH}
-              label='the same column · 375 (prototype width; RN screen not renderable here)'
+        <WithCamera camera={camera}>
+          <div ref={rootRef} style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
+            <h1
+              style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px', letterSpacing: '-0.02em' }}
             >
-              {render()}
-            </Column>
-          </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
-            <button type='button' style={chromeButton} onClick={restart} data-testid='walkthrough-restart'>
-              restart
-            </button>
-            {isPasteStep && (
-              <>
+              Walkthrough · {title}
+            </h1>
+            <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
+              title bar &ldquo;{bar}&rdquo; · rows, buttons and the back arrow navigate; where the app dispatches, the
+              action is recorded below · trail:{' '}
+              <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
+                {[...trail, step].map(s => STEPS[s].title).join(' › ')}
+              </span>
+            </p>
+            <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
+              <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
+                <Shell title={bar} left={left} onLeft={onLeft}>
+                  {render()}
+                </Shell>
+              </Column>
+              <Column
+                width={CONTENT_COLUMN_WIDTH}
+                label='the same column · 375 (prototype width; RN screen not renderable here)'
+              >
+                {render()}
+              </Column>
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+              <button type='button' style={chromeButton} onClick={restart} data-testid='walkthrough-restart'>
+                restart
+              </button>
+              {WALKTHROUGH_CAMERAS.map(mode => (
                 <button
+                  key={mode}
                   type='button'
-                  style={chromeButton}
-                  onClick={() => fillPasteInputs(rootRef.current, SAMPLE_MEMBER_LINK)}
-                  data-testid='walkthrough-fill-member-link'
+                  style={{ ...chromeButton, fontWeight: mode === cameraMode ? 700 : 400 }}
+                  onClick={() => setCameraMode(mode)}
+                  data-testid={`walkthrough-camera-${mode}`}
                 >
-                  fill both inputs with the sample member link
+                  camera: {mode === 'code' ? 'sample link QR code' : mode}
                 </button>
-                <button
-                  type='button'
-                  style={chromeButton}
-                  onClick={() => fillPasteInputs(rootRef.current, SAMPLE_DEVICE_LINK)}
-                  data-testid='walkthrough-fill-device-link'
-                >
-                  fill both inputs with the sample device link
-                </button>
-              </>
-            )}
+              ))}
+              {isPasteStep && (
+                <>
+                  <button
+                    type='button'
+                    style={chromeButton}
+                    onClick={() => fillPasteInputs(rootRef.current, SAMPLE_MEMBER_LINK)}
+                    data-testid='walkthrough-fill-member-link'
+                  >
+                    fill both inputs with the sample member link
+                  </button>
+                  <button
+                    type='button'
+                    style={chromeButton}
+                    onClick={() => fillPasteInputs(rootRef.current, SAMPLE_DEVICE_LINK)}
+                    data-testid='walkthrough-fill-device-link'
+                  >
+                    fill both inputs with the sample device link
+                  </button>
+                </>
+              )}
+            </div>
+            <div
+              style={{ fontFamily: mono, fontSize: 12, lineHeight: '18px', color: INK_3, marginTop: 12 }}
+              data-testid='walkthrough-dispatched'
+            >
+              dispatched ({dispatched.length}):
+              {dispatched.length === 0 ? ' —' : null}
+              {dispatched.map((action, i) => (
+                <div key={i} style={{ color: '#171B12' }}>
+                  {i + 1}. {action}
+                </div>
+              ))}
+            </div>
           </div>
-          <div
-            style={{ fontFamily: mono, fontSize: 12, lineHeight: '18px', color: INK_3, marginTop: 12 }}
-            data-testid='walkthrough-dispatched'
-          >
-            dispatched ({dispatched.length}):
-            {dispatched.length === 0 ? ' —' : null}
-            {dispatched.map((action, i) => (
-              <div key={i} style={{ color: '#171B12' }}>
-                {i + 1}. {action}
-              </div>
-            ))}
-          </div>
-        </div>
+        </WithCamera>
       </ThemeProvider>
     </StyledEngineProvider>
   )
