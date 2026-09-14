@@ -101,7 +101,10 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ currentCommunity, 
         className={classes.button}
         onClick={event => {
           event.persist()
-          accountSettingsModal.handleOpen()
+          // Explicitly empty: the modal reducer keeps the previous args when a
+          // caller passes none, so opening with nothing would inherit whatever
+          // tab the last caller asked for - "Add members" asks for 'invite'.
+          accountSettingsModal.handleOpen({})
         }}
         data-testid={'settings-panel-button'}
       >

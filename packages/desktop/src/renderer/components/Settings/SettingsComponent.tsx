@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 
@@ -33,11 +33,15 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   focusTab,
 }) => {
   const [currentTab, setCurrentTab] = useState('')
+  const wasOpen = useRef(false)
 
-  // Opening the drawer with a tab asked for lands straight on it; opening it
-  // without one always starts at the menu, including after a focused open.
+  // `focusTab` is the tab to OPEN on, so it is read once, as the drawer opens:
+  // opening with one lands straight on it, opening without one starts at the
+  // menu. Reading it on every render would also drag the user back to that tab
+  // after they navigated away from it inside an open drawer.
   useEffect(() => {
-    if (open) setCurrentTab(focusTab ?? '')
+    if (open && !wasOpen.current) setCurrentTab(focusTab ?? '')
+    wasOpen.current = open
   }, [open, focusTab])
 
   const handleChange = (tab: string) => {
