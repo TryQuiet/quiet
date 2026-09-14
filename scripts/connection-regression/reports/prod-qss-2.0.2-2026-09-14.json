@@ -1,0 +1,322 @@
+{
+  "date": "2026-09-14",
+  "verdict": "PASS: fresh website desktop 9.0.2 clients create, join, and exchange messages through production QSS without Tor",
+  "endpoint": "wss://qss-prod.quiet-services.app",
+  "artifact": {
+    "release": "@quiet/desktop@9.0.2",
+    "website": "https://tryquiet.org/",
+    "assetUrl": "https://github.com/TryQuiet/quiet/releases/download/%40quiet/desktop%409.0.2/Quiet-9.0.2.AppImage",
+    "assetSha256": "0914284dcec16ec59e03eebe5f96633d81cd4f876a775c596fa6f63fcde40bdd",
+    "endpoint": "wss://qss-prod.quiet-services.app",
+    "torRealSha256": "42017904b14e2e521018ab658bb23ac807957d2d2a691ed72181b0627ae40340",
+    "torIsolation": "Mount namespace binds wrapper at Tor executable path; original Tor runs with DisableNetwork=1 from launch",
+    "codeSha256": {
+      "@quietdesktop": "ba7475f40751139a9768ebbfd6bbccd8fe4bcb400a24b7f59ee915b520ef8b8f",
+      "resources/app.asar": "7dbd79ed05a344c48d7b59ef2c776f2ce922715fd006c9774636e5345b13385d"
+    },
+    "extractedPayloadsMatchVerifiedAppImage": true,
+    "packagedConfig": {
+      "QSS_ALLOWED": "true",
+      "QSS_ENDPOINT": "wss://qss-prod.quiet-services.app",
+      "ENVFILE": ".env.production"
+    }
+  },
+  "deployment": {
+    "tag": "v2.0.2",
+    "commit": "519cbe9790ddba126ce53a921c7a90b12977c13b",
+    "awsDeploymentId": "d-KE12U3IPL",
+    "workflowUrl": "https://github.com/TryQuiet/quiet-storage-service/actions/runs/34897416519",
+    "attempt": 2,
+    "jobCompletedAt": "2026-09-14T22:03:31Z",
+    "result": "success",
+    "provenance": "Successful production workflow and artifact revision; live EC2 filesystem not independently inspected",
+    "timingSeconds": {
+      "runnerQueue": 4,
+      "build": 42.099,
+      "bundleUpload": 34.298,
+      "codeDeployWait": 1074.139
+    }
+  },
+  "health": {
+    "at": "2026-09-14T22:10:40.739921+00:00",
+    "httpStatus": 200,
+    "body": {
+      "status": "ok",
+      "info": {
+        "postgres": {
+          "status": "up"
+        }
+      },
+      "error": {},
+      "details": {
+        "postgres": {
+          "status": "up"
+        }
+      }
+    }
+  },
+  "run": {
+    "ownerReadyAt": "2026-09-14T22:08:58.992Z",
+    "joinRequestAt": "2026-09-14T22:09:22.168Z",
+    "joinerReadyAt": "2026-09-14T22:09:24.671Z",
+    "joinRequestToReadyMs": 2503,
+    "normalProductionCaptcha": true,
+    "captchaSuccessfulVerifications": 1,
+    "ownerAcks": [
+      {
+        "at": "2026-09-14T22:07:43.740Z",
+        "event": "get-captcha-site-key",
+        "status": "success",
+        "payloadFields": [
+          "siteKey"
+        ]
+      },
+      {
+        "at": "2026-09-14T22:08:57.374Z",
+        "event": "verify-captcha",
+        "status": "success",
+        "payloadFields": null
+      },
+      {
+        "at": "2026-09-14T22:08:57.617Z",
+        "event": "generate-public-keys",
+        "status": "success",
+        "payloadFields": [
+          "teamId",
+          "serverId",
+          "identityKeys",
+          "keys"
+        ]
+      },
+      {
+        "at": "2026-09-14T22:08:57.945Z",
+        "event": "create-community",
+        "status": "success",
+        "payloadFields": null
+      },
+      {
+        "at": "2026-09-14T22:08:58.029Z",
+        "event": "sign-in-community",
+        "status": "success",
+        "payloadFields": null
+      },
+      {
+        "at": "2026-09-14T22:08:58.104Z",
+        "event": "sign-in-community",
+        "status": "success",
+        "payloadFields": null
+      },
+      {
+        "at": "2026-09-14T22:08:59.546Z",
+        "event": "log-entry-sync",
+        "status": "success",
+        "payloadFields": [
+          "hash",
+          "hashedDbId",
+          "receivedAt",
+          "syncSeq",
+          "teamId"
+        ]
+      },
+      {
+        "at": "2026-09-14T22:08:59.635Z",
+        "event": "log-entry-sync",
+        "status": "success",
+        "payloadFields": [
+          "hash",
+          "hashedDbId",
+          "receivedAt",
+          "syncSeq",
+          "teamId"
+        ]
+      },
+      {
+        "at": "2026-09-14T22:08:59.723Z",
+        "event": "log-entry-sync",
+        "status": "success",
+        "payloadFields": [
+          "hash",
+          "hashedDbId",
+          "receivedAt",
+          "syncSeq",
+          "teamId"
+        ]
+      },
+      {
+        "at": "2026-09-14T22:09:37.563Z",
+        "event": "log-entry-sync",
+        "status": "success",
+        "payloadFields": [
+          "hash",
+          "hashedDbId",
+          "receivedAt",
+          "syncSeq",
+          "teamId"
+        ]
+      },
+      {
+        "at": "2026-09-14T22:10:00.217Z",
+        "event": "log-entry-sync",
+        "status": "success",
+        "payloadFields": [
+          "hash",
+          "hashedDbId",
+          "receivedAt",
+          "syncSeq",
+          "teamId"
+        ]
+      }
+    ],
+    "joinerAcks": [
+      {
+        "at": "2026-09-14T22:09:22.661Z",
+        "event": "sign-in-community",
+        "status": "success",
+        "payloadFields": null
+      },
+      {
+        "at": "2026-09-14T22:09:24.470Z",
+        "event": "log-entry-sync",
+        "status": "success",
+        "payloadFields": [
+          "hash",
+          "hashedDbId",
+          "receivedAt",
+          "syncSeq",
+          "teamId"
+        ]
+      },
+      {
+        "at": "2026-09-14T22:09:24.717Z",
+        "event": "log-entry-sync",
+        "status": "success",
+        "payloadFields": [
+          "hash",
+          "hashedDbId",
+          "receivedAt",
+          "syncSeq",
+          "teamId"
+        ]
+      },
+      {
+        "at": "2026-09-14T22:09:44.789Z",
+        "event": "log-entry-sync",
+        "status": "success",
+        "payloadFields": [
+          "hash",
+          "hashedDbId",
+          "receivedAt",
+          "syncSeq",
+          "teamId"
+        ]
+      }
+    ],
+    "responses": {
+      "owner2": {
+        "01-live": {
+          "passed": true,
+          "action": "send",
+          "elapsedMs": 179.13611600000877
+        },
+        "02-live": {
+          "passed": true,
+          "action": "wait",
+          "elapsedMs": 550.7767020000028
+        },
+        "04-stored-send": {
+          "passed": true,
+          "action": "send",
+          "elapsedMs": 194.18212200002745
+        },
+        "05-stop": {
+          "passed": true,
+          "action": "stop",
+          "elapsedMs": 8094.965129999997,
+          "processExitVerified": true
+        },
+        "zz-shutdown": {
+          "passed": true
+        }
+      },
+      "joiner": {
+        "01-live": {
+          "passed": true,
+          "action": "wait",
+          "elapsedMs": 550.1648490000007
+        },
+        "02-live": {
+          "passed": true,
+          "action": "send",
+          "elapsedMs": 194.19081800000276
+        },
+        "03-stop": {
+          "passed": true,
+          "action": "stop",
+          "elapsedMs": 8083.741097999999,
+          "processExitVerified": true
+        },
+        "06-launch": {
+          "passed": true,
+          "action": "launch",
+          "elapsedMs": 13107.474178000004
+        },
+        "07-stored-wait": {
+          "passed": true,
+          "action": "wait",
+          "elapsedMs": 59.57551799999783
+        },
+        "zz-shutdown": {
+          "passed": true
+        }
+      }
+    },
+    "storedDelivery": {
+      "sequence": [
+        "stop joiner and verify its processes exit",
+        "owner sends fresh exact message",
+        "QSS acknowledges log upload",
+        "stop owner and verify its processes exit",
+        "restart joiner with same profile",
+        "assert exact message and sender in joiner UI while owner remains stopped"
+      ],
+      "uploadEvidence": {
+        "requestAt": "2026-09-14T22:09:59.973524+00:00",
+        "qssLogEntrySyncSuccessAt": [
+          "2026-09-14T22:10:00.217Z"
+        ]
+      },
+      "passed": true
+    },
+    "tor": {
+      "networkDisabledFromStartup": true,
+      "liveProcessEvidence": {
+        "at": "2026-09-14T22:09:37.287555+00:00",
+        "processes": [
+          {
+            "pid": 1233163,
+            "disableNetwork": true
+          },
+          {
+            "pid": 1235117,
+            "disableNetwork": true
+          }
+        ]
+      },
+      "bootstrapCompletions": 0
+    },
+    "payloadHashesRechecked": true
+  },
+  "cleanup": {
+    "checkedAt": "2026-09-14T22:11:05.986475+00:00",
+    "activeTestProcesses": []
+  },
+  "privateEvidenceRoot": ".connection-runs/prod-qss-2.0.2-validation/",
+  "deploymentsChangedByTest": false,
+  "dataResetByTest": false,
+  "limitations": [
+    "One successful fresh two-client Linux desktop 9.0.2 run; not a verdict for existing communities, iOS, Android, or 10 alpha.",
+    "Live message timings are concurrent UI assertion durations, not precise network latency benchmarks.",
+    "An initial onboarding attempt stopped when the helper could not find the server-offer button. The successful run used new profiles and a shorter community name; the initial UI failure was not diagnosed.",
+    "The CodeDeploy wait includes AWS deployment phases; no AWS credentials were available to attribute time to individual lifecycle hooks."
+  ]
+}
