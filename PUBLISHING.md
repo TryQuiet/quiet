@@ -48,6 +48,7 @@
 - [ ] Release branch is created from `develop` branch with the production version number, e.g. `2.1.0`. (Choose version number based on [semantic versioning](https://semver.org/) and our [last release](https://github.com/TryQuiet/quiet/releases).)
 - [ ] Review the base `CHANGELOG.md` file (Package level `CHANGELOG.md` files are automatically updated during the release process) and ensured that it is up to date with all changes included in the release since the last production release and update the version number.
 - [ ] Review the [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) and ensured all issues contained in the release candidate are in the `Ready for QA` column.
+- [ ] QSS on the alpha's configured endpoint supports this client release. Complete the QSS compatibility checks below before delivering the alpha to QA.
 
 ## Preparing a Release Candidate (Alpha)
 
@@ -60,6 +61,18 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 1. Promote the alpha release on the [Google Play Console](https://play.google.com/console/) to a closed testing track. Contact @holmesworcester if you need access to the organization.
 1. Notify QA that the alpha release is ready for testing.
 
+## Publishing QSS
+
+QSS is released separately from Quiet in [TryQuiet/quiet-storage-service](https://github.com/TryQuiet/quiet-storage-service). Publishing a Quiet alpha does not deploy QSS. QSS has its own version numbers; choose a compatible QSS revision rather than matching the Quiet version number.
+
+1. Record the Quiet release commit, its `3rd-party/auth` and `3rd-party/qss` commits, and QSS's nested `3rd-party/auth` commit. Initialize submodules recursively. Check the auth connection protocol on both sides: Quiet `10.0.0-alpha.0` requires protocol 4, while `9.0.2` uses protocol 3. A protocol mismatch causes `PROTOCOL_VERSION_UNSUPPORTED` even when the socket connects and CAPTCHA succeeds. See the [physical iOS comparison](scripts/connection-regression/reports/ios-qss-2026-09-14.md).
+1. Confirm the QSS endpoint in the built client, including any endpoint carried by an invitation. The published iOS `10.0.0-alpha.0` uses `wss://qss-dev.quiet-services.app` (staging). Check each platform's build configuration before publishing.
+1. Test the intended QSS commit with real clients before deployment. Create a community, join from a second device, and exchange fresh messages in both directions. Also send while the recipient is stopped, verify server storage, stop the sender, and launch the recipient to verify delivery through QSS. Include physical iOS and Android devices. A health check or successful socket connection is insufficient.
+1. In the QSS repository, prepare the release version and notes, and verify its tests and build. Review the database migrations and the effect on existing communities and supported client versions before selecting a deployment target. Protocol 3 and protocol 4 clients require compatible servers; test the client upgrade and community migration plan before production.
+1. For staging, publish a QSS **prerelease**. The [development deployment workflow](https://github.com/TryQuiet/quiet-storage-service/blob/main/.github/workflows/deploy_dev.yml) listens for `prereleased` and `released` events. Verify that **Deploy to EC2 (Development)** starts for the intended tag and commit. With these triggers, publishing a prerelease from a draft does not start the workflow; see [GitHub's release event documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#release).
+1. Wait for the deployment workflow and AWS CodeDeploy to succeed. The deployment builds QSS, runs the selected environment's database migrations, and starts or restarts the service. Record the deployed commit and repeat the client authentication, joining, and stored-message checks against the deployed staging endpoint before notifying QA.
+1. After production release approval, publish or promote a QSS **full release**. The [production deployment workflow](https://github.com/TryQuiet/quiet-storage-service/blob/main/.github/workflows/deploy_prod.yml) listens for `released`; this event also deploys to staging. A full release therefore changes **both environments**. Verify both deployment runs and repeat the production client checks.
+
 ## Checklist Before Production Release
 
 - [ ] Build is working correctly, passes automated tests and self-QA
@@ -69,6 +82,7 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 - [ ] All hotfixes for issues discovered in alpha releases have been merged into the release (and develop) branch
 - [ ] CHANGELOG.md is up to date and approved by @holmesworcester
 - [ ] PM approved the release
+- [ ] QSS compatibility, deployment, and client checks above are complete for the production endpoint and supported client versions.
 
 ## Preparing a Production Release
 

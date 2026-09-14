@@ -1,0 +1,118 @@
+{
+  "date": "2026-09-14",
+  "client": {
+    "release": "10.0.0-alpha.0",
+    "iosVersion": "10.0.0 (613)",
+    "quietCommit": "edd51028f3c66c30d0692e8833fa7d0a7266b242",
+    "workflowRun": 34565096257,
+    "artifact": 10187521355,
+    "hardware": "iPhone 16e",
+    "os": "iOS 18.5",
+    "developmentResigned": true,
+    "protectedFilesUnchanged": true,
+    "protectedFilesSha256": {
+      "nodejs-project/bundle.cjs": "f7c59197a41334684c0ee56439400653ce30823c11390c51fbbb87e96f5cde81",
+      "main.jsbundle": "e17cd04156427f27921bce41846d17b2a033834343b6d54c54ca04cf7c5dd168",
+      "Env.plist": "7770657a4114eb3ff836334090f98abb259ccec3350880e5bb03b83dcc605a89",
+      "Info.plist": "ea9ff22fe3e2ce3f3dbfe854bcbf6ca3075f247114c7c72cd017d884fb0d6769"
+    }
+  },
+  "staging": {
+    "endpoint": "wss://qss-dev.quiet-services.app",
+    "websocketConnected": true,
+    "captchaVerified": true,
+    "serverIdentityFieldsAccepted": true,
+    "localCommunityCreated": true,
+    "qssAuthSucceeded": false,
+    "qssAuthError": "PROTOCOL_VERSION_UNSUPPORTED",
+    "remoteObservedProtocolVersion": 3,
+    "clientRequiredProtocolVersion": 4,
+    "localError": "The peer sent an unsupported connection protocol message",
+    "remoteError": "Your connection protocol version is not supported",
+    "logWritesQueuedBecauseAuthNotConnected": true,
+    "deploymentChanged": false
+  },
+  "compatibleFixture": {
+    "qssCommit": "4227d340397135b120fd96a80f7538592ef520c5",
+    "authCommit": "6f534c89bceb875e8c71997943e5e76e48ccbd88",
+    "protocolVersion": 4,
+    "invitationEndpointOverride": true,
+    "serverRuntime": "QSS with Postgres and Redis",
+    "captcha": "Public test keys with real verification",
+    "pushEnabled": false,
+    "joined": true,
+    "liveMessagesBothDirections": true,
+    "storedMessagesBothDirectionsWithOtherPeerStopped": true,
+    "storageBeforeIosSend": {
+      "logEntryCount": 8,
+      "maxSyncSeq": 8
+    },
+    "storageAfterIosSend": {
+      "logEntryCount": 9,
+      "maxSyncSeq": 9
+    }
+  },
+  "messageProof": {
+    "startedAt": "2026-09-14T18:56:59.707101+00:00",
+    "desktopToIosLiveVisible": true,
+    "desktopToIosLiveObservedAt": "2026-09-14T18:57:15.143526+00:00",
+    "phoneTerminatedBeforeDesktopStoredAt": "2026-09-14T18:57:40.617645+00:00",
+    "iosToDesktopLiveVisible": true,
+    "phoneStoppedBeforeDesktopStored": true,
+    "phoneStoppedBeforeDesktopStoredState": 1,
+    "desktopStoredSendRequestedAt": "2026-09-14T18:57:58.597552+00:00",
+    "desktopStopRequestedAt": "2026-09-14T18:58:44.116875+00:00",
+    "desktopExitVerifiedBeforeIosPull": true,
+    "phoneLaunchedForStoredPullAt": "2026-09-14T18:59:32.288042+00:00",
+    "desktopToIosOfflineVisible": true,
+    "desktopToIosOfflineObservedAt": "2026-09-14T18:59:54.326995+00:00",
+    "iosStoredSendAt": "2026-09-14T18:59:59.356022+00:00",
+    "iosStoredLocalVisible": true,
+    "storageSeqBeforeIosSend": 8,
+    "storageSeqAfterIosSend": 9,
+    "phoneStoppedBeforeDesktopPull": true,
+    "phoneStoppedBeforeDesktopPullState": 1,
+    "phoneStoppedBeforeDesktopPullAt": "2026-09-14T19:00:40.027425+00:00",
+    "iosToDesktopOfflineVisible": true,
+    "phoneStillStoppedAfterDesktopPull": true,
+    "iosToDesktopOfflineObservedAt": "2026-09-14T19:01:45.227345+00:00"
+  },
+  "messageSha256": {
+    "desktopToIosLive": "a4ca1e5227faedf0ed671b264264434059b9f74ec6b62f4378c0a04af410f0e4",
+    "iosToDesktopLive": "1b679b1d023a6a90dddfd302a1c91f1ed70d871106e4f05476d481e6825aa689",
+    "desktopToIosOffline": "361740ca0729216338e69a21e0fe207c0c321baf511ca237b304cbfd495cbdc3",
+    "iosToDesktopOffline": "1143b7c20cf8f98058d1b1738dc60d3510e6ec5c1cdce02a4771ac55062c7bd2"
+  },
+  "runtimeCodeChanged": false,
+  "deploymentsChanged": false,
+  "limitations": [
+    "Physical iOS 9 not tested",
+    "Staging create and local fixture join were different onboarding paths",
+    "No push, cloud migration, production, or post-deployment validation",
+    "Two desktop send helper false failures caused by mixed-case username; exact messages verified independently on phone",
+    "Transient newer-server client errors retained; this is not a clean-log pass",
+    "Observation timestamps are not latency measurements"
+  ],
+  "privateArtifactSha256": {
+    "alpha-artifact/Quiet.ipa": "8c13bd85a8aba3dc826047099a0064985a66114b3e71b8ee579285e05bda4ba6",
+    "alpha-development-receipt.json": "cf96fe4c8484ab3295d7fe73c61f0bf97c99e8eab5fd3aa871cac13ba3feb767",
+    "staging-logs-initial/log_2026-09-14.log": "e73402a26bdba31798fcaeedc0455c1439b632ab24e6ec66b76667426ad4d8da",
+    "staging-result.json": "39857cd9fb5c16436c18581d80b11f0f222c15d48582a6c5ef8a30e9124f25ab",
+    "new-qss-final.log": "6440c2ce577a28e3c296e7ac0f3f9862dfdd1087ccb4bee1e178f1174cdf7a73",
+    "new-qss-server-final.log": "c6b3c881cf0c5453fa6ef77443961e074efab4c375dc95a61b8615c0e525345f",
+    "message-proof.json": "025c65ff6cd3c983667b135a27aed113d756159e497e8e71f631feef6f5c7f6e",
+    "desktop-live-received.xml": "38907504a513f6784df4c12b8f83fee239f644d2afe373467f41458fbfd73566",
+    "ios-live-sent.xml": "1490ffbd07868d634c6e1f9259fbc08a1f842dae8c05220cffadbdfe6995d9f2",
+    "ios-stored-pull-result.xml": "555ffd997b13963ffe924db1cb1d1ad8bd9266aa16096279a52621c3d9023e01",
+    "ios-stored-send-confirmed.xml": "15d14977349f93dad41c7bd4ee232062dd5048c4e5bcffd7a7e9a217ffd25b8c",
+    "storage-before-ios-pull.json": "b1ba8addd5201d44b1b5a44a2cd0707350a0a470ff1e57e704f1781dd1850721",
+    "storage-after-ios-send.json": "3a1a6a5127e7a984da6de1e751d9644134e8364b8fe4445dfe3fdd61d29d2e03",
+    "new-qss-peer/responses/live-desktop.json": "0dcd983c6b64c9037e294ea9b096bf950f55225ff384a016ff6d506c47dbaccb",
+    "new-qss-peer/responses/stored-desktop.json": "374cae247e0316239a2e6cf7b93a49ca29dfc3c57ca0a0b6a4438dcbaa022d03",
+    "new-qss-peer/responses/live-ios.json": "98c8bba18f9fa31df81fc208419b6a644d6c1f38a59bf95cef7b260090069a88",
+    "new-qss-peer/responses/stop-desktop-for-ios-pull.json": "879ed201172662db8486b77f978b284ec951a8cfd4be8ad97932105e05409516",
+    "new-qss-peer/responses/01-launch-for-stored-pull.json": "0e454514ce0e8b5b677798a18931f8063ec5f1d84329a86c8f834ae957f77572",
+    "new-qss-peer/responses/02-wait-for-stored-ios.json": "6e327d531030ed6495bbdd2288d0a04116a2c5454f7c08f60f5b031b2c2fd60e",
+    "new-qss-peer/responses/zz-shutdown.json": "0f9732071aabc96662979198c067859ad0bf8058fe95745ce8da23df1428a44c"
+  }
+}
