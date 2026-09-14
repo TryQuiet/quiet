@@ -24,7 +24,9 @@ describe('RecoverAccountScreen', () => {
   it("shows the frame's copy with More options inert", async () => {
     const { result } = await renderScreen()
 
-    expect(result.getByText('Account recovery')).toBeTruthy()
+    // The frame hides the bar title; only the back glyph and the heading
+    expect(result.queryByText('Account recovery')).toBeNull()
+    expect(result.getByLabelText('Go back')).toBeTruthy()
     expect(result.getByText('Recover account')).toBeTruthy()
     expect(
       result.getByText('Locked out? You can recover with a linked device or ask an admin to send you an invite link.')

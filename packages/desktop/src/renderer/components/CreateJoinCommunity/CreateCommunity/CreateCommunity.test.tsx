@@ -40,6 +40,11 @@ describe('Create community', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'Create a community', level: 3 })).toBeVisible()
+    // Full-screen h1 stage (2811:2451): the heading is the only "Create a community"; the bar has no title, no hairline
+    expect(screen.getAllByText('Create a community')).toHaveLength(1)
+    const header = screen.getByTestId('createCommunityModalActions').closest('.Modalheader')
+    expect(header).not.toHaveClass('Modalnone')
+    expect(header).not.toHaveClass('ModalheaderBorder')
 
     await userEvent.click(screen.getByTestId('createCommunityModalBack'))
 

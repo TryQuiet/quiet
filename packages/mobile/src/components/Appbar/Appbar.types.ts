@@ -4,7 +4,8 @@ import { FontWeight } from '../Typography/Typography.types'
 import { FC } from 'react'
 
 export interface AppbarProps {
-  title: string
+  /** Bar title; not rendered with `withoutTitle`. */
+  title?: string
   titleComponent?: React.JSX.Element
   prefix?: string
   position?: 'flex-start' | 'center'
@@ -15,6 +16,14 @@ export interface AppbarProps {
   crossBackIcon?: boolean
   /** No back arrow and no community tile on the left (onboarding roots). */
   plain?: boolean
+  /**
+   * The bar zone (60, the library's Title bar) with the back/close glyph at its
+   * designed place and nothing else: no title text, no hairline. The full-screen
+   * h1 stages of the onboarding — the prototype hides their bar title and the
+   * heading is the title (ONBOARDING.md, "No top bar title on full-screen h1
+   * stages"); titled bars remain on sheets and the community home.
+   */
+  withoutTitle?: boolean
 }
 
 export interface HeaderTitleProps {

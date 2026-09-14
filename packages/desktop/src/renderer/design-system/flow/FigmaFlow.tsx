@@ -13,7 +13,7 @@ export interface FlowFrame {
   section: string
   width: number; height: number; png: string; url: string; note?: string | null
   /** The frame's own title bar, if it has one: its height (to crop when composed into the desktop shell) and its title text. */
-  titleBar?: { height: number; text: string | null } | null
+  titleBar?: { height: number; text: string | null; removed?: boolean; /** the frame's title text when the designer hid it (full-screen h1 stages) */ hiddenTitle?: string | null } | null
   /** Shadow margin the Figma export carries beyond the frame's box (effects render into exports); painted at natural size, offset by it. */
   pad?: { x: number; y: number } | null
   /** The designer's desktop frame for this stage (gen.cjs DESKTOP): 'app' = 740 split view (stretched beyond 740 only in its plain column), 'modal' = card over the desktop home with a scrim, 'content' = 715 content in the shell. Absent = mobile content in the shell. */
@@ -21,7 +21,7 @@ export interface FlowFrame {
   links: FlowLink[]
 }
 export interface Stretch { col: number; right: number }
-export interface DesktopFrame { kind: 'app' | 'content'; png: string; node: string; width: number; height: number; stretch?: Stretch | null; hotspots: FlowLink[] }
+export interface DesktopFrame { kind: 'app' | 'content'; png: string; node: string; width: number; height: number; stretch?: Stretch | null; /** 'content' frames that carry their own shell chrome: pixels to crop off the top */ crop?: number; hotspots: FlowLink[] }
 export interface Shell { file: string; node: string; png: string; width: number; height: number; topBar: { y: number; h: number }; titleBar: { y: number; h: number }; titleZone: Rect; backZone: Rect; content: Rect }
 export interface Rect { x: number; y: number; w: number; h: number }
 export interface Flow { file: string; start: string; sections: string[]; shell?: Shell; mapId?: string; frames: FlowFrame[] }
@@ -31,7 +31,7 @@ export const FLOW_TITLE = 'Onboarding flow'
 // Every PNG is the designer's own export of the frame, at 2x, shown at 1x.
 const images = (require as any).context('../figma', false, /\.png$/)
 const src = (png: string): string => images(`./${png}`)
-const desktopImages = (require as any).context('../figma/desktop', false, /\.png$/)
+const desktopImages = (require as any).context('../figma/desktop', true, /\.png$/)
 const dsrc = (png: string): string => desktopImages(`./${png}`)
 import desktopJson from '../figma/desktop.json'
 export interface DesktopDesign { slug: string; file: string; fileName: string; date: string; node: string; name: string; width: number; height: number; png: string; url: string; copy: string[]; counterpart: string | null; note: string }
@@ -114,8 +114,10 @@ const Hotspot: React.FC<{ l: FlowLink; rect: Rect; outline: boolean; onClick: ()
       title={`${l.label} → ${describe(l)} · ${st.word}`}
       aria-label={`${l.label}: ${l.kind === 'back' ? 'go back' : 'go to ' + describe(l)} (${st.word})`}
       onClick={onClick}
-      style={{ position: 'absolute', left: rect.x, top: rect.y, width: rect.w, height: rect.h, background: outline ? st.bg : 'transparent', border: outline ? st.border : '1px solid transparent', borderRadius: 4, cursor: 'pointer', padding: 0 }}
-    />
+      style={{ position: 'absolute', left: rect.x, top: rect.y, width: rect.w, height: rect.h, background: outline ? st.bg : 'transparent', border: outline ? st.border : '1px solid transparent', borderRadius: 4, cursor: 'pointer', padding: 0, font: 'inherit', textAlign: 'left' }}
+    >
+      {l.kind === 'added' && outline ? <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#8A5F09', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: rect.w - 24, textOverflow: 'ellipsis' }}>{l.label}</span> : null}
+    </button>
   )
 }
 
@@ -177,10 +179,12 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
   // its body is the placeholder slot ("Replace with content"), i.e. grey by design.
   const winW = VIEWPORTS.find(v => v.id === vp)!.width
   const dc = frame.desktop && frame.desktop.kind === 'content' ? frame.desktop : null
-  const content = dc ? { png: dsrc(dc.png), width: dc.width, height: dc.height, crop: 0, links: dc.hotspots } : { png: src(frame.png), width: frame.width, height: frame.height, crop: frame.titleBar?.height ?? 0, links: frame.links }
+  const content = dc ? { png: dsrc(dc.png), width: dc.width, height: dc.height, crop: dc.crop ?? 0, links: dc.hotspots } : { png: src(frame.png), width: frame.width, height: frame.height, crop: frame.titleBar?.height ?? 0, links: frame.links }
   const crop = content.crop
   const contentLeft = Math.round((winW - content.width) / 2)
-  const contentTop = shell.content.y
+  // A stage whose title bar was removed (user decision: Get started) has no bar on desktop either: content starts under the top bar.
+  const noBar = !!frame.titleBar?.removed
+  const contentTop = noBar ? shell.topBar.h : shell.content.y
   const title = frame.titleBar?.text ?? ''
   const H = shell.height
   return (
@@ -189,18 +193,19 @@ const ScreenAt: React.FC<{ flow: Flow; frame: FlowFrame; vp: Viewport; outline: 
       <div style={{ position: 'absolute', left: 0, top: 0, width: winW, height: shell.topBar.h, background: '#fff', display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 14 }}>
         {[0, 1, 2].map(i => <span key={i} style={{ width: 12, height: 12, borderRadius: 6, background: '#C4C4C4', display: 'inline-block' }} />)}
       </div>
-      {/* title bar: back arrow + centered title, divider below */}
-      <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, boxSizing: 'border-box', background: '#fff', borderBottom: '1px solid #E5E5E5' }}>
+      {/* title bar: back arrow + centered title, divider below (absent when the stage's bar was removed) */}
+      {!noBar && <div style={{ position: 'absolute', left: 0, top: shell.titleBar.y, width: winW, height: shell.titleBar.h, boxSizing: 'border-box', background: '#fff', borderBottom: title ? '1px solid #E5E5E5' : 'none' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" style={{ position: 'absolute', left: shell.backZone.x + 2, top: shell.backZone.y - shell.titleBar.y + 2 }} aria-hidden="true">
           <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#171B12" />
         </svg>
         <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 500, color: INK }}>{title}</div>
-      </div>
+      </div>}
       {/* content area: white to the bottom; the screen's content, its own title bar cropped, centered */}
       <div style={{ position: 'absolute', left: contentLeft, top: contentTop, width: content.width, height: H - contentTop, overflow: 'hidden', background: '#fff' }}>
         <img src={content.png} width={content.width} height={content.height} alt={frame.name} style={{ display: 'block', transform: `translateY(-${crop}px)` }} />
       </div>
       {content.links.map((l, i) => {
+        if (noBar && l.y < (frame.titleBar?.height ?? 0)) return null // the removed bar's back/close: nothing to draw
         if (l.y < crop || l.x < 0) {
           return l.kind === 'back' || l.label === 'Glyph' || l.label === 'Close' ? (
             <Hotspot key={i} l={l} rect={shell.backZone} outline={outline} onClick={() => follow(l)} describe={describe} />

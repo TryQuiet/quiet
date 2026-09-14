@@ -9,14 +9,14 @@ import { Typography } from '../Typography/Typography.component'
 
 import type { OpenInviteLinkProps } from './OpenInviteLink.types'
 
-/** Open invite link · Figma 2811:2455. */
+/** Open invite link · Figma 2811:2455. The frame hides its bar title ("Join with invite link"): glyph only, content top-anchored. */
 export const OpenInviteLink: FC<OpenInviteLinkProps> = ({ onPasteLink, handleBackButton }) => (
   <View
     style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
     testID={'open-invite-link-component'}
   >
-    <Appbar title={'Join with invite link'} back={handleBackButton} />
-    <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+    <Appbar withoutTitle back={handleBackButton} />
+    <View style={{ flex: 1, paddingTop: spacing.xl, paddingHorizontal: spacing.lg, gap: spacing.lg }}>
       <Image source={icons.monster} style={{ width: 120, height: 120, alignSelf: 'center' }} accessible={false} />
       <View style={{ gap: spacing.sm }}>
         <Typography variant={'h3'} horizontalTextAlign={'center'}>

@@ -22,12 +22,14 @@ const logger = createLogger('JoinCommunity')
 
 type Step = 'options' | 'recoverAccount' | 'openInviteLink' | 'pasteInviteLink' | 'pasteQrCode'
 
-/** Title bar text per step, from the prototype's frames (2811:2562, 2811:2535, 2811:2455, 3190:10892, 2811:2460). */
-const TITLES: Record<Step, string> = {
-  options: 'Quiet',
-  recoverAccount: 'Account recovery',
-  openInviteLink: 'Join with invite link',
-  pasteInviteLink: 'Join with invite link',
+/**
+ * The bar per step. The full-screen frames hide their title text (Join
+ * community 2811:2562 "Quiet", Account recovery 2811:2535, Open invite link
+ * 2811:2455 and Paste a link 3190:10892 "Join with invite link"): only the
+ * back glyph shows and the heading is the title. The Join with QR code sheet
+ * (2811:2460) keeps its titled bar.
+ */
+const TITLED_STEPS: Partial<Record<Step, string>> = {
   pasteQrCode: 'Join with QR code',
 }
 
@@ -121,7 +123,8 @@ const JoinCommunity = () => {
     <Modal
       open={joinCommunityModal.open}
       handleClose={joinCommunityModal.handleClose}
-      title={TITLES[step]}
+      title={TITLED_STEPS[step]}
+      withoutTitle={TITLED_STEPS[step] === undefined}
       canGoBack
       handleBack={handleBack}
       alignCloseLeft
