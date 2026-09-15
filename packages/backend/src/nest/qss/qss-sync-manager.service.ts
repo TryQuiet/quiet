@@ -598,6 +598,13 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
 
     this.logger.info('Syncing OrbitDB entry to QSS', update.hash)
 
+    // Channel messages use Events.add() (ADD); metadata uses key-value PUT/DEL operations
+    // with a different encrypted envelope and must still sync without alerting devices.
+    // Classify before the team-wide transport encryption, including when replaying queued writes.
+    const value = update.entry.payload.value as Partial<EncryptedMessage> | null | undefined
+    const messageScope =
+      update.entry.payload.op === 'ADD' && typeof value?.channelId === 'string' ? value.contents?.scope : undefined
+
     this.logger.trace('Encrypting log entry', update.hash)
     const encEntry: EncryptedAndSignedPayload = sigChain.crypto.encryptAndSign(update.entry, {
       type: EncryptionScopeType.ROLE,
@@ -616,12 +623,8 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     }
 
     const success = await this._sendLogEntrySyncMessage(dataSyncMessage, update.addr)
-    if (success) {
-      // Preserve the entry's original audience, before the team-wide QSS transport encryption.
-      // Messages and metadata store their encryption scope in different envelope fields.
-      const value = update.entry.payload.value as EncryptedMessage | EncryptedAndSignedPayload | undefined
-      const scope = value && ('channelId' in value ? value.contents?.scope : value.encrypted?.scope)
-      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, update.teamId, scope)
+    if (success && messageScope != null) {
+      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, update.teamId, messageScope)
     }
     return success
   }

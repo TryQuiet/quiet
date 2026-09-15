@@ -16,7 +16,7 @@ import { PublicChannelMessagesService } from '../storage/channels/messages/publi
 import { LogUpdate, OrbitDbOp } from '../storage/orbitDb/orbitdb.types'
 import { QPSService } from './qps.service'
 
-describe('private-channel push recipients after QSS sync', () => {
+describe('message-only push notifications after QSS sync', () => {
   let chain: SigChain
   let channel: PublicChannel
   let sigChainService: SigChainService
@@ -38,34 +38,95 @@ describe('private-channel push recipients after QSS sync', () => {
     return invitee.user.userId
   }
 
-  const makeUpdate = (value: unknown, op = OrbitDbOp.PUT, key?: string): LogUpdate => {
+  const makeUpdate = (value: unknown, op: string = OrbitDbOp.PUT, key?: string | null): LogUpdate => {
     const hash = `entry-${updates.size}`
     const update = {
       teamId: chain.team!.id,
       id: 'channel-db-id',
       addr: 'channel-db-address',
       hash,
-      entry: { id: 'channel-db-id', hash, payload: { op, key: key ?? hash, value } },
+      entry: { id: 'channel-db-id', hash, payload: { op, key: key === undefined ? hash : key, value } },
     } as unknown as LogUpdate
     updates.set(hash, update)
     return update
   }
 
-  const messageUpdate = async (isPublic = false) => {
+  const messageUpdate = async (isPublic = false, type = MessageType.Basic) => {
+    const id = `message-${updates.size}`
     const message: ChannelMessage = {
-      id: 'message-id',
+      id,
       channelId: channel.id,
       userId: chain.user.userId,
-      message: 'Private discussion',
-      type: MessageType.Basic,
+      message: type === MessageType.Info ? `Created #${channel.name}` : 'Discussion',
+      type,
       createdAt: Date.now(),
+      ...(type === MessageType.Image || type === MessageType.File
+        ? {
+            media: {
+              cid: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3rneevh2d5oa4sdh5xj5r6z2a',
+              message: { id, channelId: channel.id },
+              path: null,
+              name: 'attachment',
+              ext: type === MessageType.Image ? '.png' : '.pdf',
+              size: 1024,
+              enc: {
+                header: Buffer.alloc(24, 1).toString('base64url'),
+                recipient: { generation: 0, type: 'ROLE', name: isPublic ? RoleName.MEMBER : channel.roleName! },
+              },
+              ...(type === MessageType.Image ? { width: 32, height: 32 } : {}),
+            },
+          }
+        : {}),
     }
     const service = isPublic
       ? new PublicChannelMessagesService(sigChainService)
       : new PrivateChannelMessagesService(sigChainService)
     return makeUpdate(
-      await service.onSend(message, isPublic ? { ...channel, public: true, roleName: undefined } : channel)
+      await service.onSend(message, isPublic ? { ...channel, public: true, roleName: undefined } : channel),
+      'ADD',
+      null
     )
+  }
+
+  // These stores use the same encryptAndSign envelope, unlike channel messages'
+  // separate channelId/contents envelope produced by the message services above.
+  const nonMessageUpdates = () => {
+    const metadata = (isPublic: boolean) =>
+      makeUpdate(
+        chain.crypto.encryptAndSign(isPublic ? { ...channel, public: true, roleName: undefined } : channel, {
+          type: EncryptionScopeType.ROLE,
+          name: isPublic ? RoleName.MEMBER : channel.roleName,
+        }),
+        OrbitDbOp.PUT,
+        channel.id
+      )
+    const memberEntry = (value: unknown) =>
+      makeUpdate(chain.crypto.encryptAndSign(value, { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER }))
+    return [
+      metadata(true),
+      metadata(false),
+      makeUpdate(null, OrbitDbOp.DEL, 'public-channel-id'),
+      makeUpdate(null, OrbitDbOp.DEL, channel.id),
+      memberEntry({ userId: chain.user.userId, nickname: 'Alice' }),
+      memberEntry({ userId: chain.user.userId, tokens: ['owner-phone'] }),
+      memberEntry({ userId: chain.user.userId, tokens: [] }),
+    ]
+  }
+
+  const syncCalls = () =>
+    qssClient.sendMessage.mock.calls.filter(
+      ([event]: [WebsocketEvents, unknown, boolean]) => event === WebsocketEvents.LOG_ENTRY_SYNC
+    )
+
+  const expectSynced = (expected: LogUpdate[]) => {
+    expect(syncCalls()).toHaveLength(expected.length)
+    expect(
+      syncCalls().map(([_event, sync, withAck]: [WebsocketEvents, any, boolean]) => {
+        expect(withAck).toBe(true)
+        const { encrypted, signature } = sync.payload.encEntry
+        return chain.crypto.decryptAndVerify<LogUpdate['entry']>(encrypted, signature).contents
+      })
+    ).toEqual(expected.map(update => update.entry))
   }
 
   const pushCalls = () =>
@@ -160,23 +221,36 @@ describe('private-channel push recipients after QSS sync', () => {
 
   afterEach(() => manager.close())
 
-  it('notifies only the private channel members despite team-wide transport encryption', async () => {
-    await manager.sendLogEntrySyncMessage(await messageUpdate())
+  it.each([MessageType.Basic, MessageType.Image, MessageType.File, MessageType.Info])(
+    'notifies only private channel members for message type %s despite team-wide transport encryption',
+    async type => {
+      await manager.sendLogEntrySyncMessage(await messageUpdate(false, type))
 
-    const sync = qssClient.sendMessage.mock.calls[0][1]
-    expect(sync.payload.encEntry.encrypted.scope.name).toBe(RoleName.MEMBER)
-    await expectRecipients(privateUcans)
-  })
+      const sync = qssClient.sendMessage.mock.calls[0][1]
+      expect(sync.payload.encEntry.encrypted.scope.name).toBe(RoleName.MEMBER)
+      await expectRecipients(privateUcans)
+    }
+  )
 
-  it('continues notifying all community members for public messages', async () => {
-    await manager.sendLogEntrySyncMessage(await messageUpdate(true))
-    await expectRecipients(allUcans)
-  })
+  it.each([MessageType.Basic, MessageType.Image, MessageType.File, MessageType.Info])(
+    'continues notifying all community members for public message type %s',
+    async type => {
+      await manager.sendLogEntrySyncMessage(await messageUpdate(true, type))
+      await expectRecipients(allUcans)
+    }
+  )
 
-  it('also scopes private channel metadata syncs to the channel members', async () => {
-    const value = chain.crypto.encryptAndSign(channel, { type: EncryptionScopeType.ROLE, name: channel.roleName })
-    await manager.sendLogEntrySyncMessage(makeUpdate(value))
-    await expectRecipients(privateUcans)
+  it('syncs metadata, profiles, and device tokens without invoking the push handler', async () => {
+    const entries = nonMessageUpdates()
+    const pushHandler = jest.spyOn(qps, 'sendBatchPush')
+    for (const update of entries) {
+      expect(await manager.sendLogEntrySyncMessage(update)).toBe(true)
+      await expect(manager.waitForLogEntrySyncAck(update.hash)).resolves.toBeUndefined()
+    }
+
+    expectSynced(entries)
+    expect(pushHandler).not.toHaveBeenCalled()
+    expect(pushCalls()).toEqual([])
   })
 
   it.each(['online', 'offline retry'])('syncs a private-channel deletion without notifying anyone (%s)', async mode => {
@@ -198,9 +272,7 @@ describe('private-channel push recipients after QSS sync', () => {
       expect(await manager.sendLogEntrySyncMessage(update)).toBe(true)
     }
 
-    // Await the actual async push handler so a delayed notification cannot escape the assertion.
-    expect(pushHandler).toHaveBeenCalledTimes(1)
-    await pushHandler.mock.results[0].value
+    expect(pushHandler).not.toHaveBeenCalled()
 
     // The deletion still syncs successfully; neither members nor outsiders receive a push.
     expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
@@ -211,6 +283,55 @@ describe('private-channel push recipients after QSS sync', () => {
     const entry = chain.crypto.decryptAndVerify<LogUpdate['entry']>(encrypted, signature).contents
     expect(entry.payload).toEqual({ op: OrbitDbOp.DEL, key: channel.id, value: null })
     expect(pushCalls()).toEqual([])
+  })
+
+  it('triggers only the creation info message when a public channel is created', async () => {
+    const metadata = nonMessageUpdates()[0]
+    const infoMessage = await messageUpdate(true, MessageType.Info)
+    await manager.sendLogEntrySyncMessage(metadata)
+    await manager.sendLogEntrySyncMessage(infoMessage)
+
+    expectSynced([metadata, infoMessage])
+    await expectRecipients(allUcans)
+  })
+
+  it('replays a mixed offline queue without duplicate pushes from concurrent retry requests', async () => {
+    const entries = nonMessageUpdates()
+    const privateMessage = await messageUpdate()
+    const publicMessage = await messageUpdate(true, MessageType.Info)
+    entries.splice(1, 0, privateMessage)
+    entries.push(publicMessage)
+
+    qssClient.connected = false
+    for (const update of entries) {
+      await manager.sendLogEntrySyncMessage(update)
+    }
+    expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    expect(pending).toEqual({ [entries[0].addr]: entries.map(update => update.hash) })
+
+    let acknowledge!: (value: unknown) => void
+    qssClient.sendMessage.mockImplementationOnce(
+      () =>
+        new Promise(resolve => {
+          acknowledge = resolve
+        })
+    )
+    qssClient.connected = true
+    manager.markTeamStorageReady(chain.team!.id)
+    await waitForExpect(() => expect(acknowledge).toBeDefined())
+    // A readiness event can request another retry while the first upload is awaiting its ack.
+    await manager.processDeadLetterQueue(chain.team!.id)
+    acknowledge({ status: CommunityOperationStatus.SUCCESS, payload: {} })
+
+    await waitForExpect(() => expect(pending).toEqual({}))
+    await manager.processDeadLetterQueue(chain.team!.id)
+    expectSynced(entries)
+    await waitForExpect(() => {
+      expect(pushCalls().map(([_event, push]: [WebsocketEvents, any]) => push.payload.ucans)).toEqual([
+        privateUcans,
+        allUcans,
+      ])
+    })
   })
 
   it('preserves the private audience when replaying an offline entry from the dead letter queue', async () => {
@@ -243,14 +364,23 @@ describe('private-channel push recipients after QSS sync', () => {
     await expectRecipients(privateUcans)
   })
 
-  it('does not push when QSS rejects the private entry', async () => {
-    qssClient.sendMessage.mockResolvedValueOnce({ status: CommunityOperationStatus.ERROR, reason: 'retry later' })
-    expect(await manager.sendLogEntrySyncMessage(await messageUpdate())).toBe(false)
-    expect(pushCalls()).toEqual([])
-  })
+  it.each([{ status: CommunityOperationStatus.ERROR, reason: 'retry later' }, undefined])(
+    'queues the message without pushing when QSS does not acknowledge success (%s)',
+    async response => {
+      const update = await messageUpdate()
+      const pushHandler = jest.spyOn(qps, 'sendBatchPush')
+      qssClient.sendMessage.mockResolvedValueOnce(response)
+      expect(await manager.sendLogEntrySyncMessage(update)).toBe(false)
+      expect(pushHandler).not.toHaveBeenCalled()
+      expect(pushCalls()).toEqual([])
+      expect(pending).toEqual({ [update.addr]: [update.hash] })
+    }
+  )
 
   it('does not broadcast entries with missing encryption scope', async () => {
-    await manager.sendLogEntrySyncMessage(makeUpdate({ teamId: chain.team!.id, channelId: channel.id }))
+    const pushHandler = jest.spyOn(qps, 'sendBatchPush')
+    await manager.sendLogEntrySyncMessage(makeUpdate({ teamId: chain.team!.id, channelId: channel.id }, 'ADD', null))
+    expect(pushHandler).not.toHaveBeenCalled()
     expect(pushCalls()).toEqual([])
   })
 })
