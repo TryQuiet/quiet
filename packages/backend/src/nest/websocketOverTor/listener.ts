@@ -225,6 +225,17 @@ export class WebSocketListener extends TypedEventEmitter<ListenerEvents> impleme
         _log.error(`Error on listener`, err)
         this.metrics.errors?.increment({ [`${this.addr} listen_error`]: true })
         removeListeners()
+        const code = (err as NodeJS.ErrnoException).code
+        if (code === 'EACCES' || code === 'EADDRINUSE') {
+          reject(
+            new Error(
+              `Cannot bind libp2p WebSocket on ${bindHost}:${this.init.targetPort} (${code}). ` +
+                `For unprivileged binds set LOKINET_WS_PORT to a high port (e.g. 8080) on both peers, ` +
+                `or grant CAP_NET_BIND_SERVICE for port 80. See scripts/lokinet/DAY2-TWO-NODE.md.`
+            )
+          )
+          return
+        }
         reject(err)
       }
       const onDrop = (): void => {
