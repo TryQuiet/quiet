@@ -156,15 +156,17 @@ function enable(sodium, {platform = process.platform, warn = console.warn} = {})
   // or scheduling installation before a rejected ready assignment could install
   // asynchronously even after reporting fallback.
   const ready = supportedReceiver(sodium) && Object.getOwnPropertyDescriptor(sodium, 'ready')
-  if (!ready || ready.writable !== true || !types.isPromise(ready.value)) {
+  if (!ready || ready.writable !== true || !types.isPromise(ready.value) ||
+      Object.getPrototypeOf(ready.value) !== Promise.prototype || Object.hasOwn(ready.value, 'constructor')) {
+    // The pinned wrapper uses an ordinary Promise. Custom constructors/species
+    // can run callbacks during then(), so retain sodium for those receivers.
     fallback()
     return sodium
   }
   let activated = false
   try {
     const nextReady = Promise.prototype.then.call(ready.value, () => {
-      // Promise species constructors can run while attaching this callback. If
-      // one makes ready unwritable, the queued callback must remain a no-op.
+      // Only completed publication of the readiness promise arms installation.
       if (!activated) return
       try { install(sodium) }
       catch { fallback() }

@@ -261,7 +261,7 @@ test('unsupported module namespaces and ready properties are left untouched befo
   assert.throws(() => install(namespace), /unsupported sodium export object/)
 })
 
-test('failed ready publication cannot activate a previously queued installation', async () => {
+test('custom Promise species cannot run activation side effects', async () => {
   const copy = {...original}
   const warnings = []
   let speciesCalls = 0
@@ -275,12 +275,21 @@ test('failed ready publication cannot activate a previously queued installation'
   const ready = new ChangingPromise(resolve => resolve())
   copy.ready = ready
   assert.equal(enable(copy, {platform: 'ios', warn: warning => warnings.push(warning)}), copy)
-  assert.equal(speciesCalls, 1)
+  assert.equal(speciesCalls, 0)
   assert.equal(warnings.length, 1)
   assert.equal(copy.ready, ready)
   await new Promise(resolve => setImmediate(resolve))
   for (const name of Object.keys(original)) {
     if (typeof original[name] === 'function') assert.equal(copy[name], original[name])
+  }
+  const ownConstructor = {...original, ready: Promise.resolve()}
+  Object.defineProperty(ownConstructor.ready, 'constructor', {get() { assert.fail('activation must not read a custom Promise constructor') }})
+  const ownWarnings = []
+  assert.equal(enable(ownConstructor, {platform: 'ios', warn: warning => ownWarnings.push(warning)}), ownConstructor)
+  assert.equal(ownWarnings.length, 1)
+  await new Promise(resolve => setImmediate(resolve))
+  for (const name of Object.keys(original)) {
+    if (typeof original[name] === 'function') assert.equal(ownConstructor[name], original[name])
   }
 })
 
