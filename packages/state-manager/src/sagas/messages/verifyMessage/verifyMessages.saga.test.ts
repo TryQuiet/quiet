@@ -145,7 +145,7 @@ describe('verifyMessage saga test', () => {
       .run()
   })
 
-  it.each<[string, boolean]>([
+  it.each([
     ['an explicit rejection', false],
     ['no preserved verdict', undefined],
   ])('does not promote a known-author retry carrying %s', async (_label, verified) => {
@@ -230,7 +230,7 @@ describe('verifyMessage saga test', () => {
       .run()
   })
 
-  it.each([
+  it.each<[string, boolean]>([
     ['**@bob** has joined! 🎉', true],
     [
       '**@bob** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)',
