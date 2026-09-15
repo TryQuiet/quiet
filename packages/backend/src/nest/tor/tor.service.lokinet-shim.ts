@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { Inject, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import {
   CONFIG_OPTIONS,
   QUIET_DIR,
@@ -22,6 +22,7 @@ const logger = createLogger('DualOverlay')
  * speak the original `Tor` API. Dial path selection is by hostname suffix:
  * `.onion` → Tor, `.loki` → Lokinet.
  */
+@Injectable()
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
   bootstrapped = false
