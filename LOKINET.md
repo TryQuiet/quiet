@@ -1,23 +1,20 @@
-# Quiet-Loki dual overlay (Tor + Lokinet)
+# Quiet-Loki (Lokinet-only)
 
-This fork runs **both** networks and picks the path from the address:
+This fork uses **Lokinet only** for libp2p — it does not wrap Tor for addresses or dials.
 
 | Address | Overlay | How it dials |
 |---|---|---|
-| `*.onion` or a bare 56-char v3 id | Tor | existing HTTP tunnel / SOCKS |
-| `*.loki` or a bare 52-char SNApp pubkey | Lokinet | no Tor proxy (TUN / Lokinet DNS) |
+| `*.loki` or a bare 52-char SNApp pubkey | Lokinet | Resolve via `127.3.2.1`, connect on `lokitun0` (no Tor SOCKS) |
 
-Invite links and libp2p multiaddrs work the same way. Examples:
+Invite links and libp2p multiaddrs:
 
 ```
-/dns4/<56chars>.onion/tcp/80/ws/p2p/<peerId>
 /dns4/<name>.loki/tcp/80/ws/p2p/<peerId>
-quiet://?p=<peerId>,<56chars>.onion;... 
-quiet://?p=<peerId>,something.loki;...
+quiet-loki://join#…  (p= must be a 52-char SNApp, never empty, never a 56-char onion)
 ```
 
-On startup the backend still publishes a Tor onion (stock Quiet peers keep working) and, if `lokinet` is running, also a `.loki` SNApp on the same libp2p port.
+On startup the backend looks up the SNApp with `host localhost.loki 127.3.2.1` and listens for libp2p WebSocket on `172.16.0.1:80`.
 
-If Lokinet is missing, onion-only mode continues; `.loki` dials fail until the daemon is up.
+Do **not** enable HTTP on `:1190`. Do **not** spawn a second lokinet — use system Lokinet only.
 
-See `packages/common/src/overlay.ts` for the inference helpers.
+See `packages/common/src/overlay.ts` and `SNAPP.md`.

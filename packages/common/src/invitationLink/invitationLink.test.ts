@@ -98,19 +98,19 @@ describe(`Invitation link helper ${InvitationDataVersion.v4}`, () => {
   ]
 
   it('retrieves invitation link from argv', () => {
-    const result = argvInvitationLink(['something', 'quiet:/invalid', 'zbay://invalid', composeInvitationDeepUrl(data)])
+    const result = argvInvitationLink(['something', 'quiet-loki:/invalid', 'zbay://invalid', composeInvitationDeepUrl(data)])
     logger.info('result', result)
     expect(result).toEqual(data)
   })
 
   it('returns null if argv do not contain any url with proper scheme', () => {
-    const result = argvInvitationLink(['something', 'quiet:/invalid', 'zbay://invalid'])
+    const result = argvInvitationLink(['something', 'quiet-loki:/invalid', 'zbay://invalid'])
     expect(result).toBeNull()
   })
 
   it('throws error if argv contains invalid invitation url', () => {
     expect(() => {
-      argvInvitationLink(['something', 'quiet:/invalid', 'quiet://?param=invalid'])
+      argvInvitationLink(['something', 'quiet-loki:/invalid', 'quiet-loki://?param=invalid'])
     }).toThrow()
   })
 
@@ -131,7 +131,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v4}`, () => {
     const peerList = [
       createLibp2pAddress(pair.onionAddress, pair.peerId),
       'invalidAddress',
-      createLibp2pAddress('somethingElse.onion', 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'),
+      createLibp2pAddress('somethingElse.loki', 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'),
     ]
     expect(p2pAddressesToPairs(peerList)).toEqual([pair])
   })
@@ -371,7 +371,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v4}`, () => {
 })
 
 describe(`Invitation link helper ${InvitationDataVersion.v5}`, () => {
-  const address = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
+  const address = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr'
   const peerId = '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF'
   const data: InvitationDataV5 = {
     ...validInvitationDatav5[0],
@@ -387,18 +387,18 @@ describe(`Invitation link helper ${InvitationDataVersion.v5}`, () => {
   ]
 
   it('retrieves invitation link from argv', () => {
-    const result = argvInvitationLink(['something', 'quiet:/invalid', 'zbay://invalid', composeInvitationDeepUrl(data)])
+    const result = argvInvitationLink(['something', 'quiet-loki:/invalid', 'zbay://invalid', composeInvitationDeepUrl(data)])
     expect(result).toEqual(data)
   })
 
   it('returns null if argv do not contain any url with proper scheme', () => {
-    const result = argvInvitationLink(['something', 'quiet:/invalid', 'zbay://invalid'])
+    const result = argvInvitationLink(['something', 'quiet-loki:/invalid', 'zbay://invalid'])
     expect(result).toBeNull()
   })
 
   it('throws error if argv contains invalid invitation url', () => {
     expect(() => {
-      argvInvitationLink(['something', 'quiet:/invalid', 'quiet://?param=invalid'])
+      argvInvitationLink(['something', 'quiet-loki:/invalid', 'quiet-loki://?param=invalid'])
     }).toThrow()
   })
 
@@ -440,7 +440,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v5}`, () => {
     const peerList = [
       createLibp2pAddress(pair.onionAddress, pair.peerId),
       'invalidAddress',
-      createLibp2pAddress('somethingElse.onion', 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'),
+      createLibp2pAddress('somethingElse.loki', 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'),
     ]
     expect(p2pAddressesToPairs(peerList)).toEqual([pair])
   })

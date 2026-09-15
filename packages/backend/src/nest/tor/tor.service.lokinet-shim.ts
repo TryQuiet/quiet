@@ -13,19 +13,25 @@ import { TorControl } from './tor-control.service'
 import { TorParamsProvider, TorPasswordProvider } from './tor.types'
 import { LokinetService } from '../lokinet/lokinet.service'
 import { createLogger } from '../common/logger'
-import { overlayFromUrl } from '@quiet/common'
+import { LOKINET_WS_PORT } from '@quiet/common'
 
-const logger = createLogger('DualOverlay')
+const logger = createLogger('LokinetOverlay')
 
 function stripTld(address: string): string {
   return address.replace(/\.loki$/i, '').replace(/\.onion$/i, '')
 }
 
+/**
+ * Loki-only overlay shim.
+ * Does not wrap Tor for addresses: SNApp identity comes from system Lokinet DNS.
+ * Tor daemon is not started; leftover Tor APIs no-op or throw clearly.
+ */
 @Injectable()
 export class Tor extends EventEmitter implements OnModuleInit {
-  socksPort: number
+  socksPort = 0
   bootstrapped = false
-  private readonly tor: TorDaemon
+  /** Retained for Nest token compatibility; never initialized for Day 1 Loki-only. */
+  private readonly tor: TorDaemon | null = null
   private readonly lokinet: LokinetService
   private lokiAddress: string | undefined
   [key: string]: any
@@ -36,62 +42,39 @@ export class Tor extends EventEmitter implements OnModuleInit {
     @Inject(TOR_PARAMS_PROVIDER) public readonly torParamsProvider: TorParamsProvider,
     @Inject(TOR_PASSWORD_PROVIDER) public readonly torPasswordProvider: TorPasswordProvider,
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-    torControl: TorControl
+    _torControl: TorControl
   ) {
     super()
-    this.tor = new TorDaemon(
-      configOptions,
-      quietDir,
-      torParamsProvider,
-      torPasswordProvider,
-      serverIoProvider,
-      torControl
-    )
+    // Do not construct/start TorDaemon — Quiet Loki must not wrap Tor.
+    void _torControl
+    void this.tor
     this.lokinet = new LokinetService({ quietDir })
-    this.socksPort = this.tor.socksPort
-    this.tor.on('bootstrapped', () => {
-      this.bootstrapped = true
-      this.emit('bootstrapped')
-    })
-
-    const proto = Object.getPrototypeOf(this.tor) as object
-    for (const name of Object.getOwnPropertyNames(proto)) {
-      if (name === 'constructor') continue
-      if (name in this) continue
-      const desc = Object.getOwnPropertyDescriptor(proto, name)
-      if (!desc || typeof desc.value !== 'function') continue
-      ;(this as any)[name] = (...args: unknown[]) => (this.tor as any)[name](...args)
-    }
   }
 
   async onModuleInit() {
-    await this.tor.onModuleInit()
-    this.socksPort = this.tor.socksPort
-    try {
-      await this.lokinet.init()
-      logger.info('Lokinet overlay ready', { loki: this.lokinet.address })
-    } catch (e) {
-      logger.warn('Lokinet unavailable; .loki dials will fail until it starts', e)
-    }
+    await this.init()
   }
 
   async onModuleDestroy() {
     await this.lokinet.onModuleDestroy()
-    await this.tor.onModuleDestroy()
   }
 
-  async init(timeout?: number) {
-    await this.tor.init(timeout)
-    this.socksPort = this.tor.socksPort
+  async init(_timeout?: number) {
     try {
       await this.lokinet.init()
+      this.lokiAddress = this.lokinet.address
+      this.bootstrapped = true
+      this.emit('bootstrapped')
+      logger.info('Lokinet overlay ready (no Tor)', { loki: this.lokinet.address })
     } catch (e) {
-      logger.warn('Lokinet init failed', e)
+      this.bootstrapped = false
+      logger.warn('Lokinet init failed; .loki dials will fail until system lokinet is up', e)
+      throw e
     }
   }
 
   async kill() {
-    return (this.tor as any).kill?.()
+    this.bootstrapped = false
   }
 
   private async lokiOrThrow(targetPort: number, privKey?: string): Promise<string> {
@@ -101,11 +84,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   async createNewHiddenService(params: { targetPort: number; virtPort?: number }) {
-    const hiddenService = await this.tor.createNewHiddenService(params)
-    const loki = await this.lokiOrThrow(params.targetPort)
+    const port = params.targetPort || LOKINET_WS_PORT
+    const loki = await this.lokiOrThrow(port)
     const onionAddress = stripTld(loki)
-    logger.info('Using Lokinet SNApp as hidden service', { loki, onionAddress })
-    return { ...hiddenService, onionAddress }
+    logger.info('Using Lokinet SNApp as hidden service (no Tor)', { loki, onionAddress, port })
+    return { onionAddress, privateKey: '' }
   }
 
   async registerHiddenService(data: {
@@ -114,53 +97,49 @@ export class Tor extends EventEmitter implements OnModuleInit {
     onionAddress?: string
     virtPort?: number
   }) {
-    try {
-      const loki = await this.lokiOrThrow(data.targetPort, data.privKey)
-      data = { ...data, onionAddress: stripTld(loki) }
-    } catch (e) {
-      logger.warn('Lokinet SNApp lookup failed during register', e)
-    }
-    return (this.tor as any).registerHiddenService(data)
+    const loki = await this.lokiOrThrow(data.targetPort || LOKINET_WS_PORT, data.privKey)
+    const onionAddress = stripTld(loki)
+    logger.info('Registered Lokinet SNApp', { loki, onionAddress })
+    return onionAddress
   }
 
   async spawnHiddenService(params: { targetPort: number; privKey?: string; virtPort?: number; port?: number }) {
-    await this.tor.spawnHiddenService(params as any)
-    return stripTld(await this.lokiOrThrow(params.targetPort, params.privKey))
+    return stripTld(await this.lokiOrThrow(params.targetPort || LOKINET_WS_PORT, params.privKey))
   }
 
   async destroyHiddenService(address: string) {
-    if (overlayFromUrl(address) === 'lokinet' || address.includes('loki')) {
-      return this.lokinet.destroyHiddenService(address)
-    }
-    return this.tor.destroyHiddenService(address)
+    return this.lokinet.destroyHiddenService(address)
   }
 
   public getLokiAddress(): string | undefined {
     return this.lokiAddress
   }
 
-  public rewireNativeTor(args: { controlPort: number; httpTunnelPort: number; authCookie: string }) {
-    this.tor.rewireNativeTor(args)
+  public getLokinet(): LokinetService {
+    return this.lokinet
+  }
+
+  public rewireNativeTor(_args: { controlPort: number; httpTunnelPort: number; authCookie: string }) {
+    logger.warn('rewireNativeTor ignored — Quiet Loki does not wrap Tor')
   }
 
   public resetHiddenServices() {
-    this.tor.resetHiddenServices()
+    // no-op: SNApp is system-owned
   }
 
   public resetBootstrapState() {
-    this.tor.resetBootstrapState()
     this.bootstrapped = false
   }
 
-  public startBootstrapWatcher(intervalMs?: number) {
-    this.tor.startBootstrapWatcher(intervalMs)
+  public startBootstrapWatcher(_intervalMs?: number) {
+    // no-op
   }
 
-  public setControlPort(port: number) {
-    this.tor.setControlPort(port)
+  public setControlPort(_port: number) {
+    // no-op
   }
 
   public async isBootstrappingFinished(): Promise<boolean> {
-    return this.tor.isBootstrappingFinished()
+    return this.bootstrapped
   }
 }

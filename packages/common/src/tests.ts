@@ -7,7 +7,7 @@ export const validInvitationDatav4: InvitationDataV4[] = [
     version: InvitationDataVersion.v4,
     pairs: [
       {
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr',
         peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
       },
     ],
@@ -22,7 +22,7 @@ export const validInvitationDatav4: InvitationDataV4[] = [
     version: InvitationDataVersion.v4,
     pairs: [
       {
-        onionAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
+        onionAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdl',
         peerId: 'QmaRchXhkPWq8iLiMZwFfd2Yi4iESWhAYYJt8cTCVXSwpG',
       },
     ],
@@ -40,7 +40,7 @@ export const validInvitationDatav5: InvitationDataV5[] = [
     version: InvitationDataVersion.v5,
     pairs: [
       {
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr',
         peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
       },
     ],
@@ -58,7 +58,7 @@ export const validInvitationDatav5: InvitationDataV5[] = [
     version: InvitationDataVersion.v5,
     pairs: [
       {
-        onionAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
+        onionAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdl',
         peerId: 'QmaRchXhkPWq8iLiMZwFfd2Yi4iESWhAYYJt8cTCVXSwpG',
       },
     ],

@@ -170,7 +170,7 @@ export const p2pAddressesToPairs = (addresses: string[]): InvitationPair[] => {
       logger.error(`No peerId or address in ${peerAddress}`)
       continue
     }
-    const rawAddress = onionAddress.endsWith('.onion') ? onionAddress.split('.')[0] : onionAddress
+    const rawAddress = onionAddress.endsWith('.loki') || onionAddress.endsWith('.onion') ? onionAddress.split('.')[0] : onionAddress
     if (!validatePeerData({ peerId, onionAddress: rawAddress })) continue
 
     pairs.push({ peerId: peerId, onionAddress: rawAddress })

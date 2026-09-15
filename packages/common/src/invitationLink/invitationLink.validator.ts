@@ -34,7 +34,10 @@ import base64url from 'base64url'
 
 const logger = createLogger('invite:validator')
 
-const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
+/** Loki SNApp pubkey (52 zbase32) — never empty, never 56-char onion */
+const SNAPP_ADDRESS_REGEX = /^[a-z0-9]{52}$/i
+/** @deprecated kept only to reject onions explicitly */
+const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/i
 // Accept both 46‑char (CIDv0, "Qm…") and 52‑char (ed25519, "12D3…") base58 peer IDs
 const PEER_ID_REGEX = /^(?:[A-Za-z0-9]{46}|[A-Za-z0-9]{52})$/
 const INVITATION_SEED_REGEX = /^[a-zA-Z0-9]{16}$/g
@@ -133,8 +136,22 @@ export const validatePeerData = ({ peerId, onionAddress }: { peerId: string; oni
     return false
   }
 
-  if (!onionAddress.trim().match(ONION_ADDRESS_REGEX)) {
-    logger.warn(`Onion address ${onionAddress} is not valid`)
+  const addr = onionAddress.trim().toLowerCase()
+  if (!addr) {
+    logger.warn('SNApp address in invitation link is empty')
+    return false
+  }
+  const bare = addr.endsWith('.loki')
+    ? addr.slice(0, -5)
+    : addr.endsWith('.onion')
+      ? addr.slice(0, -6)
+      : addr
+  if (bare.match(ONION_ADDRESS_REGEX) || addr.endsWith('.onion')) {
+    logger.warn(`Onion address ${onionAddress} is not valid for Quiet Loki (need 52-char SNApp)`)
+    return false
+  }
+  if (!bare.match(SNAPP_ADDRESS_REGEX) && !(addr.endsWith('.loki') && bare.length >= 1 && /^[a-z0-9.-]+$/.test(bare))) {
+    logger.warn(`SNApp address ${onionAddress} is not valid`)
     return false
   }
 
@@ -669,7 +686,7 @@ const _parseAndValidateNamedParam = <T>(
  *
  * Example:
  *
- * quiet://?QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd&QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad&k=BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw%3D&o=018f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0&a=Yz1jb21tdW5pdHktbmFtZSZzPTRrZ2Q1bXdxNXo0Zm1md3E
+ * quiet://?QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr&QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4n&k=BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw%3D&o=018f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0&a=Yz1jb21tdW5pdHktbmFtZSZzPTRrZ2Q1bXdxNXo0Zm1md3E
  *
  * The value of `a` is a base64url-encoded string that decodes to `c=community-name&s=4kgd5mwq5z4fmfwq` and _parseAndValidateUrlParams will recursively parse and validate the nested params
  *

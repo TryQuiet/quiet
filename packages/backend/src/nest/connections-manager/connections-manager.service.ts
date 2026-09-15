@@ -8,7 +8,7 @@ import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
-import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
+import { createLibp2pAddress, isPSKcodeValid, LOKINET_WS_PORT } from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -145,7 +145,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private async generatePorts() {
     const controlPort = await getPort()
     const socksPort = await getPort()
-    const libp2pHiddenService = await getPort()
+    const libp2pHiddenService = LOKINET_WS_PORT
     const dataServer = await getPort()
     const httpTunnelPort = await getPort()
 
@@ -600,7 +600,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   async resetState() {
     this.communityId = ''
-    this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
+    this.ports = { ...this.ports, libp2pHiddenService: LOKINET_WS_PORT }
     this.communityState = ServiceState.DEFAULT
   }
 
