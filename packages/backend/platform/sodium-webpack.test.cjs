@@ -12,7 +12,7 @@ test('production webpack rule initializes native sodium before consumers await r
   const factory = (await import('../webpack.config.js')).default
   const rule = factory({mode: 'development'}).module.rules.find(rule => String(rule.loader).endsWith('sodium-loader.cjs'))
   assert.ok(rule, 'production build must include the sodium loader')
-  const requireLfa = createRequire(path.resolve(__dirname, '../../../..', '3rd-party/auth/packages/crypto/package.json'))
+  const requireLfa = createRequire(path.resolve(__dirname, '../../..', '3rd-party/auth/packages/crypto/package.json'))
   const sodiumPath = process.env.QUIET_NATIVE_TEST_SODIUM || requireLfa.resolve('libsodium-wrappers-sumo')
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-sodium-webpack-'))
   try {

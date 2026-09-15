@@ -18,6 +18,25 @@ test.before(async () => {
   install(native)
 })
 
+test('differential reference remains original sodium, not another native adapter', () => {
+  const crypto = require('node:crypto')
+  const createPrivateKey = crypto.createPrivateKey
+  let nativeCalls = 0
+  crypto.createPrivateKey = function (...args) {
+    nativeCalls++
+    return createPrivateKey.apply(this, args)
+  }
+  try {
+    const seed = new Uint8Array(32).fill(4)
+    original.crypto_scalarmult_base(seed)
+    original.crypto_sign_seed_keypair(seed)
+    assert.equal(nativeCalls, 0, 'reference must not use the native adapter')
+    native.crypto_scalarmult_base(seed)
+    native.crypto_sign_seed_keypair(seed)
+    assert.equal(nativeCalls, 2, 'adapter must use native crypto')
+  } finally { crypto.createPrivateKey = createPrivateKey }
+})
+
 test('Ed25519 and X25519 outputs interoperate, including offsets, mutation, and reused buffers', () => {
   for (let i = 0; i < 32; i++) {
     const backing = new Uint8Array(40).fill(i)
@@ -113,6 +132,16 @@ test('small-order and noncanonical signature encodings always defer to sodium', 
   const identity = new Uint8Array(32); identity[0] = 1
   const sig = new Uint8Array(64); sig[0] = 1
   assert.equal(native.crypto_sign_verify_detached(sig, message, identity), false)
+  for (const scalar of [
+    'edd3f55c1a631258d69cf7a2def9de1400000000000000000000000000000010',
+    'eed3f55c1a631258d69cf7a2def9de1400000000000000000000000000000010',
+    'ff'.repeat(32),
+  ]) {
+    const malformed = native.crypto_sign_detached(message, key.privateKey)
+    malformed.set(hex(scalar), 32)
+    assert.equal(original.crypto_sign_verify_detached(malformed, message, key.publicKey), false)
+    assert.equal(native.crypto_sign_verify_detached(malformed, message, key.publicKey), false)
+  }
 })
 
 test('invalid sizes, types and formats fail without accepting malformed inputs', () => {

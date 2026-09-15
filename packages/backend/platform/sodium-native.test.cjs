@@ -8,7 +8,7 @@ require('./sodium-native.checks.cjs').register(test, async () => {
     await webpack('../../3rd-party/auth/packages/crypto/dist/index.js')
     return webpack('../../3rd-party/auth/node_modules/.pnpm/libsodium-wrappers-sumo@0.7.13/node_modules/libsodium-wrappers-sumo/dist/modules-sumo/libsodium-wrappers.js')
   } else {
-    const fromLfa = createRequire(path.resolve(__dirname, '../../../..', '3rd-party/auth/packages/crypto/package.json'))
+    const fromLfa = createRequire(path.resolve(__dirname, '../../..', '3rd-party/auth/packages/crypto/package.json'))
     return fromLfa('libsodium-wrappers-sumo')
   }
 })
