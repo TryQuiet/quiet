@@ -235,4 +235,30 @@ test('unsupported export descriptors and Proxy traps never partially install nat
   for (const name of names) assert.notEqual(sealed[name], original[name])
 })
 
+test('unsupported module namespaces and ready properties are left untouched before activation', async () => {
+  const namespace = await import('data:text/javascript,export const ready=Promise.resolve();export function crypto_sign_verify_detached(){return false}')
+  const throwingProxy = new Proxy({...original}, {
+    get() { assert.fail('activation must not invoke a Proxy getter') },
+    set() { assert.fail('activation must not invoke a Proxy setter') },
+  })
+  const readonly = {...original}
+  Object.defineProperty(readonly, 'ready', {value: original.ready, writable: false})
+  const accessor = {...original}
+  Object.defineProperty(accessor, 'ready', {get() { assert.fail('activation must not invoke ready getter') }})
+  const thenable = {...original, ready: {then() { assert.fail('activation must not invoke a custom thenable') }}}
+  for (const unsupported of [namespace, throwingProxy, readonly, accessor, thenable]) {
+    const warnings = []
+    assert.equal(enable(unsupported, {platform: 'ios', warn: warning => warnings.push(warning)}), unsupported)
+    assert.equal(warnings.length, 1)
+  }
+  await new Promise(resolve => setImmediate(resolve))
+  for (const copy of [readonly, accessor, thenable]) {
+    for (const name of Object.keys(original)) {
+      if (typeof original[name] === 'function') assert.equal(copy[name], original[name])
+    }
+  }
+  assert.equal(namespace.crypto_sign_verify_detached(), false)
+  assert.throws(() => install(namespace), /unsupported sodium export object/)
+})
+
 }

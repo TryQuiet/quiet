@@ -57,10 +57,14 @@ function ordinaryPoint(value) {
 }
 
 const installed = new WeakMap()
+function supportedReceiver(sodium) {
+  return sodium !== null && typeof sodium === 'object' &&
+    !types.isProxy(sodium) && !types.isModuleNamespaceObject(sodium)
+}
 function install(sodium) {
   if (installed.has(sodium)) return installed.get(sodium)
-  // Proxy traps could reject a later assignment after earlier exports changed.
-  if (types.isProxy(sodium)) throw new Error('unsupported sodium export object')
+  // Proxy traps and module namespaces do not have ordinary assignment semantics.
+  if (!supportedReceiver(sodium)) throw new Error('unsupported sodium export object')
   // Verification policy is reviewed against this sodium implementation. A new
   // version must pass differential/security review before enabling its adapter.
   if (sodium.sodium_version_string() !== '1.0.19') throw new Error('unreviewed sodium version')
@@ -147,10 +151,18 @@ function install(sodium) {
 
 function enable(sodium, {platform = process.platform, warn = console.warn} = {}) {
   if (platform !== 'ios') return sodium
-  const ready = sodium.ready
-  sodium.ready = ready.then(() => {
+  const fallback = () => warn('Quiet: native iOS crypto unavailable; using libsodium fallback')
+  // Reject unsupported receivers before touching ready: its get/set could throw,
+  // or scheduling installation before a rejected ready assignment could install
+  // asynchronously even after reporting fallback.
+  const ready = supportedReceiver(sodium) && Object.getOwnPropertyDescriptor(sodium, 'ready')
+  if (!ready || ready.writable !== true || !types.isPromise(ready.value)) {
+    fallback()
+    return sodium
+  }
+  sodium.ready = Promise.prototype.then.call(ready.value, () => {
     try { install(sodium) }
-    catch { warn('Quiet: native iOS crypto unavailable; using libsodium fallback') }
+    catch { fallback() }
   })
   return sodium
 }
