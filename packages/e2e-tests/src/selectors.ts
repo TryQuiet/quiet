@@ -1,4 +1,4 @@
-import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
+import { By, Key, error, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
@@ -569,6 +569,25 @@ export class UsersList {
       500
     )
     return true
+  }
+
+  async waitForVisibleUser(username: string, timeoutMs = 120_000): Promise<void> {
+    await this.driver.wait(
+      async () => {
+        const users = await this.driver.findElements(By.xpath(`//div[@data-testid="${username}-user-link"]`))
+        for (const user of users) {
+          try {
+            if (await user.isDisplayed()) return user
+          } catch (e) {
+            if (!(e instanceof error.StaleElementReferenceError)) throw e
+          }
+        }
+        return undefined
+      },
+      timeoutMs,
+      `Visible user ${username} couldn't be located within timeout`,
+      500
+    )
   }
 
   async getUser(username: string, expectedState: UserListStatus): Promise<UserListItem> {
