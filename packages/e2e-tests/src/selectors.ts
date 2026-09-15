@@ -1,4 +1,4 @@
-import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
+import { By, Key, error, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
@@ -6,6 +6,8 @@ import { MessageIds, RetryConfig, UserListItem, UserListStatus } from './types'
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
 import { execSync } from 'child_process'
+import { parseInvitationLink } from '@quiet/common'
+import { isDeviceInvitationData } from '@quiet/types'
 
 const logger = createLogger('selectors')
 
@@ -75,6 +77,10 @@ export class App {
     // Signal any background watchers (e.g. modal watcher) to stop ASAP.
     const wasOpened = this.isOpened
     this.isOpened = false
+
+    // A failed setup may leave a registered App that was never opened. Avoid
+    // constructing a WebDriver session against its unset port during cleanup.
+    if (!wasOpened && this.thenableWebDriver == null && this.buildSetup.port == null) return
 
     // 1. Detect whether an Electron window is still around.
     let sessionOpen = false
@@ -1230,6 +1236,14 @@ export class JoinCommunityModal {
   }
 
   async submit() {
+    const input = await this.driver.findElement(By.xpath('//input[@placeholder="Invite link"]'))
+    let deviceLink = false
+    try {
+      const invitation = parseInvitationLink(new URL(await input.getAttribute('value')).hash.slice(1))
+      deviceLink = invitation != null && isDeviceInvitationData(invitation)
+    } catch {
+      // Invalid inputs stay in the form and never show a device-link confirmation.
+    }
     const continueButton = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="continue-joinCommunity"]')),
       10_000,
@@ -1239,6 +1253,16 @@ export class JoinCommunityModal {
     await this.driver.wait(until.elementIsVisible(continueButton), 5_000)
     await this.driver.wait(until.elementIsEnabled(continueButton), 5_000)
     await continueButton.click()
+    if (deviceLink) {
+      const confirmButton = await this.driver.wait(
+        until.elementLocated(By.css('[data-testid="confirm-device-link"]')),
+        10_000,
+        'Device-link consent was not shown'
+      )
+      await this.driver.wait(until.elementIsVisible(confirmButton), 5_000)
+      await this.driver.wait(until.elementIsEnabled(confirmButton), 5_000)
+      await confirmButton.click()
+    }
   }
 }
 export class CreateCommunityModal {
@@ -2691,7 +2715,21 @@ export class Settings {
     )
     await this.driver.wait(until.elementIsVisible(unlockButton), 10_000)
 
-    await unlockButton.click()
+    // The settings drawer can still be sliding after its contents become visible.
+    await this.driver.wait(
+      async () => {
+        try {
+          await unlockButton.click()
+          return true
+        } catch (clickError) {
+          if (clickError instanceof error.ElementClickInterceptedError) return false
+          throw clickError
+        }
+      },
+      10_000,
+      'Show device link button remained obstructed',
+      200
+    )
 
     return await this.driver.wait(
       until.elementLocated(By.xpath("//p[@data-testid='device-link']")),

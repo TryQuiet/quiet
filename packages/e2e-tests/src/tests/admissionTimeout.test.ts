@@ -75,6 +75,28 @@ describe('Timed-out P2P admission recovery', () => {
     return invitation
   }
 
+  async function getReusableDeviceInvitation(owner: App, previousInvitation: string): Promise<string> {
+    const settings = await new Sidebar(owner.driver).openSettings()
+    expect(await settings.isReady()).toBeTruthy()
+    await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
+    const linkElement = await settings.deviceLink()
+    const invitation = await owner.driver.wait<string>(
+      async () => {
+        const candidate = await linkElement.getText()
+        return /^(https?|quiet):\/\//.test(candidate) ? candidate : null
+      },
+      30_000,
+      'The device invitation was not revealed'
+    )
+    // Bootstrap addresses may change as peers connect, but reopening must keep
+    // the same unexpired admission credential.
+    expect(parseInvitationLink(new URL(invitation).hash.slice(1)).authData.seed).toBe(
+      parseInvitationLink(new URL(previousInvitation).hash.slice(1)).authData.seed
+    )
+    await settings.closeTabThenModal()
+    return invitation
+  }
+
   async function expectJoinCommunityError(app: App, message: string, inputValue = ''): Promise<void> {
     expect(await new JoinCommunityModal(app.driver).isReady(30_000)).toBeTruthy()
     expect(await app.driver.findElement(By.xpath(`//*[contains(text(), '${message}')]`)).isDisplayed()).toBeTruthy()
@@ -139,6 +161,42 @@ describe('Timed-out P2P admission recovery', () => {
     expect(await new JoiningLoadingPanel(guest.driver).waitUntilVisible(15_000)).toBeTruthy()
 
     await owner.buildSetup.waitForProcessOutput('INVITATION_PROOF_INVALID', 30_000)
+  })
+
+  it('allows a valid device link after an invalid device admission', async () => {
+    const owner = new App({ username: 'invaliddeviceowner' })
+    const linkedDevice = new App({ username: 'invalidlinkeddevice' })
+    apps.push(owner, linkedDevice)
+
+    const deviceInvitationLink = await createCommunityAndGetInvitation(
+      owner,
+      'invaliddeviceowner',
+      SettingsModalTabName.LINKED_DEVICES,
+      async settings => await (await settings.deviceLink()).getText()
+    )
+    const invalidDeviceInvitationLink = makeInvalidInvitationLink(deviceInvitationLink)
+    owner.buildSetup.clearProcessOutput()
+
+    await linkedDevice.openWithRetries()
+    const joinModal = new JoinCommunityModal(linkedDevice.driver)
+    expect(await joinModal.isReady()).toBeTruthy()
+    await joinModal.typeCommunityInviteLink(invalidDeviceInvitationLink)
+    await joinModal.submit()
+    expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
+
+    await owner.buildSetup.waitForProcessOutput('INVITATION_PROOF_INVALID', 30_000)
+    // A peer rejection does not veto other bootstrap peers. Once no peer admits
+    // this invalid proof, the bounded admission timeout clears the provisional state.
+    await expectJoinCommunityError(linkedDevice, 'make sure both devices have the app open')
+
+    // Reopening reuses the owner's unexpired link. This valid seed differs from
+    // the rejected proof and must work without restarting the target backend.
+    const freshDeviceInvitationLink = await getReusableDeviceInvitation(owner, deviceInvitationLink)
+    const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
+    await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
+    await resetJoinModal.submit()
+    await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(15_000, 60_000)
+    expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
   })
 
   it('returns a joining peer to Join Community after reopening during admission', async () => {
