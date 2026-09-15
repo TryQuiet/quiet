@@ -5,6 +5,7 @@
 // the OpenSSL implementation already shipped in Node. No new native addon.
 const crypto = require('node:crypto')
 const { Buffer } = require('node:buffer')
+const { types } = require('node:util')
 const ED_PRIVATE = Buffer.from('302e020100300506032b657004220420', 'hex')
 const ED_PUBLIC = Buffer.from('302a300506032b6570032100', 'hex')
 const X_PRIVATE = Buffer.from('302e020100300506032b656e04220420', 'hex')
@@ -58,6 +59,8 @@ function ordinaryPoint(value) {
 const installed = new WeakMap()
 function install(sodium) {
   if (installed.has(sodium)) return installed.get(sodium)
+  // Proxy traps could reject a later assignment after earlier exports changed.
+  if (types.isProxy(sodium)) throw new Error('unsupported sodium export object')
   // Verification policy is reviewed against this sodium implementation. A new
   // version must pass differential/security review before enabling its adapter.
   if (sodium.sodium_version_string() !== '1.0.19') throw new Error('unreviewed sodium version')
@@ -127,6 +130,15 @@ function install(sodium) {
   const cipher = overrides.crypto_box_easy(message, nonce, xp, seed)
   if (!crypto.timingSafeEqual(cipher, original.crypto_box_easy(message, nonce, xp, seed)) || !crypto.timingSafeEqual(overrides.crypto_box_open_easy(cipher, nonce, xp, seed), message)) throw new Error('native box self-test failed')
   pair.privateKey.fill(0); sodiumPair.privateKey.fill(0); seed.fill(0)
+  // On a non-Proxy object, existing writable own data properties cannot invoke
+  // setters or reject assignment. Check every export immediately before mutation;
+  // there are no callbacks or awaits between this preflight and installation.
+  for (const name of Object.keys(overrides)) {
+    const descriptor = Object.getOwnPropertyDescriptor(sodium, name)
+    if (!descriptor || descriptor.writable !== true || typeof descriptor.value !== 'function') {
+      throw new Error(`unsupported sodium export: ${name}`)
+    }
+  }
   Object.assign(sodium, overrides)
   const result = Object.freeze({enabled: true, backend: 'node-openssl', functions: Object.keys(overrides)})
   installed.set(sodium, result)

@@ -190,4 +190,49 @@ test('iOS activates after ready, other platforms preserve sodium, and unsupporte
   }
 })
 
+test('unsupported export descriptors and Proxy traps never partially install native crypto', async () => {
+  const names = [
+    'crypto_sign_seed_keypair', 'crypto_scalarmult_base', 'crypto_sign_detached',
+    'crypto_sign_verify_detached', 'crypto_box_easy', 'crypto_box_open_easy',
+  ]
+  for (const name of names) {
+    for (const kind of ['readonly', 'accessor']) {
+      const copy = {...original}
+      let setterCalls = 0
+      Object.defineProperty(copy, name, kind === 'readonly'
+        ? {value: original[name], writable: false, configurable: false}
+        : {get: () => original[name], set: () => { setterCalls++; throw new Error('assignment rejected') }})
+      const warnings = []
+      enable(copy, {platform: 'ios', warn: warning => warnings.push(warning)})
+      await copy.ready
+      assert.equal(warnings.length, 1)
+      assert.equal(setterCalls, 0)
+      for (const api of names) assert.equal(copy[api], original[api], `${kind} ${name} changed ${api}`)
+    }
+  }
+  const target = {...original}
+  let cryptoAssignments = 0
+  const proxy = new Proxy(target, {
+    set(object, name, value) {
+      if (names.includes(name)) {
+        cryptoAssignments++
+        if (name === names[1]) throw new Error('later assignment rejected')
+      }
+      return Reflect.set(object, name, value)
+    },
+  })
+  const warnings = []
+  enable(proxy, {platform: 'ios', warn: warning => warnings.push(warning)})
+  await proxy.ready
+  assert.equal(warnings.length, 1)
+  assert.equal(cryptoAssignments, 0)
+  for (const name of names) assert.equal(target[name], original[name])
+
+  // A sealed ordinary module remains safe: all six existing exports are writable.
+  const sealed = Object.seal({...original})
+  enable(sealed, {platform: 'ios', warn: () => assert.fail('sealed writable exports should work')})
+  await sealed.ready
+  for (const name of names) assert.notEqual(sealed[name], original[name])
+})
+
 }
