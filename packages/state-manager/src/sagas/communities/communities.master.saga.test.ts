@@ -74,6 +74,7 @@ describe('handleCommunityOnboarding', () => {
     const createTask = createTaskMock()
     const onboardingActions = [
       communitiesActions.createCommunity.type,
+      communitiesActions.cancelCommunityOnboarding.type,
       communitiesActions.joinCommunity.type,
       communitiesActions.linkDevice.type,
     ]
@@ -97,12 +98,39 @@ describe('handleCommunityOnboarding', () => {
       .take(onboardingActions)
   })
 
+  it('cancels a pre-registration onboarding task on explicit cancellation', () => {
+    const createAction = communitiesActions.createCommunity({ name: 'Test', useServer: false })
+    const cancelAction = communitiesActions.cancelCommunityOnboarding()
+    const createTask = createTaskMock()
+    const onboardingActions = [
+      communitiesActions.createCommunity.type,
+      communitiesActions.cancelCommunityOnboarding.type,
+      communitiesActions.joinCommunity.type,
+      communitiesActions.linkDevice.type,
+    ]
+
+    testSaga(handleCommunityOnboarding, socket)
+      .next()
+      .take(onboardingActions)
+      .next(createAction)
+      .select(communitiesSelectors.admissionResetStatus)
+      .next('idle')
+      .fork(createCommunitySaga, socket, createAction)
+      .next(createTask)
+      .take(onboardingActions)
+      .next(cancelAction)
+      .cancel(createTask)
+      .next()
+      .take(onboardingActions)
+  })
+
   it.each(['pending', 'complete', 'failed', 'finalizing'] as const)(
     'ignores onboarding while admission reset status is %s',
     status => {
       const createAction = communitiesActions.createCommunity({ name: 'Test', useServer: false })
       const onboardingActions = [
         communitiesActions.createCommunity.type,
+        communitiesActions.cancelCommunityOnboarding.type,
         communitiesActions.joinCommunity.type,
         communitiesActions.linkDevice.type,
       ]

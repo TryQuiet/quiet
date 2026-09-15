@@ -412,8 +412,8 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
 }
 
 async function runDelayedQssDeviceAdmission(releaseBeforeFallback: boolean): Promise<void> {
-  const suffix = `${releaseBeforeFallback ? 'early' : 'late'}${Date.now().toString(36)}`
-  const ownerUsername = `delayed-owner-${suffix}`
+  const suffix = `${releaseBeforeFallback ? 'e' : 'l'}-${Date.now().toString(36)}`
+  const ownerUsername = `delay-${suffix}`
   const owner = new App({ username: `${ownerUsername}-primary` })
   const linkedDevice = new App({ username: `${ownerUsername}-linked` })
   const proxy = await startQssProxy({ paused: true })

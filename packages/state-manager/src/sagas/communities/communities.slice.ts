@@ -80,6 +80,7 @@ export const communitiesSlice = createSlice({
       state.joinCommunityError = null
     },
     createCommunity: (state, _action: PayloadAction<CreateCommunityPayload>) => state,
+    cancelCommunityOnboarding: state => state,
     joinCommunity: (state, _action: PayloadAction<JoinCommunityPayload>) => state,
     linkDevice: (state, _action: PayloadAction<LinkDevicePayload>) => state,
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,

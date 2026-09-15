@@ -1,5 +1,5 @@
 import { By, Key, error, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
-import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
+import { BuildSetup, logAndReturnError, promiseWithTimeout, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
 import { MessageIds, RetryConfig, UserListItem, UserListStatus } from './types'
@@ -60,7 +60,20 @@ export class App {
       ...(overrideConfig ? overrideConfig : {}),
     }
     const failureReason = `Failed to open app within ${config.timeoutMs}ms`
-    await promiseWithRetries(this.open(qssEnabled), failureReason, config, () => this.close())
+    let lastError: Error | undefined
+
+    for (let attempt = 1; attempt <= config.attempts; attempt += 1) {
+      try {
+        await promiseWithTimeout(this.open(qssEnabled), failureReason, config.timeoutMs)
+        return
+      } catch (e) {
+        lastError = e instanceof Error ? e : new Error(String(e))
+        logger.warn(`App open attempt ${attempt}/${config.attempts} failed`, lastError)
+        await this.close()
+      }
+    }
+
+    throw lastError ?? logAndReturnError(`Exceeded ${config.attempts} app open attempts`)
   }
 
   /**
@@ -168,7 +181,13 @@ export class App {
   }
 
   async closeWindowViaX() {
-    await this.driver.executeScript("require('@electron/remote').BrowserWindow.getFocusedWindow().close();")
+    await this.driver.executeScript(`
+      const { BrowserWindow } = require('@electron/remote')
+      const windows = BrowserWindow.getAllWindows()
+      const windowToClose = BrowserWindow.getFocusedWindow() || windows.find(window => window.isVisible()) || windows[0]
+      if (!windowToClose) throw new Error('No Electron BrowserWindow available to close')
+      windowToClose.close()
+    `)
     if (process.platform !== 'darwin') {
       this.isOpened = false
     }
@@ -445,6 +464,7 @@ export class StartingLoadingPanel {
         logger.warn(`Starting loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
         logger.warn('Either socket didnt get setup or you are running on an old version.', e)
+        throw e
       }
     }
   }
