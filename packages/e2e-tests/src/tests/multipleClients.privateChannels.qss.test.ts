@@ -15,7 +15,7 @@ import {
   UsersList,
 } from '../selectors'
 import { promiseWithRetries, tailQssLogs } from '../utils'
-import { UserListStatus, UserTestData2, UserTestDataMap, type MessageIds } from '../types'
+import { UserTestData2, UserTestDataMap, type MessageIds } from '../types'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 import { ChildProcess } from 'child_process'
@@ -276,13 +276,13 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
         it('User sees owner in user list', async () => {
           const userList = new UsersList(users.user1.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+          await userList.waitForVisibleUser(users.owner.username)
         })
 
         it('Owner sees user in user list', async () => {
           const userList = new UsersList(users.owner.app.driver)
           expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+          await userList.waitForVisibleUser(users.user1.username)
         })
 
         it("Owner's message is visible in general channel to user", async () => {

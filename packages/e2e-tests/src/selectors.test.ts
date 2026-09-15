@@ -1,6 +1,6 @@
 import { error, Session, WebDriver, WebElement, type ThenableWebDriver } from 'selenium-webdriver'
 import { Command, Name } from 'selenium-webdriver/lib/command'
-import { Channel, UserProfileContextMenu } from './selectors'
+import { Channel, UserProfileContextMenu, UsersList } from './selectors'
 import { PhotoExt } from './enums'
 
 const advanceTime = async (milliseconds: number) => {
@@ -78,6 +78,109 @@ describe('Channel message polling', () => {
     execute.mockRejectedValueOnce(failure)
     await expect(channel.getAtleastNumUserMessages('owner', 2)).rejects.toBe(failure)
     expect(execute).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('QSS roster polling', () => {
+  let rowPresent: boolean
+  let rowVisible: boolean
+  let staleNextVisibility: boolean
+  let users: UsersList
+  let execute: jest.Mock
+
+  beforeEach(() => {
+    jest.useFakeTimers({ doNotFake: ['setImmediate'] })
+    rowPresent = false
+    rowVisible = false
+    staleNextVisibility = false
+    // Exercise Selenium's real polling and WebElement visibility commands.
+    // The transport exposes only the named member row, never a presence badge.
+    execute = jest.fn(async (command: Command) => {
+      switch (command.getName()) {
+        case Name.FIND_ELEMENTS:
+          expect(command.getParameter('value')).toBe('//div[@data-testid="owner-user-link"]')
+          return rowPresent ? [WebElement.buildId('owner-row')] : []
+        case Name.IS_ELEMENT_DISPLAYED:
+          if (staleNextVisibility) {
+            staleNextVisibility = false
+            throw new error.StaleElementReferenceError('Member row was replaced')
+          }
+          return rowVisible
+        default:
+          throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
+      }
+    })
+    const driver = new WebDriver(new Session('qss-roster-polling', {}), { execute })
+    users = new UsersList(driver as ThenableWebDriver)
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('accepts a visible member without querying a Tor presence badge', async () => {
+    rowPresent = true
+    rowVisible = true
+    await expect(users.waitForVisibleUser('owner')).resolves.toBeUndefined()
+    expect(execute.mock.calls.map(([command]: [Command]) => command.getName())).toEqual([
+      Name.FIND_ELEMENTS,
+      Name.IS_ELEMENT_DISPLAYED,
+    ])
+  })
+
+  it('waits for a delayed member row to become visible', async () => {
+    let settled = false
+    const result = users.waitForVisibleUser('owner')
+    void result.then(() => {
+      settled = true
+    })
+    await advanceTime(16_000)
+    expect(settled).toBe(false)
+
+    rowPresent = true
+    await advanceTime(5_000)
+    expect(settled).toBe(false)
+    rowVisible = true
+    await advanceTime(500)
+    await expect(result).resolves.toBeUndefined()
+  })
+
+  it.each(['missing', 'hidden'])('rejects a %s member at the roster deadline', async state => {
+    rowPresent = state === 'hidden'
+    let settled = false
+    const failure = users.waitForVisibleUser('owner').catch(err => err)
+    void failure.then(() => {
+      settled = true
+    })
+    await advanceTime(119_500)
+    expect(settled).toBe(false)
+    await advanceTime(500)
+    const err = await failure
+    expect(err).toBeInstanceOf(error.TimeoutError)
+    expect(err.message).toContain('Visible user owner')
+    expect(err.message).toContain('120000ms')
+  })
+
+  it('retries a member row replaced during the visibility query', async () => {
+    rowPresent = true
+    rowVisible = true
+    staleNextVisibility = true
+    const result = users.waitForVisibleUser('owner')
+    await advanceTime(500)
+    await expect(result).resolves.toBeUndefined()
+    expect(execute.mock.calls.filter(([command]: [Command]) => command.getName() === Name.FIND_ELEMENTS)).toHaveLength(
+      2
+    )
+  })
+
+  it.each(['lookup', 'visibility'])('propagates a lost browser session during %s', async stage => {
+    const failure = new error.NoSuchSessionError('Browser session closed')
+    if (stage === 'visibility') {
+      execute.mockResolvedValueOnce([WebElement.buildId('owner-row')])
+    }
+    execute.mockRejectedValueOnce(failure)
+    await expect(users.waitForVisibleUser('owner')).rejects.toBe(failure)
+    expect(execute).toHaveBeenCalledTimes(stage === 'lookup' ? 1 : 2)
   })
 })
 

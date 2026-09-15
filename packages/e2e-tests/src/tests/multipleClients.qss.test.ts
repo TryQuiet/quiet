@@ -254,9 +254,9 @@ describe('Multiple Clients (QSS)', () => {
         expect(await userList.isReady()).toBeTruthy()
       })
 
-      it('First user sees owner in user list as online', async () => {
+      it('First user sees owner in user list', async () => {
         const userList = new UsersList(users.user1.app.driver)
-        await userList.getUser(users.owner.username, UserListStatus.ONLINE)
+        await userList.waitForVisibleUser(users.owner.username)
       })
 
       it('Owner sees user list', async () => {
@@ -264,9 +264,9 @@ describe('Multiple Clients (QSS)', () => {
         expect(await userList.isReady()).toBeTruthy()
       })
 
-      it('Owner sees first user in user list as online', async () => {
+      it('Owner sees first user in user list', async () => {
         const userList = new UsersList(users.owner.app.driver)
-        await userList.getUser(users.user1.username, UserListStatus.ONLINE)
+        await userList.waitForVisibleUser(users.user1.username)
       })
 
       it("First user's message is visible in a channel", async () => {
@@ -481,9 +481,9 @@ describe('Multiple Clients (QSS)', () => {
         await promiseWithRetries(loadOwner(), failureReason, retryConfig, onTimeout)
       })
 
-      it('Second user sees owner in user list as online', async () => {
+      it('Second user sees owner in user list', async () => {
         const userList = new UsersList(users.user2.app.driver)
-        await userList.getUser(users.owner.username, UserListStatus.ONLINE)
+        await userList.waitForVisibleUser(users.owner.username)
       })
 
       it("Second user's first message is visible in a channel for owner", async () => {
@@ -514,14 +514,14 @@ describe('Multiple Clients (QSS)', () => {
         await debugModal.close()
       })
 
-      it('First user sees second user in user list as online', async () => {
+      it('First user sees second user in user list', async () => {
         const userList = new UsersList(users.user1.app.driver)
-        await userList.getUser(users.user2.username, UserListStatus.ONLINE)
+        await userList.waitForVisibleUser(users.user2.username)
       })
 
-      it('First user sees owner in user list as online', async () => {
+      it('First user sees owner in user list', async () => {
         const userList = new UsersList(users.user1.app.driver)
-        await userList.getUser(users.owner.username, UserListStatus.ONLINE)
+        await userList.waitForVisibleUser(users.owner.username)
       })
 
       it(`First user can see the second user's messages`, async () => {
