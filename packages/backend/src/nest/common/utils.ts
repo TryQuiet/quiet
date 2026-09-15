@@ -226,7 +226,11 @@ export const getCors = () => {
 tmp.setGracefulCleanup()
 
 export const testBootstrapMultiaddrs = [
-  createLibp2pAddress(generateRandomOnionAddress(56), '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'),
+  // Fixed 52-char SNApp host (matches packages/common fixtures). Tor onions throw in non-test NODE_ENV.
+  createLibp2pAddress(
+    'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr',
+    '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'
+  ),
 ]
 
 /**
