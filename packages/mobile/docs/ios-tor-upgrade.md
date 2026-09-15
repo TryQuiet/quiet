@@ -93,10 +93,16 @@ output if an old one was created by the historical replacement wrapper:
 
 ```sh
 # From packages/mobile after normal backend asset preparation and pod install:
+python3 scripts/nodejs-mobile-runtime/install.py --check
 export DETOX_IOS_ARM64_DEBUG_OUTPUT=/tmp/quiet-tor40911-app
 ./node_modules/.bin/detox build -c ios.sim.debug.ci
 ./node_modules/.bin/detox test starter -c ios.sim.debug.ci
 ```
+
+The runtime check must pass before building: a source archive can contain Git LFS
+pointers instead of the embedded Node binaries. Hydrate those files using the
+repository's normal Git LFS setup. Rebuild the pinned submodules, shared packages
+and backend too; copied generated assets can silently retain older lifecycle code.
 
 The manual iOS workflow runs the native regression before the standard and QSS
 app suites. The deployment workflow no longer attempts to strip bitcode from
@@ -112,6 +118,8 @@ Validation on September 15, 2026:
 | Forced incremental wrapper relink | Passed through the final runner, changing linker version from 1 to 2 |
 | Native iOS device build | ARM64 device slice and production handler compile/link passed; no signing or physical-device run |
 | App pod resolution | `pod update Tor --no-repo-update` produced exactly the committed lockfile; subsequent `pod install --deployment` passed |
+| Full Quiet simulator app | Debug/staging ARM64 build passed; embedded Tor 0.4.9.11, simulator platform, app signature and unchanged installed XCFramework verified |
+| Full app community persistence | Existing `native-community.test.js` passed in 92.107 seconds: created community, stored message with backend acknowledgment, restarted process and recovered message; normal Detox synchronization |
 | Current XCFramework builder | 8 portable tests passed |
 | Real Detox CLI / workflow routing | 11 tests passed |
 | QSS build receipt and fixture harness | Passed, including old-version, modified-framework and changed-pod rejection |
@@ -131,13 +139,30 @@ The final runner's source hashes and xcresult are retained on the validation Mac
 under `quiet-ios-tor-validation/native-accepted/`. The earlier passing xcresult is
 `quiet-ios-tor-validation/native-final/live-background-client.xcresult`; device
 compilation evidence is `quiet-ios-tor-validation/native-final/device-build.xcresult`.
-The branch does not claim physical-device, full community UI or production signing
+The full app's build receipt, log and xcresult are under
+`quiet-ios-tor-app-build/` on the same Mac. Its embedded Tor SHA-256 is
+`55ea8908f36a99d1c41d7408b1563dbe9e0b5830b397e9d1e34beba1bf759206`.
+The final app contains a freshly rebuilt backend matching
+`packages/backend/lib/bundle.cjs`, SHA-256
+`fcca3907f8600b6020230661bf696e4c080f813fdc3f1102d9ba53ccebcff83f`.
+The validation copy reused installed dependencies, rebuilt the pinned auth
+submodule and shared packages, and verified all 275 Node 24.18.0 runtime files.
+An initial app smoke attempt using an older copied backend exited on a null
+`torPassword` provider, before rejoin. The current source already guards that
+provider; rebuilding the backend resolves the asset mismatch. Its startup console
+and rebuild logs are retained under `quiet-ios-tor-app-diagnostics/` on the Mac.
+The successful retry's test log is `detox-current-native-community.log` in that
+directory, with screenshots and native logs in `detox-current-artifacts/`.
+An empty Firebase plist was used for the unsigned simulator build, as in the iOS
+E2E workflow.
+The branch does not claim physical-device, two-peer community rejoin or production signing
 validation.
 
 Portable commands:
 
 ```sh
 node --test packages/mobile/scripts/e2e-ios-workflow.test.cjs
+node --test packages/mobile/scripts/qss-community-harness.test.cjs
 python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_ios.py
 python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_storybook.py
 python3 -B -m unittest discover -s packages/mobile/scripts/qss-e2e -p 'test_*.py'
