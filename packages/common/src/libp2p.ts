@@ -1,5 +1,5 @@
 import validator from 'validator'
-import { isValidSnappAddress, normalizeOverlayHost } from './overlay'
+import { isValidSnappAddress, normalizeOverlayHost, LOKINET_WS_PORT } from './overlay'
 export const PSK_LENGTH = 44
 
 const LOKI = '.loki'
@@ -13,7 +13,7 @@ export const createLibp2pAddress = (address: string, peerId: string): string => 
     console.warn(`Invalid Loki SNApp address: ${host}`)
   }
   const dnsHost = host.endsWith(LOKI) ? host : `${host}${LOKI}`
-  return `/dns4/${dnsHost}/tcp/80/ws/p2p/${peerId}`
+  return `/dns4/${dnsHost}/tcp/${LOKINET_WS_PORT}/ws/p2p/${peerId}`
 }
 
 export const createLibp2pListenAddress = (address: string) => {
@@ -25,7 +25,7 @@ export const createLibp2pListenAddress = (address: string) => {
     console.warn(`Invalid Loki SNApp address: ${host}`)
   }
   const dnsHost = host.endsWith(LOKI) ? host : `${host}${LOKI}`
-  return `/dns4/${dnsHost}/tcp/80/ws`
+  return `/dns4/${dnsHost}/tcp/${LOKINET_WS_PORT}/ws`
 }
 
 export const isPSKcodeValid = (psk: string): boolean => {
@@ -35,6 +35,6 @@ export const isPSKcodeValid = (psk: string): boolean => {
 
 export const filterValidAddresses = (addresses: string[]) => {
   return addresses.filter(add =>
-    add.match(/^\/dns4\/[a-z0-9]{52}\.loki\/tcp\/(443|80)\/ws\/p2p\/[a-zA-Z0-9]{46,52}$/g)
+    add.match(new RegExp(`^/dns4/[a-z0-9]{52}\\.loki/tcp/(${LOKINET_WS_PORT}|80|443)/ws/p2p/[a-zA-Z0-9]{46,52}$`))
   )
 }

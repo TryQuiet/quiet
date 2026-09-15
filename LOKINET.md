@@ -9,12 +9,14 @@ This fork uses **Lokinet only** for libp2p — it does not wrap Tor for addresse
 Invite links and libp2p multiaddrs:
 
 ```
-/dns4/<name>.loki/tcp/80/ws/p2p/<peerId>
+/dns4/<name>.loki/tcp/<port>/ws/p2p/<peerId>
 quiet-loki://join#…  (p= must be a 52-char SNApp, never empty, never a 56-char onion)
 ```
 
-On startup the backend looks up the SNApp with `host localhost.loki 127.3.2.1` and listens for libp2p WebSocket on `172.16.0.1:80`.
+Default listen port is **80** on `172.16.0.1` (`LOKINET_LISTEN_HOST` / `LOKINET_WS_PORT`). Binding port 80 needs `CAP_NET_BIND_SERVICE` or root; for unprivileged Day 2 testing set the same high port on both peers, e.g. `export LOKINET_WS_PORT=8080`.
+
+On startup the backend looks up the SNApp with `host localhost.loki 127.3.2.1`.
 
 Do **not** enable HTTP on `:1190`. Do **not** spawn a second lokinet — use system Lokinet only.
 
-See `packages/common/src/overlay.ts` and `SNAPP.md`.
+Two-node join/replicate: see `scripts/lokinet/DAY2-TWO-NODE.md`.
