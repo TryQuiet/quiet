@@ -21,6 +21,7 @@ describe('private-channel push recipients after QSS sync', () => {
   let channel: PublicChannel
   let sigChainService: SigChainService
   let manager: QSSSyncManager
+  let qps: QPSService
   let qssClient: any
   let pending: Record<string, string[]>
   let updates: Map<string, LogUpdate>
@@ -37,14 +38,14 @@ describe('private-channel push recipients after QSS sync', () => {
     return invitee.user.userId
   }
 
-  const makeUpdate = (value: unknown): LogUpdate => {
+  const makeUpdate = (value: unknown, op = OrbitDbOp.PUT, key?: string): LogUpdate => {
     const hash = `entry-${updates.size}`
     const update = {
       teamId: chain.team!.id,
       id: 'channel-db-id',
       addr: 'channel-db-address',
       hash,
-      entry: { id: 'channel-db-id', hash, payload: { op: OrbitDbOp.PUT, key: hash, value } },
+      entry: { id: 'channel-db-id', hash, payload: { op, key: key ?? hash, value } },
     } as unknown as LogUpdate
     updates.set(hash, update)
     return update
@@ -147,21 +148,13 @@ describe('private-channel push recipients after QSS sync', () => {
     )
     jest.spyOn(manager, 'startLogPullInterval').mockImplementation(() => {})
     manager.startLogSyncForSignedInTeam(chain.team!.id, chain)
-    const qps = new QPSService(
-      true,
-      socketService as any,
-      qssClient,
-      new EventEmitter() as any,
-      manager,
-      sigChainService,
-      {
-        getAllEntries: async () => [
-          { userId: chain.user.userId, tokens: ['owner-phone'] },
-          { userId: memberId, tokens: ['member-phone', 'member-tablet'] },
-          { userId: outsiderId, tokens: ['outsider-phone'] },
-        ],
-      } as any
-    )
+    qps = new QPSService(true, socketService as any, qssClient, new EventEmitter() as any, manager, sigChainService, {
+      getAllEntries: async () => [
+        { userId: chain.user.userId, tokens: ['owner-phone'] },
+        { userId: memberId, tokens: ['member-phone', 'member-tablet'] },
+        { userId: outsiderId, tokens: ['outsider-phone'] },
+      ],
+    } as any)
     qps.onModuleInit()
   })
 
@@ -184,6 +177,40 @@ describe('private-channel push recipients after QSS sync', () => {
     const value = chain.crypto.encryptAndSign(channel, { type: EncryptionScopeType.ROLE, name: channel.roleName })
     await manager.sendLogEntrySyncMessage(makeUpdate(value))
     await expectRecipients(privateUcans)
+  })
+
+  it.each(['online', 'offline retry'])('syncs a private-channel deletion without notifying anyone (%s)', async mode => {
+    // OrbitDB deletions contain a null value, with no private-channel encryption scope.
+    const update = makeUpdate(null, OrbitDbOp.DEL, channel.id)
+    const pushHandler = jest.spyOn(qps, 'sendBatchPush')
+
+    if (mode === 'offline retry') {
+      qssClient.connected = false
+      await manager.sendLogEntrySyncMessage(update)
+      expect(pending).toEqual({ [update.addr]: [update.hash] })
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+      expect(pushHandler).not.toHaveBeenCalled()
+
+      qssClient.connected = true
+      manager.markTeamStorageReady(chain.team!.id)
+      await waitForExpect(() => expect(pending).toEqual({}))
+    } else {
+      expect(await manager.sendLogEntrySyncMessage(update)).toBe(true)
+    }
+
+    // Await the actual async push handler so a delayed notification cannot escape the assertion.
+    expect(pushHandler).toHaveBeenCalledTimes(1)
+    await pushHandler.mock.results[0].value
+
+    // The deletion still syncs successfully; neither members nor outsiders receive a push.
+    expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
+    const [event, sync, withAck] = qssClient.sendMessage.mock.calls[0]
+    expect(event).toBe(WebsocketEvents.LOG_ENTRY_SYNC)
+    expect(withAck).toBe(true)
+    const { encrypted, signature } = sync.payload.encEntry
+    const entry = chain.crypto.decryptAndVerify<LogUpdate['entry']>(encrypted, signature).contents
+    expect(entry.payload).toEqual({ op: OrbitDbOp.DEL, key: channel.id, value: null })
+    expect(pushCalls()).toEqual([])
   })
 
   it('preserves the private audience when replaying an offline entry from the dead letter queue', async () => {
