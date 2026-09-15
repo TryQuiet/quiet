@@ -23,7 +23,10 @@ export const reducers = {
 export const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state: any, action: AnyAction) => {
-  if (action.type === communities.actions.resetApp.type) {
+  if (
+    action.type === communities.actions.resetApp.type ||
+    action.type === communities.actions.finalizeAdmissionReset.type
+  ) {
     state = {
       ...resetStateAndSaveTorConnectionData(),
       [StoreKeys.Init]: { ...state?.[StoreKeys.Init], deepLinking: false },

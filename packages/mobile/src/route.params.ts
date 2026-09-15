@@ -40,6 +40,7 @@ export type RootStackParamList = {
     icon: any
     title: string
     message?: string
+    buttonTitle?: string
   }
   [ScreenNames.ConnectionProcessScreen]: undefined
   [ScreenNames.DuplicatedUsernameScreen]: undefined

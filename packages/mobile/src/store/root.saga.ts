@@ -1,5 +1,5 @@
 import { all, call, take, takeEvery, takeLeading, fork, cancelled } from 'typed-redux-saga'
-import { nativeServicesMasterSaga } from './nativeServices/nativeServices.master.saga'
+import { admissionResetMasterSaga, nativeServicesMasterSaga } from './nativeServices/nativeServices.master.saga'
 import { navigationMasterSaga } from './navigation/navigation.master.saga'
 import { initMasterSaga } from './init/init.master.saga'
 import { initActions } from './init/init.slice'
@@ -50,9 +50,12 @@ export function* rootSaga(): Generator {
   }
 }
 
-function* storeReadySaga(): Generator {
+export function* storeReadySaga(): Generator {
   logger.info('storeReadySaga starting')
   try {
+    // Install the reset finisher before init can launch state-manager socket subscriptions. The
+    // backend may replay a completed reset immediately when the UI reconnects.
+    yield* fork(admissionResetMasterSaga)
     yield all([
       fork(initMasterSaga),
       fork(navigationMasterSaga),

@@ -63,6 +63,7 @@ export const joinCommunityError = createSelector(communitiesSlice, reducerState 
 
 export const communitiesSelectors = {
   admissionResetStatus: createSelector(communitiesSlice, state => state.admissionResetStatus ?? 'idle'),
+  admissionResetResult: createSelector(communitiesSlice, state => state.admissionResetResult ?? null),
   selectById,
   selectEntities,
   selectCommunities,

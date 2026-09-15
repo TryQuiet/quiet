@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -16,13 +16,16 @@ const logger = createLogger('LoadingPanel')
 
 const LoadingPanel = () => {
   const dispatch = useDispatch()
+  const [finalizationFailed, setFinalizationFailed] = useState(false)
   const message = useSelector(network.selectors.loadingPanelType)
   const admissionFailure = useSelector(errors.selectors.admissionFailure)
   const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
+  const admissionResetResult = useSelector(communities.selectors.admissionResetResult)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const currentCommunityId = useSelector(communities.selectors.currentCommunityId)
   const currentCommunityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const isChannelReplicated = Boolean(useSelector(publicChannels.selectors.publicChannels)?.length > 0)
   const community = useSelector(communities.selectors.currentCommunity)
@@ -35,36 +38,54 @@ const LoadingPanel = () => {
   const areChannels = useSelector(publicChannels.selectors.areChannelsLoaded)
   const isCurrentCommunityInitialized = useSelector(network.selectors.isCurrentCommunityInitialized)
 
-  const finishAdmissionReset = useCallback(async () => {
+  const persistFinalizedReset = useCallback(async () => {
     try {
       await persistor.flush()
+      dispatch(communities.actions.setAdmissionResetStatus('idle'))
+      setFinalizationFailed(false)
       dispatch(modalsActions.closeModal(ModalName.loadingPanel))
       dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-      dispatch(communities.actions.setAdmissionResetStatus('idle'))
     } catch (error) {
       logger.error('Failed to persist cleared invitation state', error)
+      setFinalizationFailed(true)
+      dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
     }
   }, [dispatch])
+
+  const finishAdmissionReset = useCallback(async () => {
+    if (!admissionResetResult) return
+    dispatch(communities.actions.finalizeAdmissionReset(admissionResetResult))
+    await persistFinalizedReset()
+  }, [admissionResetResult, dispatch, persistFinalizedReset])
 
   useEffect(() => {
     if (admissionResetStatus === 'complete') void finishAdmissionReset()
   }, [admissionResetStatus, finishAdmissionReset])
 
   useEffect(() => {
+    if (admissionResetStatus !== 'idle') {
+      dispatch(modalsActions.closeModal(ModalName.joinCommunityModal))
+      dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
+    }
+  }, [admissionResetStatus, dispatch])
+
+  useEffect(() => {
     const launchError = currentCommunityErrors[SocketActions.LAUNCH_COMMUNITY]
     const invalidInvite = launchError?.message === ErrorMessages.INVALID_INVITE
-    if (message === LoadingPanelType.Failed && admissionFailure == null && !invalidInvite) {
+    if (
+      message === LoadingPanelType.Failed &&
+      admissionFailure == null &&
+      !invalidInvite &&
+      admissionResetStatus === 'idle'
+    ) {
       logger.info('Operation failed, returning to join community modal')
       dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-      loadingPanelModal.handleClose()
+      dispatch(modalsActions.closeModal(ModalName.loadingPanel))
     }
-    if (invalidInvite) {
-      dispatch(communities.actions.resetApp(undefined))
-      dispatch(communities.actions.setJoinCommunityError({ type: 'invalid' }))
-      dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-      loadingPanelModal.handleClose()
+    if (invalidInvite && currentCommunity && admissionResetStatus === 'idle') {
+      dispatch(communities.actions.resetAdmission(currentCommunity.id))
     }
-  }, [message, admissionFailure, currentCommunity, currentCommunityErrors, dispatch, loadingPanelModal])
+  }, [message, admissionFailure, admissionResetStatus, currentCommunity, currentCommunityErrors, dispatch])
 
   useEffect(() => {
     logger.info(
@@ -73,9 +94,17 @@ const LoadingPanel = () => {
     )
     if (isJoiningCompletedSelector) {
       logger.info('Joining completed')
-      loadingPanelModal.handleClose()
+      if (currentCommunity?.inviteData) {
+        dispatch(
+          communities.actions.updateCommunityData({
+            id: currentCommunity.id,
+            updates: { inviteData: null },
+          })
+        )
+      }
+      dispatch(modalsActions.closeModal(ModalName.loadingPanel))
     }
-  }, [isJoiningCompletedSelector, areMessages, areChannels, isCurrentCommunityInitialized])
+  }, [areChannels, areMessages, currentCommunity, dispatch, isCurrentCommunityInitialized, isJoiningCompletedSelector])
 
   useEffect(() => {
     if (isConnected) {
@@ -98,19 +127,20 @@ const LoadingPanel = () => {
       isConnected &&
       message === LoadingPanelType.StartingApplication &&
       admissionResetStatus === 'idle' &&
-      admissionFailure == null
+      admissionFailure == null &&
+      !finalizationFailed
     ) {
       logger.info('Application started, closing loading panel')
-      loadingPanelModal.handleClose()
+      dispatch(modalsActions.closeModal(ModalName.loadingPanel))
     }
-  }, [isConnected, message, admissionResetStatus, admissionFailure])
+  }, [admissionFailure, admissionResetStatus, dispatch, finalizationFailed, isConnected, message])
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     shell.openExternal(url)
   }, [])
 
-  if (message === LoadingPanelType.StartingApplication) {
+  if (message === LoadingPanelType.StartingApplication && admissionResetStatus === 'idle' && !finalizationFailed) {
     logger.info('Starting application')
     return <StartingPanelComponent {...loadingPanelModal} />
   } else {
@@ -122,6 +152,19 @@ const LoadingPanel = () => {
           openUrl={openUrl}
           connectionInfo={connectionProcessSelector}
           isOwner={owner}
+          resetFailed={admissionResetStatus === 'failed' || finalizationFailed}
+          resetFailureMessage={
+            finalizationFailed
+              ? 'Quiet cleared the failed link but could not save the updated app state. Try saving again before using another invite.'
+              : undefined
+          }
+          onRetryReset={() => {
+            if (finalizationFailed) {
+              void persistFinalizedReset()
+            } else if (currentCommunityId) {
+              dispatch(communities.actions.resetAdmission(currentCommunityId))
+            }
+          }}
         />
       )
     } catch (e) {

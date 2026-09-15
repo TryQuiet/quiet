@@ -478,6 +478,7 @@ export const getSocketFactory = async () => {
   factory.define<InitDeviceLinkPayload>(SocketActions.LINK_DEVICE, Object, {
     id: 'community-id',
     deviceName: 'Test device',
+    deviceLinkConsent: true,
     inviteData: {
       kind: InvitationKind.Device,
       version: InvitationDataVersion.v4,

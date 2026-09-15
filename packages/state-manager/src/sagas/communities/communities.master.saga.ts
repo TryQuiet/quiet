@@ -1,5 +1,5 @@
 import { type Socket } from '../../types'
-import { all, takeEvery, takeLeading, cancelled, fork, cancel, take } from 'typed-redux-saga'
+import { all, takeEvery, takeLeading, cancelled, fork, put, select, take } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
@@ -9,6 +9,9 @@ import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 import { linkDeviceSaga } from './linkDevice/linkDevice.saga'
 import type { Task } from 'redux-saga'
 import { resetAdmissionSaga } from './resetAdmission/resetAdmission.saga'
+import type { AdmissionResetCompletePayload } from '@quiet/types'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { communitiesSelectors } from './communities.selectors'
 
 const logger = createLogger('communitiesMasterSaga')
 
@@ -20,6 +23,7 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       fork(handleCommunityOnboarding, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
       takeLeading(communitiesActions.resetAdmission.type, resetAdmissionSaga, socket),
+      takeEvery(communitiesActions.admissionResetCompleted.type, handleAdmissionResetCompleted),
     ])
   } finally {
     logger.info('communitiesMasterSaga stopping')
@@ -44,10 +48,16 @@ export function* handleCommunityOnboarding(socket: Socket): Generator {
       communitiesActions.linkDevice.type,
     ])) as OnboardingAction
 
+    const admissionResetStatus = yield* select(communitiesSelectors.admissionResetStatus)
+    if (admissionResetStatus !== 'idle') {
+      logger.warn('Ignoring onboarding request while admission cleanup is incomplete')
+      continue
+    }
+
     if (activeTask) {
       if (activeTask.isRunning()) {
-        logger.info('Cancelling active onboarding saga')
-        yield* cancel(activeTask)
+        logger.warn('Ignoring onboarding request while another onboarding operation is active')
+        continue
       }
       activeTask = undefined
     }
@@ -63,4 +73,26 @@ export function* handleCommunityOnboarding(socket: Socket): Generator {
       activeTask = yield* fork(linkDeviceSaga, socket, action)
     }
   }
+}
+
+export function* handleAdmissionResetCompleted(action: PayloadAction<AdmissionResetCompletePayload>): Generator {
+  const admissionResetStatus = yield* select(communitiesSelectors.admissionResetStatus)
+  if (admissionResetStatus === 'finalizing') {
+    logger.warn('Ignoring admission reset completion while finalization is being persisted')
+    return
+  }
+
+  const currentCommunityId = yield* select(communitiesSelectors.currentCommunityId)
+  if (currentCommunityId && currentCommunityId !== action.payload.id) {
+    logger.warn('Ignoring admission reset completion for a different community', action.payload.id)
+    return
+  }
+
+  yield* put(
+    communitiesActions.setAdmissionResetResult({
+      type: 'interrupted',
+      invitationType: action.payload.invitationType,
+    })
+  )
+  yield* put(communitiesActions.setAdmissionResetStatus('complete'))
 }

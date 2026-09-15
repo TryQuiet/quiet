@@ -40,6 +40,7 @@ import {
   InviteResultWithSalt,
   UpdateCommunityPayload,
   type SetChannelPermissionsPayload,
+  type AdmissionResetCompletePayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -76,6 +77,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof communitiesActions.updateCommunityData>
     | ReturnType<typeof communitiesActions.setCurrentCommunity>
+    | ReturnType<typeof communitiesActions.admissionResetCompleted>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.removeConnectedPeer>
     | ReturnType<typeof connectionActions.setNetworkData>
@@ -110,8 +112,12 @@ export function subscribe(socket: Socket) {
       emit(networkActions.addInitializedCommunity(payload.id))
     })
     socket.on(SocketEvents.COMMUNITY_UPDATED, (payload: UpdateCommunityPayload) => {
-      logger.info(`${SocketEvents.COMMUNITY_UPDATED}`, payload)
+      logger.info(`${SocketEvents.COMMUNITY_UPDATED}`, payload.id, Object.keys(payload.updates))
       emit(communitiesActions.updateCommunityData(payload))
+    })
+    socket.on(SocketEvents.ADMISSION_RESET_COMPLETE, (payload: AdmissionResetCompletePayload) => {
+      logger.info(`${SocketEvents.ADMISSION_RESET_COMPLETE}`, payload.id, payload.invitationType)
+      emit(communitiesActions.admissionResetCompleted(payload))
     })
     socket.on(SocketEvents.TOR_INITIALIZED, () => {
       logger.info(`${SocketEvents.TOR_INITIALIZED}`)
@@ -251,6 +257,8 @@ export function subscribe(socket: Socket) {
 
     return () => {
       socket.off(SocketEvents.COMMUNITY_LAUNCHED)
+      socket.off(SocketEvents.COMMUNITY_UPDATED)
+      socket.off(SocketEvents.ADMISSION_RESET_COMPLETE)
       socket.off(SocketEvents.TOR_INITIALIZED)
       socket.off(SocketEvents.QSS_CONNECTED)
       socket.off(SocketEvents.QSS_DISCONNECTED)

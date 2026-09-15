@@ -8,6 +8,7 @@ import {
   LinkDevicePayload,
   LaunchCommunityPayload,
   UpdateCommunityPayload,
+  AdmissionResetCompletePayload,
   type Community,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
@@ -23,6 +24,7 @@ export class CommunitiesState {
   public tosRequested = false
   public captchaRequested = false
   public admissionResetStatus: AdmissionResetStatus = 'idle'
+  public admissionResetResult: JoinCommunityError | null = null
   public joinCommunityError: JoinCommunityError | null = null
 }
 
@@ -59,8 +61,17 @@ export const communitiesSlice = createSlice({
     },
     resetApp: (state, _action) => state,
     resetAdmission: (state, _action: PayloadAction<string>) => state,
+    admissionResetCompleted: (state, _action: PayloadAction<AdmissionResetCompletePayload>) => state,
     setAdmissionResetStatus: (state, action: PayloadAction<AdmissionResetStatus>) => {
       state.admissionResetStatus = action.payload
+    },
+    setAdmissionResetResult: (state, action: PayloadAction<JoinCommunityError | null>) => {
+      state.admissionResetResult = action.payload
+    },
+    finalizeAdmissionReset: (state, action: PayloadAction<JoinCommunityError>) => {
+      state.admissionResetStatus = 'finalizing'
+      state.admissionResetResult = null
+      state.joinCommunityError = action.payload
     },
     setJoinCommunityError: (state, action: PayloadAction<JoinCommunityError>) => {
       state.joinCommunityError = action.payload

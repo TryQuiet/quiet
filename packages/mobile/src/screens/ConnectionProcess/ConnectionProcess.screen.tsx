@@ -17,9 +17,10 @@ export const ConnectionProcessScreen: FC = () => {
   const isJoiningCompletedSelector = useSelector(connection.selectors.isJoiningCompleted)
   const loadingPanelType = useSelector(network.selectors.loadingPanelType)
   const admissionFailure = useSelector(errors.selectors.admissionFailure)
-  const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
+  const currentCommunityId = useSelector(communities.selectors.currentCommunityId)
   const currentCommunityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  const hasCurrentCommunityError = Boolean(currentCommunity && Object.keys(currentCommunityErrors).length > 0)
+  const hasCurrentCommunityError = Boolean(currentCommunityId && Object.keys(currentCommunityErrors).length > 0)
   const launchError = currentCommunityErrors[SocketActions.LAUNCH_COMMUNITY]
   const invalidInvite = launchError?.message === ErrorMessages.INVALID_INVITE
 
@@ -41,12 +42,10 @@ export const ConnectionProcessScreen: FC = () => {
   }, [isJoiningCompletedSelector])
 
   useEffect(() => {
-    if (invalidInvite) {
-      dispatch(communities.actions.resetApp(undefined))
-      dispatch(communities.actions.setJoinCommunityError({ type: 'invalid' }))
-      dispatch(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
+    if (invalidInvite && currentCommunityId && admissionResetStatus === 'idle') {
+      dispatch(communities.actions.resetAdmission(currentCommunityId))
     }
-  }, [invalidInvite, dispatch])
+  }, [admissionResetStatus, currentCommunityId, invalidInvite, dispatch])
 
   useEffect(() => {
     if (hasCurrentCommunityError && admissionFailure == null && !invalidInvite) {
@@ -60,11 +59,11 @@ export const ConnectionProcessScreen: FC = () => {
   }, [hasCurrentCommunityError, admissionFailure, invalidInvite, dispatch])
 
   useEffect(() => {
-    if (loadingPanelType === LoadingPanelType.Failed) {
+    if (loadingPanelType === LoadingPanelType.Failed && admissionResetStatus === 'idle') {
       dispatch(navigationActions.clearBackStack())
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
     }
-  }, [loadingPanelType])
+  }, [admissionResetStatus, loadingPanelType])
 
   return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
 }

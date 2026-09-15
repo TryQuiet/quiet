@@ -49,6 +49,7 @@ import {
   DeviceLinkInvite,
   JoinCommunityPayload,
   UpdateCommunityPayload,
+  AdmissionResetCompletePayload,
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
@@ -137,6 +138,7 @@ export enum SocketEvents {
   // ====== Community ======
   COMMUNITY_LAUNCHED = 'communityLaunched',
   COMMUNITY_UPDATED = 'communityUpdated',
+  ADMISSION_RESET_COMPLETE = 'admissionResetComplete',
 
   // ====== Channels ======
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
@@ -264,6 +266,7 @@ export interface SocketEventsMap {
   // ====== Community ======
   [SocketEvents.COMMUNITY_LAUNCHED]: EmitEvent<LaunchCommunityPayload>
   [SocketEvents.COMMUNITY_UPDATED]: EmitEvent<UpdateCommunityPayload>
+  [SocketEvents.ADMISSION_RESET_COMPLETE]: EmitEvent<AdmissionResetCompletePayload>
 
   // ====== Channels ======
   [SocketEvents.CHANNEL_SUBSCRIBED]: EmitEvent<ChannelSubscribedPayload>

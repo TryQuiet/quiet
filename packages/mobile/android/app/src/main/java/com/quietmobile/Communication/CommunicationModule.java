@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -263,6 +264,22 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
             deleteBackendData();
         } catch (Exception e) {
             Log.e("CommunicationModule", "clearSensitiveData failed", e);
+        }
+    }
+
+    @ReactMethod
+    public static void clearAdmissionCredentials(Promise promise) {
+        try {
+            QuietStorage.clearAdmissionCredentials();
+            NotificationManagerCompat.from(reactContext.getApplicationContext()).cancelAll();
+            promise.resolve(null);
+        } catch (Exception error) {
+            Log.e(TAG, "clearAdmissionCredentials failed", error);
+            promise.reject(
+                    "admission_cleanup_failed",
+                    "Failed to clear native admission credentials",
+                    error
+            );
         }
     }
 
