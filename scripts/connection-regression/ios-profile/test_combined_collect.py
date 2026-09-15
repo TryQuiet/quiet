@@ -26,5 +26,18 @@ class CollectorTests(unittest.TestCase):
                 p.write_text(json.dumps(rows))
                 with self.assertRaises(AssertionError): collect(root)
 
+    def test_excludes_renamed_same_process_sender_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = Path(os.environ["QUIET_PROFILE_CAPTURE"])
+            shutil.copytree(source / "combined-final-main", root / "combined-final-main")
+            shutil.copytree(source / "final-integrated", root / "final-integrated", ignore=shutil.ignore_patterns("*.cjs"))
+            p = root / "combined-final-main/combined-results.json"
+            rows = json.loads(p.read_text())
+            rows += [{"phase": "sameProcessSenderEdition", "ms": 1, "metrics": {}}]
+            p.write_text(json.dumps(rows))
+            result = collect(root)
+            self.assertFalse(any(r["phase"] in {"receivedSigchainEdition", "sameProcessSenderEdition"} for r in result["historyAndArrivals"]))
+
 
 if __name__ == "__main__": unittest.main()

@@ -29,7 +29,7 @@ def collect(root):
     main = read("combined-final-main/combined-results.json")
     # Sender created in receiver process warms process-global signature facts;
     # these rows cannot substantiate incremental network validation claims.
-    main = [r for r in main if r["phase"] != "receivedSigchainEdition"]
+    main = [r for r in main if r["phase"] not in {"receivedSigchainEdition", "sameProcessSenderEdition"}]
     for r in main:
         if r["phase"] == "serialArrivalAndFrontendFetch":
             assert r["consumeCalls"] == 2 * r["count"]
