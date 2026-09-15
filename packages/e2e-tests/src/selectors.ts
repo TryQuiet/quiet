@@ -2443,14 +2443,14 @@ export class Sidebar {
   /**
    * Wait for a specific number of user profiles in the sidebar
    */
-  async waitForUserProfilesNum(num: number) {
+  async waitForUserProfilesNum(num: number, timeout = 15_000) {
     logger.info(`Waiting for ${num} user profiles`)
     return this.driver.wait(
       async () => {
         const users = await this.getUserProfileList()
         return users.length === num
       },
-      15_000,
+      timeout,
       `Sidebar user profile list length couldn't be determined within timeout`,
       500
     )

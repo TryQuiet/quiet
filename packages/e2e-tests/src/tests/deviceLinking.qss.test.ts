@@ -349,7 +349,7 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
 
     for (const peer of stalePeers) {
       await joinMember(peer.app, routeMemberInviteThroughProxy(memberInvitation, peer.proxy.endpoint), peer.username)
-      const registrationMessage = `@${peer.username} has joined and will be registered soon. 🎉 Learn more`
+      const registrationMessage = `@${peer.username} has joined`
       await ownerChannelBeforeRetry.getMessageIdsByText(registrationMessage, peer.username, timeouts.memberRegistration)
 
       const updatedPairs = parseShareInvitation(await getMemberInvitation(owner)).pairs
@@ -638,7 +638,7 @@ describe('Device linking message replication (QSS)', () => {
     })
 
     it("shows the new member's registration message on both linked clients", async () => {
-      const registrationMessage = `@${users.member.username} has joined and will be registered soon. 🎉 Learn more`
+      const registrationMessage = `@${users.member.username} has joined`
       const [primaryMessageIds, linkedMessageIds] = await Promise.all([
         primaryChannel.getMessageIdsByText(registrationMessage, users.member.username, 120_000),
         linkedDeviceChannel.getMessageIdsByText(registrationMessage, users.member.username, 120_000),

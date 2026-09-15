@@ -38,11 +38,13 @@ function getDeviceLinkingTimeouts() {
         joinPanelVisible: 15_000,
         inviteGraphSync: 30_000,
         joinCompletion: 60_000,
+        profileSync: 60_000,
       }
     : {
         joinPanelVisible: 60_000,
         inviteGraphSync: 180_000,
         joinCompletion: 360_000,
+        profileSync: 360_000,
       }
 }
 
@@ -133,7 +135,7 @@ async function expectLinkedDeviceReady(app: App, ownerUsername: string, expected
   expect(await channel.isMessageInputReady()).toBeTruthy()
 
   const sidebar = new Sidebar(app.driver)
-  await sidebar.waitForUserProfilesNum(expectedUserCount)
+  await sidebar.waitForUserProfilesNum(expectedUserCount, getDeviceLinkingTimeouts().profileSync)
   expect((await sidebar.getCurrentUserNickname()).trim()).toBe(ownerUsername)
   expect(await sidebar.getUserProfileByNickname(ownerUsername)).toBeDefined()
 }
@@ -177,9 +179,9 @@ describe('Device linking (P2P)', () => {
       await joinMember(secondMember, memberInvitation, 'online-member-2')
 
       await Promise.all([
-        new Sidebar(owner.driver).waitForUserProfilesNum(3),
-        new Sidebar(firstMember.driver).waitForUserProfilesNum(3),
-        new Sidebar(secondMember.driver).waitForUserProfilesNum(3),
+        new Sidebar(owner.driver).waitForUserProfilesNum(3, timeouts.profileSync),
+        new Sidebar(firstMember.driver).waitForUserProfilesNum(3, timeouts.profileSync),
+        new Sidebar(secondMember.driver).waitForUserProfilesNum(3, timeouts.profileSync),
       ])
 
       const joinPanel = await submitDeviceInvitation(linkedDevice, deviceInvitation)
@@ -205,7 +207,7 @@ describe('Device linking (P2P)', () => {
 
       await joinMember(unawareMember, memberInvitation, 'unaware-member')
       await joinMember(awarePeer1, memberInvitation, 'aware-peer-1')
-      await new Sidebar(owner.driver).waitForUserProfilesNum(3)
+      await new Sidebar(owner.driver).waitForUserProfilesNum(3, timeouts.profileSync)
 
       // This member misses the device-invite graph update and remains unable to
       // validate the linked device's invitation proof.
