@@ -16,7 +16,7 @@ export interface LokinetOptions {
 
 export class LokinetService extends EventEmitter {
   socksPort: number
-  process: childProcess.ChildProcessWithoutNullStreams | null = null
+  process: childProcess.ChildProcess | null = null
   bootstrapped = false
   private readonly apiUrl: string
   private readonly bin: string
@@ -88,12 +88,13 @@ export class LokinetService extends EventEmitter {
 
   private async ensureDaemon(ini: string): Promise<void> {
     if (await this.pingApi()) return
-    this.process = childProcess.spawn(this.bin, ['-c', ini], {
+    const child = childProcess.spawn(this.bin, ['-c', ini], {
       stdio: ['ignore', 'pipe', 'pipe'],
     })
-    this.process.stdout?.on('data', chunk => this.emit('log', String(chunk)))
-    this.process.stderr?.on('data', chunk => this.emit('log', String(chunk)))
-    this.process.on('exit', code => {
+    this.process = child
+    child.stdout?.on('data', chunk => this.emit('log', String(chunk)))
+    child.stderr?.on('data', chunk => this.emit('log', String(chunk)))
+    child.on('exit', code => {
       this.bootstrapped = false
       this.emit('exit', code)
     })
