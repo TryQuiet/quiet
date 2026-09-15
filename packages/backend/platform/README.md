@@ -50,10 +50,7 @@ sodium verification and retain sodium's rejection policy.
 
 No input buffers are mutated or retained. Temporary DER secret-key buffers and
 shared secrets are cleared after use; returned byte arrays are independent.
-The original sodium output encodings are retained, including their errors. For
-example, this Node Mobile build lacks ICU support needed by sodium's base64/text
-conversion; the adapter does not introduce a separate codec. LFA uses binary
-outputs and its existing base58 codec.
+The original sodium output encodings and their errors are retained.
 
 ## Validation
 
@@ -63,18 +60,10 @@ After the normal repository bootstrap, run:
 npm run test:native-crypto --prefix packages/backend
 ```
 
-The command is included in backend `pretest` and `pretest-ci`. Tests cover:
-
-- byte-identical keys, signatures and box ciphertext, bidirectional decryption;
-- altered messages, ciphertext, nonce, key and inconsistent secret/public halves;
-- input offsets, mutation/reuse, unsupported lengths/types/formats;
-- 151 Ed25519 and 518 X25519 Wycheproof cases against LFA's resolved sodium;
-- small-order and noncanonical Ed25519 inputs, including identity-point forgery;
-- platform selection, atomic capability/version fallback and repeated installation;
-- a real webpack build using the production loader, proving activation before
-  consumers await `ready`, on iOS only.
+The command is included in backend `pretest` and `pretest-ci`. Tests compare against
+LFA's resolved sodium, including 151 Ed25519 and 518 X25519 Wycheproof cases,
+tampered inputs, atomic initialization/fallback, and a real webpack build proving
+activation before consumers await `ready`, on iOS only.
 
 The shared checks can also execute inside the physical iPhone's embedded Node.
 Vector provenance and checksums are in [test-vectors/README.md](test-vectors/README.md).
-The diagnostic report lives in `scripts/connection-regression/reports/`; the
-runtime change does not depend on that profiling harness.

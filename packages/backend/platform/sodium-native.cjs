@@ -56,13 +56,13 @@ function ordinaryPoint(value) {
   return lessThanLE(y, PRIME) && !SMALL_ORDER.has(y.toString('hex'))
 }
 
-const installed = new WeakMap()
+const installed = new WeakSet()
 function supportedReceiver(sodium) {
   return sodium !== null && typeof sodium === 'object' &&
     !types.isProxy(sodium) && !types.isModuleNamespaceObject(sodium)
 }
 function install(sodium) {
-  if (installed.has(sodium)) return installed.get(sodium)
+  if (installed.has(sodium)) return
   // Proxy traps and module namespaces do not have ordinary assignment semantics.
   if (!supportedReceiver(sodium)) throw new Error('unsupported sodium export object')
   // Verification policy is reviewed against this sodium implementation. A new
@@ -144,9 +144,7 @@ function install(sodium) {
     }
   }
   Object.assign(sodium, overrides)
-  const result = Object.freeze({enabled: true, backend: 'node-openssl', functions: Object.keys(overrides)})
-  installed.set(sodium, result)
-  return result
+  installed.add(sodium)
 }
 
 function enable(sodium, {platform = process.platform, warn = console.warn} = {}) {
