@@ -1,4 +1,4 @@
-import { Agent as HttpAgent, type AgentCallbackCallback } from 'http'
+import { Agent as HttpAgent } from 'http'
 import type { HttpsProxyAgent } from 'https-proxy-agent'
 import { overlayFromHost } from '@quiet/common'
 
@@ -17,22 +17,21 @@ export class DualOverlayAgent extends HttpAgent {
   addRequest(req: any, options: any): void {
     const host: string = options?.host || options?.hostname || req?.host || ''
     const overlay = overlayFromHost(host)
-    const target = overlay === 'lokinet' && this.lokinetAgent ? this.lokinetAgent : this.torAgent
-    const fn = (target as any).addRequest
-    if (typeof fn === 'function') {
-      return fn.call(target, req, options)
+    const target: any = overlay === 'lokinet' && this.lokinetAgent ? this.lokinetAgent : this.torAgent
+    if (typeof target.addRequest === 'function') {
+      target.addRequest(req, options)
+      return
     }
-    return super.addRequest(req, options)
+    ;(HttpAgent.prototype as any).addRequest.call(this, req, options)
   }
 
-  createConnection(options: any, callback?: AgentCallbackCallback) {
+  createConnection(options: any, callback?: (err: Error | null, socket?: any) => void) {
     const host: string = options?.host || options?.hostname || ''
     const overlay = overlayFromHost(host)
-    const target = overlay === 'lokinet' && this.lokinetAgent ? this.lokinetAgent : this.torAgent
-    const fn = (target as any).createConnection
-    if (typeof fn === 'function') {
-      return fn.call(target, options, callback)
+    const target: any = overlay === 'lokinet' && this.lokinetAgent ? this.lokinetAgent : this.torAgent
+    if (typeof target.createConnection === 'function') {
+      return target.createConnection(options, callback)
     }
-    return super.createConnection(options, callback)
+    return (HttpAgent.prototype as any).createConnection.call(this, options, callback)
   }
 }
