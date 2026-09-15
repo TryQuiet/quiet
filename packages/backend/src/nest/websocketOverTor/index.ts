@@ -37,7 +37,32 @@ import type { ClientOptions } from 'ws'
 import http from 'node:http'
 import https from 'node:https'
 import { QuietLibp2pLogger } from '../libp2p/libp2p.logger'
-import { overlayFromHost } from '@quiet/common'
+import { overlayFromHost, LOKINET_DNS } from '@quiet/common'
+import { Resolver } from 'node:dns'
+import { promisify } from 'node:util'
+import { execFile } from 'node:child_process'
+
+async function resolveLokiHost(host: string, dnsServer: string = LOKINET_DNS): Promise<string> {
+  const name = host.endsWith('.loki') ? host : `${host}.loki`
+  try {
+    const resolver = new Resolver()
+    resolver.setServers([dnsServer])
+    const resolve4 = promisify(resolver.resolve4.bind(resolver))
+    const addrs = await resolve4(name)
+    if (addrs?.[0]) return addrs[0]
+  } catch {
+    // fall through
+  }
+  return await new Promise((resolve, reject) => {
+    execFile('host', [name, dnsServer], { timeout: 8000 }, (err, stdout, stderr) => {
+      const text = `${stdout || ''}\n${stderr || ''}`
+      const ip = text.match(/\b(172\.\d+\.\d+\.\d+)\b/)
+      if (ip) resolve(ip[1])
+      else reject(err || new Error(`Could not resolve ${name} via ${dnsServer}: ${text}`))
+    })
+  })
+}
+
 
 export interface WebSocketsInit extends AbortOptions, WebSocketOptions {
   filter?: MultiaddrFilter
@@ -111,7 +136,13 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
     _log('dialing %s:%s via %s', cOpts.host, cOpts.port, overlay)
 
     const errorPromise = pDefer()
-    const addr = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.init.localAddress)}`
+    let dialUri = toUri(ma)
+    if (overlay === 'lokinet') {
+      const ip = await resolveLokiHost(cOpts.host)
+      dialUri = `ws://${ip}:${cOpts.port}`
+      _log('resolved %s -> %s (no Tor SOCKS)', cOpts.host, ip)
+    }
+    const addr = `${dialUri}/?remoteAddress=${encodeURIComponent(this.init.localAddress)}`
     const connectInit =
       overlay === 'lokinet'
         ? { ...this.init, websocket: this.init.lokinetWebsocket ?? { ...this.init.websocket, agent: undefined } }

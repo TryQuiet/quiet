@@ -25,6 +25,7 @@ import type {
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { DuplexWebSocket } from 'it-ws/duplex'
 import type { Server } from 'node:http'
+import { LOKINET_LISTEN_HOST, overlayFromHost } from '@quiet/common'
 import { createServer, type WebSocketServer } from 'it-ws/server'
 
 export interface WebSocketListenerComponents {
@@ -203,12 +204,16 @@ export class WebSocketListener extends TypedEventEmitter<ListenerEvents> impleme
 
     this.listeningMultiaddr = ma
     const { host } = ma.toOptions()
-    this.addr = `${host}:${this.init.targetPort}`
+    const overlay = overlayFromHost(host)
+    const bindHost = overlay === 'lokinet' ? LOKINET_LISTEN_HOST : host
+    this.addr = `${bindHost}:${this.init.targetPort}`
 
     const _log = this.components.logger.forComponent(`libp2p:websockets:listener:${listenerType}:${this.addr}`)
-    _log(`Listening on address`, this.addr)
+    _log(`Listening on address`, this.addr, { multiaddrHost: host, overlay })
 
-    this.wsServer.listen({ ...ma.toOptions(), port: this.init.targetPort })
+    // Bind explicitly on lokitun0 (172.16.0.1) for Lokinet; it-ws typings omit host.
+    this.http!.listen(this.init.targetPort, bindHost)
+
 
     await new Promise<void>((resolve, reject) => {
       const onListening = (): void => {
