@@ -3,6 +3,7 @@ import { CryptoService } from '../../auth/services/crypto/crypto.service'
 import { PublicChannelMessagesService } from './messages/public-channel-messages.service'
 import EventEmitter from 'node:events'
 import { jest } from '@jest/globals'
+import { type PushNotificationPayload } from '@quiet/types'
 
 import { ChannelStore } from './channel.store'
 import { SigchainEvents } from '../../auth/types'
@@ -100,6 +101,7 @@ describe('ChannelStore incremental message IDs', () => {
     const reads = { iterator: 0, get: 0 }
     const auth = Object.assign(new EventEmitter(), { team: { id: 'team' } })
     const onConsume = jest.fn<(message: any) => Promise<any>>(async message => ({ ...message, verified: true }))
+    const getUsername = jest.fn<(userId: string) => Promise<string | undefined>>(async () => undefined)
     const store = new ChannelStore(
       {} as any,
       {
@@ -107,7 +109,7 @@ describe('ChannelStore incremental message IDs', () => {
       } as any,
       { onConsume } as any,
       {} as any,
-      {} as any,
+      { getUsername } as any,
       auth as any,
       {} as any,
       {} as any
@@ -168,8 +170,66 @@ describe('ChannelStore incremental message IDs', () => {
       save({ hash, value, next: previous === undefined ? [] : [previous] })
       await announce(hash)
     }
-    return { store, auth, entries, onConsume, ids, append, reads, logReads, save, announce, logEntries }
+    return { store, auth, entries, onConsume, getUsername, ids, append, reads, logReads, save, announce, logEntries }
   }
+
+  it.each(['unchanged', 'auth invalidated', 'closed'] as const)(
+    'emits a deferred mobile notification only while its originating context is current: %s',
+    async change => {
+      const previousBackend = process.env.BACKEND
+      const previousConnectionTime = process.env.CONNECTION_TIME
+      process.env.BACKEND = 'mobile'
+      process.env.CONNECTION_TIME = '0'
+      try {
+        const { store, auth, append, onConsume, getUsername } = createStore()
+        const notifications: PushNotificationPayload[] = []
+        store.on(StorageEvents.SEND_PUSH_NOTIFICATION, payload => notifications.push(payload))
+        let resume!: (username: string) => void
+        const lookup = new Promise<string>(resolve => {
+          resume = resolve
+        })
+        getUsername.mockImplementationOnce(async () => lookup)
+        await store.subscribe()
+        const arrival = append('push-message', 'push-message', {
+          id: 'push-message',
+          channelId: 'general',
+          teamId: 'team',
+          userId: 'sender',
+          message: 'Notification body',
+          createdAt: Date.now(),
+        })
+        await new Promise(resolve => setImmediate(resolve))
+        expect(getUsername).toHaveBeenCalledWith('sender')
+        expect(notifications).toEqual([])
+        if (change === 'auth invalidated') {
+          onConsume.mockImplementation(async () => false)
+          auth.emit(SigchainEvents.UPDATED)
+          await new Promise(resolve => setImmediate(resolve))
+        } else if (change === 'closed') {
+          await store.close()
+        }
+        resume('Alice')
+        await arrival
+        if (change === 'unchanged') {
+          expect(notifications).toHaveLength(1)
+          expect(notifications[0].username).toBe('Alice')
+          expect(JSON.parse(notifications[0].message)).toMatchObject({
+            id: 'push-message',
+            userId: 'sender',
+            message: 'Notification body',
+            verified: true,
+          })
+        } else {
+          expect(notifications).toEqual([])
+        }
+      } finally {
+        if (previousBackend === undefined) delete process.env.BACKEND
+        else process.env.BACKEND = previousBackend
+        if (previousConnectionTime === undefined) delete process.env.CONNECTION_TIME
+        else process.env.CONNECTION_TIME = previousConnectionTime
+      }
+    }
+  )
 
   it('consumes 1,000 serial arrivals exactly once each, instead of 501,500 times', async () => {
     const { store, onConsume, ids, append } = createStore()
@@ -315,7 +375,57 @@ describe('ChannelStore incremental message IDs', () => {
     expect(sender.onConsume).toHaveBeenCalledTimes(1)
     expect(receiver.onConsume).toHaveBeenCalledTimes(1)
     expect(receiver.ids.mock.lastCall?.[0].ids).toEqual(['remote-head'])
-    expect(receiver.logReads).toEqual({ has: 2, get: 0 })
+    expect(receiver.logReads).toEqual({ has: 2, get: 1 })
+  })
+
+  it('consumes canonical accepted entries instead of payload or ancestry supplied by an update', async () => {
+    const events = new EventEmitter()
+    const { store, save, onConsume, ids, logReads } = createStore(events)
+    await store.subscribe()
+    save({ hash: 'canonical-ancestor', value: value('canonical-ancestor') })
+    save({ hash: 'canonical-head', value: value('canonical-head'), next: ['canonical-ancestor'] })
+    const supplied = {
+      hash: 'canonical-head',
+      payload: { value: value('forged-event-message') },
+      next: ['nonexistent-event-ancestor'],
+    }
+    await (events.listeners('update')[0] as (entry: unknown) => Promise<void>)(supplied)
+    expect(onConsume.mock.calls.map(([message]) => message.id)).toEqual(['canonical-ancestor', 'canonical-head'])
+    expect(ids.mock.lastCall?.[0].ids).toEqual(['canonical-ancestor', 'canonical-head'])
+    expect(logReads).toEqual({ has: 2, get: 2 })
+    expect(await store.getEntries(['forged-event-message'])).toEqual([])
+  })
+
+  it('defers a snapshot head published before its local append enters the log index', async () => {
+    const { store, auth, save, announce, onConsume, ids, logEntries, logReads } = createStore()
+    await store.subscribe()
+    save({ hash: 'previous', value: value('previous') })
+    await announce('previous')
+    onConsume.mockClear()
+    ids.mockClear()
+    logReads.has = 0
+    logReads.get = 0
+    const pendingHead = {
+      hash: 'pending-append',
+      payload: { value: value('pending-append') },
+      next: ['previous'],
+    }
+    // Log.append sets heads before awaiting entry/index.put. Hold that write pending while
+    // auth reconciliation reads the new head, then finish it before the local update event.
+    const log = (store as any).store.log
+    log.heads = async () => [pendingHead]
+    auth.emit(SigchainEvents.UPDATED)
+    await (store as any).messageIndexRefresh
+    await new Promise(resolve => setImmediate(resolve))
+    expect(onConsume).not.toHaveBeenCalled()
+    expect(logReads).toEqual({ has: 1, get: 0 })
+    expect(ids.mock.lastCall?.[0].ids).toEqual([])
+    save({ hash: pendingHead.hash, value: pendingHead.payload.value, next: pendingHead.next })
+    expect(logEntries.has(pendingHead.hash)).toBe(true)
+    await announce(pendingHead.hash)
+    expect(onConsume.mock.calls.map(([message]) => message.id)).toEqual(['previous', 'pending-append'])
+    expect(ids.mock.lastCall?.[0].ids).toEqual(['previous', 'pending-append'])
+    expect(logReads).toEqual({ has: 3, get: 2 })
   })
 
   it('indexes every missed message when only the joined head emits an update', async () => {
@@ -332,7 +442,7 @@ describe('ChannelStore incremental message IDs', () => {
     expect(delivered.mock.calls.flatMap(([payload]) => payload.messages.map((message: any) => message.id))).toEqual([
       'head',
     ])
-    expect(logReads).toEqual({ has: 3, get: 2 })
+    expect(logReads).toEqual({ has: 3, get: 3 })
     expect((await store.getEntries(['oldest'])).map(message => message.id)).toEqual(['oldest'])
     expect(reads).toEqual({ iterator: 0, get: 1 })
   })
@@ -347,11 +457,11 @@ describe('ChannelStore incremental message IDs', () => {
     await Promise.all(Array.from({ length: 100 }, (_, n) => announce(`head-${n}`)))
     expect(onConsume).toHaveBeenCalledTimes(1100)
     expect(new Set(ids.mock.calls.flatMap(([event]) => event.ids))).toHaveProperty('size', 1100)
-    expect(logReads).toEqual({ has: 1100, get: 1000 })
+    expect(logReads).toEqual({ has: 1100, get: 1100 })
     expect(reads.iterator).toBe(0)
     await announce('head-0')
     expect(onConsume).toHaveBeenCalledTimes(1100)
-    expect(logReads).toEqual({ has: 1100, get: 1000 })
+    expect(logReads).toEqual({ has: 1100, get: 1100 })
   })
 
   it('walks branching next ancestry once and does not expose a refs-only branch', async () => {
@@ -443,7 +553,9 @@ describe('ChannelStore incremental message IDs', () => {
     const paused = new Promise<never>((_resolve, rejectPromise) => {
       reject = rejectPromise
     })
-    ;(store as any).store.log.get = async () => paused
+    const log = (store as any).store.log
+    const get = log.get
+    log.get = async (hash: string) => (hash === 'ancestor' ? paused : get(hash))
     const arrival = announce('head')
     await new Promise(resolve => setImmediate(resolve))
     await store.close()
@@ -463,7 +575,7 @@ describe('ChannelStore incremental message IDs', () => {
     save({ hash: 'head', value: value('head'), next: ['missing', 'good'] })
     await expect(announce('head')).rejects.toThrow('not joined')
     expect(onConsume).toHaveBeenCalledTimes(1)
-    expect(logReads.get).toBe(1) // Never fetch an unjoined block, even if it is available.
+    expect(logReads.get).toBe(2) // Never fetch an unjoined block, even if it is available.
     expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual([])
     save({ hash: 'missing', value: value('missing') })
     await announce('head')

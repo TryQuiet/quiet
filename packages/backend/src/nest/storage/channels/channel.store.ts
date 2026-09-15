@@ -216,7 +216,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
       this.logger.info(`${this.channelData.id} database updated`, entry.hash, entryChannelId)
       const epoch = this.messageIndexEpoch
-      const ids = await this.queueMessageIndex(() => this.indexJoinedAncestry([entry], epoch, entry.hash))
+      const ids = await this.queueMessageIndex(() => this.indexJoinedAncestry([entry.hash], epoch, entry.hash))
       if (ids === undefined || epoch !== this.messageIndexEpoch || this.closing) return
       await this.refreshMessageIds(ids, epoch)
     })
@@ -241,7 +241,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger.info(`Subscribed to channel ${this.channelData.id}`)
   }
 
-  private async _handleMessageOnUpdate(message: ConsumedChannelMessage): Promise<void> {
+  private async _handleMessageOnUpdate(message: ConsumedChannelMessage, epoch: number): Promise<void> {
     this.emit(StorageEvents.MESSAGES_STORED, {
       messages: [message],
       isVerified: message.verified,
@@ -259,6 +259,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
 
       const username = (await this.userProfileStore.getUsername(message.userId)) || message.userId
+      // The lookup may outlive authorization changes or the store itself.
+      if (epoch !== this.messageIndexEpoch || this.closing) return
       const payload: PushNotificationPayload = {
         message: JSON.stringify(message),
         username: username,
@@ -365,8 +367,11 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         try {
           await this.queueMessageIndex(async () => {
             if (epoch !== this.messageIndexEpoch || this.closing) return
-            const heads = await this.getStore().log.heads()
-            await this.indexJoinedAncestry(heads as LogEntry<EncryptedMessage>[], epoch)
+            const heads: LogEntry<EncryptedMessage>[] = await this.getStore().log.heads()
+            await this.indexJoinedAncestry(
+              heads.map(entry => entry.hash),
+              epoch
+            )
           })
         } catch (error) {
           // A closed/replaced store may reject pending reads. Discard only stale work, then
@@ -389,23 +394,23 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * Reads come from this log's accepted index; block availability alone is not membership.
    */
   private async indexJoinedAncestry(
-    heads: LogEntry<EncryptedMessage>[],
+    heads: string[],
     epoch: number,
     notifyHash?: string
   ): Promise<string[] | undefined> {
     const ids: string[] = []
     if (epoch !== this.messageIndexEpoch || this.closing) return ids
     const log = this.getStore().log
-    type Frame = { hash: string; entry?: LogEntry<EncryptedMessage>; finish?: boolean }
-    const stack: Frame[] = heads.map(entry => ({ hash: entry.hash, entry }))
+    type Frame = { hash: string; entry?: LogEntry<EncryptedMessage>; root?: boolean }
+    const stack: Frame[] = heads.map(hash => ({ hash, root: true }))
     const active = new Set<string>()
     const completed = new Set<string>()
     try {
       while (stack.length > 0 && epoch === this.messageIndexEpoch && !this.closing) {
         const frame = stack.pop()!
         if (this.indexedAncestry.has(frame.hash) || completed.has(frame.hash)) continue
-        if (frame.finish) {
-          const entry = frame.entry!
+        if (frame.entry !== undefined) {
+          const entry = frame.entry
           const value = entry.payload.value
           if (value?.channelId === this.channelData.id) {
             const message = await this.messagesService.onConsume(value, this.channelData)
@@ -413,7 +418,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
             if (message != null && message !== false) {
               this.indexMessage(entry.hash, message.id)
               ids.push(message.id)
-              if (entry.hash === notifyHash) await this._handleMessageOnUpdate(message)
+              if (entry.hash === notifyHash) await this._handleMessageOnUpdate(message, epoch)
             }
           }
           if (epoch !== this.messageIndexEpoch || this.closing) return []
@@ -426,16 +431,19 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         const joined = await log.has(frame.hash)
         if (epoch !== this.messageIndexEpoch || this.closing) return []
         if (!joined) {
-          // EventsWithStorage shares an event bus across peers in this process. A matching
-          // channel's remote update may precede our local join; ignore it without caching it.
-          if (frame.hash === notifyHash) return undefined
+          // Shared-bus remote updates can precede our join. Log.append also publishes heads
+          // before its index write completes. Neither root is ready; its local update retries.
+          if (frame.root) {
+            if (notifyHash !== undefined) return undefined
+            continue
+          }
           throw new Error(`Message ancestry is not joined to the channel log: ${frame.hash}`)
         }
-        const entry = frame.entry ?? ((await log.get(frame.hash)) as LogEntry<EncryptedMessage> | undefined)
+        const entry = (await log.get(frame.hash)) as LogEntry<EncryptedMessage> | undefined
         if (epoch !== this.messageIndexEpoch || this.closing) return []
         if (entry == null || entry.hash !== frame.hash) throw new Error(`Missing channel log entry: ${frame.hash}`)
         active.add(entry.hash)
-        stack.push({ hash: entry.hash, entry, finish: true })
+        stack.push({ hash: entry.hash, entry })
         // Match OrbitDB's visible-log iterator: refs are fetch shortcuts, not visible ancestry.
         for (const hash of new Set(entry.next ?? [])) {
           if (!this.indexedAncestry.has(hash)) stack.push({ hash })
