@@ -28,6 +28,12 @@ describe('message-only push notifications after QSS sync', () => {
 
   const privateUcans = ['owner-phone', 'member-phone', 'member-tablet']
   const allUcans = [...privateUcans, 'outsider-phone']
+  const messageExamples = [
+    { type: MessageType.Basic, message: 'Hello everyone' },
+    { type: MessageType.Image, message: 'photo.png' },
+    { type: MessageType.File, message: 'notes.pdf' },
+    { type: MessageType.Info, message: 'Created #private-channel' },
+  ]
 
   const addMember = () => {
     const invite = chain.invites.createUserInvite()
@@ -51,13 +57,19 @@ describe('message-only push notifications after QSS sync', () => {
     return update
   }
 
-  const messageUpdate = async (isPublic = false, type = MessageType.Basic) => {
+  const messageUpdate = async (
+    isPublic = false,
+    {
+      type = MessageType.Basic,
+      message: text = 'Hello everyone',
+    }: Partial<Pick<ChannelMessage, 'type' | 'message'>> = {}
+  ) => {
     const id = `message-${updates.size}`
     const message: ChannelMessage = {
       id,
       channelId: channel.id,
       userId: chain.user.userId,
-      message: type === MessageType.Info ? `Created #${channel.name}` : 'Discussion',
+      message: text,
       type,
       createdAt: Date.now(),
       ...(type === MessageType.Image || type === MessageType.File
@@ -221,10 +233,10 @@ describe('message-only push notifications after QSS sync', () => {
 
   afterEach(() => manager.close())
 
-  it.each([MessageType.Basic, MessageType.Image, MessageType.File, MessageType.Info])(
-    'notifies only private channel members for message type %s despite team-wide transport encryption',
-    async type => {
-      await manager.sendLogEntrySyncMessage(await messageUpdate(false, type))
+  it.each(messageExamples)(
+    'notifies only private channel members for message type $type despite team-wide transport encryption',
+    async example => {
+      await manager.sendLogEntrySyncMessage(await messageUpdate(false, example))
 
       const sync = qssClient.sendMessage.mock.calls[0][1]
       expect(sync.payload.encEntry.encrypted.scope.name).toBe(RoleName.MEMBER)
@@ -232,13 +244,10 @@ describe('message-only push notifications after QSS sync', () => {
     }
   )
 
-  it.each([MessageType.Basic, MessageType.Image, MessageType.File, MessageType.Info])(
-    'continues notifying all community members for public message type %s',
-    async type => {
-      await manager.sendLogEntrySyncMessage(await messageUpdate(true, type))
-      await expectRecipients(allUcans)
-    }
-  )
+  it.each(messageExamples)('continues notifying all community members for public message type $type', async example => {
+    await manager.sendLogEntrySyncMessage(await messageUpdate(true, example))
+    await expectRecipients(allUcans)
+  })
 
   it('syncs metadata, profiles, and device tokens without invoking the push handler', async () => {
     const entries = nonMessageUpdates()
@@ -287,7 +296,7 @@ describe('message-only push notifications after QSS sync', () => {
 
   it('triggers only the creation info message when a public channel is created', async () => {
     const metadata = nonMessageUpdates()[0]
-    const infoMessage = await messageUpdate(true, MessageType.Info)
+    const infoMessage = await messageUpdate(true, { type: MessageType.Info, message: `Created #${channel.name}` })
     await manager.sendLogEntrySyncMessage(metadata)
     await manager.sendLogEntrySyncMessage(infoMessage)
 
@@ -298,7 +307,7 @@ describe('message-only push notifications after QSS sync', () => {
   it('replays a mixed offline queue without duplicate pushes from concurrent retry requests', async () => {
     const entries = nonMessageUpdates()
     const privateMessage = await messageUpdate()
-    const publicMessage = await messageUpdate(true, MessageType.Info)
+    const publicMessage = await messageUpdate(true, { type: MessageType.Info, message: `Created #${channel.name}` })
     entries.splice(1, 0, privateMessage)
     entries.push(publicMessage)
 
