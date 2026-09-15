@@ -5,6 +5,7 @@ import {
   type InvitationData,
   type JoinCommunityPayload,
   type LinkDevicePayload,
+  type DeviceInvitationData,
   isDeviceInvitationData,
 } from '@quiet/types'
 import React, { useEffect, useState } from 'react'
@@ -14,6 +15,7 @@ import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { createLogger } from '../../../logger'
+import { DeviceLinkConsentComponent } from '../../DeviceLinkConsent/DeviceLinkConsent'
 
 const logger = createLogger('JoinCommunity')
 
@@ -33,7 +35,9 @@ const JoinCommunity = () => {
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
+  const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
   const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
+  const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
 
   const joinCommunityErrorMessage =
     joinCommunityError?.type === 'invalid'
@@ -53,11 +57,17 @@ const JoinCommunity = () => {
   }
 
   useEffect(() => {
-    if (isConnected && !currentCommunity && !invitationCodes && !joinCommunityModal.open) {
+    if (
+      isConnected &&
+      admissionResetStatus === 'idle' &&
+      !currentCommunity &&
+      !invitationCodes &&
+      !joinCommunityModal.open
+    ) {
       logger.info('Opening join community modal')
       joinCommunityModal.handleOpen()
     }
-  }, [isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
+  }, [admissionResetStatus, isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
 
   useEffect(() => {
     if (isConnected && currentCommunity && joinCommunityModal.open) {
@@ -68,13 +78,7 @@ const JoinCommunity = () => {
 
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
-      const linkDevicePayload: LinkDevicePayload = {
-        inviteData: data,
-      }
-      loadingPanelModal.handleOpen()
-      clearJoinCommunityError()
-      dispatch(communities.actions.linkDevice(linkDevicePayload))
-      joinCommunityModal.handleClose()
+      setPendingDeviceInvite(data)
       return
     }
 
@@ -101,20 +105,42 @@ const JoinCommunity = () => {
     revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
 
+  const confirmDeviceLink = () => {
+    if (!pendingDeviceInvite) return
+    const linkDevicePayload: LinkDevicePayload = {
+      inviteData: pendingDeviceInvite,
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: pendingDeviceInvite.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined,
+    }
+    loadingPanelModal.handleOpen()
+    clearJoinCommunityError()
+    dispatch(communities.actions.linkDevice(linkDevicePayload))
+    joinCommunityModal.handleClose()
+    setPendingDeviceInvite(null)
+  }
+
   return (
-    <PerformCommunityActionComponent
-      {...joinCommunityModal}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={handleRedirection}
-      isConnectionReady={isConnected}
-      isCloseDisabled={!currentCommunity}
-      hasReceivedResponse={invitationCodes === null}
-      fieldError={joinCommunityErrorMessage}
-      onFieldChange={clearJoinCommunityError}
-      revealInputValue={revealInputValue}
-      handleClickInputReveal={handleClickInputReveal}
-    />
+    <>
+      <PerformCommunityActionComponent
+        {...joinCommunityModal}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={handleRedirection}
+        isConnectionReady={isConnected}
+        isCloseDisabled={!currentCommunity}
+        hasReceivedResponse={invitationCodes === null}
+        fieldError={joinCommunityErrorMessage}
+        onFieldChange={clearJoinCommunityError}
+        revealInputValue={revealInputValue}
+        handleClickInputReveal={handleClickInputReveal}
+      />
+      <DeviceLinkConsentComponent
+        open={pendingDeviceInvite !== null}
+        qssEndpoint={pendingDeviceInvite?.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined}
+        onCancel={() => setPendingDeviceInvite(null)}
+        onConfirm={confirmDeviceLink}
+      />
+    </>
   )
 }
 

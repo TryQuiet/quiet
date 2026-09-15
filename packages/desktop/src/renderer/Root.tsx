@@ -35,6 +35,7 @@ import UsernameTakenModalContainer from './components/widgets/usernameTakenModal
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
 import TermsOfService from './components/TermsOfService/TermsOfService'
+import DeviceLinkConsent from './components/DeviceLinkConsent/DeviceLinkConsent'
 // Trigger lerna
 
 export { persistor } from './store/persistor'
@@ -48,6 +49,7 @@ export default () => {
             <Provider store={store}>
               <PersistGate loading={null} persistor={persistor}>
                 <WarningModal />
+                <DeviceLinkConsent />
                 <UnregisteredModalContainer />
                 <DuplicateModalContainer />
                 <SearchModal />

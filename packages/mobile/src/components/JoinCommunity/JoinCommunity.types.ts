@@ -1,7 +1,7 @@
 import { InvitationData } from '@quiet/types'
 
 export interface JoinCommunityProps {
-  joinCommunityAction: (address: InvitationData) => void
+  joinCommunityAction: (address: InvitationData) => void | Promise<void>
   redirectionAction: () => void
   hasReceivedResponse: boolean
   invitationCode?: string

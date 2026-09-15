@@ -2,19 +2,14 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import {
-  ErrorMessages,
-  InvitationData,
-  isDeviceInvitationData,
-  JoinCommunityPayload,
-  LinkDevicePayload,
-} from '@quiet/types'
+import { ErrorMessages, InvitationData, isDeviceInvitationData, JoinCommunityPayload } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { JoinCommunityScreenProps } from './JoinCommunity.types'
 import { initSelectors } from '../../store/init/init.selectors'
 import { createLogger } from '../../utils/logger'
+import { confirmDeviceLink } from '../../utils/deviceLinkConfirmation'
 
 const logger = createLogger('JoinCommunityScreen')
 
@@ -54,12 +49,11 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   }, [dispatch, currentCommunity, route.params?.code])
 
   const joinCommunityAction = useCallback(
-    (data: InvitationData) => {
+    async (data: InvitationData) => {
       dispatch(communities.actions.clearJoinCommunityError())
       if (isDeviceInvitationData(data)) {
-        const payload: LinkDevicePayload = {
-          inviteData: data,
-        }
+        const payload = await confirmDeviceLink(data)
+        if (!payload) return
         dispatch(communities.actions.linkDevice(payload))
         dispatch(
           navigationActions.replaceScreen({

@@ -179,10 +179,14 @@ describe('join community', () => {
     await userEvent.type(screen.getByPlaceholderText(dictionary.placeholder), deviceInvitationCode)
     await userEvent.click(screen.getByText(dictionary.button))
 
+    expect(screen.getByTestId('device-link-consent')).toBeVisible()
+    await userEvent.click(screen.getByTestId('confirm-device-link'))
+
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalledWith(
         communities.actions.linkDevice({
           inviteData: deviceInvitationData,
+          deviceLinkConsent: true,
         })
       )
     })

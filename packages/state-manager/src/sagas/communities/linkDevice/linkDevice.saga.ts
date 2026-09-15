@@ -3,6 +3,7 @@ import { apply, call, put } from 'typed-redux-saga'
 
 import {
   type InitDeviceLinkPayload,
+  InvitationDataVersion,
   type LinkDevicePayload,
   LoadingPanelType,
   type ResponseLinkDevicePayload,
@@ -24,7 +25,18 @@ export function* linkDeviceSaga(
 ): Generator {
   logger.info('Starting linkDeviceSaga')
 
-  const { inviteData, deviceName } = action.payload as LinkDevicePayload
+  const { inviteData, deviceName, deviceLinkConsent, confirmedQssEndpoint } = action.payload as LinkDevicePayload
+
+  const qssEndpointMatches =
+    inviteData.version !== InvitationDataVersion.v5 ||
+    inviteData.qssEnabled !== true ||
+    confirmedQssEndpoint === inviteData.qssEndpoint
+  if (deviceLinkConsent !== true || !qssEndpointMatches) {
+    logger.error('Refusing to link a device without consent for its network endpoint')
+    yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
+    return
+  }
+
   yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
 
   const communityId = yield* call(generateId)
@@ -34,6 +46,8 @@ export function* linkDeviceSaga(
     id: communityId,
     inviteData,
     deviceName,
+    deviceLinkConsent,
+    confirmedQssEndpoint,
   }
   const response: ResponseLinkDevicePayload | undefined = yield* apply(
     socket,

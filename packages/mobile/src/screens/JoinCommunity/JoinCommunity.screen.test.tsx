@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, fireEvent } from '@testing-library/react-native'
+import { act, fireEvent, waitFor } from '@testing-library/react-native'
 
 import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
@@ -12,6 +12,7 @@ import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { JoinCommunityScreen } from './JoinCommunity.screen'
 import { type JoinCommunityScreenProps } from './JoinCommunity.types'
+import * as deviceLinkConfirmation from '../../utils/deviceLinkConfirmation'
 
 describe('JoinCommunityScreen', () => {
   const route: JoinCommunityScreenProps['route'] = {
@@ -44,11 +45,13 @@ describe('JoinCommunityScreen', () => {
       },
     }
     const { dispatchSpy, result } = await renderReadyScreen()
+    const confirmedPayload = deviceLinkConfirmation.confirmedDeviceLinkPayload(deviceInvite)
+    jest.spyOn(deviceLinkConfirmation, 'confirmDeviceLink').mockResolvedValueOnce(confirmedPayload)
 
     fireEvent.changeText(result.getByPlaceholderText('Invite link'), composeInvitationShareUrl(deviceInvite))
     fireEvent.press(result.getByTestId('button'))
 
-    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvite }))
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice(confirmedPayload)))
     expect(dispatchSpy).toHaveBeenCalledWith(
       navigationActions.replaceScreen({
         screen: ScreenNames.ConnectionProcessScreen,
@@ -59,6 +62,29 @@ describe('JoinCommunityScreen', () => {
       navigationActions.navigation({
         screen: ScreenNames.UsernameRegistrationScreen,
       })
+    )
+  })
+
+  it('keeps a cancelled device link on the join screen without dispatching it', async () => {
+    const deviceInvite: DeviceInvitationDataV4 = {
+      ...validInvitationDatav4[0],
+      kind: InvitationKind.Device,
+      authData: {
+        ...validInvitationDatav4[0].authData,
+        userId: 'user-id',
+        userName: 'alice',
+      },
+    }
+    const { dispatchSpy, result } = await renderReadyScreen()
+    jest.spyOn(deviceLinkConfirmation, 'confirmDeviceLink').mockResolvedValueOnce(null)
+
+    fireEvent.changeText(result.getByPlaceholderText('Invite link'), composeInvitationShareUrl(deviceInvite))
+    fireEvent.press(result.getByTestId('button'))
+
+    await waitFor(() => expect(deviceLinkConfirmation.confirmDeviceLink).toHaveBeenCalledWith(deviceInvite))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: communities.actions.linkDevice.type }))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: navigationActions.replaceScreen.type })
     )
   })
 
