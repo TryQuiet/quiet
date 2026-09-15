@@ -2,6 +2,7 @@ import { CommunityLifecycle } from '../admission/community-lifecycle'
 import * as uint8arrays from 'uint8arrays'
 import fs from 'fs'
 import path from 'path'
+import { randomUUID } from 'crypto'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
@@ -85,7 +86,7 @@ import { StorageService } from '../storage/storage.service'
 import { StorageEvents } from '../storage/storage.types'
 import { Tor } from '../tor/tor.service'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
-import { ServiceState, TorInitState } from './connections-manager.types'
+import { type AdmissionResetReceipt, ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
 import { peerIdFromString } from '@libp2p/peer-id'
@@ -102,6 +103,7 @@ import { Member } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
 import { AdmissionCoordinator } from '../admission/admission-coordinator.service'
 import { AdmissionError, AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { Mutex } from 'async-mutex'
 
 const DEFAULT_INVITATION_ADMISSION_TIMEOUT_MS = 300_000
 const configuredE2eAdmissionTimeout = Number(process.env.INVITATION_ADMISSION_TIMEOUT_MS)
@@ -124,6 +126,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private interruptedAdmissionCommunityId?: string
   private clearedAdmissionCommunityId?: string
   private admissionResetInFlight?: Promise<boolean>
+  private admissionCleanupStartedCommunityId?: string
+  private replayableAdmissionResetReceipt?: AdmissionResetReceipt
+  private readonly admissionMutationMutex = new Mutex()
   private closingServices = false
   private launchGeneration = 0
   private hibernating = false
@@ -275,7 +280,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async launchCommunityFromStorage() {
+  public async launchCommunityFromStorage(): Promise<void> {
+    return this.admissionMutationMutex.runExclusive(() => this.launchCommunityFromStorageLocked())
+  }
+
+  private async launchCommunityFromStorageLocked(): Promise<void> {
     this.logger.info('Launching community from storage')
 
     this.interruptedAdmissionCommunityId ??= this.readInterruptedAdmissionMarker()
@@ -295,6 +304,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     const community: Community | undefined = await this.localDbService.getCurrentCommunity()
+    const receipt = this.readAdmissionResetReceipt()
+    if (receipt != null) {
+      const conflictingCommunity = await this.findAdmissionResetReceiptConflict(receipt)
+      if (conflictingCommunity != null) {
+        this.logger.error('Refusing stale admission reset recovery for a different durable community', {
+          receiptCommunityId: receipt.id,
+          currentCommunityId: conflictingCommunity.id,
+        })
+      } else {
+        await this.completeAdmissionResetReceiptOnStartup(receipt)
+        return
+      }
+    }
     if (!community) {
       // Absent marker + no community = fresh install or a pending LevelDB migration where
       // CURRENT_COMMUNITY_ID hasn't been populated from the renderer's persistor yet. Don't
@@ -310,28 +332,37 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.sigChainService.loadChain(community.teamId, true, community.name)
       } catch (e) {
         this.logger.error('Failed to load sigchain', e)
-        this.interruptedAdmissionCommunityId = community.id
-        if (community.inviteData && isDeviceInvitationData(community.inviteData)) {
-          this.logger.info('Cleaning interrupted device-link artifacts')
-          await this.erasePreviousCommunityArtifacts()
-        } else {
-          await this.localDbService.deleteCommunity(community.id)
-          await this.sigChainService.deleteChain(community.teamId, true)
+        const invitationType = await this.provisionalInvitationTypeAfterChainLoadFailure(community)
+        if (invitationType != null) {
+          this.logger.info('Cleaning interrupted invitation artifacts after sigchain load failure')
+          const pendingReceipt: AdmissionResetReceipt = {
+            id: community.id,
+            invitationType,
+            phase: 'pending',
+          }
+          await this.beginAdmissionResetOnStartup(pendingReceipt)
         }
-        this.clearedAdmissionCommunityId = community.id
-        this.reportInterruptedAdmission()
         return
       }
 
       const chain = this.sigChainService.getActiveChain()
       const admissionCompleted = chain.team != null && chain.roles.amIMemberOfRole(RoleName.MEMBER)
       if (!admissionCompleted) {
-        this.logger.info('Cleaning admission interrupted by application restart')
-        this.interruptedAdmissionCommunityId = community.id
-        await this.erasePreviousCommunityArtifacts()
-        this.clearedAdmissionCommunityId = community.id
-        this.reportInterruptedAdmission()
-        return
+        if (this.isProvisionalAdmission(community)) {
+          this.logger.info('Cleaning admission interrupted by application restart')
+          const pendingReceipt: AdmissionResetReceipt = {
+            id: community.id,
+            invitationType:
+              community.inviteData != null && isDeviceInvitationData(community.inviteData) ? 'device' : 'community',
+            phase: 'pending',
+          }
+          await this.beginAdmissionResetOnStartup(pendingReceipt)
+          return
+        }
+        this.logger.error(
+          'Preserving a non-provisional community whose admitted role state is incomplete',
+          community.id
+        )
       }
       this.interruptedAdmissionCommunityId = undefined
       this.clearInterruptedAdmissionMarker()
@@ -339,7 +370,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.warn('No community name found in storage')
     }
 
-    await this.launchCommunity(community.id)
+    await this.launchCommunityLocked(community.id)
   }
 
   public async closeSocket() {
@@ -593,7 +624,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async resetAdmission(communityId: string): Promise<boolean> {
+    return this.admissionMutationMutex.runExclusive(() => this.resetAdmissionLocked(communityId))
+  }
+
+  private async resetAdmissionLocked(communityId: string): Promise<boolean> {
     if (this.closingServices) return false
+    const receipt = this.readAdmissionResetReceipt()
+    if (receipt != null) {
+      if (receipt.id !== communityId || this.communityState !== ServiceState.DEFAULT) return false
+      return this.completeAdmissionResetReceipt(receipt)
+    }
     // A lost acknowledgement must not strand the UI after cleanup already succeeded.
     if (
       communityId &&
@@ -611,20 +651,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     )
       return false
     if (this.admissionResetInFlight != null) return this.admissionResetInFlight
+    if (this.admissionCleanupStartedCommunityId !== communityId) {
+      const community = await this.localDbService.getCommunity(communityId)
+      if (community == null || !this.isProvisionalAdmission(community)) return false
+      this.admissionCleanupStartedCommunityId = communityId
+    }
     const reset = async () => {
       // Keep the frontend socket open: acknowledgement must follow completed cleanup.
       await this.communityLifecycle?.drain(new Error('Clearing failed invitation admission'))
       this.communityLifecycle = undefined
-      this.launchGeneration += 1
-      this.qssService.close()
-      this.captchaService.reset()
-      await this.erasePreviousCommunityArtifacts()
-      await this.qssService.resume()
-      this.timedOutAdmissionCommunityId = undefined
-      this.interruptedAdmissionCommunityId = undefined
-      this.clearedAdmissionCommunityId = communityId
-      this.clearInterruptedAdmissionMarker()
-      return true
+      const community = await this.localDbService.getCommunity(communityId)
+      if (community == null || !this.isProvisionalAdmission(community)) return false
+      const pendingReceipt: AdmissionResetReceipt = {
+        id: communityId,
+        invitationType:
+          community.inviteData != null && isDeviceInvitationData(community.inviteData) ? 'device' : 'community',
+        phase: 'pending',
+      }
+      this.writeAdmissionResetReceipt(pendingReceipt)
+      return this.completeAdmissionResetReceipt(pendingReceipt)
     }
     this.admissionResetInFlight = reset()
     try {
@@ -634,8 +679,45 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
+  private isProvisionalAdmission(community: Community): boolean {
+    const chain = this.sigChainService.getActiveChain(false)
+    if (chain == null || this.sigChainService.activeChainTeamId !== community.teamId) return false
+    // Invitation data plus an invite-only chain is the durable/local evidence that this
+    // identity is provisional. A damaged established chain that merely lacks MEMBER must
+    // never become eligible for destructive admission cleanup.
+    return community.inviteData != null && (chain.isPendingDeviceAdmission || chain.team == null)
+  }
+
+  private async provisionalInvitationTypeAfterChainLoadFailure(
+    community: Community
+  ): Promise<AdmissionResetReceipt['invitationType'] | undefined> {
+    if (community.inviteData == null) return undefined
+    if (isDeviceInvitationData(community.inviteData)) return 'device'
+
+    const storedChain = await this.localDbService.getSigChain(community.teamId)
+    if (storedChain == null || storedChain.serializedTeam != null || storedChain.teamKeyRing != null) return undefined
+
+    // New snapshots explicitly record this state. For snapshots written before the
+    // marker existed, require the exact pending shape plus the durable interruption
+    // marker written when the provisional launch was cancelled.
+    if (storedChain.pendingMemberAdmission !== true && this.interruptedAdmissionCommunityId !== community.id)
+      return undefined
+    return 'community'
+  }
+
+  private async scrubStoredInvitation(community: Community): Promise<void> {
+    if (community.inviteData == null) return
+    await this.localDbService.updateCommunity(community.id, { inviteData: null })
+    community.inviteData = null
+    this.serverIoProvider.io.emit(SocketEvents.COMMUNITY_UPDATED, {
+      id: community.id,
+      updates: { inviteData: null },
+    } as UpdateCommunityPayload)
+  }
+
   private static readonly LEAVE_IN_PROGRESS_MARKER = '.leave-in-progress'
   private static readonly INTERRUPTED_ADMISSION_MARKER = '.admission-interrupted'
+  private static readonly ADMISSION_RESET_RECEIPT = '.admission-reset-receipt.json'
 
   private leaveInProgressMarkerPath(): string {
     return path.join(this.storageService.quietDir, ConnectionsManagerService.LEAVE_IN_PROGRESS_MARKER)
@@ -643,6 +725,152 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   private interruptedAdmissionMarkerPath(): string {
     return path.join(path.dirname(this.storageService.quietDir), ConnectionsManagerService.INTERRUPTED_ADMISSION_MARKER)
+  }
+
+  private admissionResetReceiptPath(): string {
+    return path.join(path.dirname(this.storageService.quietDir), ConnectionsManagerService.ADMISSION_RESET_RECEIPT)
+  }
+
+  private readAdmissionResetReceipt(): AdmissionResetReceipt | undefined {
+    let encoded: string
+    try {
+      encoded = fs.readFileSync(this.admissionResetReceiptPath(), 'utf8')
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
+      throw error
+    }
+
+    const receipt = JSON.parse(encoded) as Partial<AdmissionResetReceipt>
+    if (
+      typeof receipt.id !== 'string' ||
+      receipt.id.length === 0 ||
+      !['device', 'community'].includes(receipt.invitationType ?? '') ||
+      !['pending', 'complete'].includes(receipt.phase ?? '')
+    ) {
+      throw new Error('Invalid admission reset receipt')
+    }
+    return receipt as AdmissionResetReceipt
+  }
+
+  private writeAdmissionResetReceipt(receipt: AdmissionResetReceipt): void {
+    const receiptPath = this.admissionResetReceiptPath()
+    const temporaryPath = `${receiptPath}.${process.pid}.${randomUUID()}.tmp`
+    fs.mkdirSync(path.dirname(receiptPath), { recursive: true })
+    let descriptor: number | undefined
+    try {
+      descriptor = fs.openSync(temporaryPath, 'w', 0o600)
+      fs.writeFileSync(descriptor, JSON.stringify(receipt), 'utf8')
+      fs.fsyncSync(descriptor)
+      fs.closeSync(descriptor)
+      descriptor = undefined
+      fs.renameSync(temporaryPath, receiptPath)
+    } catch (error) {
+      if (descriptor != null) fs.closeSync(descriptor)
+      try {
+        fs.unlinkSync(temporaryPath)
+      } catch {
+        // A failed write or successful rename can leave no temporary file.
+      }
+      throw error
+    }
+  }
+
+  private clearAdmissionResetReceipt(): void {
+    try {
+      fs.unlinkSync(this.admissionResetReceiptPath())
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    }
+  }
+
+  private rememberCompletedAdmissionReset(receipt: AdmissionResetReceipt): void {
+    this.replayableAdmissionResetReceipt = { ...receipt, phase: 'complete' }
+  }
+
+  private applyCompletedAdmissionReset(receipt: AdmissionResetReceipt): void {
+    this.timedOutAdmissionCommunityId = undefined
+    this.interruptedAdmissionCommunityId = undefined
+    this.clearedAdmissionCommunityId = receipt.id
+    this.admissionCleanupStartedCommunityId = undefined
+    this.clearInterruptedAdmissionMarker()
+    this.rememberCompletedAdmissionReset(receipt)
+  }
+
+  private reportCompletedAdmissionReset(): void {
+    const receipt = this.replayableAdmissionResetReceipt
+    if (receipt == null) return
+    this.serverIoProvider.io.emit(SocketEvents.ADMISSION_RESET_COMPLETE, {
+      id: receipt.id,
+      invitationType: receipt.invitationType,
+    })
+  }
+
+  private async beginAdmissionResetOnStartup(receipt: AdmissionResetReceipt): Promise<void> {
+    try {
+      this.writeAdmissionResetReceipt(receipt)
+      const completed = await this.completeAdmissionResetReceipt(receipt)
+      if (completed) this.reportCompletedAdmissionReset()
+    } catch (error) {
+      this.interruptedAdmissionCommunityId = receipt.id
+      this.reportInterruptedAdmission()
+      throw error
+    }
+  }
+
+  private async completeAdmissionResetReceiptOnStartup(receipt: AdmissionResetReceipt): Promise<void> {
+    try {
+      const completed = await this.completeAdmissionResetReceipt(receipt)
+      if (!completed) return
+      this.reportCompletedAdmissionReset()
+    } catch (error) {
+      this.interruptedAdmissionCommunityId = receipt.id
+      this.reportInterruptedAdmission()
+      throw error
+    }
+  }
+
+  private async findAdmissionResetReceiptConflict(receipt: AdmissionResetReceipt): Promise<Community | undefined> {
+    const currentCommunity = await this.localDbService.getCurrentCommunity()
+    if (currentCommunity != null && currentCommunity.id !== receipt.id) return currentCommunity
+    const communities = (await this.localDbService.getCommunities()) ?? {}
+    return Object.values(communities).find(community => community.id !== receipt.id)
+  }
+
+  private async admissionResetTargetStillStored(receipt: AdmissionResetReceipt): Promise<boolean> {
+    const currentCommunity = await this.localDbService.getCurrentCommunity()
+    if (currentCommunity?.id === receipt.id) return true
+    const communities = (await this.localDbService.getCommunities()) ?? {}
+    return Object.values(communities).some(community => community.id === receipt.id)
+  }
+
+  private async completeAdmissionResetReceipt(receipt: AdmissionResetReceipt): Promise<boolean> {
+    const conflictingCommunity = await this.findAdmissionResetReceiptConflict(receipt)
+    if (conflictingCommunity != null) {
+      this.logger.error('Refusing admission reset receipt for a different durable community', {
+        receiptCommunityId: receipt.id,
+        currentCommunityId: conflictingCommunity.id,
+      })
+      return false
+    }
+
+    const targetStillStored = await this.admissionResetTargetStillStored(receipt)
+    if (receipt.phase === 'complete' && !targetStillStored) {
+      this.applyCompletedAdmissionReset(receipt)
+      return true
+    }
+
+    if (receipt.phase === 'pending' || targetStillStored) {
+      this.launchGeneration += 1
+      this.qssService.close()
+      this.captchaService.reset()
+      await this.erasePreviousCommunityArtifacts()
+      await this.qssService.resume()
+    }
+
+    const completedReceipt: AdmissionResetReceipt = { ...receipt, phase: 'complete' }
+    this.writeAdmissionResetReceipt(completedReceipt)
+    this.applyCompletedAdmissionReset(completedReceipt)
+    return true
   }
 
   private writeInterruptedAdmissionMarker(communityId: string): void {
@@ -836,7 +1064,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
+    return this.admissionMutationMutex.runExclusive(() => this.createCommunityLocked(payload))
+  }
+
+  private async createCommunityLocked(
+    payload: InitCommunityPayload
+  ): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
+    if (!(await this.prepareForNewAdmission())) return
+    if (await this.rejectWhenCommunityExists(SocketActions.CREATE_COMMUNITY, payload.id)) return
     await this.erasePreviousCommunityArtifacts()
 
     this.logger.info(`Creating new LFA chain`)
@@ -871,7 +1107,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    await this.launchCommunity(community.id)
+    await this.launchCommunityLocked(community.id)
 
     const userProfile: UserProfile = {
       userId: identity.userId,
@@ -892,6 +1128,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
+    return this.admissionMutationMutex.runExclusive(() => this.joinCommunityLocked(payload))
+  }
+
+  private async joinCommunityLocked(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
     this.logger.info('Joining community', payload.id)
     const inviteData = payload.inviteData
     if (!inviteData) {
@@ -910,6 +1150,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
       return
     }
+    if (!(await this.prepareForNewAdmission())) return
+    if (await this.rejectWhenCommunityExists(SocketActions.JOIN_COMMUNITY, payload.id)) return
     await this.erasePreviousCommunityArtifacts()
 
     const { seed, teamId } = inviteData.authData
@@ -940,6 +1182,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async linkDevice(payload: InitDeviceLinkPayload): Promise<ResponseLinkDevicePayload | undefined> {
+    return this.admissionMutationMutex.runExclusive(() => this.linkDeviceLocked(payload))
+  }
+
+  private async linkDeviceLocked(payload: InitDeviceLinkPayload): Promise<ResponseLinkDevicePayload | undefined> {
     this.logger.info('Linking device to community', payload.id)
     const { inviteData } = payload
     if (inviteData == null || !isDeviceInvitationData(inviteData)) {
@@ -959,15 +1205,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    const communities = (await this.localDbService.getCommunities()) ?? {}
-    if (Object.keys(communities).length > 0) {
+    if (
+      payload.deviceLinkConsent !== true ||
+      (inviteData.version === InvitationDataVersion.v5 &&
+        inviteData.qssEnabled === true &&
+        payload.confirmedQssEndpoint !== inviteData.qssEndpoint)
+    ) {
       emitError(this.serverIoProvider.io, {
         type: SocketActions.LINK_DEVICE,
-        message: ErrorMessages.COMMUNITY_ALREADY_INITIALIZED,
+        message: ErrorMessages.NETWORK_SETUP_FAILED,
         community: payload.id,
       })
       return
     }
+
+    if (!(await this.prepareForNewAdmission())) return
+
+    if (await this.rejectWhenCommunityExists(SocketActions.LINK_DEVICE, payload.id)) return
 
     await this.erasePreviousCommunityArtifacts()
 
@@ -992,7 +1246,44 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
+  private async rejectWhenCommunityExists(action: SocketActions, communityId: string): Promise<boolean> {
+    const communities = (await this.localDbService.getCommunities()) ?? {}
+    if (Object.keys(communities).length === 0) return false
+    emitError(this.serverIoProvider.io, {
+      type: action,
+      message: ErrorMessages.COMMUNITY_ALREADY_INITIALIZED,
+      community: communityId,
+    })
+    return true
+  }
+
+  private async finishPendingAdmissionCleanup(): Promise<boolean> {
+    const receipt = this.readAdmissionResetReceipt()
+    if (receipt != null) return this.completeAdmissionResetReceipt(receipt)
+    const cleanupCommunityId =
+      this.admissionCleanupStartedCommunityId ??
+      this.interruptedAdmissionCommunityId ??
+      this.timedOutAdmissionCommunityId
+    if (cleanupCommunityId == null) return true
+    if (this.communityState !== ServiceState.DEFAULT) return false
+    return this.resetAdmissionLocked(cleanupCommunityId)
+  }
+
+  private async prepareForNewAdmission(): Promise<boolean> {
+    if (!(await this.finishPendingAdmissionCleanup())) return false
+    const receipt = this.readAdmissionResetReceipt()
+    if (receipt == null) return true
+    if (receipt.phase !== 'complete' || (await this.findAdmissionResetReceiptConflict(receipt)) != null) return false
+    this.clearAdmissionResetReceipt()
+    this.replayableAdmissionResetReceipt = undefined
+    return true
+  }
+
   public async launchCommunity(id: string): Promise<void> {
+    return this.admissionMutationMutex.runExclusive(() => this.launchCommunityLocked(id))
+  }
+
+  private async launchCommunityLocked(id: string): Promise<void> {
     if (this.admissionResetInFlight != null) return
     const community: Community | undefined = await this.localDbService.getCommunity(id)
     if (!community) {
@@ -1044,8 +1335,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } catch (e) {
       this.logger.error(`Failed to launch community ${community.id}`, e)
       this.communityState = ServiceState.DEFAULT
+      const provisionalAdmission = this.isProvisionalAdmission(community)
       const admissionTimedOut = e instanceof AdmissionError && e.kind === 'timeout'
-      const admissionInterrupted = e instanceof AdmissionError && e.kind === 'cancelled'
+      const admissionInterrupted = e instanceof AdmissionError && e.kind === 'cancelled' && provisionalAdmission
       const invalidInvite =
         e instanceof AdmissionError &&
         /INVITATION_PROOF_INVALID|invitation.*(expired|invalid|not accepted)/i.test(e.message)
@@ -1053,6 +1345,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       if (admissionInterrupted) {
         this.interruptedAdmissionCommunityId = community.id
         this.writeInterruptedAdmissionMarker(community.id)
+      }
+      if (invalidInvite && provisionalAdmission) {
+        this.interruptedAdmissionCommunityId = community.id
+        this.writeInterruptedAdmissionMarker(community.id)
+        try {
+          await this.resetAdmissionLocked(community.id)
+        } catch (cleanupError) {
+          this.logger.error('Failed to clear invalid invitation admission; cleanup can be retried', cleanupError)
+        }
       }
       emitError(this.serverIoProvider.io, {
         type: SocketActions.LAUNCH_COMMUNITY,
@@ -1181,6 +1482,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const activeChain = this.sigChainService.getActiveChain()
     const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
     if (hasStorageReadyChain) {
+      await this.scrubStoredInvitation(community)
       this.communityLifecycle = lease
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
       await ensureLibp2pStarted()
@@ -1214,6 +1516,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // A rejected concurrent start must not replace the lifecycle that still owns admission.
       this.communityLifecycle = lease
       const admission = await handle.result
+      // Once the admitted chain is durable and published, the invitation seed is no
+      // longer recovery material. Remove it even if later service startup is cancelled.
+      await this.scrubStoredInvitation(community)
       lease.assertCurrent()
 
       await ensureLibp2pStarted()
@@ -1435,6 +1740,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     this.socketService.on(SocketActions.START, () => {
+      this.reportCompletedAdmissionReset()
       this.reportInterruptedAdmission()
     })
 

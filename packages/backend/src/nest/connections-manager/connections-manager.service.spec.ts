@@ -37,7 +37,7 @@ import { CaptchaService } from '../captcha/captcha.service'
 import type { SigChain } from '../auth/sigchain'
 import { CommunityLifecycle } from '../admission/community-lifecycle'
 import { AdmissionCoordinator } from '../admission/admission-coordinator.service'
-import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { AdmissionError, AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 import { ServiceState } from './connections-manager.types'
 import type { ServerIoProviderTypes } from '../types'
 import { RoleName } from '../auth/services/roles/roles'
@@ -139,6 +139,7 @@ describe('ConnectionsManagerService', () => {
   afterEach(async () => {
     if (connectionsManagerService) {
       await connectionsManagerService.closeAllServices()
+      fs.rmSync(connectionsManagerService['admissionResetReceiptPath'](), { force: true })
     }
     handleChainUpdateSpy.mockReset()
     removeFilesFromDir(quietDir)
@@ -251,7 +252,9 @@ describe('ConnectionsManagerService', () => {
     logger.info('Closing all services')
     await connectionsManagerService.closeAllServices()
 
-    const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
+    const launchCommunitySpy = jest
+      .spyOn(connectionsManagerService as any, 'launchCommunityLocked')
+      .mockResolvedValue(undefined)
 
     await connectionsManagerService.init()
     await connectionsManagerService.initializeStoredCommunity()
@@ -262,7 +265,7 @@ describe('ConnectionsManagerService', () => {
   it('does not launch community on init if its data does not exist in local db', async () => {
     logger.info('does not launch community on init if its data does not exist in local db')
     await connectionsManagerService.closeAllServices()
-    const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity')
+    const launchCommunitySpy = jest.spyOn(connectionsManagerService as any, 'launchCommunityLocked')
     await connectionsManagerService.init()
     await connectionsManagerService.initializeStoredCommunity()
     expect(launchCommunitySpy).not.toHaveBeenCalled()
@@ -281,7 +284,9 @@ describe('ConnectionsManagerService', () => {
     const eraseArtifactsSpy = jest
       .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
       .mockResolvedValue(undefined)
-    const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
+    const launchCommunitySpy = jest
+      .spyOn(connectionsManagerService as any, 'launchCommunityLocked')
+      .mockResolvedValue(undefined)
 
     await connectionsManagerService.launchCommunityFromStorage()
 
@@ -507,6 +512,7 @@ describe('ConnectionsManagerService', () => {
         qssEnabled: true,
         qssEndpoint,
       }
+      await localDbService.setCommunity(linkedCommunity)
       const pendingChain = {
         team: null,
         isPendingDeviceAdmission,
@@ -585,9 +591,94 @@ describe('ConnectionsManagerService', () => {
 
       expect(libp2pCreateSpy).toHaveBeenCalledTimes(1)
       expect(connectionsManagerService['storageService'].init).toHaveBeenCalledWith(teamId)
+      expect(await localDbService.getCommunity(linkedCommunity.id)).toMatchObject({ inviteData: null })
       expect(coordinateSpy.mock.invocationCallOrder[0]).toBeLessThan(libp2pCreateSpy.mock.invocationCallOrder[0])
     }
   )
+
+  it('scrubs the invite and refuses reset when pause cancels startup after admission commit', async () => {
+    const teamId = deviceInvitationData.authData.teamId
+    const linkedCommunity: Community = {
+      ...community,
+      id: 'post-commit-community',
+      teamId,
+      inviteData: { ...deviceInvitationData, qssEnabled: false },
+      qssEnabled: false,
+      qssEndpoint: undefined,
+    }
+    const linkedIdentity = {
+      ...userIdentity,
+      communityId: linkedCommunity.id,
+      userId: deviceInvitationData.authData.userId,
+    }
+    await localDbService.setCommunity(linkedCommunity)
+    await localDbService.setIdentity(linkedIdentity)
+
+    const pendingChain = {
+      team: null,
+      isPendingDeviceAdmission: true,
+      device: { deviceId: 'post-commit-device' },
+      roles: { amIMemberOfRole: () => false },
+    }
+    const admittedChain = {
+      team: { id: teamId },
+      isPendingDeviceAdmission: false,
+      device: { deviceId: 'post-commit-device' },
+      roles: { amIMemberOfRole: () => true },
+    }
+    let activeChain: any = pendingChain
+    sigChainService.activeChainTeamId = teamId
+    jest.spyOn(sigChainService, 'getActiveChain').mockImplementation(() => activeChain)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(connectionsManagerService.libp2pService, 'pause').mockResolvedValue(true)
+    jest.spyOn(qssService, 'pause').mockImplementation(() => {})
+    const eraseArtifactsSpy = jest.spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
+
+    let resolveAdmission!: (result: any) => void
+    const admission = new Promise<any>(resolve => {
+      resolveAdmission = resolve
+    })
+    jest.spyOn(admissionCoordinator, 'start').mockReturnValue({
+      id: 'post-commit-session',
+      result: admission,
+      drained: Promise.resolve(),
+      cancel: async () => undefined,
+    })
+    let finishStorage!: () => void
+    const storageHeld = new Promise<void>(resolve => {
+      finishStorage = resolve
+    })
+    const storageInitSpy = jest.spyOn(storageService, 'init').mockReturnValue(storageHeld)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+
+    const launch = connectionsManagerService.launchCommunity(linkedCommunity.id)
+    await waitForExpect(() => expect(admissionCoordinator.start).toHaveBeenCalledTimes(1))
+    activeChain = admittedChain
+    resolveAdmission({
+      teamId,
+      userId: linkedIdentity.userId,
+      deviceId: 'post-commit-device',
+      transport: AdmissionTransport.P2P,
+    })
+    await waitForExpect(() => expect(storageInitSpy).toHaveBeenCalledWith(teamId))
+
+    const pause = connectionsManagerService.pause()
+    finishStorage()
+    await pause
+    await launch
+
+    expect(await localDbService.getCommunity(linkedCommunity.id)).toMatchObject({ inviteData: null })
+    expect(connectionsManagerService['interruptedAdmissionCommunityId']).toBeUndefined()
+    await expect(connectionsManagerService.resetAdmission(linkedCommunity.id)).resolves.toBe(false)
+    expect(eraseArtifactsSpy).not.toHaveBeenCalled()
+  })
 
   it('does not start libp2p or storage when coordinated admission fails', async () => {
     const teamId = deviceInvitationData.authData.teamId
@@ -689,7 +780,7 @@ describe('ConnectionsManagerService', () => {
     jest.spyOn(sigChainService, 'user', 'get').mockReturnValue({ userId: userIdentity.userId } as any)
     jest.spyOn(connectionsManagerService, 'getNetworkInfo').mockResolvedValue(userIdentity.networkInfo)
     jest.spyOn(connectionsManagerService['storageService'], 'setIdentity').mockResolvedValue()
-    jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
+    jest.spyOn(connectionsManagerService as any, 'launchCommunityLocked').mockResolvedValue(undefined)
     jest.spyOn(connectionsManagerService['storageService'], 'addUserProfile').mockResolvedValue({ success: true })
 
     await connectionsManagerService.createCommunity({
@@ -729,6 +820,54 @@ describe('ConnectionsManagerService', () => {
     expect(eraseArtifactsSpy.mock.invocationCallOrder[0]).toBeLessThan(getNetworkInfoSpy.mock.invocationCallOrder[0])
   })
 
+  it('recovers a persisted pending-member snapshot when startup cannot load it as an admitted chain', async () => {
+    const emitSpy = jest.spyOn(serverIoProvider.io, 'emit')
+    // Nest initializes SocketService first, so the first START can precede
+    // ConnectionsManagerService attaching its ordinary socket listeners.
+    connectionsManagerService['socketService'].emit(SocketActions.START)
+    const inviteData = validInvitationDatav4[0]
+    const teamId = inviteData.authData.teamId
+    await sigChainService.createChainFromInvite({ seed: inviteData.authData.seed, name: 'reopenpeer' }, teamId, true)
+    const storedPendingChain = await localDbService.getSigChain(teamId)
+    expect(storedPendingChain).toMatchObject({
+      serializedTeam: undefined,
+      teamKeyRing: undefined,
+      pendingMemberAdmission: true,
+    })
+
+    const pendingCommunity: Community = {
+      ...community,
+      id: 'pending-reopen-community',
+      name: inviteData.authData.communityName,
+      teamId,
+      inviteData,
+    }
+    await localDbService.setCommunity(pendingCommunity)
+    await localDbService.setCurrentCommunityId(pendingCommunity.id)
+    await sigChainService.deleteChain(teamId, false)
+    await expect(sigChainService.loadChain(teamId, true, pendingCommunity.name)).rejects.toThrow(
+      'missing serialized team'
+    )
+
+    const eraseArtifactsSpy = jest
+      .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
+      .mockResolvedValue(undefined)
+    jest.spyOn(qssService, 'resume').mockResolvedValue()
+
+    await connectionsManagerService.launchCommunityFromStorage()
+
+    expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
+    expect(connectionsManagerService['readAdmissionResetReceipt']()).toEqual({
+      id: pendingCommunity.id,
+      invitationType: 'community',
+      phase: 'complete',
+    })
+    expect(emitSpy).toHaveBeenCalledWith(SocketEvents.ADMISSION_RESET_COMPLETE, {
+      id: pendingCommunity.id,
+      invitationType: 'community',
+    })
+  })
+
   it('creates a non-persisted pending device context and provisional identity when linking a device', async () => {
     const eraseArtifactsSpy = jest
       .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
@@ -742,6 +881,8 @@ describe('ConnectionsManagerService', () => {
       id: community.id,
       inviteData: deviceInvitationData,
       deviceName: 'Alice’s phone',
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: deviceInvitationData.qssEndpoint,
     })
 
     expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
@@ -757,6 +898,176 @@ describe('ConnectionsManagerService', () => {
     expect(deferUserProfileSpy).not.toHaveBeenCalled()
   })
 
+  it.each([
+    { deviceLinkConsent: undefined, confirmedQssEndpoint: deviceInvitationData.qssEndpoint },
+    { deviceLinkConsent: true, confirmedQssEndpoint: 'https://different-qss.example.test' },
+  ])('rejects device linking unless consent and the QSS endpoint match', async unsafePayload => {
+    const inviteData = {
+      ...deviceInvitationData,
+      qssEnabled: true,
+      qssEndpoint: 'https://confirmed-qss.example.test',
+    }
+    const eraseArtifactsSpy = jest.spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
+    const createChainSpy = jest.spyOn(sigChainService, 'createChainFromDeviceInvite')
+    const setIdentitySpy = jest.spyOn(connectionsManagerService['storageService'], 'setIdentity')
+    const qssConnectSpy = jest.spyOn(qssService, 'connect')
+
+    const response = await connectionsManagerService.linkDevice({
+      id: community.id,
+      inviteData,
+      ...unsafePayload,
+    } as any)
+
+    expect(response).toBeUndefined()
+    expect(eraseArtifactsSpy).not.toHaveBeenCalled()
+    expect(createChainSpy).not.toHaveBeenCalled()
+    expect(setIdentitySpy).not.toHaveBeenCalled()
+    expect(qssConnectSpy).not.toHaveBeenCalled()
+  })
+
+  it('serializes overlapping join and link requests so only the first provisional identity survives', async () => {
+    let finishNetwork!: (identity: Identity['networkInfo']) => void
+    const heldNetwork = new Promise<Identity['networkInfo']>(resolve => {
+      finishNetwork = resolve
+    })
+    const eraseArtifactsSpy = jest
+      .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
+      .mockResolvedValue(undefined)
+    const getNetworkInfoSpy = jest.spyOn(connectionsManagerService, 'getNetworkInfo').mockReturnValue(heldNetwork)
+
+    const first = connectionsManagerService.linkDevice({
+      id: 'linked-community',
+      inviteData: deviceInvitationData,
+      deviceName: 'Linked device',
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: deviceInvitationData.qssEndpoint,
+    })
+    await waitForExpect(() => expect(getNetworkInfoSpy).toHaveBeenCalledTimes(1))
+
+    const overlapping = connectionsManagerService.joinCommunity({
+      id: 'joined-community',
+      name: 'Joined community',
+      username: 'alice',
+      inviteData: validInvitationDatav4[0],
+    })
+    await Promise.resolve()
+    expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
+
+    finishNetwork(userIdentity.networkInfo)
+    await expect(first).resolves.toMatchObject({ id: 'linked-community' })
+    await expect(overlapping).resolves.toBeUndefined()
+    expect(Object.keys(await localDbService.getCommunities())).toEqual(['linked-community'])
+    expect(Object.keys((await localDbService.getIdentities()) ?? {})).toEqual(['linked-community'])
+    expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('holds a fresh device link behind provisional reset cleanup', async () => {
+    const teamId = deviceInvitationData.authData.teamId
+    await sigChainService.createChainFromDeviceInvite(
+      {
+        seed: deviceInvitationData.authData.seed,
+        userName: deviceInvitationData.authData.userName,
+        expectedTeamId: teamId,
+        expectedUserId: deviceInvitationData.authData.userId,
+      },
+      teamId,
+      true
+    )
+    await localDbService.setCommunity({
+      ...community,
+      id: 'failed-community',
+      teamId,
+      inviteData: deviceInvitationData,
+    })
+    await localDbService.setIdentity({ ...userIdentity, communityId: 'failed-community' })
+    connectionsManagerService['timedOutAdmissionCommunityId'] = 'failed-community'
+    connectionsManagerService['communityState'] = ServiceState.DEFAULT
+
+    let finishDrain!: () => void
+    const drain = jest.fn(
+      () =>
+        new Promise<void>(resolve => {
+          finishDrain = resolve
+        })
+    )
+    connectionsManagerService['communityLifecycle'] = { drain } as any
+    const eraseArtifactsSpy = jest
+      .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
+      .mockImplementation(async () => {
+        await sigChainService.deleteChain(teamId, false)
+        await localDbService.purge()
+      })
+    const getNetworkInfoSpy = jest
+      .spyOn(connectionsManagerService, 'getNetworkInfo')
+      .mockResolvedValue(userIdentity.networkInfo)
+
+    const reset = connectionsManagerService.resetAdmission('failed-community')
+    await waitForExpect(() => expect(drain).toHaveBeenCalledTimes(1))
+    const freshLink = connectionsManagerService.linkDevice({
+      id: 'fresh-community',
+      inviteData: deviceInvitationData,
+      deviceName: 'Fresh device',
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: deviceInvitationData.qssEndpoint,
+    })
+    await Promise.resolve()
+    expect(getNetworkInfoSpy).not.toHaveBeenCalled()
+
+    finishDrain()
+    await expect(reset).resolves.toBe(true)
+    await expect(freshLink).resolves.toMatchObject({ id: 'fresh-community' })
+    expect(Object.keys(await localDbService.getCommunities())).toEqual(['fresh-community'])
+    expect(Object.keys((await localDbService.getIdentities()) ?? {})).toEqual(['fresh-community'])
+
+    const eraseCountAfterFreshLink = eraseArtifactsSpy.mock.calls.length
+    await expect(connectionsManagerService.resetAdmission('failed-community')).resolves.toBe(true)
+    expect(eraseArtifactsSpy).toHaveBeenCalledTimes(eraseCountAfterFreshLink)
+    expect(Object.keys(await localDbService.getCommunities())).toEqual(['fresh-community'])
+    expect(Object.keys((await localDbService.getIdentities()) ?? {})).toEqual(['fresh-community'])
+  })
+
+  it('clears an invalid provisional device admission before accepting a fresh link', async () => {
+    jest.spyOn(connectionsManagerService, 'getNetworkInfo').mockResolvedValue(userIdentity.networkInfo)
+    const first = await connectionsManagerService.linkDevice({
+      id: 'invalid-community',
+      inviteData: deviceInvitationData,
+      deviceName: 'Rejected device',
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: deviceInvitationData.qssEndpoint,
+    })
+    expect(first).toBeDefined()
+
+    const teamId = deviceInvitationData.authData.teamId
+    const eraseArtifactsSpy = jest
+      .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
+      .mockImplementation(async () => {
+        await sigChainService.deleteChain(teamId, false)
+        await localDbService.purge()
+      })
+    jest
+      .spyOn(connectionsManagerService, 'launch')
+      .mockRejectedValue(new AdmissionError('protocol', 'INVITATION_PROOF_INVALID'))
+    jest.spyOn(qssService, 'resume').mockResolvedValue()
+
+    await connectionsManagerService.launchCommunity('invalid-community')
+
+    expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
+    expect(await localDbService.getCommunity('invalid-community')).toBeUndefined()
+    expect(await localDbService.getIdentity('invalid-community')).toBeUndefined()
+
+    const fresh = await connectionsManagerService.linkDevice({
+      id: 'fresh-community',
+      inviteData: deviceInvitationData,
+      deviceName: 'Fresh device',
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: deviceInvitationData.qssEndpoint,
+    })
+
+    expect(fresh).toMatchObject({ id: 'fresh-community' })
+    expect(Object.keys(await localDbService.getCommunities())).toEqual(['fresh-community'])
+    expect(Object.keys((await localDbService.getIdentities()) ?? {})).toEqual(['fresh-community'])
+  })
+
   it('rejects device linking without erasing an existing community', async () => {
     await localDbService.setCommunity(community)
     const eraseArtifactsSpy = jest
@@ -766,6 +1077,8 @@ describe('ConnectionsManagerService', () => {
     const response = await connectionsManagerService.linkDevice({
       id: 'new-community-id',
       inviteData: deviceInvitationData,
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: deviceInvitationData.qssEndpoint,
     })
 
     expect(response).toBeUndefined()
@@ -863,7 +1176,9 @@ describe('ConnectionsManagerService', () => {
       fs.mkdirSync(quietDir, { recursive: true })
       fs.writeFileSync(markerPath(), new Date().toISOString())
       const getCurrentCommunitySpy = jest.spyOn(localDbService, 'getCurrentCommunity').mockResolvedValue(community)
-      const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
+      const launchCommunitySpy = jest
+        .spyOn(connectionsManagerService as any, 'launchCommunityLocked')
+        .mockResolvedValue(undefined)
       const purgeArtifactsSpy = jest.spyOn(localDbService, 'purgeArtifacts').mockResolvedValue()
       const purgeDataSpy = jest
         .spyOn(connectionsManagerService['storageService'], 'purgeData')

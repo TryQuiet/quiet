@@ -973,6 +973,7 @@ export class SigChainService extends EventEmitter {
       serializedTeam: chain.team == null ? undefined : Buffer.from(chain.save()).toString('base64'),
       localUserContext: structuredClone({ user: chain.context.user, device: chain.context.device }),
       teamKeyRing: chain.team == null ? undefined : structuredClone(chain.team.teamKeyring()),
+      pendingMemberAdmission: chain.team == null ? true : undefined,
     }
   }
 

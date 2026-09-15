@@ -56,6 +56,8 @@ export interface JoinCommunityPayload {
 export interface LinkDevicePayload {
   inviteData: DeviceInvitationData
   deviceName?: string
+  deviceLinkConsent: true
+  confirmedQssEndpoint?: string
 }
 
 export interface InitDeviceLinkPayload extends LinkDevicePayload {
@@ -68,6 +70,11 @@ export interface LaunchCommunityPayload {
 
 export interface LeaveCommunityPayload {
   id: string
+}
+
+export interface AdmissionResetCompletePayload {
+  id: string
+  invitationType: 'device' | 'community'
 }
 
 // ----- State-Manager <-> Backend Payloads -----

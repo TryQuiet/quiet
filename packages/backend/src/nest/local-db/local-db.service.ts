@@ -196,7 +196,7 @@ export class LocalDbService extends EventEmitter {
 
   public async setCommunity(community: Community) {
     await this.communityMutex.runExclusive(async () => {
-      this.logger.info('Setting community', community.id, community.name, community)
+      this.logger.info('Setting community', community.id)
       let communities = await this.get(LocalDBKeys.COMMUNITIES)
       if (!communities) {
         communities = {}
@@ -208,7 +208,7 @@ export class LocalDbService extends EventEmitter {
 
   public async updateCommunity(id: string, updates: Partial<Community>) {
     await this.communityMutex.runExclusive(async () => {
-      this.logger.info('Updating community', id, updates)
+      this.logger.info('Updating community', id, Object.keys(updates))
       let communities: { [id: string]: Community } = await this.get(LocalDBKeys.COMMUNITIES)
       if (!communities) {
         communities = {}
@@ -325,6 +325,7 @@ export class LocalDbService extends EventEmitter {
       serializedTeam: undefined,
       localUserContext: sigChain.localUserContext,
       teamKeyRing: undefined,
+      pendingMemberAdmission: true,
     }
     this.logger.info('Saving sigchain with no team yet', teamId)
     await this.put(key, serializedSigChain)
@@ -380,6 +381,7 @@ export class LocalDbService extends EventEmitter {
         serializedTeam: serializedTeam,
         localUserContext: sigChainBlob.localUserContext,
         teamKeyRing: sigChainBlob.teamKeyRing ? sigChainBlob.teamKeyRing : undefined,
+        pendingMemberAdmission: sigChainBlob.pendingMemberAdmission === true ? true : undefined,
       } as SerializedSigChain
     } catch (e) {
       this.logger.error('Failed to get sigchain', e)
