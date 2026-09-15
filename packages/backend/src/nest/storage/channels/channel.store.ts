@@ -217,7 +217,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       this.logger.info(`${this.channelData.id} database updated`, entry.hash, entryChannelId)
       const epoch = this.messageIndexEpoch
       const ids = await this.queueMessageIndex(() => this.indexJoinedAncestry([entry], epoch, entry.hash))
-      if (epoch !== this.messageIndexEpoch || this.closing) return
+      if (ids === undefined || epoch !== this.messageIndexEpoch || this.closing) return
       await this.refreshMessageIds(ids, epoch)
     })
 
@@ -392,7 +392,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     heads: LogEntry<EncryptedMessage>[],
     epoch: number,
     notifyHash?: string
-  ): Promise<string[]> {
+  ): Promise<string[] | undefined> {
     const ids: string[] = []
     if (epoch !== this.messageIndexEpoch || this.closing) return ids
     const log = this.getStore().log
@@ -425,7 +425,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         if (active.has(frame.hash)) throw new Error('Cycle in channel message ancestry')
         const joined = await log.has(frame.hash)
         if (epoch !== this.messageIndexEpoch || this.closing) return []
-        if (!joined) throw new Error(`Message ancestry is not joined to the channel log: ${frame.hash}`)
+        if (!joined) {
+          // EventsWithStorage shares an event bus across peers in this process. A matching
+          // channel's remote update may precede our local join; ignore it without caching it.
+          if (frame.hash === notifyHash) return undefined
+          throw new Error(`Message ancestry is not joined to the channel log: ${frame.hash}`)
+        }
         const entry = frame.entry ?? ((await log.get(frame.hash)) as LogEntry<EncryptedMessage> | undefined)
         if (epoch !== this.messageIndexEpoch || this.closing) return []
         if (entry == null || entry.hash !== frame.hash) throw new Error(`Missing channel log entry: ${frame.hash}`)

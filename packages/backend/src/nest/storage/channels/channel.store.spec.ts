@@ -81,10 +81,9 @@ describe('ChannelStore', () => {
 })
 
 describe('ChannelStore incremental message IDs', () => {
-  const createStore = () => {
+  const createStore = (events = new EventEmitter()) => {
     type Entry = { hash: string; value: any; next?: string[]; refs?: string[] }
     const entries: Entry[] = []
-    const events = new EventEmitter()
     const entriesByHash = new Map<string, any>()
     const logEntries = new Map<string, any>()
     const logReads = { has: 0, get: 0 }
@@ -288,6 +287,36 @@ describe('ChannelStore incremental message IDs', () => {
   })
 
   const value = (id: string) => ({ id, channelId: 'general', teamId: 'team' })
+
+  it('ignores a shared-bus head until this peer actually joins it', async () => {
+    const events = new EventEmitter()
+    const sender = createStore(events)
+    const receiver = createStore(events)
+    await sender.store.subscribe()
+    await receiver.store.subscribe()
+    sender.ids.mockClear()
+    receiver.ids.mockClear()
+    sender.save({ hash: 'remote-head', value: value('remote-head') })
+    const entry = sender.logEntries.get('remote-head')
+    const broadcast = async () => {
+      await Promise.all(
+        events.listeners('update').map(listener => (listener as (entry: unknown) => Promise<void>)(entry))
+      )
+    }
+    await broadcast()
+    expect(sender.onConsume).toHaveBeenCalledTimes(1)
+    expect(receiver.onConsume).not.toHaveBeenCalled()
+    expect(receiver.ids).not.toHaveBeenCalled()
+    expect(receiver.logReads).toEqual({ has: 1, get: 0 })
+    expect(await receiver.store.getEntries(['remote-head'])).toEqual([])
+
+    receiver.save({ hash: 'remote-head', value: value('remote-head') })
+    await broadcast()
+    expect(sender.onConsume).toHaveBeenCalledTimes(1)
+    expect(receiver.onConsume).toHaveBeenCalledTimes(1)
+    expect(receiver.ids.mock.lastCall?.[0].ids).toEqual(['remote-head'])
+    expect(receiver.logReads).toEqual({ has: 2, get: 0 })
+  })
 
   it('indexes every missed message when only the joined head emits an update', async () => {
     const { store, save, announce, onConsume, ids, reads, logReads } = createStore()
