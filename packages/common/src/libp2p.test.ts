@@ -104,4 +104,26 @@ describe('filterValidAddresses', () => {
     ]
     expect(filterAndSortPeers(addresses, [], localAddress)).toEqual([localAddress, addresses[1]])
   })
+
+  it('prioritizes connected peers when more than three candidates are available', () => {
+    const addresses = [
+      '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/80/ws/p2p/12D3KooWEHzmff5kZAvyU6Diq5uJG8QkWJxFNUcBLuWjxUGvxaqw',
+      '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/80/ws/p2p/12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx',
+      '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/80/ws/p2p/12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
+      '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/80/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/80/ws/p2p/12D3KooWPYjyHnYYwe3kzEESMVbpAUHkQyEQpRHehH8QYtGRntVn',
+    ]
+    const stats = addresses.map((address, index) => ({
+      peerId: address.split('/')[7],
+      address,
+      lastSeen: 100 - index,
+      connectionTime: 100 - index,
+    }))
+    const connected = [stats[4].peerId, stats[3].peerId]
+
+    expect(filterAndSortPeers(addresses, stats, undefined, false, connected).slice(0, 2)).toEqual([
+      addresses[3],
+      addresses[4],
+    ])
+  })
 })
