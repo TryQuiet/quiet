@@ -98,11 +98,17 @@ test('build preflight checks the real files and rejects stale or remote native c
   const frontend = Buffer.from('bundled quiet test app')
   fs.writeFileSync(path.join(app, 'main.jsbundle'), frontend)
   fs.writeFileSync(path.join(app, 'Quiet.debug.dylib'), ENDPOINT)
+  const tor = Buffer.from('linked Tor 0.4.9.11')
+  const torBinary = path.join(app, 'Frameworks/Tor.framework/Tor')
+  fs.mkdirSync(path.dirname(torBinary), { recursive: true })
+  fs.writeFileSync(torBinary, tor)
   fs.writeFileSync(
     path.join(output, 'result.json'),
     JSON.stringify({
       status: 'passed',
-      originalRestored: true,
+      torPodUnchanged: true,
+      torVersion: '409.11.2',
+      embeddedTorSHA256: createHash('sha256').update(tor).digest('hex'),
       scheme: 'Quiet',
       configuration: 'Debug',
       envFile: '.env.e2e.qss',
@@ -111,6 +117,16 @@ test('build preflight checks the real files and rejects stale or remote native c
     })
   )
   assert.equal(validateBuild(output).app, app)
+  const receiptPath = path.join(output, 'result.json')
+  const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'))
+  fs.writeFileSync(receiptPath, JSON.stringify({ ...receipt, torVersion: '405.9.1', originalRestored: true }))
+  assert.throws(() => validateBuild(output), /successful guarded/)
+  fs.writeFileSync(receiptPath, JSON.stringify({ ...receipt, torPodUnchanged: false }))
+  assert.throws(() => validateBuild(output), /successful guarded/)
+  fs.writeFileSync(receiptPath, JSON.stringify(receipt))
+  fs.writeFileSync(torBinary, 'old Tor framework')
+  assert.throws(() => validateBuild(output), /Tor framework differs/)
+  fs.writeFileSync(torBinary, tor)
   fs.writeFileSync(path.join(app, 'Quiet.debug.dylib'), 'ws://127.0.0.1:3003')
   assert.throws(() => validateBuild(output), /native configuration/)
   fs.writeFileSync(path.join(app, 'Quiet.debug.dylib'), 'wss://qss-dev.quiet-services.app')
