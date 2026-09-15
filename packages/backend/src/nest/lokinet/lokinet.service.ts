@@ -37,14 +37,26 @@ export class LokinetService extends EventEmitter {
     if (!fs.existsSync(ini)) {
       fs.writeFileSync(ini, this.defaultIni())
     }
+    if (await this.pingApi()) {
+      this.bootstrapped = true
+      this.emit('bootstrapped')
+      return
+    }
     await this.ensureDaemon(ini)
-    await this.waitUntilReady()
-    this.bootstrapped = true
-    this.emit('bootstrapped')
-    this.opts.emit?.(SocketEvents.TOR_INITIALIZED)
+    try {
+      await this.waitUntilReady(2_000)
+      this.bootstrapped = true
+      this.emit('bootstrapped')
+      this.opts.emit?.(SocketEvents.TOR_INITIALIZED)
+    } catch {
+      this.bootstrapped = false
+    }
   }
 
   async spawnHiddenService(params: { targetPort: number; privKey?: string }): Promise<string> {
+    if (!(await this.pingApi())) {
+      throw new Error('Lokinet API is not running')
+    }
     const keyfile = path.join(this.quietDir, `snapp-${params.targetPort}.private`)
     if (params.privKey && !fs.existsSync(keyfile)) {
       fs.writeFileSync(keyfile, params.privKey)
@@ -88,23 +100,27 @@ export class LokinetService extends EventEmitter {
 
   private async ensureDaemon(ini: string): Promise<void> {
     if (await this.pingApi()) return
-    const child = childProcess.spawn(this.bin, ['-c', ini], {
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    this.process = child
-    child.stdout?.on('data', chunk => this.emit('log', String(chunk)))
-    child.stderr?.on('data', chunk => this.emit('log', String(chunk)))
-    child.on('exit', code => {
-      this.bootstrapped = false
-      this.emit('exit', code)
-    })
+    try {
+      const child = childProcess.spawn(this.bin, ['-c', ini], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
+      this.process = child
+      child.stdout?.on('data', chunk => this.emit('log', String(chunk)))
+      child.stderr?.on('data', chunk => this.emit('log', String(chunk)))
+      child.on('exit', code => {
+        this.bootstrapped = false
+        this.emit('exit', code)
+      })
+    } catch {
+      // Binary missing or not executable; onion-only is fine.
+    }
   }
 
-  private async waitUntilReady(timeoutMs = 60_000): Promise<void> {
+  private async waitUntilReady(timeoutMs = 2_000): Promise<void> {
     const start = Date.now()
     while (Date.now() - start < timeoutMs) {
       if (await this.pingApi()) return
-      await new Promise(r => setTimeout(r, 500))
+      await new Promise(r => setTimeout(r, 200))
     }
     throw new Error(`Lokinet API at ${this.apiUrl} did not become ready`)
   }
@@ -116,7 +132,7 @@ export class LokinetService extends EventEmitter {
         resolve((res.statusCode ?? 500) < 500)
       })
       req.on('error', () => resolve(false))
-      req.setTimeout(1000, () => {
+      req.setTimeout(400, () => {
         req.destroy()
         resolve(false)
       })
