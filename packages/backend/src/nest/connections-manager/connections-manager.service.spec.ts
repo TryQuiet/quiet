@@ -351,7 +351,7 @@ describe('ConnectionsManagerService', () => {
     }
   )
 
-  it('registers the stored onion address without contacting Tor', async () => {
+  it('waits for the stored onion address to be published before returning it', async () => {
     connectionsManagerService['ports'] = {
       socksPort: 9001,
       libp2pHiddenService: 9002,
@@ -360,12 +360,21 @@ describe('ConnectionsManagerService', () => {
       httpTunnelPort: 9005,
     }
     const tor = connectionsManagerService['tor']
-    const registerHiddenService = jest.spyOn(tor, 'registerHiddenService').mockResolvedValue()
+    let resolvePublication!: () => void
+    const publication = new Promise<void>(resolve => {
+      resolvePublication = resolve
+    })
+    const registerHiddenService = jest.spyOn(tor, 'registerHiddenService').mockReturnValue(publication)
     const spawnHiddenService = jest.spyOn(tor, 'spawnHiddenService')
 
-    const onionAddress = await connectionsManagerService.spawnTorHiddenService(community.id, userIdentity)
+    const onionAddress = connectionsManagerService.spawnTorHiddenService(community.id, userIdentity)
+    let resolved = false
+    void onionAddress.then(() => {
+      resolved = true
+    })
+    await Promise.resolve()
 
-    expect(onionAddress).toBe(userIdentity.networkInfo.hiddenService.onionAddress)
+    expect(resolved).toBe(false)
     expect(registerHiddenService).toHaveBeenCalledWith({
       targetPort: 9002,
       privKey: userIdentity.networkInfo.hiddenService.privateKey,
@@ -373,6 +382,9 @@ describe('ConnectionsManagerService', () => {
       virtPort: 80,
     })
     expect(spawnHiddenService).not.toHaveBeenCalled()
+
+    resolvePublication()
+    await expect(onionAddress).resolves.toBe(userIdentity.networkInfo.hiddenService.onionAddress)
   })
 
   it('community is only launched once', async () => {
