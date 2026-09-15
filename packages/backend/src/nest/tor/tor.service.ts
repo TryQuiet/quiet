@@ -28,6 +28,7 @@ import { isUint8Array } from 'util/types'
 const BOOTSTRAP_DONE_MESSAGE = '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
 const BOOTSTRAP_STALL_MIN_DURATION_MS = 30_000
 const BOOTSTRAP_STALL_TIMEOUT_WARNING_COUNT = 3
+const HIDDEN_SERVICE_DESCRIPTOR_EVENT = 'HS_DESC'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -693,25 +694,38 @@ export class Tor extends EventEmitter implements OnModuleInit {
    * Records a hidden service before Tor is available. The bootstrap watcher
    * publishes all registered services when the current Tor session is ready.
    */
-  public registerHiddenService({ targetPort, privKey, onionAddress, virtPort }: HiddenServiceData): void {
+  public async registerHiddenService({
+    targetPort,
+    privKey,
+    onionAddress,
+    virtPort,
+  }: HiddenServiceData): Promise<void> {
     onionAddress = onionAddress.replace(/\.onion$/, '')
     this.hiddenServices.set(onionAddress, { targetPort, privKey, virtPort, onionAddress })
 
     if (this.bootstrapped) {
       const registrationGeneration = this.hiddenServiceGeneration
-      void this.spawnHiddenService({ targetPort, privKey, virtPort, onionAddress }).catch(error => {
+      try {
+        await this.spawnHiddenService({ targetPort, privKey, virtPort, onionAddress })
+      } catch (error) {
         this.logger.error('Failed to publish registered hidden service', error)
-        if (registrationGeneration !== this.hiddenServiceGeneration) return
-        if (this.hiddenServiceRetryTimers.has(onionAddress)) return
-        const retryTimer = setTimeout(() => {
-          this.hiddenServiceRetryTimers.delete(onionAddress)
-          if (registrationGeneration !== this.hiddenServiceGeneration) return
-          const registered = this.hiddenServices.get(onionAddress)
-          if (!registered || !this.bootstrapped) return
-          this.registerHiddenService(registered)
-        }, 2500)
-        this.hiddenServiceRetryTimers.set(onionAddress, retryTimer)
-      })
+        if (
+          registrationGeneration === this.hiddenServiceGeneration &&
+          !this.hiddenServiceRetryTimers.has(onionAddress)
+        ) {
+          const retryTimer = setTimeout(() => {
+            this.hiddenServiceRetryTimers.delete(onionAddress)
+            if (registrationGeneration !== this.hiddenServiceGeneration) return
+            const registered = this.hiddenServices.get(onionAddress)
+            if (!registered || !this.bootstrapped) return
+            void this.registerHiddenService(registered).catch(retryError => {
+              this.logger.error('Failed to retry registered hidden-service publication', retryError)
+            })
+          }, 2500)
+          this.hiddenServiceRetryTimers.set(onionAddress, retryTimer)
+        }
+        throw error
+      }
     }
   }
 
@@ -734,8 +748,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
     const hiddenServiceGeneration = this.hiddenServiceGeneration
     const initializationPromise = (async () => {
-      const status = await this.torControl.sendCommand(
-        `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+      const status = await this.torControl.sendCommandAndWaitForEvent(
+        `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`,
+        HIDDEN_SERVICE_DESCRIPTOR_EVENT,
+        event => this.isHiddenServiceDescriptorUploaded(event, onionAddress)
       )
       if (hiddenServiceGeneration !== this.hiddenServiceGeneration) {
         throw new Error('Tor generation changed while initializing hidden service')
@@ -745,7 +761,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       if (publishedAddress !== onionAddress) {
         throw new Error('Published hidden-service address does not match the requested address')
       }
-      this.logger.debug(`Spawned hidden service with onion address ${onionAddress}`)
+      this.logger.debug(`Published hidden service descriptor for onion address ${onionAddress}`)
 
       const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
       this.hiddenServices.set(onionAddress, hiddenService)
@@ -789,8 +805,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
     virtPort?: number
   }): Promise<{ onionAddress: string; privateKey: string }> {
     const hiddenServiceGeneration = this.hiddenServiceGeneration
-    const status = await this.torControl.sendCommand(
-      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+    const status = await this.torControl.sendCommandAndWaitForEvent(
+      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`,
+      HIDDEN_SERVICE_DESCRIPTOR_EVENT,
+      (event, response) => {
+        const generatedAddress = response.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
+        return this.isHiddenServiceDescriptorUploaded(event, generatedAddress)
+      }
     )
 
     if (hiddenServiceGeneration !== this.hiddenServiceGeneration) {
@@ -806,6 +827,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
       onionAddress: `${onionAddress}.onion`,
       privateKey,
     }
+  }
+
+  private isHiddenServiceDescriptorUploaded(event: string, onionAddress: string): boolean {
+    const [, eventCode, action, serviceId] = event.trim().split(/\s+/)
+    return (
+      eventCode === HIDDEN_SERVICE_DESCRIPTOR_EVENT &&
+      action === 'UPLOADED' &&
+      serviceId?.replace(/\.onion$/, '') === onionAddress.replace(/\.onion$/, '')
+    )
   }
 
   public async switchToCleanCircuts() {

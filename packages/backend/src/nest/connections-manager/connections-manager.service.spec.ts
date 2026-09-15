@@ -360,7 +360,7 @@ describe('ConnectionsManagerService', () => {
       httpTunnelPort: 9005,
     }
     const tor = connectionsManagerService['tor']
-    const registerHiddenService = jest.spyOn(tor, 'registerHiddenService').mockImplementation(() => {})
+    const registerHiddenService = jest.spyOn(tor, 'registerHiddenService').mockResolvedValue()
     const spawnHiddenService = jest.spyOn(tor, 'spawnHiddenService')
 
     const onionAddress = await connectionsManagerService.spawnTorHiddenService(community.id, userIdentity)

@@ -5,14 +5,14 @@ import { InvitationDataVersion, type DeviceInvitationData, type LinkDevicePayloa
 export const getDeviceLinkConfirmationMessage = (inviteData: DeviceInvitationData): string => {
   if (inviteData.version === InvitationDataVersion.v5 && inviteData.qssEnabled) {
     return [
-      'This device link asks Quiet to connect directly to:',
+      'Quiet will contact this server directly:',
       inviteData.qssEndpoint,
       '',
-      'That server can see this device’s IP address. Continue only if you trust the link and this server.',
+      'That server can see your IP address. Continue only if you trust this endpoint and the person who shared the link.',
     ].join('\n')
   }
 
-  return 'This link grants this device access to your Quiet community. Continue only if it came from a device you trust.'
+  return 'Quiet will connect to the linked device over Tor. Continue only if you trust the person who shared the link.'
 }
 
 export const confirmedDeviceLinkPayload = (inviteData: DeviceInvitationData): LinkDevicePayload => ({
@@ -27,13 +27,13 @@ export const confirmDeviceLink = (inviteData: DeviceInvitationData): Promise<Lin
   new Promise(resolve => {
     Alert.alert('Link this device?', getDeviceLinkConfirmationMessage(inviteData), [
       {
-        text: 'Cancel',
-        style: 'cancel',
-        onPress: () => resolve(null),
+        text: 'Link device',
+        onPress: () => resolve(confirmedDeviceLinkPayload(inviteData)),
       },
       {
-        text: 'Continue',
-        onPress: () => resolve(confirmedDeviceLinkPayload(inviteData)),
+        text: 'No thanks',
+        style: 'cancel',
+        onPress: () => resolve(null),
       },
     ])
   })

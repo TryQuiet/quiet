@@ -28,13 +28,13 @@ describe('device link confirmation', () => {
     const message = getDeviceLinkConfirmationMessage(qssInvite)
 
     expect(message).toContain(qssInvite.qssEndpoint)
-    expect(message).toContain('connect directly')
+    expect(message).toContain('contact this server directly')
     expect(message).toContain('IP address')
   })
 
-  it('echoes the confirmed endpoint only after Continue', async () => {
+  it('echoes the confirmed endpoint only after linking the device', async () => {
     jest.spyOn(Alert, 'alert').mockImplementation((_title, _message, buttons) => {
-      buttons?.find(button => button.text === 'Continue')?.onPress?.()
+      buttons?.find(button => button.text === 'Link device')?.onPress?.()
     })
 
     await expect(confirmDeviceLink(qssInvite)).resolves.toEqual(confirmedDeviceLinkPayload(qssInvite))
@@ -42,7 +42,7 @@ describe('device link confirmation', () => {
 
   it('resolves cancellation without producing a link payload', async () => {
     jest.spyOn(Alert, 'alert').mockImplementation((_title, _message, buttons) => {
-      buttons?.find(button => button.text === 'Cancel')?.onPress?.()
+      buttons?.find(button => button.text === 'No thanks')?.onPress?.()
     })
 
     await expect(confirmDeviceLink(p2pInvite)).resolves.toBeNull()

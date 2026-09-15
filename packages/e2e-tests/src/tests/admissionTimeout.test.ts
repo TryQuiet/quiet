@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals'
 import { By } from 'selenium-webdriver'
 import { composeInvitationShareUrl, parseInvitationLink } from '@quiet/common'
+import { InvitationDataVersion, type DeviceInvitationDataV5 } from '@quiet/types'
 import {
   App,
   Channel,
@@ -121,6 +122,16 @@ describe('Timed-out P2P admission recovery', () => {
     } as typeof invitation)
   }
 
+  function withUnavailableQss(invitationLink: string): string {
+    const invitation = parseInvitationLink(new URL(invitationLink).hash.slice(1))
+    return composeInvitationShareUrl({
+      ...invitation,
+      version: InvitationDataVersion.v5,
+      qssEnabled: true,
+      qssEndpoint: 'ws://127.0.0.1:3003',
+    } as DeviceInvitationDataV5)
+  }
+
   it('keeps the guest on Join Community when an invalid invitation is submitted', async () => {
     const guest = new App({ username: 'invalidguest' })
     apps.push(guest)
@@ -231,6 +242,57 @@ describe('Timed-out P2P admission recovery', () => {
     expect(await new JoinCommunityModal(joiningPeer.driver).isReady(30_000)).toBeTruthy()
     await expectJoiningPanelHidden(joiningPeer)
   })
+
+  it('links a device after reopening the target during an interrupted admission', async () => {
+    const suiteLocalTransport = process.env.LOCAL_TRANSPORT
+    const suiteAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
+    process.env.LOCAL_TRANSPORT = 'false'
+    process.env.INVITATION_ADMISSION_TIMEOUT_MS = '60000'
+    try {
+      const owner = new App({ username: 'reopendeviceowner' })
+      apps.push(owner)
+
+      const p2pDeviceInvitationLink = await createCommunityAndGetInvitation(
+        owner,
+        'reopendeviceowner',
+        SettingsModalTabName.LINKED_DEVICES,
+        async settings => await (await settings.deviceLink()).getText()
+      )
+      const deviceInvitationLink = withUnavailableQss(p2pDeviceInvitationLink)
+
+      const linkedDevice = new App({ username: 'reopenedlinkeddevice' })
+      apps.push(linkedDevice)
+      await linkedDevice.openWithRetries(undefined, true)
+      const joinModal = new JoinCommunityModal(linkedDevice.driver)
+      expect(await joinModal.isReady()).toBeTruthy()
+      await joinModal.typeCommunityInviteLink(deviceInvitationLink)
+      await joinModal.submit()
+      expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
+      await linkedDevice.buildSetup.waitForProcessOutput('Starting libp2p', 30_000)
+
+      await linkedDevice.close()
+      linkedDevice.buildSetup.clearProcessOutput()
+      await linkedDevice.openWithRetries(undefined, true)
+      expect(await new JoinCommunityModal(linkedDevice.driver).isReady(30_000)).toBeTruthy()
+      await expectJoiningPanelHidden(linkedDevice)
+
+      linkedDevice.buildSetup.clearProcessOutput()
+
+      // The interrupted provisional state has been purged, so a failed QSS
+      // attempt must fall back to libp2p and dial the still-reachable inviter.
+      const retryJoinModal = new JoinCommunityModal(linkedDevice.driver)
+      await retryJoinModal.typeCommunityInviteLink(deviceInvitationLink)
+      await retryJoinModal.submit()
+      await linkedDevice.buildSetup.waitForProcessOutput('Dialing peer address:', 120_000)
+      await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(15_000, 60_000)
+      expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
+    } finally {
+      if (suiteLocalTransport == null) delete process.env.LOCAL_TRANSPORT
+      else process.env.LOCAL_TRANSPORT = suiteLocalTransport
+      if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
+      else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+    }
+  }, 300_000)
 
   it('clears a timed-out member invitation and returns the guest to Join Community', async () => {
     const owner = new App({ username: 'memberowner' })

@@ -12,7 +12,7 @@ import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { JoinCommunityScreen } from './JoinCommunity.screen'
 import { type JoinCommunityScreenProps } from './JoinCommunity.types'
-import * as deviceLinkConfirmation from '../../utils/deviceLinkConfirmation'
+import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
 
 describe('JoinCommunityScreen', () => {
   const route: JoinCommunityScreenProps['route'] = {
@@ -45,11 +45,11 @@ describe('JoinCommunityScreen', () => {
       },
     }
     const { dispatchSpy, result } = await renderReadyScreen()
-    const confirmedPayload = deviceLinkConfirmation.confirmedDeviceLinkPayload(deviceInvite)
-    jest.spyOn(deviceLinkConfirmation, 'confirmDeviceLink').mockResolvedValueOnce(confirmedPayload)
+    const confirmedPayload = confirmedDeviceLinkPayload(deviceInvite)
 
     fireEvent.changeText(result.getByPlaceholderText('Invite link'), composeInvitationShareUrl(deviceInvite))
     fireEvent.press(result.getByTestId('button'))
+    fireEvent.press(await result.findByTestId('device-link-confirm'))
 
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice(confirmedPayload)))
     expect(dispatchSpy).toHaveBeenCalledWith(
@@ -76,12 +76,10 @@ describe('JoinCommunityScreen', () => {
       },
     }
     const { dispatchSpy, result } = await renderReadyScreen()
-    jest.spyOn(deviceLinkConfirmation, 'confirmDeviceLink').mockResolvedValueOnce(null)
-
     fireEvent.changeText(result.getByPlaceholderText('Invite link'), composeInvitationShareUrl(deviceInvite))
     fireEvent.press(result.getByTestId('button'))
+    fireEvent.press(await result.findByTestId('device-link-cancel'))
 
-    await waitFor(() => expect(deviceLinkConfirmation.confirmDeviceLink).toHaveBeenCalledWith(deviceInvite))
     expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: communities.actions.linkDevice.type }))
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       expect.objectContaining({ type: navigationActions.replaceScreen.type })

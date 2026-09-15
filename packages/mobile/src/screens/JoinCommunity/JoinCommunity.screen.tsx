@@ -2,14 +2,21 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { ErrorMessages, InvitationData, isDeviceInvitationData, JoinCommunityPayload } from '@quiet/types'
+import {
+  ErrorMessages,
+  InvitationData,
+  isDeviceInvitationData,
+  JoinCommunityPayload,
+  type DeviceInvitationData,
+} from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
+import DeviceLinkConsentDrawer from '../../components/ModalBottomDrawer/drawers/DeviceLinkConsent.drawer'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { JoinCommunityScreenProps } from './JoinCommunity.types'
 import { initSelectors } from '../../store/init/init.selectors'
 import { createLogger } from '../../utils/logger'
-import { confirmDeviceLink } from '../../utils/deviceLinkConfirmation'
+import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
 
 const logger = createLogger('JoinCommunityScreen')
 
@@ -17,6 +24,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   const dispatch = useDispatch()
 
   const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
+  const [deviceLinkInvite, setDeviceLinkInvite] = useState<DeviceInvitationData | undefined>(undefined)
 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
@@ -48,18 +56,23 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
     setInvitationCode(code)
   }, [dispatch, currentCommunity, route.params?.code])
 
+  const linkDevice = useCallback(
+    (data: DeviceInvitationData) => {
+      dispatch(communities.actions.linkDevice(confirmedDeviceLinkPayload(data)))
+      dispatch(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.ConnectionProcessScreen,
+        })
+      )
+    },
+    [dispatch]
+  )
+
   const joinCommunityAction = useCallback(
-    async (data: InvitationData) => {
+    (data: InvitationData) => {
       dispatch(communities.actions.clearJoinCommunityError())
       if (isDeviceInvitationData(data)) {
-        const payload = await confirmDeviceLink(data)
-        if (!payload) return
-        dispatch(communities.actions.linkDevice(payload))
-        dispatch(
-          navigationActions.replaceScreen({
-            screen: ScreenNames.ConnectionProcessScreen,
-          })
-        )
+        setDeviceLinkInvite(data)
         return
       }
 
@@ -85,14 +98,24 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   }, [dispatch])
 
   return (
-    <JoinCommunity
-      joinCommunityAction={joinCommunityAction}
-      redirectionAction={redirectionAction}
-      hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
-      invitationCode={invitationCode}
-      ready={isWebsocketConnected}
-      inputError={joinCommunityErrorMessage}
-      onInputChange={() => dispatch(communities.actions.clearJoinCommunityError())}
-    />
+    <>
+      <JoinCommunity
+        joinCommunityAction={joinCommunityAction}
+        redirectionAction={redirectionAction}
+        hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
+        invitationCode={invitationCode}
+        ready={isWebsocketConnected}
+        inputError={joinCommunityErrorMessage}
+        onInputChange={() => dispatch(communities.actions.clearJoinCommunityError())}
+      />
+      <DeviceLinkConsentDrawer
+        inviteData={deviceLinkInvite}
+        onConfirm={() => {
+          if (!deviceLinkInvite) return
+          linkDevice(deviceLinkInvite)
+        }}
+        onCancel={() => setDeviceLinkInvite(undefined)}
+      />
+    </>
   )
 }

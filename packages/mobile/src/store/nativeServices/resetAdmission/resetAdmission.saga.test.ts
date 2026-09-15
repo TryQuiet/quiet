@@ -89,7 +89,8 @@ describe('admission reset native cleanup', () => {
       )
     )
     const retryScreenAction = observedActions.find(
-      action => action.type === navigationActions.replaceScreen.type && action.payload.screen === ScreenNames.ErrorScreen
+      action =>
+        action.type === navigationActions.replaceScreen.type && action.payload.screen === ScreenNames.ErrorScreen
     )
 
     expect(communities.selectors.currentCommunity(store.getState())).toBeUndefined()

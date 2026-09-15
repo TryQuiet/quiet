@@ -149,5 +149,4 @@ describe('Joining process', () => {
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.resetAdmission(community.id)))
     expect(dispatchSpy).not.toHaveBeenCalledWith(communities.actions.resetApp(undefined))
   })
-
 })

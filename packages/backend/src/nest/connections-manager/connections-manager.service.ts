@@ -1387,7 +1387,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async spawnTorHiddenService(communityId: string, identity: Identity): Promise<string> {
     this.logger.info(`Registering hidden service for community ${communityId}, peer: ${identity.networkInfo.peerId.id}`)
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE)
-    this.tor.registerHiddenService({
+    await this.tor.registerHiddenService({
       targetPort: this.ports.libp2pHiddenService,
       privKey: identity.networkInfo.hiddenService.privateKey,
       onionAddress: identity.networkInfo.hiddenService.onionAddress,
