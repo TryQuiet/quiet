@@ -38,6 +38,24 @@ describe('createDeviceLink', () => {
       .run()
   })
 
+  it('reuses an active invitation instead of minting another one', async () => {
+    const invite: DeviceLinkInvite = {
+      id: '5ah8uYodiwuwVybT' as DeviceLinkInvite['id'],
+      teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as DeviceLinkInvite['teamId'],
+      seed: 'existing-device-link-seed',
+      expiresAt: Date.now() + 1_800_000,
+      userId: 'user-id',
+      userName: 'Alice',
+    }
+    const store = prepareStore().store
+    store.dispatch(connectionActions.setDeviceLinkInvite(invite))
+
+    await expectSaga(createDeviceLinkSaga, socket as unknown as Socket)
+      .withState(store.getState())
+      .not.apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
+      .run()
+  })
+
   it('clears stale invitation state when generation fails', async () => {
     jest.spyOn(socket, 'emitWithAck').mockResolvedValueOnce(undefined)
     const store = prepareStore().store

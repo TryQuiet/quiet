@@ -3,7 +3,7 @@ import { admissionResetMasterSaga, nativeServicesMasterSaga } from './nativeServ
 import { navigationMasterSaga } from './navigation/navigation.master.saga'
 import { initMasterSaga } from './init/init.master.saga'
 import { initActions } from './init/init.slice'
-import { publicChannels, Socket } from '@quiet/state-manager'
+import { publicChannels, Socket, watchDeviceLinkExpirySaga } from '@quiet/state-manager'
 import { showNotificationSaga } from './nativeServices/showNotification/showNotification.saga'
 import { clearReduxStore } from './nativeServices/leaveCommunity/leaveCommunity.saga'
 import { pushNotificationsMasterSaga } from './pushNotifications/pushNotifications.master.saga'
@@ -65,6 +65,7 @@ export function* storeReadySaga(): Generator {
       fork(keysMasterSaga),
       fork(usersMetadataMasterSaga),
       fork(channelMetadataMasterSaga),
+      fork(watchDeviceLinkExpirySaga),
       // Below line is reponsible for displaying notifications about messages from channels other than currently viewing one
       takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga),
       takeLeading(initActions.canceledRootTask.type, clearReduxStore),

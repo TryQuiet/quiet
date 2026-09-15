@@ -1,5 +1,5 @@
-import { communities } from '@quiet/state-manager'
-import { all, takeEvery, takeLeading } from 'redux-saga/effects'
+import { communities, watchDeviceLinkExpirySaga } from '@quiet/state-manager'
+import { all, fork, takeEvery, takeLeading } from 'redux-saga/effects'
 import { customProtocolSaga } from './invitation/customProtocol.saga'
 import { startConnectionSaga } from './socket/socket.saga'
 import { socketActions } from './socket/socket.slice'
@@ -8,5 +8,6 @@ export default function* root(): Generator {
   yield all([
     takeLeading(communities.actions.customProtocol.type, customProtocolSaga),
     takeEvery(socketActions.startConnection.type, startConnectionSaga),
+    fork(watchDeviceLinkExpirySaga),
   ])
 }

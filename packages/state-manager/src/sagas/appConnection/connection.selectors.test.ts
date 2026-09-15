@@ -215,11 +215,9 @@ describe('communitiesSelectors', () => {
       expect(connectionSelectors.deviceLinkUrl(store.getState())).not.toEqual('')
 
       jest.setSystemTime(expiresAt)
-      store.dispatch(connectionActions.setDeviceLinkInvite({ ...deviceInvite }))
       expect(connectionSelectors.deviceLinkUrl(store.getState())).toEqual('')
 
       jest.setSystemTime(expiresAt + 1)
-      store.dispatch(connectionActions.setDeviceLinkInvite({ ...deviceInvite }))
       expect(connectionSelectors.deviceLinkUrl(store.getState())).toEqual('')
     } finally {
       jest.useRealTimers()

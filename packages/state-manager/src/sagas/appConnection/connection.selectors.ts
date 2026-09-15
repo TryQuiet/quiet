@@ -145,19 +145,20 @@ export const invitationUrl = createSelector(
   }
 )
 
-export const deviceLinkUrl = createSelector(
+const createDeviceLinkUrl = createSelector(
   communitiesSelectors.psk,
   communitiesSelectors.currentCommunity,
   peerList,
   deviceLinkInvite,
-  (communityPsk, currentCommunity, sortedPeerList, deviceLinkInvite) => {
+  (_state: StoreState, currentTime: number) => currentTime,
+  (communityPsk, currentCommunity, sortedPeerList, deviceLinkInvite, currentTime) => {
     if (
       !sortedPeerList ||
       sortedPeerList.length === 0 ||
       !communityPsk ||
       !currentCommunity ||
       !deviceLinkInvite ||
-      deviceLinkInvite.expiresAt <= Date.now()
+      deviceLinkInvite.expiresAt <= currentTime
     ) {
       return ''
     }
@@ -201,6 +202,10 @@ export const deviceLinkUrl = createSelector(
     return composeInvitationShareUrl(inviteData)
   }
 )
+
+// Date is an explicit selector input so repeated reads cannot return a memoized,
+// already-expired invitation when no socket or Redux event occurs at the boundary.
+export const deviceLinkUrl = (state: StoreState): string => createDeviceLinkUrl(state, Date.now())
 
 export const isJoiningCompleted = createSelector(
   isTorInitialized,

@@ -18,12 +18,17 @@ const logger = createLogger('linkedDeviceQrCode:screen')
 export const LinkedDeviceQRCodeScreen: FC = () => {
   const dispatch = useDispatch()
   const svgRef = useRef<SVG>()
+  const handledCurrentOpen = useRef(false)
+  const showedLinkCurrentOpen = useRef(false)
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
   const deviceLinkCreationFailed = useSelector(connection.selectors.deviceLinkCreationFailed)
+  if (deviceLink) showedLinkCurrentOpen.current = true
 
   useEffect(() => {
-    if (!deviceLinkInvite) {
+    if (handledCurrentOpen.current) return
+    handledCurrentOpen.current = true
+    if (!deviceLinkInvite || deviceLinkInvite.expiresAt <= Date.now()) {
       dispatch(connection.actions.createDeviceLink())
     }
   }, [deviceLinkInvite, dispatch])
@@ -52,16 +57,18 @@ export const LinkedDeviceQRCodeScreen: FC = () => {
     return (
       <View style={{ flex: 1 }}>
         <Appbar title='Link a device' back={handleBackButton} />
-        {deviceLinkCreationFailed ? (
+        {deviceLinkCreationFailed || showedLinkCurrentOpen.current ? (
           <View style={{ padding: 24 }}>
             <Typography fontSize={14} horizontalTextAlign='center'>
-              Could not generate a device link. Go back and try again.
+              {deviceLinkCreationFailed
+                ? 'Could not generate a device link. Go back and try again.'
+                : 'This device link expired. Go back and open Link a device again to generate another.'}
             </Typography>
           </View>
         ) : (
           <Loading
             title='Generating device link'
-            caption='Keep this device online while Quiet prepares the one-time code.'
+            caption='Keep this device online while Quiet prepares the private code.'
           />
         )}
       </View>
@@ -75,7 +82,7 @@ export const LinkedDeviceQRCodeScreen: FC = () => {
       shareCode={shareCode}
       handleBackButton={handleBackButton}
       title='Link a device'
-      description='Scan this private, one-time code with Quiet on a device you control. Keep both devices online until linking finishes. The code expires after 30 minutes.'
+      description='Anyone with this private code can link another device until it expires in 30 minutes. Keep it secret, and keep both devices online while linking. Expiry blocks new linking but does not remove keys already received by a linked device.'
     />
   )
 }

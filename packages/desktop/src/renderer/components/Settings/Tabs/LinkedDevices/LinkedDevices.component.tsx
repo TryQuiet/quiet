@@ -91,7 +91,7 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
           <Grid item className={classes.description}>
             <Typography variant='body2'>
               {isLoading
-                ? 'Quiet is creating a private, one-time link for your other device.'
+                ? 'Quiet is creating a private link for your other device.'
                 : 'Make sure this device is connected to the community, then close and reopen Linked devices to try again.'}
             </Typography>
           </Grid>
@@ -110,7 +110,9 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
           </Grid>
           <Grid item className={classes.description}>
             <Typography variant='body2'>
-              This one-time link expires after 30 minutes. Only share it with a device you control.
+              This link can be used by more than one device until it expires after 30 minutes. Anyone who keeps the link
+              and a copy of the community history may retain historical encryption keys after it expires or is revoked.
+              Treat it like a password and only share it with devices you control.
             </Typography>
           </Grid>
           <Grid item className={classes.linkContainer}>

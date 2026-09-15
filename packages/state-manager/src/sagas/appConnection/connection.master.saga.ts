@@ -8,7 +8,6 @@ import { connectionActions } from './connection.slice'
 import { createLogger } from '../../utils/logger'
 import { onConnectionProcessInfo } from './onConnectionProcessInfo/onConnectionProcessInfo.saga'
 import { toggleP2PSaga } from './toggleP2P/toggleP2P.saga'
-import { expireDeviceLinkSaga } from './invite/expireDeviceLink.saga'
 
 const logger = createLogger('connectionMasterSaga')
 
@@ -20,7 +19,6 @@ export function* connectionMasterSaga(socket: Socket): Generator {
       takeEvery(connectionActions.onConnectionProcessInfo.type, onConnectionProcessInfo),
       takeEvery(connectionActions.createInvite.type, createInviteSaga, socket),
       takeLatest(connectionActions.createDeviceLink.type, createDeviceLinkSaga, socket),
-      takeLatest(connectionActions.setDeviceLinkInvite.type, expireDeviceLinkSaga),
       takeEvery(connectionActions.toggleP2P.type, toggleP2PSaga, socket),
     ])
   } finally {

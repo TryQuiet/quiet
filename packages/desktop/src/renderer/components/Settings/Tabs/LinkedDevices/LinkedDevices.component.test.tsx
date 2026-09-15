@@ -20,6 +20,8 @@ describe('LinkedDevicesComponent', () => {
     expect(result.getByText('Linked devices')).toBeVisible()
     expect(result.getByText('Link a new device')).toBeVisible()
     expect(result.getByText(/expires after 30 minutes/)).toBeVisible()
+    expect(result.getByText(/more than one device/)).toBeVisible()
+    expect(result.getByText(/historical encryption keys/)).toBeVisible()
     expect(result.queryByText(deviceLink)).toBeNull()
     expect(result.getByTestId('copy-device-link')).toBeVisible()
   })
