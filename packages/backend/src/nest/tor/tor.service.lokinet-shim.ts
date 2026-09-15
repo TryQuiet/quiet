@@ -17,11 +17,6 @@ import { overlayFromUrl } from '@quiet/common'
 
 const logger = createLogger('DualOverlay')
 
-/**
- * Runs Tor and Lokinet together. Hidden-service / invitation helpers still
- * speak the original `Tor` API. Dial path selection is by hostname suffix:
- * `.onion` → Tor, `.loki` → Lokinet.
- */
 @Injectable()
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -81,14 +76,34 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
   }
 
+  async kill() {
+    return (this.tor as any).kill?.()
+  }
+
+  /** Used by ConnectionsManagerService.getNetworkInfo / createCommunity. */
+  async createNewHiddenService(params: { targetPort: number; virtPort?: number }) {
+    const hiddenService = await this.tor.createNewHiddenService(params)
+    try {
+      this.lokiAddress = await this.lokinet.spawnHiddenService({
+        targetPort: params.targetPort,
+      })
+      logger.info('Published dual hidden services', {
+        onion: hiddenService?.onionAddress,
+        loki: this.lokiAddress,
+      })
+    } catch (e) {
+      logger.warn('Could not publish .loki SNApp; onion-only mode', e)
+    }
+    return hiddenService
+  }
+
   async spawnHiddenService(params: { targetPort: number; privKey?: string; virtPort?: number; port?: number }) {
-    const onion = await (this.tor as any).spawnHiddenService(params)
+    const onion = await this.tor.spawnHiddenService(params as any)
     try {
       this.lokiAddress = await this.lokinet.spawnHiddenService({
         targetPort: params.targetPort,
         privKey: params.privKey,
       })
-      logger.info('Published dual hidden services', { onion, loki: this.lokiAddress })
     } catch (e) {
       logger.warn('Could not publish .loki SNApp; onion-only mode', e)
     }
@@ -99,7 +114,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     if (overlayFromUrl(address) === 'lokinet') {
       return this.lokinet.destroyHiddenService(address)
     }
-    return (this.tor as any).destroyHiddenService(address)
+    return this.tor.destroyHiddenService(address)
   }
 
   public getLokiAddress(): string | undefined {
