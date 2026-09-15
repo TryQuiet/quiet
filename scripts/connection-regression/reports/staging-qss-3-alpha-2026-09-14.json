@@ -248,5 +248,37 @@
     "taskWdaStopped": true,
     "taskSshTunnelsStopped": true,
     "completedUnix": 1789436455.1663935
+  },
+  "transportVerification": {
+    "classification": "iOS delay confirmed during direct QSS delivery with Tor excluded as a transport; Android crash remains unclassified",
+    "initialFreshCommunity": {
+      "exactQssEntryHashMatchedBetweenSenderAndReceiver": true,
+      "qssPullEntries": 4,
+      "qssPullRequestToResponseSeconds": 0.055,
+      "qssResponseToLocalPullCompletionSeconds": 10.35
+    },
+    "repeat": {
+      "utcDate": "2026-09-15",
+      "onlyOtherCommunityMemberTorDisableNetwork": true,
+      "desktopTorBootstrapped": false,
+      "androidEmulatorRunning": false,
+      "exactQssEntryHashMatchedBetweenSenderAndReceiver": true,
+      "exactPlaintextObservedInBackend": true,
+      "qssFanoutReceivedUtc": "2026-09-15T02:35:21.898Z",
+      "messageConsumedUtc": "2026-09-15T02:35:23.189Z",
+      "historyReadCompletedUtc": "2026-09-15T02:35:25.789Z",
+      "fanoutToHistoryReadCompleteSeconds": 3.891,
+      "historyReadSeconds": 2.6,
+      "historyMessageCount": 5,
+      "newUiLatencyMeasured": false,
+      "measurementLimitation": "WDA UI controller was unavailable; this repeat uses backend receipts and local processing timestamps only."
+    },
+    "androidCrash": {
+      "fatalSignalUtc": "2026-09-15T01:29:52.240Z",
+      "qssSocketConnectedUtc": "2026-09-15T01:29:53.075Z",
+      "qssFailureEstablished": false,
+      "interpretation": "Frontend JSC failed before the QSS socket connected; QSS causality is unproven."
+    },
+    "scope": "No code, deployment or protocol changes. Does not prove a QSS server fault or identify the exact local processing bottleneck."
   }
 }

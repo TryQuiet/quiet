@@ -57,6 +57,27 @@ message delivery in **8.11 s desktop → iOS** and **11.85 s iOS → desktop**.
 This establishes that QSS alone can complete a fresh iOS join, and that the
 slowness also occurs without the earlier three-client message backlog.
 
+### Confirming the QSS delivery path
+
+A follow-up audit matched the exact entry hash sent by the fresh community's
+desktop owner to the entry received by iOS in the QSS fanout handler. During
+that join, QSS returned four entries in **55 ms**; processing the returned page
+on iOS then took **10.35 s**. The response is logged before local decryption,
+verification and OrbitDB ingestion, so that interval is after receipt of the data.
+
+A new delivery on September 15 UTC confirmed the matching QSS entry hash and
+decrypted message again. The community had only these two clients, the desktop
+Tor process had `--DisableNetwork 1` and never bootstrapped, and Android remained
+stopped. iOS received the QSS fanout at `02:35:21.898Z`, consumed the test message
+at `02:35:23.189Z`, and finished rereading its five-message history at
+`02:35:25.789Z`: **3.89 s after fanout receipt**, including a **2.60 s** history
+read. This repeat used backend logs because the WDA UI controller was
+unavailable; it adds no new UI latency measurement.
+
+The iOS delay is therefore confirmed during QSS delivery with Tor excluded as
+the message transport. This identifies a client processing problem to investigate,
+not a demonstrated QSS server fault or a proven cause within the local code.
+
 ## Stored delivery
 
 All four directions passed: desktop → Android, desktop → iOS, iOS → desktop,
@@ -81,7 +102,9 @@ driver's startup/readiness waits.
   on `mqt_js`, with SIGABRT after signal 11. Two later starts succeeded with
   the UI instrumentor attached after startup. The app/emulator/automation cause
   was not isolated; this is not evidence of a server outage or an established
-  Android-wide regression.
+  Android-wide regression. The fatal signal at `01:29:52.240Z` preceded the
+  QSS socket's connection at `01:29:53.075Z`. QSS was enabled, but the evidence
+  does not establish that QSS caused this crash.
 - One Android send helper queried before its native text field was available;
   waiting for the actual input and retrying succeeded. A separate iOS control
   connection reset interrupted a cold-start observation. Both are retained as
