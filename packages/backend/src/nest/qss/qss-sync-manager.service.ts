@@ -13,6 +13,7 @@ import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
+import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { SocketService } from '../socket/socket.service'
 import { NseSyncSeqUpdatedEvent, SocketEvents } from '@quiet/types'
@@ -614,7 +615,15 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
       },
     }
 
-    return await this._sendLogEntrySyncMessage(dataSyncMessage, update.addr)
+    const success = await this._sendLogEntrySyncMessage(dataSyncMessage, update.addr)
+    if (success) {
+      // Preserve the entry's original audience, before the team-wide QSS transport encryption.
+      // Messages and metadata store their encryption scope in different envelope fields.
+      const value = update.entry.payload.value as EncryptedMessage | EncryptedAndSignedPayload | undefined
+      const scope = value && ('channelId' in value ? value.contents?.scope : value.encrypted?.scope)
+      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, update.teamId, scope)
+    }
+    return success
   }
 
   private async _sendLogEntrySyncMessage(
@@ -650,7 +659,6 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
       }
       success = true
       this.recordLogSyncSuccess(hash)
-      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, dataSyncMessage.payload.teamId)
     }
 
     if (!success) {
