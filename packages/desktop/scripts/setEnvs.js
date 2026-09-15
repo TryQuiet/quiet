@@ -11,12 +11,18 @@ exports.default = async function (context) {
     return
   }
 
+  const artifact = context.artifactPaths && context.artifactPaths[0]
+  if (!artifact || !String(artifact).endsWith('.AppImage')) {
+    console.log('skipping AppImage env rewrite (no AppImage artifact)')
+    return
+  }
+
   const response = await fetch('https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage')
   if (!response.ok) throw new Error(`${response.statusText}`)
   const targetPath = `${context.outDir}/appimagetool-x86_64.AppImage`
   await streamPipeline(response.body, fs.createWriteStream(targetPath))
   fs.chmodSync(targetPath, 0o755)
-  childProcess.execSync(`${context.artifactPaths[0]} --appimage-extract`)
+  childProcess.execSync(`${artifact} --appimage-extract`)
   childProcess.execSync(`mv ./squashfs-root ${context.outDir}/squashfs-root`)
   const data = fs.readFileSync(`${context.outDir}/squashfs-root/AppRun`, 'utf8').split('\n')
   const index = data.findIndex(text => text === 'BIN="$APPDIR/@quietdesktop"')
@@ -25,8 +31,8 @@ exports.default = async function (context) {
     fs.writeFileSync(`${context.outDir}/squashfs-root/AppRun`, data.join('\n'), 'utf8')
   } else throw new Error('no path to channge')
   childProcess.execSync(`${targetPath} ${context.outDir}/squashfs-root`)
-  fs.unlinkSync(`${context.artifactPaths[0]}`)
-  const appName = context.artifactPaths[0].split('/').pop()
+  fs.unlinkSync(`${artifact}`)
+  const appName = artifact.split('/').pop()
   if (appName) {
     childProcess.execSync(`mv ./Quiet-x86_64.AppImage ${context.outDir}/${appName}`)
   } else throw new Error('no file name')
