@@ -52,6 +52,7 @@ describe('ChannelStore', () => {
     ;(channelStore as any).store = {
       events: storeEvents,
       iterator: emptyIterator,
+      log: { heads: async () => [] },
       sync: {
         start: jest.fn(async () => {}),
       },
@@ -81,9 +82,22 @@ describe('ChannelStore', () => {
 
 describe('ChannelStore incremental message IDs', () => {
   const createStore = () => {
-    const entries: { hash: string; value: any }[] = []
+    type Entry = { hash: string; value: any; next?: string[]; refs?: string[] }
+    const entries: Entry[] = []
     const events = new EventEmitter()
     const entriesByHash = new Map<string, any>()
+    const logEntries = new Map<string, any>()
+    const logReads = { has: 0, get: 0 }
+    const save = (entry: Entry) => {
+      entries.push(entry)
+      entriesByHash.set(entry.hash, entry.value)
+      logEntries.set(entry.hash, {
+        hash: entry.hash,
+        payload: { value: entry.value },
+        next: entry.next ?? [],
+        refs: entry.refs ?? [],
+      })
+    }
     const reads = { iterator: 0, get: 0 }
     const auth = Object.assign(new EventEmitter(), { team: { id: 'team' } })
     const onConsume = jest.fn<(message: any) => Promise<any>>(async message => ({ ...message, verified: true }))
@@ -105,6 +119,32 @@ describe('ChannelStore incremental message IDs', () => {
       _messagesService: { onConsume },
       store: {
         events,
+        log: {
+          heads: async () => {
+            // Existing-history tests seed entries before subscribe; index those fixtures here.
+            for (const entry of entries) {
+              if (!logEntries.has(entry.hash)) {
+                logEntries.set(entry.hash, {
+                  hash: entry.hash,
+                  payload: { value: entry.value },
+                  next: entry.next ?? [],
+                  refs: entry.refs ?? [],
+                })
+                entriesByHash.set(entry.hash, entry.value)
+              }
+            }
+            const parents = new Set(entries.flatMap(entry => entry.next ?? []))
+            return [...logEntries.values()].filter(entry => !parents.has(entry.hash))
+          },
+          has: async (hash: string) => {
+            logReads.has++
+            return logEntries.has(hash)
+          },
+          get: async (hash: string) => {
+            logReads.get++
+            return logEntries.get(hash)
+          },
+        },
         iterator: async function* () {
           for (const entry of entries) {
             reads.iterator++
@@ -121,12 +161,15 @@ describe('ChannelStore incremental message IDs', () => {
     })
     const ids = jest.fn<(event: any) => void>()
     store.on(StorageEvents.MESSAGE_IDS_STORED, ids)
-    const append = async (id: string, hash = id, value: any = { id, channelId: 'general', teamId: 'team' }) => {
-      entries.push({ hash, value })
-      entriesByHash.set(hash, value)
-      await (events.listeners('update')[0] as (...args: any[]) => Promise<void>)({ hash, payload: { value } })
+    const announce = async (hash: string) => {
+      await (events.listeners('update')[0] as (...args: any[]) => Promise<void>)(logEntries.get(hash))
     }
-    return { store, auth, entries, onConsume, ids, append, reads }
+    const append = async (id: string, hash = id, value: any = { id, channelId: 'general', teamId: 'team' }) => {
+      const previous = entries.at(-1)?.hash
+      save({ hash, value, next: previous === undefined ? [] : [previous] })
+      await announce(hash)
+    }
+    return { store, auth, entries, onConsume, ids, append, reads, logReads, save, announce, logEntries }
   }
 
   it('consumes 1,000 serial arrivals exactly once each, instead of 501,500 times', async () => {
@@ -192,7 +235,7 @@ describe('ChannelStore incremental message IDs', () => {
       owner: user.userId,
       timestamp: 1700000000000,
     }
-    const { store, onConsume, ids, append } = createStore()
+    const { store, onConsume, ids, append, save, announce } = createStore()
     onConsume.mockImplementation(message => service.onConsume(message, channel))
     await store.subscribe()
     let encrypted: any
@@ -210,17 +253,24 @@ describe('ChannelStore incremental message IDs', () => {
       )
       await append(encrypted.id, encrypted.id, encrypted)
     }
-    await append('wrong-id', 'tampered-id', { ...encrypted, id: 'wrong-id' })
+    save({ hash: 'tampered-id', value: { ...encrypted, id: 'wrong-id' }, next: [encrypted.id] })
     const cipher = Uint8Array.from(encrypted.contents.contents)
     cipher[cipher.length - 1] ^= 1
-    await append('wrong-cipher', 'tampered-cipher', {
-      ...encrypted,
-      contents: { ...encrypted.contents, contents: cipher },
+    save({
+      hash: 'tampered-cipher',
+      value: {
+        ...encrypted,
+        contents: { ...encrypted.contents, contents: cipher },
+      },
+      next: ['tampered-id'],
     })
-    expect(onConsume).toHaveBeenCalledTimes(1_002)
-    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual(
-      Array.from({ length: 1_000 }, (_, n) => `signed-${n}`)
-    )
+    save({ hash: 'backlog-head', value: encrypted, next: ['tampered-cipher'] })
+    await announce('backlog-head')
+    expect(onConsume).toHaveBeenCalledTimes(1_003)
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual([
+      ...Array.from({ length: 1_000 }, (_, n) => `signed-${n}`),
+      'signed-999',
+    ])
   })
 
   it('coalesces a concurrent backlog without losing arrivals or trusting rejected IDs', async () => {
@@ -235,6 +285,161 @@ describe('ChannelStore incremental message IDs', () => {
     expect(new Set(ids.mock.calls.flatMap(([event]) => event.ids))).toEqual(
       new Set(Array.from({ length: 100 }, (_, n) => `message-${n}`))
     )
+  })
+
+  const value = (id: string) => ({ id, channelId: 'general', teamId: 'team' })
+
+  it('indexes every missed message when only the joined head emits an update', async () => {
+    const { store, save, announce, onConsume, ids, reads, logReads } = createStore()
+    const delivered = jest.fn<(payload: { messages: { id: string }[] }) => void>()
+    store.on(StorageEvents.MESSAGES_STORED, delivered)
+    await store.subscribe()
+    save({ hash: 'oldest', value: value('oldest') })
+    save({ hash: 'middle', value: value('middle'), next: ['oldest'] })
+    save({ hash: 'head', value: value('head'), next: ['middle'] })
+    await announce('head')
+    expect(onConsume.mock.calls.map(([message]) => message.id)).toEqual(['oldest', 'middle', 'head'])
+    expect(ids.mock.lastCall?.[0].ids).toEqual(['oldest', 'middle', 'head'])
+    expect(delivered.mock.calls.flatMap(([payload]) => payload.messages.map((message: any) => message.id))).toEqual([
+      'head',
+    ])
+    expect(logReads).toEqual({ has: 3, get: 2 })
+    expect((await store.getEntries(['oldest'])).map(message => message.id)).toEqual(['oldest'])
+    expect(reads).toEqual({ iterator: 0, get: 1 })
+  })
+
+  it('shares one ancestry walk across 100 concurrent heads on a 1,000-entry backlog', async () => {
+    const { store, save, announce, onConsume, ids, reads, logReads } = createStore()
+    await store.subscribe()
+    for (let n = 0; n < 1000; n++) {
+      save({ hash: `old-${n}`, value: value(`old-${n}`), next: n === 0 ? [] : [`old-${n - 1}`] })
+    }
+    for (let n = 0; n < 100; n++) save({ hash: `head-${n}`, value: value(`head-${n}`), next: ['old-999'] })
+    await Promise.all(Array.from({ length: 100 }, (_, n) => announce(`head-${n}`)))
+    expect(onConsume).toHaveBeenCalledTimes(1100)
+    expect(new Set(ids.mock.calls.flatMap(([event]) => event.ids))).toHaveProperty('size', 1100)
+    expect(logReads).toEqual({ has: 1100, get: 1000 })
+    expect(reads.iterator).toBe(0)
+    await announce('head-0')
+    expect(onConsume).toHaveBeenCalledTimes(1100)
+    expect(logReads).toEqual({ has: 1100, get: 1000 })
+  })
+
+  it('walks branching next ancestry once and does not expose a refs-only branch', async () => {
+    const { store, save, announce, onConsume, ids } = createStore()
+    await store.subscribe()
+    save({ hash: 'base', value: value('base') })
+    save({ hash: 'left', value: value('left'), next: ['base'] })
+    save({ hash: 'right', value: value('right'), next: ['base'] })
+    save({ hash: 'refs-only', value: value('refs-only') })
+    save({ hash: 'head', value: value('head'), next: ['left', 'right'], refs: ['refs-only'] })
+    await announce('head')
+    expect(onConsume).toHaveBeenCalledTimes(4)
+    expect(new Set(ids.mock.lastCall?.[0].ids)).toEqual(new Set(['base', 'left', 'right', 'head']))
+    expect(await store.getEntries(['refs-only'])).toEqual([])
+  })
+
+  it('remembers rejected ancestors within an epoch but retries them after an auth update', async () => {
+    const { store, auth, save, announce, onConsume, ids, append } = createStore()
+    let allowed = false
+    onConsume.mockImplementation(async message =>
+      message.id === 'pending' && !allowed ? false : { ...message, verified: true }
+    )
+    await store.subscribe()
+    save({ hash: 'pending', value: value('pending') })
+    save({ hash: 'head', value: value('head'), next: ['pending'] })
+    await announce('head')
+    for (let n = 0; n < 10; n++) await append(`later-${n}`)
+    expect(onConsume.mock.calls.filter(([message]) => message.id === 'pending')).toHaveLength(1)
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).not.toContain('pending')
+    allowed = true
+    auth.emit(SigchainEvents.UPDATED)
+    await new Promise(resolve => setImmediate(resolve))
+    expect(onConsume.mock.calls.filter(([message]) => message.id === 'pending')).toHaveLength(2)
+    expect(ids.mock.lastCall?.[0].ids).toContain('pending')
+  })
+
+  it('discards old-epoch ancestry consumes and rechecks the current graph', async () => {
+    const { store, auth, save, announce, onConsume, ids } = createStore()
+    await store.subscribe()
+    save({ hash: 'ancestor', value: value('ancestor') })
+    save({ hash: 'head', value: value('head'), next: ['ancestor'] })
+    let resume!: () => void
+    const paused = new Promise<void>(resolve => {
+      resume = resolve
+    })
+    onConsume.mockImplementationOnce(async message => {
+      await paused
+      return { ...message, verified: true }
+    })
+    onConsume.mockImplementation(async () => false)
+    const arrival = announce('head')
+    await new Promise(resolve => setImmediate(resolve))
+    auth.emit(SigchainEvents.UPDATED)
+    await new Promise(resolve => setImmediate(resolve))
+    resume()
+    await arrival
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual([])
+    onConsume.mockImplementation(async message => ({ ...message, verified: true }))
+    auth.emit(SigchainEvents.UPDATED)
+    await new Promise(resolve => setImmediate(resolve))
+    expect(new Set(ids.mock.lastCall?.[0].ids)).toEqual(new Set(['ancestor', 'head']))
+  })
+
+  it('does not announce an old delta when auth changes during ID reconciliation', async () => {
+    const { store, auth, onConsume, ids, append } = createStore()
+    let allowed = true
+    onConsume.mockImplementation(async message => (allowed ? { ...message, verified: true } : false))
+    await store.subscribe()
+    const ensure = jest.spyOn(store as any, 'ensureMessageIndex')
+    ensure.mockImplementationOnce(async () => {
+      allowed = false
+      auth.emit(SigchainEvents.UPDATED)
+      await new Promise(resolve => setImmediate(resolve))
+    })
+    try {
+      await append('revoked-before-announcement')
+      expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual([])
+    } finally {
+      ensure.mockRestore()
+    }
+  })
+
+  it('ignores a stale ancestor read rejection after the store closes and reopens', async () => {
+    const { store, save, announce, ids } = createStore()
+    await store.subscribe()
+    save({ hash: 'ancestor', value: value('ancestor') })
+    save({ hash: 'head', value: value('head'), next: ['ancestor'] })
+    let reject!: (error: Error) => void
+    const paused = new Promise<never>((_resolve, rejectPromise) => {
+      reject = rejectPromise
+    })
+    ;(store as any).store.log.get = async () => paused
+    const arrival = announce('head')
+    await new Promise(resolve => setImmediate(resolve))
+    await store.close()
+    const replacement = createStore()
+    replacement.save({ hash: 'replacement', value: value('replacement') })
+    Object.assign(store, { store: (replacement.store as any).store, closing: false })
+    await store.subscribe()
+    reject(new Error('Old log is closed'))
+    await arrival
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual(['replacement'])
+  })
+
+  it('does not treat an unavailable or unjoined ancestor as completed ancestry', async () => {
+    const { store, save, announce, onConsume, ids, logReads } = createStore()
+    await store.subscribe()
+    save({ hash: 'good', value: value('good') })
+    save({ hash: 'head', value: value('head'), next: ['missing', 'good'] })
+    await expect(announce('head')).rejects.toThrow('not joined')
+    expect(onConsume).toHaveBeenCalledTimes(1)
+    expect(logReads.get).toBe(1) // Never fetch an unjoined block, even if it is available.
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual([])
+    save({ hash: 'missing', value: value('missing') })
+    await announce('head')
+    expect(onConsume).toHaveBeenCalledTimes(4)
+    expect(new Set(ids.mock.lastCall?.[0].ids)).toEqual(new Set(['good', 'missing', 'head']))
   })
 
   it('retries unreadable history and removes old IDs when authorization changes', async () => {

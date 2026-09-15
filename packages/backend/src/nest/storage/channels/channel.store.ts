@@ -58,12 +58,24 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   private closing = false
   private messageIndexEpoch = 0
   private messageIndexRefresh: Promise<void> | undefined
+  // A completed hash includes all of its next ancestry, even entries rejected by onConsume.
+  // Completion is valid only in this auth epoch. Serialize walks so concurrent heads share work.
+  private readonly indexedAncestry = new Set<string>()
+  private messageIndexWork: Promise<unknown> = Promise.resolve()
+
+  private queueMessageIndex<T>(work: () => Promise<T>): Promise<T> {
+    const task = this.messageIndexWork.then(work)
+    this.messageIndexWork = task.catch(() => {})
+    return task
+  }
 
   private invalidateMessageIndex(): void {
     this.messageIndexEpoch += 1
     this.messageIndexReady = false
     this.messageIds.clear()
     this.messageHashes.clear()
+    this.indexedAncestry.clear()
+    this.messageIndexWork = Promise.resolve()
   }
   private readonly handleAuthUpdated = (): void => {
     if (this.closing) return
@@ -204,22 +216,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
       this.logger.info(`${this.channelData.id} database updated`, entry.hash, entryChannelId)
       const epoch = this.messageIndexEpoch
-      let message: ConsumedChannelMessage | undefined | false = undefined
-      if (entry.payload.value == null) {
-        this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
-      } else {
-        message = await this.messagesService.onConsume(entry.payload.value!, this.channelData)
-        if (message == null) {
-          this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
-        } else if (message == false) {
-          this.logger.trace(`Skipping processing message`, entry.payload.value.id, entry.payload.value.channelId)
-        } else if (epoch === this.messageIndexEpoch) {
-          this.indexMessage(entry.hash, message.id)
-          await this._handleMessageOnUpdate(message)
-        }
-      }
-      const ids = epoch === this.messageIndexEpoch && message != null && message !== false ? [message.id] : []
-      await this.refreshMessageIds(ids)
+      const ids = await this.queueMessageIndex(() => this.indexJoinedAncestry([entry], epoch, entry.hash))
+      if (epoch !== this.messageIndexEpoch || this.closing) return
+      await this.refreshMessageIds(ids, epoch)
     })
 
     if (!this.authListenerAttached) {
@@ -321,7 +320,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    *
    * @emits StorageEvents.MESSAGE_IDS_STORED
    */
-  private async refreshMessageIds(addedIds?: string[]): Promise<void> {
+  private async refreshMessageIds(addedIds?: string[], addedEpoch = this.messageIndexEpoch): Promise<void> {
     try {
       const wasReady = this.messageIndexReady
       await this.ensureMessageIndex()
@@ -329,7 +328,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       const epoch = this.messageIndexEpoch
       // The frontend treats IDs as candidates to fetch, not an authoritative replacement list.
       // Ordinary arrivals need only announce the delta; reconciliation still sends a snapshot.
-      const ids = wasReady && addedIds !== undefined ? addedIds : [...this.messageIds.values()]
+      const ids = wasReady && addedIds !== undefined && addedEpoch === epoch ? addedIds : [...this.messageIds.values()]
       if (addedIds !== undefined && ids.length === 0) return
       const community = await this.localDbService.getCurrentCommunity()
       if (epoch !== this.messageIndexEpoch) return
@@ -364,13 +363,11 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       while (!this.messageIndexReady && !this.closing) {
         const epoch = this.messageIndexEpoch
         try {
-          for await (const entry of this.getStore().iterator()) {
-            if (epoch !== this.messageIndexEpoch) break
-            if (entry.value == null || this.messageIds.has(entry.hash)) continue
-            const message = await this.messagesService.onConsume(entry.value, this.channelData)
-            if (epoch !== this.messageIndexEpoch) break
-            if (message != null && message !== false) this.indexMessage(entry.hash, message.id)
-          }
+          await this.queueMessageIndex(async () => {
+            if (epoch !== this.messageIndexEpoch || this.closing) return
+            const heads = await this.getStore().log.heads()
+            await this.indexJoinedAncestry(heads as LogEntry<EncryptedMessage>[], epoch)
+          })
         } catch (error) {
           // A closed/replaced store may reject pending reads. Discard only stale work, then
           // rebuild the current store; an error in the current epoch must remain observable.
@@ -384,6 +381,69 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     } finally {
       this.messageIndexRefresh = undefined
     }
+  }
+
+  /**
+   * OrbitDB emits update for the joined head, although joinEntry may also import its entire
+   * missing next ancestry. Walk that delta, stopping only at fully checked ancestry.
+   * Reads come from this log's accepted index; block availability alone is not membership.
+   */
+  private async indexJoinedAncestry(
+    heads: LogEntry<EncryptedMessage>[],
+    epoch: number,
+    notifyHash?: string
+  ): Promise<string[]> {
+    const ids: string[] = []
+    if (epoch !== this.messageIndexEpoch || this.closing) return ids
+    const log = this.getStore().log
+    type Frame = { hash: string; entry?: LogEntry<EncryptedMessage>; finish?: boolean }
+    const stack: Frame[] = heads.map(entry => ({ hash: entry.hash, entry }))
+    const active = new Set<string>()
+    const completed = new Set<string>()
+    try {
+      while (stack.length > 0 && epoch === this.messageIndexEpoch && !this.closing) {
+        const frame = stack.pop()!
+        if (this.indexedAncestry.has(frame.hash) || completed.has(frame.hash)) continue
+        if (frame.finish) {
+          const entry = frame.entry!
+          const value = entry.payload.value
+          if (value?.channelId === this.channelData.id) {
+            const message = await this.messagesService.onConsume(value, this.channelData)
+            if (epoch !== this.messageIndexEpoch || this.closing) return []
+            if (message != null && message !== false) {
+              this.indexMessage(entry.hash, message.id)
+              ids.push(message.id)
+              if (entry.hash === notifyHash) await this._handleMessageOnUpdate(message)
+            }
+          }
+          if (epoch !== this.messageIndexEpoch || this.closing) return []
+          completed.add(entry.hash)
+          active.delete(entry.hash)
+          continue
+        }
+
+        if (active.has(frame.hash)) throw new Error('Cycle in channel message ancestry')
+        const joined = await log.has(frame.hash)
+        if (epoch !== this.messageIndexEpoch || this.closing) return []
+        if (!joined) throw new Error(`Message ancestry is not joined to the channel log: ${frame.hash}`)
+        const entry = frame.entry ?? ((await log.get(frame.hash)) as LogEntry<EncryptedMessage> | undefined)
+        if (epoch !== this.messageIndexEpoch || this.closing) return []
+        if (entry == null || entry.hash !== frame.hash) throw new Error(`Missing channel log entry: ${frame.hash}`)
+        active.add(entry.hash)
+        stack.push({ hash: entry.hash, entry, finish: true })
+        // Match OrbitDB's visible-log iterator: refs are fetch shortcuts, not visible ancestry.
+        for (const hash of new Set(entry.next ?? [])) {
+          if (!this.indexedAncestry.has(hash)) stack.push({ hash })
+        }
+      }
+    } catch (error) {
+      if (epoch === this.messageIndexEpoch && !this.closing) throw error
+      return []
+    }
+    // Commit completion only after the entire delta succeeds, so a read failure cannot hide
+    // already consumed but not yet announced IDs from the next attempt.
+    for (const hash of completed) this.indexedAncestry.add(hash)
+    return ids
   }
 
   // Base Store Logic

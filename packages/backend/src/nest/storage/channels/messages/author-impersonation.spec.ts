@@ -400,6 +400,14 @@ describe('Message author impersonation (#125, CLIENT-002)', () => {
     ;(channelStore as any).store = {
       events: storeEvents,
       sync: { start: async () => {} },
+      log: {
+        heads: async () => replicated.map(value => ({ hash: value.id, payload: { value }, next: [] })),
+        has: async (hash: string) => replicated.some(value => value.id === hash),
+        get: async (hash: string) => {
+          const value = replicated.find(value => value.id === hash)
+          return value === undefined ? undefined : { hash, payload: { value }, next: [] }
+        },
+      },
       iterator: async function* () {
         for (const value of replicated) {
           yield { hash: value.id, value }
@@ -427,7 +435,7 @@ describe('Message author impersonation (#125, CLIENT-002)', () => {
       // Rejected entries emit no new-ID notification. Await the actual handler so the
       // assertions also cover rejection without relying on an empty notification.
       const update = storeEvents.listeners('update')[0] as (entry: unknown) => Promise<void>
-      await update({ hash: entry.id, payload: { value: entry } })
+      await update({ hash: entry.id, payload: { value: entry }, next: [] })
     }
 
     return { stored, notified, ids }
