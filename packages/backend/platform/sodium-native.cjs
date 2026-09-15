@@ -17,7 +17,7 @@ function bytes(value, sodium) {
   return value
 }
 function output(value, format, sodium) {
-  if (format === undefined || format === 'uint8array') return value
+  if (!format || format === 'uint8array') return value
   if (format === 'hex') return sodium.to_hex(value)
   if (format === 'base64') return sodium.to_base64(value)
   if (format === 'text') return sodium.to_string(value)
@@ -43,7 +43,7 @@ function install(sodium, binding) {
       const result = binding[name](...Array.from({length: count}, (_, i) => bytes(args[i], sodium)))
       if (name === 'crypto_sign_verify_detached') return result
       if (name === 'crypto_sign_seed_keypair') {
-        if (args[count] === undefined || args[count] === 'uint8array') return {...result, keyType: 'ed25519'}
+        if (!args[count] || args[count] === 'uint8array') return {...result, keyType: 'ed25519'}
         try {
           return {publicKey: output(result.publicKey, args[count], sodium), privateKey: output(result.privateKey, args[count], sodium), keyType: 'ed25519'}
         } finally { result.privateKey.fill(0) }

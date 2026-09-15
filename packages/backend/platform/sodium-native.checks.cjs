@@ -63,6 +63,26 @@ test('Ed25519 and X25519 outputs interoperate, including offsets, mutation, and 
   }
 })
 
+test('falsy output formats preserve wrapper defaults across all native output operations', () => {
+  const seed = new Uint8Array(32).fill(13)
+  const pair = original.crypto_sign_seed_keypair(seed)
+  const pk = original.crypto_scalarmult_base(seed)
+  const nonce = new Uint8Array(24), message = new Uint8Array([1, 2, 3])
+  const cipher = original.crypto_box_easy(message, nonce, pk, seed)
+  const operations = [
+    ['crypto_sign_seed_keypair', [seed]],
+    ['crypto_scalarmult_base', [seed]],
+    ['crypto_sign_detached', [message, pair.privateKey]],
+    ['crypto_box_easy', [message, nonce, pk, seed]],
+    ['crypto_box_open_easy', [cipher, nonce, pk, seed]],
+  ]
+  for (const format of [undefined, null, '', false, 0, -0, NaN, 0n]) {
+    for (const [name, args] of operations) {
+      assert.deepEqual(native[name](...args, format), original[name](...args, format), `${name}: ${String(format)}`)
+    }
+  }
+})
+
 test('malformed Ed25519 secret/public halves preserve sodium behavior instead of being repaired', () => {
   const keys = native.crypto_sign_seed_keypair(new Uint8Array(32).fill(3))
   const message = Buffer.from('must remain invalid')

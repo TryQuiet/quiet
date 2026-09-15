@@ -43,8 +43,11 @@ or React Native bridge is required.
 The app's **Embed native libsodium** Xcode phase builds/checks an artifact in
 DerivedData, selects the SDK's slice, embeds it, and signs it with the app's
 identity (ad hoc for unsigned simulator builds). A second invocation reuses a
-verified artifact. Source/builder hashes and binary hashes reject stale or
-modified caches. Both slices build at minimum iOS 17.1. Downloads are cached
+verified artifact. Source/builder hashes and binary hashes detect stale builds
+and accidental cache corruption. The adjacent manifest is locally generated and
+writable; it does not authenticate build provenance against a process that can
+replace both the manifest and binary. Code signing protects the resulting app
+after signing. Both slices build at minimum iOS 17.1. Downloads are cached
 under `native-libsodium/.build/`; artifacts and caches are ignored by Git.
 The source license ships alongside the artifact and is retained here.
 
