@@ -610,7 +610,7 @@ describe('Multiple Clients', () => {
 
       it('Guest sees join message', async () => {
         await generalChannelUser1.getMessageIdsByText(
-          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
+          `@${users.user2.username} has joined! 🎉`,
           users.user2.username,
           120_000
         )
@@ -618,7 +618,7 @@ describe('Multiple Clients', () => {
 
       it('Owner sees join message for guest', async () => {
         await generalChannelOwner.getMessageIdsByText(
-          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
+          `@${users.user2.username} has joined! 🎉`,
           users.user2.username,
           120_000
         )
@@ -626,7 +626,7 @@ describe('Multiple Clients', () => {
 
       it('Other user sees join message for guest', async () => {
         await generalChannelUser3.getMessageIdsByText(
-          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
+          `@${users.user2.username} has joined! 🎉`,
           users.user2.username,
           120_000
         )
