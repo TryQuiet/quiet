@@ -1,0 +1,529 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-14",
+  "host": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v24.13.0"
+  },
+  "scope": "Offline client processing only; no live server writes or deployment changes",
+  "authRevisions": {
+    "baseline": "6f534c89bceb875e8c71997943e5e76e48ccbd88",
+    "keyAndCommitmentCache": "62c23af8a7d6c0bac168fdaaec1c1f57b96c5f04",
+    "graphCache": "de490850b31e5ff564ab058421b133e8b040b18f",
+    "manifestCache": "06cc717da1675788614985d290e33426a3865a30"
+  },
+  "series": {
+    "message_native_final_graph_cache": [
+      {
+        "phase": "environment",
+        "node": "v24.13.0",
+        "platform": "linux",
+        "arch": "x64",
+        "wasm": "object",
+        "authBundleSha256": "05e7e0686b10efc4fffb9326974954e7179dbe3820bc2179ca673c13ab36e806"
+      },
+      {
+        "phase": "load",
+        "users": 2,
+        "ms": 12.676371999998082,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_sign_verify_detached": 9
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 2,
+        "count": 1000,
+        "ms": 84.77627799999755,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 1000
+        }
+      },
+      {
+        "phase": "load",
+        "users": 10,
+        "ms": 11.407471999998961,
+        "counts": {
+          "crypto_box_open_easy": 24,
+          "crypto_sign_verify_detached": 40
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 10,
+        "count": 10,
+        "ms": 2.187218999999459,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 10
+        }
+      },
+      {
+        "phase": "load",
+        "users": 25,
+        "ms": 24.442769999997836,
+        "counts": {
+          "crypto_box_open_easy": 45,
+          "crypto_sign_verify_detached": 75
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 25,
+        "count": 10,
+        "ms": 1.5090019999988726,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 10
+        }
+      },
+      {
+        "phase": "load",
+        "users": 50,
+        "ms": 55.99039899999843,
+        "counts": {
+          "crypto_box_open_easy": 75,
+          "crypto_sign_verify_detached": 125
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 50,
+        "count": 10,
+        "ms": 1.5954940000010538,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 10
+        }
+      },
+      {
+        "phase": "load",
+        "users": 100,
+        "ms": 154.8517329999995,
+        "counts": {
+          "crypto_box_open_easy": 150,
+          "crypto_sign_verify_detached": 250
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 100,
+        "count": 1000,
+        "ms": 81.7133700000013,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 1000
+        }
+      }
+    ],
+    "message_jitless_key_cache_only": [
+      {
+        "phase": "load",
+        "users": 2,
+        "ms": 643.8196389999999,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_sign_verify_detached": 9
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 2,
+        "count": 1000,
+        "ms": 38042.725406,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 1000
+        }
+      },
+      {
+        "phase": "load",
+        "users": 10,
+        "ms": 2960.6739060000036,
+        "counts": {
+          "crypto_box_open_easy": 31,
+          "crypto_sign_verify_detached": 49
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 10,
+        "count": 10,
+        "ms": 553.6764169999951,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 10
+        }
+      },
+      {
+        "phase": "load",
+        "users": 25,
+        "ms": 7405.181172000004,
+        "counts": {
+          "crypto_box_open_easy": 76,
+          "crypto_sign_verify_detached": 124
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 25,
+        "count": 10,
+        "ms": 566.3631279999972,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 10
+        }
+      },
+      {
+        "phase": "load",
+        "users": 50,
+        "ms": 14750.236001000005,
+        "counts": {
+          "crypto_box_open_easy": 151,
+          "crypto_sign_verify_detached": 249
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 50,
+        "count": 10,
+        "ms": 554.7605599999952,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 10
+        }
+      },
+      {
+        "phase": "load",
+        "users": 100,
+        "ms": 30478.238868,
+        "counts": {
+          "crypto_box_open_easy": 301,
+          "crypto_sign_verify_detached": 499
+        }
+      },
+      {
+        "phase": "messages",
+        "users": 100,
+        "count": 1000,
+        "ms": 37287.481224,
+        "counts": {
+          "crypto_scalarmult_base": 4,
+          "crypto_sign_seed_keypair": 4,
+          "crypto_box_open_easy": 3,
+          "crypto_sign_verify_detached": 1000
+        }
+      }
+    ],
+    "editions_native_final_graph_cache": [
+      {
+        "phase": "environment",
+        "node": "v24.13.0",
+        "platform": "linux",
+        "arch": "x64",
+        "wasm": "object",
+        "authBundleSha256": "05e7e0686b10efc4fffb9326974954e7179dbe3820bc2179ca673c13ab36e806",
+        "crdxBundleSha256": "6e856b3d0c213a175f6cd733bb72a27376023849b994191bd02a70b87f3ee2fb"
+      },
+      {
+        "phase": "load",
+        "users": 10,
+        "ms": 23.349331000000006,
+        "counts": {
+          "crypto_box_open_easy": 31,
+          "crypto_sign_verify_detached": 49
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 10,
+        "sequence": 1,
+        "ms": 17.99454700000001,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 7,
+          "crypto_sign_seed_keypair": 7,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 10,
+        "sequence": 2,
+        "ms": 15.135351999999898,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 6,
+          "crypto_sign_seed_keypair": 6,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "load",
+        "users": 100,
+        "ms": 184.72903800000006,
+        "counts": {
+          "crypto_box_open_easy": 270,
+          "crypto_sign_verify_detached": 450
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 1,
+        "ms": 262.2274110000001,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 7,
+          "crypto_sign_seed_keypair": 7,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 2,
+        "ms": 253.99669099999983,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 6,
+          "crypto_sign_seed_keypair": 6,
+          "crypto_sign_verify_detached": 1
+        }
+      }
+    ],
+    "editions_jitless_final_graph_cache_original_fixtures": [
+      {
+        "phase": "load",
+        "users": 10,
+        "ms": 2954.254603000001,
+        "counts": {
+          "crypto_box_open_easy": 31,
+          "crypto_sign_verify_detached": 49
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 10,
+        "sequence": 1,
+        "ms": 741.4873189999998,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 7,
+          "crypto_sign_seed_keypair": 7,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 10,
+        "sequence": 2,
+        "ms": 729.7935700000016,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 6,
+          "crypto_sign_seed_keypair": 6,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "load",
+        "users": 100,
+        "ms": 28058.742858999998,
+        "counts": {
+          "crypto_box_open_easy": 270,
+          "crypto_sign_verify_detached": 450
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 1,
+        "ms": 6476.666498999992,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 7,
+          "crypto_sign_seed_keypair": 7,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 2,
+        "ms": 6241.0247170000075,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 6,
+          "crypto_sign_seed_keypair": 6,
+          "crypto_sign_verify_detached": 1
+        }
+      }
+    ],
+    "cold_100_user_jitless_profile_before_manifest_cache": [
+      {
+        "phase": "environment",
+        "node": "v24.13.0",
+        "platform": "linux",
+        "arch": "x64",
+        "wasm": "undefined",
+        "authBundleSha256": "05e7e0686b10efc4fffb9326974954e7179dbe3820bc2179ca673c13ab36e806",
+        "crdxBundleSha256": "6e856b3d0c213a175f6cd733bb72a27376023849b994191bd02a70b87f3ee2fb"
+      },
+      {
+        "phase": "load",
+        "users": 100,
+        "ms": 30759.95534,
+        "counts": {
+          "crypto_box_open_easy": 301,
+          "crypto_sign_verify_detached": 499
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 1,
+        "ms": 6388.104010000003,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 7,
+          "crypto_sign_seed_keypair": 7,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 2,
+        "ms": 6342.912937000001,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 6,
+          "crypto_sign_seed_keypair": 6,
+          "crypto_sign_verify_detached": 1
+        }
+      }
+    ],
+    "cold_100_user_jitless_profile_after_manifest_cache": [
+      {
+        "phase": "environment",
+        "node": "v24.13.0",
+        "platform": "linux",
+        "arch": "x64",
+        "wasm": "undefined",
+        "authBundleSha256": "227698f32b7c0c6bb4e6cc8c05230aa1ac28659e88de4be9b80633a9201bff15",
+        "crdxBundleSha256": "6e856b3d0c213a175f6cd733bb72a27376023849b994191bd02a70b87f3ee2fb"
+      },
+      {
+        "phase": "load",
+        "users": 100,
+        "ms": 29073.972888999997,
+        "counts": {
+          "crypto_box_open_easy": 301,
+          "crypto_sign_verify_detached": 499
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 1,
+        "ms": 3443.424042000006,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 7,
+          "crypto_sign_seed_keypair": 7,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 2,
+        "ms": 3388.2611199999956,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 6,
+          "crypto_sign_seed_keypair": 6,
+          "crypto_sign_verify_detached": 1
+        }
+      }
+    ]
+  },
+  "checksums": {
+    "portable-message-native.jsonl": "b2ed8169f8961e0ed977348175b7cdf7547650c9ead9a104bc83ec73f7c1989a",
+    "jitless.jsonl": "c7a83b09f6d23bd3b62a1c68c8518e4311503d3ac4dbef2462e1f67d4776483a",
+    "portable-editions-native.jsonl": "19c7db09cf853a5970242cd2f1ba2bfd66bbd6bc44f978238c7d9909c2901021",
+    "received-editions-jitless.jsonl": "974c319025f0854b4a9361664f699960cf1b42d9fa96226e002fa9bebc372293",
+    "profile-editions.jsonl": "e9581737bbc1d3affeddc0c8bc1ac27e4f72e0f4ce5c1db61c0616125bfd86f5",
+    "private-100-user-before-manifest.cpuprofile": "2f94fb1835577a197c33e8d3a70f87090aaf9fcd5c17b89c05f55cee32837c50",
+    "manifest-profile-editions.jsonl": "5034a673ff88c3bdbee86f421b4069c6673fee5fc45280ea873fbf26bd14b804",
+    "private-100-user-after-manifest.cpuprofile": "d659aa1be0a2d6501e9118471f4010d7e82126aebd3e6fa87f1d268b2fec3651"
+  },
+  "profileBeforeManifestCache": {
+    "editionMs": 6388.10401,
+    "sampledInclusiveMs": {
+      "manifestBase58": 3053.6,
+      "hashAllCallers": 2570.6,
+      "hashEncryptedLinks": 1269.6,
+      "hashVisibleKeyCommitments": 703.5,
+      "hashGraphProofIdentities": 287.8,
+      "garbageCollection": 39.1
+    },
+    "caution": "Inclusive rows overlap; do not sum subrows with parents"
+  },
+  "tests": {
+    "authFocusedFullSweep": {
+      "passed": 442,
+      "skippedExistingProtocolGates": 54
+    },
+    "channelArrivalCount": {
+      "messages": 1000,
+      "baselineConsumes": 501500,
+      "fixedConsumes": 1000
+    },
+    "channelArrivalAndSingleIdFetch": {
+      "messages": 1000,
+      "consumes": 2000,
+      "indexedGets": 1000,
+      "iteratorReads": 0
+    },
+    "manifestSelectorCount": {
+      "scopeQueries": 3000,
+      "immutableBoxes": 2,
+      "base58Decodes": 4
+    }
+  },
+  "profileAfterManifestCache": {
+    "editionMs": 3443.424042,
+    "sampledInclusiveMs": {
+      "hashAllCallers": 2606.2,
+      "hashEncryptedLinks": 1287.7,
+      "keysetCommitment": 751.8
+    },
+    "sampledSelfMs": {
+      "base58DecodeUnsafe": 170.6
+    },
+    "caution": "Inclusive rows overlap; do not sum subrows with parents"
+  }
+}
