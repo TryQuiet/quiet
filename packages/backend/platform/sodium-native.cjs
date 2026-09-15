@@ -160,10 +160,18 @@ function enable(sodium, {platform = process.platform, warn = console.warn} = {})
     fallback()
     return sodium
   }
-  sodium.ready = Promise.prototype.then.call(ready.value, () => {
-    try { install(sodium) }
-    catch { fallback() }
-  })
+  let activated = false
+  try {
+    const nextReady = Promise.prototype.then.call(ready.value, () => {
+      // Promise species constructors can run while attaching this callback. If
+      // one makes ready unwritable, the queued callback must remain a no-op.
+      if (!activated) return
+      try { install(sodium) }
+      catch { fallback() }
+    })
+    sodium.ready = nextReady
+    activated = true
+  } catch { fallback() }
   return sodium
 }
 module.exports = {enable, install}

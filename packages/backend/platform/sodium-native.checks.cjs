@@ -261,4 +261,27 @@ test('unsupported module namespaces and ready properties are left untouched befo
   assert.throws(() => install(namespace), /unsupported sodium export object/)
 })
 
+test('failed ready publication cannot activate a previously queued installation', async () => {
+  const copy = {...original}
+  const warnings = []
+  let speciesCalls = 0
+  class ChangingPromise extends Promise {
+    static get [Symbol.species]() {
+      speciesCalls++
+      Object.defineProperty(copy, 'ready', {value: copy.ready, writable: false})
+      return Promise
+    }
+  }
+  const ready = new ChangingPromise(resolve => resolve())
+  copy.ready = ready
+  assert.equal(enable(copy, {platform: 'ios', warn: warning => warnings.push(warning)}), copy)
+  assert.equal(speciesCalls, 1)
+  assert.equal(warnings.length, 1)
+  assert.equal(copy.ready, ready)
+  await new Promise(resolve => setImmediate(resolve))
+  for (const name of Object.keys(original)) {
+    if (typeof original[name] === 'function') assert.equal(copy[name], original[name])
+  }
+})
+
 }
