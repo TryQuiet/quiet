@@ -3,7 +3,7 @@ import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type FactoryGirl } from 'factory-girl'
-import { generateTestChannelId, createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
+import { generateTestChannelId, createdChannelMessage, verifyUserInfoMessage } from '@quiet/common'
 import { DateTime } from 'luxon'
 import {
   type Community,
@@ -145,7 +145,7 @@ describe('verifyMessage saga test', () => {
       .run()
   })
 
-  it.each([
+  it.each<[string, boolean]>([
     ['an explicit rejection', false],
     ['no preserved verdict', undefined],
   ])('does not promote a known-author retry carrying %s', async (_label, verified) => {
@@ -230,15 +230,27 @@ describe('verifyMessage saga test', () => {
       .run()
   })
 
-  it('verify info message from user on general - success', async () => {
-    logger.info('verify info message from user on general - success')
+  it.each([
+    ['**@bob** has joined! 🎉', true],
+    [
+      '**@bob** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)',
+      true,
+    ],
+    ['**@alice** has joined! 🎉', false],
+    [
+      '**@alice** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)',
+      false,
+    ],
+    ['**@bob** has joined! 🎉 extra text', false],
+    ['**@bob** has joined! 🎉\n', false],
+  ])('verifies join message %s as %s', async (message, isVerified) => {
     const action = await factory.build('AddMessages', {
       messages: [
         await baseTypes.build('ChannelMessage', {
           userId: bobProfile.userId,
           channelId: generalChannel.id,
           type: MessageType.Info,
-          message: userJoinedMessage(bobProfile.nickname),
+          message,
         }),
       ],
       isVerified: true,
@@ -251,7 +263,7 @@ describe('verifyMessage saga test', () => {
       .put(
         messagesActions.addMessageVerificationStatus({
           id: action.payload.messages[0].id,
-          isVerified: true,
+          isVerified,
         })
       )
       .run()
