@@ -13,6 +13,7 @@ import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
+import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { SocketService } from '../socket/socket.service'
 import { NseSyncSeqUpdatedEvent, SocketEvents } from '@quiet/types'
@@ -597,6 +598,13 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
 
     this.logger.info('Syncing OrbitDB entry to QSS', update.hash)
 
+    // Channel messages use Events.add() (ADD); metadata uses key-value PUT/DEL operations
+    // with a different encrypted envelope and must still sync without alerting devices.
+    // Classify before the team-wide transport encryption, including when replaying queued writes.
+    const value = update.entry.payload.value as Partial<EncryptedMessage> | null | undefined
+    const messageScope =
+      update.entry.payload.op === 'ADD' && typeof value?.channelId === 'string' ? value.contents?.scope : undefined
+
     this.logger.trace('Encrypting log entry', update.hash)
     const encEntry: EncryptedAndSignedPayload = sigChain.crypto.encryptAndSign(update.entry, {
       type: EncryptionScopeType.ROLE,
@@ -614,7 +622,11 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
       },
     }
 
-    return await this._sendLogEntrySyncMessage(dataSyncMessage, update.addr)
+    const success = await this._sendLogEntrySyncMessage(dataSyncMessage, update.addr)
+    if (success && messageScope != null) {
+      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, update.teamId, messageScope)
+    }
+    return success
   }
 
   private async _sendLogEntrySyncMessage(
@@ -650,7 +662,6 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
       }
       success = true
       this.recordLogSyncSuccess(hash)
-      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, dataSyncMessage.payload.teamId)
     }
 
     if (!success) {
