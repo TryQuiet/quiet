@@ -21,6 +21,11 @@ describe('TorControl', () => {
   let tmpDir: DirResult
   let tmpAppDataPath: string
 
+  const waitForBootstrap = async () => {
+    if (torService.bootstrapped) return
+    await new Promise<void>(resolve => torService.once('bootstrapped', resolve))
+  }
+
   const torPassword = 'b5e447c10b0d99e7871636ee5e0839b5'
   const torHashedPassword = '16:FCFFE21F3D9138906021FAADD9E49703CC41848A95F829E0F6E1BDBE63'
 
@@ -112,12 +117,14 @@ describe('TorControl', () => {
 
   it('spawns new hidden service', async () => {
     await torService.init()
+    await waitForBootstrap()
     const hiddenService = await torService.createNewHiddenService({ targetPort: 4343 })
     expect(hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
   })
 
   it('spawns hidden service using private key', async () => {
     await torService.init()
+    await waitForBootstrap()
     const hiddenServiceOnionAddress = await torService.spawnHiddenService({
       targetPort: 4343,
       onionAddress: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
