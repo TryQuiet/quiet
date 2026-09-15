@@ -169,11 +169,13 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
   logger.info(`Checking for Tor binary at: ${pathCandidate}`)
   if (fs.existsSync(pathCandidate)) {
     return pathCandidate
-  } else {
-    throw new Error(
-      `Tor binary not found at ${pathCandidate}. Please ensure the Tor binary is installed and the path is correct.`
-    )
   }
+  // Quiet Loki is Loki-only: packaged desktop must not require a Tor binary under resources.
+  // TorModule already accepts an empty torBinaryPath; LokinetOverlay does not start TorDaemon.
+  logger.warn(
+    `Tor binary not found at ${pathCandidate}; continuing without Tor (Loki-only).`
+  )
+  return ''
 }
 
 export const torDirForPlatform = (basePath?: string): string => {
