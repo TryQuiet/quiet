@@ -83,6 +83,8 @@ describe('ChannelStore incremental message IDs', () => {
   const createStore = () => {
     const entries: { hash: string; value: any }[] = []
     const events = new EventEmitter()
+    const entriesByHash = new Map<string, any>()
+    const reads = { iterator: 0, get: 0 }
     const auth = Object.assign(new EventEmitter(), { team: { id: 'team' } })
     const onConsume = jest.fn<(message: any) => Promise<any>>(async message => ({ ...message, verified: true }))
     const store = new ChannelStore(
@@ -104,7 +106,14 @@ describe('ChannelStore incremental message IDs', () => {
       store: {
         events,
         iterator: async function* () {
-          for (const entry of entries) yield entry
+          for (const entry of entries) {
+            reads.iterator++
+            yield entry
+          }
+        },
+        get: async (hash: string) => {
+          reads.get++
+          return entriesByHash.get(hash)
         },
         sync: { start: async () => {}, stop: async () => {} },
         close: async () => {},
@@ -114,9 +123,10 @@ describe('ChannelStore incremental message IDs', () => {
     store.on(StorageEvents.MESSAGE_IDS_STORED, ids)
     const append = async (id: string, hash = id, value: any = { id, channelId: 'general', teamId: 'team' }) => {
       entries.push({ hash, value })
+      entriesByHash.set(hash, value)
       await (events.listeners('update')[0] as (...args: any[]) => Promise<void>)({ hash, payload: { value } })
     }
-    return { store, auth, entries, onConsume, ids, append }
+    return { store, auth, entries, onConsume, ids, append, reads }
   }
 
   it('consumes 1,000 serial arrivals exactly once each, instead of 501,500 times', async () => {
@@ -126,6 +136,33 @@ describe('ChannelStore incremental message IDs', () => {
     expect(onConsume).toHaveBeenCalledTimes(1_000)
     expect(ids.mock.calls.flatMap(([event]) => event.ids)).toHaveLength(1_000)
     expect(ids.mock.calls.slice(1).every(([event]) => event.ids.length === 1)).toBe(true)
+  })
+
+  it('fetches each announced message directly without rescanning growing history', async () => {
+    const { store, onConsume, append, reads } = createStore()
+    await store.subscribe()
+    for (let n = 0; n < 1000; n++) {
+      const id = `message-${n}`
+      await append(id)
+      expect((await store.getEntries([id])).map(message => message.id)).toEqual([id])
+    }
+    expect(reads).toEqual({ iterator: 0, get: 1000 })
+    expect(onConsume).toHaveBeenCalledTimes(2000) // Arrival plus explicit frontend fetch.
+    expect(await store.getEntries(['unknown'])).toEqual([])
+    expect(await store.getEntries([])).toEqual([])
+    expect(reads.iterator).toBe(0)
+  })
+
+  it('preserves iterator order and duplicate-ID entries for ambiguous/batch reads', async () => {
+    const { store, append, reads } = createStore()
+    await store.subscribe()
+    await append('same', 'first')
+    await append('middle')
+    await append('same', 'second')
+    expect((await store.getEntries(['same'])).map(message => message.id)).toEqual(['same', 'same'])
+    expect((await store.getEntries(['same', 'middle'])).map(message => message.id)).toEqual(['same', 'middle', 'same'])
+    expect(reads.get).toBe(0)
+    expect(reads.iterator).toBe(6)
   })
 
   it('processes authentic encrypted and signed arrivals and excludes tampered entries', async () => {
@@ -146,7 +183,8 @@ describe('ChannelStore incremental message IDs', () => {
       getChain: (id: string) => (id === team.id ? chain : undefined),
       getActiveChain: () => chain,
     } as any)
-    const channel = { id: 'general', name: 'general', public: true, teamId: team.id }
+    const channel = { id: 'general', name: 'general', public: true, teamId: team.id,
+      description: 'Signed message fixture', owner: user.userId, timestamp: 1700000000000 }
     const { store, onConsume, ids, append } = createStore()
     onConsume.mockImplementation(message => service.onConsume(message, channel))
     await store.subscribe()
@@ -207,6 +245,30 @@ describe('ChannelStore incremental message IDs', () => {
     auth.emit(SigchainEvents.UPDATED)
     await new Promise(resolve => setImmediate(resolve))
     expect(ids.mock.lastCall?.[0].ids).toEqual([])
+  })
+
+  it('discards an old rebuild across close/reopen and retries the replacement store', async () => {
+    const { store, entries, onConsume, ids } = createStore()
+    entries.push({ hash: 'old', value: { id: 'old', channelId: 'general' } })
+    let resume!: () => void
+    const paused = new Promise<void>(resolve => {
+      resume = resolve
+    })
+    onConsume.mockImplementationOnce(async message => {
+      await paused
+      return { ...message, verified: true }
+    })
+    const subscribing = store.subscribe()
+    await new Promise(resolve => setImmediate(resolve))
+    await store.close()
+    const replacement = createStore()
+    replacement.entries.push({ hash: 'replacement', value: { id: 'replacement', channelId: 'general' } })
+    // Recreate the state transition performed by init, retaining the original in-flight builder.
+    Object.assign(store, { store: (replacement.store as any).store, closing: false })
+    resume()
+    await subscribing
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).not.toContain('old')
+    expect(ids.mock.lastCall?.[0].ids).toEqual(['replacement'])
   })
 
   it('does not publish a consume completed after authorization was invalidated', async () => {
