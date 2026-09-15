@@ -19,6 +19,7 @@ const classes = {
   linkContainer: `${PREFIX}linkContainer`,
   eyeIcon: `${PREFIX}eyeIcon`,
   wrapper: `${PREFIX}wrapper`,
+  hint: `${PREFIX}hint`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -51,7 +52,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.bold}`]: {
     fontWeight: 'bold',
   },
-
+  [`& .${classes.hint}`]: {
+    color: theme.palette.text.secondary,
+  },
   [`& .${classes.linkContainer}`]: {
     display: 'flex',
     flexDirection: 'row',
@@ -62,7 +65,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     maxWidth: '375px',
     position: 'relative',
   },
-
   [`& .${classes.eyeIcon}`]: {
     margin: '5px',
     top: '8px',
@@ -91,7 +93,7 @@ export const InviteComponent: FC<InviteComponentProps> = ({
         </Grid>
         <Grid item>
           <Typography variant='body2'>
-            Only admins can invite new members to this community. Ask the community creator for a link to share.
+            Only admins can invite new members to this community. Ask the community creator for a Quiet Loki link.
           </Typography>
         </Grid>
       </StyledGrid>
@@ -102,18 +104,21 @@ export const InviteComponent: FC<InviteComponentProps> = ({
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
         <Grid item className={classes.title}>
           <Typography variant='h3' data-testid='invite-a-friend'>
-            Add Members
+            Add members over Lokinet
           </Typography>
         </Grid>
       </Grid>
       <Grid item className={classes.wrapper}>
         <Grid item>
-          <Typography variant='h5'>Your community link</Typography>
+          <Typography variant='h5'>Quiet Loki invite</Typography>
         </Grid>
         <Grid item>
           <Typography variant='body2'>
-            Anyone with Quiet app can follow this link to join this community.
-            <br /> Only share with people you trust.
+            Share this with someone who already runs Quiet Loki and Lokinet. Official Quiet / tryquiet.org will not
+            open it.
+          </Typography>
+          <Typography variant='body2' className={classes.hint}>
+            Both of you need lokitun0 up. Paste the link in Quiet Loki → Join community.
           </Typography>
           <Grid item className={classes.linkContainer}>
             <Typography variant='body2' className={classes.link} data-testid='invitation-link'>
@@ -137,7 +142,7 @@ export const InviteComponent: FC<InviteComponentProps> = ({
       <Grid>
         <CopyToClipboard text={invitationLink}>
           <Button data-testid='copy-invitation-link' className={classes.button}>
-            Copy to clipboard
+            Copy Loki invite
           </Button>
         </CopyToClipboard>
       </Grid>
