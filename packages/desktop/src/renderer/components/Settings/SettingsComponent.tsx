@@ -14,6 +14,16 @@ const classes = {
   leaveComunity: `${PREFIX}leaveCommunity`,
 }
 
+const TAB_TITLES: Record<string, string> = {
+  about: 'About Quiet',
+  notifications: 'Notifications',
+  attachments: 'Files and Images',
+  invite: 'Add Members',
+  qrcode: 'QR Code',
+  leaveCommunity: 'Leave community',
+  debug: 'Debug Information',
+}
+
 export interface SettingsComponentProps {
   open: boolean
   handleClose: () => void
@@ -47,16 +57,12 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   return (
     <>
-      <Drawer open={open} onClose={handleClose} anchor='right'>
-        <List sx={{ width: '375px', paddingTop: '16px' }}>
-          <ListItem sx={{ paddingBottom: '8px' }}>
-            <div>
-              <ListItemButton onClick={handleClose} sx={{ padding: '0px' }} data-testid={'close-settings-button'}>
-                <ListItemIcon>
-                  <CloseIcon />
-                </ListItemIcon>
-              </ListItemButton>
-            </div>
+      <Drawer open={open} onClose={handleClose} anchor='right' ModalProps={{ keepMounted: true }}>
+        <List sx={{ width: '375px', paddingTop: '0px' }}>
+          <ListItem sx={{ paddingTop: '12px', paddingBottom: '12px' }}>
+            <IconButton onClick={handleClose} data-testid={'close-settings-button'}>
+              <CloseIcon />
+            </IconButton>
             <ListItemText sx={{ textAlign: 'center' }}>
               <Typography sx={{ fontWeight: '500' }}>Community Settings</Typography>
             </ListItemText>
@@ -102,7 +108,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             className={classes.leaveComunity}
             onClick={() => handleChange('leaveCommunity')}
           >
-            <ListItemText>Leave community</ListItemText>
+            <ListItemText sx={{ color: 'error.main' }}>Leave community</ListItemText>
             <ListItemIcon>
               <ChevronRightIcon />
             </ListItemIcon>
@@ -118,17 +124,29 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
           )}
         </List>
       </Drawer>
-      <Drawer open={currentTab !== ''} onClose={handleCloseTab} anchor='right' BackdropProps={{ invisible: true }}>
-        <Box
-          width={40}
-          sx={{ paddingTop: '16px', paddingBottom: '8px', paddingLeft: '4px' }}
-          data-testid={'close-tab-button-box'}
-        >
-          <IconButton onClick={handleCloseTab}>{currentTab !== '' ? <ArrowBackIcon /> : <CloseIcon />}</IconButton>
-        </Box>
-        <Divider />
-        <Box p={2} width={375}>
-          {TabComponent && <TabComponent handleClose={handleCloseTab} />}
+      <Drawer
+        open={currentTab !== ''}
+        onClose={handleCloseTab}
+        anchor='right'
+        BackdropProps={{ invisible: true }}
+        ModalProps={{ keepMounted: true, disablePortal: true }}
+        sx={{ zIndex: theme => theme.zIndex.modal + 1 }}
+      >
+        <Box display='flex' flexDirection='column' height='100%' width={375}>
+          <Box>
+            <ListItem sx={{ paddingTop: '12px', paddingBottom: '12px' }}>
+              <IconButton onClick={handleCloseTab} data-testid={'close-tab-button-box'}>
+                <ArrowBackIcon />
+              </IconButton>
+              <ListItemText sx={{ textAlign: 'center' }}>
+                <Typography sx={{ fontWeight: 500 }}>{TAB_TITLES[currentTab]}</Typography>
+              </ListItemText>
+            </ListItem>
+            <Divider />
+          </Box>
+          <Box p={2} flex={1} overflow='auto'>
+            {TabComponent && <TabComponent handleClose={handleCloseTab} />}
+          </Box>
         </Box>
       </Drawer>
     </>

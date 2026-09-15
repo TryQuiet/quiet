@@ -154,11 +154,6 @@ export const AttachmentsComponent: React.FC<AttachmentsProps> = ({ maxAutodownlo
 
   return (
     <StyledGrid container direction='column'>
-      <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
-        <Grid item className={classes.title}>
-          <Typography variant='h3'>Files and Images</Typography>
-        </Grid>
-      </Grid>
       <Grid item>
         <Typography variant='h5' className={classes.subtitle}>
           Auto-download...
