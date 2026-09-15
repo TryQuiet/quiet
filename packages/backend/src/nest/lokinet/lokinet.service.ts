@@ -1,6 +1,5 @@
 import * as childProcess from 'child_process'
 import * as fs from 'fs'
-import * as http from 'http'
 import * as path from 'path'
 import { EventEmitter } from 'events'
 import { SocketEvents } from '@quiet/types'
@@ -11,59 +10,43 @@ export interface LokinetOptions {
   apiUrl?: string
   socksHost?: string
   socksPort?: number
+  dnsServer?: string
   emit?: (event: string, ...args: unknown[]) => void
 }
 
+/**
+ * Talk to an already-running system lokinet.
+ * Health and SNApp identity come from the Lokinet stub resolver (127.3.2.1),
+ * not OxenMQ on :1190 (often disabled) and not HTTP.
+ */
 export class LokinetService extends EventEmitter {
   socksPort: number
   process: childProcess.ChildProcess | null = null
   bootstrapped = false
-  private readonly apiUrl: string
-  private readonly bin: string
+  address: string | undefined
+  private readonly dnsServer: string
   private readonly quietDir: string
   private snapps = new Map<string, { targetPort: number; keyfile?: string }>()
 
   constructor(private readonly opts: LokinetOptions) {
     super()
     this.quietDir = opts.quietDir
-    this.bin = opts.bin || process.env.LOKINET_BIN || 'lokinet'
-    this.apiUrl = opts.apiUrl || process.env.LOKINET_API || 'http://127.0.0.1:1190'
+    this.dnsServer = opts.dnsServer || process.env.LOKINET_DNS || '127.3.2.1'
     this.socksPort = opts.socksPort ?? Number(process.env.LOKINET_SOCKS_PORT || 9050)
   }
 
   async init(): Promise<void> {
     fs.mkdirSync(this.quietDir, { recursive: true })
-    const ini = path.join(this.quietDir, 'lokinet.ini')
-    if (!fs.existsSync(ini)) {
-      fs.writeFileSync(ini, this.defaultIni())
-    }
-    if (await this.pingApi()) {
-      this.bootstrapped = true
-      this.emit('bootstrapped')
-      return
-    }
-    await this.ensureDaemon(ini)
-    try {
-      await this.waitUntilReady(2_000)
-      this.bootstrapped = true
-      this.emit('bootstrapped')
-      this.opts.emit?.(SocketEvents.TOR_INITIALIZED)
-    } catch {
-      this.bootstrapped = false
-    }
+    this.address = await this.lookupLocalSnapp()
+    this.bootstrapped = true
+    this.emit('bootstrapped')
+    this.opts.emit?.(SocketEvents.TOR_INITIALIZED)
   }
 
   async spawnHiddenService(params: { targetPort: number; privKey?: string }): Promise<string> {
-    if (!(await this.pingApi())) {
-      throw new Error('Lokinet API is not running')
-    }
-    const keyfile = path.join(this.quietDir, `snapp-${params.targetPort}.private`)
-    if (params.privKey && !fs.existsSync(keyfile)) {
-      fs.writeFileSync(keyfile, params.privKey)
-    }
-    const address = await this.lookupLocalSnapp()
-    this.snapps.set(address, { targetPort: params.targetPort, keyfile })
-    return address
+    if (!this.address) this.address = await this.lookupLocalSnapp()
+    this.snapps.set(this.address, { targetPort: params.targetPort, keyfile: params.privKey })
+    return this.address
   }
 
   async destroyHiddenService(address: string): Promise<void> {
@@ -75,86 +58,27 @@ export class LokinetService extends EventEmitter {
   }
 
   async onModuleDestroy(): Promise<void> {
-    if (this.process) {
-      this.process.kill('SIGTERM')
-      this.process = null
-    }
-  }
-
-  private defaultIni(): string {
-    return [
-      '[router]',
-      'nickname=quiet-lokinet',
-      '',
-      '[api]',
-      'enabled=true',
-      'bind=127.0.0.1:1190',
-      '',
-      '[dns]',
-      'upstream=1.1.1.1',
-      '',
-      '[network]',
-      '',
-    ].join('\n')
-  }
-
-  private async ensureDaemon(ini: string): Promise<void> {
-    if (await this.pingApi()) return
-    try {
-      const child = childProcess.spawn(this.bin, ['-c', ini], {
-        stdio: ['ignore', 'pipe', 'pipe'],
-      })
-      this.process = child
-      child.stdout?.on('data', chunk => this.emit('log', String(chunk)))
-      child.stderr?.on('data', chunk => this.emit('log', String(chunk)))
-      child.on('exit', code => {
-        this.bootstrapped = false
-        this.emit('exit', code)
-      })
-    } catch {
-      // Binary missing or not executable; onion-only is fine.
-    }
-  }
-
-  private async waitUntilReady(timeoutMs = 2_000): Promise<void> {
-    const start = Date.now()
-    while (Date.now() - start < timeoutMs) {
-      if (await this.pingApi()) return
-      await new Promise(r => setTimeout(r, 200))
-    }
-    throw new Error(`Lokinet API at ${this.apiUrl} did not become ready`)
-  }
-
-  private pingApi(): Promise<boolean> {
-    return new Promise(resolve => {
-      const req = http.get(this.apiUrl, res => {
-        res.resume()
-        resolve((res.statusCode ?? 500) < 500)
-      })
-      req.on('error', () => resolve(false))
-      req.setTimeout(400, () => {
-        req.destroy()
-        resolve(false)
-      })
-    })
+    this.process = null
   }
 
   private lookupLocalSnapp(): Promise<string> {
     return new Promise((resolve, reject) => {
       childProcess.exec(
-        'nslookup -type=cname localhost.loki 127.0.0.1',
+        `host localhost.loki ${this.dnsServer}`,
         { timeout: 8000 },
-        (err, stdout) => {
-          const match = stdout?.match(/([a-z0-9]+)\.loki/i)
+        (err, stdout, stderr) => {
+          const text = `${stdout || ''}\n${stderr || ''}`
+          const match = text.match(/([a-z0-9]{20,})\.loki/i)
           if (match) {
             resolve(match[0].toLowerCase())
             return
           }
-          if (err) {
-            reject(new Error(`Could not resolve localhost.loki: ${err.message}`))
-            return
-          }
-          reject(new Error(`nslookup did not return a .loki name:\n${stdout}`))
+          reject(
+            new Error(
+              `Lokinet DNS at ${this.dnsServer} did not return localhost.loki` +
+                (err ? `: ${err.message}` : `\n${text}`)
+            )
+          )
         }
       )
     })
