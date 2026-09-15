@@ -183,8 +183,15 @@ describe('ChannelStore incremental message IDs', () => {
       getChain: (id: string) => (id === team.id ? chain : undefined),
       getActiveChain: () => chain,
     } as any)
-    const channel = { id: 'general', name: 'general', public: true, teamId: team.id,
-      description: 'Signed message fixture', owner: user.userId, timestamp: 1700000000000 }
+    const channel = {
+      id: 'general',
+      name: 'general',
+      public: true,
+      teamId: team.id,
+      description: 'Signed message fixture',
+      owner: user.userId,
+      timestamp: 1700000000000,
+    }
     const { store, onConsume, ids, append } = createStore()
     onConsume.mockImplementation(message => service.onConsume(message, channel))
     await store.subscribe()
@@ -266,6 +273,29 @@ describe('ChannelStore incremental message IDs', () => {
     // Recreate the state transition performed by init, retaining the original in-flight builder.
     Object.assign(store, { store: (replacement.store as any).store, closing: false })
     resume()
+    await subscribing
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).not.toContain('old')
+    expect(ids.mock.lastCall?.[0].ids).toEqual(['replacement'])
+  })
+
+  it('retries the replacement store when an old pending rebuild rejects after reopen', async () => {
+    const { store, entries, onConsume, ids } = createStore()
+    entries.push({ hash: 'old', value: { id: 'old', channelId: 'general' } })
+    let reject!: (error: Error) => void
+    const paused = new Promise<void>((_resolve, rejectPromise) => {
+      reject = rejectPromise
+    })
+    onConsume.mockImplementationOnce(async message => {
+      await paused
+      return message
+    })
+    const subscribing = store.subscribe()
+    await new Promise(resolve => setImmediate(resolve))
+    await store.close()
+    const replacement = createStore()
+    replacement.entries.push({ hash: 'replacement', value: { id: 'replacement', channelId: 'general' } })
+    Object.assign(store, { store: (replacement.store as any).store, closing: false })
+    reject(new Error('Old store is closed'))
     await subscribing
     expect(ids.mock.calls.flatMap(([event]) => event.ids)).not.toContain('old')
     expect(ids.mock.lastCall?.[0].ids).toEqual(['replacement'])

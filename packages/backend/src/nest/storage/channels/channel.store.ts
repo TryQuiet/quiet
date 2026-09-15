@@ -363,12 +363,18 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.messageIndexRefresh = (async () => {
       while (!this.messageIndexReady && !this.closing) {
         const epoch = this.messageIndexEpoch
-        for await (const entry of this.getStore().iterator()) {
-          if (epoch !== this.messageIndexEpoch) break
-          if (entry.value == null || this.messageIds.has(entry.hash)) continue
-          const message = await this.messagesService.onConsume(entry.value, this.channelData)
-          if (epoch !== this.messageIndexEpoch) break
-          if (message != null && message !== false) this.indexMessage(entry.hash, message.id)
+        try {
+          for await (const entry of this.getStore().iterator()) {
+            if (epoch !== this.messageIndexEpoch) break
+            if (entry.value == null || this.messageIds.has(entry.hash)) continue
+            const message = await this.messagesService.onConsume(entry.value, this.channelData)
+            if (epoch !== this.messageIndexEpoch) break
+            if (message != null && message !== false) this.indexMessage(entry.hash, message.id)
+          }
+        } catch (error) {
+          // A closed/replaced store may reject pending reads. Discard only stale work, then
+          // rebuild the current store; an error in the current epoch must remain observable.
+          if (epoch === this.messageIndexEpoch) throw error
         }
         if (epoch === this.messageIndexEpoch) this.messageIndexReady = true
       }
