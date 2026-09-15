@@ -10,6 +10,9 @@ The requested five fresh trials per build, comparing 8 with our repaired 10
 branch using one unchanged Android driver, are in [REPEAT5-RESULTS.md](REPEAT5-RESULTS.md).
 That report retains every trial, including the failed 8 reply, and links the
 full JSON/CSV data and paired statistics.
+Published Quiet 10 alpha against deployed staging QSS 3, including iOS,
+Android and desktop timings and stored delivery, is covered in
+[the staging verification report](reports/staging-qss-3-alpha-2026-09-14.md).
 
 Run from this worktree. Keep requests, invitations, screenshots and native logs
 under `.connection-runs/` with mode 0700: historical builds log private keys and

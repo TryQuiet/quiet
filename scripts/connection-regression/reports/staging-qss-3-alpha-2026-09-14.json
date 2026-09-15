@@ -1,0 +1,252 @@
+{
+  "status": "complete_with_findings",
+  "endpoint": "wss://qss-dev.quiet-services.app",
+  "quietRelease": "10.0.0-alpha.0",
+  "quietCommit": "edd51028f3c66c30d0692e8833fa7d0a7266b242",
+  "qssRelease": "3.0.0-alpha.0",
+  "qssCommit": "8cc61c8afcebc20e2a0fbb470ed77923014d4068",
+  "authCommit": "6f534c89bceb875e8c71997943e5e76e48ccbd88",
+  "deploymentWorkflow": "https://github.com/TryQuiet/quiet-storage-service/actions/runs/34915017100",
+  "devices": {
+    "desktop": "Linux x86_64; published AppImage",
+    "android": "Android 11 API 30 ARM64 emulator on Apple Silicon, native bridge 0; official APK versionCode 661",
+    "ios": "Physical iPhone 16e, iOS 18.5; published alpha 10.0.0 (613), development re-signed with protected payloads unchanged"
+  },
+  "payloads": {
+    "appImageSha256": "99dcb5040ba2d8a85d1f4402d79540e1e187c0b28aac1e0ab9d0804d62d61de1",
+    "extractedAsarSha256": "d7bf2aed0654d55b851d467ca5c228d0bebd93461dcc25f6fa52aec50c1cc5cc",
+    "matchesPublishedPayload": true,
+    "androidApkSha256": "27ebe40c00270fbdeba1f7eba00b88d9575e2a7a6c1eb1330bb053becd00c968",
+    "iosIpaSha256": "8c13bd85a8aba3dc826047099a0064985a66114b3e71b8ee579285e05bda4ba6",
+    "iosProtectedFiles": {
+      "nodejs-project/bundle.cjs": "f7c59197a41334684c0ee56439400653ce30823c11390c51fbbb87e96f5cde81",
+      "main.jsbundle": "e17cd04156427f27921bce41846d17b2a033834343b6d54c54ca04cf7c5dd168",
+      "Env.plist": "7770657a4114eb3ff836334090f98abb259ccec3350880e5bb03b83dcc605a89",
+      "Info.plist": "ea9ff22fe3e2ce3f3dbfe854bcbf6ca3075f247114c7c72cd017d884fb0d6769"
+    }
+  },
+  "liveTransport": "Desktop Tor DisableNetwork=1 for every measured exchange; application payload unchanged",
+  "measurement": "UI observation durations including controller overhead. Five sequential trials each way per platform, Android first. Community history grows during the run; these are not packet-level timings or matched-workload cross-platform benchmarks.",
+  "join": {
+    "android": {
+      "visibleChannelSeconds": 4.607795503,
+      "socketSeconds": 0.321,
+      "socketStartToMemberRoleReadySeconds": 1.959
+    },
+    "ios": {
+      "visibleChannelSeconds": 45.387539737988845,
+      "socketSeconds": 0.133,
+      "socketStartToMemberRoleReadySeconds": 7.645
+    },
+    "desktop": {
+      "socketSeconds": 0.373,
+      "captchaAcceptedToFullQssAuthSeconds": 2.229
+    }
+  },
+  "live": {
+    "android": {
+      "trials": [
+        {
+          "startedAtUnix": 1789435359.756875,
+          "desktopToMobileSeconds": 1.471216103003826,
+          "mobileToDesktopSeconds": 2.0192409879964544,
+          "passed": true
+        },
+        {
+          "startedAtUnix": 1789435371.3416204,
+          "desktopToMobileSeconds": 1.4232157460064627,
+          "mobileToDesktopSeconds": 1.933836155993049,
+          "passed": true
+        },
+        {
+          "startedAtUnix": 1789435382.6209555,
+          "desktopToMobileSeconds": 1.4725395179993939,
+          "mobileToDesktopSeconds": 2.002592952005216,
+          "passed": true
+        },
+        {
+          "startedAtUnix": 1789435394.05782,
+          "desktopToMobileSeconds": 1.4708057609968819,
+          "mobileToDesktopSeconds": 2.0164905359997647,
+          "passed": true
+        },
+        {
+          "startedAtUnix": 1789435405.6839173,
+          "desktopToMobileSeconds": 1.5730820720054908,
+          "mobileToDesktopSeconds": 1.9932749750005314,
+          "passed": true
+        }
+      ],
+      "summary": {
+        "desktopToMobileSeconds": {
+          "n": 5,
+          "median": 1.471216103003826,
+          "min": 1.4232157460064627,
+          "max": 1.5730820720054908
+        },
+        "mobileToDesktopSeconds": {
+          "n": 5,
+          "median": 2.002592952005216,
+          "min": 1.933836155993049,
+          "max": 2.0192409879964544
+        }
+      }
+    },
+    "ios": {
+      "trials": [
+        {
+          "trial": 1,
+          "startedAtUnix": 1789435549.2843711,
+          "desktopToMobileSeconds": 4.98112707400287,
+          "mobileToDesktopSeconds": 13.152394688004279,
+          "passed": true
+        },
+        {
+          "trial": 2,
+          "startedAtUnix": 1789435569.67347,
+          "desktopToMobileSeconds": 27.604122047996498,
+          "mobileToDesktopSeconds": 14.153293160008616,
+          "passed": true
+        },
+        {
+          "trial": 3,
+          "startedAtUnix": 1789435613.9551163,
+          "desktopToMobileSeconds": 29.279744685001788,
+          "mobileToDesktopSeconds": 15.179061296992586,
+          "passed": true
+        },
+        {
+          "trial": 4,
+          "startedAtUnix": 1789435661.063871,
+          "desktopToMobileSeconds": 28.579601935998653,
+          "mobileToDesktopSeconds": 19.306879700001446,
+          "passed": true
+        },
+        {
+          "trial": 5,
+          "startedAtUnix": 1789435711.5733554,
+          "desktopToMobileSeconds": 31.02978417900158,
+          "mobileToDesktopSeconds": 18.61075236099714,
+          "passed": true
+        }
+      ],
+      "summary": {
+        "desktopToMobileSeconds": {
+          "n": 5,
+          "median": 28.579601935998653,
+          "min": 4.98112707400287,
+          "max": 31.02978417900158
+        },
+        "mobileToDesktopSeconds": {
+          "n": 5,
+          "median": 15.179061296992586,
+          "min": 13.152394688004279,
+          "max": 19.306879700001446
+        }
+      }
+    }
+  },
+  "retainedFailures": [
+    {
+      "trial": 1,
+      "startedAtUnix": 1789435424.8140972,
+      "passed": false,
+      "error": "Exact message absent from iOS UI",
+      "deadlineSeconds": 60,
+      "eventuallyObservedAfterSeconds": 96.82267713546753,
+      "laterObservationWasAfterFailure": true
+    },
+    {
+      "case": "desktop_to_android_stored_initial",
+      "passed": false,
+      "reason": "Android app crashed during cold start",
+      "signal": "SIGABRT after signal 11",
+      "thread": "mqt_js",
+      "library": "libjsc.so",
+      "appStartedUnix": 1789435784.932,
+      "crashUnix": 1789435792.24,
+      "noUiPassClaimed": true
+    }
+  ],
+  "functionalConclusion": "Staging QSS is compatible with all three published alpha clients and stored delivery succeeds; iOS performance and Android restart reliability do not receive a clean pass.",
+  "storedDelivery": [
+    {
+      "case": "desktop_to_android_stored_retry",
+      "passed": true,
+      "senderStopped": true,
+      "otherRecipientStopped": true,
+      "observedUnix": 1789435924.2724385,
+      "latencyMeasured": false
+    },
+    {
+      "case": "desktop_to_ios_stored_after_control_reconnect",
+      "passed": true,
+      "senderStopped": true,
+      "otherRecipientStopped": true,
+      "latencyMeasured": false,
+      "observedUnix": 1789436026.9788465
+    },
+    {
+      "case": "ios_to_desktop_stored",
+      "passed": true,
+      "senderStopped": true,
+      "otherRecipientStopped": true,
+      "startUnix": 1789436094.708265,
+      "coldStartToVisibleSeconds": 13.537403659996926
+    },
+    {
+      "case": "android_to_desktop_stored",
+      "passed": true,
+      "senderStopped": true,
+      "otherRecipientStopped": true,
+      "startUnix": 1789436185.392843,
+      "coldStartToVisibleSeconds": 13.450964713993017
+    }
+  ],
+  "iosFreshQssOnlyControl": {
+    "join": {
+      "passed": true,
+      "startUnix": 1789436301.480029,
+      "endUnix": 1789436331.0917509,
+      "joinUiSeconds": 29.61172798500047,
+      "onlyOtherCommunityMemberTorDisabled": true,
+      "communityInitiallyEmpty": true
+    },
+    "live": {
+      "desktopToMobileSeconds": 8.111190308001824,
+      "mobileToDesktopSeconds": 11.853109522999148,
+      "passed": true
+    },
+    "onlyOtherPeer": "Separate fresh desktop owner with Tor networking disabled; no other client belonged to this new community"
+  },
+  "automationInterruptions": [
+    {
+      "phase": "iOS stored-message UI observation",
+      "error": "WDA connection reset",
+      "resolution": "Recreated SSH tunnel; exact message and author confirmed in UI and screenshot",
+      "latencyMeasured": false
+    },
+    {
+      "phase": "Android stored-message send",
+      "error": "Native input field queried before available",
+      "resolution": "Waited for input field, sent fresh message and verified later desktop delivery"
+    }
+  ],
+  "iosProcessingEvidence": {
+    "channelRead24MessagesSeconds": 16.246,
+    "channelRead25MessagesSeconds": 13.121,
+    "sequentialMessageConsumptionLogGapMedianSeconds": 0.532,
+    "gapSamples": 59,
+    "interpretation": "Repeated channel history processing is a profiling target; exact expensive operation and regression origin not isolated."
+  },
+  "cleanup": {
+    "desktop/responses/shutdown.json": true,
+    "desktop-qss-only/responses/final-shutdown.json": true,
+    "ios-only-owner/responses/final-shutdown.json": true,
+    "iosStopped": true,
+    "androidEmulatorStopped": true,
+    "taskWdaStopped": true,
+    "taskSshTunnelsStopped": true,
+    "completedUnix": 1789436455.1663935
+  }
+}
