@@ -1,0 +1,15 @@
+# Example lokinet.ini for Quiet-Loki desktop.
+# https://github.com/oxen-io/lokinet
+
+[router]
+nickname=quiet-peer
+
+[api]
+enabled=true
+bind=127.0.0.1:1190
+
+[dns]
+upstream=1.1.1.1
+
+[network]
+# Do NOT set exit-node= — stay inside Lokinet.
