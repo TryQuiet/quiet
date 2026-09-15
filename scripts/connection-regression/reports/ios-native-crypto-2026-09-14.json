@@ -1,0 +1,3242 @@
+{
+  "scope": "Native primitives only; unchanged released LFA and ChannelStore algorithms",
+  "runtime": {
+    "nativeCallsForPublicDerivation": 1,
+    "versions": {
+      "node": "18.20.4",
+      "acorn": "8.11.3",
+      "ada": "2.7.8",
+      "ares": "1.28.1",
+      "base64": "0.5.2",
+      "brotli": "1.0.9",
+      "cjs_module_lexer": "1.2.2",
+      "llhttp": "6.1.1",
+      "mobile": "18.20.4",
+      "modules": "108",
+      "napi": "9",
+      "nghttp2": "1.61.0",
+      "nghttp3": "0.7.0",
+      "ngtcp2": "1.3.0",
+      "openssl": "3.0.13+quic",
+      "simdutf": "5.2.4",
+      "undici": "5.28.4",
+      "uv": "1.44.2",
+      "uvwasi": "0.0.19",
+      "v8": "10.2.154.26-node.37",
+      "zlib": "1.3.0.1-motley"
+    },
+    "platform": "ios"
+  },
+  "automaticMessageRepeats": [
+    {
+      "phase": "decryptAndVerify",
+      "users": 2,
+      "role": "member",
+      "requested": 1000,
+      "completed": 1000,
+      "censored": false,
+      "ms": 20530.168374955654,
+      "cpu": {
+        "user": 20508251,
+        "system": 112196
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13000,
+          "totalMs": 3311.4992138147354,
+          "selfMs": 3311.4992138147354,
+          "maxMs": 0.5997909903526306,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13000,
+          "totalMs": 3300.802629709244,
+          "selfMs": 3300.802629709244,
+          "maxMs": 0.7602919936180115,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13000,
+          "totalMs": 11863.642530024052,
+          "selfMs": 5251.3406865000725,
+          "maxMs": 4.9031659960746765,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14000,
+          "totalMs": 3993.740460753441,
+          "selfMs": 3993.740460753441,
+          "maxMs": 0.4972500205039978,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7000,
+          "totalMs": 10897.283490657806,
+          "selfMs": 528.6840572357178,
+          "maxMs": 2.383500039577484,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3000,
+          "totalMs": 2118.2073878645897,
+          "selfMs": 2118.2073878645897,
+          "maxMs": 0.8599579930305481,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3000,
+          "totalMs": 2366.3823271989822,
+          "selfMs": 248.17493933439255,
+          "maxMs": 1.005167007446289,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3000,
+          "totalMs": 12779.367393910885,
+          "selfMs": 263.0589348077774,
+          "maxMs": 9.06029099225998,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4000,
+          "totalMs": 29071.322660565376,
+          "selfMs": 14.994975686073303,
+          "maxMs": 21.491457998752594,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1000,
+          "totalMs": 19032.634284496307,
+          "selfMs": 2.1309987902641296,
+          "maxMs": 22.93699997663498,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1000,
+          "totalMs": 19035.139285862446,
+          "selfMs": 2.5050013661384583,
+          "maxMs": 22.941041946411133,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1000,
+          "totalMs": 886.4973414540291,
+          "selfMs": 886.4973414540291,
+          "maxMs": 1.0734999775886536,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1000,
+          "totalMs": 295.150043964386,
+          "selfMs": 295.150043964386,
+          "maxMs": 0.4188750386238098,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1000,
+          "totalMs": 1206.3487130403519,
+          "selfMs": 24.701327621936798,
+          "maxMs": 1.401332974433899,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1000,
+          "totalMs": 91.46212339401245,
+          "selfMs": 91.46212339401245,
+          "maxMs": 0.14704203605651855,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1000,
+          "totalMs": 238.79922407865524,
+          "selfMs": 147.3371006846428,
+          "maxMs": 0.35487496852874756,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 2,
+      "role": "member",
+      "requested": 1000,
+      "completed": 1000,
+      "censored": false,
+      "ms": 22395.75054103136,
+      "cpu": {
+        "user": 22384560,
+        "system": 135985
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13000,
+          "totalMs": 3626.5437201857567,
+          "selfMs": 3626.5437201857567,
+          "maxMs": 1.1691669821739197,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13000,
+          "totalMs": 3612.1446331739426,
+          "selfMs": 3612.1446331739426,
+          "maxMs": 0.6918749809265137,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13000,
+          "totalMs": 12957.688489437103,
+          "selfMs": 5719.000136077404,
+          "maxMs": 3.357583999633789,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14000,
+          "totalMs": 4349.019450843334,
+          "selfMs": 4349.019450843334,
+          "maxMs": 0.6219169497489929,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7000,
+          "totalMs": 11881.387581288815,
+          "selfMs": 575.0775703787804,
+          "maxMs": 3.4107919931411743,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3000,
+          "totalMs": 2309.375888168812,
+          "selfMs": 2309.375888168812,
+          "maxMs": 1.0005000233650208,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3000,
+          "totalMs": 2576.8060124516487,
+          "selfMs": 267.4301242828369,
+          "maxMs": 1.0927500128746033,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3000,
+          "totalMs": 13945.533867955208,
+          "selfMs": 286.69485598802567,
+          "maxMs": 6.7482500076293945,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4000,
+          "totalMs": 31725.753994882107,
+          "selfMs": 16.389851093292236,
+          "maxMs": 21.82700002193451,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1000,
+          "totalMs": 20764.103398680687,
+          "selfMs": 2.4271684885025024,
+          "maxMs": 23.74654096364975,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1000,
+          "totalMs": 20766.688206136227,
+          "selfMs": 2.5848074555397034,
+          "maxMs": 23.753542006015778,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1000,
+          "totalMs": 968.1763777732849,
+          "selfMs": 968.1763777732849,
+          "maxMs": 1.2059999704360962,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1000,
+          "totalMs": 322.55854964256287,
+          "selfMs": 322.55854964256287,
+          "maxMs": 0.5362910032272339,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1000,
+          "totalMs": 1317.6790144443512,
+          "selfMs": 26.944087028503418,
+          "maxMs": 1.6155830025672913,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1000,
+          "totalMs": 100.09499168395996,
+          "selfMs": 100.09499168395996,
+          "maxMs": 0.1364160180091858,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1000,
+          "totalMs": 259.9034466147423,
+          "selfMs": 159.80845493078232,
+          "maxMs": 0.4004160165786743,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 2,
+      "role": "member",
+      "requested": 1000,
+      "completed": 1000,
+      "censored": false,
+      "ms": 23042.93479204178,
+      "cpu": {
+        "user": 23009622,
+        "system": 123647
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13000,
+          "totalMs": 3724.806955575943,
+          "selfMs": 3724.806955575943,
+          "maxMs": 0.5249170064926147,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13000,
+          "totalMs": 3706.82258105278,
+          "selfMs": 3706.82258105278,
+          "maxMs": 0.5067499876022339,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13000,
+          "totalMs": 13308.29145348072,
+          "selfMs": 5876.661916851997,
+          "maxMs": 3.1978750228881836,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14000,
+          "totalMs": 4489.6795773506165,
+          "selfMs": 4489.6795773506165,
+          "maxMs": 0.849166989326477,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7000,
+          "totalMs": 12229.745656728745,
+          "selfMs": 593.1856175661087,
+          "maxMs": 3.827875018119812,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3000,
+          "totalMs": 2379.9192571640015,
+          "selfMs": 2379.9192571640015,
+          "maxMs": 1.0668749809265137,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3000,
+          "totalMs": 2654.3593324422836,
+          "selfMs": 274.44007527828217,
+          "maxMs": 1.2565410137176514,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3000,
+          "totalMs": 14338.783589959145,
+          "selfMs": 293.7104182243347,
+          "maxMs": 7.840874969959259,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4000,
+          "totalMs": 32650.774738371372,
+          "selfMs": 17.359502911567688,
+          "maxMs": 22.20141702890396,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1000,
+          "totalMs": 21358.915747106075,
+          "selfMs": 2.329845130443573,
+          "maxMs": 23.813875019550323,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1000,
+          "totalMs": 21361.73652756214,
+          "selfMs": 2.8207804560661316,
+          "maxMs": 23.821124970912933,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1000,
+          "totalMs": 999.8984689116478,
+          "selfMs": 999.8984689116478,
+          "maxMs": 1.2636250257492065,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1000,
+          "totalMs": 332.74065339565277,
+          "selfMs": 332.74065339565277,
+          "maxMs": 0.5470840334892273,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1000,
+          "totalMs": 1360.7220490574837,
+          "selfMs": 28.082926750183105,
+          "maxMs": 1.7482919692993164,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1000,
+          "totalMs": 103.03438580036163,
+          "selfMs": 103.03438580036163,
+          "maxMs": 0.12075001001358032,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1000,
+          "totalMs": 268.30419409275055,
+          "selfMs": 165.26980829238892,
+          "maxMs": 0.4861670136451721,
+          "errors": 0
+        }
+      }
+    }
+  ],
+  "automaticMessageMedianMs": 22395.75054103136,
+  "prototypeScale": [
+    {
+      "phase": "load",
+      "users": 2,
+      "role": "member",
+      "ms": 87.52954202890396,
+      "metrics": {
+        "sodium.randombytes_buf": {
+          "calls": 1,
+          "totalMs": 0.4569999575614929,
+          "selfMs": 0.4569999575614929,
+          "maxMs": 0.4569999575614929,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 7,
+          "totalMs": 0.5236679315567017,
+          "selfMs": 0.5236679315567017,
+          "maxMs": 0.1122090220451355,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 7,
+          "totalMs": 18.107333958148956,
+          "selfMs": 18.107333958148956,
+          "maxMs": 6.913125038146973,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 7,
+          "totalMs": 23.173332035541534,
+          "selfMs": 4.5423301458358765,
+          "maxMs": 8.19020801782608,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 7,
+          "totalMs": 24.88320803642273,
+          "selfMs": 1.709876000881195,
+          "maxMs": 8.70550000667572,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 27,
+          "totalMs": 43.7338308095932,
+          "selfMs": 43.7338308095932,
+          "maxMs": 8.296124994754791,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 9,
+          "totalMs": 0.8655831217765808,
+          "selfMs": 0.8655831217765808,
+          "maxMs": 0.12220799922943115,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 9,
+          "totalMs": 2.1076680421829224,
+          "selfMs": 1.2420849204063416,
+          "maxMs": 0.26566702127456665,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 2,
+      "role": "member",
+      "requested": 1,
+      "completed": 1,
+      "censored": false,
+      "ms": 19.217624962329865,
+      "cpu": {
+        "user": 19169,
+        "system": 148
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13,
+          "totalMs": 3.137125015258789,
+          "selfMs": 3.137125015258789,
+          "maxMs": 0.24641698598861694,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13,
+          "totalMs": 3.103165864944458,
+          "selfMs": 3.103165864944458,
+          "maxMs": 0.24408400058746338,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13,
+          "totalMs": 11.213585257530212,
+          "selfMs": 4.973294377326965,
+          "maxMs": 0.9288340210914612,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14,
+          "totalMs": 3.666792154312134,
+          "selfMs": 3.666792154312134,
+          "maxMs": 0.31075000762939453,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7,
+          "totalMs": 10.166417062282562,
+          "selfMs": 0.48954081535339355,
+          "maxMs": 1.5272919535636902,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 3,
+          "totalMs": 0.09716707468032837,
+          "selfMs": 0.09716707468032837,
+          "maxMs": 0.032708048820495605,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 3,
+          "totalMs": 1.1127500534057617,
+          "selfMs": 1.1127500534057617,
+          "maxMs": 0.39316701889038086,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3,
+          "totalMs": 1.971165955066681,
+          "selfMs": 0.7612488269805908,
+          "maxMs": 0.6782910227775574,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3,
+          "totalMs": 2.197499990463257,
+          "selfMs": 0.22633403539657593,
+          "maxMs": 0.7547079920768738,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3,
+          "totalMs": 11.941792011260986,
+          "selfMs": 0.24083179235458374,
+          "maxMs": 4.008417010307312,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4,
+          "totalMs": 27.150208950042725,
+          "selfMs": 0.01574993133544922,
+          "maxMs": 16.29670798778534,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1,
+          "totalMs": 17.826375007629395,
+          "selfMs": 0.0023750662803649902,
+          "maxMs": 17.826375007629395,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1,
+          "totalMs": 17.829374969005585,
+          "selfMs": 0.0029999613761901855,
+          "maxMs": 17.829374969005585,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1,
+          "totalMs": 0.8272089958190918,
+          "selfMs": 0.8272089958190918,
+          "maxMs": 0.8272089958190918,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1,
+          "totalMs": 0.27129095792770386,
+          "selfMs": 0.27129095792770386,
+          "maxMs": 0.27129095792770386,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1,
+          "totalMs": 1.1255000233650208,
+          "selfMs": 0.027000069618225098,
+          "maxMs": 1.1255000233650208,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1,
+          "totalMs": 0.09416699409484863,
+          "selfMs": 0.09416699409484863,
+          "maxMs": 0.09416699409484863,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1,
+          "totalMs": 0.23762500286102295,
+          "selfMs": 0.14345800876617432,
+          "maxMs": 0.23762500286102295,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 2,
+      "role": "member",
+      "requested": 10,
+      "completed": 10,
+      "censored": false,
+      "ms": 191.37837499380112,
+      "cpu": {
+        "user": 190784,
+        "system": 735
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 130,
+          "totalMs": 31.236000895500183,
+          "selfMs": 31.236000895500183,
+          "maxMs": 0.24766701459884644,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 130,
+          "totalMs": 30.941673934459686,
+          "selfMs": 30.941673934459686,
+          "maxMs": 0.2700420022010803,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 130,
+          "totalMs": 111.05233079195023,
+          "selfMs": 48.874655961990356,
+          "maxMs": 0.937624990940094,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 140,
+          "totalMs": 36.856913805007935,
+          "selfMs": 36.856913805007935,
+          "maxMs": 0.3850420117378235,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 70,
+          "totalMs": 101.43554097414017,
+          "selfMs": 5.050627589225769,
+          "maxMs": 1.5629169940948486,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 30,
+          "totalMs": 0.9681229591369629,
+          "selfMs": 0.9681229591369629,
+          "maxMs": 0.032832980155944824,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 30,
+          "totalMs": 11.186204731464386,
+          "selfMs": 11.186204731464386,
+          "maxMs": 0.39899998903274536,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 30,
+          "totalMs": 19.7665838599205,
+          "selfMs": 7.612256169319153,
+          "maxMs": 0.683791995048523,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 30,
+          "totalMs": 22.076746940612793,
+          "selfMs": 2.3101630806922913,
+          "maxMs": 0.8295830488204956,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 30,
+          "totalMs": 119.397292137146,
+          "selfMs": 2.402005910873413,
+          "maxMs": 4.084166049957275,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 40,
+          "totalMs": 271.3611261844635,
+          "selfMs": 0.13945692777633667,
+          "maxMs": 16.43074995279312,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 10,
+          "totalMs": 177.59766805171967,
+          "selfMs": 0.01958608627319336,
+          "maxMs": 17.90312498807907,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 10,
+          "totalMs": 177.62024796009064,
+          "selfMs": 0.02257990837097168,
+          "maxMs": 17.905624985694885,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 10,
+          "totalMs": 8.292958080768585,
+          "selfMs": 8.292958080768585,
+          "maxMs": 0.8853750228881836,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 10,
+          "totalMs": 2.7758349180221558,
+          "selfMs": 2.7758349180221558,
+          "maxMs": 0.3267090320587158,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 10,
+          "totalMs": 11.299000978469849,
+          "selfMs": 0.23020797967910767,
+          "maxMs": 1.1796669960021973,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 10,
+          "totalMs": 0.9240388870239258,
+          "selfMs": 0.9240388870239258,
+          "maxMs": 0.09737497568130493,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 10,
+          "totalMs": 2.277293026447296,
+          "selfMs": 1.3532541394233704,
+          "maxMs": 0.23312503099441528,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 2,
+      "role": "member",
+      "requested": 100,
+      "completed": 100,
+      "censored": false,
+      "ms": 1911.5038329958916,
+      "cpu": {
+        "user": 1905222,
+        "system": 8692
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 1300,
+          "totalMs": 310.9600965976715,
+          "selfMs": 310.9600965976715,
+          "maxMs": 0.3161659836769104,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 1300,
+          "totalMs": 310.1587851047516,
+          "selfMs": 310.1587851047516,
+          "maxMs": 0.30674999952316284,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 1300,
+          "totalMs": 1108.316219985485,
+          "selfMs": 487.197338283062,
+          "maxMs": 1.0013750195503235,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 1400,
+          "totalMs": 369.71916949748993,
+          "selfMs": 369.71916949748993,
+          "maxMs": 0.48708295822143555,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 700,
+          "totalMs": 1014.1615020036697,
+          "selfMs": 49.264627039432526,
+          "maxMs": 1.637000024318695,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 300,
+          "totalMs": 9.76186740398407,
+          "selfMs": 9.76186740398407,
+          "maxMs": 0.08595901727676392,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 300,
+          "totalMs": 112.00978392362595,
+          "selfMs": 112.00978392362595,
+          "maxMs": 0.4503750205039978,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 300,
+          "totalMs": 197.81800693273544,
+          "selfMs": 76.04635560512543,
+          "maxMs": 0.7526670098304749,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 300,
+          "totalMs": 220.93375194072723,
+          "selfMs": 23.11574500799179,
+          "maxMs": 0.8278340101242065,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 300,
+          "totalMs": 1192.6460961699486,
+          "selfMs": 24.858865439891815,
+          "maxMs": 4.267458021640778,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 400,
+          "totalMs": 2712.5964574813843,
+          "selfMs": 1.3636057376861572,
+          "maxMs": 16.624500036239624,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 100,
+          "totalMs": 1774.6514201760292,
+          "selfMs": 0.19518053531646729,
+          "maxMs": 18.075208008289337,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 100,
+          "totalMs": 1774.868411540985,
+          "selfMs": 0.2169913649559021,
+          "maxMs": 18.07737499475479,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 100,
+          "totalMs": 81.93216788768768,
+          "selfMs": 81.93216788768768,
+          "maxMs": 0.888791024684906,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 100,
+          "totalMs": 27.333828270435333,
+          "selfMs": 27.333828270435333,
+          "maxMs": 0.32791703939437866,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 100,
+          "totalMs": 111.66012471914291,
+          "selfMs": 2.3941285610198975,
+          "maxMs": 1.2467920184135437,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 100,
+          "totalMs": 9.18791288137436,
+          "selfMs": 9.18791288137436,
+          "maxMs": 0.1433749794960022,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 100,
+          "totalMs": 23.21558564901352,
+          "selfMs": 14.02767276763916,
+          "maxMs": 0.2944580316543579,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 2,
+      "role": "member",
+      "requested": 1000,
+      "completed": 1000,
+      "censored": false,
+      "ms": 20493.99666595459,
+      "cpu": {
+        "user": 20464392,
+        "system": 118381
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13000,
+          "totalMs": 3327.7767992019653,
+          "selfMs": 3327.7767992019653,
+          "maxMs": 0.7560420036315918,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13000,
+          "totalMs": 3318.851470887661,
+          "selfMs": 3318.851470887661,
+          "maxMs": 0.8069170117378235,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13000,
+          "totalMs": 11874.229619443417,
+          "selfMs": 5227.60134935379,
+          "maxMs": 3.150333046913147,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14000,
+          "totalMs": 3964.3557003736496,
+          "selfMs": 3964.3557003736496,
+          "maxMs": 3.697125017642975,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7000,
+          "totalMs": 10868.82876253128,
+          "selfMs": 524.3109260201454,
+          "maxMs": 4.896833002567291,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 3000,
+          "totalMs": 104.61663389205933,
+          "selfMs": 104.61663389205933,
+          "maxMs": 0.10783296823501587,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 3000,
+          "totalMs": 1201.0461272001266,
+          "selfMs": 1201.0461272001266,
+          "maxMs": 0.5477499961853027,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3000,
+          "totalMs": 2119.5512912869453,
+          "selfMs": 813.8885301947594,
+          "maxMs": 0.9961659908294678,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3000,
+          "totalMs": 2363.024367392063,
+          "selfMs": 243.4730761051178,
+          "maxMs": 1.0830830335617065,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3000,
+          "totalMs": 12760.830442428589,
+          "selfMs": 261.1634071469307,
+          "maxMs": 9.106000006198883,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4000,
+          "totalMs": 29041.198989093304,
+          "selfMs": 14.57840383052826,
+          "maxMs": 21.617332994937897,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1000,
+          "totalMs": 19003.765184223652,
+          "selfMs": 2.1027600169181824,
+          "maxMs": 23.310042023658752,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1000,
+          "totalMs": 19006.031956017017,
+          "selfMs": 2.2667717933654785,
+          "maxMs": 23.31545799970627,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1000,
+          "totalMs": 880.3812722563744,
+          "selfMs": 880.3812722563744,
+          "maxMs": 2.0338340401649475,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1000,
+          "totalMs": 291.932764172554,
+          "selfMs": 291.932764172554,
+          "maxMs": 0.41454100608825684,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1000,
+          "totalMs": 1196.926960349083,
+          "selfMs": 24.61292392015457,
+          "maxMs": 2.3685829639434814,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1000,
+          "totalMs": 96.72980070114136,
+          "selfMs": 96.72980070114136,
+          "maxMs": 0.13520801067352295,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1000,
+          "totalMs": 242.25300431251526,
+          "selfMs": 145.5232036113739,
+          "maxMs": 0.357915997505188,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "refreshMessageIds",
+      "users": 2,
+      "role": "member",
+      "count": 1,
+      "ms": 21.480250000953674,
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13,
+          "totalMs": 3.4877920746803284,
+          "selfMs": 3.4877920746803284,
+          "maxMs": 0.28245800733566284,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13,
+          "totalMs": 3.485371947288513,
+          "selfMs": 3.485371947288513,
+          "maxMs": 0.27733296155929565,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13,
+          "totalMs": 12.368084013462067,
+          "selfMs": 5.394919991493225,
+          "maxMs": 1.0215420126914978,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14,
+          "totalMs": 4.116375982761383,
+          "selfMs": 4.116375982761383,
+          "maxMs": 0.35512495040893555,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7,
+          "totalMs": 11.426207959651947,
+          "selfMs": 0.5827069878578186,
+          "maxMs": 1.70408296585083,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 3,
+          "totalMs": 0.10599905252456665,
+          "selfMs": 0.10599905252456665,
+          "maxMs": 0.035833001136779785,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 3,
+          "totalMs": 1.2391250133514404,
+          "selfMs": 1.2391250133514404,
+          "maxMs": 0.44166600704193115,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3,
+          "totalMs": 2.185333013534546,
+          "selfMs": 0.8402089476585388,
+          "maxMs": 0.7610419988632202,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3,
+          "totalMs": 2.4304599165916443,
+          "selfMs": 0.2451269030570984,
+          "maxMs": 0.8450839519500732,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3,
+          "totalMs": 13.180125057697296,
+          "selfMs": 0.26566410064697266,
+          "maxMs": 4.43816602230072,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4,
+          "totalMs": 30.27266699075699,
+          "selfMs": 0.015500962734222412,
+          "maxMs": 18.159166991710663,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1,
+          "totalMs": 19.78175002336502,
+          "selfMs": 0.002958059310913086,
+          "maxMs": 19.78175002336502,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1,
+          "totalMs": 19.784166991710663,
+          "selfMs": 0.00241696834564209,
+          "maxMs": 19.784166991710663,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1,
+          "totalMs": 0.894707977771759,
+          "selfMs": 0.894707977771759,
+          "maxMs": 0.894707977771759,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1,
+          "totalMs": 0.3011249899864197,
+          "selfMs": 0.3011249899864197,
+          "maxMs": 0.3011249899864197,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1,
+          "totalMs": 1.2258750200271606,
+          "selfMs": 0.030042052268981934,
+          "maxMs": 1.2258750200271606,
+          "errors": 0
+        },
+        "CryptoService.symDecrypt": {
+          "calls": 1,
+          "totalMs": 21.021166026592255,
+          "selfMs": 0.011124014854431152,
+          "maxMs": 21.021166026592255,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1,
+          "totalMs": 0.10474997758865356,
+          "selfMs": 0.10474997758865356,
+          "maxMs": 0.10474997758865356,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1,
+          "totalMs": 0.2530829906463623,
+          "selfMs": 0.14833301305770874,
+          "maxMs": 0.2530829906463623,
+          "errors": 0
+        },
+        "CryptoService.validateSignature": {
+          "calls": 1,
+          "totalMs": 0.2556249499320984,
+          "selfMs": 0.002541959285736084,
+          "maxMs": 0.2556249499320984,
+          "errors": 0
+        },
+        "CryptoService.decryptAndVerify": {
+          "calls": 1,
+          "totalMs": 21.281624972820282,
+          "selfMs": 0.004833996295928955,
+          "maxMs": 21.281624972820282,
+          "errors": 0
+        },
+        "PublicChannelMessagesService._decryptPublicChannelMessage": {
+          "calls": 1,
+          "totalMs": 21.28370898962021,
+          "selfMs": 0.002084016799926758,
+          "maxMs": 21.28370898962021,
+          "errors": 0
+        },
+        "PublicChannelMessagesService.onConsume.wall": {
+          "calls": 1,
+          "totalMs": 21.388292014598846,
+          "selfMs": 0,
+          "maxMs": 21.388292014598846,
+          "errors": 0
+        },
+        "ChannelStore.getEntries.wall": {
+          "calls": 1,
+          "totalMs": 21.435083031654358,
+          "selfMs": 0,
+          "maxMs": 21.435083031654358,
+          "errors": 0
+        },
+        "ChannelStore.refreshMessageIds.wall": {
+          "calls": 1,
+          "totalMs": 21.45566600561142,
+          "selfMs": 0,
+          "maxMs": 21.45566600561142,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "refreshMessageIds",
+      "users": 2,
+      "role": "member",
+      "count": 10,
+      "ms": 214.6026669740677,
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 130,
+          "totalMs": 34.871752202510834,
+          "selfMs": 34.871752202510834,
+          "maxMs": 0.2949589490890503,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 130,
+          "totalMs": 34.74470430612564,
+          "selfMs": 34.74470430612564,
+          "maxMs": 0.292417049407959,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 130,
+          "totalMs": 124.21171289682388,
+          "selfMs": 54.59525638818741,
+          "maxMs": 1.1684579849243164,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 140,
+          "totalMs": 41.05194926261902,
+          "selfMs": 41.05194926261902,
+          "maxMs": 0.37862497568130493,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 70,
+          "totalMs": 113.54224610328674,
+          "selfMs": 5.495003938674927,
+          "maxMs": 1.8377910256385803,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 30,
+          "totalMs": 1.0709190964698792,
+          "selfMs": 1.0709190964698792,
+          "maxMs": 0.03937500715255737,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 30,
+          "totalMs": 12.472290754318237,
+          "selfMs": 12.472290754318237,
+          "maxMs": 0.47712504863739014,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 30,
+          "totalMs": 22.083247780799866,
+          "selfMs": 8.54003793001175,
+          "maxMs": 0.8577499985694885,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 30,
+          "totalMs": 24.59216582775116,
+          "selfMs": 2.508918046951294,
+          "maxMs": 0.9459169507026672,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 30,
+          "totalMs": 133.1153319478035,
+          "selfMs": 2.7329939007759094,
+          "maxMs": 4.838916003704071,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 40,
+          "totalMs": 304.0245398879051,
+          "selfMs": 0.15879708528518677,
+          "maxMs": 18.98737496137619,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 10,
+          "totalMs": 198.26716697216034,
+          "selfMs": 0.024544060230255127,
+          "maxMs": 20.609957993030548,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 10,
+          "totalMs": 198.29075103998184,
+          "selfMs": 0.023584067821502686,
+          "maxMs": 20.61225003004074,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 10,
+          "totalMs": 9.086750984191895,
+          "selfMs": 9.086750984191895,
+          "maxMs": 0.9963749647140503,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 10,
+          "totalMs": 3.02346009016037,
+          "selfMs": 3.02346009016037,
+          "maxMs": 0.330875039100647,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 10,
+          "totalMs": 12.38529098033905,
+          "selfMs": 0.2750799059867859,
+          "maxMs": 1.3571670055389404,
+          "errors": 0
+        },
+        "CryptoService.symDecrypt": {
+          "calls": 10,
+          "totalMs": 210.79579305648804,
+          "selfMs": 0.11975103616714478,
+          "maxMs": 21.85595804452896,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 10,
+          "totalMs": 1.011956810951233,
+          "selfMs": 1.011956810951233,
+          "maxMs": 0.11070799827575684,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 10,
+          "totalMs": 2.5216251015663147,
+          "selfMs": 1.5096682906150818,
+          "maxMs": 0.2750420570373535,
+          "errors": 0
+        },
+        "CryptoService.validateSignature": {
+          "calls": 10,
+          "totalMs": 2.5470001101493835,
+          "selfMs": 0.025375008583068848,
+          "maxMs": 0.27766698598861694,
+          "errors": 0
+        },
+        "CryptoService.decryptAndVerify": {
+          "calls": 10,
+          "totalMs": 213.65675097703934,
+          "selfMs": 0.3139578104019165,
+          "maxMs": 22.14945900440216,
+          "errors": 0
+        },
+        "PublicChannelMessagesService._decryptPublicChannelMessage": {
+          "calls": 10,
+          "totalMs": 213.67849910259247,
+          "selfMs": 0.021748125553131104,
+          "maxMs": 22.156292021274567,
+          "errors": 0
+        },
+        "PublicChannelMessagesService.onConsume.wall": {
+          "calls": 10,
+          "totalMs": 214.53912603855133,
+          "selfMs": 0,
+          "maxMs": 22.24575001001358,
+          "errors": 0
+        },
+        "ChannelStore.getEntries.wall": {
+          "calls": 1,
+          "totalMs": 214.57558304071426,
+          "selfMs": 0,
+          "maxMs": 214.57558304071426,
+          "errors": 0
+        },
+        "ChannelStore.refreshMessageIds.wall": {
+          "calls": 1,
+          "totalMs": 214.58458399772644,
+          "selfMs": 0,
+          "maxMs": 214.58458399772644,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "refreshMessageIds",
+      "users": 2,
+      "role": "member",
+      "count": 100,
+      "ms": 2153.043083012104,
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 1300,
+          "totalMs": 349.7541264295578,
+          "selfMs": 349.7541264295578,
+          "maxMs": 0.3342919945716858,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 1300,
+          "totalMs": 348.3972175717354,
+          "selfMs": 348.3972175717354,
+          "maxMs": 0.39041703939437866,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 1300,
+          "totalMs": 1246.0677641630173,
+          "selfMs": 547.9164201617241,
+          "maxMs": 1.1665840148925781,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 1400,
+          "totalMs": 413.8289247751236,
+          "selfMs": 413.8289247751236,
+          "maxMs": 0.4778749942779541,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 700,
+          "totalMs": 1139.9702873826027,
+          "selfMs": 55.46331661939621,
+          "maxMs": 1.8526250123977661,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 300,
+          "totalMs": 10.825415253639221,
+          "selfMs": 10.825415253639221,
+          "maxMs": 0.04566603899002075,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 300,
+          "totalMs": 125.73284268379211,
+          "selfMs": 125.73284268379211,
+          "maxMs": 0.48091602325439453,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 300,
+          "totalMs": 221.64783430099487,
+          "selfMs": 85.08957636356354,
+          "maxMs": 0.8291659951210022,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 300,
+          "totalMs": 246.94287014007568,
+          "selfMs": 25.29503583908081,
+          "maxMs": 0.9216669797897339,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 300,
+          "totalMs": 1337.4069575667381,
+          "selfMs": 27.36657416820526,
+          "maxMs": 4.84850001335144,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 400,
+          "totalMs": 3041.7651779055595,
+          "selfMs": 1.544930338859558,
+          "maxMs": 19.246625006198883,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 100,
+          "totalMs": 1991.4322917461395,
+          "selfMs": 0.21791154146194458,
+          "maxMs": 20.999541997909546,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 100,
+          "totalMs": 1991.6652141809464,
+          "selfMs": 0.23292243480682373,
+          "maxMs": 21.001999974250793,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 100,
+          "totalMs": 92.70721197128296,
+          "selfMs": 92.70721197128296,
+          "maxMs": 1.1075000166893005,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 100,
+          "totalMs": 30.638129115104675,
+          "selfMs": 30.638129115104675,
+          "maxMs": 0.3356669545173645,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 100,
+          "totalMs": 126.08075398206711,
+          "selfMs": 2.735412895679474,
+          "maxMs": 1.4664999842643738,
+          "errors": 0
+        },
+        "CryptoService.symDecrypt": {
+          "calls": 100,
+          "totalMs": 2118.777875125408,
+          "selfMs": 1.0319069623947144,
+          "maxMs": 22.307083010673523,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 100,
+          "totalMs": 10.137587130069733,
+          "selfMs": 10.137587130069733,
+          "maxMs": 0.13749998807907104,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 100,
+          "totalMs": 25.650956094264984,
+          "selfMs": 15.513368964195251,
+          "maxMs": 0.3769579529762268,
+          "errors": 0
+        },
+        "CryptoService.validateSignature": {
+          "calls": 100,
+          "totalMs": 25.92704474925995,
+          "selfMs": 0.2760886549949646,
+          "maxMs": 0.3797920346260071,
+          "errors": 0
+        },
+        "CryptoService.decryptAndVerify": {
+          "calls": 100,
+          "totalMs": 2148.0432092547417,
+          "selfMs": 3.3382893800735474,
+          "maxMs": 22.607916951179504,
+          "errors": 0
+        },
+        "PublicChannelMessagesService._decryptPublicChannelMessage": {
+          "calls": 100,
+          "totalMs": 2148.260246872902,
+          "selfMs": 0.2170376181602478,
+          "maxMs": 22.61004203557968,
+          "errors": 0
+        },
+        "PublicChannelMessagesService.onConsume.wall": {
+          "calls": 100,
+          "totalMs": 2152.733829140663,
+          "selfMs": 0,
+          "maxMs": 22.65641701221466,
+          "errors": 0
+        },
+        "ChannelStore.getEntries.wall": {
+          "calls": 1,
+          "totalMs": 2152.9852079749107,
+          "selfMs": 0,
+          "maxMs": 2152.9852079749107,
+          "errors": 0
+        },
+        "ChannelStore.refreshMessageIds.wall": {
+          "calls": 1,
+          "totalMs": 2153.0187079906464,
+          "selfMs": 0,
+          "maxMs": 2153.0187079906464,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "reuseValidatedKeyControl",
+      "users": 2,
+      "role": "member",
+      "count": 1000,
+      "ms": 1522.573667049408,
+      "productionFix": false,
+      "metrics": {
+        "sodium.crypto_auth_verify": {
+          "calls": 1000,
+          "totalMs": 923.22977912426,
+          "selfMs": 923.22977912426,
+          "maxMs": 1.0799170136451721,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1000,
+          "totalMs": 309.7761266231537,
+          "selfMs": 309.7761266231537,
+          "maxMs": 0.393375039100647,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1000,
+          "totalMs": 1258.0687999725342,
+          "selfMs": 25.062894225120544,
+          "maxMs": 1.4067090153694153,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1000,
+          "totalMs": 99.101911008358,
+          "selfMs": 99.101911008358,
+          "maxMs": 0.149042010307312,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1000,
+          "totalMs": 253.9543994665146,
+          "selfMs": 154.85248845815659,
+          "maxMs": 0.35433298349380493,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "symmetricPrimitive",
+      "users": 2,
+      "role": "member",
+      "count": 5,
+      "ms": 5.912540972232819,
+      "metrics": {
+        "sodium.crypto_auth_verify": {
+          "calls": 5,
+          "totalMs": 4.337417960166931,
+          "selfMs": 4.337417960166931,
+          "maxMs": 0.9490419626235962,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 5,
+          "totalMs": 1.4022499918937683,
+          "selfMs": 1.4022499918937683,
+          "maxMs": 0.31187498569488525,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 5,
+          "totalMs": 5.8529998660087585,
+          "selfMs": 0.11333191394805908,
+          "maxMs": 1.2898329496383667,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "signaturePrimitive",
+      "users": 2,
+      "role": "member",
+      "count": 5,
+      "ms": 1.1130419969558716,
+      "metrics": {
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 5,
+          "totalMs": 0.4191668629646301,
+          "selfMs": 0.4191668629646301,
+          "maxMs": 0.09266698360443115,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 5,
+          "totalMs": 1.0926660299301147,
+          "selfMs": 0.6734991669654846,
+          "maxMs": 0.22854101657867432,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "keyLookup",
+      "users": 2,
+      "role": "member",
+      "count": 5,
+      "ms": 98.26037502288818,
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 65,
+          "totalMs": 17.241538166999817,
+          "selfMs": 17.241538166999817,
+          "maxMs": 0.2985830307006836,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 65,
+          "totalMs": 17.20229333639145,
+          "selfMs": 17.20229333639145,
+          "maxMs": 0.2991250157356262,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 65,
+          "totalMs": 61.471043825149536,
+          "selfMs": 27.02721232175827,
+          "maxMs": 1.1958330273628235,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 70,
+          "totalMs": 20.504374384880066,
+          "selfMs": 20.504374384880066,
+          "maxMs": 0.5089579820632935,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 35,
+          "totalMs": 56.21062487363815,
+          "selfMs": 2.6953746676445007,
+          "maxMs": 1.7937910556793213,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 15,
+          "totalMs": 0.5350380539894104,
+          "selfMs": 0.5350380539894104,
+          "maxMs": 0.03783297538757324,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 15,
+          "totalMs": 6.134832143783569,
+          "selfMs": 6.134832143783569,
+          "maxMs": 0.4536660313606262,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 15,
+          "totalMs": 10.847790896892548,
+          "selfMs": 4.177920699119568,
+          "maxMs": 0.7848749756813049,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 15,
+          "totalMs": 12.092334032058716,
+          "selfMs": 1.2445431351661682,
+          "maxMs": 0.8727920055389404,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 15,
+          "totalMs": 66.07292008399963,
+          "selfMs": 1.3286269903182983,
+          "maxMs": 4.930417001247406,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 20,
+          "totalMs": 149.8340789079666,
+          "selfMs": 0.08153599500656128,
+          "maxMs": 18.73329097032547,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 5,
+          "totalMs": 98.18566697835922,
+          "selfMs": 0.01237708330154419,
+          "maxMs": 20.35308301448822,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 5,
+          "totalMs": 98.20083296298981,
+          "selfMs": 0.015165984630584717,
+          "maxMs": 20.35800004005432,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "load",
+      "users": 100,
+      "role": "member",
+      "ms": 13566.712875008583,
+      "metrics": {
+        "sodium.randombytes_buf": {
+          "calls": 1,
+          "totalMs": 0.10120803117752075,
+          "selfMs": 0.10120803117752075,
+          "maxMs": 0.10120803117752075,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 301,
+          "totalMs": 10.813129186630249,
+          "selfMs": 10.813129186630249,
+          "maxMs": 0.044791996479034424,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 301,
+          "totalMs": 363.24740570783615,
+          "selfMs": 363.24740570783615,
+          "maxMs": 3.4139170050621033,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 301,
+          "totalMs": 461.6538745164871,
+          "selfMs": 87.59333962202072,
+          "maxMs": 3.9072920083999634,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 301,
+          "totalMs": 495.54295867681503,
+          "selfMs": 33.88908416032791,
+          "maxMs": 4.1809579730033875,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 1203,
+          "totalMs": 1103.390120446682,
+          "selfMs": 1103.390120446682,
+          "maxMs": 3.4094170331954956,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 499,
+          "totalMs": 60.180658400058746,
+          "selfMs": 60.180658400058746,
+          "maxMs": 0.19858402013778687,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 499,
+          "totalMs": 143.59626138210297,
+          "selfMs": 83.41560298204422,
+          "maxMs": 0.5352919697761536,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 100,
+      "role": "member",
+      "requested": 1,
+      "completed": 1,
+      "censored": false,
+      "ms": 23.227665960788727,
+      "cpu": {
+        "user": 23179,
+        "system": 58
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13,
+          "totalMs": 3.7793319821357727,
+          "selfMs": 3.7793319821357727,
+          "maxMs": 0.29587501287460327,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13,
+          "totalMs": 3.7762919664382935,
+          "selfMs": 3.7762919664382935,
+          "maxMs": 0.29829198122024536,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13,
+          "totalMs": 13.429748952388763,
+          "selfMs": 5.874125003814697,
+          "maxMs": 1.0421249866485596,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14,
+          "totalMs": 4.4709999561309814,
+          "selfMs": 4.4709999561309814,
+          "maxMs": 0.3820840120315552,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7,
+          "totalMs": 12.279292047023773,
+          "selfMs": 0.5981271266937256,
+          "maxMs": 1.7654579877853394,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 3,
+          "totalMs": 0.11783397197723389,
+          "selfMs": 0.11783397197723389,
+          "maxMs": 0.03966701030731201,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 3,
+          "totalMs": 1.3645429611206055,
+          "selfMs": 1.3645429611206055,
+          "maxMs": 0.4794589877128601,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3,
+          "totalMs": 2.425081968307495,
+          "selfMs": 0.9427050352096558,
+          "maxMs": 0.8294999599456787,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3,
+          "totalMs": 2.6959570050239563,
+          "selfMs": 0.2708750367164612,
+          "maxMs": 0.9213330149650574,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3,
+          "totalMs": 14.45395803451538,
+          "selfMs": 0.29258298873901367,
+          "maxMs": 4.849500000476837,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4,
+          "totalMs": 32.94050091505051,
+          "selfMs": 0.04729193449020386,
+          "maxMs": 19.769249975681305,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1,
+          "totalMs": 21.537499964237213,
+          "selfMs": 0.0027920007705688477,
+          "maxMs": 21.537499964237213,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1,
+          "totalMs": 21.540542006492615,
+          "selfMs": 0.0030420422554016113,
+          "maxMs": 21.540542006492615,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1,
+          "totalMs": 0.9890419840812683,
+          "selfMs": 0.9890419840812683,
+          "maxMs": 0.9890419840812683,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1,
+          "totalMs": 0.32891595363616943,
+          "selfMs": 0.32891595363616943,
+          "maxMs": 0.32891595363616943,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1,
+          "totalMs": 1.3460829854011536,
+          "selfMs": 0.02812504768371582,
+          "maxMs": 1.3460829854011536,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1,
+          "totalMs": 0.11033302545547485,
+          "selfMs": 0.11033302545547485,
+          "maxMs": 0.11033302545547485,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1,
+          "totalMs": 0.27762502431869507,
+          "selfMs": 0.16729199886322021,
+          "maxMs": 0.27762502431869507,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 100,
+      "role": "member",
+      "requested": 10,
+      "completed": 10,
+      "censored": false,
+      "ms": 235.55175000429153,
+      "cpu": {
+        "user": 228098,
+        "system": 1821
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 130,
+          "totalMs": 36.91275304555893,
+          "selfMs": 36.91275304555893,
+          "maxMs": 0.34458398818969727,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 130,
+          "totalMs": 36.753417015075684,
+          "selfMs": 36.753417015075684,
+          "maxMs": 0.3330410122871399,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 130,
+          "totalMs": 130.96249693632126,
+          "selfMs": 57.296326875686646,
+          "maxMs": 1.3117080330848694,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 140,
+          "totalMs": 43.56562727689743,
+          "selfMs": 43.56562727689743,
+          "maxMs": 0.6065000295639038,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 70,
+          "totalMs": 119.87853968143463,
+          "selfMs": 5.8279531598091125,
+          "maxMs": 2.028124988079071,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 30,
+          "totalMs": 1.1403369307518005,
+          "selfMs": 1.1403369307518005,
+          "maxMs": 0.04474997520446777,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 30,
+          "totalMs": 13.164832890033722,
+          "selfMs": 13.164832890033722,
+          "maxMs": 0.5134170055389404,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 30,
+          "totalMs": 23.372291326522827,
+          "selfMs": 9.067121505737305,
+          "maxMs": 0.8927919864654541,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 30,
+          "totalMs": 26.067083954811096,
+          "selfMs": 2.694792628288269,
+          "maxMs": 0.9899160265922546,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 30,
+          "totalMs": 140.493084192276,
+          "selfMs": 2.856798529624939,
+          "maxMs": 5.088208019733429,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 40,
+          "totalMs": 320.3110000491142,
+          "selfMs": 0.4564139246940613,
+          "maxMs": 20.036042034626007,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 10,
+          "totalMs": 209.75895899534225,
+          "selfMs": 0.02258521318435669,
+          "maxMs": 21.71712499856949,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 10,
+          "totalMs": 209.7854580283165,
+          "selfMs": 0.026499032974243164,
+          "maxMs": 21.719875037670135,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 10,
+          "totalMs": 9.471666991710663,
+          "selfMs": 9.471666991710663,
+          "maxMs": 1.0007500052452087,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 10,
+          "totalMs": 3.1209999322891235,
+          "selfMs": 3.1209999322891235,
+          "maxMs": 0.33037495613098145,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 10,
+          "totalMs": 12.856458961963654,
+          "selfMs": 0.2637920379638672,
+          "maxMs": 1.3568750023841858,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 10,
+          "totalMs": 1.0347071290016174,
+          "selfMs": 1.0347071290016174,
+          "maxMs": 0.11016601324081421,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 10,
+          "totalMs": 2.607250928878784,
+          "selfMs": 1.5725437998771667,
+          "maxMs": 0.2887919545173645,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 100,
+      "role": "member",
+      "requested": 100,
+      "completed": 100,
+      "censored": false,
+      "ms": 2241.815374970436,
+      "cpu": {
+        "user": 2245738,
+        "system": 12095
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 1300,
+          "totalMs": 365.5721069574356,
+          "selfMs": 365.5721069574356,
+          "maxMs": 0.3632499575614929,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 1300,
+          "totalMs": 364.19097954034805,
+          "selfMs": 364.19097954034805,
+          "maxMs": 0.36458301544189453,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 1300,
+          "totalMs": 1297.4036110043526,
+          "selfMs": 567.6405245065689,
+          "maxMs": 1.2875829935073853,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 1400,
+          "totalMs": 430.55662643909454,
+          "selfMs": 430.55662643909454,
+          "maxMs": 0.5613750219345093,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 700,
+          "totalMs": 1184.5974027514458,
+          "selfMs": 57.28277665376663,
+          "maxMs": 2.0427079796791077,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 300,
+          "totalMs": 11.389037489891052,
+          "selfMs": 11.389037489891052,
+          "maxMs": 0.07341700792312622,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 300,
+          "totalMs": 131.63912844657898,
+          "selfMs": 131.63912844657898,
+          "maxMs": 0.7490419745445251,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 300,
+          "totalMs": 232.37521654367447,
+          "selfMs": 89.34705060720444,
+          "maxMs": 1.0980830192565918,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 300,
+          "totalMs": 258.7185797691345,
+          "selfMs": 26.343363225460052,
+          "maxMs": 1.1900410056114197,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 300,
+          "totalMs": 1392.4478335380554,
+          "selfMs": 28.36756455898285,
+          "maxMs": 5.143583953380585,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 400,
+          "totalMs": 3174.57482111454,
+          "selfMs": 4.558009624481201,
+          "maxMs": 20.18366700410843,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 100,
+          "totalMs": 2077.112001001835,
+          "selfMs": 0.2248329520225525,
+          "maxMs": 21.978792011737823,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 100,
+          "totalMs": 2077.367500603199,
+          "selfMs": 0.25549960136413574,
+          "maxMs": 21.984250009059906,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 100,
+          "totalMs": 96.46078127622604,
+          "selfMs": 96.46078127622604,
+          "maxMs": 1.1744999885559082,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 100,
+          "totalMs": 32.037372291088104,
+          "selfMs": 32.037372291088104,
+          "maxMs": 0.3537909984588623,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 100,
+          "totalMs": 131.1654559969902,
+          "selfMs": 2.667302429676056,
+          "maxMs": 1.5322499871253967,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 100,
+          "totalMs": 10.611880660057068,
+          "selfMs": 10.611880660057068,
+          "maxMs": 0.11883300542831421,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 100,
+          "totalMs": 26.589665114879608,
+          "selfMs": 15.97778445482254,
+          "maxMs": 0.29279202222824097,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "decryptAndVerify",
+      "users": 100,
+      "role": "member",
+      "requested": 1000,
+      "completed": 1000,
+      "censored": false,
+      "ms": 22777.095042049885,
+      "cpu": {
+        "user": 22685900,
+        "system": 125736
+      },
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13000,
+          "totalMs": 3674.903363406658,
+          "selfMs": 3674.903363406658,
+          "maxMs": 0.4093340039253235,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13000,
+          "totalMs": 3664.0409917235374,
+          "selfMs": 3664.0409917235374,
+          "maxMs": 0.417540967464447,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13000,
+          "totalMs": 13143.037413835526,
+          "selfMs": 5804.09305870533,
+          "maxMs": 1.3122079968452454,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14000,
+          "totalMs": 4393.632079005241,
+          "selfMs": 4393.632079005241,
+          "maxMs": 0.6327499747276306,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7000,
+          "totalMs": 12031.00551956892,
+          "selfMs": 580.7937874794006,
+          "maxMs": 2.0915409922599792,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 3000,
+          "totalMs": 115.65647178888321,
+          "selfMs": 115.65647178888321,
+          "maxMs": 0.07908403873443604,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 3000,
+          "totalMs": 1337.3447741866112,
+          "selfMs": 1337.3447741866112,
+          "maxMs": 0.6813750267028809,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3000,
+          "totalMs": 2352.240469276905,
+          "selfMs": 899.2392233014107,
+          "maxMs": 1.0421249866485596,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3000,
+          "totalMs": 2621.2281200885773,
+          "selfMs": 268.9876508116722,
+          "maxMs": 1.1387909650802612,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3000,
+          "totalMs": 14127.069268286228,
+          "selfMs": 289.8133040070534,
+          "maxMs": 5.389957964420319,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4000,
+          "totalMs": 32255.832305908203,
+          "selfMs": 46.291002690792084,
+          "maxMs": 21.25224995613098,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1000,
+          "totalMs": 21077.093581855297,
+          "selfMs": 2.2978747487068176,
+          "maxMs": 23.141667008399963,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1000,
+          "totalMs": 21079.663947999477,
+          "selfMs": 2.570366144180298,
+          "maxMs": 23.144416987895966,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1000,
+          "totalMs": 980.0716804862022,
+          "selfMs": 980.0716804862022,
+          "maxMs": 1.265874981880188,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1000,
+          "totalMs": 324.3994035124779,
+          "selfMs": 324.3994035124779,
+          "maxMs": 0.4159160256385803,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1000,
+          "totalMs": 1332.3071030378342,
+          "selfMs": 27.836019039154053,
+          "maxMs": 1.6476669907569885,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1000,
+          "totalMs": 106.93302524089813,
+          "selfMs": 106.93302524089813,
+          "maxMs": 0.1343749761581421,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1000,
+          "totalMs": 269.8349025249481,
+          "selfMs": 162.90187728405,
+          "maxMs": 0.32441699504852295,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "refreshMessageIds",
+      "users": 100,
+      "role": "member",
+      "count": 1,
+      "ms": 23.544291019439697,
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 13,
+          "totalMs": 3.8242069482803345,
+          "selfMs": 3.8242069482803345,
+          "maxMs": 0.31391602754592896,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 13,
+          "totalMs": 3.8238309621810913,
+          "selfMs": 3.8238309621810913,
+          "maxMs": 0.34391701221466064,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 13,
+          "totalMs": 13.644502103328705,
+          "selfMs": 5.996464192867279,
+          "maxMs": 1.132416009902954,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 14,
+          "totalMs": 4.5728759765625,
+          "selfMs": 4.5728759765625,
+          "maxMs": 0.3919999599456787,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 7,
+          "totalMs": 12.647374987602234,
+          "selfMs": 0.6099139451980591,
+          "maxMs": 1.9261659979820251,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 3,
+          "totalMs": 0.11674892902374268,
+          "selfMs": 0.11674892902374268,
+          "maxMs": 0.041333019733428955,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 3,
+          "totalMs": 1.3568339347839355,
+          "selfMs": 1.3568339347839355,
+          "maxMs": 0.4634169936180115,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 3,
+          "totalMs": 2.3832499980926514,
+          "selfMs": 0.9096671342849731,
+          "maxMs": 0.8253340125083923,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 3,
+          "totalMs": 2.6561670303344727,
+          "selfMs": 0.2729170322418213,
+          "maxMs": 0.9203750491142273,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 3,
+          "totalMs": 14.369000017642975,
+          "selfMs": 0.2974569797515869,
+          "maxMs": 4.939333021640778,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 4,
+          "totalMs": 33.57108396291733,
+          "selfMs": 0.04725092649459839,
+          "maxMs": 19.998166978359222,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 1,
+          "totalMs": 21.831166982650757,
+          "selfMs": 0.003000020980834961,
+          "maxMs": 21.831166982650757,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 1,
+          "totalMs": 21.833667039871216,
+          "selfMs": 0.0025000572204589844,
+          "maxMs": 21.833667039871216,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 1,
+          "totalMs": 0.9362500309944153,
+          "selfMs": 0.9362500309944153,
+          "maxMs": 0.9362500309944153,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1,
+          "totalMs": 0.31320899724960327,
+          "selfMs": 0.31320899724960327,
+          "maxMs": 0.31320899724960327,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1,
+          "totalMs": 1.277875006198883,
+          "selfMs": 0.028415977954864502,
+          "maxMs": 1.277875006198883,
+          "errors": 0
+        },
+        "CryptoService.symDecrypt": {
+          "calls": 1,
+          "totalMs": 23.162292003631592,
+          "selfMs": 0.05074995756149292,
+          "maxMs": 23.162292003631592,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1,
+          "totalMs": 0.09974998235702515,
+          "selfMs": 0.09974998235702515,
+          "maxMs": 0.09974998235702515,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1,
+          "totalMs": 0.25437498092651367,
+          "selfMs": 0.15462499856948853,
+          "maxMs": 0.25437498092651367,
+          "errors": 0
+        },
+        "CryptoService.validateSignature": {
+          "calls": 1,
+          "totalMs": 0.2597079873085022,
+          "selfMs": 0.005333006381988525,
+          "maxMs": 0.2597079873085022,
+          "errors": 0
+        },
+        "CryptoService.decryptAndVerify": {
+          "calls": 1,
+          "totalMs": 23.426167011260986,
+          "selfMs": 0.004167020320892334,
+          "maxMs": 23.426167011260986,
+          "errors": 0
+        },
+        "PublicChannelMessagesService._decryptPublicChannelMessage": {
+          "calls": 1,
+          "totalMs": 23.428749978542328,
+          "selfMs": 0.0025829672813415527,
+          "maxMs": 23.428749978542328,
+          "errors": 0
+        },
+        "PublicChannelMessagesService.onConsume.wall": {
+          "calls": 1,
+          "totalMs": 23.494041979312897,
+          "selfMs": 0,
+          "maxMs": 23.494041979312897,
+          "errors": 0
+        },
+        "ChannelStore.getEntries.wall": {
+          "calls": 1,
+          "totalMs": 23.51687502861023,
+          "selfMs": 0,
+          "maxMs": 23.51687502861023,
+          "errors": 0
+        },
+        "ChannelStore.refreshMessageIds.wall": {
+          "calls": 1,
+          "totalMs": 23.526916980743408,
+          "selfMs": 0,
+          "maxMs": 23.526916980743408,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "refreshMessageIds",
+      "users": 100,
+      "role": "member",
+      "count": 10,
+      "ms": 231.23066699504852,
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 130,
+          "totalMs": 37.23287236690521,
+          "selfMs": 37.23287236690521,
+          "maxMs": 0.3959590196609497,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 130,
+          "totalMs": 37.03528952598572,
+          "selfMs": 37.03528952598572,
+          "maxMs": 0.3557080030441284,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 130,
+          "totalMs": 133.22063118219376,
+          "selfMs": 58.952469289302826,
+          "maxMs": 1.414458990097046,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 140,
+          "totalMs": 44.34191817045212,
+          "selfMs": 44.34191817045212,
+          "maxMs": 0.42445898056030273,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 70,
+          "totalMs": 121.74533814191818,
+          "selfMs": 5.90441620349884,
+          "maxMs": 1.9777920246124268,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 30,
+          "totalMs": 1.1617501378059387,
+          "selfMs": 1.1617501378059387,
+          "maxMs": 0.046707987785339355,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 30,
+          "totalMs": 13.542748987674713,
+          "selfMs": 13.542748987674713,
+          "maxMs": 0.5132079720497131,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 30,
+          "totalMs": 23.76241886615753,
+          "selfMs": 9.05791974067688,
+          "maxMs": 0.8928750157356262,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 30,
+          "totalMs": 26.47991794347763,
+          "selfMs": 2.717499077320099,
+          "maxMs": 0.9950000047683716,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 30,
+          "totalMs": 143.05487596988678,
+          "selfMs": 2.9457855820655823,
+          "maxMs": 5.380042016506195,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 40,
+          "totalMs": 326.8992500305176,
+          "selfMs": 0.4703727960586548,
+          "maxMs": 20.332459032535553,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 10,
+          "totalMs": 213.3862919807434,
+          "selfMs": 0.023250102996826172,
+          "maxMs": 21.99779200553894,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 10,
+          "totalMs": 213.4114578962326,
+          "selfMs": 0.025165915489196777,
+          "maxMs": 22.000374972820282,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 10,
+          "totalMs": 9.798750102519989,
+          "selfMs": 9.798750102519989,
+          "maxMs": 1.052166998386383,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 10,
+          "totalMs": 3.278166890144348,
+          "selfMs": 3.278166890144348,
+          "maxMs": 0.3581249713897705,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 10,
+          "totalMs": 13.370916962623596,
+          "selfMs": 0.29399996995925903,
+          "maxMs": 1.4418749809265137,
+          "errors": 0
+        },
+        "CryptoService.symDecrypt": {
+          "calls": 10,
+          "totalMs": 227.30937498807907,
+          "selfMs": 0.5270001292228699,
+          "maxMs": 23.375459015369415,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 10,
+          "totalMs": 1.073039948940277,
+          "selfMs": 1.073039948940277,
+          "maxMs": 0.12375003099441528,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 10,
+          "totalMs": 2.8951658606529236,
+          "selfMs": 1.8221259117126465,
+          "maxMs": 0.4867500066757202,
+          "errors": 0
+        },
+        "CryptoService.validateSignature": {
+          "calls": 10,
+          "totalMs": 2.950792133808136,
+          "selfMs": 0.0556262731552124,
+          "maxMs": 0.49208301305770874,
+          "errors": 0
+        },
+        "CryptoService.decryptAndVerify": {
+          "calls": 10,
+          "totalMs": 230.59083300828934,
+          "selfMs": 0.3306658864021301,
+          "maxMs": 23.76787495613098,
+          "errors": 0
+        },
+        "PublicChannelMessagesService._decryptPublicChannelMessage": {
+          "calls": 10,
+          "totalMs": 230.61795806884766,
+          "selfMs": 0.027125060558319092,
+          "maxMs": 23.77191698551178,
+          "errors": 0
+        },
+        "PublicChannelMessagesService.onConsume.wall": {
+          "calls": 10,
+          "totalMs": 231.16804307699203,
+          "selfMs": 0,
+          "maxMs": 23.84341698884964,
+          "errors": 0
+        },
+        "ChannelStore.getEntries.wall": {
+          "calls": 1,
+          "totalMs": 231.2025419473648,
+          "selfMs": 0,
+          "maxMs": 231.2025419473648,
+          "errors": 0
+        },
+        "ChannelStore.refreshMessageIds.wall": {
+          "calls": 1,
+          "totalMs": 231.2127919793129,
+          "selfMs": 0,
+          "maxMs": 231.2127919793129,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "refreshMessageIds",
+      "users": 100,
+      "role": "member",
+      "count": 100,
+      "ms": 2304.0213329792023,
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 1300,
+          "totalMs": 371.35453617572784,
+          "selfMs": 371.35453617572784,
+          "maxMs": 0.4153749942779541,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 1300,
+          "totalMs": 368.9924499988556,
+          "selfMs": 368.9924499988556,
+          "maxMs": 0.37699997425079346,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 1300,
+          "totalMs": 1326.3923270702362,
+          "selfMs": 586.0453408956528,
+          "maxMs": 1.3212080001831055,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 1400,
+          "totalMs": 444.14738714694977,
+          "selfMs": 444.14738714694977,
+          "maxMs": 0.5917080044746399,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 700,
+          "totalMs": 1216.4051431417465,
+          "selfMs": 58.80775851011276,
+          "maxMs": 2.0929160118103027,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 300,
+          "totalMs": 11.60822468996048,
+          "selfMs": 11.60822468996048,
+          "maxMs": 0.06795799732208252,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 300,
+          "totalMs": 134.3083746433258,
+          "selfMs": 134.3083746433258,
+          "maxMs": 0.5162920355796814,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 300,
+          "totalMs": 236.0211591720581,
+          "selfMs": 90.10455983877182,
+          "maxMs": 0.8973329663276672,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 300,
+          "totalMs": 263.09401047229767,
+          "selfMs": 27.072851300239563,
+          "maxMs": 1.0069590210914612,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 300,
+          "totalMs": 1423.8623014092445,
+          "selfMs": 29.453781604766846,
+          "maxMs": 5.36362498998642,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 400,
+          "totalMs": 3253.3274634480476,
+          "selfMs": 4.7499842047691345,
+          "maxMs": 20.63066703081131,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 100,
+          "totalMs": 2126.8828766942024,
+          "selfMs": 0.23762768507003784,
+          "maxMs": 22.379958033561707,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 100,
+          "totalMs": 2127.133951961994,
+          "selfMs": 0.25107526779174805,
+          "maxMs": 22.38287502527237,
+          "errors": 0
+        },
+        "sodium.crypto_auth_verify": {
+          "calls": 100,
+          "totalMs": 98.75237953662872,
+          "selfMs": 98.75237953662872,
+          "maxMs": 1.1892080307006836,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 100,
+          "totalMs": 32.91774696111679,
+          "selfMs": 32.91774696111679,
+          "maxMs": 0.37779104709625244,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 100,
+          "totalMs": 134.59691840410233,
+          "selfMs": 2.9267919063568115,
+          "maxMs": 1.552416980266571,
+          "errors": 0
+        },
+        "CryptoService.symDecrypt": {
+          "calls": 100,
+          "totalMs": 2267.1584588885307,
+          "selfMs": 5.427588522434235,
+          "maxMs": 23.852625012397766,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 100,
+          "totalMs": 10.852832019329071,
+          "selfMs": 10.852832019329071,
+          "maxMs": 0.12874996662139893,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 100,
+          "totalMs": 27.41561782360077,
+          "selfMs": 16.562785804271698,
+          "maxMs": 0.47604095935821533,
+          "errors": 0
+        },
+        "CryptoService.validateSignature": {
+          "calls": 100,
+          "totalMs": 27.95270812511444,
+          "selfMs": 0.5370903015136719,
+          "maxMs": 0.48149996995925903,
+          "errors": 0
+        },
+        "CryptoService.decryptAndVerify": {
+          "calls": 100,
+          "totalMs": 2298.3118246793747,
+          "selfMs": 3.2006576657295227,
+          "maxMs": 24.15483295917511,
+          "errors": 0
+        },
+        "PublicChannelMessagesService._decryptPublicChannelMessage": {
+          "calls": 100,
+          "totalMs": 2298.5366320610046,
+          "selfMs": 0.22480738162994385,
+          "maxMs": 24.156832993030548,
+          "errors": 0
+        },
+        "PublicChannelMessagesService.onConsume.wall": {
+          "calls": 100,
+          "totalMs": 2303.7033290863037,
+          "selfMs": 0,
+          "maxMs": 24.20675003528595,
+          "errors": 0
+        },
+        "ChannelStore.getEntries.wall": {
+          "calls": 1,
+          "totalMs": 2303.9721250534058,
+          "selfMs": 0,
+          "maxMs": 2303.9721250534058,
+          "errors": 0
+        },
+        "ChannelStore.refreshMessageIds.wall": {
+          "calls": 1,
+          "totalMs": 2303.9972499608994,
+          "selfMs": 0,
+          "maxMs": 2303.9972499608994,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "reuseValidatedKeyControl",
+      "users": 100,
+      "role": "member",
+      "count": 1000,
+      "ms": 1627.8768749833107,
+      "productionFix": false,
+      "metrics": {
+        "sodium.crypto_auth_verify": {
+          "calls": 1000,
+          "totalMs": 984.4908809661865,
+          "selfMs": 984.4908809661865,
+          "maxMs": 1.1363340020179749,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 1000,
+          "totalMs": 329.592157125473,
+          "selfMs": 329.592157125473,
+          "maxMs": 0.48295801877975464,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 1000,
+          "totalMs": 1340.8767961263657,
+          "selfMs": 26.793758034706116,
+          "maxMs": 1.5755420327186584,
+          "errors": 0
+        },
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 1000,
+          "totalMs": 105.57288986444473,
+          "selfMs": 105.57288986444473,
+          "maxMs": 0.15662497282028198,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 1000,
+          "totalMs": 270.7167115211487,
+          "selfMs": 165.14382165670395,
+          "maxMs": 0.35683298110961914,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "symmetricPrimitive",
+      "users": 100,
+      "role": "member",
+      "count": 5,
+      "ms": 6.107541978359222,
+      "metrics": {
+        "sodium.crypto_auth_verify": {
+          "calls": 5,
+          "totalMs": 4.518499970436096,
+          "selfMs": 4.518499970436096,
+          "maxMs": 0.957082986831665,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_detached": {
+          "calls": 5,
+          "totalMs": 1.4617080688476562,
+          "selfMs": 1.4617080688476562,
+          "maxMs": 0.31416600942611694,
+          "errors": 0
+        },
+        "crypto.symmetric.decryptBytes": {
+          "calls": 5,
+          "totalMs": 6.095627009868622,
+          "selfMs": 0.11541897058486938,
+          "maxMs": 1.2958750128746033,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "signaturePrimitive",
+      "users": 100,
+      "role": "member",
+      "count": 5,
+      "ms": 1.1112499833106995,
+      "metrics": {
+        "sodium.crypto_sign_verify_detached": {
+          "calls": 5,
+          "totalMs": 0.41249996423721313,
+          "selfMs": 0.41249996423721313,
+          "maxMs": 0.09220802783966064,
+          "errors": 0
+        },
+        "crypto.signatures.verify": {
+          "calls": 5,
+          "totalMs": 1.0893741250038147,
+          "selfMs": 0.6768741607666016,
+          "maxMs": 0.23758304119110107,
+          "errors": 0
+        }
+      }
+    },
+    {
+      "phase": "keyLookup",
+      "users": 100,
+      "role": "member",
+      "count": 5,
+      "ms": 104.68291699886322,
+      "metrics": {
+        "sodium.crypto_scalarmult_base": {
+          "calls": 65,
+          "totalMs": 18.38171100616455,
+          "selfMs": 18.38171100616455,
+          "maxMs": 0.3186250329017639,
+          "errors": 0
+        },
+        "sodium.crypto_sign_seed_keypair": {
+          "calls": 65,
+          "totalMs": 18.37953406572342,
+          "selfMs": 18.37953406572342,
+          "maxMs": 0.31266599893569946,
+          "errors": 0
+        },
+        "LFA.assertValidKeyset": {
+          "calls": 65,
+          "totalMs": 65.12066602706909,
+          "selfMs": 28.359420955181122,
+          "maxMs": 1.1152080297470093,
+          "errors": 0
+        },
+        "sodium.crypto_generichash": {
+          "calls": 70,
+          "totalMs": 21.437706351280212,
+          "selfMs": 21.437706351280212,
+          "maxMs": 0.39912497997283936,
+          "errors": 0
+        },
+        "LFA.keysetCommitment": {
+          "calls": 35,
+          "totalMs": 59.0299169421196,
+          "selfMs": 2.8315014839172363,
+          "maxMs": 1.8743749856948853,
+          "errors": 0
+        },
+        "sodium.crypto_core_hsalsa20": {
+          "calls": 15,
+          "totalMs": 0.5740430355072021,
+          "selfMs": 0.5740430355072021,
+          "maxMs": 0.04554104804992676,
+          "errors": 0
+        },
+        "sodium.crypto_secretbox_open_easy": {
+          "calls": 15,
+          "totalMs": 6.551667213439941,
+          "selfMs": 6.551667213439941,
+          "maxMs": 0.5095410346984863,
+          "errors": 0
+        },
+        "sodium.crypto_box_open_easy": {
+          "calls": 15,
+          "totalMs": 11.697208046913147,
+          "selfMs": 4.571497797966003,
+          "maxMs": 0.878000020980835,
+          "errors": 0
+        },
+        "crypto.asymmetric.decryptBytes": {
+          "calls": 15,
+          "totalMs": 13.250292956829071,
+          "selfMs": 1.553084909915924,
+          "maxMs": 1.0136249661445618,
+          "errors": 0
+        },
+        "LFA.open": {
+          "calls": 15,
+          "totalMs": 70.1642479300499,
+          "selfMs": 1.4306650161743164,
+          "maxMs": 5.062958002090454,
+          "errors": 0
+        },
+        "LFA.collectVisibleKeys": {
+          "calls": 20,
+          "totalMs": 158.76721113920212,
+          "selfMs": 0.2847940921783447,
+          "maxMs": 19.618125021457672,
+          "errors": 0
+        },
+        "LFA.visibleKeys": {
+          "calls": 5,
+          "totalMs": 104.36995804309845,
+          "selfMs": 0.014332115650177002,
+          "maxMs": 21.3943749666214,
+          "errors": 0
+        },
+        "LFA.keyMap": {
+          "calls": 5,
+          "totalMs": 104.38645905256271,
+          "selfMs": 0.016501009464263916,
+          "maxMs": 21.396874964237213,
+          "errors": 0
+        }
+      }
+    }
+  ],
+  "securityChecks": [
+    {
+      "name": "differential reference remains original sodium, not another native adapter",
+      "passed": true,
+      "ms": 21
+    },
+    {
+      "name": "Ed25519 and X25519 outputs interoperate, including offsets, mutation, and reused buffers",
+      "passed": true,
+      "ms": 4835
+    },
+    {
+      "name": "malformed Ed25519 secret/public halves preserve sodium behavior instead of being repaired",
+      "passed": true,
+      "ms": 35
+    },
+    {
+      "name": "box ciphertext is byte-identical, bidirectional, and rejects changed ciphertext/nonces/keys",
+      "passed": true,
+      "ms": 389
+    },
+    {
+      "name": "all 151 Wycheproof Ed25519 cases retain sodium acceptance and rejection",
+      "passed": true,
+      "ms": 4520
+    },
+    {
+      "name": "all 518 Wycheproof X25519 cases retain sodium box output or rejection",
+      "passed": true,
+      "ms": 17934
+    },
+    {
+      "name": "small-order and noncanonical signature encodings always defer to sodium",
+      "passed": true,
+      "ms": 6
+    },
+    {
+      "name": "invalid sizes, types and formats fail without accepting malformed inputs",
+      "passed": true,
+      "ms": 3
+    },
+    {
+      "name": "iOS activates after ready, other platforms preserve sodium, and unsupported capability falls back atomically",
+      "passed": true,
+      "ms": 334
+    }
+  ],
+  "buildReceipt": {
+    "originalSha256": "f7c59197a41334684c0ee56439400653ce30823c11390c51fbbb87e96f5cde81",
+    "instrumentedSha256": "ded5132ad110b91553c41a2d07ef3abd08760c187af8a485fda447dd2c50e9ba",
+    "adapterSha256": "deb9ef6f39e94013a7533c5339bf85246ec10fbd175ac3a6e833ff7ad558338c",
+    "instrumentedModules": [
+      "./src/nest/auth/services/crypto/crypto.service.ts",
+      "./src/nest/storage/channels/channel.store.ts",
+      "./src/nest/storage/channels/messages/public-channel-messages.service.ts",
+      "../../3rd-party/auth/packages/auth/dist/index.js",
+      "../../3rd-party/auth/packages/crypto/dist/index.js"
+    ],
+    "purpose": "Native sodium runtime fix with profiling; unchanged LFA and message history logic"
+  },
+  "evidenceSha256": {
+    "native-ios-automatic/complete.json": "4f561d2ca5968761561c930c2b493572463f662914123857098c972fa13a443c",
+    "native-ios-automatic/repeat-1/results.json": "89146b2a6446c2fb62aa0eb83b79451209f9d4334dde3eff66652cb584f53023",
+    "native-ios-automatic/repeat-2/results.json": "4f7b47ae831f5a7a44a9cf72479c934750f3496b3298cf4f8273d5f571e27197",
+    "native-ios-automatic/repeat-3/results.json": "d4583cbc119719404ac5600eaa7d7345db8c035cb1a2952c5a19369729cce2a4",
+    "native-ios-security-proven/checks.json": "f99b5db4adc318237feba550ddb5217bb67a9b7ca92aed189b3727f545b5387e",
+    "native-ios-automatic/activation.json": "eae6b8839847a5ccd1bc843c8976924085aa59af7da2662beac07b65c73c16cc",
+    "native-ios-scale/results.json": "bdeb05bda77a77c0da7a46d20dbf52261e70419a37046ceea8ca86705fd055ec",
+    "automatic/bundle.native-receipt.json": "7bc35e1c5f7710243beb6430a11087a719959c6f4fe4666b8ff740e0c2f71b0b"
+  }
+}
