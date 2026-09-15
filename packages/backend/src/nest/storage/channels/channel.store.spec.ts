@@ -1,7 +1,11 @@
+import { createFirstUseDevice, createUser, createTeam, deriveUserId } from '@localfirst/auth'
+import { CryptoService } from '../../auth/services/crypto/crypto.service'
+import { PublicChannelMessagesService } from './messages/public-channel-messages.service'
 import EventEmitter from 'node:events'
 import { jest } from '@jest/globals'
 
 import { ChannelStore } from './channel.store'
+import { SigchainEvents } from '../../auth/types'
 import { StorageEvents } from '../storage.types'
 
 describe('ChannelStore', () => {
@@ -72,5 +76,157 @@ describe('ChannelStore', () => {
     expect(messagesService.onConsume).not.toHaveBeenCalled()
     expect(localDbService.getCurrentCommunity).not.toHaveBeenCalled()
     expect(messageIdsListener).not.toHaveBeenCalled()
+  })
+})
+
+describe('ChannelStore incremental message IDs', () => {
+  const createStore = () => {
+    const entries: { hash: string; value: any }[] = []
+    const events = new EventEmitter()
+    const auth = Object.assign(new EventEmitter(), { team: { id: 'team' } })
+    const onConsume = jest.fn<(message: any) => Promise<any>>(async message => ({ ...message, verified: true }))
+    const store = new ChannelStore(
+      {} as any,
+      {
+        getCurrentCommunity: async () => ({ id: 'community' }),
+      } as any,
+      { onConsume } as any,
+      {} as any,
+      {} as any,
+      auth as any,
+      {} as any,
+      {} as any
+    )
+    Object.assign(store, {
+      channelData: { id: 'general', name: 'general', public: true, teamId: 'team' },
+      logger: Object.fromEntries(['info', 'debug', 'trace', 'warn', 'error'].map(key => [key, () => {}])),
+      _messagesService: { onConsume },
+      store: {
+        events,
+        iterator: async function* () {
+          for (const entry of entries) yield entry
+        },
+        sync: { start: async () => {}, stop: async () => {} },
+        close: async () => {},
+      },
+    })
+    const ids = jest.fn<(event: any) => void>()
+    store.on(StorageEvents.MESSAGE_IDS_STORED, ids)
+    const append = async (id: string, hash = id, value: any = { id, channelId: 'general', teamId: 'team' }) => {
+      entries.push({ hash, value })
+      await (events.listeners('update')[0] as (...args: any[]) => Promise<void>)({ hash, payload: { value } })
+    }
+    return { store, auth, entries, onConsume, ids, append }
+  }
+
+  it('consumes 1,000 serial arrivals exactly once each, instead of 501,500 times', async () => {
+    const { store, onConsume, ids, append } = createStore()
+    await store.subscribe()
+    for (let n = 0; n < 1_000; n++) await append(`message-${n}`)
+    expect(onConsume).toHaveBeenCalledTimes(1_000)
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toHaveLength(1_000)
+    expect(ids.mock.calls.slice(1).every(([event]) => event.ids.length === 1)).toBe(true)
+  })
+
+  it('processes authentic encrypted and signed arrivals and excludes tampered entries', async () => {
+    const device = createFirstUseDevice({ deviceName: 'test phone' })
+    const user = createUser('sender', deriveUserId(device.deviceId))
+    const context = { user, device: { ...device, userId: user.userId } }
+    const team = createTeam('incremental message test', context)
+    team.addRole('member')
+    team.addMemberRole(user.userId, 'member')
+    const chain: any = {
+      team,
+      context,
+      user,
+      roles: { amIMemberOfRole: (role: string) => team.memberHasRole(user.userId, role) },
+    }
+    chain.crypto = new CryptoService(chain)
+    const service = new PublicChannelMessagesService({
+      getChain: (id: string) => (id === team.id ? chain : undefined),
+      getActiveChain: () => chain,
+    } as any)
+    const channel = { id: 'general', name: 'general', public: true, teamId: team.id }
+    const { store, onConsume, ids, append } = createStore()
+    onConsume.mockImplementation(message => service.onConsume(message, channel))
+    await store.subscribe()
+    let encrypted: any
+    for (let n = 0; n < 1_000; n++) {
+      encrypted = await service.onSend(
+        {
+          id: `signed-${n}`,
+          channelId: 'general',
+          userId: user.userId,
+          message: `message ${n}`,
+          type: 1,
+          createdAt: 1700000000000 + n,
+        } as any,
+        channel
+      )
+      await append(encrypted.id, encrypted.id, encrypted)
+    }
+    await append('wrong-id', 'tampered-id', { ...encrypted, id: 'wrong-id' })
+    const cipher = Uint8Array.from(encrypted.contents.contents)
+    cipher[cipher.length - 1] ^= 1
+    await append('wrong-cipher', 'tampered-cipher', {
+      ...encrypted,
+      contents: { ...encrypted.contents, contents: cipher },
+    })
+    expect(onConsume).toHaveBeenCalledTimes(1_002)
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual(
+      Array.from({ length: 1_000 }, (_, n) => `signed-${n}`)
+    )
+  })
+
+  it('coalesces a concurrent backlog without losing arrivals or trusting rejected IDs', async () => {
+    const { store, onConsume, ids, append } = createStore()
+    onConsume.mockImplementation(async message =>
+      message.id === 'invalid' ? undefined : { ...message, verified: true }
+    )
+    await store.subscribe()
+    await Promise.all(Array.from({ length: 100 }, (_, n) => append(`message-${n}`)))
+    await append('invalid')
+    expect(onConsume).toHaveBeenCalledTimes(101)
+    expect(new Set(ids.mock.calls.flatMap(([event]) => event.ids))).toEqual(
+      new Set(Array.from({ length: 100 }, (_, n) => `message-${n}`))
+    )
+  })
+
+  it('retries unreadable history and removes old IDs when authorization changes', async () => {
+    const { store, auth, entries, onConsume, ids } = createStore()
+    entries.push({ hash: 'cipher', value: { id: 'message', channelId: 'general' } })
+    let allowed = false
+    onConsume.mockImplementation(async message => (allowed ? { ...message, verified: true } : undefined))
+    await store.subscribe()
+    expect(ids.mock.lastCall?.[0].ids).toEqual([])
+    allowed = true
+    auth.emit(SigchainEvents.UPDATED)
+    await new Promise(resolve => setImmediate(resolve))
+    expect(ids.mock.lastCall?.[0].ids).toEqual(['message'])
+    allowed = false
+    auth.emit(SigchainEvents.UPDATED)
+    await new Promise(resolve => setImmediate(resolve))
+    expect(ids.mock.lastCall?.[0].ids).toEqual([])
+  })
+
+  it('does not publish a consume completed after authorization was invalidated', async () => {
+    const { store, auth, onConsume, ids, append } = createStore()
+    await store.subscribe()
+    let resume!: () => void
+    const paused = new Promise<void>(resolve => {
+      resume = resolve
+    })
+    onConsume.mockImplementationOnce(async message => {
+      await paused
+      return { ...message, verified: true }
+    })
+    onConsume.mockImplementation(async () => undefined)
+    const arrival = append('revoked')
+    await new Promise(resolve => setImmediate(resolve))
+    auth.emit(SigchainEvents.UPDATED)
+    resume()
+    await arrival
+    await new Promise(resolve => setImmediate(resolve))
+    expect(ids.mock.calls.every(([event]) => !event.ids.includes('revoked'))).toBe(true)
   })
 })
