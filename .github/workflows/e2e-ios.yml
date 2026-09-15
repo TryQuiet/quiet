@@ -85,6 +85,9 @@ jobs:
           npm run build:submodules:ci
           ./node_modules/.bin/lerna bootstrap --scope '{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,@quiet/desktop,e2e-tests,backend-bundle,helia,@quiet/node-common}'
 
+      - name: Check native libsodium compatibility
+        run: npm --prefix packages/backend run test:native-crypto
+
       - name: Check simulator build tooling
         run: |
           node --test packages/mobile/scripts/e2e-ios-workflow.test.cjs
