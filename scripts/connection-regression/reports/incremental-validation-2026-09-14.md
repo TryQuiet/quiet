@@ -15,8 +15,9 @@ new phone or live-QSS measurements. No server data or deployment was changed.
 
 ## Implementation and safety boundaries
 
-Quiet runtime commits: `204e9e823`, `738d27bec`, `e5d125029`, `eb4001978`, `892d6540f`.
-Auth runtime commits: `62c23af8`, `28bea7c6`, `de490850`, `06cc717da`.
+Quiet runtime commits: `204e9e823`, `738d27bec`, `e5d125029`, `eb4001978`, `892d6540f`,
+`8129ba28b`. Auth runtime commits: `62c23af8`, `28bea7c6`, `de490850`, `06cc717da`,
+`f8fb337a8`.
 Auth baseline: `6f534c89bceb875e8c71997943e5e76e48ccbd88`.
 
 * The channel index stores validated IDs and OrbitDB entry hashes, never cached
@@ -56,6 +57,10 @@ Auth baseline: `6f534c89bceb875e8c71997943e5e76e48ccbd88`.
   every returned body is a fresh deep copy, including nested bytes. Peer-provided
   plaintext is not trusted. Facts are owned by weakly held inputs; bounded 4096
   entry weak-reference indexes permit reuse across reconstructed graph objects.
+  Sequence decorations privately retain their original graph link as the fact's
+  owner; weak indexes reference the shared fact rather than its latest temporary
+  replay copy. Facts remain available while any graph input owns them, without
+  adding strong global retention.
   Runtimes without `WeakRef` retain correct direct-owner caching and otherwise
   perform the original crypto checks.
 
@@ -145,9 +150,9 @@ remain unchanged.
 
 ## Tests and reproduction
 
-Auth tests: **442 passing and 54 pre-existing gated skips** across team,
-invitation, lockbox and CRDX graph suites after the manifest followup and WeakRef
-fallback. Builds/types and scoped auth lint pass.
+Auth tests: **510 passing and 56 pre-existing skips** across team, invitation,
+lockbox and CRDX graph, store and sync suites after the lifetime followup.
+Builds/types and scoped auth lint pass.
 The integrated Quiet worktree also passed its normal diagnostics-enabled channel,
 public/private message, author-impersonation, access-controller and invitation
 security suites; the integration owner records the full sweep separately.
@@ -158,6 +163,17 @@ removal transforms, changed signature/hash/key/proof contexts, message tampering
 unknown entries becoming readable, duplicate IDs, concurrent arrivals and both
 successful and rejected old reads during close/reopen. They also assert scalable
 operation counts, not only equal outputs.
+
+The phone rerun exposed a cache-lifetime defect after the initial acceptance:
+the latest weakly indexed signature/proof owner could be a temporary sequence
+copy. Garbage collection dropped that copy even while the receiver retained its
+team. A local separate-sender negative control, with three event-loop/GC cycles
+between load and receipt, reproduced **50 signature checks instead of one** for
+a 10-user edition. The lifetime followup anchors sequence facts to retained graph
+inputs and indexes the shared facts weakly. The same forced-GC test now passes
+both editions at 10 and 100 users with **one signature and seven opens each**.
+Mutation, signer/context and proof tests remain passing. The extra checks were a
+performance failure; this change does not relax acceptance to hide them.
 
 Build dependencies against the pinned auth revision, then run from Quiet root:
 
@@ -171,6 +187,9 @@ node scripts/connection-regression/incremental-validation-bench.mjs \
 node scripts/connection-regression/incremental-edition-bench.mjs \
   3rd-party/auth .connection-runs/incremental-acceptance/teams \
   .connection-runs/incremental-acceptance/editions
+PROFILE_GC=1 node --expose-gc scripts/connection-regression/incremental-edition-bench.mjs \
+  3rd-party/auth .connection-runs/incremental-acceptance/teams \
+  .connection-runs/incremental-acceptance/editions-gc
 ```
 
 Each script generates missing fixtures in a child process. Use separate fixture

@@ -11,7 +11,8 @@
     "baseline": "6f534c89bceb875e8c71997943e5e76e48ccbd88",
     "keyAndCommitmentCache": "62c23af8a7d6c0bac168fdaaec1c1f57b96c5f04",
     "graphCache": "de490850b31e5ff564ab058421b133e8b040b18f",
-    "manifestCache": "06cc717da1675788614985d290e33426a3865a30"
+    "manifestCache": "06cc717da1675788614985d290e33426a3865a30",
+    "graphFactLifetime": "f8fb337a85ef277740ee24403743623ece59e33c"
   },
   "series": {
     "message_native_final_graph_cache": [
@@ -468,6 +469,83 @@
           "crypto_sign_verify_detached": 1
         }
       }
+    ],
+    "separate_sender_forced_gc_lifetime_acceptance": [
+      {
+        "phase": "environment",
+        "node": "v24.13.0",
+        "platform": "linux",
+        "arch": "x64",
+        "wasm": "object",
+        "authBundleSha256": "06fd9f63e82847e6f23f5c7d9fdbec8827684dde03c8a69e63c9ee79bccac519",
+        "crdxBundleSha256": "9e2ec4a360b673e9b58d2a811e6c6f99f7caa47426a97a041f1e0ce3474d7047"
+      },
+      {
+        "phase": "load",
+        "users": 10,
+        "ms": 22.34193300000004,
+        "counts": {
+          "crypto_box_open_easy": 31,
+          "crypto_sign_verify_detached": 49
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 10,
+        "sequence": 1,
+        "ms": 15.514792999999997,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 7,
+          "crypto_sign_seed_keypair": 7,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 10,
+        "sequence": 2,
+        "ms": 17.74306100000001,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 6,
+          "crypto_sign_seed_keypair": 6,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "load",
+        "users": 100,
+        "ms": 108.31792499999995,
+        "counts": {
+          "crypto_box_open_easy": 270,
+          "crypto_sign_verify_detached": 450
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 1,
+        "ms": 127.41705100000001,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 7,
+          "crypto_sign_seed_keypair": 7,
+          "crypto_sign_verify_detached": 1
+        }
+      },
+      {
+        "phase": "received-edition",
+        "users": 100,
+        "sequence": 2,
+        "ms": 114.54228,
+        "counts": {
+          "crypto_box_open_easy": 7,
+          "crypto_scalarmult_base": 6,
+          "crypto_sign_seed_keypair": 6,
+          "crypto_sign_verify_detached": 1
+        }
+      }
     ]
   },
   "checksums": {
@@ -478,7 +556,9 @@
     "profile-editions.jsonl": "e9581737bbc1d3affeddc0c8bc1ac27e4f72e0f4ce5c1db61c0616125bfd86f5",
     "private-100-user-before-manifest.cpuprofile": "2f94fb1835577a197c33e8d3a70f87090aaf9fcd5c17b89c05f55cee32837c50",
     "manifest-profile-editions.jsonl": "5034a673ff88c3bdbee86f421b4069c6673fee5fc45280ea873fbf26bd14b804",
-    "private-100-user-after-manifest.cpuprofile": "d659aa1be0a2d6501e9118471f4010d7e82126aebd3e6fa87f1d268b2fec3651"
+    "private-100-user-after-manifest.cpuprofile": "d659aa1be0a2d6501e9118471f4010d7e82126aebd3e6fa87f1d268b2fec3651",
+    "gc-editions-fixed.jsonl": "cc2dd1768c0351e1b70f60e95b3773e4fcf6231cdec3582ff1ad16b8623325ac",
+    "gc-editions-before.stderr": "fb3b20659413a259add159a0f03a1395a41f683d326acff3448039f108c9bec8"
   },
   "profileBeforeManifestCache": {
     "editionMs": 6388.10401,
@@ -494,8 +574,16 @@
   },
   "tests": {
     "authFocusedFullSweep": {
-      "passed": 442,
-      "skippedExistingProtocolGates": 54
+      "passed": 510,
+      "skippedExisting": 56,
+      "suites": [
+        "team",
+        "invitation",
+        "lockbox",
+        "CRDX graph",
+        "CRDX store",
+        "CRDX sync"
+      ]
     },
     "channelArrivalCount": {
       "messages": 1000,
@@ -512,6 +600,15 @@
       "scopeQueries": 3000,
       "immutableBoxes": 2,
       "base58Decodes": 4
+    },
+    "forcedGcNegativeControl": {
+      "authRevision": "06cc717da1675788614985d290e33426a3865a30",
+      "users": 10,
+      "receivedEdition": 1,
+      "eventLoopAndGcCycles": 3,
+      "expectedSignatureChecks": 1,
+      "actualSignatureChecks": 50,
+      "assertionPassed": false
     }
   },
   "profileAfterManifestCache": {
@@ -525,5 +622,8 @@
       "base58DecodeUnsafe": 170.6
     },
     "caution": "Inclusive rows overlap; do not sum subrows with parents"
-  }
+  },
+  "notes": [
+    "Forced-GC acceptance timings are diagnostic; the assertion is work counts. Sender generation happens in another process and each receiver edition is preceded by three event-loop/GC cycles."
+  ]
 }

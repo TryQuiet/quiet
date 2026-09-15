@@ -88,6 +88,13 @@ for (const n of sizes) {
   const receiver = auth.loadTeam(Uint8Array.from(Buffer.from(f.source, 'base64')), f.member, f.teamKeyring)
   console.log(JSON.stringify({ phase: 'load', users: n, ms: performance.now() - start, counts }))
   for (const sequence of [1, 2]) {
+    if (process.env.PROFILE_GC === '1') {
+      assert.equal(typeof globalThis.gc, 'function', 'PROFILE_GC=1 requires node --expose-gc')
+      for (let collection = 0; collection < 3; collection++) {
+        await new Promise(resolve => setImmediate(resolve))
+        globalThis.gc()
+      }
+    }
     const bytes = fs.readFileSync(`${output}/edition-${n}-${sequence}.bin`)
     const profiler = process.env.PROFILE_CPU === '1' ? new Session() : undefined
     if (profiler) {
@@ -102,11 +109,11 @@ for (const n of sizes) {
     receiver.merge(graph)
     assert.equal(receiver.members().length, n)
     assert.equal(receiver.messages().at(-1).payload.sequence, sequence)
-    assert.equal(counts.crypto_sign_verify_detached, 1)
-    assert.ok(counts.crypto_box_open_easy <= 8)
     console.log(
       JSON.stringify({ phase: 'received-edition', users: n, sequence, ms: performance.now() - start, counts })
     )
+    assert.equal(counts.crypto_sign_verify_detached, 1)
+    assert.ok(counts.crypto_box_open_easy <= 8)
     if (profiler) {
       const { profile } = await profiler.post('Profiler.stop')
       fs.writeFileSync(`${output}/edition-${n}-${sequence}.cpuprofile`, JSON.stringify(profile), { mode: 0o600 })
