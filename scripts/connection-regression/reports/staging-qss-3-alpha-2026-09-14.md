@@ -6,6 +6,13 @@ exchanged messages using staging `3.0.0-alpha.0`. Android and desktop delivered
 live messages quickly. iOS accumulated a backlog and took tens of seconds per
 exchange. An Android cold-start crash also prevents a clean reliability pass.
 
+Follow-up [physical iPhone profiling](ios-processing-profile-2026-09-14.md)
+reproduces the local processing delay up to 1,000 messages and 100 users, and
+identifies repeated key validation and quadratic history/sigchain work.
+The separate [Android crash investigation](android-alpha-cold-crash-2026-09-14.md)
+completed 20 controlled starts without another crash; the original cause remains
+unresolved.
+
 This run used a physical iPhone 16e (iOS 18.5), a native ARM64 Android 11/API 30
 emulator on Apple Silicon, and Linux desktop. The Android APK was unchanged
 (versionCode 661). The iOS IPA was development re-signed for the phone; its
