@@ -33,9 +33,10 @@ from the app's existing Sodium pod. Node and Tor retain their own dependencies.
 ## Build and packaging
 
 `native-libsodium/build.cjs` downloads the official 1.0.19 source tarball and
-verifies its pinned SHA-256 before extraction. It builds a static library, then
-links the small binding into a dynamic framework. Separate ARM64 device and
-simulator builds form an XCFramework. The Node headers come from this branch's
+verifies its pinned SHA-256 before extraction. The upstream libsodium source is
+unmodified. The script builds a static library, then links the small binding into
+a dynamic framework. Separate ARM64 device and simulator builds form an
+XCFramework. The Node headers come from this branch's
 pinned runtime; the binding uses stable Node-API 8. No replacement Node framework
 or React Native bridge is required.
 
@@ -110,9 +111,13 @@ binary/payload hashes, and timings. The app has its own bundle ID
 
 ## Evidence and remaining validation
 
-See [the experiment report](reports/ios-node24.md). The host suite and real
-embedded Node runtime pass. Device and simulator framework builds pass, as does
-the production embedding/signing script. A complete Quiet app rebuild, physical
-phone message processing, production signing/distribution, and messaging with
-#3539's other optimizations still need validation. The measured crypto speedup
-is a simulator microbenchmark, not end-to-end message latency.
+See [the experiment report](reports/ios-node24.md) and [full app E2E results](reports/ios-e2e.json).
+All 33 app E2E tests pass: 25 starter, one native message/restart, one QSS
+registration/storage/restart, and six desktop–iOS multiplayer stages. Both full
+iOS app builds embed and load the signed framework; captured app logs contain
+zero native-crypto fallback warnings. The host suite passes on Linux Node 24 and
+macOS Node 20, and the real embedded iOS Node 24 probe passes.
+
+Physical phone message processing, production signing/distribution, and messaging
+with #3539's other optimizations still need validation. The measured crypto
+speedup is a simulator microbenchmark, not end-to-end message latency.

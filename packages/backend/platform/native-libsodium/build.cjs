@@ -34,9 +34,11 @@ function compile(source, build, target) {
   fs.mkdirSync(build)
   const ios = target !== 'host'
   const apple = ios || process.platform === 'darwin'
-  const sdk = ios ? run('xcrun', ['--sdk', target, '--show-sdk-path']) : undefined
+  // Calling clang by its resolved path does not inherit xcrun's SDK selection.
+  // macOS host builds need an explicit sysroot too, including on CI.
+  const sdk = apple ? run('xcrun', ['--sdk', ios ? target : 'macosx', '--show-sdk-path']) : undefined
   const triple = `arm64-apple-ios17.1${target === 'iphonesimulator' ? '-simulator' : ''}`
-  const flags = ios ? ['-target', triple, '-isysroot', sdk] : []
+  const flags = ios ? ['-target', triple, '-isysroot', sdk] : apple ? ['-isysroot', sdk] : []
   const cc = apple ? run('xcrun', ['--find', 'clang']) : (process.env.CC || 'cc')
   const env = { ...process.env, CC: cc, CFLAGS: [...flags, '-O2', '-fPIC', '-fvisibility=hidden'].join(' ') }
   // Use an out-of-tree build for each SDK; never reuse configure results across targets.
