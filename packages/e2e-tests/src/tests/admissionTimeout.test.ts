@@ -227,5 +227,23 @@ describe('Timed-out P2P admission recovery', () => {
 
     expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
     await expectJoinCommunityError(linkedDevice, 'make sure both devices have the app open')
+
+    // A transport becoming available after reset must not revive the cleared
+    // admission. A newly submitted device link is allowed to start a new one.
+    await owner.openWithRetries()
+    expect(await new JoinCommunityModal(linkedDevice.driver).isReady()).toBeTruthy()
+    await expectJoiningPanelHidden(linkedDevice)
+
+    const settings = await new Sidebar(owner.driver).openSettings()
+    expect(await settings.isReady()).toBeTruthy()
+    await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
+    const freshDeviceInvitationLink = await (await settings.deviceLink()).getText()
+    await settings.closeTabThenModal()
+
+    const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
+    await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
+    await resetJoinModal.submit()
+    await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(15_000, 60_000)
+    expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
   })
 })

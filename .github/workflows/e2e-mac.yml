@@ -78,7 +78,7 @@ jobs:
       - name: Run multiple clients test
         timeout-minutes: 25
         run: cd packages/e2e-tests && npm run test multipleClients.test.ts
-      
+
       - name: Run multiple clients test (private channels)
         timeout-minutes: 25
         run: cd packages/e2e-tests && npm run test multipleClients.privateChannels.test.ts

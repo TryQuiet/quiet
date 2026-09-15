@@ -1,11 +1,15 @@
 import React, { type FC, useCallback, useEffect, useRef } from 'react'
+import { View } from 'react-native'
 import Share from 'react-native-share'
 import SVG from 'react-native-svg'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { connection } from '@quiet/state-manager'
 
+import { Appbar } from '../../components/Appbar/Appbar.component'
+import { Loading } from '../../components/Loading/Loading.component'
 import { QRCode } from '../../components/QRCode/QRCode.component'
+import { Typography } from '../../components/Typography/Typography.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { createLogger } from '../../utils/logger'
 
@@ -16,6 +20,7 @@ export const LinkedDeviceQRCodeScreen: FC = () => {
   const svgRef = useRef<SVG>()
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
+  const deviceLinkCreationFailed = useSelector(connection.selectors.deviceLinkCreationFailed)
 
   useEffect(() => {
     if (!deviceLinkInvite) {
@@ -41,6 +46,26 @@ export const LinkedDeviceQRCodeScreen: FC = () => {
         logger.error(error)
       }
     })
+  }
+
+  if (!deviceLink) {
+    return (
+      <View style={{ flex: 1 }}>
+        <Appbar title='Link a device' back={handleBackButton} />
+        {deviceLinkCreationFailed ? (
+          <View style={{ padding: 24 }}>
+            <Typography fontSize={14} horizontalTextAlign='center'>
+              Could not generate a device link. Go back and try again.
+            </Typography>
+          </View>
+        ) : (
+          <Loading
+            title='Generating device link'
+            caption='Keep this device online while Quiet prepares the one-time code.'
+          />
+        )}
+      </View>
+    )
   }
 
   return (

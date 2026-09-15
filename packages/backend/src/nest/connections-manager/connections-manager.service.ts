@@ -9,7 +9,13 @@ import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
-import { createLibp2pAddress, createLocalAddress, isPSKcodeValid, parseLocalAddress } from '@quiet/common'
+import {
+  createLibp2pAddress,
+  createLocalAddress,
+  isLocalTransportEnabled,
+  isPSKcodeValid,
+  parseLocalAddress,
+} from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -752,13 +758,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async getNetworkInfo(): Promise<NetworkInfo> {
     this.logger.info('Getting network information')
 
-    const hiddenService =
-      process.env.LOCAL_TRANSPORT === 'true'
-        ? {
-            onionAddress: createLocalAddress(this.ports.libp2pHiddenService),
-            privateKey: '',
-          }
-        : await this.createEphemeralHiddenService()
+    const hiddenService = isLocalTransportEnabled()
+      ? {
+          onionAddress: createLocalAddress(this.ports.libp2pHiddenService),
+          privateKey: '',
+        }
+      : await this.createEphemeralHiddenService()
     this.logger.info('Getting peer ID')
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
@@ -1102,7 +1107,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       throw new Error(ErrorMessages.IDENTITY_NOT_FOUND)
     }
 
-    const useLocalTransport = process.env.LOCAL_TRANSPORT === 'true'
+    const useLocalTransport = isLocalTransportEnabled()
     const networkAddress = useLocalTransport
       ? identity.networkInfo.hiddenService.onionAddress
       : await this.spawnTorHiddenService(community.id, identity)

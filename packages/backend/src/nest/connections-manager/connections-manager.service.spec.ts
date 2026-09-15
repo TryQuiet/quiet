@@ -154,7 +154,9 @@ describe('ConnectionsManagerService', () => {
   })
 
   it('creates and launches a local identity without Tor using its persisted port', async () => {
+    const previousIsE2e = process.env.IS_E2E
     const previousLocalTransport = process.env.LOCAL_TRANSPORT
+    process.env.IS_E2E = 'true'
     process.env.LOCAL_TRANSPORT = 'true'
     try {
       connectionsManagerService['ports'] = {
@@ -212,6 +214,11 @@ describe('ConnectionsManagerService', () => {
         expect.any(AbortSignal)
       )
     } finally {
+      if (previousIsE2e == null) {
+        delete process.env.IS_E2E
+      } else {
+        process.env.IS_E2E = previousIsE2e
+      }
       if (previousLocalTransport == null) {
         delete process.env.LOCAL_TRANSPORT
       } else {

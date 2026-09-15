@@ -22,6 +22,7 @@ export const LinkedDevicesContextMenu: FC = () => {
   const screen = useSelector(navigationSelectors.currentScreen)
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
+  const deviceLinkCreationFailed = useSelector(connection.selectors.deviceLinkCreationFailed)
   const linkedDevicesContextMenu = useContextMenu(MenuName.LinkedDevices)
   const confirmationBox = useConfirmationBox('Link copied')
 
@@ -99,7 +100,9 @@ export const LinkedDevicesContextMenu: FC = () => {
         title='Linked devices'
         items={[]}
         hint={
-          deviceLinkInvite
+          deviceLinkCreationFailed
+            ? 'Could not generate a device link. Close this menu and try again.'
+            : deviceLinkInvite
             ? 'A device link needs an active community connection. Close this menu and try again when connected.'
             : 'Generating device link...'
         }

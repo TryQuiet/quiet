@@ -3,9 +3,13 @@ import { StoreKeys } from '../store.keys'
 import { type ConnectionState } from './connection.slice'
 import { ConnectionProcessInfo } from '@quiet/types'
 
-export const ConnectionTransform = createTransform(
+export const ConnectionTransform = createTransform<ConnectionState, ConnectionState>(
   (inboundState: ConnectionState, _key: any) => {
-    return { ...inboundState }
+    return {
+      ...inboundState,
+      deviceLinkInvite: undefined,
+      deviceLinkCreationFailed: false,
+    }
   },
   (outboundState: ConnectionState, _key: any) => {
     return {
@@ -18,6 +22,7 @@ export const ConnectionTransform = createTransform(
       isTorInitialized: false,
       socketIOSecret: null,
       deviceLinkInvite: undefined,
+      deviceLinkCreationFailed: false,
       p2pEnabled: true,
     }
   },

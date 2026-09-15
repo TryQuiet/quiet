@@ -52,7 +52,7 @@ mobile Detox workflows are unchanged.
 
 - For Mac: We may need to manually mount the .dmg and copy to /Applications (need to verify exact steps)
 - For Linux: The `linux:copy` script handles moving the binary to `e2e-tests/Quiet/`
-- To use local transport when running a desktop suite locally, set `LOCAL_TRANSPORT=true` in the test process environment.
+- To use local transport when running a desktop suite locally, set `IS_E2E=true` and `LOCAL_TRANSPORT=true` in the test process environment.
 - Set `DEBUG=backend*,quiet*` for more verbose logging
 - The tests expect a clean state - you may need to clear application data between runs
 

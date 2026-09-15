@@ -34,6 +34,7 @@ describe('createDeviceLink', () => {
       .withState(store.getState())
       .apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
       .putResolve(connectionActions.setDeviceLinkInvite(invite))
+      .putResolve(connectionActions.setDeviceLinkCreationFailed(false))
       .run()
   })
 
@@ -46,6 +47,20 @@ describe('createDeviceLink', () => {
       .withState(store.getState())
       .apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
       .putResolve(connectionActions.setDeviceLinkInvite(undefined))
+      .putResolve(connectionActions.setDeviceLinkCreationFailed(true))
+      .run()
+  })
+
+  it('reports generation failure when the socket acknowledgement rejects', async () => {
+    jest.spyOn(socket, 'emitWithAck').mockRejectedValueOnce(new Error('socket closed'))
+    const store = prepareStore().store
+
+    await expectSaga(createDeviceLinkSaga, socket as unknown as Socket)
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
+      .putResolve(connectionActions.setDeviceLinkInvite(undefined))
+      .putResolve(connectionActions.setDeviceLinkCreationFailed(true))
       .run()
   })
 })

@@ -9,11 +9,13 @@ import { createLogger } from '../../../utils/logger'
 const logger = createLogger('connection:invite:createDeviceLink')
 
 export function* createDeviceLinkSaga(socket: Socket): Generator {
-  const deviceLinkInvite: DeviceLinkInvite | undefined = yield* apply(
-    socket,
-    socket.emitWithAck,
-    applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {})
-  )
+  let deviceLinkInvite: DeviceLinkInvite | undefined
+  try {
+    deviceLinkInvite = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
+  } catch (error) {
+    logger.error('failed to create device link', error)
+  }
   logger.info('setting device link invite in state')
   yield* putResolve(connectionActions.setDeviceLinkInvite(deviceLinkInvite))
+  yield* putResolve(connectionActions.setDeviceLinkCreationFailed(!deviceLinkInvite))
 }

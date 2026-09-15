@@ -337,6 +337,23 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.P2P })
   })
 
+  it('keeps a delayed QSS device attempt when it completes before the fallback deadline', async () => {
+    const pending = deferred()
+    prepare.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
+    await flush()
+    expect(options).toHaveLength(1)
+    expect(options[0].context.request.preferredTransport).toBe(AdmissionTransport.QSS)
+
+    pending.resolve()
+    await flush()
+    await options[0].context.joined(payload())
+    await expect(handle.result).resolves.toMatchObject({ transport: AdmissionTransport.QSS })
+    expect(options).toHaveLength(1)
+    expect(commit).toHaveBeenCalledTimes(1)
+    expect(cleanup).not.toHaveBeenCalled()
+  })
+
   it('does not start fallback if QSS retirement exhausts the acquisition budget', async () => {
     const pending = deferred()
     cleanup.mockReturnValueOnce(pending.promise)
@@ -376,6 +393,76 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
       expect(options).toHaveLength(1)
     }
   )
+
+  it('allows only one competing member transport to claim, start, and publish', async () => {
+    request = { ...request, kind: AdmissionKind.MEMBER, preferredTransport: AdmissionTransport.QSS }
+    let claimed: AdmissionTransport | undefined
+    claim.mockImplementation((async (_communityId: string, transport: AdmissionTransport) => {
+      if (claimed == null) {
+        claimed = transport
+        return 'claimed'
+      }
+      return claimed === transport ? 'already-owned' : 'conflict'
+    }) as any)
+
+    const competingOptions: AdmissionAttemptOptions[] = []
+    const competingStart = jest.fn(async () => undefined)
+    const competingAdapter = {
+      create: (option: AdmissionAttemptOptions) => {
+        competingOptions.push(option)
+        option.scope.own(async () => undefined)
+        return {
+          context: option.context,
+          prepare: async () => undefined,
+          start: () => option.scope.run(competingStart),
+          stop: async (error: Error) => {
+            option.context.gate.revoke()
+            await option.scope.drain(error)
+          },
+        }
+      },
+    }
+    const competingCoordinator = new AdmissionCoordinator(
+      competingAdapter as any,
+      competingAdapter as any,
+      { beginAdmission: () => ({ stage, commit, discard }) } as any,
+      { getCommunity: load, claimAdmissionTransport: claim } as any,
+      new AdmissionClock()
+    )
+    const competingLease = new CommunityLifecycle('community', {} as any)
+    const qss = coordinator.start(request, lease)
+    const p2p = competingCoordinator.start({ ...request, preferredTransport: AdmissionTransport.P2P }, competingLease)
+    await flush()
+
+    expect(claim).toHaveBeenCalledTimes(2)
+    expect(start.mock.calls.length + competingStart.mock.calls.length).toBe(1)
+    expect(claimed).toBeDefined()
+
+    const winner = claimed === AdmissionTransport.QSS ? options[0] : competingOptions[0]
+    await winner.context.joined(payload())
+    await expect(claimed === AdmissionTransport.QSS ? qss.result : p2p.result).resolves.toMatchObject({
+      transport: claimed,
+    })
+    await expect(claimed === AdmissionTransport.QSS ? p2p.result : qss.result).rejects.toMatchObject({
+      kind: 'persistence',
+    })
+    expect(commit).toHaveBeenCalledTimes(1)
+
+    stored = claimed
+    const restarted = new AdmissionCoordinator(
+      competingAdapter as any,
+      competingAdapter as any,
+      { beginAdmission: () => ({ stage, commit, discard }) } as any,
+      { getCommunity: load, claimAdmissionTransport: claim } as any,
+      new AdmissionClock()
+    )
+    const restartedLease = new CommunityLifecycle('community', {} as any)
+    const restartedHandle = restarted.start({ ...request, preferredTransport: AdmissionTransport.P2P }, restartedLease)
+    await flush()
+    expect((restarted as any).activeSession.state.attempt.transport).toBe(claimed)
+    await restartedHandle.cancel(new Error('test complete'))
+    await expect(restartedHandle.result).rejects.toThrow('test complete')
+  })
 
   it.each([AdmissionKind.MEMBER, AdmissionKind.DEVICE])(
     'falls back on pre-claim QSS unavailability for %s admission',
@@ -434,5 +521,23 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     await handle.cancel(new Error('cancel immediately'))
     await expect(handle.result).rejects.toThrow('cancel immediately')
     expect(start).not.toHaveBeenCalled()
+  })
+
+  it('rejects a late candidate after reset while transport startup is still pending', async () => {
+    const pending = deferred()
+    start.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start({ ...request, preferredTransport: AdmissionTransport.P2P }, lease)
+    await flush()
+    expect(start).toHaveBeenCalledTimes(1)
+
+    const reason = new Error('reset admission')
+    const reset = lease.drain(reason)
+    await expect(handle.result).rejects.toBe(reason)
+    pending.resolve()
+    await reset
+
+    expect(() => options[0].context.joined(payload())).toThrow('closed')
+    expect(commit).not.toHaveBeenCalled()
+    expect(cleanup).toHaveBeenCalledTimes(1)
   })
 })

@@ -170,6 +170,29 @@ describe('timed-out invitation recovery', () => {
     expect(manager['clearedAdmissionCommunityId']).toBe('pending-community')
   })
 
+  it('launches a fully persisted admission after a process restart', async () => {
+    const manager = createManager()
+    manager['timedOutAdmissionCommunityId'] = undefined
+    const completedCommunity = { id: 'completed-community', name: 'Quiet', teamId: 'team' }
+    const launch = jest.spyOn(manager, 'launchCommunity').mockResolvedValue()
+    Object.assign(manager, {
+      localDbService: { getCurrentCommunity: jest.fn(async () => completedCommunity) },
+      sigChainService: {
+        loadChain: jest.fn(async () => undefined),
+        getActiveChain: jest.fn(() => ({
+          team: { id: 'team' },
+          roles: { amIMemberOfRole: jest.fn(() => true) },
+        })),
+      },
+    })
+
+    await manager.launchCommunityFromStorage()
+
+    expect(manager['erasePreviousCommunityArtifacts']).not.toHaveBeenCalled()
+    expect(launch).toHaveBeenCalledWith('completed-community')
+    expect(manager['interruptedAdmissionCommunityId']).toBeUndefined()
+  })
+
   it('reports a startup interruption after the frontend handshake', () => {
     const manager = createManager()
     manager['timedOutAdmissionCommunityId'] = undefined

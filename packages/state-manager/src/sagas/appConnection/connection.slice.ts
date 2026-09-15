@@ -27,6 +27,7 @@ export class ConnectionState {
   }
   public longLivedInvite: InviteResultWithSalt | undefined = undefined
   public deviceLinkInvite: DeviceLinkInvite | undefined = undefined
+  public deviceLinkCreationFailed = false
   public p2pEnabled: boolean = true
 }
 
@@ -74,6 +75,9 @@ export const connectionSlice = createSlice({
     setDeviceLinkInvite: (state, action: PayloadAction<DeviceLinkInvite | undefined>) => {
       state.deviceLinkInvite = action.payload
     },
+    setDeviceLinkCreationFailed: (state, action: PayloadAction<boolean>) => {
+      state.deviceLinkCreationFailed = action.payload
+    },
     setSocketIOSecret: (state, action: PayloadAction<string>) => {
       state.socketIOSecret = action.payload
     },
@@ -99,7 +103,9 @@ export const connectionSlice = createSlice({
       }
     },
     createInvite: (state, _action: PayloadAction<any>) => state,
-    createDeviceLink: state => state,
+    createDeviceLink: state => {
+      state.deviceLinkCreationFailed = false
+    },
     toggleP2P: state => state,
     setP2PEnabled: (state, action: PayloadAction<boolean>) => {
       state.p2pEnabled = action.payload

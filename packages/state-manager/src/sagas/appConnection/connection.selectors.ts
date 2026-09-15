@@ -79,6 +79,10 @@ export const deviceLinkInvite = createSelector(connectionSlice, reducerState => 
   return reducerState.deviceLinkInvite
 })
 
+export const deviceLinkCreationFailed = createSelector(connectionSlice, reducerState => {
+  return reducerState.deviceLinkCreationFailed
+})
+
 export const invitationUrl = createSelector(
   communitiesSelectors.psk,
   communitiesSelectors.currentCommunity,
@@ -214,6 +218,7 @@ export const connectionSelectors = {
   invitationUrl,
   longLivedInvite,
   deviceLinkInvite,
+  deviceLinkCreationFailed,
   deviceLinkUrl,
   torBootstrapProcess,
   connectionProcess,

@@ -19,7 +19,9 @@ const previousLocalTransport = process.env.LOCAL_TRANSPORT
 jest.setTimeout(1_200_000) // 20 minutes
 
 beforeAll(() => {
-  process.env.LOCAL_TRANSPORT = 'true'
+  // CI's release-only Tor job explicitly sets false. Keep local transport as
+  // the default for ordinary desktop E2E runs, but do not override that gate.
+  if (process.env.LOCAL_TRANSPORT == null) process.env.LOCAL_TRANSPORT = 'true'
 })
 
 afterAll(() => {

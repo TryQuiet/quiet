@@ -80,7 +80,7 @@ jobs:
       - name: Run multiple clients test
         timeout-minutes: 25
         run: cd packages/e2e-tests && npm run test multipleClients.test.ts
-          
+
       - name: Run multiple clients test (private channels)
         timeout-minutes: 25
         run: cd packages/e2e-tests && npm run test multipleClients.privateChannels.test.ts
@@ -88,6 +88,14 @@ jobs:
       - name: Run invitation link test - Includes 2 separate application clients
         timeout-minutes: 25
         run: cd packages/e2e-tests && npm run test invitationLink.test.ts
+
+      - name: Run device linking test
+        timeout-minutes: 30
+        run: cd packages/e2e-tests && npm run test -- deviceLinking.test.ts
+
+      - name: Run admission timeout recovery test
+        timeout-minutes: 15
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts
 
       # Run Tor coverage once per release run, on Linux only, using the same binary.
       - name: Run multiple clients test over Tor (release)

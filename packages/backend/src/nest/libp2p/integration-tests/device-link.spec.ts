@@ -20,13 +20,17 @@ const dialAndWaitForJoin = async (
   })
 }
 
+const previousIsE2e = process.env.IS_E2E
 const previousLocalTransport = process.env.LOCAL_TRANSPORT
 
 beforeAll(() => {
+  process.env.IS_E2E = 'true'
   process.env.LOCAL_TRANSPORT = 'true'
 })
 
 afterAll(() => {
+  if (previousIsE2e == null) delete process.env.IS_E2E
+  else process.env.IS_E2E = previousIsE2e
   if (previousLocalTransport == null) {
     delete process.env.LOCAL_TRANSPORT
     return

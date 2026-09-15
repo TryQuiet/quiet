@@ -4,35 +4,74 @@ import {
   createLocalAddress,
   filterValidAddresses,
   getAddressFromLibp2pAddress,
+  isLocalTransportEnabled,
   parseLocalAddress,
 } from './libp2p'
 import { p2pAddressesToPairs, pairsToP2pAddresses } from './invitationLink/invitationLink'
 import { validatePeerData } from './invitationLink/invitationLink.validator'
 import { filterAndSortPeers } from './sortPeers'
 
-describe('local libp2p addresses', () => {
-  const peerId = '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF'
+const PEER_ID = '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF'
+const LOCAL_MULTIADDR = `/ip4/127.0.0.1/tcp/45321/ws/p2p/${PEER_ID}`
 
-  it('converts a local endpoint to listen and dial multiaddrs', () => {
-    const address = createLocalAddress(45_321)
+describe('local transport gating', () => {
+  const previousIsE2e = process.env.IS_E2E
+  const previousLocalTransport = process.env.LOCAL_TRANSPORT
 
-    expect(parseLocalAddress(address)).toEqual({ host: '127.0.0.1', port: 45_321 })
-    expect(createLibp2pListenAddress(address)).toBe('/ip4/127.0.0.1/tcp/45321/ws')
-    expect(createLibp2pAddress(address, peerId)).toBe(`/ip4/127.0.0.1/tcp/45321/ws/p2p/${peerId}`)
+  afterEach(() => {
+    if (previousIsE2e == null) delete process.env.IS_E2E
+    else process.env.IS_E2E = previousIsE2e
+    if (previousLocalTransport == null) delete process.env.LOCAL_TRANSPORT
+    else process.env.LOCAL_TRANSPORT = previousLocalTransport
   })
 
-  it('round trips a local dial multiaddr to the invitation address', () => {
-    const multiaddr = createLibp2pAddress('127.0.0.1:45321', peerId)
+  describe('when enabled', () => {
+    beforeEach(() => {
+      process.env.IS_E2E = 'true'
+      process.env.LOCAL_TRANSPORT = 'true'
+    })
 
-    expect(getAddressFromLibp2pAddress(multiaddr)).toBe('127.0.0.1:45321')
-    expect(p2pAddressesToPairs([multiaddr])).toEqual([{ peerId, onionAddress: '127.0.0.1:45321' }])
-    expect(pairsToP2pAddresses([{ peerId, onionAddress: '127.0.0.1:45321' }])).toEqual([multiaddr])
-    expect(validatePeerData({ peerId, onionAddress: '127.0.0.1:45321' })).toBe(true)
+    it('converts a local endpoint to listen and dial multiaddrs', () => {
+      const address = createLocalAddress(45_321)
+
+      expect(isLocalTransportEnabled()).toBe(true)
+      expect(parseLocalAddress(address)).toEqual({ host: '127.0.0.1', port: 45_321 })
+      expect(createLibp2pListenAddress(address)).toBe('/ip4/127.0.0.1/tcp/45321/ws')
+      expect(createLibp2pAddress(address, PEER_ID)).toBe(LOCAL_MULTIADDR)
+    })
+
+    it('round trips a local dial multiaddr to the invitation address', () => {
+      const multiaddr = createLibp2pAddress('127.0.0.1:45321', PEER_ID)
+
+      expect(getAddressFromLibp2pAddress(multiaddr)).toBe('127.0.0.1:45321')
+      expect(p2pAddressesToPairs([multiaddr])).toEqual([{ peerId: PEER_ID, onionAddress: '127.0.0.1:45321' }])
+      expect(pairsToP2pAddresses([{ peerId: PEER_ID, onionAddress: '127.0.0.1:45321' }])).toEqual([multiaddr])
+      expect(validatePeerData({ peerId: PEER_ID, onionAddress: '127.0.0.1:45321' })).toBe(true)
+      expect(filterValidAddresses([LOCAL_MULTIADDR])).toEqual([LOCAL_MULTIADDR])
+    })
+
+    it('rejects invalid local ports', () => {
+      expect(parseLocalAddress('127.0.0.1:65536')).toBeUndefined()
+      expect(() => createLocalAddress(0)).toThrow('Invalid local transport port')
+    })
   })
 
-  it('rejects invalid local ports', () => {
-    expect(parseLocalAddress('127.0.0.1:65536')).toBeUndefined()
-    expect(() => createLocalAddress(0)).toThrow('Invalid local transport port')
+  it.each([
+    ['both flags unset', undefined, undefined],
+    ['only LOCAL_TRANSPORT set', undefined, 'true'],
+    ['only IS_E2E set', 'true', undefined],
+  ])('stays closed with %s', (_label, isE2e, localTransport) => {
+    if (isE2e == null) delete process.env.IS_E2E
+    else process.env.IS_E2E = isE2e
+    if (localTransport == null) delete process.env.LOCAL_TRANSPORT
+    else process.env.LOCAL_TRANSPORT = localTransport
+
+    expect(isLocalTransportEnabled()).toBe(false)
+    expect(parseLocalAddress('127.0.0.1:45321')).toBeUndefined()
+    expect(getAddressFromLibp2pAddress(LOCAL_MULTIADDR)).toBeUndefined()
+    expect(validatePeerData({ peerId: PEER_ID, onionAddress: '127.0.0.1:45321' })).toBe(false)
+    expect(filterValidAddresses([LOCAL_MULTIADDR])).toEqual([])
+    expect(p2pAddressesToPairs([LOCAL_MULTIADDR])).toEqual([])
   })
 })
 
@@ -43,7 +82,6 @@ describe('filterValidAddresses', () => {
     const valid = [
       '/dns4/gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad.onion/tcp/443/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
       '/dns4/gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad.onion/tcp/80/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
-      '/ip4/127.0.0.1/tcp/45321/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
     ]
     const addresses = [
       '/dns4/gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad.onion/tcp/443/wss/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
@@ -52,8 +90,6 @@ describe('filterValidAddresses', () => {
       '/dns4/somethingElse.onion/tcp/443/wss/p2p/QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA',
       '/dns4/gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad.onion/tcp/443/ws/p2p/QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbK',
       '/dns4/gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrj.onion/tcp/443/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
-      '/ip4/127.0.0.1/tcp/65536/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
-      '/ip4/0.0.0.0/tcp/45321/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
       'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbK',
     ]
     expect(filterAndSortPeers(addresses, [], localAddress)).toEqual([localAddress, ...valid])

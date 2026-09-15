@@ -19,7 +19,7 @@ import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import { DateTime } from 'luxon'
 
-import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { createLibp2pAddress, createLibp2pListenAddress, isLocalTransportEnabled } from '@quiet/common'
 import { ConnectionProcessInfo, type NetworkDataPayload, NetworkStats, SocketEvents } from '@quiet/types'
 
 import { LIBP2P_DB_PATH, SERVER_IO_PROVIDER } from '../const'
@@ -555,7 +555,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         connectionEncrypters: [noise({ crypto: pureJsCrypto })],
         transports:
           params.transport ??
-          (process.env.LOCAL_TRANSPORT === 'true'
+          (isLocalTransportEnabled()
             ? [webSockets()]
             : [
                 webSocketsOverTor({

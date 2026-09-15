@@ -58,26 +58,52 @@ afterAll(() => {
   process.env.LOCAL_TRANSPORT = previousLocalTransport
 })
 
-async function startQssProxy() {
+async function startQssProxy({ paused = false }: { paused?: boolean } = {}) {
   const port = await getPort()
   const sockets = new Set<Socket>()
+  const pendingPairs = new Map<Socket, Socket>()
+  let forwarding = !paused
+  let connectionCount = 0
+  const connectionWaiters = new Set<{ expected: number; resolve: () => void }>()
+  const waitForConnections = async (expected: number): Promise<void> => {
+    if (connectionCount >= expected) return
+    await new Promise<void>(resolve => connectionWaiters.add({ expected, resolve }))
+  }
+  const resolveConnectionWaiters = (): void => {
+    for (const waiter of connectionWaiters) {
+      if (connectionCount >= waiter.expected) {
+        connectionWaiters.delete(waiter)
+        waiter.resolve()
+      }
+    }
+  }
+
+  const forward = (client: Socket, upstream: Socket): void => {
+    if (client.destroyed || upstream.destroyed) return
+    pendingPairs.delete(client)
+    client.pipe(upstream)
+    upstream.pipe(client)
+  }
   const server = createServer(client => {
     const upstream = connect(QSS_PORT, QSS_HOST)
     sockets.add(client)
     sockets.add(upstream)
+    connectionCount += 1
+    resolveConnectionWaiters()
 
     const closePair = (): void => {
       client.destroy()
       upstream.destroy()
       sockets.delete(client)
       sockets.delete(upstream)
+      pendingPairs.delete(client)
     }
     client.once('error', closePair)
     upstream.once('error', closePair)
     client.once('close', closePair)
     upstream.once('close', closePair)
-    client.pipe(upstream)
-    upstream.pipe(client)
+    if (forwarding) forward(client, upstream)
+    else pendingPairs.set(client, upstream)
   })
 
   await new Promise<void>((resolve, reject) => {
@@ -91,6 +117,19 @@ async function startQssProxy() {
   let stopped = false
   return {
     endpoint: `ws://${QSS_HOST}:${port}`,
+    waitForConnection: async (): Promise<void> => await waitForConnections(1),
+    waitForConnections,
+    release: (): void => {
+      if (forwarding) return
+      forwarding = true
+      for (const [client, upstream] of pendingPairs) {
+        forward(client, upstream)
+      }
+    },
+    disconnect: (): void => {
+      for (const socket of sockets) socket.destroy()
+      pendingPairs.clear()
+    },
     stop: async (): Promise<void> => {
       if (stopped) return
       stopped = true
@@ -123,6 +162,14 @@ function routeMemberInviteThroughProxy(link: string, qssEndpoint: string): strin
   const invite = parseShareInvitation(link)
   if (invite.version !== InvitationDataVersion.v5 || isDeviceInvitationData(invite)) {
     throw new Error('Expected a QSS member invitation')
+  }
+  return composeInvitationShareUrl({ ...invite, qssEndpoint })
+}
+
+function routeDeviceInviteThroughProxy(link: string, qssEndpoint: string): string {
+  const invite = parseShareInvitation(link)
+  if (invite.version !== InvitationDataVersion.v5 || !isDeviceInvitationData(invite)) {
+    throw new Error('Expected a QSS device invitation')
   }
   return composeInvitationShareUrl({ ...invite, qssEndpoint })
 }
@@ -361,6 +408,57 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
   } finally {
     await Promise.allSettled(proxies.map(proxy => proxy.stop()))
     await closeAndCleanupApps(apps)
+  }
+}
+
+async function runDelayedQssDeviceAdmission(releaseBeforeFallback: boolean): Promise<void> {
+  const suffix = `${releaseBeforeFallback ? 'early' : 'late'}${Date.now().toString(36)}`
+  const ownerUsername = `delayed-owner-${suffix}`
+  const owner = new App({ username: `${ownerUsername}-primary` })
+  const linkedDevice = new App({ username: `${ownerUsername}-linked` })
+  const proxy = await startQssProxy({ paused: true })
+
+  try {
+    const ownerChannel = await createQssCommunity(owner, `delay${suffix}`, ownerUsername)
+    const deviceInvite = routeDeviceInviteThroughProxy(await getDeviceInvitation(owner), proxy.endpoint)
+
+    await linkedDevice.openWithRetries(undefined, true)
+    const joinModal = new JoinCommunityModal(linkedDevice.driver)
+    expect(await joinModal.isReady()).toBeTruthy()
+    await joinModal.typeCommunityInviteLink(deviceInvite)
+    await joinModal.submit()
+
+    const joinPanel = new JoiningLoadingPanel(linkedDevice.driver)
+    expect(await joinPanel.waitUntilVisible()).toBeTruthy()
+    await proxy.waitForConnection()
+    if (releaseBeforeFallback) proxy.release()
+
+    await joinPanel.waitForJoinToComplete()
+    const linkedChannel = new Channel(linkedDevice.driver, 'general')
+    expect(await linkedChannel.isReady()).toBeTruthy()
+    expect(await linkedChannel.isMessageInputReady()).toBeTruthy()
+
+    if (!releaseBeforeFallback) {
+      // The first connection was retired for P2P fallback. The next connection is
+      // the post-publication QSS sign-in. Drop it once, then admit the reconnect;
+      // neither socket may create another admission.
+      await proxy.waitForConnections(2)
+      proxy.disconnect()
+      await proxy.waitForConnections(3)
+      proxy.release()
+    }
+
+    const message = `delayed-qss-${suffix}`
+    const messageIds = await ownerChannel.sendMessage(message, ownerUsername)
+    expect(await linkedChannel.getMessageIdsByText(message, ownerUsername, 120_000)).toEqual(messageIds)
+
+    const ownerSidebar = new Sidebar(owner.driver)
+    const linkedSidebar = new Sidebar(linkedDevice.driver)
+    await Promise.all([ownerSidebar.waitForUserProfilesNum(1), linkedSidebar.waitForUserProfilesNum(1)])
+    expect((await linkedSidebar.getCurrentUserNickname()).trim()).toBe(ownerUsername)
+  } finally {
+    await proxy.stop()
+    await closeAndCleanupApps([linkedDevice, owner])
   }
 }
 
@@ -603,5 +701,15 @@ describe('Device linking retries through invite-unaware peers (QSS)', () => {
 
   it('retries across two invite-unaware peers before reaching the invite creator', async () => {
     await runInviteUnawarePeerRetryScenario(2)
+  })
+})
+
+describe('Device linking with delayed QSS admission (QSS)', () => {
+  it('uses QSS when delayed propagation arrives before the device fallback deadline', async () => {
+    await runDelayedQssDeviceAdmission(true)
+  })
+
+  it('falls back to P2P, then reconnects QSS after device publication when propagation remains delayed', async () => {
+    await runDelayedQssDeviceAdmission(false)
   })
 })

@@ -9,6 +9,7 @@ export const LinkedDevices: FC = () => {
   const dispatch = useDispatch()
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
+  const deviceLinkCreationFailed = useSelector(connection.selectors.deviceLinkCreationFailed)
   const [revealLink, setRevealLink] = useState(false)
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export const LinkedDevices: FC = () => {
   return (
     <LinkedDevicesComponent
       deviceLink={deviceLink}
-      isLoading={!deviceLinkInvite}
+      isLoading={!deviceLinkInvite && !deviceLinkCreationFailed}
       revealLink={revealLink}
       onToggleLinkVisibility={() => setRevealLink(currentValue => !currentValue)}
     />
