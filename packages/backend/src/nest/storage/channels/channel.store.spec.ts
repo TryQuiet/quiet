@@ -321,4 +321,39 @@ describe('ChannelStore incremental message IDs', () => {
     await new Promise(resolve => setImmediate(resolve))
     expect(ids.mock.calls.every(([event]) => !event.ids.includes('revoked'))).toBe(true)
   })
+
+  it('does not return a direct fetch authorized before an auth epoch change', async () => {
+    const { store, auth, onConsume, append } = createStore()
+    await store.subscribe()
+    await append('revoked-during-fetch')
+
+    let resume!: () => void
+    const paused = new Promise<void>(resolve => {
+      resume = resolve
+    })
+    onConsume.mockReset()
+    onConsume.mockImplementationOnce(async message => {
+      await paused
+      return { ...message, verified: true }
+    })
+    onConsume.mockImplementation(async () => undefined)
+
+    const fetching = store.getEntries(['revoked-during-fetch'])
+    await new Promise(resolve => setImmediate(resolve))
+    auth.emit(SigchainEvents.UPDATED)
+    resume()
+
+    await expect(fetching).resolves.toEqual([])
+  })
+
+  it('reconsumes a direct hash fetch instead of treating its indexed ID as authorization', async () => {
+    const { store, onConsume, append } = createStore()
+    await store.subscribe()
+    await append('indexed-but-not-authorized')
+    onConsume.mockReset()
+    onConsume.mockResolvedValue(undefined)
+
+    await expect(store.getEntries(['indexed-but-not-authorized'])).resolves.toEqual([])
+    expect(onConsume).toHaveBeenCalledTimes(1)
+  })
 })
