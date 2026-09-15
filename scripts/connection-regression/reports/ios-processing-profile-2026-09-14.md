@@ -161,6 +161,11 @@ acceptable performance fix.
 
 ## Fix direction and handoff
 
+Implementation is tracked separately: **[#3536, message-history growth](https://github.com/TryQuiet/quiet/issues/3536)
+is first priority**, followed by [#3537, sigchain/user growth](https://github.com/TryQuiet/quiet/issues/3537).
+[#3538, iOS native crypto](https://github.com/TryQuiet/quiet/issues/3538) runs in parallel.
+Each issue includes the relevant measurements, security boundaries and acceptance tests.
+
 1. Maintain an incrementally updated, validated history index; coalesce catch-up
    refreshes. Preserve checks that exclude undecryptable, invalid or unauthorized
    entries. A raw encrypted-ID list is not automatically equivalent.
