@@ -17,6 +17,10 @@ import { overlayFromUrl } from '@quiet/common'
 
 const logger = createLogger('DualOverlay')
 
+function stripTld(address: string): string {
+  return address.replace(/\.loki$/i, '').replace(/\.onion$/i, '')
+}
+
 @Injectable()
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -65,7 +69,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.socksPort = this.tor.socksPort
     try {
       await this.lokinet.init()
-      logger.info('Lokinet overlay ready')
+      logger.info('Lokinet overlay ready', { loki: this.lokinet.address })
     } catch (e) {
       logger.warn('Lokinet unavailable; .loki dials will fail until it starts', e)
     }
@@ -90,41 +94,42 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return (this.tor as any).kill?.()
   }
 
-  async createNewHiddenService(params: { targetPort: number; virtPort?: number }) {
-    const hiddenService = await this.tor.createNewHiddenService(params)
-    try {
-      this.lokiAddress = await this.lokinet.spawnHiddenService({
-        targetPort: params.targetPort,
-      })
-      logger.info('Published dual hidden services', {
-        onion: hiddenService?.onionAddress,
-        loki: this.lokiAddress,
-      })
-    } catch (e) {
-      logger.warn('Could not publish .loki SNApp; onion-only mode', e)
-    }
-    return hiddenService
+  private async lokiOrThrow(targetPort: number, privKey?: string): Promise<string> {
+    this.lokiAddress = await this.lokinet.spawnHiddenService({ targetPort, privKey })
+    if (!this.lokiAddress) throw new Error('Lokinet did not return a .loki name')
+    return this.lokiAddress
   }
 
-  async registerHiddenService(...args: any[]) {
-    return (this.tor as any).registerHiddenService(...args)
+  async createNewHiddenService(params: { targetPort: number; virtPort?: number }) {
+    const hiddenService = await this.tor.createNewHiddenService(params)
+    const loki = await this.lokiOrThrow(params.targetPort)
+    const onionAddress = stripTld(loki)
+    logger.info('Using Lokinet SNApp as hidden service', { loki, onionAddress })
+    return { ...hiddenService, onionAddress }
+  }
+
+  async registerHiddenService(data: {
+    targetPort: number
+    privKey?: string
+    onionAddress?: string
+    virtPort?: number
+  }) {
+    try {
+      const loki = await this.lokiOrThrow(data.targetPort, data.privKey)
+      data = { ...data, onionAddress: stripTld(loki) }
+    } catch (e) {
+      logger.warn('Lokinet SNApp lookup failed during register', e)
+    }
+    return (this.tor as any).registerHiddenService(data)
   }
 
   async spawnHiddenService(params: { targetPort: number; privKey?: string; virtPort?: number; port?: number }) {
-    const onion = await this.tor.spawnHiddenService(params as any)
-    try {
-      this.lokiAddress = await this.lokinet.spawnHiddenService({
-        targetPort: params.targetPort,
-        privKey: params.privKey,
-      })
-    } catch (e) {
-      logger.warn('Could not publish .loki SNApp; onion-only mode', e)
-    }
-    return onion
+    await this.tor.spawnHiddenService(params as any)
+    return stripTld(await this.lokiOrThrow(params.targetPort, params.privKey))
   }
 
   async destroyHiddenService(address: string) {
-    if (overlayFromUrl(address) === 'lokinet') {
+    if (overlayFromUrl(address) === 'lokinet' || address.includes('loki')) {
       return this.lokinet.destroyHiddenService(address)
     }
     return this.tor.destroyHiddenService(address)
