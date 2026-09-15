@@ -79,6 +79,8 @@ describe.each([true, false])('ChannelStore replicated %s-public channel history'
       roleName,
     }
     const entryStorage = await MemoryStorage()
+    // EventsWithStorage uses one process-wide emitter, including for separate local peers.
+    const events = new EventEmitter()
     const ipfs = createTransport()
     const createParty = async (chain: SigChain) => {
       const auth = serviceFor(chain)
@@ -111,6 +113,7 @@ describe.each([true, false])('ChannelStore replicated %s-public channel history'
         headsStorage: await MemoryStorage(),
         indexStorage: await MemoryStorage(),
         syncAutomatically: false,
+        events,
       } as any)) as EventsType<EncryptedMessage>
       const publicMessages = new PublicChannelMessagesService(auth)
       const privateMessages = new PrivateChannelMessagesService(auth)
@@ -186,6 +189,14 @@ describe.each([true, false])('ChannelStore replicated %s-public channel history'
       await append('oldest-offline')
       await append('middle-offline', invalidAncestor)
       await append('newest-offline')
+      await Promise.all(pending)
+      // Sender updates arrive on the shared bus before this receiver has admitted the entries.
+      // Block availability and a matching channel ID must not authorize early delivery.
+      expect(announced).toEqual([])
+      expect(await receiver.db.all()).toHaveLength(1)
+      expect((await receiver.store.getMessages(['oldest-offline']))?.messages).toEqual([])
+      pending.length = 0
+      updates.mockClear()
       await importHead()
       await Promise.all(pending)
 
