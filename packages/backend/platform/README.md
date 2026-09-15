@@ -114,12 +114,19 @@ binary/payload hashes, and timings. The app has its own bundle ID
 
 ## Evidence and remaining validation
 
-See [the experiment report](reports/ios-node24.md) and [full app E2E results](reports/ios-e2e.json).
+See [the experiment report](reports/ios-node24.md),
+[the latest app E2E rerun](reports/ios-e2e-after-audit.json), and
+[the original app E2E results](reports/ios-e2e.json).
+The [Daybreak Blue audit](reports/daybreak-audit.md) accepted the implementation
+after a correction to match the wrapper's falsy output-format defaults.
 All 33 app E2E tests pass: 25 starter, one native message/restart, one QSS
 registration/storage/restart, and six desktop–iOS multiplayer stages. Both full
 iOS app builds embed and load the signed framework; captured app logs contain
 zero native-crypto fallback warnings. The host suite passes on Linux Node 24 and
 macOS Node 20, and the real embedded iOS Node 24 probe passes.
+After the audit fix, the Mac native suite passes 17/17 and all 33 app flows pass
+again. This rerun uses the QSS app for all four suites; the starter and native
+community flows choose no server. The original staging results remain available.
 
 Physical phone message processing, production signing/distribution, and messaging
 with #3539's other optimizations still need validation. The measured crypto

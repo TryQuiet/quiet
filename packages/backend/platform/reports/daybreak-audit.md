@@ -60,6 +60,14 @@ The initial focused suite passed 15/15. Separate probes reproduced the format
 mismatch and checked runtime error propagation. The added regression brings the
 focused suite to 16/16; the full host suite also includes the artifact-cache test.
 
+## Follow-up app validation
+
+After the re-review, the primary agent rebuilt the backend, desktop peer and
+iOS QSS app at `98efcc673`, then ran the full Mac native suite (17/17) and all
+33 app E2E flows (33/33, zero skips). The [follow-up evidence](ios-e2e-after-audit.json)
+includes all six desktop–iOS multiplayer stages and the loaded bundle's hash.
+This app rerun was performed by the primary agent, not by the audit subagent.
+
 ## Limits
 
 This was an independent source review and focused Linux test run. The reviewer

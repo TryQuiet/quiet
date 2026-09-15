@@ -102,12 +102,30 @@ The Mac used an isolated worktree and copies of existing native dependency
 caches, with frozen auth installation and deployment-mode CocoaPods installation.
 These are local Mac results; the hosted GitHub workflow has not been run.
 
+### Rerun after the Daybreak Blue audit
+
+The independent audit found one low-severity mismatch in falsy output-format
+handling. It was corrected and covered by a differential regression across all
+five output-producing operations. Daybreak Blue independently ran the focused
+native/webpack suite (16/16) and accepted the fix with no remaining findings.
+The [audit report](daybreak-audit.md) records its scope and limitations.
+
+The backend, desktop peer and iOS QSS app were rebuilt at `98efcc673`. The full
+Mac Node 20 native suite passed **17/17**, and all **33 app E2E tests passed
+again with zero skips**, including the six multiplayer stages. This rerun uses
+`ios.sim.e2e.qss` for all four suites; starter and native-community choose no
+server. The earlier staging run is retained as historical evidence. The loaded
+backend bundle matches the rebuilt source bundle, the signed native library is
+mapped in the running app, and captured app logs contain zero fallback warnings.
+
 ## Evidence
 
 - [Initial iOS runtime result](ios-node24-initial.json)
 - [Final iOS runtime result](ios-node24-final.json)
 - [Final source-build manifest](ios-build-manifest.json)
 - [Full app E2E counts, test names, source hashes, and native loading evidence](ios-e2e.json)
+- [Post-audit app E2E rerun at the corrected implementation](ios-e2e-after-audit.json)
+- [Daybreak Blue audit and accepted compatibility correction](daybreak-audit.md)
 - [Build, runtime, and reproduction instructions](../README.md)
 
 Both runtime reports' Node framework SHA-256 matches this branch's pinned
