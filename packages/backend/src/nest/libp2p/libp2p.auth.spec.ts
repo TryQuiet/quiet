@@ -16,6 +16,7 @@ import { Libp2pEvents } from './libp2p.types'
 import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 import { createAdmissionAuthContext } from '../admission/admission-auth-context'
 import { AdmissionResourceScope } from '../admission/admission-resource-scope'
+import { AUTH_STREAM_TIMEOUT_MS } from './libp2p.const'
 
 describe('Libp2pAuth buffered connections', () => {
   const teamId = 'pending-device-team'
@@ -76,6 +77,82 @@ describe('Libp2pAuth buffered connections', () => {
 
   afterEach(async () => {
     await auth.stop()
+    jest.useRealTimers()
+  })
+
+  it.each(['open', 'write', 'close'] as const)(
+    'bounds a stalled authentication stream %s and drains its scope',
+    async phase => {
+      jest.useFakeTimers()
+      const scope = new AdmissionResourceScope()
+      const fail = jest.fn()
+      const { context } = createAdmissionAuthContext({
+        attemptId: 1,
+        request: {} as any,
+        transport: AdmissionTransport.P2P,
+        chain: pendingChain,
+        submit: jest.fn() as any,
+        fail,
+        scope,
+      })
+      let finishOpen!: (stream: any) => void
+      const stream = {
+        status: 'open',
+        sink: jest.fn(async () => (phase === 'write' ? await new Promise<void>(() => {}) : undefined)),
+        close: jest.fn(async () => (phase === 'close' ? await new Promise<void>(() => {}) : undefined)),
+        abort: jest.fn(),
+      }
+      const peer = peerId('stalled-peer')
+      auth['peerConnections'].set(peer.toString(), {
+        newStream: jest.fn(async () =>
+          phase === 'open'
+            ? await new Promise(resolve => {
+                finishOpen = resolve
+              })
+            : stream
+        ),
+      } as any)
+      const sending = context.gate.run(() => auth['sendMessage'](peer, new Uint8Array([1]), context))
+      for (let i = 0; i < 20; i++) await Promise.resolve()
+      jest.advanceTimersByTime(AUTH_STREAM_TIMEOUT_MS)
+      await sending
+      await scope.drain(new Error('finished'))
+      expect(fail).toHaveBeenCalledWith(expect.objectContaining({ kind: 'transport' }))
+      if (phase === 'open') {
+        finishOpen(stream)
+        for (let i = 0; i < 5; i++) await Promise.resolve()
+        expect(stream.sink).not.toHaveBeenCalled()
+      }
+      expect(stream.abort).toHaveBeenCalledTimes(1)
+    }
+  )
+
+  it('aborts a pending stream allocation when its admission scope is revoked', async () => {
+    const scope = new AdmissionResourceScope()
+    const fail = jest.fn()
+    const { context } = createAdmissionAuthContext({
+      attemptId: 1,
+      request: {} as any,
+      transport: AdmissionTransport.P2P,
+      chain: pendingChain,
+      submit: jest.fn() as any,
+      fail,
+      scope,
+    })
+    let signal!: AbortSignal
+    const peer = peerId('cancelled-peer')
+    auth['peerConnections'].set(peer.toString(), {
+      newStream: jest.fn((_protocol: string, options: { signal: AbortSignal }) => {
+        signal = options.signal
+        return new Promise(() => {})
+      }),
+    } as any)
+    const sending = context.gate.run(() => auth['sendMessage'](peer, new Uint8Array([1]), context))
+    for (let i = 0; i < 5; i++) await Promise.resolve()
+    await scope.drain(new Error('cancel admission'))
+    await sending
+    expect(signal.aborted).toBe(true)
+    expect(fail).not.toHaveBeenCalled()
   })
 
   it('restores PENDING_MEMBER when an active chain appears without the member role', async () => {

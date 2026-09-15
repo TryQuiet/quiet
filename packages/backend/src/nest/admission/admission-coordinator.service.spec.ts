@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals'
 import { AdmissionCoordinator } from './admission-coordinator.service'
 import { AdmissionClock } from './admission-clock'
+import { ADMISSION_DRAIN_TIMEOUT_MS, ADMISSION_TOR_BOOTSTRAP_TIMEOUT_MS } from './admission.const'
 import { CommunityLifecycle } from './community-lifecycle'
 import type { TorBootstrapProvider } from '../libp2p/libp2p.types'
 import {
@@ -119,6 +120,26 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     await nextLease.drain(new Error('finished'))
   })
 
+  it('bounds stalled community loading and retains ownership when the database read never settles', async () => {
+    const pending = deferred<{ admissionTransport: AdmissionTransport | undefined }>()
+    load.mockReturnValueOnce(pending.promise)
+    const handle = coordinator.start(request, lease)
+    await flush()
+
+    jest.advanceTimersByTime(request.timeoutMs)
+    await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
+    expect(options).toHaveLength(0)
+
+    jest.advanceTimersByTime(ADMISSION_DRAIN_TIMEOUT_MS)
+    await expect(handle.drained).rejects.toMatchObject({ kind: 'recovery' })
+    expect(() => coordinator.start(request, new CommunityLifecycle('community', {} as any))).toThrow(AdmissionBusyError)
+
+    pending.resolve({ admissionTransport: undefined })
+    await flush()
+    expect(coordinator['activeSession']!.state.status).toBe('recovery-required')
+    expect(stage).not.toHaveBeenCalled()
+  })
+
   it('retains ownership when QSS cleanup fails during fallback', async () => {
     cleanup.mockRejectedValueOnce(new Error('QSS socket did not close'))
     const handle = coordinator.start(request, lease)
@@ -149,7 +170,7 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
 
     expect(torBootstrap.once).toHaveBeenCalledWith('bootstrapped', expect.any(Function))
     expect(coordinator['activeSession']!.deadline).toBeUndefined()
-    jest.advanceTimersByTime(300_000)
+    jest.advanceTimersByTime(ADMISSION_TOR_BOOTSTRAP_TIMEOUT_MS - 1)
     expect(coordinator['activeSession']!.state.status).toBe('admitting')
 
     torBootstrap.bootstrapped = true
@@ -158,6 +179,92 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
     await handle.drained
   })
+
+  it('uses the Tor bootstrap budget when persisted ownership selects P2P over the requested QSS transport', async () => {
+    request.kind = AdmissionKind.MEMBER
+    stored = AdmissionTransport.P2P
+    let onBootstrapped!: () => void
+    const torBootstrap = { bootstrapped: false } as TorBootstrapProvider
+    torBootstrap.once = jest.fn((_event: 'bootstrapped', listener: () => void) => {
+      onBootstrapped = listener
+      return torBootstrap
+    })
+    const p2pLease = new CommunityLifecycle('community', { torBootstrap } as any, 'wss://qss')
+    const handle = coordinator.start(request, p2pLease)
+    await flush()
+
+    expect((coordinator as any).activeSession.state.attempt.transport).toBe(AdmissionTransport.P2P)
+    expect(torBootstrap.once).toHaveBeenCalledWith('bootstrapped', expect.any(Function))
+    expect(coordinator['activeSession']!.deadline).toBeUndefined()
+    jest.advanceTimersByTime(request.timeoutMs)
+    expect(coordinator['activeSession']!.state.status).toBe('admitting')
+
+    torBootstrap.bootstrapped = true
+    onBootstrapped()
+    jest.advanceTimersByTime(request.timeoutMs)
+    await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
+    await handle.drained
+  })
+
+  it('keeps the original QSS acquisition deadline when device admission falls back to unbootstrapped P2P', async () => {
+    const torBootstrap = { bootstrapped: false, once: jest.fn(), off: jest.fn() }
+    const fallbackLease = new CommunityLifecycle('community', { torBootstrap } as any, 'wss://qss')
+    const handle = coordinator.start(request, fallbackLease)
+    await flush()
+    const qssDeadlineAt = coordinator['activeSession']!.deadlineAt
+
+    jest.advanceTimersByTime(request.timeoutMs / 2)
+    await flush()
+    expect(options).toHaveLength(2)
+    expect((coordinator as any).activeSession.state.attempt.transport).toBe(AdmissionTransport.P2P)
+    expect(torBootstrap.once).not.toHaveBeenCalled()
+    expect(coordinator['activeSession']!.deadlineAt).toBe(qssDeadlineAt)
+
+    jest.advanceTimersByTime(request.timeoutMs / 2)
+    await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
+    await handle.drained
+  })
+
+  it('times out Tor that never bootstraps and permits a clean retry', async () => {
+    const torBootstrap = { bootstrapped: false, once: jest.fn(), off: jest.fn() }
+    const stalledLease = new CommunityLifecycle('community', { torBootstrap } as any)
+    const handle = coordinator.start({ ...request, preferredTransport: AdmissionTransport.P2P }, stalledLease)
+    await flush()
+    jest.advanceTimersByTime(ADMISSION_TOR_BOOTSTRAP_TIMEOUT_MS)
+    await expect(handle.result).rejects.toMatchObject({ kind: 'timeout' })
+    await handle.drained
+    expect(torBootstrap.off).toHaveBeenCalledWith('bootstrapped', expect.any(Function))
+    expect(commit).not.toHaveBeenCalled()
+    const retry = coordinator.start(request, lease)
+    await flush()
+    await options[1].context.joined(payload())
+    await expect(retry.result).resolves.toMatchObject({ teamId: 'team' })
+  })
+
+  it.each(['before-commit', 'during-commit'] as const)(
+    'reports bounded recovery for a stalled %s without releasing ownership',
+    async phase => {
+      const pending = deferred()
+      const handle = coordinator.start(request, lease)
+      await flush()
+      if (phase === 'before-commit') void options[0].scope.run(() => pending.promise)
+      else commit.mockReturnValueOnce(pending.promise)
+      const selected = options[0].context.joined(payload())
+      await flush()
+      jest.advanceTimersByTime(ADMISSION_DRAIN_TIMEOUT_MS)
+      await expect(selected).rejects.toMatchObject({ kind: 'recovery' })
+      await expect(handle.drained).rejects.toMatchObject({ kind: 'recovery' })
+      expect(() => coordinator.start(request, new CommunityLifecycle('community', {} as any))).toThrow(
+        AdmissionBusyError
+      )
+      expect(discard).not.toHaveBeenCalled()
+      pending.resolve()
+      await flush()
+      expect(commit).toHaveBeenCalledTimes(phase === 'before-commit' ? 0 : 1)
+      expect(options[0].context.gate.adopted).toBe(false)
+      expect(coordinator['activeSession']!.state.status).toBe('recovery-required')
+    }
+  )
 
   it.each(['initial', 'fallback'] as const)('rolls back if staging the %s attempt throws', async phase => {
     if (phase === 'initial')
@@ -276,7 +383,7 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     await flush()
     const cancel = handle.cancel(new Error('shutdown'))
     options[0].context.fail(new AdmissionError('transport', 'disconnected'))
-    jest.advanceTimersByTime(200_000)
+    jest.advanceTimersByTime(ADMISSION_DRAIN_TIMEOUT_MS - 1)
     expect(options).toHaveLength(1)
     expect(cleanup).not.toHaveBeenCalled()
     pending.resolve()
@@ -499,6 +606,20 @@ describe('AdmissionCoordinator lifecycle regressions', () => {
     await expect(lease.pause(new Error('pause'))).rejects.toMatchObject({ kind: 'recovery' })
     await expect(lease.drain(new Error('shutdown'))).rejects.toMatchObject({ kind: 'recovery' })
     expect(cleanup).not.toHaveBeenCalled()
+  })
+
+  it('makes a permanently stalled teardown report recovery without releasing its admission', async () => {
+    cleanup.mockImplementationOnce(() => new Promise<void>(() => {}))
+    const handle = coordinator.start(request, lease)
+    await flush()
+    const draining = handle.cancel(new Error('cancelled'))
+    await expect(handle.result).rejects.toThrow('cancelled')
+    await flush()
+    jest.advanceTimersByTime(ADMISSION_DRAIN_TIMEOUT_MS)
+    await expect(draining).rejects.toMatchObject({ kind: 'recovery' })
+    expect(() => coordinator.start(request, new CommunityLifecycle('community', {} as any))).toThrow(AdmissionBusyError)
+    expect(commit).not.toHaveBeenCalled()
+    expect(discard).not.toHaveBeenCalled()
   })
 
   it('reports teardown recovery to lifecycle callers without releasing uncertain ownership', async () => {

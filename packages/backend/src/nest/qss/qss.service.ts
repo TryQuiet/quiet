@@ -42,6 +42,7 @@ import {
   QSS_RECONNECT_BACKOFF_FACTOR,
   QSS_RECONNECT_DELAY_MS,
   QSS_RECONNECT_MAX_DELAY_MS,
+  QSS_RECONNECT_STABILITY_MS,
 } from './qss.const'
 import {
   CompoundError,
@@ -66,6 +67,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    */
   private _reconnectQueueProcessor: NodeJS.Timeout | undefined
   private _reconnectDelayMs = QSS_RECONNECT_DELAY_MS
+  private _authenticatedAt: number | undefined
   private _enabledOverride = false
 
   /**
@@ -125,10 +127,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._scheduleReconnect(QSSOperationResult.ERROR)
   }
 
-  /** Resets recovery backoff after an established member authenticates successfully. */
+  /** Authentication starts a stability window; short-lived connections retain backoff. */
   private _handleQssAuthConnected = (teamId: string): void => {
     if (!this.preparedAdmissions.has(teamId) && this.joinStatus(teamId) === JoinStatus.JOINED) {
-      this._clearReconnectTimer(true)
+      this._markAuthenticated()
     }
   }
 
@@ -164,13 +166,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         this.qssAuthConnManager.markMemberRoleReady(teamId)
         this.qssSyncManager.markMemberRoleReady(teamId)
         this.qssSyncManager.startLogSyncForSignedInTeam(teamId, chain)
-        this._clearReconnectTimer(true)
+        this._markAuthenticated()
         this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
         this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
       })
       return
     }
-    this._clearReconnectTimer(true)
+    this._markAuthenticated()
     this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
   }
 
@@ -196,7 +198,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       const kind =
         payload.source === 'client-validation'
           ? 'validation'
-          : ['TIMEOUT', 'DISCONNECTED', 'ClientAuthSyncError'].includes(payload.code)
+          : payload.source === 'remote' ||
+              payload.source === 'sign-in' ||
+              ['TIMEOUT', 'DISCONNECTED', 'ClientAuthSyncError'].includes(payload.code)
             ? 'transport'
             : 'protocol'
       admission.context.fail(new AdmissionError(kind, payload.code))
@@ -658,6 +662,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     })
   }
 
+  private _markAuthenticated(): void {
+    this._clearReconnectTimer()
+    this._authenticatedAt ??= Date.now()
+  }
+
   /** Cancels a scheduled reconnect and optionally resets its backoff delay. */
   private _clearReconnectTimer(resetDelay = false): void {
     if (this._reconnectQueueProcessor != null) {
@@ -667,6 +676,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
     if (resetDelay) {
       this._reconnectDelayMs = QSS_RECONNECT_DELAY_MS
+      this._authenticatedAt = undefined
     }
   }
 
@@ -674,6 +684,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   private _scheduleReconnect(connStatus: QSSOperationResult): void {
     // A connected socket is not yet authenticated. Preserve backoff until authentication succeeds.
     if (connStatus === QSSOperationResult.SUCCESS) return
+
+    if (this._authenticatedAt != null) {
+      if (Date.now() - this._authenticatedAt >= QSS_RECONNECT_STABILITY_MS) {
+        this._reconnectDelayMs = QSS_RECONNECT_DELAY_MS
+      }
+      this._authenticatedAt = undefined
+    }
 
     if (connStatus === QSSOperationResult.DISABLED) {
       this.logger.debug('Not scheduling QSS reconnect because QSS is disabled')

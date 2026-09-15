@@ -11,6 +11,7 @@ import type { ConnectionManager, IncomingStreamData, Registrar } from '@libp2p/i
 import * as Auth from '../../../../../3rd-party/auth/packages/auth/dist'
 import { pipe } from 'it-pipe'
 import { encode, decode } from 'it-length-prefixed'
+import { raceSignal } from 'race-signal'
 
 import { SigChainService } from '../auth/sigchain.service'
 import { createLogger } from '../common/logger'
@@ -28,6 +29,8 @@ import { LFAEvents } from '../auth/types'
 import type { AdmissionAuthContext } from '../admission/admission-auth-context.types'
 import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
 import { BoundedRetry } from '../common/boundedRetry'
+import { AdmissionError } from '../admission/admission.types'
+import { AUTH_STREAM_TIMEOUT_MS } from './libp2p.const'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -344,6 +347,7 @@ export class Libp2pAuth {
    * This method opens a new stream, writes the encoded message, and then closes it.
    */
   private async sendMessage(peerId: PeerId, message: Uint8Array, admission?: AdmissionAuthContext) {
+    if (admission?.gate.closed) return
     const connection = this.peerConnections.get(peerId.toString())
     if (!connection) {
       this.logger.warn(`No connection available for ephemeral stream to ${peerId.toString()}`)
@@ -351,15 +355,35 @@ export class Libp2pAuth {
     }
 
     const abortController = new AbortController()
+    const ownerSignal = admission?.gate.signal
+    const onOwnerAbort = () => abortController.abort(ownerSignal?.reason)
+    ownerSignal?.addEventListener('abort', onOwnerAbort, { once: true })
+    if (ownerSignal?.aborted) onOwnerAbort()
+    let stream: Stream | undefined
+    const onAbort = () => stream?.abort(abortController.signal.reason)
+    abortController.signal.addEventListener('abort', onAbort, { once: true })
+    const timeout = setTimeout(
+      () => abortController.abort(new AdmissionError('transport', 'Authentication stream timed out')),
+      AUTH_STREAM_TIMEOUT_MS
+    )
     try {
+      if (abortController.signal.aborted) throw abortController.signal.reason
       this.logger.trace(`Opening ephemeral outbound stream to ${peerId.toString()}`)
-      const stream = await connection.newStream(this.protocol, {
+      const opening = connection.newStream(this.protocol, {
         runOnLimitedConnection: false,
         negotiateFully: false,
         signal: abortController.signal,
       })
+      // Allocation may finish after cancellation even if a transport ignores its signal.
+      void opening
+        .then(lateStream => {
+          stream = lateStream
+          if (abortController.signal.aborted) lateStream.abort(abortController.signal.reason)
+        })
+        .catch(() => undefined)
+      stream = await raceSignal(opening, abortController.signal)
       if (admission?.gate.closed) {
-        await stream.close()
+        stream.abort(new AdmissionError('cancelled', 'Admission attempt is closed'))
         return
       }
       this.logger.trace(`Ephemeral stream opened to ${peerId.toString()}, sending message`)
@@ -369,14 +393,21 @@ export class Libp2pAuth {
         )
         return
       }
-      await pipe([encode.single(message)], stream)
-      await stream.close()
+      await raceSignal(pipe([encode.single(message)], stream), abortController.signal)
+      await raceSignal(stream.close({ signal: abortController.signal }), abortController.signal)
       this.logger.trace(`Ephemeral stream closed to ${peerId.toString()}`)
     } catch (e) {
       this.logger.error(`Error sending ephemeral message to ${peerId.toString()}`, e)
       if (!abortController.signal.aborted) {
         abortController.abort(e)
       }
+      if (admission != null && !admission.gate.closed) {
+        admission.fail(new AdmissionError('transport', 'Authentication stream failed'))
+      }
+    } finally {
+      clearTimeout(timeout)
+      ownerSignal?.removeEventListener('abort', onOwnerAbort)
+      abortController.signal.removeEventListener('abort', onAbort)
     }
   }
 

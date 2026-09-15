@@ -14,6 +14,7 @@ import * as filters from '@libp2p/websockets/filters'
 import { ConnectionMonitorInit, createLibp2p } from 'libp2p'
 
 import { isMultiaddr, multiaddr } from '@multiformats/multiaddr'
+import { peerConnectionAddress } from './peerConnectionAddress'
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 
 import { EventEmitter } from 'events'
@@ -144,7 +145,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           const timer = setTimeout(() => {
             this.authErrorTimers.delete(timer)
             if (this.admissionContext?.gate.frozen || this.admissionContext?.gate.closed) return
-            const pending = this.hangUpPeer(peerAddress, redial)
+            const pending = this.hangUpPeer(peerAddress, redial && !peerAddress.startsWith('/p2p/'))
             this.authHangups.add(pending)
             void pending
               .finally(() => this.authHangups.delete(pending))
@@ -443,7 +444,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       }
     }
 
-    if (redial && ![Libp2pState.Stopping, Libp2pState.Stopped, Libp2pState.Paused].includes(this.state)) {
+    if (
+      redial &&
+      !peerAddress.startsWith('/p2p/') &&
+      ![Libp2pState.Stopping, Libp2pState.Stopped, Libp2pState.Paused].includes(this.state)
+    ) {
       await this.redialPeerAfterDelay(peerAddress)
     }
   }
@@ -702,7 +707,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         return
       }
 
-      const address = peerStats[remotePeerId].address || activeConnection.remoteAddr?.toString() || remoteAddr || ''
+      const address = peerConnectionAddress(activeConnection, peerStats[remotePeerId].address)
       const connectedPeer: Libp2pConnectedPeer = {
         peerId: remotePeerId,
         address,

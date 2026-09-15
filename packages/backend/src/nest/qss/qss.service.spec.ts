@@ -811,7 +811,7 @@ describe('QSSService', () => {
       expect(mockedCreateSocket).toHaveBeenNthCalledWith(2, 'ws://localhost:3001')
     })
 
-    it('backs off reconnect attempts and resets only after authentication succeeds', async () => {
+    it('preserves reconnect backoff when authentication is followed by an immediate disconnect', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       mockedCreateSocket.mockRejectedValue(new Error('QSS unavailable'))
@@ -844,7 +844,7 @@ describe('QSSService', () => {
         expect(reconnectDelays).toEqual([
           QSS_RECONNECT_DELAY_MS,
           QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR,
-          QSS_RECONNECT_DELAY_MS,
+          QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR ** 2,
         ])
       } finally {
         setTimeoutSpy.mockRestore()
