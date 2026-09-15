@@ -24,6 +24,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private readonly tor: TorDaemon
   private readonly lokinet: LokinetService
   private lokiAddress: string | undefined
+  [key: string]: any
 
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
@@ -48,6 +49,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.bootstrapped = true
       this.emit('bootstrapped')
     })
+
+    const proto = Object.getPrototypeOf(this.tor) as object
+    for (const name of Object.getOwnPropertyNames(proto)) {
+      if (name === 'constructor') continue
+      if (name in this) continue
+      const desc = Object.getOwnPropertyDescriptor(proto, name)
+      if (!desc || typeof desc.value !== 'function') continue
+      ;(this as any)[name] = (...args: unknown[]) => (this.tor as any)[name](...args)
+    }
   }
 
   async onModuleInit() {
@@ -80,7 +90,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return (this.tor as any).kill?.()
   }
 
-  /** Used by ConnectionsManagerService.getNetworkInfo / createCommunity. */
   async createNewHiddenService(params: { targetPort: number; virtPort?: number }) {
     const hiddenService = await this.tor.createNewHiddenService(params)
     try {
@@ -95,6 +104,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
       logger.warn('Could not publish .loki SNApp; onion-only mode', e)
     }
     return hiddenService
+  }
+
+  async registerHiddenService(...args: any[]) {
+    return (this.tor as any).registerHiddenService(...args)
   }
 
   async spawnHiddenService(params: { targetPort: number; privKey?: string; virtPort?: number; port?: number }) {
