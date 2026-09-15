@@ -1,0 +1,112 @@
+{
+  "buildReceipt": {
+    "sourceSha256": "6eae1c249d635a8342dcf7eb63be506b731ad468f1749cea047ff2fa80ff463e",
+    "instrumentedSha256": "7de084f99a5233f0fef6ebee0936c496e8e1cf0ac0f74e282302a71ea5f9c7de",
+    "quietCommit": "efa71050740a199280c2596fecf45eb8bbacd2f8",
+    "authCommit": "f8fb337a85ef277740ee24403743623ece59e33c",
+    "instrumentedModules": [
+      "./src/nest/auth/services/crypto/crypto.service.ts",
+      "./src/nest/storage/channels/channel.store.ts",
+      "./src/nest/storage/channels/messages/public-channel-messages.service.ts",
+      "../../3rd-party/auth/packages/auth/dist/index.js",
+      "../../3rd-party/auth/packages/crypto/dist/index.js"
+    ],
+    "purpose": "Instrument reviewed integrated runtime; no runtime fix injected by profiler"
+  },
+  "activation": {
+    "nativeCalls": 1,
+    "platform": "ios",
+    "versions": {
+      "node": "18.20.4",
+      "acorn": "8.11.3",
+      "ada": "2.7.8",
+      "ares": "1.28.1",
+      "base64": "0.5.2",
+      "brotli": "1.0.9",
+      "cjs_module_lexer": "1.2.2",
+      "llhttp": "6.1.1",
+      "mobile": "18.20.4",
+      "modules": "108",
+      "napi": "9",
+      "nghttp2": "1.61.0",
+      "nghttp3": "0.7.0",
+      "ngtcp2": "1.3.0",
+      "openssl": "3.0.13+quic",
+      "simdutf": "5.2.4",
+      "undici": "5.28.4",
+      "uv": "1.44.2",
+      "uvwasi": "0.0.19",
+      "v8": "10.2.154.26-node.37",
+      "zlib": "1.3.0.1-motley"
+    }
+  },
+  "checks": [
+    {
+      "name": "differential reference remains original sodium, not another native adapter",
+      "passed": true,
+      "ms": 23
+    },
+    {
+      "name": "Ed25519 and X25519 outputs interoperate, including offsets, mutation, and reused buffers",
+      "passed": true,
+      "ms": 5107
+    },
+    {
+      "name": "malformed Ed25519 secret/public halves preserve sodium behavior instead of being repaired",
+      "passed": true,
+      "ms": 38
+    },
+    {
+      "name": "box ciphertext is byte-identical, bidirectional, and rejects changed ciphertext/nonces/keys",
+      "passed": true,
+      "ms": 411
+    },
+    {
+      "name": "all 151 Wycheproof Ed25519 cases retain sodium acceptance and rejection",
+      "passed": true,
+      "ms": 4731
+    },
+    {
+      "name": "all 518 Wycheproof X25519 cases retain sodium box output or rejection",
+      "passed": true,
+      "ms": 19038
+    },
+    {
+      "name": "small-order and noncanonical signature encodings always defer to sodium",
+      "passed": true,
+      "ms": 6
+    },
+    {
+      "name": "invalid sizes, types and formats fail without accepting malformed inputs",
+      "passed": true,
+      "ms": 3
+    },
+    {
+      "name": "iOS activates after ready, other platforms preserve sodium, and unsupported capability falls back atomically",
+      "passed": true,
+      "ms": 354
+    },
+    {
+      "name": "unsupported export descriptors and Proxy traps never partially install native crypto",
+      "passed": true,
+      "ms": 1657
+    },
+    {
+      "name": "unsupported module namespaces and ready properties are left untouched before activation",
+      "passed": true,
+      "ms": 6
+    },
+    {
+      "name": "failed ready publication cannot activate a previously queued installation",
+      "passed": true,
+      "ms": 1
+    }
+  ],
+  "referenceMethod": "Separately loaded pinned unadapted sodium JS files; shared reference test proves zero native key imports versus two on adapted implementation",
+  "sha256": {
+    "originalWrapper": "2f5e0b7503fbdda242b68ba52987571276ec379ef0d4f0b0ddc187d1148be8fa",
+    "originalCore": "9768a51e4ab00549a28a6919afa4f08490a278a21a254fbd01c5cd6aa1eac13c",
+    "testedAdapter": "6a4ed65dc746742e3b2a00d5eb8395629a1e714dcaa02ba96d8465bd04f2a217",
+    "testedChecks": "92a6b8f5e84a404fffbf5c7956c516ce0ca6617e3f6435263705f3846f179101"
+  }
+}

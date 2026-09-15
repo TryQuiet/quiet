@@ -1,0 +1,254 @@
+{
+  "scope": "Actual iPhone app backend, configured staging QSS, desktop sender Tor disabled; desktop UI verified by parent agent; no phone rendering claim",
+  "twoWayBuild": {
+    "sourceSha256": "6eae1c249d635a8342dcf7eb63be506b731ad468f1749cea047ff2fa80ff463e",
+    "instrumentedSha256": "7de084f99a5233f0fef6ebee0936c496e8e1cf0ac0f74e282302a71ea5f9c7de",
+    "quietCommit": "efa71050740a199280c2596fecf45eb8bbacd2f8",
+    "authCommit": "f8fb337a85ef277740ee24403743623ece59e33c",
+    "instrumentedModules": [
+      "./src/nest/auth/services/crypto/crypto.service.ts",
+      "./src/nest/storage/channels/channel.store.ts",
+      "./src/nest/storage/channels/messages/public-channel-messages.service.ts",
+      "../../3rd-party/auth/packages/auth/dist/index.js",
+      "../../3rd-party/auth/packages/crypto/dist/index.js"
+    ],
+    "purpose": "Instrument reviewed integrated runtime; no runtime fix injected by profiler"
+  },
+  "queuedBuild": {
+    "sourceSha256": "8cfa1149f4987408cadbced0ca53d7300bc00c84a7006418e38afcf23cf450d4",
+    "instrumentedSha256": "839f912090d2675f68d3801a43032a69681b328d17510120b664f83f44602568",
+    "quietCommit": "a34f3ad3ec2002c1e6dc67758ad06068ad457c74",
+    "authCommit": "f8fb337a85ef277740ee24403743623ece59e33c",
+    "instrumentedModules": [
+      "./src/nest/auth/services/crypto/crypto.service.ts",
+      "./src/nest/storage/channels/channel.store.ts",
+      "./src/nest/storage/channels/messages/public-channel-messages.service.ts",
+      "../../3rd-party/auth/packages/auth/dist/index.js",
+      "../../3rd-party/auth/packages/crypto/dist/index.js"
+    ],
+    "purpose": "Instrument reviewed integrated runtime; no runtime fix injected by profiler"
+  },
+  "captures": {
+    "live-qss-send-iphone/result.json": {
+      "utc": "2026-09-15T05:37:04.802Z",
+      "observation": "live backend only; rendering not observed",
+      "pid": 1447,
+      "sent": [
+        {
+          "id": "3f746b57-24d6-4e5a-8254-3d33f8753e56",
+          "marker": "qss-smoke-ios-efa710-1",
+          "sentAt": "2026-09-15T05:37:04.672Z",
+          "localSendMs": 46
+        },
+        {
+          "id": "6f3497b5-8532-46ef-9d86-3bd2342a8719",
+          "marker": "qss-smoke-ios-efa710-2",
+          "sentAt": "2026-09-15T05:37:04.709Z",
+          "localSendMs": 37
+        },
+        {
+          "id": "68d7e99e-2564-468e-9523-4e51759b1ca7",
+          "marker": "qss-smoke-ios-efa710-3",
+          "sentAt": "2026-09-15T05:37:04.733Z",
+          "localSendMs": 24
+        },
+        {
+          "id": "a3c8466d-911d-4bca-83ab-4982d95e143c",
+          "marker": "qss-smoke-ios-efa710-4",
+          "sentAt": "2026-09-15T05:37:04.755Z",
+          "localSendMs": 22
+        },
+        {
+          "id": "b0ecb944-eda2-4c31-94c3-6e3c4ac47427",
+          "marker": "qss-smoke-ios-efa710-5",
+          "sentAt": "2026-09-15T05:37:04.777Z",
+          "localSendMs": 22
+        }
+      ],
+      "totalMessages": 10,
+      "messages": [
+        {
+          "id": "b0ecb944-eda2-4c31-94c3-6e3c4ac47427",
+          "marker": "qss-smoke-ios-efa710-5",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "a3c8466d-911d-4bca-83ab-4982d95e143c",
+          "marker": "qss-smoke-ios-efa710-4",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "68d7e99e-2564-468e-9523-4e51759b1ca7",
+          "marker": "qss-smoke-ios-efa710-3",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "6f3497b5-8532-46ef-9d86-3bd2342a8719",
+          "marker": "qss-smoke-ios-efa710-2",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "3f746b57-24d6-4e5a-8254-3d33f8753e56",
+          "marker": "qss-smoke-ios-efa710-1",
+          "verified": true,
+          "createdAt": 1789450624
+        }
+      ]
+    },
+    "live-qss-receive-desktop/result.json": {
+      "utc": "2026-09-15T05:37:48.788Z",
+      "observation": "live backend only; rendering not observed",
+      "pid": 1447,
+      "sent": [],
+      "totalMessages": 15,
+      "messages": [
+        {
+          "id": "100pwm8zlt4",
+          "marker": "qss-smoke-desktop-audit-20260915-5",
+          "verified": true,
+          "createdAt": 1789450647.351
+        },
+        {
+          "id": "i584hojndwd",
+          "marker": "qss-smoke-desktop-audit-20260915-4",
+          "verified": true,
+          "createdAt": 1789450647.078
+        },
+        {
+          "id": "q5g2308oth9",
+          "marker": "qss-smoke-desktop-audit-20260915-3",
+          "verified": true,
+          "createdAt": 1789450646.748
+        },
+        {
+          "id": "lmy9y3r39j",
+          "marker": "qss-smoke-desktop-audit-20260915-2",
+          "verified": true,
+          "createdAt": 1789450646.438
+        },
+        {
+          "id": "9f919tenttr",
+          "marker": "qss-smoke-desktop-audit-20260915-1",
+          "verified": true,
+          "createdAt": 1789450646.111
+        },
+        {
+          "id": "b0ecb944-eda2-4c31-94c3-6e3c4ac47427",
+          "marker": "qss-smoke-ios-efa710-5",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "a3c8466d-911d-4bca-83ab-4982d95e143c",
+          "marker": "qss-smoke-ios-efa710-4",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "68d7e99e-2564-468e-9523-4e51759b1ca7",
+          "marker": "qss-smoke-ios-efa710-3",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "6f3497b5-8532-46ef-9d86-3bd2342a8719",
+          "marker": "qss-smoke-ios-efa710-2",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "3f746b57-24d6-4e5a-8254-3d33f8753e56",
+          "marker": "qss-smoke-ios-efa710-1",
+          "verified": true,
+          "createdAt": 1789450624
+        }
+      ]
+    },
+    "live-qss-queued-read-1/result.json": {
+      "utc": "2026-09-15T05:41:13.005Z",
+      "observation": "live backend only; rendering not observed",
+      "pid": 1453,
+      "nativeCallsForPublicDerivation": 1,
+      "sent": [],
+      "totalMessages": 16,
+      "messages": [
+        {
+          "id": "be97s96yq5",
+          "marker": "qss-smoke-queued-final-20260915",
+          "verified": true,
+          "createdAt": 1789450812.166
+        },
+        {
+          "id": "100pwm8zlt4",
+          "marker": "qss-smoke-desktop-audit-20260915-5",
+          "verified": true,
+          "createdAt": 1789450647.351
+        },
+        {
+          "id": "i584hojndwd",
+          "marker": "qss-smoke-desktop-audit-20260915-4",
+          "verified": true,
+          "createdAt": 1789450647.078
+        },
+        {
+          "id": "q5g2308oth9",
+          "marker": "qss-smoke-desktop-audit-20260915-3",
+          "verified": true,
+          "createdAt": 1789450646.748
+        },
+        {
+          "id": "lmy9y3r39j",
+          "marker": "qss-smoke-desktop-audit-20260915-2",
+          "verified": true,
+          "createdAt": 1789450646.438
+        },
+        {
+          "id": "9f919tenttr",
+          "marker": "qss-smoke-desktop-audit-20260915-1",
+          "verified": true,
+          "createdAt": 1789450646.111
+        },
+        {
+          "id": "b0ecb944-eda2-4c31-94c3-6e3c4ac47427",
+          "marker": "qss-smoke-ios-efa710-5",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "a3c8466d-911d-4bca-83ab-4982d95e143c",
+          "marker": "qss-smoke-ios-efa710-4",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "68d7e99e-2564-468e-9523-4e51759b1ca7",
+          "marker": "qss-smoke-ios-efa710-3",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "6f3497b5-8532-46ef-9d86-3bd2342a8719",
+          "marker": "qss-smoke-ios-efa710-2",
+          "verified": true,
+          "createdAt": 1789450624
+        },
+        {
+          "id": "3f746b57-24d6-4e5a-8254-3d33f8753e56",
+          "marker": "qss-smoke-ios-efa710-1",
+          "verified": true,
+          "createdAt": 1789450624
+        }
+      ]
+    }
+  },
+  "evidenceSha256": {
+    "live-qss-send-iphone/result.json": "f3d716aa90285e0497115dd9224743b25115ad0193cf36dbb38419a3ecf8196f",
+    "live-qss-receive-desktop/result.json": "e17ad774b714c93cb14bb76954275b5379328003e166e7a9515e96c36b20fc37",
+    "live-qss-queued-read-1/result.json": "760bfb35efd9a31554a3b9b4d1f93c1f86dfebd1a17b66eaa6c2d9ed98a23faa"
+  },
+  "liveRuntimeSha256": "07219aae10ea3b2284709088a9b4dc1299910aca3f3b8657fc2319f620149452"
+}
