@@ -171,6 +171,14 @@ export const DebugInfoComponent: React.FC = () => {
   const downloadStatuses = useSelector(files.selectors.downloadStatuses)
 
   // --- Debug Info Object ---
+  const redactCommunityCredentials = ({
+    psk: _psk,
+    inviteData: _inviteData,
+    ...community
+  }: NonNullable<typeof currentCommunity>) => community
+  const safeCommunitiesList = communitiesList.map(redactCommunityCredentials)
+  const safeCurrentCommunity = currentCommunity ? redactCommunityCredentials(currentCommunity) : currentCommunity
+
   const debugInfo = {
     environment: {
       node_env: process.env.NODE_ENV,
@@ -181,7 +189,12 @@ export const DebugInfoComponent: React.FC = () => {
     network: { connectedPeers, initializedCommunities, loadingPanelType, isCommunityInitialized },
     users: { userProfile, userProfiles, allUsers },
     identity: { currentIdentity, allIdentities, joinedCommunities, username, usernameTaken },
-    communities: { communitiesList, currentCommunity, invitationCodes, isOwner },
+    communities: {
+      communitiesList: safeCommunitiesList,
+      currentCommunity: safeCurrentCommunity,
+      invitationPending: invitationCodes != null,
+      isOwner,
+    },
     publicChannels: {
       channels,
       currentChannelId,
@@ -196,7 +209,7 @@ export const DebugInfoComponent: React.FC = () => {
       isTorInitialized,
       connectionProcess,
       peerList,
-      longLivedInvite,
+      longLivedInvitePresent: longLivedInvite != null,
     },
     settings: { notificationsOption, notificationsSound },
     files: { downloadStatuses },

@@ -60,6 +60,7 @@ jest.mock('react-native', () => {
     setTeamQssEnabled: jest.fn(),
     setUserBackgroundTorEnabled: jest.fn(),
     clearSensitiveData: jest.fn(),
+    clearAdmissionCredentials: jest.fn(),
     completeAppPause: jest.fn(),
     setPauseListenerReady: jest.fn(),
     setLifecycleListenerReady: jest.fn(),

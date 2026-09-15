@@ -14,6 +14,8 @@ export const nativeServicesSlice = createSlice({
       state.shouldClearReduxStore = true
     },
     flushPersistor: (state, _action: PayloadAction<FlushPersistorPayload>) => state,
+    retryAdmissionCleanup: state => state,
+    retryAdmissionFinalization: state => state,
     resetApp: state => state,
   },
 })

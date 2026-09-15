@@ -173,6 +173,24 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
+  func clearAdmissionCredentials(
+    _ resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    do {
+      try CommunicationModule.clearAdmissionCredentialsImpl()
+      resolve(nil)
+    } catch {
+      CommunicationModule.logger.error("clearAdmissionCredentials failed: \(error)")
+      reject(
+        "admission_cleanup_failed",
+        "Failed to clear native admission credentials",
+        error
+      )
+    }
+  }
+
+  @objc
   func saveDeviceCredentials(_ deviceId: NSString, teamId: NSString, signingPrivateKey: NSString, userId: NSString) {
     do {
       try KeychainService.saveDeviceCredentials(
@@ -319,21 +337,11 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   private static func clearSensitiveDataImpl() {
-    let userMetadataHandler = UserMetadataHandler()
-
     do {
-      try KeychainService.clearAllQuietData()
+      try clearAdmissionCredentialsImpl()
     } catch {
-      CommunicationModule.logger.error("Failed clearing sensitive keychain data: \(error)")
+      CommunicationModule.logger.error("Failed clearing admission credentials: \(error)")
     }
-
-    do {
-      try userMetadataHandler.clearAllUserMetadata()
-    } catch {
-      CommunicationModule.logger.error("Failed clearing user metadata: \(error)")
-    }
-
-    SharedDefaults.clearAll()
 
     UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     if #available(iOS 17.0, *) {
@@ -346,6 +354,33 @@ class CommunicationModule: RCTEventEmitter {
       DispatchQueue.main.async {
         UIApplication.shared.applicationIconBadgeNumber = 0
       }
+    }
+  }
+
+  private static func clearAdmissionCredentialsImpl() throws {
+    let userMetadataHandler = UserMetadataHandler()
+    var firstError: Error?
+
+    do {
+      try KeychainService.clearAllQuietData()
+    } catch {
+      firstError = error
+      CommunicationModule.logger.error("Failed clearing sensitive keychain data: \(error)")
+    }
+
+    do {
+      try userMetadataHandler.clearAllUserMetadata()
+    } catch {
+      if firstError == nil {
+        firstError = error
+      }
+      CommunicationModule.logger.error("Failed clearing user metadata: \(error)")
+    }
+
+    SharedDefaults.clearAll()
+
+    if let firstError {
+      throw firstError
     }
   }
 
