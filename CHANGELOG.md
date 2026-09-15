@@ -13,6 +13,7 @@
 
 ### Fixes
 
+* Restore the iOS Tor upgrade with Tor.framework 409.11.2 (Tor 0.4.9.11), current directory authorities and native leave/foreground/rejoin control regression coverage [#3237](https://github.com/TryQuiet/quiet/issues/3237)
 * Recover peer synchronization across reconnects and overlapping transports [#3480](https://github.com/TryQuiet/quiet/pull/3480)
 * Prevent repeated community leave requests from acknowledging teardown early and deleting newly created community state [#3424](https://github.com/TryQuiet/quiet/issues/3424)
 * Fix AppImage external links and desktop protocol registration when launcher library variables are present [#3453](https://github.com/TryQuiet/quiet/issues/3453)
