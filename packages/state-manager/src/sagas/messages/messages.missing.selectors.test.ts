@@ -20,7 +20,7 @@ const stateWithMessages = (messages: ReturnType<typeof channelMessagesAdapter.ge
     [StoreKeys.Messages]: {
       publicChannelsMessagesBase: publicChannelsMessagesBaseAdapter.addOne(
         publicChannelsMessagesBaseAdapter.getInitialState(),
-        { channelId, messages }
+        { channelId, messages, display: 0 }
       ),
     },
   }) as StoreState
@@ -83,7 +83,7 @@ describe('missingChannelMessages incremental lookup', () => {
         ...base[StoreKeys.Messages],
         publicChannelsMessagesBase: {
           ...base[StoreKeys.Messages].publicChannelsMessagesBase,
-          entities: { [channelId]: { channelId, messages: measured } },
+          entities: { [channelId]: { channelId, messages: measured, display: 0 } },
         },
       },
     }
