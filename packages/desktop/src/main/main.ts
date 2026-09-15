@@ -72,7 +72,7 @@ if (!gotTheLock) {
   }
 
   app.on('second-instance', (_event, commandLine) => {
-    logger.info('Event: app.second-instance', commandLine)
+    logger.info('Event: app.second-instance')
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -165,7 +165,7 @@ const requestStateSaveOrQuit = () => {
 
 app.on('open-url', (event, url) => {
   // MacOS only
-  logger.info('Event app.open-url', url)
+  logger.info('Event app.open-url received')
   invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
   if (mainWindow) {
