@@ -28,9 +28,9 @@
     "lint-ci": "npm run lint:no-fix",
     "lint-staged": "lint-staged --no-stash",
     "test-nest": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" DEBUG=ipfs:*,backend:* node_modules/jest/bin/jest.js --forceExit   ./src/nest/**/*.spec.ts",
-    "pretest": "npm run applyPatches:gossipsub",
+    "pretest": "npm run applyPatches:gossipsub && npm run test:native-crypto",
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" DEBUG=ipfs:*,backend:* jest --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\" --forceExit",
-    "pretest-ci": "npm run applyPatches:gossipsub",
+    "pretest-ci": "npm run applyPatches:gossipsub && npm run test:native-crypto",
     "test-ci": "cross-env NODE_OPTIONS=\"--experimental-vm-modules --max-old-space-size=4096\" jest --runInBand --colors --ci --silent --verbose --forceExit --testPathIgnorePatterns \"/node_modules/\" --testPathIgnorePatterns \"/dist/\" --testPathIgnorePatterns \"src/nest/.*\\.tor\\.spec\\.(t|j)s$\" --testPathIgnorePatterns \"src/nest/ipfs-file-manager/big-files\\.long\\.spec\\.ts$\"",
     "test-ci-tor": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand --colors --ci --verbose --forceExit ./src/nest/**/*.tor.spec.ts",
     "test-ci-long-running": "cross-env DEBUG=backend:* NODE_OPTIONS=\"--experimental-vm-modules\" jest --colors --ci --verbose --forceExit ./src/nest/**/*.long.spec.ts",
@@ -39,7 +39,8 @@
     "test-replication-no-tor": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" ts-node -v && cross-env DEBUG='backend:dbSnap*,backend:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 1000 --no-useTor",
     "test-replication-tor": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" cross-env DEBUG='backend:dbSnap*,backend:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 500 --entriesCount 1000 --useTor",
     "test-it": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" DEBUG=ipfs:*,backend:* node_modules/jest/bin/jest.js --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\" --",
-    "rmDist": "rimraf lib/"
+    "rmDist": "rimraf lib/",
+    "test:native-crypto": "node --test platform/*.test.cjs"
   },
   "repository": {
     "type": "git",

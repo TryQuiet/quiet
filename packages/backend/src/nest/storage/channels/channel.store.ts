@@ -43,7 +43,33 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   private _messagesService: PublicChannelMessagesService | PrivateChannelMessagesService | undefined = undefined
   private _accessController: typeof AccessController
   private authListenerAttached = false
+  // Index only successfully consumed entries. Message IDs alone are untrusted until onConsume
+  // has checked their ciphertext, signature, channel and current authorization context.
+  private readonly messageIds = new Map<string, string>()
+  private readonly messageHashes = new Map<string, Set<string>>()
+
+  private indexMessage(hash: string, id: string): void {
+    this.messageIds.set(hash, id)
+    const hashes = this.messageHashes.get(id) ?? new Set<string>()
+    hashes.add(hash)
+    this.messageHashes.set(id, hashes)
+  }
+  private messageIndexReady = false
+  private closing = false
+  private messageIndexEpoch = 0
+  private messageIndexRefresh: Promise<void> | undefined
+
+  private invalidateMessageIndex(): void {
+    this.messageIndexEpoch += 1
+    this.messageIndexReady = false
+    this.messageIds.clear()
+    this.messageHashes.clear()
+  }
   private readonly handleAuthUpdated = (): void => {
+    if (this.closing) return
+    // Previously unreadable entries may now have keys, and previously readable entries may no
+    // longer be authorized. Never reuse successful or failed consumes across an auth update.
+    this.invalidateMessageIndex()
     void this.refreshMessageIds()
   }
 
@@ -133,6 +159,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       sync: options.sync,
     })
 
+    this.closing = false
     this.logger.info('Initialized')
     return this
   }
@@ -162,6 +189,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this._subscribing = true
 
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
+      if (this.closing) return
       const entryChannelId = entry.payload.value?.channelId
       // TODO: seperate event bus for each channel so we don't have to check this on every update
       if (entryChannelId !== this.channelData.id) {
@@ -175,6 +203,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       }
 
       this.logger.info(`${this.channelData.id} database updated`, entry.hash, entryChannelId)
+      const epoch = this.messageIndexEpoch
       let message: ConsumedChannelMessage | undefined | false = undefined
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
@@ -184,11 +213,13 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
           this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
         } else if (message == false) {
           this.logger.trace(`Skipping processing message`, entry.payload.value.id, entry.payload.value.channelId)
-        } else {
+        } else if (epoch === this.messageIndexEpoch) {
+          this.indexMessage(entry.hash, message.id)
           await this._handleMessageOnUpdate(message)
         }
       }
-      await this.refreshMessageIds()
+      const ids = epoch === this.messageIndexEpoch && message != null && message !== false ? [message.id] : []
+      await this.refreshMessageIds(ids)
     })
 
     if (!this.authListenerAttached) {
@@ -290,10 +321,18 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    *
    * @emits StorageEvents.MESSAGE_IDS_STORED
    */
-  private async refreshMessageIds(): Promise<void> {
+  private async refreshMessageIds(addedIds?: string[]): Promise<void> {
     try {
-      const ids = (await this.getEntries()).map(msg => msg.id)
+      const wasReady = this.messageIndexReady
+      await this.ensureMessageIndex()
+      if (this.closing) return
+      const epoch = this.messageIndexEpoch
+      // The frontend treats IDs as candidates to fetch, not an authoritative replacement list.
+      // Ordinary arrivals need only announce the delta; reconciliation still sends a snapshot.
+      const ids = wasReady && addedIds !== undefined ? addedIds : [...this.messageIds.values()]
+      if (addedIds !== undefined && ids.length === 0) return
       const community = await this.localDbService.getCurrentCommunity()
+      if (epoch !== this.messageIndexEpoch) return
 
       if (community) {
         this.emit(StorageEvents.MESSAGE_IDS_STORED, {
@@ -308,6 +347,42 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       } else {
         throw e
       }
+    }
+  }
+
+  /** Coalesce initial sync and auth-triggered rebuilds; ordinary arrivals update the index above. */
+  private async ensureMessageIndex(): Promise<void> {
+    if (this.messageIndexReady || this.closing) return
+    if (this.messageIndexRefresh != null) {
+      await this.messageIndexRefresh
+      // An auth event can invalidate the index after the builder's final await has settled.
+      if (!this.messageIndexReady) await this.ensureMessageIndex()
+      return
+    }
+
+    this.messageIndexRefresh = (async () => {
+      while (!this.messageIndexReady && !this.closing) {
+        const epoch = this.messageIndexEpoch
+        try {
+          for await (const entry of this.getStore().iterator()) {
+            if (epoch !== this.messageIndexEpoch) break
+            if (entry.value == null || this.messageIds.has(entry.hash)) continue
+            const message = await this.messagesService.onConsume(entry.value, this.channelData)
+            if (epoch !== this.messageIndexEpoch) break
+            if (message != null && message !== false) this.indexMessage(entry.hash, message.id)
+          }
+        } catch (error) {
+          // A closed/replaced store may reject pending reads. Discard only stale work, then
+          // rebuild the current store; an error in the current epoch must remain observable.
+          if (epoch === this.messageIndexEpoch) throw error
+        }
+        if (epoch === this.messageIndexEpoch) this.messageIndexReady = true
+      }
+    })()
+    try {
+      await this.messageIndexRefresh
+    } finally {
+      this.messageIndexRefresh = undefined
     }
   }
 
@@ -340,6 +415,28 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   public async getEntries(ids?: string[] | undefined): Promise<ConsumedChannelMessage[]> {
     this.logger.info(`Getting all messages for channel`, this.channelData.id, this.channelData.name)
     const messages: ConsumedChannelMessage[] = []
+    if (this.closing) return messages
+    const requestedIds = ids === undefined ? undefined : new Set(ids)
+    if (requestedIds?.size === 0) return messages
+
+    // Ordinary update notifications contain one ID. Fetch its immutable log entry directly,
+    // then run the normal consumer under the current auth epoch. Keep iterator ordering for
+    // batches or duplicate IDs backed by multiple log entries.
+    if (requestedIds?.size === 1 && this.messageIndexReady) {
+      const id = requestedIds.values().next().value!
+      const hashes = this.messageHashes.get(id)
+      if (hashes === undefined) return messages
+      if (hashes.size === 1) {
+        const epoch = this.messageIndexEpoch
+        const value = await this.getStore().get(hashes.values().next().value!)
+        if (epoch !== this.messageIndexEpoch) return this.getEntries(ids)
+        if (value == null) return messages
+        const message = await this.messagesService.onConsume(value, this.channelData)
+        if (epoch !== this.messageIndexEpoch) return this.getEntries(ids)
+        if (message != null && message !== false && message.id === id) messages.push(message)
+        return messages
+      }
+    }
 
     for await (const x of this.getStore().iterator()) {
       if (x.value == null) {
@@ -347,7 +444,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         continue
       }
 
-      if (ids == null || ids?.includes(x.value.id)) {
+      if (requestedIds === undefined || requestedIds.has(x.value.id)) {
         const decryptedMessage = await this.messagesService.onConsume(x.value, this.channelData)
         if (decryptedMessage == null || decryptedMessage === false) {
           continue
@@ -400,12 +497,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       return
     }
 
+    this.closing = true
+    this.invalidateMessageIndex()
     await this.stopSync()
     await store.close()
     if (this.authListenerAttached) {
       this.auth.removeListener(SigchainEvents.UPDATED, this.handleAuthUpdated)
       this.authListenerAttached = false
     }
+    this.invalidateMessageIndex()
     this.store = undefined
     this._subscribing = false
   }
@@ -426,6 +526,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   public async clean(): Promise<void> {
     this.logger.info(`Cleaning channel store`, this.channelData.id, this.channelData.name)
     const store = this.store
+    this.closing = true
+    this.invalidateMessageIndex()
     try {
       await this.stopSync()
     } catch (e) {
@@ -449,6 +551,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       this.auth.removeListener(SigchainEvents.UPDATED, this.handleAuthUpdated)
       this.authListenerAttached = false
     }
+    this.invalidateMessageIndex()
     this.store = undefined
     this._subscribing = false
   }
