@@ -20,6 +20,8 @@ describe('TorControl', () => {
   let torControl: TorControl
   let tmpDir: DirResult
   let tmpAppDataPath: string
+  let spacedTmpDir: DirResult
+  let spacedTmpAppDataPath: string
 
   const waitForBootstrap = async () => {
     if (torService.bootstrapped) return
@@ -29,10 +31,18 @@ describe('TorControl', () => {
   const torPassword = 'b5e447c10b0d99e7871636ee5e0839b5'
   const torHashedPassword = '16:FCFFE21F3D9138906021FAADD9E49703CC41848A95F829E0F6E1BDBE63'
 
-  beforeEach(async () => {
-    jest.clearAllMocks()
+  beforeAll(() => {
     tmpDir = createTmpDir()
     tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
+    spacedTmpDir = createTmpDir('quietTest Tmp_')
+    spacedTmpAppDataPath = tmpQuietDirPath(spacedTmpDir.name)
+  })
+
+  beforeEach(async () => {
+    jest.clearAllMocks()
+    const moduleAppDataPath = expect.getState().currentTestName?.endsWith('if Quiet path includes space')
+      ? spacedTmpAppDataPath
+      : tmpAppDataPath
     module = await Test.createTestingModule({
       imports: [TestModule, TorModule],
     })
@@ -44,7 +54,7 @@ describe('TorControl', () => {
         options: {
           env: {
             LD_LIBRARY_PATH: torDirForPlatform(),
-            HOME: tmpAppDataPath,
+            HOME: moduleAppDataPath,
           },
           detached: true,
         },
@@ -59,7 +69,7 @@ describe('TorControl', () => {
         },
       })
       .overrideProvider(QUIET_DIR)
-      .useValue(tmpAppDataPath)
+      .useValue(moduleAppDataPath)
       .compile()
 
     torService = await module.resolve(Tor)
@@ -69,10 +79,15 @@ describe('TorControl', () => {
 
   afterEach(async () => {
     await torService.kill()
-    tmpDir.removeCallback()
-    removeFilesFromDir(tmpAppDataPath)
     torService.clearHangingTorProcess()
     await module.close()
+  })
+
+  afterAll(() => {
+    removeFilesFromDir(tmpAppDataPath)
+    removeFilesFromDir(spacedTmpAppDataPath)
+    tmpDir.removeCallback()
+    spacedTmpDir.removeCallback()
   })
 
   it('Init tor', async () => {
@@ -131,6 +146,15 @@ describe('TorControl', () => {
       privKey: 'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ==',
     })
     expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion')
+  })
+
+  it('creates and destroys hidden service', async () => {
+    await torService.init()
+    await waitForBootstrap()
+    const hiddenService = await torService.createNewHiddenService({ targetPort: 4343 })
+    const serviceId = hiddenService.onionAddress.split('.')[0]
+    const status = await torService.destroyHiddenService(serviceId)
+    expect(status).toBe(true)
   })
 
   it('tor spawn repeats', async () => {
@@ -212,14 +236,6 @@ describe('TorControl', () => {
     await torService.init()
   })
 
-  it('creates and destroys hidden service', async () => {
-    await torService.init()
-    const hiddenService = await torService.createNewHiddenService({ targetPort: 4343 })
-    const serviceId = hiddenService.onionAddress.split('.')[0]
-    const status = await torService.destroyHiddenService(serviceId)
-    expect(status).toBe(true)
-  })
-
   it('attempt destroy nonexistent hidden service', async () => {
     await torService.init()
 
@@ -236,8 +252,6 @@ describe('TorControl', () => {
   })
 
   it('should find hanging tor processes and kill them if Quiet path includes space', async () => {
-    tmpDir = createTmpDir('quietTest Tmp_') // On MacOS quiet data lands in '(...)/Application Support/(...)' which caused problems with grep
-    tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
     const torIds = torService.getTorProcessIds()
