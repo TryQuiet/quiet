@@ -186,7 +186,6 @@ describe('Timed-out P2P admission recovery', () => {
       async settings => await (await settings.deviceLink()).getText()
     )
     const invalidDeviceInvitationLink = makeInvalidInvitationLink(deviceInvitationLink)
-    owner.buildSetup.clearProcessOutput()
 
     await linkedDevice.openWithRetries()
     const joinModal = new JoinCommunityModal(linkedDevice.driver)
@@ -195,9 +194,9 @@ describe('Timed-out P2P admission recovery', () => {
     await joinModal.submit()
     expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
 
-    await owner.buildSetup.waitForProcessOutput('INVITATION_PROOF_INVALID', 30_000)
-    // A peer rejection does not veto other bootstrap peers. Once no peer admits
-    // this invalid proof, the bounded admission timeout clears the provisional state.
+    // The preceding test covers peer-side invalid-proof rejection. Here the
+    // bounded admission timeout must clear provisional state whether the invalid
+    // proof is rejected or the first local dial is lost before reaching the owner.
     await expectJoinCommunityError(linkedDevice, 'make sure both devices have the app open')
 
     // Reopening reuses the owner's unexpired link. This valid seed differs from
