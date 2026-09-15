@@ -1,0 +1,94 @@
+{
+  "incident": "A diagnostic cleanup used AFC removal followed by CoreDevice copy --remove-existing-content true targeting a profiling subdirectory; subsequent verification found Documents empty. Cleanup stopped. The untouched full backup was restored without removal options.",
+  "originalDataRestore": {
+    "backupFileCount": 554,
+    "restoredFileCount": 554,
+    "missingCount": 0,
+    "changedCount": 0,
+    "allOriginalFileBytesMatch": true,
+    "originalManifestSha256": "ea7a448a60b1a84f7f7b0f36e0335fa619139cdea94b9493fe2e41d2c3ffd358"
+  },
+  "liveRecovery": {
+    "utc": "2026-09-15T05:53:28.074Z",
+    "pid": 1469,
+    "identityMatchesBackup": true,
+    "originalMessageCount": 5,
+    "originalIdsPresent": true,
+    "totalMessages": 16,
+    "recoveredMarkers": [
+      {
+        "id": "be97s96yq5",
+        "marker": "qss-smoke-queued-final-20260915",
+        "verified": true
+      },
+      {
+        "id": "100pwm8zlt4",
+        "marker": "qss-smoke-desktop-audit-20260915-5",
+        "verified": true
+      },
+      {
+        "id": "i584hojndwd",
+        "marker": "qss-smoke-desktop-audit-20260915-4",
+        "verified": true
+      },
+      {
+        "id": "q5g2308oth9",
+        "marker": "qss-smoke-desktop-audit-20260915-3",
+        "verified": true
+      },
+      {
+        "id": "lmy9y3r39j",
+        "marker": "qss-smoke-desktop-audit-20260915-2",
+        "verified": true
+      },
+      {
+        "id": "9f919tenttr",
+        "marker": "qss-smoke-desktop-audit-20260915-1",
+        "verified": true
+      },
+      {
+        "id": "b0ecb944-eda2-4c31-94c3-6e3c4ac47427",
+        "marker": "qss-smoke-ios-efa710-5",
+        "verified": true
+      },
+      {
+        "id": "a3c8466d-911d-4bca-83ab-4982d95e143c",
+        "marker": "qss-smoke-ios-efa710-4",
+        "verified": true
+      },
+      {
+        "id": "68d7e99e-2564-468e-9523-4e51759b1ca7",
+        "marker": "qss-smoke-ios-efa710-3",
+        "verified": true
+      },
+      {
+        "id": "6f3497b5-8532-46ef-9d86-3bd2342a8719",
+        "marker": "qss-smoke-ios-efa710-2",
+        "verified": true
+      },
+      {
+        "id": "3f746b57-24d6-4e5a-8254-3d33f8753e56",
+        "marker": "qss-smoke-ios-efa710-1",
+        "verified": true
+      }
+    ],
+    "allMessagesVerified": true
+  },
+  "finalRestoration": {
+    "originalBackendSha256": "f7c59197a41334684c0ee56439400653ce30823c11390c51fbbb87e96f5cde81",
+    "originalSignedAppInstalledWithoutUninstall": true,
+    "originalSignedSourceVerified": true,
+    "quietProcessStopped": true,
+    "ownedGuiAgentsUnloaded": {
+      "org.quiet.ios-processing-profile-sign": true,
+      "org.quiet.processing-wda-build": true
+    },
+    "ownedWdaAndForwarderProcessesAbsent": true,
+    "preExistingAppiumLeftRunning": true,
+    "recoveredFileCount": 577,
+    "recoveredDataUnchangedAfterOriginalAppInstall": true,
+    "recoveredManifestSha256": "a6ccb1e319dc8953ade54cc7f3df60be5869e8f457a64440de11a1107bea0f9d",
+    "originalBackupAndRecoveredFullSnapshotsPreserved": true,
+    "limitation": "Inert recovery-control and result directories remain in Documents; no further deletion attempted."
+  }
+}
