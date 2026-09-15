@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { ConfigOptions } from '../types'
 import { TorControl } from './tor-control.service'
+import { Tor as TorDaemon } from './tor.service'
 import { Tor } from './tor.service.lokinet-shim'
 import { TorControlAuthType, TorPasswordProvider } from './tor.types'
 import { torPasswordProvider } from './tor-password.provider'
@@ -48,7 +49,14 @@ const torControlParams = {
 
 @Module({
   imports: [SocketModule],
-  providers: [Tor, TorControl, torControlParams, torPasswordProvider, torParamsProvider],
-  exports: [Tor, TorControl],
+  providers: [
+    Tor,
+    { provide: TorDaemon, useExisting: Tor },
+    TorControl,
+    torControlParams,
+    torPasswordProvider,
+    torParamsProvider,
+  ],
+  exports: [Tor, TorDaemon, TorControl],
 })
 export class TorModule {}
