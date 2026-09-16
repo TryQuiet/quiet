@@ -4,6 +4,7 @@
 
 ### Features
 
+* Add participant-only direct messages on desktop and mobile, encrypted to each participant's account keys so community administrators cannot read them
 * Enable administrators to create private channels on desktop and mobile without a feature flag
 
 ### Breaking
@@ -24,6 +25,15 @@
 * Recover mobile local backend connections and allow stalled QR invitations to be retried [#3427](https://github.com/TryQuiet/quiet/issues/3427)
 * Keep delayed text and attachment sends bound to their originating channel and clear transient composer state on channel changes [#420](https://github.com/TryQuiet/quiet/issues/420) [#534](https://github.com/TryQuiet/quiet/issues/534)
 * Allow authorized historical private-channel deletions to sync without blocking later channels [#3406](https://github.com/TryQuiet/quiet/issues/3406)
+* Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
+* Make the whole recipient row tappable on mobile rather than only the checkbox and the name
+* Copy the invitation link on Android 13 and later, where Copy link previously did nothing
+* Hide the channel + button on mobile for members who are not permitted to create channels, matching desktop
+* Keep the mobile message field clear of the keyboard, and stop a multiline field growing without bound
+* Match the mobile and desktop message fields to the design library, including the missing borders and the desktop corner radius
+* Match mobile direct-message recipient selection to the designs, including the field placeholder and an in-field clear button
+* Run the brand purple to the top of the screen on mobile, including behind the status bar, using the same token as the rest of the app
+* Move the desktop new-message close button to the far right of its header instead of against the title
 
 ## [9.0.0]
 
