@@ -1,36 +1,35 @@
 import React from 'react'
 import '@testing-library/jest-dom'
-import { screen, waitFor } from '@testing-library/dom'
+import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 import { renderComponent } from '../../testUtils/renderComponent'
 import { Walkthrough } from './PrivateChannelFlow.stories'
 
 /**
- * Covers the Storybook walkthrough as a flow rather than as a static render: a channel can be
- * created from nothing and then opened to manage its membership. Keeps the walkthrough honest — a
- * story that renders but whose buttons do nothing would otherwise pass unnoticed.
+ * Covers the Storybook walkthrough as a flow rather than as a static render: from inside a private
+ * channel, its "..." menu reaches Add members, and members picked there land in the channel. Keeps
+ * the walkthrough honest — a story that renders but whose buttons do nothing would otherwise pass
+ * unnoticed.
  */
 describe('Private channel walkthrough', () => {
-  it('creates a private channel from nothing and opens membership management for it', async () => {
+  it('adds members to a private channel through its "..." menu', async () => {
     renderComponent(<Walkthrough />)
 
-    expect(screen.getByText('No channels yet — create one.')).toBeVisible()
+    expect(screen.getByText(/Nobody has been added to this private channel yet/)).toBeVisible()
 
-    await userEvent.click(screen.getByTestId('walkthrough-create'))
-    expect(await screen.findByTestId('createChannelPanelTitle')).toBeVisible()
+    await userEvent.click(screen.getByTestId('walkthrough-channel-menu'))
+    await userEvent.click(await screen.findByTestId('contextMenuItemAdd_members'))
 
-    await userEvent.type(screen.getByPlaceholderText('Enter a channel name'), 'secrets')
-    await userEvent.click(screen.getByTestId('createChannel-private-form-control-toggle'))
-    await userEvent.click(screen.getByTestId('channelNameSubmit'))
+    expect(await screen.findByTestId('addMembersPanelTitle')).toBeVisible()
 
-    // The channel now exists in the list, with no members yet.
-    expect(await screen.findByText('secrets')).toBeVisible()
-    expect(screen.getByText('0 members')).toBeVisible()
+    await userEvent.click(await screen.findByTestId('fundraising-and-events-add-members-row-denise'))
+    // Each pick shows up as a pill in the search box.
+    expect(await screen.findByTestId('new-message-recipient-pill-denise')).toBeVisible()
 
-    await userEvent.click(screen.getByText('secrets'))
-    await waitFor(() => {
-      expect(screen.getByText(/Managing membership for/)).toBeVisible()
-    })
+    await userEvent.click(screen.getByTestId('fundraising-and-events-add-members-button'))
+
+    expect(await screen.findByText(/In this channel: denise/)).toBeVisible()
+    expect(screen.getByText('1 member')).toBeVisible()
   })
 })

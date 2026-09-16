@@ -1,282 +1,101 @@
 import React from 'react'
+import '@testing-library/jest-dom'
+import { screen } from '@testing-library/dom'
+import userEvent from '@testing-library/user-event'
+import { User, UserProfile } from '@quiet/types'
+
 import { renderComponent } from '../../../testUtils/renderComponent'
 import AddMembersChannelComponent from './AddMembersChannelComponent'
 
+/**
+ * The second step of setting up a private channel. Covers what the design asks of it rather than
+ * its markup: people picked become pills, the bar confirms with Done and cancels with the close,
+ * and members already in the channel are not offered again.
+ */
+const profile = (nickname: string, channels: string[] = []): UserProfile => ({
+  userId: `${nickname}UserId`,
+  nickname,
+  userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname}.onion` },
+  channels,
+})
+
+const possibleMembers: Record<string, UserProfile> = {
+  deniseUserId: profile('denise'),
+  gordonUserId: profile('gordon'),
+  annabelleUserId: profile('annabelle', ['foobar']),
+}
+
+const allUsers: Record<string, User> = {}
+
+const renderPanel = (overrides: Partial<React.ComponentProps<typeof AddMembersChannelComponent>> = {}) => {
+  const addMembersToChannel = jest.fn()
+  const handleClose = jest.fn()
+  renderComponent(
+    <AddMembersChannelComponent
+      channelName='fundraising'
+      channelId='foobar'
+      allUsers={allUsers}
+      possibleMembers={possibleMembers}
+      addMembersToChannel={addMembersToChannel}
+      open={true}
+      handleOpen={jest.fn()}
+      handleClose={handleClose}
+      {...overrides}
+    />
+  )
+  return { addMembersToChannel, handleClose }
+}
+
 describe('AddMembersChannel', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <AddMembersChannelComponent
-        channelName='general'
-        channelId='foobar'
-        allUsers={{}}
-        possibleMembers={{}}
-        addMembersToChannel={jest.fn()}
-        open={true}
-        handleOpen={jest.fn()}
-        handleClose={jest.fn()}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
-      <body
-        style="padding-right: 1024px; overflow: hidden;"
-      >
-        <div
-          aria-hidden="true"
-        />
-        <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
-          role="presentation"
-        >
-          <div
-            aria-hidden="true"
-            class="MuiBackdrop-root css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop"
-            style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
-          />
-          <div
-            data-testid="sentinelStart"
-            tabindex="0"
-          />
-          <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Modalwindow css-6gh8l0-MuiGrid-root"
-            tabindex="-1"
-          >
-            <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
-                >
-                  <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
-                    style="margin-left: 36px;"
-                  />
-                </div>
-                <div
-                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item Modalactions css-hoc6b0-MuiGrid-root"
-                    data-testid="ModalActions"
-                  >
-                    <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
-                      data-testid="ModalClose"
-                      tabindex="0"
-                      type="button"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                        data-testid="ClearIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalnotFullPage css-1h16bbz-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
-                style="width: 600px;"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-container css-1aconu4-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 AddMembersChanneldescContainer css-s2k0j8-MuiGrid-root"
-                  >
-                    <p
-                      class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
-                    >
-                      Add members to
-                    </p>
-                    <div
-                      class="MuiGrid-root css-vj1n65-MuiGrid-root"
-                      data-testid="general-add-member-name"
-                      style="flex-direction: row; display: flex; align-items: center; justify-content: left; align-content: center; padding-left: 2px;"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                        data-testid="LockIcon"
-                        fill="currentColor"
-                        focusable="false"
-                        style="font-weight: 500; font-size: 16px;"
-                        viewBox="0 0 24 24"
-                      >
-                        <svg
-                          fill="currentColor"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          width="24"
-                        >
-                          <mask
-                            fill="#fff"
-                            id="a"
-                          >
-                            <path
-                              d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
-                            />
-                          </mask>
-                          <path
-                            d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
-                            mask="url(#a)"
-                            stroke="currentColor"
-                            stroke-width="4"
-                          />
-                          <path
-                            clip-rule="evenodd"
-                            d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
-                            fill="currentColor"
-                            fill-rule="evenodd"
-                            stroke-width="4"
-                          />
-                        </svg>
-                      </svg>
-                      <span
-                        style="font-weight: 500; font-size: 16px;"
-                      >
-                        general
-                      </span>
-                    </div>
-                    <p
-                      class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
-                    >
-                      :
-                    </p>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-mxpema-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-gcwvw8-MuiAutocomplete-root"
-                      data-testid="general-add-members-autocomplete"
-                    >
-                      <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-                      >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-rb5gc9-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="false"
-                          for=":r0:"
-                          id=":r0:-label"
-                        >
-                          Add members
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1jgdtkb-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1h9uykw-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r0:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value=""
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-                          >
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1ciwbrp-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-9425fu-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-yjsfm1"
-                            >
-                              <span>
-                                Add members
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto AddMembersChannelbuttonContainer css-1wrgmsj-MuiGrid-root"
-                  >
-                    <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelbutton css-l5ftjl-MuiButtonBase-root-MuiButton-root"
-                      data-testid="general-add-members-button"
-                      tabindex="0"
-                      type="button"
-                    >
-                      Add 
-                      0
-                       members
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 AddMembersChannelsecondaryButtonContainer css-s2k0j8-MuiGrid-root"
-                  >
-                    <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelsecondaryButton css-l5ftjl-MuiButtonBase-root-MuiButton-root"
-                      data-testid="general-add-members-leave-button"
-                      tabindex="0"
-                      type="button"
-                    >
-                      Never mind
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            data-testid="sentinelEnd"
-            tabindex="0"
-          />
-        </div>
-      </body>
-    `)
+  it('names the channel it is acting on', () => {
+    renderPanel()
+    expect(screen.getByTestId('addMembersPanelTitle')).toHaveTextContent('Add members or roles')
+    expect(screen.getByText('#fundraising')).toBeVisible()
+  })
+
+  it('does not offer members who are in the channel already', () => {
+    renderPanel()
+    expect(screen.getByTestId('fundraising-add-members-row-denise')).toBeVisible()
+    expect(screen.queryByTestId('fundraising-add-members-row-annabelle')).toBeNull()
+  })
+
+  it('turns a picked member into a pill and hands the picks to Done', async () => {
+    const { addMembersToChannel } = renderPanel()
+
+    await userEvent.click(screen.getByTestId('fundraising-add-members-row-denise'))
+    expect(await screen.findByTestId('new-message-recipient-pill-denise')).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('fundraising-add-members-button'))
+    expect(addMembersToChannel).toHaveBeenCalledWith(['deniseUserId'])
+  })
+
+  it('takes a member back out again from the pill', async () => {
+    renderPanel()
+
+    await userEvent.click(screen.getByTestId('fundraising-add-members-row-gordon'))
+    expect(await screen.findByTestId('new-message-recipient-pill-gordon')).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('new-message-recipient-pill-remove-gordon'))
+    expect(screen.queryByTestId('new-message-recipient-pill-gordon')).toBeNull()
+  })
+
+  it('cannot confirm with nothing picked, and the close cancels', async () => {
+    const { addMembersToChannel, handleClose } = renderPanel()
+
+    expect(screen.getByTestId('fundraising-add-members-button')).toBeDisabled()
+
+    await userEvent.click(screen.getByTestId('fundraising-add-members-leave-button'))
+    expect(handleClose).toHaveBeenCalled()
+    expect(addMembersToChannel).not.toHaveBeenCalled()
+  })
+
+  it('says so when everyone is already in the channel', () => {
+    renderPanel({
+      possibleMembers: {
+        deniseUserId: profile('denise', ['foobar']),
+        gordonUserId: profile('gordon', ['foobar']),
+      },
+    })
+    expect(screen.getByTestId('fundraising-add-members-empty')).toBeVisible()
   })
 })

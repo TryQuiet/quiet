@@ -47,6 +47,7 @@
 * Dismiss the desktop create-channel panel with a back arrow, as the designs do, rather than a cross
 * Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
+* Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
 
 ## [9.0.0]
 

@@ -41,7 +41,7 @@ PrivateChannelNotAllowed.args = { ...args, canCreatePrivateChannel: false }
 // is indistinguishable from a broken story. The unit test covers it instead.
 
 const component: ComponentMeta<typeof CreateChannelComponent> = {
-  title: 'Components/CreateChannel',
+  title: 'Private channels/1. Create channel',
   decorators: [withTheme],
   component: CreateChannelComponent,
 }

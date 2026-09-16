@@ -184,7 +184,7 @@ describe('Add new channel', () => {
               class="css-exvw6m"
             >
               <div
-                class="PanelHeaderroot css-5atg4q"
+                class="PanelHeaderroot css-xmwqrk"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall PanelHeaderglyph css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
@@ -207,12 +207,16 @@ describe('Add new channel', () => {
                     class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                   />
                 </button>
-                <p
-                  class="MuiTypography-root MuiTypography-body1 PanelHeadertitle css-ghvhpl-MuiTypography-root"
-                  data-testid="createChannelPanelTitle"
+                <span
+                  class="PanelHeadercentre"
                 >
-                  Create channel
-                </p>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 PanelHeadertitle css-ghvhpl-MuiTypography-root"
+                    data-testid="createChannelPanelTitle"
+                  >
+                    Create channel
+                  </p>
+                </span>
               </div>
               <form>
                 <div

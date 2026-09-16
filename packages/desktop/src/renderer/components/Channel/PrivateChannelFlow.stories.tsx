@@ -1,28 +1,39 @@
 import React, { useState } from 'react'
 import { ComponentMeta } from '@storybook/react'
-import { Button, Divider, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material'
+import { IconButton, Typography } from '@mui/material'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 
 import { withTheme, withDragDrop } from '../../storybook/decorators'
-import CreateChannelComponent from './CreateChannel/CreateChannelComponent'
+import { ContextMenu, ContextMenuItemList } from '../ContextMenu/ContextMenu.component'
 import { AddMembersChannelComponent } from './AddMembersChannel/AddMembersChannelComponent'
-import ChannelTypeIcon from '../widgets/channels/ChannelTypeIcon'
+import LockIcon from '../../static/images/components/lock'
 import { User, UserProfile } from '@quiet/types'
 import { useModal } from '../../containers/hooks'
 
 /**
- * A clickable walkthrough of private channels, wired from the real components rather than mocked
- * screens. Storybook 6.5 here has addon-links but not addon-interactions, so the flow is driven by
- * local state in this story.
+ * A clickable walkthrough of managing a private channel's membership, wired from the real
+ * components rather than mocked screens. Storybook 6.5 here has addon-links but not
+ * addon-interactions, so the flow is driven by local state in this story.
  *
- * Start with no channels, create one (optionally private), then open it to manage who is in it.
+ * It starts where the feature actually starts: inside a private channel. Open the channel's "..."
+ * menu, choose Add members, pick people — each becomes a pill — and confirm with Done.
  */
+const CHANNEL_NAME = 'fundraising-and-events'
+const CHANNEL_ID = 'fundraisingChannelId'
 
-const MEMBERS: Record<string, UserProfile> = {
-  denise: { userId: 'denise', nickname: 'denise' },
-  gordon: { userId: 'gordon', nickname: 'gordon' },
-  annabelle: { userId: 'annabelle', nickname: 'annabelle' },
-  christopher: { userId: 'christopher', nickname: 'christopher' },
-}
+const NAMES = ['denise', 'gordon', 'annabelle', 'christopher', 'evangelina']
+
+const MEMBERS: Record<string, UserProfile> = Object.fromEntries(
+  NAMES.map(nickname => [
+    `${nickname}UserId`,
+    {
+      userId: `${nickname}UserId`,
+      nickname,
+      userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname}.onion` },
+      channels: [],
+    },
+  ])
+)
 
 const ALL_USERS: Record<string, User> = Object.fromEntries(
   Object.values(MEMBERS).map(profile => [
@@ -31,90 +42,87 @@ const ALL_USERS: Record<string, User> = Object.fromEntries(
   ])
 )
 
-interface WalkthroughChannel {
-  id: string
-  name: string
-  isPublic: boolean
-  memberIds: string[]
-}
-
 export const Walkthrough: React.FC = () => {
-  const [channels, setChannels] = useState<WalkthroughChannel[]>([])
-  const [creating, setCreating] = useState(false)
-  const [managing, setManaging] = useState<string | undefined>(undefined)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [addingMembers, setAddingMembers] = useState(false)
+  const [memberIds, setMemberIds] = useState<string[]>([])
 
-  const managed = channels.find(channel => channel.id === managing)
+  const possibleMembers = Object.fromEntries(
+    Object.entries(MEMBERS).map(([id, profile]) => [
+      id,
+      { ...profile, channels: memberIds.includes(id) ? [CHANNEL_ID] : [] },
+    ])
+  )
 
   return (
-    <div style={{ display: 'flex', height: '100vh', fontFamily: 'Rubik, sans-serif' }}>
-      <div style={{ width: 260, background: '#521C74', color: '#fff', padding: 16 }}>
-        <Typography style={{ color: '#fff', fontWeight: 500, marginBottom: 8 }}>Channels</Typography>
-        {channels.length === 0 && (
-          <Typography variant='caption' style={{ color: '#D9C7E6' }}>
-            No channels yet — create one.
-          </Typography>
-        )}
-        <List dense>
-          {channels.map(channel => (
-            <ListItemButton key={channel.id} onClick={() => setManaging(channel.id)} sx={{ color: '#fff' }}>
-              <ListItemIcon sx={{ minWidth: 24 }}>
-                <ChannelTypeIcon isPublic={channel.isPublic} style={{ fontSize: 16, color: '#fff' }} />
-              </ListItemIcon>
-              <ListItemText primary={channel.name} secondary={`${channel.memberIds.length} members`} />
-            </ListItemButton>
-          ))}
-        </List>
-        <Divider sx={{ borderColor: '#7A4F92', marginY: 1 }} />
-        <Button variant='contained' onClick={() => setCreating(true)} data-testid={'walkthrough-create'}>
-          + Create channel
-        </Button>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', fontFamily: 'Rubik, sans-serif' }}>
+      {/* The channel's own header, which is where the "..." lives. */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '0 16px',
+          height: 60,
+          borderBottom: '1px solid #F0F0F0',
+        }}
+      >
+        <LockIcon fill='currentColor' style={{ fontSize: 16 }} />
+        <Typography style={{ fontWeight: 500, fontSize: 16, flexGrow: 1 }}>{CHANNEL_NAME}</Typography>
+        <Typography variant='caption' style={{ color: '#7F7F7F' }}>
+          {memberIds.length} {memberIds.length === 1 ? 'member' : 'members'}
+        </Typography>
+        <IconButton onClick={() => setMenuOpen(true)} data-testid={'walkthrough-channel-menu'}>
+          <MoreHorizIcon />
+        </IconButton>
       </div>
 
-      <div style={{ flexGrow: 1, padding: 24 }}>
+      <div style={{ padding: 24 }}>
         <Typography variant='body2'>
-          {managed
-            ? `Managing membership for ${managed.isPublic ? '#' : '🔒 '}${managed.name}.`
-            : 'Create a channel on the left, then select it to manage who belongs to it.'}
+          {memberIds.length === 0
+            ? 'Nobody has been added to this private channel yet. Open the "..." menu to add members.'
+            : `In this channel: ${memberIds.map(id => MEMBERS[id].nickname).join(', ')}.`}
         </Typography>
       </div>
 
-      <CreateChannelComponent
-        open={creating}
-        canCreateChannel={true}
-        canCreatePrivateChannel={true}
-        createChannel={(name: string, isPublic: boolean) => {
-          setChannels(existing => [...existing, { id: name, name, isPublic, memberIds: [] }])
-          setCreating(false)
-        }}
-        handleClose={() => setCreating(false)}
-        clearErrorsDispatch={() => {}}
-      />
-
-      {managed && (
-        <AddMembersChannelComponent
-          // useModal's handlers return redux actions; this walkthrough drives the panel from local
-          // state instead, so the modal half of the props is stubbed.
-          {...({
-            open: true,
-            handleOpen: () => undefined,
-            handleClose: () => setManaging(undefined),
-          } as unknown as ReturnType<typeof useModal>)}
-          channelName={managed.name}
-          channelId={managed.id}
-          allUsers={ALL_USERS}
-          possibleMembers={MEMBERS}
-          addMembersToChannel={(memberIds: string[]) => {
-            setChannels(existing =>
-              existing.map(channel =>
-                channel.id === managed.id
-                  ? { ...channel, memberIds: [...new Set([...channel.memberIds, ...memberIds])] }
-                  : channel
-              )
-            )
-            setManaging(undefined)
-          }}
+      <ContextMenu
+        visible={menuOpen}
+        handleClose={() => setMenuOpen(false)}
+        title={CHANNEL_NAME}
+        titleIcon={<LockIcon fill='currentColor' style={{ fontSize: 16 }} />}
+      >
+        <ContextMenuItemList
+          items={[
+            {
+              title: 'Add members',
+              action: () => {
+                setMenuOpen(false)
+                setAddingMembers(true)
+              },
+            },
+            { title: 'Delete', action: () => undefined },
+            { title: 'Export messages', action: () => undefined },
+          ]}
         />
-      )}
+      </ContextMenu>
+
+      <AddMembersChannelComponent
+        // useModal's handlers return redux actions; this walkthrough drives the panel from local
+        // state instead, so the modal half of the props is stubbed.
+        {...({
+          open: addingMembers,
+          handleOpen: () => undefined,
+          handleClose: () => setAddingMembers(false),
+        } as unknown as ReturnType<typeof useModal>)}
+        channelName={CHANNEL_NAME}
+        channelId={CHANNEL_ID}
+        allUsers={ALL_USERS}
+        possibleMembers={possibleMembers}
+        addMembersToChannel={(added: string[]) => {
+          setMemberIds(current => [...new Set([...current, ...added])])
+          setAddingMembers(false)
+        }}
+      />
     </div>
   )
 }
@@ -122,7 +130,7 @@ export const Walkthrough: React.FC = () => {
 export const PrivateChannelWalkthrough = () => <Walkthrough />
 
 const component: ComponentMeta<typeof Walkthrough> = {
-  title: 'Flows/Private channels',
+  title: 'Private channels/Walkthrough',
   decorators: [withDragDrop, withTheme],
   component: Walkthrough,
   parameters: { layout: 'fullscreen' },
