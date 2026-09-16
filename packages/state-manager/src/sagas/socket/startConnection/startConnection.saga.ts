@@ -41,6 +41,7 @@ import {
   UpdateCommunityPayload,
   type SetChannelPermissionsPayload,
   type AdmissionResetCompletePayload,
+  type NetworkEndpointsStoredEvent,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -82,6 +83,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof networkActions.removeConnectedPeer>
     | ReturnType<typeof connectionActions.setNetworkData>
     | ReturnType<typeof connectionActions.updateNetworkData>
+    | ReturnType<typeof connectionActions.setNetworkEndpoints>
     | ReturnType<typeof networkActions.addConnectedPeers>
     | ReturnType<typeof filesActions.broadcastHostedFile>
     | ReturnType<typeof filesActions.updateMessageMedia>
@@ -225,6 +227,10 @@ export function subscribe(socket: Socket) {
       emit(usersActions.updateUserProfiles(payload.profiles))
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
+    socket.on(SocketEvents.NETWORK_ENDPOINTS_STORED, (payload: NetworkEndpointsStoredEvent) => {
+      logger.info(`${SocketEvents.NETWORK_ENDPOINTS_STORED}`, payload.endpoints.length)
+      emit(connectionActions.setNetworkEndpoints(payload))
+    })
     socket.on(
       SocketEvents.CACHED_USER_PROFILE_REQUEST,
       (payload: CachedUserProfileRequest, callback?: (response: CachedUserProfileResponse) => void) => {
@@ -279,6 +285,7 @@ export function subscribe(socket: Socket) {
       socket.off(SocketEvents.USERS_UPDATED)
       socket.off(SocketEvents.USERS_REMOVED)
       socket.off(SocketEvents.USER_PROFILES_STORED)
+      socket.off(SocketEvents.NETWORK_ENDPOINTS_STORED)
       socket.off(SocketEvents.CACHED_USER_PROFILE_REQUEST)
       socket.off(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST)
       socket.off(SocketEvents.HCAPTCHA_SITE_KEY)

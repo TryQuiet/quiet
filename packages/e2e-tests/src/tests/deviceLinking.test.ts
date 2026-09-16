@@ -36,24 +36,29 @@ function getDeviceLinkingTimeouts() {
   return process.env.LOCAL_TRANSPORT === 'true'
     ? {
         joinPanelVisible: 15_000,
+        startupModalReady: 180_000,
         inviteGraphSync: 30_000,
         joinCompletion: 60_000,
         profileSync: 60_000,
+        messageSync: 60_000,
       }
     : {
         joinPanelVisible: 60_000,
+        startupModalReady: 360_000,
         inviteGraphSync: 180_000,
         joinCompletion: 360_000,
         profileSync: 360_000,
+        messageSync: 360_000,
       }
 }
 
 async function createP2pCommunity(owner: App, communityName: string, username: string): Promise<Channel> {
   expect(communityName.length).toBeLessThanOrEqual(20)
+  const timeouts = getDeviceLinkingTimeouts()
   await owner.openWithRetries()
 
   const joinModal = new JoinCommunityModal(owner.driver)
-  expect(await joinModal.isReady()).toBeTruthy()
+  expect(await joinModal.isReady(timeouts.startupModalReady)).toBeTruthy()
   await joinModal.switchToCreateCommunity()
 
   const createModal = new CreateCommunityModal(owner.driver)
@@ -66,7 +71,6 @@ async function createP2pCommunity(owner: App, communityName: string, username: s
   await registerModal.typeUsername(username)
   await registerModal.submit()
 
-  const timeouts = getDeviceLinkingTimeouts()
   await new JoiningLoadingPanel(owner.driver).waitForJoinToComplete(timeouts.joinPanelVisible, timeouts.joinCompletion)
   const channel = new Channel(owner.driver, 'general')
   expect(await channel.isReady()).toBeTruthy()
@@ -95,10 +99,11 @@ async function getDeviceInvitation(app: App): Promise<string> {
 }
 
 async function joinMember(app: App, invitationLink: string, username: string): Promise<Channel> {
+  const timeouts = getDeviceLinkingTimeouts()
   await app.openWithRetries()
 
   const joinModal = new JoinCommunityModal(app.driver)
-  expect(await joinModal.isReady()).toBeTruthy()
+  expect(await joinModal.isReady(timeouts.startupModalReady)).toBeTruthy()
   await joinModal.typeCommunityInviteLink(invitationLink)
   await joinModal.submit()
 
@@ -108,7 +113,6 @@ async function joinMember(app: App, invitationLink: string, username: string): P
   await registerModal.typeUsername(username)
   await registerModal.submit()
 
-  const timeouts = getDeviceLinkingTimeouts()
   await new JoiningLoadingPanel(app.driver).waitForJoinToComplete(timeouts.joinPanelVisible, timeouts.joinCompletion)
   const channel = new Channel(app.driver, 'general')
   expect(await channel.isReady()).toBeTruthy()
@@ -117,19 +121,20 @@ async function joinMember(app: App, invitationLink: string, username: string): P
 }
 
 async function submitDeviceInvitation(app: App, invitationLink: string): Promise<JoiningLoadingPanel> {
+  const timeouts = getDeviceLinkingTimeouts()
   await app.openWithRetries()
 
   const joinModal = new JoinCommunityModal(app.driver)
-  expect(await joinModal.isReady()).toBeTruthy()
+  expect(await joinModal.isReady(timeouts.startupModalReady)).toBeTruthy()
   await joinModal.typeCommunityInviteLink(invitationLink)
   await joinModal.submit()
 
   const joinPanel = new JoiningLoadingPanel(app.driver)
-  expect(await joinPanel.waitUntilVisible(getDeviceLinkingTimeouts().joinPanelVisible)).toBeTruthy()
+  expect(await joinPanel.waitUntilVisible(timeouts.joinPanelVisible)).toBeTruthy()
   return joinPanel
 }
 
-async function expectLinkedDeviceReady(app: App, ownerUsername: string, expectedUserCount: number): Promise<void> {
+async function expectLinkedDeviceReady(app: App, ownerUsername: string, expectedUserCount: number): Promise<Channel> {
   const channel = new Channel(app.driver, 'general')
   expect(await channel.isReady()).toBeTruthy()
   expect(await channel.isMessageInputReady()).toBeTruthy()
@@ -138,6 +143,7 @@ async function expectLinkedDeviceReady(app: App, ownerUsername: string, expected
   await sidebar.waitForUserProfilesNum(expectedUserCount, getDeviceLinkingTimeouts().profileSync)
   expect((await sidebar.getCurrentUserNickname()).trim()).toBe(ownerUsername)
   expect(await sidebar.getUserProfileByNickname(ownerUsername)).toBeDefined()
+  return channel
 }
 
 async function closeAndCleanupApps(apps: App[]): Promise<void> {
@@ -187,6 +193,38 @@ describe('Device linking (P2P)', () => {
       const joinPanel = await submitDeviceInvitation(linkedDevice, deviceInvitation)
       await joinPanel.waitForJoinToComplete(timeouts.joinPanelVisible, timeouts.joinCompletion)
       await expectLinkedDeviceReady(linkedDevice, ownerUsername, 3)
+    } finally {
+      await closeAndCleanupApps(apps)
+    }
+  })
+
+  it('replicates messages in both directions between two devices owned by the same user', async () => {
+    const ownerUsername = 'device-owner-msg'
+    const primaryDevice = new App({ username: `${ownerUsername}-primary` })
+    const linkedDevice = new App({ username: `${ownerUsername}-linked` })
+    const apps = [primaryDevice, linkedDevice]
+    const timeouts = getDeviceLinkingTimeouts()
+    const suffix = Date.now().toString(36)
+    const primaryMessage = `Message from primary device ${suffix}`
+    const linkedMessage = `Message from linked device ${suffix}`
+
+    try {
+      const primaryChannel = await createP2pCommunity(primaryDevice, `dlmessages${suffix}`, ownerUsername)
+      const deviceInvitation = await getDeviceInvitation(primaryDevice)
+
+      const joinPanel = await submitDeviceInvitation(linkedDevice, deviceInvitation)
+      await joinPanel.waitForJoinToComplete(timeouts.joinPanelVisible, timeouts.joinCompletion)
+      const linkedChannel = await expectLinkedDeviceReady(linkedDevice, ownerUsername, 1)
+
+      const primaryMessageIds = await primaryChannel.sendMessage(primaryMessage, ownerUsername)
+      expect(await linkedChannel.getMessageIdsByText(primaryMessage, ownerUsername, timeouts.messageSync)).toEqual(
+        primaryMessageIds
+      )
+
+      const linkedMessageIds = await linkedChannel.sendMessage(linkedMessage, ownerUsername)
+      expect(await primaryChannel.getMessageIdsByText(linkedMessage, ownerUsername, timeouts.messageSync)).toEqual(
+        linkedMessageIds
+      )
     } finally {
       await closeAndCleanupApps(apps)
     }

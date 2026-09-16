@@ -23,6 +23,7 @@ export const ConnectionTransform = createTransform<ConnectionState, ConnectionSt
       socketIOSecret: null,
       deviceLinkInvite: undefined,
       deviceLinkCreationFailed: false,
+      networkEndpoints: {},
       p2pEnabled: true,
     }
   },

@@ -13,12 +13,10 @@ import {
   InvitationDataVersion,
   InvitationKind,
   type DeviceInvitationData,
-  type UserProfile,
   type NetworkStats,
   type User,
   type InvitationAuthDataV5,
 } from '@quiet/types'
-import { userProfileSelectors } from '../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('connectionSelectors')
 
@@ -38,6 +36,10 @@ export const socketIOSecret = createSelector(connectionSlice, reducerState => re
 
 export const p2pEnabled = createSelector(connectionSlice, reducerState => reducerState.p2pEnabled)
 
+export const networkEndpoints = createSelector(connectionSlice, reducerState =>
+  Object.values(reducerState.networkEndpoints ?? {})
+)
+
 export const peerStats = createSelector(connectionSlice, reducerState => {
   let stats: NetworkStats[]
   if (reducerState.peersStats === undefined) {
@@ -49,23 +51,12 @@ export const peerStats = createSelector(connectionSlice, reducerState => {
 })
 
 export const peerList = createSelector(
-  userProfileSelectors.userProfiles,
+  networkEndpoints,
   identitySelectors.currentPeerAddress,
   peerStats,
   connectedPeers,
-  (userProfiles, localPeerAddress, stats, connectedPeers) => {
-    let arr: string[] = []
-    if (userProfiles) {
-      const profiles = Object.values(userProfiles)
-      arr = profiles
-        .map((user: UserProfile) => {
-          if (!user.userData) return null
-          if (!user.userData.onionAddress) return null
-          if (!user.userData.peerId) return null
-          return createLibp2pAddress(user.userData.onionAddress, user.userData.peerId)
-        })
-        .filter((address): address is string => address !== null && address !== undefined)
-    }
+  (endpoints, localPeerAddress, stats, connectedPeers) => {
+    const arr = endpoints.map(endpoint => createLibp2pAddress(endpoint.onionAddress, endpoint.peerId))
     const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress, true, connectedPeers)
     return filteredAndSortedPeers
   }
@@ -232,5 +223,6 @@ export const connectionSelectors = {
   socketIOSecret,
   isJoiningCompleted,
   peerStats,
+  networkEndpoints,
   p2pEnabled,
 }

@@ -8,6 +8,8 @@ import {
   type NetworkStats,
   InviteResultWithSalt,
   DeviceLinkInvite,
+  type DeviceNetworkEndpoint,
+  type NetworkEndpointsStoredEvent,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -17,6 +19,7 @@ export class ConnectionState {
   public lastConnectedTime = 0
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
+  public networkEndpoints: Record<string, DeviceNetworkEndpoint> = {}
   public isTorInitialized = false
   public isQssConnected = false
   public socketIOSecret: string | null = null
@@ -56,6 +59,11 @@ export const connectionSlice = createSlice({
         lastSeen: action.payload.lastSeen,
         connectionTime: prev + action.payload.connectionDuration,
       })
+    },
+    setNetworkEndpoints: (state, action: PayloadAction<NetworkEndpointsStoredEvent>) => {
+      state.networkEndpoints = Object.fromEntries(
+        action.payload.endpoints.map(endpoint => [endpoint.deviceId, endpoint])
+      )
     },
     setLastConnectedTime: (state, action: PayloadAction<number>) => {
       state.lastConnectedTime = action.payload

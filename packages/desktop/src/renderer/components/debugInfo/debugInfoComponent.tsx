@@ -160,6 +160,7 @@ export const DebugInfoComponent: React.FC = () => {
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
   const connectionProcess = useSelector(connection.selectors.connectionProcess)
   const peerList = useSelector(connection.selectors.peerList)
+  const networkEndpoints = useSelector(connection.selectors.networkEndpoints)
   const longLivedInvite = useSelector(connection.selectors.longLivedInvite)
   const p2pEnabled = useSelector(connection.selectors.p2pEnabled)
 
@@ -279,8 +280,6 @@ export const DebugInfoComponent: React.FC = () => {
                 <tr>
                   <th className={classes.th}>Nickname</th>
                   <th className={classes.th}>User ID</th>
-                  <th className={classes.th}>Peer ID</th>
-                  <th className={classes.th}>Onion Address</th>
                 </tr>
               </thead>
               <tbody>
@@ -290,12 +289,18 @@ export const DebugInfoComponent: React.FC = () => {
                     <td className={classes.td} style={{ fontSize: 12, color: '#bdbdbd' }}>
                       {profile.userId}
                     </td>
-                    <td className={classes.td}>{profile.userData?.peerId || '-'}</td>
-                    <td className={classes.td}>{profile.userData?.onionAddress || '-'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </Paper>
+        </details>
+      </Grid>
+      <Grid item className={classes.section}>
+        <details open>
+          <summary className={classes.summary}>Network Endpoints</summary>
+          <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
+            <pre className={classes.json}>{JSON.stringify(networkEndpoints, null, 2)}</pre>
           </Paper>
         </details>
       </Grid>

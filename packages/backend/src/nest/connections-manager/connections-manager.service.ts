@@ -41,6 +41,7 @@ import {
   type DeleteChannelResponse,
   type UserProfile,
   type UserProfilesStoredEvent,
+  type NetworkEndpointsStoredEvent,
   Identity,
   InvitationData,
   PeerId as QuietPeerId,
@@ -1112,10 +1113,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,
-      userData: {
-        onionAddress: identity.networkInfo.hiddenService.onionAddress,
-        peerId: identity.networkInfo.peerId.id,
-      },
     }
     this.storageService.addUserProfile(userProfile)
 
@@ -1166,10 +1163,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,
-      userData: {
-        onionAddress: identity.networkInfo.hiddenService.onionAddress,
-        peerId: identity.networkInfo.peerId.id,
-      },
     }
     await this.storageService.deferUserProfile(userProfile)
 
@@ -2038,9 +2031,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, data)
     })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      this.storageService.updatePeerStore()
-      this.libp2pService.addPeersToDialQueue()
       this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, payload)
+    })
+    this.storageService.on(StorageEvents.NETWORK_ENDPOINTS_STORED, (payload: NetworkEndpointsStoredEvent) => {
+      this.serverIoProvider.io.emit(SocketEvents.NETWORK_ENDPOINTS_STORED, payload)
+      void (async () => {
+        await this.storageService.updatePeerStore()
+        await this.libp2pService.addPeersToDialQueue()
+      })().catch(error => this.logger.error('Failed to apply stored network endpoints', error))
     })
   }
 }
