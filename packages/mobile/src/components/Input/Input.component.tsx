@@ -28,6 +28,9 @@ export const Input = forwardRef<TextInput, InputProps>(
       wrapperStyle,
       bottomSeparator,
       keyboardType = 'default',
+      rightAccessory,
+      leftAccessory,
+      maxHeight,
       testID,
       children,
     },
@@ -56,10 +59,13 @@ export const Input = forwardRef<TextInput, InputProps>(
             disabled={disabled}
             round={round}
             style={{
-              height: multiline ? Math.max(54, height + 20) : 54,
+              height: multiline
+                ? Math.min(maxHeight ?? Number.MAX_SAFE_INTEGER, Math.max(54, height + 20))
+                : 54,
               ...style,
             }}
           >
+            {leftAccessory}
             <StyledTextInput
               value={value}
               onChangeText={onChangeText}
@@ -76,7 +82,7 @@ export const Input = forwardRef<TextInput, InputProps>(
                   ref.current = instance
                 }
               }}
-              height={height}
+              height={maxHeight != null && multiline ? Math.min(height, maxHeight - 14) : height}
               multiline={multiline}
               editable={!disabled}
               placeholder={placeholder}
@@ -89,6 +95,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             >
               {children}
             </StyledTextInput>
+            {rightAccessory}
           </StyledWrapper>
           {subtitle && (
             <Typography

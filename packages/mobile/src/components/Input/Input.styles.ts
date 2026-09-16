@@ -8,6 +8,7 @@ export const StyledTextInput = styled(TextInput)<{
 }>`
   ${({ height, multiline }) => css`
     text-align-vertical: center;
+    flex: 1;
     height: ${Math.max(40, height)}px;
     ${Platform.select({
       ios: {
@@ -33,7 +34,9 @@ export const StyledWrapper = styled(Pressable)<{
     padding-left: 16px;
     padding-right: 16px;
     height: 56px;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
     flex-grow: 1;
   `}
 `
