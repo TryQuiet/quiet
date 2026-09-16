@@ -13,6 +13,7 @@ import { TorStatusProps } from './TorStatus'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
 import { ChannelType, CommunityOwnership } from '@quiet/types'
+import { generateDmChannelDisplayName } from '@quiet/common'
 
 const Template: ComponentStory<typeof SidebarComponent> = args => {
   const [currentChannel, setCurrentChannel] = useState('general')
@@ -141,6 +142,64 @@ const args: IdentityPanelProps &
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {},
   },
+}
+
+
+// Extra members so a DM title can be exercised well past the sidebar's width.
+const EXTRA_DM_NAMES = [
+  'Denise',
+  'Gordon',
+  'Annabelle',
+  'Christopher',
+  'Bartholomew',
+  'Evangelina',
+  'Maximilian',
+  'Seraphina',
+  'Nathaniel',
+  'Persephone',
+]
+
+const dmUserProfiles = { ...args.userProfiles }
+EXTRA_DM_NAMES.forEach(nickname => {
+  dmUserProfiles[`${nickname}UserId`] = {
+    userId: `${nickname}UserId`,
+    nickname,
+    userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname.toLowerCase()}.onion` },
+    channels: [],
+  }
+})
+
+const dmMemberIds = ['aliceUserId', 'bobUserId', ...EXTRA_DM_NAMES.map(name => `${name}UserId`)]
+
+const dmChannelWith = (count: number) => {
+  const memberIds = dmMemberIds.slice(0, count)
+  return {
+    id: `dm_${count}`,
+    name: 'Direct message',
+    description: 'Direct message',
+    owner: 'aliceUserId',
+    timestamp: 0,
+    public: false,
+    teamId: 'foobar',
+    type: ChannelType.DM,
+    memberIds,
+    displayedName: generateDmChannelDisplayName(memberIds, dmUserProfiles, args.myUserProfile),
+    messages: { ids: [], entities: {} },
+  }
+}
+
+/**
+ * Direct messages of growing size in the real sidebar. Desktop does not shorten a DM title the way
+ * mobile does (mobile renders "a, b and N more" via generateTruncatedDmTitle); it renders the full
+ * generateDmChannelDisplayName string and lets CSS clip it — DirectMessageListItem styles .nickname
+ * with maxWidth 150, nowrap and text-overflow: ellipsis. This story is here to make that reviewable.
+ */
+export const DirectMessages = Template.bind({})
+DirectMessages.args = {
+  ...args,
+  userProfiles: dmUserProfiles,
+  dmChannels: [1, 2, 3, 5, 12].map(dmChannelWith),
+  unreadDms: ['dm_3'],
 }
 
 export const Component = Template.bind({})
