@@ -20,11 +20,3 @@ storiesOf('CreateChannel', module)
       canCreatePrivateChannel={false}
     />
   ))
-  .add('No channel permission', () => (
-    <CreateChannel
-      createChannelAction={() => {}}
-      handleBackButton={() => {}}
-      canCreateChannel={false}
-      canCreatePrivateChannel={false}
-    />
-  ))
