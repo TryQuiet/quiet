@@ -400,6 +400,14 @@ describe('Message author impersonation (#125, CLIENT-002)', () => {
     ;(channelStore as any).store = {
       events: storeEvents,
       sync: { start: async () => {} },
+      log: {
+        heads: async () => replicated.map(value => ({ hash: value.id, payload: { value }, next: [] })),
+        has: async (hash: string) => replicated.some(value => value.id === hash),
+        get: async (hash: string) => {
+          const value = replicated.find(value => value.id === hash)
+          return value === undefined ? undefined : { hash, payload: { value }, next: [] }
+        },
+      },
       iterator: async function* () {
         for (const value of replicated) {
           yield { hash: value.id, value }
@@ -409,11 +417,11 @@ describe('Message author impersonation (#125, CLIENT-002)', () => {
 
     const stored: MessagesLoadedPayload[] = []
     const notified: PushNotificationPayload[] = []
-    let ids: string[] = []
+    const ids: string[] = []
     channelStore.on(StorageEvents.MESSAGES_STORED, payload => stored.push(payload))
     channelStore.on(StorageEvents.SEND_PUSH_NOTIFICATION, payload => notified.push(payload))
     channelStore.on(StorageEvents.MESSAGE_IDS_STORED, payload => {
-      ids = payload.ids
+      ids.push(...payload.ids)
     })
 
     await channelStore.subscribe()
@@ -424,9 +432,10 @@ describe('Message author impersonation (#125, CLIENT-002)', () => {
       // The access controller has already run by the time OrbitDB reports an update, so an entry
       // reaching here is one the log accepted.
       replicated.push(entry)
-      const settled = new Promise<void>(resolve => channelStore.once(StorageEvents.MESSAGE_IDS_STORED, () => resolve()))
-      storeEvents.emit('update', { hash: entry.id, payload: { value: entry } })
-      await settled
+      // Rejected entries emit no new-ID notification. Await the actual handler so the
+      // assertions also cover rejection without relying on an empty notification.
+      const update = storeEvents.listeners('update')[0] as (entry: unknown) => Promise<void>
+      await update({ hash: entry.id, payload: { value: entry }, next: [] })
     }
 
     return { stored, notified, ids }
