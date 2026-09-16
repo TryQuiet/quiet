@@ -249,6 +249,10 @@ export class BuildSetup {
     this.processOutput = ''
   }
 
+  public hasProcessOutput(text: string): boolean {
+    return this.processOutput.includes(text)
+  }
+
   public async waitForProcessOutput(text: string, timeoutMs = 60_000): Promise<void> {
     const deadline = Date.now() + timeoutMs
     while (Date.now() < deadline) {

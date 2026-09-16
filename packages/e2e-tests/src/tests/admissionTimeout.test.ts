@@ -18,7 +18,70 @@ const logger = createLogger('admissionTimeout')
 const previousAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
 const previousLocalTransport = process.env.LOCAL_TRANSPORT
 
-jest.setTimeout(180_000)
+// Local transport hands libp2p a 127.0.0.1 address, so joining is bounded by app
+// startup alone. Real transport has to bootstrap Tor and publish an onion service
+// first, which is far more sensitive to whatever else is running on the runner:
+// observed CI bootstraps range from ~6s to over 6 minutes. Releasing apps per
+// test (see releaseApps) cuts that contention, but it does not bound Tor, so the
+// real-transport budgets still cannot be the local-transport ones.
+const TOR_BOOTSTRAP_TIMEOUT_MS = 240_000
+const LOCAL_JOIN_COMPLETION_TIMEOUT_MS = 60_000
+const TOR_JOIN_COMPLETION_TIMEOUT_MS = 180_000
+const LOCAL_LIBP2P_START_TIMEOUT_MS = 30_000
+const TOR_LIBP2P_START_TIMEOUT_MS = 60_000
+const PANEL_VISIBLE_TIMEOUT_MS = 15_000
+const PEER_DIAL_TIMEOUT_MS = 120_000
+const TOR_ADMISSION_TIMEOUT_MS = 180_000
+// Two Tor bootstraps plus two joins. Kept above the sum of the inner budgets so a
+// stall reports the step that stalled rather than a bare jest timeout.
+const REAL_TRANSPORT_TEST_TIMEOUT_MS = 900_000
+
+function isLocalTransport(): boolean {
+  return process.env.LOCAL_TRANSPORT === 'true'
+}
+
+function joinCompletionTimeoutMs(): number {
+  return isLocalTransport() ? LOCAL_JOIN_COMPLETION_TIMEOUT_MS : TOR_JOIN_COMPLETION_TIMEOUT_MS
+}
+
+function libp2pStartTimeoutMs(): number {
+  return isLocalTransport() ? LOCAL_LIBP2P_START_TIMEOUT_MS : TOR_LIBP2P_START_TIMEOUT_MS
+}
+
+// The joining panel also clears when admission is RESET, so a wait on the panel
+// alone reports success and the run only fails later on a missing channel. The
+// backend names the reset, so check for it before trusting a cleared panel.
+function assertAdmissionNotReset(app: App): void {
+  for (const marker of ['Admission acquisition deadline expired', 'Emitting event: resetAdmission']) {
+    if (app.buildSetup.hasProcessOutput(marker)) {
+      throw new Error(
+        `${app.name} reset admission instead of completing it ("${marker}"); ` +
+          `the joining panel cleared because the join was abandoned, not because it succeeded`
+      )
+    }
+  }
+}
+
+// Under real transport the joining panel cannot clear until Tor is up, so a slow
+// bootstrap otherwise surfaces as a generic "loading panel didn't disappear" and
+// reads like the admission logic under test failed. Waiting here first attributes
+// it to the environment. Must run before any clearProcessOutput() that would drop
+// the marker. No-op under local transport, where Tor is off the critical path and
+// the marker is not guaranteed to be logged at all.
+async function waitForTransportReady(app: App): Promise<void> {
+  if (isLocalTransport()) return
+  try {
+    await app.buildSetup.waitForProcessOutput('Bootstrapping finished!', TOR_BOOTSTRAP_TIMEOUT_MS)
+  } catch (e) {
+    logger.error(`Tor bootstrap wait failed for ${app.name}`, e)
+    throw new Error(
+      `${app.name} did not bootstrap Tor within ${TOR_BOOTSTRAP_TIMEOUT_MS}ms; ` +
+        `the environment never became ready, so admission was never exercised`
+    )
+  }
+}
+
+jest.setTimeout(300_000)
 
 describe('Timed-out P2P admission recovery', () => {
   const apps: App[] = []
@@ -28,15 +91,28 @@ describe('Timed-out P2P admission recovery', () => {
     process.env.INVITATION_ADMISSION_TIMEOUT_MS = '10000'
   })
 
-  afterAll(async () => {
-    for (const app of [...apps].reverse()) {
+  // Release each test's apps as soon as that test is done with them.
+  async function releaseApps(...toRelease: App[]): Promise<void> {
+    for (const app of [...toRelease].reverse()) {
+      const index = apps.indexOf(app)
+      if (index !== -1) apps.splice(index, 1)
       try {
         await app.close()
+      } catch (error) {
+        logger.error(`Failed to close ${app.name}`, error)
+      }
+      // cleanup() refuses to run while the app is open, so a failed close must
+      // not skip it silently.
+      try {
         await app.cleanup()
       } catch (error) {
         logger.error(`Failed to clean up ${app.name}`, error)
       }
     }
+  }
+
+  afterAll(async () => {
+    await releaseApps(...apps)
     if (previousLocalTransport == null) delete process.env.LOCAL_TRANSPORT
     else process.env.LOCAL_TRANSPORT = previousLocalTransport
     if (previousAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
@@ -65,7 +141,12 @@ describe('Timed-out P2P admission recovery', () => {
     expect(await ownerRegistration.isReady()).toBeTruthy()
     await ownerRegistration.typeUsername(ownerUsername)
     await ownerRegistration.submit()
-    await new JoiningLoadingPanel(owner.driver).waitForJoinToComplete(15_000, 60_000)
+    await waitForTransportReady(owner)
+    await new JoiningLoadingPanel(owner.driver).waitForJoinToComplete(
+      PANEL_VISIBLE_TIMEOUT_MS,
+      joinCompletionTimeoutMs(),
+      `${ownerUsername} community creation`
+    )
     expect(await new Channel(owner.driver, 'general').isReady()).toBeTruthy()
 
     const settings = await new Sidebar(owner.driver).openSettings()
@@ -143,6 +224,8 @@ describe('Timed-out P2P admission recovery', () => {
     await guestJoinModal.submit()
 
     await expectJoinCommunityError(guest, 'Please check your invitation code and try again', 'invalid-invite')
+
+    await releaseApps(guest)
   })
 
   it('has another peer reject a well-formed invitation with an invalid proof', async () => {
@@ -172,6 +255,8 @@ describe('Timed-out P2P admission recovery', () => {
     expect(await new JoiningLoadingPanel(guest.driver).waitUntilVisible(15_000)).toBeTruthy()
 
     await owner.buildSetup.waitForProcessOutput('INVITATION_PROOF_INVALID', 30_000)
+
+    await releaseApps(owner, guest)
   })
 
   it('allows a valid device link after an invalid device admission', async () => {
@@ -205,8 +290,14 @@ describe('Timed-out P2P admission recovery', () => {
     const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
     await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
     await resetJoinModal.submit()
-    await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(15_000, 60_000)
+    await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(
+      PANEL_VISIBLE_TIMEOUT_MS,
+      joinCompletionTimeoutMs(),
+      'device link after invalid admission'
+    )
     expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
+
+    await releaseApps(owner, linkedDevice)
   })
 
   it('returns a joining peer to Join Community after reopening during admission', async () => {
@@ -240,58 +331,90 @@ describe('Timed-out P2P admission recovery', () => {
 
     expect(await new JoinCommunityModal(joiningPeer.driver).isReady(30_000)).toBeTruthy()
     await expectJoiningPanelHidden(joiningPeer)
+
+    await releaseApps(owner, joiningPeer)
   })
 
-  it('links a device after reopening the target during an interrupted admission', async () => {
-    const suiteLocalTransport = process.env.LOCAL_TRANSPORT
-    const suiteAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
-    process.env.LOCAL_TRANSPORT = 'false'
-    process.env.INVITATION_ADMISSION_TIMEOUT_MS = '60000'
-    try {
-      const owner = new App({ username: 'reopendeviceowner' })
-      apps.push(owner)
+  it(
+    'links a device after reopening the target during an interrupted admission',
+    async () => {
+      const suiteLocalTransport = process.env.LOCAL_TRANSPORT
+      const suiteAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
+      process.env.LOCAL_TRANSPORT = 'false'
+      // The other cases use a deliberately short window to prove admission resets.
+      // This one proves admission SUCCEEDS, so the window has to clear a real onion
+      // dial: descriptor publication plus fetch. At 60s the backend gave up with
+      // "Admission acquisition deadline expired" 60s to the millisecond after the
+      // dial began, and the reset then read as a missing general channel.
+      process.env.INVITATION_ADMISSION_TIMEOUT_MS = String(TOR_ADMISSION_TIMEOUT_MS)
+      // Tracked separately so the finally below can release them even when the
+      // test throws. This case holds two real-Tor apps, so leaving them running
+      // would penalise the two cases that follow.
+      const testApps: App[] = []
+      try {
+        const owner = new App({ username: 'reopendeviceowner' })
+        apps.push(owner)
+        testApps.push(owner)
 
-      const p2pDeviceInvitationLink = await createCommunityAndGetInvitation(
-        owner,
-        'reopendeviceowner',
-        SettingsModalTabName.LINKED_DEVICES,
-        async settings => await (await settings.deviceLink()).getText()
-      )
-      const deviceInvitationLink = withUnavailableQss(p2pDeviceInvitationLink)
+        const p2pDeviceInvitationLink = await createCommunityAndGetInvitation(
+          owner,
+          'reopendeviceowner',
+          SettingsModalTabName.LINKED_DEVICES,
+          async settings => await (await settings.deviceLink()).getText()
+        )
+        const deviceInvitationLink = withUnavailableQss(p2pDeviceInvitationLink)
 
-      const linkedDevice = new App({ username: 'reopenedlinkeddevice' })
-      apps.push(linkedDevice)
-      await linkedDevice.openWithRetries(undefined, true)
-      const joinModal = new JoinCommunityModal(linkedDevice.driver)
-      expect(await joinModal.isReady()).toBeTruthy()
-      await joinModal.typeCommunityInviteLink(deviceInvitationLink)
-      await joinModal.submit()
-      expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
-      await linkedDevice.buildSetup.waitForProcessOutput('Starting libp2p', 30_000)
+        const linkedDevice = new App({ username: 'reopenedlinkeddevice' })
+        apps.push(linkedDevice)
+        testApps.push(linkedDevice)
+        await linkedDevice.openWithRetries(undefined, true)
+        await waitForTransportReady(linkedDevice)
+        const joinModal = new JoinCommunityModal(linkedDevice.driver)
+        expect(await joinModal.isReady()).toBeTruthy()
+        await joinModal.typeCommunityInviteLink(deviceInvitationLink)
+        await joinModal.submit()
+        expect(
+          await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(
+            PANEL_VISIBLE_TIMEOUT_MS,
+            'interrupted device admission'
+          )
+        ).toBeTruthy()
+        await linkedDevice.buildSetup.waitForProcessOutput('Starting libp2p', libp2pStartTimeoutMs())
 
-      await linkedDevice.close()
-      linkedDevice.buildSetup.clearProcessOutput()
-      await linkedDevice.openWithRetries(undefined, true)
-      expect(await new JoinCommunityModal(linkedDevice.driver).isReady(30_000)).toBeTruthy()
-      await expectJoiningPanelHidden(linkedDevice)
+        await linkedDevice.close()
+        linkedDevice.buildSetup.clearProcessOutput()
+        await linkedDevice.openWithRetries(undefined, true)
+        expect(await new JoinCommunityModal(linkedDevice.driver).isReady(30_000)).toBeTruthy()
+        await expectJoiningPanelHidden(linkedDevice)
 
-      linkedDevice.buildSetup.clearProcessOutput()
+        // Gate on the reopened backend's transport before clearing output, so the
+        // dial assertion below measures the retry alone and not a second bootstrap.
+        await waitForTransportReady(linkedDevice)
+        linkedDevice.buildSetup.clearProcessOutput()
 
-      // The interrupted provisional state has been purged, so a failed QSS
-      // attempt must fall back to libp2p and dial the still-reachable inviter.
-      const retryJoinModal = new JoinCommunityModal(linkedDevice.driver)
-      await retryJoinModal.typeCommunityInviteLink(deviceInvitationLink)
-      await retryJoinModal.submit()
-      await linkedDevice.buildSetup.waitForProcessOutput('Dialing peer address:', 120_000)
-      await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(15_000, 60_000)
-      expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
-    } finally {
-      if (suiteLocalTransport == null) delete process.env.LOCAL_TRANSPORT
-      else process.env.LOCAL_TRANSPORT = suiteLocalTransport
-      if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
-      else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
-    }
-  }, 300_000)
+        // The interrupted provisional state has been purged, so a failed QSS
+        // attempt must fall back to libp2p and dial the still-reachable inviter.
+        const retryJoinModal = new JoinCommunityModal(linkedDevice.driver)
+        await retryJoinModal.typeCommunityInviteLink(deviceInvitationLink)
+        await retryJoinModal.submit()
+        await linkedDevice.buildSetup.waitForProcessOutput('Dialing peer address:', PEER_DIAL_TIMEOUT_MS)
+        await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(
+          PANEL_VISIBLE_TIMEOUT_MS,
+          joinCompletionTimeoutMs(),
+          'device link retry after interrupted admission'
+        )
+        assertAdmissionNotReset(linkedDevice)
+        expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
+      } finally {
+        await releaseApps(...testApps)
+        if (suiteLocalTransport == null) delete process.env.LOCAL_TRANSPORT
+        else process.env.LOCAL_TRANSPORT = suiteLocalTransport
+        if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
+        else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+      }
+    },
+    REAL_TRANSPORT_TEST_TIMEOUT_MS
+  )
 
   it('clears a timed-out member invitation and returns the guest to Join Community', async () => {
     const owner = new App({ username: 'memberowner' })
@@ -322,6 +445,8 @@ describe('Timed-out P2P admission recovery', () => {
     expect(await new JoiningLoadingPanel(guest.driver).waitUntilVisible(15_000)).toBeTruthy()
 
     await expectJoinCommunityError(guest, 'try again when other peers are online')
+
+    await releaseApps(owner, guest)
   })
 
   it('clears a timed-out device invitation and returns the linked device to Join Community', async () => {
@@ -362,7 +487,13 @@ describe('Timed-out P2P admission recovery', () => {
     const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
     await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
     await resetJoinModal.submit()
-    await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(15_000, 60_000)
+    await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(
+      PANEL_VISIBLE_TIMEOUT_MS,
+      joinCompletionTimeoutMs(),
+      'device link after timed-out invitation'
+    )
     expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
+
+    await releaseApps(owner, linkedDevice)
   })
 })

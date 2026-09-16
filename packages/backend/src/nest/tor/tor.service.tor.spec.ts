@@ -12,7 +12,11 @@ import { TorControlAuthType } from './tor.types'
 import { TorControl } from './tor-control.service'
 import { sleep } from '../common/sleep'
 
-jest.setTimeout(200_000)
+// The first test that bootstraps pays for a cold consensus fetch; the rest reuse
+// the shared Tor data directory and finish in seconds. That cold fetch has been
+// observed past 200s on hosted runners, so the suite budget has to clear it.
+jest.setTimeout(300_000)
+const BOOTSTRAP_TIMEOUT_MS = 240_000
 
 describe('TorControl', () => {
   let module: TestingModule
@@ -23,9 +27,22 @@ describe('TorControl', () => {
   let spacedTmpDir: DirResult
   let spacedTmpAppDataPath: string
 
-  const waitForBootstrap = async () => {
+  // Bounded so a stalled bootstrap reports itself rather than surfacing as a bare
+  // jest per-test timeout pointing at whichever test happened to bootstrap first.
+  const waitForBootstrap = async (timeoutMs = BOOTSTRAP_TIMEOUT_MS) => {
     if (torService.bootstrapped) return
-    await new Promise<void>(resolve => torService.once('bootstrapped', resolve))
+    let onBootstrapped: (() => void) | undefined
+    let timer: NodeJS.Timeout | undefined
+    try {
+      await new Promise<void>((resolve, reject) => {
+        onBootstrapped = resolve
+        torService.once('bootstrapped', resolve)
+        timer = setTimeout(() => reject(new Error(`Tor did not bootstrap within ${timeoutMs}ms`)), timeoutMs)
+      })
+    } finally {
+      if (timer != null) clearTimeout(timer)
+      if (onBootstrapped != null) torService.off('bootstrapped', onBootstrapped)
+    }
   }
 
   const torPassword = 'b5e447c10b0d99e7871636ee5e0839b5'
