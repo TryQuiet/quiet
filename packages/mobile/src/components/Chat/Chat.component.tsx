@@ -42,6 +42,17 @@ const logger = createLogger('chat:component')
 
 // UI constants
 const DEFAULT_PADDING = 20
+// Compose field rules, from the design library component "Platform=Mobile, Placeholder=False"
+// (Figma Quiet Design Library 5022:19592): the compose block is outlined in #F0F0F0 and the
+// toolbar row is separated by #F7F7F7. Neither value exists in the mobile palette yet.
+const COMPOSE_BORDER = '#F0F0F0'
+const COMPOSE_TOOLBAR_BORDER = '#F7F7F7'
+// The designs show a single-line field and do not say how far it may grow. Cap it at five lines of
+// the design's 20pt line height on top of the 42pt single-line row, then let the text scroll — the
+// desktop compose caps at 300px for the same reason. Five lines is ~20% of a 667pt screen.
+const COMPOSE_MAX_LINES = 5
+const COMPOSE_LINE_HEIGHT = 20
+const COMPOSE_MAX_HEIGHT = 54 + (COMPOSE_MAX_LINES - 1) * COMPOSE_LINE_HEIGHT
 const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
 const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
 const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
@@ -149,7 +160,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 
   useEffect(() => {
     if (newChat) {
-      setInputPlaceholder('Write message')
+      setInputPlaceholder('Write a message')
       setHeaderTitle('New message')
     } else if ((channel?.type ?? ChannelType.CHANNEL) === ChannelType.CHANNEL) {
       setInputPlaceholder(`Message #${channelName}`)
@@ -547,6 +558,9 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: 'height' })}
         keyboardVerticalOffset={Platform.select({ ios: insets.bottom, android: insets.bottom })}
+        // Keep this enabled on Android: the app targets SDK 35, where the platform forces
+        // edge-to-edge and windowSoftInputMode=adjustResize no longer resizes the window, so
+        // without KeyboardAvoidingView the keyboard simply covers the compose row.
         enabled={Platform.select({ ios: true, android: true })}
         style={styles.keyboardAvoidingView}
       >
@@ -611,43 +625,29 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
                 onMomentumScrollEnd={handleMomentumScrollEnd}
               />
             </View>
-            <View style={styles.bottomControls}>
-              <View
-                style={[
-                  styles.inputContainer,
-                  { paddingRight: !didKeyboardShow && !areFilesUploaded ? DEFAULT_PADDING : 0 },
-                ]}
-              >
-                <View style={styles.inputRow}>
-                  <View style={styles.inputWrapper}>
-                    <View style={styles.inputContent}>
-                      <Input
-                        ref={messageInputRef}
-                        testID='message-composer'
-                        // uncontrolled: do not pass value to allow native setNativeProps to work
-                        onChangeText={onInputTextChange}
-                        onChange={onInputChange}
-                        onEndEditing={onInputEndEditing}
-                        placeholder={inputPlaceholder}
-                        multiline={true}
-                        style={styles.inputStyle}
-                        round
-                      />
-                    </View>
-                    <View
-                      style={{
-                        position: 'absolute',
-                        height: '100%',
-                        right: 10,
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <AttachmentButton onPress={openImages} />
-                    </View>
-                  </View>
-                  {(didKeyboardShow || areFilesUploaded) && (
-                    <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
-                  )}
+            {/*
+              Full-bleed compose, per the mobile DM designs ("Compose row", Figma 823:14772):
+              a borderless full-width text row, then a 48pt toolbar with the attachment control on
+              the left and send on the right. The burner-mode toggle in the design is not built yet.
+            */}
+            <View style={[styles.bottomControls, didKeyboardShow ? styles.bottomControlsKeyboard : null]}>
+              <View style={styles.inputContainer}>
+                <Input
+                  ref={messageInputRef}
+                  testID='message-composer'
+                  // uncontrolled: do not pass value to allow native setNativeProps to work
+                  onChangeText={onInputTextChange}
+                  onChange={onInputChange}
+                  onEndEditing={onInputEndEditing}
+                  placeholder={inputPlaceholder}
+                  multiline={true}
+                  maxHeight={COMPOSE_MAX_HEIGHT}
+                  style={styles.inputStyle}
+                />
+                <View style={styles.composeToolbar}>
+                  <AttachmentButton onPress={openImages} />
+                  <View style={styles.composeToolbarSpacer} />
+                  <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
                 </View>
                 {uploadedFiles && (
                   <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
@@ -678,7 +678,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     backgroundColor: defaultTheme.palette.background.white,
-    paddingBottom: DEFAULT_PADDING,
   },
   messagesContainer: {
     flex: 1,
@@ -695,23 +694,35 @@ const styles = StyleSheet.create({
   },
   bottomControls: {
     flexDirection: 'row',
-    paddingBottom: Platform.select({ ios: 20, android: 0 }),
+  },
+  // Only while the keyboard is up — the designs show no gap under the compose block otherwise.
+  bottomControlsKeyboard: {
+    paddingBottom: DEFAULT_PADDING,
   },
   inputContainer: {
     width: '100%',
-    paddingLeft: DEFAULT_PADDING,
+    backgroundColor: defaultTheme.palette.background.white,
+    borderTopWidth: 1,
+    borderTopColor: COMPOSE_BORDER,
   },
-  inputRow: {
-    flexDirection: 'row',
-  },
-  inputWrapper: {
-    flex: 1,
-  },
-  inputContent: {
-    justifyContent: 'center',
-  },
+  // Borderless and full-bleed; the field keeps its own multiline growth.
   inputStyle: {
-    paddingRight: 50,
+    borderWidth: 0,
+    borderRadius: 0,
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  composeToolbar: {
+    height: 48,
+    borderTopWidth: 1,
+    borderTopColor: COMPOSE_TOOLBAR_BORDER,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  composeToolbarSpacer: {
+    flex: 1,
   },
   attachmentButtonContainer: {
     position: 'absolute',

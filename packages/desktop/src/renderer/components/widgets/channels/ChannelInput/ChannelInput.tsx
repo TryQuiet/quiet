@@ -17,6 +17,12 @@ import path from 'path'
 import { emojify, findMatchingEmojis, extractPartialEmojiCode, getEmojiFromShortcode } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
+
+// Compose field rules, from the design library component "Platform=Desktop, Placeholder=False"
+// (Figma Quiet Design Library 5022:19593): a 16px-radius box outlined in #E5E5E5. Neither value
+// exists in the desktop theme palette yet (border01 is #F0F0F0).
+const COMPOSE_BORDER = '#E5E5E5'
+const COMPOSE_RADIUS = 16
 const MAX_EMOJI_SUGGESTIONS = 100
 const SKIN_TONE_KEY = 'emojiPickerSkinTone'
 
@@ -95,11 +101,11 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     paddingRight: '60px',
   },
   [`& .${classes.textfield}`]: {
-    border: `1px solid ${theme.palette.colors.border01}`,
+    border: `1px solid ${COMPOSE_BORDER}`,
     maxHeight: maxHeight,
     overflowY: 'auto',
     overflowX: 'visible',
-    borderRadius: 4,
+    borderRadius: COMPOSE_RADIUS,
     display: 'flex',
     flexDirection: 'column',
     flexWrap: 'nowrap',
