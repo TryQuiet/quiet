@@ -331,6 +331,12 @@ const ChannelScreenContent: FC = () => {
 
 export const ChannelScreen: FC = () => {
   const channel = useSelector(publicChannels.selectors.currentChannel)
+  const isNewMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
   // Text refs, pending sends and file previews belong to the channel where they started.
-  return <ChannelScreenContent key={channel?.id} />
+  //
+  // While the new-message view is open the current channel id deliberately churns as recipients are
+  // picked (setDmChannelOnSelection points it at the matching DM, or at EMPTY_CHANNEL_ID when the
+  // selection is empty). Re-keying on it there remounts this subtree and wipes the in-progress
+  // recipient selection, which made a tapped recipient immediately appear unselected.
+  return <ChannelScreenContent key={isNewMessageOpen ? 'new-message' : channel?.id} />
 }

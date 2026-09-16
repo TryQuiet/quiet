@@ -181,7 +181,8 @@ export const currentChannel = createSelector(currentChannelId, selectChannels, (
 
 export const currentChannelName = createSelector(currentChannel, channel => {
   if (!channel) return ''
-  return channel.displayedName
+  // A freshly created DM has no displayedName until it is derived from member profiles.
+  return channel.displayedName ?? ''
 })
 
 export const currentChannelMessages = createSelector(currentChannel, channel => {
