@@ -172,7 +172,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_1-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -318,7 +318,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_2-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -460,7 +460,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_3-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -529,7 +529,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_4-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -592,7 +592,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_5-membership-list-item"
                         role="button"
                         tabindex="-1"

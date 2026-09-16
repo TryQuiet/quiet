@@ -60,7 +60,7 @@ describe('AppHome component', () => {
       <View
         style={
           {
-            "backgroundColor": "#461863",
+            "backgroundColor": "#521C74",
             "flex": 1,
           }
         }
@@ -81,7 +81,7 @@ describe('AppHome component', () => {
                 "minHeight": 52,
               },
               {
-                "backgroundColor": "#461863",
+                "backgroundColor": "#521C74",
                 "borderBottomWidth": 0,
               },
             ]

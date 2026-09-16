@@ -448,9 +448,9 @@ describe('ChannelMembership component', () => {
                     {
                       "alignItems": "center",
                       "backgroundColor": "#521C74",
-                      "borderRadius": 8,
+                      "borderRadius": 16,
                       "justifyContent": "center",
-                      "minHeight": 45,
+                      "minHeight": 50,
                       "paddingHorizontal": 20,
                       "paddingVertical": 12,
                       "width": undefined,
@@ -960,9 +960,9 @@ describe('ChannelMembership component', () => {
                     {
                       "alignItems": "center",
                       "backgroundColor": "#521C74",
-                      "borderRadius": 8,
+                      "borderRadius": 16,
                       "justifyContent": "center",
-                      "minHeight": 45,
+                      "minHeight": 50,
                       "paddingHorizontal": 20,
                       "paddingVertical": 12,
                       "width": undefined,

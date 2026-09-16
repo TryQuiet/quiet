@@ -44,13 +44,15 @@ describe('MessageInput component', () => {
             style={
               [
                 {
+                  "alignItems": "center",
                   "backgroundColor": "#ffffff",
                   "borderColor": "#C4C4C4",
                   "borderRadius": 4,
                   "borderWidth": 1,
+                  "flexDirection": "row",
                   "flexGrow": 1,
                   "height": 56,
-                  "justifyContent": "center",
+                  "justifyContent": "flex-start",
                   "paddingLeft": 16,
                   "paddingRight": 16,
                 },
@@ -72,6 +74,9 @@ describe('MessageInput component', () => {
               style={
                 [
                   {
+                    "flexBasis": 0,
+                    "flexGrow": 1,
+                    "flexShrink": 1,
                     "height": 54,
                     "paddingBottom": 12,
                     "paddingTop": 12,

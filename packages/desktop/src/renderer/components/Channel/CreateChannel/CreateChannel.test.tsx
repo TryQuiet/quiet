@@ -181,10 +181,10 @@ describe('Add new channel', () => {
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1g0xeiu-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-fv7e1x-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container CreateChannelComponentpanelHeader css-1vam7s3-MuiGrid-root"
+                class="PanelHeaderroot css-1gijsy4"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
@@ -207,13 +207,35 @@ describe('Add new channel', () => {
                     class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                   />
                 </button>
-                <h5
-                  class="MuiTypography-root MuiTypography-h5 CreateChannelComponentpanelTitle css-11l3dv4-MuiTypography-root"
+                <p
+                  class="MuiTypography-root MuiTypography-body1 PanelHeadertitle css-ghvhpl-MuiTypography-root"
                   data-testid="createChannelPanelTitle"
                 >
                   Create channel
-                </h5>
+                </p>
+                <button
+                  aria-hidden="true"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeSmall PanelHeaderspacer css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
+                  disabled=""
+                  tabindex="-1"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="CloseIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                    />
+                  </svg>
+                </button>
               </div>
+              <hr
+                class="MuiDivider-root MuiDivider-fullWidth css-10g3z0f-MuiDivider-root"
+              />
               <form>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column CreateChannelComponentfullContainer css-1e5jxqd-MuiGrid-root"

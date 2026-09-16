@@ -480,7 +480,6 @@ describe('UpdateChannelMembership component', () => {
                   {
                     "display": "flex",
                     "flexDirection": "column",
-                    "paddingHorizontal": 16,
                   }
                 }
               >
@@ -518,22 +517,50 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     [
                       {
+                        "alignItems": "center",
                         "backgroundColor": "#ffffff",
                         "borderColor": "#C4C4C4",
                         "borderRadius": 4,
                         "borderWidth": 1,
+                        "flexDirection": "row",
                         "flexGrow": 1,
                         "height": 56,
-                        "justifyContent": "center",
+                        "justifyContent": "flex-start",
                         "paddingLeft": 16,
                         "paddingRight": 16,
                       },
                       {
-                        "height": 54,
+                        "borderRadius": 0,
+                        "borderWidth": 0,
+                        "height": 44,
+                        "paddingHorizontal": 16,
                       },
                     ]
                   }
                 >
+                  <Text
+                    color="main"
+                    fontSize={16}
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 16,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                        {
+                          "color": "#7F7F7F",
+                          "paddingRight": 8,
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    To:
+                  </Text>
                   <TextInput
                     autoCorrect={false}
                     editable={true}
@@ -542,11 +569,14 @@ describe('UpdateChannelMembership component', () => {
                     maxLength={20}
                     onChangeText={[Function]}
                     onContentSizeChange={[Function]}
-                    placeholder="E.g. @jane123"
+                    placeholder="Search for people, chats or channels"
                     placeholderTextColor="#999999"
                     style={
                       [
                         {
+                          "flexBasis": 0,
+                          "flexGrow": 1,
+                          "flexShrink": 1,
                           "height": 54,
                           "paddingBottom": 12,
                           "paddingTop": 12,
@@ -557,32 +587,6 @@ describe('UpdateChannelMembership component', () => {
                     testID="input"
                   />
                 </View>
-                <Text
-                  color="main"
-                  fontSize={12}
-                  horizontalTextAlign="left"
-                  style={
-                    [
-                      {
-                        "color": "#000000",
-                        "fontFamily": "Rubik-Regular",
-                        "fontSize": 12,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                      {
-                        "color": "#999999",
-                        "fontWeight": 400,
-                        "lineHeight": 16,
-                        "paddingHorizontal": 8,
-                        "paddingTop": 6,
-                      },
-                    ]
-                  }
-                  verticalTextAlign="center"
-                >
-                  Add members with '@'
-                </Text>
               </View>
               <View
                 style={
@@ -1127,7 +1131,6 @@ describe('UpdateChannelMembership component', () => {
                   {
                     "display": "flex",
                     "flexDirection": "column",
-                    "paddingHorizontal": 16,
                   }
                 }
               >
@@ -1165,22 +1168,50 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     [
                       {
+                        "alignItems": "center",
                         "backgroundColor": "#ffffff",
                         "borderColor": "#C4C4C4",
                         "borderRadius": 4,
                         "borderWidth": 1,
+                        "flexDirection": "row",
                         "flexGrow": 1,
                         "height": 56,
-                        "justifyContent": "center",
+                        "justifyContent": "flex-start",
                         "paddingLeft": 16,
                         "paddingRight": 16,
                       },
                       {
-                        "height": 54,
+                        "borderRadius": 0,
+                        "borderWidth": 0,
+                        "height": 44,
+                        "paddingHorizontal": 16,
                       },
                     ]
                   }
                 >
+                  <Text
+                    color="main"
+                    fontSize={16}
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 16,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                        {
+                          "color": "#7F7F7F",
+                          "paddingRight": 8,
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    To:
+                  </Text>
                   <TextInput
                     autoCorrect={false}
                     editable={true}
@@ -1189,11 +1220,14 @@ describe('UpdateChannelMembership component', () => {
                     maxLength={20}
                     onChangeText={[Function]}
                     onContentSizeChange={[Function]}
-                    placeholder="E.g. @jane123"
+                    placeholder="Search for people, chats or channels"
                     placeholderTextColor="#999999"
                     style={
                       [
                         {
+                          "flexBasis": 0,
+                          "flexGrow": 1,
+                          "flexShrink": 1,
                           "height": 54,
                           "paddingBottom": 12,
                           "paddingTop": 12,
@@ -1204,32 +1238,6 @@ describe('UpdateChannelMembership component', () => {
                     testID="input"
                   />
                 </View>
-                <Text
-                  color="main"
-                  fontSize={12}
-                  horizontalTextAlign="left"
-                  style={
-                    [
-                      {
-                        "color": "#000000",
-                        "fontFamily": "Rubik-Regular",
-                        "fontSize": 12,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                      {
-                        "color": "#999999",
-                        "fontWeight": 400,
-                        "lineHeight": 16,
-                        "paddingHorizontal": 8,
-                        "paddingTop": 6,
-                      },
-                    ]
-                  }
-                  verticalTextAlign="center"
-                >
-                  Add members with '@'
-                </Text>
               </View>
               <View
                 style={
@@ -1343,171 +1351,173 @@ describe('UpdateChannelMembership component', () => {
                         style={null}
                       >
                         <View
-                          style={
+                          accessibilityState={
                             {
-                              "alignContent": "center",
-                              "alignItems": "center",
-                              "display": "flex",
-                              "flexDirection": "row",
-                              "gap": 8,
-                              "height": 60,
-                              "paddingHorizontal": 16,
-                              "paddingVertical": 4,
+                              "busy": undefined,
+                              "checked": undefined,
+                              "disabled": false,
+                              "expanded": undefined,
+                              "selected": undefined,
                             }
                           }
+                          accessibilityValue={
+                            {
+                              "max": undefined,
+                              "min": undefined,
+                              "now": undefined,
+                              "text": undefined,
+                            }
+                          }
+                          accessible={true}
+                          collapsable={false}
+                          focusable={true}
+                          onClick={[Function]}
+                          onResponderGrant={[Function]}
+                          onResponderMove={[Function]}
+                          onResponderRelease={[Function]}
+                          onResponderTerminate={[Function]}
+                          onResponderTerminationRequest={[Function]}
+                          onStartShouldSetResponder={[Function]}
+                          style={
+                            {
+                              "opacity": 1,
+                            }
+                          }
+                          testID="update-channel-membership-list-row-abc123-barbaz"
                         >
                           <View
-                            accessibilityLiveRegion="polite"
-                            accessibilityRole="checkbox"
-                            accessibilityState={
-                              {
-                                "busy": undefined,
-                                "checked": false,
-                                "disabled": false,
-                                "expanded": undefined,
-                                "selected": undefined,
-                              }
-                            }
-                            accessibilityValue={
-                              {
-                                "max": undefined,
-                                "min": undefined,
-                                "now": undefined,
-                                "text": undefined,
-                              }
-                            }
-                            accessible={true}
-                            collapsable={false}
-                            color="#7F7F7F"
-                            focusable={true}
-                            onBlur={[Function]}
-                            onClick={[Function]}
-                            onFocus={[Function]}
-                            onResponderGrant={[Function]}
-                            onResponderMove={[Function]}
-                            onResponderRelease={[Function]}
-                            onResponderTerminate={[Function]}
-                            onResponderTerminationRequest={[Function]}
-                            onStartShouldSetResponder={[Function]}
                             style={
-                              [
-                                {
-                                  "overflow": "hidden",
-                                },
-                                {
-                                  "borderRadius": 18,
-                                  "height": 36,
-                                  "padding": 6,
-                                  "width": 36,
-                                },
-                              ]
+                              {
+                                "alignContent": "center",
+                                "alignItems": "center",
+                                "display": "flex",
+                                "flexDirection": "row",
+                                "gap": 8,
+                                "height": 60,
+                                "paddingHorizontal": 16,
+                                "paddingVertical": 4,
+                              }
                             }
-                            testID="update-channel-membership-list-item-abc123-barbaz"
-                            uncheckedColor="#7F7F7F"
                           >
                             <View
-                              collapsable={false}
-                              style={
+                              accessibilityLiveRegion="polite"
+                              accessibilityRole="checkbox"
+                              accessibilityState={
                                 {
-                                  "transform": [
-                                    {
-                                      "scale": 1,
-                                    },
-                                  ],
+                                  "busy": undefined,
+                                  "checked": false,
+                                  "disabled": false,
+                                  "expanded": undefined,
+                                  "selected": undefined,
                                 }
                               }
+                              accessibilityValue={
+                                {
+                                  "max": undefined,
+                                  "min": undefined,
+                                  "now": undefined,
+                                  "text": undefined,
+                                }
+                              }
+                              accessible={true}
+                              collapsable={false}
+                              color="#7F7F7F"
+                              focusable={true}
+                              onBlur={[Function]}
+                              onClick={[Function]}
+                              onFocus={[Function]}
+                              onResponderGrant={[Function]}
+                              onResponderMove={[Function]}
+                              onResponderRelease={[Function]}
+                              onResponderTerminate={[Function]}
+                              onResponderTerminationRequest={[Function]}
+                              onStartShouldSetResponder={[Function]}
+                              style={
+                                [
+                                  {
+                                    "overflow": "hidden",
+                                  },
+                                  {
+                                    "borderRadius": 18,
+                                    "height": 36,
+                                    "padding": 6,
+                                    "width": 36,
+                                  },
+                                ]
+                              }
+                              testID="update-channel-membership-list-item-abc123-barbaz"
+                              uncheckedColor="#7F7F7F"
                             >
-                              <Text
-                                accessibilityElementsHidden={true}
-                                allowFontScaling={false}
-                                importantForAccessibility="no-hide-descendants"
-                                pointerEvents="none"
-                                selectable={false}
-                                style={
-                                  [
-                                    {
-                                      "backgroundColor": "transparent",
-                                    },
-                                    {
-                                      "color": "#7F7F7F",
-                                      "fontSize": 24,
-                                    },
-                                  ]
-                                }
-                              >
-                                □
-                              </Text>
                               <View
+                                collapsable={false}
                                 style={
-                                  [
-                                    {
-                                      "bottom": 0,
-                                      "left": 0,
-                                      "position": "absolute",
-                                      "right": 0,
-                                      "top": 0,
-                                    },
-                                    {
-                                      "alignItems": "center",
-                                      "justifyContent": "center",
-                                    },
-                                  ]
+                                  {
+                                    "transform": [
+                                      {
+                                        "scale": 1,
+                                      },
+                                    ],
+                                  }
                                 }
                               >
-                                <View
-                                  collapsable={false}
+                                <Text
+                                  accessibilityElementsHidden={true}
+                                  allowFontScaling={false}
+                                  importantForAccessibility="no-hide-descendants"
+                                  pointerEvents="none"
+                                  selectable={false}
                                   style={
-                                    {
-                                      "borderColor": "#7F7F7F",
-                                      "borderWidth": 0,
-                                      "height": 14,
-                                      "width": 14,
-                                    }
+                                    [
+                                      {
+                                        "backgroundColor": "transparent",
+                                      },
+                                      {
+                                        "color": "#7F7F7F",
+                                        "fontSize": 24,
+                                      },
+                                    ]
                                   }
-                                />
+                                >
+                                  □
+                                </Text>
+                                <View
+                                  style={
+                                    [
+                                      {
+                                        "bottom": 0,
+                                        "left": 0,
+                                        "position": "absolute",
+                                        "right": 0,
+                                        "top": 0,
+                                      },
+                                      {
+                                        "alignItems": "center",
+                                        "justifyContent": "center",
+                                      },
+                                    ]
+                                  }
+                                >
+                                  <View
+                                    collapsable={false}
+                                    style={
+                                      {
+                                        "borderColor": "#7F7F7F",
+                                        "borderWidth": 0,
+                                        "height": 14,
+                                        "width": 14,
+                                      }
+                                    }
+                                  />
+                                </View>
                               </View>
                             </View>
-                          </View>
-                          <View
-                            accessibilityState={
-                              {
-                                "busy": undefined,
-                                "checked": undefined,
-                                "disabled": undefined,
-                                "expanded": undefined,
-                                "selected": undefined,
-                              }
-                            }
-                            accessibilityValue={
-                              {
-                                "max": undefined,
-                                "min": undefined,
-                                "now": undefined,
-                                "text": undefined,
-                              }
-                            }
-                            accessible={true}
-                            collapsable={false}
-                            focusable={true}
-                            onClick={[Function]}
-                            onResponderGrant={[Function]}
-                            onResponderMove={[Function]}
-                            onResponderRelease={[Function]}
-                            onResponderTerminate={[Function]}
-                            onResponderTerminationRequest={[Function]}
-                            onStartShouldSetResponder={[Function]}
-                            style={
-                              {
-                                "opacity": 1,
-                              }
-                            }
-                          >
                             <View
                               style={
                                 {
                                   "alignContent": "center",
                                   "alignItems": "center",
                                   "display": "flex",
+                                  "flex": 1,
                                   "flexDirection": "row",
                                   "gap": 16,
                                   "paddingVertical": 11,
@@ -2072,7 +2082,6 @@ describe('UpdateChannelMembership component', () => {
                   {
                     "display": "flex",
                     "flexDirection": "column",
-                    "paddingHorizontal": 16,
                   }
                 }
               >
@@ -2110,22 +2119,50 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     [
                       {
+                        "alignItems": "center",
                         "backgroundColor": "#ffffff",
                         "borderColor": "#C4C4C4",
                         "borderRadius": 4,
                         "borderWidth": 1,
+                        "flexDirection": "row",
                         "flexGrow": 1,
                         "height": 56,
-                        "justifyContent": "center",
+                        "justifyContent": "flex-start",
                         "paddingLeft": 16,
                         "paddingRight": 16,
                       },
                       {
-                        "height": 54,
+                        "borderRadius": 0,
+                        "borderWidth": 0,
+                        "height": 44,
+                        "paddingHorizontal": 16,
                       },
                     ]
                   }
                 >
+                  <Text
+                    color="main"
+                    fontSize={16}
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 16,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                        {
+                          "color": "#7F7F7F",
+                          "paddingRight": 8,
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    To:
+                  </Text>
                   <TextInput
                     autoCorrect={false}
                     editable={true}
@@ -2134,11 +2171,14 @@ describe('UpdateChannelMembership component', () => {
                     maxLength={20}
                     onChangeText={[Function]}
                     onContentSizeChange={[Function]}
-                    placeholder="E.g. @jane123"
+                    placeholder="Search for people, chats or channels"
                     placeholderTextColor="#999999"
                     style={
                       [
                         {
+                          "flexBasis": 0,
+                          "flexGrow": 1,
+                          "flexShrink": 1,
                           "height": 54,
                           "paddingBottom": 12,
                           "paddingTop": 12,
@@ -2149,32 +2189,6 @@ describe('UpdateChannelMembership component', () => {
                     testID="input"
                   />
                 </View>
-                <Text
-                  color="main"
-                  fontSize={12}
-                  horizontalTextAlign="left"
-                  style={
-                    [
-                      {
-                        "color": "#000000",
-                        "fontFamily": "Rubik-Regular",
-                        "fontSize": 12,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                      {
-                        "color": "#999999",
-                        "fontWeight": 400,
-                        "lineHeight": 16,
-                        "paddingHorizontal": 8,
-                        "paddingTop": 6,
-                      },
-                    ]
-                  }
-                  verticalTextAlign="center"
-                >
-                  Add members with '@'
-                </Text>
               </View>
               <View
                 style={

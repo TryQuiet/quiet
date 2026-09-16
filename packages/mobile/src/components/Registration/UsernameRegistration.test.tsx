@@ -122,13 +122,15 @@ describe('UsernameRegistration', () => {
                 style={
                   [
                     {
+                      "alignItems": "center",
                       "backgroundColor": "#ffffff",
                       "borderColor": "#C4C4C4",
                       "borderRadius": 4,
                       "borderWidth": 1,
+                      "flexDirection": "row",
                       "flexGrow": 1,
                       "height": 56,
-                      "justifyContent": "center",
+                      "justifyContent": "flex-start",
                       "paddingLeft": 16,
                       "paddingRight": 16,
                     },
@@ -152,6 +154,9 @@ describe('UsernameRegistration', () => {
                   style={
                     [
                       {
+                        "flexBasis": 0,
+                        "flexGrow": 1,
+                        "flexShrink": 1,
                         "height": 54,
                         "paddingBottom": 12,
                         "paddingTop": 12,
@@ -217,9 +222,9 @@ describe('UsernameRegistration', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
-                  "borderRadius": 8,
+                  "borderRadius": 16,
                   "justifyContent": "center",
-                  "minHeight": 45,
+                  "minHeight": 50,
                   "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,

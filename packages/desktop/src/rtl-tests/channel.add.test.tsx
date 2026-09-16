@@ -201,11 +201,11 @@ describe('Add new channel', () => {
     expect(privateToggle).toBeVisible()
     expect(privateToggle.className.includes('checked')).toBeFalsy()
 
-    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    // FIXME: await user.click(screen.getByTestId('channelNameSubmit') causes this and few other tests to fail (hangs on taking createChannel action)
     await act(
       async () =>
         await waitFor(() => {
-          user.click(screen.getByText('Create Channel')).catch(e => {
+          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
             logger.error(e)
           })
         })
@@ -321,11 +321,11 @@ describe('Add new channel', () => {
     await userEvent.click(privateToggle)
     expect(privateToggle.className.includes('checked')).toBeTruthy()
 
-    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    // FIXME: await user.click(screen.getByTestId('channelNameSubmit') causes this and few other tests to fail (hangs on taking createChannel action)
     await act(
       async () =>
         await waitFor(() => {
-          user.click(screen.getByText('Create Channel')).catch(e => {
+          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
             logger.error(e)
           })
         })
@@ -440,11 +440,11 @@ describe('Add new channel', () => {
     await userEvent.click(privateToggle)
     expect(privateToggle.className.includes('checked')).toBeTruthy()
 
-    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    // FIXME: await user.click(screen.getByTestId('channelNameSubmit') causes this and few other tests to fail (hangs on taking createChannel action)
     await act(
       async () =>
         await waitFor(() => {
-          user.click(screen.getByText('Create Channel')).catch(e => {
+          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
             logger.error(e)
           })
         })
@@ -580,7 +580,7 @@ describe('Add new channel', () => {
     const input = screen.getByPlaceholderText('Enter a channel name')
     expect(input).toHaveValue(channelName)
 
-    const button = screen.getByText('Create Channel')
+    const button = screen.getByTestId('channelNameSubmit')
     await userEvent.click(button)
 
     const error = await screen.findByText(FieldErrors.Required)
@@ -700,7 +700,7 @@ describe('Add new channel', () => {
     await act(
       async () =>
         await waitFor(() => {
-          user.click(screen.getByText('Create Channel')).catch(e => {
+          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
             logger.error(e)
           })
         })
@@ -828,7 +828,7 @@ describe('Add new channel', () => {
       await act(
         async () =>
           await waitFor(() => {
-            user.click(screen.getByText('Create Channel')).catch(e => {
+            user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
               logger.error(e)
             })
           })

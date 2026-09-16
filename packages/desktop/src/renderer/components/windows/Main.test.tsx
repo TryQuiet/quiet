@@ -153,7 +153,7 @@ describe('Main', () => {
                                     data-testid="channelsList"
                                   >
                                     <div
-                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
+                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
                                       data-testid="general-link"
                                       role="button"
                                       tabindex="0"
