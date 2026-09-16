@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Features
+
+* Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
+
 ## [9.0.0]
 
 ### Features
