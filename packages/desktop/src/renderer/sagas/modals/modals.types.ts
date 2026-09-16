@@ -20,7 +20,6 @@ export enum ModalName {
   leaveCommunity = 'leaveCommunityModal',
   searchChannelModal = 'searchChannelModal',
   warningModal = 'warningModal',
-  channelCreationModal = 'channelCreationModal',
   duplicatedUsernameModal = 'duplicatedUsernameModal',
   unregisteredUsernameModal = 'unregisteredUsernameModal',
   usernameTakenModal = 'usernameTakenModal',

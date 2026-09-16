@@ -64,7 +64,7 @@ describe('Add new channel', () => {
           })
         })
     )
-    // Modal should close after user submits channel name
+    // The panel should close after the user submits a channel name
     expect(screen.queryByDisplayValue('Create a new public channel')).toBeNull()
 
     await act(async () => {
@@ -181,7 +181,7 @@ describe('Add new channel', () => {
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-fv7e1x-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-xaluvt-MuiGrid-root"
             >
               <div
                 class="PanelHeaderroot css-1gijsy4"

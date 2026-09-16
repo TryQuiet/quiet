@@ -32,7 +32,6 @@ export class ModalsInitialState {
   [ModalName.searchChannelModal] = { open: false, args: {} };
   [ModalName.warningModal] = { open: false, args: {} };
   [ModalName.loadingPanel] = { open: true, args: {} }; // Loading modal is open by default and closes on websocket connection
-  [ModalName.channelCreationModal] = { open: false, args: {} };
   [ModalName.unregisteredUsernameModal] = { open: false, args: {} };
   [ModalName.duplicatedUsernameModal] = { open: false, args: {} };
   [ModalName.usernameTakenModal] = { open: false, args: {} };

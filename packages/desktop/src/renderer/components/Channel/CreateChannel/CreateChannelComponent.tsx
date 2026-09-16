@@ -18,29 +18,22 @@ const logger = createLogger('CreateChannelComponent')
 
 const PREFIX = 'CreateChannelComponent'
 
-
 const classes = {
   fullContainer: `${PREFIX}fullContainer`,
   gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
-  title: `${PREFIX}title`,
   iconDiv: `${PREFIX}iconDiv`,
   warningIcon: `${PREFIX}warningIcon`,
   warningMessage: `${PREFIX}warningMessage`,
   errorMessage: `${PREFIX}errorMessage`,
-  rootBar: `${PREFIX}rootBar`,
-  progressBar: `${PREFIX}progressBar`,
-  info: `${PREFIX}info`,
   publicPrivateGrid: `${PREFIX}publicPrivateGrid`,
   lock: `${PREFIX}lock`,
   publicPrivate: `${PREFIX}publicPrivate`,
   publicPrivateControl: `${PREFIX}publicPrivateControl`,
-  bold: `${PREFIX}bold`,
-  offset: `${PREFIX}offset`,
   subtitle: `${PREFIX}subtitle`,
 }
 
-const StyledModalContent = styled(Grid)(({ theme }) => ({
+const StyledPanelContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   padding: `0px ${PANEL_INSET}px`,
 
@@ -66,10 +59,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     fontWeight: 'normal',
   },
 
-  [`& .${classes.title}`]: {
-    marginBottom: 24,
-  },
-
   [`& .${classes.iconDiv}`]: {
     width: 24,
     height: 28,
@@ -89,21 +78,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     fontSize: 12,
   },
 
-  [`& .${classes.rootBar}`]: {
-    width: 350,
-    marginTop: 32,
-    marginBottom: 16,
-  },
-
-  [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.linkBlue,
-  },
-
-  [`& .${classes.info}`]: {
-    lineHeight: '19px',
-    color: theme.palette.colors.darkGray,
-  },
-
   [`& .${classes.publicPrivateGrid}`]: {
     marginLeft: 0,
     alignItems: 'center',
@@ -114,14 +88,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.lock}`]: {
     padding: 0,
-  },
-
-  [`& .${classes.bold}`]: {
-    fontWeight: 500,
-  },
-
-  [`& .${classes.offset}`]: {
-    marginTop: 5,
   },
 
   [`& .${classes.subtitle}`]: {
@@ -230,7 +196,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
           data-testid={'createChannelPanel'}
           PaperProps={{ sx: { width: PANEL_WIDTH } }}
         >
-          <StyledModalContent container direction='column'>
+          <StyledPanelContent container direction='column'>
             <PanelHeader
               title='Create channel'
               handleClose={handleClose}
@@ -247,7 +213,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               })}
             >
               <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-
                 <Typography variant='body2'>Channel name</Typography>
                 <Controller
                   control={control}
@@ -373,7 +338,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                 />
               </Grid>
             </form>
-          </StyledModalContent>
+          </StyledPanelContent>
         </Drawer>
       )}
     </>
