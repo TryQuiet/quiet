@@ -37,8 +37,8 @@ PrivateChannelAllowed.args = { ...args, canCreatePrivateChannel: true }
 export const PrivateChannelNotAllowed = Template.bind({})
 PrivateChannelNotAllowed.args = { ...args, canCreatePrivateChannel: false }
 
-export const NoChannelPermission = Template.bind({})
-NoChannelPermission.args = { ...args, canCreateChannel: false }
+// No story for canCreateChannel: false — the component renders nothing at all in that case, which
+// is indistinguishable from a broken story. The unit test covers it instead.
 
 const component: ComponentMeta<typeof CreateChannelComponent> = {
   title: 'Components/CreateChannel',

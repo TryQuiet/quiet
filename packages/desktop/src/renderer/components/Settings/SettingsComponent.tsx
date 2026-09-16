@@ -3,7 +3,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 
 import { useModal } from '../../containers/hooks'
-import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '../ui'
+import PanelHeader, { PANEL_WIDTH } from '../ui/Panel/PanelHeader'
+import { Box, Divider, Drawer, List, ListItemButton, ListItemIcon, ListItemText } from '../ui'
 import IconButton from '../ui/Icon/IconButton'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
@@ -48,20 +49,12 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   return (
     <>
       <Drawer open={open && currentTab == ''} onClose={handleClose} anchor='right'>
-        <List sx={{ width: '375px', paddingTop: '16px' }}>
-          <ListItem sx={{ paddingBottom: '8px' }}>
-            <div>
-              <ListItemButton onClick={handleClose} sx={{ padding: '0px' }} data-testid={'close-settings-button'}>
-                <ListItemIcon>
-                  <CloseIcon />
-                </ListItemIcon>
-              </ListItemButton>
-            </div>
-            <ListItemText sx={{ textAlign: 'center' }}>
-              <Typography sx={{ fontWeight: '500' }}>Community Settings</Typography>
-            </ListItemText>
-          </ListItem>
-          <Divider />
+        <List sx={{ width: PANEL_WIDTH, paddingTop: '0px' }}>
+          <PanelHeader
+            title='Community Settings'
+            handleClose={handleClose as () => void}
+            closeTestId={'close-settings-button'}
+          />
           <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('about')}>
             <ListItemText>About</ListItemText>
             <ListItemIcon>

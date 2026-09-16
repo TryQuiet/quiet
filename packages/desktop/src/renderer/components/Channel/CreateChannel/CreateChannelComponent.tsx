@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
-import { Drawer, FormControlLabel, Grid, IconButton, Typography } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
+import { Drawer, FormControlLabel, Grid, Typography } from '@mui/material'
+import PanelHeader, { PANEL_INSET, PANEL_WIDTH } from '../../ui/Panel/PanelHeader'
 import WarningIcon from '@mui/icons-material/Warning'
 
 import { parseName } from '@quiet/common'
@@ -18,13 +18,8 @@ const logger = createLogger('CreateChannelComponent')
 
 const PREFIX = 'CreateChannelComponent'
 
-// The design composes this as a right-hand panel whose content column is the same 375 the mobile
-// screens use ("Create channels for specific roles", Figma PVQ1Kjf6Cq8ng1czuVtvR8 838:9394).
-const PANEL_WIDTH = 375
 
 const classes = {
-  panelHeader: `${PREFIX}panelHeader`,
-  panelTitle: `${PREFIX}panelTitle`,
   fullContainer: `${PREFIX}fullContainer`,
   gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
@@ -47,20 +42,7 @@ const classes = {
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
-  padding: '0px 32px',
-
-  [`& .${classes.panelHeader}`]: {
-    gap: 8,
-    paddingTop: 16,
-    paddingBottom: 8,
-    flexWrap: 'nowrap',
-  },
-
-  [`& .${classes.panelTitle}`]: {
-    flexGrow: 1,
-    textAlign: 'center',
-    paddingRight: 34,
-  },
+  padding: `0px ${PANEL_INSET}px`,
 
   [`& .${classes.fullContainer}`]: {
     width: '100%',
@@ -249,14 +231,12 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
           PaperProps={{ sx: { width: PANEL_WIDTH } }}
         >
           <StyledModalContent container direction='column'>
-            <Grid container direction='row' alignItems='center' className={classes.panelHeader}>
-              <IconButton onClick={handleClose} data-testid={'createChannelPanelClose'} size='small'>
-                <CloseIcon />
-              </IconButton>
-              <Typography variant='h5' className={classes.panelTitle} data-testid={'createChannelPanelTitle'}>
-                Create channel
-              </Typography>
-            </Grid>
+            <PanelHeader
+              title='Create channel'
+              handleClose={handleClose}
+              closeTestId={'createChannelPanelClose'}
+              titleTestId={'createChannelPanelTitle'}
+            />
             <form
               onSubmit={handleSubmit(onSubmit, errors => {
                 logger.error(
