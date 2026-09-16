@@ -132,9 +132,10 @@ jobs:
         # still fail immediately.
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
-          # Jest allows the creates-network integration test five minutes; the
-          # additional headroom covers the other serial Tor specs and teardown.
-          timeout_minutes: 7
+          # A cold Tor bootstrap alone can take minutes on a hosted runner, and
+          # each attempt gets a fresh tmp dir so it never reuses a warm cache.
+          # This has to clear that plus the other serial Tor specs and teardown.
+          timeout_minutes: 15
           # One initial attempt plus one fresh Tor process.
           max_attempts: 2
           retry_wait_seconds: 30

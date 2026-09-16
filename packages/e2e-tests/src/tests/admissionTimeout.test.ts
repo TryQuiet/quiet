@@ -31,6 +31,7 @@ const LOCAL_LIBP2P_START_TIMEOUT_MS = 30_000
 const TOR_LIBP2P_START_TIMEOUT_MS = 60_000
 const PANEL_VISIBLE_TIMEOUT_MS = 15_000
 const PEER_DIAL_TIMEOUT_MS = 120_000
+const TOR_ADMISSION_TIMEOUT_MS = 180_000
 // Two Tor bootstraps plus two joins. Kept above the sum of the inner budgets so a
 // stall reports the step that stalled rather than a bare jest timeout.
 const REAL_TRANSPORT_TEST_TIMEOUT_MS = 900_000
@@ -45,6 +46,20 @@ function joinCompletionTimeoutMs(): number {
 
 function libp2pStartTimeoutMs(): number {
   return isLocalTransport() ? LOCAL_LIBP2P_START_TIMEOUT_MS : TOR_LIBP2P_START_TIMEOUT_MS
+}
+
+// The joining panel also clears when admission is RESET, so a wait on the panel
+// alone reports success and the run only fails later on a missing channel. The
+// backend names the reset, so check for it before trusting a cleared panel.
+function assertAdmissionNotReset(app: App): void {
+  for (const marker of ['Admission acquisition deadline expired', 'Emitting event: resetAdmission']) {
+    if (app.buildSetup.hasProcessOutput(marker)) {
+      throw new Error(
+        `${app.name} reset admission instead of completing it ("${marker}"); ` +
+          `the joining panel cleared because the join was abandoned, not because it succeeded`
+      )
+    }
+  }
 }
 
 // Under real transport the joining panel cannot clear until Tor is up, so a slow
@@ -326,7 +341,12 @@ describe('Timed-out P2P admission recovery', () => {
       const suiteLocalTransport = process.env.LOCAL_TRANSPORT
       const suiteAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
       process.env.LOCAL_TRANSPORT = 'false'
-      process.env.INVITATION_ADMISSION_TIMEOUT_MS = '60000'
+      // The other cases use a deliberately short window to prove admission resets.
+      // This one proves admission SUCCEEDS, so the window has to clear a real onion
+      // dial: descriptor publication plus fetch. At 60s the backend gave up with
+      // "Admission acquisition deadline expired" 60s to the millisecond after the
+      // dial began, and the reset then read as a missing general channel.
+      process.env.INVITATION_ADMISSION_TIMEOUT_MS = String(TOR_ADMISSION_TIMEOUT_MS)
       // Tracked separately so the finally below can release them even when the
       // test throws. This case holds two real-Tor apps, so leaving them running
       // would penalise the two cases that follow.
@@ -383,6 +403,7 @@ describe('Timed-out P2P admission recovery', () => {
           joinCompletionTimeoutMs(),
           'device link retry after interrupted admission'
         )
+        assertAdmissionNotReset(linkedDevice)
         expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
       } finally {
         await releaseApps(...testApps)
