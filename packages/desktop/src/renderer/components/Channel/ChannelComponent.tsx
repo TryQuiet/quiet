@@ -71,6 +71,9 @@ const enum ScrollPosition {
   BOTTOM = 1,
 }
 
+// How long after one of our own scrollTo() calls a scroll event is still ours rather than the reader's.
+const PROGRAMMATIC_SCROLL_WINDOW_MS = 300
+
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps> = ({
   user,
   channelId,
@@ -108,6 +111,15 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const [infoClass, setInfoClass] = useState<string>('')
 
   const [scrollPosition, setScrollPosition] = React.useState(ScrollPosition.BOTTOM)
+  // Where the reader is, as far as onResize is concerned. Kept apart from scrollPosition
+  // because the scroll event from our own scrollTo() can be evaluated after a resize has
+  // already changed the geometry, which would report a reader who never left the bottom
+  // as being in the middle. Only the reader's own scrolling moves this ref.
+  const readerPositionRef = React.useRef(ScrollPosition.BOTTOM)
+  const programmaticScrollUntil = React.useRef(0)
+  const markProgrammaticScroll = () => {
+    programmaticScrollUntil.current = Date.now() + PROGRAMMATIC_SCROLL_WINDOW_MS
+  }
 
   const memoizedScrollHeight = React.useRef<number>()
 
@@ -125,7 +137,12 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   }, [mathMessagesRendered])
 
   const onResize = React.useCallback(() => {
-    scrollBottom()
+    // A resize is not the reader asking for the newest message: keep it in view only if
+    // they were already at the bottom. The resize observer fires asynchronously, so a
+    // PageUp/PageDown or wheel that landed in between must win.
+    if (readerPositionRef.current === ScrollPosition.BOTTOM) {
+      scrollBottom()
+    }
   }, [])
 
   const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
@@ -133,6 +150,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     if (!scrollbarRef?.current?.scrollTo) return
     setNewMessagesInfo(false)
     memoizedScrollHeight.current = 0
+    markProgrammaticScroll()
+    readerPositionRef.current = ScrollPosition.BOTTOM
     scrollbarRef.current.scrollTo({
       behavior: 'auto',
       top: Math.abs(scrollbarRef.current.clientHeight - scrollbarRef.current.scrollHeight),
@@ -143,6 +162,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     // Send message and files
     onInputEnter(message)
     // Go back to the bottom if scroll is at the top or in the middle
+    readerPositionRef.current = ScrollPosition.BOTTOM
     setScrollPosition(ScrollPosition.BOTTOM)
   }
 
@@ -163,6 +183,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
       setNewMessagesInfo(false)
     }
     setScrollPosition(position)
+    if (Date.now() > programmaticScrollUntil.current) {
+      readerPositionRef.current = position
+    }
   }, [])
 
   /* Keep scroll position in certain cases */
@@ -173,6 +196,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     }
     // Keep scroll position when new chunk of messages is being loaded
     if (scrollbarRef.current && scrollPosition === ScrollPosition.TOP && memoizedScrollHeight.current !== undefined) {
+      markProgrammaticScroll()
       scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - memoizedScrollHeight.current
     }
   }, [messages])
