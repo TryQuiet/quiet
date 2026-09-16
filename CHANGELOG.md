@@ -37,6 +37,11 @@
 * Match the mobile create-channel screen's copy to the design library
 * Present desktop channel creation as a side panel rather than a centred modal, matching the designs
 * Say that admins, not roles, have access to private channels, since roles do not exist yet
+* Show recipients as pills on mobile while composing a direct message, each with the member's thumbnail and a control to remove it
+* Draw desktop recipients as design pills rather than plain chips, with a thumbnail, a close control and the design's hover states
+* Take back navigation from a channel's Permissions and Add members screens on mobile to the channel it was opened from, rather than home
+* Round mobile buttons to the design library's radius and height, instead of the squarer box they had
+* Paint the desktop side nav in the brand purple and mark the selected channel at the design's opacity
 
 ## [9.0.0]
 
