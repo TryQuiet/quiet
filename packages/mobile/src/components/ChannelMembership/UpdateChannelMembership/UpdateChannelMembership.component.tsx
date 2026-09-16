@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
+import { KeyboardAvoidingView, Platform, TextInput, TouchableOpacity, View } from 'react-native'
 
 import { defaultPalette } from '../../../styles/palettes/default.palette'
 import { Appbar } from '../../Appbar/Appbar.component'
@@ -10,11 +10,14 @@ import { SelectableListOption } from './UpdateChannelMembershipList.types'
 import { UpdateChannelMembershipList } from './UpdateChannelMembershipList.component'
 import { defaultTheme } from '../../../styles/themes/default.theme'
 import { Input } from '../../Input/Input.component'
+import { Typography } from '../../Typography/Typography.component'
 import Fuse from 'fuse.js'
 
 const logger = createLogger('ChannelMembership')
 
 const HEADER_TITLE = 'Add members'
+// Copy taken from the DM designs (Figma: Direct Messages (DMs), "Pre search" 823:14606).
+const SEARCH_PLACEHOLDER = 'Search for people, chats or channels'
 
 export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = ({
   channelTitle,
@@ -163,8 +166,7 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
         >
           <Input
             onChangeText={onChangeText}
-            subtitle={`Add members with '@'`}
-            placeholder={'E.g. @jane123'}
+            placeholder={SEARCH_PLACEHOLDER}
             value={membershipSearchInput}
             length={20}
             disabled={loading}
@@ -172,7 +174,27 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
             ref={inputRef}
             autoCorrect={false}
             bottomSeparator={<View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />}
-            wrapperStyle={{ paddingHorizontal: 16, display: 'flex', flexDirection: 'column' }}
+            // Full-bleed, borderless field with a "To:" prefix, per the DM designs.
+            wrapperStyle={{ display: 'flex', flexDirection: 'column' }}
+            style={{ borderWidth: 0, borderRadius: 0, height: 44, paddingHorizontal: 16 }}
+            leftAccessory={
+              <Typography fontSize={16} style={{ color: defaultTheme.palette.typography.gray50, paddingRight: 8 }}>
+                {'To:'}
+              </Typography>
+            }
+            rightAccessory={
+              membershipSearchInput ? (
+                <TouchableOpacity
+                  onPress={() => onChangeText('')}
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  testID={`update-channel-membership-input-clear-${channelId}`}
+                >
+                  <Typography fontSize={16} style={{ color: defaultTheme.palette.typography.gray70 }}>
+                    {'✕'}
+                  </Typography>
+                </TouchableOpacity>
+              ) : undefined
+            }
             keyboardType={'email-address'}
             testID={`update-channel-membership-input-${channelId}`}
           />

@@ -58,36 +58,43 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
       ? defaultTheme.palette.background.gray70
       : defaultTheme.palette.background.gray06
     const checkedColor = item.mutable ? defaultTheme.palette.background.gray70 : defaultTheme.palette.background.gray06
+    // The whole row is the press target, per the DM designs — not just the checkbox and the name.
     const label = (
-      <TouchableOpacity onPress={() => updateOptionsOnCheck(item)}>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            alignContent: 'center',
-            gap: 16,
-            paddingVertical: 11,
-          }}
-        >
-          <ProfilePhotoWithBadge userData={nonMembers[item.id]} size={ProfilePhotoSize.MEDIUM} />
-          <Typography fontSize={16} style={{ color: labelColor }}>
-            {item.label}
-          </Typography>
-        </View>
-      </TouchableOpacity>
+      <View
+        style={{
+          display: 'flex',
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignContent: 'center',
+          gap: 16,
+          paddingVertical: 11,
+        }}
+      >
+        <ProfilePhotoWithBadge userData={nonMembers[item.id]} size={ProfilePhotoSize.MEDIUM} />
+        <Typography fontSize={16} style={{ color: labelColor }}>
+          {item.label}
+        </Typography>
+      </View>
     )
     return (
-      <Checkbox
-        label={label}
-        testID={`update-channel-membership-list-item-${channelId}-${item.id}`}
-        status={item.selected ? 'checked' : 'unchecked'}
-        color={checkedColor}
-        uncheckedColor={uncheckedColor}
+      <TouchableOpacity
+        activeOpacity={item.mutable ? 0.2 : 1}
         disabled={!item.mutable}
         onPress={() => updateOptionsOnCheck(item)}
-        viewStyle={{ paddingHorizontal: HORIZ_ELEM_PADDING, height: 60 }}
-      />
+        testID={`update-channel-membership-list-row-${channelId}-${item.id}`}
+      >
+        <Checkbox
+          label={label}
+          testID={`update-channel-membership-list-item-${channelId}-${item.id}`}
+          status={item.selected ? 'checked' : 'unchecked'}
+          color={checkedColor}
+          uncheckedColor={uncheckedColor}
+          disabled={!item.mutable}
+          onPress={() => updateOptionsOnCheck(item)}
+          viewStyle={{ paddingHorizontal: HORIZ_ELEM_PADDING, height: 60 }}
+        />
+      </TouchableOpacity>
     )
   }
 

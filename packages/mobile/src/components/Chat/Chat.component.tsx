@@ -13,6 +13,7 @@ import {
   StyleSheet,
   TextInputChangeEventData,
   TextInputEndEditingEventData,
+  TouchableOpacity,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
@@ -20,6 +21,7 @@ import { Loading } from '../Loading/Loading.component'
 import { ImagePreviewModal } from '../../components/ImageAttachmentPreview/ImageAttachmentPreview.component'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
+import { Typography } from '../Typography/Typography.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { ChatProps, ListItem } from './Chat.types'
 import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
@@ -37,6 +39,9 @@ import Fuse from 'fuse.js'
 import { UpdateChannelMembershipList } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.component'
 import { generateTruncatedDmTitle } from '../../utils/functions/dmUtils/dmUtils'
 import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
+
+// Copy taken from the DM designs (Figma: Direct Messages (DMs), "Pre search" 823:14606).
+const DM_SEARCH_PLACEHOLDER = 'Search for people, chats or channels'
 
 const logger = createLogger('chat:component')
 
@@ -575,8 +580,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
           >
             <Input
               onChangeText={onChangeText}
-              subtitle={`Add members with '@'`}
-              placeholder={'E.g. @jane123'}
+              placeholder={DM_SEARCH_PLACEHOLDER}
               value={membershipSearchInput}
               length={20}
               disabled={false}
@@ -584,7 +588,27 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
               ref={inputRef}
               autoCorrect={false}
               bottomSeparator={<View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />}
-              wrapperStyle={{ paddingHorizontal: 16, display: 'flex', flexDirection: 'column' }}
+              // Full-bleed, borderless field with a "To:" prefix, per the DM designs.
+              wrapperStyle={{ display: 'flex', flexDirection: 'column' }}
+              style={{ borderWidth: 0, borderRadius: 0, height: 44, paddingHorizontal: 16 }}
+              leftAccessory={
+                <Typography fontSize={16} style={{ color: defaultTheme.palette.typography.gray50, paddingRight: 8 }}>
+                  {'To:'}
+                </Typography>
+              }
+              rightAccessory={
+                membershipSearchInput ? (
+                  <TouchableOpacity
+                    onPress={() => onChangeText('')}
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                    testID={'new-message-search-clear'}
+                  >
+                    <Typography fontSize={16} style={{ color: defaultTheme.palette.typography.gray70 }}>
+                      {'✕'}
+                    </Typography>
+                  </TouchableOpacity>
+                ) : undefined
+              }
               keyboardType={'email-address'}
               testID={`update-channel-membership-input-${channelId}`}
             />
