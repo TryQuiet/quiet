@@ -240,9 +240,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 
   const removeRecipient = useCallback(
     (userId: string) => {
-      setOptions(current =>
-        current?.map(option => (option.id === userId ? { ...option, selected: false } : option))
-      )
+      setOptions(current => current?.map(option => (option.id === userId ? { ...option, selected: false } : option)))
     },
     [setOptions]
   )

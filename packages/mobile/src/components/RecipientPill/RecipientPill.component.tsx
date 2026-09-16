@@ -27,7 +27,14 @@ export const PILL_ROW_GAP = 10
 const CLOSE_COLOR = '#A1A1A1'
 const CLOSE_COLOR_PRESSED = defaultPalette.typography.gray70
 
-export const RecipientPill: React.FC<RecipientPillProps> = ({ label, userId, photo, profilePhoto, onRemove, testID }) => {
+export const RecipientPill: React.FC<RecipientPillProps> = ({
+  label,
+  userId,
+  photo,
+  profilePhoto,
+  onRemove,
+  testID,
+}) => {
   return (
     <Pressable
       accessibilityRole={'button'}

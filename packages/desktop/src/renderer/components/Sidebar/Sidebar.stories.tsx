@@ -146,7 +146,6 @@ const args: IdentityPanelProps &
   },
 }
 
-
 // Extra members so a DM title can be exercised well past the sidebar's width.
 const EXTRA_DM_NAMES = [
   'Denise',
