@@ -42,6 +42,8 @@
 * Take back navigation from a channel's Permissions and Add members screens on mobile to the channel it was opened from, rather than home
 * Round mobile buttons to the design library's radius and height, instead of the squarer box they had
 * Paint the desktop side nav in the brand purple and mark the selected channel at the design's opacity
+* List Members and Permissions as separate entries in the mobile channel menu, as the designs do, and draw Delete channel in red
+* Use the design's placeholder in the desktop direct-message search
 
 ## [9.0.0]
 
