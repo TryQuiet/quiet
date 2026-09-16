@@ -18,6 +18,7 @@ export const AppHome: FC<AppHomeProps> = ({
   communityContextMenu,
   userProfiles,
   me,
+  canCreateChannel = true,
 }) => {
   let communityName = '...'
   if (community?.name) {
@@ -83,7 +84,7 @@ export const AppHome: FC<AppHomeProps> = ({
                 <Typography fontSize={14} fontWeight={'medium'} color={'gray70'}>
                   Channels
                 </Typography>
-                <PlusButton onPress={createChannel} />
+                {canCreateChannel && <PlusButton onPress={createChannel} />}
               </View>
               <FlatList
                 data={channelTiles}

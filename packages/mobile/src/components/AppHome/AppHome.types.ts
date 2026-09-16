@@ -9,6 +9,8 @@ export interface AppHomeProps {
   userProfiles: Record<string, UserProfile>
   me?: UserProfile
   createChannel: () => void
+  /** Hide the channel-creation control entirely when the user has no permission to create one. */
+  canCreateChannel?: boolean
   createDm: () => void
   communityContextMenu: ReturnType<typeof useContextMenu> | null
 }

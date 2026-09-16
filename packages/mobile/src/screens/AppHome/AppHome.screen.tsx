@@ -79,6 +79,8 @@ export const AppHomeScreen: FC = () => {
 
   const channels = useSelector(publicChannels.selectors.sortedChannels)
 
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
+
   useEffect(() => {
     const newChannelTiles: ChannelTileProps[] = []
     const newDmTitles: ChannelTileProps[] = []
@@ -132,6 +134,7 @@ export const AppHomeScreen: FC = () => {
       channelTiles={channelTiles}
       dmTiles={dmTiles}
       createChannel={createChannel}
+      canCreateChannel={channelPermissions?.public?.create ?? true}
       createDm={createDm}
       communityContextMenu={communityContextMenu}
       userProfiles={userProfiles}
