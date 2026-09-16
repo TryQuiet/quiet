@@ -1,3 +1,4 @@
+import { type LocalUserContext } from '@localfirst/auth'
 import { jest } from '@jest/globals'
 import EventEmitter from 'node:events'
 import waitForExpect from 'wait-for-expect'
@@ -39,7 +40,10 @@ describe('message-only push notifications after QSS sync', () => {
     const invite = chain.invites.createUserInvite()
     const invitee = SigChain.createFromInvite({ seed: invite.seed }, chain.team!.id)
     chain.invites.admitMemberFromInvite(
-      InviteService.createMemberAdmission({ seed: invite.seed, context: invitee.context })
+      InviteService.createMemberAdmission({
+        seed: invite.seed,
+        context: { user: invitee.user, device: invitee.device } as LocalUserContext,
+      })
     )
     return invitee.user.userId
   }

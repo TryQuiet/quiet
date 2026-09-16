@@ -80,6 +80,7 @@ describe('QSSSyncManager', () => {
       setLastSyncSeq: jest.fn(),
     }
     orbitDbService = {
+      outboundEvents: new EventEmitter(),
       getLogEntriesByHashes: jest.fn(async () => []),
       handleFanoutMessage: jest.fn(async () => true),
       ingestEntries: jest.fn(),
@@ -110,7 +111,19 @@ describe('QSSSyncManager', () => {
   })
 
   afterEach(() => {
-    manager.close()
+    manager.onModuleDestroy()
+  })
+
+  it('only sends entries emitted by its own OrbitDB service instance', () => {
+    const sendSpy = jest.spyOn(manager, 'sendLogEntrySyncMessage').mockResolvedValue(undefined)
+    const otherPeerEvents = new EventEmitter()
+
+    manager.onModuleInit()
+    otherPeerEvents.emit('put', makeUpdate('other-peer'))
+    orbitDbService.outboundEvents.emit('put', makeUpdate('local-peer'))
+
+    expect(sendSpy).toHaveBeenCalledTimes(1)
+    expect(sendSpy).toHaveBeenCalledWith(makeUpdate('local-peer'))
   })
 
   it('does not pull or send before signed-in registration', async () => {

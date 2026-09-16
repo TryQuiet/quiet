@@ -35,6 +35,7 @@ const Sidebar = () => {
   useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+  const networkEndpoints = useSelector(connection.selectors.networkEndpoints)
 
   const setCurrentChannel = (id: string) => {
     dispatch(
@@ -77,6 +78,7 @@ const Sidebar = () => {
     userProfiles: userProfileSelector,
     userProfileContextMenu: userProfileContextMenu,
     connectedPeers: connectedPeers,
+    networkEndpoints,
     isTorInitialized: isTorInitialized,
   }
 

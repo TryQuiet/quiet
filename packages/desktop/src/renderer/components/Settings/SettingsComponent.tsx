@@ -97,6 +97,13 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </ListItemIcon>
           </ListItemButton>
           <Divider />
+          <ListItemButton data-testid='linked-devices-settings-tab' onClick={() => handleChange('linkedDevices')}>
+            <ListItemText>Linked devices</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          <Divider />
           <ListItemButton
             data-testid='leave-community-settings-tab'
             className={classes.leaveComunity}

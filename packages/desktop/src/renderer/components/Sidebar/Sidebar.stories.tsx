@@ -85,42 +85,43 @@ const args: IdentityPanelProps &
   myUserProfile: {
     userId: 'aliceUserId',
     nickname: 'Alice',
-    userData: {
-      peerId: 'alicePeerId',
-      onionAddress: 'alice.onion',
-    },
     channels: [],
   },
   userProfiles: {
     aliceUserId: {
       userId: 'aliceUserId',
       nickname: 'Alice',
-      userData: {
-        peerId: 'alicePeerId',
-        onionAddress: 'alice.onion',
-      },
       channels: [],
     },
     bobUserId: {
       userId: 'bobUserId',
       nickname: 'Bob',
-      userData: {
-        peerId: 'bobPeerId',
-        onionAddress: 'bob.onion',
-      },
       channels: [],
     },
     charlieUserId: {
       userId: 'charlieUserId',
       nickname: 'Charlie',
-      userData: {
-        peerId: 'charliePeerId',
-        onionAddress: 'charlie.onion',
-      },
       channels: [],
     },
   },
   connectedPeers: ['alicePeerId', 'bobPeerId'],
+  networkEndpoints: [
+    {
+      teamId: 'foobar',
+      userId: 'aliceUserId',
+      deviceId: 'aliceDeviceId',
+      peerId: 'alicePeerId',
+      onionAddress: 'alice.onion',
+    },
+    { teamId: 'foobar', userId: 'bobUserId', deviceId: 'bobDeviceId', peerId: 'bobPeerId', onionAddress: 'bob.onion' },
+    {
+      teamId: 'foobar',
+      userId: 'charlieUserId',
+      deviceId: 'charlieDeviceId',
+      peerId: 'charliePeerId',
+      onionAddress: 'charlie.onion',
+    },
+  ],
   unreadChannels: ['spooky'],
   setCurrentChannel: function (_id: string): void {},
   currentChannel: 'general',
