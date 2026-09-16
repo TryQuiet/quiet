@@ -135,6 +135,8 @@ const args: IdentityPanelProps &
     handleClose: function (): any {},
   },
   isTorInitialized: true,
+  canCreateChannel: true,
+  openNewMessageWindow: function (): void {},
   // @ts-expect-error
   currentIdentity: {},
   userProfileContextMenu: {
@@ -200,6 +202,46 @@ DirectMessages.args = {
   userProfiles: dmUserProfiles,
   dmChannels: [1, 2, 3, 5, 12].map(dmChannelWith),
   unreadDms: ['dm_3'],
+}
+
+/**
+ * The side nav transcribed from the private-channel designs ("Nav bar" in Figma
+ * PVQ1Kjf6Cq8ng1czuVtvR8, 838:9760): the same channel set, with private channels marked by a
+ * padlock instead of a #, an unread badge, and both section headers carrying the + that opens
+ * channel creation and new-message composition.
+ *
+ * Threads and Drafts appear in the design above Channels; neither feature exists yet, so they are
+ * absent here rather than faked.
+ */
+const designChannel = (name: string, isPublic: boolean) => ({
+  id: name,
+  name,
+  description: `${name} channel`,
+  owner: 'aliceUserId',
+  timestamp: Date.now(),
+  public: isPublic,
+  type: ChannelType.CHANNEL,
+  teamId: 'foobar',
+})
+
+export const DesignReference = Template.bind({})
+DesignReference.args = {
+  ...args,
+  userProfiles: dmUserProfiles,
+  channels: [
+    designChannel('general', true),
+    designChannel('updates', false),
+    designChannel('onboarding', true),
+    designChannel('fundraising-and-events', false),
+    designChannel('files', true),
+    designChannel('channel-3', true),
+  ],
+  unreadChannels: ['onboarding'],
+  currentChannelId: 'general',
+  canCreateChannel: true,
+  dmChannels: [2, 3].map(dmChannelWith),
+  unreadDms: [],
+  openNewMessageWindow: () => {},
 }
 
 export const Component = Template.bind({})

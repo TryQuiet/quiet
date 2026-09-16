@@ -121,8 +121,10 @@ const lightTheme = createTheme({
       border02: '#B3B3B3',
       border03: '#D2D2D2',
       // Other custom colors
-      sidebarBackground: '#511974',
-      sidebarSelected: '#FFFFFF19',
+      // The side nav in the private-channel designs (Figma PVQ1Kjf6Cq8ng1czuVtvR8, "Nav bar"
+      // 838:9760) is the brand purple with the selected row at 20% white.
+      sidebarBackground: '#521C74',
+      sidebarSelected: '#FFFFFF33',
       sidebarHover: '#FFFFFF0C',
       // Status colors
       statusGreen: '#9BD174', // Grass Green - for online status
@@ -380,7 +382,7 @@ const darkTheme = createTheme({
       border03: '#D2D2D2',
       // Gradients and other run-of-the-mill things
       sidebarBackground: '#2F193D',
-      sidebarSelected: '#FFFFFF19',
+      sidebarSelected: '#FFFFFF33',
       sidebarHover: '#FFFFFF0C',
       // Status colors
       statusGreen: '#9BD174', // Grass Green - for online status
