@@ -28,8 +28,7 @@ const Sidebar = () => {
   const userProfile = useSelector(users.selectors.myUserProfile)
   const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
   const canCreateChannel = channelPermissions.public.create
-  const canCreatePrivateChannel =
-    process.env.PRIVATE_CHANNEL_CREATION_ALLOWED === 'true' && channelPermissions.private.create
+  const canCreatePrivateChannel = channelPermissions.private.create
   const userId = userProfile?.userId || ''
 
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332

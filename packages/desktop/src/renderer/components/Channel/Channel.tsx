@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 
 import { shell, ipcRenderer, webUtils } from 'electron'
+import { openExternal } from '../../openExternal'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
@@ -19,7 +20,7 @@ import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
 
-const Channel = () => {
+const ChannelContent = () => {
   const dispatch = useDispatch()
 
   const user = useSelector(users.selectors.myUserProfile)
@@ -67,18 +68,19 @@ const Channel = () => {
 
   const onInputEnter = useCallback(
     (message: string) => {
+      if (!currentChannelId) return
       // Send message out of input value
       if (message) {
-        dispatch(messages.actions.sendMessage({ message }))
+        dispatch(messages.actions.sendMessage({ message, channelId: currentChannelId }))
       }
       // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach((fileData: FileContent) => {
-        dispatch(files.actions.attachFile(fileData))
+        dispatch(files.actions.attachFile({ ...fileData, channelId: currentChannelId }))
       })
       // Reset file previews for input state
       setAttachingFiles({})
     },
-    [dispatch]
+    [dispatch, currentChannelId]
   )
 
   React.useEffect(() => {
@@ -130,39 +132,50 @@ const Channel = () => {
       fileName: `${id}${ext}`,
       fileBuffer: new Uint8Array(imageBuffer),
       ext: ext,
+      channelId: currentChannelId,
     })
   }
 
   useEffect(() => {
-    ipcRenderer.on('writeTempFileReply', (_event, arg) => {
+    const onTempFile = (_event: Electron.IpcRendererEvent, arg: any) => {
+      if (arg.channelId !== currentChannelId) return
       setAttachingFiles(existingFiles => {
         const updatedFiles = {
           ...existingFiles,
           [arg.id]: {
             ext: arg.ext,
             name: arg.name,
-            path: webUtils.getPathForFile(arg),
+            path: arg.path,
           },
         }
 
         return updatedFiles
       })
-    })
-  }, [])
+    }
+    ipcRenderer.on('writeTempFileReply', onTempFile)
+    return () => {
+      ipcRenderer.removeListener('writeTempFileReply', onTempFile)
+    }
+  }, [currentChannelId])
 
   useEffect(() => {
-    ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
+    const onOpenedFiles = (_event: Electron.IpcRendererEvent, filesData: FilePreviewData, channelId: string) => {
+      if (channelId !== currentChannelId) return
       updateAttachingFiles(filesData)
-    })
-  }, [])
+    }
+    ipcRenderer.on('openedFiles', onOpenedFiles)
+    return () => {
+      ipcRenderer.removeListener('openedFiles', onOpenedFiles)
+    }
+  }, [currentChannelId])
 
   const openFilesDialog = useCallback(() => {
-    ipcRenderer.send('openUploadFileDialog')
-  }, [])
+    ipcRenderer.send('openUploadFileDialog', currentChannelId)
+  }, [currentChannelId])
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    shell.openExternal(url)
+    openExternal(url)
   }, [])
 
   const openContainingFolder = useCallback((path: string) => {
@@ -245,6 +258,11 @@ const Channel = () => {
       )}
     </>
   )
+}
+
+const Channel = () => {
+  const channelId = useSelector(publicChannels.selectors.currentChannelId)
+  return <ChannelContent key={channelId} />
 }
 
 export default Channel

@@ -20,7 +20,7 @@
 import { beforeAll, describe, expect, it } from '@jest/globals'
 import * as dagCbor from '@ipld/dag-cbor'
 import { signatures } from '@localfirst/auth'
-import { Entry, Log, type LogEntry } from '@orbitdb/core'
+import { Entry, Log, MemoryStorage, type LogEntry } from '@orbitdb/core'
 import { base58btc } from 'multiformats/bases/base58'
 import * as Block from 'multiformats/block'
 import { sha256 } from 'multiformats/hashes/sha2'
@@ -396,17 +396,21 @@ describe('OrbitDB signer substitution (#150)', () => {
   })
 
   describe('ChannelMetadataAccessController', () => {
-    const createAccess = async (isPublic: boolean, idToRoleName: Record<string, string> = {}) => {
-      const controller = new ChannelMetadataAccessController(alice.sigchainService)
+    const createAccess = async (
+      isPublic: boolean,
+      idToRoleName: Record<string, string> = {},
+      verifier: Party = alice
+    ) => {
+      const controller = new ChannelMetadataAccessController(verifier.sigchainService)
       const factory = controller.createAccessControllerFunc({
         write: ['*'],
-        sigchainService: alice.sigchainService,
+        sigchainService: verifier.sigchainService,
         isPublic,
         getPrivateChannelsByRolename: async () => ({ idToRoleName, roleNameToChannel: {} }),
       })
       return (factory as any)({
-        orbitdb: { identity: { id: alice.userId }, ipfs: createInMemoryIpfs() },
-        identities: alice.identities,
+        orbitdb: { identity: { id: verifier.userId }, ipfs: createInMemoryIpfs() },
+        identities: verifier.identities,
       })
     }
 
@@ -492,6 +496,102 @@ describe('OrbitDB signer substitution (#150)', () => {
       await expect(admit(access, alice, await signEntry(bob, privateDel))).resolves.toEqual(
         'rejected-by-access-control'
       )
+    })
+
+    it('rejects a signed private deletion by an ordinary member when the channel role mapping is unavailable', async () => {
+      const access = await createAccess(false)
+      const log = await Log(alice.identity as never, { logId: LOG_ID, access })
+      const entry = await signEntry(bob, privateDel)
+      try {
+        expect(alice.chain.roles.memberHasRole(bob.userId, RoleName.MEMBER)).toBe(true)
+        expect(alice.chain.roles.memberIsAdmin(bob.userId)).toBe(false)
+        expect(alice.chain.channels.memberInChannel(bob.userId, privateChannelRole)).toBe(false)
+        await expect(Entry.verify(alice.identities as never, entry as never)).resolves.toBe(true)
+        await expect(access.canAppend(entry)).resolves.toBe(false)
+        await expect(log.joinEntry(entry)).rejects.toThrow(/not allowed to write to the log/)
+        await expect(log.has(entry.hash)).resolves.toBe(false)
+      } finally {
+        await log.close()
+      }
+    })
+
+    it('syncs a recreated private channel past its historical deletion after explicitly re-adding a former member', async () => {
+      const ownerChain = SigChain.create()
+      const memberChain = joinTeam(ownerChain)
+      const oldRole = ownerChain.channels.createWithMembers([memberChain.user.userId])
+      const replacementRole = ownerChain.channels.create()
+      const owner = await partyFor(ownerChain)
+      const oldId = 'deleted-private-channel'
+      const replacementId = 'replacement-private-channel'
+      const channelPut = (id: string, roleName: string) => ({
+        op: OrbitDbOp.PUT,
+        key: id,
+        value: ownerChain.crypto.encryptAndSign(
+          {
+            id,
+            name: 'same-private-name',
+            description: 'private',
+            owner: owner.userId,
+            timestamp: 1,
+            public: false,
+            roleName,
+          },
+          { type: EncryptionScopeType.ROLE, name: roleName }
+        ),
+      })
+      const oldPut = channelPut(oldId, oldRole)
+      const replacementPut = channelPut(replacementId, replacementRole)
+      const memberBeforeGrant = SigChain.joinForTesting(
+        memberChain.context,
+        ownerChain.save(),
+        ownerChain.team!.teamKeyring()
+      )
+      expect(memberBeforeGrant.crypto.decryptAndVerify(oldPut.value.encrypted, oldPut.value.signature).isValid).toBe(
+        true
+      )
+      expect(() =>
+        memberBeforeGrant.crypto.decryptAndVerify(replacementPut.value.encrypted, replacementPut.value.signature)
+      ).toThrow()
+
+      const blocks = await MemoryStorage()
+      const sourceAccess = await createAccess(false, { [oldId]: oldRole, [replacementId]: replacementRole }, owner)
+      const source = await Log(owner.identity as never, { logId: LOG_ID, access: sourceAccess, entryStorage: blocks })
+      sourceAccess.setLogContext(source)
+      try {
+        await source.append(oldPut)
+        const historicalDelete = await source.append({ op: OrbitDbOp.DEL, key: oldId })
+        const replacementEntry = await source.append(replacementPut)
+        if (!historicalDelete || !replacementEntry) throw new Error('Source log entries were not created')
+
+        ownerChain.channels.addMember(memberChain.user.userId, replacementRole)
+        const member = await partyFor(
+          SigChain.joinForTesting(memberChain.context, ownerChain.save(), ownerChain.team!.teamKeyring())
+        )
+        // A peer's current metadata mapping has no entry for the deleted channel. Joining the
+        // replacement head still verifies the historical DEL through OrbitDB's ancestor traversal.
+        const receiverAccess = await createAccess(false, { [replacementId]: replacementRole }, member)
+        const receiver = await Log(member.identity as never, {
+          logId: LOG_ID,
+          access: receiverAccess,
+          entryStorage: blocks,
+        })
+        receiverAccess.setLogContext(receiver)
+        try {
+          await expect(receiver.joinEntry(replacementEntry)).resolves.toBe(true)
+          await expect(receiver.has(historicalDelete.hash)).resolves.toBe(true)
+          await expect(receiver.has(replacementEntry.hash)).resolves.toBe(true)
+          const received = await receiver.get(replacementEntry.hash)
+          const encrypted = received.payload.value as EncryptedAndSignedPayload
+          expect(member.chain.crypto.decryptAndVerify(encrypted.encrypted, encrypted.signature)).toMatchObject({
+            isValid: true,
+            contents: { id: replacementId, name: 'same-private-name', roleName: replacementRole },
+          })
+        } finally {
+          await receiver.close()
+        }
+      } finally {
+        await source.close()
+      }
     })
 
     it.each(VARIANTS)('rejects a private channel deletion by Bob claiming Alice, using %s', async (_name, variant) => {

@@ -1034,23 +1034,16 @@ export class UserProfileContextMenu {
   }
 
   async getProfilePhotoSrc(ext: PhotoExt): Promise<string> {
-    return await this.driver.wait(
+    return await this.driver.wait<string>(
       async () => {
-        let i = 0
-        while (i < 5) {
-          const photoElement = await this.waitForPhoto()
+        // Uploading can leave the previous image visible for several polls.
+        // Let this wait own the deadline, including when no image exists yet.
+        const [photoElement] = await this.driver.findElements(By.className('UserProfileContextMenuprofilePhoto'))
+        if (!photoElement) return undefined
 
-          logger.info(`found photoElement ${photoElement}`)
-          const src = await photoElement.getAttribute('src')
-
-          logger.info(`photoElement src ${src}`)
-
-          if (src.endsWith(ext)) {
-            return src
-          }
-          i++
-        }
-        throw new Error(`Failed to find image with data type ${ext} after 5 tries`)
+        const src = await photoElement.getAttribute('src')
+        logger.info(`photoElement src ${src}`)
+        return src?.endsWith(ext) ? src : undefined
       },
       15_000,
       `Failed to find image with data type ${ext} within timeout`,
@@ -1488,9 +1481,15 @@ export class Channel {
         500
       )
     } else {
-      titleText = `# ${this.name}`
+      titleText = `#${this.name}`
     }
-    return (await titleElement.getText()) === titleText
+    await this.driver.wait(
+      until.elementTextIs(titleElement, titleText),
+      timeout,
+      `Channel title did not change to ${titleText} within timeout`,
+      100
+    )
+    return true
   }
 
   async isMessageInputReady(): Promise<boolean> {
@@ -1867,7 +1866,11 @@ export class Channel {
   async getAtleastNumUserMessages(username: string, num: number): Promise<WebElement[] | null> {
     return await this.driver.wait(
       async (): Promise<WebElement[] | null> => {
-        const messages = await this.getUserMessages(username)
+        // An empty initial replication is a normal polling result. Nesting
+        // getUserMessages here would reject after its own shorter timeout.
+        const messages = await this.driver.findElements(
+          By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`)
+        )
         return messages.length >= num ? messages : null
       },
       60_000,
@@ -2715,7 +2718,6 @@ export class Settings {
 
   async closeTabThenModal() {
     await this.closeTab()
-    await sleep(1_000)
     await this.close()
   }
 
@@ -2734,6 +2736,7 @@ export class Settings {
       500
     )
     await closeButton.click()
+    await this.driver.wait(until.stalenessOf(closeButton), 10_000, 'Settings drawer did not finish closing', 100)
   }
 
   async closeTab() {
@@ -2751,6 +2754,7 @@ export class Settings {
       500
     )
     await closeTabButton.click()
+    await this.driver.wait(until.stalenessOf(closeTabButton), 10_000, 'Settings tab did not finish closing', 100)
   }
 
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {

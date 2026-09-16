@@ -17,6 +17,8 @@ import { sleep } from './nest/common/sleep'
 import { type BackendLeaveCommunityMessage } from '@quiet/types'
 import { MobileLifecycleCoordinator } from './mobile-lifecycle-coordinator'
 import { registerMobileSystemPause } from './mobile-system-pause'
+import { registerMobileSocketRecovery } from './mobile-socket-recovery'
+import { SocketService } from './nest/socket/socket.service'
 
 // Shutdown helper constants
 const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
@@ -223,15 +225,23 @@ export const runBackendDesktop = async (secret: string) => {
       logger.info('Received close message from parent process')
       await shutdown.gracefulCloseServices()
     }
-    if (message === 'leaveCommunity') {
+    if (
+      typeof message === 'object' &&
+      message !== null &&
+      'type' in message &&
+      message.type === 'leaveCommunity' &&
+      'requestId' in message &&
+      typeof message.requestId === 'string'
+    ) {
       let success = false
       try {
         success = await connectionsManager.leaveCommunity()
       } catch (e) {
         logger.error('Error occurred while leaving community', e)
-        await shutdown.initiateShutdown(1, 'leaveCommunity error')
+        // The transition gate blocks create/join until cleanup succeeds. Keep IPC
+        // available so the user can retry even when the frontend socket was closed.
       }
-      const response: BackendLeaveCommunityMessage = { type: 'leftCommunity', success }
+      const response: BackendLeaveCommunityMessage = { type: 'leftCommunity', requestId: message.requestId, success }
       if (process.connected) process.send?.(response)
     }
   })
@@ -288,6 +298,9 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   let shutdownRequestedFromBridge = false
   registerMobileSystemPause(rn_bridge.app, mobileLifecycle, logger)
   const lifecycleChannels = [rn_bridge.channel, rn_bridge.app]
+  registerMobileSocketRecovery(lifecycleChannels, app.get<SocketService>(SocketService), error => {
+    logger.error('Failed to recover local frontend listener', error)
+  })
   rn_bridge.channel.on('hibernate', async () => {
     logger.info('Received hibernate message from RN bridge')
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)

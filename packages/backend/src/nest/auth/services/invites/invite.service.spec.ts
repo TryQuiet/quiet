@@ -72,12 +72,14 @@ describe('invites', () => {
 
     expect(isolatedSigChain.invites.isValidLongLivedUserInvite(legacyInvite.id)).toBe(false)
   })
-  it('should reject a long-lived invite after MEMBER keys rotate', () => {
+  it('should preserve a long-lived invite when disabled membership removal is refused', () => {
     const isolatedSigChain = SigChain.create()
     const invite = isolatedSigChain.invites.createLongLivedUserInvite()
-    isolatedSigChain.roles.revokeMembership(isolatedSigChain.user.userId, RoleName.MEMBER)
+    expect(() => isolatedSigChain.roles.revokeMembership(isolatedSigChain.user.userId, RoleName.MEMBER)).toThrow(
+      /removal and key rotation are disabled/i
+    )
 
-    expect(isolatedSigChain.invites.isValidLongLivedUserInvite(invite.id)).toBe(false)
+    expect(isolatedSigChain.invites.isValidLongLivedUserInvite(invite.id)).toBe(true)
   })
   it('admin should generate an invite seed and create a new user from it', () => {
     const invite = adminSigChain.invites.createUserInvite()

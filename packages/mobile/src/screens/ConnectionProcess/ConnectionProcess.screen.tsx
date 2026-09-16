@@ -7,6 +7,7 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { createLogger } from '../../utils/logger'
 import { LoadingPanelType } from '@quiet/types'
+import { JoinRecovery } from '../../components/JoinRecovery/JoinRecovery.component'
 
 const logger = createLogger('ConnectionProcessScreen')
 
@@ -55,5 +56,9 @@ export const ConnectionProcessScreen: FC = () => {
     }
   }, [loadingPanelType])
 
-  return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
+  return (
+    <JoinRecovery>
+      <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
+    </JoinRecovery>
+  )
 }

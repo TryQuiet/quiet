@@ -1,7 +1,6 @@
 import { type Socket, applyEmitParams } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { call, select, apply, put, delay, take } from 'typed-redux-saga'
-import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { type ChannelMessage, MessageType, SendingStatus, SocketActions } from '@quiet/types'
@@ -17,6 +16,12 @@ export function* sendMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
   const payload = action.payload as ReturnType<typeof messagesActions.sendMessage>['payload']
+  // The composer chooses the destination before any asynchronous send work begins.
+  const channelId = payload.channelId
+  if (!channelId) {
+    logger.error('Failed to send message - channel ID is missing')
+    return
+  }
   const generatedMessageId = yield* call(generateMessageId)
   const id = payload.id || generatedMessageId
   let identity = yield* select(identitySelectors.currentIdentity)
@@ -31,13 +36,6 @@ export function* sendMessageSaga(
   }
 
   logger.info('Identity present', identity)
-
-  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-  const channelId = payload.channelId || currentChannelId
-  if (!channelId) {
-    logger.error(`Failed to send message ${id} - channel ID is missing`)
-    return
-  }
 
   logger.info(`Sending message ${id} to channel ${channelId}`)
 
