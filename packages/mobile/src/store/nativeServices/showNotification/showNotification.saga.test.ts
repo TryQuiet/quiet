@@ -125,7 +125,7 @@ describe('showNotificationSaga', () => {
   })
 
   it('does not notify on the channel list screen', async () => {
-    navigation.backStack = [ScreenNames.ChannelListScreen]
+    navigation.backStack = [ScreenNames.AppHomeScreen]
     await notify()
     expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
   })
