@@ -509,6 +509,13 @@ export class WarningModal {
   }
 }
 
+// Several phases of a single test wait on the same joining panel. Without a
+// label the resulting timeout names neither the app nor the phase, so a failed
+// setup reads exactly like a failed assertion.
+function describeWaitTarget(label?: string): string {
+  return label == null ? '' : ` (${label})`
+}
+
 export class JoiningLoadingPanel {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -524,24 +531,24 @@ export class JoiningLoadingPanel {
     )
   }
 
-  async waitUntilVisible(timeoutMs = 60_000): Promise<boolean> {
+  async waitUntilVisible(timeoutMs = 60_000, label?: string): Promise<boolean> {
     const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
     return this.driver.wait(
       async () => this.hasVisiblePanel(panelLocator),
       timeoutMs,
-      `Loading panel element couldn't be seen within timeout`,
+      `Loading panel element couldn't be seen within timeout${describeWaitTarget(label)}`,
       500
     )
   }
 
-  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000): Promise<void> {
+  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000, label?: string): Promise<void> {
     const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
     const visiblePanelTimeoutMs = Math.min(visibleTimeoutMs, 10_000)
     try {
-      await this.waitUntilVisible(visiblePanelTimeoutMs)
+      await this.waitUntilVisible(visiblePanelTimeoutMs, label)
     } catch (e) {
       if (this.isLoadingPanelTimeout(e)) {
-        logger.warn('Joining loading panel not present; skipping wait')
+        logger.warn(`Joining loading panel not present; skipping wait${describeWaitTarget(label)}`)
         return
       }
       throw e
@@ -550,7 +557,7 @@ export class JoiningLoadingPanel {
     await this.driver.wait(
       async () => !(await this.hasVisiblePanel(panelLocator)),
       completionTimeoutMs,
-      `Loading panel element didn't disappear within timeout`,
+      `Loading panel element didn't disappear within timeout${describeWaitTarget(label)}`,
       5_000
     )
   }
