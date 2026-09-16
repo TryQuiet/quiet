@@ -190,7 +190,8 @@ describe('QSSAuthConnectionManager', () => {
 
   it('keeps a restored team without MEMBER pending and requests a local invitation claim', async () => {
     const teamId = sigchainService.activeChain.team!.id
-    sigchainService.activeChain.roles.revokeMembership(sigchainService.activeChain.user.userId, RoleName.MEMBER)
+    // Model admission before the invitation's MEMBER grant is claimed; removal is disabled.
+    jest.spyOn(sigchainService.activeChain.roles, 'amIMemberOfRole').mockReturnValue(false)
     const conn = module.get<QSSAuthConnection>(QSSAuthConnection)
     conn.teamId = teamId
     const selfAssignSpy = jest.fn()

@@ -107,6 +107,13 @@ class CommunicationModule: RCTEventEmitter {
     let socketPort = WebsocketSingleton.sharedInstance.socketPort
     let socketIOSecret = WebsocketSingleton.sharedInstance.socketIOSecret
     self.sendDataPort(port: socketPort, socketIOSecret: socketIOSecret);
+    if event == "_RECOVER_WEBSOCKET_" {
+      DispatchQueue.main.async {
+        guard !self.backgroundTask.isBackground else { return }
+        // The system bridge does not depend on the failed localhost socket.
+        NodeRunner.sharedInstance().requestSocketRecovery()
+      }
+    }
   }
 
   @objc

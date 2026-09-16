@@ -217,13 +217,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       isVerified: message.verified,
     })
 
-    // FIXME: the 'update' event runs if we replicate entries and if we add
-    // entries ourselves. So we may want to check if the message is written
-    // by us.
-    //
     // Display push notifications on mobile
     if (process.env.BACKEND === 'mobile') {
       if (!message.verified) return
+
+      // OrbitDB emits updates for local writes as well as replicated messages.
+      // Use the authenticated identity, including when a pending send finishes in
+      // the background. Tor-only communities need no cached QSS credentials here.
+      const localUserId = this.auth.getActiveChain(false)?.user.userId
+      if (!localUserId || message.userId === localUserId) return
 
       // Do not notify about old messages
       if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return

@@ -10,8 +10,18 @@ import {
   type Community,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import { identityActions } from '../identity/identity.slice'
 
 const logger = createLogger('communitiesSlice')
+
+export interface PendingCommunityJoin {
+  attempt: number
+  communityId?: string
+  inviteData: InvitationData
+  username?: string
+  tosAccepted?: boolean
+  status: 'draft' | 'submitting' | 'interrupted'
+}
 
 export class CommunitiesState {
   public invitationCodes: InvitationData | null = null
@@ -20,6 +30,8 @@ export class CommunitiesState {
   public connectionInProgress = false
   public tosRequested = false
   public captchaRequested = false
+  public joinAttempt = 0
+  public pendingJoin: PendingCommunityJoin | null = null
 }
 
 export const communitiesSlice = createSlice({
@@ -54,8 +66,39 @@ export const communitiesSlice = createSlice({
       }
     },
     resetApp: (state, _action) => state,
-    createCommunity: (state, _action: PayloadAction<CreateCommunityPayload>) => state,
-    joinCommunity: (state, _action: PayloadAction<JoinCommunityPayload>) => state,
+    createCommunity: (state, _action: PayloadAction<CreateCommunityPayload>) => {
+      if (state.pendingJoin?.status === 'draft') {
+        state.pendingJoin = null
+        state.invitationCodes = null
+      }
+    },
+    joinCommunity: (state, action: PayloadAction<JoinCommunityPayload>) => {
+      // A submitted request may have reached the backend, whose join operation
+      // erases previous state. Never replay it merely because the socket reconnects.
+      if (state.pendingJoin && state.pendingJoin.status !== 'draft') return
+      state.joinAttempt = (state.joinAttempt ?? 0) + 1
+      state.pendingJoin = {
+        attempt: state.joinAttempt,
+        inviteData: action.payload.inviteData,
+        status: 'draft',
+      }
+      state.invitationCodes = action.payload.inviteData
+    },
+    setPendingJoinId: (state, action: PayloadAction<{ attempt: number; communityId: string }>) => {
+      if (state.pendingJoin?.attempt === action.payload.attempt) {
+        state.pendingJoin.communityId = action.payload.communityId
+      }
+    },
+    submitPendingJoin: (state, action: PayloadAction<number>) => {
+      if (state.pendingJoin?.attempt === action.payload && state.pendingJoin.status === 'draft') {
+        state.pendingJoin.status = 'submitting'
+      }
+    },
+    interruptPendingJoin: (state, action: PayloadAction<number>) => {
+      if (state.pendingJoin?.attempt === action.payload && state.pendingJoin.status === 'submitting') {
+        state.pendingJoin.status = 'interrupted'
+      }
+    },
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {
@@ -65,6 +108,8 @@ export const communitiesSlice = createSlice({
     clearInvitationCodes: state => {
       logger.info('Clearing invitation codes')
       state.invitationCodes = null
+      state.pendingJoin = null
+      state.tosRequested = false
     },
     requestTermsOfService: state => {
       logger.info('Requesting terms of service acceptance')
@@ -73,6 +118,9 @@ export const communitiesSlice = createSlice({
     setTermsOfServiceAccepted: (state, action: PayloadAction<{ communityId?: string; accepted: boolean }>) => {
       state.tosRequested = false
       const { communityId, accepted } = action.payload
+      if (!communityId && state.pendingJoin?.status === 'draft') {
+        state.pendingJoin.tosAccepted = accepted
+      }
       if (communityId) {
         const community = state.communities.entities[communityId]
         if (community) {
@@ -85,6 +133,16 @@ export const communitiesSlice = createSlice({
         }
       }
     },
+  },
+  extraReducers: builder => {
+    builder.addCase(identityActions.registerUsername, (state, action) => {
+      // Reducers remain alive while socket-owned sagas are stopped. Keep form
+      // submissions here so a reconnect can resume the same draft without replaying
+      // transient username/terms actions into a listener that no longer exists.
+      if (state.pendingJoin?.status === 'draft') {
+        state.pendingJoin.username = action.payload.nickname
+      }
+    })
   },
 })
 

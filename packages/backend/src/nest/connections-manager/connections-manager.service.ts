@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
+import { Mutex } from 'async-mutex'
 import getPort from 'get-port'
 import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
@@ -99,6 +100,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private hibernateInFlight: Promise<void> | null = null
   private wakeInFlight: Promise<void> | null = null
   private storedCommunityInitialization: Promise<void> | undefined
+  private readonly communityTransitionMutex = new Mutex()
+  private leaveInFlight: Promise<boolean> | undefined
+  private leaveFailed = false
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
 
@@ -178,6 +182,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     void this.initializeStoredCommunity().catch(error => {
       this.logger.error('Stored community initialization failed', error)
     })
+    this.socketService.markOnboardingReady()
   }
 
   /**
@@ -467,7 +472,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.libp2pService.close(options.closeDatastore)
     }
 
-    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamId!, options.deleteChainFromDisk)
+    const teamId = this.sigChainService.activeChainTeamId
+    if (teamId != null) {
+      await this.sigChainService.deleteChain(teamId, options.deleteChainFromDisk)
+    }
 
     if (this.localDbService) {
       this.logger.info('Closing local DB')
@@ -475,7 +483,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async leaveCommunity(): Promise<boolean> {
+  public leaveCommunity(): Promise<boolean> {
+    if (this.leaveInFlight) return this.leaveInFlight
+
+    // A second leave must wait for the same teardown. Otherwise it can finish first,
+    // let the user create a community, and leave the original teardown deleting it.
+    this.leaveInFlight = this.communityTransitionMutex
+      .runExclusive(async () => {
+        this.leaveFailed = true
+        const success = await this.performLeaveCommunity()
+        this.leaveFailed = !success
+        return success
+      })
+      .finally(() => {
+        this.leaveInFlight = undefined
+      })
+    return this.leaveInFlight
+  }
+
+  private async performLeaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
     // #3225: write a marker before any state change so a startup after a crashed leave can
     // detect and finish the purge. Cleared at the end of this function on full success;
@@ -624,7 +650,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
+  public createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
+    return this.communityTransitionMutex.runExclusive(() => {
+      this.requireCompletedLeave()
+      return this.performCreateCommunity(payload)
+    })
+  }
+
+  private requireCompletedLeave(): void {
+    if (this.leaveFailed) {
+      throw new Error('Community cleanup failed; retry leaving before creating or joining a community')
+    }
+  }
+
+  private async performCreateCommunity(
+    payload: InitCommunityPayload
+  ): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
     await this.erasePreviousCommunityArtifacts()
 
@@ -680,7 +721,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseCreateCommunityPayload
   }
 
-  public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
+  public joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
+    return this.communityTransitionMutex.runExclusive(() => {
+      this.requireCompletedLeave()
+      return this.performJoinCommunity(payload)
+    })
+  }
+
+  private async performJoinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
     this.logger.info('Joining community', payload.id)
     const inviteData = payload.inviteData
     if (!inviteData) {

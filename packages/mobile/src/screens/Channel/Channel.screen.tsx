@@ -13,7 +13,7 @@ import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { getFilesData } from '@quiet/common'
 
-export const ChannelScreen: FC = () => {
+const ChannelScreenContent: FC = () => {
   const dispatch = useDispatch()
 
   const handleBackButton = useCallback(() => {
@@ -147,18 +147,20 @@ export const ChannelScreen: FC = () => {
 
   const sendMessageAction = React.useCallback(
     async (message: string) => {
+      const channelId = currentChannel?.id
+      if (!channelId) return
       if (message) {
-        dispatch(messages.actions.sendMessage({ message }))
+        dispatch(messages.actions.sendMessage({ message, channelId }))
       }
       // Attach files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
         if (!fileData.path) return
-        dispatch(files.actions.attachFile(fileData))
+        dispatch(files.actions.attachFile({ ...fileData, channelId }))
       })
       // Reset file previews for input state
       setAttachingFiles({})
     },
-    [dispatch]
+    [dispatch, currentChannel?.id]
   )
 
   useEffect(() => {
@@ -201,4 +203,10 @@ export const ChannelScreen: FC = () => {
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
     />
   )
+}
+
+export const ChannelScreen: FC = () => {
+  const channel = useSelector(publicChannels.selectors.currentChannel)
+  // Text refs, pending sends and file previews belong to the channel where they started.
+  return <ChannelScreenContent key={channel?.id} />
 }

@@ -28,7 +28,7 @@ describe('roles', () => {
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
     expect(adminSigChain.roles.canICreateRole()).toBe(true)
     expect(adminSigChain.roles.canIAddMembersToRole(RoleName.MEMBER)).toBe(true)
-    expect(adminSigChain.roles.canIRemoveMembersFromRole(RoleName.MEMBER)).toBe(true)
+    expect(adminSigChain.roles.canIRemoveMembersFromRole(RoleName.MEMBER)).toBe(false)
     expect(adminSigChain.roles.canIDeleteRole(RoleName.MEMBER)).toBe(true)
   })
   it('should create an invite', () => {

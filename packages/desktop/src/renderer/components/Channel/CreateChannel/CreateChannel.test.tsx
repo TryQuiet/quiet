@@ -24,22 +24,12 @@ const logger = createLogger('createChannel:test')
 
 describe('Add new channel', () => {
   let socket: MockedSocket
-  const originalPrivateChannelCreationAllowed = process.env.PRIVATE_CHANNEL_CREATION_ALLOWED
 
   beforeEach(() => {
-    process.env.PRIVATE_CHANNEL_CREATION_ALLOWED = 'false'
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
     // @ts-ignore
     socket.emitWithAck = async (...input: [string, ...any]) => {}
-  })
-
-  afterAll(() => {
-    if (originalPrivateChannelCreationAllowed == null) {
-      delete process.env.PRIVATE_CHANNEL_CREATION_ALLOWED
-    } else {
-      process.env.PRIVATE_CHANNEL_CREATION_ALLOWED = originalPrivateChannelCreationAllowed
-    }
   })
 
   it('entered channel name is slugified', async () => {
@@ -383,11 +373,16 @@ describe('Add new channel', () => {
     )
   })
 
-  it('hides private channel creation by default even when permissions allow it', async () => {
+  it('hides private channel creation when permissions disallow it', async () => {
     const { store } = await prepareStore({}, socket)
     const factory = await getReduxStoreFactory(store)
     await factory.create('Identity', { nickname: 'alice' })
-    await factory.create('ChannelPermissions')
+    await factory.create('ChannelPermissions', {
+      genericPermissions: {
+        public: { create: true, delete: true },
+        private: { create: false },
+      },
+    })
 
     renderComponent(<CreateChannel />, store)
     await act(async () => {
@@ -399,8 +394,7 @@ describe('Add new channel', () => {
     expect(screen.queryByTestId('createChannel-private-form-control-toggle')).toBeNull()
   })
 
-  it('shows private channel creation when the feature flag and permissions allow it', async () => {
-    process.env.PRIVATE_CHANNEL_CREATION_ALLOWED = 'true'
+  it('shows private channel creation when permissions allow it', async () => {
     const { store } = await prepareStore({}, socket)
     const factory = await getReduxStoreFactory(store)
     await factory.create('Identity', { nickname: 'alice' })

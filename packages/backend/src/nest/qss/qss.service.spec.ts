@@ -346,7 +346,8 @@ describe('QSSService', () => {
 
     it('surfaces a terminal auth error without marking readiness when no invite grant is available', async () => {
       const teamId = sigchainService.activeChain.team!.id
-      sigchainService.activeChain.roles.revokeMembership(sigchainService.activeChain.user.userId, RoleName.MEMBER)
+      // Model admission before the invitation's MEMBER grant is claimed; removal is disabled.
+      jest.spyOn(sigchainService.activeChain.roles, 'amIMemberOfRole').mockReturnValue(false)
       const saveSpy = jest.spyOn(sigchainService, 'saveChain')
       const stopSpy = jest.spyOn(qssAuthConnManager, 'stopConnection')
       const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
@@ -721,6 +722,36 @@ describe('QSSService', () => {
   })
 
   describe('createCommunity', () => {
+    it.each(['serverId', 'identityKeys'] as const)(
+      'identifies a missing %s in a received key response without logging key material',
+      async missingField => {
+        await initCommunity()
+        const payload: Partial<ReturnType<typeof generateQssServerKeys>> = generateQssServerKeys(
+          sigchainService.team.id
+        )
+        delete payload[missingField]
+        mockedSendMessage = jest.spyOn(qssClient, 'sendMessage').mockResolvedValue({
+          ts: Date.now(),
+          status: CommunityOperationStatus.SUCCESS,
+          payload,
+        })
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        await qssService.connect('ws://localhost:3000')
+        mockCaptchaVerification()
+        const logError = jest.spyOn(qssService['logger'], 'error')
+
+        await expect(qssService.createCommunity(sigchainService.activeChain)).resolves.toBe(false)
+        expect(logError).toHaveBeenCalledWith('Failed to generate server keys', {
+          reason: 'Invalid server key response',
+          responseReceived: true,
+          status: CommunityOperationStatus.SUCCESS,
+          teamIdMatches: true,
+          missingFields: [missingField],
+        })
+        expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      }
+    )
+
     it(`creates a community on QSS`, async () => {
       await initCommunity()
       const initStatusOrig = await qssService.getQssInitStatus()
@@ -1470,7 +1501,7 @@ describe('QSSService', () => {
   })
 
   describe('sendLogEntrySyncMessage', () => {
-    it(`sends a successful log sync to QSS`, async () => {
+    it(`syncs an OrbitDB message and triggers a push after QSS acknowledges it`, async () => {
       await initCommunity({ qssEnabled: true, qssSetup: true })
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeTruthy()
@@ -1530,6 +1561,7 @@ describe('QSSService', () => {
       expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       expect(update.teamId).toBe(sigchainService.team.id)
+      const pushTriggerSpy = jest.spyOn(qssClient, 'emit')
       const result = await qssSyncManager.sendLogEntrySyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -1550,6 +1582,11 @@ describe('QSSService', () => {
       })
       expect(result).toBe(true)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      expect(pushTriggerSpy).toHaveBeenCalledWith(
+        QSSEvents.QSS_LOG_SYNCED,
+        sigchainService.team.id,
+        expect.objectContaining({ type: EncryptionScopeType.ROLE, name: RoleName.MEMBER })
+      )
       expect(await localDbService.getLastSyncSeq(sigchainService.team.id)).toBe(syncSeq)
       expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_SYNC_SEQ_UPDATED, {
         teamId: sigchainService.team.id,
@@ -2146,17 +2183,25 @@ describe('QSSService', () => {
 
       const teamId = sigchainService.activeChain.team!.id
       markHistoricalSyncReady(teamId)
-      const address = 'channels.dlq-race'
-      const hash = 'dlq-race-hash'
-      const entry = {
-        hash,
-        id: 'dlq-race-db-id',
-        payload: {
-          value: {
-            teamId,
-          },
-        },
-      } as any
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
+        type: 'events',
+        Database: EventsWithStorage(),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
+        sync: true,
+      })
+      const message = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+        userId: sigchainService.activeChain.user.userId,
+      })
+      const hash = await db.add(await publicMessagesService.onSend(message, channel))
+      const entry = await db.log.get(hash)
+      const address = db.address
 
       let pendingHashes = [hash]
       const getPendingSpy = jest.spyOn(localDbService, 'getPendingQssLogSyncMessages').mockImplementation(async () => {

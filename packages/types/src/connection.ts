@@ -12,11 +12,19 @@ export interface NetworkDataPayload {
   lastSeen: number
 }
 
+/** LFA identity used to scope reconnect hints; not proof of transport address ownership. */
+export interface AuthenticatedPeerIdentity {
+  teamId: string
+  userId: string
+  deviceId: string
+}
+
 export interface NetworkStats {
   peerId: string
   address?: string // multiaddr
   lastSeen: number // last time the peer was seen
   connectionTime: number // time spent connected
+  authenticatedIdentity?: AuthenticatedPeerIdentity
 }
 
 export enum ConnectionProcessInfo {
