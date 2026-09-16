@@ -12,6 +12,7 @@ import {
   Autocomplete,
   AutocompleteChangeDetails,
   AutocompleteChangeReason,
+  AutocompleteRenderOptionState,
   autocompleteClasses,
   createTheme,
   IconButton,
@@ -22,6 +23,7 @@ import {
 } from '@mui/material'
 import { Box } from '../../ui'
 import { SelectableListOption, UserSearchProps } from './UserSearch.types'
+import RecipientPill, { PILL_ROW_GAP } from './RecipientPill'
 
 const PREFIX = 'UserSearchAutocomplete'
 
@@ -244,15 +246,21 @@ export const UserSearchAutocomplete: React.FC<UserSearchProps> = ({
     handleInputChange(selectedMembers.map(member => userProfiles[member.id]))
   }, [selectedMembers])
 
+  // Built on top of the outer theme rather than from scratch: the options and the recipient pills
+  // rendered inside it read app tokens (theme.palette.colors), which a bare createTheme drops.
   const customTheme = (outerTheme: Theme) =>
-    createTheme({
+    createTheme(outerTheme, {
       palette: {
         mode: outerTheme.palette.mode,
       },
       components: {
         MuiAutocomplete: {
           defaultProps: {
-            renderOption: (props, option, state) => {
+            renderOption: (
+              props: React.HTMLAttributes<HTMLLIElement>,
+              option: SelectableListOption,
+              state: AutocompleteRenderOptionState
+            ) => {
               const { key, ...optionProps } = props as any
               const userProfile = userProfiles[option.id]
               return (
@@ -353,6 +361,29 @@ export const UserSearchAutocomplete: React.FC<UserSearchProps> = ({
               multiple
               autoHighlight
               options={autoCompleteOptions}
+              // Recipients are drawn as design pills rather than MUI's default Chip, which is a
+              // pill-shaped grey capsule with no avatar. See RecipientPill for the spec.
+              renderTags={(value: SelectableListOption[], getTagProps) =>
+                value.map((option, index) => {
+                  const { key, onDelete } = getTagProps({ index })
+                  return (
+                    <RecipientPill
+                      key={key}
+                      userProfile={userProfiles[option.id]}
+                      userId={option.id}
+                      label={option.label}
+                      onDelete={onDelete}
+                    />
+                  )
+                })
+              }
+              sx={{
+                [`& .${autocompleteClasses.inputRoot}`]: {
+                  flexWrap: 'wrap',
+                  gap: `${PILL_ROW_GAP}px`,
+                  padding: 0,
+                },
+              }}
               renderInput={params => {
                 const { InputLabelProps, InputProps, ...rest } = params
                 return (
