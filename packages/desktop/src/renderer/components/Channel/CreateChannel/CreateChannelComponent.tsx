@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
-import { FormControlLabel, Grid, Typography } from '@mui/material'
+import { Drawer, FormControlLabel, Grid, IconButton, Typography } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import WarningIcon from '@mui/icons-material/Warning'
 
 import { parseName } from '@quiet/common'
 
-import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 import { TextField } from '../../ui/TextField/TextField'
 import { channelNameField, channelPrivateField } from '../../../forms/fields/createChannelFields'
@@ -18,7 +18,13 @@ const logger = createLogger('CreateChannelComponent')
 
 const PREFIX = 'CreateChannelComponent'
 
+// The design composes this as a right-hand panel whose content column is the same 375 the mobile
+// screens use ("Create channels for specific roles", Figma PVQ1Kjf6Cq8ng1czuVtvR8 838:9394).
+const PANEL_WIDTH = 375
+
 const classes = {
+  panelHeader: `${PREFIX}panelHeader`,
+  panelTitle: `${PREFIX}panelTitle`,
   fullContainer: `${PREFIX}fullContainer`,
   gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
@@ -33,6 +39,7 @@ const classes = {
   publicPrivateGrid: `${PREFIX}publicPrivateGrid`,
   lock: `${PREFIX}lock`,
   publicPrivate: `${PREFIX}publicPrivate`,
+  publicPrivateControl: `${PREFIX}publicPrivateControl`,
   bold: `${PREFIX}bold`,
   offset: `${PREFIX}offset`,
   subtitle: `${PREFIX}subtitle`,
@@ -41,6 +48,19 @@ const classes = {
 const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   padding: '0px 32px',
+
+  [`& .${classes.panelHeader}`]: {
+    gap: 8,
+    paddingTop: 16,
+    paddingBottom: 8,
+    flexWrap: 'nowrap',
+  },
+
+  [`& .${classes.panelTitle}`]: {
+    flexGrow: 1,
+    textAlign: 'center',
+    paddingRight: 34,
+  },
 
   [`& .${classes.fullContainer}`]: {
     width: '100%',
@@ -106,6 +126,8 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     marginLeft: 0,
     alignItems: 'center',
     gap: 8,
+    // Icon, text and toggle sit on one row per the design; without this the 375 panel wraps them.
+    flexWrap: 'nowrap',
   },
 
   [`& .${classes.lock}`]: {
@@ -128,6 +150,15 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.publicPrivate}`]: {
     marginTop: 0,
+    flexGrow: 1,
+    minWidth: 0,
+  },
+
+  [`& .${classes.publicPrivateControl}`]: {
+    display: 'flex',
+    width: '100%',
+    margin: 0,
+    justifyContent: 'space-between',
   },
 }))
 
@@ -210,8 +241,22 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   return (
     <>
       {canCreateChannel && (
-        <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
+        <Drawer
+          open={open}
+          onClose={handleClose}
+          anchor='right'
+          data-testid={'createChannelPanel'}
+          PaperProps={{ sx: { width: PANEL_WIDTH } }}
+        >
           <StyledModalContent container direction='column'>
+            <Grid container direction='row' alignItems='center' className={classes.panelHeader}>
+              <IconButton onClick={handleClose} data-testid={'createChannelPanelClose'} size='small'>
+                <CloseIcon />
+              </IconButton>
+              <Typography variant='h5' className={classes.panelTitle} data-testid={'createChannelPanelTitle'}>
+                Create channel
+              </Typography>
+            </Grid>
             <form
               onSubmit={handleSubmit(onSubmit, errors => {
                 logger.error(
@@ -222,9 +267,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               })}
             >
               <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-                <Typography variant='h3' className={classes.title}>
-                  Create a new channel
-                </Typography>
+
                 <Typography variant='body2'>Channel name</Typography>
                 <Controller
                   control={control}
@@ -285,6 +328,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                           <Grid item className={classes.publicPrivate} alignItems='center'>
                             <FormControlLabel
                               defaultChecked={false}
+                              className={classes.publicPrivateControl}
                               data-testid={'createChannel-private-form-control'}
                               control={
                                 <IOSSwitch
@@ -303,7 +347,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                                   direction='column'
                                   justifyContent='left'
                                   alignContent='center'
-                                  paddingRight='18px'
                                   data-testid={'createChannel-private-form-control-label'}
                                 >
                                   <Grid item>
@@ -344,14 +387,14 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   color='primary'
                   inProgress={false}
                   type='submit'
-                  text='Create Channel'
+                  text='Create channel'
                   classes={{ button: classes.button }}
                   data-testid='channelNameSubmit'
                 />
               </Grid>
             </form>
           </StyledModalContent>
-        </Modal>
+        </Drawer>
       )}
     </>
   )

@@ -26,6 +26,20 @@ const args: CreateChannelProps = {
 
 Component.args = args
 
+/**
+ * The private-channel row is what differs across permissions, so the states the component actually
+ * branches on each get a story. Toggling private on is done in the panel; the component owns that
+ * state, so there is no separate "private on" story that would render identically to this one.
+ */
+export const PrivateChannelAllowed = Template.bind({})
+PrivateChannelAllowed.args = { ...args, canCreatePrivateChannel: true }
+
+export const PrivateChannelNotAllowed = Template.bind({})
+PrivateChannelNotAllowed.args = { ...args, canCreatePrivateChannel: false }
+
+export const NoChannelPermission = Template.bind({})
+NoChannelPermission.args = { ...args, canCreateChannel: false }
+
 const component: ComponentMeta<typeof CreateChannelComponent> = {
   title: 'Components/CreateChannel',
   decorators: [withTheme],

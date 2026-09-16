@@ -55,11 +55,11 @@ describe('Add new channel', () => {
     const input = await screen.findByPlaceholderText('Enter a channel name')
     await user.type(input, 'Some channel NAME  ')
 
-    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    // FIXME: await user.click(screen.getByTestId('channelNameSubmit') causes this and few other tests to fail (hangs on taking createChannel action)
     await act(
       async () =>
         await waitFor(() => {
-          user.click(screen.getByText('Create Channel')).catch(e => {
+          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
             logger.error(e)
           })
         })
@@ -163,8 +163,8 @@ describe('Add new channel', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
-          data-testid="createChannelModal"
+          class="MuiDrawer-root MuiDrawer-modal MuiModal-root css-xvvah-MuiModal-root-MuiDrawer-root"
+          data-testid="createChannelPanel"
           role="presentation"
         >
           <div
@@ -177,132 +177,103 @@ describe('Add new channel', () => {
             tabindex="0"
           />
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Modalcentered css-6gh8l0-MuiGrid-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation16 MuiDrawer-paper MuiDrawer-paperAnchorRight css-1jq2bcn-MuiPaper-root-MuiDrawer-paper"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1g0xeiu-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
+                class="MuiGrid-root MuiGrid-container CreateChannelComponentpanelHeader css-1vam7s3-MuiGrid-root"
               >
-                <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
+                <button
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
+                  data-testid="createChannelPanelClose"
+                  tabindex="0"
+                  type="button"
                 >
-                  <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
-                    style="margin-left: 36px;"
-                  />
-                </div>
-                <div
-                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item Modalactions css-hoc6b0-MuiGrid-root"
-                    data-testid="ModalActions"
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="CloseIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
                   >
-                    <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
-                      data-testid="ModalClose"
-                      tabindex="0"
-                      type="button"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                        data-testid="ClearIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage css-1h16bbz-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
-                style="width: 600px;"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-7mjq5i-MuiGrid-root"
+                    <path
+                      d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+                <h5
+                  class="MuiTypography-root MuiTypography-h5 CreateChannelComponentpanelTitle css-11l3dv4-MuiTypography-root"
+                  data-testid="createChannelPanelTitle"
                 >
-                  <form>
-                    <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column CreateChannelComponentfullContainer css-1e5jxqd-MuiGrid-root"
-                    >
-                      <h3
-                        class="MuiTypography-root MuiTypography-h3 CreateChannelComponenttitle css-ptjqt4-MuiTypography-root"
-                      >
-                        Create a new channel
-                      </h3>
-                      <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
-                      >
-                        Channel name
-                      </p>
-                      <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-                        data-testid="createChannelInput"
-                      >
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-1hwo1uj-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input css-nrutr0-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2:"
-                            name="channelName"
-                            placeholder="Enter a channel name"
-                            type="text"
-                            value=""
-                          />
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-9425fu-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-ihdtdm"
-                            >
-                              <span
-                                class="notranslate"
-                              >
-                                ​
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
-                      </div>
-                      <p
-                        class="MuiTypography-root MuiTypography-body2 css-6gbt2m-MuiTypography-root"
-                      />
-                      <div
-                        class="CreateChannelComponentgutter"
-                      />
-                      <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-ak90sa-MuiButtonBase-root-MuiButton-root"
-                        data-testid="channelNameSubmit"
-                        tabindex="0"
-                        type="submit"
-                      >
-                        Create Channel
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </form>
-                </div>
+                  Create channel
+                </h5>
               </div>
+              <form>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column CreateChannelComponentfullContainer css-1e5jxqd-MuiGrid-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                  >
+                    Channel name
+                  </p>
+                  <div
+                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                    data-testid="createChannelInput"
+                  >
+                    <div
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-1hwo1uj-MuiInputBase-root-MuiOutlinedInput-root"
+                    >
+                      <input
+                        aria-invalid="false"
+                        class="MuiInputBase-input MuiOutlinedInput-input css-nrutr0-MuiInputBase-input-MuiOutlinedInput-input"
+                        id=":r2:"
+                        name="channelName"
+                        placeholder="Enter a channel name"
+                        type="text"
+                        value=""
+                      />
+                      <fieldset
+                        aria-hidden="true"
+                        class="MuiOutlinedInput-notchedOutline css-9425fu-MuiOutlinedInput-notchedOutline"
+                      >
+                        <legend
+                          class="css-ihdtdm"
+                        >
+                          <span
+                            class="notranslate"
+                          >
+                            ​
+                          </span>
+                        </legend>
+                      </fieldset>
+                    </div>
+                  </div>
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 css-6gbt2m-MuiTypography-root"
+                  />
+                  <div
+                    class="CreateChannelComponentgutter"
+                  />
+                  <button
+                    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-ak90sa-MuiButtonBase-root-MuiButton-root"
+                    data-testid="channelNameSubmit"
+                    tabindex="0"
+                    type="submit"
+                  >
+                    Create channel
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
           <div
@@ -334,7 +305,7 @@ describe('Add new channel', () => {
     const user = userEvent.setup()
     await user.type(input, 'general')
 
-    const button = screen.getByText('Create Channel')
+    const button = screen.getByTestId('channelNameSubmit')
     await user.click(button)
 
     const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
@@ -389,7 +360,7 @@ describe('Add new channel', () => {
       store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
     })
 
-    expect(await screen.findByText('Create a new channel')).toBeVisible()
+    expect(await screen.findByTestId('createChannelPanelTitle')).toBeVisible()
     expect(screen.queryByText('Private channel')).toBeNull()
     expect(screen.queryByTestId('createChannel-private-form-control-toggle')).toBeNull()
   })
