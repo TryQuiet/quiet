@@ -132,7 +132,9 @@ describe('ChannelContextMenu (permissions gate for channel membership)', () => {
       expect(queryByText('Permissions')).toBeNull()
     })
 
-    it('shows "Permissions" with permissions', async () => {
+    // The designs list the two side by side (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190): Members
+    // lists who belongs to the channel, Permissions is where an admin changes that.
+    it('adds "Permissions" alongside "Members in this channel" with permissions', async () => {
       await factory.create('ChannelPermissions', {
         channelSpecificPermissions: [
           { channelId: privateChannel.id, addMembers: true, delete: true, removeMembers: true },
@@ -140,7 +142,7 @@ describe('ChannelContextMenu (permissions gate for channel membership)', () => {
       })
       const { queryByText } = renderComponent(<ChannelContextMenu />, store)
       expect(queryByText('Permissions')).not.toBeNull()
-      expect(queryByText('Members in this channel')).toBeNull()
+      expect(queryByText('Members in this channel')).not.toBeNull()
     })
   })
 

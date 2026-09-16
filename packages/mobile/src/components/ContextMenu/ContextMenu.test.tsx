@@ -384,6 +384,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -528,6 +529,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -672,6 +674,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -1099,6 +1102,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -1243,6 +1247,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -1387,6 +1392,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]

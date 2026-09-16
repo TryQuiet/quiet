@@ -20,10 +20,10 @@ import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('ChannelContextMenu')
 
-const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE = 'Permissions'
-const CHANNEL_MEMBERSHIP_TITLE = 'Members in this channel'
-const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_SUBTITLE = 'Members'
-const CHANNEL_MEMBERSHIP_SUBTITLE = undefined
+const PERMISSIONS_TITLE = 'Permissions'
+const PERMISSIONS_SUBTITLE = 'Members'
+const MEMBERS_IN_CHANNEL_TITLE = 'Members in this channel'
+const MEMBERS_IN_DM_TITLE = 'Members in this DM'
 
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -102,25 +102,36 @@ export const ChannelContextMenu: FC = () => {
   let items: ContextMenuItemProps[] = []
 
   if (channel?.public === false) {
-    const isPrivateChannelOwner = canAddMembers && channel.type !== ChannelType.DM
-    const itemTitle = isPrivateChannelOwner
-      ? 'Permissions'
-      : channel.type !== ChannelType.DM
-      ? 'Members in this channel'
-      : 'Members in this DM'
-    const subtitle = isPrivateChannelOwner ? 'Members' : undefined
+    const isDm = channel.type === ChannelType.DM
+    const openMembership = (manageMembership: boolean) => () =>
+      redirect(ScreenNames.ChannelMembershipScreen, {
+        channelTitle: title,
+        channelName: channel?.displayedName,
+        channelId: channel?.id,
+        channelType: channel?.type ?? ChannelType.CHANNEL,
+        manageMembership,
+      })
+
+    // The designs list Members and Permissions as separate entries (Figma
+    // PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190): Members simply lists who belongs to the channel, while
+    // Permissions is where an admin changes that, and appears only on a private channel. Members
+    // is marked "visible to everyone" there, but a public channel has no membership to list —
+    // user profiles carry private channel ids only — so both entries stay on private channels.
     items.push({
-      title: itemTitle,
-      subtitle,
+      title: isDm ? MEMBERS_IN_DM_TITLE : MEMBERS_IN_CHANNEL_TITLE,
       suffix: memberCountSuffix,
-      action: () =>
-        redirect(ScreenNames.ChannelMembershipScreen, {
-          channelTitle: title,
-          channelName: channel?.displayedName,
-          channelId: channel?.id,
-          channelType: channel?.type ?? ChannelType.CHANNEL,
-        }),
+      action: openMembership(false),
     })
+
+    if (canAddMembers && !isDm) {
+      items.push({
+        title: PERMISSIONS_TITLE,
+        // The design's subtitle is "Roles and members"; there are no roles yet.
+        subtitle: PERMISSIONS_SUBTITLE,
+        suffix: memberCountSuffix,
+        action: openMembership(true),
+      })
+    }
   }
 
   if (canDelete && channel?.type !== ChannelType.DM) {
@@ -128,6 +139,8 @@ export const ChannelContextMenu: FC = () => {
       ...items,
       {
         title: 'Delete channel',
+        // Red in the designs, as the one destructive entry in the menu.
+        destructive: true,
         action: () =>
           redirect(ScreenNames.DeleteChannelScreen, {
             channelName: channel?.name,

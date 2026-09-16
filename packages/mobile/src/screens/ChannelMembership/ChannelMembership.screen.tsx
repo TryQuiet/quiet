@@ -16,7 +16,7 @@ const logger = createLogger('ChannelMembershipScreen')
 export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channelTitle, channelName, channelId, channelType } = route.params
+  const { channelTitle, channelName, channelId, channelType, manageMembership } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
@@ -75,7 +75,10 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
       members={members}
       memberCount={memberCount}
       handleBackButton={handleBackButton}
-      canAddMembers={currentChannelPermissions?.addMembers ?? false}
+      // The side nav offers Members and Permissions as separate entries; only the Permissions
+      // entry opens this screen in its editable form. Absent that param, fall back to what the
+      // viewer is permitted to do.
+      canAddMembers={manageMembership === false ? false : currentChannelPermissions?.addMembers ?? false}
     />
   )
 }

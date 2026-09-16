@@ -185,7 +185,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   )
 }
 
-export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suffix, action }) => {
+export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suffix, destructive, action }) => {
   const icon_arrow = icons.arrow_right_short
   const paddingVertical = 11
   const minHeight = 48
@@ -213,7 +213,11 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suf
           }}
         >
           <View style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-            <Typography fontSize={16} fontWeight={'normal'} style={{ lineHeight: 26 }}>
+            <Typography
+              fontSize={16}
+              fontWeight={'normal'}
+              style={{ lineHeight: 26, color: destructive ? defaultTheme.palette.typography.error : undefined }}
+            >
               {title}
             </Typography>
             {subtitle && (

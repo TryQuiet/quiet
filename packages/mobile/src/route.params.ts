@@ -31,6 +31,10 @@ export type RootStackParamList = {
     channelTitle: string
     channelId: string
     channelType: ChannelType
+    // Which of the two side-nav entries opened this screen: Permissions, which can change who
+    // belongs to the channel, or Members, which only lists them. Defaults to Permissions when the
+    // viewer is allowed to manage membership.
+    manageMembership?: boolean
   }
   [ScreenNames.UpdateChannelMembershipScreen]: {
     channelTitle: string
