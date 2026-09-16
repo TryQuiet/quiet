@@ -126,6 +126,7 @@ mapped in the running app, and captured app logs contain zero fallback warnings.
 - [Full app E2E counts, test names, source hashes, and native loading evidence](ios-e2e.json)
 - [Post-audit app E2E rerun at the corrected implementation](ios-e2e-after-audit.json)
 - [Daybreak Blue audit and accepted compatibility correction](daybreak-audit.md)
+- [Physical iPhone installation and matching Tor-only desktop tryout](physical-phone-and-desktop.md)
 - [Build, runtime, and reproduction instructions](../README.md)
 
 Both runtime reports' Node framework SHA-256 matches this branch's pinned
@@ -136,9 +137,9 @@ its libsodium symbols from interposing on the app's existing Sodium pod.
 
 ## Remaining work before production
 
-- Run on a physical iPhone, including complete message processing, restart, and
-  interoperability with released clients. Simulator timings do not establish
-  phone latency.
+- Complete physical iPhone message-processing, restart, and interoperability
+  checks. Device installation and startup are now recorded in the physical
+  tryout report; simulator timings do not establish phone latency.
 - Combine with #3539's indexing/auth work when evaluating total message-processing
   improvements.
 - Review the small native boundary and build recipe, select the production
