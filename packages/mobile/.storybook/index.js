@@ -30,6 +30,7 @@ configure(() => {
   require('../src/components/Notifier/Notifier.stories')
   require('../src/components/Chat/Chat.stories')
   require('../src/components/Chat/NewMessage.stories')
+  require('../src/components/RecipientField/RecipientField.stories')
   require('../src/components/TextWithLink/TextWithLink.stories')
   require('../src/components/Typography/Typography.stories')
   require('../src/components/Button/Button.stories')

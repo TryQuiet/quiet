@@ -38,6 +38,9 @@ export const defaultPalette = {
   background: {
     white: '#ffffff',
     black: '#000000',
+    // Named after the desktop token of the same value; the DM design library uses it for the
+    // recipient pills and the compose toolbar rule.
+    gray03: '#F7F7F7',
     gray06: '#F0F0F0',
     gray70: '#4C4C4C',
     blue: '#2373EA',

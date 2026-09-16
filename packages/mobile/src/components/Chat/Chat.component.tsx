@@ -13,7 +13,6 @@ import {
   StyleSheet,
   TextInputChangeEventData,
   TextInputEndEditingEventData,
-  TouchableOpacity,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
@@ -21,7 +20,6 @@ import { Loading } from '../Loading/Loading.component'
 import { ImagePreviewModal } from '../../components/ImageAttachmentPreview/ImageAttachmentPreview.component'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
-import { Typography } from '../Typography/Typography.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { ChatProps, ListItem } from './Chat.types'
 import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
@@ -39,6 +37,8 @@ import Fuse from 'fuse.js'
 import { UpdateChannelMembershipList } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.component'
 import { generateTruncatedDmTitle } from '../../utils/functions/dmUtils/dmUtils'
 import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
+import { RecipientField } from '../RecipientField/RecipientField.component'
+import type { Recipient } from '../RecipientField/RecipientField.types'
 
 // Copy taken from the DM designs (Figma: Direct Messages (DMs), "Pre search" 823:14606).
 const DM_SEARCH_PLACEHOLDER = 'Search for people, chats or channels'
@@ -225,6 +225,27 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     const foundIndices = _fuzzyFilterUsers(_parseFilterText(value))
     setVisibleOptionIndices(foundIndices)
   }
+
+  // Recipients already chosen, shown as pills in the "To:" field.
+  const selectedRecipients = useMemo((): Recipient[] => {
+    return (options ?? [])
+      .filter(option => option.selected)
+      .map(option => ({
+        userId: option.id,
+        label: option.label,
+        photo: userData[option.id]?.user.photo,
+        profilePhoto: userData[option.id]?.user.profilePhoto,
+      }))
+  }, [options, userData])
+
+  const removeRecipient = useCallback(
+    (userId: string) => {
+      setOptions(current =>
+        current?.map(option => (option.id === userId ? { ...option, selected: false } : option))
+      )
+    },
+    [setOptions]
+  )
 
   // Flatten the nested messages.groups structure into an array that combines dividers and message groups
 
@@ -578,38 +599,14 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
               gap: 32,
             }}
           >
-            <Input
-              onChangeText={onChangeText}
-              placeholder={DM_SEARCH_PLACEHOLDER}
-              value={membershipSearchInput}
-              length={20}
-              disabled={false}
-              validation={inputError}
+            <RecipientField
               ref={inputRef}
-              autoCorrect={false}
-              bottomSeparator={<View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />}
-              // Full-bleed, borderless field with a "To:" prefix, per the DM designs.
-              wrapperStyle={{ display: 'flex', flexDirection: 'column' }}
-              style={{ borderWidth: 0, borderRadius: 0, height: 44, paddingHorizontal: 16 }}
-              leftAccessory={
-                <Typography fontSize={16} style={{ color: defaultTheme.palette.typography.gray50, paddingRight: 8 }}>
-                  {'To:'}
-                </Typography>
-              }
-              rightAccessory={
-                membershipSearchInput ? (
-                  <TouchableOpacity
-                    onPress={() => onChangeText('')}
-                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                    testID={'new-message-search-clear'}
-                  >
-                    <Typography fontSize={16} style={{ color: defaultTheme.palette.typography.gray70 }}>
-                      {'✕'}
-                    </Typography>
-                  </TouchableOpacity>
-                ) : undefined
-              }
-              keyboardType={'email-address'}
+              recipients={selectedRecipients}
+              query={membershipSearchInput}
+              placeholder={DM_SEARCH_PLACEHOLDER}
+              onChangeQuery={onChangeText}
+              onRemoveRecipient={removeRecipient}
+              validation={inputError}
               testID={`update-channel-membership-input-${channelId}`}
             />
             <UpdateChannelMembershipList
