@@ -34,12 +34,12 @@ describe('Recipient pills', () => {
       <UserSearchAutocomplete
         userProfiles={userProfiles}
         me={userProfiles.deniseUserId}
-        placeholderText='Search for members or chats'
+        placeholderText='Search for people, chats or channels'
         handleInputChange={handleInputChange}
       />
     )
 
-    await userEvent.click(screen.getByPlaceholderText('Search for members or chats'))
+    await userEvent.click(screen.getByPlaceholderText('Search for people, chats or channels'))
     await userEvent.click(await screen.findByTestId('new-message-add-members-autocomplete-option-gordon'))
 
     const pill = await screen.findByTestId('new-message-recipient-pill-gordon')

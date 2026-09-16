@@ -84,7 +84,9 @@ const logger = createLogger('NewDirectMessageComponent')
 const EMPTY_CHANNEL_PLACEHOLDER_TEXT = ''
 const ERROR_EMPTY_INPUT_NEW_DM = 'Enter a message to send when creating a new DM'
 const ERROR_CANT_DETERMINE_MEMBERSHIP = `Can't determine membership of this DM because your user profile was undefined`
-export const SEARCH_PLACEHOLDER_TEXT = 'Search for members or chats'
+// Copy from the DM designs' desktop new-message panel (Figma tXuRsUfP6VnSv99dox00C1,
+// "Fixed to top" 836:21109), which uses the same wording as the mobile screen.
+export const SEARCH_PLACEHOLDER_TEXT = 'Search for people, chats or channels'
 
 export const NewDirectMessageComponent: React.FC<
   NewDirectMessageComponentProps & UploadFilesPreviewsProps & FileActionsProps
