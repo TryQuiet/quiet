@@ -307,11 +307,11 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                                   data-testid={'createChannel-private-form-control-label'}
                                 >
                                   <Grid item>
-                                    <Typography variant='body1'>Private Channel</Typography>
+                                    <Typography variant='body1'>Private channel</Typography>
                                   </Grid>
                                   <Grid item>
                                     <Typography variant='caption' className={classes.subtitle}>
-                                      Only assigned members and roles have access
+                                      Only assigned members and admins have access
                                     </Typography>
                                   </Grid>
                                 </Grid>

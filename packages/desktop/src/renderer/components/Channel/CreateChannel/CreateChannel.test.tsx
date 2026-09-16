@@ -390,7 +390,7 @@ describe('Add new channel', () => {
     })
 
     expect(await screen.findByText('Create a new channel')).toBeVisible()
-    expect(screen.queryByText('Private Channel')).toBeNull()
+    expect(screen.queryByText('Private channel')).toBeNull()
     expect(screen.queryByTestId('createChannel-private-form-control-toggle')).toBeNull()
   })
 
@@ -405,7 +405,7 @@ describe('Add new channel', () => {
       store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
     })
 
-    expect(await screen.findByText('Private Channel')).toBeVisible()
+    expect(await screen.findByText('Private channel')).toBeVisible()
     expect(screen.getByTestId('createChannel-private-form-control-toggle')).toBeVisible()
   })
 })

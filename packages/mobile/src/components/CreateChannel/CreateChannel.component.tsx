@@ -14,6 +14,12 @@ import { Appbar } from '../Appbar/Appbar.component'
 const CHANNEL_NAME_LABEL = 'Channel name'
 const CHANNEL_NAME_PLACEHOLDER = 'Enter a channel name'
 const CREATE_CHANNEL_LABEL = 'Create channel'
+// Roles do not exist yet, so the subtitle names admins rather than promising role assignment.
+const PRIVATE_CHANNEL_SUBTITLE = 'Only assigned members and admins have access'
+const PRIVATE_ROW_HEIGHT = 80
+const PRIVATE_ROW_INSET = 16
+// Text starts at x=56 in the design, i.e. 40pt of icon column after the 16pt inset.
+const PRIVATE_ROW_ICON_COLUMN = 40
 
 import { icons } from '../../assets'
 import LockIcon from '../../assets/icons/svg/lock'
@@ -152,19 +158,21 @@ export const CreateChannel: FC<CreateChannelProps> = ({
             style={{
               display: 'flex',
               flexDirection: 'row',
-              gap: 12,
               alignItems: 'center',
-              justifyContent: 'center',
               marginTop: 24,
-              height: 'auto',
-              width: 'auto',
+              // Row geometry from "Create channel / Version=3" (Figma 5055:16131): icon inset 16,
+              // text starting at 56, toggle right-aligned, 80pt row closed by a divider.
+              minHeight: PRIVATE_ROW_HEIGHT,
+              paddingHorizontal: PRIVATE_ROW_INSET,
+              borderBottomWidth: 1,
+              borderBottomColor: defaultTheme.palette.background.gray06,
             }}
             testID={'create_channel_private'}
           >
-            <View testID={'create_channel_private_lock'} style={{ flex: 1 }}>
+            <View testID={'create_channel_private_lock'} style={{ width: PRIVATE_ROW_ICON_COLUMN }}>
               <LockIcon fill={false} />
             </View>
-            <View testID={'create_channel_private_label'} style={{ flex: 8 }}>
+            <View testID={'create_channel_private_label'} style={{ flex: 1, paddingRight: 12 }}>
               <Typography fontSize={16}>{'Private channel'}</Typography>
               <Typography
                 fontSize={12}
@@ -173,10 +181,10 @@ export const CreateChannel: FC<CreateChannelProps> = ({
                   flexWrap: 'wrap',
                 }}
               >
-                {'Only assigned members and roles have access'}
+                {PRIVATE_CHANNEL_SUBTITLE}
               </Typography>
             </View>
-            <View testID={'create_channel_private_toggle'} style={{ flex: 2 }}>
+            <View testID={'create_channel_private_toggle'}>
               <Switch
                 trackColor={{
                   false: defaultTheme.palette.typography.gray50,
