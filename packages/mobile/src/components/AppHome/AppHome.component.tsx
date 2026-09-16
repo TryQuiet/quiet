@@ -27,7 +27,7 @@ export const AppHome: FC<AppHomeProps> = ({
     <View
       style={{
         flex: 1,
-        backgroundColor: defaultTheme.palette.typography.darkPurple,
+        backgroundColor: defaultTheme.palette.main.brand,
       }}
       testID={'messages-home-component'}
     >
@@ -36,7 +36,7 @@ export const AppHome: FC<AppHomeProps> = ({
         position={'flex-start'}
         contextMenu={communityContextMenu}
         style={{
-          backgroundColor: defaultTheme.palette.typography.darkPurple,
+          backgroundColor: defaultTheme.palette.main.brand,
           borderBottomWidth: 0,
         }}
         iconColor={defaultTheme.palette.typography.white}

@@ -87,7 +87,13 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
+      {/*
+        Paint the status-bar strip ourselves rather than relying on StatusBar.backgroundColor:
+        the app targets SDK 35, where Android forces edge-to-edge and ignores setStatusBarColor,
+        and iOS has no status-bar background API at all. A top-edge-only SafeAreaView works on both.
+      */}
+      <SafeAreaView edges={['top']} style={{ backgroundColor: defaultTheme.palette.main.brand }} />
+      <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1 }}>
         <NavigationContainer
           ref={navigationRef}
           linking={linking}
@@ -98,7 +104,7 @@ function App(): JSX.Element {
           <WebviewCrypto />
           <MenuProvider>
             <ThemeProvider theme={defaultTheme}>
-              <StatusBar backgroundColor={defaultTheme.palette.background.white} barStyle={'dark-content'} />
+              <StatusBar backgroundColor={defaultTheme.palette.main.brand} barStyle={'light-content'} />
               <Navigator
                 initialRouteName={ScreenNames.SplashScreen}
                 screenOptions={{
