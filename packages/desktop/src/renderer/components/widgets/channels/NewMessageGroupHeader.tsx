@@ -289,39 +289,29 @@ export const NewMessageGroupHeader: React.FC<NewMessageGroupHeaderProps> = ({ us
 
   return (
     <Root className={classes.wrapper}>
-      <Grid container className={classes.root} justifyContent='space-between' alignItems='center' direction='row'>
+      <Grid
+        container
+        className={classes.root}
+        justifyContent='space-between'
+        alignItems='center'
+        direction='row'
+        wrap='nowrap'
+      >
         <Grid item>
-          <Grid item container alignItems='center'>
-            <Grid item>
-              <Grid
-                container
-                item
-                justifyContent='stretch'
-                alignItems='stretch'
-                alignContent='center'
-                display='flex'
-                flexDirection='row'
-                flex={1}
-              >
-                <Grid item alignItems='center' flex={10}>
-                  <Typography
-                    noWrap
-                    variant='subtitle1'
-                    className={classNames({
-                      [classes.title]: true,
-                      [classes.bold]: true,
-                    })}
-                    data-testid={'new-message-header-title'}
-                  >
-                    New message
-                  </Typography>
-                </Grid>
-                <Grid item flex={2}>
-                  <CloseButton handleClose={handleClose} />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+          <Typography
+            noWrap
+            variant='subtitle1'
+            className={classNames({
+              [classes.title]: true,
+              [classes.bold]: true,
+            })}
+            data-testid={'new-message-header-title'}
+          >
+            New message
+          </Typography>
+        </Grid>
+        <Grid item>
+          <CloseButton handleClose={handleClose} />
         </Grid>
       </Grid>
     </Root>
