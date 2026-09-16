@@ -35,6 +35,8 @@
 * Run the brand purple to the top of the screen on mobile, including behind the status bar, using the same token as the rest of the app
 * Move the desktop new-message close button to the far right of its header instead of against the title
 * Match the mobile create-channel screen's copy to the design library
+* Present desktop channel creation as a side panel rather than a centred modal, matching the designs
+* Say that admins, not roles, have access to private channels, since roles do not exist yet
 
 ## [9.0.0]
 
