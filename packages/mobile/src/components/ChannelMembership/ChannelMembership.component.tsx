@@ -17,6 +17,20 @@ import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('ChannelMembership')
 
+/**
+ * One screen serves two surfaces, reached from the same side-nav entry.
+ *
+ * "Permissions" is shown when the viewer can change who belongs to the channel — an admin on a
+ * non-DM channel — and the screen is editable: it offers Add members.
+ *
+ * "Members" is shown otherwise, including for every DM, and the screen is read-only. DM membership
+ * is fixed at creation (the participant list is baked into the conversation id), so there is
+ * deliberately nothing to edit there.
+ *
+ * The count beside the title is the member count in both cases; the design library shows the same
+ * pattern ("Permissions" with a count, Figma 5058:13948), where the surrounding "Roles and members"
+ * frame supplies the context this single line does not.
+ */
 const MODIFIABLE_MEMBERSHIP_TITLE = 'Permissions'
 const NON_MODIFIABLE_MEMBERSHIP_TITLE = 'Members'
 
@@ -42,7 +56,9 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   const onPress = useCallback(() => {
     setLoading(true)
     dispatch(
-      navigationActions.replaceScreen({
+      // Push rather than replace: replacing dropped this screen from the stack, so going back from
+      // Add members had nothing to return to and fell through to the home screen.
+      navigationActions.navigation({
         screen: ScreenNames.UpdateChannelMembershipScreen,
         params: {
           channelTitle,

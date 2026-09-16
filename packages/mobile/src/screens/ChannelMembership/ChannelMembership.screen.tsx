@@ -60,11 +60,8 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
   }, [userProfiles, channels, connectedPeers, me])
 
   const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelScreen,
-      })
-    )
+    // Pop back to the channel this was opened from rather than replacing the entry.
+    dispatch(navigationActions.pop())
   }, [dispatch])
 
   return (

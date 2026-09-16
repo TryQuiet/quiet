@@ -77,15 +77,9 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
   )
 
   const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelMembershipScreen,
-        params: {
-          channelId,
-          channelName,
-        },
-      })
-    )
+    // Pop rather than replace, so the membership screen keeps the params it was opened with —
+    // replacing it re-mounted it without channelTitle or channelType.
+    dispatch(navigationActions.pop())
   }, [dispatch])
 
   return (
