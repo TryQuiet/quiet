@@ -26,7 +26,6 @@ const logger = createLogger('AddMembersChannelComponent')
  */
 const TITLE = 'Add members or roles'
 const SEARCH_PLACEHOLDER = 'E.g. @jane123'
-const SEARCH_CAPTION = "Add members with '@'"
 const MEMBERS_HEADING = 'MEMBERS'
 const NO_MEMBERS = 'Everyone in this community is already in this channel.'
 
@@ -168,7 +167,6 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
             value={query}
             onChange={setQuery}
             placeholder={selected.length > 0 ? undefined : SEARCH_PLACEHOLDER}
-            caption={SEARCH_CAPTION}
             autoFocus
             pills={selected.map(userId => (
               <RecipientPill

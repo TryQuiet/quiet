@@ -42,11 +42,14 @@ export const ChannelContextMenu: FC = () => {
 
   const _initializeData = () => {
     if (channel == null) return
-    const membersInChannel: UserProfile[] = Object.values(userProfiles).filter(profile =>
+    // A profile carries only the private channels it belongs to, because everyone in the community
+    // is in every public one — so a public channel's membership is the whole community.
+    const membersInChannel: UserProfile[] =
       channel.type === ChannelType.DM
-        ? channel.memberIds?.includes(profile.userId)
-        : profile.channels?.includes(channel.id)
-    )
+        ? Object.values(userProfiles).filter(profile => channel.memberIds?.includes(profile.userId))
+        : (channel.public ?? true)
+        ? Object.values(userProfiles)
+        : Object.values(userProfiles).filter(profile => profile.channels?.includes(channel.id))
     setMemberCountSuffix(`${membersInChannel.length}`)
   }
 
@@ -101,7 +104,7 @@ export const ChannelContextMenu: FC = () => {
 
   let items: ContextMenuItemProps[] = []
 
-  if (channel?.public === false) {
+  if (channel != null) {
     const isDm = channel.type === ChannelType.DM
     const openMembership = (manageMembership: boolean) => () =>
       redirect(ScreenNames.ChannelMembershipScreen, {
@@ -112,17 +115,10 @@ export const ChannelContextMenu: FC = () => {
         manageMembership,
       })
 
-    // The designs list Members and Permissions as separate entries (Figma
-    // PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190): Members simply lists who belongs to the channel, while
-    // Permissions is where an admin changes that, and appears only on a private channel. Members
-    // is marked "visible to everyone" there, but a public channel has no membership to list —
-    // user profiles carry private channel ids only — so both entries stay on private channels.
-    items.push({
-      title: isDm ? MEMBERS_IN_DM_TITLE : MEMBERS_IN_CHANNEL_TITLE,
-      suffix: memberCountSuffix,
-      action: openMembership(false),
-    })
-
+    // Which entry you get turns on whether you are an admin, not on whether the channel is
+    // private: an admin manages who belongs here, everyone else only sees who does (Figma
+    // PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190). A DM's membership is fixed at creation, so it is always
+    // the read-only entry.
     if (canAddMembers && !isDm) {
       items.push({
         title: PERMISSIONS_TITLE,
@@ -130,6 +126,12 @@ export const ChannelContextMenu: FC = () => {
         subtitle: PERMISSIONS_SUBTITLE,
         suffix: memberCountSuffix,
         action: openMembership(true),
+      })
+    } else {
+      items.push({
+        title: isDm ? MEMBERS_IN_DM_TITLE : MEMBERS_IN_CHANNEL_TITLE,
+        suffix: memberCountSuffix,
+        action: openMembership(false),
       })
     }
   }

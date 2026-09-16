@@ -46,6 +46,7 @@ export const Walkthrough: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [addingMembers, setAddingMembers] = useState(false)
   const [memberIds, setMemberIds] = useState<string[]>([])
+  const [lastOutcome, setLastOutcome] = useState<string | undefined>(undefined)
 
   const possibleMembers = Object.fromEntries(
     Object.entries(MEMBERS).map(([id, profile]) => [
@@ -77,12 +78,22 @@ export const Walkthrough: React.FC = () => {
         </IconButton>
       </div>
 
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
         <Typography variant='body2'>
           {memberIds.length === 0
             ? 'Nobody has been added to this private channel yet. Open the "..." menu to add members.'
             : `In this channel: ${memberIds.map(id => MEMBERS[id].nickname).join(', ')}.`}
         </Typography>
+        {/*
+          Spelled out so the two ways of leaving the panel are distinguishable: the close abandons
+          the picks and lands back here, Done commits them. In the app the "..." menu closes itself
+          before the panel opens (ChannelContextMenu.container), so neither returns to the menu.
+        */}
+        {lastOutcome && (
+          <Typography variant='caption' style={{ color: '#7F7F7F' }} data-testid={'walkthrough-outcome'}>
+            {lastOutcome}
+          </Typography>
+        )}
       </div>
 
       <ContextMenu
@@ -96,8 +107,10 @@ export const Walkthrough: React.FC = () => {
             {
               title: 'Add members',
               action: () => {
+                // The menu dismisses itself before the panel opens, as it does in the app.
                 setMenuOpen(false)
                 setAddingMembers(true)
+                setLastOutcome(undefined)
               },
             },
             { title: 'Delete', action: () => undefined },
@@ -112,7 +125,10 @@ export const Walkthrough: React.FC = () => {
         {...({
           open: addingMembers,
           handleOpen: () => undefined,
-          handleClose: () => setAddingMembers(false),
+          handleClose: () => {
+            setAddingMembers(false)
+            setLastOutcome('Closed with ✕ — nobody was added, and you are back in the channel.')
+          },
         } as unknown as ReturnType<typeof useModal>)}
         channelName={CHANNEL_NAME}
         channelId={CHANNEL_ID}
@@ -121,6 +137,9 @@ export const Walkthrough: React.FC = () => {
         addMembersToChannel={(added: string[]) => {
           setMemberIds(current => [...new Set([...current, ...added])])
           setAddingMembers(false)
+          setLastOutcome(
+            `Confirmed with Done — added ${added.map(id => MEMBERS[id].nickname).join(', ')}, and you are back in the channel.`
+          )
         }}
       />
     </div>
@@ -133,6 +152,9 @@ const component: ComponentMeta<typeof Walkthrough> = {
   title: 'Private channels/Walkthrough',
   decorators: [withDragDrop, withTheme],
   component: Walkthrough,
+  // Walkthrough is exported for the test to drive; only PrivateChannelWalkthrough is a story, or
+  // the same flow is listed twice.
+  excludeStories: ['Walkthrough'],
   parameters: { layout: 'fullscreen' },
 }
 

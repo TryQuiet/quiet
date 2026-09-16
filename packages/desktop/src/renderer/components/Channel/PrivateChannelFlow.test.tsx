@@ -31,5 +31,19 @@ describe('Private channel walkthrough', () => {
 
     expect(await screen.findByText(/In this channel: denise/)).toBeVisible()
     expect(screen.getByText('1 member')).toBeVisible()
+    expect(screen.getByTestId('walkthrough-outcome')).toHaveTextContent(/Confirmed with Done/)
+  })
+
+  it('abandons the picks when the panel is closed rather than confirmed', async () => {
+    renderComponent(<Walkthrough />)
+
+    await userEvent.click(screen.getByTestId('walkthrough-channel-menu'))
+    await userEvent.click(await screen.findByTestId('contextMenuItemAdd_members'))
+    await userEvent.click(await screen.findByTestId('fundraising-and-events-add-members-row-denise'))
+
+    await userEvent.click(screen.getByTestId('fundraising-and-events-add-members-leave-button'))
+
+    expect(await screen.findByTestId('walkthrough-outcome')).toHaveTextContent(/nobody was added/)
+    expect(screen.getByText('0 members')).toBeVisible()
   })
 })

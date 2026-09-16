@@ -132,9 +132,9 @@ describe('ChannelContextMenu (permissions gate for channel membership)', () => {
       expect(queryByText('Permissions')).toBeNull()
     })
 
-    // The designs list the two side by side (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190): Members
-    // lists who belongs to the channel, Permissions is where an admin changes that.
-    it('adds "Permissions" alongside "Members in this channel" with permissions', async () => {
+    // Which entry you get turns on admin status, not on the channel being private: an admin gets
+    // Permissions, everyone else gets the read-only Members entry.
+    it('shows "Permissions" instead of "Members in this channel" to an admin', async () => {
       await factory.create('ChannelPermissions', {
         channelSpecificPermissions: [
           { channelId: privateChannel.id, addMembers: true, delete: true, removeMembers: true },
@@ -142,7 +142,7 @@ describe('ChannelContextMenu (permissions gate for channel membership)', () => {
       })
       const { queryByText } = renderComponent(<ChannelContextMenu />, store)
       expect(queryByText('Permissions')).not.toBeNull()
-      expect(queryByText('Members in this channel')).not.toBeNull()
+      expect(queryByText('Members in this channel')).toBeNull()
     })
   })
 
@@ -155,9 +155,11 @@ describe('ChannelContextMenu (permissions gate for channel membership)', () => {
       )
     })
 
-    it('hides membership item on public channels', () => {
+    // A public channel has no per-channel permissions in state, so nobody reads as its admin and
+    // everyone gets the read-only entry.
+    it('shows the read-only membership item on public channels', () => {
       const { queryByText } = renderComponent(<ChannelContextMenu />, store)
-      expect(queryByText('Members in this channel')).toBeNull()
+      expect(queryByText('Members in this channel')).not.toBeNull()
       expect(queryByText('Permissions')).toBeNull()
     })
   })
