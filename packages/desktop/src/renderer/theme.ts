@@ -4,6 +4,78 @@ import React, { useEffect, useState } from 'react'
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
 
+/**
+ * The design library's Button (Figma 0j7Nna9zWmfOSNmRmQK1Uh 3505:10206). Every variant is drawn at
+ * radius 16; Large is 50 tall with 20/12 padding and a 16 label, Small 32 tall with 12/6 and a 14
+ * label. Primary is the brand purple going darker on hover, Secondary is white inside a #B3B3B3
+ * hairline going to #F7F7F7, Destructive is red going darker; a disabled button is the same button
+ * at 30% opacity.
+ */
+const BUTTON_RADIUS = 16
+const BUTTON_PRIMARY = '#521C74'
+const BUTTON_PRIMARY_HOVER = '#461863'
+const BUTTON_SECONDARY_BORDER = '#B3B3B3'
+const BUTTON_SECONDARY_HOVER = '#F7F7F7'
+const BUTTON_DESTRUCTIVE = '#D13135'
+const BUTTON_DESTRUCTIVE_HOVER = '#BA272B'
+
+// The library has two sizes and Large is the one forms use, so Large's metrics sit on the root and
+// Small overrides them. MUI's default size is Medium, which the library does not have; leaving the
+// metrics on the root means an unsized button lands on Large rather than on MUI's own defaults.
+const buttonStyleOverrides = {
+  root: {
+    textTransform: 'none' as const,
+    boxShadow: 'none',
+    borderRadius: BUTTON_RADIUS,
+    fontWeight: 400,
+    minHeight: 50,
+    padding: '12px 20px',
+    fontSize: 16,
+    lineHeight: '26px',
+    '&:active': {
+      boxShadow: 'none',
+    },
+    '&.Mui-disabled': {
+      opacity: 0.3,
+    },
+  },
+  sizeSmall: {
+    minHeight: 32,
+    padding: '6px 12px',
+    fontSize: 14,
+    lineHeight: '20px',
+  },
+  sizeLarge: {
+    minHeight: 50,
+    padding: '12px 20px',
+    fontSize: 16,
+    lineHeight: '26px',
+  },
+  containedPrimary: {
+    backgroundColor: BUTTON_PRIMARY,
+    '&:hover': {
+      backgroundColor: BUTTON_PRIMARY_HOVER,
+    },
+    '&.Mui-disabled': {
+      backgroundColor: BUTTON_PRIMARY,
+      color: '#FFFFFF',
+    },
+  },
+  containedError: {
+    backgroundColor: BUTTON_DESTRUCTIVE,
+    '&:hover': {
+      backgroundColor: BUTTON_DESTRUCTIVE_HOVER,
+    },
+  },
+  outlined: {
+    borderColor: BUTTON_SECONDARY_BORDER,
+    '&:hover': {
+      borderColor: BUTTON_SECONDARY_BORDER,
+      backgroundColor: BUTTON_SECONDARY_HOVER,
+    },
+  },
+}
+
 const lightTheme = createTheme({
   typography: {
     fontFamily: [font, fontLogs].join(','),
@@ -208,31 +280,7 @@ const lightTheme = createTheme({
       },
     },
     MuiButton: {
-      // Replace with atomic Button component. Put styling in that file.
-      styleOverrides: {
-        sizeSmall: {
-          textTransform: 'none',
-          boxShadow: 'none',
-          paddingLeft: '16px',
-          paddingRight: '14px',
-          fontWeight: 400,
-          fontSize: '14px',
-          '&:active': {
-            boxShadow: 'none',
-          },
-        },
-        sizeLarge: {
-          textTransform: 'none',
-          boxShadow: 'none',
-          fontWeight: 400,
-          paddingTop: 12,
-          paddingBottom: 12,
-          fontSize: 14,
-          '&:active': {
-            boxShadow: 'none',
-          },
-        },
-      },
+      styleOverrides: buttonStyleOverrides,
     },
     MuiOutlinedInput: {
       // Replace with atomic Input component. Put styling in that file.
@@ -466,31 +514,7 @@ const darkTheme = createTheme({
       },
     },
     MuiButton: {
-      // Replace with atomic Button component. Put styling in that file.
-      styleOverrides: {
-        sizeSmall: {
-          textTransform: 'none',
-          boxShadow: 'none',
-          paddingLeft: '16px',
-          paddingRight: '14px',
-          fontWeight: 400,
-          fontSize: '14px',
-          '&:active': {
-            boxShadow: 'none',
-          },
-        },
-        sizeLarge: {
-          textTransform: 'none',
-          boxShadow: 'none',
-          fontWeight: 400,
-          paddingTop: 12,
-          paddingBottom: 12,
-          fontSize: 14,
-          '&:active': {
-            boxShadow: 'none',
-          },
-        },
-      },
+      styleOverrides: buttonStyleOverrides,
     },
     MuiOutlinedInput: {
       // Replace with atomic Input component. Put styling in that file.

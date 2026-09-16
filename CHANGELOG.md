@@ -44,6 +44,9 @@
 * Paint the desktop side nav in the brand purple and mark the selected channel at the design's opacity
 * List Members and Permissions as separate entries in the mobile channel menu, as the designs do, and draw Delete channel in red
 * Use the design's placeholder in the desktop direct-message search
+* Dismiss the desktop create-channel panel with a back arrow, as the designs do, rather than a cross
+* Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
+* Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 
 ## [9.0.0]
 

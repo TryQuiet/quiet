@@ -53,6 +53,9 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
           <PanelHeader
             title='Community Settings'
             handleClose={handleClose as () => void}
+            // Settings has no design of its own saying otherwise, so it keeps the cross it had;
+            // the back arrow is what the create-channel design asks for.
+            leading={'close'}
             closeTestId={'close-settings-button'}
           />
           <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('about')}>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
-import { Drawer, FormControlLabel, Grid, Typography } from '@mui/material'
-import PanelHeader, { PANEL_INSET, PANEL_WIDTH } from '../../ui/Panel/PanelHeader'
+import { Drawer, Grid, Typography } from '@mui/material'
+import PanelHeader, { PANEL_WIDTH } from '../../ui/Panel/PanelHeader'
+import PanelBlock from '../../ui/Panel/PanelBlock'
+import PanelRow from '../../ui/Panel/PanelRow'
 import WarningIcon from '@mui/icons-material/Warning'
 
 import { parseName } from '@quiet/common'
@@ -19,44 +21,23 @@ const logger = createLogger('CreateChannelComponent')
 const PREFIX = 'CreateChannelComponent'
 
 const classes = {
-  fullContainer: `${PREFIX}fullContainer`,
-  gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
   iconDiv: `${PREFIX}iconDiv`,
   warningIcon: `${PREFIX}warningIcon`,
   warningMessage: `${PREFIX}warningMessage`,
   errorMessage: `${PREFIX}errorMessage`,
-  publicPrivateGrid: `${PREFIX}publicPrivateGrid`,
   lock: `${PREFIX}lock`,
-  publicPrivate: `${PREFIX}publicPrivate`,
-  publicPrivateControl: `${PREFIX}publicPrivateControl`,
-  subtitle: `${PREFIX}subtitle`,
 }
 
-const StyledPanelContent = styled(Grid)(({ theme }) => ({
+// No gutter here on purpose: the design lays rows edge to edge and insets only the blocks, so the
+// padding belongs to PanelBlock and PanelRow rather than to the column that holds them.
+const StyledPanelContent = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
-  padding: `0px ${PANEL_INSET}px`,
 
-  [`& .${classes.fullContainer}`]: {
-    width: '100%',
-    height: '100%',
-  },
-
-  [`& .${classes.gutter}`]: {
-    marginTop: 8,
-    marginBottom: 24,
-  },
-
+  // The design hugs the label and sits the button against the block's left edge; size, radius and
+  // the primary colours come from the theme's Button spec.
   [`& .${classes.button}`]: {
-    width: 165,
-    backgroundColor: theme.palette.colors.quietBlue,
-    color: theme.palette.colors.white,
-    '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue,
-    },
-    textTransform: 'none',
-    height: 48,
-    fontWeight: 'normal',
+    alignSelf: 'flex-start',
   },
 
   [`& .${classes.iconDiv}`]: {
@@ -78,35 +59,8 @@ const StyledPanelContent = styled(Grid)(({ theme }) => ({
     fontSize: 12,
   },
 
-  [`& .${classes.publicPrivateGrid}`]: {
-    marginLeft: 0,
-    alignItems: 'center',
-    gap: 8,
-    // Icon, text and toggle sit on one row per the design; without this the 375 panel wraps them.
-    flexWrap: 'nowrap',
-  },
-
   [`& .${classes.lock}`]: {
     padding: 0,
-  },
-
-  [`& .${classes.subtitle}`]: {
-    color: theme.palette.colors.gray50,
-    fontWeight: 400,
-    marginTop: -2,
-  },
-
-  [`& .${classes.publicPrivate}`]: {
-    marginTop: 0,
-    flexGrow: 1,
-    minWidth: 0,
-  },
-
-  [`& .${classes.publicPrivateControl}`]: {
-    display: 'flex',
-    width: '100%',
-    margin: 0,
-    justifyContent: 'space-between',
   },
 }))
 
@@ -196,7 +150,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
           data-testid={'createChannelPanel'}
           PaperProps={{ sx: { width: PANEL_WIDTH } }}
         >
-          <StyledPanelContent container direction='column'>
+          <StyledPanelContent>
             <PanelHeader
               title='Create channel'
               handleClose={handleClose}
@@ -212,8 +166,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                 )
               })}
             >
-              <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-                <Typography variant='body2'>Channel name</Typography>
+              <PanelBlock>
                 <Controller
                   control={control}
                   defaultValue={''}
@@ -225,6 +178,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                       fullWidth
                       classes={''}
                       variant='outlined'
+                      title='Channel name'
                       placeholder={'Enter a channel name'}
                       autoFocus
                       errors={formState.errors}
@@ -243,90 +197,63 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                     />
                   )}
                 />
-                <div className={classes.gutter}>
-                  {!formState.errors.channelName && channelName.length > 0 && parsedNameDiffers && (
-                    <Grid container alignItems='center' direction='row'>
-                      <Grid item className={classes.iconDiv}>
-                        <WarningIcon className={classes.warningIcon} />
-                      </Grid>
-                      <Grid item xs>
-                        <Typography
-                          variant='body2'
-                          className={classes.warningMessage}
-                          data-testid={'createChannelNameWarning'}
-                        >
-                          Your channel will be created as <b>{`#${channelName}`}</b>
-                        </Typography>
-                      </Grid>
+                {!formState.errors.channelName && channelName.length > 0 && parsedNameDiffers && (
+                  <Grid container alignItems='center' direction='row'>
+                    <Grid item className={classes.iconDiv}>
+                      <WarningIcon className={classes.warningIcon} />
                     </Grid>
-                  )}
-                </div>
-                {canCreatePrivateChannel && (
-                  <>
-                    <Controller
-                      control={control}
-                      name={'private'}
-                      rules={createChannelFields.private.validation}
-                      render={({ field }) => (
-                        <Grid item container direction='row' className={classes.publicPrivateGrid}>
-                          <LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />
-                          <Grid item className={classes.publicPrivate} alignItems='center'>
-                            <FormControlLabel
-                              defaultChecked={false}
-                              className={classes.publicPrivateControl}
-                              data-testid={'createChannel-private-form-control'}
-                              control={
-                                <IOSSwitch
-                                  checked={field.value}
-                                  data-testid={'createChannel-private-form-control-toggle'}
-                                  onChange={event => {
-                                    event.persist()
-                                    onIsPrivateChange(event.target.checked)
-                                    field.onChange(event.target.checked)
-                                  }}
-                                />
-                              }
-                              label={
-                                <Grid
-                                  container
-                                  direction='column'
-                                  justifyContent='left'
-                                  alignContent='center'
-                                  data-testid={'createChannel-private-form-control-label'}
-                                >
-                                  <Grid item>
-                                    <Typography variant='body1'>Private channel</Typography>
-                                  </Grid>
-                                  <Grid item>
-                                    <Typography variant='caption' className={classes.subtitle}>
-                                      Only assigned members and admins have access
-                                    </Typography>
-                                  </Grid>
-                                </Grid>
-                              }
-                              labelPlacement='start'
-                            />
-                          </Grid>
-                        </Grid>
-                      )}
-                    />
-                    <div className={classes.gutter}>
-                      {formState.errors.private && (
-                        <Grid container alignItems='center' direction='row'>
-                          <Grid item xs>
-                            <Typography
-                              variant='body2'
-                              className={classes.errorMessage}
-                              data-testid={'createChannelPrivacyWarning'}
-                            >
-                              {formState.errors.private.message}
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      )}
-                    </div>
-                  </>
+                    <Grid item xs>
+                      <Typography
+                        variant='body2'
+                        className={classes.warningMessage}
+                        data-testid={'createChannelNameWarning'}
+                      >
+                        Your channel will be created as <b>{`#${channelName}`}</b>
+                      </Typography>
+                    </Grid>
+                  </Grid>
                 )}
+              </PanelBlock>
+              {canCreatePrivateChannel && (
+                <>
+                  <Controller
+                    control={control}
+                    name={'private'}
+                    rules={createChannelFields.private.validation}
+                    render={({ field }) => (
+                      <PanelRow
+                        testIdPrefix={'createChannel-private'}
+                        icon={<LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />}
+                        title={'Private channel'}
+                        subtitle={'Only assigned members and admins have access'}
+                        control={
+                          <IOSSwitch
+                            checked={field.value}
+                            data-testid={'createChannel-private-form-control-toggle'}
+                            onChange={event => {
+                              event.persist()
+                              onIsPrivateChange(event.target.checked)
+                              field.onChange(event.target.checked)
+                            }}
+                          />
+                        }
+                      />
+                    )}
+                  />
+                  {formState.errors.private && (
+                    <PanelBlock>
+                      <Typography
+                        variant='body2'
+                        className={classes.errorMessage}
+                        data-testid={'createChannelPrivacyWarning'}
+                      >
+                        {formState.errors.private.message}
+                      </Typography>
+                    </PanelBlock>
+                  )}
+                </>
+              )}
+              <PanelBlock>
                 <LoadingButton
                   variant='contained'
                   color='primary'
@@ -336,7 +263,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   classes={{ button: classes.button }}
                   data-testid='channelNameSubmit'
                 />
-              </Grid>
+              </PanelBlock>
             </form>
           </StyledPanelContent>
         </Drawer>

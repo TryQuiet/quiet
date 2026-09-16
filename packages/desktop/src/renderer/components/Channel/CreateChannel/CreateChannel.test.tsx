@@ -181,13 +181,13 @@ describe('Add new channel', () => {
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-xaluvt-MuiGrid-root"
+              class="css-exvw6m"
             >
               <div
-                class="PanelHeaderroot css-1gijsy4"
+                class="PanelHeaderroot css-5atg4q"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall PanelHeaderglyph css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
                   data-testid="createChannelPanelClose"
                   tabindex="0"
                   type="button"
@@ -195,12 +195,12 @@ describe('Add new channel', () => {
                   <svg
                     aria-hidden="true"
                     class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="CloseIcon"
+                    data-testid="ArrowBackIcon"
                     focusable="false"
                     viewBox="0 0 24 24"
                   >
                     <path
-                      d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                      d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
                     />
                   </svg>
                   <span
@@ -213,78 +213,59 @@ describe('Add new channel', () => {
                 >
                   Create channel
                 </p>
-                <button
-                  aria-hidden="true"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeSmall PanelHeaderspacer css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="CloseIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                    />
-                  </svg>
-                </button>
               </div>
-              <hr
-                class="MuiDivider-root MuiDivider-fullWidth css-10g3z0f-MuiDivider-root"
-              />
               <form>
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column CreateChannelComponentfullContainer css-1e5jxqd-MuiGrid-root"
+                  class="css-g5nfir"
                 >
-                  <p
-                    class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
-                  >
-                    Channel name
-                  </p>
                   <div
-                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-                    data-testid="createChannelInput"
+                    class="TextFieldroot css-jz4vfq"
                   >
-                    <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-1hwo1uj-MuiInputBase-root-MuiOutlinedInput-root"
+                    <p
+                      class="MuiTypography-root MuiTypography-body1 TextFieldlabel css-ghvhpl-MuiTypography-root"
+                      data-testid="channelName-field-label"
                     >
-                      <input
-                        aria-invalid="false"
-                        class="MuiInputBase-input MuiOutlinedInput-input css-nrutr0-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r2:"
-                        name="channelName"
-                        placeholder="Enter a channel name"
-                        type="text"
-                        value=""
-                      />
-                      <fieldset
-                        aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-9425fu-MuiOutlinedInput-notchedOutline"
+                      Channel name
+                    </p>
+                    <div
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-3wyanu-MuiFormControl-root-MuiTextField-root"
+                      data-testid="createChannelInput"
+                    >
+                      <div
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-1hwo1uj-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <legend
-                          class="css-ihdtdm"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-nrutr0-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":r2:"
+                          name="channelName"
+                          placeholder="Enter a channel name"
+                          type="text"
+                          value=""
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-9425fu-MuiOutlinedInput-notchedOutline"
                         >
-                          <span
-                            class="notranslate"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            ​
-                          </span>
-                        </legend>
-                      </fieldset>
+                            <span
+                              class="notranslate"
+                            >
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
+                      </div>
                     </div>
                   </div>
-                  <p
-                    class="MuiTypography-root MuiTypography-body2 css-6gbt2m-MuiTypography-root"
-                  />
-                  <div
-                    class="CreateChannelComponentgutter"
-                  />
+                </div>
+                <div
+                  class="css-g5nfir"
+                >
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-ak90sa-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-1frwc0s-MuiButtonBase-root-MuiButton-root"
                     data-testid="channelNameSubmit"
                     tabindex="0"
                     type="submit"
