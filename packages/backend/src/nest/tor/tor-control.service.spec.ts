@@ -153,3 +153,58 @@ describe('TorControl credential readiness', () => {
     await expect(torControl.sendCommand('GETINFO status/bootstrap-phase')).rejects.toThrow('Tor control is closed')
   })
 })
+
+describe('TorControl asynchronous events', () => {
+  const cookie = 'a'.repeat(64)
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('subscribes before ADD_ONION and retains an early matching event until the response arrives', async () => {
+    const writes: string[] = []
+    const socket = new EventEmitter() as net.Socket
+    socket.end = jest.fn(() => socket) as net.Socket['end']
+    socket.write = jest.fn((data: string) => {
+      writes.push(data)
+      if (data.startsWith('AUTHENTICATE') || data.startsWith('SETEVENTS')) {
+        void Promise.resolve().then(() => socket.emit('data', Buffer.from('250 OK\r\n')))
+      }
+      return true
+    }) as net.Socket['write']
+    jest.spyOn(net, 'connect').mockReturnValue(socket)
+
+    const torControl = new TorControl(
+      { port: 9051, host: 'localhost', auth: { type: TorControlAuthType.COOKIE, value: cookie } },
+      {} as ConfigOptions
+    )
+    const response = {
+      code: 250,
+      messages: ['250-ServiceID=expected-service', '250-PrivateKey=private-key', '250 OK'],
+    }
+    jest.spyOn(torControl, 'sendCommand').mockImplementation(async () => {
+      expect(writes).toContain('SETEVENTS HS_DESC\r\n')
+      socket.emit(
+        'data',
+        Buffer.from(
+          '650 HS_DESC UPLOADED other-service NO_AUTH hsdir-a\r\n' +
+            '650 HS_DESC UPLOADED expected-service NO_AUTH hsdir-b\r\n'
+        )
+      )
+      return response
+    })
+
+    await expect(
+      torControl.sendCommandAndWaitForEvent(
+        'ADD_ONION NEW:BEST Flags=Detach Port=80,127.0.0.1:3000',
+        'HS_DESC',
+        (event, commandResponse) =>
+          event.startsWith(`650 HS_DESC UPLOADED ${commandResponse.messages[0].replace('250-ServiceID=', '')} `)
+      )
+    ).resolves.toBe(response)
+
+    expect(writes.slice(0, 2)).toEqual([`AUTHENTICATE ${cookie}\r\n`, 'SETEVENTS HS_DESC\r\n'])
+    expect(socket.end).toHaveBeenCalledTimes(1)
+    torControl.onModuleDestroy()
+  })
+})

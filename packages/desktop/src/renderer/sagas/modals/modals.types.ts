@@ -27,4 +27,5 @@ export enum ModalName {
   possibleImpersonationAttackModal = 'possibleImpersonationAttackModal',
   termsOfServiceModal = 'termsOfServiceModal',
   addMembersChannel = 'addMembersChannel',
+  deviceLinkConsent = 'deviceLinkConsent',
 }

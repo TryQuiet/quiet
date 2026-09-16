@@ -93,6 +93,9 @@ describe('LFA transport ownership', () => {
     incoming = []
     connected = [0, 0]
     nextPair = 0
+    // These transports are conceptually live; device-linking refuses new auth
+    // connections unless libp2p reports it is running.
+    services.forEach(service => (service.state = Libp2pState.Started))
     auth = modules.map((module, index) => {
       services[index].on(Libp2pEvents.AUTH_CONNECTED, () => connected[index]++)
       const components = {

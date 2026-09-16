@@ -16,6 +16,7 @@ export type RootStackParamList = {
       }
     | undefined
   [ScreenNames.QRCodeScreen]: undefined
+  [ScreenNames.LinkedDeviceQRCodeScreen]: undefined
   [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
   [ScreenNames.ChannelListScreen]: undefined
@@ -39,6 +40,7 @@ export type RootStackParamList = {
     icon: any
     title: string
     message?: string
+    buttonTitle?: string
   }
   [ScreenNames.ConnectionProcessScreen]: undefined
   [ScreenNames.DuplicatedUsernameScreen]: undefined

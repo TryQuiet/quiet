@@ -16,6 +16,7 @@ jobs:
       DISPLAY: ":99.0"
       TEST_MODE: true
       IS_CI: true
+      LOCAL_TRANSPORT: "true"
       SKIP_BACK_COMPAT_TEST_BRANCHES: '["update-orbitdb", "chore/upgrade-orbitdb-2_4_3", "fix/2679-2680-2682-3_0-fixes"]'
 
     steps:
@@ -69,36 +70,44 @@ jobs:
         run: chmod +x $FILE_NAME
 
       - name: Run one client test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 15
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test oneClient.test.ts oneClient.appImage.test.ts
+        timeout-minutes: 15
+        run: cd packages/e2e-tests && npm run test oneClient.test.ts oneClient.appImage.test.ts
 
       - name: Run user profile test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test userProfile.test.ts selectors.test.ts
+        timeout-minutes: 25
+        run: cd packages/e2e-tests && npm run test userProfile.test.ts selectors.test.ts
 
       - name: Run multiple clients test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test multipleClients.test.ts
-          
+        timeout-minutes: 25
+        run: cd packages/e2e-tests && npm run test multipleClients.test.ts
+
       - name: Run multiple clients test (private channels)
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test multipleClients.privateChannels.test.ts
+        timeout-minutes: 25
+        run: cd packages/e2e-tests && npm run test multipleClients.privateChannels.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
+        timeout-minutes: 25
+        run: cd packages/e2e-tests && npm run test invitationLink.test.ts
+
+      - name: Run device linking test
+        timeout-minutes: 30
+        run: cd packages/e2e-tests && npm run test -- deviceLinking.test.ts
+
+      - name: Run admission timeout recovery test
+        timeout-minutes: 15
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts
+
+      # Run Tor coverage once per release run, on Linux only, using the same binary.
+      - name: Run multiple clients test over Tor (release)
+        if: >-
+          github.event_name == 'release' ||
+          (github.event_name == 'pull_request' &&
+          (startsWith(github.head_ref, 'release/') || endsWith(github.head_ref, '-release')))
+        env:
+          LOCAL_TRANSPORT: "false"
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
           timeout_minutes: 25
+          # One initial attempt plus up to two retries.
           max_attempts: 3
-          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
+          command: cd packages/e2e-tests && npm run test multipleClients.test.ts

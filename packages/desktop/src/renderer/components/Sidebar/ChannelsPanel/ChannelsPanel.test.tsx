@@ -107,7 +107,7 @@ describe('Channels panel', () => {
         <ChannelsPanel
           channels={channels}
           userProfiles={userProfilesMap}
-          connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
+          connectedPeers={['alicePeerId', 'bobPeerId']}
           unreadChannels={[]}
           setCurrentChannel={function (_id: string): void {}}
           currentChannelId={generalChannel.id}
@@ -123,7 +123,23 @@ describe('Channels panel', () => {
           myUserProfile={aliceUserProfile}
           userProfiles={userProfilesMap}
           userProfileContextMenu={mockUserProfileContextMenu}
-          connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
+          connectedPeers={['alicePeerId', 'bobPeerId']}
+          networkEndpoints={[
+            {
+              teamId: 'teamId',
+              userId: aliceUserProfile.userId,
+              deviceId: 'aliceDeviceId',
+              peerId: 'alicePeerId',
+              onionAddress: 'alice.onion',
+            },
+            {
+              teamId: 'teamId',
+              userId: bobUserProfile.userId,
+              deviceId: 'bobDeviceId',
+              peerId: 'bobPeerId',
+              onionAddress: 'bob.onion',
+            },
+          ]}
           isTorInitialized={true}
         />
       </>
@@ -748,7 +764,7 @@ describe('Channels panel', () => {
                       />
                     </span>
                     <span
-                      class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                      class="MuiBadge-badge MuiBadge-dot MuiBadge-invisible MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge MuiBadge-invisible css-10f6i39-MuiBadge-badge"
                       data-testid="user_6-user-link-status-badge"
                     />
                   </span>
@@ -1385,7 +1401,7 @@ describe('Channels panel', () => {
                     />
                   </span>
                   <span
-                    class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    class="MuiBadge-badge MuiBadge-dot MuiBadge-invisible MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge MuiBadge-invisible css-10f6i39-MuiBadge-badge"
                     data-testid="user_6-user-link-status-badge"
                   />
                 </span>

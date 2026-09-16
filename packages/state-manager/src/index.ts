@@ -80,6 +80,7 @@ export { FilesTransform } from './sagas/files/files.transform'
 export { ConnectionTransform } from './sagas/appConnection/connection.transform'
 export { UsersTransform } from './sagas/users/users.transform'
 export { resetStateAndSaveTorConnectionData } from './sagas/appConnection/connection.helpers'
+export { watchDeviceLinkExpirySaga } from './sagas/appConnection/invite/expireDeviceLink.saga'
 export * from './constants'
 
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'

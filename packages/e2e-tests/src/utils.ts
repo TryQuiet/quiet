@@ -32,6 +32,7 @@ export interface BuildSetupInit {
 
 export class BuildSetup {
   private driver?: ThenableWebDriver | null
+  private processOutput = ''
   public port?: number
   public debugPort?: number
   public dataDir?: string
@@ -220,10 +221,12 @@ export class BuildSetup {
     })
 
     this.child.stdout.on('data', data => {
+      this.appendProcessOutput(data)
       logger.info(`stdout:\n${data}`)
     })
 
     this.child.stderr.on('data', data => {
+      this.appendProcessOutput(data)
       // Quiet logs (handled by 'debug' package) are available in stderr and only with 'verbose' flag on chromedriver
       const trashLogs = ['DevTools', 'COMMAND', 'INFO:CONSOLE', '[INFO]:', 'libnotify-WARNING', 'ALSA lib']
       const dataString = `${data}`
@@ -236,6 +239,29 @@ export class BuildSetup {
     this.child.stdin.on('data', data => {
       logger.info(`stdin: ${data}`)
     })
+  }
+
+  private appendProcessOutput(data: unknown): void {
+    this.processOutput = `${this.processOutput}${String(data)}`.slice(-2_000_000)
+  }
+
+  public clearProcessOutput(): void {
+    this.processOutput = ''
+  }
+
+  public hasProcessOutput(text: string): boolean {
+    return this.processOutput.includes(text)
+  }
+
+  public async waitForProcessOutput(text: string, timeoutMs = 60_000): Promise<void> {
+    const deadline = Date.now() + timeoutMs
+    while (Date.now() < deadline) {
+      if (this.processOutput.includes(text)) {
+        return
+      }
+      await sleep(250)
+    }
+    throw new Error(`Process output for ${this.dataDir} did not contain "${text}" within ${timeoutMs}ms`)
   }
 
   public async getTorPid() {

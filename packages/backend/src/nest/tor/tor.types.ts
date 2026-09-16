@@ -39,6 +39,13 @@ export interface TorControlCredentialsWaiter {
   reject: (error: Error) => void
 }
 
+export interface TorControlResponse {
+  code: number
+  messages: string[]
+}
+
+export type TorControlEventMatcher = (event: string, response: TorControlResponse) => boolean
+
 export interface IParams {
   port: number
   family: number

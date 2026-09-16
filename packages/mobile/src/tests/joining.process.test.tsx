@@ -1,18 +1,19 @@
 import React from 'react'
 import '@testing-library/jest-native/extend-expect'
-import { screen, fireEvent, act } from '@testing-library/react-native'
+import { screen, fireEvent, act, waitFor } from '@testing-library/react-native'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../setupTests'
 import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
 import { FactoryGirl } from 'factory-girl'
-import { getReduxStoreFactory, communities, identity, connection } from '@quiet/state-manager'
+import { getReduxStoreFactory, communities, identity, connection, errors } from '@quiet/state-manager'
 import { ScreenNames } from '../const/ScreenNames.enum'
 import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 import { ConnectionProcessScreen } from '../screens/ConnectionProcess/ConnectionProcess.screen'
 import { UsernameRegistrationScreen } from '../screens/UsernameRegistration/UsernameRegistration.screen'
-import { ConnectionProcessInfo } from '@quiet/types'
+import { ConnectionProcessInfo, ErrorMessages, SocketActions } from '@quiet/types'
 import { createLogger } from '../utils/logger'
+import { navigationActions } from '../store/navigation/navigation.slice'
 
 // Mocked because ConnectionProcessScreen now indirectly imports react-native-share
 // via the dev/alpha-only "Share logs" link helper (sendLogs).
@@ -126,5 +127,26 @@ describe('Joining process', () => {
     expect(processText.props.children).toEqual('Connecting process started')
     // Stop state-manager sagas
     root?.cancel()
+  })
+
+  test('invalid device invite requests backend cleanup before resetting onboarding', async () => {
+    const { store } = await prepareStore()
+    factory = await getReduxStoreFactory(store)
+    const community = await factory.create('Community')
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+    renderComponent(<ConnectionProcessScreen />, store)
+
+    act(() => {
+      store.dispatch(
+        errors.actions.addError({
+          type: SocketActions.LAUNCH_COMMUNITY,
+          message: ErrorMessages.INVALID_INVITE,
+          community: community.id,
+        })
+      )
+    })
+
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.resetAdmission(community.id)))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(communities.actions.resetApp(undefined))
   })
 })

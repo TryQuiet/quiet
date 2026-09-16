@@ -27,6 +27,10 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   UserProfilesUpdatedPayload,
+  type DeviceLinkInvite,
+  type InitDeviceLinkPayload,
+  type RequestDeviceLinkPayload,
+  type ResponseLinkDevicePayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -91,6 +95,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     const connection = new Promise<void>(resolve => {
       this.serverIoProvider.io.on(SocketActions.CONNECTION, socket => {
         socket.on(SocketActions.START, async () => {
+          this.emit(SocketActions.START)
           resolve()
         })
       })
@@ -208,6 +213,15 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         }
       )
 
+      socket.on(
+        SocketActions.LINK_DEVICE,
+        async (payload: InitDeviceLinkPayload, callback: (response: ResponseLinkDevicePayload | undefined) => void) => {
+          this.logger.info(`Received request to link device`, payload.id)
+          this.emit(SocketActions.LINK_DEVICE, payload, callback)
+          this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
+        }
+      )
+
       socket.on(SocketActions.LAUNCH_COMMUNITY, async (payload: LaunchCommunityPayload) => {
         this.logger.info(`Launching community ${payload.id}`)
         this.emit(SocketActions.LAUNCH_COMMUNITY, payload)
@@ -217,6 +231,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger.info('Leaving community')
         this.emit(SocketActions.LEAVE_COMMUNITY, callback)
       })
+
+      socket.on(
+        SocketActions.RESET_ADMISSION,
+        (payload: LaunchCommunityPayload, callback: (success: boolean) => void) => {
+          this.emit(SocketActions.RESET_ADMISSION, payload, callback)
+        }
+      )
 
       // ====== Users ======
 
@@ -239,6 +260,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         async (inviteId: Base58, callback: (response: InviteResultWithSalt | undefined) => void) => {
           this.logger.info(`Validating long lived LFA invite with ID ${inviteId} or creating a new one`)
           this.emit(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, inviteId, callback)
+        }
+      )
+
+      socket.on(
+        SocketActions.CREATE_DEVICE_LINK,
+        async (payload: RequestDeviceLinkPayload, callback: (response?: DeviceLinkInvite) => void) => {
+          this.emit(SocketActions.CREATE_DEVICE_LINK, payload, callback)
         }
       )
 

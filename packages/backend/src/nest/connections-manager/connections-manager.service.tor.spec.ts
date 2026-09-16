@@ -128,6 +128,12 @@ describe('Connections manager', () => {
   it('creates network', async () => {
     logger.info('creates network')
     const spyOnDestroyHiddenService = jest.spyOn(tor, 'destroyHiddenService')
+    // Creating a hidden service now resolves only after Tor confirms descriptor
+    // publication. Cold CI runners can need longer than the suite's default
+    // timeout to bootstrap the public Tor network.
+    if (!tor.bootstrapped) {
+      await new Promise<void>(resolve => tor.once('bootstrapped', resolve))
+    }
     await connectionsManagerService.init()
     const network = await connectionsManagerService.getNetworkInfo()
     expect(network.hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
@@ -135,5 +141,5 @@ describe('Connections manager', () => {
     const peerId = peerIdFromString(network.peerId.id)
     expect(isPeerId(peerId)).toBeTruthy()
     expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
-  })
+  }, 300_000)
 })
