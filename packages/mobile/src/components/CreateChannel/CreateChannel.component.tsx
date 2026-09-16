@@ -10,6 +10,11 @@ import { Button } from '../Button/Button.component'
 import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
+// Copy from the design library component "Create channel / Version=3" (Figma 5055:16131).
+const CHANNEL_NAME_LABEL = 'Channel name'
+const CHANNEL_NAME_PLACEHOLDER = 'Enter a channel name'
+const CREATE_CHANNEL_LABEL = 'Create channel'
+
 import { icons } from '../../assets'
 import LockIcon from '../../assets/icons/svg/lock'
 
@@ -101,8 +106,8 @@ export const CreateChannel: FC<CreateChannelProps> = ({
       >
         <Input
           onChangeText={onChangeText}
-          label={'Add a name for your channel'}
-          placeholder={'Channel name'}
+          label={CHANNEL_NAME_LABEL}
+          placeholder={CHANNEL_NAME_PLACEHOLDER}
           length={20}
           disabled={loading}
           validation={inputError}
@@ -189,7 +194,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
           </View>
         )}
         <View style={{ marginTop: 12 + 12 }}>
-          <Button onPress={onPress} title={'Continue'} width={108} loading={loading} />
+          <Button onPress={onPress} title={CREATE_CHANNEL_LABEL} width={172} loading={loading} />
         </View>
       </KeyboardAvoidingView>
     </View>

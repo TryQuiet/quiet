@@ -34,6 +34,7 @@
 * Match mobile direct-message recipient selection to the designs, including the field placeholder and an in-field clear button
 * Run the brand purple to the top of the screen on mobile, including behind the status bar, using the same token as the rest of the app
 * Move the desktop new-message close button to the far right of its header instead of against the title
+* Match the mobile create-channel screen's copy to the design library
 
 ## [9.0.0]
 
