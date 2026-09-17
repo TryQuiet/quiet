@@ -43,14 +43,7 @@ describe('CommunityMembership', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item CommunityMembershiptitle css-13i4rnv-MuiGrid-root"
-              >
-                <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                  data-testid="community-membership-title"
-                >
-                  Community membership
-                </h3>
-              </div>
+              />
             </div>
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipcomponentContainer css-1f064cs-MuiGrid-root"
@@ -119,14 +112,7 @@ describe('CommunityMembership', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item CommunityMembershiptitle css-13i4rnv-MuiGrid-root"
-              >
-                <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                  data-testid="community-membership-title"
-                >
-                  Community membership
-                </h3>
-              </div>
+              />
             </div>
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipcomponentContainer css-1f064cs-MuiGrid-root"
@@ -172,7 +158,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_1-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -206,7 +192,7 @@ describe('CommunityMembership', () => {
                             class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-1nyrs1g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
@@ -214,12 +200,12 @@ describe('CommunityMembership', () => {
                               >
                                 user_1
                               </h4>
-                              <h4
-                                class="MuiTypography-root MuiTypography-h4 MuiTypography-alignLeft CommunityMemberListItemnickname CommunityMemberListItemme css-1d19vqw-MuiTypography-root"
+                              <p
+                                class="MuiTypography-root MuiTypography-body1 MuiTypography-alignLeft CommunityMemberListItemme css-sy6q1b-MuiTypography-root"
                                 data-testid="membership-list-me"
                               >
-                                me
-                              </h4>
+                                you
+                              </p>
                             </div>
                           </span>
                         </div>
@@ -265,14 +251,7 @@ describe('CommunityMembership', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item CommunityMembershiptitle css-13i4rnv-MuiGrid-root"
-              >
-                <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                  data-testid="community-membership-title"
-                >
-                  Community membership
-                </h3>
-              </div>
+              />
             </div>
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipcomponentContainer css-1f064cs-MuiGrid-root"
@@ -318,7 +297,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_2-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -352,7 +331,7 @@ describe('CommunityMembership', () => {
                             class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-1nyrs1g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
@@ -407,14 +386,7 @@ describe('CommunityMembership', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item CommunityMembershiptitle css-13i4rnv-MuiGrid-root"
-              >
-                <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                  data-testid="community-membership-title"
-                >
-                  Community membership
-                </h3>
-              </div>
+              />
             </div>
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipcomponentContainer css-1f064cs-MuiGrid-root"
@@ -460,7 +432,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_3-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -494,7 +466,7 @@ describe('CommunityMembership', () => {
                             class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-1nyrs1g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
@@ -502,12 +474,12 @@ describe('CommunityMembership', () => {
                               >
                                 user_3
                               </h4>
-                              <h4
-                                class="MuiTypography-root MuiTypography-h4 MuiTypography-alignLeft CommunityMemberListItemnickname CommunityMemberListItemme css-1d19vqw-MuiTypography-root"
+                              <p
+                                class="MuiTypography-root MuiTypography-body1 MuiTypography-alignLeft CommunityMemberListItemme css-sy6q1b-MuiTypography-root"
                                 data-testid="membership-list-me"
                               >
-                                me
-                              </h4>
+                                you
+                              </p>
                             </div>
                           </span>
                         </div>
@@ -529,7 +501,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_4-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -563,7 +535,7 @@ describe('CommunityMembership', () => {
                             class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-1nyrs1g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
@@ -592,7 +564,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1nlcy38-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_5-membership-list-item"
                         role="button"
                         tabindex="-1"
@@ -626,7 +598,7 @@ describe('CommunityMembership', () => {
                             class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-1nyrs1g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"

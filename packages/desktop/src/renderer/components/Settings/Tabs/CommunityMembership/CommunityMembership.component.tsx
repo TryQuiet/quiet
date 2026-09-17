@@ -171,11 +171,7 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
   return (
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
-        <Grid item className={classes.title}>
-          <Typography variant='h3' data-testid='community-membership-title'>
-            Community membership
-          </Typography>
-        </Grid>
+        <Grid item className={classes.title}></Grid>
       </Grid>
       <Grid item container className={classes.componentContainer}>
         <Grid item display={'flex'} flex={1} data-testid='community-membership-search'>

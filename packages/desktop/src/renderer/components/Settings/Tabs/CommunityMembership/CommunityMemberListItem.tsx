@@ -103,8 +103,19 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     opacity: 1,
     fontWeight: 600,
   },
+  /**
+   * Which of these people is you — an annotation, not a second name. It had been set in the
+   * nickname's own size and weight and merely greyed, so it read as though the row named two
+   * people. The design system's smaller de-emphasised scale (12/16, 0.4 tracking, gray50 — the
+   * subtitle in a Button row) sets it apart without introducing a face of its own.
+   */
   [`& .${classes.me}`]: {
+    fontSize: 12,
+    lineHeight: '16px',
+    letterSpacing: '0.4px',
     color: theme.palette.colors.gray50,
+    alignSelf: 'center',
+    flexShrink: 0,
   },
 
   [`&.${classes.root}:hover`]: {
@@ -147,7 +158,7 @@ export const CommunityMemberListItem: React.FC<CommunityMemberListItemProps> = (
       <ProfilePhotoWithBadge userData={userData} channel={undefined} size={ProfilePhotoSize.MEDIUM} />
       <ListItemText
         primary={
-          <Grid container item display='flex' flexDirection='row' gap='8px'>
+          <Grid container item display='flex' flexDirection='row' alignItems='baseline' gap='6px'>
             <Typography
               variant='h4'
               className={classNames(classes.nickname)}
@@ -156,13 +167,8 @@ export const CommunityMemberListItem: React.FC<CommunityMemberListItemProps> = (
               {userData?.user.nickname ?? 'undefined'}
             </Typography>
             {me != null && userData?.user.userId === me.userId && (
-              <Typography
-                variant='h4'
-                align='left'
-                className={classNames(classes.nickname, classes.me)}
-                data-testid={`membership-list-me`}
-              >
-                me
+              <Typography align='left' className={classes.me} data-testid={`membership-list-me`}>
+                you
               </Typography>
             )}
           </Grid>
