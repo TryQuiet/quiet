@@ -1,5 +1,6 @@
-import React, { type FC, type ReactNode } from 'react'
-import { View, Text, Image, StyleSheet } from 'react-native'
+import React, { type FC, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { Typography } from '../Typography/Typography.component'
 import type { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
@@ -15,6 +16,14 @@ import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 import { DateTime } from 'luxon'
 import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
+
+// How long the "Copied" confirmation stays on screen after a long press.
+const COPIED_INDICATOR_DURATION = 1500
+
+// Only user-written text messages can be copied. Image and file messages hold a filename rather
+// than author-written text and keep their existing tap-to-preview behaviour, and Info messages are
+// written by the app itself.
+const isCopyable = (message: DisplayableMessage): boolean => message.type === MessageType.Basic
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
@@ -47,6 +56,24 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
 }) => {
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
+  const copiedResetTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(
+    () => () => {
+      if (copiedResetTimeout.current) clearTimeout(copiedResetTimeout.current)
+    },
+    []
+  )
+
+  // Copies the message exactly as its author wrote it (markdown source), not the rendered text.
+  const copyMessage = useCallback((message: DisplayableMessage) => {
+    Clipboard.setString(message.message)
+    if (copiedResetTimeout.current) clearTimeout(copiedResetTimeout.current)
+    setCopiedMessageId(message.id)
+    copiedResetTimeout.current = setTimeout(() => setCopiedMessageId(null), COPIED_INDICATOR_DURATION)
+  }, [])
+
   const pushBr = (str: string) => {
     const afterSplit = str
       .split('\n')
@@ -106,7 +133,14 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             </Text>
           ),
           link: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => (
-            <Text key={node.key} style={styles.link} onPress={() => openUrl(node.attributes.href)}>
+            // A link claims the touch responder, so without its own onLongPress a long press
+            // starting on a link would open the url instead of copying the message.
+            <Text
+              key={node.key}
+              style={styles.link}
+              onPress={() => openUrl(node.attributes.href)}
+              onLongPress={isCopyable(message) ? () => copyMessage(message) : undefined}
+            >
               {children}
             </Text>
           ),
@@ -228,9 +262,29 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
           <View style={{ flexShrink: 1 }}>
             {data.map((message: DisplayableMessage, index: number) => {
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
+              const rendered = renderMessage(message, pending)
               return (
                 <View style={outerDivStyle} key={index}>
-                  {renderMessage(message, pending)}
+                  {isCopyable(message) ? (
+                    // No pressed-state styling on purpose: a press-in highlight flickers when a
+                    // scroll gesture starts on a message. The "Copied" badge is the feedback.
+                    <Pressable onLongPress={() => copyMessage(message)} testID={`message-copy-${message.id}`}>
+                      {rendered}
+                      {copiedMessageId === message.id && (
+                        <View
+                          style={classes.copiedIndicator}
+                          pointerEvents='none'
+                          testID={`message-copied-${message.id}`}
+                        >
+                          <Typography fontSize={12} color={'white'}>
+                            Copied
+                          </Typography>
+                        </View>
+                      )}
+                    </Pressable>
+                  ) : (
+                    rendered
+                  )}
                 </View>
               )
             })}
@@ -247,6 +301,17 @@ const classes = StyleSheet.create({
   },
   nextMessage: {
     paddingTop: 4,
+  },
+  // Absolutely positioned so showing it never changes the message height, which would make the
+  // inverted message list jump.
+  copiedIndicator: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: defaultTheme.palette.background.gray70,
   },
 })
 
