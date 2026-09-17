@@ -25,16 +25,14 @@ import { createLogger } from '../common/logger'
 import { toString as uint8ArrayToString } from 'uint8arrays'
 import { isUint8Array } from 'util/types'
 
-const BOOTSTRAP_DONE_MESSAGE = '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
-// How long bootstrap may sit without advancing before Tor is restarted. Bootstrap
-// speed belongs to the network, not to us: slow wifi, a cold consensus fetch or a
-// throttled link can hold one phase for minutes and still finish, and restarting
-// throws away every bit of progress made so far. So the window is long, it is
-// measured from the last time progress actually increased, and consecutive
-// restarts widen it - a Tor that is merely slow is left alone, a wedged one is
-// still eventually restarted.
+const BOOTSTRAP_DONE_PROGRESS = 100
+const BOOTSTRAP_DONE_TAG = 'done'
+// How long bootstrap may sit without its reported progress changing at all before
+// Tor is restarted. Bootstrap speed belongs to the network, not to us: a healthy
+// Tor was observed holding loading_descriptors for over two minutes, and a slow or
+// throttled link can hold a phase far longer and still finish - while restarting
+// throws away every bit of progress made so far.
 const BOOTSTRAP_NO_PROGRESS_RESTART_MS = 10 * 60_000
-const BOOTSTRAP_RESTART_BACKOFF_LIMIT = 3
 // How often to report a bootstrap that is taking a long time but has not earned a
 // restart, so a slow network is still visible in the logs.
 const BOOTSTRAP_SLOW_LOG_INTERVAL_MS = 60_000
@@ -61,9 +59,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private markBootstrappedPromise: Promise<void> | undefined
   private bootstrapRestartPromise: Promise<void> | undefined
   private bootstrapStallState: BootstrapStallState | undefined
-  // Survives the restart's own resetBootstrapState, so the window keeps widening
-  // while restarts fail to get Tor anywhere. Cleared once bootstrap completes.
-  private consecutiveBootstrapStallRestarts = 0
   private bootstrapGeneration = 0
   public bootstrapped = false
   constructor(
@@ -193,7 +188,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
       this.logger.info('Bootstrapping finished!')
       this.bootstrapped = true
-      this.consecutiveBootstrapStallRestarts = 0
       this.bootstrapStallState = undefined
       if (this.initTimeout) {
         clearTimeout(this.initTimeout)
@@ -341,25 +335,21 @@ export class Tor extends EventEmitter implements OnModuleInit {
     const reasonMatch = rawMessage.match(/REASON=([^\s]+)/)
     const recommendationMatch = rawMessage.match(/RECOMMENDATION=([^\s]+)/)
 
+    const progress = progressMatch ? Number(progressMatch[1]) : undefined
+    const tag = tagMatch ? tagMatch[1] : undefined
+
     return {
       rawMessage,
-      done: rawMessage === BOOTSTRAP_DONE_MESSAGE,
-      progress: progressMatch ? Number(progressMatch[1]) : undefined,
-      tag: tagMatch ? tagMatch[1] : undefined,
+      // Read from the fields rather than by matching the whole line: the severity
+      // and trailing fields vary, and a `done` Tor that failed this comparison
+      // would be watched, and restarted, forever.
+      done: progress === BOOTSTRAP_DONE_PROGRESS || tag === BOOTSTRAP_DONE_TAG,
+      progress,
+      tag,
       warning: warningMatch?.[1],
       reason: reasonMatch?.[1],
       recommendation: recommendationMatch?.[1],
     }
-  }
-
-  /**
-   * The window a bootstrap may go without advancing before Tor is restarted. It
-   * widens with each consecutive restart, so a Tor that keeps failing to get
-   * anywhere is still restarted while a slow network is not restarted in a loop.
-   */
-  private bootstrapRestartWindowMs(): number {
-    const backoff = Math.min(this.consecutiveBootstrapStallRestarts, BOOTSTRAP_RESTART_BACKOFF_LIMIT)
-    return BOOTSTRAP_NO_PROGRESS_RESTART_MS * 2 ** backoff
   }
 
   private async checkBootstrapStall(status: BootstrapStatus, bootstrapGeneration: number): Promise<void> {
@@ -372,12 +362,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
     const checkedAt = Date.now()
     const state = this.bootstrapStallState
 
-    // Any forward progress means Tor is working, however slowly, so the clock
-    // starts over. Tor can revisit a phase or flap between tags at one
-    // percentage; only an increase counts.
-    if (state == null || status.progress > state.highestProgress) {
+    // Any change in reported progress means Tor is doing something, so the clock
+    // starts over. A decrease counts too: Tor restarts its own bootstrap on a
+    // network change, and a fresh attempt is not a stall. Tor reports progress in
+    // finer steps than its notice log, so real movement does show up here.
+    if (state == null || status.progress !== state.progress) {
       this.bootstrapStallState = {
-        highestProgress: status.progress,
+        progress: status.progress,
         tag: status.tag,
         lastProgressAt: checkedAt,
         ignorableWarningCount: 0,
@@ -395,15 +386,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
 
     const stalledMs = checkedAt - state.lastProgressAt
-    const restartAfterMs = this.bootstrapRestartWindowMs()
-    if (stalledMs < restartAfterMs) {
+    if (stalledMs < BOOTSTRAP_NO_PROGRESS_RESTART_MS) {
       if (checkedAt - state.lastSlowLogAt >= BOOTSTRAP_SLOW_LOG_INTERVAL_MS) {
         state.lastSlowLogAt = checkedAt
         this.logger.info('Tor bootstrap has not advanced; still waiting', {
           progress: status.progress,
           tag: status.tag,
           stalledMs,
-          restartAfterMs,
+          restartAfterMs: BOOTSTRAP_NO_PROGRESS_RESTART_MS,
           ignorableWarningCount: state.ignorableWarningCount,
           recommendation: status.recommendation,
         })
@@ -472,7 +462,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       return
     }
 
-    this.consecutiveBootstrapStallRestarts += 1
     await this.restartManagedTor(
       'Tor bootstrap made no progress; restarting Tor',
       {
@@ -480,7 +469,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
         tag: status.tag,
         stalledMs,
         ignorableWarningCount,
-        consecutiveStallRestarts: this.consecutiveBootstrapStallRestarts,
         controlPort: this.controlPort,
         socksPort: this.socksPort,
         torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,

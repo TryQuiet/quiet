@@ -240,6 +240,38 @@ describe('TorControl', () => {
     )
   })
 
+  // Real bootstraps move in fine steps and can go backwards: a healthy local Tor was
+  // observed sitting at loading_descriptors for 2m04s before advancing, and Tor
+  // restarts its own bootstrap on a network change. Both are movement, not a stall.
+  it('leaves Tor alone when bootstrap restarts itself and progress drops', async () => {
+    let progress = 45
+    await withStalledBootstrap(
+      () => ignorableTimeoutStatus(progress, 'requesting_descriptors'),
+      async ({ initSpy }) => {
+        await jest.advanceTimersByTimeAsync(9 * 60_000)
+        progress = 5 // Tor started over
+        await jest.advanceTimersByTimeAsync(9 * 60_000)
+        expect(initSpy).not.toHaveBeenCalled()
+      }
+    )
+  })
+
+  it('treats a done bootstrap as done whatever else the status line carries', async () => {
+    // Not the canonical NOTICE/"Done" line: severity and trailing fields vary, and an
+    // exact-string comparison would leave a finished Tor watched and restarted.
+    const doneWithWarning =
+      '250-status/bootstrap-phase=WARN BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done" WARNING="Operation timed out" REASON=TIMEOUT COUNT=1 RECOMMENDATION=ignore'
+    await withStalledBootstrap(
+      () => doneWithWarning,
+      async ({ initSpy }) => {
+        await jest.advanceTimersByTimeAsync(2_000)
+        expect(torService.bootstrapped).toBe(true)
+        await jest.advanceTimersByTimeAsync(30 * 60_000)
+        expect(initSpy).not.toHaveBeenCalled()
+      }
+    )
+  })
+
   it('restarts managed Tor once bootstrap has made no progress for the full window', async () => {
     await withStalledBootstrap(
       () => ignorableTimeoutStatus(5, 'conn'),
@@ -248,21 +280,6 @@ describe('TorControl', () => {
         expect(initSpy).not.toHaveBeenCalled()
         await jest.advanceTimersByTimeAsync(2 * 60_000)
         expect(initSpy).toHaveBeenCalledTimes(1)
-      }
-    )
-  })
-
-  it('widens the window after each restart that fails to get Tor anywhere', async () => {
-    await withStalledBootstrap(
-      () => ignorableTimeoutStatus(5, 'conn'),
-      async ({ initSpy }) => {
-        await jest.advanceTimersByTimeAsync(11 * 60_000)
-        expect(initSpy).toHaveBeenCalledTimes(1)
-        // The second window is twice the first, so the same elapsed time is not enough.
-        await jest.advanceTimersByTimeAsync(11 * 60_000)
-        expect(initSpy).toHaveBeenCalledTimes(1)
-        await jest.advanceTimersByTimeAsync(10 * 60_000)
-        expect(initSpy).toHaveBeenCalledTimes(2)
       }
     )
   })

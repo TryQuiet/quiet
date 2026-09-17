@@ -92,10 +92,10 @@ export type BootstrapStatus = {
 }
 
 export type BootstrapStallState = {
-  /** Highest progress seen this generation. Only an increase counts as progress. */
-  highestProgress: number
+  /** Progress as last reported. Any change to it counts as movement. */
+  progress: number
   tag?: string
-  /** When progress last increased - the clock a stall is measured against. */
+  /** When progress last changed - the clock a stall is measured against. */
   lastProgressAt: number
   /** Warnings Tor told us to ignore. Logged, never a reason to restart. */
   ignorableWarningCount: number
