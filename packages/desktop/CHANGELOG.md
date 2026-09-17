@@ -10,6 +10,19 @@
 
 * Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
 
+### Fixes
+
+* Keep Tor bootstrapping on a slow network instead of restarting it every half minute, by treating a stall as reported progress that stops moving rather than as time elapsed [#3564](https://github.com/TryQuiet/quiet/issues/3564)
+* Create a community without waiting for a hidden service descriptor to publish, taking the onion key from Tor as soon as it is minted [#3565](https://github.com/TryQuiet/quiet/issues/3565)
+* Stop a recoverable Tor restart from shutting the whole app down a couple of minutes into a community with linked devices [#3570](https://github.com/TryQuiet/quiet/issues/3570)
+* Simplify the message shown when someone joins the community [#3535](https://github.com/TryQuiet/quiet/pull/3535)
+* Keep the channel from snapping to the bottom while you are reading history when the window or layout resizes [#3556](https://github.com/TryQuiet/quiet/pull/3556)
+
+### Chores
+
+* Update the bundled Tor binaries to 0.4.9.12 [#3557](https://github.com/TryQuiet/quiet/pull/3557)
+* Pin QSS to v4.0.0-alpha.0 [#3558](https://github.com/TryQuiet/quiet/pull/3558)
+
 ## [10.0.0]
 
 ### Features
