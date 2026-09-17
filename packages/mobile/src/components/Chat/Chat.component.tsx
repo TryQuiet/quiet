@@ -32,6 +32,7 @@ import UploadFilesPreviewsComponent from '../FileAttachmentPreview/FileAttachmen
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
 import { ChatAppbarHeaderTitle } from './ChatAppbarHeaderTitle.component'
+import { countChannelMembers } from '../../utils/functions/channelMembers/channelMembers'
 import type { SelectableListOption } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.types'
 import Fuse from 'fuse.js'
 import { UpdateChannelMembershipList } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.component'
@@ -71,6 +72,8 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   channelName,
   channelId,
   newChat,
+  newChatRecipientIds,
+  openUserProfile,
   userProfiles,
   connectedPeers,
   me,
@@ -118,7 +121,8 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     let index = 0
     for (const user of Object.values(userProfiles)) {
       const mutable = true
-      const selected = false
+      // Opened from a profile's Message button, the composer starts with that person chosen.
+      const selected = newChatRecipientIds?.includes(user.userId) ?? false
       const hide = false
       initialOptions.push({ label: user.nickname, id: user.userId, selected, index, mutable, hide })
       if (!hide) {
@@ -183,7 +187,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     } else {
       _clearOptions()
     }
-  }, [newChat, userProfiles, me, connectedPeers])
+  }, [newChat, newChatRecipientIds, userProfiles, me, connectedPeers])
 
   useEffect(() => {
     if (!newChat) return
@@ -541,6 +545,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
           openImagePreview={openImagePreview}
           maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
           openUrl={openUrl}
+          openUserProfile={openUserProfile}
           pendingMessages={pendingMessages}
           duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
           unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
@@ -564,6 +569,21 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     loadMessagesAction(true)
   }, [loadMessagesAction])
 
+  // The channel's size, drawn under its name in the top bar. A conversation being composed has no
+  // channel yet, so there is nothing to count.
+  const memberCount = useMemo(
+    () => (channel == null || newChat ? undefined : countChannelMembers(channel, userProfiles)),
+    [channel, newChat, userProfiles]
+  )
+
+  // A one-to-one DM has exactly one other participant; a group DM names several and so names
+  // nobody in particular, and a channel names no one at all.
+  const dmSubjectId = useMemo(() => {
+    if (newChat || channel?.type !== ChannelType.DM) return undefined
+    const others = (channel.memberIds ?? []).filter(memberId => memberId !== me?.userId)
+    return others.length === 1 ? others[0] : undefined
+  }, [channel, newChat, me])
+
   return (
     <View style={styles.container} testID={`chat_${channelName}`}>
       <Appbar
@@ -574,6 +594,10 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
             isPublic={channel?.public ?? true}
             isNewChat={newChat}
             channelType={channel?.type ?? ChannelType.CHANNEL}
+            memberCount={memberCount}
+            openUserProfile={
+              dmSubjectId != null && openUserProfile != null ? () => openUserProfile(dmSubjectId) : undefined
+            }
           />
         }
         back={handleBackButton}
@@ -595,6 +619,12 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
               display: 'flex',
               flexDirection: 'column',
               gap: 32,
+              // React Native defaults flexShrink to 0, so this block held its full height in a
+              // column justified to flex-end while the message input below it was pushed out of
+              // view. Whether that happened depended on how tall the block happened to be — how
+              // many suggestions were listed, how many recipient pills had wrapped — which is why
+              // it looked intermittent. It yields space before the input does now.
+              flexShrink: 1,
             }}
           >
             <RecipientField

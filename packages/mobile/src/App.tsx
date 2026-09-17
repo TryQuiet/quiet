@@ -57,6 +57,7 @@ import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonati
 import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
 import { ChannelMembershipScreen } from './screens/ChannelMembership/ChannelMembership.screen'
 import { UpdateChannelMembershipScreen } from './screens/ChannelMembership/UpdateChannelMembership/UpdateChannelMembership.screen'
+import { UserProfileScreen } from './screens/UserProfile/UserProfile.screen'
 import { CaptchaModal } from './components/Captcha/CaptchaModal.component'
 
 const logger = createLogger('app')
@@ -119,6 +120,7 @@ function App(): JSX.Element {
                 <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />
                 <Screen component={ChannelMembershipScreen} name={ScreenNames.ChannelMembershipScreen} />
                 <Screen component={UpdateChannelMembershipScreen} name={ScreenNames.UpdateChannelMembershipScreen} />
+                <Screen component={UserProfileScreen} name={ScreenNames.UserProfileScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
                 <Screen component={DuplicatedUsernameScreen} name={ScreenNames.DuplicatedUsernameScreen} />
                 <Screen component={UsernameTakenScreen} name={ScreenNames.UsernameTakenScreen} />

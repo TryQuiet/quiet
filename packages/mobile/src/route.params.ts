@@ -31,6 +31,9 @@ export type RootStackParamList = {
     channelTitle: string
     channelId: string
     channelType: ChannelType
+    // Whether the channel is public, which decides the glyph beside its name: the design's '#'
+    // for a public channel, a padlock for a private one (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190).
+    channelIsPublic?: boolean
     // Which of the two side-nav entries opened this screen: Permissions, which can change who
     // belongs to the channel, or Members, which only lists them. Defaults to Permissions when the
     // viewer is allowed to manage membership.
@@ -41,6 +44,10 @@ export type RootStackParamList = {
     channelType: ChannelType
     channelName: string
     channelId: string
+    channelIsPublic?: boolean
+  }
+  [ScreenNames.UserProfileScreen]: {
+    userId: string
   }
   [ScreenNames.ErrorScreen]: {
     onPress: (dispatch: Dispatch<any>) => void
@@ -77,6 +84,8 @@ export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.
 export type ChannelMembershipRouteProps = RouteProp<RootStackParamList, ScreenNames.ChannelMembershipScreen>
 
 export type UpdateChannelMembershipRouteProps = RouteProp<RootStackParamList, ScreenNames.UpdateChannelMembershipScreen>
+
+export type UserProfileRouteProps = RouteProp<RootStackParamList, ScreenNames.UserProfileScreen>
 
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
 

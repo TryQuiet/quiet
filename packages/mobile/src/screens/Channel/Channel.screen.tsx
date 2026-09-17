@@ -29,6 +29,15 @@ const logger = createLogger('ChannelScreen')
 const ChannelScreenContent: FC = () => {
   const dispatch = useDispatch()
 
+  // The DM rows in the home nav still go straight to the conversation; only a person shown inside
+  // a message or a read-only list leads to their profile.
+  const openUserProfile = useCallback(
+    (userId: string) => {
+      dispatch(navigationActions.navigation({ screen: ScreenNames.UserProfileScreen, params: { userId } }))
+    },
+    [dispatch]
+  )
+
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.navigation({
@@ -64,6 +73,7 @@ const ChannelScreenContent: FC = () => {
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const isNewMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
+  const newMessageRecipientIds = useSelector(publicChannels.selectors.newMessageRecipientIds)
 
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
@@ -301,6 +311,8 @@ const ChannelScreenContent: FC = () => {
       channelName={currentChannelName}
       channelId={currentChannelId}
       newChat={isNewMessageOpen}
+      newChatRecipientIds={newMessageRecipientIds}
+      openUserProfile={openUserProfile}
       userProfiles={userProfiles}
       me={me}
       messages={{
