@@ -1,5 +1,6 @@
 import { App, Channel, JoiningLoadingPanel, NewMessage, Sidebar } from '../selectors'
 import { createLogger } from '../logger'
+import { TestChannelType } from '../types'
 
 const logger = createLogger('deviceLinking:dms')
 
@@ -94,7 +95,7 @@ export function registerDeviceLinkingDmStages(harness: DeviceLinkingDmHarness): 
       expect(created.successfulUsers).toEqual([ownerUsername])
 
       memberDm = new Channel(member.driver, ownerUsername)
-      expect(await memberDm.isOpen(undefined, false, 60_000)).toBeTruthy()
+      expect(await memberDm.isOpen(TestChannelType.DM, false, 60_000)).toBeTruthy()
       await memberDm.getMessageIdsByText(messages.beforeLinking, memberUsername, harness.timeouts.messageSync)
     })
 
@@ -141,7 +142,7 @@ export function registerDeviceLinkingDmStages(harness: DeviceLinkingDmHarness): 
       expect(created.success).toBeTruthy()
 
       const started = new Channel(linkedDevice.driver, memberUsername)
-      expect(await started.isOpen(undefined, false, 60_000)).toBeTruthy()
+      expect(await started.isOpen(TestChannelType.DM, false, 60_000)).toBeTruthy()
       const ids = await started.getMessageIdsByText(
         messages.startedOnLinked,
         ownerUsername,

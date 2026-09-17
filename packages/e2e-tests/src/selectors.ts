@@ -2833,10 +2833,17 @@ export class Sidebar {
       await settings.openCommunityMembership()
       return await read(settings)
     } finally {
+      // A drawer left open would make the next read's settings button unclickable, and these
+      // helpers are polled, so a single stuck panel would fail every remaining attempt.
       try {
         await settings.closeTabThenModal()
       } catch (e) {
-        logger.warn('Could not close the community membership panel after reading it', e)
+        logger.warn('Could not close the community membership tab; closing the drawer itself', e)
+        try {
+          await settings.close()
+        } catch (closeError) {
+          logger.warn('Could not close the settings drawer after reading the membership list', closeError)
+        }
       }
     }
   }
