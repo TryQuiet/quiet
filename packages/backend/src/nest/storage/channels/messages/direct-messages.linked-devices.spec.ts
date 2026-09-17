@@ -24,6 +24,9 @@ import { DirectMessagesService } from './direct-messages.service'
  *
  * Nothing here had a test. These are the cases that would break if a DM were ever bound to a
  * device key, to a peer, or to the set of devices present when the conversation was created.
+ *
+ * These drive SigChain directly, with the admission shortcut documented on `admitDevice` below.
+ * The real-admission counterpart lives in libp2p/integration-tests/device-link.spec.ts.
  */
 
 const serviceFor = (chain: SigChain): SigChainService => {
@@ -87,9 +90,19 @@ const joinByInvite = (owner: SigChain, name: string): SigChain => {
 }
 
 /**
- * Link a second device to an existing user, exactly as admission does: the device invite puts a
- * lockbox holding the USER's keys on the graph, addressed to the starter key derived from the
- * seed, and the new device opens it and loads the team as that same user.
+ * Link a second device by replaying what admission does to the graph: the device invite puts a
+ * lockbox holding the USER's keys there, addressed to the starter key derived from the seed, and
+ * the new device opens it and loads the team as that same user.
+ *
+ * This is a SHORTCUT, not production admission. Production builds a first-use device carrying no
+ * trusted user id (SigChain.createFromDeviceInvite), obtains the graph and the user through an LFA
+ * AuthConnection, and checks the expected identity when the admission transaction commits. Because
+ * this helper constructs the admitted account context itself, it cannot notice if real admission
+ * ever stopped handing the device the user's keys - the one thing every assertion below rests on.
+ *
+ * So the cases here are the cheap, exhaustive ones, and
+ * libp2p/integration-tests/device-link.spec.ts carries the same DM assertions - pre-link history
+ * opens, and the linked device writes as the user - over a device admitted for real.
  */
 const admitDevice = (user: SigChain, deviceName: string) => {
   const { seed } = user.invites.createDeviceInvite()
