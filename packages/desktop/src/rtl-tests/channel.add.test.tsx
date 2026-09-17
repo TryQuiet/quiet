@@ -247,7 +247,7 @@ describe('Add new channel', () => {
   })
 
   it('Adds new private channel and opens it. Sends initial message', async () => {
-    const { store, runSaga } = await prepareStore(
+    const { store } = await prepareStore(
       {
         [StoreKeys.Modals]: {
           ...new ModalsInitialState(),
@@ -340,24 +340,8 @@ describe('Add new channel', () => {
     await userEvent.click(privateToggle)
     expect(privateInput).toBeChecked()
 
-    // FIXME: await user.click(screen.getByTestId('channelNameSubmit') causes this and few other tests to fail (hangs on taking createChannel action)
-    await act(
-      async () =>
-        await waitFor(() => {
-          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
-            logger.error(e)
-          })
-        })
-    )
-
-    function* testCreateChannelSaga(): Generator {
-      const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      const addChannelAction = yield* take(publicChannels.actions.addChannel)
-    }
-
-    await act(async () => {
-      await runSaga(testCreateChannelSaga).toPromise()
-    })
+    await user.click(screen.getByTestId('channelNameSubmit'))
+    await waitFor(() => expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output))
 
     const createChannelModal = screen.queryByTestId('createChannelModal')
     expect(createChannelModal).toBeNull()
@@ -371,110 +355,6 @@ describe('Add new channel', () => {
     // Private channel: the sidebar shows the padlock, as the header two lines up already asserts.
     const linkIcon = screen.getByTestId(`${channelName.output}-channel-link-icon-private`)
     expect(linkIcon).toBeVisible()
-  })
-
-  it('Adds new private channel and opens it. Sends initial message', async () => {
-    const { store, runSaga } = await prepareStore(
-      {
-        [StoreKeys.Modals]: {
-          ...new ModalsInitialState(),
-          [ModalName.createChannel]: { open: true },
-        },
-      },
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getReduxStoreFactory(store)
-    const community: Community = await factory.create('Community')
-    const userProfile: UserProfile = await factory.create('UserProfile', {
-      nickname: 'alice',
-    })
-    const alice: Identity = await factory.create('Identity', {
-      userId: userProfile.userId,
-      communityId: community.id,
-    })
-    // Channel creation is permission-gated: without this the panel renders nothing at all. Every
-    // other test in this file seeds it; this one did not, which is why it found no name field.
-    await factory.create('ChannelPermissions')
-    const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
-
-    const mockImpl = async (...input: [string, ...any]) => {
-      const action = input[0]
-      if (action === SocketActions.CREATE_CHANNEL) {
-        const payload = input[1] as CreateChannelPayload
-        const channelId = generateTestChannelId(payload.name)
-        factory.create('PublicChannel', {
-          channel: {
-            id: channelId,
-            name: payload.name,
-            description: payload.description ?? '',
-            owner: userProfile.nickname,
-            timestamp: 0,
-            public: payload.public ?? true,
-            type: payload.type,
-          },
-          displayedName: payload.name,
-        })
-        return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
-          channel: {
-            id: channelId,
-            name: payload.name,
-            description: payload.description ?? '',
-            owner: userProfile.nickname,
-            timestamp: 0,
-            public: payload.public ?? true,
-          },
-          displayedName: payload.name,
-        })
-      }
-      if (action === SocketActions.SEND_MESSAGE) {
-        const data = input[1] as SendMessagePayload
-        const { message } = data
-        factory.create('TestMessage', {
-          message: {
-            ...message,
-          },
-        })
-      }
-    }
-
-    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
-    // @ts-ignore
-    socket.emitWithAck = mockImpl
-
-    window.HTMLElement.prototype.scrollTo = jest.fn()
-
-    renderComponent(
-      <>
-        <Sidebar />
-        <CreateChannel />
-        <Channel />
-      </>,
-      store
-    )
-    const user = userEvent.setup()
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    await user.type(input, channelName.input)
-
-    const privateToggle = screen.getByTestId('createChannel-private-form-control-toggle')
-    expect(privateToggle).toBeVisible()
-    expect(privateToggle.className.includes('checked')).toBeFalsy()
-
-    await userEvent.click(privateToggle)
-    expect(privateToggle.className.includes('checked')).toBeTruthy()
-
-    await user.click(screen.getByTestId('channelNameSubmit'))
-    await waitFor(() => expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output))
-
-    const createChannelModal = screen.queryByTestId('createChannelModal')
-    expect(createChannelModal).toBeNull()
-
-    // Check if newly created channel is present and selected
-    expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output)
-    expect(screen.getByTestId('channelTitle-icon-private')).toBeVisible()
-    // Check if sidebar item displays as selected
-    const link = screen.getByTestId(`${channelName.output}-link`)
-    expect(link).toHaveClass('ChannelsListItemselected')
   })
 
   it('Input after reopen should be clear', async () => {

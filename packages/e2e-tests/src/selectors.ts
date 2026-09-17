@@ -2849,10 +2849,18 @@ export class Sidebar {
   }
 
   /**
-   * Get a person's row in the community membership list, by nickname.
+   * Whether the community membership list has a row for this person, and their displayed name.
+   *
+   * Deliberately not a WebElement: the drawer is closed again before this returns, so any element
+   * handed back would already be stale and every use of it would throw. Callers that want to act
+   * on the row want `isUserConnected` or `waitForUserConnected`, which read it while it is open.
    */
-  async getUserProfileByNickname(nickname: string) {
-    return this.withCommunityMembership(async () => this.locateMembershipRow(nickname))
+  async getUserProfileByNickname(nickname: string): Promise<{ nickname: string; found: true }> {
+    const name = await this.withCommunityMembership(async () => {
+      const row = await this.locateMembershipRow(nickname)
+      return (await row.getText()).trim()
+    })
+    return { nickname: name, found: true }
   }
 
   private async locateMembershipRow(nickname: string): Promise<WebElement> {
