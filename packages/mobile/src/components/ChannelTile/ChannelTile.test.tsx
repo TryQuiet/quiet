@@ -1,4 +1,7 @@
 import React from 'react'
+import { TouchableOpacity } from 'react-native'
+
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { ChannelTile } from './ChannelTile.component'
@@ -1140,5 +1143,34 @@ describe('ChannelList component', () => {
         </View>
       </View>
     `)
+  })
+})
+
+// Issue #1495: rows inside a scrollable list must not dim while the list is
+// being dragged, and the dim must not outlive the tap. Both requirements are
+// expressed entirely through Pressability's two delay knobs, so pinning the
+// props pins the motion -- see utils/const/tapFeedback.ts for the state-machine
+// argument. The `delayPressIn` assertion is the one that fails on develop; the
+// `delayPressOut` assertion guards behaviour that is already correct.
+describe('ChannelTile tap feedback (#1495)', () => {
+  const tile = () =>
+    renderComponent(
+      <ChannelTile
+        name={'general'}
+        id={'general'}
+        message={'Text from latest chat message.'}
+        date={'1:55pm'}
+        unread={false}
+        isPublic={true}
+        redirect={jest.fn()}
+      />
+    ).UNSAFE_getByType(TouchableOpacity)
+
+  it('delays the press so dragging the channel list never dims a tile', () => {
+    expect(tile().props.delayPressIn).toBe(TAP_FEEDBACK_DELAY_MS)
+  })
+
+  it('keeps delayPressOut unset so the dim clears as soon as the tap ends', () => {
+    expect(tile().props.delayPressOut).toBeUndefined()
   })
 })

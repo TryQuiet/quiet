@@ -107,6 +107,25 @@ storiesOf('ContextMenu', module)
       />
     )
   })
+  // Issue #1495: enough items that the sheet's list scrolls, so the tap
+  // highlight can be checked against a drag.
+  .add('Many items (scroll to check tap feedback)', () => {
+    return (
+      <ContextMenu
+        title={'Rockets'}
+        items={Array.from({ length: 15 }, (_, index) => ({
+          title: `Menu item ${index + 1}`,
+          action: () => {
+            logger.info(`clicked on menu item ${index + 1}`)
+          },
+        }))}
+        visible={true}
+        handleClose={() => {
+          logger.info('closing menu')
+        }}
+      />
+    )
+  })
   .add('Invitation', () => {
     return (
       <ContextMenu

@@ -5,6 +5,7 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { truncateWords } from '../../utils/functions/truncateWords/truncateWords'
 import { Typography } from '../Typography/Typography.component'
 import { ChannelTileProps } from './ChannelTile.types'
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 import LockIcon from '../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../assets/icons/svg/public-channel'
 
@@ -41,6 +42,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
       {/* <Swipeable friction={4} renderLeftActions={leftSwipe}> */}
       <TouchableOpacity
         testID={`channel_tile_${name}`}
+        delayPressIn={TAP_FEEDBACK_DELAY_MS}
         onPress={() => {
           redirect(id)
         }}

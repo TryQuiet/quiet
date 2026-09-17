@@ -9,6 +9,7 @@ import { SelectableListOption, UpdateChannelMembershipListProps } from './Update
 import { Spinner } from '../../Spinner/Spinner.component'
 import { createLogger } from '../../../utils/logger'
 import { uniqueId } from 'lodash'
+import { TAP_FEEDBACK_DELAY_MS } from '../../../utils/const/tapFeedback'
 
 const logger = createLogger('UpdateChannelMembershipList')
 
@@ -55,7 +56,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
       : defaultTheme.palette.background.gray06
     const checkedColor = item.mutable ? defaultTheme.palette.background.gray70 : defaultTheme.palette.background.gray06
     const label = (
-      <TouchableOpacity onPress={() => updateOptionsOnCheck(item)}>
+      <TouchableOpacity onPress={() => updateOptionsOnCheck(item)} delayPressIn={TAP_FEEDBACK_DELAY_MS}>
         <View
           style={{
             display: 'flex',
