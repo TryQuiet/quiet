@@ -172,7 +172,10 @@ export class ChannelMetadataAccessController {
         try {
           if (entry.payload.op !== OrbitDbOp.PUT || !entry.payload.key || !entry.payload.value) return false
           if (writerIdentity.teamId !== chain.team!.id || writerIdentity.id !== entry.payload.value.userId) return false
-          chain.directMessages.validateDescriptor(entry.payload.value, entry.payload.key)
+          // Graph-independent only. A descriptor legitimately names participants this device may
+          // not have replicated yet; refusing it here would keep it out of the log, where nothing
+          // can recover it. See DirectMessageCrypto.validateDescriptorShape.
+          chain.directMessages.validateDescriptorShape(entry.payload.value, entry.payload.key)
           const log = getLog()
           if (!log) return false
           for await (const previous of log.traverse(null, async () => false)) {

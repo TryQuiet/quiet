@@ -34,10 +34,16 @@ export class DirectMessageCrypto {
 
   constructor(private readonly chain: SigChain) {}
 
-  private members(ids: unknown): asserts ids is string[] {
+  /** The participant list's own shape: nothing here consults the team graph. */
+  private memberIdList(ids: unknown): asserts ids is string[] {
     requireValid(Array.isArray(ids) && ids.length > 0 && ids.length <= MAX_DM_PARTICIPANTS)
-    requireValid(ids.every(id => text(id) && this.chain.team!.has(id)))
+    requireValid(ids.every(id => text(id)))
     requireValid(JSON.stringify(ids) === JSON.stringify([...new Set(ids)].sort()))
+  }
+
+  private members(ids: unknown): asserts ids is string[] {
+    this.memberIdList(ids)
+    requireValid(ids.every(id => this.chain.team!.has(id)))
   }
 
   public create(memberIds: string[]): PublicChannel {
@@ -81,8 +87,29 @@ export class DirectMessageCrypto {
     return this.openDescriptor(descriptor, id)!
   }
 
-  /** Public verification is possible even on replicas that cannot decrypt this DM. */
-  public validateDescriptor(envelope: EncryptedAndSignedPayload, expectedId: string): Manifest {
+  /**
+   * Everything about a descriptor that can be checked WITHOUT consulting the team graph beyond our
+   * own team id: the envelope's scope, the manifest's shape, and the fact that the manifest hashes
+   * to the channel id it arrived under. Nothing here can fail because this device replicated the
+   * graph and the metadata log in a different order.
+   *
+   * This is the half the OrbitDB access controller runs. It is deliberately not the whole of
+   * `validateDescriptor`: a descriptor names every participant, and a device can legitimately hold
+   * one naming somebody it has not heard of yet. Refusing it at the log level loses it for good -
+   * `retryIndexingUnindexedEntries` re-runs the index over the log, and a QSS head that
+   * `applyOperation` refuses is dropped from the pending set as though it had been applied. So
+   * participant membership and recipient-key generations are checked when INDEXING instead, where
+   * a later `SigchainEvents.UPDATED` re-runs them over the same bytes.
+   *
+   * Confidentiality does not rest on the deferred half. A caller still cannot read the DM: the key
+   * only comes out of `openDescriptor`, which runs the full validation and then needs the
+   * recipient's own secret key. Authenticity does not rest on it either: the access controller
+   * separately requires a cryptographically verified entry writer who is a known team member and
+   * who equals the descriptor's claimed author, and that writer's OrbitDB signature covers the key
+   * and the manifest bytes together. So a forged or relabelled descriptor is refused here, while
+   * an honest one that merely arrived early is kept.
+   */
+  public validateDescriptorShape(envelope: EncryptedAndSignedPayload, expectedId: string): Manifest {
     requireValid(envelope && envelope.encrypted && envelope.signature)
     const { scope } = envelope.encrypted
     requireValid(scope.type === EncryptionScopeType.DM_DESCRIPTOR && scope.generation === 0)
@@ -95,18 +122,35 @@ export class DirectMessageCrypto {
     requireValid(core[0] === DOMAIN && core[1] === 1 && core[2] === this.chain.team!.id)
     requireValid(text(core[3]) && text(core[4]) && /^[a-f0-9]{64}$/.test(core[4]))
     requireValid(Number.isSafeInteger(core[5]) && core[5] >= 0 && text(core[7]) && /^[a-f0-9]{64}$/.test(core[7]))
-    this.members(core[6])
+    this.memberIdList(core[6])
     requireValid(core[6].includes(core[3]))
     requireValid(Array.isArray(boxes) && boxes.length === core[6].length)
     boxes.forEach((box, i) => {
       requireValid(Array.isArray(box) && box.length === 3 && box[0] === core[6][i])
-      const keys = this.chain.team!.members(box[0]).keys
-      requireValid(Number.isSafeInteger(box[1]) && box[1] === keys.generation)
+      requireValid(Number.isSafeInteger(box[1]) && box[1] >= 0)
       requireValid(text(box[2], 8192) && /^[A-Za-z0-9+/]+={0,2}$/.test(box[2]))
     })
     requireValid('dm_' + digest([DOMAIN, 'channel', manifest]) === expectedId)
     requireValid(envelope.teamId === core[2] && envelope.userId === core[3] && envelope.ts === core[5])
     requireValid(envelope.signature.author.type === 'USER' && envelope.signature.author.name === core[3])
+    return manifest
+  }
+
+  /**
+   * The full check, including the parts that need the team graph: every participant is a member,
+   * each recipient box is on that member's current key generation, and the author's signature over
+   * the manifest verifies at their current generation.
+   *
+   * Public verification is possible even on replicas that cannot decrypt this DM. Callers that
+   * gate READING or INDEXING use this; the access controller uses `validateDescriptorShape`.
+   */
+  public validateDescriptor(envelope: EncryptedAndSignedPayload, expectedId: string): Manifest {
+    const manifest = this.validateDescriptorShape(envelope, expectedId)
+    const [core, boxes] = manifest
+    this.members(core[6])
+    boxes.forEach(box => {
+      requireValid(box[1] === this.chain.team!.members(box[0]).keys.generation)
+    })
     requireValid(envelope.signature.author.generation === this.chain.team!.members(core[3]).keys.generation)
     requireValid(
       this.chain.crypto.validateSignature({

@@ -304,11 +304,13 @@ describe('direct messages across a user’s linked devices', () => {
     ).toBeDefined()
   })
 
-  it('retries a descriptor that arrives before the chain knows its members, instead of dropping it', async () => {
-    // A second device can finish admission and start replicating before its copy of the team
-    // graph contains a member who joined meanwhile. The descriptor is valid, but unreadable until
-    // the graph catches up - which is what retryIndexingUnindexedEntries exists to re-run.
-    // The tablet is admitted first, so its view of the graph stops here.
+  it('admits a descriptor that arrives before the chain knows its members, and reads it after', async () => {
+    // A linked device can finish admission and start replicating before its copy of the team graph
+    // contains a member who joined meanwhile. That descriptor is honest, so the metadata log has to
+    // KEEP it: an access-controller refusal is permanent, because retryIndexingUnindexedEntries
+    // re-runs the index over the log and a refused QSS head is dropped from the pending set.
+    // dm-metadata-stale-graph.spec.ts proves the recovery through the real store; this covers the
+    // two validation halves on a device that is genuinely behind.
     const admission = admitDevice(alice, 'Alice tablet')
 
     // Erin joins and Bob starts a conversation naming her, all while the tablet is still offline.
@@ -319,12 +321,13 @@ describe('direct messages across a user’s linked devices', () => {
 
     const behind = loadDevice(admission)
     expect(behind.team!.has(latecomer.user.userId)).toBe(false)
-    // Validation fails while a participant is unknown, so the entry must be held, not discarded.
+
+    // The graph-independent half passes, so the entry is admissible...
+    expect(behind.directMessages.validateDescriptorShape(descriptor, withLatecomer.id)).toBeDefined()
+    // ...while the full check, which the index runs, still refuses to expose the channel.
     expect(() => behind.directMessages.validateDescriptor(descriptor, withLatecomer.id)).toThrow()
     expect(behind.directMessages.has(withLatecomer.id)).toBe(false)
 
-    // That validation is what the metadata index runs over each entry, so the entry the device
-    // replicated is refused here and left unindexed rather than accepted or discarded.
     const behindParty = await partyFor(behind)
     const bobParty = await partyFor(bob)
     const history: LogEntry[] = []
@@ -338,10 +341,10 @@ describe('direct messages across a user’s linked devices', () => {
       })
     )
     const entry = await metadataEntry(bobParty, withLatecomer.id, descriptor)
-    expect(await canAppend(entry)).toBe(false)
+    expect(await canAppend(entry)).toBe(true)
 
-    // The same bytes, once the graph has caught up: this is the pass retryIndexingUnindexedEntries
-    // exists to make, and it now succeeds.
+    // The same bytes, once the graph has caught up: this is the pass
+    // retryIndexingUnindexedEntries exists to make, and it now succeeds.
     sync(behind, bob)
     expect(await canAppend(entry)).toBe(true)
     expect(behind.directMessages.validateDescriptor(descriptor, withLatecomer.id)).toBeDefined()
