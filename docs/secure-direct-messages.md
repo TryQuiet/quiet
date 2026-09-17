@@ -12,9 +12,27 @@ Every message binds its team, conversation, author, ID, timestamp, key scope and
 
 Attachments use the DM key with secretstream encryption. Signed metadata binds the file to its parent message and DM scope. A complete authenticated FINAL marker is mandatory, including for empty streams. Failed, aborted, truncated, reordered or corrupted downloads do not publish a media update and remove any partial plaintext file. Missing DM keys never fall back to community encryption.
 
-Account USER keys allow a legitimately admitted linked device to open earlier descriptors and history. Tests exercise the real device invitation, possession proof and starter-lockbox key recovery. V10 has no complete device-linking UI. V10 protocol 4 disables removal and key rotation; this change does not claim revocation, forward secrecy, or post-compromise recovery.
+Account USER keys allow a legitimately admitted linked device to open earlier descriptors and history. Tests exercise the real device invitation, possession proof and starter-lockbox key recovery, both against a SigChain shortcut and against a device admitted through a real LFA `AuthConnection` over libp2p. V10 protocol 4 disables removal and key rotation; this change does not claim revocation, forward secrecy, or post-compromise recovery.
 
 Android and iOS background notification readers suppress DM previews because they do not implement this DM transcript verifier. Active backend notifications use the verified message path. iOS cannot be built or run on this Linux host; native execution coverage is Android.
+
+## Replication against a lagging team graph
+
+A device replicates the team graph and the DM metadata log independently, so a descriptor can legitimately arrive naming somebody that device has not heard of yet. Descriptor validation is therefore split in two. `DirectMessageCrypto.validateDescriptorShape` checks only what no later replication can change: the envelope scope, the manifest's shape, the participant list's shape, and the manifest hashing to the conversation ID it arrived under. `validateDescriptor` adds the parts that need the graph — every participant is a member, each recipient box is on that member's current key generation, and the author's signature verifies at their current generation.
+
+The OrbitDB access controller runs only the shape half. This matters because a `canAppend` refusal is unrecoverable rather than retryable: `retryIndexingUnindexedEntries` re-runs the index over entries already in the log, and QSS head ingestion awaits `applyOperation`, which turns a join failure into an `error` event and resolves, so the pending head is dropped as though it had been applied. Running graph-dependent checks in the access controller therefore destroyed honest descriptors that merely arrived early. The index validate function still runs the full check, and a later `SigchainEvents.UPDATED` re-runs it over the same bytes.
+
+Deferring the graph half costs nothing. The conversation key only leaves `openDescriptor`, which runs the full validation and then needs the recipient's own secret key, so an admitted-but-unindexed descriptor is readable by nothing. Authorship is bound independently of the manifest signature: the access controller requires a cryptographically verified OrbitDB entry writer who equals the descriptor's claimed author, and that writer's entry signature covers the database key and the manifest bytes together.
+
+### Known residual: an author who is not yet replicated
+
+The access controller still requires the entry **writer** to hold the MEMBER role on the local graph. So a descriptor whose author is itself not yet replicated on a lagging device is still refused at the log level, and is still lost rather than retried.
+
+This is pre-existing and not specific to DMs: every channel metadata store on `develop` gates on the writer the same way, through `getVerifiedEntryWriter` and the MEMBER role check that run before any per-store branch. It is narrower than the case that was fixed, because the practical ordering differs. A descriptor names participants who may have joined at any time, whereas its author must already have been a member in order to write it, so the window in which a device holds the descriptor but not its author is the narrower one of replicating a log entry ahead of the graph entry that authorised its writer.
+
+Fixing it generally means retaining access-controller-rejected heads and replaying them on `SigchainEvents.UPDATED`, rather than moving more checks out of `canAppend` — the writer check is what keeps non-members out of the log at all, and it cannot be deferred without admitting unauthenticated entries. That work belongs to the metadata stores as a group, not to this protocol.
+
+If it is ever done, one assertion here has to change: `dm-metadata-stale-graph.spec.ts` case *still refuses a descriptor a member did not author* expects the entry to be **absent from the log**. Under a retain-and-replay scheme it would instead be present but never indexed, so that case would assert the index projection rather than log membership. The sibling case, *still refuses a descriptor whose manifest does not match its key*, is unaffected: that failure is graph-independent and must stay a hard refusal.
 
 ## Local validation
 
