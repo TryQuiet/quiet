@@ -1,10 +1,10 @@
-# Connection cases checked for the Electron upgrade
+# Connection cases at the authentication/replication boundary
 
 A transport connection, an authenticated session, a durable admission, and a
 synchronized database are distinct states. In particular, receiving a database
 entry over an open transport does not establish its author's membership.
 
-The upgrade keeps these boundaries. Authentication remains attached to a
+These boundaries are kept. Authentication remains attached to a
 physical connection ID. A local persistence retry does not repeat the network
 handshake. Storage retries its heads exchange after authentication supplies the
 membership graph needed to validate entries.
