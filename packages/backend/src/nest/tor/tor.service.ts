@@ -799,22 +799,36 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
   }
 
+  /**
+   * Create a hidden service and return its address and key.
+   *
+   * Tor mints the keypair itself and answers ADD_ONION with it immediately, with no
+   * network involved. Publishing the descriptor is the part that needs a bootstrapped
+   * Tor, so `waitForDescriptorUpload` is what a caller that only wants the key can
+   * turn off: it then returns as soon as Tor has answered, whatever bootstrap is
+   * doing. A caller that needs the service to be reachable leaves it on.
+   */
   public async createNewHiddenService({
     targetPort,
     virtPort = 80,
+    waitForDescriptorUpload = true,
   }: {
     targetPort: number
     virtPort?: number
+    waitForDescriptorUpload?: boolean
   }): Promise<{ onionAddress: string; privateKey: string }> {
     const hiddenServiceGeneration = this.hiddenServiceGeneration
-    const status = await this.torControl.sendCommandAndWaitForEvent(
-      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`,
-      HIDDEN_SERVICE_DESCRIPTOR_EVENT,
-      (event, response) => {
-        const generatedAddress = response.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
-        return this.isHiddenServiceDescriptorUploaded(event, generatedAddress)
-      }
-    )
+    const command = `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+    const status = waitForDescriptorUpload
+      ? await this.torControl.sendCommandAndWaitForEvent(
+          command,
+          HIDDEN_SERVICE_DESCRIPTOR_EVENT,
+          (event, response) => {
+            const generatedAddress = response.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
+            return this.isHiddenServiceDescriptorUploaded(event, generatedAddress)
+          }
+        )
+      : await this.torControl.sendCommand(command)
 
     if (hiddenServiceGeneration !== this.hiddenServiceGeneration) {
       throw new Error('Tor generation changed while creating hidden service')
@@ -823,7 +837,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
     const privateKey = status.messages[1].replace('250-PrivateKey=', '')
     const hiddenService: HiddenServiceData = { targetPort, privKey: privateKey, virtPort, onionAddress }
     this.hiddenServices.set(onionAddress, hiddenService)
-    this.initializedHiddenServices.set(onionAddress, hiddenService)
+    // Only a published descriptor makes the service reachable, so an unpublished one
+    // is not recorded as initialized: it would otherwise be skipped when the session
+    // spawns its hidden services.
+    if (waitForDescriptorUpload) {
+      this.initializedHiddenServices.set(onionAddress, hiddenService)
+    }
 
     return {
       onionAddress: `${onionAddress}.onion`,
