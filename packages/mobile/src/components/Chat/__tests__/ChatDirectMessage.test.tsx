@@ -55,6 +55,7 @@ describe('Chat component for a freshly created DM', () => {
       newChat: false,
       userProfiles: {},
       isUserConnected: () => false,
+      isTorInitialized: true,
       pendingMessages: {},
       messages: { count: 0, groups: {} },
     } as unknown as ChatProps & FileActionsProps)

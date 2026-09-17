@@ -9,6 +9,7 @@ import { DmChannelUserData } from '../../../Sidebar/DirectMessagesPanel/DirectMe
 import CommunityMemberListItem from './CommunityMemberListItem'
 import { SelectableListOption } from '../../../widgets/userSearch/UserSearch.types'
 import { createLogger } from '../../../../logger'
+import { isMemberConnected, type IsUserConnected } from '@quiet/common'
 
 const PREFIX = 'CommunityMembership'
 
@@ -98,7 +99,7 @@ export interface CommunityMembershipComponentProps {
   userProfiles: Record<string, UserProfile>
   me: UserProfile | undefined
   /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
-  isUserConnected: (userId: string | undefined) => boolean
+  isUserConnected: IsUserConnected
   isTorInitialized: boolean
   openUserProfilePanel: (userProfile: UserProfile | undefined) => void
   open: boolean
@@ -109,20 +110,11 @@ const LOGGER = createLogger('CommunityMembershipComponent')
 const getUserDataForUser = (
   userProfile: UserProfile,
   me: UserProfile | undefined,
-  isUserConnected: (userId: string | undefined) => boolean,
+  isUserConnected: IsUserConnected,
   isTorInitialized: boolean
 ): DmChannelUserData | undefined => {
-  // Your own row cannot be answered by a peer connection - you are not your own peer - so it
-  // follows whether the app itself is on the network, as the sidebar's self-DM does.
-  if (me != null && userProfile.userId === me.userId) {
-    return {
-      connected: isTorInitialized,
-      user: userProfile,
-    }
-  }
-
   return {
-    connected: isUserConnected(userProfile.userId),
+    connected: isMemberConnected(userProfile.userId, me?.userId, isUserConnected, isTorInitialized),
     user: userProfile,
   }
 }

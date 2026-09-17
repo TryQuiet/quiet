@@ -40,6 +40,7 @@ import { generateTruncatedDmTitle } from '../../utils/functions/dmUtils/dmUtils'
 import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
 import { RecipientField } from '../RecipientField/RecipientField.component'
 import type { Recipient } from '../RecipientField/RecipientField.types'
+import { isMemberConnected } from '@quiet/common'
 
 // Copy taken from the DM designs (Figma: Direct Messages (DMs), "Pre search" 823:14606).
 const DM_SEARCH_PLACEHOLDER = 'Search for people, chats or channels'
@@ -76,6 +77,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   openUserProfile,
   userProfiles,
   isUserConnected,
+  isTorInitialized,
   me,
   messages = {
     count: 0,
@@ -128,7 +130,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       if (!hide) {
         visibleIndices.add(index)
         updatedUsers[user.userId] = {
-          connected: (me != null && me.userId === user.userId) || isUserConnected(user.userId),
+          connected: isMemberConnected(user.userId, me?.userId, isUserConnected, isTorInitialized),
           user,
         } as DmChannelUserData
       }
@@ -185,7 +187,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     } else {
       _clearOptions()
     }
-  }, [newChat, newChatRecipientIds, userProfiles, me, isUserConnected])
+  }, [newChat, newChatRecipientIds, userProfiles, me, isUserConnected, isTorInitialized])
 
   useEffect(() => {
     if (!newChat) return

@@ -12,6 +12,8 @@ export const AddMembersChannel: FC = () => {
   const userProfiles = useSelector(users.selectors.userProfiles)
   const allUsers = useSelector(users.selectors.allUsers)
   const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+  const myUserProfile = useSelector(users.selectors.myUserProfile)
 
   const dispatch = useDispatch()
 
@@ -41,6 +43,8 @@ export const AddMembersChannel: FC = () => {
       possibleMembers={userProfiles}
       allUsers={allUsers}
       isUserConnected={isUserConnected}
+      myUserId={myUserProfile?.userId}
+      isTorInitialized={isTorInitialized}
       addMembersToChannel={addMembersToChannel}
       {...modal}
     />

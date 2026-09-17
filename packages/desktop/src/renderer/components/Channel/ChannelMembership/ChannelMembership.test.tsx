@@ -29,6 +29,7 @@ const renderPanel = (overrides: Partial<React.ComponentProps<typeof ChannelMembe
       isDm={false}
       members={members}
       isUserConnected={() => false}
+      isTorInitialized={true}
       canManage={true}
       openAddMembers={openAddMembers}
       open={true}
@@ -85,5 +86,30 @@ describe('ChannelMembership', () => {
     await userEvent.click(screen.getByTestId('channelMembershipPanelClose'))
     expect(handleClose).toHaveBeenCalled()
     expect(openAddMembers).not.toHaveBeenCalled()
+  })
+  /**
+   * The list shows me alongside everybody else, and I am not my own peer, so my row cannot be
+   * answered by remote presence. Reading it that way showed the current user offline while they
+   * were using the app.
+   */
+  describe('presence', () => {
+    const badgeClass = (nickname: string) => screen.getByTestId(`${nickname}-profile-photo-status-badge`).className
+
+    it('lights my own row from Tor, not from a peer connection', () => {
+      renderPanel({ members: [profile('denise'), profile('me')], myUserId: 'meUserId', isUserConnected: () => false })
+      expect(badgeClass('me')).not.toContain('MuiBadge-invisible')
+      expect(badgeClass('denise')).toContain('MuiBadge-invisible')
+    })
+
+    it('darkens my own row while Tor is down, even if others are up', () => {
+      renderPanel({
+        members: [profile('denise'), profile('me')],
+        myUserId: 'meUserId',
+        isTorInitialized: false,
+        isUserConnected: userId => userId === 'deniseUserId',
+      })
+      expect(badgeClass('me')).toContain('MuiBadge-invisible')
+      expect(badgeClass('denise')).not.toContain('MuiBadge-invisible')
+    })
   })
 })

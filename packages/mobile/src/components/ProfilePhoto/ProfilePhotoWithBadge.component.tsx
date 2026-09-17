@@ -6,6 +6,7 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { Badge } from 'react-native-paper'
 import { StyleSheet, View } from 'react-native'
 import { ChannelType, type PublicChannelStorage, type UserProfile } from '@quiet/types'
+import { isDmConnected, type IsUserConnected } from '@quiet/common'
 
 const MAX_BADGE_MEMBER_COUNT = 9
 
@@ -32,7 +33,8 @@ const styles = StyleSheet.create({
 export const getUserData = (
   channel: PublicChannelStorage,
   /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
-  isUserConnected: (userId: string | undefined) => boolean,
+  isUserConnected: IsUserConnected,
+  isTorInitialized: boolean,
   userProfiles: Record<string, UserProfile>,
   me?: UserProfile
 ): DmChannelUserData | undefined => {
@@ -54,7 +56,10 @@ export const getUserData = (
 
   const userProfile = userProfiles[representativeUserId]
   return {
-    connected: isUserConnected(userProfile.userId),
+    // The avatar shows ONE participant, but the conversation is online when any other one is, so
+    // presence is asked of the whole member list rather than of whoever is pictured. Desktop's
+    // sidebar and channel header share this rule; see @quiet/common isDmConnected.
+    connected: isDmConnected(channel.memberIds, me?.userId, isUserConnected, isTorInitialized),
     user: userProfile,
   }
 }

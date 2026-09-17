@@ -11,6 +11,7 @@ import { ChannelMembership } from '../../components/ChannelMembership/ChannelMem
 import { createLogger } from '../../utils/logger'
 import { getChannelMembers } from '../../utils/functions/channelMembers/channelMembers'
 import type { DmChannelUserData } from '../../components/ProfilePhoto/ProfilePhoto.types'
+import { isMemberConnected } from '@quiet/common'
 
 const logger = createLogger('ChannelMembershipScreen')
 
@@ -25,6 +26,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
   const screen = useSelector(navigationSelectors.currentScreen)
   const currentChannelPermissions = useSelector(publicChannels.selectors.currentChannelPermissions)
   const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
   const me = useSelector(users.selectors.myUserProfile)
 
   const [members, setMembers] = useState<DmChannelUserData[]>()
@@ -48,14 +50,14 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
       const memberData = currentMembers.map(
         user =>
           ({
-            connected: (me != null && me.userId === user.userId) || isUserConnected(user.userId),
+            connected: isMemberConnected(user.userId, me?.userId, isUserConnected, isTorInitialized),
             user,
           } as DmChannelUserData)
       )
       setMembers(memberData)
       setMemberCount(memberData.length)
     }
-  }, [userProfiles, channels, isUserConnected, me])
+  }, [userProfiles, channels, isUserConnected, isTorInitialized, me])
 
   const openUserProfile = useCallback(
     (userId: string) => {

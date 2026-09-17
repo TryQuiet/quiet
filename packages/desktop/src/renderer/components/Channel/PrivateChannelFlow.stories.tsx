@@ -152,6 +152,7 @@ export const Walkthrough: React.FC = () => {
         isDm={false}
         members={members}
         isUserConnected={() => false}
+        isTorInitialized={true}
         // An admin's walkthrough, so the Add members button is here. A member sees this same list
         // without it.
         canManage

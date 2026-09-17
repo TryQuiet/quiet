@@ -36,6 +36,7 @@ const args: ReturnType<typeof useModal> & ChannelMembershipProps = {
   members,
   // One member is online, to draw the presence dot the design puts on each thumbnail.
   isUserConnected: (userId: string | undefined) => userId === 'deniseUserId',
+  isTorInitialized: true,
   canManage: true,
   openAddMembers: () => {
     logger.info('opening add members')

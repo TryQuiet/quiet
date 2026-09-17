@@ -48,6 +48,7 @@ const sharedProps = {
   channelName: '',
   // One person online, to draw the presence dot in the recipient list.
   isUserConnected: (userId: string | undefined) => userId === 'denise',
+  isTorInitialized: true,
   messages: { count: 0, groups: {} },
   newChat: true,
   userProfiles,

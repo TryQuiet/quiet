@@ -74,6 +74,7 @@ export const AppHomeScreen: FC = () => {
   const me = useSelector(users.selectors.myUserProfile)
 
   const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
 
   const dmChannels = useSelector(publicChannels.selectors.sortedDmChannels)
 
@@ -100,7 +101,7 @@ export const AppHomeScreen: FC = () => {
     })
     dmChannels.forEach(channel => {
       const status = channelsStatus[channel.id]
-      const representativeUserData = getUserData(channel, isUserConnected, userProfiles, me)
+      const representativeUserData = getUserData(channel, isUserConnected, isTorInitialized, userProfiles, me)
       const tile: ChannelTileProps = {
         name: channel.displayedName,
         isPublic: false,
@@ -116,7 +117,7 @@ export const AppHomeScreen: FC = () => {
     })
     setChannelTiles(newChannelTiles)
     setDmTiles(newDmTitles)
-  }, [channelsStatus, isUserConnected, userProfiles, me, dmChannels, channels])
+  }, [channelsStatus, isUserConnected, isTorInitialized, userProfiles, me, dmChannels, channels])
 
   const communityContextMenu = useContextMenu(MenuName.Community)
 

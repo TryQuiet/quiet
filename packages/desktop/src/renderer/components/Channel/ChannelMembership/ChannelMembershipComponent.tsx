@@ -10,6 +10,7 @@ import { UserProfile } from '@quiet/types'
 import PanelHeader, { PANEL_INSET, PANEL_WIDTH } from '../../ui/Panel/PanelHeader'
 import ProfilePhotoWithBadge from '../../ProfilePhoto/ProfilePhotoWithBadge'
 import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
+import { isMemberConnected, type IsUserConnected } from '@quiet/common'
 
 /**
  * Who belongs to a channel.
@@ -116,7 +117,10 @@ export interface ChannelMembershipProps {
   isDm: boolean
   members: UserProfile[]
   /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
-  isUserConnected: (userId: string | undefined) => boolean
+  isUserConnected: IsUserConnected
+  /** My own row cannot be answered by a peer connection, so it follows Tor. */
+  myUserId?: string
+  isTorInitialized: boolean
   /** An admin additionally gets the button that adds members; everyone else sees the list alone. */
   canManage: boolean
   openAddMembers: () => void
@@ -132,6 +136,8 @@ export const ChannelMembershipComponent: React.FC<ReturnType<typeof useModal> & 
   isDm,
   members,
   isUserConnected,
+  myUserId,
+  isTorInitialized,
   canManage,
   openAddMembers,
   openUserProfile,
@@ -181,7 +187,7 @@ export const ChannelMembershipComponent: React.FC<ReturnType<typeof useModal> & 
                   size={ProfilePhotoSize.MEDIUM}
                   userData={{
                     user: member,
-                    connected: isUserConnected(member.userId),
+                    connected: isMemberConnected(member.userId, myUserId, isUserConnected, isTorInitialized),
                   }}
                 />
                 <Typography className={classes.name}>{member.nickname}</Typography>

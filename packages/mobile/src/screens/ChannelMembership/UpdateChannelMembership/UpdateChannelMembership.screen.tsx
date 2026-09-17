@@ -10,6 +10,7 @@ import { navigationSelectors } from '../../../store/navigation/navigation.select
 import { UpdateChannelMembership } from '../../../components/ChannelMembership/UpdateChannelMembership/UpdateChannelMembership.component'
 import type { DmChannelUserData } from '../../../components/ProfilePhoto/ProfilePhoto.types'
 import { getChannelNonMembers } from '../../../utils/functions/channelMembers/channelMembers'
+import { isMemberConnected } from '@quiet/common'
 
 export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
@@ -20,6 +21,7 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
   const community = useSelector(communities.selectors.currentCommunity)
   const userProfiles = useSelector(users.selectors.userProfiles)
   const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
   const me = useSelector(users.selectors.myUserProfile)
 
   const screen = useSelector(navigationSelectors.currentScreen)
@@ -43,13 +45,13 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
       const nonMemberData: { [userId: string]: DmChannelUserData } = {}
       currentNonMembers.forEach(user => {
         nonMemberData[user.userId] = {
-          connected: (me != null && me.userId === user.userId) || isUserConnected(user.userId),
+          connected: isMemberConnected(user.userId, me?.userId, isUserConnected, isTorInitialized),
           user,
         } as DmChannelUserData
       })
       setNonMembers(nonMemberData)
     }
-  }, [userProfiles, channels, isUserConnected, me])
+  }, [userProfiles, channels, isUserConnected, isTorInitialized, me])
 
   const updateChannelMembershipInner = (memberIds: string[]) => {
     if (!channelId || !channelName) return

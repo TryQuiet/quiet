@@ -15,6 +15,7 @@ import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
 import { HeaderTitleProps } from '../Appbar/Appbar.types'
+import { type IsUserConnected } from '@quiet/common'
 
 // Define a new type for date groups with timestamps
 export interface DateGroup {
@@ -64,7 +65,9 @@ export interface ChatProps extends UserLabelHandlers {
   userProfiles: Record<string, UserProfile>
   me?: UserProfile
   /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
-  isUserConnected: (userId: string | undefined) => boolean
+  isUserConnected: IsUserConnected
+  /** My own row follows Tor, since I am not my own peer. */
+  isTorInitialized: boolean
   createOrSetDmChannelAction: (memberIds: string[], firstMessage: string) => void
   setDmChannelOnSelection: (selectedIds: string[]) => void
 }

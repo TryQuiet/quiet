@@ -96,6 +96,7 @@ const ChannelScreenContent: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
 
   const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
 
   const error = communityError[SocketActions.CREATE_CHANNEL]
 
@@ -320,6 +321,7 @@ const ChannelScreenContent: FC = () => {
         groups: channelMessages,
       }}
       isUserConnected={isUserConnected}
+      isTorInitialized={isTorInitialized}
       pendingMessages={pendingMessages}
       downloadStatuses={downloadStatusesMapping}
       downloadFile={downloadFile}

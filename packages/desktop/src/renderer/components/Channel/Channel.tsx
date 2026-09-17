@@ -26,13 +26,12 @@ import {
 } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
-import { isDmConnected } from '../ProfilePhoto/dmPresence'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
-import { generateDmMemberHash, getFilesData, isDefined } from '@quiet/common'
+import { generateDmMemberHash, getFilesData, isDefined, isDmConnected } from '@quiet/common'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 

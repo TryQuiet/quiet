@@ -19,6 +19,8 @@ export const ChannelMembership: FC = () => {
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const userProfiles = useSelector(users.selectors.userProfiles)
   const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+  const myUserProfile = useSelector(users.selectors.myUserProfile)
   const currentChannelPermissions = useSelector(publicChannels.selectors.currentChannelPermissions)
 
   const canManage = currentChannelPermissions?.addMembers ?? false
@@ -51,6 +53,8 @@ export const ChannelMembership: FC = () => {
       isDm={isDm}
       members={members}
       isUserConnected={isUserConnected}
+      myUserId={myUserProfile?.userId}
+      isTorInitialized={isTorInitialized}
       canManage={canManage}
       openUserProfile={(userId: string) => {
         modal.handleClose() // Dismiss this panel before displaying the next

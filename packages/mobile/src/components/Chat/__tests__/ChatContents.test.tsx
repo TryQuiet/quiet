@@ -179,6 +179,7 @@ describe('Chat component list data', () => {
       teamId: 'foobar',
     },
     isUserConnected: () => false,
+    isTorInitialized: true,
     channelName: 'test-channel',
     newChat: false,
     userProfiles: {},

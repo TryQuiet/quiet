@@ -5,7 +5,7 @@ import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import DirectMessageListItem from './DirectMessageListItem'
 import { PublicChannelStorage, UserProfile } from '@quiet/types'
 import _ from 'lodash'
-import { isDmConnected } from '../../ProfilePhoto/dmPresence'
+import { isDmConnected } from '@quiet/common'
 
 export interface DirectMessagesPanelProps {
   myUserProfile?: UserProfile

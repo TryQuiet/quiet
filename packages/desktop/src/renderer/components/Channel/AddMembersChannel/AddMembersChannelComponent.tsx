@@ -12,6 +12,7 @@ import RecipientPill from '../../widgets/userSearch/RecipientPill'
 import ProfilePhotoWithBadge from '../../ProfilePhoto/ProfilePhotoWithBadge'
 import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 import { createLogger } from '../../../logger'
+import { isMemberConnected, type IsUserConnected } from '@quiet/common'
 
 const logger = createLogger('AddMembersChannelComponent')
 
@@ -96,7 +97,10 @@ export interface AddMembersChannelProps {
   channelName: string
   channelId: string
   /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
-  isUserConnected?: (userId: string | undefined) => boolean
+  isUserConnected?: IsUserConnected
+  /** My own row, were it ever listed, follows Tor rather than a peer connection. */
+  myUserId?: string
+  isTorInitialized?: boolean
   allUsers: Record<string, User>
   possibleMembers: Record<string, UserProfile>
   addMembersToChannel: (memberIds: string[]) => void
@@ -109,6 +113,8 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
   channelId,
   possibleMembers,
   isUserConnected = () => false,
+  myUserId,
+  isTorInitialized = false,
   addMembersToChannel,
 }) => {
   const [selected, setSelected] = useState<string[]>([])
@@ -220,7 +226,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
                   size={ProfilePhotoSize.MEDIUM}
                   userData={{
                     user: member,
-                    connected: isUserConnected(member.userId),
+                    connected: isMemberConnected(member.userId, myUserId, isUserConnected, isTorInitialized),
                   }}
                 />
                 <Typography className={classes.name}>{member.nickname}</Typography>

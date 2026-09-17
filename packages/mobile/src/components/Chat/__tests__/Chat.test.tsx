@@ -42,6 +42,7 @@ describe('Chat component', () => {
     newChat: false,
     userProfiles: {},
     isUserConnected: () => false,
+    isTorInitialized: true,
     pendingMessages: {},
     messages: {
       count: 16,

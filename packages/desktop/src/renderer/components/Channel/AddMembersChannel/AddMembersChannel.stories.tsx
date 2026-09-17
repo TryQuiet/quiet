@@ -46,6 +46,7 @@ const args: ReturnType<typeof useModal> & AddMembersChannelProps = {
   },
   // One member is online, to draw the presence dot the design puts on each thumbnail.
   isUserConnected: (userId: string | undefined) => userId === 'deniseUserId',
+  isTorInitialized: true,
   open: true,
   // @ts-expect-error
   handleOpen: () => {},

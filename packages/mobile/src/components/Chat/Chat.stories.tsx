@@ -35,6 +35,7 @@ storiesOf('Chat', module)
       }}
       channelName='Quiet'
       isUserConnected={() => false}
+      isTorInitialized={true}
       messages={{
         count: 16,
         groups: {
@@ -288,6 +289,7 @@ storiesOf('Chat', module)
       }}
       channelName='Quiet'
       isUserConnected={() => false}
+      isTorInitialized={true}
       updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateFileAttachments')
       }}
@@ -338,6 +340,7 @@ storiesOf('Chat', module)
         teamId: 'foobar',
       }}
       isUserConnected={() => false}
+      isTorInitialized={true}
       channelName='StickyDateTest'
       messages={{
         count: 40,
