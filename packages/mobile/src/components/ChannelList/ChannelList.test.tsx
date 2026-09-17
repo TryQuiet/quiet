@@ -1,6 +1,29 @@
 import React from 'react'
+import { fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { ChannelList } from './ChannelList.component'
+import { ChannelTileProps } from '../ChannelTile/ChannelTile.types'
+
+const searchTiles = (redirect: (id: string) => void): ChannelTileProps[] =>
+  ['general', 'spam', 'design', 'qa', 'private-chat'].map(name => ({
+    name,
+    id: name,
+    message: 'Text from latest chat message.',
+    date: '1:55pm',
+    unread: false,
+    isPublic: name !== 'private-chat',
+    redirect,
+  }))
+
+const renderChannelList = (redirect: (id: string) => void = jest.fn()) =>
+  renderComponent(
+    <ChannelList
+      // @ts-ignore
+      community={{ name: 'Quiet' }}
+      tiles={searchTiles(redirect)}
+      communityContextMenu={null}
+    />
+  )
 
 describe('ChannelList component', () => {
   it('should match inline snapshot', () => {
@@ -215,8 +238,115 @@ describe('ChannelList component', () => {
             }
           />
         </View>
+        <View
+          style={
+            {
+              "backgroundColor": "#ffffff",
+              "borderBottomColor": "#F0F0F0",
+              "borderBottomWidth": 1,
+              "paddingHorizontal": 16,
+              "paddingVertical": 12,
+            }
+          }
+        >
+          <View
+            testID="channel_search_input"
+          >
+            <View>
+              <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": false,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
+                accessibilityValue={
+                  {
+                    "max": undefined,
+                    "min": undefined,
+                    "now": undefined,
+                    "text": undefined,
+                  }
+                }
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
+                round={true}
+                style={
+                  [
+                    {
+                      "backgroundColor": "#ffffff",
+                      "borderColor": "#C4C4C4",
+                      "borderRadius": 16,
+                      "borderWidth": 1,
+                      "flexGrow": 1,
+                      "height": 56,
+                      "justifyContent": "center",
+                      "paddingLeft": 16,
+                      "paddingRight": 16,
+                    },
+                    {
+                      "height": 54,
+                    },
+                  ]
+                }
+              >
+                <TextInput
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={true}
+                  height={54}
+                  keyboardType="default"
+                  onChangeText={[Function]}
+                  onContentSizeChange={[Function]}
+                  placeholder="Search channels"
+                  placeholderTextColor="#999999"
+                  style={
+                    [
+                      {
+                        "height": 54,
+                        "paddingBottom": 12,
+                        "paddingTop": 12,
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  testID="input"
+                  value=""
+                />
+              </View>
+            </View>
+          </View>
+        </View>
         <RCTScrollView
           ItemSeparatorComponent={[Function]}
+          ListEmptyComponent={
+            <Typography
+              color="gray50"
+              fontSize={14}
+              horizontalTextAlign="center"
+              style={
+                {
+                  "padding": 24,
+                }
+              }
+              testID="channels_list_empty"
+            >
+              No channels found
+            </Typography>
+          }
           data={
             [
               {
@@ -269,6 +399,8 @@ describe('ChannelList component', () => {
           getItem={[Function]}
           getItemCount={[Function]}
           keyExtractor={[Function]}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
           onContentSizeChange={[Function]}
           onLayout={[Function]}
           onMomentumScrollBegin={[Function]}
@@ -2146,5 +2278,66 @@ describe('ChannelList component', () => {
         </RCTScrollView>
       </View>
     `)
+  })
+
+  it('shows every channel while the search field is empty', () => {
+    const { queryByTestId } = renderChannelList()
+
+    for (const name of ['general', 'spam', 'design', 'qa', 'private-chat']) {
+      expect(queryByTestId(`channel_tile_${name}`)).not.toBeNull()
+    }
+  })
+
+  it('shows only the channels whose name contains the query, ignoring case and surrounding spaces', () => {
+    const { getByPlaceholderText, queryByTestId } = renderChannelList()
+
+    fireEvent.changeText(getByPlaceholderText('Search channels'), '  GEN  ')
+
+    expect(queryByTestId('channel_tile_general')).not.toBeNull()
+    for (const name of ['spam', 'design', 'qa', 'private-chat']) {
+      expect(queryByTestId(`channel_tile_${name}`)).toBeNull()
+    }
+  })
+
+  it('matches anywhere in the name, not only at the start', () => {
+    const { getByPlaceholderText, queryByTestId } = renderChannelList()
+
+    fireEvent.changeText(getByPlaceholderText('Search channels'), 'chat')
+
+    expect(queryByTestId('channel_tile_private-chat')).not.toBeNull()
+    expect(queryByTestId('channel_tile_general')).toBeNull()
+  })
+
+  it('shows an empty state when no channel matches the query', () => {
+    const { getByPlaceholderText, queryByTestId, queryByText } = renderChannelList()
+
+    fireEvent.changeText(getByPlaceholderText('Search channels'), 'zzz')
+
+    expect(queryByText('No channels found')).not.toBeNull()
+    for (const name of ['general', 'spam', 'design', 'qa', 'private-chat']) {
+      expect(queryByTestId(`channel_tile_${name}`)).toBeNull()
+    }
+  })
+
+  it('restores the full list when the query is cleared', () => {
+    const { getByPlaceholderText, queryByTestId, queryByText } = renderChannelList()
+
+    fireEvent.changeText(getByPlaceholderText('Search channels'), 'zzz')
+    fireEvent.changeText(getByPlaceholderText('Search channels'), '')
+
+    expect(queryByText('No channels found')).toBeNull()
+    for (const name of ['general', 'spam', 'design', 'qa', 'private-chat']) {
+      expect(queryByTestId(`channel_tile_${name}`)).not.toBeNull()
+    }
+  })
+
+  it('still opens a channel when a search result is tapped', () => {
+    const redirect = jest.fn()
+    const { getByPlaceholderText, getByTestId } = renderChannelList(redirect)
+
+    fireEvent.changeText(getByPlaceholderText('Search channels'), 'gen')
+    fireEvent.press(getByTestId('channel_tile_general'))
+
+    expect(redirect).toHaveBeenCalledWith('general')
   })
 })
