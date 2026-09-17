@@ -2820,24 +2820,46 @@ export class Sidebar {
   }
 
   /**
-   * Get user profile element by nickname
+   * The sidebar no longer lists the community's people; Settings -> Community membership does.
+   *
+   * These helpers keep the names the sidebar list had, because several suites (device linking
+   * among them) are written against them and the question they ask - "are these people here yet,
+   * and is this one online?" - did not change, only where the app answers it. Each one opens the
+   * membership panel, reads it, and puts the drawer back the way it found it.
+   */
+  private async withCommunityMembership<T>(read: (settings: Settings) => Promise<T>): Promise<T> {
+    const settings = await this.openSettings()
+    try {
+      await settings.openCommunityMembership()
+      return await read(settings)
+    } finally {
+      try {
+        await settings.closeTabThenModal()
+      } catch (e) {
+        logger.warn('Could not close the community membership panel after reading it', e)
+      }
+    }
+  }
+
+  /**
+   * Get a person's row in the community membership list, by nickname.
    */
   async getUserProfileByNickname(nickname: string) {
+    return this.withCommunityMembership(async () => this.locateMembershipRow(nickname))
+  }
+
+  private async locateMembershipRow(nickname: string): Promise<WebElement> {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//*[@data-testid='${nickname}-user-link']`)),
+      until.elementLocated(By.xpath(`//*[@data-testid='${nickname}-membership-list-item']`)),
       10_000,
       `User profile for ${nickname} couldn't be found within timeout`,
       500
     )
   }
 
-  /**
-   * Check if a user's connected badge is visible
-   */
-  async isUserConnected(nickname: string): Promise<boolean> {
-    const userProfile = await this.getUserProfileByNickname(nickname)
+  private async hasVisibleConnectedBadge(row: WebElement): Promise<boolean> {
     try {
-      const badge = await userProfile.findElement(
+      const badge = await row.findElement(
         By.xpath(`.//span[contains(@class, 'MuiBadge-dot') and not(contains(@class, 'MuiBadge-invisible'))]`)
       )
       return await badge.isDisplayed()
@@ -2847,25 +2869,89 @@ export class Sidebar {
   }
 
   /**
+   * Check if a user's connected badge is visible
+   */
+  async isUserConnected(nickname: string): Promise<boolean> {
+    return this.withCommunityMembership(async () => {
+      const row = await this.locateMembershipRow(nickname)
+      return this.hasVisibleConnectedBadge(row)
+    })
+  }
+
+  /**
    * Wait for a user's connected badge to become visible
    */
   async waitForUserConnected(nickname: string, timeout = 60_000): Promise<void> {
-    const userProfile = await this.getUserProfileByNickname(nickname)
-    await this.driver.wait(
-      async () => {
-        try {
-          const badge = await userProfile.findElement(
-            By.xpath(`.//span[contains(@class, 'MuiBadge-dot') and not(contains(@class, 'MuiBadge-invisible'))]`)
-          )
-          return await badge.isDisplayed()
-        } catch (e) {
-          return false
-        }
-      },
-      timeout,
-      `Connected badge for user ${nickname} was not visible within timeout`,
-      500
+    await this.withCommunityMembership(async () => {
+      const row = await this.locateMembershipRow(nickname)
+      await this.driver.wait(
+        async () => this.hasVisibleConnectedBadge(row),
+        timeout,
+        `Connected badge for user ${nickname} was not visible within timeout`,
+        500
+      )
+    })
+  }
+
+  /**
+   * Wait for a user's connected badge to disappear.
+   */
+  async waitForUserDisconnected(nickname: string, timeout = 60_000): Promise<void> {
+    await this.withCommunityMembership(async () => {
+      const row = await this.locateMembershipRow(nickname)
+      await this.driver.wait(
+        async () => !(await this.hasVisibleConnectedBadge(row)),
+        timeout,
+        `Connected badge for user ${nickname} was still visible after timeout`,
+        500
+      )
+    })
+  }
+
+  /**
+   * The nicknames the community membership list is showing.
+   */
+  async getUserNames(): Promise<string[]> {
+    return this.withCommunityMembership(async settings => {
+      const rows = await settings.getUsersInCommunityMembership()
+      const names = await Promise.all(rows.map(async row => (await row.getAttribute('data-testid')) ?? ''))
+      return names.map(testId => testId.replace(/-membership-list-item$/, '')).filter(name => name.length > 0)
+    })
+  }
+
+  /**
+   * Wait for a specific number of user profiles.
+   *
+   * The panel is reopened on each poll rather than held open, because the list is only populated
+   * while the tab is mounted and a profile that arrives late has to re-render it.
+   */
+  async waitForUserProfilesNum(num: number, timeout = 15_000): Promise<void> {
+    logger.info(`Waiting for ${num} user profiles`)
+    const deadline = Date.now() + timeout
+    let seen = -1
+    do {
+      try {
+        seen = (await this.getUserNames()).length
+      } catch (e) {
+        logger.warn('Could not read the community membership list; retrying', e)
+        seen = -1
+      }
+      if (seen === num) return
+      await sleep(500)
+    } while (Date.now() < deadline)
+
+    throw logAndReturnError(
+      `Community membership list held ${seen} user profiles, not ${num}, within ${timeout}ms`
     )
+  }
+
+  /**
+   * Wait for a specific set of user profile names.
+   */
+  async waitForUserProfiles(userNames: Array<string>): Promise<void> {
+    await this.waitForUserProfilesNum(userNames.length)
+    const names = await this.getUserNames()
+    expect(names).toEqual(expect.arrayContaining(userNames))
   }
 
   /**

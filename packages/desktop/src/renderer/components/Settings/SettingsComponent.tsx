@@ -32,6 +32,12 @@ interface SettingsRow {
   testId: string
   /** Id for the panel title, where something already resolves the tab by its heading. */
   titleTestId?: string
+  /**
+   * The panel prints its own heading, so the bar does not repeat it. Every panel here had its
+   * heading moved into the bar except Linked devices, which arrived from develop with the heading
+   * inside it and its own tests resolving that heading.
+   */
+  titleInPanel?: boolean
   destructive?: boolean
 }
 
@@ -47,6 +53,12 @@ const SETTINGS_ROWS: SettingsRow[] = [
   { tab: 'attachments', title: 'Files and Images', testId: 'attachments-settings-tab' },
   { tab: 'invite', title: 'Add Members', testId: 'invite-settings-tab' },
   { tab: 'qrcode', title: 'QR Code', testId: 'qr-code-settings-tab' },
+  {
+    tab: 'linkedDevices',
+    title: 'Linked devices',
+    testId: 'linked-devices-settings-tab',
+    titleInPanel: true,
+  },
   { tab: 'leaveCommunity', title: 'Leave community', testId: 'leave-community-settings-tab', destructive: true },
 ]
 
@@ -132,7 +144,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             heading as well; now the bar carries it and they do not repeat it. */}
             <Box data-testid={'close-tab-button-box'} width={PANEL_WIDTH}>
               <PanelHeader
-                title={currentRow?.title ?? 'Settings'}
+                title={currentRow?.titleInPanel ? '' : (currentRow?.title ?? 'Settings')}
                 titleTestId={currentRow?.titleTestId}
                 handleClose={handleCloseTab}
                 leading={'back'}
