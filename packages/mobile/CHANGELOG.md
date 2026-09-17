@@ -1,3 +1,32 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [11.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@10.0.0-alpha.1...@quiet/mobile@11.0.0-alpha.0) (2026-09-17)
+
+
+### Bug Fixes
+
+* **device-link:** keep reusable invitations current and explicit ([bad4a47](https://github.com/TryQuiet/quiet/commit/bad4a47fec58a6f5134da84209525b20ea594c3c))
+* preserve failed-admission cleanup across restart ([ade57a0](https://github.com/TryQuiet/quiet/commit/ade57a0f58138e6e2c69aa50b5eeec159208eba9))
+
+
+### Features
+
+* add network endpoints management and related updates ([1e4828d](https://github.com/TryQuiet/quiet/commit/1e4828d5c7ff079784b88e090ce6c2b9f6c9f874))
+* **device-link:** require endpoint confirmation before linking ([adea946](https://github.com/TryQuiet/quiet/commit/adea946aa5db7e8ab9a6ab4abe9bd1aaa8693e09))
+* enable local transport gating for E2E testing ([6e9b621](https://github.com/TryQuiet/quiet/commit/6e9b62136ba5be957465135105721cc68b7050e9))
+* implement admission timeout recovery and reset functionality ([3bf6986](https://github.com/TryQuiet/quiet/commit/3bf6986d1505d148826db11da004848edf67b9df))
+* implement device link invitation expiration handling and related updates ([e7a1c54](https://github.com/TryQuiet/quiet/commit/e7a1c54bc5900b898568200a314cb9cf1ade922e))
+* implement device linking functionality for mobile ([2043025](https://github.com/TryQuiet/quiet/commit/20430252cb124bfdab6cd6430cc434962f23f98f))
+* implement finishAdmissionResetSaga and integrate with native services ([edfd8a7](https://github.com/TryQuiet/quiet/commit/edfd8a7fa75fbe4a856359f9f5f6462361a96463))
+* implement linked devices frontend and integrate QR code sharing ([0420c84](https://github.com/TryQuiet/quiet/commit/0420c843c716d23c16ce0e53a05b2dddd6c84a4b))
+
+
+
+
+
 # Changelog
 
 ## [10.0.0]
