@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import DirectMessageListItem from './DirectMessageListItem'
-import { PublicChannelStorage, UserProfile } from '@quiet/types'
+import { DeviceNetworkEndpoint, PublicChannelStorage, UserProfile } from '@quiet/types'
 import _ from 'lodash'
 
 export interface DirectMessagesPanelProps {
@@ -13,6 +13,7 @@ export interface DirectMessagesPanelProps {
   unreadDms: string[]
   currentChannelId: string
   connectedPeers: string[]
+  networkEndpoints: DeviceNetworkEndpoint[]
   isTorInitialized: boolean
   setCurrentChannel: (channelId: string) => void
   openNewMessageWindow: () => void
@@ -71,10 +72,14 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   unreadDms,
   currentChannelId,
   connectedPeers,
+  networkEndpoints,
   isTorInitialized,
   setCurrentChannel,
   openNewMessageWindow,
 }) => {
+  const isUserConnected = (userId: string): boolean =>
+    networkEndpoints.some(endpoint => endpoint.userId === userId && connectedPeers.includes(endpoint.peerId))
+
   return (
     <Grid container item xs direction='column'>
       <SidebarHeader

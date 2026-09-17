@@ -3,4 +3,5 @@ export interface ErrorProps {
   icon?: any
   title?: string
   message?: string | undefined
+  buttonTitle?: string
 }

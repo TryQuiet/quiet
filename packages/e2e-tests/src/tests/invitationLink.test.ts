@@ -194,7 +194,7 @@ describe('New user joins using invitation link while having app opened', () => {
       expect(await generalChannel.isReady()).toBeTruthy()
 
       const messageIds = await generalChannel.getMessageIdsByText(
-        `@${joiningUserUsername} has joined and will be registered soon. 🎉 Learn more`,
+        `@${joiningUserUsername} has joined! 🎉`,
         joiningUserUsername,
         1000
       )

@@ -19,6 +19,8 @@ import {
   DownloadFilePayload,
   GetMessagesPayload,
   InitCommunityPayload,
+  type InitDeviceLinkPayload,
+  type RequestDeviceLinkPayload,
   MessagesLoadedPayload,
   SendMessagePayload,
   SocketActions,
@@ -33,6 +35,7 @@ import {
   InvitationData,
   InvitationPair,
   InvitationDataVersion,
+  InvitationKind,
   DeleteChannelPayload,
   ErrorPayload,
   ConnectionProcessInfo,
@@ -296,10 +299,6 @@ export const getReduxStoreFactory = async (store: Store) => {
       photo: 'dGVzdAo=',
       bio: factory.sequence('UserProfile.bio', (n: number) => `bio_${n}`),
       userId: factory.assoc('User', 'userId'),
-      userData: {
-        peerId: createPeerIdTestHelper().id,
-        onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
-      },
     }
   )
 
@@ -502,6 +501,27 @@ export const getSocketFactory = async () => {
   })
 
   // Community events
+  factory.define<InitDeviceLinkPayload>(SocketActions.LINK_DEVICE, Object, {
+    id: 'community-id',
+    deviceName: 'Test device',
+    deviceLinkConsent: true,
+    inviteData: {
+      kind: InvitationKind.Device,
+      version: InvitationDataVersion.v4,
+      pairs: [],
+      psk: 'qTJAfwE1dmKA5R6lgzdhEBjgXVZRmbdm99TpKO89MSM=',
+      authData: {
+        communityName: 'Test Community',
+        seed: 'device-invite-seed',
+        teamId: 'abc123',
+        userId: 'user-id',
+        userName: 'test-user',
+      },
+    },
+  })
+
+  factory.define<RequestDeviceLinkPayload>(SocketActions.CREATE_DEVICE_LINK, Object, {})
+
   factory.define<InitCommunityPayload>(SocketActions.JOIN_COMMUNITY, Object, {
     id: 'community-id',
     name: 'Test Community',
@@ -551,6 +571,10 @@ export const getSocketFactory = async () => {
 
   // LEAVE_COMMUNITY has no payload
   factory.define(SocketActions.LEAVE_COMMUNITY, Object, {})
+
+  factory.define<LaunchCommunityPayload>(SocketActions.RESET_ADMISSION, Object, {
+    id: 'community-id',
+  })
 
   // Messages events
   factory.define<SendMessagePayload>(SocketActions.SEND_MESSAGE, Object, {
@@ -692,10 +716,6 @@ export const getSocketFactory = async () => {
       nickname: 'Test User',
       photo: 'dGVzdAo=',
       bio: 'This is a test user profile',
-      userData: {
-        onionAddress: 'test.onion',
-        peerId: 'peer-id',
-      },
     },
   })
 
@@ -706,10 +726,6 @@ export const getSocketFactory = async () => {
         nickname: 'Test User',
         photo: 'dGVzdAo=',
         bio: 'This is a test user profile',
-        userData: {
-          onionAddress: 'test.onion',
-          peerId: 'peer-id',
-        },
       },
     ],
     updates: [],

@@ -46,6 +46,8 @@ export const Appbar: FC<AppbarProps> = ({
           hitSlop={TOUCH_SLOP}
           style={{ flex: 1 }}
           testID={'appbar_action_item'}
+          accessibilityRole={back ? 'button' : undefined}
+          accessibilityLabel={back ? (crossBackIcon ? 'Close' : 'Go back') : undefined}
         >
           <View
             style={{
@@ -61,6 +63,7 @@ export const Appbar: FC<AppbarProps> = ({
                 source={crossBackIcon ? cross_icon : arrow_icon}
                 resizeMode='cover'
                 resizeMethod='resize'
+                accessible={false}
                 style={{
                   width: 16,
                   height: 16,
@@ -100,6 +103,8 @@ export const Appbar: FC<AppbarProps> = ({
             hitSlop={TOUCH_SLOP}
             style={{ flex: 1 }}
             testID={'open_menu'}
+            accessibilityRole='button'
+            accessibilityLabel='More options'
           >
             <View
               style={{
@@ -115,6 +120,7 @@ export const Appbar: FC<AppbarProps> = ({
                 resizeMode='contain'
                 resizeMethod='resize'
                 tintColor={iconColor}
+                accessible={false}
                 style={{
                   width: 16,
                   height: 16,

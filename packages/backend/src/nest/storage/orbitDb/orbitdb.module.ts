@@ -18,6 +18,8 @@ import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesA
 import { PrivateMessagesAccessController } from '../channels/messages/orbitdb/PrivateMessagesAccessController'
 import { ChannelMetadataAccessController } from '../channels/orbitdb/ChannelMetadataAccessController'
 import { UserProfileAccessController } from '../userProfile/UserProfileAccessController'
+import { NetworkEndpointsStore } from '../networkEndpoints/networkEndpoints.store'
+import { NetworkEndpointsAccessController } from '../networkEndpoints/NetworkEndpointsAccessController'
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { UserProfileAccessController } from '../userProfile/UserProfileAccessCon
     OrbitDbService,
     CommunityMetadataStore,
     UserProfileStore,
+    NetworkEndpointsStore,
     ChannelsService,
     PublicChannelMessagesService,
     PrivateChannelMessagesService,
@@ -42,11 +45,13 @@ import { UserProfileAccessController } from '../userProfile/UserProfileAccessCon
     PrivateMessagesAccessController,
     ChannelMetadataAccessController,
     UserProfileAccessController,
+    NetworkEndpointsAccessController,
   ],
   exports: [
     OrbitDbService,
     CommunityMetadataStore,
     UserProfileStore,
+    NetworkEndpointsStore,
     ChannelsService,
     PublicChannelMessagesService,
     PrivateChannelMessagesService,
@@ -58,6 +63,7 @@ import { UserProfileAccessController } from '../userProfile/UserProfileAccessCon
     PrivateMessagesAccessController,
     ChannelMetadataAccessController,
     UserProfileAccessController,
+    NetworkEndpointsAccessController,
   ],
 })
 export class OrbitDbModule {}

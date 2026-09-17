@@ -116,6 +116,8 @@ describe('ChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -171,6 +173,7 @@ describe('ChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={
@@ -640,6 +643,8 @@ describe('ChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -695,6 +700,7 @@ describe('ChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={

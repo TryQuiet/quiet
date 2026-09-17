@@ -27,4 +27,5 @@ export enum ModalName {
   termsOfServiceModal = 'termsOfServiceModal',
   addMembersChannel = 'addMembersChannel',
   channelMembership = 'channelMembership',
+  deviceLinkConsent = 'deviceLinkConsent',
 }

@@ -7,6 +7,7 @@ import {
   UsersUpdatedEvent,
   CachedUserProfileRequest,
   CachedUserProfileResponse,
+  NetworkEndpointsStoredEvent,
 } from './user'
 import {
   type DeleteChannelPayload,
@@ -38,13 +39,18 @@ import {
   type ResponseLaunchCommunityPayload,
   type ResponseCreateCommunityPayload,
   type ResponseJoinCommunityPayload,
+  type ResponseLinkDevicePayload,
   type ResponseLeaveCommunityPayload,
+  type InitDeviceLinkPayload,
   LaunchCommunityPayload,
   RequestInvitePayload,
+  RequestDeviceLinkPayload,
   ResponseInvitePayload,
   InviteResultWithSalt,
+  DeviceLinkInvite,
   JoinCommunityPayload,
   UpdateCommunityPayload,
+  AdmissionResetCompletePayload,
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
@@ -72,8 +78,10 @@ export enum SocketActions {
 
   CREATE_COMMUNITY = 'createCommunity',
   JOIN_COMMUNITY = 'joinCommunity',
+  LINK_DEVICE = 'linkDevice',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  RESET_ADMISSION = 'resetAdmission',
 
   // ====== Channels ======
 
@@ -101,6 +109,7 @@ export enum SocketActions {
   // ====== Local First Auth ======
 
   VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE = 'validateOrCreateLongLivedLfaInvite',
+  CREATE_DEVICE_LINK = 'createDeviceLink',
 
   // ====== Captcha ======
   HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
@@ -131,6 +140,7 @@ export enum SocketEvents {
   // ====== Community ======
   COMMUNITY_LAUNCHED = 'communityLaunched',
   COMMUNITY_UPDATED = 'communityUpdated',
+  ADMISSION_RESET_COMPLETE = 'admissionResetComplete',
 
   // ====== Channels ======
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
@@ -147,6 +157,7 @@ export enum SocketEvents {
   USERS_UPDATED = 'usersUpdated',
   USERS_REMOVED = 'usersRemoved',
   USER_PROFILES_STORED = 'userProfilesStored',
+  NETWORK_ENDPOINTS_STORED = 'networkEndpointsStored',
   CACHED_USER_PROFILE_REQUEST = 'cachedUserProfileRequest',
   KEYS_UPDATED = 'keysUpdated',
   DEVICE_CREDENTIALS_UPDATED = 'deviceCredentialsUpdated',
@@ -194,12 +205,14 @@ export interface SocketActionsMap {
 
   // ====== Communities ======
   [SocketActions.JOIN_COMMUNITY]: EmitEvent<InitCommunityPayload, (response?: ResponseJoinCommunityPayload) => void>
+  [SocketActions.LINK_DEVICE]: EmitEvent<InitDeviceLinkPayload, (response?: ResponseLinkDevicePayload) => void>
   [SocketActions.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response?: ResponseCreateCommunityPayload) => void>
   [SocketActions.LAUNCH_COMMUNITY]: EmitEvent<
     LaunchCommunityPayload,
     (response?: ResponseLaunchCommunityPayload) => void
   >
   [SocketActions.LEAVE_COMMUNITY]: EmitEvent<LeaveCommunityPayload, (response?: ResponseLeaveCommunityPayload) => void>
+  [SocketActions.RESET_ADMISSION]: EmitEvent<LaunchCommunityPayload, (success: boolean) => void>
 
   // ====== Channels ======
   [SocketActions.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>
@@ -227,6 +240,7 @@ export interface SocketActionsMap {
     RequestInvitePayload,
     (response?: ResponseInvitePayload) => void
   >
+  [SocketActions.CREATE_DEVICE_LINK]: EmitEvent<RequestDeviceLinkPayload, (response?: DeviceLinkInvite) => void>
 
   // ====== Captcha ======
   [SocketActions.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
@@ -256,6 +270,7 @@ export interface SocketEventsMap {
   // ====== Community ======
   [SocketEvents.COMMUNITY_LAUNCHED]: EmitEvent<LaunchCommunityPayload>
   [SocketEvents.COMMUNITY_UPDATED]: EmitEvent<UpdateCommunityPayload>
+  [SocketEvents.ADMISSION_RESET_COMPLETE]: EmitEvent<AdmissionResetCompletePayload>
 
   // ====== Channels ======
   [SocketEvents.CHANNEL_SUBSCRIBED]: EmitEvent<ChannelSubscribedPayload>
@@ -272,6 +287,7 @@ export interface SocketEventsMap {
   [SocketEvents.USERS_UPDATED]: EmitEvent<UsersUpdatedEvent>
   [SocketEvents.USERS_REMOVED]: EmitEvent<UsersRemovedEvent>
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
+  [SocketEvents.NETWORK_ENDPOINTS_STORED]: EmitEvent<NetworkEndpointsStoredEvent>
   [SocketEvents.CACHED_USER_PROFILE_REQUEST]: EmitEvent<
     CachedUserProfileRequest,
     (response?: CachedUserProfileResponse) => void

@@ -41,6 +41,7 @@ const Sidebar = () => {
   // publicChannels selector orders by `displayedName`, so the list came out in creation order.
   const publicChannelsSelector = useSelector(publicChannels.selectors.sortedChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+  const networkEndpoints = useSelector(connection.selectors.networkEndpoints)
 
   const setCurrentChannel = (id: string) => {
     dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
@@ -90,6 +91,7 @@ const Sidebar = () => {
     unreadDms,
     currentChannelId,
     connectedPeers: connectedPeers,
+    networkEndpoints,
     isTorInitialized: isTorInitialized,
     setCurrentChannel,
     openNewMessageWindow,

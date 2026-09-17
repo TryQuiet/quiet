@@ -113,6 +113,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -168,6 +170,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={

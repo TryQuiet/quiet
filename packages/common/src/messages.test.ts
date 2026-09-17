@@ -1,5 +1,10 @@
 import { ChannelType, PublicChannelStorage } from '@quiet/types'
-import { createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from './messages'
+import {
+  createdChannelMessage,
+  userJoinedMessage,
+  userJoinedMessageRegex,
+  verifyUserInfoMessage,
+} from './messages'
 import { generateTestChannelId } from './tests'
 
 describe('messages helper', () => {
@@ -39,10 +44,20 @@ describe('messages helper', () => {
   })
 
   it('userJoinedMessage', () => {
-    const expectedMessage =
-      '**@johnny** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)'
+    const expectedMessage = '**@johnny** has joined! 🎉'
     const message = userJoinedMessage(username)
     expect(message).toEqual(expectedMessage)
+  })
+
+  it.each([username, otherUsername])('recognizes the join message for %s', joinedUsername => {
+    const match = userJoinedMessageRegex.exec(userJoinedMessage(joinedUsername))
+    expect(match?.[1]).toEqual(joinedUsername)
+  })
+
+  it('recognizes join messages from older clients', () => {
+    const message =
+      '**@johnny** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)'
+    expect(userJoinedMessageRegex.exec(message)?.[1]).toEqual(username)
   })
 
   it('owner created general channel message', () => {
@@ -52,7 +67,7 @@ describe('messages helper', () => {
   })
 
   it('verifyUserInfoMessage - general channel', () => {
-    const expectedMessage = `**@${otherUsername}** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)`
+    const expectedMessage = `**@${otherUsername}** has joined! 🎉`
     const message = verifyUserInfoMessage(otherUsername, otherUsername, generalChannel)
     expect(message).toEqual(expectedMessage)
   })

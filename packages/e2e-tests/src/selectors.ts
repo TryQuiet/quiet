@@ -1,9 +1,9 @@
 import { execSync } from 'child_process'
 import { DateTime } from 'luxon'
 import path from 'path'
-import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
+import { By, Key, error, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
 
-import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
+import { BuildSetup, logAndReturnError, promiseWithTimeout, sleep, type BuildSetupInit } from './utils'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
 import {
   CreatedDM,
@@ -18,6 +18,8 @@ import {
   UserListStatus,
 } from './types'
 import { createLogger } from './logger'
+import { parseInvitationLink } from '@quiet/common'
+import { isDeviceInvitationData } from '@quiet/types'
 
 const logger = createLogger('selectors')
 
@@ -70,7 +72,20 @@ export class App {
       ...(overrideConfig ? overrideConfig : {}),
     }
     const failureReason = `Failed to open app within ${config.timeoutMs}ms`
-    await promiseWithRetries(this.open(qssEnabled), failureReason, config, () => this.close())
+    let lastError: Error | undefined
+
+    for (let attempt = 1; attempt <= config.attempts; attempt += 1) {
+      try {
+        await promiseWithTimeout(this.open(qssEnabled), failureReason, config.timeoutMs)
+        return
+      } catch (e) {
+        lastError = e instanceof Error ? e : new Error(String(e))
+        logger.warn(`App open attempt ${attempt}/${config.attempts} failed`, lastError)
+        await this.close()
+      }
+    }
+
+    throw lastError ?? logAndReturnError(`Exceeded ${config.attempts} app open attempts`)
   }
 
   /**
@@ -87,6 +102,10 @@ export class App {
     // Signal any background watchers (e.g. modal watcher) to stop ASAP.
     const wasOpened = this.isOpened
     this.isOpened = false
+
+    // A failed setup may leave a registered App that was never opened. Avoid
+    // constructing a WebDriver session against its unset port during cleanup.
+    if (!wasOpened && this.thenableWebDriver == null && this.buildSetup.port == null) return
 
     // 1. Detect whether an Electron window is still around.
     let sessionOpen = false
@@ -174,7 +193,13 @@ export class App {
   }
 
   async closeWindowViaX() {
-    await this.driver.executeScript("require('@electron/remote').BrowserWindow.getFocusedWindow().close();")
+    await this.driver.executeScript(`
+      const { BrowserWindow } = require('@electron/remote')
+      const windows = BrowserWindow.getAllWindows()
+      const windowToClose = BrowserWindow.getFocusedWindow() || windows.find(window => window.isVisible()) || windows[0]
+      if (!windowToClose) throw new Error('No Electron BrowserWindow available to close')
+      windowToClose.close()
+    `)
     if (process.platform !== 'darwin') {
       this.isOpened = false
     }
@@ -451,6 +476,7 @@ export class StartingLoadingPanel {
         logger.warn(`Starting loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
         logger.warn('Either socket didnt get setup or you are running on an old version.', e)
+        throw e
       }
     }
   }
@@ -495,6 +521,13 @@ export class WarningModal {
   }
 }
 
+// Several phases of a single test wait on the same joining panel. Without a
+// label the resulting timeout names neither the app nor the phase, so a failed
+// setup reads exactly like a failed assertion.
+function describeWaitTarget(label?: string): string {
+  return label == null ? '' : ` (${label})`
+}
+
 export class JoiningLoadingPanel {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -510,19 +543,24 @@ export class JoiningLoadingPanel {
     )
   }
 
-  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000): Promise<void> {
+  async waitUntilVisible(timeoutMs = 60_000, label?: string): Promise<boolean> {
+    const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
+    return this.driver.wait(
+      async () => this.hasVisiblePanel(panelLocator),
+      timeoutMs,
+      `Loading panel element couldn't be seen within timeout${describeWaitTarget(label)}`,
+      500
+    )
+  }
+
+  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000, label?: string): Promise<void> {
     const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
     const visiblePanelTimeoutMs = Math.min(visibleTimeoutMs, 10_000)
     try {
-      await this.driver.wait(
-        async () => this.hasVisiblePanel(panelLocator),
-        visiblePanelTimeoutMs,
-        `Loading panel element couldn't be seen within timeout`,
-        500
-      )
+      await this.waitUntilVisible(visiblePanelTimeoutMs, label)
     } catch (e) {
       if (this.isLoadingPanelTimeout(e)) {
-        logger.warn('Joining loading panel not present; skipping wait')
+        logger.warn(`Joining loading panel not present; skipping wait${describeWaitTarget(label)}`)
         return
       }
       throw e
@@ -531,7 +569,7 @@ export class JoiningLoadingPanel {
     await this.driver.wait(
       async () => !(await this.hasVisiblePanel(panelLocator)),
       completionTimeoutMs,
-      `Loading panel element didn't disappear within timeout`,
+      `Loading panel element didn't disappear within timeout${describeWaitTarget(label)}`,
       5_000
     )
   }
@@ -1218,18 +1256,23 @@ export class JoinCommunityModal {
     this.driver = driver
   }
 
-  get element() {
+  private waitForElement(timeoutMs: number = 10_000) {
     return this.driver.wait(
       until.elementLocated(By.xpath("//h3[text()='Join community']")),
-      10_000,
+      timeoutMs,
       `Join community modal couldn't be found within timeout`,
       500
     )
   }
 
+  get element() {
+    return this.waitForElement()
+  }
+
   async isReady(timeoutMs: number = 10_000): Promise<boolean> {
+    const element = await this.waitForElement(timeoutMs)
     await this.driver.wait(
-      until.elementIsVisible(this.element),
+      until.elementIsVisible(element),
       timeoutMs,
       `Join community modal wasn't ready within timeout`,
       500
@@ -1261,6 +1304,14 @@ export class JoinCommunityModal {
   }
 
   async submit() {
+    const input = await this.driver.findElement(By.xpath('//input[@placeholder="Invite link"]'))
+    let deviceLink = false
+    try {
+      const invitation = parseInvitationLink(new URL(await input.getAttribute('value')).hash.slice(1))
+      deviceLink = invitation != null && isDeviceInvitationData(invitation)
+    } catch {
+      // Invalid inputs stay in the form and never show a device-link confirmation.
+    }
     const continueButton = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="continue-joinCommunity"]')),
       10_000,
@@ -1270,6 +1321,16 @@ export class JoinCommunityModal {
     await this.driver.wait(until.elementIsVisible(continueButton), 5_000)
     await this.driver.wait(until.elementIsEnabled(continueButton), 5_000)
     await continueButton.click()
+    if (deviceLink) {
+      const confirmButton = await this.driver.wait(
+        until.elementLocated(By.css('[data-testid="confirm-device-link"]')),
+        10_000,
+        'Device-link consent was not shown'
+      )
+      await this.driver.wait(until.elementIsVisible(confirmButton), 5_000)
+      await this.driver.wait(until.elementIsEnabled(confirmButton), 5_000)
+      await confirmButton.click()
+    }
   }
 }
 export class CreateCommunityModal {
@@ -2763,7 +2824,7 @@ export class Sidebar {
    */
   async getUserProfileByNickname(nickname: string) {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//li[@data-testid='${nickname}-user-link']`)),
+      until.elementLocated(By.xpath(`//*[@data-testid='${nickname}-user-link']`)),
       10_000,
       `User profile for ${nickname} couldn't be found within timeout`,
       500
@@ -3050,6 +3111,39 @@ export class Settings {
     )
   }
 
+  async deviceLink() {
+    const unlockButton = await this.driver.wait(
+      until.elementLocated(By.xpath('//button[@data-testid="show-device-link"]')),
+      30_000,
+      `Show device link button couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(unlockButton), 10_000)
+
+    // The settings drawer can still be sliding after its contents become visible.
+    await this.driver.wait(
+      async () => {
+        try {
+          await unlockButton.click()
+          return true
+        } catch (clickError) {
+          if (clickError instanceof error.ElementClickInterceptedError) return false
+          throw clickError
+        }
+      },
+      10_000,
+      'Show device link button remained obstructed',
+      200
+    )
+
+    return await this.driver.wait(
+      until.elementLocated(By.xpath("//p[@data-testid='device-link']")),
+      10_000,
+      `Unhidden device link element couldn't be found within timeout`,
+      500
+    )
+  }
+
   /**
    * Returns the visible, interactive switch element (the span).
    */
@@ -3283,9 +3377,14 @@ export class Settings {
 
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {
     let locator: string | undefined = undefined
+    let timeoutMs = 30_000
     switch (tabName) {
       case SettingsModalTabName.INVITE:
         locator = "//*[@data-testid='invite-a-friend']"
+        break
+      case SettingsModalTabName.LINKED_DEVICES:
+        locator = "//*[@data-testid='linked-devices-title']"
+        timeoutMs = 30_000
         break
       case SettingsModalTabName.ABOUT:
         locator = "//div[contains(@class, 'Abouttitle')]"
@@ -3332,7 +3431,7 @@ export class Settings {
     logger.info(`waitForTabToBeReady - before tab element`)
     const result = await this.driver.wait(
       until.elementLocated(By.xpath(locator!)),
-      30_000,
+      timeoutMs,
       `Settings tab ${tabName} wasn't ready within timeout`,
       500
     )

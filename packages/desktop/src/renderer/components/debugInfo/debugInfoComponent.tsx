@@ -160,6 +160,7 @@ export const DebugInfoComponent: React.FC = () => {
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
   const connectionProcess = useSelector(connection.selectors.connectionProcess)
   const peerList = useSelector(connection.selectors.peerList)
+  const networkEndpoints = useSelector(connection.selectors.networkEndpoints)
   const longLivedInvite = useSelector(connection.selectors.longLivedInvite)
   const p2pEnabled = useSelector(connection.selectors.p2pEnabled)
 
@@ -171,6 +172,14 @@ export const DebugInfoComponent: React.FC = () => {
   const downloadStatuses = useSelector(files.selectors.downloadStatuses)
 
   // --- Debug Info Object ---
+  const redactCommunityCredentials = ({
+    psk: _psk,
+    inviteData: _inviteData,
+    ...community
+  }: NonNullable<typeof currentCommunity>) => community
+  const safeCommunitiesList = communitiesList.map(redactCommunityCredentials)
+  const safeCurrentCommunity = currentCommunity ? redactCommunityCredentials(currentCommunity) : currentCommunity
+
   const debugInfo = {
     environment: {
       node_env: process.env.NODE_ENV,
@@ -181,7 +190,12 @@ export const DebugInfoComponent: React.FC = () => {
     network: { connectedPeers, initializedCommunities, loadingPanelType, isCommunityInitialized },
     users: { userProfile, userProfiles, allUsers },
     identity: { currentIdentity, allIdentities, joinedCommunities, username, usernameTaken },
-    communities: { communitiesList, currentCommunity, invitationCodes, isOwner },
+    communities: {
+      communitiesList: safeCommunitiesList,
+      currentCommunity: safeCurrentCommunity,
+      invitationPending: invitationCodes != null,
+      isOwner,
+    },
     publicChannels: {
       channels,
       currentChannelId,
@@ -196,7 +210,7 @@ export const DebugInfoComponent: React.FC = () => {
       isTorInitialized,
       connectionProcess,
       peerList,
-      longLivedInvite,
+      longLivedInvitePresent: longLivedInvite != null,
     },
     settings: { notificationsOption, notificationsSound },
     files: { downloadStatuses },
@@ -266,8 +280,6 @@ export const DebugInfoComponent: React.FC = () => {
                 <tr>
                   <th className={classes.th}>Nickname</th>
                   <th className={classes.th}>User ID</th>
-                  <th className={classes.th}>Peer ID</th>
-                  <th className={classes.th}>Onion Address</th>
                 </tr>
               </thead>
               <tbody>
@@ -277,12 +289,18 @@ export const DebugInfoComponent: React.FC = () => {
                     <td className={classes.td} style={{ fontSize: 12, color: '#bdbdbd' }}>
                       {profile.userId}
                     </td>
-                    <td className={classes.td}>{profile.userData?.peerId || '-'}</td>
-                    <td className={classes.td}>{profile.userData?.onionAddress || '-'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </Paper>
+        </details>
+      </Grid>
+      <Grid item className={classes.section}>
+        <details open>
+          <summary className={classes.summary}>Network Endpoints</summary>
+          <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
+            <pre className={classes.json}>{JSON.stringify(networkEndpoints, null, 2)}</pre>
           </Paper>
         </details>
       </Grid>

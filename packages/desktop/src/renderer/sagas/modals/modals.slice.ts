@@ -39,7 +39,8 @@ export class ModalsInitialState {
   [ModalName.breakingChangesWarning] = { open: false, args: {} };
   [ModalName.termsOfServiceModal] = { open: false, args: {} };
   [ModalName.addMembersChannel] = { open: false, args: {} };
-  [ModalName.channelMembership] = { open: false, args: {} }
+  [ModalName.channelMembership] = { open: false, args: {} };
+  [ModalName.deviceLinkConsent] = { open: false, args: {} }
 }
 
 export const modalsSlice = createSlice({
@@ -56,6 +57,8 @@ export const modalsSlice = createSlice({
       state[action.payload].open = false
       state[action.payload].args = {}
     },
+    confirmDeviceLinkConsent: state => state,
+    cancelDeviceLinkConsent: state => state,
   },
 })
 

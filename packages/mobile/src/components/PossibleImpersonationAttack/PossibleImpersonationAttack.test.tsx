@@ -44,6 +44,8 @@ describe('PossibleImpersonationAttack component', () => {
             }
           >
             <View
+              accessibilityLabel="Close"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -99,6 +101,7 @@ describe('PossibleImpersonationAttack component', () => {
                 }
               >
                 <Image
+                  accessible={false}
                   resizeMethod="resize"
                   resizeMode="cover"
                   source={

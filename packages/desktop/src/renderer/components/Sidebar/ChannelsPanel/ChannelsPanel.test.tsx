@@ -107,7 +107,7 @@ describe('Channels panel', () => {
         <ChannelsPanel
           channels={channels}
           userProfiles={userProfilesMap}
-          connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
+          connectedPeers={['alicePeerId', 'bobPeerId']}
           unreadChannels={[]}
           setCurrentChannel={function (_id: string): void {}}
           currentChannelId={generalChannel.id}
@@ -122,7 +122,23 @@ describe('Channels panel', () => {
         <DirectMessagesPanel
           myUserProfile={aliceUserProfile}
           userProfiles={userProfilesMap}
-          connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
+          connectedPeers={['alicePeerId', 'bobPeerId']}
+          networkEndpoints={[
+            {
+              teamId: 'teamId',
+              userId: aliceUserProfile.userId,
+              deviceId: 'aliceDeviceId',
+              peerId: 'alicePeerId',
+              onionAddress: 'alice.onion',
+            },
+            {
+              teamId: 'teamId',
+              userId: bobUserProfile.userId,
+              deviceId: 'bobDeviceId',
+              peerId: 'bobPeerId',
+              onionAddress: 'bob.onion',
+            },
+          ]}
           isTorInitialized={true}
           setCurrentChannel={jest.fn()}
           openNewMessageWindow={jest.fn()}

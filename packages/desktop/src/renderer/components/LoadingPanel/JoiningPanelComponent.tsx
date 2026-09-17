@@ -2,7 +2,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import Modal from '../ui/Modal/Modal'
 import JoinCommunityImg from '../../static/images/join-community.png'
-import { Grid, Typography } from '@mui/material'
+import { Button, Grid, Typography } from '@mui/material'
 import { Site } from '@quiet/common'
 import { ConnectionProcessInfo } from '@quiet/types'
 import classNames from 'classnames'
@@ -106,6 +106,9 @@ export interface JoiningPanelComponentProps {
   openUrl: (url: string) => void
   connectionInfo: { number: number; text: ConnectionProcessInfo }
   isOwner: boolean
+  resetFailed?: boolean
+  resetFailureMessage?: string
+  onRetryReset?: () => void
 }
 
 const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
@@ -114,6 +117,9 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   openUrl,
   connectionInfo,
   isOwner,
+  resetFailed = false,
+  resetFailureMessage = 'Quiet could not safely clear the incomplete community. Check your connection and try again.',
+  onRetryReset,
 }) => {
   logger.info('Generating JoiningPanelComponent with props:', { open, connectionInfo, isOwner })
   return (
@@ -134,39 +140,52 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
         >
           <img className={isOwner ? classes.image : classes.animatedImage} src={JoinCommunityImg} />
           <Typography className={classes.heading2} variant='h2'>
-            {isOwner ? 'Creating your community!' : 'Joining now!'}
+            {resetFailed ? 'Couldn’t reset the failed link' : isOwner ? 'Creating your community!' : 'Joining now!'}
           </Typography>
-          <div className={classes.progressBarWrapper}>
-            <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
-              <div className={classes.progress}></div>
-
-              <div
-                className={classNames({
-                  [classes.animatedProgress]: connectionInfo.text === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY,
-                })}
-              ></div>
-            </Grid>
-            <Typography variant='body2'>{connectionInfo.text}</Typography>
-          </div>
-
-          {!isOwner && (
-            <Typography variant='body2' className={classes.text}>
-              <strong>
-                Please leave the app open. <br /> Joining the first time can take a few minutes or more.
-              </strong>
-              <br />
-              <br />
-              Quiet stores data on <i>your</i> community’s devices using the battle-tested privacy tool Tor to protect
-              your information. Tor is fast once connected, but it can be slow at first, and closing this window will
-              stop the process of joining.
-            </Typography>
-          )}
-          {!isOwner && (
-            <a onClick={() => openUrl(Site.MAIN_PAGE)}>
-              <Typography className={classes.link} variant='body2'>
-                Learn more about Tor and Quiet
+          {resetFailed ? (
+            <>
+              <Typography variant='body2' className={classes.text}>
+                {resetFailureMessage}
               </Typography>
-            </a>
+              <Button variant='contained' onClick={onRetryReset} data-testid='retry-admission-reset'>
+                Try again
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className={classes.progressBarWrapper}>
+                <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
+                  <div className={classes.progress}></div>
+
+                  <div
+                    className={classNames({
+                      [classes.animatedProgress]: connectionInfo.text === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY,
+                    })}
+                  ></div>
+                </Grid>
+                <Typography variant='body2'>{connectionInfo.text}</Typography>
+              </div>
+
+              {!isOwner && (
+                <Typography variant='body2' className={classes.text}>
+                  <strong>
+                    Please leave the app open. <br /> Joining the first time can take a few minutes or more.
+                  </strong>
+                  <br />
+                  <br />
+                  Quiet stores data on <i>your</i> community’s devices using the battle-tested privacy tool Tor to
+                  protect your information. Tor is fast once connected, but it can be slow at first, and closing this
+                  window will stop the process of joining.
+                </Typography>
+              )}
+              {!isOwner && (
+                <a onClick={() => openUrl(Site.MAIN_PAGE)}>
+                  <Typography className={classes.link} variant='body2'>
+                    Learn more about Tor and Quiet
+                  </Typography>
+                </a>
+              )}
+            </>
           )}
         </Grid>
       </StyledGrid>

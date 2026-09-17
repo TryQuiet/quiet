@@ -5,9 +5,30 @@ import { screen, waitFor } from '@testing-library/dom'
 import { renderComponent } from '../../testUtils/renderComponent'
 
 import CreateUsernameComponent from './CreateUsernameComponent'
+import CreateUsername from './CreateUsername'
 import { UsernameErrors } from '../../forms/fieldsErrors'
+import { prepareStore } from '../../testUtils/prepareStore'
+import { StoreKeys } from '../../store/store.keys'
+import { ModalName } from '../../sagas/modals/modals.types'
+import { ModalsInitialState } from '../../sagas/modals/modals.slice'
+import { communities } from '@quiet/state-manager'
 
 describe('Create username', () => {
+  it('cancels pending onboarding when the username modal is closed', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.createUsernameModal]: { open: true },
+      },
+    })
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<CreateUsername />, store)
+    await userEvent.click(screen.getByTestId('createUsernameModalClose'))
+
+    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.cancelCommunityOnboarding())
+  })
+
   it.each([
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
     ['spaces to hyphens', 'spaces-to-hyphens'],

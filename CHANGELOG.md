@@ -1,5 +1,15 @@
 # Changelog
 
+## [11.0.0]
+
+### Features
+
+* Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
+
+### Breaking
+
+* Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
+
 ## [10.0.0]
 
 ### Features
@@ -69,6 +79,7 @@
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 * Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
+* Fix tapable area in two places in the Appbar [#3372] (https://github.com/TryQuiet/quiet/issues/3372)
 * Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
 * Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)

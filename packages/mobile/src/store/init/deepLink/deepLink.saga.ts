@@ -1,5 +1,5 @@
 import { PayloadAction, Dispatch } from '@reduxjs/toolkit'
-import { select, delay, put } from 'typed-redux-saga'
+import { call, select, delay, put } from 'typed-redux-saga'
 import { communities, getInvitationCodes } from '@quiet/state-manager'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
@@ -7,13 +7,14 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { icons } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
+import { InvitationData, InvitationDataVersion, isDeviceInvitationData, JoinCommunityPayload } from '@quiet/types'
 import {
   AlreadyBelongToCommunityWarning,
   InvalidInvitationLinkError,
   JoiningAnotherCommunityWarning,
 } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
+import { confirmDeviceLink } from '../../../utils/deviceLinkConfirmation'
 
 const logger = createLogger('deepLink')
 
@@ -129,6 +130,22 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
       })
     )
 
+    return
+  }
+
+  if (isDeviceInvitationData(data)) {
+    const payload = yield* call(confirmDeviceLink, data)
+    if (!payload) {
+      yield* put(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
+      return
+    }
+
+    yield* put(communities.actions.linkDevice(payload))
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.ConnectionProcessScreen,
+      })
+    )
     return
   }
 

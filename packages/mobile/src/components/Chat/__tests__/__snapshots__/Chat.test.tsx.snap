@@ -35,6 +35,8 @@ exports[`Chat component renders component 1`] = `
       }
     >
       <View
+        accessibilityLabel="Go back"
+        accessibilityRole="button"
         accessibilityState={
           {
             "busy": undefined,
@@ -90,6 +92,7 @@ exports[`Chat component renders component 1`] = `
           }
         >
           <Image
+            accessible={false}
             resizeMethod="resize"
             resizeMode="cover"
             source={
@@ -351,6 +354,8 @@ exports[`Chat component renders component 1`] = `
       }
     >
       <View
+        accessibilityLabel="More options"
+        accessibilityRole="button"
         accessibilityState={
           {
             "busy": undefined,
@@ -406,6 +411,7 @@ exports[`Chat component renders component 1`] = `
           }
         >
           <Image
+            accessible={false}
             resizeMethod="resize"
             resizeMode="contain"
             source={

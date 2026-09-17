@@ -101,34 +101,41 @@ describe('TorModule authentication initialization', () => {
     module = await createModuleBuilder().compile()
     const tor = module.get(Tor)
     const torControl = module.get(TorControl)
-    const connect = jest.spyOn(torControl as any, '_connect').mockResolvedValue(undefined)
-    const sendCommand = jest.spyOn(torControl, '_sendCommand').mockResolvedValue({
-      code: 250,
-      messages: ['250-ServiceID=created-service', '250-PrivateKey=ED25519-V3:test-key', '250 OK'],
-    })
+    const sendCommandAndWaitForEvent = jest
+      .spyOn(torControl, 'sendCommandAndWaitForEvent')
+      .mockImplementation(async () => {
+        await torControl.waitForCredentials()
+        return {
+          code: 250,
+          messages: ['250-ServiceID=created-service', '250-PrivateKey=ED25519-V3:test-key', '250 OK'],
+        }
+      })
     jest.useFakeTimers()
     const creation = tor.createNewHiddenService({ targetPort: 3000 })
     await jest.advanceTimersByTimeAsync(5000)
-    expect(connect).not.toHaveBeenCalled()
-    expect(sendCommand).not.toHaveBeenCalled()
+    expect(sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
 
     tor.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
     await expect(creation).resolves.toEqual({
       onionAddress: 'created-service.onion',
       privateKey: 'ED25519-V3:test-key',
     })
-    expect(sendCommand).toHaveBeenCalledTimes(1)
+    expect(sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
   })
 
   it('publishes an existing hidden service queued before native credentials without a stale-generation failure', async () => {
     module = await createModuleBuilder().compile()
     const tor = module.get(Tor)
     const torControl = module.get(TorControl)
-    const connect = jest.spyOn(torControl as any, '_connect').mockResolvedValue(undefined)
-    const sendCommand = jest.spyOn(torControl, '_sendCommand').mockResolvedValue({
-      code: 250,
-      messages: ['250-ServiceID=existing-service', '250 OK'],
-    })
+    const sendCommandAndWaitForEvent = jest
+      .spyOn(torControl, 'sendCommandAndWaitForEvent')
+      .mockImplementation(async () => {
+        await torControl.waitForCredentials()
+        return {
+          code: 250,
+          messages: ['250-ServiceID=existing-service', '250 OK'],
+        }
+      })
     jest.useFakeTimers()
     const publication = tor.spawnHiddenService({
       targetPort: 3000,
@@ -136,24 +143,25 @@ describe('TorModule authentication initialization', () => {
       onionAddress: 'existing-service',
     })
     await jest.advanceTimersByTimeAsync(5000)
-    expect(connect).not.toHaveBeenCalled()
-    expect(sendCommand).not.toHaveBeenCalled()
+    expect(sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
     expect(() => tor.rewireNativeTor({ controlPort, httpTunnelPort, authCookie: '' })).toThrow('Missing native Tor')
     expect(torControl.hasCredentials).toBe(false)
 
     tor.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
     await expect(publication).resolves.toBe('existing-service.onion')
-    expect(sendCommand).toHaveBeenCalledTimes(1)
+    expect(sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
   })
 
   it('still rejects stale community creation if its generation was reset while waiting for the first cookie', async () => {
     module = await createModuleBuilder().compile()
     const tor = module.get(Tor)
     const torControl = module.get(TorControl)
-    jest.spyOn(torControl as any, '_connect').mockResolvedValue(undefined)
-    jest.spyOn(torControl, '_sendCommand').mockResolvedValue({
-      code: 250,
-      messages: ['250-ServiceID=stale-service', '250-PrivateKey=ED25519-V3:stale-key', '250 OK'],
+    jest.spyOn(torControl, 'sendCommandAndWaitForEvent').mockImplementation(async () => {
+      await torControl.waitForCredentials()
+      return {
+        code: 250,
+        messages: ['250-ServiceID=stale-service', '250-PrivateKey=ED25519-V3:stale-key', '250 OK'],
+      }
     })
     jest.useFakeTimers()
     const creation = tor.createNewHiddenService({ targetPort: 3000 })

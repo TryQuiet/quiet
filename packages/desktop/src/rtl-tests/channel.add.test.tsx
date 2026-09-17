@@ -8,6 +8,7 @@ import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
+import { createLogger } from './logger'
 
 import CreateChannel from '../renderer/components/Channel/CreateChannel/CreateChannel'
 import Channel from '../renderer/components/Channel/Channel'
@@ -28,7 +29,6 @@ import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { FieldErrors } from '../renderer/forms/fieldsErrors'
 
-import { createLogger } from './logger'
 import { FactoryGirl } from 'factory-girl'
 import { act, cleanup } from '@testing-library/react'
 import { generateTestChannelId } from '@quiet/common'
@@ -148,7 +148,7 @@ describe('Add new channel', () => {
   })
 
   it('Adds new public channel and opens it. Sends initial message', async () => {
-    const { store, runSaga } = await prepareStore(
+    const { store } = await prepareStore(
       {
         [StoreKeys.Modals]: {
           ...new ModalsInitialState(),
@@ -231,24 +231,8 @@ describe('Add new channel', () => {
     expect(privateToggle).toBeVisible()
     expect(privateToggle.className.includes('checked')).toBeFalsy()
 
-    // FIXME: await user.click(screen.getByTestId('channelNameSubmit') causes this and few other tests to fail (hangs on taking createChannel action)
-    await act(
-      async () =>
-        await waitFor(() => {
-          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
-            logger.error(e)
-          })
-        })
-    )
-
-    function* testCreateChannelSaga(): Generator {
-      const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      const addChannelAction = yield* take(publicChannels.actions.addChannel)
-    }
-
-    await act(async () => {
-      await runSaga(testCreateChannelSaga).toPromise()
-    })
+    await user.click(screen.getByTestId('channelNameSubmit'))
+    await waitFor(() => expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output))
 
     const createChannelModal = screen.queryByTestId('createChannelModal')
     expect(createChannelModal).toBeNull()
@@ -479,24 +463,8 @@ describe('Add new channel', () => {
     await userEvent.click(privateToggle)
     expect(privateToggle.className.includes('checked')).toBeTruthy()
 
-    // FIXME: await user.click(screen.getByTestId('channelNameSubmit') causes this and few other tests to fail (hangs on taking createChannel action)
-    await act(
-      async () =>
-        await waitFor(() => {
-          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
-            logger.error(e)
-          })
-        })
-    )
-
-    function* testCreateChannelSaga(): Generator {
-      const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      const addChannelAction = yield* take(publicChannels.actions.addChannel)
-    }
-
-    await act(async () => {
-      await runSaga(testCreateChannelSaga).toPromise()
-    })
+    await user.click(screen.getByTestId('channelNameSubmit'))
+    await waitFor(() => expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output))
 
     const createChannelModal = screen.queryByTestId('createChannelModal')
     expect(createChannelModal).toBeNull()
@@ -646,7 +614,7 @@ describe('Add new channel', () => {
   it('Bug reproduction - create channel and open modal again without requierd field error', async () => {
     const channelName = 'las-venturas'
 
-    const { store, runSaga } = await prepareStore(
+    const { store } = await prepareStore(
       {},
       socket // Fork state manager's sagas
     )
@@ -739,23 +707,8 @@ describe('Add new channel', () => {
     await user.type(input, channelName)
     expect(input).toHaveValue(channelName)
 
-    await act(
-      async () =>
-        await waitFor(() => {
-          user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
-            logger.error(e)
-          })
-        })
-    )
-
-    await act(async () => {
-      await runSaga(testCreateChannelSaga).toPromise()
-    })
-
-    function* testCreateChannelSaga(): Generator {
-      const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      const addChannelAction = yield* take(publicChannels.actions.addChannel)
-    }
+    await user.click(screen.getByTestId('channelNameSubmit'))
+    await waitFor(() => expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName))
 
     const newTitleElement = await screen.findByTestId('channelTitle')
     const isNewChannel = newTitleElement.textContent === channelName
@@ -771,7 +724,7 @@ describe('Add new channel', () => {
   })
 
   it('Adds few new channels and check order', async () => {
-    const { store, runSaga } = await prepareStore(
+    const { store } = await prepareStore(
       {
         [StoreKeys.Modals]: {
           ...new ModalsInitialState(),
@@ -867,23 +820,8 @@ describe('Add new channel', () => {
       const input = screen.getByPlaceholderText('Enter a channel name')
 
       await user.type(input, channel)
-      await act(
-        async () =>
-          await waitFor(() => {
-            user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
-              logger.error(e)
-            })
-          })
-      )
-      await act(async () => {
-        await runSaga(testCreateChannelSaga).toPromise()
-      })
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 100))
-    }
-
-    function* testCreateChannelSaga(): Generator {
-      yield* take(publicChannels.actions.createChannel)
-      yield* take(publicChannels.actions.addChannel)
+      await user.click(screen.getByTestId('channelNameSubmit'))
+      await waitFor(() => expect(screen.getByTestId('channelTitle')).toHaveTextContent(channel))
     }
 
     const createChannelModal = screen.queryByTestId('createChannelModal')

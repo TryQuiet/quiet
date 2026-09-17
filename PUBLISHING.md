@@ -24,6 +24,11 @@
 1. Once a release branch is created, it is frozen and no new features are to be merged into it. Only bug fixes are allowed.
 1. Release branches are never deleted.
 1. Any hotfixes for the release branch are merged into the release branch and then cherry-picked into the `develop` branch if necessary.
+1. A release branch is merged back into `develop` with a **merge commit** - never "Squash and merge" or
+   "Rebase and merge". A squash gives `develop` a single-parent commit, so git no longer records the release as
+   an ancestor of `develop`. The *next* release-to-develop merge then computes a stale merge base, which produces
+   spurious conflicts and can silently revert the newer release's fixes. This happened with
+   [#3459](https://github.com/TryQuiet/quiet/pull/3459), the 9.0.0 merge-back.
 
 ```plaintext
 # Example of branching strategy
@@ -81,7 +86,8 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 
 ## Post-release checklist (production)
 
-- [ ] Release branch with any fixes is moved back to develop and any conflicts are resolved
+- [ ] Release branch with any fixes is moved back to develop and any conflicts are resolved, merged with a
+      **merge commit** rather than "Squash and merge" (see [Branching Rules](#branching-rules))
 - [ ] Release build completed successfully and the assets are uploaded to the release page
 - [ ] Download links are updated on website
 - [ ] App is promoted and sent for review on a production track in Google Play
