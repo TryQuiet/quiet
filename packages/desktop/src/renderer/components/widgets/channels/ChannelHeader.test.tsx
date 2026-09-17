@@ -1,6 +1,9 @@
 import { ChannelType } from '@quiet/types'
 import React from 'react'
 
+import { screen } from '@testing-library/dom'
+import '@testing-library/jest-dom'
+
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { ChannelHeaderComponent } from './ChannelHeader'
 
@@ -21,7 +24,7 @@ describe('ChannelHeader', () => {
         <body>
           <div>
             <div
-              class="ChannelHeaderComponentwrapper css-ficha"
+              class="ChannelHeaderComponentwrapper css-18rlwdg"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -30,7 +33,7 @@ describe('ChannelHeader', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-lx31tv-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-1e8wl2n-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-item ChannelHeaderComponentheaderTitle ChannelHeaderComponentheaderTitleChannel css-1f064cs-MuiGrid-root"
@@ -110,7 +113,7 @@ describe('ChannelHeader', () => {
         <body>
           <div>
             <div
-              class="ChannelHeaderComponentwrapper css-ficha"
+              class="ChannelHeaderComponentwrapper css-18rlwdg"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -119,7 +122,7 @@ describe('ChannelHeader', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-lx31tv-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-1e8wl2n-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-item ChannelHeaderComponentheaderTitle ChannelHeaderComponentheaderTitleChannel css-1f064cs-MuiGrid-root"
@@ -218,7 +221,7 @@ describe('ChannelHeader', () => {
         <body>
           <div>
             <div
-              class="ChannelHeaderComponentwrapper css-ficha"
+              class="ChannelHeaderComponentwrapper css-18rlwdg"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -227,7 +230,7 @@ describe('ChannelHeader', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-lx31tv-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-1e8wl2n-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-item ChannelHeaderComponentheaderTitle ChannelHeaderComponentheaderTitleChannel css-1f064cs-MuiGrid-root"
@@ -304,7 +307,7 @@ describe('ChannelHeader', () => {
         <body>
           <div>
             <div
-              class="ChannelHeaderComponentwrapper css-ficha"
+              class="ChannelHeaderComponentwrapper css-18rlwdg"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -313,7 +316,7 @@ describe('ChannelHeader', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-lx31tv-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-1e8wl2n-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-item ChannelHeaderComponentheaderTitle ChannelHeaderComponentheaderTitleChannel css-1f064cs-MuiGrid-root"
@@ -392,5 +395,35 @@ describe('ChannelHeader', () => {
         </body>
       `)
     })
+  })
+
+  it('draws the member count under the channel name, as the design does', () => {
+    renderComponent(
+      <ChannelHeaderComponent
+        channelName={'general'}
+        channelType={ChannelType.CHANNEL}
+        members={[]}
+        me={undefined}
+        isPublic={true}
+        enableContextMenu={false}
+        memberCount={32}
+      />
+    )
+    expect(screen.getByTestId('channelMemberCount')).toHaveTextContent('32 members')
+  })
+
+  it('says member, singular, when there is one', () => {
+    renderComponent(
+      <ChannelHeaderComponent
+        channelName={'general'}
+        channelType={ChannelType.CHANNEL}
+        members={[]}
+        me={undefined}
+        isPublic={true}
+        enableContextMenu={false}
+        memberCount={1}
+      />
+    )
+    expect(screen.getByTestId('channelMemberCount')).toHaveTextContent('1 member')
   })
 })

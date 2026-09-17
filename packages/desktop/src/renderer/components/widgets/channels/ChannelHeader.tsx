@@ -33,9 +33,11 @@ const classes = {
   bold: `${PREFIX}bold`,
   menu: `${PREFIX}menu`,
   lock: `${PREFIX}lock`,
+  subjectLink: `${PREFIX}subjectLink`,
   headerTitle: `${PREFIX}headerTitle`,
   headerTitleChannel: `${PREFIX}headerTitleChannel`,
   headerTitleDm: `${PREFIX}headerTitleDm`,
+  memberCount: `${PREFIX}memberCount`,
 }
 
 const Root = styled('div')(({ theme }) => ({
@@ -53,6 +55,11 @@ const Root = styled('div')(({ theme }) => ({
 
   [`& .${classes.subtitle}`]: {
     fontSize: '0.8rem',
+  },
+
+  [`& .${classes.memberCount}`]: {
+    color: theme.palette.colors.gray50,
+    lineHeight: '20px',
   },
 
   [`& .${classes.subtitleSmall}`]: {
@@ -121,16 +128,27 @@ const Root = styled('div')(({ theme }) => ({
     cursor: 'pointer',
   },
 
+  // The header of a one-to-one DM names one person, so it leads to them. A group DM names several
+  // and has no single subject, so it stays inert.
+  [`& .${classes.subjectLink}`]: {
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+
   [`& .${classes.lock}`]: {
     marginRight: -2,
     marginLeft: -2,
   },
 
+  // The glyph and the name are one cluster, which is what the 2px/4px gaps below are for.
+  // space-between pushed them to opposite ends of the row, so a channel called "a" read as
+  // "#        a" — the shorter the name, the wider the gap.
   [`& .${classes.headerTitle}`]: {
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     alignContent: 'center',
-    justifyItems: 'center',
     display: 'flex',
     direction: 'row',
   },
@@ -153,6 +171,10 @@ export interface ChannelHeaderProps {
   openContextMenu?: () => void
   enableContextMenu: boolean
   maxDmNames?: number
+  /** Drawn under the channel name; omitted when the count is not known. */
+  memberCount?: number
+  /** Opens a person's profile. Only a one-to-one DM names a single person to open. */
+  openUserProfile?: (userId: string) => void
 }
 
 const logger = createLogger('channels:ChannelHeader')
@@ -165,7 +187,9 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   isPublic,
   openContextMenu,
   enableContextMenu,
+  openUserProfile,
   maxDmNames = 2,
+  memberCount,
 }) => {
   const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
@@ -197,6 +221,11 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
     return window.removeEventListener('resize', handleResize)
   })
 
+  // A one-to-one DM has exactly one other participant; a group DM has several and so names nobody
+  // in particular. `members` is the participant list, me included.
+  const others = members.filter(member => member.userId !== me?.userId)
+  const dmSubjectId = channelType === ChannelType.DM && others.length === 1 ? others[0].userId : undefined
+
   let channelNameTruncated: string
   if (channelType == null || channelType === ChannelType.CHANNEL) {
     channelNameTruncated = channelName.substring(0, 20)
@@ -214,7 +243,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
     <Root className={classes.wrapper}>
       <Grid container className={classes.root} justifyContent='space-between' alignItems='center' direction='row'>
         <Grid item>
-          <Grid item container alignItems='center'>
+          <Grid item container alignItems='flex-start' direction='column'>
             <Grid
               container
               item
@@ -236,7 +265,13 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                   data-testid={`channelTitle-icon-${isPublic ? 'public' : 'private'}`}
                 />
               ) : (
-                <DMProfilePhoto members={members} me={me} />
+                <span
+                  className={classNames({ [classes.subjectLink]: dmSubjectId != null })}
+                  onClick={() => dmSubjectId != null && openUserProfile?.(dmSubjectId)}
+                  data-testid={'channelTitle-dm-photo'}
+                >
+                  <DMProfilePhoto members={members} me={me} />
+                </span>
               )}
               <Typography
                 noWrap
@@ -245,12 +280,24 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                 className={classNames({
                   [classes.title]: true,
                   [classes.bold]: true,
+                  [classes.subjectLink]: dmSubjectId != null,
                 })}
+                onClick={() => dmSubjectId != null && openUserProfile?.(dmSubjectId)}
                 data-testid={'channelTitle'}
               >
                 {channelNameTruncated}
               </Typography>
             </Grid>
+            {/*
+              The design puts the channel's size under its name (Figma PVQ1Kjf6Cq8ng1czuVtvR8,
+              838:9769): "32 members  5m  Auto-delete". Only the count is drawn — the other two
+              segments are disappearing messages and auto-delete, neither of which is built.
+            */}
+            {memberCount != null && (
+              <Typography variant='body2' className={classes.memberCount} data-testid={'channelMemberCount'}>
+                {`${memberCount} ${memberCount === 1 ? 'member' : 'members'}`}
+              </Typography>
+            )}
           </Grid>
         </Grid>
         <Grid

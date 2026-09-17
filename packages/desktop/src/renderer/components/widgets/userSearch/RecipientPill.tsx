@@ -22,8 +22,13 @@ export const PILL_RADIUS = 8
 export const PILL_AVATAR_SIZE = 16
 /** Gap between pills, across and down, per "Search states / State=Selected (2)" (919:48416). */
 export const PILL_ROW_GAP = 10
+/** Press target for the pill's ✕, per the design's 24 close-small box. */
+const PILL_CLOSE_TARGET = 24
 
 const CLOSE_COLOR = '#A1A1A1'
+/** The design's #F7F7F7 / #F0F0F0 are light-theme values; these are their dark-theme counterparts. */
+const PILL_BACKGROUND_DARK = 'rgba(255,255,255,0.08)'
+const PILL_HOVER_DARK = 'rgba(255,255,255,0.14)'
 
 const PREFIX = 'RecipientPill'
 
@@ -42,12 +47,15 @@ const StyledPill = styled('div')(({ theme }) => ({
     height: PILL_HEIGHT,
     padding: '1px 8px',
     borderRadius: PILL_RADIUS,
-    backgroundColor: theme.palette.colors.gray03,
+    // gray03 and border01 are the same near-white in both palettes, so on the dark theme this was
+    // a white chip carrying inherited white text — the pill read as empty. Dark mode gets a light
+    // wash over the dark panel instead, which keeps the inherited label legible.
+    backgroundColor: theme.palette.mode === 'dark' ? PILL_BACKGROUND_DARK : theme.palette.colors.gray03,
     maxWidth: '100%',
   },
 
   [`&.${classes.root}:hover`]: {
-    backgroundColor: theme.palette.colors.border01,
+    backgroundColor: theme.palette.mode === 'dark' ? PILL_HOVER_DARK : theme.palette.colors.border01,
   },
 
   [`& .${classes.avatar}`]: {
@@ -62,18 +70,28 @@ const StyledPill = styled('div')(({ theme }) => ({
     // A nickname can be far longer than the design's placeholder; cap it so one recipient cannot
     // push the ✕ out of the field.
     maxWidth: 200,
-    // Left to inherit: the design's #333333 is the light-theme body colour, and inheriting keeps
-    // the pill legible in the dark theme too.
+    // Left to inherit, which is correct now the pill's own ground follows the theme: dark text on
+    // the light wash, light text on the dark one.
   },
 
+  // The design's close-small is a 24 box around a ~10 glyph (838:9308); drawing the glyph at its own
+  // size made the press target the glyph. Box it back out to 24 without changing what is drawn.
   [`& .${classes.close}`]: {
     flexShrink: 0,
     display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxSizing: 'content-box',
+    width: PILL_CLOSE_TARGET,
+    height: PILL_CLOSE_TARGET,
+    margin: -((PILL_CLOSE_TARGET - PILL_AVATAR_SIZE) / 2),
     cursor: 'pointer',
     fontSize: PILL_AVATAR_SIZE,
     color: CLOSE_COLOR,
+    // The design darkens the ✕ on hover, which is the wrong direction against a dark panel; there
+    // it brightens instead. Either way the resting grey is the design's #A1A1A1.
     '&:hover': {
-      color: theme.palette.colors.gray70,
+      color: theme.palette.mode === 'dark' ? theme.palette.colors.white : theme.palette.colors.gray70,
     },
   },
 }))

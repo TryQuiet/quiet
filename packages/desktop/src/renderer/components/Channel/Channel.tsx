@@ -28,6 +28,7 @@ import { FileActionsProps } from './File/FileComponent/FileComponent'
 
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
+import { UserProfileContextMenuArgs } from '../ContextMenu/menus/UserProfileContextMenu.container'
 import { createLogger } from '../../logger'
 import _ from 'lodash'
 import NewDirectMessageComponent, { NewDirectMessageComponentProps } from './NewDirectMessage.component'
@@ -45,6 +46,7 @@ const ChannelContent = () => {
   const prevChannelId = useSelector(publicChannels.selectors.prevChannelId)
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const isNewMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
+  const newMessageRecipientIds = useSelector(publicChannels.selectors.newMessageRecipientIds)
   const currentChannelSubscribed = useSelector(publicChannels.selectors.currentChannelSubscribed)
 
   const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
@@ -73,6 +75,9 @@ const ChannelContent = () => {
   const uploadedFileModal = useModal<{ src: string }>(ModalName.uploadedFileModal)
   const { handleOpen: duplicatedUsernameModalHandleOpen } = useModal(ModalName.duplicatedUsernameModal)
   const { handleOpen: unregisteredUsernameModalHandleOpen } = useModal(ModalName.unregisteredUsernameModal)
+  // The one profile surface: the same context menu the sidebar avatar opens, given a different
+  // person. It already branches on isMyProfile — Edit profile for you, Message for anyone else.
+  const userProfileContextMenu = useContextMenu<UserProfileContextMenuArgs>(MenuName.UserProfile)
 
   const [attachingFiles, setAttachingFiles] = React.useState<FilePreviewData>({})
   const [channelName, setChannelName] = useState<string>('')
@@ -356,6 +361,9 @@ const ChannelContent = () => {
     pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
     unregisteredUsernameModalHandleOpen,
     duplicatedUsernameModalHandleOpen,
+    // The DM rows in the sidebar still go straight to the conversation; only a person shown inside
+    // a message or a read-only list leads to their profile.
+    openUserProfile: (userId: string) => userProfileContextMenu.handleOpen({ userProfile: userProfiles[userId] }),
   }
 
   const newDirectMessageComponentProps: NewDirectMessageComponentProps = {
@@ -385,6 +393,8 @@ const ChannelContent = () => {
     handleInputChange: handleNewMessageInputChange,
     handleClose: closeNewMessageWindow,
     setOrCreateDmChannel,
+    openUserProfile: (userId: string) => userProfileContextMenu.handleOpen({ userProfile: userProfiles[userId] }),
+    initialMemberIds: newMessageRecipientIds,
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

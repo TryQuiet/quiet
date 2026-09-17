@@ -70,6 +70,9 @@ export interface NewDirectMessageComponentProps {
   }>
   pendingGeneralChannelRecreation: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  openUserProfile?: (userId: string) => void
+  /** Recipients already chosen when the composer opens — a DM started from someone's profile. */
+  initialMemberIds?: string[]
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
 
@@ -118,6 +121,8 @@ export const NewDirectMessageComponent: React.FC<
   cancelDownload,
   pendingGeneralChannelRecreation,
   unregisteredUsernameModalHandleOpen,
+  openUserProfile,
+  initialMemberIds,
   duplicatedUsernameModalHandleOpen,
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
@@ -282,6 +287,7 @@ export const NewDirectMessageComponent: React.FC<
             me={user}
             placeholderText={SEARCH_PLACEHOLDER_TEXT}
             handleInputChange={handleUserSearchInputChange}
+            initialMemberIds={initialMemberIds}
           />
         </Grid>
       </PageHeader>
@@ -303,6 +309,7 @@ export const NewDirectMessageComponent: React.FC<
             onMathMessageRendered={updateMathMessagesRendered}
             pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
             unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+            openUserProfile={openUserProfile}
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
             allowEmpty={true}
           />
@@ -323,7 +330,9 @@ export const NewDirectMessageComponent: React.FC<
             openFilesDialog={openFilesDialog}
             infoClass={infoClass}
             setInfoClass={setInfoClass}
-            inputState={INPUT_STATE.AVAILABLE}
+            // A DM is created together with its first message, so with nobody chosen there is
+            // nothing to create and a sent message had simply vanished.
+            inputState={selectedMembers.length > 0 ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_AVAILABLE}
             inputStateErrorMessage={inputErrorMessage}
             handleClipboardFiles={handleClipboardFiles}
             handleOpenFiles={handleFileDrop}

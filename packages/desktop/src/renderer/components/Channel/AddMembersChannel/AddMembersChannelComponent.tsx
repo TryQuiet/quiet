@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { styled } from '@mui/material/styles'
-import { Checkbox, Drawer, Typography } from '@mui/material'
+import { Checkbox, Typography } from '@mui/material'
+import Drawer from '../../ui/Drawer/Drawer'
 
 import { useModal } from '../../../containers/hooks'
 import { User, UserProfile } from '@quiet/types'
 import PanelHeader, { PANEL_INSET, PANEL_WIDTH } from '../../ui/Panel/PanelHeader'
 import PillField from '../../ui/Panel/PillField'
 import RecipientPill from '../../widgets/userSearch/RecipientPill'
-import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
+import ProfilePhotoWithBadge from '../../ProfilePhoto/ProfilePhotoWithBadge'
+import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 import { createLogger } from '../../../logger'
 
 const logger = createLogger('AddMembersChannelComponent')
@@ -24,7 +26,8 @@ const logger = createLogger('AddMembersChannelComponent')
  * The design also lists roles; there are none yet, so only the members section is built. Its
  * heading is kept so the section reads the same when roles arrive.
  */
-const TITLE = 'Add members or roles'
+// "or roles" is dropped until roles exist; the design's title is "Add members or roles".
+const TITLE = 'Add members'
 const SEARCH_PLACEHOLDER = 'E.g. @jane123'
 const MEMBERS_HEADING = 'MEMBERS'
 const NO_MEMBERS = 'Everyone in this community is already in this channel.'
@@ -92,6 +95,7 @@ const StyledPanelContent = styled('div')(({ theme }) => ({
 export interface AddMembersChannelProps {
   channelName: string
   channelId: string
+  connectedPeers?: string[]
   allUsers: Record<string, User>
   possibleMembers: Record<string, UserProfile>
   addMembersToChannel: (memberIds: string[]) => void
@@ -103,6 +107,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
   channelName,
   channelId,
   possibleMembers,
+  connectedPeers = [],
   addMembersToChannel,
 }) => {
   const [selected, setSelected] = useState<string[]>([])
@@ -187,14 +192,20 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
           <>
             <Typography className={classes.heading}>{MEMBERS_HEADING}</Typography>
             {listed.map(member => (
-              <div
+              // The row is the checkbox's <label>: pressing anywhere on it picks that member, and
+              // a screen reader announces the member's name for the checkbox rather than leaving a
+              // list of unnamed ones. The toggle belongs to the checkbox's own onChange — a click
+              // handler on the row as well would fire twice for one press and cancel itself out.
+              <label
                 key={member.userId}
                 className={classes.row}
-                onClick={() => toggle(member.userId)}
+                htmlFor={`${channelName}-add-members-option-${member.userId}`}
                 data-testid={`${channelName}-add-members-row-${member.nickname}`}
               >
                 <Checkbox
+                  id={`${channelName}-add-members-option-${member.userId}`}
                   checked={selected.includes(member.userId)}
+                  onChange={() => toggle(member.userId)}
                   disableRipple
                   sx={{ padding: 0 }}
                   inputProps={
@@ -203,9 +214,16 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
                     } as React.InputHTMLAttributes<HTMLInputElement>
                   }
                 />
-                <ProfilePhoto userProfile={member} userId={member.userId} size={37} />
+                {/* The design puts a presence dot on each member's thumbnail (838:9477). */}
+                <ProfilePhotoWithBadge
+                  size={ProfilePhotoSize.MEDIUM}
+                  userData={{
+                    user: member,
+                    connected: member.userData != null && connectedPeers.includes(member.userData.peerId),
+                  }}
+                />
                 <Typography className={classes.name}>{member.nickname}</Typography>
-              </div>
+              </label>
             ))}
           </>
         )}

@@ -111,7 +111,7 @@ describe('ChannelMessages', () => {
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1ov2vsb-MuiListItem-root"
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -126,7 +126,12 @@ describe('ChannelMessages', () => {
                         <div
                           class="BasicMessageComponentalignAvatar"
                         >
-                          Jdenticon
+                          <span
+                            class=""
+                            data-testid="messageAuthorPhoto-string"
+                          >
+                            Jdenticon
+                          </span>
                         </div>
                       </div>
                       <div
@@ -143,6 +148,7 @@ describe('ChannelMessages', () => {
                             >
                               <p
                                 class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
+                                data-testid="messageAuthorName-string"
                               >
                                 string
                               </p>

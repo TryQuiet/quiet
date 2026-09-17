@@ -87,6 +87,7 @@ interface Props {
   onMathMessageRendered?: () => void
   pendingGeneralChannelRecreation?: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  openUserProfile?: (userId: string) => void
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
   allowEmpty: boolean
 }
@@ -109,6 +110,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   onMathMessageRendered,
   pendingGeneralChannelRecreation = false,
   unregisteredUsernameModalHandleOpen,
+  openUserProfile,
   duplicatedUsernameModalHandleOpen,
 }) => {
   const scrollTimerRef = useRef<number | null>(null)
@@ -294,6 +296,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
                   cancelDownload={cancelDownload}
                   onMathMessageRendered={onMathMessageRendered}
                   unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+                  openUserProfile={openUserProfile}
                   duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
                 />
               )

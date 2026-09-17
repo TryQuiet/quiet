@@ -9,7 +9,8 @@ export enum ProfilePhotoSize {
 
 export interface ProfilePhotoWithBadgeProps {
   userData: DmChannelUserData | undefined
-  channel: PublicChannelStorage | undefined
+  /** Only a DM passes one; it is what turns the presence dot into a group member count. */
+  channel?: PublicChannelStorage | undefined
   size?: ProfilePhotoSize
   borderRadius?: number
 }

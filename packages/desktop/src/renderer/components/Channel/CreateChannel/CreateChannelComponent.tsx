@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
-import { Drawer, Grid, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
+import Drawer from '../../ui/Drawer/Drawer'
 import PanelHeader, { PANEL_WIDTH } from '../../ui/Panel/PanelHeader'
 import PanelBlock from '../../ui/Panel/PanelBlock'
 import PanelRow from '../../ui/Panel/PanelRow'
@@ -63,6 +64,9 @@ const StyledPanelContent = styled('div')(({ theme }) => ({
     padding: 0,
   },
 }))
+
+/** The toggle's DOM id, so its row can be its <label>. */
+const PRIVATE_TOGGLE_ID = 'createChannel-private-toggle'
 
 const createChannelFields = {
   channelName: channelNameField(),
@@ -223,11 +227,15 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                     render={({ field }) => (
                       <PanelRow
                         testIdPrefix={'createChannel-private'}
+                        // The row is the toggle's label, so pressing the words works as well as
+                        // pressing the switch, and a screen reader names the switch by the row.
+                        htmlFor={PRIVATE_TOGGLE_ID}
                         icon={<LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />}
                         title={'Private channel'}
                         subtitle={'Only assigned members and admins have access'}
                         control={
                           <IOSSwitch
+                            id={PRIVATE_TOGGLE_ID}
                             checked={field.value}
                             data-testid={'createChannel-private-form-control-toggle'}
                             onChange={event => {

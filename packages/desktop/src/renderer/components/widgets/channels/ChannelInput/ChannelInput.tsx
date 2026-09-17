@@ -21,7 +21,12 @@ const PREFIX = 'ChannelInput'
 // Compose field rules, from the design library component "Platform=Desktop, Placeholder=False"
 // (Figma Quiet Design Library 5022:19593): a 16px-radius box outlined in #E5E5E5. Neither value
 // exists in the desktop theme palette yet (border01 is #F0F0F0).
+//
+// #E5E5E5 is a hairline a shade off white — against the dark theme's #222222 the same value is a
+// bright outline, far louder than the design intends. Dark mode takes the equivalent step off its
+// own background instead.
 const COMPOSE_BORDER = '#E5E5E5'
+const COMPOSE_BORDER_DARK = '#3A3A3A'
 const COMPOSE_RADIUS = 16
 const MAX_EMOJI_SUGGESTIONS = 100
 const SKIN_TONE_KEY = 'emojiPickerSkinTone'
@@ -101,7 +106,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     paddingRight: '60px',
   },
   [`& .${classes.textfield}`]: {
-    border: `1px solid ${COMPOSE_BORDER}`,
+    border: `1px solid ${theme.palette.mode === 'dark' ? COMPOSE_BORDER_DARK : COMPOSE_BORDER}`,
     maxHeight: maxHeight,
     overflowY: 'auto',
     overflowX: 'visible',
@@ -158,10 +163,17 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     width: '23px',
     height: '23px',
   },
+  /**
+   * The paperclip and the emoji swap a grey glyph for a black one on hover, which in the dark
+   * theme means hovering makes them darker — nearly invisible against #222222. Inverting in dark
+   * mode fixes the direction without a second set of assets: mid grey inverts to mid grey, so the
+   * resting state is unchanged, and the black hover becomes white.
+   */
   [`& .${classes.emoji}`]: {
     cursor: 'pointer',
     position: 'relative',
     float: 'right',
+    ...(theme.palette.mode === 'dark' ? { filter: 'invert(1)' } : {}),
   },
   [`& .${classes.highlight}`]: {
     color: theme.palette.colors.lushSky,

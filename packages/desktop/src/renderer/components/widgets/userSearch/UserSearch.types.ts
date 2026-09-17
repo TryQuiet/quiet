@@ -5,6 +5,8 @@ export interface UserSearchProps {
   userProfiles: Record<string, UserProfile>
   placeholderText: string
   handleInputChange: (selectedUsers: UserProfile[]) => void
+  /** Recipients already chosen when the composer opens — a DM started from someone's profile. */
+  initialMemberIds?: string[]
 }
 
 export interface UserSearchFuzzyProps {

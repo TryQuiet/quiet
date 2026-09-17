@@ -8,9 +8,9 @@ import { Walkthrough } from './PrivateChannelFlow.stories'
 
 /**
  * Covers the Storybook walkthrough as a flow rather than as a static render: from inside a private
- * channel, its "..." menu reaches Add members, and members picked there land in the channel. Keeps
- * the walkthrough honest — a story that renders but whose buttons do nothing would otherwise pass
- * unnoticed.
+ * channel, its "..." menu reaches the members panel, the panel reaches Add members, and members
+ * picked there land in the channel. Keeps the walkthrough honest — a story that renders but whose
+ * buttons do nothing would otherwise pass unnoticed.
  */
 describe('Private channel walkthrough', () => {
   it('adds members to a private channel through its "..." menu', async () => {
@@ -19,7 +19,13 @@ describe('Private channel walkthrough', () => {
     expect(screen.getByText(/Nobody has been added to this private channel yet/)).toBeVisible()
 
     await userEvent.click(screen.getByTestId('walkthrough-channel-menu'))
-    await userEvent.click(await screen.findByTestId('contextMenuItemAdd_members'))
+    await userEvent.click(await screen.findByTestId('contextMenuItemMembers_in_this_channel'))
+
+    // The middle step: who belongs now, and — as an admin — the way to add more.
+    expect(await screen.findByTestId('channelMembershipPanelTitle')).toBeVisible()
+    expect(screen.getByTestId('channelMembershipEmpty')).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('channelMembershipAddMembers'))
 
     expect(await screen.findByTestId('addMembersPanelTitle')).toBeVisible()
 
@@ -34,16 +40,29 @@ describe('Private channel walkthrough', () => {
     expect(screen.getByTestId('walkthrough-outcome')).toHaveTextContent(/Confirmed with Done/)
   })
 
-  it('abandons the picks when the panel is closed rather than confirmed', async () => {
+  it('abandons the picks when the picker is closed rather than confirmed', async () => {
     renderComponent(<Walkthrough />)
 
     await userEvent.click(screen.getByTestId('walkthrough-channel-menu'))
-    await userEvent.click(await screen.findByTestId('contextMenuItemAdd_members'))
+    await userEvent.click(await screen.findByTestId('contextMenuItemMembers_in_this_channel'))
+    await userEvent.click(await screen.findByTestId('channelMembershipAddMembers'))
     await userEvent.click(await screen.findByTestId('fundraising-and-events-add-members-row-denise'))
 
     await userEvent.click(screen.getByTestId('fundraising-and-events-add-members-leave-button'))
 
     expect(await screen.findByTestId('walkthrough-outcome')).toHaveTextContent(/nobody was added/)
+    expect(screen.getByText('0 members')).toBeVisible()
+  })
+
+  it('changes nothing when the members panel is left by its back arrow', async () => {
+    renderComponent(<Walkthrough />)
+
+    await userEvent.click(screen.getByTestId('walkthrough-channel-menu'))
+    await userEvent.click(await screen.findByTestId('contextMenuItemMembers_in_this_channel'))
+
+    await userEvent.click(await screen.findByTestId('channelMembershipPanelClose'))
+
+    expect(await screen.findByTestId('walkthrough-outcome')).toHaveTextContent(/nothing changed/)
     expect(screen.getByText('0 members')).toBeVisible()
   })
 })

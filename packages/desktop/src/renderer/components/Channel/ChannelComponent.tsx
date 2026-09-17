@@ -71,6 +71,7 @@ export interface ChannelComponentProps {
   enableContextMenu?: boolean
   pendingGeneralChannelRecreation: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  openUserProfile?: (userId: string) => void
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
 
@@ -111,6 +112,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   enableContextMenu = true,
   pendingGeneralChannelRecreation,
   unregisteredUsernameModalHandleOpen,
+  openUserProfile,
   duplicatedUsernameModalHandleOpen,
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
@@ -240,6 +242,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           isPublic={isPublic}
           openContextMenu={openContextMenu}
           enableContextMenu={enableContextMenu}
+          memberCount={members.length}
+          openUserProfile={openUserProfile}
         />
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
@@ -260,6 +264,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             onMathMessageRendered={updateMathMessagesRendered}
             pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
             unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+            openUserProfile={openUserProfile}
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
             allowEmpty={false}
           />

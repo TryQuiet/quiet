@@ -10,10 +10,12 @@ import AddMembersChannelComponent, { AddMembersChannelProps } from './AddMembers
 import { createLogger } from '../../../logger'
 
 /**
- * The second step of creating a private channel: choosing who is in it.
+ * The last step of setting up a private channel: choosing who is in it.
  *
- * Reached from a private channel's "..." menu once the channel exists, and from the create-channel
- * panel's flow. Open the field to pick members — each one chosen becomes a pill.
+ * Reached from the channel's members panel, by the Add members button an admin sees there — not
+ * straight from the "..." menu, and not from create-channel, whose variant of this screen is
+ * unreachable. See "Private channels / Notes". Open the field to pick members — each one chosen
+ * becomes a pill.
  */
 const logger = createLogger('addMembersChannel:stories')
 
@@ -63,7 +65,7 @@ NoOneLeftToAdd.args = {
 }
 
 const component: ComponentMeta<typeof AddMembersChannelComponent> = {
-  title: 'Private channels/2. Add members',
+  title: 'Private channels/3. Add members',
   decorators: [withTheme],
   component: AddMembersChannelComponent,
 }

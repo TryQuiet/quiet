@@ -324,7 +324,7 @@ describe('Main', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <div
-                          class="css-1vfea6j"
+                          class="css-z3gzd8"
                         >
                           <div
                             class="MuiButtonBase-root MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1k5mnpp-MuiButtonBase-root-MuiButton-root"

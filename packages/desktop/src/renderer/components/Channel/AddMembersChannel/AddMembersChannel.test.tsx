@@ -49,7 +49,7 @@ const renderPanel = (overrides: Partial<React.ComponentProps<typeof AddMembersCh
 describe('AddMembersChannel', () => {
   it('names the channel it is acting on', () => {
     renderPanel()
-    expect(screen.getByTestId('addMembersPanelTitle')).toHaveTextContent('Add members or roles')
+    expect(screen.getByTestId('addMembersPanelTitle')).toHaveTextContent('Add members')
     expect(screen.getByText('#fundraising')).toBeVisible()
   })
 
@@ -87,6 +87,34 @@ describe('AddMembersChannel', () => {
     await userEvent.click(screen.getByTestId('fundraising-add-members-leave-button'))
     expect(handleClose).toHaveBeenCalled()
     expect(addMembersToChannel).not.toHaveBeenCalled()
+  })
+
+  /**
+   * The row is the checkbox's <label>, so the whole row picks the member and the checkbox is named
+   * by them. Pressing once has to toggle once — a row click handler alongside the label would fire
+   * twice and cancel itself out.
+   */
+  it('names each checkbox by the member it belongs to', () => {
+    renderPanel()
+    expect(screen.getByRole('checkbox', { name: /denise/ })).not.toBeChecked()
+  })
+
+  it('picks a member when the row is pressed, and unpicks on a second press', async () => {
+    renderPanel()
+    const checkbox = () => screen.getByRole('checkbox', { name: /denise/ })
+
+    await userEvent.click(screen.getByTestId('fundraising-add-members-row-denise'))
+    expect(checkbox()).toBeChecked()
+
+    await userEvent.click(screen.getByTestId('fundraising-add-members-row-denise'))
+    expect(checkbox()).not.toBeChecked()
+  })
+
+  it('toggles once, not twice, when the checkbox itself is pressed', async () => {
+    renderPanel()
+
+    await userEvent.click(screen.getByTestId('fundraising-add-members-checkbox-denise'))
+    expect(screen.getByRole('checkbox', { name: /denise/ })).toBeChecked()
   })
 
   it('says so when everyone is already in the channel', () => {

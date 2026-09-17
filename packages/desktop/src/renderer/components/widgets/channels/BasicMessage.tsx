@@ -38,6 +38,7 @@ const classes = {
   broadcasted: `${PREFIX}broadcasted`,
   failed: `${PREFIX}failed`,
   avatar: `${PREFIX}avatar`,
+  authorLink: `${PREFIX}authorLink`,
   alignAvatar: `${PREFIX}alignAvatar`,
   moderation: `${PREFIX}moderation`,
   time: `${PREFIX}time`,
@@ -90,6 +91,15 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
 
   [`& .${classes.failed}`]: {
     color: red[500],
+  },
+
+  // The author is a link to their profile; it only looks like one under the pointer, so an
+  // ordinary read of the conversation is undisturbed.
+  [`& .${classes.authorLink}`]: {
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
   },
 
   [`& .${classes.avatar}`]: {
@@ -170,6 +180,8 @@ export interface BasicMessageProps {
   onMathMessageRendered?: () => void
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
+  /** Opens the author's profile. Absent where a profile cannot be reached, e.g. in tests. */
+  openUserProfile?: (userId: string) => void
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
@@ -185,6 +197,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   cancelDownload,
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,
+  openUserProfile,
 }) => {
   const messageDisplayData: DisplayableMessage = messages[0]
 
@@ -219,7 +232,15 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
                 ) : (
-                  <MessageProfilePhoto message={messageDisplayData} />
+                  // A message is where you most often meet someone, so the photo and the name lead
+                  // to their profile. An Info message is from Quiet itself and has nobody behind it.
+                  <span
+                    className={classNames({ [classes.authorLink]: openUserProfile != null })}
+                    onClick={() => openUserProfile?.(messageDisplayData.userId)}
+                    data-testid={`messageAuthorPhoto-${messageDisplayData.id}`}
+                  >
+                    <MessageProfilePhoto message={messageDisplayData} />
+                  </span>
                 )}
               </div>
             </Grid>
@@ -232,7 +253,10 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       className={classNames({
                         [classes.username]: true,
                         [classes.pending]: pending,
+                        [classes.authorLink]: !infoMessage && openUserProfile != null,
                       })}
+                      onClick={() => !infoMessage && openUserProfile?.(messageDisplayData.userId)}
+                      data-testid={`messageAuthorName-${messageDisplayData.id}`}
                     >
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>

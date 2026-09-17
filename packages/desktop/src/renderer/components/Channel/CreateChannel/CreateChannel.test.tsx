@@ -169,7 +169,7 @@ describe('Add new channel', () => {
         >
           <div
             aria-hidden="true"
-            class="MuiBackdrop-root css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop"
+            class="MuiBackdrop-root MuiBackdrop-invisible css-g3hgs1-MuiBackdrop-root-MuiModal-backdrop"
             style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
           />
           <div
@@ -184,7 +184,7 @@ describe('Add new channel', () => {
               class="css-exvw6m"
             >
               <div
-                class="PanelHeaderroot css-xmwqrk"
+                class="PanelHeaderroot css-11xy5bc"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall PanelHeaderglyph css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
@@ -385,5 +385,58 @@ describe('Add new channel', () => {
 
     expect(await screen.findByText('Private channel')).toBeVisible()
     expect(screen.getByTestId('createChannel-private-form-control-toggle')).toBeVisible()
+  })
+
+  /**
+   * The private row is the toggle's <label>, as the FormControlLabel it replaced was: pressing the
+   * words has to work as well as pressing the switch, and pressing the switch must fire once
+   * rather than twice. Regression cover — the row was inert for a while after the panel rework.
+   */
+  const renderPrivatePanel = () => {
+    const createChannel = jest.fn()
+    renderComponent(
+      <CreateChannelComponent
+        open={true}
+        createChannel={createChannel}
+        handleClose={() => {}}
+        clearErrorsDispatch={() => {}}
+        canCreateChannel={true}
+        canCreatePrivateChannel={true}
+      />
+    )
+    const toggle = () => screen.getByRole('checkbox', { name: /Private channel/ })
+    return { createChannel, toggle }
+  }
+
+  it('names the private toggle by its row', () => {
+    const { toggle } = renderPrivatePanel()
+    expect(toggle()).not.toBeChecked()
+  })
+
+  it('toggles private when the row is pressed, not only when the switch is', async () => {
+    const { toggle } = renderPrivatePanel()
+
+    await userEvent.click(screen.getByTestId('createChannel-private-row'))
+    expect(toggle()).toBeChecked()
+
+    await userEvent.click(screen.getByTestId('createChannel-private-row'))
+    expect(toggle()).not.toBeChecked()
+  })
+
+  it('toggles once, not twice, when the switch itself is pressed', async () => {
+    const { toggle } = renderPrivatePanel()
+
+    await userEvent.click(screen.getByTestId('createChannel-private-form-control-toggle'))
+    expect(toggle()).toBeChecked()
+  })
+
+  it('creates the channel private once the row has been pressed', async () => {
+    const { createChannel } = renderPrivatePanel()
+
+    await userEvent.click(screen.getByTestId('createChannel-private-row'))
+    await userEvent.type(screen.getByPlaceholderText('Enter a channel name'), 'fundraising')
+    await userEvent.click(screen.getByTestId('channelNameSubmit'))
+
+    await waitFor(() => expect(createChannel).toHaveBeenCalledWith('fundraising', false))
   })
 })
