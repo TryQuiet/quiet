@@ -49,6 +49,13 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
       setInputError('Username can not be empty')
       return
     }
+    // userName is already parseName(input), which turns spaces and other special
+    // characters into hyphens, so this also catches a leading space. See TryQuiet/quiet#1306.
+    if (userName.startsWith('-')) {
+      setLoading(false)
+      setInputError('Username must start with a letter or number')
+      return
+    }
     registerUsernameAction(userName)
   }
 
