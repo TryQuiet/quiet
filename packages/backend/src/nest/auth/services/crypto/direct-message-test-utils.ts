@@ -8,7 +8,11 @@ export function dmFixture() {
   const contexts = ['Bob', 'Carol', 'Eve'].map(name => {
     const { seed } = admin.invites.createUserInvite()
     const invitee = SigChain.createFromInvite({ seed, name }, admin.team!.id)
-    admin.invites.admitMemberFromInvite(InviteService.createMemberAdmission({ seed, context: invitee.context }))
+    // develop widened SigChain.context to cover a device invitee, which has no user half;
+    // localUserContext is the narrowed accessor, and a member invitee always has one.
+    admin.invites.admitMemberFromInvite(
+      InviteService.createMemberAdmission({ seed, context: invitee.localUserContext })
+    )
     const joined = SigChain.joinForTesting(invitee.localUserContext, admin.save(), admin.team!.teamKeyring())
     admin.team!.merge(joined.team!.graph)
     return joined.localUserContext
