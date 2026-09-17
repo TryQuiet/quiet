@@ -617,8 +617,10 @@ describe('ChannelList component', () => {
                           >
                             <Text
                               color="gray50"
+                              ellipsizeMode="tail"
                               fontSize={14}
                               horizontalTextAlign="left"
+                              numberOfLines={1}
                               style={
                                 [
                                   {
@@ -986,8 +988,10 @@ describe('ChannelList component', () => {
                           >
                             <Text
                               color="gray50"
+                              ellipsizeMode="tail"
                               fontSize={14}
                               horizontalTextAlign="left"
+                              numberOfLines={1}
                               style={
                                 [
                                   {
@@ -1355,8 +1359,10 @@ describe('ChannelList component', () => {
                           >
                             <Text
                               color="gray50"
+                              ellipsizeMode="tail"
                               fontSize={14}
                               horizontalTextAlign="left"
+                              numberOfLines={1}
                               style={
                                 [
                                   {
@@ -1758,8 +1764,10 @@ describe('ChannelList component', () => {
                           >
                             <Text
                               color="gray50"
+                              ellipsizeMode="tail"
                               fontSize={14}
                               horizontalTextAlign="left"
+                              numberOfLines={1}
                               style={
                                 [
                                   {
@@ -2109,8 +2117,10 @@ describe('ChannelList component', () => {
                           >
                             <Text
                               color="gray50"
+                              ellipsizeMode="tail"
                               fontSize={14}
                               horizontalTextAlign="left"
+                              numberOfLines={1}
                               style={
                                 [
                                   {
