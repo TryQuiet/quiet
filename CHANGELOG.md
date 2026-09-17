@@ -1,10 +1,14 @@
 # Changelog
 
-## [unreleased]
+## [11.0.0]
 
 ### Features
 
 * Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
+
+### Breaking
+
+* Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
 
 ## [10.0.0]
 
