@@ -26,8 +26,20 @@ import { toString as uint8ArrayToString } from 'uint8arrays'
 import { isUint8Array } from 'util/types'
 
 const BOOTSTRAP_DONE_MESSAGE = '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
-const BOOTSTRAP_STALL_MIN_DURATION_MS = 30_000
-const BOOTSTRAP_STALL_TIMEOUT_WARNING_COUNT = 3
+// How long bootstrap may sit without advancing before Tor is restarted. Bootstrap
+// speed belongs to the network, not to us: slow wifi, a cold consensus fetch or a
+// throttled link can hold one phase for minutes and still finish, and restarting
+// throws away every bit of progress made so far. So the window is long, it is
+// measured from the last time progress actually increased, and consecutive
+// restarts widen it - a Tor that is merely slow is left alone, a wedged one is
+// still eventually restarted.
+const BOOTSTRAP_NO_PROGRESS_RESTART_MS = 10 * 60_000
+const BOOTSTRAP_RESTART_BACKOFF_LIMIT = 3
+// How often to report a bootstrap that is taking a long time but has not earned a
+// restart, so a slow network is still visible in the logs.
+const BOOTSTRAP_SLOW_LOG_INTERVAL_MS = 60_000
+// Tor's advice when it reports a warning it is already handling.
+const BOOTSTRAP_RECOMMENDATION_IGNORE = 'ignore'
 const HIDDEN_SERVICE_DESCRIPTOR_EVENT = 'HS_DESC'
 
 export class Tor extends EventEmitter implements OnModuleInit {
@@ -49,6 +61,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private markBootstrappedPromise: Promise<void> | undefined
   private bootstrapRestartPromise: Promise<void> | undefined
   private bootstrapStallState: BootstrapStallState | undefined
+  // Survives the restart's own resetBootstrapState, so the window keeps widening
+  // while restarts fail to get Tor anywhere. Cleared once bootstrap completes.
+  private consecutiveBootstrapStallRestarts = 0
   private bootstrapGeneration = 0
   public bootstrapped = false
   constructor(
@@ -178,6 +193,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
       this.logger.info('Bootstrapping finished!')
       this.bootstrapped = true
+      this.consecutiveBootstrapStallRestarts = 0
+      this.bootstrapStallState = undefined
       if (this.initTimeout) {
         clearTimeout(this.initTimeout)
         this.initTimeout = undefined
@@ -322,6 +339,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     const tagMatch = rawMessage.match(/TAG=([^\s]+)/)
     const warningMatch = rawMessage.match(/WARNING="([^"]+)"/)
     const reasonMatch = rawMessage.match(/REASON=([^\s]+)/)
+    const recommendationMatch = rawMessage.match(/RECOMMENDATION=([^\s]+)/)
 
     return {
       rawMessage,
@@ -330,7 +348,18 @@ export class Tor extends EventEmitter implements OnModuleInit {
       tag: tagMatch ? tagMatch[1] : undefined,
       warning: warningMatch?.[1],
       reason: reasonMatch?.[1],
+      recommendation: recommendationMatch?.[1],
     }
+  }
+
+  /**
+   * The window a bootstrap may go without advancing before Tor is restarted. It
+   * widens with each consecutive restart, so a Tor that keeps failing to get
+   * anywhere is still restarted while a slow network is not restarted in a loop.
+   */
+  private bootstrapRestartWindowMs(): number {
+    const backoff = Math.min(this.consecutiveBootstrapStallRestarts, BOOTSTRAP_RESTART_BACKOFF_LIMIT)
+    return BOOTSTRAP_NO_PROGRESS_RESTART_MS * 2 ** backoff
   }
 
   private async checkBootstrapStall(status: BootstrapStatus, bootstrapGeneration: number): Promise<void> {
@@ -341,41 +370,57 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
 
     const checkedAt = Date.now()
-    const hasTimeoutWarning =
-      status.reason === 'TIMEOUT' || status.warning?.toLowerCase().includes('timed out') === true
+    const state = this.bootstrapStallState
 
-    if (
-      this.bootstrapStallState == null ||
-      this.bootstrapStallState.progress !== status.progress ||
-      this.bootstrapStallState.tag !== status.tag
-    ) {
+    // Any forward progress means Tor is working, however slowly, so the clock
+    // starts over. Tor can revisit a phase or flap between tags at one
+    // percentage; only an increase counts.
+    if (state == null || status.progress > state.highestProgress) {
       this.bootstrapStallState = {
-        progress: status.progress,
+        highestProgress: status.progress,
         tag: status.tag,
-        firstObservedAt: checkedAt,
-        timeoutWarningCount: hasTimeoutWarning ? 1 : 0,
+        lastProgressAt: checkedAt,
+        ignorableWarningCount: 0,
+        lastSlowLogAt: checkedAt,
       }
       return
     }
 
-    if (hasTimeoutWarning) {
-      this.bootstrapStallState.timeoutWarningCount += 1
+    state.tag = status.tag
+    if (status.recommendation === BOOTSTRAP_RECOMMENDATION_IGNORE) {
+      // Tor is telling us it is retrying and expects to recover - a relay that
+      // timed out, say. Counting these toward a restart is how a slow link ends
+      // up restarted every 35 seconds, never finishing.
+      state.ignorableWarningCount += 1
     }
 
-    const stalledMs = checkedAt - this.bootstrapStallState.firstObservedAt
-    if (
-      stalledMs < BOOTSTRAP_STALL_MIN_DURATION_MS ||
-      this.bootstrapStallState.timeoutWarningCount < BOOTSTRAP_STALL_TIMEOUT_WARNING_COUNT
-    ) {
+    const stalledMs = checkedAt - state.lastProgressAt
+    const restartAfterMs = this.bootstrapRestartWindowMs()
+    if (stalledMs < restartAfterMs) {
+      if (checkedAt - state.lastSlowLogAt >= BOOTSTRAP_SLOW_LOG_INTERVAL_MS) {
+        state.lastSlowLogAt = checkedAt
+        this.logger.info('Tor bootstrap has not advanced; still waiting', {
+          progress: status.progress,
+          tag: status.tag,
+          stalledMs,
+          restartAfterMs,
+          ignorableWarningCount: state.ignorableWarningCount,
+          recommendation: status.recommendation,
+        })
+      }
       return
     }
 
-    await this.restartAfterBootstrapStall(
-      status,
-      stalledMs,
-      this.bootstrapStallState.timeoutWarningCount,
-      bootstrapGeneration
-    )
+    await this.restartAfterBootstrapStall(status, stalledMs, state.ignorableWarningCount, bootstrapGeneration)
+
+    // A restart gives Tor a fresh start, so the next window is measured from here.
+    // A live restart resets this state outright; this covers the case where it did
+    // not, so a stale clock cannot make the following window expire immediately.
+    if (this.bootstrapStallState === state) {
+      const restartedAt = Date.now()
+      state.lastProgressAt = restartedAt
+      state.lastSlowLogAt = restartedAt
+    }
   }
 
   private async checkManagedTorProcessHealth(bootstrapGeneration: number): Promise<boolean> {
@@ -411,7 +456,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private async restartAfterBootstrapStall(
     status: BootstrapStatus,
     stalledMs: number,
-    timeoutWarningCount: number,
+    ignorableWarningCount: number,
     bootstrapGeneration: number
   ): Promise<void> {
     if (bootstrapGeneration !== this.bootstrapGeneration) return
@@ -420,20 +465,22 @@ export class Tor extends EventEmitter implements OnModuleInit {
         progress: status.progress,
         tag: status.tag,
         stalledMs,
-        timeoutWarningCount,
+        ignorableWarningCount,
         status: status.rawMessage,
       })
       this.bootstrapStallState = undefined
       return
     }
 
+    this.consecutiveBootstrapStallRestarts += 1
     await this.restartManagedTor(
-      'Tor bootstrap appears stalled; restarting Tor',
+      'Tor bootstrap made no progress; restarting Tor',
       {
         progress: status.progress,
         tag: status.tag,
         stalledMs,
-        timeoutWarningCount,
+        ignorableWarningCount,
+        consecutiveStallRestarts: this.consecutiveBootstrapStallRestarts,
         controlPort: this.controlPort,
         socksPort: this.socksPort,
         torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,

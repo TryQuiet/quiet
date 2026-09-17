@@ -181,34 +181,30 @@ describe('TorControl', () => {
     expect(spyOnInit).toHaveBeenCalledTimes(2)
   })
 
-  it('recovers from a loading_keys timeout stall by restarting managed Tor', async () => {
+  // The status Tor reports while it retries a relay that timed out. RECOMMENDATION=ignore
+  // is Tor saying it expects to recover; #3564 restarted Tor on these every ~35s, and each
+  // restart threw away the progress made so far, so a slow link never finished bootstrapping.
+  const ignorableTimeoutStatus = (progress: number, tag: string) =>
+    `250-status/bootstrap-phase=WARN BOOTSTRAP PROGRESS=${progress} TAG=${tag} SUMMARY="Connecting to a relay" WARNING="Operation timed out" REASON=TIMEOUT COUNT=3 RECOMMENDATION=ignore HOSTADDR="204.8.96.160:443"`
+  const bootstrapDoneStatus = '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
+
+  const withStalledBootstrap = async (
+    statusForTick: () => string,
+    run: (spies: { initSpy: jest.SpiedFunction<typeof torService.init> }) => Promise<void>
+  ) => {
     jest.useFakeTimers()
-    const loadingKeysTimeout =
-      '250-status/bootstrap-phase=WARN BOOTSTRAP PROGRESS=40 TAG=loading_keys SUMMARY="Loading authority key certs" WARNING="Operation timed out" REASON=TIMEOUT COUNT=1 RECOMMENDATION=ignore HOSTADDR="204.8.96.160:443"'
-    const bootstrapDone = '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
-    let restarted = false
-    const sendCommandSpy = jest.spyOn(torControl, 'sendCommand').mockImplementation(async () => {
-      return {
-        code: 250,
-        messages: [restarted ? bootstrapDone : loadingKeysTimeout, '250 OK'],
-      }
-    })
-    const initSpy = jest.spyOn(torService, 'init').mockImplementation(async () => {
-      restarted = true
-    })
+    const sendCommandSpy = jest.spyOn(torControl, 'sendCommand').mockImplementation(async () => ({
+      code: 250,
+      messages: [statusForTick(), '250 OK'],
+    }))
+    const initSpy = jest.spyOn(torService, 'init').mockResolvedValue(undefined)
     const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockReturnValue(['123'])
     const torServiceInternals = torService as any
 
     try {
       torServiceInternals.torDataDirectory = `${tmpAppDataPath}/TorDataDirectory`
       torService.startBootstrapWatcher(1000)
-
-      await jest.advanceTimersByTimeAsync(31_000)
-
-      expect(sendCommandSpy).toHaveBeenCalled()
-      expect(initSpy).toHaveBeenCalledTimes(1)
-      await expect(torService.isBootstrappingFinished()).resolves.toBe(true)
-      expect(torService.bootstrapped).toBe(true)
+      await run({ initSpy })
     } finally {
       torServiceInternals.stopBootstrapWatcher()
       jest.useRealTimers()
@@ -216,6 +212,73 @@ describe('TorControl', () => {
       initSpy.mockRestore()
       getTorProcessIdsSpy.mockRestore()
     }
+  }
+
+  it('leaves Tor alone while it reports warnings it recommends ignoring', async () => {
+    await withStalledBootstrap(
+      () => ignorableTimeoutStatus(5, 'conn'),
+      async ({ initSpy }) => {
+        // Far past the old 30s threshold, and past the ~35s restart loop seen in #3562.
+        await jest.advanceTimersByTimeAsync(5 * 60_000)
+        expect(initSpy).not.toHaveBeenCalled()
+      }
+    )
+  })
+
+  it('leaves Tor alone while bootstrap keeps advancing, however slowly', async () => {
+    let progress = 5
+    await withStalledBootstrap(
+      () => ignorableTimeoutStatus(progress, 'conn'),
+      async ({ initSpy }) => {
+        // One percent every nine minutes: slower than any restart window, but progress.
+        for (let step = 0; step < 4; step++) {
+          await jest.advanceTimersByTimeAsync(9 * 60_000)
+          progress += 1
+        }
+        expect(initSpy).not.toHaveBeenCalled()
+      }
+    )
+  })
+
+  it('restarts managed Tor once bootstrap has made no progress for the full window', async () => {
+    await withStalledBootstrap(
+      () => ignorableTimeoutStatus(5, 'conn'),
+      async ({ initSpy }) => {
+        await jest.advanceTimersByTimeAsync(9 * 60_000)
+        expect(initSpy).not.toHaveBeenCalled()
+        await jest.advanceTimersByTimeAsync(2 * 60_000)
+        expect(initSpy).toHaveBeenCalledTimes(1)
+      }
+    )
+  })
+
+  it('widens the window after each restart that fails to get Tor anywhere', async () => {
+    await withStalledBootstrap(
+      () => ignorableTimeoutStatus(5, 'conn'),
+      async ({ initSpy }) => {
+        await jest.advanceTimersByTimeAsync(11 * 60_000)
+        expect(initSpy).toHaveBeenCalledTimes(1)
+        // The second window is twice the first, so the same elapsed time is not enough.
+        await jest.advanceTimersByTimeAsync(11 * 60_000)
+        expect(initSpy).toHaveBeenCalledTimes(1)
+        await jest.advanceTimersByTimeAsync(10 * 60_000)
+        expect(initSpy).toHaveBeenCalledTimes(2)
+      }
+    )
+  })
+
+  it('finishes bootstrapping when Tor gets there on its own', async () => {
+    let status = ignorableTimeoutStatus(5, 'conn')
+    await withStalledBootstrap(
+      () => status,
+      async ({ initSpy }) => {
+        await jest.advanceTimersByTimeAsync(5 * 60_000)
+        status = bootstrapDoneStatus
+        await jest.advanceTimersByTimeAsync(2_000)
+        expect(initSpy).not.toHaveBeenCalled()
+        expect(torService.bootstrapped).toBe(true)
+      }
+    )
   })
 
   it('restarts managed Tor immediately when the process disappears during bootstrap', async () => {
