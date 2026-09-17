@@ -18,6 +18,7 @@ const classes = {
   content: `${PREFIX}content`,
   gutterBottom: `${PREFIX}gutterBottom`,
   walletInfo: `${PREFIX}walletInfo`,
+  scrollView: `${PREFIX}scrollView`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -62,7 +63,13 @@ const SidebarComponent: React.FC<
               <Scrollbars
                 autoHideTimeout={500}
                 style={{ width: width, height: height }}
-                renderView={viewProps => <div {...viewProps} style={{ ...viewProps.style, overflowX: 'hidden' }} />}
+                renderView={viewProps => (
+                  <div
+                    {...viewProps}
+                    className={`${viewProps.className || ''} ${classes.scrollView}`}
+                    style={{ ...viewProps.style, overflowX: 'hidden' }}
+                  />
+                )}
               >
                 <ChannelsPanel {...props} />
                 <DirectMessagesPanel {...props} />

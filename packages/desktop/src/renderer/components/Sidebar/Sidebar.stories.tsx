@@ -124,6 +124,7 @@ const args: IdentityPanelProps &
   ],
   unreadChannels: ['spooky'],
   setCurrentChannel: function (_id: string): void {},
+  reorderChannels: function (_ids: string[]): void {},
   currentChannel: 'general',
   currentChannelId: 'general',
   createChannelModal: {
