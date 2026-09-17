@@ -27,6 +27,7 @@ const classes = {
   text: `${PREFIX}text`,
   title: `${PREFIX}title`,
   subtitle: `${PREFIX}subtitle`,
+  destructive: `${PREFIX}destructive`,
   control: `${PREFIX}control`,
 }
 
@@ -76,7 +77,14 @@ const StyledRow = styled('div')(({ theme }) => ({
     color: theme.palette.colors.gray50,
   },
 
+  [`& .${classes.destructive}`]: {
+    color: theme.palette.error.main,
+  },
+
+  // The design pairs an optional value with the chevron at a gap of 8 ("Off", "3" at 16/26
+  // #7F7F7F), so the slot is a row of its own.
   [`& .${classes.control}`]: {
+    gap: 8,
     display: 'flex',
     flexShrink: 0,
     alignItems: 'center',
@@ -89,9 +97,20 @@ export interface PanelRowProps {
   icon?: React.ReactNode
   control?: React.ReactNode
   onClick?: () => void
+  /**
+   * Id of the control this row labels. The row then renders as a <label>, so pressing anywhere on
+   * it activates that control and a screen reader announces the row's text as the control's name.
+   * Native label activation fires once, including when the control itself is pressed, so the row
+   * and the control cannot toggle each other back.
+   */
+  htmlFor?: string
   /** Omit the rule beneath, for the last row in a group. */
   divider?: boolean
+  /** A destructive action — Leave community, Delete channel — which the design draws in red. */
+  destructive?: boolean
   testIdPrefix?: string
+  /** Verbatim id for the row element, where a caller already has one that others depend on. */
+  testId?: string
 }
 
 export const PanelRow: React.FC<PanelRowProps> = ({
@@ -100,40 +119,60 @@ export const PanelRow: React.FC<PanelRowProps> = ({
   icon,
   control,
   onClick,
+  htmlFor,
   divider = true,
+  destructive = false,
   testIdPrefix,
+  testId,
 }) => {
+  const contentProps = {
+    className: classNames(classes.content, { [classes.interactive]: Boolean(onClick) || Boolean(htmlFor) }),
+    onClick,
+    'data-testid': testId ?? (testIdPrefix ? `${testIdPrefix}-row` : undefined),
+  }
+
+  const content = (
+    <>
+      {icon && <span className={classes.icon}>{icon}</span>}
+      <span className={classes.text}>
+        <Typography
+          className={classNames(classes.title, { [classes.destructive]: destructive })}
+          data-testid={testIdPrefix ? `${testIdPrefix}-title` : undefined}
+        >
+          {title}
+        </Typography>
+        {subtitle && (
+          <Typography className={classes.subtitle} data-testid={testIdPrefix ? `${testIdPrefix}-subtitle` : undefined}>
+            {subtitle}
+          </Typography>
+        )}
+      </span>
+      {control && <span className={classes.control}>{control}</span>}
+    </>
+  )
+
   return (
     <StyledRow>
-      <div
-        className={classNames(classes.content, { [classes.interactive]: Boolean(onClick) })}
-        onClick={onClick}
-        data-testid={testIdPrefix ? `${testIdPrefix}-row` : undefined}
-      >
-        {icon && <span className={classes.icon}>{icon}</span>}
-        <span className={classes.text}>
-          <Typography className={classes.title} data-testid={testIdPrefix ? `${testIdPrefix}-title` : undefined}>
-            {title}
-          </Typography>
-          {subtitle && (
-            <Typography
-              className={classes.subtitle}
-              data-testid={testIdPrefix ? `${testIdPrefix}-subtitle` : undefined}
-            >
-              {subtitle}
-            </Typography>
-          )}
-        </span>
-        {control && <span className={classes.control}>{control}</span>}
-      </div>
+      {htmlFor ? (
+        <label htmlFor={htmlFor} {...contentProps}>
+          {content}
+        </label>
+      ) : (
+        <div {...contentProps}>{content}</div>
+      )}
       {divider && <PanelDivider />}
     </StyledRow>
   )
 }
 
-/** The 1px #F0F0F0 rule the design puts under a row and under the header. */
+/**
+ * The design's "Divider-quiet": a 1px #F0F0F0 rule that stops at the row's own inset rather than
+ * running the full width of the panel — 343 inside a 375 column (DM settings 816:28609).
+ */
 export const PanelDivider = styled('div')(({ theme }) => ({
   height: 1,
+  marginLeft: PANEL_ROW_INSET,
+  marginRight: PANEL_ROW_INSET,
   backgroundColor: theme.palette.colors.border01,
 }))
 

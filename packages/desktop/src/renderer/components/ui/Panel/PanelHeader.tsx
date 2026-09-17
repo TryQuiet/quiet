@@ -18,6 +18,13 @@ export const PANEL_HEADER_HEIGHT = 60
 export const PANEL_HEADER_HEIGHT_WITH_SUBTITLE = 64
 export const PANEL_HEADER_GLYPH = 28
 export const PANEL_HEADER_INSET = 14
+/**
+ * Minimum hit area for the bar's controls. The design draws a 28 glyph and a text-only action, but
+ * drawing them at that size makes them that size to press — well under the 44 every touch guideline
+ * asks for. The controls keep the design's look and gain the target through padding, pulled back by
+ * an equal negative margin so nothing moves optically.
+ */
+const TOUCH_TARGET = 44
 
 /** Content inset shared by the side panels. */
 export const PANEL_INSET = 16
@@ -55,9 +62,10 @@ const StyledHeader = styled('div')(({ theme }) => ({
   },
 
   [`& .${classes.glyph}`]: {
-    width: PANEL_HEADER_GLYPH,
-    height: PANEL_HEADER_GLYPH,
-    padding: 0,
+    width: TOUCH_TARGET,
+    height: TOUCH_TARGET,
+    padding: (TOUCH_TARGET - PANEL_HEADER_GLYPH) / 2,
+    marginLeft: -((TOUCH_TARGET - PANEL_HEADER_GLYPH) / 2),
   },
 
   // Centred on the bar rather than on the space beside the glyph, which is how the design places
@@ -98,9 +106,10 @@ const StyledHeader = styled('div')(({ theme }) => ({
   },
 
   [`& .${classes.action}`]: {
-    padding: 0,
-    minWidth: 0,
-    minHeight: 0,
+    minWidth: TOUCH_TARGET,
+    minHeight: TOUCH_TARGET,
+    padding: '9px 12px',
+    marginRight: -12,
     fontSize: 16,
     lineHeight: '26px',
     color: PANEL_ACTION_COLOR,
