@@ -359,6 +359,9 @@ export const areChannelsLoaded = createSelector(publicChannels, channels => {
   return channelCount > 0
 })
 
+/** Recipients the composer should open with already chosen; empty for an ordinary new message. */
+export const newMessageRecipientIds = createSelector(selectState, state => state.newMessageRecipientIds ?? [])
+
 export const isNewMessageOpen = createSelector(selectState, state => {
   return state.newMessageOpen
 })
@@ -423,6 +426,7 @@ export const publicChannelsSelectors = {
   areMessagesLoaded,
   areChannelsLoaded,
   isNewMessageOpen,
+  newMessageRecipientIds,
   dmChannels,
   sortedDmChannels,
   unreadDms,

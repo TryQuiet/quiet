@@ -53,6 +53,12 @@ export class PublicChannelsState {
 
   public newMessageOpen = false
 
+  /**
+   * Who the composer should open with already chosen. A DM started from a profile names its one
+   * recipient up front; the composer is otherwise opened empty and this stays [].
+   */
+  public newMessageRecipientIds: string[] = []
+
   public prevChannelId: string = INITIAL_CURRENT_CHANNEL_ID
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
@@ -195,8 +201,11 @@ export const publicChannelsSlice = createSlice({
       if (!channel) return
       channelMessagesAdapter.addOne(channel.messages, message)
     },
-    setNewMessageOpen: (state, action: PayloadAction<{ isOpen: boolean; prevChannelId?: string }>) => {
-      const { isOpen, prevChannelId } = action.payload
+    setNewMessageOpen: (
+      state,
+      action: PayloadAction<{ isOpen: boolean; prevChannelId?: string; recipientIds?: string[] }>
+    ) => {
+      const { isOpen, prevChannelId, recipientIds } = action.payload
       if (prevChannelId != null) {
         state.prevChannelId = prevChannelId
       }
@@ -205,6 +214,9 @@ export const publicChannelsSlice = createSlice({
         state.currentChannelId = EMPTY_CHANNEL_ID
       }
       state.newMessageOpen = isOpen
+      // Cleared on close as well as set on open, so a later empty composer cannot inherit the
+      // recipient of an earlier one.
+      state.newMessageRecipientIds = isOpen ? (recipientIds ?? []) : []
     },
     setDisplayedName: (state, action: PayloadAction<{ channelId: string; displayedName: string }>) => {
       const { channelId, displayedName } = action.payload
