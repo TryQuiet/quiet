@@ -42,12 +42,23 @@ import { EncryptedAndSignedPayload, EncryptionScope, EncryptionScopeType } from 
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { isChannel } from '../../validation/validators'
-import { NotAMemberError } from './channels.errors'
+import { MissingChannelKeyError, NotAMemberError, isChannelEntryDecryptPending } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
 import { ChannelMetadataAccessController } from './orbitdb/ChannelMetadataAccessController'
 import crypto from 'crypto'
 import type { PrivateChannelMappings } from './channels.types'
 import { OrbitDbOp } from '../orbitDb/orbitdb.types'
+
+/**
+ * How often we re-attempt to index channel metadata entries that we couldn't decrypt yet.
+ *
+ * Reindexing is otherwise purely event-driven (a sigchain update or a channel metadata
+ * update), so a device that is short a role key waits for unrelated activity that a quiet
+ * community may never produce. The sweep runs only while at least one entry is still
+ * undecryptable and stops as soon as they all index, so a healthy community never pays for
+ * it. See https://github.com/TryQuiet/quiet/issues/3563.
+ */
+export const UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS = 60_000
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -67,15 +78,13 @@ export class ChannelsService extends EventEmitter {
     store: KeyValueIndexedValidatedType<EncryptedAndSignedPayload>
     handler: (entry: LogEntry<EncryptedAndSignedPayload>) => void
   }> = []
+  // Set when a metadata entry is rejected because membership or key material hasn't
+  // arrived yet, and cleared by a sweep in which nothing is rejected that way again.
+  private undecryptableEntriesPending = false
+  private undecryptableEntryRetryTimer: NodeJS.Timeout | undefined
   private readonly handleSigchainUpdated = async (): Promise<void> => {
-    if (!this.channels || !this.privateChannels) {
-      return
-    }
-
     try {
-      await this.channels.retryIndexingUnindexedEntries()
-      await this.privateChannels.retryIndexingUnindexedEntries()
-      await this.broadcastCurrentChannels()
+      await this.reindexChannelMetadata()
     } catch (e) {
       this.logger.warn('Error when attempting to reindex on sigchain update', e)
     }
@@ -249,6 +258,71 @@ export class ChannelsService extends EventEmitter {
     await this.broadcastCurrentChannels()
   }
 
+  /**
+   * Re-run indexing on both channel metadata stores and republish the result.
+   *
+   * Entries that failed validation were never marked indexed, so this is how a device
+   * picks up a channel it couldn't read the first time around.
+   */
+  private async reindexChannelMetadata(): Promise<void> {
+    if (!this.channels || !this.privateChannels) {
+      return
+    }
+
+    await this.channels.retryIndexingUnindexedEntries()
+    await this.privateChannels.retryIndexingUnindexedEntries()
+    await this.broadcastCurrentChannels()
+  }
+
+  /**
+   * Record that an entry couldn't be decrypted yet and make sure a retry is pending.
+   */
+  private markUndecryptableEntry(): void {
+    this.undecryptableEntriesPending = true
+    this.scheduleUndecryptableEntryRetry()
+  }
+
+  private scheduleUndecryptableEntryRetry(): void {
+    if (this.undecryptableEntryRetryTimer != null) {
+      return
+    }
+
+    this.undecryptableEntryRetryTimer = setTimeout(() => {
+      this.undecryptableEntryRetryTimer = undefined
+      void this.retryUndecryptableEntries()
+    }, UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS)
+    this.undecryptableEntryRetryTimer.unref?.()
+  }
+
+  private cancelUndecryptableEntryRetry(): void {
+    if (this.undecryptableEntryRetryTimer != null) {
+      clearTimeout(this.undecryptableEntryRetryTimer)
+      this.undecryptableEntryRetryTimer = undefined
+    }
+    this.undecryptableEntriesPending = false
+  }
+
+  private async retryUndecryptableEntries(): Promise<void> {
+    if (!this.undecryptableEntriesPending) {
+      return
+    }
+
+    // Cleared before the sweep: validation sets it again for any entry that still can't be
+    // decrypted, so the loop keeps going exactly as long as something is waiting on a key.
+    this.undecryptableEntriesPending = false
+    try {
+      await this.reindexChannelMetadata()
+    } catch (e) {
+      this.logger.warn('Error when retrying channel metadata entries that could not be decrypted', e)
+      this.undecryptableEntriesPending = true
+    }
+
+    if (this.undecryptableEntriesPending) {
+      this.logger.info('Channel metadata entries are still waiting on membership or keys, will retry')
+      this.scheduleUndecryptableEntryRetry()
+    }
+  }
+
   private async openChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
     return await this.openMetadataDb(PUBLIC_CHANNEL_METADATA_STORE_NAME, true, this.validatePublicChannelMetadataEntry)
   }
@@ -324,8 +398,10 @@ export class ChannelsService extends EventEmitter {
       const decryptedPayload = chain.crypto.decryptAndVerify<PublicChannel>(payload.encrypted, payload.signature)
       return decryptedPayload.contents
     } catch (err) {
+      // We are a member of the scope, so this is key material we don't have (yet) rather
+      // than an entry we should write off.
       this.logger.error('Failed to decrypt channel entry:', err)
-      throw err
+      throw new MissingChannelKeyError(id, err)
     }
   }
 
@@ -705,8 +781,9 @@ export class ChannelsService extends EventEmitter {
         )
       }
     } catch (err) {
-      if (err instanceof NotAMemberError || err.message.startsWith('Not a member of this channel')) {
-        this.logger.warn(`Failed to decrypt and validate private channel entry, ignoring...`)
+      if (isChannelEntryDecryptPending(err)) {
+        this.logger.warn(`Failed to decrypt and validate private channel entry, will retry...`, entry.hash)
+        this.markUndecryptableEntry()
         return false
       }
       this.logger.error('Failed to validate channel entry:', entry.hash, err)
@@ -798,7 +875,7 @@ export class ChannelsService extends EventEmitter {
       try {
         return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
       } catch (e) {
-        if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
+        if (isChannelEntryDecryptPending(e)) {
           this.logger.warn(`Failed to decrypt and validate private channel entry during getChannel, ignoring...`, id)
         } else {
           this.logger.error('Failed to decrypt channel entry', e)
@@ -845,7 +922,7 @@ export class ChannelsService extends EventEmitter {
           this.logger.debug('Decrypting channel entry', x.key)
           channelsById.set(x.key, this.decryptChannelEntry(x.value, x.key))
         } catch (e) {
-          if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
+          if (isChannelEntryDecryptPending(e)) {
             this.logger.warn(
               `Failed to decrypt and validate private channel entry during getChannels, ignoring...`,
               x.key
@@ -1424,6 +1501,7 @@ export class ChannelsService extends EventEmitter {
    * Close the channels management database on OrbitDB and each channel's DB
    */
   public async closeChannels(): Promise<void> {
+    this.cancelUndecryptableEntryRetry()
     this.detachChannelMetadataUpdateHandlers()
     this.channelCreationPromises.clear()
     const channels = this.channels
@@ -1479,6 +1557,7 @@ export class ChannelsService extends EventEmitter {
    */
   public async clean(): Promise<void> {
     this.initialized = false
+    this.cancelUndecryptableEntryRetry()
     this.detachFileManagerEvents()
     this.detachChannelMetadataUpdateHandlers()
     this.channelCreationPromises.clear()
