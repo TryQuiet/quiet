@@ -57,7 +57,7 @@ describe('Chat component for a freshly created DM', () => {
       isUserConnected: () => false,
       pendingMessages: {},
       messages: { count: 0, groups: {} },
-    }) as unknown as ChatProps & FileActionsProps
+    } as unknown as ChatProps & FileActionsProps)
 
   it.each([
     ['an empty name', ''],

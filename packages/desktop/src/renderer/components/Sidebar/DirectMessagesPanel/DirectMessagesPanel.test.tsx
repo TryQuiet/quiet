@@ -43,7 +43,7 @@ describe('DM row presence', () => {
   const carol = { userId: 'carol', nickname: 'Carol' } as UserProfile
 
   const dm = (id: string, memberIds: string[]): PublicChannelStorage =>
-    ({ id, type: ChannelType.DM, memberIds, displayedName: id } as PublicChannelStorage)
+    ({ id, type: ChannelType.DM, memberIds, displayedName: id }) as PublicChannelStorage
 
   const renderPanel = (
     channel: PublicChannelStorage,

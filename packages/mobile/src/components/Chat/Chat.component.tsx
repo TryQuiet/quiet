@@ -128,9 +128,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       if (!hide) {
         visibleIndices.add(index)
         updatedUsers[user.userId] = {
-          connected:
-            (me != null && me.userId === user.userId) ||
-            isUserConnected(user.userId),
+          connected: (me != null && me.userId === user.userId) || isUserConnected(user.userId),
           user,
         } as DmChannelUserData
       }

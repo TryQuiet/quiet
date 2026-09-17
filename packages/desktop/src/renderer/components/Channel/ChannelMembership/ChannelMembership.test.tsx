@@ -47,7 +47,7 @@ describe('ChannelMembership', () => {
     expect(screen.getByText('#fundraising')).toBeVisible()
   })
 
-  it('does not repeat a DM\'s participants above the list of those same participants', () => {
+  it("does not repeat a DM's participants above the list of those same participants", () => {
     renderPanel({ isDm: true, channelName: 'denise, gordon' })
     expect(screen.getByTestId('channelMembershipPanelTitle')).toHaveTextContent('Members')
     // The rows below are denise and gordon; a subtitle saying "denise, gordon" said it twice.

@@ -31,13 +31,7 @@ const STYLE: React.CSSProperties = {
   borderRadius: 4,
 }
 
-const DMProfilePhoto: React.FC<DMProfilePhotoProps> = ({
-  members,
-  me,
-  connected,
-  borderRadius = 4,
-  style = {},
-}) => {
+const DMProfilePhoto: React.FC<DMProfilePhotoProps> = ({ members, me, connected, borderRadius = 4, style = {} }) => {
   const theme = useTheme()
   const styleOverride = {
     ...STYLE,

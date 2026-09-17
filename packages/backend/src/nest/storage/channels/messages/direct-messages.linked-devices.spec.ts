@@ -177,9 +177,12 @@ describe('direct messages across a user’s linked devices', () => {
     expect(aliceLinked.device.deviceId).not.toBe(alice.device.deviceId)
     expect(aliceLinked.team!.members(alice.user.userId).devices).toHaveLength(2)
     // Bob sees one more device, not one more person.
-    expect(bob.team!.members().map(member => member.userId).sort()).toEqual(
-      [alice.user.userId, bob.user.userId, dave.user.userId].sort()
-    )
+    expect(
+      bob
+        .team!.members()
+        .map(member => member.userId)
+        .sort()
+    ).toEqual([alice.user.userId, bob.user.userId, dave.user.userId].sort())
   })
 
   it('opens a DM and its history that predate the link', () => {
@@ -256,10 +259,10 @@ describe('direct messages across a user’s linked devices', () => {
     const sealed = aliceLinked.directMessages.encryptStream(streamOf(outgoing), dmBeforeLinking.id)
     const cipherChunks: Uint8Array[] = []
     for await (const chunk of sealed.encryptStream) cipherChunks.push(chunk)
+    const replay = async function* () {
+      yield* cipherChunks
+    }
     for (const reader of [alice, bob]) {
-      async function* replay() {
-        yield* cipherChunks
-      }
       expect(
         (await collect(reader.directMessages.decryptStream(replay(), sealed.header, dmBeforeLinking.id))).toString()
       ).toEqual(outgoing.toString())
@@ -295,10 +298,10 @@ describe('direct messages across a user’s linked devices', () => {
     // unchanged. If linking rotated the account keys, or bumped the generation without
     // re-boxing, every DM that predates the link would stop opening.
     expect(aliceLinked.user.keys.generation).toBe(alice.user.keys.generation)
-    expect(aliceLinked.team!.members(alice.user.userId).keys.generation).toBe(
-      aliceLinked.user.keys.generation
-    )
-    expect(aliceLinked.directMessages.openDescriptor(bob.directMessages.descriptor(dmBeforeLinking.id), dmBeforeLinking.id)).toBeDefined()
+    expect(aliceLinked.team!.members(alice.user.userId).keys.generation).toBe(aliceLinked.user.keys.generation)
+    expect(
+      aliceLinked.directMessages.openDescriptor(bob.directMessages.descriptor(dmBeforeLinking.id), dmBeforeLinking.id)
+    ).toBeDefined()
   })
 
   it('retries a descriptor that arrives before the chain knows its members, instead of dropping it', async () => {

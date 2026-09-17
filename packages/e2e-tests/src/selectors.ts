@@ -2940,9 +2940,7 @@ export class Sidebar {
       await sleep(500)
     } while (Date.now() < deadline)
 
-    throw logAndReturnError(
-      `Community membership list held ${seen} user profiles, not ${num}, within ${timeout}ms`
-    )
+    throw logAndReturnError(`Community membership list held ${seen} user profiles, not ${num}, within ${timeout}ms`)
   }
 
   /**

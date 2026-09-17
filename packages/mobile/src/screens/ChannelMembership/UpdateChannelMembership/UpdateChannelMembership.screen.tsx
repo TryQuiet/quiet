@@ -43,9 +43,7 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
       const nonMemberData: { [userId: string]: DmChannelUserData } = {}
       currentNonMembers.forEach(user => {
         nonMemberData[user.userId] = {
-          connected:
-            (me != null && me.userId === user.userId) ||
-            isUserConnected(user.userId),
+          connected: (me != null && me.userId === user.userId) || isUserConnected(user.userId),
           user,
         } as DmChannelUserData
       })

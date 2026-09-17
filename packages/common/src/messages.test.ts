@@ -1,10 +1,5 @@
 import { ChannelType, PublicChannelStorage } from '@quiet/types'
-import {
-  createdChannelMessage,
-  userJoinedMessage,
-  userJoinedMessageRegex,
-  verifyUserInfoMessage,
-} from './messages'
+import { createdChannelMessage, userJoinedMessage, userJoinedMessageRegex, verifyUserInfoMessage } from './messages'
 import { generateTestChannelId } from './tests'
 
 describe('messages helper', () => {

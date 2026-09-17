@@ -48,11 +48,9 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
       const memberData = currentMembers.map(
         user =>
           ({
-            connected:
-              (me != null && me.userId === user.userId) ||
-              isUserConnected(user.userId),
+            connected: (me != null && me.userId === user.userId) || isUserConnected(user.userId),
             user,
-          }) as DmChannelUserData
+          } as DmChannelUserData)
       )
       setMembers(memberData)
       setMemberCount(memberData.length)
@@ -87,7 +85,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
       // The side nav offers Members and Permissions as separate entries; only the Permissions
       // entry opens this screen in its editable form. Absent that param, fall back to what the
       // viewer is permitted to do.
-      canAddMembers={manageMembership === false ? false : (currentChannelPermissions?.addMembers ?? false)}
+      canAddMembers={manageMembership === false ? false : currentChannelPermissions?.addMembers ?? false}
     />
   )
 }
