@@ -14,8 +14,16 @@ import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 
 import { QuietLogger } from '@quiet/logger'
-import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
+import {
+  DownloadProgress,
+  DownloadState,
+  DownloadStatus,
+  FileMetadata,
+  imagesExtensions,
+  PROFILE_PHOTO_CHANNEL_ID,
+} from '@quiet/types'
 
+import { COMPRESSIBLE_IMAGE_EXTENSIONS, PROFILE_PHOTO_COMPRESSIBLE_EXTENSIONS } from '@quiet/common'
 import { QUIET_DIR } from '../const'
 import { ImageCompressionService } from '../image-compression/image-compression.service'
 import {
@@ -49,6 +57,21 @@ import { EncryptionScopeType } from '../auth/services/crypto/types'
 import { SigChain } from '../auth/sigchain'
 import { RoleName } from '../auth/services/roles/roles'
 import { oneToOne } from './unixfs-utils/oneToOneChunker'
+
+/**
+ * Profile photos are force-replicated to and auto-downloaded by every member of
+ * a community, so they are the one attachment that must not be left at whatever
+ * size the user picked. Everything else keeps the channel-attachment rule.
+ *
+ * The format lists live in `@quiet/common` because the renderer needs the same
+ * answer: it refuses an oversized photo only when we will not re-encode it.
+ */
+export const shouldCompressAttachment = (metadata: FileMetadata): boolean => {
+  const ext = metadata.ext.toLowerCase()
+  return metadata.message.channelId === PROFILE_PHOTO_CHANNEL_ID
+    ? PROFILE_PHOTO_COMPRESSIBLE_EXTENSIONS.includes(ext)
+    : COMPRESSIBLE_IMAGE_EXTENSIONS.includes(ext)
+}
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter {
@@ -249,10 +272,9 @@ export class IpfsFileManagerService extends EventEmitter {
     // Process image if it's an image file
     let filePath = metadata.path
     if (imagesExtensions.includes(metadata.ext)) {
-      // Compress image and remove metadata if it's a JPG
-      if (metadata.ext.toLowerCase() === '.jpg' || metadata.ext.toLowerCase() === '.jpeg') {
+      if (shouldCompressAttachment(metadata)) {
         try {
-          _logger.info(`Compressing JPEG image before attachment: ${filePath}`)
+          _logger.info(`Compressing image before attachment: ${filePath}`)
 
           // The processImage method will modify the original file in place
           // and return the path to the compressed version (which should be the same)

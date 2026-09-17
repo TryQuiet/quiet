@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import { FileMetadata } from '@quiet/types'
+import { FileMetadata, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
 import path from 'path'
 import fs from 'fs'
 import { DirResult } from 'tmp'
@@ -605,7 +605,7 @@ describe('IpfsFileManagerService', () => {
     )
   })
 
-  it('only tries to compress/process JPEG/JPG images, not e.g. a .txt file', async () => {
+  it('only compresses JPEG attachments in channels, not PNG or e.g. a .txt file', async () => {
     // Spy on the imageCompressionService.processImage method
     const imageCompressionSpy = jest.spyOn(ipfsFileManagerService['imageCompressionService'], 'processImage')
 
@@ -669,6 +669,54 @@ describe('IpfsFileManagerService', () => {
     if (fs.existsSync(jpegPath)) {
       fs.unlinkSync(jpegPath)
     }
+  })
+
+  it('compresses a PNG profile photo, which a channel attachment would keep uncompressed', async () => {
+    const imageCompressionSpy = jest.spyOn(ipfsFileManagerService['imageCompressionService'], 'processImage')
+    const pngPath = path.join(dirname, '/testUtils/test-image.png')
+
+    // The same PNG in a channel is left alone: profile photos are force-replicated
+    // to and auto-downloaded by every member, so they carry the budget instead.
+    await ipfsFileManagerService.attachFile({
+      path: pngPath,
+      name: 'channel-png',
+      ext: '.png',
+      cid: 'channel_png_id',
+      message: { id: 'channel_png_id', channelId: 'channelId' },
+    })
+    expect(imageCompressionSpy).not.toHaveBeenCalled()
+
+    imageCompressionSpy.mockClear()
+
+    await ipfsFileManagerService.attachFile({
+      path: pngPath,
+      name: 'profile-photo-user',
+      ext: '.png',
+      cid: 'profile_png_id',
+      message: { id: 'profile_png_id', channelId: PROFILE_PHOTO_CHANNEL_ID },
+    })
+    expect(imageCompressionSpy).toHaveBeenCalledWith(expect.any(String), '.png')
+
+    imageCompressionSpy.mockClear()
+  })
+
+  it('never sends an animated profile photo through Jimp, which would flatten it', async () => {
+    const imageCompressionSpy = jest.spyOn(ipfsFileManagerService['imageCompressionService'], 'processImage')
+
+    for (const ext of ['.gif', '.apng', '.webp']) {
+      await ipfsFileManagerService
+        .attachFile({
+          path: path.join(dirname, '/testUtils/test-image.png'),
+          name: `profile-photo-user${ext}`,
+          ext,
+          cid: `profile_${ext}_id`,
+          message: { id: `profile_${ext}_id`, channelId: PROFILE_PHOTO_CHANNEL_ID },
+        })
+        .catch(() => undefined)
+      expect(imageCompressionSpy).not.toHaveBeenCalled()
+    }
+
+    imageCompressionSpy.mockClear()
   })
 
   // it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
