@@ -9,13 +9,14 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
+  NewMessage,
   Sidebar,
   ServerOfferModal,
   TermsOfServiceModal,
   Settings,
 } from '../selectors'
 import { promiseWithRetries, tailQssLogs } from '../utils'
-import { UserListStatus, UserTestData } from '../types'
+import { TestChannelType, UserListStatus, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 
@@ -58,10 +59,16 @@ describe('Multiple Clients (QSS)', () => {
 
   let invitationLink: string
 
+  let dmChannelOwner: Channel
+  let dmChannelUser1: Channel
+  let newMessageUser1: NewMessage
+
   let users: MultipleClientsUsers
 
   const communityName = 'testcommunity'
   const generalChannelName = 'general'
+  const user1DmMessage = 'This one is just between us'
+  const ownerDmMessage = 'And it stays that way'
 
   beforeAll(async () => {
     qssLogTailProcess = tailQssLogs()
@@ -335,6 +342,60 @@ describe('Multiple Clients (QSS)', () => {
         logger.info('Received updated invitation link:', invitationLink)
         logger.warn('closing invite tab')
         await settingsModal.closeTabThenModal()
+      })
+    })
+
+    // The same exchange multipleClients covers over Tor, here over QSS. Tor joins on a cold
+    // community can take longer than the suite's own six-minute budget, which makes that run a
+    // coin flip; this path does not depend on one.
+    describe('Owner And First User Exchange A Direct Message', () => {
+      it('First user opens the new message view', async () => {
+        newMessageUser1 = new NewMessage(users.user1.app.driver)
+        await newMessageUser1.open()
+      })
+
+      it('First user creates a DM with the owner', async () => {
+        const dmCreationStatus = await newMessageUser1.createNewDm([users.owner.username], user1DmMessage)
+        expect(dmCreationStatus.error).toBeUndefined()
+        expect(dmCreationStatus.failedUsers).toHaveLength(0)
+        expect(dmCreationStatus.successfulUsers).toEqual([users.owner.username])
+        expect(dmCreationStatus.success).toBeTruthy()
+      })
+
+      it('First user sees the new DM open with their message in it', async () => {
+        // A DM is titled with the other participant, so the two sides see different names.
+        dmChannelUser1 = new Channel(users.user1.app.driver, users.owner.username)
+        await dmChannelUser1.isOpen(TestChannelType.DM)
+        expect(await dmChannelUser1.isMessageInputReady()).toBeTruthy()
+        await dmChannelUser1.getMessageIdsByText(user1DmMessage, users.user1.username)
+      })
+
+      it('Owner sees the DM appear in their sidebar', async () => {
+        const sidebarOwner = new Sidebar(users.owner.app.driver)
+        await sidebarOwner.waitForDmChannelsNum(1, 45_000)
+        await sidebarOwner.waitForDmChannels([users.user1.username])
+      })
+
+      it("Owner opens the DM and reads the first user's message", async () => {
+        dmChannelOwner = await new Sidebar(users.owner.app.driver).switchDm(users.user1.username)
+        expect(await dmChannelOwner.isMessageInputReady()).toBeTruthy()
+        await dmChannelOwner.getMessageIdsByText(user1DmMessage, users.user1.username)
+      })
+
+      it('Owner replies in the DM', async () => {
+        await dmChannelOwner.sendMessage(ownerDmMessage, users.owner.username)
+        await dmChannelOwner.getMessageIdsByText(ownerDmMessage, users.owner.username)
+      })
+
+      it("First user sees the owner's reply", async () => {
+        await dmChannelUser1.getMessageIdsByText(ownerDmMessage, users.owner.username)
+      })
+
+      // Both go back to general: the stages below act on the general channel, and an app left in
+      // a DM would fail their assertions.
+      it('Both return to the general channel', async () => {
+        generalChannelUser1 = await new Sidebar(users.user1.app.driver).switchChannel(generalChannelName)
+        generalChannelOwner = await new Sidebar(users.owner.app.driver).switchChannel(generalChannelName)
       })
     })
 
