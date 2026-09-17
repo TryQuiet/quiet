@@ -523,14 +523,29 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
 
       const bootstrapGeneration = this.bootstrapGeneration
-      this.initTimeout = setTimeout(async () => {
-        if (bootstrapGeneration !== this.bootstrapGeneration) return
-        this.logger.debug('Checking init timeout')
-        const bootstrapDone = await this.isBootstrappingFinished()
-        if (bootstrapGeneration !== this.bootstrapGeneration) return
-        if (!bootstrapDone) {
-          await this.init()
-        }
+      let torStarted = false
+      // Covers a Tor that never reports starting at all: spawnTor only settles once
+      // Tor announces itself, so without this nothing would start the watcher. Once
+      // Tor has started the watcher owns restarts, because it measures a stall by
+      // progress - restarting a Tor that is still advancing throws away everything
+      // it has done, which is how bootstrap never finishes (#3564).
+      this.initTimeout = setTimeout(() => {
+        void (async () => {
+          if (bootstrapGeneration !== this.bootstrapGeneration) return
+          this.logger.debug('Checking init timeout')
+          if (torStarted) {
+            this.logger.info('Tor started; leaving further restarts to the bootstrap watcher')
+            return
+          }
+          const bootstrapDone = await this.isBootstrappingFinished()
+          if (bootstrapGeneration !== this.bootstrapGeneration) return
+          if (!bootstrapDone) {
+            this.logger.warn('Tor did not report starting within the init timeout; restarting Tor', { timeout })
+            await this.init()
+          }
+        })().catch(e => {
+          this.logger.error('Tor init timeout check failed', e)
+        })
       }, timeout)
 
       const tryToSpawnTor = async () => {
@@ -547,6 +562,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         try {
           this.logger.info('Spawning new tor process(es)')
           await this.spawnTor()
+          torStarted = true
 
           this.startBootstrapWatcher()
 
@@ -555,15 +571,29 @@ export class Tor extends EventEmitter implements OnModuleInit {
           resolve()
         } catch (e) {
           this.logger.error('Killing tor due to error', e)
-          this.clearHangingTorProcess()
-          removeFilesFromDir(this.torDataDirectory)
+          try {
+            this.clearHangingTorProcess()
+            removeFilesFromDir(this.torDataDirectory)
+          } catch (cleanupError) {
+            this.logger.error('Error while cleaning up after a failed tor spawn', cleanupError)
+          }
 
           // eslint-disable-next-line
-          process.nextTick(tryToSpawnTor)
+          process.nextTick(runTryToSpawnTor)
         }
       }
 
-      tryToSpawnTor()
+      // Neither the first attempt nor a retry is awaited by anyone, so a throw
+      // escaping tryToSpawnTor would reject into nothing - and an unhandled
+      // rejection shuts the backend down. Report it on this promise instead.
+      const runTryToSpawnTor = () => {
+        tryToSpawnTor().catch(e => {
+          this.logger.error('Failed to spawn tor', e)
+          reject(e)
+        })
+      }
+
+      runTryToSpawnTor()
     })
   }
 
@@ -706,14 +736,23 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger.error(`Tor process. Error occurred`, data)
       })
 
-      this.process.stdout.on('data', async (data: any) => {
+      this.process.stdout.on('data', (data: any) => {
         const bootstrappedRegexp = /Bootstrapped 0/
         // TODO: Figure out if there's a way to get this working in tests
         // const bootstrappedRegexp = /Loaded enough directory info to build circuits/
-        if (bootstrappedRegexp.test(data.toString())) {
-          await this.spawnHiddenServices()
-          resolve()
-        }
+        if (!bootstrappedRegexp.test(data.toString())) return
+
+        // Publishing is started here so a descriptor goes up as early as Tor allows,
+        // but it is deliberately not awaited. A Tor at 0% bootstrap cannot upload a
+        // descriptor yet, so awaiting the HS_DESC wait held this promise - and with
+        // it init() - for the whole event timeout, and the next restart tore the
+        // control connection down underneath it. That rejection surfaced in a
+        // listener nobody awaits, which the backend turns into a full app shutdown.
+        // Publication is retried by the bootstrap watcher and by registerHiddenService.
+        void this.spawnHiddenServices().catch(e => {
+          this.logger.error('Failed to publish hidden services for the new Tor session', e)
+        })
+        resolve()
       })
     })
   }
