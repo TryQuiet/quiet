@@ -15,6 +15,7 @@ import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 import { DateTime } from 'luxon'
 import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
+import { toMarkdownSource } from './Message.utils'
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
@@ -47,16 +48,6 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
 }) => {
-  const pushBr = (str: string) => {
-    const afterSplit = str
-      .split('\n')
-      .map(e => {
-        if (e === '') return '<br>'
-        return e
-      })
-      .join('\n')
-    return afterSplit
-  }
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: {
@@ -137,7 +128,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
         }
         return (
           <Markdown markdownit={md} style={markdownStyle} rules={markdownRules}>
-            {pushBr(message.message)}
+            {toMarkdownSource(message.message)}
           </Markdown>
         )
       }
