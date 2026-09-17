@@ -1,3 +1,18 @@
+// Device links (`i=device`) get a "Link device" button instead of "Join community".
+// The invitation payload lives in the URL fragment, which browsers never send to
+// the server, and nothing here sends, stores or logs it: we read one non-secret
+// flag and use it to pick a static string.
+function isDeviceLink() {
+  try {
+    // Strip the leading '#', and the legacy 'code=' prefix if present.
+    var params = window.location.hash.replace(/^#(code=)?/, '')
+    return new URLSearchParams(params).get('i') === 'device'
+  } catch (e) {
+    // Not logged: the error message can quote the invitation payload.
+    return false
+  }
+}
+
 // Use custom protocol to open Quiet app
 document.addEventListener(
   'click',
@@ -81,4 +96,9 @@ function getPlatform() {
   }
 
 
-onload = getPlatform
+onload = function () {
+  if (isDeviceLink()) {
+    document.getElementById('joincommunity').textContent = 'Link device'
+  }
+  getPlatform()
+}
