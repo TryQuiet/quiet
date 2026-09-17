@@ -35,8 +35,11 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
     textAlign: 'left',
     textTransform: 'lowercase',
     backgroundColor: 'inherit',
+    // MUI rounds a Button by default, which made this hover a floating pill among sidebar rows
+    // that highlight full-bleed. The other rows use the same wash (sidebarHover).
+    borderRadius: 0,
     '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.10)',
+      backgroundColor: theme.palette.colors.sidebarHover,
     },
   },
 

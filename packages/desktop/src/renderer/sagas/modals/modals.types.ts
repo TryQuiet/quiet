@@ -26,4 +26,5 @@ export enum ModalName {
   possibleImpersonationAttackModal = 'possibleImpersonationAttackModal',
   termsOfServiceModal = 'termsOfServiceModal',
   addMembersChannel = 'addMembersChannel',
+  channelMembership = 'channelMembership',
 }

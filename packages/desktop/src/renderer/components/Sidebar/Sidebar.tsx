@@ -37,7 +37,9 @@ const Sidebar = () => {
   const canCreatePrivateChannel = channelPermissions.private.create
   const userId = userProfile?.userId || ''
 
-  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
+  // sortedChannels orders by `name`, which is what ChannelsListItem renders. The bare
+  // publicChannels selector orders by `displayedName`, so the list came out in creation order.
+  const publicChannelsSelector = useSelector(publicChannels.selectors.sortedChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
 
   const setCurrentChannel = (id: string) => {

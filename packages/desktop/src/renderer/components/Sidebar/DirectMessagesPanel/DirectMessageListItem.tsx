@@ -59,8 +59,20 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     opacity: 1,
     fontWeight: 600,
   },
+  /**
+   * Which of these conversations is with yourself — an annotation, not a second name, so it is
+   * smaller and quieter than the nickname rather than the same size merely greyed.
+   *
+   * On the purple sidebar a mid grey has too little contrast, and less still on a selected row,
+   * which is that purple lightened. White at 60% keeps the same relationship to the text beside it
+   * against every state the row has.
+   */
   [`& .${classes.me}`]: {
-    color: theme.palette.colors.gray50,
+    fontSize: 12,
+    lineHeight: '16px',
+    letterSpacing: '0.4px',
+    color: 'rgba(255, 255, 255, 0.6)',
+    flexShrink: 0,
   },
 
   [`&.${classes.root}:hover`]: {
@@ -107,7 +119,7 @@ export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
       <ProfilePhotoWithBadge userData={userData} channel={channel} />
       <ListItemText
         primary={
-          <Grid container item display='flex' flexDirection='row' gap='16px'>
+          <Grid container item display='flex' flexDirection='row' alignItems='baseline' gap='6px'>
             <Typography
               variant='body2'
               className={classNames(classes.nickname, {
@@ -118,13 +130,8 @@ export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
               {channel.displayedName}
             </Typography>
             {userData != null && me != null && userData.user.userId === me.userId && (
-              <Typography
-                variant='body2'
-                align='left'
-                className={classNames(classes.nickname, classes.me)}
-                data-testid={`dm-link-text-me`}
-              >
-                me
+              <Typography align='left' className={classes.me} data-testid={`dm-link-text-me`}>
+                you
               </Typography>
             )}
           </Grid>
