@@ -558,6 +558,10 @@ export class JoiningLoadingPanel {
   }
 }
 
+/**
+ * No test instantiates this today, so its selectors are matched against what the app renders
+ * rather than proven by a run — treat them as unverified if you are the first to use it.
+ */
 export class DirectMessageList {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -566,9 +570,9 @@ export class DirectMessageList {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath('//ul[@data-testid="usersList"]')),
+      until.elementLocated(By.xpath('//ul[@data-testid="dm-list"]')),
       15_000,
-      `Users list couldn't be located within timeout`,
+      `Direct message list couldn't be located within timeout`,
       500
     )
   }
@@ -583,24 +587,34 @@ export class DirectMessageList {
     return true
   }
 
+  /**
+   * A row in this list is keyed by the DM's channel id rather than by a username, so a user is
+   * found by the name their row displays, and the channel id is read back off that row to reach
+   * its presence badge.
+   */
   async getUser(username: string, expectedState: UserListStatus): Promise<UserListItem> {
     logger.debug('Getting user list item', username)
     let status: UserListStatus = UserListStatus.NOT_FOUND
 
     let userItem: WebElement
+    let channelId: string
     try {
-      userItem = await this.driver.wait(
-        until.elementLocated(By.xpath(`//div[@data-testid="${username}-user-link"]`)),
+      const nameElement = await this.driver.wait(
+        until.elementLocated(
+          By.xpath(`//*[contains(@data-testid, "-dm-link-text") and normalize-space(text())="${username}"]`)
+        ),
         120_000,
-        `Users item for ${username} couldn't be located within timeout`,
+        `Direct message item for ${username} couldn't be located within timeout`,
         500
       )
+      userItem = await nameElement.findElement(By.xpath('ancestor::*[contains(@data-testid, "-dm-link")][1]'))
       await this.driver.wait(
         until.elementIsVisible(userItem),
         120_000,
-        `Users item for ${username} was not visibile within timeout`,
+        `Direct message item for ${username} was not visibile within timeout`,
         500
       )
+      channelId = (await userItem.getAttribute('data-testid')).replace(/-dm-link$/, '')
     } catch (e) {
       return {
         element: undefined,
@@ -610,9 +624,9 @@ export class DirectMessageList {
     }
 
     const statusBadge = await this.driver.wait(
-      until.elementLocated(By.xpath(`//span[@data-testid="${username}-user-link-status-badge"]`)),
+      until.elementLocated(By.xpath(`//span[@data-testid="${channelId}-profile-photo-status-badge"]`)),
       240_000,
-      `Users item status badge for ${username} couldn't be located within timeout`,
+      `Direct message item status badge for ${username} couldn't be located within timeout`,
       500
     )
 
@@ -621,7 +635,7 @@ export class DirectMessageList {
         await this.driver.wait(
           until.elementIsVisible(statusBadge),
           240_000,
-          `Users item status badge for ${username} was not visibile within timeout`,
+          `Direct message item status badge for ${username} was not visibile within timeout`,
           500
         )
         status = UserListStatus.ONLINE
@@ -633,7 +647,7 @@ export class DirectMessageList {
         await this.driver.wait(
           until.elementIsNotVisible(statusBadge),
           240_000,
-          `Users item status badge for ${username} was not invisible within timeout`,
+          `Direct message item status badge for ${username} was not invisible within timeout`,
           500
         )
         status = UserListStatus.OFFLINE
@@ -761,7 +775,7 @@ export class ChannelContextMenu {
 
   async openDeletionChannelModal() {
     const tab = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemDelete"]')),
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemDelete_channel"]')),
       15_000,
       `Channel context menu channel deletion modal couldn't be located within timeout`,
       500
@@ -775,20 +789,48 @@ export class ChannelContextMenu {
     await tab.click()
   }
 
-  async openAddMembersModal() {
+  /**
+   * The channel menu's membership row, which opens the members panel. Its test id comes from the
+   * row's title with spaces replaced by underscores, so a DM's row is
+   * "contextMenuItemMembers_in_this_DM".
+   */
+  async openChannelMembershipPanel() {
     const tab = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemAdd_members"]')),
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemMembers_in_this_channel"]')),
       15_000,
-      `Channel context menu channel add members tab couldn't be located within timeout`,
+      `Channel context menu members row couldn't be located within timeout`,
       500
     )
     await this.driver.wait(
       until.elementIsVisible(tab),
       15_000,
-      `Channel context menu channel add members tab was not visibile within timeout`,
+      `Channel context menu members row was not visibile within timeout`,
       500
     )
     await tab.click()
+  }
+
+  /**
+   * Adding members takes two steps: the channel menu's members row opens the members panel, and
+   * that panel's Add members button — which only an admin gets — opens the picker. Kept in one
+   * method so a rename of either surface is one edit rather than one per call site.
+   */
+  async openAddMembersModal() {
+    await this.openChannelMembershipPanel()
+
+    const button = this.driver.wait(
+      until.elementLocated(By.xpath('//button[@data-testid="channelMembershipAddMembers"]')),
+      15_000,
+      `Members panel add members button couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(button),
+      15_000,
+      `Members panel add members button was not visibile within timeout`,
+      500
+    )
+    await button.click()
   }
 
   // TODO: replace sleep
@@ -809,29 +851,33 @@ export class ChannelContextMenu {
     await sleep(5000)
   }
 
+  /**
+   * The picker lists everyone who is not in the channel already, each row a checkbox and a name;
+   * picking one turns it into a pill, and Done commits the picks. The search field above only
+   * filters that list, so the rows are clicked directly.
+   */
   async addMembersToChannel(channelName: string, memberNames: string[]) {
-    const autoCompleteInput = await this.driver.wait(
-      until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete"]`)),
-      20_000,
-      `Channel add members autocomplete input div couldn't be located within timeout`,
-      500
-    )
     await this.driver.wait(
-      until.elementIsVisible(autoCompleteInput),
-      15_000,
-      `Channel context menu channel add members autocomplete div was not visibile within timeout`,
+      until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-search"]`)),
+      20_000,
+      `Channel add members search field couldn't be located within timeout`,
       500
     )
 
-    const inputField = await this.driver.wait(
-      autoCompleteInput.findElement(By.xpath(`//input[@aria-autocomplete="list"]`)),
-      5_000,
-      `Channel add members autocomplete input field couldn't be located within timeout`,
-      500
-    )
     for (const memberName of memberNames) {
-      await inputField.sendKeys(memberName)
-      await inputField.sendKeys(Key.ENTER)
+      const row = await this.driver.wait(
+        until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-add-members-row-${memberName}"]`)),
+        20_000,
+        `Channel add members row for ${memberName} couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(row),
+        15_000,
+        `Channel add members row for ${memberName} was not visibile within timeout`,
+        500
+      )
+      await row.click()
     }
 
     const button = this.driver.wait(
@@ -853,54 +899,37 @@ export class ChannelContextMenu {
     )
   }
 
-  async checkForMembersInAddMembersAutocomplete(channelName: string, memberNames: string[]): Promise<string[]> {
-    const autoCompleteInput = await this.driver.wait(
-      until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete"]`)),
-      20_000,
-      `Channel add members autocomplete input div couldn't be located within timeout`,
-      500
-    )
+  /**
+   * Which of the given people the picker still offers — everyone already in the channel is left
+   * out of the list. Leaves by the close, which abandons the picks.
+   */
+  async checkForMembersOfferedInAddMembers(channelName: string, memberNames: string[]): Promise<string[]> {
     await this.driver.wait(
-      until.elementIsVisible(autoCompleteInput),
-      15_000,
-      `Channel context menu channel add members autocomplete div was not visibile within timeout`,
+      until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-search"]`)),
+      20_000,
+      `Channel add members search field couldn't be located within timeout`,
       500
     )
 
-    const inputField = await this.driver.wait(
-      autoCompleteInput.findElement(By.xpath(`//input[@aria-autocomplete="list"]`)),
-      5_000,
-      `Channel add members autocomplete input field couldn't be located within timeout`,
-      500
-    )
-
-    const waitForUserInAutocomplete = async (memberName: string) => {
-      const autoCompleteOption = await this.driver.wait(
-        until.elementLocated(
-          By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete-option-${memberName}"]`)
-        ),
-        2_000,
-        `Channel add members autocomplete option for ${memberName} couldn't be located within timeout`,
-        500
-      )
-      await this.driver.wait(
-        until.elementIsVisible(autoCompleteOption),
-        2_000,
-        `Channel add members autocomplete option for ${memberName} wasn't visible within timeout`,
-        500
-      )
-    }
-
-    const membersInAutocomplete: string[] = []
+    const membersOffered: string[] = []
     for (const memberName of memberNames) {
-      await inputField.sendKeys(memberName)
       try {
-        await waitForUserInAutocomplete(memberName)
-        membersInAutocomplete.push(memberName)
+        const row = await this.driver.wait(
+          until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-add-members-row-${memberName}"]`)),
+          2_000,
+          `Channel add members row for ${memberName} couldn't be located within timeout`,
+          500
+        )
+        await this.driver.wait(
+          until.elementIsVisible(row),
+          2_000,
+          `Channel add members row for ${memberName} wasn't visible within timeout`,
+          500
+        )
+        membersOffered.push(memberName)
       } catch {
-        // do nothing
+        // Not offered, which is what this check is for.
       }
-      await inputField.clear()
     }
 
     const button = this.driver.wait(
@@ -920,7 +949,7 @@ export class ChannelContextMenu {
       await button,
       `Channel add members modal for ${channelName} didn't close within timeout`
     )
-    return membersInAutocomplete
+    return membersOffered
   }
 }
 
@@ -3179,7 +3208,7 @@ export class Settings {
         await this.driver.wait(
           until.elementIsVisible(statusBadge),
           baseBadgeTimeout * 2,
-          `Users item status badge for ${username} was not visibile within timeout`,
+          `Direct message item status badge for ${username} was not visibile within timeout`,
           500
         )
         status = UserListStatus.ONLINE
@@ -3191,7 +3220,7 @@ export class Settings {
         await this.driver.wait(
           until.elementIsNotVisible(statusBadge),
           baseBadgeTimeout * 2,
-          `Users item status badge for ${username} was not invisible within timeout`,
+          `Direct message item status badge for ${username} was not invisible within timeout`,
           500
         )
         status = UserListStatus.OFFLINE
@@ -3224,7 +3253,7 @@ export class Settings {
   async close() {
     logger.debug('Closing settings modal')
     const closeButton = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="close-settings-button"]')),
+      until.elementLocated(By.xpath('//*[@data-testid="close-settings-button"]')),
       10_000,
       `Settings close button couldn't be found within timeout`,
       500

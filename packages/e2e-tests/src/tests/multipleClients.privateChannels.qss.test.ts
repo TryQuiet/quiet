@@ -359,14 +359,14 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           expect(iconVisible).toBe(true)
         })
 
-        it('Owner verifies first user is no longer in autocomplete', async () => {
+        it('Owner verifies first user is no longer offered', async () => {
           const { menuButton, menuOpened, iconVisible } = await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openAddMembersModal()
-          const membersLeftInAutocomplete = await channelContextMenuOwner.checkForMembersInAddMembersAutocomplete(
+          const membersStillOffered = await channelContextMenuOwner.checkForMembersOfferedInAddMembers(
             privateChannelName,
             [users.user1.username]
           )
-          expect(membersLeftInAutocomplete.length).toBe(0)
+          expect(membersStillOffered.length).toBe(0)
           expect(menuButton).toBe(true)
           expect(menuOpened).toBe(true)
           expect(iconVisible).toBe(true)

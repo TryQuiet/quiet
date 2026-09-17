@@ -8,6 +8,7 @@ import {
   DebugModeModal,
   JoinCommunityModal,
   JoiningLoadingPanel,
+  NewMessage,
   RegisterUsernameModal,
   Sidebar,
   StartingLoadingPanel,
@@ -40,6 +41,10 @@ describe('Multiple Clients', () => {
 
   let tempChannelOwner: Channel
 
+  let dmChannelOwner: Channel
+  let dmChannelUser1: Channel
+  let newMessageUser1: NewMessage
+
   let channelContextMenuOwner: ChannelContextMenu
 
   let invitationLink: string
@@ -55,6 +60,8 @@ describe('Multiple Clients', () => {
   const newChannelName = 'mid-night-club'
   const generalChannelName = 'general'
   const tempChannelName = 'delete-this'
+  const user1DmMessage = 'This one is just between us'
+  const ownerDmMessage = 'And it stays that way'
 
   beforeAll(async () => {
     const commonApp = new App({ username: 'user-joining-1' })
@@ -285,6 +292,60 @@ describe('Multiple Clients', () => {
       })
     })
 
+    // Owner and first user are both online and registered here, which is the only window in this
+    // test where two clients can hold a conversation. The second user joins later and is used to
+    // prove the other half of the guarantee: that a non-participant never sees the DM at all.
+    describe('Owner And First User Exchange A Direct Message', () => {
+      it('First user opens the new message view', async () => {
+        newMessageUser1 = new NewMessage(users.user1.app.driver)
+        await newMessageUser1.open()
+      })
+
+      it('First user creates a DM with the owner', async () => {
+        const dmCreationStatus = await newMessageUser1.createNewDm([users.owner.username], user1DmMessage)
+        expect(dmCreationStatus.error).toBeUndefined()
+        expect(dmCreationStatus.failedUsers).toHaveLength(0)
+        expect(dmCreationStatus.successfulUsers).toEqual([users.owner.username])
+        expect(dmCreationStatus.success).toBeTruthy()
+      })
+
+      it('First user sees the new DM open with their message in it', async () => {
+        // A DM is titled with the other participant, so the two sides see different names.
+        dmChannelUser1 = new Channel(users.user1.app.driver, users.owner.username)
+        await dmChannelUser1.isOpen(TestChannelType.DM)
+        expect(await dmChannelUser1.isMessageInputReady()).toBeTruthy()
+        await dmChannelUser1.getMessageIdsByText(user1DmMessage, users.user1.username)
+      })
+
+      it('Owner sees the DM appear in their sidebar', async () => {
+        sidebarOwner = new Sidebar(users.owner.app.driver)
+        await sidebarOwner.waitForDmChannelsNum(1, 45_000)
+        await sidebarOwner.waitForDmChannels([users.user1.username])
+      })
+
+      it("Owner opens the DM and reads the first user's message", async () => {
+        dmChannelOwner = await sidebarOwner.switchDm(users.user1.username)
+        expect(await dmChannelOwner.isMessageInputReady()).toBeTruthy()
+        await dmChannelOwner.getMessageIdsByText(user1DmMessage, users.user1.username)
+      })
+
+      it('Owner replies in the DM', async () => {
+        await dmChannelOwner.sendMessage(ownerDmMessage, users.owner.username)
+        await dmChannelOwner.getMessageIdsByText(ownerDmMessage, users.owner.username)
+      })
+
+      it("First user sees the owner's reply", async () => {
+        await dmChannelUser1.getMessageIdsByText(ownerDmMessage, users.owner.username)
+      })
+
+      // Both clients go back to general before the next stage: the owner is about to quit, and an
+      // app that reopens on a DM would fail the general-channel assertions waiting downstream.
+      it('Both return to the general channel', async () => {
+        generalChannelUser1 = await sidebarUser1.switchChannel(generalChannelName)
+        generalChannelOwner = await sidebarOwner.switchChannel(generalChannelName)
+      })
+    })
+
     describe('Owner Leaves', () => {
       it('Owner goes offline', async () => {
         await users.owner.app.close()
@@ -360,6 +421,15 @@ describe('Multiple Clients', () => {
       it('First user sees that unregistered user\'s messages are not marked as "unregistered"', async () => {
         await generalChannelUser1.getMessageIdsByText(users.user3.messages[0], users.user3.username)
         await generalChannelUser1.waitForLabelsNotPresent(users.user3.username)
+      })
+
+      // The point of a secure DM: the participant list is fixed at creation and the key is boxed to
+      // each participant, so a later joiner never sees the conversation — no community role opens
+      // it. The second user has just proved they are synced, so an empty DM list means excluded,
+      // not merely behind. Owner is offline here, which is also why this cannot be about presence.
+      it('Second user does not see the DM between the owner and the first user', async () => {
+        sidebarUser3 = new Sidebar(users.user3.app.driver)
+        expect(await sidebarUser3.getDmChannelsNames()).toEqual([])
       })
     })
 

@@ -576,6 +576,16 @@ describe('Multiple Clients (DMs)', () => {
         await groupDmChannelUser2.getUserMessages(users.user2.username)
         await groupDmChannelUser2.getMessageIdsByText(users.user2.messages.groupDm[0], users.user2.username)
       })
+
+      // The suite proves delivery from every angle but never once proves exclusion, which is the
+      // property secure DMs exist for. The owner and the first user have a 1:1 the second user was
+      // never part of; by now the second user has received messages from both of them in the group
+      // DM, so they are demonstrably synced and a count of 1 means excluded rather than behind.
+      it('Second user sees only the group DM, not the 1:1 between the owner and the first user', async () => {
+        sidebarUser2 = new Sidebar(users.user2.app.driver)
+        expect(await sidebarUser2.waitForDmChannelsNum(1, 45_000)).toBeTruthy()
+        await sidebarUser2.waitForDmChannels([channelNameMap.user2.groupDm])
+      })
     })
 
     describe('Open existing DM in New Message view', () => {
