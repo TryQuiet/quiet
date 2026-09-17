@@ -293,6 +293,37 @@ describe('ConnectionsManagerService', () => {
     }
   })
 
+  // The address and key are all this step wants; the service is destroyed immediately
+  // and the one that carries traffic is created at launch. Waiting for a descriptor
+  // upload here put community creation behind a fully bootstrapped Tor (#3565).
+  it('mints the identity onion address without waiting for a descriptor upload', async () => {
+    const onionAddress = 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion'
+    const createHiddenServiceSpy = jest
+      .spyOn(connectionsManagerService['tor'], 'createNewHiddenService')
+      .mockResolvedValue({ onionAddress, privateKey: 'ED25519-V3:key' })
+    const destroyHiddenServiceSpy = jest
+      .spyOn(connectionsManagerService['tor'], 'destroyHiddenService')
+      .mockResolvedValue(true)
+    connectionsManagerService['ports'] = {
+      socksPort: 43_000,
+      libp2pHiddenService: 43_001,
+      controlPort: 43_002,
+      dataServer: 43_003,
+      httpTunnelPort: 43_004,
+    }
+
+    try {
+      const network = await connectionsManagerService.getNetworkInfo()
+
+      expect(createHiddenServiceSpy).toHaveBeenCalledWith(expect.objectContaining({ waitForDescriptorUpload: false }))
+      expect(destroyHiddenServiceSpy).toHaveBeenCalledWith(onionAddress.split('.')[0])
+      expect(network.hiddenService.onionAddress).toBe(onionAddress)
+    } finally {
+      createHiddenServiceSpy.mockRestore()
+      destroyHiddenServiceSpy.mockRestore()
+    }
+  })
+
   it('launches community on init if its data exists in local db', async () => {
     logger.info('launches community on init if its data exists in local db')
     const remotePeer = createLibp2pAddress(

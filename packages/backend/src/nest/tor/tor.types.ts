@@ -84,11 +84,20 @@ export type BootstrapStatus = {
   tag?: string
   warning?: string
   reason?: string
+  /**
+   * Tor's own advice about the warning it just reported: `ignore` means Tor is
+   * retrying and expects to recover, `warn` that the user should be told.
+   */
+  recommendation?: string
 }
 
 export type BootstrapStallState = {
-  progress?: number
+  /** Progress as last reported. Any change to it counts as movement. */
+  progress: number
   tag?: string
-  firstObservedAt: number
-  timeoutWarningCount: number
+  /** When progress last changed - the clock a stall is measured against. */
+  lastProgressAt: number
+  /** Warnings Tor told us to ignore. Logged, never a reason to restart. */
+  ignorableWarningCount: number
+  lastSlowLogAt: number
 }
