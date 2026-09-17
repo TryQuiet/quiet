@@ -1,38 +1,14 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [11.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@10.0.0-alpha.1...@quiet/desktop@11.0.0-alpha.0) (2026-09-17)
-
-
-### Bug Fixes
-
-* **desktop:** do not snap the channel to the bottom on resize while reading history ([04bde8f](https://github.com/TryQuiet/quiet/commit/04bde8f2a369288e6d025d8dbbbb616c4886ae02))
-* **desktop:** ignore layout-induced scroll events when tracking the reader's position ([#3556](https://github.com/TryQuiet/quiet/issues/3556)) ([1c4c628](https://github.com/TryQuiet/quiet/commit/1c4c62801edce1a0acd93e7b101bd3714a713c55)), closes [#3552](https://github.com/TryQuiet/quiet/issues/3552)
-* **device-link:** keep reusable invitations current and explicit ([bad4a47](https://github.com/TryQuiet/quiet/commit/bad4a47fec58a6f5134da84209525b20ea594c3c))
-* keep invitation credentials out of logs and storage ([d0eb742](https://github.com/TryQuiet/quiet/commit/d0eb74284ff7f2437b8217420c9ea3f007d64267))
-* preserve failed-admission cleanup across restart ([ade57a0](https://github.com/TryQuiet/quiet/commit/ade57a0f58138e6e2c69aa50b5eeec159208eba9))
-* stabilize onboarding and e2e CI ([b81d63a](https://github.com/TryQuiet/quiet/commit/b81d63a7f77e8f1ead9fc7bb714fbcef0cc33a7f))
-* update device-link test fixtures and channel creation timing ([b7a2d5c](https://github.com/TryQuiet/quiet/commit/b7a2d5c0ef85e036bd0935eec382c94dff1548ef))
-
+## [11.0.0]
 
 ### Features
 
-* add network endpoints management and related updates ([1e4828d](https://github.com/TryQuiet/quiet/commit/1e4828d5c7ff079784b88e090ce6c2b9f6c9f874))
-* **device-link:** require endpoint confirmation before linking ([adea946](https://github.com/TryQuiet/quiet/commit/adea946aa5db7e8ab9a6ab4abe9bd1aaa8693e09))
-* enable local transport gating for E2E testing ([6e9b621](https://github.com/TryQuiet/quiet/commit/6e9b62136ba5be957465135105721cc68b7050e9))
-* enhance E2E workflows with LOCAL_TRANSPORT settings and improve legacy storage migration tests ([3294b16](https://github.com/TryQuiet/quiet/commit/3294b167630a01767b57db293845ff84443b4e5f))
-* implement admission timeout recovery and reset functionality ([3bf6986](https://github.com/TryQuiet/quiet/commit/3bf6986d1505d148826db11da004848edf67b9df))
-* implement device link invitation expiration handling and related updates ([e7a1c54](https://github.com/TryQuiet/quiet/commit/e7a1c54bc5900b898568200a314cb9cf1ade922e))
-* implement device linking functionality ([28e4c82](https://github.com/TryQuiet/quiet/commit/28e4c82b5e47808d66303ccd91df90edfeed7e07))
-* implement linked devices frontend and integrate QR code sharing ([0420c84](https://github.com/TryQuiet/quiet/commit/0420c843c716d23c16ce0e53a05b2dddd6c84a4b))
+* Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
 
+### Breaking
 
-
-
-
-# Changelog
+* Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
 
 ## [10.0.0]
 
@@ -79,6 +55,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 * Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
+* Fix tapable area in two places in the Appbar [#3372] (https://github.com/TryQuiet/quiet/issues/3372)
 * Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
 * Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
