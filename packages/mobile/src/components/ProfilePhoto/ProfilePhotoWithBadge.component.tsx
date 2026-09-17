@@ -86,7 +86,9 @@ export const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({
       componentSize = 30
       break
     case ProfilePhotoSize.MEDIUM:
-      componentSize = 37
+      // The member rows the designs draw carry a 32pt avatar (Figma PVQ1Kjf6Cq8ng1czuVtvR8,
+      // 838:9311 and 5057:15992); 37 is what made those rows 60 tall instead of 54 and 56.
+      componentSize = 32
       break
     case ProfilePhotoSize.LARGE:
       componentSize = 48

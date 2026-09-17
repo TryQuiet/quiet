@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { FlatList, ListRenderItemInfo, TouchableOpacity, View } from 'react-native'
 
 import { ProfilePhoto } from '../../ProfilePhoto/ProfilePhoto.component'
@@ -9,7 +8,7 @@ import { SelectableListOption, UpdateChannelMembershipListProps } from './Update
 import { Spinner } from '../../Spinner/Spinner.component'
 import { createLogger } from '../../../utils/logger'
 import { uniqueId } from 'lodash'
-import { USER_ROW_HEIGHT } from '../ChannelMembership.types'
+import { SELECTABLE_USER_ROW_HEIGHT } from '../ChannelMembership.types'
 import { ProfilePhotoWithBadge } from '../../ProfilePhoto/ProfilePhotoWithBadge.component'
 import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 
@@ -25,7 +24,11 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
   nonMembers,
   maxVisibleOptions,
 }) => {
-  const [hasOptions, setHasOptions] = useState<boolean | undefined>(undefined)
+  // Loading means the candidate list has not arrived yet, which is only true while the caller has
+  // given us nothing. Once it has, an empty result — everyone is already in the channel, or the
+  // query matched nobody — is an answer, not a reason to keep spinning.
+  const loaded = options != null && visibleOptionsIndices != null
+
   const updateOptionsOnCheck = (option: SelectableListOption) => {
     if (options == null) return
     if (!option.mutable) return
@@ -36,14 +39,6 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
 
     setOptions(options.map(option => option))
   }
-
-  useEffect(() => {
-    setHasOptions(
-      visibleOptionsIndices == null || Object.values(nonMembers ?? {}).length === 0
-        ? undefined
-        : visibleOptionsIndices.size > 0
-    )
-  }, [visibleOptionsIndices, nonMembers])
 
   const renderItem = (listItem: ListRenderItemInfo<number>) => {
     // @ts-expect-error
@@ -92,7 +87,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
           uncheckedColor={uncheckedColor}
           disabled={!item.mutable}
           onPress={() => updateOptionsOnCheck(item)}
-          viewStyle={{ paddingHorizontal: HORIZ_ELEM_PADDING, height: 60 }}
+          viewStyle={{ paddingHorizontal: HORIZ_ELEM_PADDING, height: SELECTABLE_USER_ROW_HEIGHT }}
         />
       </TouchableOpacity>
     )
@@ -100,21 +95,39 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
 
   return (
     <View>
-      {hasOptions == null || visibleOptionsIndices == null || options == null ? (
+      {!loaded ? (
         <View style={{ paddingVertical: 16 }} testID={`update-channel-membership-list-spinner-${channelId}`}>
           <Spinner description='Loading member list' />
         </View>
       ) : (
         <View>
+          {/* "Header heading" from the design library (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9310):
+              10/16 medium, upper case, 1pt of tracking, 8pt clear of the first row. */}
           <Typography
             fontSize={10}
-            style={{ color: defaultTheme.palette.typography.gray50, paddingHorizontal: 16 }}
+            fontWeight={'medium'}
+            style={{
+              color: defaultTheme.palette.typography.gray50,
+              lineHeight: 16,
+              letterSpacing: 1,
+              paddingHorizontal: HORIZ_ELEM_PADDING,
+              paddingBottom: 8,
+            }}
             testID={`update-channel-membership-list-header-${channelId}`}
           >
             MEMBERS
           </Typography>
-          {hasOptions ? (
-            <View style={{ height: maxVisibleOptions != null ? USER_ROW_HEIGHT * maxVisibleOptions : undefined }}>
+          {visibleOptionsIndices.size > 0 ? (
+            <View
+              style={{
+                // Each row plus the hairline under it, so the window ends on a row boundary.
+                // maxHeight, not height: a fixed height cannot give way, and in the new-message
+                // composer this list sits above the message input in a column that is already
+                // short when the keyboard is up. Fixed, it pushed the input off the screen.
+                maxHeight: maxVisibleOptions != null ? (SELECTABLE_USER_ROW_HEIGHT + 1) * maxVisibleOptions : undefined,
+                flexShrink: 1,
+              }}
+            >
               <FlatList
                 data={[...visibleOptionsIndices]}
                 extraData={{ visibleOptionsIndices, options }}

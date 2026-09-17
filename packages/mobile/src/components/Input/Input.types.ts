@@ -17,7 +17,6 @@ export interface InputProps {
   hint?: string
   multiline?: boolean
   disabled?: boolean
-  round?: boolean
   style?: ViewStyle
   wrapperStyle?: ViewStyle
   children?: ReactElement

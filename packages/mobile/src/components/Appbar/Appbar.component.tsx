@@ -7,6 +7,11 @@ import { icons } from '../../assets'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { DefaultAppbarTitle } from './DefaultAppbarHeaderTitle.component'
 
+/** The smallest comfortable finger target; every guideline puts it at 44. */
+const TOUCH_TARGET = 44
+/** Extra tappable margin around a control, for the pixels a thumb lands on but the box misses. */
+const TOUCH_SLOP = { top: 8, bottom: 8, left: 8, right: 8 }
+
 export const Appbar: FC<AppbarProps> = ({
   title,
   titleComponent,
@@ -31,19 +36,24 @@ export const Appbar: FC<AppbarProps> = ({
     )
   return (
     <StyledAppbar style={style}>
-      <View style={{ flex: 1 }}>
+      {/* alignSelf stretch so the control fills the bar's height rather than sitting in a 50px
+          band inside it — the strip above and below a centred child is dead to a finger. */}
+      <View style={{ flex: 1, alignSelf: 'stretch' }}>
         <TouchableOpacity
           onPress={() => {
             if (back) back()
           }}
+          hitSlop={TOUCH_SLOP}
+          style={{ flex: 1 }}
           testID={'appbar_action_item'}
         >
           <View
             style={{
+              flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
               width: 64,
-              height: 50,
+              minHeight: TOUCH_TARGET,
             }}
           >
             {back ? (
@@ -77,7 +87,7 @@ export const Appbar: FC<AppbarProps> = ({
         </TouchableOpacity>
       </View>
       <View style={{ flex: 4, alignItems: `${position || 'center'}` }}>{displayedTitleComponent}</View>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, alignSelf: 'stretch' }}>
         {contextMenu && (
           <TouchableOpacity
             onPress={event => {
@@ -85,9 +95,21 @@ export const Appbar: FC<AppbarProps> = ({
               Keyboard.dismiss()
               contextMenu.handleOpen()
             }}
+            // The glyph is 16px. The target is the whole column, the full height of the bar, plus
+            // slop past the screen edge — a menu in the corner should never need aiming.
+            hitSlop={TOUCH_SLOP}
+            style={{ flex: 1 }}
             testID={'open_menu'}
           >
-            <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: 64,
+                minHeight: TOUCH_TARGET,
+              }}
+            >
               <Image
                 source={menu_icon}
                 resizeMode='contain'
@@ -107,9 +129,22 @@ export const Appbar: FC<AppbarProps> = ({
               event.persist()
               submit()
             }}
+            // The label alone is about 40x20, well under the 44 a finger needs. Padding gives the
+            // target without moving the text, and hitSlop covers the rest.
+            hitSlop={TOUCH_SLOP}
+            style={{ flex: 1 }}
             testID={'submit'}
           >
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                minWidth: TOUCH_TARGET,
+                minHeight: TOUCH_TARGET,
+                paddingHorizontal: 8,
+              }}
+            >
               <Typography style={{ color: defaultTheme.palette.typography.blue }} fontSize={16}>
                 Done
               </Typography>

@@ -40,11 +40,7 @@ const StatusBarSpec: React.FC<{ purpleBar: boolean }> = ({ purpleBar }) => {
       <Appbar
         title={purpleBar ? 'dm-secure' : 'New message'}
         position={purpleBar ? 'flex-start' : 'center'}
-        style={
-          purpleBar
-            ? { backgroundColor: defaultTheme.palette.main.brand, borderBottomWidth: 0 }
-            : undefined
-        }
+        style={purpleBar ? { backgroundColor: defaultTheme.palette.main.brand, borderBottomWidth: 0 } : undefined}
         iconColor={purpleBar ? defaultTheme.palette.typography.white : undefined}
         textColor={purpleBar ? 'white' : undefined}
       />

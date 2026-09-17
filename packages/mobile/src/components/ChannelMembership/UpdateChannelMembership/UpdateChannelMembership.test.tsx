@@ -1,14 +1,16 @@
 import { getBaseTypesFactory, getSocketFactory } from '@quiet/state-manager'
 import { ChannelType, UserProfile } from '@quiet/types'
-import { render } from '@testing-library/react-native'
+import { fireEvent, render, within } from '@testing-library/react-native'
 import { FactoryGirl } from 'factory-girl'
 import React from 'react'
+import { Image } from 'react-native'
 import { Provider } from 'react-redux'
 import { ReactTestInstance } from 'react-test-renderer'
 
 import { renderComponent } from '../../../utils/functions/renderComponent/renderComponent'
 import { createLogger } from '../../../utils/logger'
 import { UpdateChannelMembership } from './UpdateChannelMembership.component'
+import { UpdateChannelMembershipList } from './UpdateChannelMembershipList.component'
 import type { DmChannelUserData } from '../../ProfilePhoto/ProfilePhoto.types'
 
 const logger = createLogger('UpdateChannelMembership:test')
@@ -38,7 +40,9 @@ describe('UpdateChannelMembership component', () => {
     }
   }
 
-  it('displays spinner when user profiles is empty', async () => {
+  // Everyone in the community is already in this channel, so there is nobody left to add. That is
+  // an answer, not a pending load: this screen used to spin here forever.
+  it('shows the empty state, not a spinner, when there is nobody left to add', async () => {
     const channelName = 'private-channel'
     const channelId = 'abc123'
     const rendered = renderComponent(
@@ -46,6 +50,7 @@ describe('UpdateChannelMembership component', () => {
         channelName={channelName}
         channelTitle={channelName}
         channelType={ChannelType.CHANNEL}
+        channelIsPublic={false}
         channelId={channelId}
         community={undefined}
         nonMembers={{}}
@@ -54,10 +59,10 @@ describe('UpdateChannelMembership component', () => {
       />
     )
 
-    expect(await findByTestId(rendered, `update-channel-membership-list-spinner-${channelId}`)).toBeDefined()
+    expect(await findByTestId(rendered, `update-channel-membership-list-spinner-${channelId}`)).not.toBeDefined()
     expect(await findByTestId(rendered, `update-channel-membership-list-${channelId}`)).not.toBeDefined()
-    expect(await findByTestId(rendered, `update-channel-membership-list-nomembers-${channelId}`)).not.toBeDefined()
-    expect(await findByTestId(rendered, `update-channel-membership-list-header-${channelId}`)).not.toBeDefined()
+    expect(await findByTestId(rendered, `update-channel-membership-list-nomembers-${channelId}`)).toBeDefined()
+    expect(await findByTestId(rendered, `update-channel-membership-list-header-${channelId}`)).toBeDefined()
     expect(rendered.toJSON()).toMatchInlineSnapshot(`
       <View
         style={
@@ -93,8 +98,8 @@ describe('UpdateChannelMembership component', () => {
                   "display": "flex",
                   "flexDirection": "row",
                   "justifyContent": "center",
-                  "maxHeight": 52,
-                  "minHeight": 52,
+                  "maxHeight": 64,
+                  "minHeight": 60,
                 },
               ]
             }
@@ -102,6 +107,7 @@ describe('UpdateChannelMembership component', () => {
             <View
               style={
                 {
+                  "alignSelf": "stretch",
                   "flex": 1,
                 }
               }
@@ -127,6 +133,14 @@ describe('UpdateChannelMembership component', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                hitSlop={
+                  {
+                    "bottom": 8,
+                    "left": 8,
+                    "right": 8,
+                    "top": 8,
+                  }
+                }
                 onClick={[Function]}
                 onResponderGrant={[Function]}
                 onResponderMove={[Function]}
@@ -136,6 +150,7 @@ describe('UpdateChannelMembership component', () => {
                 onStartShouldSetResponder={[Function]}
                 style={
                   {
+                    "flex": 1,
                     "opacity": 1,
                   }
                 }
@@ -145,8 +160,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
-                      "height": 50,
+                      "flex": 1,
                       "justifyContent": "center",
+                      "minHeight": 44,
                       "width": 64,
                     }
                   }
@@ -156,7 +172,7 @@ describe('UpdateChannelMembership component', () => {
                     resizeMode="cover"
                     source={
                       {
-                        "testUri": "../../../src/assets/icons/png/arrow_left.png",
+                        "testUri": "../../../src/assets/icons/png/icon_close.png",
                       }
                     }
                     style={
@@ -272,6 +288,7 @@ describe('UpdateChannelMembership component', () => {
                         },
                       ]
                     }
+                    testID="channel-membership-private-icon"
                     vbHeight={24}
                     vbWidth={24}
                     width={16}
@@ -389,6 +406,7 @@ describe('UpdateChannelMembership component', () => {
             <View
               style={
                 {
+                  "alignSelf": "stretch",
                   "flex": 1,
                 }
               }
@@ -414,6 +432,14 @@ describe('UpdateChannelMembership component', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                hitSlop={
+                  {
+                    "bottom": 8,
+                    "left": 8,
+                    "right": 8,
+                    "top": 8,
+                  }
+                }
                 onClick={[Function]}
                 onResponderGrant={[Function]}
                 onResponderMove={[Function]}
@@ -423,6 +449,7 @@ describe('UpdateChannelMembership component', () => {
                 onStartShouldSetResponder={[Function]}
                 style={
                   {
+                    "flex": 1,
                     "opacity": 1,
                   }
                 }
@@ -432,7 +459,11 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "flex": 1,
                       "justifyContent": "center",
+                      "minHeight": 44,
+                      "minWidth": 44,
+                      "paddingHorizontal": 8,
                     }
                   }
                 >
@@ -468,133 +499,154 @@ describe('UpdateChannelMembership component', () => {
                 "display": "flex",
                 "flexDirection": "column",
                 "gap": 32,
-                "paddingTop": 16,
               }
             }
           >
             <View
+              style={
+                {
+                  "borderBottomColor": "#F0F0F0",
+                  "borderBottomWidth": 1,
+                  "paddingBottom": 16,
+                  "paddingHorizontal": 16,
+                  "paddingTop": 16,
+                }
+              }
               testID="update-channel-membership-input-abc123"
             >
               <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
+                accessibilityValue={
+                  {
+                    "max": undefined,
+                    "min": undefined,
+                    "now": undefined,
+                    "text": undefined,
+                  }
+                }
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   {
-                    "display": "flex",
-                    "flexDirection": "column",
+                    "backgroundColor": "#ffffff",
+                    "borderColor": "#E5E5E5",
+                    "borderRadius": 16,
+                    "borderWidth": 1,
+                    "justifyContent": "center",
+                    "minHeight": 42,
+                    "paddingHorizontal": 16,
+                    "paddingVertical": 8,
                   }
                 }
               >
                 <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": false,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onFocus={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  round={false}
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#ffffff",
-                        "borderColor": "#C4C4C4",
-                        "borderRadius": 4,
-                        "borderWidth": 1,
-                        "flexDirection": "row",
-                        "flexGrow": 1,
-                        "height": 56,
-                        "justifyContent": "flex-start",
-                        "paddingLeft": 16,
-                        "paddingRight": 16,
-                      },
-                      {
-                        "borderRadius": 0,
-                        "borderWidth": 0,
-                        "height": 44,
-                        "paddingHorizontal": 16,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "flexWrap": "wrap",
+                      "gap": 4,
+                    }
                   }
                 >
-                  <Text
-                    color="main"
-                    fontSize={16}
-                    horizontalTextAlign="left"
-                    style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 16,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                        {
-                          "color": "#7F7F7F",
-                          "paddingRight": 8,
-                        },
-                      ]
-                    }
-                    verticalTextAlign="center"
-                  >
-                    To:
-                  </Text>
                   <TextInput
+                    autoCapitalize="none"
                     autoCorrect={false}
                     editable={true}
-                    height={54}
                     keyboardType="email-address"
                     maxLength={20}
                     onChangeText={[Function]}
-                    onContentSizeChange={[Function]}
-                    placeholder="Search for people, chats or channels"
-                    placeholderTextColor="#999999"
+                    placeholder="E.g. @jane123"
+                    placeholderTextColor="#7F7F7F"
                     style={
-                      [
-                        {
-                          "flexBasis": 0,
-                          "flexGrow": 1,
-                          "flexShrink": 1,
-                          "height": 54,
-                          "paddingBottom": 12,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#222222",
+                        "flexGrow": 1,
+                        "fontSize": 14,
+                        "lineHeight": 20,
+                        "minWidth": 96,
+                        "padding": 0,
+                      }
                     }
                     testID="input"
                   />
                 </View>
               </View>
-              <View
-                style={
-                  {
-                    "paddingTop": 16,
+            </View>
+            <View>
+              <View>
+                <Text
+                  color="main"
+                  fontSize={10}
+                  fontWeight="medium"
+                  horizontalTextAlign="left"
+                  style={
+                    [
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Medium",
+                        "fontSize": 10,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                      {
+                        "color": "#7F7F7F",
+                        "letterSpacing": 1,
+                        "lineHeight": 16,
+                        "paddingBottom": 8,
+                        "paddingHorizontal": 16,
+                      },
+                    ]
                   }
-                }
-              >
+                  testID="update-channel-membership-list-header-abc123"
+                  verticalTextAlign="center"
+                >
+                  MEMBERS
+                </Text>
+                <Text
+                  color="main"
+                  fontSize={14}
+                  horizontalTextAlign="left"
+                  style={
+                    [
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                      {
+                        "color": "#999999",
+                        "fontStyle": "italic",
+                        "paddingHorizontal": 16,
+                        "paddingVertical": 16,
+                      },
+                    ]
+                  }
+                  testID="update-channel-membership-list-nomembers-abc123"
+                  verticalTextAlign="center"
+                >
+                  No members to add
+                </Text>
                 <View
                   style={
                     {
@@ -603,55 +655,6 @@ describe('UpdateChannelMembership component', () => {
                     }
                   }
                 />
-              </View>
-            </View>
-            <View>
-              <View
-                style={
-                  {
-                    "paddingVertical": 16,
-                  }
-                }
-                testID="update-channel-membership-list-spinner-abc123"
-              >
-                <View
-                  style={
-                    {
-                      "alignItems": "center",
-                      "backgroundColor": "#ffffff",
-                      "flex": 1,
-                      "justifyContent": "center",
-                    }
-                  }
-                >
-                  <ActivityIndicator
-                    color="#67BFD3"
-                    size="large"
-                  />
-                  <Text
-                    color="main"
-                    fontSize={14}
-                    horizontalTextAlign="center"
-                    style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 14,
-                          "textAlign": "center",
-                          "textAlignVertical": "center",
-                        },
-                        {
-                          "margin": 10,
-                          "maxWidth": 200,
-                        },
-                      ]
-                    }
-                    verticalTextAlign="center"
-                  >
-                    Loading member list
-                  </Text>
-                </View>
               </View>
             </View>
           </View>
@@ -693,6 +696,7 @@ describe('UpdateChannelMembership component', () => {
         channelName={channelName}
         channelTitle={channelName}
         channelType={ChannelType.CHANNEL}
+        channelIsPublic={false}
         channelId={channelId}
         community={undefined}
         nonMembers={nonMembers}
@@ -744,8 +748,8 @@ describe('UpdateChannelMembership component', () => {
                   "display": "flex",
                   "flexDirection": "row",
                   "justifyContent": "center",
-                  "maxHeight": 52,
-                  "minHeight": 52,
+                  "maxHeight": 64,
+                  "minHeight": 60,
                 },
               ]
             }
@@ -753,6 +757,7 @@ describe('UpdateChannelMembership component', () => {
             <View
               style={
                 {
+                  "alignSelf": "stretch",
                   "flex": 1,
                 }
               }
@@ -778,6 +783,14 @@ describe('UpdateChannelMembership component', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                hitSlop={
+                  {
+                    "bottom": 8,
+                    "left": 8,
+                    "right": 8,
+                    "top": 8,
+                  }
+                }
                 onClick={[Function]}
                 onResponderGrant={[Function]}
                 onResponderMove={[Function]}
@@ -787,6 +800,7 @@ describe('UpdateChannelMembership component', () => {
                 onStartShouldSetResponder={[Function]}
                 style={
                   {
+                    "flex": 1,
                     "opacity": 1,
                   }
                 }
@@ -796,8 +810,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
-                      "height": 50,
+                      "flex": 1,
                       "justifyContent": "center",
+                      "minHeight": 44,
                       "width": 64,
                     }
                   }
@@ -807,7 +822,7 @@ describe('UpdateChannelMembership component', () => {
                     resizeMode="cover"
                     source={
                       {
-                        "testUri": "../../../src/assets/icons/png/arrow_left.png",
+                        "testUri": "../../../src/assets/icons/png/icon_close.png",
                       }
                     }
                     style={
@@ -923,6 +938,7 @@ describe('UpdateChannelMembership component', () => {
                         },
                       ]
                     }
+                    testID="channel-membership-private-icon"
                     vbHeight={24}
                     vbWidth={24}
                     width={16}
@@ -1040,6 +1056,7 @@ describe('UpdateChannelMembership component', () => {
             <View
               style={
                 {
+                  "alignSelf": "stretch",
                   "flex": 1,
                 }
               }
@@ -1065,6 +1082,14 @@ describe('UpdateChannelMembership component', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                hitSlop={
+                  {
+                    "bottom": 8,
+                    "left": 8,
+                    "right": 8,
+                    "top": 8,
+                  }
+                }
                 onClick={[Function]}
                 onResponderGrant={[Function]}
                 onResponderMove={[Function]}
@@ -1074,6 +1099,7 @@ describe('UpdateChannelMembership component', () => {
                 onStartShouldSetResponder={[Function]}
                 style={
                   {
+                    "flex": 1,
                     "opacity": 1,
                   }
                 }
@@ -1083,7 +1109,11 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "flex": 1,
                       "justifyContent": "center",
+                      "minHeight": 44,
+                      "minWidth": 44,
+                      "paddingHorizontal": 8,
                     }
                   }
                 >
@@ -1119,141 +1149,96 @@ describe('UpdateChannelMembership component', () => {
                 "display": "flex",
                 "flexDirection": "column",
                 "gap": 32,
-                "paddingTop": 16,
               }
             }
           >
             <View
+              style={
+                {
+                  "borderBottomColor": "#F0F0F0",
+                  "borderBottomWidth": 1,
+                  "paddingBottom": 16,
+                  "paddingHorizontal": 16,
+                  "paddingTop": 16,
+                }
+              }
               testID="update-channel-membership-input-abc123"
             >
               <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
+                accessibilityValue={
+                  {
+                    "max": undefined,
+                    "min": undefined,
+                    "now": undefined,
+                    "text": undefined,
+                  }
+                }
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   {
-                    "display": "flex",
-                    "flexDirection": "column",
+                    "backgroundColor": "#ffffff",
+                    "borderColor": "#E5E5E5",
+                    "borderRadius": 16,
+                    "borderWidth": 1,
+                    "justifyContent": "center",
+                    "minHeight": 42,
+                    "paddingHorizontal": 16,
+                    "paddingVertical": 8,
                   }
                 }
               >
                 <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": false,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onFocus={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  round={false}
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#ffffff",
-                        "borderColor": "#C4C4C4",
-                        "borderRadius": 4,
-                        "borderWidth": 1,
-                        "flexDirection": "row",
-                        "flexGrow": 1,
-                        "height": 56,
-                        "justifyContent": "flex-start",
-                        "paddingLeft": 16,
-                        "paddingRight": 16,
-                      },
-                      {
-                        "borderRadius": 0,
-                        "borderWidth": 0,
-                        "height": 44,
-                        "paddingHorizontal": 16,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "flexWrap": "wrap",
+                      "gap": 4,
+                    }
                   }
                 >
-                  <Text
-                    color="main"
-                    fontSize={16}
-                    horizontalTextAlign="left"
-                    style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 16,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                        {
-                          "color": "#7F7F7F",
-                          "paddingRight": 8,
-                        },
-                      ]
-                    }
-                    verticalTextAlign="center"
-                  >
-                    To:
-                  </Text>
                   <TextInput
+                    autoCapitalize="none"
                     autoCorrect={false}
                     editable={true}
-                    height={54}
                     keyboardType="email-address"
                     maxLength={20}
                     onChangeText={[Function]}
-                    onContentSizeChange={[Function]}
-                    placeholder="Search for people, chats or channels"
-                    placeholderTextColor="#999999"
+                    placeholder="E.g. @jane123"
+                    placeholderTextColor="#7F7F7F"
                     style={
-                      [
-                        {
-                          "flexBasis": 0,
-                          "flexGrow": 1,
-                          "flexShrink": 1,
-                          "height": 54,
-                          "paddingBottom": 12,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#222222",
+                        "flexGrow": 1,
+                        "fontSize": 14,
+                        "lineHeight": 20,
+                        "minWidth": 96,
+                        "padding": 0,
+                      }
                     }
                     testID="input"
                   />
                 </View>
-              </View>
-              <View
-                style={
-                  {
-                    "paddingTop": 16,
-                  }
-                }
-              >
-                <View
-                  style={
-                    {
-                      "backgroundColor": "#F0F0F0",
-                      "height": 1,
-                    }
-                  }
-                />
               </View>
             </View>
             <View>
@@ -1261,18 +1246,22 @@ describe('UpdateChannelMembership component', () => {
                 <Text
                   color="main"
                   fontSize={10}
+                  fontWeight="medium"
                   horizontalTextAlign="left"
                   style={
                     [
                       {
                         "color": "#000000",
-                        "fontFamily": "Rubik-Regular",
+                        "fontFamily": "Rubik-Medium",
                         "fontSize": 10,
                         "textAlign": "left",
                         "textAlignVertical": "center",
                       },
                       {
                         "color": "#7F7F7F",
+                        "letterSpacing": 1,
+                        "lineHeight": 16,
+                        "paddingBottom": 8,
                         "paddingHorizontal": 16,
                       },
                     ]
@@ -1285,7 +1274,8 @@ describe('UpdateChannelMembership component', () => {
                 <View
                   style={
                     {
-                      "height": undefined,
+                      "flexShrink": 1,
+                      "maxHeight": undefined,
                     }
                   }
                 >
@@ -1393,7 +1383,7 @@ describe('UpdateChannelMembership component', () => {
                                 "display": "flex",
                                 "flexDirection": "row",
                                 "gap": 8,
-                                "height": 60,
+                                "height": 54,
                                 "paddingHorizontal": 16,
                                 "paddingVertical": 4,
                               }
@@ -1537,9 +1527,9 @@ describe('UpdateChannelMembership component', () => {
                                   style={
                                     {
                                       "borderRadius": 4,
-                                      "height": 37,
+                                      "height": 32,
                                       "padding": 0,
-                                      "width": 37,
+                                      "width": 32,
                                     }
                                   }
                                 />
@@ -1565,7 +1555,7 @@ describe('UpdateChannelMembership component', () => {
                                       "right": -4,
                                       "textAlign": "center",
                                       "textAlignVertical": "center",
-                                      "top": 28,
+                                      "top": 23,
                                     }
                                   }
                                 />
@@ -1644,6 +1634,7 @@ describe('UpdateChannelMembership component', () => {
         channelName={channelName}
         channelTitle={channelName}
         channelType={ChannelType.CHANNEL}
+        channelIsPublic={false}
         channelId={channelId}
         community={undefined}
         nonMembers={nonMembers}
@@ -1695,8 +1686,8 @@ describe('UpdateChannelMembership component', () => {
                   "display": "flex",
                   "flexDirection": "row",
                   "justifyContent": "center",
-                  "maxHeight": 52,
-                  "minHeight": 52,
+                  "maxHeight": 64,
+                  "minHeight": 60,
                 },
               ]
             }
@@ -1704,6 +1695,7 @@ describe('UpdateChannelMembership component', () => {
             <View
               style={
                 {
+                  "alignSelf": "stretch",
                   "flex": 1,
                 }
               }
@@ -1729,6 +1721,14 @@ describe('UpdateChannelMembership component', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                hitSlop={
+                  {
+                    "bottom": 8,
+                    "left": 8,
+                    "right": 8,
+                    "top": 8,
+                  }
+                }
                 onClick={[Function]}
                 onResponderGrant={[Function]}
                 onResponderMove={[Function]}
@@ -1738,6 +1738,7 @@ describe('UpdateChannelMembership component', () => {
                 onStartShouldSetResponder={[Function]}
                 style={
                   {
+                    "flex": 1,
                     "opacity": 1,
                   }
                 }
@@ -1747,8 +1748,9 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
-                      "height": 50,
+                      "flex": 1,
                       "justifyContent": "center",
+                      "minHeight": 44,
                       "width": 64,
                     }
                   }
@@ -1758,7 +1760,7 @@ describe('UpdateChannelMembership component', () => {
                     resizeMode="cover"
                     source={
                       {
-                        "testUri": "../../../src/assets/icons/png/arrow_left.png",
+                        "testUri": "../../../src/assets/icons/png/icon_close.png",
                       }
                     }
                     style={
@@ -1874,6 +1876,7 @@ describe('UpdateChannelMembership component', () => {
                         },
                       ]
                     }
+                    testID="channel-membership-private-icon"
                     vbHeight={24}
                     vbWidth={24}
                     width={16}
@@ -1991,6 +1994,7 @@ describe('UpdateChannelMembership component', () => {
             <View
               style={
                 {
+                  "alignSelf": "stretch",
                   "flex": 1,
                 }
               }
@@ -2016,6 +2020,14 @@ describe('UpdateChannelMembership component', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                hitSlop={
+                  {
+                    "bottom": 8,
+                    "left": 8,
+                    "right": 8,
+                    "top": 8,
+                  }
+                }
                 onClick={[Function]}
                 onResponderGrant={[Function]}
                 onResponderMove={[Function]}
@@ -2025,6 +2037,7 @@ describe('UpdateChannelMembership component', () => {
                 onStartShouldSetResponder={[Function]}
                 style={
                   {
+                    "flex": 1,
                     "opacity": 1,
                   }
                 }
@@ -2034,7 +2047,11 @@ describe('UpdateChannelMembership component', () => {
                   style={
                     {
                       "alignItems": "center",
+                      "flex": 1,
                       "justifyContent": "center",
+                      "minHeight": 44,
+                      "minWidth": 44,
+                      "paddingHorizontal": 8,
                     }
                   }
                 >
@@ -2070,141 +2087,96 @@ describe('UpdateChannelMembership component', () => {
                 "display": "flex",
                 "flexDirection": "column",
                 "gap": 32,
-                "paddingTop": 16,
               }
             }
           >
             <View
+              style={
+                {
+                  "borderBottomColor": "#F0F0F0",
+                  "borderBottomWidth": 1,
+                  "paddingBottom": 16,
+                  "paddingHorizontal": 16,
+                  "paddingTop": 16,
+                }
+              }
               testID="update-channel-membership-input-abc123"
             >
               <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
+                accessibilityValue={
+                  {
+                    "max": undefined,
+                    "min": undefined,
+                    "now": undefined,
+                    "text": undefined,
+                  }
+                }
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   {
-                    "display": "flex",
-                    "flexDirection": "column",
+                    "backgroundColor": "#ffffff",
+                    "borderColor": "#E5E5E5",
+                    "borderRadius": 16,
+                    "borderWidth": 1,
+                    "justifyContent": "center",
+                    "minHeight": 42,
+                    "paddingHorizontal": 16,
+                    "paddingVertical": 8,
                   }
                 }
               >
                 <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": false,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onFocus={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  round={false}
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#ffffff",
-                        "borderColor": "#C4C4C4",
-                        "borderRadius": 4,
-                        "borderWidth": 1,
-                        "flexDirection": "row",
-                        "flexGrow": 1,
-                        "height": 56,
-                        "justifyContent": "flex-start",
-                        "paddingLeft": 16,
-                        "paddingRight": 16,
-                      },
-                      {
-                        "borderRadius": 0,
-                        "borderWidth": 0,
-                        "height": 44,
-                        "paddingHorizontal": 16,
-                      },
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "flexWrap": "wrap",
+                      "gap": 4,
+                    }
                   }
                 >
-                  <Text
-                    color="main"
-                    fontSize={16}
-                    horizontalTextAlign="left"
-                    style={
-                      [
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 16,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                        {
-                          "color": "#7F7F7F",
-                          "paddingRight": 8,
-                        },
-                      ]
-                    }
-                    verticalTextAlign="center"
-                  >
-                    To:
-                  </Text>
                   <TextInput
+                    autoCapitalize="none"
                     autoCorrect={false}
                     editable={true}
-                    height={54}
                     keyboardType="email-address"
                     maxLength={20}
                     onChangeText={[Function]}
-                    onContentSizeChange={[Function]}
-                    placeholder="Search for people, chats or channels"
-                    placeholderTextColor="#999999"
+                    placeholder="E.g. @jane123"
+                    placeholderTextColor="#7F7F7F"
                     style={
-                      [
-                        {
-                          "flexBasis": 0,
-                          "flexGrow": 1,
-                          "flexShrink": 1,
-                          "height": 54,
-                          "paddingBottom": 12,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#222222",
+                        "flexGrow": 1,
+                        "fontSize": 14,
+                        "lineHeight": 20,
+                        "minWidth": 96,
+                        "padding": 0,
+                      }
                     }
                     testID="input"
                   />
                 </View>
-              </View>
-              <View
-                style={
-                  {
-                    "paddingTop": 16,
-                  }
-                }
-              >
-                <View
-                  style={
-                    {
-                      "backgroundColor": "#F0F0F0",
-                      "height": 1,
-                    }
-                  }
-                />
               </View>
             </View>
             <View>
@@ -2212,18 +2184,22 @@ describe('UpdateChannelMembership component', () => {
                 <Text
                   color="main"
                   fontSize={10}
+                  fontWeight="medium"
                   horizontalTextAlign="left"
                   style={
                     [
                       {
                         "color": "#000000",
-                        "fontFamily": "Rubik-Regular",
+                        "fontFamily": "Rubik-Medium",
                         "fontSize": 10,
                         "textAlign": "left",
                         "textAlignVertical": "center",
                       },
                       {
                         "color": "#7F7F7F",
+                        "letterSpacing": 1,
+                        "lineHeight": 16,
+                        "paddingBottom": 8,
                         "paddingHorizontal": 16,
                       },
                     ]
@@ -2273,5 +2249,167 @@ describe('UpdateChannelMembership component', () => {
         </View>
       </View>
     `)
+  })
+
+  // A query nobody matches is also an answer, and must not read as "still loading" either.
+  it('shows the empty state when the search matches nobody', async () => {
+    const channelName = 'private-channel'
+    const channelId = 'abc123'
+    const userProfiles: Record<string, UserProfile> = {
+      barbaz: await baseTypesFactory.create('UserProfile', {
+        userId: 'barbaz',
+        nickname: 'baz',
+        channels: [],
+        profilePhoto: undefined,
+        photo: 'foobar',
+      }),
+    }
+    const nonMembers: { [userId: string]: DmChannelUserData } = {}
+    Object.entries(userProfiles).forEach(([userId, user]) => {
+      nonMembers[userId] = { connected: true, user }
+    })
+    const rendered = renderComponent(
+      <UpdateChannelMembership
+        channelName={channelName}
+        channelTitle={channelName}
+        channelType={ChannelType.CHANNEL}
+        channelIsPublic={false}
+        channelId={channelId}
+        community={undefined}
+        nonMembers={nonMembers}
+        handleBackButton={jest.fn()}
+        updateChannelMembership={jest.fn()}
+      />
+    )
+
+    expect(await findByTestId(rendered, `update-channel-membership-list-${channelId}`)).toBeDefined()
+
+    fireEvent.changeText(await rendered.findByTestId('input'), 'qqqqqqqq')
+
+    expect(await findByTestId(rendered, `update-channel-membership-list-nomembers-${channelId}`)).toBeDefined()
+    expect(await findByTestId(rendered, `update-channel-membership-list-spinner-${channelId}`)).not.toBeDefined()
+    expect(await findByTestId(rendered, `update-channel-membership-list-${channelId}`)).not.toBeDefined()
+  })
+
+  // The spinner still belongs to the case it names: the candidates have genuinely not arrived.
+  it('spins only while the candidate list is undefined', async () => {
+    const channelId = 'abc123'
+    const rendered = renderComponent(
+      <UpdateChannelMembershipList
+        options={undefined}
+        visibleOptionsIndices={undefined}
+        setOptions={jest.fn()}
+        channelId={channelId}
+        nonMembers={{}}
+      />
+    )
+
+    expect(await findByTestId(rendered, `update-channel-membership-list-spinner-${channelId}`)).toBeDefined()
+    expect(await findByTestId(rendered, `update-channel-membership-list-nomembers-${channelId}`)).not.toBeDefined()
+  })
+
+  describe('picking members', () => {
+    const channelName = 'private-channel'
+    const channelId = 'abc123'
+    const memberUserId = 'foobar'
+    const nonMemberUserId = 'barbaz'
+
+    const renderScreen = async () => {
+      const userProfiles: Record<string, UserProfile> = {
+        [memberUserId]: await baseTypesFactory.create('UserProfile', {
+          userId: memberUserId,
+          nickname: 'foo',
+          channels: [channelId],
+          profilePhoto: undefined,
+          photo: 'foobar',
+        }),
+        [nonMemberUserId]: await baseTypesFactory.create('UserProfile', {
+          userId: nonMemberUserId,
+          nickname: 'baz',
+          channels: [],
+          profilePhoto: undefined,
+          photo: 'foobar',
+        }),
+      }
+      const nonMembers: { [userId: string]: DmChannelUserData } = {}
+      Object.entries(userProfiles).forEach(([userId, userProfile]) => {
+        nonMembers[userId] = { connected: true, user: userProfile }
+      })
+      return renderComponent(
+        <UpdateChannelMembership
+          channelName={channelName}
+          channelTitle={channelName}
+          channelType={ChannelType.CHANNEL}
+          channelIsPublic={false}
+          channelId={channelId}
+          community={undefined}
+          nonMembers={nonMembers}
+          handleBackButton={jest.fn()}
+          updateChannelMembership={jest.fn()}
+        />
+      )
+    }
+
+    const isChecked = (rendered: ReturnType<typeof render>, userId: string): boolean | undefined =>
+      rendered.getByTestId(`update-channel-membership-list-item-${channelId}-${userId}`).props.accessibilityState
+        ?.checked
+
+    // The pills in the search box are the members picked so far (Figma PVQ1Kjf6Cq8ng1czuVtvR8,
+    // 838:9308), so nothing is picked until the list is used.
+    it('shows no pills before anything is picked', async () => {
+      const rendered = await renderScreen()
+
+      await findByTestId(rendered, `update-channel-membership-list-${channelId}`, true)
+      expect(rendered.queryByTestId(`update-channel-membership-recipient-pill-${nonMemberUserId}`)).toBeNull()
+      expect(rendered.queryByTestId(`update-channel-membership-recipient-pill-${memberUserId}`)).toBeNull()
+    })
+
+    it('adds a pill for a member picked from the list', async () => {
+      const rendered = await renderScreen()
+
+      fireEvent.press(await rendered.findByTestId(`update-channel-membership-list-row-${channelId}-${nonMemberUserId}`))
+
+      expect(await findByTestId(rendered, `update-channel-membership-recipient-pill-${nonMemberUserId}`)).toBeDefined()
+      expect(isChecked(rendered, nonMemberUserId)).toBe(true)
+    })
+
+    it('clears the list checkbox when the pill is removed', async () => {
+      const rendered = await renderScreen()
+
+      fireEvent.press(await rendered.findByTestId(`update-channel-membership-list-row-${channelId}-${nonMemberUserId}`))
+      fireEvent.press(await rendered.findByTestId(`update-channel-membership-recipient-pill-${nonMemberUserId}`))
+
+      expect(rendered.queryByTestId(`update-channel-membership-recipient-pill-${nonMemberUserId}`)).toBeNull()
+      expect(isChecked(rendered, nonMemberUserId)).toBe(false)
+    })
+
+    // Members who already belong to the channel cannot be unpicked, so they get no pill.
+    it('gives no pill to a member who is already in the channel', async () => {
+      const rendered = await renderScreen()
+
+      await findByTestId(rendered, `update-channel-membership-list-${channelId}`, true)
+      expect(rendered.queryByTestId(`update-channel-membership-recipient-pill-${memberUserId}`)).toBeNull()
+    })
+  })
+
+  // Reached from the channel menu rather than mid-creation, so the leading control is a close
+  // cross, not a back arrow (838:9306).
+  it('closes with a cross rather than a back arrow', async () => {
+    const rendered = renderComponent(
+      <UpdateChannelMembership
+        channelName={'private-channel'}
+        channelTitle={'private-channel'}
+        channelType={ChannelType.CHANNEL}
+        channelIsPublic={false}
+        channelId={'abc123'}
+        community={undefined}
+        nonMembers={{}}
+        handleBackButton={jest.fn()}
+        updateChannelMembership={jest.fn()}
+      />
+    )
+
+    const leading = await rendered.findByTestId('appbar_action_item')
+    expect(within(leading).UNSAFE_getByType(Image).props.source.testUri).toContain('icon_close')
   })
 })

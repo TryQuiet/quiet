@@ -9,11 +9,12 @@ import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 import { UpdateChannelMembership } from '../../../components/ChannelMembership/UpdateChannelMembership/UpdateChannelMembership.component'
 import type { DmChannelUserData } from '../../../components/ProfilePhoto/ProfilePhoto.types'
+import { getChannelNonMembers } from '../../../utils/functions/channelMembers/channelMembers'
 
 export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channelTitle, channelName, channelType, channelId } = route.params
+  const { channelTitle, channelName, channelType, channelId, channelIsPublic } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
@@ -34,7 +35,11 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
 
   useEffect(() => {
     if (screen === ScreenNames.UpdateChannelMembershipScreen && userProfiles != null) {
-      const currentNonMembers = Object.values(userProfiles).filter(profile => !profile.channels?.includes(channelId))
+      // The community minus this channel's members, by the same rule the list and the counts use.
+      const currentNonMembers = getChannelNonMembers(
+        channels.find(channel => channel.id === channelId),
+        userProfiles
+      )
       const nonMemberData: { [userId: string]: DmChannelUserData } = {}
       currentNonMembers.forEach(user => {
         nonMemberData[user.userId] = {
@@ -87,6 +92,7 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
       channelTitle={channelTitle}
       channelName={channelName}
       channelType={channelType}
+      channelIsPublic={channelIsPublic}
       channelId={channelId}
       community={community}
       nonMembers={nonMembers}

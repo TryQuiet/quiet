@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { KeyboardAvoidingView, Platform, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native'
 
 import { defaultPalette } from '../../../styles/palettes/default.palette'
 import { Appbar } from '../../Appbar/Appbar.component'
@@ -8,22 +8,36 @@ import { createLogger } from '../../../utils/logger'
 import { ChannelMembershipAppbarHeaderTitle } from '../ChannelMembershipAppbarHeaderTitle.component'
 import { SelectableListOption } from './UpdateChannelMembershipList.types'
 import { UpdateChannelMembershipList } from './UpdateChannelMembershipList.component'
-import { defaultTheme } from '../../../styles/themes/default.theme'
-import { Input } from '../../Input/Input.component'
+import { RecipientPill } from '../../RecipientPill/RecipientPill.component'
 import { Typography } from '../../Typography/Typography.component'
 import Fuse from 'fuse.js'
 
 const logger = createLogger('ChannelMembership')
 
+// The design titles this screen "Add members or roles" (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9305);
+// roles do not exist yet, so it names only what you can actually pick.
 const HEADER_TITLE = 'Add members'
-// Copy taken from the DM designs (Figma: Direct Messages (DMs), "Pre search" 823:14606).
-const SEARCH_PLACEHOLDER = 'Search for people, chats or channels'
+// The design's placeholder is "E.g. Moderators or @jane123" (838:9439), minus the role half.
+const SEARCH_PLACEHOLDER = 'E.g. @jane123'
+
+/**
+ * Geometry of the search box, from "Search input" (838:9308): a 16-radius box with a 1pt #E5E5E5
+ * border, 16pt of side padding and 8pt above and below, holding the members picked so far as pills
+ * that wrap 4pt apart, with the query trailing the last one.
+ */
+const SEARCH_BOX_RADIUS = 16
+const SEARCH_BOX_PADDING_HORIZONTAL = 16
+const SEARCH_BOX_PADDING_VERTICAL = 8
+const PILL_GAP = 4
+// One row of pills plus the padding, so the box keeps its height before anything is picked.
+const SEARCH_BOX_MIN_HEIGHT = 42
 
 export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = ({
   channelTitle,
   channelName,
   channelId,
   channelType,
+  channelIsPublic,
   nonMembers,
   community,
   updateChannelMembership,
@@ -67,6 +81,28 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
         threshold: 0.3,
       })
     )
+  }
+
+  // Everyone picked so far, drawn as pills in the search box (838:9308). Members who already
+  // belong to the channel are selected but immutable, and the design has no pill for them — there
+  // is nothing to remove.
+  const selectedRecipients = useMemo(
+    () =>
+      (options ?? [])
+        .filter(option => option.selected && option.mutable)
+        .map(option => ({
+          userId: option.id,
+          label: option.label,
+          photo: nonMembers[option.id]?.user.photo,
+          profilePhoto: nonMembers[option.id]?.user.profilePhoto,
+        })),
+    [options, nonMembers]
+  )
+
+  // Removing a pill has to clear the same option the list draws its checkbox from, so the two stay
+  // in step.
+  const removeRecipient = (userId: string) => {
+    setOptions(current => current?.map(option => (option.id === userId ? { ...option, selected: false } : option)))
   }
 
   const onPress = () => {
@@ -151,53 +187,60 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
               title={HEADER_TITLE}
               channelTitle={displayedName}
               channelType={channelType}
+              channelIsPublic={channelIsPublic}
             />
           }
           back={goBack}
+          // Reached from the channel menu rather than mid-creation, so the leading control closes
+          // the screen instead of stepping back through a flow (838:9306).
+          crossBackIcon={true}
           submit={onPress}
         />
         <View
           style={{
-            paddingTop: 16,
             display: 'flex',
             flexDirection: 'column',
             gap: 32,
           }}
         >
-          <Input
-            onChangeText={onChangeText}
-            placeholder={SEARCH_PLACEHOLDER}
-            value={membershipSearchInput}
-            length={20}
-            disabled={loading}
-            validation={inputError}
-            ref={inputRef}
-            autoCorrect={false}
-            bottomSeparator={<View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />}
-            // Full-bleed, borderless field with a "To:" prefix, per the DM designs.
-            wrapperStyle={{ display: 'flex', flexDirection: 'column' }}
-            style={{ borderWidth: 0, borderRadius: 0, height: 44, paddingHorizontal: 16 }}
-            leftAccessory={
-              <Typography fontSize={16} style={{ color: defaultTheme.palette.typography.gray50, paddingRight: 8 }}>
-                {'To:'}
+          <View style={styles.searchBlock} testID={`update-channel-membership-input-${channelId}`}>
+            <Pressable style={styles.searchBox} onPress={() => inputRef.current?.focus()}>
+              <View style={styles.searchBoxContent}>
+                {selectedRecipients.map(recipient => (
+                  <RecipientPill
+                    key={recipient.userId}
+                    label={recipient.label}
+                    userId={recipient.userId}
+                    photo={recipient.photo}
+                    profilePhoto={recipient.profilePhoto}
+                    onRemove={() => removeRecipient(recipient.userId)}
+                    testID={`update-channel-membership-recipient-pill-${recipient.userId}`}
+                  />
+                ))}
+                <TextInput
+                  ref={inputRef}
+                  style={styles.searchInput}
+                  value={membershipSearchInput}
+                  onChangeText={onChangeText}
+                  // The placeholder belongs to the empty box; beside pills it would read as one
+                  // more of them.
+                  placeholder={selectedRecipients.length > 0 ? undefined : SEARCH_PLACEHOLDER}
+                  placeholderTextColor={defaultPalette.typography.gray50}
+                  editable={!loading}
+                  maxLength={20}
+                  autoCorrect={false}
+                  autoCapitalize={'none'}
+                  keyboardType={'email-address'}
+                  testID={'input'}
+                />
+              </View>
+            </Pressable>
+            {inputError ? (
+              <Typography fontSize={14} color={'error'} style={styles.validation}>
+                {inputError}
               </Typography>
-            }
-            rightAccessory={
-              membershipSearchInput ? (
-                <TouchableOpacity
-                  onPress={() => onChangeText('')}
-                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                  testID={`update-channel-membership-input-clear-${channelId}`}
-                >
-                  <Typography fontSize={16} style={{ color: defaultTheme.palette.typography.gray70 }}>
-                    {'✕'}
-                  </Typography>
-                </TouchableOpacity>
-              ) : undefined
-            }
-            keyboardType={'email-address'}
-            testID={`update-channel-membership-input-${channelId}`}
-          />
+            ) : null}
+          </View>
           <UpdateChannelMembershipList
             options={options}
             visibleOptionsIndices={visibleOptionIndices}
@@ -210,3 +253,43 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  // "Frame 103" (838:9307): the box inset 16 on three sides, closed by a hairline. The 16pt below
+  // belonged to the caption the design puts there, which this screen deliberately leaves out.
+  searchBlock: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: defaultPalette.background.gray06,
+  },
+  searchBox: {
+    minHeight: SEARCH_BOX_MIN_HEIGHT,
+    justifyContent: 'center',
+    borderRadius: SEARCH_BOX_RADIUS,
+    borderWidth: 1,
+    borderColor: defaultPalette.appBar.gray,
+    backgroundColor: defaultPalette.background.white,
+    paddingHorizontal: SEARCH_BOX_PADDING_HORIZONTAL,
+    paddingVertical: SEARCH_BOX_PADDING_VERTICAL,
+  },
+  searchBoxContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: PILL_GAP,
+  },
+  searchInput: {
+    flexGrow: 1,
+    minWidth: 96,
+    padding: 0,
+    fontSize: 14,
+    lineHeight: 20,
+    color: defaultPalette.typography.gray90,
+  },
+  validation: {
+    paddingTop: 8,
+    paddingHorizontal: 8,
+  },
+})

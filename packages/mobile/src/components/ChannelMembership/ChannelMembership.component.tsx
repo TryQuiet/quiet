@@ -9,49 +9,43 @@ import { createLogger } from '../../utils/logger'
 import { ChannelMembershipAppbarHeaderTitle } from './ChannelMembershipAppbarHeaderTitle.component'
 import { ChannelMembershipList } from './ChannelMembershipList.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { publicChannels } from '@quiet/state-manager'
 import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('ChannelMembership')
 
 /**
- * One screen serves two surfaces, reached from the same side-nav entry.
+ * One screen, one name, reached from the single membership row in the channel menu.
  *
- * "Permissions" is shown when the viewer can change who belongs to the channel — an admin on a
- * non-DM channel — and the screen is editable: it offers Add members.
+ * It is editable for an admin on a non-DM channel — it offers Add members — and read-only for
+ * everyone else, including in every DM, whose membership is fixed at creation (the participant
+ * list is baked into the conversation id). What differs between the two is the button, not the
+ * title: a screen that renames itself depending on who is looking is harder to talk about.
  *
- * "Members" is shown otherwise, including for every DM, and the screen is read-only. DM membership
- * is fixed at creation (the participant list is baked into the conversation id), so there is
- * deliberately nothing to edit there.
- *
- * The count beside the title is the member count in both cases; the design library shows the same
- * pattern ("Permissions" with a count, Figma 5058:13948), where the surrounding "Roles and members"
- * frame supplies the context this single line does not.
+ * The design calls the editable form "Permissions" (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190)
+ * because there it governs roles as well as people. WHEN ROLES SHIP, take that name back.
  */
-const MODIFIABLE_MEMBERSHIP_TITLE = 'Permissions'
-const NON_MODIFIABLE_MEMBERSHIP_TITLE = 'Members'
+const MEMBERSHIP_TITLE = 'Members'
 
 export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   channelTitle,
   channelName,
   channelId,
   channelType,
+  channelIsPublic,
   community,
   members,
   memberCount,
   canAddMembers,
   handleBackButton,
+  openUserProfile,
 }) => {
   const dispatch = useDispatch()
   const [displayedName, setDisplayedName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
-  const [headerTitle, setHeaderTitle] = useState<string>('')
   const mutableMembership = canAddMembers && channelType !== ChannelType.DM
-
-  const channel = useSelector(publicChannels.selectors.currentChannel)
 
   const onPress = useCallback(() => {
     setLoading(true)
@@ -65,10 +59,11 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
           channelName,
           channelId,
           channelType,
+          channelIsPublic,
         },
       })
     )
-  }, [dispatch, channelTitle, channelId])
+  }, [dispatch, channelTitle, channelId, channelIsPublic])
 
   const goBack = () => {
     if (!loading) {
@@ -83,10 +78,6 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
     }
   }, [channelTitle])
 
-  useEffect(() => {
-    setHeaderTitle(mutableMembership ? MODIFIABLE_MEMBERSHIP_TITLE : NON_MODIFIABLE_MEMBERSHIP_TITLE)
-  }, [mutableMembership])
-
   return (
     <View
       style={{ flex: 1, backgroundColor: defaultPalette.background.white }}
@@ -100,12 +91,13 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
         }}
       >
         <Appbar
-          title={headerTitle}
+          title={MEMBERSHIP_TITLE}
           titleComponent={
             <ChannelMembershipAppbarHeaderTitle
-              title={headerTitle}
+              title={MEMBERSHIP_TITLE}
               channelTitle={displayedName}
               channelType={channelType}
+              channelIsPublic={channelIsPublic}
               membershipCount={memberCount}
             />
           }
@@ -135,13 +127,14 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
                 <Button
                   title={'Add members'}
                   onPress={onPress}
+                  newDesign
                   testID={`channel-membership-component-add-members-${channelId}`}
                 />
               </View>
               <View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />
             </View>
           )}
-          <ChannelMembershipList members={members} channelId={channelId} />
+          <ChannelMembershipList members={members} channelId={channelId} openUserProfile={openUserProfile} />
         </View>
       </KeyboardAvoidingView>
     </View>

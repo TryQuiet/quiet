@@ -6,6 +6,7 @@ export interface UpdateChannelMembershipProps {
   channelId: string
   channelName: string
   channelType: ChannelType
+  channelIsPublic?: boolean
   community?: Community
   nonMembers: Record<string, DmChannelUserData>
   updateChannelMembership: (memberIds: string[]) => void

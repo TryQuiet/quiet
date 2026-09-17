@@ -5,7 +5,7 @@ import { renderComponent } from '../../../tests/utils/renderComponent'
 import type { Store } from '../../../store/store.types'
 import type { FactoryGirl } from 'factory-girl'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import { getReduxStoreFactory, publicChannels } from '@quiet/state-manager'
+import { getBaseTypesFactory, getReduxStoreFactory, publicChannels, users } from '@quiet/state-manager'
 import { ChannelContextMenu } from './ChannelContextMenu.container'
 import type { PublicChannel } from '@quiet/types'
 import { DateTime } from 'luxon'
@@ -132,17 +132,59 @@ describe('ChannelContextMenu (permissions gate for channel membership)', () => {
       expect(queryByText('Permissions')).toBeNull()
     })
 
-    // Which entry you get turns on admin status, not on the channel being private: an admin gets
-    // Permissions, everyone else gets the read-only Members entry.
-    it('shows "Permissions" instead of "Members in this channel" to an admin', async () => {
+    // The design's Permissions row carries the member count as its right-hand suffix, before the
+    // chevron (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190).
+    it('shows the member count beside the membership row, and no subtitle', async () => {
+      await factory.create('ChannelPermissions', {
+        channelSpecificPermissions: [
+          { channelId: privateChannel.id, addMembers: true, delete: true, removeMembers: true },
+        ],
+      })
+      const baseTypesFactory = await getBaseTypesFactory()
+      const memberIds = ['alice', 'bob']
+      const everyone = [...memberIds, 'carol']
+      store.dispatch(
+        users.actions.setUserProfiles(
+          await Promise.all(
+            everyone.map(userId => baseTypesFactory.create('UserProfile', { userId, nickname: userId }))
+          )
+        )
+      )
+      // A profile's `channels` is derived by the selector from the User record's channelIds, so
+      // membership has to be seeded there rather than on the profile.
+      store.dispatch(
+        users.actions.setUsers(
+          everyone.map(userId => ({
+            userId,
+            isRegistered: true,
+            isDuplicated: false,
+            channelIds: memberIds.includes(userId) ? [privateChannel.id] : [],
+          }))
+        )
+      )
+
+      const { queryByText } = renderComponent(<ChannelContextMenu />, store)
+
+      expect(queryByText('Members in this channel')).not.toBeNull()
+      // Only the two who belong to the private channel are counted.
+      expect(queryByText('2')).not.toBeNull()
+      // The design's "Roles and members" subtitle is dropped until roles exist; with only members
+      // it would say nothing the count does not already say.
+      expect(queryByText('Roles and members')).toBeNull()
+    })
+
+    // The row reads the same for everyone. Whether you can change the membership is shown inside
+    // the screen by the Add members button, not by the row renaming itself depending on who looks —
+    // and "Permissions" would promise governance this screen does not have while roles are absent.
+    it('shows the same membership row to an admin', async () => {
       await factory.create('ChannelPermissions', {
         channelSpecificPermissions: [
           { channelId: privateChannel.id, addMembers: true, delete: true, removeMembers: true },
         ],
       })
       const { queryByText } = renderComponent(<ChannelContextMenu />, store)
-      expect(queryByText('Permissions')).not.toBeNull()
-      expect(queryByText('Members in this channel')).toBeNull()
+      expect(queryByText('Members in this channel')).not.toBeNull()
+      expect(queryByText('Permissions')).toBeNull()
     })
   })
 

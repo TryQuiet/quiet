@@ -14,14 +14,13 @@ import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import LockIcon from '../../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
-import { ChannelType, UserProfile } from '@quiet/types'
+import { ChannelType } from '@quiet/types'
 import { generateTruncatedDmTitle } from '../../../utils/functions/dmUtils/dmUtils'
+import { countChannelMembers } from '../../../utils/functions/channelMembers/channelMembers'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('ChannelContextMenu')
 
-const PERMISSIONS_TITLE = 'Permissions'
-const PERMISSIONS_SUBTITLE = 'Members'
 const MEMBERS_IN_CHANNEL_TITLE = 'Members in this channel'
 const MEMBERS_IN_DM_TITLE = 'Members in this DM'
 
@@ -42,15 +41,8 @@ export const ChannelContextMenu: FC = () => {
 
   const _initializeData = () => {
     if (channel == null) return
-    // A profile carries only the private channels it belongs to, because everyone in the community
-    // is in every public one — so a public channel's membership is the whole community.
-    const membersInChannel: UserProfile[] =
-      channel.type === ChannelType.DM
-        ? Object.values(userProfiles).filter(profile => channel.memberIds?.includes(profile.userId))
-        : (channel.public ?? true)
-        ? Object.values(userProfiles)
-        : Object.values(userProfiles).filter(profile => profile.channels?.includes(channel.id))
-    setMemberCountSuffix(`${membersInChannel.length}`)
+    // Shared with the channel top bar, which draws the same number under the channel name.
+    setMemberCountSuffix(`${countChannelMembers(channel, userProfiles)}`)
   }
 
   useEffect(() => {
@@ -112,28 +104,25 @@ export const ChannelContextMenu: FC = () => {
         channelName: channel?.displayedName,
         channelId: channel?.id,
         channelType: channel?.type ?? ChannelType.CHANNEL,
+        channelIsPublic: channel?.public ?? true,
         manageMembership,
       })
 
-    // Which entry you get turns on whether you are an admin, not on whether the channel is
-    // private: an admin manages who belongs here, everyone else only sees who does (Figma
-    // PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190). A DM's membership is fixed at creation, so it is always
-    // the read-only entry.
-    if (canAddMembers && !isDm) {
-      items.push({
-        title: PERMISSIONS_TITLE,
-        // The design's subtitle is "Roles and members"; there are no roles yet.
-        subtitle: PERMISSIONS_SUBTITLE,
-        suffix: memberCountSuffix,
-        action: openMembership(true),
-      })
-    } else {
-      items.push({
-        title: isDm ? MEMBERS_IN_DM_TITLE : MEMBERS_IN_CHANNEL_TITLE,
-        suffix: memberCountSuffix,
-        action: openMembership(false),
-      })
-    }
+    // One membership row for everyone, carrying the member count. Whether you can change who
+    // belongs is revealed inside the screen by the Add members button, not by the row's name. A
+    // DM's membership is fixed at creation, so it is always read-only.
+    //
+    // The design names the admin's row "Permissions", with the subtitle "Roles and members" and a
+    // count of 6 against Members' 3 (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190) — because there it
+    // governs roles as well as people. Ours governs only people, so "Permissions" would promise a
+    // capability that is not there. WHEN ROLES SHIP, split this back into two rows and restore the
+    // design's naming.
+    items.push({
+      title: isDm ? MEMBERS_IN_DM_TITLE : MEMBERS_IN_CHANNEL_TITLE,
+      suffix: memberCountSuffix,
+      // An admin gets the editable form of the screen; the row reads the same either way.
+      action: openMembership(canAddMembers && !isDm),
+    })
   }
 
   if (canDelete && channel?.type !== ChannelType.DM) {
@@ -162,7 +151,7 @@ export const ChannelContextMenu: FC = () => {
       titleIcon={
         channel?.type === ChannelType.DM ? (
           <></>
-        ) : channel?.public ?? true ? (
+        ) : (channel?.public ?? true) ? (
           <PublicChannelIcon />
         ) : (
           <LockIcon fill={true} />

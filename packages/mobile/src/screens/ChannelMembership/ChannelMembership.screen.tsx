@@ -9,6 +9,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ChannelMembership } from '../../components/ChannelMembership/ChannelMembership.component'
 import { createLogger } from '../../utils/logger'
+import { getChannelMembers } from '../../utils/functions/channelMembers/channelMembers'
 import type { DmChannelUserData } from '../../components/ProfilePhoto/ProfilePhoto.types'
 
 const logger = createLogger('ChannelMembershipScreen')
@@ -16,7 +17,7 @@ const logger = createLogger('ChannelMembershipScreen')
 export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channelTitle, channelName, channelId, channelType, manageMembership } = route.params
+  const { channelTitle, channelName, channelId, channelType, channelIsPublic, manageMembership } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
@@ -40,11 +41,10 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
   useEffect(() => {
     if (screen === ScreenNames.ChannelMembershipScreen && userProfiles != null) {
       const descriptor = channels.find(channel => channel.id === channelId)
-      const currentMembers = Object.values(userProfiles).filter(profile =>
-        descriptor?.type === 'dm'
-          ? descriptor.memberIds?.includes(profile.userId)
-          : profile.channels?.includes(channelId)
-      )
+      // Shared with the menu and the top bar; this used to filter on profile.channels with no
+      // public branch, so a public channel listed nobody while the bar above said the whole
+      // community.
+      const currentMembers = getChannelMembers(descriptor, userProfiles)
       const memberData = currentMembers.map(
         user =>
           ({
@@ -52,12 +52,19 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
               (me != null && me.userId === user.userId) ||
               (user.userData != null && connectedPeers.includes(user.userData.peerId)),
             user,
-          } as DmChannelUserData)
+          }) as DmChannelUserData
       )
       setMembers(memberData)
       setMemberCount(memberData.length)
     }
   }, [userProfiles, channels, connectedPeers, me])
+
+  const openUserProfile = useCallback(
+    (userId: string) => {
+      dispatch(navigationActions.navigation({ screen: ScreenNames.UserProfileScreen, params: { userId } }))
+    },
+    [dispatch]
+  )
 
   const handleBackButton = useCallback(() => {
     // Pop back to the channel this was opened from rather than replacing the entry.
@@ -70,15 +77,17 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
       channelName={channelName}
       channelId={channelId}
       channelType={channelType}
+      channelIsPublic={channelIsPublic}
       community={community}
       userProfiles={userProfiles}
       members={members}
       memberCount={memberCount}
       handleBackButton={handleBackButton}
+      openUserProfile={openUserProfile}
       // The side nav offers Members and Permissions as separate entries; only the Permissions
       // entry opens this screen in its editable form. Absent that param, fall back to what the
       // viewer is permitted to do.
-      canAddMembers={manageMembership === false ? false : currentChannelPermissions?.addMembers ?? false}
+      canAddMembers={manageMembership === false ? false : (currentChannelPermissions?.addMembers ?? false)}
     />
   )
 }

@@ -18,6 +18,8 @@ const CREATE_CHANNEL_LABEL = 'Create channel'
 const PRIVATE_CHANNEL_SUBTITLE = 'Only assigned members and admins have access'
 const PRIVATE_ROW_HEIGHT = 80
 const PRIVATE_ROW_INSET = 16
+// "Frame 99" and "Frame 101" both inset their contents by 16 (838:9422).
+const FIELD_BLOCK_INSET = 16
 // Text starts at x=56 in the design, i.e. 40pt of icon column after the 16pt inset.
 const PRIVATE_ROW_ICON_COLUMN = 40
 
@@ -104,62 +106,62 @@ export const CreateChannel: FC<CreateChannelProps> = ({
         behavior={Platform.select({ ios: 'padding', android: 'height' })}
         style={{
           flex: 1,
-          marginTop: 24,
-          paddingLeft: 20,
-          paddingRight: 20,
           marginBottom: 16,
         }}
       >
-        <Input
-          onChangeText={onChangeText}
-          label={CHANNEL_NAME_LABEL}
-          placeholder={CHANNEL_NAME_PLACEHOLDER}
-          length={20}
-          disabled={loading}
-          validation={inputError}
-          ref={inputRef}
-          autoCorrect={false}
-        />
-        {!inputError &&
-          createChannelInput?.length !== undefined &&
-          createChannelInput.length > 0 &&
-          parsedNameDiffers && (
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: 10,
-                alignItems: 'center',
-                marginTop: 12,
-                marginBottom: 16,
-              }}
-            >
-              <View>
-                <Image
-                  source={warning_icon}
-                  resizeMode='cover'
-                  resizeMethod='resize'
-                  style={{
-                    width: 16,
-                    height: 16,
-                  }}
-                />
+        {/* "Frame 99" (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9422): the name field inset 16 on every
+            side. The inset belongs to this block rather than to the screen, so the rows below it
+            can run their dividers the full width, as the design does. */}
+        <View style={{ padding: FIELD_BLOCK_INSET }}>
+          <Input
+            onChangeText={onChangeText}
+            label={CHANNEL_NAME_LABEL}
+            placeholder={CHANNEL_NAME_PLACEHOLDER}
+            length={20}
+            disabled={loading}
+            validation={inputError}
+            ref={inputRef}
+            autoCorrect={false}
+          />
+          {!inputError &&
+            createChannelInput?.length !== undefined &&
+            createChannelInput.length > 0 &&
+            parsedNameDiffers && (
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: 10,
+                  alignItems: 'center',
+                  marginTop: 12,
+                }}
+              >
+                <View>
+                  <Image
+                    source={warning_icon}
+                    resizeMode='cover'
+                    resizeMethod='resize'
+                    style={{
+                      width: 16,
+                      height: 16,
+                    }}
+                  />
+                </View>
+                <View testID={'create_channel_name_warning'}>
+                  <Typography fontSize={14}>{'Your channel will be created as'}</Typography>
+                  <Typography fontSize={14} fontWeight={'medium'}>
+                    {`#${createChannelInput}`}
+                  </Typography>
+                </View>
               </View>
-              <View testID={'create_channel_name_warning'}>
-                <Typography fontSize={14}>{'Your channel will be created as'}</Typography>
-                <Typography fontSize={14} fontWeight={'medium'}>
-                  {`#${createChannelInput}`}
-                </Typography>
-              </View>
-            </View>
-          )}
+            )}
+        </View>
         {canCreatePrivateChannel && (
           <View
             style={{
               display: 'flex',
               flexDirection: 'row',
               alignItems: 'center',
-              marginTop: 24,
               // Row geometry from "Create channel / Version=3" (Figma 5055:16131): icon inset 16,
               // text starting at 56, toggle right-aligned, 80pt row closed by a divider.
               minHeight: PRIVATE_ROW_HEIGHT,
@@ -201,8 +203,9 @@ export const CreateChannel: FC<CreateChannelProps> = ({
             </View>
           </View>
         )}
-        <View style={{ marginTop: 12 + 12 }}>
-          <Button onPress={onPress} title={CREATE_CHANNEL_LABEL} width={172} loading={loading} />
+        {/* "Frame 101" (838:9422): the same 16pt inset, with the button hugging its label. */}
+        <View style={{ padding: FIELD_BLOCK_INSET, alignItems: 'flex-start' }}>
+          <Button onPress={onPress} title={CREATE_CHANNEL_LABEL} loading={loading} newDesign />
         </View>
       </KeyboardAvoidingView>
     </View>
