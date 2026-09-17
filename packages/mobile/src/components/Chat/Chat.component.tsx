@@ -75,7 +75,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   newChatRecipientIds,
   openUserProfile,
   userProfiles,
-  connectedPeers,
+  isUserConnected,
   me,
   messages = {
     count: 0,
@@ -130,7 +130,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         updatedUsers[user.userId] = {
           connected:
             (me != null && me.userId === user.userId) ||
-            (user.userData != null && connectedPeers.includes(user.userData.peerId)),
+            isUserConnected(user.userId),
           user,
         } as DmChannelUserData
       }
@@ -187,7 +187,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     } else {
       _clearOptions()
     }
-  }, [newChat, newChatRecipientIds, userProfiles, me, connectedPeers])
+  }, [newChat, newChatRecipientIds, userProfiles, me, isUserConnected])
 
   useEffect(() => {
     if (!newChat) return

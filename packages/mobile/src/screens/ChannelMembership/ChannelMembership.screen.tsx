@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, network, publicChannels, users } from '@quiet/state-manager'
+import { communities, connection, publicChannels, users } from '@quiet/state-manager'
 
 import { ChannelMembershipScreenProps } from './ChannelMembership.types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
@@ -24,7 +24,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
   const userProfiles = useSelector(users.selectors.userProfiles)
   const screen = useSelector(navigationSelectors.currentScreen)
   const currentChannelPermissions = useSelector(publicChannels.selectors.currentChannelPermissions)
-  const connectedPeers = useSelector(network.selectors.connectedPeers)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
   const me = useSelector(users.selectors.myUserProfile)
 
   const [members, setMembers] = useState<DmChannelUserData[]>()
@@ -50,14 +50,14 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
           ({
             connected:
               (me != null && me.userId === user.userId) ||
-              (user.userData != null && connectedPeers.includes(user.userData.peerId)),
+              isUserConnected(user.userId),
             user,
           }) as DmChannelUserData
       )
       setMembers(memberData)
       setMemberCount(memberData.length)
     }
-  }, [userProfiles, channels, connectedPeers, me])
+  }, [userProfiles, channels, isUserConnected, me])
 
   const openUserProfile = useCallback(
     (userId: string) => {

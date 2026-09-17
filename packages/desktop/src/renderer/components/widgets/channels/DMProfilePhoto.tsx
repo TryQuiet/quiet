@@ -3,11 +3,19 @@ import { useTheme } from '@mui/material/styles'
 
 import { UserProfile } from '@quiet/types'
 import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
+import ProfilePhotoWithBadge from '../../ProfilePhoto/ProfilePhotoWithBadge'
+import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 import _ from 'lodash'
 
 export interface DMProfilePhotoProps {
   members: UserProfile[]
   me: UserProfile | undefined
+  /**
+   * Presence for this conversation, from `isDmConnected`. The channel header passes it so the top
+   * bar and the sidebar row for the same DM never disagree; the context menu and the new-message
+   * header leave it out and get no dot.
+   */
+  connected?: boolean
   borderRadius?: number
   style?: React.CSSProperties
 }
@@ -23,34 +31,44 @@ const STYLE: React.CSSProperties = {
   borderRadius: 4,
 }
 
-const DMProfilePhoto: React.FC<DMProfilePhotoProps> = ({ members, me, borderRadius = 4, style = {} }) => {
+const DMProfilePhoto: React.FC<DMProfilePhotoProps> = ({
+  members,
+  me,
+  connected,
+  borderRadius = 4,
+  style = {},
+}) => {
   const theme = useTheme()
   const styleOverride = {
     ...STYLE,
     ...style,
   }
+
+  let subject: UserProfile | undefined
   if (_.size(members) === 1) {
+    subject = members[0]
+  } else {
+    if (me == null) return <></>
+    subject = _.find(members, member => member.userId !== me.userId)
+  }
+  if (subject == null) {
+    return <></>
+  }
+
+  if (connected != null) {
     return (
-      <ProfilePhoto
-        userProfile={members[0]}
-        userId={members[0].userId}
-        size={theme.componentSizes.avatar.small}
+      <ProfilePhotoWithBadge
+        userData={{ user: subject, connected }}
+        size={ProfilePhotoSize.SMALL}
         borderRadius={borderRadius}
-        style={styleOverride}
       />
     )
   }
-  if (me == null) {
-    return <></>
-  }
-  const notMe = _.find(members, member => member.userId !== me.userId)
-  if (notMe == null) {
-    return <></>
-  }
+
   return (
     <ProfilePhoto
-      userProfile={notMe}
-      userId={notMe.userId}
+      userProfile={subject}
+      userId={subject.userId}
       size={theme.componentSizes.avatar.small}
       borderRadius={borderRadius}
       style={styleOverride}

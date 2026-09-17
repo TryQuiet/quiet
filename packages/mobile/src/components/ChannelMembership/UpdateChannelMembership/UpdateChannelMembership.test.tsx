@@ -113,7 +113,7 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
-                accessibilityLabel="Go back"
+                accessibilityLabel="Close"
                 accessibilityRole="button"
                 accessibilityState={
                   {
@@ -766,6 +766,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Close"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -821,6 +823,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={
@@ -1704,6 +1707,8 @@ describe('UpdateChannelMembership component', () => {
               }
             >
               <View
+                accessibilityLabel="Close"
+                accessibilityRole="button"
                 accessibilityState={
                   {
                     "busy": undefined,
@@ -1759,6 +1764,7 @@ describe('UpdateChannelMembership component', () => {
                   }
                 >
                   <Image
+                    accessible={false}
                     resizeMethod="resize"
                     resizeMode="cover"
                     source={

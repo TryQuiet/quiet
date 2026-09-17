@@ -115,7 +115,8 @@ export interface ChannelMembershipProps {
   /** A DM names itself by its participants, so it takes neither the "#" nor the word "channel". */
   isDm: boolean
   members: UserProfile[]
-  connectedPeers: string[]
+  /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
+  isUserConnected: (userId: string | undefined) => boolean
   /** An admin additionally gets the button that adds members; everyone else sees the list alone. */
   canManage: boolean
   openAddMembers: () => void
@@ -130,7 +131,7 @@ export const ChannelMembershipComponent: React.FC<ReturnType<typeof useModal> & 
   channelName,
   isDm,
   members,
-  connectedPeers,
+  isUserConnected,
   canManage,
   openAddMembers,
   openUserProfile,
@@ -180,7 +181,7 @@ export const ChannelMembershipComponent: React.FC<ReturnType<typeof useModal> & 
                   size={ProfilePhotoSize.MEDIUM}
                   userData={{
                     user: member,
-                    connected: member.userData != null && connectedPeers.includes(member.userData.peerId),
+                    connected: isUserConnected(member.userId),
                   }}
                 />
                 <Typography className={classes.name}>{member.nickname}</Typography>

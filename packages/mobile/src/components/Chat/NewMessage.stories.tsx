@@ -19,7 +19,6 @@ import type { UserProfile } from '@quiet/types'
 const profile = (userId: string, nickname: string): UserProfile => ({
   userId,
   nickname,
-  userData: { peerId: `peer-${userId}` } as UserProfile['userData'],
 })
 
 const userProfiles: Record<string, UserProfile> = {
@@ -47,7 +46,8 @@ const sharedProps = {
   updateImageAttachments: () => {},
   removeFilePreview: () => {},
   channelName: '',
-  connectedPeers: ['peer-denise'],
+  // One person online, to draw the presence dot in the recipient list.
+  isUserConnected: (userId: string | undefined) => userId === 'denise',
   messages: { count: 0, groups: {} },
   newChat: true,
   userProfiles,

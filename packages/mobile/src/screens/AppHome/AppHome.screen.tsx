@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, network, publicChannels, users } from '@quiet/state-manager'
+import { communities, connection, identity, publicChannels, users } from '@quiet/state-manager'
 
 import { AppHome } from '../../components/AppHome/AppHome.component'
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
@@ -73,7 +73,7 @@ export const AppHomeScreen: FC = () => {
 
   const me = useSelector(users.selectors.myUserProfile)
 
-  const connectedPeers = useSelector(network.selectors.connectedPeers)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
 
   const dmChannels = useSelector(publicChannels.selectors.sortedDmChannels)
 
@@ -100,7 +100,7 @@ export const AppHomeScreen: FC = () => {
     })
     dmChannels.forEach(channel => {
       const status = channelsStatus[channel.id]
-      const representativeUserData = getUserData(channel, connectedPeers, userProfiles, me)
+      const representativeUserData = getUserData(channel, isUserConnected, userProfiles, me)
       const tile: ChannelTileProps = {
         name: channel.displayedName,
         isPublic: false,
@@ -116,7 +116,7 @@ export const AppHomeScreen: FC = () => {
     })
     setChannelTiles(newChannelTiles)
     setDmTiles(newDmTitles)
-  }, [channelsStatus, connectedPeers, userProfiles, me, dmChannels, channels])
+  }, [channelsStatus, isUserConnected, userProfiles, me, dmChannels, channels])
 
   const communityContextMenu = useContextMenu(MenuName.Community)
 

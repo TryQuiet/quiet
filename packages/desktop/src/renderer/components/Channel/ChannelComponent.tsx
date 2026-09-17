@@ -73,6 +73,8 @@ export interface ChannelComponentProps {
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   openUserProfile?: (userId: string) => void
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
+  /** Presence for a DM, from `isDmConnected`. Omitted on a channel. */
+  dmConnected?: boolean
 }
 
 const enum ScrollPosition {
@@ -114,6 +116,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   unregisteredUsernameModalHandleOpen,
   openUserProfile,
   duplicatedUsernameModalHandleOpen,
+  dmConnected,
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -290,6 +293,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           enableContextMenu={enableContextMenu}
           memberCount={members.length}
           openUserProfile={openUserProfile}
+          dmConnected={dmConnected}
         />
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>

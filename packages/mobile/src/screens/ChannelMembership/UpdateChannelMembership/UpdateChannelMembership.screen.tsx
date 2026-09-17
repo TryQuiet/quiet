@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, network, publicChannels, users } from '@quiet/state-manager'
+import { communities, connection, publicChannels, users } from '@quiet/state-manager'
 
 import { UpdateChannelMembershipScreenProps } from './UpdateChannelMembership.types'
 import { navigationActions } from '../../../store/navigation/navigation.slice'
@@ -19,7 +19,7 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
   const userProfiles = useSelector(users.selectors.userProfiles)
-  const connectedPeers = useSelector(network.selectors.connectedPeers)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
   const me = useSelector(users.selectors.myUserProfile)
 
   const screen = useSelector(navigationSelectors.currentScreen)
@@ -45,13 +45,13 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
         nonMemberData[user.userId] = {
           connected:
             (me != null && me.userId === user.userId) ||
-            (user.userData != null && connectedPeers.includes(user.userData.peerId)),
+            isUserConnected(user.userId),
           user,
         } as DmChannelUserData
       })
       setNonMembers(nonMemberData)
     }
-  }, [userProfiles, channels, connectedPeers, me])
+  }, [userProfiles, channels, isUserConnected, me])
 
   const updateChannelMembershipInner = (memberIds: string[]) => {
     if (!channelId || !channelName) return

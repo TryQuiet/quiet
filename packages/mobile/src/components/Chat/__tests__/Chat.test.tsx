@@ -41,7 +41,7 @@ describe('Chat component', () => {
     channelName: 'general',
     newChat: false,
     userProfiles: {},
-    connectedPeers: [],
+    isUserConnected: () => false,
     pendingMessages: {},
     messages: {
       count: 16,

@@ -15,7 +15,6 @@ import AddMembersChannelComponent from './AddMembersChannelComponent'
 const profile = (nickname: string, channels: string[] = []): UserProfile => ({
   userId: `${nickname}UserId`,
   nickname,
-  userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname}.onion` },
   channels,
 })
 

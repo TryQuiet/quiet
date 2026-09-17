@@ -4,7 +4,16 @@ import { shell, ipcRenderer, webUtils } from 'electron'
 import { openExternal } from '../../openExternal'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
+import {
+  users,
+  messages,
+  publicChannels,
+  communities,
+  connection,
+  files,
+  network,
+  settings,
+} from '@quiet/state-manager'
 import {
   FileMetadata,
   CancelDownload,
@@ -17,6 +26,7 @@ import {
 } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
+import { isDmConnected } from '../ProfilePhoto/dmPresence'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -59,6 +69,8 @@ const ChannelContent = () => {
   const maxAutodownloadSizeBytes = useSelector(settings.selectors.maxAutodownloadBytes)
 
   const community = useSelector(communities.selectors.currentCommunity)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
 
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
@@ -338,6 +350,10 @@ const ChannelContent = () => {
     channelType: currentChannel?.type ?? ChannelType.CHANNEL,
     channelName,
     members,
+    dmConnected:
+      currentChannel?.type === ChannelType.DM
+        ? isDmConnected(currentChannel?.memberIds, me?.userId, isUserConnected, isTorInitialized)
+        : undefined,
     isPublic: currentChannel?.public ?? true,
     messages: {
       count: currentChannelMessagesCount,

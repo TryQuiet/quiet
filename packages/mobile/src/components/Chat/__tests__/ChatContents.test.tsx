@@ -178,7 +178,7 @@ describe('Chat component list data', () => {
       public: true,
       teamId: 'foobar',
     },
-    connectedPeers: [],
+    isUserConnected: () => false,
     channelName: 'test-channel',
     newChat: false,
     userProfiles: {},

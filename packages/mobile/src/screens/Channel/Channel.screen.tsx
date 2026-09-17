@@ -2,7 +2,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react'
 import { BackHandler, Linking } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
-import { communities, publicChannels, messages, files, users, errors, network } from '@quiet/state-manager'
+import { communities, publicChannels, messages, files, users, errors, connection } from '@quiet/state-manager'
 import {
   CancelDownload,
   ChannelType,
@@ -95,7 +95,7 @@ const ChannelScreenContent: FC = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
 
-  const connectedPeers = useSelector(network.selectors.connectedPeers)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
 
   const error = communityError[SocketActions.CREATE_CHANNEL]
 
@@ -319,7 +319,7 @@ const ChannelScreenContent: FC = () => {
         count: channelMessagesCount,
         groups: channelMessages,
       }}
-      connectedPeers={connectedPeers}
+      isUserConnected={isUserConnected}
       pendingMessages={pendingMessages}
       downloadStatuses={downloadStatusesMapping}
       downloadFile={downloadFile}

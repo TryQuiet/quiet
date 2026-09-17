@@ -21,14 +21,12 @@ const withPhoto: UserProfile = {
   // A flat swatch, enough to prove the photo path renders in place of the Jdenticon.
   photo:
     "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' fill='%23EAA23A'/></svg>",
-  userData: { peerId: 'denisePeerId', onionAddress: 'denise.onion' },
   channels: [],
 }
 
 const withoutPhoto: UserProfile = {
   userId: 'gordonUserId',
   nickname: 'gordon',
-  userData: { peerId: 'gordonPeerId', onionAddress: 'gordon.onion' },
   channels: [],
 }
 

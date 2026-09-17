@@ -36,7 +36,6 @@ const MEMBERS: Record<string, UserProfile> = Object.fromEntries(
     {
       userId: `${nickname}UserId`,
       nickname,
-      userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname}.onion` },
       channels: [],
     },
   ])
@@ -152,7 +151,7 @@ export const Walkthrough: React.FC = () => {
         channelName={CHANNEL_NAME}
         isDm={false}
         members={members}
-        connectedPeers={[]}
+        isUserConnected={() => false}
         // An admin's walkthrough, so the Add members button is here. A member sees this same list
         // without it.
         canManage

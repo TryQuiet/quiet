@@ -724,7 +724,7 @@ describe('Add new channel', () => {
   })
 
   it('Adds few new channels and check order', async () => {
-    const { store } = await prepareStore(
+    const { store, runSaga } = await prepareStore(
       {
         [StoreKeys.Modals]: {
           ...new ModalsInitialState(),
@@ -820,8 +820,25 @@ describe('Add new channel', () => {
       const input = screen.getByPlaceholderText('Enter a channel name')
 
       await user.type(input, channel)
-      await user.click(screen.getByTestId('channelNameSubmit'))
-      await waitFor(() => expect(screen.getByTestId('channelTitle')).toHaveTextContent(channel))
+      // Unlike the single-channel tests above, this one's socket mock never makes the new channel
+      // current, so there is no title to wait on; wait for the create to round-trip instead.
+      await act(
+        async () =>
+          await waitFor(() => {
+            user.click(screen.getByTestId('channelNameSubmit')).catch(e => {
+              logger.error(e)
+            })
+          })
+      )
+      await act(async () => {
+        await runSaga(testCreateChannelSaga).toPromise()
+      })
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 100))
+    }
+
+    function* testCreateChannelSaga(): Generator {
+      yield* take(publicChannels.actions.createChannel)
+      yield* take(publicChannels.actions.addChannel)
     }
 
     const createChannelModal = screen.queryByTestId('createChannelModal')

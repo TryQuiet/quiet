@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
-import { network, publicChannels, users } from '@quiet/state-manager'
+import { connection, publicChannels, users } from '@quiet/state-manager'
 import { ChannelType } from '@quiet/types'
 
 import { useModal } from '../../../containers/hooks'
@@ -18,7 +18,7 @@ export const ChannelMembership: FC = () => {
 
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const userProfiles = useSelector(users.selectors.userProfiles)
-  const connectedPeers = useSelector(network.selectors.connectedPeers)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
   const currentChannelPermissions = useSelector(publicChannels.selectors.currentChannelPermissions)
 
   const canManage = currentChannelPermissions?.addMembers ?? false
@@ -50,7 +50,7 @@ export const ChannelMembership: FC = () => {
       channelName={isDm ? channel.displayedName : channel.name}
       isDm={isDm}
       members={members}
-      connectedPeers={connectedPeers}
+      isUserConnected={isUserConnected}
       canManage={canManage}
       openUserProfile={(userId: string) => {
         modal.handleClose() // Dismiss this panel before displaying the next

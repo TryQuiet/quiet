@@ -31,7 +31,8 @@ const styles = StyleSheet.create({
 
 export const getUserData = (
   channel: PublicChannelStorage,
-  connectedPeers: string[],
+  /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
+  isUserConnected: (userId: string | undefined) => boolean,
   userProfiles: Record<string, UserProfile>,
   me?: UserProfile
 ): DmChannelUserData | undefined => {
@@ -53,7 +54,7 @@ export const getUserData = (
 
   const userProfile = userProfiles[representativeUserId]
   return {
-    connected: userProfile.userData != null && connectedPeers.includes(userProfile.userData.peerId),
+    connected: isUserConnected(userProfile.userId),
     user: userProfile,
   }
 }

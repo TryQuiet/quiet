@@ -3,8 +3,9 @@ import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import DirectMessageListItem from './DirectMessageListItem'
-import { DeviceNetworkEndpoint, PublicChannelStorage, UserProfile } from '@quiet/types'
+import { PublicChannelStorage, UserProfile } from '@quiet/types'
 import _ from 'lodash'
+import { isDmConnected } from '../../ProfilePhoto/dmPresence'
 
 export interface DirectMessagesPanelProps {
   myUserProfile?: UserProfile
@@ -12,8 +13,11 @@ export interface DirectMessagesPanelProps {
   dmChannels: PublicChannelStorage[]
   unreadDms: string[]
   currentChannelId: string
-  connectedPeers: string[]
-  networkEndpoints: DeviceNetworkEndpoint[]
+  /**
+   * Presence by user id, not by peer id: see connection.selectors.isUserConnected. A user with a
+   * linked device has one endpoint per device and is online when any of them is connected.
+   */
+  isUserConnected: (userId: string | undefined) => boolean
   isTorInitialized: boolean
   setCurrentChannel: (channelId: string) => void
   openNewMessageWindow: () => void
@@ -24,45 +28,39 @@ export interface DmChannelUserData {
   user: UserProfile
 }
 
+/**
+ * The avatar shown for a DM row, and whether it carries a presence dot.
+ *
+ * - a 1:1 DM shows the other participant, online when they are;
+ * - a group DM shows one of the others, online when ANY other participant is;
+ * - the conversation with yourself shows you, and "online" there means the app itself is up, so it
+ *   follows Tor rather than a peer connection.
+ */
 const getUserDataForDmChannel = (
   dmChannel: PublicChannelStorage,
   me: UserProfile | undefined,
   userProfiles: Record<string, UserProfile>,
-  connectedPeers: string[]
+  isUserConnected: (userId: string | undefined) => boolean,
+  isTorInitialized: boolean
 ): DmChannelUserData | undefined => {
   if (dmChannel.memberIds == null || me == null) {
     return undefined
   }
 
+  const connected = isDmConnected(dmChannel.memberIds, me.userId, isUserConnected, isTorInitialized)
+
   if (dmChannel.memberIds.length === 1) {
-    return {
-      connected: true,
-      user: me,
-    }
+    return { connected, user: me }
   }
 
-  const notMeId = _.find(dmChannel.memberIds, memberId => memberId != me.userId)
+  const notMeId = _.find(dmChannel.memberIds, memberId => memberId !== me.userId)
   if (notMeId == null) {
     return undefined
   }
   const userThatIsntMe = userProfiles[notMeId]
   if (userThatIsntMe == null) return undefined
 
-  if (dmChannel.memberIds.length > 2) {
-    return {
-      connected: undefined,
-      user: userThatIsntMe,
-    }
-  }
-
-  const connected =
-    userThatIsntMe.userData != null &&
-    userThatIsntMe.userData.peerId != null &&
-    connectedPeers.includes(userThatIsntMe.userData.peerId)
-  return {
-    connected,
-    user: userThatIsntMe,
-  }
+  return { connected, user: userThatIsntMe }
 }
 
 const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
@@ -71,15 +69,11 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   dmChannels = [],
   unreadDms,
   currentChannelId,
-  connectedPeers,
-  networkEndpoints,
+  isUserConnected,
   isTorInitialized,
   setCurrentChannel,
   openNewMessageWindow,
 }) => {
-  const isUserConnected = (userId: string): boolean =>
-    networkEndpoints.some(endpoint => endpoint.userId === userId && connectedPeers.includes(endpoint.peerId))
-
   return (
     <Grid container item xs direction='column'>
       <SidebarHeader
@@ -90,7 +84,13 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
       />
       <List disablePadding data-testid='dm-list'>
         {dmChannels.map(channel => {
-          const userData = getUserDataForDmChannel(channel, myUserProfile, userProfiles, connectedPeers)
+          const userData = getUserDataForDmChannel(
+            channel,
+            myUserProfile,
+            userProfiles,
+            isUserConnected,
+            isTorInitialized
+          )
           const unread = unreadDms.some(unreadDmId => unreadDmId === channel.id)
           const selected = currentChannelId === channel.id
           return (

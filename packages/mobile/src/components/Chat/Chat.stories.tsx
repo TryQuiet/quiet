@@ -34,7 +34,7 @@ storiesOf('Chat', module)
         teamId: 'foobar',
       }}
       channelName='Quiet'
-      connectedPeers={[]}
+      isUserConnected={() => false}
       messages={{
         count: 16,
         groups: {
@@ -287,7 +287,7 @@ storiesOf('Chat', module)
         teamId: 'foobar',
       }}
       channelName='Quiet'
-      connectedPeers={[]}
+      isUserConnected={() => false}
       updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateFileAttachments')
       }}
@@ -337,7 +337,7 @@ storiesOf('Chat', module)
         public: true,
         teamId: 'foobar',
       }}
-      connectedPeers={[]}
+      isUserConnected={() => false}
       channelName='StickyDateTest'
       messages={{
         count: 40,

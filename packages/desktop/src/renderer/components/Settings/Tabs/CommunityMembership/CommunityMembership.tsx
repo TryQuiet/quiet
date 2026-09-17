@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import { network, users } from '@quiet/state-manager'
+import { connection, users } from '@quiet/state-manager'
 
 import { CommunityMembershipComponent } from './CommunityMembership.component'
 import { createLogger } from '../../../../logger'
@@ -16,7 +16,8 @@ export const CommunityMembership: FC<{ handleClose: () => void; currentTab: stri
 
   const userProfiles = useSelector(users.selectors.userProfiles)
   const me = useSelector(users.selectors.myUserProfile)
-  const connectedPeers = useSelector(network.selectors.connectedPeers)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
   const userProfileContextMenu = useContextMenu(MenuName.UserProfile)
 
   const [tabOpen, setTabOpen] = useState<boolean>(false)
@@ -41,7 +42,8 @@ export const CommunityMembership: FC<{ handleClose: () => void; currentTab: stri
     <CommunityMembershipComponent
       userProfiles={userProfiles}
       me={me}
-      connectedPeers={connectedPeers}
+      isUserConnected={isUserConnected}
+      isTorInitialized={isTorInitialized}
       openUserProfilePanel={openUserProfilePanel}
       open={tabOpen}
     />

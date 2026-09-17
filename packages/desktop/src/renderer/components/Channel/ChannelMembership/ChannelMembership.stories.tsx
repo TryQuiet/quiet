@@ -23,7 +23,6 @@ const NAMES = ['denise', 'gordon', 'annabelle']
 const members: UserProfile[] = NAMES.map(nickname => ({
   userId: `${nickname}UserId`,
   nickname,
-  userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname}.onion` },
   channels: [],
 }))
 
@@ -36,7 +35,7 @@ const args: ReturnType<typeof useModal> & ChannelMembershipProps = {
   isDm: false,
   members,
   // One member is online, to draw the presence dot the design puts on each thumbnail.
-  connectedPeers: ['denisePeerId'],
+  isUserConnected: (userId: string | undefined) => userId === 'deniseUserId',
   canManage: true,
   openAddMembers: () => {
     logger.info('opening add members')

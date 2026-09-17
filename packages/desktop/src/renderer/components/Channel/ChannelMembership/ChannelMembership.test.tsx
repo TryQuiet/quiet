@@ -15,7 +15,6 @@ import ChannelMembershipComponent from './ChannelMembershipComponent'
 const profile = (nickname: string): UserProfile => ({
   userId: `${nickname}UserId`,
   nickname,
-  userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname}.onion` },
   channels: [],
 })
 
@@ -29,7 +28,7 @@ const renderPanel = (overrides: Partial<React.ComponentProps<typeof ChannelMembe
       channelName='fundraising'
       isDm={false}
       members={members}
-      connectedPeers={[]}
+      isUserConnected={() => false}
       canManage={true}
       openAddMembers={openAddMembers}
       open={true}

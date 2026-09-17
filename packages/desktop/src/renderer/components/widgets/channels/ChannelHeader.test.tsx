@@ -1,7 +1,8 @@
-import { ChannelType } from '@quiet/types'
+import { ChannelType, type UserProfile } from '@quiet/types'
 import React from 'react'
 
 import { screen } from '@testing-library/dom'
+import { cleanup } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
 import { renderComponent } from '../../../testUtils/renderComponent'
@@ -425,5 +426,45 @@ describe('ChannelHeader', () => {
       />
     )
     expect(screen.getByTestId('channelMemberCount')).toHaveTextContent('1 member')
+  })
+  /**
+   * The DM top bar and the sidebar row for the same conversation must agree, so the header draws
+   * the same badge from the same `isDmConnected` answer. A channel has no dot at all.
+   */
+  describe('DM presence', () => {
+    const me = { userId: 'alice', nickname: 'Alice' } as UserProfile
+    const bob = { userId: 'bob', nickname: 'Bob' } as UserProfile
+
+    const renderDmHeader = (dmConnected: boolean | undefined) =>
+      renderComponent(
+        <ChannelHeaderComponent
+          channelName='Bob'
+          channelType={ChannelType.DM}
+          me={me}
+          members={[me, bob]}
+          isPublic={false}
+          enableContextMenu={false}
+          dmConnected={dmConnected}
+        />
+      )
+
+    afterEach(cleanup)
+
+    it('lights the header badge when the conversation is online', () => {
+      const result = renderDmHeader(true)
+      const badge = result.getByTestId('Bob-profile-photo-status-badge')
+      expect(badge.className).not.toContain('MuiBadge-invisible')
+    })
+
+    it('darkens the header badge when the conversation is offline', () => {
+      const result = renderDmHeader(false)
+      const badge = result.getByTestId('Bob-profile-photo-status-badge')
+      expect(badge.className).toContain('MuiBadge-invisible')
+    })
+
+    it('draws no badge at all when presence is not supplied', () => {
+      const result = renderDmHeader(undefined)
+      expect(result.queryByTestId('Bob-profile-photo-status-badge')).toBeNull()
+    })
   })
 })

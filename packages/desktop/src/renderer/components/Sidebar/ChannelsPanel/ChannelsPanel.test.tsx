@@ -89,25 +89,10 @@ describe('Channels panel', () => {
 
     if (!generalChannel) throw new Error('generalChannel is undefined')
 
-    // Mock userProfileContextMenu
-    const mockUserProfileContextMenu = {
-      visible: false,
-      handleOpen: jest.fn(),
-      handleClose: jest.fn(),
-      setUserId: jest.fn(),
-      setPosition: jest.fn(),
-      closeMenu: jest.fn(),
-      userId: '',
-      users: {},
-      position: { x: 0, y: 0 },
-    }
-
     const result = renderComponent(
       <>
         <ChannelsPanel
           channels={channels}
-          userProfiles={userProfilesMap}
-          connectedPeers={['alicePeerId', 'bobPeerId']}
           unreadChannels={[]}
           setCurrentChannel={function (_id: string): void {}}
           currentChannelId={generalChannel.id}
@@ -116,29 +101,14 @@ describe('Channels panel', () => {
             handleOpen: function (_args?: any): any {},
             handleClose: function (): any {},
           }}
-          isTorInitialized={true}
           canCreateChannel={true}
         />
         <DirectMessagesPanel
           myUserProfile={aliceUserProfile}
           userProfiles={userProfilesMap}
-          connectedPeers={['alicePeerId', 'bobPeerId']}
-          networkEndpoints={[
-            {
-              teamId: 'teamId',
-              userId: aliceUserProfile.userId,
-              deviceId: 'aliceDeviceId',
-              peerId: 'alicePeerId',
-              onionAddress: 'alice.onion',
-            },
-            {
-              teamId: 'teamId',
-              userId: bobUserProfile.userId,
-              deviceId: 'bobDeviceId',
-              peerId: 'bobPeerId',
-              onionAddress: 'bob.onion',
-            },
-          ]}
+          isUserConnected={(userId: string | undefined) =>
+            userId === aliceUserProfile.userId || userId === bobUserProfile.userId
+          }
           isTorInitialized={true}
           setCurrentChannel={jest.fn()}
           openNewMessageWindow={jest.fn()}

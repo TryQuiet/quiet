@@ -95,7 +95,8 @@ const StyledPanelContent = styled('div')(({ theme }) => ({
 export interface AddMembersChannelProps {
   channelName: string
   channelId: string
-  connectedPeers?: string[]
+  /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
+  isUserConnected?: (userId: string | undefined) => boolean
   allUsers: Record<string, User>
   possibleMembers: Record<string, UserProfile>
   addMembersToChannel: (memberIds: string[]) => void
@@ -107,7 +108,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
   channelName,
   channelId,
   possibleMembers,
-  connectedPeers = [],
+  isUserConnected = () => false,
   addMembersToChannel,
 }) => {
   const [selected, setSelected] = useState<string[]>([])
@@ -219,7 +220,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
                   size={ProfilePhotoSize.MEDIUM}
                   userData={{
                     user: member,
-                    connected: member.userData != null && connectedPeers.includes(member.userData.peerId),
+                    connected: isUserConnected(member.userId),
                   }}
                 />
                 <Typography className={classes.name}>{member.nickname}</Typography>

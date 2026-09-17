@@ -413,9 +413,12 @@ describe('Appbar component', () => {
 
     const submitButtonView = getByTestId('submit').children[0] as ReactTestInstance
 
+    // The bar's own minimum, from Appbar's TOUCH_TARGET: 44 square, the smallest target the
+    // accessibility guidelines accept. develop asserted its own 64x50 box here; the merge kept
+    // this branch's geometry, which states the minimum rather than a fixed size.
     expect(submitButtonView.props.style).toMatchObject({
-      minWidth: 64,
-      height: 50,
+      minWidth: 44,
+      minHeight: 44,
     })
   })
 })

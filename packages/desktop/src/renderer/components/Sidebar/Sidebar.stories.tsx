@@ -108,24 +108,8 @@ const args: IdentityPanelProps &
       channels: [],
     },
   },
-  connectedPeers: ['alicePeerId', 'bobPeerId'],
-  networkEndpoints: [
-    {
-      teamId: 'foobar',
-      userId: 'aliceUserId',
-      deviceId: 'aliceDeviceId',
-      peerId: 'alicePeerId',
-      onionAddress: 'alice.onion',
-    },
-    { teamId: 'foobar', userId: 'bobUserId', deviceId: 'bobDeviceId', peerId: 'bobPeerId', onionAddress: 'bob.onion' },
-    {
-      teamId: 'foobar',
-      userId: 'charlieUserId',
-      deviceId: 'charlieDeviceId',
-      peerId: 'charliePeerId',
-      onionAddress: 'charlie.onion',
-    },
-  ],
+  // Presence now answers by user id, so a story says who is online instead of listing peer ids.
+  isUserConnected: (userId: string | undefined) => userId === 'aliceUserId' || userId === 'bobUserId',
   unreadChannels: ['spooky'],
   setCurrentChannel: function (_id: string): void {},
   currentChannel: 'general',
@@ -166,7 +150,6 @@ EXTRA_DM_NAMES.forEach(nickname => {
   dmUserProfiles[`${nickname}UserId`] = {
     userId: `${nickname}UserId`,
     nickname,
-    userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname.toLowerCase()}.onion` },
     channels: [],
   }
 })

@@ -63,7 +63,8 @@ export interface ChatProps extends UserLabelHandlers {
   newChatRecipientIds?: string[]
   userProfiles: Record<string, UserProfile>
   me?: UserProfile
-  connectedPeers: string[]
+  /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
+  isUserConnected: (userId: string | undefined) => boolean
   createOrSetDmChannelAction: (memberIds: string[], firstMessage: string) => void
   setDmChannelOnSelection: (selectedIds: string[]) => void
 }

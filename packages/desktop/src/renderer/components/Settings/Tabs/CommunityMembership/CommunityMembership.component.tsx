@@ -97,7 +97,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 export interface CommunityMembershipComponentProps {
   userProfiles: Record<string, UserProfile>
   me: UserProfile | undefined
-  connectedPeers: string[]
+  /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
+  isUserConnected: (userId: string | undefined) => boolean
+  isTorInitialized: boolean
   openUserProfilePanel: (userProfile: UserProfile | undefined) => void
   open: boolean
 }
@@ -107,21 +109,20 @@ const LOGGER = createLogger('CommunityMembershipComponent')
 const getUserDataForUser = (
   userProfile: UserProfile,
   me: UserProfile | undefined,
-  connectedPeers: string[]
+  isUserConnected: (userId: string | undefined) => boolean,
+  isTorInitialized: boolean
 ): DmChannelUserData | undefined => {
+  // Your own row cannot be answered by a peer connection - you are not your own peer - so it
+  // follows whether the app itself is on the network, as the sidebar's self-DM does.
   if (me != null && userProfile.userId === me.userId) {
     return {
-      connected: true,
+      connected: isTorInitialized,
       user: userProfile,
     }
   }
 
-  const connected =
-    userProfile.userData != null &&
-    userProfile.userData.peerId != null &&
-    connectedPeers.includes(userProfile.userData.peerId)
   return {
-    connected,
+    connected: isUserConnected(userProfile.userId),
     user: userProfile,
   }
 }
@@ -131,7 +132,8 @@ const SEARCH_PLACEHOLDER_TEXT = 'Search for users in your community'
 export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps> = ({
   userProfiles,
   me,
-  connectedPeers,
+  isUserConnected,
+  isTorInitialized,
   openUserProfilePanel,
   open,
 }) => {
@@ -186,7 +188,7 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
         <Grid item container display={'flex'} flexDirection={'column'}>
           <List disablePadding data-testid='community-membership-list'>
             {visibleUsers.map(user => {
-              const userData = getUserDataForUser(user, me, connectedPeers)
+              const userData = getUserDataForUser(user, me, isUserConnected, isTorInitialized)
               return (
                 <Grid container>
                   <Grid container item>

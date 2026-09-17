@@ -175,6 +175,8 @@ export interface ChannelHeaderProps {
   memberCount?: number
   /** Opens a person's profile. Only a one-to-one DM names a single person to open. */
   openUserProfile?: (userId: string) => void
+  /** Presence for a DM, from `isDmConnected`. Omitted on a channel, which has no dot. */
+  dmConnected?: boolean
 }
 
 const logger = createLogger('channels:ChannelHeader')
@@ -190,6 +192,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   openUserProfile,
   maxDmNames = 2,
   memberCount,
+  dmConnected,
 }) => {
   const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
@@ -270,7 +273,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                   onClick={() => dmSubjectId != null && openUserProfile?.(dmSubjectId)}
                   data-testid={'channelTitle-dm-photo'}
                 >
-                  <DMProfilePhoto members={members} me={me} />
+                  <DMProfilePhoto members={members} me={me} connected={dmConnected} />
                 </span>
               )}
               <Typography

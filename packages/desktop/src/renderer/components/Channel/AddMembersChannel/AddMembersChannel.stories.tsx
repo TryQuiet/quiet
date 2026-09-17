@@ -27,7 +27,6 @@ NAMES.forEach(nickname => {
   possibleMembers[`${nickname}UserId`] = {
     userId: `${nickname}UserId`,
     nickname,
-    userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname}.onion` },
     channels: [],
   }
   allUsers[`${nickname}UserId`] = { isRegistered: true, isDuplicated: false, userId: `${nickname}UserId` }
@@ -45,6 +44,8 @@ const args: ReturnType<typeof useModal> & AddMembersChannelProps = {
   addMembersToChannel: (memberIds: string[]) => {
     logger.info('adding members', memberIds)
   },
+  // One member is online, to draw the presence dot the design puts on each thumbnail.
+  isUserConnected: (userId: string | undefined) => userId === 'deniseUserId',
   open: true,
   // @ts-expect-error
   handleOpen: () => {},

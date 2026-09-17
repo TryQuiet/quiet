@@ -27,7 +27,8 @@ describe('CommunityMembership', () => {
       <CommunityMembershipComponent
         userProfiles={{}}
         me={undefined}
-        connectedPeers={[]}
+        isUserConnected={() => false}
+        isTorInitialized={false}
         openUserProfilePanel={jest.fn()}
         open={true}
       />
@@ -96,7 +97,8 @@ describe('CommunityMembership', () => {
       <CommunityMembershipComponent
         userProfiles={{ [me.userId]: me }}
         me={me}
-        connectedPeers={[me.userData!.peerId]}
+        isUserConnected={() => false}
+        isTorInitialized={true}
         openUserProfilePanel={jest.fn()}
         open={true}
       />
@@ -235,7 +237,8 @@ describe('CommunityMembership', () => {
       <CommunityMembershipComponent
         userProfiles={{ [me.userId]: me }}
         me={undefined}
-        connectedPeers={[]}
+        isUserConnected={() => false}
+        isTorInitialized={false}
         openUserProfilePanel={jest.fn()}
         open={true}
       />
@@ -370,7 +373,9 @@ describe('CommunityMembership', () => {
       <CommunityMembershipComponent
         userProfiles={{ [me.userId]: me, [user1.userId]: user1, [user2.userId]: user2 }}
         me={me}
-        connectedPeers={[me.userData!.peerId]}
+        // Everyone online: the other two through a connected device, you through Tor.
+        isUserConnected={() => true}
+        isTorInitialized={true}
         openUserProfilePanel={jest.fn()}
         open={true}
       />
@@ -627,5 +632,49 @@ describe('CommunityMembership', () => {
         </div>
       </body>
     `)
+  })
+  /**
+   * The membership list answers presence per user, so a member with a linked device shows online
+   * while any one of their devices is connected; your own row follows Tor, since you are not your
+   * own peer.
+   */
+  describe('presence', () => {
+    const badgeClass = (result: ReturnType<typeof renderComponent>, nickname: string) =>
+      result.getByTestId(`${nickname}-profile-photo-status-badge`).className
+
+    it('lights a member whose device is connected', async () => {
+      const me: UserProfile = await factory.create<UserProfile>('UserProfile')
+      const other: UserProfile = await factory.create<UserProfile>('UserProfile')
+      const result = renderComponent(
+        <CommunityMembershipComponent
+          userProfiles={{ [me.userId]: me, [other.userId]: other }}
+          me={me}
+          isUserConnected={userId => userId === other.userId}
+          isTorInitialized={false}
+          openUserProfilePanel={jest.fn()}
+          open={true}
+        />
+      )
+      expect(badgeClass(result, other.nickname)).not.toContain('MuiBadge-invisible')
+      // Tor is down, so my own row is dark even though the other member is reachable.
+      expect(badgeClass(result, me.nickname)).toContain('MuiBadge-invisible')
+    })
+
+    it('darkens a member with no connected device', async () => {
+      const me: UserProfile = await factory.create<UserProfile>('UserProfile')
+      const other: UserProfile = await factory.create<UserProfile>('UserProfile')
+      const result = renderComponent(
+        <CommunityMembershipComponent
+          userProfiles={{ [me.userId]: me, [other.userId]: other }}
+          me={me}
+          isUserConnected={() => false}
+          isTorInitialized={true}
+          openUserProfilePanel={jest.fn()}
+          open={true}
+        />
+      )
+      expect(badgeClass(result, other.nickname)).toContain('MuiBadge-invisible')
+      expect(badgeClass(result, me.nickname)).not.toContain('MuiBadge-invisible')
+    })
   })
 })

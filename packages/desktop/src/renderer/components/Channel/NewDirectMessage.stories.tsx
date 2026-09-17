@@ -29,7 +29,6 @@ const NAMES = [
 const me: UserProfile = {
   userId: 'meUserId',
   nickname: 'holmes',
-  userData: { peerId: 'mePeerId', onionAddress: 'me.onion' },
   channels: [],
 }
 
@@ -38,7 +37,6 @@ NAMES.forEach(nickname => {
   userProfiles[`${nickname}UserId`] = {
     userId: `${nickname}UserId`,
     nickname,
-    userData: { peerId: `${nickname}PeerId`, onionAddress: `${nickname}.onion` },
     channels: [],
   }
 })

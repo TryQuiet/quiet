@@ -40,6 +40,34 @@ export const networkEndpoints = createSelector(connectionSlice, reducerState =>
   Object.values(reducerState.networkEndpoints ?? {})
 )
 
+/**
+ * The set of user ids that have at least one device currently connected.
+ *
+ * A user is one identity across several devices, so presence is a property of the user, not of a
+ * peer: any one of their endpoints being connected means the user is reachable. Before device
+ * linking a profile carried a single `userData.peerId` and the two were the same thing; they no
+ * longer are, and reading presence off one endpoint would show a user offline whenever they are
+ * online on their other device.
+ */
+export const connectedUserIds = createSelector(networkEndpoints, connectedPeers, (endpoints, connected) => {
+  const connectedPeerIds = new Set(connected)
+  const userIds = new Set<string>()
+  for (const endpoint of endpoints) {
+    if (connectedPeerIds.has(endpoint.peerId)) {
+      userIds.add(endpoint.userId)
+    }
+  }
+  return userIds
+})
+
+/**
+ * `connectedUserIds` as a predicate, for components that ask about one user at a time.
+ */
+export const isUserConnected = createSelector(
+  connectedUserIds,
+  userIds => (userId: string | undefined) => userId != null && userIds.has(userId)
+)
+
 export const peerStats = createSelector(connectionSlice, reducerState => {
   let stats: NetworkStats[]
   if (reducerState.peersStats === undefined) {
@@ -224,5 +252,7 @@ export const connectionSelectors = {
   isJoiningCompleted,
   peerStats,
   networkEndpoints,
+  connectedUserIds,
+  isUserConnected,
   p2pEnabled,
 }

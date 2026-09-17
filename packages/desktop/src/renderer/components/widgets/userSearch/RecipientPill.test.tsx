@@ -16,13 +16,11 @@ const userProfiles: Record<string, UserProfile> = {
   deniseUserId: {
     userId: 'deniseUserId',
     nickname: 'denise',
-    userData: { peerId: 'denisePeerId', onionAddress: 'denise.onion' },
     channels: [],
   },
   gordonUserId: {
     userId: 'gordonUserId',
     nickname: 'gordon',
-    userData: { peerId: 'gordonPeerId', onionAddress: 'gordon.onion' },
     channels: [],
   },
 }
