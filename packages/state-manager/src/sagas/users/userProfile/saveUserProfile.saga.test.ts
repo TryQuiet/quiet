@@ -318,8 +318,9 @@ describe('saveUserProfileSaga', () => {
       .run()
   })
 
-  test('rejects an oversized profile photo with an error and never starts the upload', async () => {
-    const photo = makeFileOfSize('huge.jpg', '/tmp/huge.jpg', MAX_PROFILE_PHOTO_SIZE_BYTES + 1)
+  test('rejects an oversized photo we cannot re-encode, and never starts the upload', async () => {
+    // GIF is not sent through ImageCompressionService: Jimp would flatten the animation.
+    const photo = makeFileOfSize('huge.gif', '/tmp/huge.gif', MAX_PROFILE_PHOTO_SIZE_BYTES + 1)
 
     await expectSaga(
       saveUserProfileSaga,
@@ -338,6 +339,26 @@ describe('saveUserProfileSaga', () => {
       .not.call.like({ context: socket, fn: socket.emitWithAck })
       .not.put.like({ action: { type: usersActions.setUserProfile.type } })
       .run()
+  })
+
+  test('uploads an oversized JPEG or PNG, which the backend compresses on the attachment path', async () => {
+    for (const name of ['huge.jpg', 'huge.png']) {
+      const photo = makeFileOfSize(name, `/tmp/${name}`, MAX_PROFILE_PHOTO_SIZE_BYTES * 20)
+
+      await expectSaga(
+        saveUserProfileSaga,
+        socket as unknown as Socket,
+        // @ts-ignore
+        usersActions.saveUserProfile({ photo, nickname: userProfile.nickname, bio: userProfile.bio })
+      )
+        .withReducer(combineReducers(testReducers))
+        .withState(store.getState())
+        // The size guard must not fire: ImageCompressionService brings it under the budget.
+        .not.put(usersActions.setSaveUserProfileError(PROFILE_PHOTO_TOO_LARGE_ERROR))
+        // And the upload must actually start.
+        .call.fn(generateMessageId)
+        .silentRun(0)
+    }
   })
 
   test('accepts a profile photo exactly at the size limit', async () => {
