@@ -2401,22 +2401,41 @@ export class NewMessage {
     await this.isOpen()
   }
 
-  async getUserSearchChip(username: string): Promise<WebElement> {
-    const chipElement = await this.driver.wait(
-      until.elementLocated(By.xpath(`//span[text()="${username}" and contains(@class, 'MuiChip-label')]`)),
+  /**
+   * The pill for a chosen recipient in the new-message composer.
+   *
+   * Resolved by test id, not by markup: this branch replaced MUI's default Chip with the design's
+   * RecipientPill (an avatar, a name and a ✕), so the old `//span[MuiChip-label]` locator matched
+   * nothing. It failed silently in the worst way — `changeDmUsers` reported the recipient as
+   * failed while the DM was in fact created, so a suite saw `successfulUsers: []` and then found
+   * the conversation anyway several stages later.
+   */
+  async getRecipientPill(username: string): Promise<WebElement> {
+    const pillElement = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="new-message-recipient-pill-${username}"]`)),
       5_000,
-      `User search chip for ${username} couldn't be found within timeout`,
+      `Recipient pill for ${username} couldn't be found within timeout`,
       500
     )
 
     await this.driver.wait(
-      until.elementIsVisible(chipElement),
+      until.elementIsVisible(pillElement),
       5_000,
-      `User search chip for ${username} wasn't visible within timeout`,
+      `Recipient pill for ${username} wasn't visible within timeout`,
       500
     )
 
-    return chipElement
+    return pillElement
+  }
+
+  /** The ✕ on a chosen recipient's pill, for tests that take somebody back out. */
+  async getRecipientPillRemove(username: string): Promise<WebElement> {
+    return this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="new-message-recipient-pill-remove-${username}"]`)),
+      5_000,
+      `Recipient pill remove control for ${username} couldn't be found within timeout`,
+      500
+    )
   }
 
   async changeDmUsers(usernames: string[]): Promise<NewMessageDM> {
@@ -2429,10 +2448,10 @@ export class NewMessage {
       try {
         await searchInput.sendKeys(username)
         await searchInput.sendKeys(Key.ENTER)
-        await this.getUserSearchChip(username)
+        await this.getRecipientPill(username)
         successfulUsers.push(username)
       } catch (e) {
-        logger.error(`Failed to find user chip for ${username}`, e)
+        logger.error(`Failed to find recipient pill for ${username}`, e)
         failedUsers.push(username)
       }
     }

@@ -215,8 +215,14 @@ describe('New Direct Message', () => {
     await userEvent.type(searchInput, suesUserProfile.nickname)
     await userEvent.type(searchInput, '{enter}')
 
-    const aliceTag = screen.getByText(suesUserProfile.nickname)
-    expect(aliceTag).toBeVisible()
+    // Typing a name and pressing Enter is exactly what the e2e suites' `changeDmUsers` does, and
+    // the pill's test id is how they decide the recipient was accepted. Asserting it by id rather
+    // than by loose text is what would have caught the drift when this branch replaced MUI's Chip
+    // with RecipientPill: the e2e went on looking for `MuiChip-label`, reported the recipient as
+    // failed, and the DM was created anyway - so three later stages cascaded off nothing.
+    const recipientPill = await screen.findByTestId(`new-message-recipient-pill-${suesUserProfile.nickname}`)
+    expect(recipientPill).toBeVisible()
+    expect(screen.getByTestId(`new-message-recipient-pill-remove-${suesUserProfile.nickname}`)).toBeVisible()
 
     messageInput = screen.getByPlaceholderText(`Message ${suesUserProfile.nickname} as @${alicesUserProfile.nickname}`)
     expect(messageInput).toBeVisible()
