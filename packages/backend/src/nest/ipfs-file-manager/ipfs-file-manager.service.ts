@@ -98,7 +98,23 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   private _handleEventAttachFile = async (fileMetadata: FileMetadata): Promise<void> => {
-    await this.attachFile(fileMetadata)
+    try {
+      await this.attachFile(fileMetadata)
+    } catch (e) {
+      // EventEmitter discards the promise this returns, so a rejection here reaches
+      // backendManager's unhandledRejection handler, which closes every service and exits the
+      // process — one unreadable or missing image would take the whole app down with it. Report
+      // the failure instead: both waiters (sendFileMessage and saveUserProfile) read Canceled as
+      // the end of an upload, so the sender is told rather than left hanging.
+      this.logger.error(`Failed to attach file ${fileMetadata.cid}`, e)
+      const status: DownloadStatus = {
+        mid: fileMetadata.message.id,
+        cid: fileMetadata.cid,
+        downloadState: DownloadState.Canceled,
+        downloadProgress: undefined,
+      }
+      this.emit(StorageEvents.DOWNLOAD_PROGRESS, status)
+    }
   }
 
   private _handleEventDownloadFile = async (fileMetadata: FileMetadata): Promise<void> => {
