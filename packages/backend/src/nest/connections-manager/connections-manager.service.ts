@@ -1031,9 +1031,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
+  /**
+   * Mint the onion address and key this identity will be known by.
+   *
+   * The service itself is discarded on the next line - the one that carries traffic
+   * is created by spawnTorHiddenService when the community launches. So there is
+   * nothing to publish here, and waiting for a descriptor upload would put community
+   * creation behind a fully bootstrapped Tor for no gain.
+   */
   private async createEphemeralHiddenService(): Promise<NetworkInfo['hiddenService']> {
     this.logger.info('Creating hidden service')
-    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
+    const hiddenService = await this.tor.createNewHiddenService({
+      targetPort: this.ports.libp2pHiddenService,
+      waitForDescriptorUpload: false,
+    })
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
     return hiddenService
   }
