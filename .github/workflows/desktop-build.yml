@@ -215,14 +215,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage
-          asset_name: Quiet-${{ steps.extract_version.outputs.version }}.AppImage
-          asset_content_type: application/.AppImage
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -342,14 +339,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
-          asset_content_type: application/.dmg
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -465,14 +459,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
-          asset_content_type: application/.dmg
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -646,14 +637,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
-          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
-          asset_content_type: application/.exe
+        shell: bash
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
