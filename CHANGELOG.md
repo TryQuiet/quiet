@@ -1,5 +1,11 @@
 # Changelog
 
+## [9.0.3]
+
+### Chores
+
+* Final 9.x release. Shows a notice on startup telling 9.x users that Quiet 11.0 is a breaking upgrade that adds device linking, that existing communities and identities will not carry over, and that they should re-install from tryquiet.org. 9.x will receive no further updates or security fixes.
+
 ## [9.0.0]
 
 ### Features

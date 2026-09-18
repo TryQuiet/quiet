@@ -15,10 +15,14 @@ const BreakingChangesWarning = () => {
 
   const title = 'Update available'
   const message =
-    'Quiet’s next release makes joining communities faster and more reliable by letting people join when the owner is offline! 🎉 However, these changes are not backwards compatible, so you must re-install Quiet from tryquiet.org and re-create or re-join your community. 😥 This version of Quiet will no longer receive any updates or security fixes, so please re-install soon. We apologize for the inconvenience.'
+    'Quiet 11.0 adds device linking, so you can use one account on several devices! 🎉 However, it is not backwards compatible, so you must re-install Quiet from tryquiet.org and re-create or re-join your community: your existing communities and identities will not carry over. 😥 This version of Quiet (9.x) will no longer receive any updates or security fixes, so please re-install soon. We apologize for the inconvenience.'
 
   const updateAction = useCallback(() => {
     shell.openExternal(`${Site.MAIN_PAGE}#Downloads`)
+  }, [])
+
+  useEffect(() => {
+    modal.handleOpen() // Open modal once per app start
   }, [])
 
   const updateButton = (
@@ -35,7 +39,7 @@ const BreakingChangesWarning = () => {
       }}
       fullWidth
     >
-      Install Quiet 2.x
+      Install Quiet 11.x
     </Button>
   )
 
