@@ -45,8 +45,8 @@ describe('QRCode component', () => {
                 "display": "flex",
                 "flexDirection": "row",
                 "justifyContent": "center",
-                "maxHeight": 52,
-                "minHeight": 52,
+                "maxHeight": 64,
+                "minHeight": 60,
               },
             ]
           }
@@ -54,6 +54,7 @@ describe('QRCode component', () => {
           <View
             style={
               {
+                "alignSelf": "stretch",
                 "flex": 1,
               }
             }
@@ -81,6 +82,14 @@ describe('QRCode component', () => {
               accessible={true}
               collapsable={false}
               focusable={true}
+              hitSlop={
+                {
+                  "bottom": 8,
+                  "left": 8,
+                  "right": 8,
+                  "top": 8,
+                }
+              }
               onClick={[Function]}
               onResponderGrant={[Function]}
               onResponderMove={[Function]}
@@ -90,6 +99,7 @@ describe('QRCode component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
+                  "flex": 1,
                   "opacity": 1,
                 }
               }
@@ -99,8 +109,9 @@ describe('QRCode component', () => {
                 style={
                   {
                     "alignItems": "center",
-                    "height": 50,
+                    "flex": 1,
                     "justifyContent": "center",
+                    "minHeight": 44,
                     "width": 64,
                   }
                 }
@@ -156,6 +167,7 @@ describe('QRCode component', () => {
           <View
             style={
               {
+                "alignSelf": "stretch",
                 "flex": 1,
               }
             }
@@ -242,9 +254,9 @@ describe('QRCode component', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
-                  "borderRadius": 8,
+                  "borderRadius": 16,
                   "justifyContent": "center",
-                  "minHeight": 45,
+                  "minHeight": 50,
                   "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,

@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import { FileMetadata, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
+import { DownloadState, FileMetadata, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
 import path from 'path'
 import fs from 'fs'
 import { DirResult } from 'tmp'
@@ -311,6 +311,48 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).not.toHaveBeenCalled()
     })
+  })
+
+  /**
+   * The socket reaches the listener, not attachFile directly, and EventEmitter throws away the
+   * promise the listener returns. Before the catch, this exact input — the profile-photo crash, a
+   * URI where a filesystem path belongs — surfaced as an unhandledRejection, and backendManager
+   * answers those by closing every service and exiting the process.
+   */
+  it('reports a failed attachment rather than rejecting into the process', async () => {
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+
+    const metadata: FileMetadata = {
+      path: `file://${path.join(dirname, '/testUtils/non-existent.jpg')}`,
+      name: 'profile-photo',
+      ext: '.jpg',
+      cid: 'attaching_profile-photo-id',
+      message: {
+        id: 'profile-photo-id',
+        channelId: PROFILE_PHOTO_CHANNEL_ID,
+      },
+    }
+
+    const rejections: unknown[] = []
+    const record = (reason: unknown) => rejections.push(reason)
+    process.on('unhandledRejection', record)
+    try {
+      ipfsFileManagerService.emit(IpfsFilesManagerEvents.ATTACH_FILE, metadata)
+
+      await waitForExpect(() => {
+        expect(eventSpy).toHaveBeenCalledWith(StorageEvents.DOWNLOAD_PROGRESS, {
+          mid: 'profile-photo-id',
+          cid: 'attaching_profile-photo-id',
+          downloadState: DownloadState.Canceled,
+          downloadProgress: undefined,
+        })
+      })
+      // Node reports an unhandled rejection a tick after the fact, so give it one.
+      await sleep(500)
+      expect(rejections).toEqual([])
+    } finally {
+      process.off('unhandledRejection', record)
+    }
   })
 
   it('throws error if reported file size is malicious', async () => {

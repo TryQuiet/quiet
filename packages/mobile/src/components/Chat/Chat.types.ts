@@ -6,6 +6,8 @@ import {
   MessagesDailyGroups,
   MessageSendingStatus,
   PublicChannel,
+  type ChannelType,
+  type UserProfile,
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
@@ -13,6 +15,7 @@ import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
 import { HeaderTitleProps } from '../Appbar/Appbar.types'
+import { type IsUserConnected } from '@quiet/common'
 
 // Define a new type for date groups with timestamps
 export interface DateGroup {
@@ -35,7 +38,7 @@ export interface ChatProps extends UserLabelHandlers {
   sendMessageAction: (message: string) => void
   loadMessagesAction: (load: boolean) => void
   handleBackButton: () => void
-  channel: PublicChannel
+  channel?: PublicChannel
   messages?: {
     count: number
     groups: MessagesDailyGroups
@@ -52,6 +55,21 @@ export interface ChatProps extends UserLabelHandlers {
   uploadedFiles?: FilePreviewData
   openUrl: (url: string) => void
   ready?: boolean
+  channelName: string
+  channelId?: string
+  newChat: boolean
+  /** Opens a message author's profile. */
+  openUserProfile?: (userId: string) => void
+  /** Recipients already chosen when the composer opens — a DM started from someone's profile. */
+  newChatRecipientIds?: string[]
+  userProfiles: Record<string, UserProfile>
+  me?: UserProfile
+  /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
+  isUserConnected: IsUserConnected
+  /** My own row follows Tor, since I am not my own peer. */
+  isTorInitialized: boolean
+  createOrSetDmChannelAction: (memberIds: string[], firstMessage: string) => void
+  setDmChannelOnSelection: (selectedIds: string[]) => void
 }
 
 export interface ChannelMessagesComponentProps extends UserLabelHandlers {
@@ -65,4 +83,10 @@ export interface ChannelMessagesComponentProps extends UserLabelHandlers {
 
 export interface ChatAppbarHeaderTitleProps extends HeaderTitleProps {
   isPublic: boolean
+  isNewChat: boolean
+  channelType: ChannelType
+  /** Drawn under the channel name as the design's meta line; omitted when there is no channel. */
+  memberCount?: number
+  /** Opens the profile of a one-to-one DM's other participant; absent for anything else. */
+  openUserProfile?: () => void
 }

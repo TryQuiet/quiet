@@ -1,10 +1,11 @@
-import React, { FC, useRef, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
-import { styled, Grid, List, Typography, useTheme } from '@mui/material'
+import { styled, Button, Grid, List, Typography, useTheme } from '@mui/material'
 
-import { identity, users } from '@quiet/state-manager'
+import { findDmChannelWithMembers } from '@quiet/common'
+import { identity, publicChannels, users } from '@quiet/state-manager'
 import { UserProfile } from '@quiet/types'
 
 import { useContextMenu } from '../../../../hooks/useContextMenu'
@@ -16,6 +17,9 @@ import { webUtils } from 'electron'
 
 const logger = createLogger('userProfileContextMenu:container')
 
+/** Stands in before any profile has been opened, so the closed drawer is still mounted. */
+const EMPTY_PROFILE: UserProfile = { userId: '', nickname: '' }
+
 const PREFIX = 'UserProfileContextMenu'
 
 const classes = {
@@ -26,7 +30,22 @@ const classes = {
   editUsernameField: `${PREFIX}editUsernameField`,
   editUsernameFieldLabel: `${PREFIX}editUsernameFieldLabel`,
   editPhotoButton: `${PREFIX}editPhotoButton`,
+  messageButton: `${PREFIX}messageButton`,
 }
+
+/** Figma BnANosC1KGMUvm8oU2Dr0i, Profile-view 849:7386. */
+const AVATAR_SIZE = 160
+const BUTTON_HEIGHT = 32
+const MESSAGE = 'Message'
+/**
+ * Secondary button colours. The border is a mid grey that reads against either background, so it
+ * is the design's #B3B3B3 in both themes; the label and the fill follow the theme, because the
+ * design's white fill and near-black label are the dark theme's colours exactly inverted.
+ */
+const BUTTON_BORDER = '#B3B3B3'
+/** The design's hover is #F7F7F7 — a wash a shade off the light background. */
+const BUTTON_HOVER_LIGHT = '#F7F7F7'
+const BUTTON_HOVER_DARK = 'rgba(255,255,255,0.08)'
 
 const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
   zIndex: 9002,
@@ -36,10 +55,12 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
     padding: '24px 16px 16px 16px',
   },
 
+  // Avatar 160 at a twelfth of its size in radius, name 28/34 — Figma BnANosC1KGMUvm8oU2Dr0i,
+  // Profile-view 849:7386. It was 96 at radius 8 with a 16px name, a whole step small.
   [`& .${classes.profilePhoto}`]: {
-    width: '96px',
-    height: '96px',
-    borderRadius: '8px',
+    width: `${AVATAR_SIZE}px`,
+    height: `${AVATAR_SIZE}px`,
+    borderRadius: `${AVATAR_SIZE / 12}px`,
     marginBottom: '16px',
   },
 
@@ -54,9 +75,38 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.nickname}`]: {
-    fontSize: '16px',
+    fontSize: '28px',
+    lineHeight: '34px',
     fontStyle: 'normal',
-    fontWeight: '500',
+    fontWeight: '400',
+    textAlign: 'center',
+    overflowWrap: 'anywhere',
+  },
+
+  /**
+   * Design library Button, Small + Secondary (3505:10206): 32 tall, radius 16, 6/12 padding, a
+   * 14/20 label — white with a #B3B3B3 border, going to #F7F7F7 on hover. Not purple: purple is
+   * the Primary variant, and MUI's `outlined` paints both border and label with the theme's
+   * primary unless told otherwise. Its padding and minWidth are overridden for the same reason —
+   * inherited, they make the button taller and wider than the design's 103x32.
+   */
+  [`& .${classes.messageButton}`]: {
+    height: BUTTON_HEIGHT,
+    minHeight: BUTTON_HEIGHT,
+    minWidth: 0,
+    padding: '6px 12px',
+    borderRadius: BUTTON_HEIGHT / 2,
+    fontSize: 14,
+    lineHeight: '20px',
+    textTransform: 'none',
+    marginTop: 16,
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.background.default,
+    border: `1px solid ${BUTTON_BORDER}`,
+    '&:hover': {
+      backgroundColor: theme.palette.mode === 'dark' ? BUTTON_HOVER_DARK : BUTTON_HOVER_LIGHT,
+      border: `1px solid ${BUTTON_BORDER}`,
+    },
   },
 
   [`& .${classes.editUsernameFieldLabel}`]: {
@@ -101,26 +151,64 @@ export interface UserProfileContextMenuArgs {
  * Context menu view that switches between user profile subviews.
  */
 export const UserProfileContextMenu: FC = () => {
+  const dispatch = useDispatch()
   const contextMenu = useContextMenu<UserProfileContextMenuArgs>(MenuName.UserProfile)
   const userProfile = contextMenu.userProfile
   const [route, setRoute] = useState('userProfile')
   const myUserProfile = useSelector(users.selectors.myUserProfile)
-  const isMyProfile = myUserProfile?.userId === userProfile?.userId
+  const channels = useSelector(publicChannels.selectors.publicChannels)
+  // Kept so the panel still has something to draw while it is sliding closed.
+  const [lastProfile, setLastProfile] = useState<UserProfile | undefined>(undefined)
+  useEffect(() => {
+    if (userProfile != null) setLastProfile(userProfile)
+  }, [userProfile])
+
+  /**
+   * The panel slides in and out, which needs the drawer mounted on both sides of the change. This
+   * component is mounted for the app's whole life but returned null until a profile arrived, so
+   * the drawer appeared already open and MUI had no closed-to-open transition to run — the panel
+   * simply blinked into place. Holding the last profile keeps it rendered while it animates away,
+   * and the empty stand-in keeps it rendered (closed) before the first profile is ever opened.
+   *
+   * Everything below reads this rather than the live value, or the panel would change what it says
+   * — losing Edit profile, gaining Message — midway through sliding out.
+   */
+  const shownProfile = userProfile ?? lastProfile ?? EMPTY_PROFILE
+  const isMyProfile = myUserProfile != null && myUserProfile.userId === shownProfile.userId
+
+  /**
+   * A DM is created together with its first message, so there is nothing to create here. Either the
+   * conversation already exists, in which case open it, or the composer opens with this person
+   * already chosen and the message they type is what brings the DM into being.
+   */
+  const handleMessage = () => {
+    if (myUserProfile == null || shownProfile.userId === '') {
+      logger.error('Cannot start a DM without both parties')
+      return
+    }
+    const existing = findDmChannelWithMembers([myUserProfile.userId, shownProfile.userId], channels)
+    contextMenu.handleClose()
+    if (existing != null) {
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: existing.id }))
+      dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
+      return
+    }
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: true, recipientIds: [shownProfile.userId] }))
+  }
   // Use a selector to make the user profile view reactive
   const userProfileSelector = useSelector(users.selectors.getUserProfileById(userProfile?.userId || ''))
-
-  if (!userProfile) return null
 
   const views: Map<string, JSX.Element> = new Map()
   views.set(
     'userProfile',
     <UserProfileMenuProfileView
-      username={userProfile.nickname}
-      userId={userProfile.userId}
-      userProfile={userProfileSelector || userProfile}
+      username={shownProfile.nickname}
+      userId={shownProfile.userId}
+      userProfile={userProfileSelector || shownProfile}
       contextMenu={contextMenu}
       setRoute={setRoute}
       isMyProfile={isMyProfile}
+      handleMessage={handleMessage}
     />
   )
   if (isMyProfile) {
@@ -161,6 +249,8 @@ export interface UserProfileMenuProfileViewProps {
   }
   setRoute: (route: string) => void
   isMyProfile?: boolean
+  /** Starts or opens the DM with this person; absent on your own profile. */
+  handleMessage?: () => void
 }
 
 export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = ({
@@ -170,6 +260,7 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
   contextMenu,
   setRoute,
   isMyProfile = false,
+  handleMessage,
 }) => {
   const [contentRef, setContentRef] = useState<HTMLDivElement | null>(null)
   const scrollbarRef = useRef(null)
@@ -218,9 +309,22 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                         className={classes.profilePhoto}
                         size={96}
                       />
-                      <Typography variant='body2' className={classes.nickname}>
+                      <Typography className={classes.nickname} data-testid={'userProfileNickname'}>
                         {username}
                       </Typography>
+                      {/* One surface. Your own profile keeps Message as well as Edit profile: a DM
+                          with just yourself is a real conversation in Quiet — the e2e suite covers
+                          "Owner creates DM with self" — so it serves as a note to self. */}
+                      {handleMessage != null && (
+                        <Button
+                          className={classes.messageButton}
+                          variant='outlined'
+                          onClick={handleMessage}
+                          data-testid={'userProfileMessage'}
+                        >
+                          {MESSAGE}
+                        </Button>
+                      )}
                     </Grid>
                     {isMyProfile && (
                       <Grid item>

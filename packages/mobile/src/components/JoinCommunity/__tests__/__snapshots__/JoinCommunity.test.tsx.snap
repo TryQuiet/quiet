@@ -66,7 +66,7 @@ exports[`JoinCommunity component renders component 1`] = `
               },
               {
                 "color": "#4C4C4C",
-                "paddingBottom": 10,
+                "paddingBottom": 8,
               },
             ]
           }
@@ -95,6 +95,8 @@ exports[`JoinCommunity component renders component 1`] = `
           accessible={true}
           collapsable={false}
           focusable={true}
+          focused={false}
+          invalid={false}
           onBlur={[Function]}
           onClick={[Function]}
           onFocus={[Function]}
@@ -104,22 +106,23 @@ exports[`JoinCommunity component renders component 1`] = `
           onResponderTerminate={[Function]}
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
-          round={false}
           style={
             [
               {
+                "alignItems": "center",
                 "backgroundColor": "#ffffff",
-                "borderColor": "#C4C4C4",
-                "borderRadius": 4,
+                "borderColor": "#B3B3B3",
+                "borderRadius": 16,
                 "borderWidth": 1,
+                "flexDirection": "row",
                 "flexGrow": 1,
-                "height": 56,
-                "justifyContent": "center",
+                "height": 48,
+                "justifyContent": "flex-start",
                 "paddingLeft": 16,
                 "paddingRight": 16,
               },
               {
-                "height": 54,
+                "height": 48,
               },
             ]
           }
@@ -129,14 +132,18 @@ exports[`JoinCommunity component renders component 1`] = `
             editable={true}
             height={54}
             keyboardType="default"
+            onBlur={[Function]}
             onChangeText={[Function]}
             onContentSizeChange={[Function]}
+            onFocus={[Function]}
             placeholder="Invite link"
-            placeholderTextColor="#999999"
+            placeholderTextColor="#7F7F7F"
             style={
               [
                 {
-                  "height": 54,
+                  "flexBasis": 0,
+                  "flexGrow": 1,
+                  "flexShrink": 1,
                   "paddingBottom": 12,
                   "paddingTop": 12,
                   "textAlignVertical": "center",
@@ -351,9 +358,9 @@ exports[`JoinCommunity component renders component 1`] = `
           {
             "alignItems": "center",
             "backgroundColor": "#521C74",
-            "borderRadius": 8,
+            "borderRadius": 16,
             "justifyContent": "center",
-            "minHeight": 45,
+            "minHeight": 50,
             "paddingHorizontal": 20,
             "paddingVertical": 12,
             "width": undefined,

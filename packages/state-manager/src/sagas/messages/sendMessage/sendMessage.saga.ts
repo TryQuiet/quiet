@@ -23,7 +23,7 @@ export function* sendMessageSaga(
     return
   }
   const generatedMessageId = yield* call(generateMessageId)
-  const id = payload.id || generatedMessageId
+  let id = payload.id || generatedMessageId
   let identity = yield* select(identitySelectors.currentIdentity)
   while (!identity || !identity.userId) {
     logger.info('Identity not present, waiting for identity to be added.', identity)
@@ -35,7 +35,9 @@ export function* sendMessageSaga(
     logger.info('Identity updated', identity)
   }
 
-  logger.info('Identity present', identity)
+  if (channelId.startsWith('dm_') && !id.startsWith(identity.userId + ':')) id = identity.userId + ':' + id
+
+  logger.info('Identity present')
 
   logger.info(`Sending message ${id} to channel ${channelId}`)
 
@@ -93,7 +95,7 @@ export function* sendMessageSaga(
   // (in a durable way).
   yield* waitForChannelSubscriptionSaga(channelId)
 
-  logger.info('Emitting SEND_MESSAGE', message)
+  logger.info('Emitting SEND_MESSAGE', message.id)
   yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, message))
   logger.info(`Sent message ${id}`)
 }

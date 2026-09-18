@@ -38,6 +38,7 @@ import {
   LaunchCommunityPayload,
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
+  ClearConnectedPeersPayload,
   UpdateCommunityPayload,
   type SetChannelPermissionsPayload,
   type AdmissionResetCompletePayload,
@@ -69,6 +70,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
+    | ReturnType<typeof publicChannelsActions.syncChannelDisplayNames>
     | ReturnType<typeof publicChannelsActions.setChannelPermissions>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
@@ -81,6 +83,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.admissionResetCompleted>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.removeConnectedPeer>
+    | ReturnType<typeof networkActions.clearConnectedPeers>
     | ReturnType<typeof connectionActions.setNetworkData>
     | ReturnType<typeof connectionActions.updateNetworkData>
     | ReturnType<typeof connectionActions.setNetworkEndpoints>
@@ -138,6 +141,10 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.onConnectionProcessInfo(payload))
     })
     // Misc
+    socket.on(SocketEvents.PEER_CLEAR, (payload: ClearConnectedPeersPayload) => {
+      logger.info(`${SocketEvents.PEER_CLEAR}`, payload)
+      emit(networkActions.clearConnectedPeers(payload))
+    })
     socket.on(SocketEvents.PEER_CONNECTED, (payload: NetworkDataPayload) => {
       logger.info(`${SocketEvents.PEER_CONNECTED}`, payload)
       emit(networkActions.addConnectedPeers([payload.peer]))
@@ -173,6 +180,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
       logger.info(`${SocketEvents.CHANNELS_STORED}`, payload)
       emit(publicChannelsActions.channelsReplicated(payload))
+      emit(publicChannelsActions.syncChannelDisplayNames())
     })
     socket.on(SocketEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       logger.info(`${SocketEvents.CHANNEL_SUBSCRIBED}`, payload)
@@ -214,6 +222,7 @@ export function subscribe(socket: Socket) {
         payload.users.map(user => user.userId)
       )
       emit(usersActions.setUsers(payload.users))
+      emit(publicChannelsActions.syncChannelDisplayNames())
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
 
@@ -226,6 +235,7 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
       emit(usersActions.updateUserProfiles(payload.profiles))
       emit(messagesActions.retryVerification({ currentChannel: true }))
+      emit(publicChannelsActions.syncChannelDisplayNames())
     })
     socket.on(SocketEvents.NETWORK_ENDPOINTS_STORED, (payload: NetworkEndpointsStoredEvent) => {
       logger.info(`${SocketEvents.NETWORK_ENDPOINTS_STORED}`, payload.endpoints.length)

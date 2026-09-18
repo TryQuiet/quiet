@@ -80,7 +80,7 @@ describe('UsernameRegistration', () => {
                     },
                     {
                       "color": "#4C4C4C",
-                      "paddingBottom": 10,
+                      "paddingBottom": 8,
                     },
                   ]
                 }
@@ -109,6 +109,8 @@ describe('UsernameRegistration', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                focused={false}
+                invalid={false}
                 onBlur={[Function]}
                 onClick={[Function]}
                 onFocus={[Function]}
@@ -118,22 +120,23 @@ describe('UsernameRegistration', () => {
                 onResponderTerminate={[Function]}
                 onResponderTerminationRequest={[Function]}
                 onStartShouldSetResponder={[Function]}
-                round={false}
                 style={
                   [
                     {
+                      "alignItems": "center",
                       "backgroundColor": "#ffffff",
-                      "borderColor": "#C4C4C4",
-                      "borderRadius": 4,
+                      "borderColor": "#B3B3B3",
+                      "borderRadius": 16,
                       "borderWidth": 1,
+                      "flexDirection": "row",
                       "flexGrow": 1,
-                      "height": 56,
-                      "justifyContent": "center",
+                      "height": 48,
+                      "justifyContent": "flex-start",
                       "paddingLeft": 16,
                       "paddingRight": 16,
                     },
                     {
-                      "height": 54,
+                      "height": 48,
                     },
                   ]
                 }
@@ -145,14 +148,18 @@ describe('UsernameRegistration', () => {
                   height={54}
                   keyboardType="default"
                   maxLength={20}
+                  onBlur={[Function]}
                   onChangeText={[Function]}
                   onContentSizeChange={[Function]}
+                  onFocus={[Function]}
                   placeholder="Enter a username"
-                  placeholderTextColor="#999999"
+                  placeholderTextColor="#7F7F7F"
                   style={
                     [
                       {
-                        "height": 54,
+                        "flexBasis": 0,
+                        "flexGrow": 1,
+                        "flexShrink": 1,
                         "paddingBottom": 12,
                         "paddingTop": 12,
                         "textAlignVertical": "center",
@@ -217,9 +224,9 @@ describe('UsernameRegistration', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
-                  "borderRadius": 8,
+                  "borderRadius": 16,
                   "justifyContent": "center",
-                  "minHeight": 45,
+                  "minHeight": 50,
                   "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
