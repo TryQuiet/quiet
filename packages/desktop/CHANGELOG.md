@@ -1,17 +1,10 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [9.0.3](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@9.0.2...@quiet/desktop@9.0.3) (2026-09-18)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
+
+## [9.0.3]
+
+### Chores
+
+* Final 9.x release. Shows a notice on startup telling 9.x users that Quiet 11.0 is a breaking upgrade that adds device linking, that existing communities and identities will not carry over, and that they should re-install from tryquiet.org. 9.x will receive no further updates or security fixes.
 
 ## [9.0.0]
 
