@@ -135,6 +135,10 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   handleClipboardFiles: dummyFn,
   pendingGeneralChannelRecreation: false,
   isPublic: true,
+  // A channel, with nobody in the member list: the header reads `members.length`, so a story that
+  // omits these renders nothing at all. SendingMessagesWithScroll passes them by hand.
+  channelType: ChannelType.CHANNEL,
+  members: [],
 }
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
