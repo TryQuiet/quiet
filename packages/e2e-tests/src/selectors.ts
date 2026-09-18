@@ -2563,6 +2563,20 @@ export class Sidebar {
    * Get channel link elements in the sidebar
    */
   async getChannelList(): Promise<WebElement[]> {
+    // The sidebar re-renders while messages and channels replicate, so an element found a moment
+    // ago can go stale before its id is read. Collect the whole list again when that happens.
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return await this.collectChannelList()
+      } catch (e) {
+        if (!(e instanceof error.StaleElementReferenceError) || attempt >= 5) throw e
+        logger.info(`Sidebar changed while reading the channel list, retrying (${attempt})`)
+        await sleep(500)
+      }
+    }
+  }
+
+  private async collectChannelList(): Promise<WebElement[]> {
     // We use a more generic XPath and then filter out user links to handle backwards compatibility
     const channels = await this.driver.wait(
       this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
@@ -2572,17 +2586,17 @@ export class Sidebar {
     )
     const channelTestIds = await Promise.all(channels.map(async channel => await channel.getAttribute('data-testid')))
     logger.info(`Found ${channels.length} channel candidates: ${channelTestIds}`)
-    // filter out any elements that include the "-user-" text, as these are user profile links
+    // The XPath is deliberately loose for backwards compatibility, so it also matches rows that are
+    // not channels: user profile links on older builds, and direct-message rows, whose ids look like
+    // `dm_<hash>-dm-link-text`. Both are filtered out here so the count is channels alone.
     const channelFilter = []
     for (let i = 0; i < channels.length; i++) {
-      if (!channelTestIds[i].includes('user-link-text')) {
+      const testId = channelTestIds[i]
+      if (!testId.includes('user-link-text') && !testId.includes('dm-link-text')) {
         channelFilter.push(channels[i])
       }
     }
-    const filteredTestIds = await Promise.all(
-      channelFilter.map(async channel => await channel.getAttribute('data-testid'))
-    )
-    logger.info(`Filtered channels: ${filteredTestIds}`)
+    logger.info(`Filtered channels: ${channelFilter.length}`)
     return channelFilter
   }
 
