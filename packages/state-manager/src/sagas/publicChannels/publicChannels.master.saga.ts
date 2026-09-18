@@ -1,5 +1,5 @@
 import { type Socket } from '../../types'
-import { all, takeEvery, cancelled } from 'typed-redux-saga'
+import { all, fork, takeEvery, cancelled } from 'typed-redux-saga'
 import { publicChannelsActions } from './publicChannels.slice'
 import { createChannelSaga } from './createChannel/createChannel.saga'
 import { deleteChannelSaga } from './deleteChannel/deleteChannel.saga'
@@ -11,6 +11,7 @@ import { channelDeletionResponseSaga } from './channelDeletionResponse/channelDe
 import { sendIntroductionMessageSaga } from './sendIntroductionMessage/sendIntroductionMessage.saga'
 import { createLogger } from '../../utils/logger'
 import { addMembersChannelSaga } from './addMembersChannel/addMembersChannel.saga'
+import { dayTickSaga } from './dayTick/dayTick.saga'
 
 const logger = createLogger('publicChannelsMasterSaga')
 
@@ -18,6 +19,7 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
   logger.info('publicChannelsMasterSaga starting')
   try {
     yield all([
+      fork(dayTickSaga),
       takeEvery(publicChannelsActions.createChannel.type, createChannelSaga, socket),
       takeEvery(publicChannelsActions.deleteChannel.type, deleteChannelSaga, socket),
       takeEvery(publicChannelsActions.channelDeletionResponse.type, channelDeletionResponseSaga),
