@@ -20,7 +20,6 @@ import {
 
 import { UseModalType } from '../../../containers/hooks'
 import { HandleOpenModalType } from '../userLabel/UserLabel.types'
-import { createLogger } from '../../../logger'
 
 const PREFIX = 'ChannelMessagesComponent'
 
@@ -92,8 +91,6 @@ interface Props {
   allowEmpty: boolean
 }
 
-const logger = createLogger('ChannelMessages')
-
 export const ChannelMessagesComponent: React.FC<Props> = ({
   messages = {},
   pendingMessages = {},
@@ -132,8 +129,6 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   })
 
   const updateFloatingDate = useCallback(() => {
-    logger.warn('Messages', messages)
-
     if (!scrollbarRef.current) return
     const containerRect = scrollbarRef.current.getBoundingClientRect()
     const floatPos = containerRect.top + CHANNEL_UI.FLOATING_DATE_OFFSET
