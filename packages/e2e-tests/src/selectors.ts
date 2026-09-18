@@ -2563,14 +2563,21 @@ export class Sidebar {
    * Get channel link elements in the sidebar
    */
   async getChannelList(): Promise<WebElement[]> {
-    // The sidebar re-renders while messages and channels replicate, so an element found a moment
-    // ago can go stale before its id is read. Collect the whole list again when that happens.
+    return this.withFreshSidebar('channel list', () => this.collectChannelList())
+  }
+
+  /**
+   * The sidebar re-renders while channels and messages replicate, so an element collected a moment
+   * ago can go stale before its id or text is read. Anything that reads the list has to be able to
+   * start over, which means collecting the elements inside the retry rather than around it.
+   */
+  private async withFreshSidebar<T>(label: string, read: () => Promise<T>, attempts = 5): Promise<T> {
     for (let attempt = 1; ; attempt++) {
       try {
-        return await this.collectChannelList()
+        return await read()
       } catch (e) {
-        if (!(e instanceof error.StaleElementReferenceError) || attempt >= 5) throw e
-        logger.info(`Sidebar changed while reading the channel list, retrying (${attempt})`)
+        if (!(e instanceof error.StaleElementReferenceError) || attempt >= attempts) throw e
+        logger.info(`Sidebar changed while reading the ${label}, retrying (${attempt})`)
         await sleep(500)
       }
     }
@@ -2604,12 +2611,14 @@ export class Sidebar {
    * Get names of all channels in the sidebar
    */
   async getChannelsNames(): Promise<string[]> {
-    const elements = await this.getChannelList()
-    return Promise.all(
-      elements.map(async element => {
-        return await element.getText()
-      })
-    )
+    return this.withFreshSidebar('channel names', async () => {
+      const elements = await this.collectChannelList()
+      return Promise.all(
+        elements.map(async element => {
+          return await element.getText()
+        })
+      )
+    })
   }
 
   async waitForChannelsNum(num: number, timeoutMs: number = 15_000): Promise<boolean> {
