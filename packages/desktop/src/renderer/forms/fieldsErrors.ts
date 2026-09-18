@@ -13,7 +13,7 @@ export enum CommunityNameErrors {
 }
 
 export enum InviteLinkErrors {
-  InvalidCode = 'Please check your invitation code and try again',
+  InvalidCode = 'Please check your invite link and try again',
 }
 
 export enum ChannelNameErrors {
