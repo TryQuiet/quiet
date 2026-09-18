@@ -206,11 +206,19 @@ describe('TorControl', () => {
     expect(status).toBe(true)
   })
 
-  it('tor spawn repeats', async () => {
-    const spyOnInit = jest.spyOn(torService, 'init')
+  // The replaced test asserted the opposite - a restart one second after Tor had
+  // already started - which is the bug. That stopwatch is a second restart clock
+  // running beside the stall check, and it threw away bootstrap progress every two
+  // minutes on both platforms in #3570 while the stall check was still waiting.
+  it('does not restart a Tor that has already started', async () => {
+    // init resolves once Tor has announced itself, so the spy goes on afterwards:
+    // any call it sees is the timeout restarting a Tor that was already up.
     await torService.init(1000)
+    const pidsAtStartup = torService.getTorProcessIds().sort()
+    const spyOnInit = jest.spyOn(torService, 'init')
     await sleep(4000)
-    expect(spyOnInit).toHaveBeenCalledTimes(2)
+    expect(spyOnInit).not.toHaveBeenCalled()
+    expect(torService.getTorProcessIds().sort()).toEqual(pidsAtStartup)
   })
 
   // The status Tor reports while it retries a relay that timed out. RECOMMENDATION=ignore
