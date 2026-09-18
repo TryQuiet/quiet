@@ -66,12 +66,7 @@ describe('UserProfileComponent', () => {
 
   it('renders nothing for a profile that has not replicated yet', () => {
     const { toJSON } = renderComponent(
-      <UserProfileComponent
-        profile={undefined}
-        isMe={false}
-        handleBackButton={jest.fn()}
-        handleMessage={jest.fn()}
-      />
+      <UserProfileComponent profile={undefined} isMe={false} handleBackButton={jest.fn()} handleMessage={jest.fn()} />
     )
 
     expect(toJSON()).toBeNull()

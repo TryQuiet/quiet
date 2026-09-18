@@ -31,7 +31,8 @@ describe('user profile photo picking', () => {
   })
 
   const pick = (response: unknown) => {
-    ;(launchImageLibrary as jest.Mock).mockImplementationOnce((_options, callback) => callback(response))
+    const picker = launchImageLibrary as jest.Mock
+    picker.mockImplementationOnce((_options, callback) => callback(response))
     const view = renderComponent(<UserProfileScreen route={route} />)
     fireEvent.press(view.getByTestId('user-profile-edit-photo'))
   }

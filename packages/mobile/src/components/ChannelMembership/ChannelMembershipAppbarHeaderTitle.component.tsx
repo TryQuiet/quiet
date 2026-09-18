@@ -39,7 +39,7 @@ export const ChannelMembershipAppbarHeaderTitle: React.FC<ChannelMembershipHeade
           {/* The glyph follows the channel's privacy, not its kind: a padlock for a private channel
               and the design's '#' for a public one (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190). Keying
               it on the kind put a padlock on every public channel. */}
-          {(channelIsPublic ?? true) ? (
+          {channelIsPublic ?? true ? (
             <PublicChannelIcon size={16} testID={'channel-membership-public-icon'} />
           ) : (
             <LockIcon fill={true} size={16} testID={'channel-membership-private-icon'} />

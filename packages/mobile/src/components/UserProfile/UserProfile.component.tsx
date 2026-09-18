@@ -59,11 +59,7 @@ export const UserProfileComponent: FC<UserProfileProps> = ({
             inner corner, putting the dead half right under the middle of the circle. The padding
             also gives the avatar the clearance it needs from the top. */}
         <View
-          style={
-            showsEditControl
-              ? { paddingTop: EDIT_BADGE_OVERHANG, paddingRight: EDIT_BADGE_OVERHANG }
-              : undefined
-          }
+          style={showsEditControl ? { paddingTop: EDIT_BADGE_OVERHANG, paddingRight: EDIT_BADGE_OVERHANG } : undefined}
         >
           <ProfilePhoto
             username={profile.nickname}
@@ -114,21 +110,21 @@ export const UserProfileComponent: FC<UserProfileProps> = ({
         {/* Message stays on your own profile too: a DM with just yourself is a real conversation
             in Quiet, so it serves as a note to self. */}
         <TouchableOpacity onPress={handleMessage} testID={'user-profile-message-button'}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                height: BUTTON_HEIGHT,
-                paddingHorizontal: 12,
-                borderRadius: BUTTON_RADIUS,
-                borderWidth: 1,
-                borderColor: BUTTON_BORDER,
-                backgroundColor: defaultPalette.background.white,
-              }}
-            >
-              <Typography fontSize={14}>{MESSAGE}</Typography>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              height: BUTTON_HEIGHT,
+              paddingHorizontal: 12,
+              borderRadius: BUTTON_RADIUS,
+              borderWidth: 1,
+              borderColor: BUTTON_BORDER,
+              backgroundColor: defaultPalette.background.white,
+            }}
+          >
+            <Typography fontSize={14}>{MESSAGE}</Typography>
           </View>
         </TouchableOpacity>
       </View>

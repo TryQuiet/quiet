@@ -151,7 +151,7 @@ export const ChannelContextMenu: FC = () => {
       titleIcon={
         channel?.type === ChannelType.DM ? (
           <></>
-        ) : (channel?.public ?? true) ? (
+        ) : channel?.public ?? true ? (
           <PublicChannelIcon />
         ) : (
           <LockIcon fill={true} />

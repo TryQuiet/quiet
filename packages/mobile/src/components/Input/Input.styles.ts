@@ -34,18 +34,16 @@ export const StyledWrapper = styled(Pressable)<{
   invalid: boolean
 }>`
   ${({ disabled, focused, invalid }) => css`
-    background-color: ${
-      disabled ? defaultTheme.palette.input.backgroundDisabled : defaultTheme.palette.input.backgroundDefault
-    };
-    border-color: ${
-      disabled
-        ? defaultTheme.palette.input.borderDisabled
-        : invalid
-          ? defaultTheme.palette.input.borderError
-          : focused
-            ? defaultTheme.palette.input.borderFocus
-            : defaultTheme.palette.input.border
-    };
+    background-color: ${disabled
+      ? defaultTheme.palette.input.backgroundDisabled
+      : defaultTheme.palette.input.backgroundDefault};
+    border-color: ${disabled
+      ? defaultTheme.palette.input.borderDisabled
+      : invalid
+      ? defaultTheme.palette.input.borderError
+      : focused
+      ? defaultTheme.palette.input.borderFocus
+      : defaultTheme.palette.input.border};
     border-radius: ${INPUT_RADIUS}px;
     border-width: 1px;
     padding-left: 16px;
