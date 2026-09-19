@@ -300,8 +300,12 @@ export class App {
   }
 
   async closeUpdateModalIfPresent() {
-    const updateModal = new UpdateModal(this.driver)
-    await updateModal.close()
+    // The name is the contract. UpdateModal.close() waits 20s for its root element,
+    // so without this check every call site pays that wait in full - and under
+    // IS_E2E the updater is off, so the modal can no longer appear at all.
+    const present = await this.driver.findElements(By.xpath(UPDATE_MODAL_XPATH))
+    if (!present.length) return
+    await new UpdateModal(this.driver).close()
   }
 
   private isNoSuchSessionError(error: unknown): boolean {
@@ -358,9 +362,7 @@ export class App {
   private async tryCloseUpdateModalIfPresent() {
     if (!this.isOpened) return
     try {
-      const modals = await this.driver.findElements(
-        By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]")
-      )
+      const modals = await this.driver.findElements(By.xpath(UPDATE_MODAL_XPATH))
       if (!modals.length) return
       await this.closeUpdateModalIfPresent()
       logger.info('Closed update modal')
@@ -3058,6 +3060,8 @@ export class Sidebar {
   }
 }
 
+const UPDATE_MODAL_XPATH = "//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]"
+
 export class UpdateModal {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -3067,7 +3071,7 @@ export class UpdateModal {
   get element() {
     logger.info('Waiting for update modal root element')
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]")),
+      until.elementLocated(By.xpath(UPDATE_MODAL_XPATH)),
       20_000,
       `Update modal couldn't be found within timeout`,
       500
