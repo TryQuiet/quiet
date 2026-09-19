@@ -213,4 +213,86 @@ describe('Libp2pService', () => {
     expect(hangUpPeers).toHaveBeenCalledWith([connectedRemotePeerAddress])
     expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
   })
+
+  it.each(['dial failure', 'peer lookup'] as const)(
+    'does not enqueue an old %s after admission reset and replacement',
+    async phase => {
+      let release!: () => void
+      let entered!: () => void
+      const started = new Promise<void>(resolve => {
+        entered = resolve
+      })
+      const pending = new Promise<any>((resolve, reject) => {
+        release = phase === 'dial failure' ? () => reject(new Error('old dial aborted')) : () => resolve(undefined)
+      })
+      const peerStats = jest.fn<() => Promise<any>>().mockResolvedValue(undefined)
+      const service = new Libp2pService({} as any, '', {} as any, { getPeerStats: peerStats } as any, {} as any)
+      const oldDial = jest.fn(async () => {
+        entered()
+        await pending
+      })
+      const replacementDial = jest.fn(async () => {})
+      const instance = (dial: any) => ({ peerId: { toString: () => 'local-peer' }, dial, stop: async () => {} }) as any
+      service.libp2pInstance = instance(oldDial)
+      service.state = Libp2pState.Started
+      jest.spyOn(service, 'hangUpPeers').mockResolvedValue(undefined)
+      const address = `/ip4/127.0.0.1/tcp/9999/ws/p2p/${params.peerId.peerId.toString()}`
+      try {
+        if (phase === 'peer lookup')
+          peerStats.mockImplementationOnce(async () => {
+            entered()
+            return pending
+          })
+        const oldWork = phase === 'dial failure' ? service.dialPeer(address) : service.redialPeerAfterDelay(address)
+        await started
+        await service.close()
+        service.libp2pInstance = instance(replacementDial)
+        service.state = Libp2pState.Started
+        const enqueue = jest.spyOn(service['redialQueue'], 'enqueue')
+        release()
+        await oldWork
+        expect(enqueue).not.toHaveBeenCalled()
+        await service.dialPeer(address)
+        expect(replacementDial).toHaveBeenCalledTimes(1)
+      } finally {
+        release()
+        await service.close()
+      }
+    }
+  )
+
+  it('recovers from a five-second failed dial within the local recovery admission budget', async () => {
+    jest.useFakeTimers()
+    const service = new Libp2pService(
+      {} as any,
+      '',
+      {} as any,
+      { getPeerStats: async () => undefined } as any,
+      {} as any
+    )
+    const dial = jest
+      .fn<() => Promise<void>>()
+      .mockImplementationOnce(async () => {
+        await new Promise(resolve => setTimeout(resolve, 5_000))
+        throw new Error('unexpected end of input')
+      })
+      .mockResolvedValue(undefined)
+    service.libp2pInstance = { peerId: { toString: () => 'local-peer' }, dial, stop: async () => {} } as any
+    service.state = Libp2pState.Started
+    jest.spyOn(service, 'hangUpPeers').mockResolvedValue(undefined)
+    const address = `/ip4/127.0.0.1/tcp/9999/ws/p2p/${params.peerId.peerId.toString()}`
+    try {
+      await service.redialPeerAfterDelay(address, 0)
+      await jest.advanceTimersByTimeAsync(5_000)
+      expect(dial).toHaveBeenCalledTimes(1)
+      // The unchanged 8s retry floor includes up to 5% jitter.
+      await jest.advanceTimersByTimeAsync(8_400)
+      expect(dial).toHaveBeenCalledTimes(2)
+      expect(service['redialQueue'].hasTask(address)).toBe(false)
+    } finally {
+      service.pauseDialQueue()
+      jest.useRealTimers()
+      await service.close()
+    }
+  })
 })

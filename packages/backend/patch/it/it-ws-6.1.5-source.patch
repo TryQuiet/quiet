@@ -1,0 +1,317 @@
+--- a/src/source.ts
++++ b/src/source.ts
+@@ -17,0 +18,10 @@
++  let resolveConnection!: () => void
++  let rejectConnection!: (error: Error) => void
++  const connection = new Promise<void>((resolve, reject) => {
++    resolveConnection = resolve
++    rejectConnection = reject
++  })
++  // A socket can fail before anybody calls connected(). Keep that failure for
++  // the caller without producing an unhandled rejection in the meantime.
++  void connection.catch(() => {})
++  let dispose!: () => void
+@@ -19,8 +29,43 @@
+-  const connected = async (): Promise<void> => {
+-    await new Promise<void>((resolve, reject) => {
+-      if (isConnected) {
+-        resolve(); return
+-      }
+-      if (connError != null) {
+-        reject(connError); return
+-      }
++  // Register immediately: the peer's first handshake frame may arrive between
++  // WebSocket open and the first next() call from the connection upgrader.
++  const messages = new EventIterator<Uint8Array>(({ push, stop, fail }) => {
++    const cleanup = (): void => {
++      socket.removeEventListener('open', onOpen)
++      socket.removeEventListener('message', onMessage)
++      socket.removeEventListener('error', onError)
++      socket.removeEventListener('close', onClose)
++    }
++    const onOpen = (): void => { resolveConnection() }
++    const onMessage = (event: MessageEvent): void => {
++      let data: Uint8Array | null = null
++      if (typeof event.data === 'string') data = uint8ArrayFromString(event.data)
++      if (isArrayBuffer(event.data)) data = new Uint8Array(event.data)
++      if (event.data instanceof Uint8Array) data = event.data
++      if (data != null) push(data)
++    }
++    const onError = (event: ErrorEvent): void => {
++      const error = event.error ?? new Error('Socket error')
++      rejectConnection(error)
++      fail(error)
++      cleanup()
++    }
++    const onClose = (): void => {
++      rejectConnection(new Error('Socket closed before opening'))
++      stop()
++      cleanup()
++    }
++    dispose = (): void => {
++      rejectConnection(new Error('Socket source canceled'))
++      // stop settles pending reads; iterator.return below also releases any
++      // buffered frames. Cleanup works even if next() was never called.
++      stop()
++      cleanup()
++    }
++    socket.addEventListener('open', onOpen)
++    socket.addEventListener('message', onMessage)
++    socket.addEventListener('error', onError)
++    socket.addEventListener('close', onClose)
++    if (socket.readyState === 1) resolveConnection()
++    else if (socket.readyState >= 2) onClose()
++    return cleanup
++  }, { highWaterMark: Infinity })
+@@ -28,14 +73,14 @@
+-      const cleanUp = (cont: () => void): void => {
+-        socket.removeEventListener('open', onOpen)
+-        socket.removeEventListener('error', onError)
+-        cont()
+-      }
+-
+-      const onOpen = (): void => { cleanUp(resolve) }
+-      const onError = (event: ErrorEvent): void => {
+-        cleanUp(() => { reject(event.error as Error ?? new Error(`connect ECONNREFUSED ${socket.url}`)) })
+-      }
+-
+-      socket.addEventListener('open', onOpen)
+-      socket.addEventListener('error', onError)
+-    })
++  const iterator = messages[Symbol.asyncIterator]()
++  return {
++    [Symbol.asyncIterator] () { return this },
++    connected: async () => connection,
++    next: async () => iterator.next(),
++    return: async () => {
++      dispose()
++      return iterator.return!()
++    },
++    throw: async error => {
++      dispose()
++      await iterator.return!()
++      throw error
++    }
+@@ -43,69 +87,0 @@
+-
+-  const source = (async function * () {
+-    const messages = new EventIterator<Uint8Array>(
+-      ({ push, stop, fail }) => {
+-        const onMessage = (event: MessageEvent): void => {
+-          let data: Uint8Array | null = null
+-
+-          if (typeof event.data === 'string') {
+-            data = uint8ArrayFromString(event.data)
+-          }
+-
+-          if (isArrayBuffer(event.data)) {
+-            data = new Uint8Array(event.data)
+-          }
+-
+-          if (event.data instanceof Uint8Array) {
+-            data = event.data
+-          }
+-
+-          if (data == null) {
+-            return
+-          }
+-
+-          push(data)
+-        }
+-        const onError = (event: ErrorEvent): void => { fail(event.error ?? new Error('Socket error')) }
+-
+-        socket.addEventListener('message', onMessage)
+-        socket.addEventListener('error', onError)
+-        socket.addEventListener('close', stop)
+-
+-        return () => {
+-          socket.removeEventListener('message', onMessage)
+-          socket.removeEventListener('error', onError)
+-          socket.removeEventListener('close', stop)
+-        }
+-      },
+-      { highWaterMark: Infinity }
+-    )
+-
+-    await connected()
+-
+-    for await (const chunk of messages) {
+-      yield isArrayBuffer(chunk) ? new Uint8Array(chunk) : chunk
+-    }
+-  }())
+-
+-  let isConnected = socket.readyState === 1
+-  let connError: Error | null
+-
+-  socket.addEventListener('open', () => {
+-    isConnected = true
+-    connError = null
+-  })
+-
+-  socket.addEventListener('close', () => {
+-    isConnected = false
+-    connError = null
+-  })
+-
+-  socket.addEventListener('error', event => {
+-    if (!isConnected) {
+-      connError = event.error ?? new Error(`connect ECONNREFUSED ${socket.url}`)
+-    }
+-  })
+-
+-  return Object.assign(source, {
+-    connected
+-  })
+--- a/dist/src/source.js
++++ b/dist/src/source.js
+@@ -11,22 +11,73 @@
+-    const connected = async () => {
+-        await new Promise((resolve, reject) => {
+-            if (isConnected) {
+-                resolve();
+-                return;
+-            }
+-            if (connError != null) {
+-                reject(connError);
+-                return;
+-            }
+-            const cleanUp = (cont) => {
+-                socket.removeEventListener('open', onOpen);
+-                socket.removeEventListener('error', onError);
+-                cont();
+-            };
+-            const onOpen = () => { cleanUp(resolve); };
+-            const onError = (event) => {
+-                cleanUp(() => { reject(event.error ?? new Error(`connect ECONNREFUSED ${socket.url}`)); });
+-            };
+-            socket.addEventListener('open', onOpen);
+-            socket.addEventListener('error', onError);
+-        });
++    let resolveConnection;
++    let rejectConnection;
++    const connection = new Promise((resolve, reject) => {
++        resolveConnection = resolve;
++        rejectConnection = reject;
++    });
++    // A socket can fail before anybody calls connected(). Keep that failure for
++    // the caller without producing an unhandled rejection in the meantime.
++    void connection.catch(() => { });
++    let dispose;
++    // Register immediately: the peer's first handshake frame may arrive between
++    // WebSocket open and the first next() call from the connection upgrader.
++    const messages = new EventIterator(({ push, stop, fail }) => {
++        const cleanup = () => {
++            socket.removeEventListener('open', onOpen);
++            socket.removeEventListener('message', onMessage);
++            socket.removeEventListener('error', onError);
++            socket.removeEventListener('close', onClose);
++        };
++        const onOpen = () => { resolveConnection(); };
++        const onMessage = (event) => {
++            let data = null;
++            if (typeof event.data === 'string')
++                data = uint8ArrayFromString(event.data);
++            if (isArrayBuffer(event.data))
++                data = new Uint8Array(event.data);
++            if (event.data instanceof Uint8Array)
++                data = event.data;
++            if (data != null)
++                push(data);
++        };
++        const onError = (event) => {
++            const error = event.error ?? new Error('Socket error');
++            rejectConnection(error);
++            fail(error);
++            cleanup();
++        };
++        const onClose = () => {
++            rejectConnection(new Error('Socket closed before opening'));
++            stop();
++            cleanup();
++        };
++        dispose = () => {
++            rejectConnection(new Error('Socket source canceled'));
++            // stop settles pending reads; iterator.return below also releases any
++            // buffered frames. Cleanup works even if next() was never called.
++            stop();
++            cleanup();
++        };
++        socket.addEventListener('open', onOpen);
++        socket.addEventListener('message', onMessage);
++        socket.addEventListener('error', onError);
++        socket.addEventListener('close', onClose);
++        if (socket.readyState === 1)
++            resolveConnection();
++        else if (socket.readyState >= 2)
++            onClose();
++        return cleanup;
++    }, { highWaterMark: Infinity });
++    const iterator = messages[Symbol.asyncIterator]();
++    return {
++        [Symbol.asyncIterator]() { return this; },
++        connected: async () => connection,
++        next: async () => iterator.next(),
++        return: async () => {
++            dispose();
++            return iterator.return();
++        },
++        throw: async (error) => {
++            dispose();
++            await iterator.return();
++            throw error;
++        }
+@@ -34,51 +84,0 @@
+-    const source = (async function* () {
+-        const messages = new EventIterator(({ push, stop, fail }) => {
+-            const onMessage = (event) => {
+-                let data = null;
+-                if (typeof event.data === 'string') {
+-                    data = uint8ArrayFromString(event.data);
+-                }
+-                if (isArrayBuffer(event.data)) {
+-                    data = new Uint8Array(event.data);
+-                }
+-                if (event.data instanceof Uint8Array) {
+-                    data = event.data;
+-                }
+-                if (data == null) {
+-                    return;
+-                }
+-                push(data);
+-            };
+-            const onError = (event) => { fail(event.error ?? new Error('Socket error')); };
+-            socket.addEventListener('message', onMessage);
+-            socket.addEventListener('error', onError);
+-            socket.addEventListener('close', stop);
+-            return () => {
+-                socket.removeEventListener('message', onMessage);
+-                socket.removeEventListener('error', onError);
+-                socket.removeEventListener('close', stop);
+-            };
+-        }, { highWaterMark: Infinity });
+-        await connected();
+-        for await (const chunk of messages) {
+-            yield isArrayBuffer(chunk) ? new Uint8Array(chunk) : chunk;
+-        }
+-    }());
+-    let isConnected = socket.readyState === 1;
+-    let connError;
+-    socket.addEventListener('open', () => {
+-        isConnected = true;
+-        connError = null;
+-    });
+-    socket.addEventListener('close', () => {
+-        isConnected = false;
+-        connError = null;
+-    });
+-    socket.addEventListener('error', event => {
+-        if (!isConnected) {
+-            connError = event.error ?? new Error(`connect ECONNREFUSED ${socket.url}`);
+-        }
+-    });
+-    return Object.assign(source, {
+-        connected
+-    });
+@@ -86 +85,0 @@
+-//# sourceMappingURL=source.js.map
+\ No newline at end of file

@@ -32,7 +32,7 @@ import type { AdmissionAuthContext } from '../admission/admission-auth-context.t
 import { grantMissingMemberRoleFromConnectedPeer } from './memberRoleGrant'
 import { BoundedRetry } from '../common/boundedRetry'
 import { AdmissionError } from '../admission/admission.types'
-import { AUTH_STREAM_TIMEOUT_MS } from './libp2p.const'
+import { AUTH_STREAM_TIMEOUT_MS, PEER_RETRY_DELAY_MS } from './libp2p.const'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -82,6 +82,7 @@ export class Libp2pAuth {
   private peerConnections: Map<string, Connection>
   private bufferedConnections: { peerId: PeerId; connection: Connection }[]
   private failedAdmissionPeers: Set<string>
+  private admissionRetryTimer?: NodeJS.Timeout
   private unblockInterval: NodeJS.Timeout
   private unblockConnectionsInFlight: Promise<void> | undefined
   private joinStatus: JoinStatus
@@ -137,6 +138,7 @@ export class Libp2pAuth {
     }
 
     this.qssService.once(QSSEvents.QSS_AUTH_JOINED, () => {
+      this.clearAdmissionRetry()
       this.failedAdmissionPeers.clear()
       if (this.joinStatus !== JoinStatus.JOINED) {
         const activeChain = this.sigChainService.getActiveChain(false)
@@ -252,6 +254,7 @@ export class Libp2pAuth {
     this.logger.info('stop')
 
     this.stopped = true
+    this.clearAdmissionRetry()
     this.components.events.removeEventListener('connection:close', this.onConnectionClosed)
     this.bufferedConnections.splice(0)
     // Clear the unblock interval
@@ -477,6 +480,7 @@ export class Libp2pAuth {
     }
 
     if (this.joinStatus === JoinStatus.PENDING) {
+      this.clearAdmissionRetry()
       this.joinStatus = JoinStatus.JOINING
       this.joiningConnectionId = connection.id
     }
@@ -627,6 +631,7 @@ export class Libp2pAuth {
 
   /** Records durable completion without emitting events or unblocking paused connections. */
   public markAdmissionCommitted(): void {
+    this.clearAdmissionRetry()
     this.joinStatus = JoinStatus.JOINED
     this.failedAdmissionPeers.clear()
   }
@@ -674,6 +679,7 @@ export class Libp2pAuth {
   }
 
   private async advanceToNextBufferedPeer(): Promise<void> {
+    if (this.stopped) return
     this.joinStatus = JoinStatus.PENDING
     while (this.bufferedConnections.length > 0) {
       const next = this.bufferedConnections.shift()!
@@ -683,12 +689,30 @@ export class Libp2pAuth {
       await this.onPeerConnected(next.peerId, next.connection)
       return
     }
-    if (this.failedAdmissionPeers.size > 0) {
-      // Exhaust untried open peers before allowing failures to participate in a new round.
-      // The coordinator's acquisition deadline still bounds the admission attempt.
-      this.failedAdmissionPeers.clear()
-      await this.libp2pService.redialPeers()
+    if (this.failedAdmissionPeers.size > 0 && this.admissionRetryTimer == null) {
+      const admission = this.libp2pService.admissionContext
+      // Untried connected peers get an immediate chance. Exhausted rounds wait
+      // before redialing, otherwise invalid proofs hammer the same owner until
+      // its transport rate limit rejects even legitimate connections.
+      this.admissionRetryTimer = setTimeout(() => {
+        this.admissionRetryTimer = undefined
+        if (
+          this.stopped ||
+          this.joinStatus !== JoinStatus.PENDING ||
+          admission !== this.libp2pService.admissionContext ||
+          admission?.gate.closed ||
+          admission?.gate.frozen
+        )
+          return
+        this.failedAdmissionPeers.clear()
+        void this.libp2pService.redialPeers().catch(error => this.logger.warn('Admission redial failed', error))
+      }, PEER_RETRY_DELAY_MS)
     }
+  }
+
+  private clearAdmissionRetry(): void {
+    clearTimeout(this.admissionRetryTimer)
+    this.admissionRetryTimer = undefined
   }
 
   /**
@@ -791,6 +815,7 @@ export class Libp2pAuth {
     this.joinStatus = JoinStatus.JOINED
     this.failedAdmissionPeers.clear()
     this.joinRetry.clear(peerId.toString())
+    this.clearAdmissionRetry()
     this.emit(Libp2pEvents.AUTH_JOINED)
     this.unblockConnections()
   }

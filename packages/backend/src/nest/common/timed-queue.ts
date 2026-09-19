@@ -32,6 +32,7 @@ export class TimedQueue {
   private readonly inProcess: Map<string, NodeJS.Timeout | number> = new Map()
   /** Keys that are waiting in the fastq queue but have not had a timer created yet */
   private readonly queued: Set<string> = new Set()
+  private readonly queuedResolvers = new Map<string, () => void>()
   /** Keys that are either waiting in the queue or currently running */
   private readonly scheduled: Set<string> = new Set()
   private cancelGeneration = 0
@@ -72,9 +73,7 @@ export class TimedQueue {
    */
   public start(): void {
     this.logger.debug(`Starting timed queue`)
-    if (!this.queue.running()) {
-      this.queue.resume()
-    }
+    this.queue.resume()
   }
 
   /**
@@ -85,8 +84,13 @@ export class TimedQueue {
   public stop(cancelTasks = false): void {
     this.logger.debug(`Stopping timed queue`)
     this.queue.pause()
-    this.queue.empty()
-    this.queued.forEach(key => this.scheduled.delete(key))
+    // fastq.empty is a notification callback, not a queue-clearing operation.
+    this.queue.kill()
+    this.queued.forEach(key => {
+      this.scheduled.delete(key)
+      this.queuedResolvers.get(key)?.()
+      this.queuedResolvers.delete(key)
+    })
     this.queued.clear()
 
     if (cancelTasks) {
@@ -117,7 +121,12 @@ export class TimedQueue {
     }
     this.scheduled.add(processDef.key)
     this.queued.add(processDef.key)
-    await this.queue.push(processDef)
+    // A paused queue can be discarded before fastq dispatches the task. Settle
+    // those enqueue callers too, so shutdown never waits on discarded work.
+    await new Promise<void>((resolve, reject) => {
+      this.queuedResolvers.set(processDef.key, resolve)
+      void this.queue.push(processDef).then(resolve, reject)
+    })
   }
 
   /**
@@ -132,6 +141,7 @@ export class TimedQueue {
   private async _processQueue(processDef: TimedQueueProcessDef): Promise<void> {
     this.logger.debug(`Pulled task with key ${processDef.key} from queue`)
     this.queued.delete(processDef.key)
+    this.queuedResolvers.delete(processDef.key)
     if (this.inProcess.has(processDef.key)) {
       this.logger.debug(`Task with key ${processDef.key} already in process!`)
       return
@@ -144,14 +154,15 @@ export class TimedQueue {
       this.logger.debug(`Processing task with key ${processDef.key}`)
       try {
         await processDef.task()
+        if (cancelGeneration !== this.cancelGeneration) return
         this.inProcess.delete(processDef.key)
         this.scheduled.delete(processDef.key)
       } catch (e) {
-        this.inProcess.delete(processDef.key)
-        this.scheduled.delete(processDef.key)
         if (cancelGeneration !== this.cancelGeneration) {
           return
         }
+        this.inProcess.delete(processDef.key)
+        this.scheduled.delete(processDef.key)
         const newDelayMs = this._generateNewDelayMs(delayMs)
         let errorContext: Error | string = e
         if (e instanceof Error && e.message.includes('Unexpected server response: 404')) {
@@ -167,8 +178,6 @@ export class TimedQueue {
         })
       }
     }
-
-    process.bind(this)
 
     const timed = setTimeout(async () => {
       await process()
