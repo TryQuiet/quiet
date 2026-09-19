@@ -78,6 +78,99 @@ describe('Tor native session rewiring', () => {
     await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
   }
 
+  it.each([false, true])(
+    'does not gate registration or client readiness on publication (bootstrapped=%s)',
+    async ready => {
+      jest.useFakeTimers()
+      const { torControl, torService } = createTorService()
+      const publication = deferred<ReturnType<typeof addOnionResponse>>()
+      jest.spyOn(torControl, 'sendCommand').mockResolvedValue({ code: 250, messages: [bootstrapDone] })
+      jest.mocked(torControl.sendCommandAndWaitForEvent).mockReturnValue(publication.promise)
+      torService.bootstrapped = ready
+      const bootstrapped = jest.fn()
+      torService.once('bootstrapped', bootstrapped)
+      let registered = false
+      const registration = torService.registerHiddenService({ targetPort: 4343, privKey, onionAddress, virtPort: 80 })
+      void registration.then(
+        () => {
+          registered = true
+        },
+        () => undefined
+      )
+      const bootstrap = torService.isBootstrappingFinished()
+      try {
+        await jest.advanceTimersByTimeAsync(0)
+        expect(registered).toBe(true)
+        expect(torService.bootstrapped).toBe(true)
+        expect(bootstrapped).toHaveBeenCalledTimes(ready ? 0 : 1)
+        await expect(bootstrap).resolves.toBe(true)
+
+        // Reproduce the reported 96s publication while callers can already dial.
+        await jest.advanceTimersByTimeAsync(96_000)
+        expect(torService['initializedHiddenServices'].size).toBe(0)
+        expect(torControl.sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
+        publication.resolve(addOnionResponse())
+        await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
+        expect(torService['initializedHiddenServices'].has(onionAddress)).toBe(true)
+      } finally {
+        publication.resolve(addOnionResponse())
+        await Promise.allSettled([registration, bootstrap])
+        torService.resetHiddenServices()
+        jest.useRealTimers()
+      }
+    }
+  )
+
+  it('does not block another service when one publication stalls', async () => {
+    const { torControl, torService } = createTorService()
+    const stalled = deferred<ReturnType<typeof addOnionResponse>>()
+    jest
+      .mocked(torControl.sendCommandAndWaitForEvent)
+      .mockReturnValueOnce(stalled.promise)
+      .mockResolvedValueOnce({ code: 250, messages: ['250-ServiceID=second', '250 OK'] })
+    await torService.registerHiddenService({ targetPort: 4343, privKey, onionAddress, virtPort: 80 })
+    await torService.registerHiddenService({
+      targetPort: 5454,
+      privKey: 'second-key',
+      onionAddress: 'second',
+      virtPort: 80,
+    })
+    await torService['markBootstrapped'](torService['bootstrapGeneration'])
+    try {
+      await torService.spawnHiddenService({ targetPort: 5454, privKey: 'second-key', onionAddress: 'second' })
+      expect(torService.bootstrapped).toBe(true)
+      expect(torService['initializedHiddenServices'].has('second')).toBe(true)
+      expect(torService['initializedHiddenServices'].has(onionAddress)).toBe(false)
+    } finally {
+      stalled.resolve(addOnionResponse())
+      await torService.spawnHiddenServices()
+      torService.resetHiddenServices()
+    }
+  })
+
+  it('aborts publication on community reset and ignores its late completion', async () => {
+    jest.useFakeTimers()
+    const { torControl, torService } = createTorService()
+    const publication = deferred<ReturnType<typeof addOnionResponse>>()
+    const publish = jest.mocked(torControl.sendCommandAndWaitForEvent).mockReturnValue(publication.promise)
+    torService.bootstrapped = true
+    await torService.registerHiddenService({ targetPort: 4343, privKey, onionAddress, virtPort: 80 })
+    const signal = publish.mock.calls[0][4]!
+    try {
+      torService.resetHiddenServices()
+      expect(signal.aborted).toBe(true)
+      publication.resolve(addOnionResponse())
+      await jest.advanceTimersByTimeAsync(120_000)
+      expect(torService['hiddenServices'].size).toBe(0)
+      expect(torService['initializedHiddenServices'].size).toBe(0)
+      expect(publish).toHaveBeenCalledTimes(1)
+      expect(jest.getTimerCount()).toBe(0)
+    } finally {
+      torService.resetHiddenServices()
+      jest.useRealTimers()
+    }
+  })
+
   it('converges after a generated service survives a deletion timeout and Tor restarts', async () => {
     const { torControl, torService } = createTorService()
     const sendCommand = jest.spyOn(torControl, 'sendCommand').mockResolvedValueOnce({
@@ -99,6 +192,7 @@ describe('Tor native session rewiring', () => {
     })
     await torService['markBootstrapped'](torService['bootstrapGeneration'])
 
+    await torService.spawnHiddenService({ targetPort: 4343, privKey, onionAddress })
     expect(torService.bootstrapped).toBe(true)
     expect(passes).toBe(1)
     expect([...torService['hiddenServices'].keys()]).toEqual([onionAddress])
@@ -218,6 +312,7 @@ describe('Tor native session rewiring', () => {
     })
     firstPublication.resolve(addOnionResponse())
     await markBootstrapped
+    await torService.spawnHiddenServices()
 
     expect(sendCommand).toHaveBeenCalledTimes(2)
     expect(sendCommand).toHaveBeenCalledWith(`ADD_ONION ${latePrivKey} Flags=Detach Port=80,127.0.0.1:5454`)
@@ -237,7 +332,7 @@ describe('Tor native session rewiring', () => {
         onionAddress: `${onionAddress}.onion`,
         virtPort: 80,
       })
-      await expect(registration).rejects.toThrow('control unavailable')
+      await expect(registration).resolves.toBeUndefined()
       expect(sendCommand).toHaveBeenCalledTimes(1)
 
       torService.resetBootstrapState()
@@ -266,7 +361,7 @@ describe('Tor native session rewiring', () => {
         onionAddress: `${onionAddress}.onion`,
         virtPort: 80,
       })
-      await expect(registration).rejects.toThrow('control unavailable')
+      await expect(registration).resolves.toBeUndefined()
       await jest.advanceTimersByTimeAsync(2500)
 
       expect(sendCommand).toHaveBeenCalledTimes(2)
