@@ -56,4 +56,4 @@ jobs:
         timeout-minutes: 15
         run: |
           echo "Running backwards compatibility test for branch $GITHUB_HEAD_REF"
-          cd packages/e2e-tests && npm run test -- compatibilityBaseline.test.ts downloadFile.test.ts backwardsCompatibility.test.ts
+          cd packages/e2e-tests && npm run test -- compatibilityBaseline.test.ts downloadFile.test.ts settingsTabReady.test.ts backwardsCompatibility.test.ts
