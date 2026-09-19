@@ -4,7 +4,7 @@
 
 ### Fixes
 
-* Start QSS admission and outbound peer connections without waiting for this device's onion descriptor to publish [#3580](https://github.com/TryQuiet/quiet/issues/3580)
+* Generate onion identities locally and start communities without waiting for Tor publication; recover detached registrations after lost replies or control connections without an onion-address collision loop [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
 
 ## [11.0.1]
 

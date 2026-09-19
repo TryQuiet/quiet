@@ -206,6 +206,31 @@ describe('TorControl asynchronous events', () => {
     jest.useRealTimers()
   })
 
+  it('reads the complete detached service list across fragmented control replies', async () => {
+    jest.useFakeTimers()
+    const { torControl } = createTorControl(cookie)
+    const socket = new EventEmitter() as net.Socket
+    socket.end = jest.fn(() => socket) as net.Socket['end']
+    socket.write = jest.fn(() => true) as net.Socket['write']
+    torControl.connection = socket
+    const result = torControl.getDetachedOnionServices()
+    let completed = false
+    void result.then(() => {
+      completed = true
+    })
+    await jest.advanceTimersByTimeAsync(0)
+    socket.emit('data', Buffer.from('250+onions/detached=\r\nfirst-ser'))
+    await jest.advanceTimersByTimeAsync(0)
+    expect(completed).toBe(false)
+    socket.emit('data', Buffer.from('vice\r\nsecond-service\r\n.\r\n250 O'))
+    await jest.advanceTimersByTimeAsync(0)
+    expect(completed).toBe(false)
+    socket.emit('data', Buffer.from('K\r\n'))
+    await expect(result).resolves.toEqual(new Set(['first-service', 'second-service']))
+    expect(jest.getTimerCount()).toBe(0)
+    torControl.onModuleDestroy()
+  })
+
   const createPublication = (signal?: AbortSignal, timeoutMs?: number | null) => {
     const socket = new EventEmitter() as net.Socket
     socket.end = jest.fn(() => socket) as net.Socket['end']

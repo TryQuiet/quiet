@@ -152,6 +152,8 @@ export class TorControl {
       const cleanup = () => {
         clearTimeout(connectionTimeout)
         connection?.off('data', onData)
+        connection?.off('error', onError)
+        connection?.off('close', onClose)
         signal?.removeEventListener('abort', onAbort)
       }
       const onAbort = () => {
@@ -163,20 +165,37 @@ export class TorControl {
         reject('Timeout while sending command to Tor')
       }, TOR_CONTROL_REPLY_TIMEOUT_MS)
 
+      let buffer = ''
+      const messages: string[] = []
+      let inDataBlock = false
       const onData = (data: Buffer) => {
-        cleanup()
-        const dataArray = data.toString().split(/\r?\n/)
-
-        if (dataArray[0].startsWith('250')) {
-          resolve({ code: 250, messages: dataArray })
-        } else {
-          this.logger.error('Tor control command failed', {
-            responseCode: dataArray[0].slice(0, 3),
-            messageCount: dataArray.length,
-          })
-          reject(`${dataArray[0]}`)
+        buffer += data.toString()
+        const lines = buffer.split(/\r?\n/)
+        buffer = lines.pop() ?? ''
+        for (const line of lines) {
+          messages.push(line)
+          if (inDataBlock) {
+            if (line === '.') inDataBlock = false
+            continue
+          }
+          if (/^\d{3}\+/.test(line)) {
+            inDataBlock = true
+            continue
+          }
+          if (!/^\d{3} /.test(line)) continue
+          cleanup()
+          if (line.startsWith('250 ')) resolve({ code: 250, messages })
+          else reject(new Error(line))
+          return
         }
       }
+      const onError = (error: Error) => {
+        cleanup()
+        reject(error)
+      }
+      const onClose = () => onError(new Error('Tor control connection closed before its command reply'))
+      connection?.once('error', onError)
+      connection?.once('close', onClose)
 
       signal?.addEventListener('abort', onAbort, { once: true })
       connection?.on('data', onData)
@@ -209,6 +228,15 @@ export class TorControl {
     })
   }
 
+  public async getDetachedOnionServices(signal?: AbortSignal): Promise<Set<string>> {
+    const response = await this.sendCommand('GETINFO onions/detached', signal)
+    const addresses = response.messages
+      .map(line => line.replace(/^250[-+]onions\/detached=/, ''))
+      .filter(line => line !== '.' && !/^\d{3}[ +-]/.test(line))
+      .flatMap(line => line.split(/\s+/).filter(Boolean))
+    return new Set(addresses)
+  }
+
   /**
    * Subscribes before sending a command so a fast asynchronous Tor event cannot
    * race the command response. Events received before the response are retained
@@ -217,6 +245,16 @@ export class TorControl {
    */
   public async sendCommandAndWaitForEvent(
     command: string,
+    eventCode: string,
+    matchesEvent: TorControlEventMatcher,
+    timeoutMs: number | null = TOR_EVENT_TIMEOUT_MS,
+    signal?: AbortSignal
+  ): Promise<TorControlResponse> {
+    return this.waitForEventAfter(() => this.sendCommand(command, signal), eventCode, matchesEvent, timeoutMs, signal)
+  }
+
+  public async waitForEventAfter(
+    operation: () => Promise<TorControlResponse>,
     eventCode: string,
     matchesEvent: TorControlEventMatcher,
     timeoutMs: number | null = TOR_EVENT_TIMEOUT_MS,
@@ -326,7 +364,7 @@ export class TorControl {
     let eventTimeout: NodeJS.Timeout | undefined
     try {
       await raceSignal(subscriptionPromise, signal)
-      response = await raceSignal(this.sendCommand(command, signal), signal)
+      response = await raceSignal(operation(), signal)
       notifyEvent?.()
       const completion =
         timeoutMs === null

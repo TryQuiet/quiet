@@ -87,6 +87,7 @@ import { SocketService } from '../socket/socket.service'
 import { StorageService } from '../storage/storage.service'
 import { StorageEvents } from '../storage/storage.types'
 import { Tor } from '../tor/tor.service'
+import { createOnionIdentity } from '../tor/onion-identity'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { type AdmissionResetReceipt, ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
@@ -1016,7 +1017,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           onionAddress: createLocalAddress(this.ports.libp2pHiddenService),
           privateKey: '',
         }
-      : await this.createEphemeralHiddenService()
+      : createOnionIdentity()
     this.logger.info('Getting peer ID')
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
@@ -1029,24 +1030,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       hiddenService,
       peerId: peerIdJson,
     }
-  }
-
-  /**
-   * Mint the onion address and key this identity will be known by.
-   *
-   * The service itself is discarded on the next line - the one that carries traffic
-   * is created by spawnTorHiddenService when the community launches. So there is
-   * nothing to publish here, and waiting for a descriptor upload would put community
-   * creation behind a fully bootstrapped Tor for no gain.
-   */
-  private async createEphemeralHiddenService(): Promise<NetworkInfo['hiddenService']> {
-    this.logger.info('Creating hidden service')
-    const hiddenService = await this.tor.createNewHiddenService({
-      targetPort: this.ports.libp2pHiddenService,
-      waitForDescriptorUpload: false,
-    })
-    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
-    return hiddenService
   }
 
   private async bootstrapCommunityFromInvitation(
