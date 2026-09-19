@@ -18,6 +18,7 @@ import {
   UserListStatus,
 } from './types'
 import { createLogger } from './logger'
+import { waitForSettingsTab } from './settingsTabReady'
 import { parseInvitationLink } from '@quiet/common'
 import { isDeviceInvitationData } from '@quiet/types'
 
@@ -3234,7 +3235,7 @@ export class Settings {
     logger.info(`switchTab - before click`)
     await tab.click()
     logger.info(`switchTab - before tab modal readiness`)
-    await this.waitForTabToBeReady(name)
+    await waitForSettingsTab(this.driver, name)
   }
 
   async invitationLink() {
@@ -3518,75 +3519,6 @@ export class Settings {
     )
     await closeTabButton.click()
     await this.driver.wait(until.stalenessOf(closeTabButton), 10_000, 'Settings tab did not finish closing', 100)
-  }
-
-  private async waitForTabToBeReady(tabName: SettingsModalTabName) {
-    let locator: string | undefined = undefined
-    let timeoutMs = 30_000
-    switch (tabName) {
-      case SettingsModalTabName.INVITE:
-        locator = "//*[@data-testid='invite-a-friend']"
-        break
-      case SettingsModalTabName.LINKED_DEVICES:
-        locator = "//*[@data-testid='linked-devices-title']"
-        timeoutMs = 30_000
-        break
-      case SettingsModalTabName.ABOUT:
-        locator = "//div[contains(@class, 'Abouttitle')]"
-        break
-      case SettingsModalTabName.LEAVE_COMMUNITY:
-        locator = "//div[contains(@class, 'LeaveCommunitytitleContainer')]"
-        break
-      case SettingsModalTabName.NOTIFICATIONS:
-        locator = "//div[contains(@class, 'Notificationstitle')]"
-        break
-      case SettingsModalTabName.QR_CODE:
-        locator = "//div[contains(@class, 'QRCodetextWrapper')]"
-        break
-      case SettingsModalTabName.DEBUG:
-        locator = "//div[contains(@class, 'DebugInfotitleContainer')]"
-        break
-      case SettingsModalTabName.COMMUNITY_MEMBERSHIP:
-        locator = "//*[contains(@class, 'CommunityMembershipcomponentContainer')]"
-        break
-      default:
-        throw new Error(`Can't wait for unknown tab ${tabName}`)
-    }
-
-    // try {
-    //   logger.info(`waitForTabToBeReady - before sanity check`)
-    //   const settingsElement = await this.element
-    //   logger.info(`waitForTabToBeReady - before sanity visibility check`)
-    //   await this.driver.wait(
-    //     until.elementIsVisible(settingsElement),
-    //     5_000,
-    //     `Settings element was not visible after timeout`,
-    //     500
-    //   )
-    //   throw new Error(`Settings was still visible after switching to tab ${tabName}`)
-    // } catch (e) {
-    //   if (
-    //     !(e as Error).message.includes(`Settings modal couldn't be found within timeout`) &&
-    //     !(e as Error).message.includes(`Settings element was not visible after timeout`)
-    //   ) {
-    //     throw e
-    //   }
-    // }
-
-    logger.info(`waitForTabToBeReady - before tab element`)
-    const result = await this.driver.wait(
-      until.elementLocated(By.xpath(locator!)),
-      timeoutMs,
-      `Settings tab ${tabName} wasn't ready within timeout`,
-      500
-    )
-    logger.info(`waitForTabToBeReady - before tab element visibility`)
-    await this.driver.wait(
-      until.elementIsVisible(result),
-      10_000,
-      `Settings tab ${tabName} wasn't visible within timeout`,
-      500
-    )
   }
 }
 
