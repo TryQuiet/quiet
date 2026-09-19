@@ -12,6 +12,49 @@ describe('TimedQueue', () => {
     jest.restoreAllMocks()
   })
 
+  it('discards paused retries and settles their enqueue callers before a fresh admission', async () => {
+    const queue = new TimedQueue({ start: false, baseDelayMs: 8_000, fuzzFactor: 0 })
+    const staleDial = jest.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    const freshDial = jest.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    const queued = queue.enqueue({ key: 'owner', task: staleDial })
+    queue.stop(true)
+    await queued
+    expect(queue.hasTask('owner')).toBe(false)
+
+    queue.start()
+    await queue.enqueue({ key: 'owner', task: freshDial, delayMs: 0 })
+    await jest.advanceTimersByTimeAsync(0)
+    expect(freshDial).toHaveBeenCalledTimes(1)
+    await jest.advanceTimersByTimeAsync(8_000)
+    expect(staleDial).not.toHaveBeenCalled()
+    queue.stop(true)
+  })
+
+  it.each(['resolve', 'reject'] as const)(
+    'keeps replacement task tracking when a canceled running task later %ss',
+    async outcome => {
+      const queue = new TimedQueue({ start: true, baseDelayMs: 100, fuzzFactor: 0 })
+      let finish!: () => void
+      const pending = new Promise<void>((resolve, reject) => {
+        finish = outcome === 'resolve' ? resolve : () => reject(new Error('old dial failed'))
+      })
+      await queue.enqueue({ key: 'owner', delayMs: 0, task: async () => pending })
+      await jest.advanceTimersByTimeAsync(0)
+      queue.stop(true)
+      queue.start()
+      const freshDial = jest.fn<() => Promise<void>>().mockResolvedValue(undefined)
+      await queue.enqueue({ key: 'owner', delayMs: 100, task: freshDial })
+      finish()
+      await jest.advanceTimersByTimeAsync(0)
+      expect(queue.hasTask('owner')).toBe(true)
+      await queue.enqueue({ key: 'owner', delayMs: 0, task: freshDial })
+      await jest.advanceTimersByTimeAsync(100)
+      expect(freshDial).toHaveBeenCalledTimes(1)
+      expect(queue.hasTask('owner')).toBe(false)
+      queue.stop(true)
+    }
+  )
+
   it('retries a failed immediate task at the base delay', async () => {
     const task = jest
       .fn<() => Promise<void>>()

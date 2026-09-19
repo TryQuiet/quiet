@@ -1,0 +1,14 @@
+{
+  "name": "it-ws",
+  "version": "6.1.5",
+  "files": {
+    "src/source.ts": {
+      "before": "4165eca4622f7b6db03af7f196d8d718ca7c553b56c092e3395763d4715e4d01",
+      "after": "263902796cdb96c3d35291ef7feae7f4c2141d17fea716ee732a4438c20d8394"
+    },
+    "dist/src/source.js": {
+      "before": "e125ea82f0e156f92aadea4ddce2937fd20220cc606abbc8c4f93b61c984b265",
+      "after": "8fcc0236b5248d59d2b2492aebcde70b0ff3a895c24c96d6fd6c24e3f1921118"
+    }
+  }
+}

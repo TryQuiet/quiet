@@ -16,7 +16,7 @@ import { Libp2pEvents } from './libp2p.types'
 import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 import { createAdmissionAuthContext } from '../admission/admission-auth-context'
 import { AdmissionResourceScope } from '../admission/admission-resource-scope'
-import { AUTH_STREAM_TIMEOUT_MS } from './libp2p.const'
+import { AUTH_STREAM_TIMEOUT_MS, PEER_RETRY_DELAY_MS } from './libp2p.const'
 
 describe('Libp2pAuth buffered connections', () => {
   const teamId = 'pending-device-team'
@@ -373,6 +373,7 @@ describe('Libp2pAuth buffered connections', () => {
   })
 
   it.each(['error', 'disconnect'])('retries failed peers only after the round ends with %s', async ending => {
+    jest.useFakeTimers()
     const failingPeer = peerId('failing-peer')
     const fallbackPeer = peerId('fallback-peer')
 
@@ -382,11 +383,10 @@ describe('Libp2pAuth buffered connections', () => {
     const failingAuth = authFor(failingPeer)!
     failingAuth.emit(LFAEvents.REMOTE_ERROR, new Error('peer rejected invitation') as any)
 
-    await waitForExpect(() => {
-      expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
-      expect(hasAuthFor(failingPeer)).toBe(false)
-      expect(hasAuthFor(fallbackPeer)).toBe(true)
-    })
+    await jest.advanceTimersByTimeAsync(0)
+    expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+    expect(hasAuthFor(failingPeer)).toBe(false)
+    expect(hasAuthFor(fallbackPeer)).toBe(true)
 
     await auth['onPeerConnected'](failingPeer, connection(failingPeer.toString()))
     expect(hasAuthFor(failingPeer)).toBe(false)
@@ -402,37 +402,59 @@ describe('Libp2pAuth buffered connections', () => {
       await auth['onPeerDisconnected'](fallbackPeer)
     }
 
-    await waitForExpect(() => {
-      expect(redialPeers).toHaveBeenCalledTimes(1)
-      expect(hasAuthFor(failingPeer)).toBe(true)
-      expect(hasAuthFor(fallbackPeer)).toBe(false)
-      expect(auth['bufferedConnections']).toHaveLength(0)
-    })
+    await jest.advanceTimersByTimeAsync(PEER_RETRY_DELAY_MS - 1)
+    expect(redialPeers).not.toHaveBeenCalled()
+    await jest.advanceTimersByTimeAsync(1)
+    expect(redialPeers).toHaveBeenCalledTimes(1)
+    expect(hasAuthFor(failingPeer)).toBe(true)
+    expect(hasAuthFor(fallbackPeer)).toBe(false)
+    expect(auth['bufferedConnections']).toHaveLength(0)
     expect(authFor(failingPeer)).not.toBe(failingAuth)
     expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
 
     failingAuth.emit(LFAEvents.REMOTE_ERROR, new Error('late error from previous round') as any)
-    await new Promise<void>(resolve => setImmediate(resolve))
+    await jest.advanceTimersByTimeAsync(0)
     expect(redialPeers).toHaveBeenCalledTimes(1)
     expect(hasAuthFor(failingPeer)).toBe(true)
   })
 
   it('allows a single available peer to participate in successive admission rounds', async () => {
+    jest.useFakeTimers()
     const peer = peerId('only-peer')
     await auth['onPeerConnected'](peer, connection(peer.toString()))
     for (let round = 1; round <= 2; round++) {
       const previousAuth = authFor(peer)!
       previousAuth.emit(LFAEvents.LOCAL_ERROR, new Error('not ready yet') as any)
-      await waitForExpect(() => {
-        expect(redialPeers).toHaveBeenCalledTimes(round)
-        expect(auth['joinStatus']).toBe(JoinStatus.PENDING)
-      })
+      await jest.advanceTimersByTimeAsync(PEER_RETRY_DELAY_MS - 1)
+      expect(redialPeers).toHaveBeenCalledTimes(round - 1)
+      await jest.advanceTimersByTimeAsync(1)
+      expect(redialPeers).toHaveBeenCalledTimes(round)
+      expect(auth['joinStatus']).toBe(JoinStatus.PENDING)
       await auth['onPeerConnected'](peer, connection(peer.toString()))
       expect(authFor(peer)).toBeDefined()
       expect(authFor(peer)).not.toBe(previousAuth)
       expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
     }
   })
+
+  it.each(['stop', 'commit', 'replace', 'freeze'] as const)(
+    'does not redial an exhausted round after admission %s',
+    async outcome => {
+      jest.useFakeTimers()
+      const admission = { gate: { closed: false, frozen: false } }
+      const peer = peerId('only-peer')
+      await auth['onPeerConnected'](peer, connection(peer.toString()))
+      Object.assign(libp2pEvents, { admissionContext: admission })
+      authFor(peer)!.emit(LFAEvents.REMOTE_ERROR, new Error('rejected') as any)
+      await jest.advanceTimersByTimeAsync(0)
+      if (outcome === 'stop') await auth.stop()
+      if (outcome === 'commit') auth.markAdmissionCommitted()
+      if (outcome === 'replace') Object.assign(libp2pEvents, { admissionContext: undefined })
+      if (outcome === 'freeze') admission.gate.frozen = true
+      await jest.advanceTimersByTimeAsync(PEER_RETRY_DELAY_MS)
+      expect(redialPeers).not.toHaveBeenCalled()
+    }
+  )
 
   it('advances to the next buffered peer when the active admission peer disconnects', async () => {
     const disconnectedPeer = peerId('disconnected-peer')

@@ -44,7 +44,7 @@ import {
 } from './libp2p.types'
 import { createLogger } from '../common/logger'
 import { Libp2pDatastore } from './libp2p.datastore'
-import { UNKNOWN_THIS_PEER, WEBSOCKET_CIPHER_SUITE } from './libp2p.const'
+import { PEER_RETRY_DELAY_MS, UNKNOWN_THIS_PEER, WEBSOCKET_CIPHER_SUITE } from './libp2p.const'
 import { libp2pAuth, Libp2pAuth } from './libp2p.auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -75,6 +75,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   public state: Libp2pState = Libp2pState.Stopped
   private torBootstrap?: TorBootstrapProvider
   private waitingForTorBootstrapToResumeDialQueue = false
+  private dialGeneration = 0
   private readonly authenticatedPeers = new Map<string, AuthenticatedPeerIdentity>()
   public admissionContext?: AdmissionAuthContext
 
@@ -96,7 +97,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       concurrency: 10,
       backoffFactor: 1.25,
       fuzzFactor: 0.05,
-      baseDelayMs: 8_000,
+      baseDelayMs: PEER_RETRY_DELAY_MS,
       maxDelayMs: 20_000,
       rolloverAtMaxDelay: false,
     })
@@ -132,6 +133,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public async onModuleDestroy() {
     this.logger.log('Module is being destroyed')
+    this.dialGeneration += 1
     this.redialQueue.stop(true)
     if (this._dialQueueInterval) {
       clearInterval(this._dialQueueInterval)
@@ -207,14 +209,18 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
    * @param peerAddress Peer address to redial
    */
   public redialPeerAfterDelay = async (peerAddress: string, delayMs?: number): Promise<void> => {
+    const generation = this.dialGeneration
+    if (!this.canDial(generation)) return
     const peerId = peerAddress.split('/').pop()!
     const authenticatedIdentity =
       this.getAuthenticatedPeerIdentity(peerId) ??
       (await this.localDbService.getPeerStats(peerId))?.authenticatedIdentity
+    if (!this.canDial(generation)) return
     if (authenticatedIdentity && !this.isAuthenticatedPeerAuthorized(authenticatedIdentity)) return
     await this.redialQueue.enqueue({
       key: peerAddress,
       task: async (): Promise<void> => {
+        if (!this.canDial(generation)) return
         // Removal can prune the stored peer before this task runs. Keep its
         // identity with the task so a missing record cannot erase that guard.
         if (authenticatedIdentity && !this.isAuthenticatedPeerAuthorized(authenticatedIdentity)) return
@@ -228,6 +234,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     peerAddress: string,
     options: DialPeerOptions = { throwOnError: false, redialOnError: true }
   ) => {
+    const generation = this.dialGeneration
+    if (!this.canDial(generation)) return
+    const instance = this.libp2pInstance
     const peerId = peerAddress.split('/').pop()!
     if (this.connectedPeers.has(peerId)) {
       this.logger.trace(`Already connected to peer address: ${peerAddress}`)
@@ -245,6 +254,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     const authenticatedIdentity =
       this.getAuthenticatedPeerIdentity(peerId) ??
       (await this.localDbService.getPeerStats(peerId))?.authenticatedIdentity
+    if (!this.canDial(generation) || this.libp2pInstance !== instance) return
     if (authenticatedIdentity && !this.isAuthenticatedPeerAuthorized(authenticatedIdentity)) {
       this.logger.debug('Not dialing a peer whose authenticated identity is no longer authorized', peerId)
       this.dialedPeers.delete(peerAddress)
@@ -260,7 +270,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           this.logger.error(`Invalid multiaddr: ${peerAddress}`)
           return
         }
-        await this.libp2pInstance?.dial(parsedMultiAddr)
+        await instance?.dial(parsedMultiAddr)
       } catch (e) {
         if (
           !e.message.includes('Unexpected server response: 404') &&
@@ -268,7 +278,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         ) {
           this.logger.debug(`Failed to dial peer address: ${peerAddress}`, e.message, e.code)
         }
-        if (options.redialOnError) {
+        if (options.redialOnError && this.canDial(generation) && this.libp2pInstance === instance) {
           await this.redialPeerAfterDelay(peerAddress)
         }
         if (options.throwOnError) {
@@ -278,6 +288,10 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     } else {
       this.logger.debug('Not dialing self')
     }
+  }
+
+  private canDial(generation: number): boolean {
+    return generation === this.dialGeneration && [Libp2pState.Starting, Libp2pState.Started].includes(this.state)
   }
 
   public dialPeers = async (peerAddresses: string[]) => {
@@ -290,6 +304,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   }
 
   public addPeersToDialQueue = async () => {
+    const generation = this.dialGeneration
     let sortedPeers: string[]
     try {
       sortedPeers = await this.localDbService.getSortedPeers(false)
@@ -299,6 +314,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     }
 
     for (const addr of sortedPeers) {
+      if (!this.canDial(generation)) return
       const peerId = addr.split('/').pop()
       if (peerId === undefined) continue
       if (addr === this.localAddress) continue
@@ -400,6 +416,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public pause = async (): Promise<boolean> => {
     this.logger.debug('Pausing libp2p')
+    this.dialGeneration += 1
     // A commit handed to a paused lifecycle never resumes its frozen gate.
     if (this.admissionContext?.gate.adopted) {
       this.admissionContext.gate.revoke()
@@ -449,15 +466,19 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   }
 
   public async hangUpPeers(peers?: string[]) {
+    const generation = this.dialGeneration
     const peersToHangUp = peers ?? Array.from(this.connectedPeers.values()).map(peer => peer.address)
     this.logger.debug('Hanging up on all peers')
     for (const peer of peersToHangUp) {
+      if (generation !== this.dialGeneration) return
       await this.hangUpPeer(peer)
     }
     this.logger.debug('All peers hung up')
   }
 
   public async hangUpPeer(peerAddress: string, redial = false) {
+    const generation = this.dialGeneration
+    const instance = this.libp2pInstance
     this.logger.debug('Hanging up on peer', peerAddress)
     const controller = new AbortController()
     try {
@@ -468,10 +489,12 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       this.authService?.closeAuthConnection(peerId)
 
       this.logger.debug('Hanging up connection on libp2p')
-      await this.libp2pInstance?.hangUp(ma, { signal: controller.signal })
+      await instance?.hangUp(ma, { signal: controller.signal })
+      if (generation !== this.dialGeneration || instance !== this.libp2pInstance) return
 
       this.logger.debug('Removing peer from peer store')
-      await this.libp2pInstance?.peerStore.delete(peerId as any)
+      await instance?.peerStore.delete(peerId as any)
+      if (generation !== this.dialGeneration || instance !== this.libp2pInstance) return
 
       this.logger.debug('Clearing local data')
       this.dialedPeers.delete(peerAddress)
@@ -485,6 +508,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
     if (
       redial &&
+      generation === this.dialGeneration &&
       !peerAddress.startsWith('/p2p/') &&
       ![Libp2pState.Stopping, Libp2pState.Stopped, Libp2pState.Paused].includes(this.state)
     ) {
@@ -493,6 +517,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   }
 
   private async hangUpAuthTransport(connection: Connection, redial: boolean) {
+    const generation = this.dialGeneration
     try {
       this.authService?.closeTransportAuthConnection(connection)
       if (connection.status !== 'closed') await connection.close()
@@ -500,12 +525,14 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       // hang up a replacement, delete its peer store, or enqueue another dial.
       if (
         !redial ||
+        !this.canDial(generation) ||
         !this.libp2pInstance ||
         [Libp2pState.Stopping, Libp2pState.Stopped].includes(this.state) ||
         this.libp2pInstance.getConnections(connection.remotePeer).some(candidate => candidate.status === 'open')
       )
         return
       const stats = await this.localDbService.getPeerStats(connection.remotePeer.toString())
+      if (!this.canDial(generation)) return
       const address = stats?.address ?? connection.remoteAddr.toString()
       // A bare /p2p/ address carries no transport to dial.
       if (address.startsWith('/p2p/')) return
@@ -521,7 +548,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
    * we want to close/re-open connections.
    */
   public async redialPeers(peersToDial?: string[]) {
+    const generation = this.dialGeneration
     const sortedPeers = peersToDial == null ? await this.localDbService.getSortedPeers(false) : []
+    if (generation !== this.dialGeneration) return
     const toDial = new Set(peersToDial ?? [...sortedPeers, ...this.dialedPeers])
     toDial.delete(this.localAddress)
     const targets = [...toDial]
@@ -541,6 +570,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     }
 
     await this.hangUpPeers([...peersToHangUp])
+    if (generation !== this.dialGeneration) return
 
     await this.dialPeers(targets)
   }
@@ -886,6 +916,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public async close(closeDatastore = true): Promise<void> {
     this.logger.debug('Closing libp2p service:', this.localAddress)
+    this.dialGeneration += 1
     this.admissionContext?.gate.revoke()
     this.admissionContext = undefined
     this.setState(Libp2pState.Stopping)

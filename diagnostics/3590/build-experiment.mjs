@@ -21,14 +21,36 @@ const original = await readFile(sourcePath, 'utf8')
 const sourceRequire = createRequire(sourcePath)
 const lazyStart = '    const source = (async function* () {\n'
 const readStart = '        await connected();'
-assert.equal(original.split(lazyStart).length, 2)
-assert.equal(original.split(readStart).length, 2)
+const fixed = original.includes('Socket source canceled')
 let replacement = original
-if (eager) replacement = replacement.replace(lazyStart, '').replace(readStart, `${lazyStart}${readStart}`)
-replacement = replacement
-  .replace(
-    'export default (socket) => {',
-    `let clientReaders = 0;
+if (fixed) {
+  assert.equal(original.split('next: async () => iterator.next(),').length, 2)
+  replacement = replacement
+    .replace('export default (socket) => {', 'let clientReaders = 0;\nexport default (socket) => {')
+    .replace(
+      'next: async () => iterator.next(),',
+      `next: (() => {
+        let started = false;
+        return async () => {
+            if (!started) {
+                started = true;
+                if (socket.url && ++clientReaders > 1 && ${delayMs} > 0) {
+                    console.info('DIAG3590_FIXED_WS_READ_DELAY', ${delayMs});
+                    await new Promise(resolve => setTimeout(resolve, ${delayMs}));
+                }
+            }
+            return iterator.next();
+        };
+    })(),`
+    )
+} else {
+  assert.equal(original.split(lazyStart).length, 2)
+  assert.equal(original.split(readStart).length, 2)
+  if (eager) replacement = replacement.replace(lazyStart, '').replace(readStart, `${lazyStart}${readStart}`)
+  replacement = replacement
+    .replace(
+      'export default (socket) => {',
+      `let clientReaders = 0;
 export default (socket) => {
     let listenerReady = false;
     socket.addEventListener('message', event => {
@@ -36,19 +58,21 @@ export default (socket) => {
             bytes: event.data.byteLength, reader: clientReaders, delayMs: ${delayMs}, eager: ${eager}
         });
     }, { once: true });`
-  )
-  .replace(
-    lazyStart,
-    `${lazyStart}
+    )
+    .replace(
+      lazyStart,
+      `${lazyStart}
         // Leave the first dial unchanged so the invalid proof reaches the owner.
         // Later reads yield briefly, simulating scheduling latency, not packet loss.
         if (socket.url && ++clientReaders > 1) await new Promise(resolve => setTimeout(resolve, ${delayMs}));
 `
-  )
-  .replace(
-    '        }, { highWaterMark: Infinity });',
-    '        }, { highWaterMark: Infinity });\n        listenerReady = true;'
-  )
+    )
+    .replace(
+      '        }, { highWaterMark: Infinity });',
+      '        }, { highWaterMark: Infinity });\n        listenerReady = true;'
+    )
+}
+replacement = replacement
   .replace("from 'event-iterator'", `from ${JSON.stringify(sourceRequire.resolve('event-iterator'))}`)
   .replace(
     "from 'uint8arrays/from-string'",
@@ -79,7 +103,10 @@ await new Promise((resolve, reject) => {
   })
 })
 const bundle = await readFile(join(output, 'bundle.cjs'))
-assert.ok(bundle.includes('DIAG3590_FRAME_BEFORE_LISTENER'), 'The dependency replacement must be present')
+assert.ok(
+  bundle.includes(fixed ? 'Socket source canceled' : 'DIAG3590_FRAME_BEFORE_LISTENER'),
+  'The dependency replacement must be present'
+)
 await writeFile(
   join(output, 'provenance.json'),
   JSON.stringify(
@@ -87,6 +114,7 @@ await writeFile(
       commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
       delayMs,
       eager,
+      fixed,
       originalSourcePath: sourcePath,
       originalSourceSha256: createHash('sha256').update(original).digest('hex'),
       bundleSha256: createHash('sha256').update(bundle).digest('hex'),

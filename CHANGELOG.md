@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixes
+
+* Recover device admission after invalid invitations by preserving early WebSocket handshake frames, canceling stale dial retries on reset, and pacing failed admission rounds [#3590](https://github.com/TryQuiet/quiet/issues/3590).
+
 ## [11.0.1]
 
 ### Fixes

@@ -63,3 +63,26 @@ e2e-eager-10s.log:9997-10005: AdmissionCoordinator transition at 2026-09-19T15:1
   "to": "succeeded",
   "stale": false,
   "elapsedMs": 8152.518854
+
+Implemented fix: full-app delayed-read regression (10 second budget)
+e2e-fixed-delayed.log:4837: DIAG3590_FIXED_WS_READ_DELAY 20
+e2e-fixed-delayed.log:5989: DIAG3590 valid submission 2026-09-19T15:37:53.263Z
+e2e-fixed-delayed.log:6472: DIAG3590_FIXED_WS_READ_DELAY 20
+e2e-fixed-delayed.log:7115:   "elapsedMs": 161.91469400000278
+e2e-fixed-delayed.log:8994: DIAG3590 valid admission succeeded 2026-09-19T15:37:58.379Z
+e2e-fixed-delayed.log:9954: PASS src/tests/admissionRecoveryDiagnostic.test.ts (76.138 s)
+
+Implemented fix: original E2E case with production backend bundle
+e2e-fixed-production.log:12041: PASS src/tests/admissionTimeout.test.ts (87.503 s)
+e2e-fixed-production.log:12043:     ✓ allows a valid device link after an invalid device admission (86637 ms)
+e2e-fixed-production.log:12051: Test Suites: 1 passed, 1 total
+e2e-fixed-production.log:12052: Tests:       6 skipped, 1 passed, 7 total
+
+Implemented fix: backend tests using production TypeScript configuration
+fix-typed-tests.log:3: PASS src/nest/libp2p/libp2p.auth.spec.ts
+fix-typed-tests.log:4: PASS src/nest/libp2p/libp2p.service.spec.ts
+fix-typed-tests.log:5: PASS src/nest/websocketOverTor/websocket-patch-install.spec.ts
+fix-typed-tests.log:6: PASS src/nest/common/timed-queue.spec.ts
+fix-typed-tests.log:7: PASS src/nest/websocketOverTor/websocket-source.spec.ts
+fix-typed-tests.log:9: Test Suites: 5 passed, 5 total
+fix-typed-tests.log:10: Tests:       66 passed, 66 total

@@ -83,6 +83,10 @@ async function waitForTransportReady(app: App): Promise<void> {
 
 jest.setTimeout(300_000)
 
+// Recovery must allow a failed local upgrade (5s), the first redial (8s),
+// successful admission and CI scheduling margin. Deadline-only cases stay short.
+const LOCAL_RECOVERY_ADMISSION_TIMEOUT_MS = 30_000
+
 describe('Timed-out P2P admission recovery', () => {
   const apps: App[] = []
 
@@ -179,8 +183,13 @@ describe('Timed-out P2P admission recovery', () => {
     return invitation
   }
 
-  async function expectJoinCommunityError(app: App, message: string, inputValue = ''): Promise<void> {
-    expect(await new JoinCommunityModal(app.driver).isReady(30_000)).toBeTruthy()
+  async function expectJoinCommunityError(
+    app: App,
+    message: string,
+    inputValue = '',
+    timeoutMs = 30_000
+  ): Promise<void> {
+    expect(await new JoinCommunityModal(app.driver).isReady(timeoutMs)).toBeTruthy()
     expect(await app.driver.findElement(By.xpath(`//*[contains(text(), '${message}')]`)).isDisplayed()).toBeTruthy()
     const inviteInput = await app.driver.findElement(By.xpath('//input[@placeholder="Invite link"]'))
     expect(await inviteInput.getAttribute('value')).toBe(inputValue)
@@ -261,7 +270,10 @@ describe('Timed-out P2P admission recovery', () => {
 
   it('allows a valid device link after an invalid device admission', async () => {
     const owner = new App({ username: 'invaliddeviceowner' })
-    const linkedDevice = new App({ username: 'invalidlinkeddevice' })
+    const linkedDevice = new App({
+      username: 'invalidlinkeddevice',
+      environment: { INVITATION_ADMISSION_TIMEOUT_MS: String(LOCAL_RECOVERY_ADMISSION_TIMEOUT_MS) },
+    })
     apps.push(owner, linkedDevice)
 
     const deviceInvitationLink = await createCommunityAndGetInvitation(
@@ -271,6 +283,7 @@ describe('Timed-out P2P admission recovery', () => {
       async settings => await (await settings.deviceLink()).getText()
     )
     const invalidDeviceInvitationLink = makeInvalidInvitationLink(deviceInvitationLink)
+    owner.buildSetup.clearProcessOutput()
 
     await linkedDevice.openWithRetries()
     const joinModal = new JoinCommunityModal(linkedDevice.driver)
@@ -279,14 +292,18 @@ describe('Timed-out P2P admission recovery', () => {
     await joinModal.submit()
     expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
 
-    // The preceding test covers peer-side invalid-proof rejection. Here the
-    // bounded admission timeout must clear provisional state whether the invalid
-    // proof is rejected or the first local dial is lost before reaching the owner.
-    await expectJoinCommunityError(linkedDevice, 'make sure both devices have the app open')
+    await owner.buildSetup.waitForProcessOutput('INVITATION_PROOF_INVALID', LOCAL_RECOVERY_ADMISSION_TIMEOUT_MS)
+    await expectJoinCommunityError(
+      linkedDevice,
+      'make sure both devices have the app open',
+      '',
+      LOCAL_RECOVERY_ADMISSION_TIMEOUT_MS + 15_000
+    )
 
     // Reopening reuses the owner's unexpired link. This valid seed differs from
     // the rejected proof and must work without restarting the target backend.
     const freshDeviceInvitationLink = await getReusableDeviceInvitation(owner, deviceInvitationLink)
+    linkedDevice.buildSetup.clearProcessOutput()
     const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
     await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
     await resetJoinModal.submit()
@@ -295,6 +312,7 @@ describe('Timed-out P2P admission recovery', () => {
       joinCompletionTimeoutMs(),
       'device link after invalid admission'
     )
+    assertAdmissionNotReset(linkedDevice)
     expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
 
     await releaseApps(owner, linkedDevice)
@@ -484,6 +502,7 @@ describe('Timed-out P2P admission recovery', () => {
     const freshDeviceInvitationLink = await (await settings.deviceLink()).getText()
     await settings.closeTabThenModal()
 
+    linkedDevice.buildSetup.clearProcessOutput()
     const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
     await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
     await resetJoinModal.submit()
@@ -492,6 +511,7 @@ describe('Timed-out P2P admission recovery', () => {
       joinCompletionTimeoutMs(),
       'device link after timed-out invitation'
     )
+    assertAdmissionNotReset(linkedDevice)
     expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
 
     await releaseApps(owner, linkedDevice)

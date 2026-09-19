@@ -9,9 +9,35 @@ failed dial / retry / deadline sequence. Local runs uncovered concrete app bugs
 behind it. Increasing the E2E deadline is useful test budgeting, but insufficient
 as the app fix.
 
-This commit contains opt-in reproductions and an experimental dependency control.
-It does **not** change the production application or claim that the complete E2E
-suite is green.
+The initial investigation commit, `1a0443a60`, contained opt-in reproductions and
+an experimental dependency control. The subsequent fix implements eager receive
+buffering and cleanup in the pinned `it-ws` package, cancellation of queued and
+in-flight dial work across reset, and paced retries after an admission round is
+exhausted. The original recovery E2E now waits for actual invalid-proof rejection,
+uses a 30-second recovery budget, and rejects an unexpected second reset.
+
+## Fix validation
+
+- The original invalid-then-valid desktop E2E passed with the implemented fix,
+  then passed again with the typechecked production backend bundle (87.5 s).
+- The same full-app 20 ms scheduling-delay reproduction passed with the original
+  ten-second budget. The valid admission committed in 161.9 ms; invalid-proof
+  attempts were eight seconds apart and did not hit the inbound rate limit.
+- The five directly affected backend suites passed: 66 tests covering the receive
+  lifecycle, patch installation, queue cancellation, auth retries and dial reset.
+- Six related backend suites passed: 48 tests including transport authentication
+  lifecycle, multi-peer fallback, coordinated admission, connection protection and
+  peer-store recovery. This count includes the service suite from the prior line.
+- Backend production typecheck and production Webpack build passed. The build
+  emitted four existing dynamic-require warnings.
+
+These runs do not cover the entire desktop/mobile E2E suite or a Tor-network join.
+The report below preserves the original evidence and distinguishes the unmodified
+baseline from the controlled reproduction. Raw fix logs are retained locally as
+`artifacts/e2e-fixed-original.log`, `artifacts/e2e-fixed-delayed.log`,
+`artifacts/e2e-fixed-production.log`,
+`artifacts/fix-typed-tests.log`, `artifacts/fix-integration-tests.log`,
+`artifacts/fix-typecheck.log` and `artifacts/fix-production-build.log`.
 
 ## What the app runs established
 
@@ -89,9 +115,10 @@ another five-second handshake stall.
 | Full app, same delay, eager listener, same admission budget        | PASS, 61.7 s: committed admission and general channel.                                                                                  |
 | Actual TimedQueue, queued retry canceled before restart            | Expected FAIL: stale task is invoked after cancellation.                                                                                |
 
-The failing diagnostic tests are intentional reproductions. Both Jest diagnostics
-are skipped unless `REPRO_3590=true`; the standalone socket test is outside the
-normal suites.
+The failures in this table were intentional reproductions before the fix. The
+queue regression has since moved into the normal `timed-queue.spec.ts` suite.
+The full-app diagnostic remains opt-in via `REPRO_3590=true`; production socket
+lifecycle regressions run in `websocket-source.spec.ts`.
 
 Validation also passed for the existing five `TimedQueue` tests, ESLint on both
 new Jest files, shell syntax, and Node syntax for the diagnostic scripts. The
@@ -149,17 +176,17 @@ node --test diagnostics/3590/websocket-early-frame.test.mjs
 REPRO_EAGER_WS_SOURCE=true node --test diagnostics/3590/websocket-early-frame.test.mjs
 ```
 
-The first command should fail on `it-ws@6.1.5`; the second loads a private source
-copy with eager listener construction and should pass. Neither modifies the
-installed dependency.
+Before the production patch, the first command failed on pristine `it-ws@6.1.5`;
+the second loaded the experimental eager-listener control. With the production
+patch installed, the first command passes directly. The historical eager control
+is only applicable to the pristine dependency from the investigation commit.
 
 The queue reproduction runs against the actual production class and real fastq,
 using Jest's clock to avoid an eight-second sleep:
 
 ```sh
 cd packages/backend
-REPRO_3590=true node node_modules/jest/bin/jest.js --runInBand \
-  src/nest/common/timed-queue-recovery-diagnostic.spec.ts
+node node_modules/jest/bin/jest.js --runInBand src/nest/common/timed-queue.spec.ts
 ```
 
 For desktop runs, install Xvfb and Fluxbox, supply a matching Electron ChromeDriver,
@@ -198,6 +225,11 @@ Preserve the copied `app.asar.unpacked` native files. Link each copied executabl
 into `packages/e2e-tests/Quiet/` and run the focused test with its `FILE_NAME`.
 Never overwrite the source build or installed dependency.
 
+After applying the production patch, the builder detects the fixed adapter and
+delays only the first read of subsequent outbound sources; listener registration
+remains eager. Use `REPRO_READ_DELAY_MS=20` to rerun the controlled regression and
+`REPRO_READ_DELAY_MS=0` for a diagnostic bundle without an injected delay.
+
 ## Provenance and limits
 
 The local worktree was `/home/holmes/quiet-3590-repro`. Runs used Node 20.20.1,
@@ -205,9 +237,17 @@ the Electron desktop shell and installed dependencies from the existing
 `quiet-10-secure-dms` release checkout, and freshly built backend source from the
 commit above. The existing packaged build was used unchanged for the first
 baseline; its original source provenance was not independently established.
-The diagnostic builds reused compiled workspace dependencies and used
+The original diagnostic builds reused compiled workspace dependencies and used
 `ts-loader`'s `transpileOnly` mode because cross-worktree type identities conflict.
-This is not a full typecheck or a fresh build of every desktop component.
+Those experiments were not a full typecheck or a fresh build of every desktop
+component. Fix validation subsequently copied backend dependencies into the
+worktree and passed the production typecheck/build. The typed unit run used the
+production tsconfig to resolve built workspace dependencies; the broader runtime
+run disabled ts-jest diagnostics. Neither run changed repository Jest settings.
+The default source-workspace Jest configuration still encounters an unrelated
+`SignatureAuthor.name` type mismatch in `base-messages.service.ts` with these
+borrowed dependencies. The production-config typed tests and production build
+both pass; a clean CI installation remains the final check of the default setup.
 
 The auth submodule was at the worktree's pinned commit
 `eb9b4e538458b1b7d0153a284dcdfdcf4e16e5e6`. Installed `it-ws` source SHA-256:
