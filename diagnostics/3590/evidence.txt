@@ -1,0 +1,65 @@
+Selected local log excerpts from 2026-09-19. Times are UTC.
+Peer IDs, ephemeral ports and generated profile suffixes are redacted.
+Raw source filenames and original line numbers precede each excerpt.
+
+Unmodified packaged app: owner rate limiting
+e2e-baseline.log:6561: 2026-09-19T14:56:07.909Z INFO invaliddeviceowner_<profile> libp2p:connection-manager connection from /ip4/127.0.0.1/tcp/<port> refused - inboundConnectionThreshold exceeded by host 127.0.0.1
+e2e-baseline.log:9725: 2026-09-19T14:56:16.111Z INFO invaliddeviceowner_<profile> libp2p:connection-manager connection from /ip4/127.0.0.1/tcp/<port> refused - inboundConnectionThreshold exceeded by host 127.0.0.1
+
+Unmodified current backend: spontaneous asymmetric handshake stall in invalid phase
+e2e-dev.log:5367: 2026-09-19T15:00:37.738Z INFO invaliddeviceowner_<profile> libp2p:pnet protecting the connection
+e2e-dev.log:5380: 2026-09-19T15:00:37.743Z INFO invalidlinkeddevice_<profile> libp2p:pnet protecting the connection
+e2e-dev.log:5383: 2026-09-19T15:00:37.744Z INFO invaliddeviceowner_<profile> libp2p:pnet exchanged nonces
+e2e-dev.log:5390: 2026-09-19T15:00:42.743Z INFO e2e:utils [e2e_invaliddeviceowner_<profile>]: 2026-09-19T15:00:42.739Z ERROR invaliddeviceowner_<profile> libp2p:websockets:maconn encrypting inbound connection from /ip4/127.0.0.1/tcp/<port> failed AbortError: Read aborted
+e2e-dev.log:5437: 2026-09-19T15:00:42.745Z DEBUG invalidlinkeddevice_<profile> backend:Libp2pService Failed to dial peer address: /ip4/127.0.0.1/tcp/<port>/ws/p2p/<peer> unexpected end of input ERR_UNEXPECTED_EOF
+e2e-dev.log:6216:     TimeoutError: Settings drawer did not finish closing
+
+Controlled 20 ms delay, lazy listener, 10 second budget: valid attempt fails
+e2e-delayed-10s.log:5319: DIAG3590 valid submission 2026-09-19T15:10:04.295Z
+e2e-delayed-10s.log:5734: 2026-09-19T15:10:04.368Z DEBUG diag3590joiner_<profile> backend:Libp2pService Dialing peer address: /ip4/127.0.0.1/tcp/<port>/ws/p2p/<peer>
+e2e-delayed-10s.log:5772: DIAG3590_FRAME_BEFORE_LISTENER { bytes: 24, reader: 3, delayMs: 20, eager: false }
+e2e-delayed-10s.log:5775: 2026-09-19T15:10:04.370Z INFO diag3590owner_<profile> libp2p:pnet exchanged nonces
+e2e-delayed-10s.log:5864: 2026-09-19T15:10:09.371Z INFO e2e:utils [e2e_diag3590owner_<profile>]: 2026-09-19T15:10:09.371Z ERROR diag3590owner_<profile> libp2p:websockets:maconn failed to upgrade inbound connection from /ip4/127.0.0.1/tcp/<port> - %e EncryptionFailedError: Read aborted
+e2e-delayed-10s.log:5888: 2026-09-19T15:10:09.374Z DEBUG diag3590joiner_<profile> backend:Libp2pService Failed to dial peer address: /ip4/127.0.0.1/tcp/<port>/ws/p2p/<peer> unexpected end of input ERR_UNEXPECTED_EOF
+e2e-delayed-10s.log:5891: 2026-09-19T15:10:09.374Z DEBUG diag3590joiner_<profile> backend:TimedQueue Error while processing task with key /ip4/127.0.0.1/tcp/<port>/ws/p2p/<peer>, retrying with delay 8000ms UnexpectedEOFError: unexpected end of input
+e2e-delayed-10s.log:5923: 2026-09-19T15:10:14.361Z INFO e2e:utils [e2e_diag3590joiner_<profile>]: 2026-09-19T15:10:14.361Z ERROR diag3590joiner_<profile> backend:ConnectionsManagerService Failed to launch community y8fol9cm25vzkh6q AdmissionError: Admission acquisition deadline expired
+e2e-delayed-10s.log:5997: 2026-09-19T15:10:14.367Z INFO diag3590joiner_<profile> backend:SocketService Emitting event: resetAdmission
+e2e-delayed-10s.log:6894: FAIL src/tests/admissionRecoveryDiagnostic.test.ts (70.762 s)
+e2e-delayed-10s.log:6900:     DIAG3590: valid invitation reset within the 10000ms admission budget
+
+Same delay and budget, eager listener: admission succeeds, stale retry remains
+e2e-eager-10s.log:8145: 2026-09-19T15:09:44.747Z INFO diag3590owner_<profile> libp2p:connection-manager connection from /ip4/127.0.0.1/tcp/<port> refused - inboundConnectionThreshold exceeded by host 127.0.0.1
+e2e-eager-10s.log:8384: 2026-09-19T15:09:54.401Z DEBUG diag3590joiner_<profile> backend:TimedQueue Stopping timed queue
+e2e-eager-10s.log:8425: 2026-09-19T15:09:54.404Z DEBUG diag3590joiner_<profile> backend:Libp2pService Failed to dial peer address: /ip4/127.0.0.1/tcp/<port>/ws/p2p/<peer> The operation was aborted ABORT_ERR
+e2e-eager-10s.log:8445: 2026-09-19T15:09:54.405Z DEBUG diag3590joiner_<profile> backend:TimedQueue Adding task with key /ip4/127.0.0.1/tcp/<port>/ws/p2p/<peer> to timed queue, delayMs: undefined
+e2e-eager-10s.log:8594: 2026-09-19T15:09:54.426Z DEBUG diag3590joiner_<profile> backend:TimedQueue Stopping timed queue
+e2e-eager-10s.log:8732: DIAG3590 valid submission 2026-09-19T15:09:55.262Z
+e2e-eager-10s.log:9170: 2026-09-19T15:09:55.418Z DEBUG diag3590joiner_<profile> backend:TimedQueue Pulled task with key /ip4/127.0.0.1/tcp/<port>/ws/p2p/<peer> from queue
+e2e-eager-10s.log:9324: 2026-09-19T15:10:03.420Z DEBUG diag3590joiner_<profile> backend:Libp2pService Dialing peer address: /ip4/127.0.0.1/tcp/<port>/ws/p2p/<peer>
+e2e-eager-10s.log:11874: DIAG3590 valid admission succeeded 2026-09-19T15:10:05.376Z
+e2e-eager-10s.log:12834: PASS src/tests/admissionRecoveryDiagnostic.test.ts (61.727 s)
+
+Real WebSocket early-frame baseline
+early-frame-baseline.log:2: # DIAG3590 nonce reached the actual socket before the first source read
+early-frame-baseline.log:3: # DIAG3590 first frame returned by it-ws { eager: false, firstByte: 2, length: 24 }
+early-frame-baseline.log:5: not ok 1 - it-ws preserves a nonce frame received before the first source read
+early-frame-baseline.log:127: # fail 1
+
+Real WebSocket early-frame eager control
+early-frame-eager.log:2: # DIAG3590 nonce reached the actual socket before the first source read
+early-frame-eager.log:3: # DIAG3590 first frame returned by it-ws { eager: true, firstByte: 1, length: 24 }
+early-frame-eager.log:5: ok 1 - it-ws preserves a nonce frame received before the first source read
+early-frame-eager.log:12: # pass 1
+
+Actual TimedQueue cancellation regression
+timed-queue-reset.log:1: FAIL src/nest/common/timed-queue-recovery-diagnostic.spec.ts
+timed-queue-reset.log:3:     ✕ discards a retry queued while stopped before starting a replacement admission (4 ms)
+timed-queue-reset.log:9:     Expected number of calls: 0
+timed-queue-reset.log:10:     Received number of calls: 1
+
+e2e-eager-10s.log:9997-10005: AdmissionCoordinator transition at 2026-09-19T15:10:03.519Z (session ID omitted):
+  "event": "COMMIT_SUCCEEDED",
+  "from": "finalizing",
+  "to": "succeeded",
+  "stale": false,
+  "elapsedMs": 8152.518854
