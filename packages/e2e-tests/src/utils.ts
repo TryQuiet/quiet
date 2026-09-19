@@ -12,6 +12,7 @@ import { config } from 'dotenv'
 
 import { createLogger } from './logger'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
+import { downloadFile } from './downloadFile'
 
 const logger = createLogger('utils')
 
@@ -463,9 +464,8 @@ export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION)
   }
   const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
   logger.info(`Downloading Quiet version: ${version} from ${downloadUrl}`)
-  // With newer curl: execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
-  execSync(`curl -LO ${downloadUrl}`)
   const appImageDownloadPath = path.join(process.cwd(), appImage)
+  downloadFile(downloadUrl, appImageDownloadPath)
   logger.info(`Downloaded to ${appImageDownloadPath}`)
   fs.renameSync(appImageDownloadPath, appImageTargetPath)
   logger.info('Moved to', appImageTargetPath)
