@@ -1,3 +1,41 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [11.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@11.0.1...@quiet/mobile@11.1.0-alpha.0) (2026-09-19)
+
+
+### Bug Fixes
+
+* key the channel membership entry on admin status, not on privacy ([afc40d1](https://github.com/TryQuiet/quiet/commit/afc40d17d93b7a4691fef69ff698e70a8e112137))
+* **mobile,desktop:** align the private channel row across platforms ([efdf6a0](https://github.com/TryQuiet/quiet/commit/efdf6a0962cacf5df14711b740972da9c2917e39))
+* **mobile,desktop:** match the message field to the design library ([e71f133](https://github.com/TryQuiet/quiet/commit/e71f13399580008dbac2aef4760b0aa62b8c28d7)), closes [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#F7F7F7](https://github.com/TryQuiet/quiet/issues/F7F7F7) [#E5E5E5](https://github.com/TryQuiet/quiet/issues/E5E5E5) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#E5E5E5](https://github.com/TryQuiet/quiet/issues/E5E5E5) [#F7F7F7](https://github.com/TryQuiet/quiet/issues/F7F7F7)
+* **mobile:** copy the invitation link on Android 13+ ([5a90842](https://github.com/TryQuiet/quiet/commit/5a90842fed1ec7e6083f9ae86aab51af1283210f))
+* **mobile:** give the channel side nav the entries the designs show ([84a0ae1](https://github.com/TryQuiet/quiet/commit/84a0ae18c08ac2890c363cec1c03bf04999e7a82))
+* **mobile:** hide the channel + button when the user cannot create channels ([fdc6759](https://github.com/TryQuiet/quiet/commit/fdc6759ac3f3d99eba7d7cdf76ca49c6860dc9eb))
+* **mobile:** keep a recipient selected while composing a new DM ([ee0f8fb](https://github.com/TryQuiet/quiet/commit/ee0f8fba56ff100e6f9e3d40da91038a9cf73537))
+* **mobile:** match create-channel copy to the design library ([79a4891](https://github.com/TryQuiet/quiet/commit/79a4891a9f35e47c7b9759a7975eb1d6106442c5))
+* **mobile:** match DM recipient selection to the designs ([c5c4d81](https://github.com/TryQuiet/quiet/commit/c5c4d81a770a93b34c9e9b781291307da7728fb2))
+* **mobile:** point the notification test at the renamed home screen ([bcdc0e4](https://github.com/TryQuiet/quiet/commit/bcdc0e45d18c6f74304e1b96a4335dff2b1143e2)), closes [#3544](https://github.com/TryQuiet/quiet/issues/3544)
+* **mobile:** return from Permissions and Add members to the channel ([b34ed15](https://github.com/TryQuiet/quiet/commit/b34ed15f68f57c688c513cf9f500588dfff06b21))
+* **mobile:** round buttons to the design library's radius and height ([55d951e](https://github.com/TryQuiet/quiet/commit/55d951e55893a4e1059a179bd98db5244e5404f3))
+* **mobile:** run the brand purple to the top of the screen ([b75c543](https://github.com/TryQuiet/quiet/commit/b75c543ca02fc3b60e2fc6db683978f913116ca0)), closes [#461863](https://github.com/TryQuiet/quiet/issues/461863) [#521C74](https://github.com/TryQuiet/quiet/issues/521C74) [#521C74](https://github.com/TryQuiet/quiet/issues/521C74)
+* **mobile:** touch targets, membership naming, and a composer that could hide its own input ([5d9ec15](https://github.com/TryQuiet/quiet/commit/5d9ec15583e14dc02e75c9d50b71349e97a647d3)), closes [#B3B3B3](https://github.com/TryQuiet/quiet/issues/B3B3B3)
+* one presence rule, shared by both platforms and obeyed on every surface ([49c216f](https://github.com/TryQuiet/quiet/commit/49c216f48675fe2c8784f32268e7c08f0574298a))
+
+
+### Features
+
+* **mobile:** a profile screen, reachable from anyone shown, with photo editing ([c0bf888](https://github.com/TryQuiet/quiet/commit/c0bf888356220c85a029aa2b8e516080c519698b))
+* **mobile:** give Input left/right accessories and a height cap ([3ef0b43](https://github.com/TryQuiet/quiet/commit/3ef0b43e2119aa081641d4bb63bcc9ac7619e662))
+* **mobile:** show chosen DM recipients as pills ([c74458b](https://github.com/TryQuiet/quiet/commit/c74458bed152e00f2cbfd506b287704669723b61)), closes [#F7F7F7](https://github.com/TryQuiet/quiet/issues/F7F7F7) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0)
+* presence by user, not by peer, now that a user has several devices ([3b65232](https://github.com/TryQuiet/quiet/commit/3b65232081a2319e887f7c44879e9fc3c202f6a9))
+
+
+
+
+
 # Changelog
 
 ## [11.0.1]

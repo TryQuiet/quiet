@@ -1,3 +1,41 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [11.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@11.0.1...@quiet/desktop@11.1.0-alpha.0) (2026-09-19)
+
+
+### Bug Fixes
+
+* **desktop:** align the side nav with the private-channel designs ([fae727d](https://github.com/TryQuiet/quiet/commit/fae727dc01180242b0550948e3375e2d25e272d4)), closes [#521C74](https://github.com/TryQuiet/quiet/issues/521C74) [#511974](https://github.com/TryQuiet/quiet/issues/511974)
+* **desktop:** build add-members out of the same panel parts as create-channel ([cd0ab9f](https://github.com/TryQuiet/quiet/commit/cd0ab9fb707aa8178a0deda2854e82ed1afb10f7)), closes [#E5E5E5](https://github.com/TryQuiet/quiet/issues/E5E5E5)
+* **desktop:** build the community menu out of design rows, in one drawer ([becaca0](https://github.com/TryQuiet/quiet/commit/becaca0d3c845535ce2332a5aa635e8263ac5cc9)), closes [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0)
+* **desktop:** build the create-channel panel out of design-library parts ([9e61186](https://github.com/TryQuiet/quiet/commit/9e611869a23dfd2503feb7f1593e0edff5bb1325)), closes [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#521C74](https://github.com/TryQuiet/quiet/issues/521C74) [#461863](https://github.com/TryQuiet/quiet/issues/461863) [#B3B3B3](https://github.com/TryQuiet/quiet/issues/B3B3B3) [#F7F7F7](https://github.com/TryQuiet/quiet/issues/F7F7F7) [#D13135](https://github.com/TryQuiet/quiet/issues/D13135) [#BA272](https://github.com/TryQuiet/quiet/issues/BA272) [#B3B3B3](https://github.com/TryQuiet/quiet/issues/B3B3B3) [#1B6](https://github.com/TryQuiet/quiet/issues/1B6) [#D13135](https://github.com/TryQuiet/quiet/issues/D13135) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#E5E5E5](https://github.com/TryQuiet/quiet/issues/E5E5E5) [#80B857](https://github.com/TryQuiet/quiet/issues/80B857) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#E5E5E5](https://github.com/TryQuiet/quiet/issues/E5E5E5)
+* **desktop:** match the DM composer, channel header and message list to the designs ([029790a](https://github.com/TryQuiet/quiet/commit/029790aa0a30057aee2722c75a377aa8b2d5c36d)), closes [#7F7F7](https://github.com/TryQuiet/quiet/issues/7F7F7) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#222222](https://github.com/TryQuiet/quiet/issues/222222) [#222222](https://github.com/TryQuiet/quiet/issues/222222)
+* **desktop:** present create-channel as a side panel, not a modal ([553ccee](https://github.com/TryQuiet/quiet/commit/553ccee8252586370a6c1a98dac17bdf1e46004b))
+* **desktop:** put the new-message close button at the far right ([6740c2b](https://github.com/TryQuiet/quiet/commit/6740c2ba6c0f731f4f81e5a26a443341285c4600))
+* **desktop:** stop logging the whole message map on every scroll event ([d3e6652](https://github.com/TryQuiet/quiet/commit/d3e66523b956074d607c7fd62f95c40009940d7d))
+* **desktop:** use the design's DM search placeholder ([10a71c1](https://github.com/TryQuiet/quiet/commit/10a71c14b103cf128c6052be1abdd5b06f101290))
+* **e2e:** find a chosen DM recipient by its pill, not by a MUI chip ([7f81950](https://github.com/TryQuiet/quiet/commit/7f819506c334df85706d7181c7b2cdcd0dd3c30c))
+* key the channel membership entry on admin status, not on privacy ([afc40d1](https://github.com/TryQuiet/quiet/commit/afc40d17d93b7a4691fef69ff698e70a8e112137))
+* **mobile,desktop:** align the private channel row across platforms ([efdf6a0](https://github.com/TryQuiet/quiet/commit/efdf6a0962cacf5df14711b740972da9c2917e39))
+* **mobile,desktop:** match the message field to the design library ([e71f133](https://github.com/TryQuiet/quiet/commit/e71f13399580008dbac2aef4760b0aa62b8c28d7)), closes [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#F7F7F7](https://github.com/TryQuiet/quiet/issues/F7F7F7) [#E5E5E5](https://github.com/TryQuiet/quiet/issues/E5E5E5) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0) [#E5E5E5](https://github.com/TryQuiet/quiet/issues/E5E5E5) [#F7F7F7](https://github.com/TryQuiet/quiet/issues/F7F7F7)
+* one presence rule, shared by both platforms and obeyed on every surface ([49c216f](https://github.com/TryQuiet/quiet/commit/49c216f48675fe2c8784f32268e7c08f0574298a))
+* **storybook:** give the channel stories the props the header now reads ([b52bcdf](https://github.com/TryQuiet/quiet/commit/b52bcdfc356c829729df896dbabd42359d850451))
+
+
+### Features
+
+* **desktop:** draw DM recipients as design pills ([79095ed](https://github.com/TryQuiet/quiet/commit/79095ed7b3e2d83b908828da1643a3a625bffb7b)), closes [#F7F7F7](https://github.com/TryQuiet/quiet/issues/F7F7F7) [#F0F0F0](https://github.com/TryQuiet/quiet/issues/F0F0F0)
+* **desktop:** reach a person's profile from anywhere they appear, and message them from it ([45c883f](https://github.com/TryQuiet/quiet/commit/45c883f5a3aed7505104f1a469e69d887bdc7b20))
+* keep develop's Linked devices tab, and answer "who is here" from Community membership ([152b132](https://github.com/TryQuiet/quiet/commit/152b132aa7a36b83f11e961b94537fe8dbcba7b2))
+* presence by user, not by peer, now that a user has several devices ([3b65232](https://github.com/TryQuiet/quiet/commit/3b65232081a2319e887f7c44879e9fc3c202f6a9))
+
+
+
+
+
 # Changelog
 
 ## [11.0.1]
