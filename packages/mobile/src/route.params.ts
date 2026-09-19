@@ -1,7 +1,7 @@
 import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
-import { Community, InvitationData, UserProfile } from '@quiet/types'
+import { Community, InvitationData, UserProfile, type ChannelType } from '@quiet/types'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
@@ -19,7 +19,7 @@ export type RootStackParamList = {
   [ScreenNames.LinkedDeviceQRCodeScreen]: undefined
   [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
-  [ScreenNames.ChannelListScreen]: undefined
+  [ScreenNames.AppHomeScreen]: undefined
   [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.CreateChannelScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
@@ -29,11 +29,26 @@ export type RootStackParamList = {
   }
   [ScreenNames.ChannelMembershipScreen]: {
     channelName: string
+    channelTitle: string
     channelId: string
+    channelType: ChannelType
+    // Whether the channel is public, which decides the glyph beside its name: the design's '#'
+    // for a public channel, a padlock for a private one (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190).
+    channelIsPublic?: boolean
+    // Which of the two side-nav entries opened this screen: Permissions, which can change who
+    // belongs to the channel, or Members, which only lists them. Defaults to Permissions when the
+    // viewer is allowed to manage membership.
+    manageMembership?: boolean
   }
   [ScreenNames.UpdateChannelMembershipScreen]: {
+    channelTitle: string
+    channelType: ChannelType
     channelName: string
     channelId: string
+    channelIsPublic?: boolean
+  }
+  [ScreenNames.UserProfileScreen]: {
+    userId: string
   }
   [ScreenNames.ErrorScreen]: {
     onPress: (dispatch: Dispatch<any>) => void
@@ -71,6 +86,8 @@ export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.
 export type ChannelMembershipRouteProps = RouteProp<RootStackParamList, ScreenNames.ChannelMembershipScreen>
 
 export type UpdateChannelMembershipRouteProps = RouteProp<RootStackParamList, ScreenNames.UpdateChannelMembershipScreen>
+
+export type UserProfileRouteProps = RouteProp<RootStackParamList, ScreenNames.UserProfileScreen>
 
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
 

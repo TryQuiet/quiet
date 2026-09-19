@@ -49,6 +49,9 @@ describe('ChannelStore', () => {
         { getCurrentCommunity: async () => ({ id: 'community-1' }) } as any,
         messagesService as any,
         {} as any,
+        // Direct messages service, added between private messages and the user profile store by
+        // the DM work; 10.0.0's spec predates it.
+        {} as any,
         { getUsername } as any,
         auth as any,
         {} as any,
@@ -171,6 +174,7 @@ describe('ChannelStore', () => {
       {} as any,
       localDbService as any,
       messagesService as any,
+      {} as any,
       {} as any,
       {} as any,
       auth as any,

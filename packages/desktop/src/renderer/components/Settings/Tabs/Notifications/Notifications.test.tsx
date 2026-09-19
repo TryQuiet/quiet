@@ -25,13 +25,7 @@ describe('Notifications', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item Notificationstitle css-13i4rnv-MuiGrid-root"
-              >
-                <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                >
-                  Notifications
-                </h3>
-              </div>
+              />
             </div>
             <div
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"

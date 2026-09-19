@@ -104,6 +104,10 @@ jobs:
         timeout-minutes: 35
         run: cd packages/e2e-tests && npm run test deviceLinking.qss.test.ts
 
+      - name: Run device linking direct message with QSS test
+        timeout-minutes: 35
+        run: cd packages/e2e-tests && npm run test deviceLinking.dms.qss.test.ts
+
       - name: Stop QSS docker
         if: always()
         run: npm run stop:qss

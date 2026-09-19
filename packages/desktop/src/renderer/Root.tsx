@@ -27,7 +27,7 @@ import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContex
 import { UserProfileContextMenu } from './components/ContextMenu/menus/UserProfileContextMenu.container'
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
 import { AddMembersChannel } from './components/Channel/AddMembersChannel/AddMembersChannel'
-import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
+import { ChannelMembership } from './components/Channel/ChannelMembership/ChannelMembership'
 import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
 import UnregisteredModalContainer from './components/widgets/userLabel/unregistered/UnregisteredModal.container'
 import DuplicateModalContainer from './components/widgets/userLabel/duplicate/DuplicateModal.container'
@@ -57,7 +57,6 @@ export default () => {
                 <PossibleImpersonationAttackModalContainer />
                 <LoadingPanel />
                 <UsernameTakenModalContainer />
-                <ChannelCreationModal />
                 <CreateChannel />
                 <JoinCommunity />
                 <CreateCommunity />
@@ -72,6 +71,7 @@ export default () => {
                 <UserProfileContextMenu />
                 <DeleteChannel />
                 <AddMembersChannel />
+                <ChannelMembership />
                 <Routes>
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />

@@ -861,11 +861,17 @@ app.on('ready', async () => {
       }
     }
 
-    await setupUpdater()
-    await checkForUpdate()
-    setInterval(async () => {
+    // The updater talks to the real release feed, so a CI runner whose build is a
+    // version behind downloads an update mid-run and drops the "Software update"
+    // modal over whatever the test is clicking - observed as an intercepted click
+    // on the join-community button. Nothing under test depends on the updater.
+    if (!isE2Etest) {
+      await setupUpdater()
       await checkForUpdate()
-    }, updaterInterval)
+      setInterval(async () => {
+        await checkForUpdate()
+      }, updaterInterval)
+    }
   })
 
   ipcMain.on('proceed-update', () => {
