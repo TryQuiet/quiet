@@ -95,6 +95,7 @@ beforeEach(async () => {
   libp2pService = connectionsManagerService.libp2pService
   peerId = await createPeerId()
   tor = await module.resolve(Tor)
+  tor.extraTorProcessParams['--DisableNetwork'] = '1'
   await tor.init()
 
   const torPassword = crypto.randomBytes(16).toString('hex')
@@ -125,21 +126,23 @@ afterAll(async () => {
 })
 
 describe('Connections manager', () => {
-  it('creates network', async () => {
-    logger.info('creates network')
-    const spyOnDestroyHiddenService = jest.spyOn(tor, 'destroyHiddenService')
-    // Creating a hidden service now resolves only after Tor confirms descriptor
-    // publication. Cold CI runners can need longer than the suite's default
-    // timeout to bootstrap the public Tor network.
-    if (!tor.bootstrapped) {
-      await new Promise<void>(resolve => tor.once('bootstrapped', resolve))
-    }
-    await connectionsManagerService.init()
+  it('creates a valid onion identity before Tor bootstrap without a temporary service', async () => {
+    const commands = jest.spyOn(torControl, 'sendCommand')
     const network = await connectionsManagerService.getNetworkInfo()
     expect(network.hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
     expect(network.hiddenService.privateKey).toHaveLength(99)
     const peerId = peerIdFromString(network.peerId.id)
     expect(isPeerId(peerId)).toBeTruthy()
-    expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
-  }, 300_000)
+    expect(tor.bootstrapped).toBe(false)
+    expect(commands.mock.calls.filter(([command]) => /^(ADD|DEL)_ONION\b/.test(command))).toHaveLength(0)
+    expect(await torControl.getDetachedOnionServices()).toEqual(new Set())
+
+    // The locally generated identity must be accepted unchanged by real Tor.
+    const accepted = await torControl.sendCommand(
+      `ADD_ONION ${network.hiddenService.privateKey} Flags=Detach Port=80,127.0.0.1:4343`
+    )
+    const serviceId = network.hiddenService.onionAddress.replace(/\.onion$/, '')
+    expect(accepted.messages).toContain(`250-ServiceID=${serviceId}`)
+    await torControl.sendCommand(`DEL_ONION ${serviceId}`)
+  })
 })

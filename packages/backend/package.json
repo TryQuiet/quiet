@@ -139,6 +139,7 @@
     "@nestjs/common": "^10.2.10",
     "@nestjs/core": "^10.2.10",
     "@nestjs/platform-express": "^10.2.10",
+    "@noble/hashes": "1.7.1",
     "@orbitdb/core": "file:../../3rd-party/orbitdb",
     "@paralleldrive/cuid2": "^2.2.2",
     "@quiet/common": "^2.0.2-alpha.1",
