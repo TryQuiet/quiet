@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixes
+
+* Start QSS admission and outbound peer connections without waiting for this device's onion descriptor to publish [#3580](https://github.com/TryQuiet/quiet/issues/3580)
+
 ## [11.0.1]
 
 ### Fixes
