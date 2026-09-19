@@ -46,6 +46,12 @@ For release events and PRs whose source branch matches `release/*` or
 `*-release`, the Linux workflow also runs `multipleClients.test.ts` with
 `LOCAL_TRANSPORT=false`, reusing the same packaged app. It allows one initial
 attempt plus two retries (`max_attempts: 3`).
+The same release gate also runs the two-device message exchange case from
+`deviceLinking.test.ts` over Tor, once, with a 25-minute CI ceiling above its
+20-minute Jest deadline. This retains real onion device-link coverage while
+`admissionTimeout.test.ts` uses local transport and an offline inviter to hold
+admission pending. Its QSS fallback fixture owns an ephemeral loopback endpoint
+and rejects connections, so a running local QSS stack cannot change the test.
 macOS, Windows, and QSS do not repeat the Tor suite.
 
 The legacy backwards-compatibility job remains on Tor (`LOCAL_TRANSPORT=false`)
