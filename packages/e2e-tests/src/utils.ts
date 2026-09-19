@@ -464,7 +464,10 @@ export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION)
   const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
   logger.info(`Downloading Quiet version: ${version} from ${downloadUrl}`)
   // With newer curl: execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
-  execSync(`curl -LO ${downloadUrl}`)
+  // --fail: without it curl writes GitHub's 404 body to the file and exits 0, so an
+  // unpublished baseline is chmod +x'd and executed, surfacing as a pile of
+  // "Chrome failed to start" selector timeouts instead of a missing release.
+  execSync(`curl -LO --fail ${downloadUrl}`)
   const appImageDownloadPath = path.join(process.cwd(), appImage)
   logger.info(`Downloaded to ${appImageDownloadPath}`)
   fs.renameSync(appImageDownloadPath, appImageTargetPath)
