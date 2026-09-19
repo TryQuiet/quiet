@@ -1,4 +1,4 @@
-export const BACKWARD_COMPATIBILITY_BASE_VERSION = '10.0.0'
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '11.0.0'
 
 export const compatibilityBaseline = (
   currentVersion: string,
@@ -11,8 +11,9 @@ export const compatibilityBaseline = (
   const current = version.slice(1, 4).map(Number)
   const baseline = BACKWARD_COMPATIBILITY_BASE_VERSION.split('.').map(Number)
   const difference = current.findIndex((part, index) => part !== baseline[index])
-  // The release branch still carries pre-10 package versions until the version bump.
-  // Through 10.0.0, exercise save/reopen with the supplied build; later builds must upgrade 10.0.0.
+  // The release branch still carries pre-11 package versions until the version bump, and 10.0.0
+  // was superseded by 11.0.0 without ever being published, so there is no 10.x installer to fetch.
+  // Through 11.0.0, exercise save/reopen with the supplied build; later builds must upgrade 11.0.0.
   const isPlaceholder = difference === -1 || current[difference] < baseline[difference]
 
   return {

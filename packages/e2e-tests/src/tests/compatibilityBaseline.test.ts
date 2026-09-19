@@ -1,7 +1,7 @@
 import { compatibilityBaseline } from '../compatibilityBaseline'
 
 describe('compatibility baseline', () => {
-  it.each(['9.0.2', '10.0.0-alpha.1', '10.0.0', '10.0.0+build.1'])(
+  it.each(['9.0.2', '10.0.0', '11.0.0-alpha.4', '11.0.0', '11.0.0+build.1'])(
     'reopens the supplied %s build without downloading an unpublished baseline',
     version => {
       const download = jest.fn(() => 'released.AppImage')
@@ -16,17 +16,17 @@ describe('compatibility baseline', () => {
     }
   )
 
-  it.each(['10.0.1-alpha.0', '10.0.1', '10.1.0', '11.0.0'])(
-    'requires the released 10.0.0 installer for %s',
+  it.each(['11.0.1-alpha.0', '11.0.1', '11.1.0-alpha.0', '11.1.0', '12.0.0'])(
+    'requires the released 11.0.0 installer for %s',
     version => {
-      const download = jest.fn(() => 'Quiet-10.0.0.AppImage')
+      const download = jest.fn(() => 'Quiet-11.0.0.AppImage')
 
       expect(compatibilityBaseline(version, `Quiet-${version}.AppImage`, download)).toEqual({
         isPlaceholder: false,
-        version: '10.0.0',
-        fileName: 'Quiet-10.0.0.AppImage',
+        version: '11.0.0',
+        fileName: 'Quiet-11.0.0.AppImage',
       })
-      expect(download).toHaveBeenCalledWith('10.0.0')
+      expect(download).toHaveBeenCalledWith('11.0.0')
     }
   )
 

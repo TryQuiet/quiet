@@ -1,40 +1,22 @@
 # Changelog
 
-## [11.0.0]
-
-### Features
-
-* Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
-
-### Breaking
-
-* Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
-
-## [10.0.0]
+## [11.1.0]
 
 ### Features
 
 * Add participant-only direct messages on desktop and mobile, encrypted to each participant's account keys so community administrators cannot read them
-* Enable administrators to create private channels on desktop and mobile without a feature flag
-
-### Breaking
-
-* Use protocol 4 with member, role, device and server removal and key rotation disabled, including making those operations inert when received from modified clients [#3471](https://github.com/TryQuiet/quiet/pull/3471)
-* Start with new 10.x desktop and mobile data directories; existing 9.x communities and identities are not migrated
+* Open anyone's profile from a message, a member list or a direct-message header on desktop and mobile, and start or reopen a conversation with them from it
 
 ### Fixes
 
-* Trigger push notifications only for channel messages, while syncing channel metadata, profiles and notification tokens without alerts [#3546](https://github.com/TryQuiet/quiet/issues/3546)
-* Suppress notifications for your own messages on Android when using background Tor or the foreground app, including channel-creation messages [#3547](https://github.com/TryQuiet/quiet/issues/3547)
-* Send private-channel push notifications only to the registered devices of users in that channel, including queued messages retried after reconnecting; channel deletions sync without triggering push notifications [#3545](https://github.com/TryQuiet/quiet/issues/3545)
-* Recover peer synchronization across reconnects and overlapping transports [#3480](https://github.com/TryQuiet/quiet/pull/3480)
-* Prevent repeated community leave requests from acknowledging teardown early and deleting newly created community state [#3424](https://github.com/TryQuiet/quiet/issues/3424)
-* Fix AppImage external links and desktop protocol registration when launcher library variables are present [#3453](https://github.com/TryQuiet/quiet/issues/3453)
-* Recover from consumed QSS captcha grants and synchronize captcha renewal state [#3428](https://github.com/TryQuiet/quiet/issues/3428)
-* Resume unsent mobile joins safely after a local backend connection is lost [#3426](https://github.com/TryQuiet/quiet/issues/3426)
-* Recover mobile local backend connections and allow stalled QR invitations to be retried [#3427](https://github.com/TryQuiet/quiet/issues/3427)
-* Keep delayed text and attachment sends bound to their originating channel and clear transient composer state on channel changes [#420](https://github.com/TryQuiet/quiet/issues/420) [#534](https://github.com/TryQuiet/quiet/issues/534)
-* Allow authorized historical private-channel deletions to sync without blocking later channels [#3406](https://github.com/TryQuiet/quiet/issues/3406)
+* Show a member as online when any of their linked devices is connected, rather than only the one device presence used to be read from
+* Keep the backend running when an attachment fails to upload, instead of tearing the node down and leaving the app talking to a dead backend
+* Accept a direct-message descriptor naming a participant this device has not replicated yet, instead of losing that conversation permanently
+* Show an error when a chosen profile photo is too large, and compress PNG profile photos as JPEG ones already were [#2953](https://github.com/TryQuiet/quiet/issues/2953)
+* Offer Members or Add members in the channel menu according to whether you administer the channel, and resolve a public channel's membership as the whole community
+* Give the mobile appbar, send and attachment controls a full-size touch target, and stop the new-message block pushing the message field off screen
+* Build the desktop community menu from design rows in a single drawer, so choosing a tab goes deeper instead of sliding one panel out and another in
+* Match the desktop direct-message composer, channel header and message list to the designs, including recipient names that were invisible on the dark theme
 * Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
 * Make the whole recipient row tappable on mobile rather than only the checkbox and the name
 * Copy the invitation link on Android 13 and later, where Copy link previously did nothing
@@ -58,6 +40,41 @@
 * Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
+
+## [11.0.0]
+
+### Features
+
+* Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
+
+### Breaking
+
+* Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
+
+## [10.0.0]
+
+### Features
+
+* Enable administrators to create private channels on desktop and mobile without a feature flag
+
+### Breaking
+
+* Use protocol 4 with member, role, device and server removal and key rotation disabled, including making those operations inert when received from modified clients [#3471](https://github.com/TryQuiet/quiet/pull/3471)
+* Start with new 10.x desktop and mobile data directories; existing 9.x communities and identities are not migrated
+
+### Fixes
+
+* Trigger push notifications only for channel messages, while syncing channel metadata, profiles and notification tokens without alerts [#3546](https://github.com/TryQuiet/quiet/issues/3546)
+* Suppress notifications for your own messages on Android when using background Tor or the foreground app, including channel-creation messages [#3547](https://github.com/TryQuiet/quiet/issues/3547)
+* Send private-channel push notifications only to the registered devices of users in that channel, including queued messages retried after reconnecting; channel deletions sync without triggering push notifications [#3545](https://github.com/TryQuiet/quiet/issues/3545)
+* Recover peer synchronization across reconnects and overlapping transports [#3480](https://github.com/TryQuiet/quiet/pull/3480)
+* Prevent repeated community leave requests from acknowledging teardown early and deleting newly created community state [#3424](https://github.com/TryQuiet/quiet/issues/3424)
+* Fix AppImage external links and desktop protocol registration when launcher library variables are present [#3453](https://github.com/TryQuiet/quiet/issues/3453)
+* Recover from consumed QSS captcha grants and synchronize captcha renewal state [#3428](https://github.com/TryQuiet/quiet/issues/3428)
+* Resume unsent mobile joins safely after a local backend connection is lost [#3426](https://github.com/TryQuiet/quiet/issues/3426)
+* Recover mobile local backend connections and allow stalled QR invitations to be retried [#3427](https://github.com/TryQuiet/quiet/issues/3427)
+* Keep delayed text and attachment sends bound to their originating channel and clear transient composer state on channel changes [#420](https://github.com/TryQuiet/quiet/issues/420) [#534](https://github.com/TryQuiet/quiet/issues/534)
+* Allow authorized historical private-channel deletions to sync without blocking later channels [#3406](https://github.com/TryQuiet/quiet/issues/3406)
 
 ## [9.0.0]
 
