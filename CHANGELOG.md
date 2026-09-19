@@ -41,6 +41,16 @@
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
 
+## [11.0.1]
+
+### Fixes
+
+* Desktop apps now check for updates within their own major version. Production releases automatically select the update bucket from the app version.
+
+### Notes
+
+* Desktop users on 11.0.0 must manually install this release to receive future 11.x updates from the corrected feed.
+
 ## [11.0.0]
 
 ### Features
