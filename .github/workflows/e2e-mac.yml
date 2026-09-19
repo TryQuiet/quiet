@@ -93,4 +93,4 @@ jobs:
 
       - name: Run admission timeout recovery test
         timeout-minutes: 15
-        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQss.test.ts

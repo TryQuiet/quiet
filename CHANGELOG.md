@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Tests
+
+* Make interrupted device-admission recovery tests independent of public Tor timing and local QSS servers, while retaining separate Tor device-link coverage [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3581](https://github.com/TryQuiet/quiet/issues/3581)
+
 ## [11.0.1]
 
 ### Fixes

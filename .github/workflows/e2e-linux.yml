@@ -99,7 +99,7 @@ jobs:
 
       - name: Run admission timeout recovery test
         timeout-minutes: 15
-        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQss.test.ts
 
       # Run Tor coverage once per release run, on Linux only, using the same binary.
       - name: Run multiple clients test over Tor (release)
@@ -115,3 +115,15 @@ jobs:
           # One initial attempt plus up to two retries.
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test multipleClients.test.ts
+
+      - name: Run device linking messages over Tor (release)
+        if: >-
+          github.event_name == 'release' ||
+          (github.event_name == 'pull_request' &&
+          (startsWith(github.head_ref, 'release/') || endsWith(github.head_ref, '-release')))
+        timeout-minutes: 25
+        env:
+          LOCAL_TRANSPORT: "false"
+        run: >-
+          cd packages/e2e-tests && npm run test -- deviceLinking.test.ts
+          --testNamePattern="replicates messages in both directions"
