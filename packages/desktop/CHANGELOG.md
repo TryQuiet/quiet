@@ -1,20 +1,14 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [11.0.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@11.0.0...@quiet/desktop@11.0.1) (2026-09-19)
-
-
-### Bug Fixes
-
-* derive desktop update buckets from the release major version ([eeef75a](https://github.com/TryQuiet/quiet/commit/eeef75a3ec726a7aa3d3088575258fbe832adee5))
-
-
-
-
-
 # Changelog
+
+## [11.0.1]
+
+### Fixes
+
+* Desktop apps now check for updates within their own major version. Production releases automatically select the update bucket from the app version.
+
+### Notes
+
+* Desktop users on 11.0.0 must manually install this release to receive future 11.x updates from the corrected feed.
 
 ## [11.0.0]
 
