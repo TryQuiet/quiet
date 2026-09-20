@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [11.1.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@11.1.0-alpha.0...@quiet/mobile@11.1.0-alpha.1) (2026-09-20)
-
-
-### Bug Fixes
-
-* **mobile:** give the remove-attachment control a real touch target ([#3598](https://github.com/TryQuiet/quiet/issues/3598)) ([e17add0](https://github.com/TryQuiet/quiet/commit/e17add0a71ee3d156790882000cf44a43dbe758b)), closes [#3595](https://github.com/TryQuiet/quiet/issues/3595)
-
-
-
-
-
 # Changelog
 
 ## [11.1.0]
@@ -25,12 +9,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Fixes
 
+* Ask the local Tor daemon to generate onion identities on desktop and mobile, and start communities without waiting for Tor network publication; recover detached registrations after lost replies or control connections without an onion-address collision loop, and handle fragmented or interrupted local control authentication [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
 * Show a member as online when any of their linked devices is connected, rather than only the one device presence used to be read from
 * Keep the backend running when an attachment fails to upload, instead of tearing the node down and leaving the app talking to a dead backend
 * Accept a direct-message descriptor naming a participant this device has not replicated yet, instead of losing that conversation permanently
 * Show an error when a chosen profile photo is too large, and compress PNG profile photos as JPEG ones already were [#2953](https://github.com/TryQuiet/quiet/issues/2953)
 * Offer Members or Add members in the channel menu according to whether you administer the channel, and resolve a public channel's membership as the whole community
 * Give the mobile appbar, send and attachment controls a full-size touch target, and stop the new-message block pushing the message field off screen
+* Give the mobile Channels and Direct Messages `+` buttons a full-size touch target, and let a screen reader announce what each one does [#3595](https://github.com/TryQuiet/quiet/issues/3595)
+* Give the mobile remove-attachment control a full-size touch target, and stop it hanging outside its parent where Android delivered no touch to it at all [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Build the desktop community menu from design rows in a single drawer, so choosing a tab goes deeper instead of sliding one panel out and another in
 * Match the desktop direct-message composer, channel header and message list to the designs, including recipient names that were invisible on the dark theme
 * Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
