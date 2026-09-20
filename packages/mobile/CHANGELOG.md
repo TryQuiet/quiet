@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [11.1.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@11.1.0-alpha.0...@quiet/mobile@11.1.0-alpha.1) (2026-09-20)
+
+
+### Bug Fixes
+
+* **mobile:** give the remove-attachment control a real touch target ([#3598](https://github.com/TryQuiet/quiet/issues/3598)) ([e17add0](https://github.com/TryQuiet/quiet/commit/e17add0a71ee3d156790882000cf44a43dbe758b)), closes [#3595](https://github.com/TryQuiet/quiet/issues/3595)
+
+
+
+
+
 # Changelog
 
 ## [11.1.0]
