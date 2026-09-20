@@ -1,4 +1,4 @@
-import { By, until, type WebDriver } from 'selenium-webdriver'
+import { By, error, until, type WebDriver } from 'selenium-webdriver'
 import { SettingsModalTabName } from './enums'
 
 // Use content present in released 11.x panels, not headings moved into the drawer bar.
@@ -32,6 +32,25 @@ export const waitForSettingsTab = async (
     until.elementIsVisible(content),
     Math.min(timeoutMs, 10_000),
     `Settings tab ${tabName} wasn't visible within timeout`,
+    100
+  )
+}
+
+export const waitForSettingsTabClosed = async (driver: WebDriver, timeoutMs = 10_000): Promise<void> => {
+  await driver.wait(
+    async () => {
+      const buttons = await driver.findElements(By.css('[data-testid="close-tab-button-box"] button'))
+      for (const button of buttons) {
+        try {
+          if (await button.isDisplayed()) return false
+        } catch (err) {
+          if (!(err instanceof error.StaleElementReferenceError)) throw err
+        }
+      }
+      return true
+    },
+    timeoutMs,
+    'Settings tab did not finish closing',
     100
   )
 }
