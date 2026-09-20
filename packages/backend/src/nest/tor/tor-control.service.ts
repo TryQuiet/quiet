@@ -72,6 +72,7 @@ export class TorControl {
     this.credentialsWaiter = undefined
     for (const connection of this.eventConnections) connection.end()
     this.eventConnections.clear()
+    this.connection?.destroy()
     this.disconnect()
   }
 
@@ -85,34 +86,26 @@ export class TorControl {
     }
   }
 
-  private async _connect(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      const connection = net.connect({
-        port: this.torControlParams.port,
-        family: 4,
-      })
-      this.connection = connection
-
-      connection.once('error', err => {
-        // An aborted command may already have released the mutex. A late event
-        // from its socket must not disconnect the next command's connection.
-        connection.end()
-        reject(new Error(`Connection via Tor control failed: ${err}`))
-      })
-
-      connection.once('data', (data: any) => {
-        if (/250 OK/.test(data.toString())) {
-          resolve()
-        } else {
-          connection.end()
-          const message = `Tor Control port error: ${data.toString() as string}`
-          reject(/^515\b/.test(data.toString()) ? new TorControlAuthenticationError(message) : new Error(message))
-        }
-      })
-
-      this.updateAuthString()
-      connection.write(this.authString)
+  private async _connect(signal?: AbortSignal): Promise<void> {
+    const connection = net.connect({
+      host: this.torControlParams.host,
+      port: this.torControlParams.port,
+      family: 4,
     })
+    this.connection = connection
+    // Keep late socket errors handled after a request has been cancelled. They
+    // belong to this socket and must not disconnect the next command's socket.
+    connection.on('error', () => undefined)
+    try {
+      this.updateAuthString()
+      await this.request(connection, this.authString.trimEnd(), signal)
+    } catch (error) {
+      connection.end()
+      if (error instanceof Error && /^515\b/.test(error.message)) {
+        throw new TorControlAuthenticationError(error.message)
+      }
+      throw error
+    }
   }
 
   private async connect(signal?: AbortSignal): Promise<void> {
@@ -123,10 +116,11 @@ export class TorControl {
       await raceSignal(this.waitForCredentials(), signal)
       try {
         this.logger.debug(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
-        await raceSignal(this._connect(), signal)
+        await this._connect(signal)
         return
       } catch (e) {
         signal?.throwIfAborted()
+        if (this.closed) throw new Error('Tor control is closed')
         // Retrying the same rejected credentials cannot repair authentication.
         // Let the caller recover or a native rewire install fresh credentials.
         if (e instanceof TorControlAuthenticationError) throw e
@@ -146,9 +140,13 @@ export class TorControl {
   }
 
   public _sendCommand(command: string, signal?: AbortSignal): Promise<TorControlResponse> {
+    return this.request(this.connection, command, signal)
+  }
+
+  /** Authentication and commands share framing, reply deadlines and cancellation. */
+  private request(connection: net.Socket | null, command: string, signal?: AbortSignal): Promise<TorControlResponse> {
     return new Promise((resolve, reject) => {
       signal?.throwIfAborted()
-      const connection = this.connection
       const cleanup = () => {
         clearTimeout(connectionTimeout)
         connection?.off('data', onData)
@@ -162,7 +160,7 @@ export class TorControl {
       }
       const connectionTimeout = setTimeout(() => {
         cleanup()
-        reject('Timeout while sending command to Tor')
+        reject(new Error('Timeout while waiting for Tor control reply'))
       }, TOR_CONTROL_REPLY_TIMEOUT_MS)
 
       let buffer = ''
