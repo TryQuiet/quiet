@@ -1,4 +1,3 @@
-import { createOnionIdentity } from '../tor/onion-identity'
 import { jest } from '@jest/globals'
 
 import { webSockets } from './index'
@@ -98,18 +97,8 @@ describe('websocketOverTor', () => {
 
     await torService.init()
 
-    service1 = createOnionIdentity()
-    await torService.waitForHiddenServicePublication({
-      targetPort: port1Target,
-      onionAddress: service1.onionAddress,
-      privKey: service1.privateKey,
-    })
-    service2 = createOnionIdentity()
-    await torService.waitForHiddenServicePublication({
-      targetPort: port2Target,
-      onionAddress: service2.onionAddress,
-      privKey: service2.privateKey,
-    })
+    service1 = await torService.createNewHiddenService({ targetPort: port1Target })
+    service2 = await torService.createNewHiddenService({ targetPort: port2Target })
     abortSignalOpts = {
       addEventListener,
       removeEventListener,

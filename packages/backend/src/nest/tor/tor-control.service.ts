@@ -1,8 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import net from 'net'
 import { Mutex } from 'async-mutex'
-import { raceSignal } from 'race-signal'
-import { setTimeout as delay } from 'timers/promises'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
 import { ConfigOptions } from '../types'
 import {
@@ -17,7 +15,7 @@ import { createLogger } from '../common/logger'
 class TorControlAuthenticationError extends Error {}
 
 const TOR_CONTROL_REPLY_TIMEOUT_MS = 5000
-export const TOR_EVENT_TIMEOUT_MS = 120_000
+const TOR_EVENT_TIMEOUT_MS = 120_000
 
 @Injectable()
 export class TorControl {
@@ -87,51 +85,46 @@ export class TorControl {
 
   private async _connect(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      const connection = net.connect({
+      this.connection = net.connect({
         port: this.torControlParams.port,
         family: 4,
       })
-      this.connection = connection
 
-      connection.once('error', err => {
-        // An aborted command may already have released the mutex. A late event
-        // from its socket must not disconnect the next command's connection.
-        connection.end()
+      this.connection.once('error', err => {
+        this.disconnect()
         reject(new Error(`Connection via Tor control failed: ${err}`))
       })
 
-      connection.once('data', (data: any) => {
+      this.connection.once('data', (data: any) => {
         if (/250 OK/.test(data.toString())) {
           resolve()
         } else {
-          connection.end()
+          this.disconnect()
           const message = `Tor Control port error: ${data.toString() as string}`
           reject(/^515\b/.test(data.toString()) ? new TorControlAuthenticationError(message) : new Error(message))
         }
       })
 
       this.updateAuthString()
-      connection.write(this.authString)
+      this.connection.write(this.authString)
     })
   }
 
-  private async connect(signal?: AbortSignal): Promise<void> {
+  private async connect(): Promise<void> {
     // TODO: We may want to limit the number of connection attempts.
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      signal?.throwIfAborted()
-      await raceSignal(this.waitForCredentials(), signal)
+      await this.waitForCredentials()
       try {
         this.logger.debug(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
-        await raceSignal(this._connect(), signal)
+        await this._connect()
         return
       } catch (e) {
-        signal?.throwIfAborted()
         // Retrying the same rejected credentials cannot repair authentication.
         // Let the caller recover or a native rewire install fresh credentials.
         if (e instanceof TorControlAuthenticationError) throw e
         this.logger.error('Retrying due to error...', e)
-        await delay(500, undefined, { signal })
+        await new Promise(r => setTimeout(r, 500))
       }
     }
   }
@@ -145,76 +138,42 @@ export class TorControl {
     this.connection = null
   }
 
-  public _sendCommand(command: string, signal?: AbortSignal): Promise<TorControlResponse> {
+  public _sendCommand(command: string): Promise<TorControlResponse> {
     return new Promise((resolve, reject) => {
-      signal?.throwIfAborted()
-      const connection = this.connection
-      const cleanup = () => {
-        clearTimeout(connectionTimeout)
-        connection?.off('data', onData)
-        connection?.off('error', onError)
-        connection?.off('close', onClose)
-        signal?.removeEventListener('abort', onAbort)
-      }
-      const onAbort = () => {
-        cleanup()
-        reject(signal?.reason)
-      }
       const connectionTimeout = setTimeout(() => {
-        cleanup()
         reject('Timeout while sending command to Tor')
       }, TOR_CONTROL_REPLY_TIMEOUT_MS)
 
-      let buffer = ''
-      const messages: string[] = []
-      let inDataBlock = false
-      const onData = (data: Buffer) => {
-        buffer += data.toString()
-        const lines = buffer.split(/\r?\n/)
-        buffer = lines.pop() ?? ''
-        for (const line of lines) {
-          messages.push(line)
-          if (inDataBlock) {
-            if (line === '.') inDataBlock = false
-            continue
-          }
-          if (/^\d{3}\+/.test(line)) {
-            inDataBlock = true
-            continue
-          }
-          if (!/^\d{3} /.test(line)) continue
-          cleanup()
-          if (line.startsWith('250 ')) resolve({ code: 250, messages })
-          else reject(new Error(line))
-          return
-        }
-      }
-      const onError = (error: Error) => {
-        cleanup()
-        reject(error)
-      }
-      const onClose = () => onError(new Error('Tor control connection closed before its command reply'))
-      connection?.once('error', onError)
-      connection?.once('close', onClose)
+      this.connection?.on('data', data => {
+        const dataArray = data.toString().split(/\r?\n/)
 
-      signal?.addEventListener('abort', onAbort, { once: true })
-      connection?.on('data', onData)
-      connection?.write(command + '\r\n')
+        if (dataArray[0].startsWith('250')) {
+          resolve({ code: 250, messages: dataArray })
+        } else {
+          clearTimeout(connectionTimeout)
+          this.logger.error('Tor control command failed', {
+            responseCode: dataArray[0].slice(0, 3),
+            messageCount: dataArray.length,
+          })
+          reject(`${dataArray[0]}`)
+        }
+        clearTimeout(connectionTimeout)
+      })
+
+      this.connection?.write(command + '\r\n')
     })
   }
 
-  public async sendCommand(command: string, signal?: AbortSignal): Promise<TorControlResponse> {
+  public async sendCommand(command: string): Promise<TorControlResponse> {
     return this.commandMutex.runExclusive(async () => {
       // Every command path shares this gate, including ADD_ONION during community creation.
-      signal?.throwIfAborted()
-      await raceSignal(this.waitForCredentials(), signal)
+      await this.waitForCredentials()
       const commandName = command.trim().split(/\s+/, 1)[0]?.toUpperCase() || 'UNKNOWN'
       this.logger.debug('Sending Tor command', { command: commandName })
       this.isSending = true
       try {
-        await this.connect(signal)
-        signal?.throwIfAborted()
-        const res = await this._sendCommand(command, signal)
+        await this.connect()
+        const res = await this._sendCommand(command)
         this.logger.debug('Tor command response', {
           command: commandName,
           code: res.code,
@@ -228,41 +187,18 @@ export class TorControl {
     })
   }
 
-  public async getDetachedOnionServices(signal?: AbortSignal): Promise<Set<string>> {
-    const response = await this.sendCommand('GETINFO onions/detached', signal)
-    const addresses = response.messages
-      .map(line => line.replace(/^250[-+]onions\/detached=/, ''))
-      .filter(line => line !== '.' && !/^\d{3}[ +-]/.test(line))
-      .flatMap(line => line.split(/\s+/).filter(Boolean))
-    return new Set(addresses)
-  }
-
   /**
    * Subscribes before sending a command so a fast asynchronous Tor event cannot
    * race the command response. Events received before the response are retained
-   * and matched once the response is available. A null timeout observes Tor's
-   * own publication retries until the owning session's signal is aborted.
+   * and matched once the response is available.
    */
   public async sendCommandAndWaitForEvent(
     command: string,
     eventCode: string,
     matchesEvent: TorControlEventMatcher,
-    timeoutMs: number | null = TOR_EVENT_TIMEOUT_MS,
-    signal?: AbortSignal
+    timeoutMs = TOR_EVENT_TIMEOUT_MS
   ): Promise<TorControlResponse> {
-    return this.waitForEventAfter(() => this.sendCommand(command, signal), eventCode, matchesEvent, timeoutMs, signal)
-  }
-
-  public async waitForEventAfter(
-    operation: () => Promise<TorControlResponse>,
-    eventCode: string,
-    matchesEvent: TorControlEventMatcher,
-    timeoutMs: number | null = TOR_EVENT_TIMEOUT_MS,
-    signal?: AbortSignal
-  ): Promise<TorControlResponse> {
-    if (timeoutMs === null && signal == null) throw new Error('An unbounded Tor event observer requires cancellation')
-    signal?.throwIfAborted()
-    await raceSignal(this.waitForCredentials(), signal)
+    await this.waitForCredentials()
 
     const events: string[] = []
     let notifyEvent: (() => void) | undefined
@@ -288,7 +224,6 @@ export class TorControl {
       notifyEvent = () => {
         if (!response) return
         const matchingEvent = events.find(event => matchesEvent(event, response as TorControlResponse))
-        events.length = 0
         if (!matchingEvent || settled) return
         settled = true
         resolve()
@@ -363,22 +298,18 @@ export class TorControl {
 
     let eventTimeout: NodeJS.Timeout | undefined
     try {
-      await raceSignal(subscriptionPromise, signal)
-      response = await raceSignal(operation(), signal)
+      await subscriptionPromise
+      response = await this.sendCommand(command)
       notifyEvent?.()
-      const completion =
-        timeoutMs === null
-          ? eventPromise
-          : Promise.race([
-              eventPromise,
-              new Promise<void>((_, reject) => {
-                eventTimeout = setTimeout(
-                  () => reject(new Error(`Timeout while waiting for Tor ${eventCode} event`)),
-                  timeoutMs
-                )
-              }),
-            ])
-      await raceSignal(completion, signal)
+      await Promise.race([
+        eventPromise,
+        new Promise<void>((_, reject) => {
+          eventTimeout = setTimeout(
+            () => reject(new Error(`Timeout while waiting for Tor ${eventCode} event`)),
+            timeoutMs
+          )
+        }),
+      ])
       return response
     } finally {
       clearTimeout(setupTimeout)
