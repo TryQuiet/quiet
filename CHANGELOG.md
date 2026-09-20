@@ -9,7 +9,6 @@
 
 ### Fixes
 
-* Generate onion identities locally and start communities without waiting for Tor publication; recover detached registrations after lost replies or control connections without an onion-address collision loop [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
 * Show a member as online when any of their linked devices is connected, rather than only the one device presence used to be read from
 * Keep the backend running when an attachment fails to upload, instead of tearing the node down and leaving the app talking to a dead backend
 * Accept a direct-message descriptor naming a participant this device has not replicated yet, instead of losing that conversation permanently
