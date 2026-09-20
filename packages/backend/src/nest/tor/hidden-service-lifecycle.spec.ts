@@ -3,7 +3,6 @@ import net from 'net'
 import { setTimeout as sleep } from 'timers/promises'
 import { Tor } from './tor.service'
 import { TorControl } from './tor-control.service'
-import { createOnionIdentity } from './onion-identity'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { HiddenServiceData, TorControlAuthType } from './tor.types'
 
@@ -41,10 +40,9 @@ describe('hidden service registration and publication lifecycle', () => {
     observers = new Set()
     loseAddReply = false
     rejectAdd = false
-    const identity = createOnionIdentity()
     service = {
-      onionAddress: identity.onionAddress.replace('.onion', ''),
-      privKey: identity.privateKey,
+      onionAddress: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad',
+      privKey: 'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ==',
       targetPort: 4343,
       virtPort: 80,
     }

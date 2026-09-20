@@ -87,7 +87,6 @@ import { SocketService } from '../socket/socket.service'
 import { StorageService } from '../storage/storage.service'
 import { StorageEvents } from '../storage/storage.types'
 import { Tor } from '../tor/tor.service'
-import { createOnionIdentity } from '../tor/onion-identity'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { type AdmissionResetReceipt, ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
@@ -1017,7 +1016,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           onionAddress: createLocalAddress(this.ports.libp2pHiddenService),
           privateKey: '',
         }
-      : createOnionIdentity()
+      : await this.tor.createOnionIdentity()
     this.logger.info('Getting peer ID')
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {

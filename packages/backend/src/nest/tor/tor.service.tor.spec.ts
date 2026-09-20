@@ -1,4 +1,3 @@
-import { createOnionIdentity } from './onion-identity'
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
@@ -151,7 +150,7 @@ describe('TorControl', () => {
   it('spawns new hidden service', async () => {
     await torService.init()
     await waitForBootstrap()
-    const hiddenService = createOnionIdentity()
+    const hiddenService = await torService.createOnionIdentity()
     await torService.waitForHiddenServicePublication({
       targetPort: 4343,
       onionAddress: hiddenService.onionAddress,
@@ -174,7 +173,7 @@ describe('TorControl', () => {
   it('creates and destroys hidden service', async () => {
     await torService.init()
     await waitForBootstrap()
-    const hiddenService = createOnionIdentity()
+    const hiddenService = await torService.createOnionIdentity()
     await torService.waitForHiddenServicePublication({
       targetPort: 4343,
       onionAddress: hiddenService.onionAddress,

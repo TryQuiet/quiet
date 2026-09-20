@@ -5,7 +5,6 @@ import os from 'os'
 import path from 'path'
 import getPort from 'get-port'
 import { setTimeout as sleep } from 'timers/promises'
-import { createOnionIdentity } from './onion-identity'
 import { Tor } from './tor.service'
 import { TorControl } from './tor-control.service'
 import { HiddenServiceData, TorControlAuthType } from './tor.types'
@@ -41,6 +40,8 @@ describe('onion identities and registration with offline Tor', () => {
         String(port),
         '--SocksPort',
         '0',
+        '--CookieAuthentication',
+        '1',
         '--DisableNetwork',
         '1',
         '--HashedControlPassword',
@@ -74,8 +75,9 @@ describe('onion identities and registration with offline Tor', () => {
     tor.bootstrapped = true
   })
 
-  beforeEach(() => {
-    const identity = createOnionIdentity()
+  beforeEach(async () => {
+    const identity = await tor.createOnionIdentity()
+    tor.bootstrapped = true
     service = {
       onionAddress: identity.onionAddress.replace('.onion', ''),
       privKey: identity.privateKey,
@@ -101,7 +103,82 @@ describe('onion identities and registration with offline Tor', () => {
     fs.rmSync(directory, { force: true, recursive: true })
   })
 
-  it('accepts a locally generated expanded key and reports the exact derived onion address', async () => {
+  it('generates distinct identities at bootstrap 0 and immediately reuses their keys without collisions', async () => {
+    tor.bootstrapped = false
+    const identities = new Set<string>()
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const identity = await tor.createOnionIdentity()
+      expect(identity.onionAddress).toMatch(/^[a-z2-7]{56}\.onion$/)
+      expect(Buffer.from(identity.privateKey.split(':')[1], 'base64')).toHaveLength(64)
+      identities.add(identity.onionAddress)
+      // No polling, sleeps, or retries between generating and reusing the key.
+      const accepted = await control.sendCommand(`ADD_ONION ${identity.privateKey} Flags=Detach Port=80,127.0.0.1:4343`)
+      expect(accepted.messages).toContain(`250-ServiceID=${identity.onionAddress.replace('.onion', '')}`)
+    }
+    expect(identities.size).toBe(10)
+    const bootstrap = await control.sendCommand('GETINFO status/bootstrap-phase')
+    expect(bootstrap.messages.join('\n')).toMatch(/PROGRESS=0\b/)
+    expect(tor['hiddenServices'].size).toBe(0)
+    expect(tor['publishedHiddenServices'].size).toBe(0)
+  })
+
+  it('releases a temporary identity even when its command reply is lost', async () => {
+    const original = control._sendCommand.bind(control)
+    let privateKey!: string
+    let serviceId!: string
+    jest.spyOn(control, '_sendCommand').mockImplementationOnce(async (command, signal) => {
+      const response = await original(command, signal)
+      privateKey = response.messages.find(line => line.startsWith('250-PrivateKey='))!.slice(15)
+      serviceId = response.messages.find(line => line.startsWith('250-ServiceID='))!.slice(14)
+      throw new Error('Simulated lost key-generation reply')
+    })
+    await expect(tor.createOnionIdentity()).rejects.toThrow('Simulated lost key-generation reply')
+    const accepted = await control.sendCommand(`ADD_ONION ${privateKey} Flags=Detach Port=80,127.0.0.1:4343`)
+    expect(accepted.messages).toContain(`250-ServiceID=${serviceId}`)
+  })
+
+  it('waits for native cookie credentials but never waits for network bootstrap or publication', async () => {
+    tor.bootstrapped = false
+    control.updateConnectionParams({
+      ...control.torControlParams,
+      auth: { type: TorControlAuthType.COOKIE, value: '' },
+    })
+    let finished = false
+    const identity = tor.createOnionIdentity().then(result => {
+      finished = true
+      return result
+    })
+    try {
+      await sleep(50)
+      expect(finished).toBe(false)
+      expect(control.connection).toBeNull()
+    } finally {
+      tor.rewireNativeTor({
+        controlPort: control.torControlParams.port,
+        httpTunnelPort: 0,
+        authCookie: fs.readFileSync(path.join(directory, 'control_auth_cookie')).toString('hex'),
+      })
+    }
+    try {
+      expect((await identity).onionAddress).toMatch(/^[a-z2-7]{56}\.onion$/)
+      expect(tor.bootstrapped).toBe(false)
+      expect(tor['publishedHiddenServices'].size).toBe(0)
+      expect(await control.getDetachedOnionServices()).toEqual(new Set())
+    } finally {
+      tor['stopBootstrapWatcher']()
+    }
+  })
+
+  it('still registers an existing app-generated identity without changing its address', async () => {
+    // Captured from the previous generator with the RFC 8032 test-vector seed.
+    // Existing persisted identities must remain usable after switching generators.
+    const accepted = await control.sendCommand(
+      'ADD_ONION ED25519-V3:MHyDhk8oM8tCei7xwAoBPP3/J2jZgMCjpSDwBpBN6U+bTwr+KAt0aneGhOdUQlAgV7dHOgPwj5b1o46Sh+Afjw== Flags=Detach Port=80,127.0.0.1:4343'
+    )
+    expect(accepted.messages).toContain('250-ServiceID=25njqamcweflpvkl73j4szahhihoc4xt3ktcgjnpaingr5yhkenl5sid')
+  })
+
+  it('reuses a Tor-generated key and reports the exact same onion address', async () => {
     await tor.registerHiddenService(service)
     await until(() => tor['registeredHiddenServices'].has(service.onionAddress))
     expect(await control.getDetachedOnionServices()).toEqual(new Set([service.onionAddress]))

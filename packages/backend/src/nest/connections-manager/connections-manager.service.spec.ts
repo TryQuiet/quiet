@@ -133,6 +133,9 @@ describe('ConnectionsManagerService', () => {
     userIdentity = await factory.create('Identity', {
       communityId: community.id,
     })
+    jest
+      .spyOn(connectionsManagerService['tor'], 'createOnionIdentity')
+      .mockResolvedValue(userIdentity.networkInfo.hiddenService)
     await sigChainService.saveChain(chain.teamId!)
     await sigChainService.deleteChain(chain.teamId!, false)
     quietDir = await module.resolve(QUIET_DIR)
@@ -293,17 +296,20 @@ describe('ConnectionsManagerService', () => {
     }
   })
 
-  it('creates an identity without Tor credentials, control I/O, or descriptor publication', async () => {
-    const control = connectionsManagerService['tor']['torControl']
-    const command = jest.spyOn(control, 'sendCommand').mockRejectedValue(new Error('Tor is unavailable'))
+  it('uses the identity returned by the shared Tor service', async () => {
     const network = await connectionsManagerService.getNetworkInfo()
-    expect(network.hiddenService.onionAddress).toMatch(/^[a-z2-7]{56}\.onion$/)
-    expect(network.hiddenService.privateKey).toMatch(/^ED25519-V3:/)
-    expect(Buffer.from(network.hiddenService.privateKey.split(':')[1], 'base64')).toHaveLength(64)
-    expect(command).not.toHaveBeenCalled()
+    expect(network.hiddenService).toEqual(userIdentity.networkInfo.hiddenService)
+    expect(connectionsManagerService['tor'].createOnionIdentity).toHaveBeenCalledTimes(1)
   })
 
-  it('creates a durable community and starts its actual storage and libp2p while Tor is unavailable', async () => {
+  it('propagates a local Tor key-generation failure without inventing an identity', async () => {
+    jest
+      .spyOn(connectionsManagerService['tor'], 'createOnionIdentity')
+      .mockRejectedValue(new Error('Tor key generation failed'))
+    await expect(connectionsManagerService.getNetworkInfo()).rejects.toThrow('Tor key generation failed')
+  })
+
+  it('creates a durable community and starts storage and libp2p without waiting for publication', async () => {
     const tor = connectionsManagerService['tor']
     const command = jest.spyOn(tor['torControl'], 'sendCommand').mockRejectedValue(new Error('Tor is unavailable'))
     await connectionsManagerService['generatePorts']()
@@ -322,7 +328,7 @@ describe('ConnectionsManagerService', () => {
     expect(libp2pService.libp2pInstance?.status).toBe('started')
     expect(await localDbService.getCommunity(community.id)).toEqual(created!.community)
     expect(await storageService.getIdentity(community.id)).toEqual(created!.identity)
-    expect(created!.identity.networkInfo.hiddenService.onionAddress).toMatch(/^[a-z2-7]{56}\.onion$/)
+    expect(created!.identity.networkInfo.hiddenService).toEqual(userIdentity.networkInfo.hiddenService)
     expect(tor.bootstrapped).toBe(false)
     expect(tor['registeredHiddenServices'].size).toBe(0)
     expect(tor['publishedHiddenServices'].size).toBe(0)

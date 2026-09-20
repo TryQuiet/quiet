@@ -739,6 +739,26 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.hiddenServiceRetryAttempts.clear()
   }
 
+  /** Ask the local daemon for an identity without waiting for the Tor network. */
+  public async createOnionIdentity(): Promise<{ onionAddress: string; privateKey: string }> {
+    // No Detach: sendCommand closes its connection, so Tor removes this temporary
+    // service even if the reply is lost. The required port mapping is a dummy;
+    // the saved identity is registered with the actual listener during launch.
+    const response = await this.torControl.sendCommand('ADD_ONION NEW:ED25519-V3 Port=80,127.0.0.1:1')
+    const serviceId = response.messages.find(line => line.startsWith('250-ServiceID='))?.slice(14)
+    const privateKey = response.messages.find(line => line.startsWith('250-PrivateKey='))?.slice(15)
+    if (
+      !serviceId ||
+      !/^[a-z2-7]{56}$/.test(serviceId) ||
+      !privateKey ||
+      !/^ED25519-V3:[A-Za-z0-9+/]{86}==$/.test(privateKey)
+    ) {
+      // Do not include the reply: it contains the private key.
+      throw new Error('Tor returned an invalid onion identity')
+    }
+    return { onionAddress: `${serviceId}.onion`, privateKey }
+  }
+
   private recordHiddenService({ onionAddress, virtPort = 80, ...params }: SpawnHiddenServiceParams): HiddenServiceData {
     onionAddress = onionAddress.replace(/\.onion$/, '')
     const current = this.hiddenServices.get(onionAddress)

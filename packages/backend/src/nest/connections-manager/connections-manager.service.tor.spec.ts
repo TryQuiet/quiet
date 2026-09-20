@@ -26,6 +26,8 @@ import { createLogger } from '../common/logger'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
 import { StorageModule } from '../storage/storage.module'
+import { StorageService } from '../storage/storage.service'
+import { ServiceState } from './connections-manager.types'
 
 const logger = createLogger('connectionsManager:test')
 
@@ -126,7 +128,31 @@ afterAll(async () => {
 })
 
 describe('Connections manager', () => {
-  it('creates a valid onion identity before Tor bootstrap without a temporary service', async () => {
+  it('creates and persists a community with actual storage and libp2p while the Tor network is disabled', async () => {
+    await localDbService.deleteCommunity(community.id)
+    await connectionsManagerService['generatePorts']()
+    const created = await connectionsManagerService.createCommunity({
+      id: community.id,
+      name: 'offline community',
+      username: 'offline owner',
+      useServer: false,
+      tosAccepted: true,
+    })
+    const storage = await module.resolve(StorageService)
+    expect(created).toBeDefined()
+    expect(connectionsManagerService['communityState']).toBe(ServiceState.LAUNCHED)
+    expect(storage['initialized']).toBe(true)
+    expect(libp2pService.libp2pInstance?.status).toBe('started')
+    expect(await localDbService.getCommunity(community.id)).toEqual(created!.community)
+    expect(await storage.getIdentity(community.id)).toEqual(created!.identity)
+    expect(created!.identity.networkInfo.hiddenService.onionAddress).toMatch(/^[a-z2-7]{56}\.onion$/)
+    expect(tor.bootstrapped).toBe(false)
+    expect(tor['registeredHiddenServices'].size).toBe(0)
+    expect(tor['publishedHiddenServices'].size).toBe(0)
+    expect(await torControl.getDetachedOnionServices()).toEqual(new Set())
+  })
+
+  it('gets a valid onion identity from Tor before bootstrap and releases the temporary service', async () => {
     const commands = jest.spyOn(torControl, 'sendCommand')
     const network = await connectionsManagerService.getNetworkInfo()
     expect(network.hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
@@ -134,10 +160,12 @@ describe('Connections manager', () => {
     const peerId = peerIdFromString(network.peerId.id)
     expect(isPeerId(peerId)).toBeTruthy()
     expect(tor.bootstrapped).toBe(false)
-    expect(commands.mock.calls.filter(([command]) => /^(ADD|DEL)_ONION\b/.test(command))).toHaveLength(0)
+    expect(commands.mock.calls.filter(([command]) => /^(ADD|DEL)_ONION\b/.test(command))).toEqual([
+      ['ADD_ONION NEW:ED25519-V3 Port=80,127.0.0.1:1'],
+    ])
     expect(await torControl.getDetachedOnionServices()).toEqual(new Set())
 
-    // The locally generated identity must be accepted unchanged by real Tor.
+    // The temporary service must be gone so Tor can reuse the returned key immediately.
     const accepted = await torControl.sendCommand(
       `ADD_ONION ${network.hiddenService.privateKey} Flags=Detach Port=80,127.0.0.1:4343`
     )

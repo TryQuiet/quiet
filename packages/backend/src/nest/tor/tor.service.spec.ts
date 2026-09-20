@@ -77,6 +77,18 @@ describe('Tor native session rewiring', () => {
     await torService.waitForHiddenServicePublication({ targetPort: 4343, privKey, onionAddress })
   }
 
+  it.each([
+    ['250 OK'],
+    [`250-ServiceID=${'a'.repeat(56)}`, '250 OK'],
+    [`250-ServiceID=${'a'.repeat(56)}`, '250-PrivateKey=RSA1024:private-key-sentinel', '250 OK'],
+    ['250-ServiceID=invalid', `250-PrivateKey=ED25519-V3:${'a'.repeat(86)}==`, '250 OK'],
+  ])('rejects an incomplete or invalid Tor identity without exposing the reply: %#', async (...messages) => {
+    const { torControl, torService } = createTorService()
+    jest.spyOn(torControl, 'sendCommand').mockResolvedValue({ code: 250, messages })
+    await expect(torService.createOnionIdentity()).rejects.toThrow(/^Tor returned an invalid onion identity$/)
+    expect(torService['hiddenServices'].size).toBe(0)
+  })
+
   it.each([false, true])(
     'does not gate registration or client readiness on publication (bootstrapped=%s)',
     async ready => {
