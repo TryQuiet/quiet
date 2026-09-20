@@ -8,7 +8,7 @@ import { SocketActions, SocketEvents, SupportedPlatform } from '@quiet/types'
 import { Inject, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
-import { TorControl } from './tor-control.service'
+import { TorControl, TOR_EVENT_TIMEOUT_MS } from './tor-control.service'
 import {
   type BootstrapStallState,
   type BootstrapStatus,
@@ -52,11 +52,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private readonly logger = createLogger(Tor.name)
   // All hidden-service maps use the onion service ID without the .onion suffix.
   private hiddenServices: Map<string, HiddenServiceData> = new Map()
-  private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
-  private hiddenServiceInitializationPromises: Map<string, Promise<string>> = new Map()
+  private publishedHiddenServices: Map<string, HiddenServiceData> = new Map()
+  private hiddenServicePublicationPromises: Map<string, Promise<string>> = new Map()
   private hiddenServiceRetryTimers: Map<string, NodeJS.Timeout> = new Map()
   private hiddenServiceGeneration = 0
-  private markBootstrappedPromise: Promise<void> | undefined
+  private readonly registeredHiddenServices = new Map<string, HiddenServiceData>()
+  private readonly hiddenServiceControllers = new Map<string, AbortController>()
+  private readonly hiddenServiceRetryAttempts = new Map<string, number>()
   private bootstrapRestartPromise: Promise<void> | undefined
   private bootstrapStallState: BootstrapStallState | undefined
   private bootstrapGeneration = 0
@@ -89,6 +91,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     if (this.initTimeout) clearTimeout(this.initTimeout)
     if (this.interval) clearInterval(this.interval)
     this.hiddenServiceGeneration += 1
+    this.cancelHiddenServiceWork('Tor service closed')
     for (const retryTimer of this.hiddenServiceRetryTimers.values()) clearTimeout(retryTimer)
     this.hiddenServiceRetryTimers.clear()
     if (this.process) {
@@ -148,13 +151,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public resetBootstrapState() {
     this.bootstrapGeneration += 1
     this.hiddenServiceGeneration += 1
+    this.cancelHiddenServiceWork('Tor session replaced')
+    this.registeredHiddenServices.clear()
     for (const retryTimer of this.hiddenServiceRetryTimers.values()) clearTimeout(retryTimer)
     this.hiddenServiceRetryTimers.clear()
     this.bootstrapped = false
     this.bootstrapStallState = undefined
-    this.initializedHiddenServices = new Map()
-    this.hiddenServiceInitializationPromises.clear()
-    this.markBootstrappedPromise = undefined
+    this.publishedHiddenServices = new Map()
+    this.hiddenServicePublicationPromises.clear()
     if (this.initTimeout) {
       clearTimeout(this.initTimeout)
       this.initTimeout = undefined
@@ -165,46 +169,18 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private async markBootstrapped(bootstrapGeneration: number) {
     if (bootstrapGeneration !== this.bootstrapGeneration) return
     if (this.bootstrapped) return
-    if (this.markBootstrappedPromise) {
-      await this.markBootstrappedPromise
-      return
+    // Tor can make outbound connections now. Publishing our own address enables
+    // inbound connections and must not hold the dial queue or admission deadline.
+    this.logger.info('Bootstrapping finished!')
+    this.bootstrapped = true
+    this.bootstrapStallState = undefined
+    if (this.initTimeout) {
+      clearTimeout(this.initTimeout)
+      this.initTimeout = undefined
     }
-
-    const markBootstrappedPromise = (async () => {
-      await this.spawnHiddenServices(bootstrapGeneration)
-      // The generation can change while hidden-service initialization is in flight,
-      // so revalidate before publishing bootstrapped state for the session.
-      if (bootstrapGeneration !== this.bootstrapGeneration) {
-        this.logger.warn('Bootstrap generation changed while marking Tor bootstrapped, skipping stale event')
-        return
-      }
-
-      // A registration can arrive while publication is in flight. Drain until
-      // every desired service belongs to this Tor session, then mark the
-      // session ready synchronously so later registrations publish directly.
-      while ([...this.hiddenServices.keys()].some(onionAddress => !this.initializedHiddenServices.has(onionAddress))) {
-        await this.spawnHiddenServices(bootstrapGeneration)
-        if (bootstrapGeneration !== this.bootstrapGeneration) return
-      }
-      this.logger.info('Bootstrapping finished!')
-      this.bootstrapped = true
-      this.bootstrapStallState = undefined
-      if (this.initTimeout) {
-        clearTimeout(this.initTimeout)
-        this.initTimeout = undefined
-      }
-      this.emit('bootstrapped')
-      this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
-    })()
-
-    this.markBootstrappedPromise = markBootstrappedPromise
-    try {
-      await markBootstrappedPromise
-    } finally {
-      if (this.markBootstrappedPromise === markBootstrappedPromise) {
-        this.markBootstrappedPromise = undefined
-      }
-    }
+    this.emit('bootstrapped')
+    this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+    void this.spawnHiddenServices(bootstrapGeneration)
   }
 
   public startBootstrapWatcher(intervalMs = 2500) {
@@ -599,9 +575,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public resetHiddenServices() {
     this.hiddenServiceGeneration += 1
+    this.cancelHiddenServiceWork('Community hidden services reset')
+    this.registeredHiddenServices.clear()
     this.hiddenServices = new Map()
-    this.initializedHiddenServices = new Map()
-    this.hiddenServiceInitializationPromises.clear()
+    this.publishedHiddenServices = new Map()
+    this.hiddenServicePublicationPromises.clear()
     for (const retryTimer of this.hiddenServiceRetryTimers.values()) clearTimeout(retryTimer)
     this.hiddenServiceRetryTimers.clear()
   }
@@ -742,16 +720,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
         // const bootstrappedRegexp = /Loaded enough directory info to build circuits/
         if (!bootstrappedRegexp.test(data.toString())) return
 
-        // Publishing is started here so a descriptor goes up as early as Tor allows,
-        // but it is deliberately not awaited. A Tor at 0% bootstrap cannot upload a
-        // descriptor yet, so awaiting the HS_DESC wait held this promise - and with
-        // it init() - for the whole event timeout, and the next restart tore the
-        // control connection down underneath it. That rejection surfaced in a
-        // listener nobody awaits, which the backend turns into a full app shutdown.
-        // Publication is retried by the bootstrap watcher and by registerHiddenService.
-        void this.spawnHiddenServices().catch(e => {
-          this.logger.error('Failed to publish hidden services for the new Tor session', e)
-        })
+        // The bootstrap watcher publishes registered services once Tor can use
+        // the network. Process startup itself never waits for publication.
         resolve()
       })
     })
@@ -760,167 +730,193 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public async spawnHiddenServices(bootstrapGeneration = this.bootstrapGeneration) {
     if (bootstrapGeneration !== this.bootstrapGeneration) return
     this.logger.info(`Spawning hidden service(s) (count: ${this.hiddenServices.size})`)
-    for (const el of Array.from(this.hiddenServices.values())) {
-      await this.spawnHiddenService(el)
-      if (bootstrapGeneration !== this.bootstrapGeneration) return
-    }
+    await Promise.all(Array.from(this.hiddenServices.values(), service => this.publishRegisteredHiddenService(service)))
   }
 
-  /**
-   * Records a hidden service before Tor is available. The bootstrap watcher
-   * publishes all registered services when the current Tor session is ready.
-   */
-  public async registerHiddenService({
-    targetPort,
-    privKey,
-    onionAddress,
-    virtPort,
-  }: HiddenServiceData): Promise<void> {
-    onionAddress = onionAddress.replace(/\.onion$/, '')
-    this.hiddenServices.set(onionAddress, { targetPort, privKey, virtPort, onionAddress })
-
-    if (this.bootstrapped) {
-      const registrationGeneration = this.hiddenServiceGeneration
-      try {
-        await this.spawnHiddenService({ targetPort, privKey, virtPort, onionAddress })
-      } catch (error) {
-        this.logger.error('Failed to publish registered hidden service', error)
-        if (
-          registrationGeneration === this.hiddenServiceGeneration &&
-          !this.hiddenServiceRetryTimers.has(onionAddress)
-        ) {
-          const retryTimer = setTimeout(() => {
-            this.hiddenServiceRetryTimers.delete(onionAddress)
-            if (registrationGeneration !== this.hiddenServiceGeneration) return
-            const registered = this.hiddenServices.get(onionAddress)
-            if (!registered || !this.bootstrapped) return
-            void this.registerHiddenService(registered).catch(retryError => {
-              this.logger.error('Failed to retry registered hidden-service publication', retryError)
-            })
-          }, 2500)
-          this.hiddenServiceRetryTimers.set(onionAddress, retryTimer)
-        }
-        throw error
-      }
-    }
+  private cancelHiddenServiceWork(reason: string) {
+    for (const controller of this.hiddenServiceControllers.values()) controller.abort(new Error(reason))
+    this.hiddenServiceControllers.clear()
+    this.hiddenServiceRetryAttempts.clear()
   }
 
-  public async spawnHiddenService({
-    targetPort,
-    privKey,
-    onionAddress,
-    virtPort = 80,
-  }: SpawnHiddenServiceParams): Promise<string> {
-    onionAddress = onionAddress.replace(/\.onion$/, '')
-    this.logger.info(`Spawning Tor hidden service`)
-    const initializedHiddenService = this.initializedHiddenServices.get(onionAddress)
-    if (initializedHiddenService) {
-      this.logger.warn(`Hidden service already initialized for ${initializedHiddenService.onionAddress}`)
-      return `${initializedHiddenService.onionAddress}.onion`
+  /** Ask the local daemon for an identity without waiting for the Tor network. */
+  public async createOnionIdentity(): Promise<{ onionAddress: string; privateKey: string }> {
+    // No Detach: sendCommand closes its connection, so Tor removes this temporary
+    // service even if the reply is lost. The required port mapping is a dummy;
+    // the saved identity is registered with the actual listener during launch.
+    const response = await this.torControl.sendCommand('ADD_ONION NEW:ED25519-V3 Port=80,127.0.0.1:1')
+    const serviceId = response.messages.find(line => line.startsWith('250-ServiceID='))?.slice(14)
+    const privateKey = response.messages.find(line => line.startsWith('250-PrivateKey='))?.slice(15)
+    if (
+      !serviceId ||
+      !/^[a-z2-7]{56}$/.test(serviceId) ||
+      !privateKey ||
+      !/^ED25519-V3:[A-Za-z0-9+/]{86}==$/.test(privateKey)
+    ) {
+      // Do not include the reply: it contains the private key.
+      throw new Error('Tor returned an invalid onion identity')
     }
+    return { onionAddress: `${serviceId}.onion`, privateKey }
+  }
 
-    const initializationInFlight = this.hiddenServiceInitializationPromises.get(onionAddress)
-    if (initializationInFlight) return await initializationInFlight
+  private recordHiddenService({ onionAddress, virtPort = 80, ...params }: SpawnHiddenServiceParams): HiddenServiceData {
+    onionAddress = onionAddress.replace(/\.onion$/, '')
+    const current = this.hiddenServices.get(onionAddress)
+    if (
+      current?.privKey === params.privKey &&
+      current.targetPort === params.targetPort &&
+      current.virtPort === virtPort
+    ) {
+      return current
+    }
+    // Replacing a port/key invalidates both the observer and Tor's old binding.
+    this.forgetHiddenService(onionAddress)
+    const service = { ...params, onionAddress, virtPort }
+    this.hiddenServices.set(onionAddress, service)
+    return service
+  }
 
-    const hiddenServiceGeneration = this.hiddenServiceGeneration
-    const initializationPromise = (async () => {
-      const status = await this.torControl.sendCommandAndWaitForEvent(
-        `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`,
-        HIDDEN_SERVICE_DESCRIPTOR_EVENT,
-        event => this.isHiddenServiceDescriptorUploaded(event, onionAddress)
+  private forgetHiddenService(onionAddress: string) {
+    this.hiddenServices.delete(onionAddress)
+    this.hiddenServiceControllers.get(onionAddress)?.abort(new Error('Hidden service registration replaced'))
+    this.hiddenServiceControllers.delete(onionAddress)
+    this.hiddenServicePublicationPromises.delete(onionAddress)
+    this.registeredHiddenServices.delete(onionAddress)
+    this.publishedHiddenServices.delete(onionAddress)
+    const retryTimer = this.hiddenServiceRetryTimers.get(onionAddress)
+    if (retryTimer) clearTimeout(retryTimer)
+    this.hiddenServiceRetryTimers.delete(onionAddress)
+    this.hiddenServiceRetryAttempts.delete(onionAddress)
+  }
+
+  /** All community launches record intent; network publication never gates them. */
+  public async registerHiddenService(params: HiddenServiceData): Promise<void> {
+    const service = this.recordHiddenService(params)
+    if (this.bootstrapped) void this.publishRegisteredHiddenService(service)
+  }
+
+  private async publishRegisteredHiddenService(service: HiddenServiceData): Promise<void> {
+    const { onionAddress } = service
+    const inFlight = this.hiddenServicePublicationPromises.get(onionAddress)
+    if (inFlight)
+      return await inFlight.then(
+        () => undefined,
+        () => undefined
       )
-      if (hiddenServiceGeneration !== this.hiddenServiceGeneration) {
+    if (this.publishedHiddenServices.has(onionAddress)) return
+    const generation = this.hiddenServiceGeneration
+    const slowPublication = setTimeout(() => {
+      this.logger.warn('Hidden service descriptor publication is slow; outbound connections remain available')
+    }, TOR_EVENT_TIMEOUT_MS)
+    try {
+      await this.waitForHiddenServicePublication(service, null)
+      this.hiddenServiceRetryAttempts.delete(onionAddress)
+    } catch (error) {
+      if (generation !== this.hiddenServiceGeneration || this.hiddenServices.get(onionAddress) !== service) return
+      const message = error instanceof Error ? error.message : String(error)
+      // Invalid commands/keys need a new configuration. Connectivity failures
+      // remain recoverable, with capped backoff instead of a rapid collision loop.
+      if (/^5\d\d\b/.test(message) && !/^550 Onion address collision\b/.test(message)) {
+        this.logger.error('Hidden service registration rejected by Tor; waiting for corrected configuration', error)
+        return
+      }
+      if (!this.hiddenServiceRetryTimers.has(onionAddress)) {
+        const attempt = this.hiddenServiceRetryAttempts.get(onionAddress) ?? 0
+        const retryMs = Math.min(2500 * 2 ** Math.min(attempt, 4), 30_000)
+        this.hiddenServiceRetryAttempts.set(onionAddress, attempt + 1)
+        this.logger.warn('Hidden service observation interrupted; retrying', { retryMs, error })
+        const retryTimer = setTimeout(() => {
+          this.hiddenServiceRetryTimers.delete(onionAddress)
+          if (generation !== this.hiddenServiceGeneration || this.hiddenServices.get(onionAddress) !== service) return
+          if (this.bootstrapped) void this.publishRegisteredHiddenService(service)
+        }, retryMs)
+        this.hiddenServiceRetryTimers.set(onionAddress, retryTimer)
+      }
+    } finally {
+      clearTimeout(slowPublication)
+    }
+  }
+
+  private async ensureHiddenServiceRegistered(service: HiddenServiceData, signal: AbortSignal) {
+    const { onionAddress, privKey, targetPort, virtPort } = service
+    const detached = await this.torControl.getDetachedOnionServices(signal)
+    signal.throwIfAborted()
+    if (detached.has(onionAddress)) {
+      if (this.registeredHiddenServices.get(onionAddress) === service) {
+        // Losing the event socket doesn't undo ADD_ONION. Resume observing the
+        // same service; Tor continues its publication attempts independently.
+        return { code: 250, messages: [`250-ServiceID=${onionAddress}`, '250 OK'] }
+      }
+      // A lost ADD reply, old application version, or replaced Tor session may
+      // leave a detached service with an unknown target port. Rebind it once.
+      await this.torControl.sendCommand(`DEL_ONION ${onionAddress}`, signal)
+      signal.throwIfAborted()
+    }
+    this.registeredHiddenServices.delete(onionAddress)
+    this.publishedHiddenServices.delete(onionAddress)
+    const response = await this.torControl.sendCommand(
+      `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`,
+      signal
+    )
+    signal.throwIfAborted()
+    const acceptedAddress = response.messages.find(line => line.startsWith('250-ServiceID='))?.slice(14)
+    if (acceptedAddress !== onionAddress)
+      throw new Error('Registered hidden-service address does not match the requested address')
+    // Record acceptance before waiting for any descriptor event.
+    this.registeredHiddenServices.set(onionAddress, service)
+    return response
+  }
+
+  /** Explicit reachability wait for callers that need it (e.g. Tor integration tests). */
+  public async waitForHiddenServicePublication(
+    params: SpawnHiddenServiceParams,
+    publicationTimeoutMs?: number | null
+  ): Promise<string> {
+    const service = this.recordHiddenService(params)
+    const { onionAddress } = service
+    if (this.publishedHiddenServices.has(onionAddress)) return `${onionAddress}.onion`
+    const inFlight = this.hiddenServicePublicationPromises.get(onionAddress)
+    if (inFlight) return await inFlight
+
+    const generation = this.hiddenServiceGeneration
+    const controller = new AbortController()
+    this.hiddenServiceControllers.set(onionAddress, controller)
+    const initializationPromise = (async () => {
+      await this.torControl.waitForEventAfter(
+        () => this.ensureHiddenServiceRegistered(service, controller.signal),
+        HIDDEN_SERVICE_DESCRIPTOR_EVENT,
+        event => this.isHiddenServiceDescriptorUploaded(event, onionAddress),
+        publicationTimeoutMs,
+        controller.signal
+      )
+      if (generation !== this.hiddenServiceGeneration || this.hiddenServices.get(onionAddress) !== service) {
         throw new Error('Tor generation changed while initializing hidden service')
       }
-
-      const publishedAddress = status.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
-      if (publishedAddress !== onionAddress) {
-        throw new Error('Published hidden-service address does not match the requested address')
-      }
       this.logger.debug(`Published hidden service descriptor for onion address ${onionAddress}`)
-
-      const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
-      this.hiddenServices.set(onionAddress, hiddenService)
-      this.initializedHiddenServices.set(onionAddress, hiddenService)
+      this.publishedHiddenServices.set(onionAddress, service)
       return `${onionAddress}.onion`
     })()
-
-    this.hiddenServiceInitializationPromises.set(onionAddress, initializationPromise)
+    this.hiddenServicePublicationPromises.set(onionAddress, initializationPromise)
     try {
       return await initializationPromise
     } finally {
-      if (this.hiddenServiceInitializationPromises.get(onionAddress) === initializationPromise) {
-        this.hiddenServiceInitializationPromises.delete(onionAddress)
+      if (this.hiddenServicePublicationPromises.get(onionAddress) === initializationPromise) {
+        this.hiddenServicePublicationPromises.delete(onionAddress)
+        this.hiddenServiceControllers.delete(onionAddress)
       }
     }
   }
 
   public async destroyHiddenService(serviceId: string): Promise<boolean> {
     serviceId = serviceId.replace(/\.onion$/, '')
+    // Cancel before DEL_ONION so a late upload cannot resurrect the registration.
+    this.forgetHiddenService(serviceId)
     try {
       await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
-      this.hiddenServices.delete(serviceId)
-      this.initializedHiddenServices.delete(serviceId)
-      const retryTimer = this.hiddenServiceRetryTimers.get(serviceId)
-      if (retryTimer) clearTimeout(retryTimer)
-      this.hiddenServiceRetryTimers.delete(serviceId)
       return true
     } catch (err) {
-      // A timeout can mean Tor removed the service but its response was lost.
-      this.initializedHiddenServices.delete(serviceId)
       this.logger.error(`Couldn't destroy hidden service ${serviceId}`, err)
       return false
-    }
-  }
-
-  /**
-   * Create a hidden service and return its address and key.
-   *
-   * Tor mints the keypair itself and answers ADD_ONION with it immediately, with no
-   * network involved. Publishing the descriptor is the part that needs a bootstrapped
-   * Tor, so `waitForDescriptorUpload` is what a caller that only wants the key can
-   * turn off: it then returns as soon as Tor has answered, whatever bootstrap is
-   * doing. A caller that needs the service to be reachable leaves it on.
-   */
-  public async createNewHiddenService({
-    targetPort,
-    virtPort = 80,
-    waitForDescriptorUpload = true,
-  }: {
-    targetPort: number
-    virtPort?: number
-    waitForDescriptorUpload?: boolean
-  }): Promise<{ onionAddress: string; privateKey: string }> {
-    const hiddenServiceGeneration = this.hiddenServiceGeneration
-    const command = `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-    const status = waitForDescriptorUpload
-      ? await this.torControl.sendCommandAndWaitForEvent(
-          command,
-          HIDDEN_SERVICE_DESCRIPTOR_EVENT,
-          (event, response) => {
-            const generatedAddress = response.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
-            return this.isHiddenServiceDescriptorUploaded(event, generatedAddress)
-          }
-        )
-      : await this.torControl.sendCommand(command)
-
-    if (hiddenServiceGeneration !== this.hiddenServiceGeneration) {
-      throw new Error('Tor generation changed while creating hidden service')
-    }
-    const onionAddress = status.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
-    const privateKey = status.messages[1].replace('250-PrivateKey=', '')
-    const hiddenService: HiddenServiceData = { targetPort, privKey: privateKey, virtPort, onionAddress }
-    this.hiddenServices.set(onionAddress, hiddenService)
-    // Only a published descriptor makes the service reachable, so an unpublished one
-    // is not recorded as initialized: it would otherwise be skipped when the session
-    // spawns its hidden services.
-    if (waitForDescriptorUpload) {
-      this.initializedHiddenServices.set(onionAddress, hiddenService)
-    }
-
-    return {
-      onionAddress: `${onionAddress}.onion`,
-      privateKey,
     }
   }
 

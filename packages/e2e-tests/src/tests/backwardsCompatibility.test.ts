@@ -11,7 +11,7 @@ import {
   Settings,
   Sidebar,
 } from '../selectors'
-import { MessageIds } from '../types'
+import { DEFAULT_ADD_NEW_CHANNEL_OPTIONS, MessageIds, TestAddNewChannelButtonId } from '../types'
 import { BuildSetup, downloadInstaller, sleep } from '../utils'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, compatibilityBaseline } from '../compatibilityBaseline'
 import { createLogger } from '../logger'
@@ -33,6 +33,7 @@ describe('Backwards Compatibility', () => {
   let dataDir: string
   let settings: Settings
   let baselineVersion: string
+  let baselineChannelButtonId: TestAddNewChannelButtonId
 
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
@@ -47,6 +48,8 @@ describe('Backwards Compatibility', () => {
     const currentVersion = new BuildSetup({ fileName: currentFileName }).getVersionFromEnv()
     const baseline = compatibilityBaseline(currentVersion, currentFileName, downloadInstaller)
     baselineVersion = baseline.version
+    // The released 11.0.0 predates the new sidebar; same-build restarts use current selectors.
+    baselineChannelButtonId = baseline.isPlaceholder ? TestAddNewChannelButtonId.DMS : TestAddNewChannelButtonId.PRE_DMS
     logger.info(baseline.isPlaceholder ? 'Same-build restart placeholder' : 'Released-version upgrade', {
       baseline: baselineVersion,
       current: currentVersion,
@@ -153,7 +156,10 @@ describe('Backwards Compatibility', () => {
     describe('Second channel', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
-        await sidebar.addNewChannel(newChannelName)
+        await sidebar.addNewChannel(newChannelName, {
+          ...DEFAULT_ADD_NEW_CHANNEL_OPTIONS,
+          buttonId: baselineChannelButtonId,
+        })
         await sidebar.switchChannel(newChannelName)
         const channels = await sidebar.getChannelList()
         expect(channels.length).toEqual(2)
