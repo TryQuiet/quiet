@@ -84,7 +84,7 @@ export const AppHome: FC<AppHomeProps> = ({
                 <Typography fontSize={14} fontWeight={'medium'} color={'gray70'}>
                   Channels
                 </Typography>
-                {canCreateChannel && <PlusButton onPress={createChannel} />}
+                {canCreateChannel && <PlusButton onPress={createChannel} accessibilityLabel={'Create channel'} />}
               </View>
               <FlatList
                 data={channelTiles}
@@ -109,7 +109,7 @@ export const AppHome: FC<AppHomeProps> = ({
                 <Typography fontSize={14} fontWeight={'medium'} color={'gray70'}>
                   Direct Messages
                 </Typography>
-                <PlusButton onPress={createDm} />
+                <PlusButton onPress={createDm} accessibilityLabel={'New direct message'} />
               </View>
               <FlatList
                 data={dmTiles}

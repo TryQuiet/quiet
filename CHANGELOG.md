@@ -16,6 +16,7 @@
 * Show an error when a chosen profile photo is too large, and compress PNG profile photos as JPEG ones already were [#2953](https://github.com/TryQuiet/quiet/issues/2953)
 * Offer Members or Add members in the channel menu according to whether you administer the channel, and resolve a public channel's membership as the whole community
 * Give the mobile appbar, send and attachment controls a full-size touch target, and stop the new-message block pushing the message field off screen
+* Give the mobile Channels and Direct Messages `+` buttons a full-size touch target, and let a screen reader announce what each one does [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Build the desktop community menu from design rows in a single drawer, so choosing a tab goes deeper instead of sliding one panel out and another in
 * Match the desktop direct-message composer, channel header and message list to the designs, including recipient names that were invisible on the dark theme
 * Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
