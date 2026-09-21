@@ -12,13 +12,16 @@ jobs:
       E2E: true
       IS_CI: true
       LOCAL_TRANSPORT: "true"
-      E2E_LOG_DIR: ${{ runner.temp }}/quiet-e2e-logs
 
     steps:
       - uses: actions/checkout@v5
         with:
           submodules: recursive
           token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
+
+      - name: Set diagnostic directory
+        shell: pwsh
+        run: '"E2E_LOG_DIR=$env:RUNNER_TEMP/quiet-e2e-logs" >> $env:GITHUB_ENV'
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
