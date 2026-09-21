@@ -26,7 +26,6 @@ import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
 import { ChannelType, DisplayableMessage, EMPTY_CHANNEL_ID } from '@quiet/types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
-import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
 import UploadFilesPreviewsComponent from '../FileAttachmentPreview/FileAttachmentPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
@@ -91,7 +90,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   imagePreview,
   setImagePreview,
   openImagePreview,
-  updateFileAttachments,
   updateImageAttachments,
   removeFilePreview,
   uploadedFiles,
@@ -450,27 +448,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     setMessageInput(value)
   }, [])
 
-  const openAttachments = async () => {
-    let response: DocumentPickerResponse[]
-    try {
-      response = await DocumentPicker.pick({
-        presentationStyle: 'fullScreen',
-        type: [types.allFiles],
-        allowMultiSelection: true,
-        copyTo: 'cachesDirectory',
-      })
-    } catch (e) {
-      if (!DocumentPicker.isCancel(e)) {
-        logger.error(`Could not attach files: ${e.message}`)
-        // TODO: display error message to user
-      }
-      return
-    }
-    if (response) {
-      updateFileAttachments(response)
-    }
-  }
-
   const openImages = async () => {
     launchImageLibrary(
       {
@@ -585,7 +562,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }, [channel, newChat, me])
 
   return (
-    <View style={styles.container} testID={`chat_${channelName}`}>
+    <View style={styles.container} testID={`chat_${channelName}`} collapsable={false}>
       <Appbar
         title={headerTitle}
         titleComponent={
@@ -604,12 +581,14 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         contextMenu={contextMenu}
       />
       <KeyboardAvoidingView
-        behavior={Platform.select({ ios: 'padding', android: 'height' })}
-        keyboardVerticalOffset={Platform.select({ ios: insets.bottom, android: insets.bottom })}
-        // Keep this enabled on Android: the app targets SDK 35, where the platform forces
-        // edge-to-edge and windowSoftInputMode=adjustResize no longer resizes the window, so
-        // without KeyboardAvoidingView the keyboard simply covers the compose row.
-        enabled={Platform.select({ ios: true, android: true })}
+        // Android 15+ enforces edge-to-edge when targeting API 35+, so
+        // adjustResize no longer shrinks the window and the composer ends up
+        // under the keyboard. "padding" measures the actual overlap between this
+        // view and the keyboard, so it adds nothing when the window did resize
+        // (older Android) and avoids the cached-height problem of "height"
+        // after Activity recreation.
+        behavior='padding'
+        keyboardVerticalOffset={insets.bottom}
         style={styles.keyboardAvoidingView}
       >
         {newChat && (
@@ -659,6 +638,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
               )}
               <FlatList
                 ref={flatListRef}
+                testID={`messages_${channel?.name}`}
                 style={styles.list}
                 inverted
                 data={listData}

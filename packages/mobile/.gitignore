@@ -89,3 +89,8 @@ buck-out/
 # Detox
 /e2e/artifacts
 /e2e/visual-regressions/local
+
+# x86_64 emulator inputs, fetched per checkout (docs/android-x86_64-emulator.md)
+/android/app/libnode/bin/x86_64/
+/android/app/src/main/jniLibs/x86_64/
+/nodejs-assets/deps/android/x64/

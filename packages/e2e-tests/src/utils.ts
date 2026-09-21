@@ -29,6 +29,9 @@ export interface BuildSetupInit {
   dataDir?: string
   fileName?: string
   chromeDriverPath?: string
+  // Run a checkout's packaged app directly, without replacing /Applications/Quiet.app.
+  binaryPath?: string
+  qssEndpoint?: string
   username?: string
   /** Per-client overrides inherited by ChromeDriver and the packaged app. */
   environment?: NodeJS.ProcessEnv
@@ -47,6 +50,8 @@ export class BuildSetup {
   private fileName?: string
   private chromeDriverPath?: string
   private networkNamespace?: NetworkNamespace
+  private binaryPath?: string
+  private qssEndpoint: string
   private environment: NodeJS.ProcessEnv
   private _seleniumLogger: logging.Logger
 
@@ -57,6 +62,8 @@ export class BuildSetup {
     dataDir,
     fileName,
     chromeDriverPath,
+    binaryPath,
+    qssEndpoint,
     username,
     environment = {},
     networkNamespace,
@@ -68,6 +75,8 @@ export class BuildSetup {
     this.dataDir = dataDir
     this.fileName = fileName
     this.chromeDriverPath = chromeDriverPath
+    this.binaryPath = binaryPath
+    this.qssEndpoint = qssEndpoint ?? environment.QSS_ENDPOINT ?? process.env.QSS_ENDPOINT ?? 'ws://127.0.0.1:3003'
     this.environment = { ...environment }
     this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
@@ -98,6 +107,7 @@ export class BuildSetup {
   }
 
   private getBinaryLocation(): string {
+    if (this.binaryPath) return this.binaryPath
     let binaryPath: string | undefined = undefined
     switch (process.platform) {
       case 'linux':
@@ -205,7 +215,7 @@ export class BuildSetup {
       env = {
         ...env,
         QSS_ALLOWED: true,
-        QSS_ENDPOINT: this.environment.QSS_ENDPOINT ?? process.env.QSS_ENDPOINT ?? 'ws://127.0.0.1:3003',
+        QSS_ENDPOINT: this.qssEndpoint,
       }
     } else {
       env = {
@@ -442,9 +452,10 @@ export class BuildSetup {
 }
 
 export const tailQssLogs = (): ChildProcess => {
-  const child = spawn('docker compose', ['-f', 'docker-compose.quiet.yml', 'logs', '-f', 'qss-quiet'], {
-    cwd: path.join('../../3rd-party/qss/app/'),
-    shell: true,
+  const composeArgs = process.env.COMPOSE_FILE ? [] : ['-f', 'docker-compose.quiet.yml']
+  const child = spawn('docker', ['compose', ...composeArgs, 'logs', '-f', 'qss-quiet'], {
+    cwd: path.resolve(__dirname, '../../../3rd-party/qss/app'),
+    shell: false,
   })
 
   child.stdout!.on('data', (data: Buffer) => {

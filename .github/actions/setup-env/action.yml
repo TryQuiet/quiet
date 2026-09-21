@@ -20,6 +20,10 @@ runs:
       with:
         node-version-file: ".nvmrc"
 
+    - name: Install pinned npm
+      run: npm install --global "npm@$(node -p 'require("./package.json").engines.npm')"
+      shell: bash
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v6
       if: runner.os == 'macOS'

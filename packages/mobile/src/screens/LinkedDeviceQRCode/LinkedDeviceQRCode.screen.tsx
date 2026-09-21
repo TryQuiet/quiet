@@ -17,7 +17,7 @@ const logger = createLogger('linkedDeviceQrCode:screen')
 
 export const LinkedDeviceQRCodeScreen: FC = () => {
   const dispatch = useDispatch()
-  const svgRef = useRef<SVG>()
+  const svgRef = useRef<SVG | undefined>(undefined)
   const handledCurrentOpen = useRef(false)
   const showedLinkCurrentOpen = useRef(false)
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)

@@ -171,7 +171,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
     : null
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} testID={`userMessages-${representativeMessage.nickname}`} collapsable={false}>
       <View
         style={{
           flexDirection: 'row',
@@ -247,7 +247,13 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
               }
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
-                <View style={outerDivStyle} key={index}>
+                <View
+                  style={outerDivStyle}
+                  key={index}
+                  // Fabric must keep this message's content under its own status marker.
+                  collapsable={false}
+                  testID={pendingMessages?.[message.id] !== undefined ? 'message-pending' : 'message-stored'}
+                >
                   {renderMessage(message, pending)}
                 </View>
               )

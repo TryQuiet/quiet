@@ -69,6 +69,9 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
+      - name: Verify final AppImage packaging
+        run: QUIET_TEST_APPIMAGE="$GITHUB_WORKSPACE/packages/desktop/dist/$FILE_NAME" npm run test:packaged-appimage --prefix packages/desktop
+
       - name: Run one client test
         timeout-minutes: 15
         run: cd packages/e2e-tests && npm run test oneClient.test.ts oneClient.appImage.test.ts

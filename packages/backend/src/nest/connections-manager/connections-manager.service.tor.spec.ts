@@ -2,6 +2,7 @@ import { jest } from '@jest/globals'
 
 import { type DirResult } from 'tmp'
 import crypto from 'crypto'
+import net from 'net'
 import { isPeerId } from '@libp2p/interface'
 import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
 import { createPeerId, createTmpDir, generateLibp2pPSK, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
@@ -26,6 +27,8 @@ import { createLogger } from '../common/logger'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
 import { StorageModule } from '../storage/storage.module'
+import { StorageService } from '../storage/storage.service'
+import { ServiceState } from './connections-manager.types'
 
 const logger = createLogger('connectionsManager:test')
 
@@ -95,6 +98,7 @@ beforeEach(async () => {
   libp2pService = connectionsManagerService.libp2pService
   peerId = await createPeerId()
   tor = await module.resolve(Tor)
+  tor.extraTorProcessParams['--DisableNetwork'] = '1'
   await tor.init()
 
   const torPassword = crypto.randomBytes(16).toString('hex')
@@ -125,21 +129,92 @@ afterAll(async () => {
 })
 
 describe('Connections manager', () => {
-  it('creates network', async () => {
-    logger.info('creates network')
-    const spyOnDestroyHiddenService = jest.spyOn(tor, 'destroyHiddenService')
-    // Creating a hidden service now resolves only after Tor confirms descriptor
-    // publication. Cold CI runners can need longer than the suite's default
-    // timeout to bootstrap the public Tor network.
-    if (!tor.bootstrapped) {
-      await new Promise<void>(resolve => tor.once('bootstrapped', resolve))
+  it('creates and persists a community with actual storage and libp2p while the Tor network is disabled', async () => {
+    await localDbService.deleteCommunity(community.id)
+    await connectionsManagerService['generatePorts']()
+    const created = await connectionsManagerService.createCommunity({
+      id: community.id,
+      name: 'offline community',
+      username: 'offline owner',
+      useServer: false,
+      tosAccepted: true,
+    })
+    const storage = await module.resolve(StorageService)
+    expect(created).toBeDefined()
+    expect(connectionsManagerService['communityState']).toBe(ServiceState.LAUNCHED)
+    expect(storage['initialized']).toBe(true)
+    expect(libp2pService.libp2pInstance?.status).toBe('started')
+    expect(await localDbService.getCommunity(community.id)).toEqual(created!.community)
+    expect(await storage.getIdentity(community.id)).toEqual(created!.identity)
+    expect(created!.identity.networkInfo.hiddenService.onionAddress).toMatch(/^[a-z2-7]{56}\.onion$/)
+    expect(tor.bootstrapped).toBe(false)
+    expect(tor['registeredHiddenServices'].size).toBe(0)
+    expect(tor['publishedHiddenServices'].size).toBe(0)
+    expect(await torControl.getDetachedOnionServices()).toEqual(new Set())
+  })
+
+  it('releases failed creation and allows retry after a silent native Tor endpoint recovers', async () => {
+    await localDbService.deleteCommunity(community.id)
+    await connectionsManagerService['generatePorts']()
+    const sockets = new Set<net.Socket>()
+    const silentNativeTor = net.createServer(socket => {
+      sockets.add(socket)
+      socket.on('error', () => undefined)
+      socket.once('close', () => sockets.delete(socket))
+      socket.resume()
+    })
+    await new Promise<void>(resolve => silentNativeTor.listen(0, '127.0.0.1', resolve))
+    const workingParams = torControl.torControlParams
+    const payload = {
+      id: community.id,
+      name: 'recovered community',
+      username: 'recovered owner',
+      useServer: false,
+      tosAccepted: true,
     }
-    await connectionsManagerService.init()
+    try {
+      torControl.updateConnectionParams({
+        ...workingParams,
+        host: '127.0.0.1',
+        port: (silentNativeTor.address() as net.AddressInfo).port,
+      })
+      await expect(connectionsManagerService.createCommunity(payload)).rejects.toThrow(
+        'Timeout while waiting for Tor control to become available'
+      )
+      expect(await localDbService.getCommunity(community.id)).toBeUndefined()
+
+      torControl.updateConnectionParams(workingParams)
+      const created = await connectionsManagerService.createCommunity(payload)
+      expect(created?.community.name).toBe(payload.name)
+      expect(await localDbService.getCommunity(community.id)).toEqual(created!.community)
+      expect(libp2pService.libp2pInstance?.status).toBe('started')
+      expect(tor.bootstrapped).toBe(false)
+    } finally {
+      torControl.updateConnectionParams(workingParams)
+      for (const socket of sockets) socket.destroy()
+      await new Promise<void>(resolve => silentNativeTor.close(() => resolve()))
+    }
+  })
+
+  it('gets a valid onion identity from Tor before bootstrap and releases the temporary service', async () => {
+    const commands = jest.spyOn(torControl, 'sendCommand')
     const network = await connectionsManagerService.getNetworkInfo()
     expect(network.hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
     expect(network.hiddenService.privateKey).toHaveLength(99)
     const peerId = peerIdFromString(network.peerId.id)
     expect(isPeerId(peerId)).toBeTruthy()
-    expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
-  }, 300_000)
+    expect(tor.bootstrapped).toBe(false)
+    expect(commands.mock.calls.filter(([command]) => /^(ADD|DEL)_ONION\b/.test(command))).toEqual([
+      ['ADD_ONION NEW:ED25519-V3 Port=80,127.0.0.1:1'],
+    ])
+    expect(await torControl.getDetachedOnionServices()).toEqual(new Set())
+
+    // The temporary service must be gone so Tor can reuse the returned key immediately.
+    const accepted = await torControl.sendCommand(
+      `ADD_ONION ${network.hiddenService.privateKey} Flags=Detach Port=80,127.0.0.1:4343`
+    )
+    const serviceId = network.hiddenService.onionAddress.replace(/\.onion$/, '')
+    expect(accepted.messages).toContain(`250-ServiceID=${serviceId}`)
+    await torControl.sendCommand(`DEL_ONION ${serviceId}`)
+  })
 })

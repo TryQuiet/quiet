@@ -133,6 +133,9 @@ describe('ConnectionsManagerService', () => {
     userIdentity = await factory.create('Identity', {
       communityId: community.id,
     })
+    jest
+      .spyOn(connectionsManagerService['tor'], 'createOnionIdentity')
+      .mockResolvedValue(userIdentity.networkInfo.hiddenService)
     await sigChainService.saveChain(chain.teamId!)
     await sigChainService.deleteChain(chain.teamId!, false)
     quietDir = await module.resolve(QUIET_DIR)
@@ -232,7 +235,7 @@ describe('ConnectionsManagerService', () => {
         dataServer: 43_003,
         httpTunnelPort: 43_004,
       }
-      const createHiddenServiceSpy = jest.spyOn(connectionsManagerService['tor'], 'createNewHiddenService')
+      const createHiddenServiceSpy = jest.spyOn(connectionsManagerService['tor']['torControl'], 'sendCommand')
       const spawnHiddenServiceSpy = jest.spyOn(connectionsManagerService, 'spawnTorHiddenService')
 
       const network = await connectionsManagerService.getNetworkInfo()
@@ -293,35 +296,43 @@ describe('ConnectionsManagerService', () => {
     }
   })
 
-  // The address and key are all this step wants; the service is destroyed immediately
-  // and the one that carries traffic is created at launch. Waiting for a descriptor
-  // upload here put community creation behind a fully bootstrapped Tor (#3565).
-  it('mints the identity onion address without waiting for a descriptor upload', async () => {
-    const onionAddress = 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion'
-    const createHiddenServiceSpy = jest
-      .spyOn(connectionsManagerService['tor'], 'createNewHiddenService')
-      .mockResolvedValue({ onionAddress, privateKey: 'ED25519-V3:key' })
-    const destroyHiddenServiceSpy = jest
-      .spyOn(connectionsManagerService['tor'], 'destroyHiddenService')
-      .mockResolvedValue(true)
-    connectionsManagerService['ports'] = {
-      socksPort: 43_000,
-      libp2pHiddenService: 43_001,
-      controlPort: 43_002,
-      dataServer: 43_003,
-      httpTunnelPort: 43_004,
-    }
+  it('uses the identity returned by the shared Tor service', async () => {
+    const network = await connectionsManagerService.getNetworkInfo()
+    expect(network.hiddenService).toEqual(userIdentity.networkInfo.hiddenService)
+    expect(connectionsManagerService['tor'].createOnionIdentity).toHaveBeenCalledTimes(1)
+  })
 
-    try {
-      const network = await connectionsManagerService.getNetworkInfo()
+  it('propagates a local Tor key-generation failure without inventing an identity', async () => {
+    jest
+      .spyOn(connectionsManagerService['tor'], 'createOnionIdentity')
+      .mockRejectedValue(new Error('Tor key generation failed'))
+    await expect(connectionsManagerService.getNetworkInfo()).rejects.toThrow('Tor key generation failed')
+  })
 
-      expect(createHiddenServiceSpy).toHaveBeenCalledWith(expect.objectContaining({ waitForDescriptorUpload: false }))
-      expect(destroyHiddenServiceSpy).toHaveBeenCalledWith(onionAddress.split('.')[0])
-      expect(network.hiddenService.onionAddress).toBe(onionAddress)
-    } finally {
-      createHiddenServiceSpy.mockRestore()
-      destroyHiddenServiceSpy.mockRestore()
-    }
+  it('creates a durable community and starts storage and libp2p without waiting for publication', async () => {
+    const tor = connectionsManagerService['tor']
+    const command = jest.spyOn(tor['torControl'], 'sendCommand').mockRejectedValue(new Error('Tor is unavailable'))
+    await connectionsManagerService['generatePorts']()
+
+    const created = await connectionsManagerService.createCommunity({
+      id: community.id,
+      name: 'offline community',
+      username: 'offline owner',
+      useServer: false,
+      tosAccepted: true,
+    })
+
+    expect(created).toBeDefined()
+    expect(connectionsManagerService['communityState']).toBe(ServiceState.LAUNCHED)
+    expect(storageService['initialized']).toBe(true)
+    expect(libp2pService.libp2pInstance?.status).toBe('started')
+    expect(await localDbService.getCommunity(community.id)).toEqual(created!.community)
+    expect(await storageService.getIdentity(community.id)).toEqual(created!.identity)
+    expect(created!.identity.networkInfo.hiddenService).toEqual(userIdentity.networkInfo.hiddenService)
+    expect(tor.bootstrapped).toBe(false)
+    expect(tor['registeredHiddenServices'].size).toBe(0)
+    expect(tor['publishedHiddenServices'].size).toBe(0)
+    expect(command).not.toHaveBeenCalled()
   })
 
   it('launches community on init if its data exists in local db', async () => {
@@ -447,40 +458,31 @@ describe('ConnectionsManagerService', () => {
     }
   )
 
-  it('waits for the stored onion address to be published before returning it', async () => {
-    connectionsManagerService['ports'] = {
-      socksPort: 9001,
-      libp2pHiddenService: 9002,
-      controlPort: 9003,
-      dataServer: 9004,
-      httpTunnelPort: 9005,
-    }
+  it('registers the stored onion without waiting for publication', async () => {
+    connectionsManagerService['ports'] = { libp2pHiddenService: 9002 } as any
     const tor = connectionsManagerService['tor']
-    let resolvePublication!: () => void
-    const publication = new Promise<void>(resolve => {
+    tor.bootstrapped = true
+    let resolvePublication!: (address: string) => void
+    const publication = new Promise<string>(resolve => {
       resolvePublication = resolve
     })
-    const registerHiddenService = jest.spyOn(tor, 'registerHiddenService').mockReturnValue(publication)
-    const spawnHiddenService = jest.spyOn(tor, 'spawnHiddenService')
-
-    const onionAddress = connectionsManagerService.spawnTorHiddenService(community.id, userIdentity)
-    let resolved = false
-    void onionAddress.then(() => {
-      resolved = true
-    })
-    await Promise.resolve()
-
-    expect(resolved).toBe(false)
-    expect(registerHiddenService).toHaveBeenCalledWith({
-      targetPort: 9002,
-      privKey: userIdentity.networkInfo.hiddenService.privateKey,
-      onionAddress: userIdentity.networkInfo.hiddenService.onionAddress,
-      virtPort: 80,
-    })
-    expect(spawnHiddenService).not.toHaveBeenCalled()
-
-    resolvePublication()
-    await expect(onionAddress).resolves.toBe(userIdentity.networkInfo.hiddenService.onionAddress)
+    const spawnHiddenService = jest.spyOn(tor, 'waitForHiddenServicePublication').mockReturnValue(publication)
+    try {
+      await expect(connectionsManagerService.spawnTorHiddenService(community.id, userIdentity)).resolves.toBe(
+        userIdentity.networkInfo.hiddenService.onionAddress
+      )
+      expect(spawnHiddenService).toHaveBeenCalledWith(
+        {
+          targetPort: 9002,
+          privKey: userIdentity.networkInfo.hiddenService.privateKey,
+          onionAddress: userIdentity.networkInfo.hiddenService.onionAddress.replace(/\.onion$/, ''),
+          virtPort: 80,
+        },
+        null
+      )
+    } finally {
+      resolvePublication(userIdentity.networkInfo.hiddenService.onionAddress)
+    }
   })
 
   it('community is only launched once', async () => {
@@ -603,7 +605,7 @@ describe('ConnectionsManagerService', () => {
     { admission: AdmissionKind.DEVICE, isPendingDeviceAdmission: true, transport: AdmissionTransport.P2P },
     { admission: AdmissionKind.MEMBER, isPendingDeviceAdmission: false, transport: AdmissionTransport.P2P },
   ])(
-    'launches after $admission admission through $transport without waiting for optional QSS',
+    'launches after $admission admission through $transport while onion publication and optional QSS are pending',
     async ({ admission, isPendingDeviceAdmission, transport }) => {
       const qssEndpoint = 'https://qss.example.test'
       const baseInviteData = admission === AdmissionKind.MEMBER ? validInvitationDatav5[0] : deviceInvitationData
@@ -638,7 +640,13 @@ describe('ConnectionsManagerService', () => {
       })
 
       jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
-      jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+      const tor = connectionsManagerService['tor']
+      tor.bootstrapped = true
+      let finishPublication!: (address: string) => void
+      const publication = new Promise<string>(resolve => {
+        finishPublication = resolve
+      })
+      jest.spyOn(tor, 'waitForHiddenServicePublication').mockReturnValue(publication)
       const libp2pCreateSpy = jest
         .spyOn(connectionsManagerService.libp2pService, 'createInstance')
         .mockResolvedValue(undefined as any)
@@ -694,6 +702,7 @@ describe('ConnectionsManagerService', () => {
         }
       } finally {
         connectionsManagerService['communityLifecycle']?.revoke(new Error('test launch finished'))
+        finishPublication(userIdentity.networkInfo.hiddenService.onionAddress)
         finishQss()
       }
 
