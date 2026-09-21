@@ -185,7 +185,9 @@ describe('Timed-out P2P admission recovery', () => {
     await guestJoinModal.typeCommunityInviteLink('invalid-invite')
     await guestJoinModal.submit()
 
-    await expectJoinCommunityError(guest, 'Please check your invitation code and try again', 'invalid-invite')
+    // Copy comes from InviteLinkErrors.InvalidCode in
+    // packages/desktop/src/renderer/forms/fieldsErrors.ts, which e2e-tests cannot import.
+    await expectJoinCommunityError(guest, 'Please check your invite link and try again', 'invalid-invite')
 
     await releaseApps(guest)
   })
