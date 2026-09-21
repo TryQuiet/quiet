@@ -6,3 +6,4 @@ Quiet/Quiet**
 .env
 src/tests/resources/bigTestFile.bin
 network-artifacts/
+back-compat-artifacts/
