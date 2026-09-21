@@ -20,14 +20,13 @@ const enabled = process.env.QUIET_NETWORK_PLAYERS !== undefined
 const suite = enabled ? describe : describe.skip
 const script = path.resolve(__dirname, '../../scripts/network/run.py')
 const deadline = 300_000
-const coldStart = process.env.QUIET_NETWORK_COLD_START !== 'false'
 
 function shape(player: number, profile: 'fast' | 'slow') {
   execFileSync('python3', [script, '--profile', profile, '--player', String(player)], { stdio: 'inherit' })
 }
 
 // This suite deliberately never retries a scenario: a recovered retry can hide the race.
-suite(`Two players over Tor with asymmetric internet connections (cold start: ${coldStart})`, () => {
+suite('Two players over Tor with asymmetric internet connections', () => {
   let apps: App[] = []
   let uploadDirectory: string | undefined
   afterEach(async () => {
@@ -67,7 +66,7 @@ suite(`Two players over Tor with asymmetric internet connections (cold start: ${
       expect(process.platform).toBe('linux')
       expect(process.env.LOCAL_TRANSPORT).toBe('false')
       const networks: NetworkNamespace[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
-      shape(slowPlayer, coldStart ? 'slow' : 'fast')
+      shape(slowPlayer, 'slow') // Includes cold Tor bootstrap and onion-service publication.
       apps = networks.map(
         (networkNamespace, index) =>
           new App({
@@ -78,11 +77,6 @@ suite(`Two players over Tor with asymmetric internet connections (cold start: ${
       )
       const [owner, guest] = apps
       await owner.open()
-      if (!coldStart) {
-        await guest.open()
-        await Promise.all(apps.map(app => app.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)))
-        shape(slowPlayer, 'slow')
-      }
       const join = new JoinCommunityModal(owner.driver)
       expect(await join.isReady()).toBeTruthy()
       await join.switchToCreateCommunity()
@@ -95,7 +89,7 @@ suite(`Two players over Tor with asymmetric internet connections (cold start: ${
       expect(await register.isReady()).toBeTruthy()
       await register.typeUsername('owner')
       await register.submit()
-      if (coldStart) await owner.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
+      await owner.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
       await new JoiningLoadingPanel(owner.driver).waitForJoinToComplete(15_000, deadline)
       const ownerChannel = new Channel(owner.driver, 'general')
       expect(await ownerChannel.isReady()).toBeTruthy()
@@ -107,7 +101,7 @@ suite(`Two players over Tor with asymmetric internet connections (cold start: ${
       const invitation = await (await settings.invitationLink()).getText()
       await settings.closeTabThenModal()
 
-      if (coldStart) await guest.open()
+      await guest.open()
       const guestJoin = new JoinCommunityModal(guest.driver)
       expect(await guestJoin.isReady()).toBeTruthy()
       await guestJoin.typeCommunityInviteLink(invitation)
@@ -117,7 +111,7 @@ suite(`Two players over Tor with asymmetric internet connections (cold start: ${
       expect(await guestRegister.isReady()).toBeTruthy()
       await guestRegister.typeUsername('guest')
       await guestRegister.submit()
-      if (coldStart) await guest.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
+      await guest.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
       await new JoiningLoadingPanel(guest.driver).waitForJoinToComplete(15_000, deadline)
       // Resetting admission also hides the panel; it must not count as a successful join.
       expect(guest.buildSetup.hasProcessOutput('Emitting event: resetAdmission')).toBe(false)

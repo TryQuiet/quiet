@@ -105,12 +105,6 @@ DISPLAY=:99 FILE_NAME=Quiet-VERSION.AppImage python3 scripts/network/run.py -- \
   npm run test -- networkNamespace.test.ts networkConditions.test.ts
 ```
 
-To apply throttling after both clients have bootstrapped Tor, set
-`QUIET_NETWORK_COLD_START=false` on the wrapper command. This exercises slow
-community creation/joining, history, attachments, and recovery while separating
-those phases from Tor directory downloads. Cold startup remains the default;
-startup and post-bootstrap failures can be investigated independently.
-
 To verify only the kernel shaping, without an app or display:
 
 ```sh
