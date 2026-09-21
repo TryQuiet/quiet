@@ -68,7 +68,7 @@ describe('User', () => {
   // })
 
   test('sees channels list', async () => {
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(LONG)
   })
@@ -85,7 +85,7 @@ describe('User', () => {
     await device.launchApp({ newInstance: false })
 
     // User comes back to channel list
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })
@@ -111,12 +111,20 @@ describe('User', () => {
     if (!ios) await device.pressBack()
   })
 
-  test('navigates back to channels list', async () => {
-    await press(element(by.id('appbar_action_item')))
+  test('navigates back to channels list using Android system Back', async () => {
+    // Exercise ChannelScreen's hardwareBackPress handler. Tapping the appbar would
+    // miss Android 16 dropping legacy back events when targeting API 36.
+    if (ios) {
+      await press(element(by.id('appbar_action_item')))
+    } else {
+      await device.pressBack()
+    }
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
+
+    await expect(element(by.id('chat_general'))).not.toBeVisible()
   })
 
   test('opens context menu', async () => {
@@ -160,7 +168,7 @@ describe('User', () => {
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -184,7 +192,7 @@ describe('User', () => {
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -266,7 +274,7 @@ describe('User', () => {
   })
 
   test('should see channels list again', async () => {
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(LONG)
   })
@@ -282,7 +290,7 @@ describe('User', () => {
     await device.launchApp({ newInstance: false })
 
     // User comes back to channel list
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })

@@ -125,8 +125,11 @@ describe('UsernameRegistration', () => {
                     {
                       "alignItems": "center",
                       "backgroundColor": "#ffffff",
+                      "borderBottomLeftRadius": 16,
+                      "borderBottomRightRadius": 16,
                       "borderColor": "#B3B3B3",
-                      "borderRadius": 16,
+                      "borderTopLeftRadius": 16,
+                      "borderTopRightRadius": 16,
                       "borderWidth": 1,
                       "flexDirection": "row",
                       "flexGrow": 1,
@@ -155,16 +158,14 @@ describe('UsernameRegistration', () => {
                   placeholder="Enter a username"
                   placeholderTextColor="#7F7F7F"
                   style={
-                    [
-                      {
-                        "flexBasis": 0,
-                        "flexGrow": 1,
-                        "flexShrink": 1,
-                        "paddingBottom": 12,
-                        "paddingTop": 12,
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "flexBasis": 0,
+                      "flexGrow": 1,
+                      "flexShrink": 1,
+                      "paddingBottom": 12,
+                      "paddingTop": 12,
+                      "textAlignVertical": "center",
+                    }
                   }
                   testID="input"
                 />
@@ -239,15 +240,13 @@ describe('UsernameRegistration', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  [
-                    {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  {
+                    "color": "#ffffff",
+                    "fontFamily": "Rubik-Regular",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  }
                 }
                 verticalTextAlign="center"
               >

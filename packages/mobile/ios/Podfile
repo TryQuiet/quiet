@@ -1,6 +1,9 @@
 MIN_SUPPORTED_IPHONEOS_VERSION = '17.1'
 
 require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../scripts/react-native-app-plists'
+
+QuietReactNativeAppPlists.install!(NewArchitectureHelper)
 
 platform :ios, MIN_SUPPORTED_IPHONEOS_VERSION
 use_modular_headers!
@@ -29,7 +32,11 @@ target 'Quiet' do
   pod 'FirebaseMessaging', '~> 10.20.0'
   pod 'FirebaseInstallations', '~> 10.20.0'
 
-  use_react_native!(:path => config[:reactNativePath],)
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :hermes_enabled => true
+  )
 
 
 
@@ -48,7 +55,7 @@ target 'Quiet' do
 
 
   post_install do |installer|
-    react_native_post_install(installer)
+    react_native_post_install(installer, config[:reactNativePath])
 
     # Workaround for https://github.com/TryQuiet/quiet/issues/3452
     #

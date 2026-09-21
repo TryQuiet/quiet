@@ -185,7 +185,6 @@ describe('Chat component list data', () => {
     userProfiles: {},
     pendingMessages: {},
     messages: mockMessages,
-    updateFileAttachments: jest.fn(),
     updateImageAttachments: jest.fn(),
     removeFilePreview: jest.fn(),
     createOrSetDmChannelAction: jest.fn(),
