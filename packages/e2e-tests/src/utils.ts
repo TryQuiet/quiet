@@ -648,17 +648,20 @@ export const logAndReturnError = (error: string | Error): Error => {
   return err
 }
 
-export const createArbitraryFile = (filePath: string, sizeBytes: number) => {
-  const stream = fs.createWriteStream(filePath)
-  const maxChunkSize = 1048576 // 1MB
+export const createArbitraryFile = (filePath: string, sizeBytes: number): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const stream = fs.createWriteStream(filePath)
+    stream.once('error', reject)
+    stream.once('finish', resolve)
+    const maxChunkSize = 1048576 // 1MB
 
-  let remainingSize = sizeBytes
+    let remainingSize = sizeBytes
 
-  while (remainingSize > 0) {
-    const chunkSize = Math.min(maxChunkSize, remainingSize)
-    stream.write(crypto.randomBytes(chunkSize))
-    remainingSize -= chunkSize
-  }
+    while (remainingSize > 0) {
+      const chunkSize = Math.min(maxChunkSize, remainingSize)
+      stream.write(crypto.randomBytes(chunkSize))
+      remainingSize -= chunkSize
+    }
 
-  stream.end()
-}
+    stream.end()
+  })

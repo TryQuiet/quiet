@@ -86,7 +86,7 @@ jobs:
 
       - name: Run multiple clients test (private channels)
         timeout-minutes: 25
-        run: cd packages/e2e-tests && npm run test multipleClients.privateChannels.test.ts
+        run: cd packages/e2e-tests && npm run test multipleClients.privateChannels.test.ts arbitraryFile.test.ts fileDownload.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
         timeout-minutes: 25
