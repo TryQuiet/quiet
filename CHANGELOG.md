@@ -45,6 +45,10 @@
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
 
+### Chores
+
+* Run the backend unit tests in a recycled worker rather than one long-lived process, so the heap no longer climbs across the suites until it reaches the 4 GB ceiling and fails the job with "Ineffective mark-compacts near heap limit" [#3634](https://github.com/TryQuiet/quiet/issues/3634)
+
 ## [11.0.1]
 
 ### Fixes

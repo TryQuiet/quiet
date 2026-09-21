@@ -31,7 +31,7 @@
     "pretest": "npm run applyPatches:gossipsub",
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" DEBUG=ipfs:*,backend:* jest --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\" --forceExit",
     "pretest-ci": "npm run applyPatches:gossipsub",
-    "test-ci": "cross-env NODE_OPTIONS=\"--experimental-vm-modules --max-old-space-size=4096\" jest --runInBand --colors --ci --silent --verbose --forceExit --testPathIgnorePatterns \"/node_modules/\" --testPathIgnorePatterns \"/dist/\" --testPathIgnorePatterns \"src/nest/.*\\.tor\\.spec\\.(t|j)s$\" --testPathIgnorePatterns \"src/nest/ipfs-file-manager/big-files\\.long\\.spec\\.ts$\"",
+    "test-ci": "cross-env NODE_OPTIONS=\"--experimental-vm-modules --max-old-space-size=4096\" jest --maxWorkers=1 --workerIdleMemoryLimit=1500MB --colors --ci --silent --verbose --forceExit --testPathIgnorePatterns \"/node_modules/\" --testPathIgnorePatterns \"/dist/\" --testPathIgnorePatterns \"src/nest/.*\\.tor\\.spec\\.(t|j)s$\" --testPathIgnorePatterns \"src/nest/ipfs-file-manager/big-files\\.long\\.spec\\.ts$\"",
     "test-ci-tor": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand --colors --ci --verbose --forceExit ./src/nest/**/*.tor.spec.ts",
     "test-ci-long-running": "cross-env DEBUG=backend:* NODE_OPTIONS=\"--experimental-vm-modules\" jest --colors --ci --verbose --forceExit ./src/nest/**/*.long.spec.ts",
     "test-connect": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" DEBUG='libp2p:websockets*' jest ./src/nodeTest/* --verbose",
