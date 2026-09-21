@@ -2,6 +2,7 @@
 #include "uv.h"
 #include "rn-bridge.h"
 #include <map>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <string>

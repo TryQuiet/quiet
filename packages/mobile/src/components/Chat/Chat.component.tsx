@@ -562,7 +562,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }, [channel, newChat, me])
 
   return (
-    <View style={styles.container} testID={`chat_${channelName}`}>
+    <View style={styles.container} testID={`chat_${channelName}`} collapsable={false}>
       <Appbar
         title={headerTitle}
         titleComponent={
@@ -638,6 +638,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
               )}
               <FlatList
                 ref={flatListRef}
+                testID={`messages_${channel?.name}`}
                 style={styles.list}
                 inverted
                 data={listData}

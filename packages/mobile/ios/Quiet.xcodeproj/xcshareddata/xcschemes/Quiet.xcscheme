@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "# Type a script or drag a script file from your workspace to insert its path.&#10;echo &quot;.env.staging&quot; &gt; /tmp/envfile&#10;">
+               scriptText = "printf '%s\n' &quot;${ENVFILE:-.env.staging}&quot; &gt; /tmp/envfile&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"

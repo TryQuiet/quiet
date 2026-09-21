@@ -235,3 +235,10 @@ The existing AppImage post-pack hook can reuse a stale extracted tree on a
 repeat build. The fresh validation moved that old output aside before packaging;
 PR #3484 replaces this hook. The earlier QSS multiplayer, physical-platform and
 release-signing evidence is not repeated by these Linux checks.
+
+After New Architecture landed, refreshed again to develop `ea5e49ad1`.
+The merged auth 17e0b5b passes the real Electron legacy/fresh crypto checks;
+all four native runtime groups pass. E2E build/lint and 29 harness checks pass.
+The Chrome fixture now explicitly asks Selenium Manager for installed Chrome's
+driver, ignoring the Electron drivers npm adds to PATH. Twelve real-browser
+settings cases cover that selection, including hidden/empty panel rejection.
