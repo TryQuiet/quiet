@@ -2,11 +2,10 @@ The QSS one-player suite uses the standard iOS app, real native backend, and an 
 
 The test requires a backend acknowledgment for the sent message, parses the visible v5 invitation without logging its secrets, records that exact community’s server sequence before sending, requires a higher QSS sequence afterward, and restarts the app to check the saved community and message. The database inspection returns aggregate counts only; these show QSS activity for the community, not which encrypted message was uploaded. The separate mixed desktop/iOS suite proves message-specific QSS delivery through offline peer retrieval. Existing `starter` and `native-community` suites cover the flow without a server.
 
-Run from `packages/mobile` on an ARM Mac with the existing Detox prerequisites. Prepare the pinned Tor simulator framework as described in [the build recipe](../scripts/tor-ios-simulator/README.md), and prepare a local fixture using [the fixture instructions](../scripts/qss-e2e/README.md). Keep the advertised endpoint `ws://localhost:3003` and the fixture’s QSS server identity `localhost` consistent. The service remains bound to loopback; the test rejects a production fixture, a remote native QSS endpoint, or a build from another environment.
+Run from `packages/mobile` on an ARM Mac with the existing Detox prerequisites. Install the locked pods as described in [the current Tor build instructions](../docs/ios-tor-upgrade.md), and prepare a local fixture using [the fixture instructions](../scripts/qss-e2e/README.md). Keep the advertised endpoint `ws://localhost:3003` and the fixture’s QSS server identity `localhost` consistent. The service remains bound to loopback; the test rejects a production fixture, a remote native QSS endpoint, or a build from another environment.
 
 ```sh
 export DETOX_IOS_ARM64_E2E_QSS_OUTPUT=/tmp/quiet-qss-arm64-validation
-export DETOX_IOS_ARM64_TOR_FRAMEWORK=/tmp/quiet-tor4059-source/build/Build/Products/Release-iphonesimulator/Tor.framework
 export DETOX_IOS_SIMULATOR_ID='<owned simulator UUID>'
 export QUIET_QSS_LOCAL_FIXTURE_OUTPUT='<prepared local fixture output>'
 ./node_modules/.bin/detox build -c ios.sim.e2e.qss
