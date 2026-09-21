@@ -13,7 +13,9 @@ const classes = {
   selected: `${PREFIX}selected`,
   disabled: `${PREFIX}disabled`,
   glyph: `${PREFIX}glyph`,
+  labelGroup: `${PREFIX}labelGroup`,
   label: `${PREFIX}label`,
+  labelInGroup: `${PREFIX}labelInGroup`,
   unread: `${PREFIX}unread`,
 }
 
@@ -81,6 +83,23 @@ const StyledRow = styled(ListItemButton)(({ theme }) => ({
     color: theme.palette.colors.white,
   },
 
+  // An annotated row (a DM with yourself says "you" after the name) keeps the
+  // annotation next to the name rather than at the column's right edge, which
+  // is where the unread badge lives. The label then sizes to its text and the
+  // group does the flexing, so a long name still truncates before the
+  // annotation rather than pushing it out of the row.
+  [`& .${classes.labelGroup}`]: {
+    flex: 1,
+    minWidth: 0,
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 6,
+  },
+
+  [`& .${classes.labelInGroup}`]: {
+    flex: '0 1 auto',
+  },
+
   // Quiet has no unread counts, so the badge alone cannot say how much is
   // unread and cannot be read without colour. The label carries the state too.
   [`& .${classes.unread}`]: {
@@ -95,6 +114,8 @@ export interface SidebarRowProps {
   glyph?: React.ReactNode
   /** Rendered at the row's right edge — normally a `SidebarUnreadBadge`. */
   badge?: React.ReactNode
+  /** Rendered beside the label rather than at the right edge — e.g. a DM row's "you". */
+  annotation?: React.ReactNode
   /** `List item` (26px) or `List item--people` (30px). */
   variant?: 'item' | 'people'
   selected?: boolean
@@ -115,6 +136,7 @@ export const SidebarRow: React.FC<SidebarRowProps> = ({
   label,
   glyph,
   badge,
+  annotation,
   variant = 'item',
   selected = false,
   unread = false,
@@ -143,13 +165,26 @@ export const SidebarRow: React.FC<SidebarRowProps> = ({
       data-testid={testId}
     >
       {glyph !== undefined && <span className={variant === 'people' ? undefined : classes.glyph}>{glyph}</span>}
-      <Typography
-        variant='body2'
-        className={classNames(classes.label, { [classes.unread]: unread })}
-        data-testid={labelTestId}
-      >
-        {label}
-      </Typography>
+      {annotation === undefined ? (
+        <Typography
+          variant='body2'
+          className={classNames(classes.label, { [classes.unread]: unread })}
+          data-testid={labelTestId}
+        >
+          {label}
+        </Typography>
+      ) : (
+        <span className={classes.labelGroup}>
+          <Typography
+            variant='body2'
+            className={classNames(classes.label, classes.labelInGroup, { [classes.unread]: unread })}
+            data-testid={labelTestId}
+          >
+            {label}
+          </Typography>
+          {annotation}
+        </span>
+      )}
       {badge}
     </StyledRow>
   )

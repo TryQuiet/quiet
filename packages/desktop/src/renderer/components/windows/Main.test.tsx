@@ -110,7 +110,7 @@ describe('Main', () => {
                                 data-testid="prominentActionsList"
                               >
                                 <div
-                                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-1k15c8s-MuiButtonBase-root-MuiListItemButton-root"
+                                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-1qtf1b2-MuiButtonBase-root-MuiListItemButton-root"
                                   data-testid="add-members-link"
                                   role="button"
                                   tabindex="0"
@@ -172,7 +172,7 @@ describe('Main', () => {
                                       aria-label="Create new channel"
                                       class="SidebarHeaderaction"
                                       data-mui-internal-clone-element="true"
-                                      data-testid="addChannelButton"
+                                      data-testid="sidebar-button-createChannel"
                                       type="button"
                                     >
                                       <svg
@@ -206,7 +206,7 @@ describe('Main', () => {
                                   data-testid="channelsList"
                                 >
                                   <div
-                                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-1k15c8s-MuiButtonBase-root-MuiListItemButton-root"
+                                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-1qtf1b2-MuiButtonBase-root-MuiListItemButton-root"
                                     data-testid="general-link"
                                     role="button"
                                     tabindex="0"
@@ -272,12 +272,45 @@ describe('Main', () => {
                                   <h6
                                     class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
                                   >
-                                    Users
+                                    Direct messages
                                   </h6>
+                                  <span>
+                                    <button
+                                      aria-label="Start a new DM"
+                                      class="SidebarHeaderaction"
+                                      data-mui-internal-clone-element="true"
+                                      data-testid="sidebar-button-createNewMessage"
+                                      type="button"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        fill="none"
+                                        focusable="false"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        width="16"
+                                      >
+                                        <path
+                                          d="M8 4V12"
+                                          stroke="currentColor"
+                                        />
+                                        <path
+                                          d="M12 8L4 8"
+                                          stroke="currentColor"
+                                        />
+                                        <circle
+                                          cx="8"
+                                          cy="8"
+                                          r="7.5"
+                                          stroke="currentColor"
+                                        />
+                                      </svg>
+                                    </button>
+                                  </span>
                                 </div>
                                 <ul
                                   class="MuiList-root css-1mk9mw3-MuiList-root"
-                                  data-testid="usersList"
+                                  data-testid="dm-list"
                                 />
                               </div>
                             </div>

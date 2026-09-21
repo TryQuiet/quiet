@@ -11,7 +11,7 @@ describe('DateDivider', () => {
         <div>
           <div
             aria-label="Messages from test"
-            class="MuiGrid-root MuiGrid-container css-aaog9h-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container css-12vglnp-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"

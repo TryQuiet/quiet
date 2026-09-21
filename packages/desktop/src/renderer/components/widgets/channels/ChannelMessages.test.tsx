@@ -48,6 +48,7 @@ describe('ChannelMessages', () => {
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}
         openUrl={jest.fn()}
+        allowEmpty={false}
       />
     )
 
@@ -83,7 +84,7 @@ describe('ChannelMessages', () => {
               <div>
                 <div
                   aria-label="Messages from Today"
-                  class="MuiGrid-root MuiGrid-container css-aaog9h-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-12vglnp-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
@@ -110,7 +111,7 @@ describe('ChannelMessages', () => {
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1ov2vsb-MuiListItem-root"
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -125,7 +126,12 @@ describe('ChannelMessages', () => {
                         <div
                           class="BasicMessageComponentalignAvatar"
                         >
-                          Jdenticon
+                          <span
+                            class=""
+                            data-testid="messageAuthorPhoto-string"
+                          >
+                            Jdenticon
+                          </span>
                         </div>
                       </div>
                       <div
@@ -142,6 +148,7 @@ describe('ChannelMessages', () => {
                             >
                               <p
                                 class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-rki9d6-MuiTypography-root"
+                                data-testid="messageAuthorName-string"
                               >
                                 string
                               </p>

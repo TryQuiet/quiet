@@ -31,7 +31,7 @@ export class Mobile {
   }
   async start() {
     this.onboarding = true
-    if (this.android) {
+    if (this.android && this.config.qssTarget !== 'staging') {
       await this.adb('reverse', 'tcp:3003', 'tcp:3003')
       const { stdout } = await this.adb('reverse', '--list')
       assert(stdout.includes('tcp:3003 tcp:3003'), 'The selected emulator needs the local QSS route')
@@ -95,7 +95,7 @@ export class Mobile {
     await this.tapText('Continue')
     await this.visible(this.id('terms-of-service-component'), 90000)
     await this.tapText('Agree & Continue')
-    await this.visible(this.id('channels_list'), 120000)
+    await this.visible(this.id('channel-list'), 120000)
     await this.allowNotifications()
     await this.tapId('channel_tile_general')
     await this.visible(this.id('chat_general'))

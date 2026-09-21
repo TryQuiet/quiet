@@ -42,7 +42,12 @@ const StyledUserProfilePanel = styled('div')(({ theme }) => ({
     color: theme.palette.colors.white,
     transition: 'background-color 0.2s',
     // `Profile summary` Hover=True (`4716:7702`) carries a white 10% overlay,
-    // not the 5% a list row gets.
+    // not the 5% a list row gets. develop had moved this row onto the 5%
+    // `sidebarHover` token for consistency with the list rows; the library
+    // differentiates the two deliberately, so the summary keeps its own value.
+    // develop's other concern there — that a rounded MUI Button turned the
+    // hover into a floating pill among full-bleed rows — is met by construction
+    // here: this is a plain button with no radius, so the wash spans the column.
     '&:hover': {
       backgroundColor: sidebarMetrics.overlay.selected,
       [`& .${classes.nickname}`]: {
@@ -86,7 +91,7 @@ export interface UserProfilePanelProps {
  * the column. It opens the profile menu the app already has.
  */
 export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
-  userId: userID,
+  userId,
   userProfile,
   userProfileContextMenu,
 }) => {
@@ -109,7 +114,7 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
         <span className={classes.profilePhoto}>
           <ProfilePhoto
             userProfile={userProfile}
-            userId={userID}
+            userId={userId}
             size={sidebarMetrics.profile.avatar}
             style={{ marginBottom: 0, borderRadius: sidebarMetrics.profile.avatarRadius }}
           />

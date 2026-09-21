@@ -67,7 +67,12 @@ export interface SidebarHeaderProps {
   /** Omitted when the user may not add to this section: the (+) then goes away. */
   action?: () => void
   tooltipText: string
-  actionTestId?: string
+  /**
+   * Names the action, so each section's (+) carries its own test id
+   * (`sidebar-button-createChannel`, `sidebar-button-createNewMessage`). The sidebar has more than
+   * one addable section now, so the id cannot be a constant.
+   */
+  actionTitle?: string
 }
 
 /**
@@ -78,7 +83,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   title,
   action,
   tooltipText,
-  actionTestId = 'addChannelButton',
+  actionTitle,
 }) => {
   return (
     <StyledHeader className={classes.root}>
@@ -95,7 +100,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
               event.persist()
               action()
             }}
-            data-testid={actionTestId}
+            data-testid={`sidebar-button-${actionTitle ?? 'unknownAction'}`}
           >
             <PlusCircleIcon />
           </button>

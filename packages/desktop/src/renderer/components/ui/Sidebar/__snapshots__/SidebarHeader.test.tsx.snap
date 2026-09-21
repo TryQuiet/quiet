@@ -16,7 +16,7 @@ exports[`SidebarHeader renders the title and the section action 1`] = `
           aria-label="Create new channel"
           class="SidebarHeaderaction"
           data-mui-internal-clone-element="true"
-          data-testid="addChannelButton"
+          data-testid="sidebar-button-createChannel"
           type="button"
         >
           <svg

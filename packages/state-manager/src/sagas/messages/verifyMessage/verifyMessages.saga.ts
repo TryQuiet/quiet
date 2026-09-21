@@ -3,7 +3,12 @@ import { select, call, put } from 'typed-redux-saga'
 import { messagesActions } from '../messages.slice'
 import { ChannelMessage, MessageType, type MessageVerificationStatus } from '@quiet/types'
 import { generalChannel, publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { deleteChannelMessageRegex, generalChannelDeletionMessageRegex, verifyUserInfoMessage } from '@quiet/common'
+import {
+  deleteChannelMessageRegex,
+  generalChannelDeletionMessageRegex,
+  userJoinedMessageRegex,
+  verifyUserInfoMessage,
+} from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { isMessageTransportVerified } from '../utils/message.utils'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
@@ -37,7 +42,13 @@ export function* verifyMessagesSaga(
         logger.debug('Trusting deletion message until we have a better solution')
       } else {
         const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
-        if (message.message !== expectedMessage) {
+        const joinMessageMatch = userJoinedMessageRegex.exec(message.message)
+        const isJoinMessage =
+          channel.name === 'general' &&
+          channel.owner !== author.userId &&
+          joinMessageMatch?.[0] === message.message &&
+          joinMessageMatch[1] === author.nickname
+        if (message.message !== expectedMessage && !isJoinMessage) {
           logger.warn(`${author.nickname} tried to send a malicious info message`)
           logger.info('Expected message:', expectedMessage)
           logger.info('Received message:', message.message)

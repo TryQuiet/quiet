@@ -23,11 +23,10 @@ Run from `packages/mobile` on the Mac. Set `DETOX_IOS_SIMULATOR_ID` to a fresh
 simulator created for this test and `DETOX_IOS_ARCH` to its build architecture,
 `arm64`. The installed simulator runtime must support that architecture
 and the app's deployment targets, including the notification service extension.
-All embedded frameworks must include the selected simulator architecture. In
-particular, the original Tor 405.9.1 framework needs a separately built arm64
-simulator variant before this probe can run on arm64. Use the recipe's guarded
-`build-storybook.py` wrapper for that build; it selects the simulator framework
-temporarily and restores the original Tor pod. Set `QUIET_STORYBOOK_APP` to the
+All embedded frameworks must include the selected simulator architecture. The
+current Tor pod includes arm64 simulator support. Use `build-ios.py` with
+`--scheme Storybook --env-file .env.storybook` and the installed locked pods;
+see [the current instructions](../../docs/ios-tor-upgrade.md). Set `QUIET_STORYBOOK_APP` to the
 wrapper's `DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app` output.
 
 Build Storybook with the selected architecture and `FORCE_BUNDLING=1`. React
