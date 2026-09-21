@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [11.1.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@11.1.0-alpha.1...@quiet/mobile@11.1.0-alpha.2) (2026-09-21)
-
-
-### Bug Fixes
-
-* restore iOS Tor sockets after suspension and bound control waits ([#3602](https://github.com/TryQuiet/quiet/issues/3602)) ([b84125e](https://github.com/TryQuiet/quiet/commit/b84125e5d2d37b091112460caf425941d7f755a1))
-
-
-
-
-
 # Changelog
 
 ## [11.1.0]
