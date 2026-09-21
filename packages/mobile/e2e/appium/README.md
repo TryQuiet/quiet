@@ -109,6 +109,15 @@ never packaged or uploaded. No shared enrollment secret or Firebase server key
 is needed in the Quiet repository. A disconnected or failed enrollment may
 consume the job's grant; rerun the job instead of requesting unlimited grants.
 
+For a local operator-assisted staging provider run, add `"stagingEnrollment":
+"manual"` to the private configuration (alongside `"qssTarget": "staging"`).
+Use the normal native-Tor desktop build, with no local QSS fixture configured.
+The desktop uses its unchanged live hCaptcha window; complete that challenge
+within five minutes. No GitHub identity is requested or saved. This option is
+rejected in GitHub Actions and when `CI=true`; unattended jobs retain the default
+`github-oidc` enrollment. The receipt records the selected enrollment mode, and
+both real provider notification/tap assertions remain required.
+
 ## Run
 
 Install the independent pinned Appium toolchain (Node >=20.19):

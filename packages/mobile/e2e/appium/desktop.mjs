@@ -4,6 +4,7 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import selectors from '../../../e2e-tests/src/selectors.ts'
 import { writeCiEnrollmentToken } from './staging.mjs'
+import { enrollmentMode } from './enrollment.mjs'
 const { App, Channel, Sidebar, JoinCommunityModal, CreateCommunityModal, ServerOfferModal, RegisterUsernameModal, TermsOfServiceModal, JoiningLoadingPanel } = selectors
 const require = createRequire(import.meta.url)
 const { snapshotOwnedProcesses, waitForProcessExit, stopOwnedProcesses } = require('../utils/desktopProcesses.cjs')
@@ -11,12 +12,15 @@ const { snapshotOwnedProcesses, waitForProcessExit, stopOwnedProcesses } = requi
 export class Desktop {
   constructor(config, names, fixture, run) {
     this.names = names
-    this.ciTokenFile = fixture.target === 'staging' ? path.join(run.directory, 'ci-enrollment.jwt') : undefined
+    this.enrollmentMode = enrollmentMode(config, fixture)
+    this.ciTokenFile = this.enrollmentMode === 'github-oidc' ? path.join(run.directory, 'ci-enrollment.jwt') : undefined
     this.app = new App({ binaryPath: config.desktopBinary, username: names.desktop, qssEndpoint: fixture.endpoint,
       // The sender must trigger QPS after syncing a message; enabling QSS alone
       // delivers foreground messages but never requests a provider notification.
       environment: { QPS_ALLOWED: 'true', ...(config.display ? { DISPLAY: config.display } : {}),
-        ...(this.ciTokenFile ? { QUIET_E2E_CI_ENROLLMENT_TOKEN_FILE: this.ciTokenFile } : {}) },
+        ...(this.enrollmentMode === 'manual'
+          ? { IS_E2E: 'false', QUIET_E2E_CI_ENROLLMENT_TOKEN_FILE: undefined }
+          : this.ciTokenFile ? { QUIET_E2E_CI_ENROLLMENT_TOKEN_FILE: this.ciTokenFile } : {}) },
       ...(config.chromeDriverPath ? { chromeDriverPath: config.chromeDriverPath } : {}),
     })
   }
@@ -34,8 +38,13 @@ export class Desktop {
     await registration.typeUsername(this.names.desktop)
     await registration.submit()
     await new TermsOfServiceModal(this.driver).chooseAgreeAndJoin()
-    await new JoiningLoadingPanel(this.driver).waitForJoinToComplete()
-    assert(await new Channel(this.driver, 'general').isOpen())
+    if (this.enrollmentMode === 'manual') {
+      console.log('Complete the live hCaptcha in the desktop window; waiting up to five minutes for enrollment.')
+      assert(await new Channel(this.driver, 'general').isOpen(undefined, true, 300_000))
+    } else {
+      await new JoiningLoadingPanel(this.driver).waitForJoinToComplete()
+      assert(await new Channel(this.driver, 'general').isOpen())
+    }
     const settings = await new Sidebar(this.driver).openSettings()
     await settings.switchTab('invite')
     const invite = await (await settings.invitationLink()).getText()

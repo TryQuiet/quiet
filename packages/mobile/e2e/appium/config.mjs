@@ -4,6 +4,7 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
+import { enrollmentMode } from './enrollment.mjs'
 import { STAGING_ENDPOINT, validateStagingTarget, checkStaging } from './staging.mjs'
 const require = createRequire(import.meta.url)
 const { androidSdkTool } = require('../utils/androidQssBuild.cjs')
@@ -105,6 +106,7 @@ export async function preflight(fullLoop) {
     assert.notEqual(config.qssTarget, 'staging')
     assert.equal(process.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, fixture.output, 'Use the prepared local fixture inspector')
   }
+  enrollmentMode(config, fixture)
   let build
   if (config.platform === 'android') {
     const badging = execFileSync(androidSdkTool('aapt2'), ['dump', 'badging', config.app], { encoding: 'utf8' })
