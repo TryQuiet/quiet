@@ -160,7 +160,7 @@ describe('ConnectionsManagerService', () => {
     expect(connectionsManagerService).toBeDefined()
   })
 
-  it.each([SocketActions.JOIN_COMMUNITY, SocketActions.CREATE_COMMUNITY])(
+  it.each([SocketActions.JOIN_COMMUNITY, SocketActions.CREATE_COMMUNITY, SocketActions.LINK_DEVICE])(
     'holds %s arriving after START until the real onboarding handlers are installed',
     async event => {
       const socketService = await module.resolve(SocketService)
@@ -173,9 +173,13 @@ describe('ConnectionsManagerService', () => {
         await portsPending
         await generatePorts()
       })
-      const operation = jest
-        .spyOn(connectionsManagerService, event === SocketActions.JOIN_COMMUNITY ? 'joinCommunity' : 'createCommunity')
-        .mockResolvedValue(undefined)
+      const operationName =
+        event === SocketActions.LINK_DEVICE
+          ? 'linkDevice'
+          : event === SocketActions.JOIN_COMMUNITY
+            ? 'joinCommunity'
+            : 'createCommunity'
+      const operation = jest.spyOn(connectionsManagerService, operationName).mockResolvedValue(undefined)
       const forwarded = jest.spyOn(socketService, 'emit')
       const received = jest.fn()
       serverIoProvider.io.on('connection', socket => socket.onAny(received))
