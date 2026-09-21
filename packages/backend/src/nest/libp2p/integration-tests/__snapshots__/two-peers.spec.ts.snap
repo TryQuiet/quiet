@@ -46,6 +46,8 @@ exports[`Libp2pAuth gracefully disconnects: disconnectEventsA 1`] = `
   "authConnected",
   "authStateChanged:connected",
   "authStateChanged:connected",
+  "authDisconnected",
+  "authStateChanged:disconnected",
   "peerDisconnected",
 ]
 `;

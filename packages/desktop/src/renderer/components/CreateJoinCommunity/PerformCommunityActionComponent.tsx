@@ -140,6 +140,8 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
+  fieldError?: string
+  onFieldChange?: () => void
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -153,6 +155,8 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   hasReceivedResponse,
   revealInputValue,
   handleClickInputReveal,
+  fieldError,
+  onFieldChange,
 }) => {
   const [formSent, setFormSent] = useState(false)
 
@@ -228,6 +232,14 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     }
   }, [open])
 
+  useEffect(() => {
+    if (fieldError) {
+      setError('name', { message: fieldError })
+    } else {
+      clearErrors('name')
+    }
+  }, [fieldError, setError, clearErrors])
+
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={isCloseDisabled} zIndex={1300}>
       <StyledModalContent container direction='column'>
@@ -259,6 +271,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                       event.persist()
                       const value = event.target.value
                       onChange(value)
+                      onFieldChange?.()
                       setValue('name', value)
                       // Call default
                       field.onChange(event)

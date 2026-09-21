@@ -11,6 +11,7 @@ import {
   startConnectionSaga,
   subscribeSocketLifecycle,
   watchWebsocketConnection,
+  RECOVER_WEBSOCKET_CHANNEL,
 } from './startConnection.saga'
 import { initActions, initReducer, WebsocketConnectionPayload } from '../init.slice'
 import { initMasterSaga } from '../init.master.saga'
@@ -289,13 +290,15 @@ describe('reconcileWebsocketConnection', () => {
       .run()
   })
 
-  it('leaves an active disconnected socket to its automatic reconnect loop', async () => {
+  it('refreshes native details and replaces an active but failing reconnect session', async () => {
     const socket = Object.assign(new MockSocket(), { connected: false, active: true })
 
     await expectSaga(reconcileWebsocketConnection, { socket: socket as any, socketIOData })
       .provide([[select(initSelectors.isWebsocketConnected), true]])
       .put(initActions.suspendWebsocketConnection())
-      .not.call.fn(socket.connect)
+      .call(NativeModules.CommunicationModule.handleIncomingEvents, RECOVER_WEBSOCKET_CHANNEL, null, null)
+      .call.fn(socket.disconnect)
+      .call.fn(socket.connect)
       .run()
   })
 
@@ -311,7 +314,7 @@ describe('reconcileWebsocketConnection', () => {
       .run()
   })
 
-  it('does not issue duplicate connect calls across repeated resume events', async () => {
+  it('can retry an earlier recovery whose transport never connected', async () => {
     const socket = Object.assign(new MockSocket(), { connected: false, active: false })
     socket.connect.mockImplementation(() => {
       socket.active = true
@@ -326,7 +329,7 @@ describe('reconcileWebsocketConnection', () => {
       .provide([[select(initSelectors.isWebsocketConnected), false]])
       .run()
 
-    expect(socket.connect).toHaveBeenCalledTimes(1)
+    expect(socket.connect).toHaveBeenCalledTimes(2)
   })
 
   it('requests fresh connection data from native when no socket exists', async () => {

@@ -39,6 +39,8 @@ export const invitationCodes = createSelector(communitiesSlice, reducerState => 
   return reducerState.invitationCodes
 })
 
+export const pendingJoin = createSelector(communitiesSlice, reducerState => reducerState.pendingJoin ?? null)
+
 export const inviteData = createSelector(currentCommunity, currentCommunity => {
   return currentCommunity?.inviteData
 })
@@ -59,16 +61,22 @@ export const tosRequested = createSelector(communitiesSlice, reducerState => {
   return reducerState.tosRequested
 })
 
+export const joinCommunityError = createSelector(communitiesSlice, reducerState => reducerState.joinCommunityError)
+
 export const communitiesSelectors = {
+  admissionResetStatus: createSelector(communitiesSlice, state => state.admissionResetStatus ?? 'idle'),
+  admissionResetResult: createSelector(communitiesSlice, state => state.admissionResetResult ?? null),
   selectById,
   selectEntities,
   selectCommunities,
   currentCommunity,
   currentCommunityId,
   invitationCodes,
+  pendingJoin,
   inviteData,
   ownerOrbitDbIdentity,
   psk,
   isOwner,
   tosRequested,
+  joinCommunityError,
 }
