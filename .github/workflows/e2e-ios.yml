@@ -18,7 +18,6 @@ jobs:
       BUNDLE_GEMFILE: ${{ github.workspace }}/packages/mobile/Gemfile
       BUNDLE_FROZEN: 'true'
       RCT_NO_LAUNCH_PACKAGER: '1'
-      QUIET_TOR_BUILD_JOBS: '2'
 
     steps:
       - uses: actions/checkout@v5
@@ -56,8 +55,6 @@ jobs:
 
       - name: Set build paths
         run: |
-          echo "QUIET_TOR_SOURCE=$RUNNER_TEMP/quiet-tor4059-source" >> "$GITHUB_ENV"
-          echo "DETOX_IOS_ARM64_TOR_FRAMEWORK=$RUNNER_TEMP/quiet-tor4059-source/build/Build/Products/Release-iphonesimulator/Tor.framework" >> "$GITHUB_ENV"
           echo "DETOX_IOS_ARM64_DEBUG_OUTPUT=$RUNNER_TEMP/quiet-debug-arm64-validation" >> "$GITHUB_ENV"
           # Each environment has its own guarded workspace; retire the first cache before the second build.
           echo "DETOX_IOS_ARM64_E2E_QSS_OUTPUT=$RUNNER_TEMP/quiet-qss-arm64-validation" >> "$GITHUB_ENV"
@@ -92,6 +89,7 @@ jobs:
         run: |
           node --test packages/mobile/scripts/e2e-ios-workflow.test.cjs
           python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_storybook.py
+          python3 -B packages/mobile/scripts/tor-ios-simulator/test_build_ios.py
           python3 -B -m unittest discover -s packages/mobile/scripts/qss-e2e -p 'test_*.py'
           node --test packages/mobile/scripts/qss-community-harness.test.cjs packages/mobile/scripts/desktop-processes.test.cjs
 
@@ -132,10 +130,8 @@ jobs:
           cd ios
           bundle exec pod install --deployment
 
-      - name: Prepare pinned ARM simulator Tor
-        run: |
-          python3 packages/mobile/scripts/tor-ios-simulator/reproduce-source.py "$QUIET_TOR_SOURCE"
-          "$QUIET_TOR_SOURCE/build-arm64-simulator.sh"
+      - name: Test native Tor lifecycle and rejoin control operations
+        run: bash packages/mobile/scripts/tor-regression/run.sh "$GITHUB_WORKSPACE" "$RUNNER_TEMP/quiet-tor-regression"
 
       - name: Prepare simulator build resource
         id: firebase
@@ -262,8 +258,10 @@ jobs:
         with:
           name: ios-e2e-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            ${{ runner.temp }}/quiet-tor4059-source/build-arm64-simulator.log
-            ${{ runner.temp }}/quiet-tor4059-source/build-platform.txt
+            ${{ runner.temp }}/quiet-tor-regression/source-sha256.txt
+            ${{ runner.temp }}/quiet-tor-regression/Podfile.lock
+            ${{ runner.temp }}/quiet-tor-regression/regression.log
+            ${{ runner.temp }}/quiet-tor-regression/regression.xcresult
             ${{ runner.temp }}/quiet-debug-arm64-validation/result.json
             ${{ runner.temp }}/quiet-debug-arm64-validation/runs
             ${{ runner.temp }}/quiet-qss-arm64-validation/result.json
