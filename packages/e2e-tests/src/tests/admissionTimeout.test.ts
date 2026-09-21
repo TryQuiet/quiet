@@ -300,39 +300,72 @@ describe('Timed-out P2P admission recovery', () => {
     await releaseApps(owner, linkedDevice)
   })
 
-  it('returns a joining peer to Join Community after reopening during admission', async () => {
+  it('can join again after reopening during interrupted admission', async () => {
     const owner = new App({ username: 'reopenowner' })
     const joiningPeer = new App({ username: 'reopenpeer' })
     apps.push(owner, joiningPeer)
 
-    const invitationLink = await createCommunityAndGetInvitation(
-      owner,
-      'reopenowner',
-      SettingsModalTabName.INVITE,
-      async settings => await (await settings.invitationLink()).getText()
-    )
+    const suiteAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
+    // This case proves successful recovery, not the short expiry deadline.
+    process.env.INVITATION_ADMISSION_TIMEOUT_MS = String(LOCAL_JOIN_COMPLETION_TIMEOUT_MS)
+    try {
+      const invitationLink = await createCommunityAndGetInvitation(
+        owner,
+        'reopenowner',
+        SettingsModalTabName.INVITE,
+        async settings => await (await settings.invitationLink()).getText()
+      )
 
-    // Keep the peer in the joining state without allowing admission to complete.
-    await owner.close()
-    await joiningPeer.openWithRetries()
-    const joinModal = new JoinCommunityModal(joiningPeer.driver)
-    expect(await joinModal.isReady()).toBeTruthy()
-    await joinModal.typeCommunityInviteLink(invitationLink)
-    await joinModal.submit()
+      // Keep the peer in the joining state without allowing admission to complete.
+      await owner.close()
+      await joiningPeer.openWithRetries()
+      const joinModal = new JoinCommunityModal(joiningPeer.driver)
+      expect(await joinModal.isReady()).toBeTruthy()
+      await joinModal.typeCommunityInviteLink(invitationLink)
+      await joinModal.submit()
 
-    const registration = new RegisterUsernameModal(joiningPeer.driver)
-    expect(await registration.isReady()).toBeTruthy()
-    await registration.typeUsername('reopenpeer')
-    await registration.submit()
-    expect(await new JoiningLoadingPanel(joiningPeer.driver).waitUntilVisible(15_000)).toBeTruthy()
+      const registration = new RegisterUsernameModal(joiningPeer.driver)
+      expect(await registration.isReady()).toBeTruthy()
+      await registration.typeUsername('reopenpeer')
+      await registration.submit()
+      expect(await new JoiningLoadingPanel(joiningPeer.driver).waitUntilVisible(15_000)).toBeTruthy()
 
-    await joiningPeer.close()
-    await joiningPeer.openWithRetries()
+      await joiningPeer.close()
+      await joiningPeer.openWithRetries()
 
-    expect(await new JoinCommunityModal(joiningPeer.driver).isReady(30_000)).toBeTruthy()
-    await expectJoiningPanelHidden(joiningPeer)
+      const retryJoinModal = new JoinCommunityModal(joiningPeer.driver)
+      expect(await retryJoinModal.isReady(30_000)).toBeTruthy()
 
-    await releaseApps(owner, joiningPeer)
+      // isDisplayed() also returns true for a joining panel behind this modal.
+      // Prove recovery through real input/clicks and completed admission instead.
+      await owner.openWithRetries()
+      expect(await new Channel(owner.driver, 'general').isReady()).toBeTruthy()
+      const settings = await new Sidebar(owner.driver).openSettings()
+      expect(await settings.isReady()).toBeTruthy()
+      await settings.switchTab(SettingsModalTabName.INVITE)
+      // Restarting the owner can change its local transport address.
+      const freshInvitation = await (await settings.invitationLink()).getText()
+      await settings.closeTabThenModal()
+
+      joiningPeer.buildSetup.clearProcessOutput()
+      await retryJoinModal.typeCommunityInviteLink(freshInvitation)
+      await retryJoinModal.submit()
+      const retryRegistration = new RegisterUsernameModal(joiningPeer.driver)
+      expect(await retryRegistration.isReady()).toBeTruthy()
+      await retryRegistration.typeUsername('recoveredpeer')
+      await retryRegistration.submit()
+      await new JoiningLoadingPanel(joiningPeer.driver).waitForJoinToComplete(
+        PANEL_VISIBLE_TIMEOUT_MS,
+        joinCompletionTimeoutMs(),
+        'community join after interrupted admission'
+      )
+      assertAdmissionNotReset(joiningPeer)
+      expect(await new Channel(joiningPeer.driver, 'general').isReady()).toBeTruthy()
+    } finally {
+      await releaseApps(owner, joiningPeer)
+      if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
+      else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+    }
   })
 
   it(
