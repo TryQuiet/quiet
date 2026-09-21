@@ -116,6 +116,7 @@ describe('Search Modal', () => {
                       data-testid="ModalActions"
                     >
                       <button
+                        aria-label="Close"
                         class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                         data-testid="ModalClose"
                         tabindex="0"
