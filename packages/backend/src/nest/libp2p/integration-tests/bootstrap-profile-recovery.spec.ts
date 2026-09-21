@@ -14,6 +14,7 @@ import { ChannelsService } from '../../storage/channels/channels.service'
 import { OrbitDbService } from '../../storage/orbitDb/orbitDb.service'
 import { StorageService } from '../../storage/storage.service'
 import { UserProfileStore } from '../../storage/userProfile/userProfile.store'
+import { NetworkEndpointsStore } from '../../storage/networkEndpoints/networkEndpoints.store'
 import { Libp2pService } from '../libp2p.service'
 import { Libp2pEvents } from '../libp2p.types'
 
@@ -24,6 +25,7 @@ describe('Initial profile replication after a bootstrap connection drops', () =>
   let chains: SigChainService[] = []
   let peers: Libp2pService[] = []
   let profiles: UserProfileStore[] = []
+  let endpoints: NetworkEndpointsStore[] = []
   let channels: ChannelsService[] = []
   let localDbs: LocalDbService[] = []
   const initializedStores = new Set<number>()
@@ -32,6 +34,8 @@ describe('Initial profile replication after a bootstrap connection drops', () =>
     const ipfs = modules[index].get(IpfsService)
     await modules[index].get(OrbitDbService).create(ipfs.ipfsInstance!)
     await profiles[index].init()
+    // Peer addressing reads device endpoints, so updatePeerStore needs this store open.
+    await endpoints[index].init()
     await channels[index].init()
     initializedStores.add(index)
     // These real OrbitDB stores start with synchronization disabled. Keeping
@@ -43,6 +47,7 @@ describe('Initial profile replication after a bootstrap connection drops', () =>
     chains = modules.map(module => module.get(SigChainService))
     peers = modules.map(module => module.get(Libp2pService))
     profiles = modules.map(module => module.get(UserProfileStore))
+    endpoints = modules.map(module => module.get(NetworkEndpointsStore))
     channels = modules.map(module => module.get(ChannelsService))
     localDbs = modules.map(module => module.get(LocalDbService))
 

@@ -274,10 +274,10 @@ export const argvInvitationLink = (argv: string[]): InvitationData | null => {
   let invitationData: InvitationData | null = null
   for (const arg of argv) {
     if (!arg.startsWith(DEEP_URL_SCHEME_WITH_SEPARATOR)) {
-      logger.warn('Not a deep url, not parsing', arg)
+      logger.warn('Argument is not a deep URL; skipping it')
       continue
     }
-    logger.info('Parsing deep url', arg)
+    logger.info('Parsing deep URL')
     invitationData = parseInvitationLinkDeepUrl(arg)
     switch (invitationData.version) {
       case InvitationDataVersion.v4:

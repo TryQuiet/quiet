@@ -663,10 +663,8 @@ class DetoxConfigurationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='quiet-detox-command-') as temporary:
             root = Path(temporary)
             marker = root / 'must-not-execute'
-            framework = str(root / f"Tor's $(touch {marker}).framework")
-            output = str(root / "output's directory")
+            output = str(root / f"output's $(touch {marker}) directory")
             resolved = self.resolve('ios.sim.e2e', {
-                'DETOX_IOS_ARM64_TOR_FRAMEWORK': framework,
                 'DETOX_IOS_ARM64_E2E_OUTPUT': output,
                 'DETOX_IOS_SIMULATOR_ID': 'owned-simulator-id',
             })
@@ -681,7 +679,7 @@ class DetoxConfigurationTests(unittest.TestCase):
             subprocess.run(['/bin/sh', '-c', app['build']], cwd=root, check=True, capture_output=True,
                            env={'PATH': str(root) + os.pathsep + os.defpath, 'TEST_ARGV': str(recorded)})
             argv = json.loads(recorded.read_text())
-            self.assertEqual(argv[argv.index('--framework') + 1], framework)
+            self.assertNotIn('--framework', argv)
             self.assertEqual(argv[argv.index('--output') + 1], output)
             self.assertEqual(argv[argv.index('--env-file') + 1], '.env.e2e')
             self.assertFalse(marker.exists())

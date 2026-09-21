@@ -1,4 +1,5 @@
 import { expectSaga } from 'redux-saga-test-plan'
+import { call } from 'redux-saga-test-plan/matchers'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
@@ -22,6 +23,7 @@ import {
 } from '@quiet/types'
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
 import { FactoryGirl } from 'factory-girl'
+import { confirmDeviceLink, confirmedDeviceLinkPayload } from '../../../utils/deviceLinkConfirmation'
 
 describe('deepLinkSaga', () => {
   let store: Store
@@ -131,13 +133,15 @@ describe('deepLinkSaga', () => {
       },
     }
     const deviceCode = getValidInvitationUrlTestData(deviceInvite).code()
+    const confirmedPayload = confirmedDeviceLinkPayload(deviceInvite)
     const reducer = combineReducers(reducers)
 
     await expectSaga(deepLinkSaga, initActions.deepLink(deviceCode))
+      .provide([[call.fn(confirmDeviceLink), confirmedPayload]])
       .withReducer(reducer)
       .withState(store.getState())
       .put(initActions.resetDeepLink())
-      .put(communities.actions.linkDevice({ inviteData: deviceInvite }))
+      .put(communities.actions.linkDevice(confirmedPayload))
       .put(
         navigationActions.replaceScreen({
           screen: ScreenNames.ConnectionProcessScreen,
@@ -149,6 +153,34 @@ describe('deepLinkSaga', () => {
           screen: ScreenNames.UsernameRegistrationScreen,
         })
       )
+      .run()
+  })
+
+  test('cancels device linking without dispatching a backend operation', async () => {
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001,
+        socketIOSecret: 'secret',
+      })
+    )
+    const deviceInvite: DeviceInvitationDataV4 = {
+      ...validData,
+      kind: InvitationKind.Device,
+      authData: {
+        ...validData.authData,
+        userId: 'user-id',
+        userName: 'alice',
+      },
+    }
+    const deviceCode = getValidInvitationUrlTestData(deviceInvite).code()
+    const reducer = combineReducers(reducers)
+
+    await expectSaga(deepLinkSaga, initActions.deepLink(deviceCode))
+      .provide([[call.fn(confirmDeviceLink), null]])
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
+      .not.put.like({ action: { type: communities.actions.linkDevice.type } })
       .run()
   })
 

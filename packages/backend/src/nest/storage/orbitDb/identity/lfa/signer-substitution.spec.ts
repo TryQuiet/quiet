@@ -19,7 +19,7 @@
 
 import { beforeAll, describe, expect, it } from '@jest/globals'
 import * as dagCbor from '@ipld/dag-cbor'
-import { signatures } from '@localfirst/auth'
+import { signatures, type LocalUserContext } from '@localfirst/auth'
 import { Entry, Log, MemoryStorage, type LogEntry } from '@orbitdb/core'
 import { base58btc } from 'multiformats/bases/base58'
 import * as Block from 'multiformats/block'
@@ -542,7 +542,7 @@ describe('OrbitDB signer substitution (#150)', () => {
       const oldPut = channelPut(oldId, oldRole)
       const replacementPut = channelPut(replacementId, replacementRole)
       const memberBeforeGrant = SigChain.joinForTesting(
-        memberChain.localUserContext,
+        { user: memberChain.user, device: memberChain.device } as LocalUserContext,
         ownerChain.save(),
         ownerChain.team!.teamKeyring()
       )
@@ -565,7 +565,11 @@ describe('OrbitDB signer substitution (#150)', () => {
 
         ownerChain.channels.addMember(memberChain.user.userId, replacementRole)
         const member = await partyFor(
-          SigChain.joinForTesting(memberChain.localUserContext, ownerChain.save(), ownerChain.team!.teamKeyring())
+          SigChain.joinForTesting(
+            { user: memberChain.user, device: memberChain.device } as LocalUserContext,
+            ownerChain.save(),
+            ownerChain.team!.teamKeyring()
+          )
         )
         // A peer's current metadata mapping has no entry for the deleted channel. Joining the
         // replacement head still verifies the historical DEL through OrbitDB's ancestor traversal.

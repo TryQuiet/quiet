@@ -5,6 +5,13 @@ import { icons } from '../../assets'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
+/** The smallest comfortable finger target; every guideline puts it at 44. */
+const TOUCH_TARGET = 44
+/** The design's corner control: a 22 circle holding a 10 glyph, hung 10 off the preview's corner. */
+const BADGE_SIZE = 22
+const BADGE_GLYPH = 10
+const BADGE_OVERHANG = 10
+
 export interface FilePreviewComponentProps {
   fileData: FileContent
   onClick: () => void
@@ -20,45 +27,61 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
       style={{
         flexWrap: 'nowrap',
         alignItems: 'flex-start',
-        marginRight: 10,
-        marginTop: 10,
       }}
     >
       <TouchableWithoutFeedback
         onPress={onClick}
+        accessibilityRole='button'
         accessibilityLabel={imageType ? 'Remove image attachment' : `Remove attachment ${fileData.name}`}
+        testID={`remove_file_${fileData.name}`}
       >
+        {/* The target is 44 and runs down and left, into the thumbnail, which has no tap of its
+            own. hitSlop would not serve here: the badge sits in this wrapper's corner, so slop
+            going up or right lands outside the parent, and Android drops a touch on a child drawn
+            outside its parent's bounds. The overhang is a margin on the thumbnail below rather
+            than padding here, so the badge's `top: 0, right: 0` is measured against a box with no
+            padding to disagree about. */}
         <View
           style={{
             position: 'absolute',
-            justifyContent: 'center',
-            marginLeft: 0,
-            padding: 0,
-            backgroundColor: defaultTheme.palette.typography.white,
-            borderColor: defaultTheme.palette.typography.grayLight,
-            borderWidth: 1,
-            borderRadius: 100,
-            width: 22,
-            height: 22,
-            right: -10,
-            top: -10,
+            top: 0,
+            right: 0,
+            width: TOUCH_TARGET,
+            height: TOUCH_TARGET,
+            alignItems: 'flex-end',
+            justifyContent: 'flex-start',
             zIndex: 1000,
           }}
         >
-          <Image
-            source={removePreviewIcon}
+          <View
             style={{
-              position: 'relative',
-              alignSelf: 'center',
-              width: 10,
-              height: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: defaultTheme.palette.typography.white,
+              borderColor: defaultTheme.palette.typography.grayLight,
+              borderWidth: 1,
+              borderRadius: BADGE_SIZE / 2,
+              width: BADGE_SIZE,
+              height: BADGE_SIZE,
             }}
-          />
+          >
+            <Image
+              source={removePreviewIcon}
+              style={{
+                width: BADGE_GLYPH,
+                height: BADGE_GLYPH,
+              }}
+            />
+          </View>
         </View>
       </TouchableWithoutFeedback>
       <View
         style={{
           height: 64,
+          // The badge hangs off this corner. Holding the offset here keeps the wrapper's padding
+          // at zero and the row's footprint what it was when these were the wrapper's margins.
+          marginTop: BADGE_OVERHANG,
+          marginRight: BADGE_OVERHANG,
         }}
       >
         {imageType && fileData.path ? (

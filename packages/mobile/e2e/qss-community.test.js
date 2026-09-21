@@ -68,7 +68,7 @@ describe('QSS community with the real native backend', () => {
 
     await mobile.stop()
     await mobile.launch()
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(120000)
     const displayedName = communityName[0].toUpperCase() + communityName.slice(1)

@@ -1,5 +1,5 @@
 import { WebElement } from 'selenium-webdriver'
-import { App } from './selectors'
+import { App, Channel } from './selectors'
 
 export interface UserTestData<Messages = string[]> {
   username: string
@@ -40,4 +40,55 @@ export enum UserListStatus {
 export interface UserListItem {
   element: WebElement | undefined
   status: UserListStatus
+  textMatches: boolean
+}
+
+export interface NewMessageDM {
+  successfulUsers: string[]
+  failedUsers: string[]
+}
+
+export interface CreatedDM extends NewMessageDM {
+  success: boolean
+  error?: Error
+}
+
+export enum TestChannelType {
+  PUBLIC_CHANNEL = 'publicChannel',
+  PRIVATE_CHANNEL = 'privateChannel',
+  DM = 'dm',
+}
+
+export enum TestAddNewChannelButtonId {
+  PRE_DMS = 'addChannelButton',
+  DMS = 'sidebar-button-createChannel',
+}
+
+export interface TestAddNewChannelOptions {
+  isPublic: boolean
+  expectToggle: boolean
+  buttonId: TestAddNewChannelButtonId
+}
+
+export interface TestNewChannelResult {
+  channel?: Channel
+  errors?: Error[]
+}
+
+export const DEFAULT_ADD_NEW_CHANNEL_OPTIONS: TestAddNewChannelOptions = {
+  isPublic: true,
+  expectToggle: true,
+  buttonId: TestAddNewChannelButtonId.DMS,
+}
+
+export const DEFAULT_ADD_NEW_CHANNEL_NONADMIN_OPTIONS: TestAddNewChannelOptions = {
+  isPublic: true,
+  expectToggle: false,
+  buttonId: TestAddNewChannelButtonId.DMS,
+}
+
+export const DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS: TestAddNewChannelOptions = {
+  isPublic: false,
+  expectToggle: true,
+  buttonId: TestAddNewChannelButtonId.DMS,
 }

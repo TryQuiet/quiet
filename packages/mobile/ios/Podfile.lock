@@ -2849,7 +2849,11 @@ PODS:
   - SocketRocket (0.7.1)
   - Sodium (0.9.1)
   - SSZipArchive (2.5.5)
-  - Tor (405.9.1)
+  - Tor (409.11.2):
+    - Tor/CTor (= 409.11.2)
+  - Tor/Core (409.11.2)
+  - Tor/CTor (409.11.2):
+    - Tor/Core
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2948,7 +2952,7 @@ DEPENDENCIES:
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - SocketRocket (~> 0.7.1)
   - Sodium
-  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
+  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v409.11.2/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -3153,7 +3157,7 @@ EXTERNAL SOURCES:
   RNZipArchive:
     :path: "../node_modules/react-native-zip-archive"
   Tor:
-    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
+    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v409.11.2/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -3265,9 +3269,9 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
-  Tor: 39dc71bf048312e202608eb499ca5c74e841b503
+  Tor: c79e517898f56f85140076d1d4360043b1e74206
   Yoga: cc4a6600d61e4e9276e860d4d68eebb834a050ba
 
-PODFILE CHECKSUM: 5297be3968699ad7b05e77a4e72e3de8b5b4b272
+PODFILE CHECKSUM: f255125629246476cc08d07fee256b9efc8d80f8
 
 COCOAPODS: 1.16.2
