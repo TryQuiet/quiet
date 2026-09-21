@@ -101,6 +101,9 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
+      # Lerna otherwise discards stdout/stderr when a package lifecycle fails.
+      env:
+        npm_config_stdio: inherit
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then
