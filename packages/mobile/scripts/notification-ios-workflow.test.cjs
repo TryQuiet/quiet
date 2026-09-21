@@ -47,4 +47,9 @@ test('notification CI uses deployed locked pods and the current builder lane', (
   const steps = workflow.jobs['appium-ios'].steps
   assert.ok(steps.some(step => step.run?.includes('pod install --deployment')))
   assert.ok(steps.some(step => step.run === 'bash packages/mobile/e2e/appium/ci-ios-build.sh'))
+  for (const event of ['push', 'pull_request']) {
+    assert.ok(workflow.on[event].paths.includes('packages/mobile/e2e/utils/**'), `${event} must validate shared preflight fixes`)
+  }
+  const archiveTest = steps.findIndex(step => step.run?.includes('node --test packages/mobile/scripts/qss-only-build.test.cjs'))
+  assert.ok(archiveTest >= 0 && archiveTest < steps.findIndex(step => step.run === 'bash packages/mobile/e2e/appium/ci-ios-build.sh'), 'validate real archive inspection before the expensive native build')
 })
