@@ -83,3 +83,55 @@ Legacy tests pending migration can be found in commit fa1256e4d19fc481e316a09523
 - joiningUser
 - lazyLoading
 - newUser.returns
+
+## Linux: two players with different internet speeds
+
+The Linux E2E workflow runs `networkConditions.test.ts` against the packaged app
+with real Tor (`LOCAL_TRANSPORT=false`, QSS disabled). It tests a slow owner and a
+slow joiner separately, beginning before Tor bootstrap. Each case checks joining,
+pre-existing message history, bidirectional messages, a 256 KiB random attachment
+by exact downloaded bytes, and delivery after changing an established connection
+from fast to slow and back. Scenarios are not automatically retried.
+
+Run as your normal user on a Linux VM with passwordless sudo (standard GitHub
+Ubuntu runners support this). Build/copy the E2E AppImage using the normal setup
+above and start Xvfb or use an existing X display. Then, from `packages/e2e-tests`:
+
+```sh
+sudo apt-get install -y iproute2 iptables iperf3
+python3 scripts/network/test_lifecycle.py
+DISPLAY=:99 FILE_NAME=Quiet-VERSION.AppImage python3 scripts/network/run.py -- \
+  npm run test -- networkNamespace.test.ts networkConditions.test.ts
+```
+
+To verify only the kernel shaping, without an app or display:
+
+```sh
+python3 scripts/network/run.py --self-test
+```
+
+Each player gets a network namespace containing ChromeDriver, Electron, the
+backend, and its Tor process. A data veth connects it to the host's NAT. A second
+veth carries WebDriver commands without throttling. App/Tor loopback connections
+remain local to the namespace. The slow profile uses `tc netem` for 256 kbit/s
+upload, 1 Mbit/s download, and 150 ms additional delay in each direction, without
+random packet loss. Fast means no added shaping; actual public Tor performance
+still varies. The wrapper measures both directions with real TCP transfers before
+running any E2E tests, checks that the other player and control link remain fast,
+and verifies recovery after removing shaping. Rates allow TCP startup overhead;
+these tests are correctness checks, not Tor throughput benchmarks.
+
+The wrapper allocates non-overlapping test subnets, configures DNS and forwarding,
+and removes its namespaces, processes, firewall rules, and resolver files on
+normal exit, failure, SIGINT, or SIGTERM. It restores the prior forwarding setting
+and serializes runs on the host. Abrupt VM destruction/SIGKILL cannot run cleanup;
+use disposable runners. `test_lifecycle.py` exercises real failure and SIGTERM
+cleanup, while `networkNamespace.test.ts` verifies that launched processes retain
+the caller's user/environment and that leftover children are terminated.
+
+The suite skips during ordinary unwrapped Jest runs. The wrapper must run from an
+unprivileged user; only setup/teardown use root. Screenshots are written to
+`network-artifacts/` and uploaded by the Linux workflow. Per-scenario limits are
+20 minutes, with explicit five-minute Tor/join/delivery waits. This suite does not
+use local transport: its advertised loopback addresses cannot connect separate
+network namespaces.

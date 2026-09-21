@@ -69,6 +69,23 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
+      - name: Test two-player network conditions over Tor
+        timeout-minutes: 45
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iproute2 iptables iperf3
+          cd packages/e2e-tests
+          python3 scripts/network/test_lifecycle.py
+          python3 scripts/network/run.py -- npm run test -- networkNamespace.test.ts networkConditions.test.ts
+
+      - name: Upload network test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-test-screenshots
+          path: packages/e2e-tests/network-artifacts
+          if-no-files-found: ignore
+
       - name: Run one client test
         timeout-minutes: 15
         run: cd packages/e2e-tests && npm run test oneClient.test.ts oneClient.appImage.test.ts
