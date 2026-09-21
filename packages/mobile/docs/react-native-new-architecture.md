@@ -290,3 +290,13 @@ Fresh validation:
 This Linux refresh does not repeat the earlier native iOS, physical-device,
 full-community/QSS, embedded database restart, or release AAB runs. Their
 previous evidence and limits remain separate from the fresh checks above.
+
+The integration's CodeQL pass identified a redaction fixture variable named
+`secret` (its value is fixed public test data), plus pseudorandom temporary
+attachment-preview keys. The fixture now uses an explicitly public canary.
+Preview IDs use a per-process counter with a clock/process prefix; they never
+identify uploaded files or cryptographic material. A same-tick selection/removal
+regression proves that merged preview maps preserve every selection. Both common
+file-data tests, all five production attachment-flow tests, and all four CI helper
+tests pass. After forcing a fresh Storybook JavaScript bundle, both native photo
+picker scenarios pass again on API 35 and API 36.

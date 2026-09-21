@@ -64,17 +64,18 @@ class CIHelperTests(unittest.TestCase):
                     runner.prepare(applications, developer, self.root)
 
     def test_summary_exports_only_counts_booleans_and_pinned_revisions(self):
-        secret = "PRIVATE-INVITATION-CANARY"
+        # A public, fixed marker proves omitted fields cannot leak into the report.
+        canary = "PUBLIC-REDACTION-TEST-MARKER"
         for name in ("fixture", "single", "mixed"):
             (self.root / name).mkdir()
-        (self.root / "fixture/result.json").write_text(json.dumps({"status": "passed", "manifest": {"qssCommit": "a" * 40, "environment": {"SECRET": secret}}}))
-        (self.root / "single/jest-private.json").write_text(json.dumps({"numPassedTests": 1, "numFailedTests": 0, "numTotalTests": 1, "failureMessage": secret, "testResults": [secret]}))
-        (self.root / "single/ui.json").write_text(json.dumps({"messageStored": True, "restarted": True, "invitation": secret, "serverBaseline": {"maxSyncSeq": 3, "teamId": secret}, "serverActivityAfterSend": {"maxSyncSeq": 4}}))
-        (self.root / "mixed/jest-private.json").write_text("invalid JSON " + secret)
+        (self.root / "fixture/result.json").write_text(json.dumps({"status": "passed", "manifest": {"qssCommit": "a" * 40, "environment": {"SECRET": canary}}}))
+        (self.root / "single/jest-private.json").write_text(json.dumps({"numPassedTests": 1, "numFailedTests": 0, "numTotalTests": 1, "failureMessage": canary, "testResults": [canary]}))
+        (self.root / "single/ui.json").write_text(json.dumps({"messageStored": True, "restarted": True, "invitation": canary, "serverBaseline": {"maxSyncSeq": 3, "teamId": canary}, "serverActivityAfterSend": {"maxSyncSeq": 4}}))
+        (self.root / "mixed/jest-private.json").write_text("invalid JSON " + canary)
         output = self.root / "summary.json"
         command = [sys.executable, str(HERE / "summary.py"), "--fixture", str(self.root / "fixture"), "--single", str(self.root / "single"), "--mixed", str(self.root / "mixed"), "--output", str(output), "--single-outcome", "success", "--mixed-outcome", "failure"]
         result = subprocess.run(command, capture_output=True, text=True, check=True)
-        self.assertNotIn(secret, result.stdout + output.read_text())
+        self.assertNotIn(canary, result.stdout + output.read_text())
         summary = json.loads(output.read_text())
         self.assertEqual(summary["singlePlayer"]["numPassedTests"], 1)
         self.assertEqual(summary["singlePlayer"]["serverActivityAfterSend"], {"maxSyncSeq": 4})
