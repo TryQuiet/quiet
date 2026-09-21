@@ -1435,6 +1435,11 @@ describe('ChannelsService', () => {
       const privateRetrySpy = jest
         .spyOn(channelsService.privateChannels!, 'retryIndexingUnindexedEntries')
         .mockResolvedValue()
+      // The sweep reindexes the direct message store too; a real traversal of it never
+      // settles under fake timers, which would hide everything after it.
+      const dmRetrySpy = jest
+        .spyOn(channelsService.directMessages!, 'retryIndexingUnindexedEntries')
+        .mockResolvedValue()
       const broadcastSpy = jest.spyOn(channelsService, 'broadcastCurrentChannels').mockResolvedValue()
 
       jest.useFakeTimers()
@@ -1449,6 +1454,7 @@ describe('ChannelsService', () => {
 
         expect(publicRetrySpy).toHaveBeenCalledTimes(1)
         expect(privateRetrySpy).toHaveBeenCalledTimes(1)
+        expect(dmRetrySpy).toHaveBeenCalledTimes(1)
         expect(broadcastSpy).toHaveBeenCalled()
 
         // Nothing was rejected during the sweep, so the sweep stops.
@@ -1460,6 +1466,7 @@ describe('ChannelsService', () => {
         decryptSpy.mockRestore()
         publicRetrySpy.mockRestore()
         privateRetrySpy.mockRestore()
+        dmRetrySpy.mockRestore()
         broadcastSpy.mockRestore()
         detachSigchainListener()
       }
