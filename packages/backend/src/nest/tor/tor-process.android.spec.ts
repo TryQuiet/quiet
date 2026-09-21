@@ -1,10 +1,12 @@
 import * as childProcess from 'child_process'
 import { randomBytes } from 'crypto'
 import { jest } from '@jest/globals'
+import { promisify } from 'util'
 import type { Tor as TorService } from './tor.service'
 
-const execSync = jest.fn<(command: string) => Buffer>()
-jest.unstable_mockModule('child_process', () => ({ ...childProcess, execSync }))
+const execute = jest.fn<(command: string) => Promise<{ stdout: string; stderr: string }>>()
+const exec = Object.assign(jest.fn(), { [promisify.custom]: execute })
+jest.unstable_mockModule('child_process', () => ({ ...childProcess, exec }))
 const { Tor } = await import('./tor.service')
 
 // Opt in with a dedicated emulator: exercise the production command against
@@ -44,9 +46,9 @@ androidSuite('Android managed Tor process discovery', () => {
     })
     expect(pid).toMatch(/^\d+$/)
     Object.defineProperty(process, 'platform', { value: 'android' })
-    execSync.mockImplementation(command => android(command))
+    execute.mockImplementation(async command => ({ stdout: android(command).toString(), stderr: '' }))
     const service = Object.create(Tor.prototype) as TorService
     service.torDataDirectory = marker
-    expect(service.getTorProcessIds()).toContain(pid)
+    expect(await service.getTorProcessIds()).toContain(pid)
   }, 20_000)
 })

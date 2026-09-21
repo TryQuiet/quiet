@@ -90,7 +90,7 @@ describe('Tor restarts while a hidden service is being published', () => {
     torService.torPidPath = path.join(quietDir, 'torPid.json')
     // Keep the test off the real process table, and off the interval that would
     // otherwise drive its own control-port I/O.
-    jest.spyOn(torService, 'getTorProcessIds').mockReturnValue([])
+    jest.spyOn(torService, 'getTorProcessIds').mockResolvedValue([])
     jest.spyOn(torService, 'startBootstrapWatcher').mockImplementation(() => undefined)
     return { torControl, torService }
   }
