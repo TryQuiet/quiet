@@ -96,6 +96,7 @@ jobs:
         run: |
           npm --prefix packages/mobile/e2e/appium ci
           npm --prefix packages/mobile/e2e/appium test
+          node --test packages/mobile/scripts/qss-only-build.test.cjs
           node --test packages/mobile/scripts/notification-android-workflow.test.cjs packages/mobile/scripts/notification-staging-workflow.test.cjs
 
       - name: Check staging health and automated enrollment
