@@ -166,7 +166,7 @@ describe('Search Modal', () => {
                               src="test-file-stub"
                             />
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root SearchModalComponentinput css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root SearchModalComponentinput css-3wyanu-MuiFormControl-root-MuiTextField-root"
                               data-testid="searchChannelInput"
                             >
                               <div
@@ -183,9 +183,6 @@ describe('Search Modal', () => {
                                 />
                               </div>
                             </div>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 css-6gbt2m-MuiTypography-root"
-                            />
                           </div>
                           <img
                             class="SearchModalComponentcloseIcon"

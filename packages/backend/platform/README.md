@@ -131,3 +131,12 @@ community flows choose no server. The original staging results remain available.
 Physical phone message processing, production signing/distribution, and messaging
 with #3539's other optimizations still need validation. The measured crypto
 speedup is a simulator microbenchmark, not end-to-end message latency.
+
+### Develop refresh (2026-09-21)
+
+The integration retains current develop security/QSS behavior and auth 17e0b5b.
+The pinned libsodium source was rebuilt on Linux, including upstream `make check`;
+all 17 production binding/webpack/cache tests pass on both Node 20.20.1 and
+24.21.0, including 669 differential crypto vectors and fallback activation.
+All 11 iOS workflow tests pass. The prior native iOS app evidence is retained;
+Apple device/simulator builds were not repeated on this Linux host.

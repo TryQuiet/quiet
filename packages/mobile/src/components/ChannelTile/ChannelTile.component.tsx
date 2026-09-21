@@ -1,14 +1,29 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Animated, TouchableOpacity, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { truncateWords } from '../../utils/functions/truncateWords/truncateWords'
 import { Typography } from '../Typography/Typography.component'
 import { ChannelTileProps } from './ChannelTile.types'
 import LockIcon from '../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../assets/icons/svg/public-channel'
+import { ChannelType } from '@quiet/types'
+import { ProfilePhotoWithBadge } from '../ProfilePhoto/ProfilePhotoWithBadge.component'
+import { ProfilePhotoSize } from '../ProfilePhoto/ProfilePhoto.types'
 
-export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unread, isPublic, redirect }) => {
+export const ChannelTile: FC<ChannelTileProps> = ({
+  name,
+  id,
+  unread,
+  isPublic,
+  channelType,
+  redirect,
+  representativeUserData,
+  channel,
+  me,
+}) => {
+  const [channelTitleColor, setChannelTitleColor] = useState<string>(defaultTheme.palette.typography.gray90)
+  const [isMe, setIsMe] = useState<boolean>(false)
+
   // TODO Question: can this be deleted?
   const _leftSwipe = (_progress: any, dragX: any) => {
     const scale = dragX.interpolate({
@@ -36,6 +51,20 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
     )
   }
 
+  useEffect(() => {
+    setChannelTitleColor(unread ? defaultTheme.palette.typography.main : defaultTheme.palette.typography.gray90)
+  }, [unread])
+
+  useEffect(() => {
+    if (channelType === ChannelType.DM && me != null && me.nickname === name) {
+      setIsMe(true)
+    } else {
+      setIsMe(false)
+    }
+  }, [me, name])
+
+  const rowHeight = channelType === ChannelType.DM ? 24 : 20
+
   return (
     <GestureHandlerRootView>
       {/* <Swipeable friction={4} renderLeftActions={leftSwipe}> */}
@@ -47,7 +76,9 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
       >
         <View
           style={{
-            padding: 16,
+            paddingVertical: 8,
+            paddingLeft: 12,
+            paddingRight: 16,
           }}
         >
           <View
@@ -55,55 +86,49 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
               flexDirection: 'row',
             }}
           >
-            <View style={{ flex: 1, alignItems: 'center', paddingRight: 12 }}>
-              <View
-                style={{
-                  width: 36,
-                  height: 36,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 4,
-                  backgroundColor: isPublic
-                    ? defaultTheme.palette.background.gray70
-                    : defaultTheme.palette.background.grassGreen,
-                }}
-              >
-                <Typography fontSize={20} color={'white'}>
-                  {name.slice(0, 1).toUpperCase()}
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', height: rowHeight }}>
+              <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                {channelType === ChannelType.DM ? (
+                  <View style={{ paddingRight: 2 }}>
+                    <ProfilePhotoWithBadge
+                      userData={representativeUserData}
+                      channel={channel}
+                      size={ProfilePhotoSize.MEDIUM_SMALL}
+                    />
+                  </View>
+                ) : !isPublic ? (
+                  <LockIcon color={channelTitleColor} fill={true} size={18} bold={unread} />
+                ) : (
+                  <PublicChannelIcon color={channelTitleColor} size={18} bold={unread} />
+                )}
+                <Typography
+                  fontSize={16}
+                  fontWeight={unread ? 'medium' : 'normal'}
+                  style={{ color: channelTitleColor }}
+                  ellipsizeMode={'tail'}
+                  numberOfLines={1}
+                >
+                  {name}
                 </Typography>
-              </View>
-            </View>
-            <View style={{ flex: 9, flexDirection: 'column' }}>
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ flex: 8, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  {!isPublic ? <LockIcon fill={true} /> : <PublicChannelIcon />}
-                  <Typography fontSize={16} fontWeight={'medium'}>
-                    {name}
+                {isMe && (
+                  <Typography
+                    fontSize={16}
+                    fontWeight={'normal'}
+                    style={{ color: defaultTheme.palette.typography.grayLight }}
+                    numberOfLines={1}
+                  >
+                    me
                   </Typography>
-                </View>
-                <View style={{ flex: 4, alignItems: 'flex-end' }}>
-                  {date && (
-                    <Typography fontSize={14} color={unread ? 'blue' : 'subtitle'}>
-                      {date}
-                    </Typography>
-                  )}
-                </View>
+                )}
               </View>
-              <View style={{ flexDirection: 'row', paddingTop: 3 }}>
-                <View style={{ flex: 10 }}>
-                  {message && (
-                    <Typography fontSize={14} color={'gray50'}>
-                      {truncateWords(message, 11, 100)}
-                    </Typography>
-                  )}
-                </View>
-                <View style={{ flex: 2, alignItems: 'flex-end' }}>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ flex: 1, alignItems: 'flex-end' }}>
                   {unread && (
                     <View
                       style={{
                         width: 36,
                         height: 20,
-                        backgroundColor: defaultTheme.palette.background.blue,
+                        backgroundColor: defaultTheme.palette.background.hotPink,
                         borderRadius: 100,
                         alignItems: 'center',
                         justifyContent: 'center',

@@ -1,9 +1,9 @@
 import { all, call, take, takeEvery, takeLeading, fork, cancelled } from 'typed-redux-saga'
-import { nativeServicesMasterSaga } from './nativeServices/nativeServices.master.saga'
+import { admissionResetMasterSaga, nativeServicesMasterSaga } from './nativeServices/nativeServices.master.saga'
 import { navigationMasterSaga } from './navigation/navigation.master.saga'
 import { initMasterSaga } from './init/init.master.saga'
 import { initActions } from './init/init.slice'
-import { publicChannels, Socket } from '@quiet/state-manager'
+import { publicChannels, Socket, watchDeviceLinkExpirySaga } from '@quiet/state-manager'
 import { showNotificationSaga } from './nativeServices/showNotification/showNotification.saga'
 import { clearReduxStore } from './nativeServices/leaveCommunity/leaveCommunity.saga'
 import { pushNotificationsMasterSaga } from './pushNotifications/pushNotifications.master.saga'
@@ -44,9 +44,12 @@ export function* rootSaga(): Generator {
   }
 }
 
-function* storeReadySaga(): Generator {
+export function* storeReadySaga(): Generator {
   logger.info('storeReadySaga starting')
   try {
+    // Install the reset finisher before init can launch state-manager socket subscriptions. The
+    // backend may replay a completed reset immediately when the UI reconnects.
+    yield* fork(admissionResetMasterSaga)
     yield all([
       fork(initMasterSaga),
       fork(navigationMasterSaga),
@@ -56,6 +59,7 @@ function* storeReadySaga(): Generator {
       fork(keysMasterSaga),
       fork(usersMetadataMasterSaga),
       fork(channelMetadataMasterSaga),
+      fork(watchDeviceLinkExpirySaga),
       // Below line is reponsible for displaying notifications about messages from channels other than currently viewing one
       takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga),
       takeLeading(initActions.canceledRootTask.type, clearReduxStore),

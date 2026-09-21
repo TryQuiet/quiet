@@ -1,8 +1,9 @@
 export enum ScreenNames {
-  ChannelListScreen = 'ChannelList',
+  AppHomeScreen = 'AppHome',
   ChannelScreen = 'ChannelScreen',
   ChannelMembershipScreen = 'ChannelMembershipScreen',
   UpdateChannelMembershipScreen = 'UpdateChannelMembershipScreen',
+  UserProfileScreen = 'UserProfileScreen',
   ConnectionProcessScreen = 'ConnectionProcessScreen',
   DuplicatedUsernameScreen = 'DuplicatedUsernameScreen',
   UsernameTakenScreen = 'UsernameTakenScreen',
@@ -16,6 +17,7 @@ export enum ScreenNames {
   LeaveCommunityScreen = 'LeaveCommunityScreen',
   NotifierScreen = 'NotifierScreen',
   QRCodeScreen = 'QRCodeScreen',
+  LinkedDeviceQRCodeScreen = 'LinkedDeviceQRCodeScreen',
   SplashScreen = 'SplashScreen',
   SuccessScreen = 'SuccessScreen',
   UsernameRegistrationScreen = 'UsernameRegistrationScreen',

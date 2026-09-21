@@ -4,7 +4,7 @@
 
 import { createId } from '@paralleldrive/cuid2'
 import { ChainServiceBase } from '../chainServiceBase'
-import { Device, DeviceWithSecrets, redactDevice } from '@localfirst/auth'
+import { Device, DeviceWithSecrets, FirstUseDeviceWithSecrets, redactDevice } from '@localfirst/auth'
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 
@@ -27,6 +27,18 @@ class DeviceService extends ChainServiceBase {
     }
 
     return SigChain.lfa.createDevice(params)
+  }
+
+  /**
+   * Generate a device for a device-invitation handshake. The existing user's ID
+   * is intentionally unavailable until Local First Auth admits the device.
+   */
+  public static generateFirstUseDevice(deviceName = DeviceService.generateDeviceName()): FirstUseDeviceWithSecrets {
+    const { userId: _untrustedUserId, ...device } = SigChain.lfa.createDevice({
+      userId: '',
+      deviceName,
+    })
+    return device
   }
 
   /**

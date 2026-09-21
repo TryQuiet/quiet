@@ -1,30 +1,57 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, publicChannels, users } from '@quiet/state-manager'
+import { communities, connection, publicChannels, users } from '@quiet/state-manager'
 
 import { UpdateChannelMembershipScreenProps } from './UpdateChannelMembership.types'
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 import { UpdateChannelMembership } from '../../../components/ChannelMembership/UpdateChannelMembership/UpdateChannelMembership.component'
+import type { DmChannelUserData } from '../../../components/ProfilePhoto/ProfilePhoto.types'
+import { getChannelNonMembers } from '../../../utils/functions/channelMembers/channelMembers'
+import { isMemberConnected } from '@quiet/common'
 
 export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channelName, channelId } = route.params
+  const { channelTitle, channelName, channelType, channelId, channelIsPublic } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
   const userProfiles = useSelector(users.selectors.userProfiles)
+  const isUserConnected = useSelector(connection.selectors.isUserConnected)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+  const me = useSelector(users.selectors.myUserProfile)
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
+  const [nonMembers, setNonMembers] = useState<Record<string, DmChannelUserData>>({})
+
   useEffect(() => {
     if (screen === ScreenNames.UpdateChannelMembershipScreen && !channels.find(c => c.name === channelName)) {
-      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
+      setNonMembers({})
+      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.AppHomeScreen }))
     }
   }, [dispatch, screen, channels])
+
+  useEffect(() => {
+    if (screen === ScreenNames.UpdateChannelMembershipScreen && userProfiles != null) {
+      // The community minus this channel's members, by the same rule the list and the counts use.
+      const currentNonMembers = getChannelNonMembers(
+        channels.find(channel => channel.id === channelId),
+        userProfiles
+      )
+      const nonMemberData: { [userId: string]: DmChannelUserData } = {}
+      currentNonMembers.forEach(user => {
+        nonMemberData[user.userId] = {
+          connected: isMemberConnected(user.userId, me?.userId, isUserConnected, isTorInitialized),
+          user,
+        } as DmChannelUserData
+      })
+      setNonMembers(nonMemberData)
+    }
+  }, [userProfiles, channels, isUserConnected, isTorInitialized, me])
 
   const updateChannelMembershipInner = (memberIds: string[]) => {
     if (!channelId || !channelName) return
@@ -55,23 +82,20 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
   )
 
   const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelMembershipScreen,
-        params: {
-          channelId,
-          channelName,
-        },
-      })
-    )
+    // Pop rather than replace, so the membership screen keeps the params it was opened with —
+    // replacing it re-mounted it without channelTitle or channelType.
+    dispatch(navigationActions.pop())
   }, [dispatch])
 
   return (
     <UpdateChannelMembership
+      channelTitle={channelTitle}
       channelName={channelName}
+      channelType={channelType}
+      channelIsPublic={channelIsPublic}
       channelId={channelId}
       community={community}
-      userProfiles={userProfiles ?? {}}
+      nonMembers={nonMembers}
       updateChannelMembership={updateChannelMembership}
       handleBackButton={handleBackButton}
     />

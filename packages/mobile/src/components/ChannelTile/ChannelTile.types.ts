@@ -1,9 +1,14 @@
+import type { ChannelType, PublicChannelStorage, UserProfile } from '@quiet/types'
+import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
+
 export interface ChannelTileProps {
   name: string
   id: string
   unread: boolean
-  message?: string
-  date?: string
   isPublic: boolean
+  channelType: ChannelType
   redirect: (id: string) => void
+  representativeUserData?: DmChannelUserData
+  channel?: PublicChannelStorage
+  me?: UserProfile
 }

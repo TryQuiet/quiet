@@ -273,6 +273,47 @@ object QuietStorage {
         regularPrefs().edit().clear().apply()
     }
 
+    /**
+     * Removes community credentials and notification state after the backend has rolled back a
+     * provisional admission. This deliberately preserves app settings and never touches the
+     * nodejs-mobile backend or Tor data directories.
+     *
+     * commit() is used here because the React Native caller must not finalize its Redux reset
+     * until native storage has acknowledged the cleanup.
+     */
+    @JvmStatic
+    fun clearAdmissionCredentials() {
+        if (!securePrefs().edit().clear().commit()) {
+            throw IllegalStateException("Failed to clear encrypted admission credentials")
+        }
+
+        val prefs = regularPrefs()
+        val editor = prefs.edit()
+        admissionPreferenceKeys(prefs.all.keys).forEach(editor::remove)
+
+        if (!editor.commit()) {
+            throw IllegalStateException("Failed to clear admission notification state")
+        }
+    }
+
+    internal fun admissionPreferenceKeys(allKeys: Set<String>): Set<String> =
+        allKeys.filterTo(
+            mutableSetOf(
+                QSS_URLS_KEY,
+                QSS_CONFIGURATIONS_KEY,
+                LAST_SYNC_SEQ_KEY,
+                LAST_SYNC_TEAM_ID_KEY,
+                USER_METADATA_KEY,
+                DISPLAYED_NOTIFICATION_HASHES_KEY,
+                TEAM_QSS_ENABLED_KEY,
+            )
+        ) {
+            it.startsWith(LAST_SYNC_SEQ_BY_TEAM_PREFIX) ||
+                it.startsWith(MISSING_KEY_RETRY_SEQ_BY_TEAM_PREFIX) ||
+                it.startsWith(MISSING_KEY_RETRY_COUNT_BY_TEAM_PREFIX) ||
+                it.startsWith(CHANNEL_METADATA_KEY_PREFIX)
+        }
+
     @Synchronized
     private fun securePrefs(): SharedPreferences {
         encryptedPrefs?.let { return it }

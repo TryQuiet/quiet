@@ -1,151 +1,109 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { styled } from '@mui/material/styles'
-
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
+import { Checkbox, Typography } from '@mui/material'
+import Drawer from '../../ui/Drawer/Drawer'
 
 import { useModal } from '../../../containers/hooks'
-import Modal from '../../ui/Modal/Modal'
 import { User, UserProfile } from '@quiet/types'
-import { createTheme, TextField, Theme, ThemeProvider, useTheme } from '@mui/material'
-import Autocomplete, {
-  AutocompleteChangeDetails,
-  AutocompleteChangeReason,
-  autocompleteClasses,
-} from '@mui/material/Autocomplete'
-import { Box } from '../../ui'
-import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
-import classNames from 'classnames'
+import PanelHeader, { PANEL_INSET, PANEL_WIDTH } from '../../ui/Panel/PanelHeader'
+import PillField from '../../ui/Panel/PillField'
+import RecipientPill from '../../widgets/userSearch/RecipientPill'
+import ProfilePhotoWithBadge from '../../ProfilePhoto/ProfilePhotoWithBadge'
+import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 import { createLogger } from '../../../logger'
-import LockIcon from '../../../static/images/components/lock'
+import { isMemberConnected, type IsUserConnected } from '@quiet/common'
 
 const logger = createLogger('AddMembersChannelComponent')
+
+/**
+ * The second step of setting up a private channel: choosing who is in it.
+ *
+ * Laid out after "Add members or roles" (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9305): a close and a
+ * Done in the title bar rather than a back arrow, the channel it is acting on as the bar's
+ * subtitle, the people picked so far as pills inside a radius-16 search box with its caption
+ * beneath, and the rest listed below with a checkbox and a thumbnail each.
+ *
+ * The design also lists roles; there are none yet, so only the members section is built. Its
+ * heading is kept so the section reads the same when roles arrive.
+ */
+// "or roles" is dropped until roles exist; the design's title is "Add members or roles".
+const TITLE = 'Add members'
+const SEARCH_PLACEHOLDER = 'E.g. @jane123'
+const MEMBERS_HEADING = 'MEMBERS'
+const NO_MEMBERS = 'Everyone in this community is already in this channel.'
 
 const PREFIX = 'AddMembersChannel'
 
 const classes = {
-  root: `${PREFIX}root`,
-  titleContainer: `${PREFIX}titleContainer`,
-  descContainer: `${PREFIX}descContainer`,
-  iconContainer: `${PREFIX}iconContainer`,
-  buttonContainer: `${PREFIX}buttonContainer`,
-  button: `${PREFIX}button`,
-  secondaryButtonContainer: `${PREFIX}secondaryButtonContainer`,
-  secondaryButton: `${PREFIX}secondaryButton`,
-  avatar: `${PREFIX}avatar`,
-  username: `${PREFIX}username`,
-  autocompleteBox: `${PREFIX}autocompleteBox`,
-  autocompleteBoxSelected: `${PREFIX}autocompleteBoxSelected`,
+  content: `${PREFIX}content`,
+  block: `${PREFIX}block`,
+  heading: `${PREFIX}heading`,
+  row: `${PREFIX}row`,
+  name: `${PREFIX}name`,
+  empty: `${PREFIX}empty`,
 }
 
-const StyledGrid = styled(Grid)(({ theme }) => ({
-  padding: '0px 32px',
-
-  [`& .${classes.root}`]: {},
-
-  [`& .${classes.titleContainer}`]: {
-    marginTop: 16,
+const StyledPanelContent = styled('div')(({ theme }) => ({
+  [`&.${classes.content}`]: {
+    backgroundColor: theme.palette.background.default,
   },
 
-  [`& .${classes.descContainer}`]: {
-    marginTop: 8,
-    marginLeft: 32,
-    marginRight: 32,
-    width: 100,
+  // The search box and its caption are inset; the rows below run full bleed.
+  [`& .${classes.block}`]: {
+    padding: PANEL_INSET,
   },
 
-  [`& .${classes.iconContainer}`]: {
-    marginTop: 0,
+  [`& .${classes.heading}`]: {
+    padding: `18px ${PANEL_INSET}px 6px`,
+    fontSize: 12,
+    lineHeight: '16px',
+    letterSpacing: '0.4px',
+    color: theme.palette.colors.gray50,
   },
 
-  [`& .${classes.buttonContainer}`]: {
-    marginTop: 25,
-  },
-
-  [`& .${classes.button}`]: {
-    width: 190,
-    height: 60,
-    color: theme.palette.colors.white,
-    backgroundColor: theme.palette.colors.purple,
-    padding: theme.spacing(2),
+  [`& .${classes.row}`]: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    minHeight: 55,
+    padding: `0 ${PANEL_INSET}px`,
+    cursor: 'pointer',
+    borderTop: `1px solid ${theme.palette.colors.border01}`,
     '&:hover': {
-      backgroundColor: theme.palette.colors.darkPurple,
-    },
-    '&:disabled': {
-      backgroundColor: theme.palette.colors.gray,
+      backgroundColor: theme.palette.colors.border01,
     },
   },
 
-  [`& .${classes.secondaryButtonContainer}`]: {
-    marginTop: 16,
-    marginBottom: 32,
-  },
-
-  [`& .${classes.secondaryButton}`]: {
-    width: 160,
-    height: 40,
-    color: theme.palette.colors.darkGray,
-    backgroundColor: theme.palette.colors.white,
-    padding: theme.spacing(2),
-    '&:hover': {
-      boxShadow: 'none',
-      cursor: 'pointer',
-      backgroundColor: theme.palette.colors.white,
-    },
-  },
-
-  [`& .${classes.avatar}`]: {
-    width: theme.componentSizes.avatar.small,
-    height: theme.componentSizes.avatar.small,
-    marginRight: 0,
-    paddingBottom: 0,
-    borderRadius: 4,
-    background: theme.palette.background.paper,
-    marginBottom: 0,
-    fontSize: '1rem',
-    lineHeight: '1.68',
-  },
-
-  [`& .${classes.username}`]: {
-    fontWeight: 400,
-    paddingLeft: 0,
-    paddingRight: 0,
+  [`& .${classes.name}`]: {
+    fontSize: 16,
+    lineHeight: '26px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: 150,
-    fontSize: '1rem',
     whiteSpace: 'nowrap',
-    lineHeight: 1.68,
   },
 
-  [`& .${classes.autocompleteBox}`]: {
-    borderRadius: '8px',
-    margin: '5px',
-    [`&.${autocompleteClasses.option}`]: {
-      padding: '8px',
-    },
-  },
-
-  [`& .${classes.autocompleteBoxSelected}`]: {
-    backgroundColor: theme.palette.colors.darkPurple,
+  [`& .${classes.empty}`]: {
+    padding: PANEL_INSET,
+    fontSize: 14,
+    lineHeight: '20px',
+    fontStyle: 'italic',
+    color: theme.palette.colors.gray50,
   },
 }))
 
 export interface AddMembersChannelProps {
   channelName: string
   channelId: string
+  /** Presence by user id; a linked device counts as the same user. See connection.selectors. */
+  isUserConnected?: IsUserConnected
+  /** My own row, were it ever listed, follows Tor rather than a peer connection. */
+  myUserId?: string
+  isTorInitialized?: boolean
   allUsers: Record<string, User>
   possibleMembers: Record<string, UserProfile>
   addMembersToChannel: (memberIds: string[]) => void
-}
-
-interface AutoCompleteOption {
-  id: string
-  label: string
-  index: number
-  selected: boolean
 }
 
 export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & AddMembersChannelProps> = ({
@@ -154,189 +112,130 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
   channelName,
   channelId,
   possibleMembers,
-  allUsers,
+  isUserConnected = () => false,
+  myUserId,
+  isTorInitialized = false,
   addMembersToChannel,
 }) => {
-  const theme = useTheme()
-  const [selectedMembers, setSelectedMembers] = useState<AutoCompleteOption[]>([])
-  const [autoCompleteOptions, setAutoCompleteOptions] = useState<AutoCompleteOption[]>([])
-  let initialized = false
-
-  const _updateAutoCompleteOptions = () => {
-    const updatedOptions: AutoCompleteOption[] = []
-    let index = 0
-    for (const user of Object.values(possibleMembers)) {
-      if ((user.channels ?? []).includes(channelId)) {
-        continue
-      }
-      updatedOptions.push({ label: user.nickname, id: user.userId, selected: false, index })
-      index++
-    }
-    setAutoCompleteOptions(updatedOptions)
-    initialized = true
-  }
+  const [selected, setSelected] = useState<string[]>([])
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
-    if (open && !initialized) {
-      _updateAutoCompleteOptions()
-    } else if (!open) {
-      setAutoCompleteOptions([])
-      setSelectedMembers([])
-      initialized = false
+    if (!open) {
+      setSelected([])
+      setQuery('')
     }
   }, [open])
 
-  const handleAddMembersToChannel = (): void => {
-    addMembersToChannel(selectedMembers.map(option => option.id))
-    setSelectedMembers([])
-    setAutoCompleteOptions([])
-  }
+  /** Everyone who is not in the channel already. */
+  const candidates = useMemo(
+    () => Object.values(possibleMembers).filter(member => !(member.channels ?? []).includes(channelId)),
+    [possibleMembers, channelId]
+  )
 
-  const customTheme = (outerTheme: Theme) =>
-    createTheme({
-      palette: {
-        mode: outerTheme.palette.mode,
-      },
-      components: {
-        MuiAutocomplete: {
-          defaultProps: {
-            renderOption: (props, option, state) => {
-              const { key, ...optionProps } = props as any
-              const userProfile = possibleMembers[option.id]
-              return (
-                <Box
-                  key={option.id}
-                  classes={classNames(classes.autocompleteBox, {
-                    [classes.autocompleteBoxSelected]: state.selected,
-                  })}
-                  component='li'
-                  selected={state.selected}
-                  data-testid={`${channelName}-add-members-autocomplete-option-${option.label}`}
-                  {...optionProps}
-                >
-                  <Grid container item alignItems='center' direction='row' display='flex' gap='5px' padding='0px 0px'>
-                    <ProfilePhoto
-                      style={{
-                        paddingBottom: 0,
-                        padding: 0,
-                        marginLeft: 0,
-                        marginRight: 0,
-                        marginBottom: 0,
-                        fontSize: '1rem',
-                        lineHeight: '1.68',
-                        borderRadius: 4,
-                      }}
-                      className={classes.avatar}
-                      userProfile={userProfile}
-                      userId={userProfile.userId}
-                      size={theme.componentSizes.avatar.small}
-                      data-testid={`${channelName}-add-members-autocomplete-${option.label}-profilePhoto`}
-                    />
-                    <Typography
-                      variant='body2'
-                      className={classes.username}
-                      data-testid={`${channelName}-add-members-autocomplete-${option.label}`}
-                    >
-                      {option.label}
-                    </Typography>
-                  </Grid>
-                </Box>
-              )
-            },
-          },
-        },
-      },
-    })
+  const listed = useMemo(() => {
+    const needle = query.replace('@', '').toLowerCase()
+    if (!needle) return candidates
+    return candidates.filter(member => member.nickname.toLowerCase().includes(needle))
+  }, [candidates, query])
 
-  const handleAutoCompleteChange = (
-    event: React.SyntheticEvent,
-    selected: AutoCompleteOption[],
-    reason: AutocompleteChangeReason,
-    details?: AutocompleteChangeDetails<AutoCompleteOption>
-  ) => {
-    setSelectedMembers(selected.map(option => ({ ...option, selected: true })))
-    if (reason === 'selectOption') {
-      autoCompleteOptions[details!.option.index].selected = true
-    } else if (reason === 'removeOption') {
-      autoCompleteOptions[details!.option.index].selected = false
-    }
-    setAutoCompleteOptions(autoCompleteOptions)
-  }
+  const toggle = (userId: string) =>
+    setSelected(current => (current.includes(userId) ? current.filter(id => id !== userId) : [...current, userId]))
 
-  const ChannelNameComponent: React.FC<{ channelName: string }> = ({ channelName }) => {
-    return (
-      <Grid
-        style={{
-          flexDirection: 'row',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'left',
-          alignContent: 'center',
-          paddingLeft: '2px',
-        }}
-        data-testid={`${channelName}-add-member-name`}
-      >
-        <LockIcon fill='currentColor' style={{ fontWeight: 500, fontSize: 16 }} />
-        <span style={{ fontWeight: 500, fontSize: 16 }}>{channelName}</span>
-      </Grid>
-    )
+  const handleDone = () => {
+    logger.debug(`Adding ${selected.length} members to ${channelName}`)
+    addMembersToChannel(selected)
+    setSelected([])
+    setQuery('')
   }
 
   return (
-    <Modal open={open} handleClose={handleClose} fullPage={false}>
-      <StyledGrid container justifyContent='center'>
-        <Grid container item className={classes.descContainer} xs={12} direction='row' justifyContent='center'>
-          <Typography align={'center'}>Add members to</Typography>
-          <ChannelNameComponent channelName={channelName} />
-          <Typography align={'center'}>:</Typography>
-        </Grid>
-        <StyledGrid container item direction='row' justifyContent='center' paddingTop='30px'>
-          <ThemeProvider theme={customTheme(theme)}>
-            <Autocomplete
-              multiple
-              autoHighlight
-              limitTags={3}
-              options={autoCompleteOptions}
-              sx={{ width: 300 }}
-              renderInput={params => <TextField {...params} label='Add members' />}
-              onChange={handleAutoCompleteChange}
-              data-testid={`${channelName}-add-members-autocomplete`}
-            />
-          </ThemeProvider>
-        </StyledGrid>
-        <Grid item xs={'auto'} className={classes.buttonContainer}>
-          <Button
-            variant='contained'
-            onClick={handleAddMembersToChannel}
-            size='small'
-            fullWidth
-            className={classes.button}
-            data-testid={`${channelName}-add-members-button`}
-          >
-            Add {selectedMembers.length} members
-          </Button>
-        </Grid>
-        <Grid
-          container
-          item
-          className={classes.secondaryButtonContainer}
-          xs={12}
-          direction='row'
-          justifyContent='center'
-        >
-          <Button
-            variant='contained'
-            onClick={handleClose}
-            size='small'
-            fullWidth
-            className={classes.secondaryButton}
-            data-testid={`${channelName}-add-members-leave-button`}
-          >
-            Never mind
-          </Button>
-        </Grid>
-      </StyledGrid>
-    </Modal>
+    <Drawer
+      open={open}
+      onClose={handleClose}
+      anchor='right'
+      data-testid={'addMembersPanel'}
+      PaperProps={{ sx: { width: PANEL_WIDTH } }}
+    >
+      <StyledPanelContent className={classes.content}>
+        <PanelHeader
+          title={TITLE}
+          subtitle={`#${channelName}`}
+          handleClose={handleClose}
+          // A cross and a Done, not a back arrow: this step is confirmed or cancelled.
+          leading={'close'}
+          action={{
+            label: 'Done',
+            onClick: handleDone,
+            testId: `${channelName}-add-members-button`,
+            disabled: selected.length === 0,
+          }}
+          closeTestId={`${channelName}-add-members-leave-button`}
+          titleTestId={'addMembersPanelTitle'}
+        />
+        <div className={classes.block}>
+          <PillField
+            testId={`${channelName}-add-members-search`}
+            value={query}
+            onChange={setQuery}
+            placeholder={selected.length > 0 ? undefined : SEARCH_PLACEHOLDER}
+            autoFocus
+            pills={selected.map(userId => (
+              <RecipientPill
+                key={userId}
+                userProfile={possibleMembers[userId]}
+                userId={userId}
+                label={possibleMembers[userId]?.nickname ?? userId}
+                onDelete={() => toggle(userId)}
+              />
+            ))}
+          />
+        </div>
+        {candidates.length === 0 ? (
+          <Typography className={classes.empty} data-testid={`${channelName}-add-members-empty`}>
+            {NO_MEMBERS}
+          </Typography>
+        ) : (
+          <>
+            <Typography className={classes.heading}>{MEMBERS_HEADING}</Typography>
+            {listed.map(member => (
+              // The row is the checkbox's <label>: pressing anywhere on it picks that member, and
+              // a screen reader announces the member's name for the checkbox rather than leaving a
+              // list of unnamed ones. The toggle belongs to the checkbox's own onChange — a click
+              // handler on the row as well would fire twice for one press and cancel itself out.
+              <label
+                key={member.userId}
+                className={classes.row}
+                htmlFor={`${channelName}-add-members-option-${member.userId}`}
+                data-testid={`${channelName}-add-members-row-${member.nickname}`}
+              >
+                <Checkbox
+                  id={`${channelName}-add-members-option-${member.userId}`}
+                  checked={selected.includes(member.userId)}
+                  onChange={() => toggle(member.userId)}
+                  disableRipple
+                  sx={{ padding: 0 }}
+                  inputProps={
+                    {
+                      'data-testid': `${channelName}-add-members-checkbox-${member.nickname}`,
+                    } as React.InputHTMLAttributes<HTMLInputElement>
+                  }
+                />
+                {/* The design puts a presence dot on each member's thumbnail (838:9477). */}
+                <ProfilePhotoWithBadge
+                  size={ProfilePhotoSize.MEDIUM}
+                  userData={{
+                    user: member,
+                    connected: isMemberConnected(member.userId, myUserId, isUserConnected, isTorInitialized),
+                  }}
+                />
+                <Typography className={classes.name}>{member.nickname}</Typography>
+              </label>
+            ))}
+          </>
+        )}
+      </StyledPanelContent>
+    </Drawer>
   )
 }
 

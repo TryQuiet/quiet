@@ -15,8 +15,17 @@ const classes = {
 }
 
 const StyledGrid = styled(Grid)(() => ({
+  /**
+   * A QR code is drawn in black on transparent, so on the dark theme's #222222 it is black on
+   * near-black. It carries its own white ground — with a quiet zone, which a scanner needs to find
+   * the code's edges — rather than depending on the panel behind it.
+   */
   [`& .${classes.codeWrapper}`]: {
     marginTop: 16,
+    display: 'inline-flex',
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
   },
 
   [`& .${classes.textWrapper}`]: {
