@@ -17,6 +17,12 @@ const LINK_HREF = 'https://tryquiet.org'
 jest.mock('@ronradtke/react-native-markdown-display', () => {
   const react = require('react')
   const href = 'https://tryquiet.org'
+  // Anchored to the tail of this file's own fixture rather than searching the text for the url.
+  // An unanchored `children.includes(href)` reads as URL-origin sanitization - it is what
+  // CodeQL's js/incomplete-url-substring-sanitization flags, and that is a required check on
+  // this repo. Nothing here authorizes anything: the stand-in only has to recognise the single
+  // fixture that ends in a link, so an anchored match states that and drops the false signal.
+  const fixtureEndingInLink = /, see https:\/\/tryquiet\.org\s*$/
   return {
     __esModule: true,
     default: ({ children, rules }: any) =>
@@ -24,9 +30,9 @@ jest.mock('@ronradtke/react-native-markdown-display', () => {
         'div',
         null,
         children,
-        // Stands in for linkify: when the markdown source contains the url, render whatever the
-        // component's own `link` rule returns for it.
-        typeof children === 'string' && children.includes(href)
+        // Stands in for linkify: when the markdown source is the fixture ending in the url,
+        // render whatever the component's own `link` rule returns for it.
+        typeof children === 'string' && fixtureEndingInLink.test(children)
           ? rules.link({ key: 'link', attributes: { href } }, [href], [], { link: {} })
           : null
       ),
