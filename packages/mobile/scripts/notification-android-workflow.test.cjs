@@ -21,7 +21,14 @@ for (const lane of ['onboarding', 'provider']) {
     for (const file of ['.env.e2e.qss.push', '.env.e2e.qss.staging']) {
       fs.copyFileSync(path.resolve(__dirname, '..', file), path.join(root, 'packages/mobile', file))
     }
-    for (const name of ['sdkmanager', 'npm']) {
+    const sdk = path.join(root, 'android sdk')
+    fs.mkdirSync(path.join(sdk, 'cmdline-tools/latest/bin'), { recursive: true })
+    fs.writeFileSync(path.join(sdk, 'cmdline-tools/latest/bin/sdkmanager'), record, { mode: 0o755 })
+    // Hosted Ubuntu has SDK tools outside PATH; never select an unrelated shim.
+    fs.writeFileSync(path.join(root, 'bin/sdkmanager'), '#!/bin/sh\nexit 98\n', { mode: 0o755 })
+    env.ANDROID_HOME = lane === 'onboarding' ? sdk : ''
+    env.ANDROID_SDK_ROOT = sdk
+    for (const name of ['npm']) {
       fs.writeFileSync(path.join(root, 'bin', name), record + `if (process.env.FAIL_INPUTS && ${JSON.stringify(name)} === 'npm') process.exit(23);\n`, { mode: 0o755 })
     }
     fs.writeFileSync(path.join(root, 'packages/mobile/android/gradlew'), record, { mode: 0o755 })
