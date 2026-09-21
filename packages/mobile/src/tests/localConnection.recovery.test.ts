@@ -6,6 +6,7 @@ import { io } from 'socket.io-client'
 import { Server } from 'socket.io'
 import { communities, socket as stateManager } from '@quiet/state-manager'
 import { getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
+import { InvitationKind } from '@quiet/types'
 import { initMasterSaga } from '../store/init/init.master.saga'
 import { initActions } from '../store/init/init.slice'
 import { RECOVER_WEBSOCKET_CHANNEL } from '../store/init/startConnection/startConnection.saga'
@@ -124,7 +125,11 @@ describe('QR return with a real local transport failure', () => {
 
       harness.dispatch(initActions.deepLink(code()))
       await waitUntil(() => harness.joins().length === 1)
-      expect(harness.joins()).toEqual([communities.actions.joinCommunity({ inviteData: validInvitationDatav4[0] })])
+      expect(harness.joins()).toEqual([
+        communities.actions.joinCommunity({
+          inviteData: { ...validInvitationDatav4[0], kind: InvitationKind.Member },
+        }),
+      ])
       expect(harness.state().Init.lastKnownSocketIOData).toEqual(currentBackend.details)
       expect(oldConnect).not.toHaveBeenCalled()
       expect(sockets).toHaveLength(2)

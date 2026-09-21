@@ -12,6 +12,31 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  resolve-update-bucket:
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/tags/@quiet/desktop')
+    outputs:
+      bucket: ${{ steps.bucket.outputs.bucket }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Test release bucket selection
+        run: node --test packages/desktop/scripts/releaseBucket.test.js
+
+      - name: Select update bucket from desktop version
+        if: github.event_name == 'release'
+        id: bucket
+        run: node packages/desktop/scripts/releaseBucket.js
+
+      - name: Verify access to the release bucket
+        if: github.event_name == 'release'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          S3_BUCKET: ${{ steps.bucket.outputs.bucket }}
+        run: aws s3api head-bucket --bucket "$S3_BUCKET"
+
   build-debug-distributables:
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     strategy:
@@ -148,7 +173,8 @@ jobs:
     secrets: inherit
 
   build-linux-prod:
-    # needs: run-e2e-tests-linux
+    needs:
+      - resolve-update-bucket
     runs-on: ubuntu-22.04
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
@@ -156,7 +182,7 @@ jobs:
     env:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.9.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
@@ -215,14 +241,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage
-          asset_name: Quiet-${{ steps.extract_version.outputs.version }}.AppImage
-          asset_content_type: application/.AppImage
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -234,7 +257,8 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-macos-prod:
-    # needs: run-e2e-tests-mac
+    needs:
+      - resolve-update-bucket
     runs-on: macos-15-intel
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
@@ -242,7 +266,7 @@ jobs:
     env:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.9.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
 
     steps:
       - uses: actions/checkout@v5
@@ -342,14 +366,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
-          asset_content_type: application/.dmg
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -361,6 +382,8 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-macos-arm64-prod:
+    needs:
+      - resolve-update-bucket
     runs-on: macos-26
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
@@ -368,7 +391,7 @@ jobs:
     env:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.9.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
 
     steps:
       - uses: actions/checkout@v5
@@ -465,14 +488,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
-          asset_content_type: application/.dmg
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -485,6 +505,7 @@ jobs:
 
   publish-macos-update-metadata:
     needs:
+      - resolve-update-bucket
       - build-macos-prod
       - build-macos-arm64-prod
     runs-on: ubuntu-22.04
@@ -493,7 +514,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.9.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
       MAC_UPDATE_CHANNEL_FILE: ${{ github.event.action == 'released' && 'latest-mac.yml' || 'alpha-mac.yml' }}
 
     steps:
@@ -575,7 +596,8 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-windows-prod:
-    # needs: run-e2e-tests-win
+    needs:
+      - resolve-update-bucket
     runs-on: windows-latest
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
@@ -583,7 +605,7 @@ jobs:
     env:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.9.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
 
     steps:
       - uses: actions/checkout@v5
@@ -646,14 +668,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
-          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
-          asset_content_type: application/.exe
+        shell: bash
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier

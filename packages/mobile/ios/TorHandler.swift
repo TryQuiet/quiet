@@ -133,7 +133,7 @@ final class TorHandler: NSObject {
 
   private var cookieData: Data?
   private var authCookie: String?
-  private var backgroundTransitions: [String: (Bool) -> Void] = [:]
+  private let backgroundTransitions = TorBackgroundTransitions()
 
   deinit {
     monitorTimer?.cancel()
@@ -199,8 +199,7 @@ final class TorHandler: NSObject {
         return
       }
 
-      guard self.backgroundTransitions[transitionId] == nil else { return }
-      self.backgroundTransitions[transitionId] = completion
+      guard self.backgroundTransitions.register(transitionId, completion: completion) else { return }
       self.requestBackgroundMode()
     }
   }
@@ -210,8 +209,7 @@ final class TorHandler: NSObject {
   @objc(cancelBackgroundTransition:)
   func cancelBackgroundTransition(_ transitionId: String) {
     lifecycleQueue.async { [weak self] in
-      guard let completion = self?.backgroundTransitions.removeValue(forKey: transitionId) else { return }
-      DispatchQueue.main.async { completion(false) }
+      self?.backgroundTransitions.cancel(transitionId)
     }
   }
 
@@ -222,9 +220,11 @@ final class TorHandler: NSObject {
 
     // A Tor process that has not started (or has already exited) has no native
     // work left to make dormant.
-    guard torThread != nil, torThread?.isFinished != true else {
+    guard !backgroundTransitions.finishIfTorUnavailable(
+      hasTorThread: torThread != nil,
+      torThreadIsFinished: torThread?.isFinished == true
+    ) else {
       state = .stopped
-      finishAllBackgroundTransitions(success: true)
       return
     }
 
@@ -604,7 +604,7 @@ final class TorHandler: NSObject {
       self.pendingModeCommand = nil
       self.state = .unknown
       self.controller = nil
-      let transitions = self.backgroundTransitions.keys.sorted().joined(separator: ",")
+      let transitions = self.backgroundTransitions.pendingIds.joined(separator: ",")
       Self.logger.error("Tor mode command timed out; command=\(command.id) pendingBackgroundTransitions=\(transitions, privacy: .public); reconnecting")
       self.connectController(generation: command.generation)
     }
@@ -628,36 +628,22 @@ final class TorHandler: NSObject {
       applyDesiredMode()
     } else {
       state = .unknown
-      let transitions = backgroundTransitions.keys.sorted().joined(separator: ",")
+      let transitions = backgroundTransitions.pendingIds.joined(separator: ",")
       Self.logger.error("Tor mode command failed; command=\(command.id) pendingBackgroundTransitions=\(transitions, privacy: .public); retrying")
       scheduleControllerRetry(generation: generation)
     }
   }
 
   private func finishBackgroundTransitionsIfDormant() {
-    guard Self.canAcknowledgeBackgroundTransition(
+    backgroundTransitions.finishIfDormant(
       desiresDormant: desiredMode == .dormant,
       isDormant: state == .dormant,
       commandPending: pendingModeCommand != nil
-    ) else { return }
-    finishAllBackgroundTransitions(success: true)
-  }
-
-  static func canAcknowledgeBackgroundTransition(
-    desiresDormant: Bool,
-    isDormant: Bool,
-    commandPending: Bool
-  ) -> Bool {
-    desiresDormant && isDormant && !commandPending
+    )
   }
 
   private func finishAllBackgroundTransitions(success: Bool) {
-    guard !backgroundTransitions.isEmpty else { return }
-    let completions = Array(backgroundTransitions.values)
-    backgroundTransitions.removeAll()
-    DispatchQueue.main.async {
-      completions.forEach { $0(success) }
-    }
+    backgroundTransitions.finishAll(success: success)
   }
 
   private func notifyReadyIfNeeded() {

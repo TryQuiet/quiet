@@ -127,4 +127,19 @@ jobs:
 
       - name: "Unit tests"
         if: steps.filter.outputs.backend == 'true'
-        run: lerna run test-ci-tor --scope @quiet/backend --stream
+        # Live Tor bootstrap and descriptor publication can transiently stall on
+        # hosted runners. Retry only this isolated Tor suite; setup failures
+        # still fail immediately.
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        with:
+          # A cold Tor bootstrap alone can take minutes on a hosted runner, and
+          # each attempt gets a fresh tmp dir so it never reuses a warm cache.
+          # This has to clear that plus the other serial Tor specs and teardown.
+          timeout_minutes: 15
+          # One initial attempt plus one fresh Tor process.
+          max_attempts: 2
+          retry_wait_seconds: 30
+          # Jest reports its per-test timeout as exit code 1, while the action
+          # reports an overlong command as a timeout, so cover both cases.
+          retry_on: any
+          command: lerna run test-ci-tor --scope @quiet/backend --stream

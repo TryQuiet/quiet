@@ -152,3 +152,21 @@ channel's active notification, so counting visible cards cannot prove every
 message was presented. Quick reply is not covered. A fixture that force-stops
 Android is appropriate for offline history tests, not push-receivable background
 state. The Appium journeys use Home/background instead.
+
+## Develop integration validation — 2026-09-21
+
+Updated against current develop/New Architecture/auth 17e0b5b. Both deterministic
+notification fixtures reproduce the pinned auth codecs. Eight notification/leave
+saga tests pass. The actual Android notification handler passes all 13 native
+cases on API 35. Portable tests pass: 22 harness cases (one existing platform skip),
+49 guarded builder cases (one skip), 28 fixture/credential cases (one skip), five
+real QSS-only Nest/libp2p cases, and four Appium reporter/preflight cases (two Apple
+platform skips).
+
+The Xcode merge preserves develop's hostless Tor lifecycle tests and production
+transition core. Firebase-unconfigured tests remain in the app-hosted target.
+A real-project regression passes 36 assertions, including unique object IDs,
+source existence, no duplicate compilation and correct host settings. The four
+existing XCTest cases also pass against the actual Swift transition core on Linux.
+The earlier Apple native and multiplayer evidence above was not repeated here;
+provider delivery still requires the explicitly configured full-loop lane.
