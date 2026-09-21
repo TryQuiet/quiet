@@ -512,50 +512,66 @@ describe('Timed-out P2P admission recovery', () => {
   })
 
   it('clears a timed-out device invitation and returns the linked device to Join Community', async () => {
+    const suiteAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
+    // Both attempts use the same backend. The second must allow a failed first
+    // dial (~5 seconds) plus its queued retry (~8 seconds later), while the first
+    // still proves that an offline owner causes admission to expire.
+    process.env.INVITATION_ADMISSION_TIMEOUT_MS = String(LOCAL_JOIN_COMPLETION_TIMEOUT_MS)
     const owner = new App({ username: 'deviceowner' })
     const linkedDevice = new App({ username: 'linkeddevice' })
     apps.push(owner, linkedDevice)
 
-    const deviceInvitationLink = await createCommunityAndGetInvitation(
-      owner,
-      'deviceowner',
-      SettingsModalTabName.LINKED_DEVICES,
-      async settings => await (await settings.deviceLink()).getText()
-    )
+    try {
+      const deviceInvitationLink = await createCommunityAndGetInvitation(
+        owner,
+        'deviceowner',
+        SettingsModalTabName.LINKED_DEVICES,
+        async settings => await (await settings.deviceLink()).getText()
+      )
 
-    // The invite identifies the owner device, but no peer is online to admit the linked device.
-    await owner.close()
-    await linkedDevice.openWithRetries()
-    const joinModal = new JoinCommunityModal(linkedDevice.driver)
-    expect(await joinModal.isReady()).toBeTruthy()
-    await joinModal.typeCommunityInviteLink(deviceInvitationLink)
-    await joinModal.submit()
+      // The invite identifies the owner device, but no peer is online to admit the linked device.
+      await owner.close()
+      await linkedDevice.openWithRetries()
+      const joinModal = new JoinCommunityModal(linkedDevice.driver)
+      expect(await joinModal.isReady()).toBeTruthy()
+      await joinModal.typeCommunityInviteLink(deviceInvitationLink)
+      await joinModal.submit()
 
-    expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
-    await expectJoinCommunityError(linkedDevice, 'make sure both devices have the app open')
+      expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
+      await expectJoinCommunityError(
+        linkedDevice,
+        'make sure both devices have the app open',
+        '',
+        LOCAL_JOIN_COMPLETION_TIMEOUT_MS + 30_000
+      )
 
-    // A transport becoming available after reset must not revive the cleared
-    // admission. A newly submitted device link is allowed to start a new one.
-    await owner.openWithRetries()
-    expect(await new JoinCommunityModal(linkedDevice.driver).isReady()).toBeTruthy()
-    await expectJoiningPanelHidden(linkedDevice)
+      // A transport becoming available after reset must not revive the cleared
+      // admission. A newly submitted device link is allowed to start a new one.
+      await owner.openWithRetries()
+      expect(await new JoinCommunityModal(linkedDevice.driver).isReady()).toBeTruthy()
+      await expectJoiningPanelHidden(linkedDevice)
 
-    const settings = await new Sidebar(owner.driver).openSettings()
-    expect(await settings.isReady()).toBeTruthy()
-    await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-    const freshDeviceInvitationLink = await (await settings.deviceLink()).getText()
-    await settings.closeTabThenModal()
+      const settings = await new Sidebar(owner.driver).openSettings()
+      expect(await settings.isReady()).toBeTruthy()
+      await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
+      const freshDeviceInvitationLink = await (await settings.deviceLink()).getText()
+      await settings.closeTabThenModal()
 
-    const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
-    await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
-    await resetJoinModal.submit()
-    await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(
-      PANEL_VISIBLE_TIMEOUT_MS,
-      joinCompletionTimeoutMs(),
-      'device link after timed-out invitation'
-    )
-    expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
-
-    await releaseApps(owner, linkedDevice)
+      const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
+      linkedDevice.buildSetup.clearProcessOutput()
+      await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
+      await resetJoinModal.submit()
+      await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(
+        PANEL_VISIBLE_TIMEOUT_MS,
+        joinCompletionTimeoutMs(),
+        'device link after timed-out invitation'
+      )
+      assertAdmissionNotReset(linkedDevice)
+      expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
+    } finally {
+      await releaseApps(owner, linkedDevice)
+      if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
+      else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+    }
   })
 })
