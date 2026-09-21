@@ -49,6 +49,95 @@ setTimeout(() => process.stdout.write('123\\n'), 250)
 )
 
 test(
+  'retries one timed-out child query without blocking the event loop',
+  { skip: process.platform === 'win32', timeout: 25_000 },
+  async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-tor-cold-query-'))
+    const originalPath = process.env.PATH
+    const attempts = path.join(directory, 'attempts')
+    let heartbeat = false
+    const timer = setTimeout(() => {
+      heartbeat = true
+    }, 50)
+    try {
+      fs.writeFileSync(
+        path.join(directory, 'powershell.exe'),
+        `#!/usr/bin/env node
+const fs = require('node:fs')
+const attempts = ${JSON.stringify(attempts)}
+const count = fs.existsSync(attempts) ? Number(fs.readFileSync(attempts)) + 1 : 1
+fs.writeFileSync(attempts, String(count))
+if (count === 1) setTimeout(() => process.stdout.write('999\\n'), 10500)
+else process.stdout.write('123\\n')
+`,
+        { mode: 0o755 }
+      )
+      process.env.PATH = `${directory}${path.delimiter}${originalPath}`
+      assert.deepEqual(await discover(path.join(directory, 'TorDataDirectory')), ['123'])
+      assert.equal(fs.readFileSync(attempts, 'utf8'), '2')
+      assert.equal(heartbeat, true)
+    } finally {
+      clearTimeout(timer)
+      process.env.PATH = originalPath
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  }
+)
+
+test(
+  'does not retry a failed query or report it as an empty process list',
+  { skip: process.platform === 'win32' },
+  async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-tor-query-failure-'))
+    const originalPath = process.env.PATH
+    const attempts = path.join(directory, 'attempts')
+    try {
+      fs.writeFileSync(
+        path.join(directory, 'powershell.exe'),
+        `#!/usr/bin/env node
+require('node:fs').appendFileSync(${JSON.stringify(attempts)}, 'attempt\\n')
+process.stderr.write('CIM query refused')
+process.exitCode = 1
+`,
+        { mode: 0o755 }
+      )
+      process.env.PATH = `${directory}${path.delimiter}${originalPath}`
+      await assert.rejects(discover(path.join(directory, 'TorDataDirectory')), /CIM query refused/)
+      assert.equal(fs.readFileSync(attempts, 'utf8'), 'attempt\n')
+    } finally {
+      process.env.PATH = originalPath
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  }
+)
+
+test(
+  'keeps a persistent query timeout bounded and fails instead of losing ownership information',
+  { skip: process.platform === 'win32', timeout: 25_000 },
+  async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-tor-query-timeout-'))
+    const originalPath = process.env.PATH
+    const attempts = path.join(directory, 'attempts')
+    try {
+      fs.writeFileSync(
+        path.join(directory, 'powershell.exe'),
+        `#!/usr/bin/env node
+require('node:fs').appendFileSync(${JSON.stringify(attempts)}, 'attempt\\n')
+setInterval(() => {}, 1000)
+`,
+        { mode: 0o755 }
+      )
+      process.env.PATH = `${directory}${path.delimiter}${originalPath}`
+      await assert.rejects(discover(path.join(directory, 'TorDataDirectory')), error => error.killed === true)
+      assert.equal(fs.readFileSync(attempts, 'utf8'), 'attempt\nattempt\n')
+    } finally {
+      process.env.PATH = originalPath
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  }
+)
+
+test(
   'Windows CIM finds only this profile, including spaces and apostrophes',
   {
     skip: process.platform !== 'win32',
