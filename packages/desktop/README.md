@@ -29,6 +29,14 @@ npm run start:desktop
 
 ----
 
+## Testing Windows from Linux
+
+See [Windows VM testing](docs/windows-vm.md) for a local Windows 11 VM, RDP
+clipboard support (including Chrome Remote Desktop), and a tested recipe for
+running the existing onboarding E2E tests against a packaged Windows release.
+
+----
+
 ## Versioning packages
 
 Before trying to release a new version, make sure you have `GH_TOKEN` env set.
