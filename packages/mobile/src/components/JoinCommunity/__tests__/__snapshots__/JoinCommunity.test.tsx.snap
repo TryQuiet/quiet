@@ -11,149 +11,14 @@ exports[`JoinCommunity component renders component 1`] = `
   testID="join-community-component"
 >
   <View
-    style={
-      {
-        "alignItems": "center",
-        "backgroundColor": "#ffffff",
-        "borderBottomColor": "#F0F0F0",
-        "borderBottomWidth": 1,
-        "display": "flex",
-        "flexDirection": "row",
-        "justifyContent": "center",
-        "maxHeight": 52,
-        "minHeight": 52,
-      }
-    }
-  >
-    <View
-      style={
-        {
-          "flex": 1,
-        }
-      }
-    >
-      <View
-        accessibilityState={
-          {
-            "busy": undefined,
-            "checked": undefined,
-            "disabled": undefined,
-            "expanded": undefined,
-            "selected": undefined,
-          }
-        }
-        accessibilityValue={
-          {
-            "max": undefined,
-            "min": undefined,
-            "now": undefined,
-            "text": undefined,
-          }
-        }
-        accessible={true}
-        collapsable={false}
-        focusable={true}
-        onClick={[Function]}
-        onResponderGrant={[Function]}
-        onResponderMove={[Function]}
-        onResponderRelease={[Function]}
-        onResponderTerminate={[Function]}
-        onResponderTerminationRequest={[Function]}
-        onStartShouldSetResponder={[Function]}
-        style={
-          {
-            "opacity": 1,
-          }
-        }
-        testID="appbar_action_item"
-      >
-        <View
-          style={
-            {
-              "alignItems": "center",
-              "height": 50,
-              "justifyContent": "center",
-              "width": 64,
-            }
-          }
-        >
-          <View
-            style={
-              {
-                "alignItems": "center",
-                "backgroundColor": "#67BFD3",
-                "borderRadius": 4,
-                "height": 36,
-                "justifyContent": "center",
-                "width": 36,
-              }
-            }
-          >
-            <Text
-              color="white"
-              fontSize={14}
-              horizontalTextAlign="left"
-              style={
-                {
-                  "color": "#ffffff",
-                  "fontFamily": "Rubik-Regular",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                }
-              }
-              verticalTextAlign="center"
-            >
-              jo
-            </Text>
-          </View>
-        </View>
-      </View>
-    </View>
-    <View
-      style={
-        {
-          "alignItems": "center",
-          "flex": 4,
-        }
-      }
-    >
-      <Text
-        color="main"
-        fontSize={16}
-        fontWeight="medium"
-        horizontalTextAlign="left"
-        style={
-          {
-            "color": "#000000",
-            "fontFamily": "Rubik-Medium",
-            "fontSize": 16,
-            "textAlign": "left",
-            "textAlignVertical": "center",
-          }
-        }
-        verticalTextAlign="center"
-      >
-        Join with invite link
-      </Text>
-    </View>
-    <View
-      style={
-        {
-          "flex": 1,
-        }
-      }
-    />
-  </View>
-  <View
     onLayout={[Function]}
     style={
       [
         {
           "flex": 1,
-          "gap": 24,
           "justifyContent": "center",
-          "paddingHorizontal": 16,
+          "paddingLeft": 20,
+          "paddingRight": 20,
         },
         {
           "paddingBottom": 0,
@@ -161,38 +26,54 @@ exports[`JoinCommunity component renders component 1`] = `
       ]
     }
   >
-    <View
+    <Text
+      color="main"
+      fontSize={24}
+      fontWeight="medium"
+      horizontalTextAlign="left"
       style={
-        {
-          "gap": 8,
-        }
-      }
-    >
-      <Text
-        color="main"
-        fontSize={28}
-        fontWeight="medium"
-        horizontalTextAlign="center"
-        lineHeight={36}
-        style={
+        [
           {
             "color": "#000000",
             "fontFamily": "Rubik-Medium",
-            "fontSize": 28,
-            "lineHeight": 36,
-            "textAlign": "center",
+            "fontSize": 24,
+            "textAlign": "left",
             "textAlignVertical": "center",
-          }
-        }
-        verticalTextAlign="center"
-      >
-        Paste a link to Join
-      </Text>
-    </View>
-    <View
-      testID="paste-link-input"
+          },
+          {
+            "marginBottom": 30,
+          },
+        ]
+      }
+      verticalTextAlign="center"
     >
+      Join community
+    </Text>
+    <View>
       <View>
+        <Text
+          color="main"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            [
+              {
+                "color": "#000000",
+                "fontFamily": "Rubik-Regular",
+                "fontSize": 14,
+                "textAlign": "left",
+                "textAlignVertical": "center",
+              },
+              {
+                "color": "#4C4C4C",
+                "paddingBottom": 8,
+              },
+            ]
+          }
+          verticalTextAlign="center"
+        >
+          Paste your invite link to join an existing community
+        </Text>
         <View
           accessibilityState={
             {
@@ -214,6 +95,8 @@ exports[`JoinCommunity component renders component 1`] = `
           accessible={true}
           collapsable={false}
           focusable={true}
+          focused={false}
+          invalid={false}
           onBlur={[Function]}
           onClick={[Function]}
           onFocus={[Function]}
@@ -223,25 +106,26 @@ exports[`JoinCommunity component renders component 1`] = `
           onResponderTerminate={[Function]}
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
-          round={false}
           style={
             [
               {
+                "alignItems": "center",
                 "backgroundColor": "#ffffff",
-                "borderBottomLeftRadius": 4,
-                "borderBottomRightRadius": 4,
-                "borderColor": "#C4C4C4",
-                "borderTopLeftRadius": 4,
-                "borderTopRightRadius": 4,
+                "borderBottomLeftRadius": 16,
+                "borderBottomRightRadius": 16,
+                "borderColor": "#B3B3B3",
+                "borderTopLeftRadius": 16,
+                "borderTopRightRadius": 16,
                 "borderWidth": 1,
+                "flexDirection": "row",
                 "flexGrow": 1,
-                "height": 56,
-                "justifyContent": "center",
+                "height": 48,
+                "justifyContent": "flex-start",
                 "paddingLeft": 16,
                 "paddingRight": 16,
               },
               {
-                "height": 54,
+                "height": 48,
               },
             ]
           }
@@ -251,13 +135,17 @@ exports[`JoinCommunity component renders component 1`] = `
             editable={true}
             height={54}
             keyboardType="default"
+            onBlur={[Function]}
             onChangeText={[Function]}
             onContentSizeChange={[Function]}
-            placeholder="Link"
-            placeholderTextColor="#999999"
+            onFocus={[Function]}
+            placeholder="Invite link"
+            placeholderTextColor="#7F7F7F"
             style={
               {
-                "height": 54,
+                "flexBasis": 0,
+                "flexGrow": 1,
+                "flexShrink": 1,
                 "paddingBottom": 12,
                 "paddingTop": 12,
                 "textAlignVertical": "center",
@@ -269,54 +157,269 @@ exports[`JoinCommunity component renders component 1`] = `
       </View>
     </View>
     <View
-      accessibilityState={
-        {
-          "busy": undefined,
-          "checked": undefined,
-          "disabled": undefined,
-          "expanded": undefined,
-          "selected": undefined,
-        }
-      }
-      accessible={true}
-      focusable={true}
-      onClick={[Function]}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
       style={
         {
-          "alignItems": "center",
-          "backgroundColor": "#521C74",
-          "borderRadius": 8,
-          "justifyContent": "center",
-          "minHeight": 45,
-          "paddingHorizontal": 20,
-          "paddingVertical": 12,
-          "width": undefined,
+          "marginTop": 32,
         }
       }
-      testID="paste-link-continue"
     >
+      <View
+        style={
+          {
+            "alignItems": "flex-start",
+            "display": "flex",
+            "flex": 1,
+            "flexDirection": "row",
+            "flexWrap": "wrap",
+            "minHeight": 500,
+          }
+        }
+      >
+        <Text
+          color="main"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
+          }
+          verticalTextAlign="center"
+        >
+          You
+        </Text>
+        <Text
+          color="main"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
+          }
+          verticalTextAlign="center"
+        >
+           
+        </Text>
+        <Text
+          color="main"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
+          }
+          verticalTextAlign="center"
+        >
+          can
+        </Text>
+        <Text
+          color="main"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
+          }
+          verticalTextAlign="center"
+        >
+           
+        </Text>
+        <Text
+          color="main"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
+          }
+          verticalTextAlign="center"
+        >
+          <Text
+            color="link"
+            fontSize={14}
+            horizontalTextAlign="left"
+            onPress={[Function]}
+            style={
+              {
+                "color": "#67BFD3",
+                "fontFamily": "Rubik-Regular",
+                "fontSize": 14,
+                "textAlign": "left",
+                "textAlignVertical": "center",
+              }
+            }
+            verticalTextAlign="center"
+          >
+            create a new community
+          </Text>
+        </Text>
+        <Text
+          color="main"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
+          }
+          verticalTextAlign="center"
+        >
+           
+        </Text>
+        <Text
+          color="main"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
+          }
+          verticalTextAlign="center"
+        >
+          instead
+        </Text>
+      </View>
+    </View>
+    <View
+      style={
+        {
+          "marginTop": 44,
+        }
+      }
+    >
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessible={true}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#521C74",
+            "borderRadius": 16,
+            "justifyContent": "center",
+            "minHeight": 50,
+            "paddingHorizontal": 20,
+            "paddingVertical": 12,
+            "width": undefined,
+          }
+        }
+        testID="button"
+      >
+        <Text
+          color="white"
+          fontSize={14}
+          horizontalTextAlign="left"
+          style={
+            {
+              "color": "#ffffff",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
+          }
+          verticalTextAlign="center"
+        >
+          Continue
+        </Text>
+      </View>
+    </View>
+    <View
+      style={
+        {
+          "alignItems": "flex-start",
+          "flexDirection": "row",
+          "gap": 4,
+          "justifyContent": "center",
+          "marginTop": 44,
+        }
+      }
+    >
+      <Image
+        resizeMethod="resize"
+        resizeMode="cover"
+        source={
+          {
+            "testUri": "../../../src/assets/icons/png/icon_warning.png",
+          }
+        }
+        style={
+          {
+            "height": 16,
+            "width": 16,
+          }
+        }
+      />
       <Text
-        color="white"
+        color="main"
         fontSize={14}
         horizontalTextAlign="left"
         style={
-          {
-            "color": "#ffffff",
-            "fontFamily": "Rubik-Regular",
-            "fontSize": 14,
-            "textAlign": "left",
-            "textAlignVertical": "center",
-          }
+          [
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            },
+            {
+              "color": "#999999",
+              "textAlign": "center",
+            },
+          ]
         }
         verticalTextAlign="center"
       >
-        Continue
+        Quiet is in beta and shouldn't be used for activities requiring security.
       </Text>
     </View>
   </View>

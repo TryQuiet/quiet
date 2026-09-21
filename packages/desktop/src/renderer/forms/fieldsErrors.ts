@@ -5,6 +5,7 @@ export enum FieldErrors {
 export enum UsernameErrors {
   NameTooLong = 'Username must have less than 20 characters',
   WrongCharacter = 'Username must be lowercase and cannot contain any special characters',
+  LeadingHyphen = 'Username must start with a letter or number',
 }
 
 export enum CommunityNameErrors {
@@ -13,7 +14,7 @@ export enum CommunityNameErrors {
 }
 
 export enum InviteLinkErrors {
-  InvalidCode = 'Please check your invitation code and try again',
+  InvalidCode = 'Please check your invite link and try again',
 }
 
 export enum ChannelNameErrors {

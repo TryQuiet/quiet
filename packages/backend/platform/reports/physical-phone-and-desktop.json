@@ -1,0 +1,81 @@
+{
+  "date": "2026-09-16",
+  "sourceCommit": "bc447315648e565879a8e83d8acfd4814a99c1f9",
+  "applicationCodeChanged": false,
+  "phone": {
+    "model": "iPhone 16e",
+    "osVersion": "18.5",
+    "build": {
+      "sourceCommit": "bc447315648e565879a8e83d8acfd4814a99c1f9",
+      "configuration": "Release",
+      "sdk": "iphoneos",
+      "bundleId": "com.quietmobile",
+      "version": "10.0.0",
+      "build": "613",
+      "environment": ".env.production",
+      "qssEndpoint": "wss://qss-prod.quiet-services.app",
+      "bundledJavaScript": true,
+      "backendMatchesBuiltSource": true,
+      "libsodiumLicenseMatches": true,
+      "sha256": {
+        "Quiet": "68ebad5409e55acd5c9a7171cc5676615ee58ac1a523902451c1b70be5fb36ac",
+        "main.jsbundle": "e3a5487332173373578a0a2fba129ae9df51a21f891df6bc26c3aafcaa270ecb",
+        "nodejs-project/bundle.cjs": "d9d3b205bd410219dba35872057eb629d563df6261a76f5b057d14d5dab9b6fa",
+        "Frameworks/QuietSodium.framework/QuietSodium": "48e4d3988bdf45821f83335de35d83f76576d9da01ad39afbdaa55f4c5e04ba8",
+        "Frameworks/NodeMobile.framework/NodeMobile": "b3bff9e8c0a6845ff9c7c70be543cb922ab8934a5230abc390baecceea5220bf"
+      }
+    },
+    "preSigningBuildHashes": {
+      "Quiet": "6d8c697cd5ba29c57de85fad656ba9a3872ea47ebc4d0e29d4d9ec341511aef8",
+      "main.jsbundle": "e3a5487332173373578a0a2fba129ae9df51a21f891df6bc26c3aafcaa270ecb",
+      "nodejs-project/bundle.cjs": "d9d3b205bd410219dba35872057eb629d563df6261a76f5b057d14d5dab9b6fa",
+      "Frameworks/QuietSodium.framework/QuietSodium": "6717cdd6951f40c59d53ea2e28d188b14424a7b01513d6a2295d28d2da30f0c1",
+      "Frameworks/NodeMobile.framework/NodeMobile": "65ab2feb8d67d4bd91146f03a63540d01f0c2bce8e5c031af6661d0e5e41431c"
+    },
+    "signing": {
+      "strictDeepVerificationPassed": true,
+      "profiles": [
+        {
+          "bundleIdentifier": "com.quietmobile",
+          "profileExpiresUtc": "2027-09-04T21:04:38Z",
+          "deviceIncluded": true,
+          "developmentSigned": true
+        },
+        {
+          "bundleIdentifier": "com.quietmobile.QuietNotificationServiceExtension",
+          "profileExpiresUtc": "2027-09-04T21:04:36Z",
+          "deviceIncluded": true,
+          "developmentSigned": true
+        }
+      ]
+    },
+    "installed": true,
+    "coldLaunched": true,
+    "observedRunning": true,
+    "userConfirmedAppearsWorking": true,
+    "capturedStartupFallbackWarnings": 0,
+    "nativeModuleMappingIndependentlyConfirmed": null,
+    "lldbObservation": "Attachment/module enumeration did not complete; not evidence that the library is absent.",
+    "pushNotificationsConfigured": false
+  },
+  "desktop": {
+    "sourceCommit": "bc447315648e565879a8e83d8acfd4814a99c1f9",
+    "platform": "linux-x64",
+    "version": "10.0.0-alpha.0",
+    "backendSha256": "d9d3b205bd410219dba35872057eb629d563df6261a76f5b057d14d5dab9b6fa",
+    "sameBackendAsInstalledPhone": true,
+    "serverFeaturesDisabled": true,
+    "configurationSha256": "56700e9174ff50d082ea545067bf1884aa940b840fac9c66b5858ea65ab2142e",
+    "torBinarySha256": "42017904b14e2e521018ab658bb23ac807957d2d2a691ed72181b0627ae40340",
+    "visibleWindow": true,
+    "joinScreenRendered": true,
+    "backendStarted": true,
+    "manualTorTestingReady": true
+  },
+  "limitations": [
+    "Physical-device multiplayer and lifecycle results are not asserted.",
+    "Phone native library mapping was not independently confirmed.",
+    "Phone push notifications are unavailable without Firebase configuration.",
+    "Unpacked desktop preview has no updater configuration."
+  ]
+}

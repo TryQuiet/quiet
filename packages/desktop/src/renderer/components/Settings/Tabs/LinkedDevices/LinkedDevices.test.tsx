@@ -1,46 +1,42 @@
 import '@testing-library/jest-dom'
 import React from 'react'
-import { act } from '@testing-library/react'
 
-import { communities, connection, getReduxStoreFactory } from '@quiet/state-manager'
+import { communities, connection, getReduxStoreFactory, identity } from '@quiet/state-manager'
+import type { DeviceLinkInvite } from '@quiet/types'
 
-import { renderComponent } from '../../../../testUtils/renderComponent'
 import { prepareStore } from '../../../../testUtils/prepareStore'
-
+import { renderComponent } from '../../../../testUtils/renderComponent'
 import { LinkedDevices } from './LinkedDevices'
 
-describe('LinkedDevices tab', () => {
-  it('asks the backend for the device list and lists the other devices', async () => {
+describe('LinkedDevices', () => {
+  it('reuses the same active invitation when the panel reopens', async () => {
     const { store } = await prepareStore()
     const factory = await getReduxStoreFactory(store)
-    const community = await factory.create('Community', { name: 'devices' })
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    const dispatch = jest.spyOn(store, 'dispatch')
-
-    const result = renderComponent(<LinkedDevices />, store)
-
-    expect(dispatch).toHaveBeenCalledWith(connection.actions.getLinkedDevices())
-    expect(result.getByTestId('no-linked-devices')).toBeVisible()
-
-    await act(async () => {
-      store.dispatch(
-        connection.actions.setLinkedDevices([
-          { deviceId: 'me', deviceName: 'me', isCurrent: true },
-          { deviceId: 'laptop', deviceName: 'laptop', isCurrent: false },
-        ])
-      )
+    await factory.create('Community', {
+      name: 'Community',
+      teamId: 'team-id',
+      psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
     })
+    const community = communities.selectors.currentCommunity(store.getState())!
+    await factory.create('Identity', { communityId: community.id })
+    const invite: DeviceLinkInvite = {
+      id: '5ah8uYodiwuwVybT' as DeviceLinkInvite['id'],
+      teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as DeviceLinkInvite['teamId'],
+      seed: 'same-active-seed',
+      expiresAt: Date.now() + 1_800_000,
+      userId: identity.selectors.currentIdentity(store.getState())!.userId,
+      userName: 'Alice',
+    }
+    store.dispatch(connection.actions.setDeviceLinkInvite(invite))
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
 
-    expect(result.getByTestId('linked-device-laptop')).toHaveTextContent('laptop')
-    expect(result.queryByTestId('no-linked-devices')).toBeNull()
-  })
+    const firstRender = renderComponent(<LinkedDevices />, store)
+    expect(firstRender.getByTestId('copy-device-link')).toBeVisible()
+    firstRender.unmount()
+    const secondRender = renderComponent(<LinkedDevices />, store)
 
-  it('does not ask for a device list without a community', async () => {
-    const { store } = await prepareStore()
-    const dispatch = jest.spyOn(store, 'dispatch')
-
-    renderComponent(<LinkedDevices />, store)
-
-    expect(dispatch).not.toHaveBeenCalledWith(connection.actions.getLinkedDevices())
+    expect(secondRender.getByTestId('copy-device-link')).toBeVisible()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(connection.actions.createDeviceLink())
+    expect(connection.selectors.deviceLinkInvite(store.getState())).toEqual(invite)
   })
 })

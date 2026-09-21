@@ -20,6 +20,7 @@ export const GetStarted: React.FC = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
+  const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
   const torBootstrapProcess = useSelector(connection.selectors.torBootstrapProcess)
 
   const getStartedModal = useModal(ModalName.getStartedModal)
@@ -32,11 +33,26 @@ export const GetStarted: React.FC = () => {
     joinCommunityModal.open || createCommunityModal.open || linkDevicesModal.open || createUsernameModal.open
 
   useEffect(() => {
-    if (isConnected && !currentCommunity && !invitationCodes && !getStartedModal.open && !anotherOnboardingModalOpen) {
+    // An admission reset is still tearing the old community down; onboarding must not open over it.
+    if (
+      isConnected &&
+      admissionResetStatus === 'idle' &&
+      !currentCommunity &&
+      !invitationCodes &&
+      !getStartedModal.open &&
+      !anotherOnboardingModalOpen
+    ) {
       logger.info('Opening get started modal')
       getStartedModal.handleOpen()
     }
-  }, [isConnected, currentCommunity, invitationCodes, torBootstrapProcess, anotherOnboardingModalOpen])
+  }, [
+    admissionResetStatus,
+    isConnected,
+    currentCommunity,
+    invitationCodes,
+    torBootstrapProcess,
+    anotherOnboardingModalOpen,
+  ])
 
   useEffect(() => {
     if (isConnected && currentCommunity && getStartedModal.open) {

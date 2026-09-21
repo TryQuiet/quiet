@@ -1,5 +1,7 @@
 import { communities } from '@quiet/state-manager'
 import {
+  ErrorMessages,
+  type DeviceInvitationData,
   type InvitationData,
   type JoinCommunityPayload,
   type LinkDevicePayload,
@@ -12,6 +14,7 @@ import Modal from '../../ui/Modal/Modal'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
+import { DeviceLinkConsentComponent } from '../../DeviceLinkConsent/DeviceLinkConsent'
 import { JoinCommunityOptionsComponent } from '../../Onboarding/JoinCommunityOptionsComponent'
 import { OpenInviteLinkComponent } from '../../Onboarding/OpenInviteLinkComponent'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
@@ -37,6 +40,7 @@ const JoinCommunity = () => {
 
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
 
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
@@ -45,6 +49,26 @@ const JoinCommunity = () => {
 
   const [step, setStep] = useState<Step>('options')
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
+  const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
+
+  // Admission failures are reported on the invite field, the way the join form has always reported
+  // a bad link.
+  const joinCommunityErrorMessage =
+    joinCommunityError?.type === 'invalid'
+      ? ErrorMessages.INVALID_INVITE
+      : joinCommunityError?.type === 'interrupted'
+        ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
+        : joinCommunityError?.type === 'timeout'
+          ? joinCommunityError.invitationType === 'device'
+            ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+            : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+          : undefined
+
+  const clearJoinCommunityError = () => {
+    if (joinCommunityError) {
+      dispatch(communities.actions.clearJoinCommunityError())
+    }
+  }
 
   useEffect(() => {
     if (!joinCommunityModal.open) setStep('options')
@@ -59,21 +83,32 @@ const JoinCommunity = () => {
 
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
-      const linkDevicePayload: LinkDevicePayload = {
-        inviteData: data,
-      }
-      loadingPanelModal.handleOpen()
-      dispatch(communities.actions.linkDevice(linkDevicePayload))
-      joinCommunityModal.handleClose()
+      // Linking a device hands the other device this account, so it is never done without consent.
+      setPendingDeviceInvite(data)
       return
     }
 
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
     }
+    clearJoinCommunityError()
     dispatch(communities.actions.joinCommunity(joinCommunityPayload))
     createUsernameModal.handleOpen()
     joinCommunityModal.handleClose()
+  }
+
+  const confirmDeviceLink = () => {
+    if (!pendingDeviceInvite) return
+    const linkDevicePayload: LinkDevicePayload = {
+      inviteData: pendingDeviceInvite,
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: pendingDeviceInvite.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined,
+    }
+    loadingPanelModal.handleOpen()
+    clearJoinCommunityError()
+    dispatch(communities.actions.linkDevice(linkDevicePayload))
+    joinCommunityModal.handleClose()
+    setPendingDeviceInvite(null)
   }
 
   const handleBack = () => {
@@ -96,35 +131,45 @@ const JoinCommunity = () => {
   }
 
   return (
-    <Modal
-      open={joinCommunityModal.open}
-      handleClose={joinCommunityModal.handleClose}
-      title={TITLES[step]}
-      canGoBack
-      handleBack={handleBack}
-      alignCloseLeft
-      contentWidth={'100%'}
-      testIdPrefix={'joinCommunity'}
-      zIndex={1300}
-    >
-      {step === 'options' ? (
-        <JoinCommunityOptionsComponent
-          onJoinWithInviteLink={() => setStep('openInviteLink')}
-          onJoinWithQrCode={() => setStep('pasteQrCode')}
-        />
-      ) : null}
-      {step === 'openInviteLink' ? <OpenInviteLinkComponent onPasteLink={() => setStep('pasteInviteLink')} /> : null}
-      {step === 'pasteInviteLink' || step === 'pasteQrCode' ? (
-        <PasteLinkComponent
-          heading={step === 'pasteQrCode' ? 'Join with QR code' : 'Paste a link to Join'}
-          open={joinCommunityModal.open}
-          isConnectionReady={isConnected}
-          revealInputValue={revealInputValue}
-          handleClickInputReveal={handleClickInputReveal}
-          handleCommunityAction={handleCommunityAction}
-        />
-      ) : null}
-    </Modal>
+    <>
+      <Modal
+        open={joinCommunityModal.open}
+        handleClose={joinCommunityModal.handleClose}
+        title={TITLES[step]}
+        canGoBack
+        handleBack={handleBack}
+        alignCloseLeft
+        contentWidth={'100%'}
+        testIdPrefix={'joinCommunity'}
+        zIndex={1300}
+      >
+        {step === 'options' ? (
+          <JoinCommunityOptionsComponent
+            onJoinWithInviteLink={() => setStep('openInviteLink')}
+            onJoinWithQrCode={() => setStep('pasteQrCode')}
+          />
+        ) : null}
+        {step === 'openInviteLink' ? <OpenInviteLinkComponent onPasteLink={() => setStep('pasteInviteLink')} /> : null}
+        {step === 'pasteInviteLink' || step === 'pasteQrCode' ? (
+          <PasteLinkComponent
+            heading={step === 'pasteQrCode' ? 'Join with QR code' : 'Paste a link to Join'}
+            open={joinCommunityModal.open}
+            isConnectionReady={isConnected}
+            revealInputValue={revealInputValue}
+            handleClickInputReveal={handleClickInputReveal}
+            handleCommunityAction={handleCommunityAction}
+            fieldError={joinCommunityErrorMessage}
+            onFieldChange={clearJoinCommunityError}
+          />
+        ) : null}
+      </Modal>
+      <DeviceLinkConsentComponent
+        open={pendingDeviceInvite !== null}
+        qssEndpoint={pendingDeviceInvite?.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined}
+        onCancel={() => setPendingDeviceInvite(null)}
+        onConfirm={confirmDeviceLink}
+      />
+    </>
   )
 }
 

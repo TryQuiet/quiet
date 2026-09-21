@@ -9,7 +9,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
-import { DownloadState, DisplayableMessage } from '@quiet/types'
+import { DownloadState, DisplayableMessage, ChannelType } from '@quiet/types'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
@@ -135,6 +135,10 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   handleClipboardFiles: dummyFn,
   pendingGeneralChannelRecreation: false,
   isPublic: true,
+  // A channel, with nobody in the member list: the header reads `members.length`, so a story that
+  // omits these renders nothing at all. SendingMessagesWithScroll passes them by hand.
+  channelType: ChannelType.CHANNEL,
+  members: [],
 }
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
@@ -831,6 +835,8 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
         user={validUser}
         channelId='general'
         channelName='general'
+        channelType={ChannelType.CHANNEL}
+        members={[]}
         isPublic={true}
         newestMessage={
           args.newestMessage || {

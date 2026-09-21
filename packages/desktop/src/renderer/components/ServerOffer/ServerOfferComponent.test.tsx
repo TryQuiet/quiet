@@ -47,7 +47,7 @@ describe('ServerOfferComponent', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -69,7 +69,7 @@ describe('ServerOfferComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-contentWrap css-1mbhty-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-contentWrap css-1tvlnd7-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item ServerOfferComponent-iconContainer css-13i4rnv-MuiGrid-root"
@@ -87,13 +87,13 @@ describe('ServerOfferComponent', () => {
                     </svg>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-text css-1mbhty-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-text css-1tvlnd7-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <h3
-                        class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
                       >
                         Want a server?
                       </h3>
@@ -115,20 +115,20 @@ describe('ServerOfferComponent', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body1 ServerOfferComponent-info css-1ql8hfl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 ServerOfferComponent-info css-ghvhpl-MuiTypography-root"
                       >
                         Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on iPhones.
                       </p>
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-actions css-1mbhty-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-actions css-1tvlnd7-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-1i72s9j-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-kdjva8-MuiButtonBase-root-MuiButton-root"
                         data-testid="ServerOffer-UseQuietServer"
                         tabindex="0"
                         type="button"
@@ -143,7 +143,7 @@ describe('ServerOfferComponent', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall ServerOfferComponent-notNowButton css-1a4wy9e-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall ServerOfferComponent-notNowButton css-y45uti-MuiButtonBase-root-MuiButton-root"
                         data-testid="ServerOffer-NotNow"
                         tabindex="0"
                         type="button"
@@ -192,7 +192,7 @@ describe('ServerOfferComponent', () => {
                         />
                       </span>
                       <span
-                        class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
                       >
                         Don’t show this again
                       </span>

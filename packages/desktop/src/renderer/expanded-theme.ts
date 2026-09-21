@@ -43,6 +43,17 @@ declare module '@mui/material/styles' {
           bottom: number
         }
       }
+      dmMemberCountIndicator: {
+        minSize: number
+        maxSize: number
+        borderWidth: number
+        fontSize: number
+        lineHeight: number
+        position: {
+          right: number
+          bottom: number
+        }
+      }
       userListItem: {
         gap: number
       }
@@ -59,6 +70,17 @@ declare module '@mui/material/styles' {
       statusIndicator?: {
         size?: number
         borderWidth?: number
+        position?: {
+          right?: number
+          bottom?: number
+        }
+      }
+      dmMemberCountIndicator?: {
+        minSize?: number
+        maxSize?: number
+        borderWidth?: number
+        fontSize?: number
+        lineHeight?: number
         position?: {
           right?: number
           bottom?: number

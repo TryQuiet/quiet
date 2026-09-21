@@ -25,6 +25,10 @@ export interface Identity {
   // When a user first joins a community, they send a message
   // introducing themselves.
   introMessageSent?: boolean
+  // Keep the original announcement time and targets so a stale initial channel
+  // snapshot can be repaired without announcing again after a later deletion.
+  introMessageSentAt?: number
+  introMessageChannelIds?: string[]
 }
 
 export interface IdentityUpdatePayload {
@@ -33,6 +37,8 @@ export interface IdentityUpdatePayload {
   hiddenService?: HiddenService
   joinTimestamp?: number | null
   introMessageSent?: boolean
+  introMessageSentAt?: number
+  introMessageChannelIds?: string[]
 }
 export interface UpdateJoinTimestampPayload {
   communityId: string

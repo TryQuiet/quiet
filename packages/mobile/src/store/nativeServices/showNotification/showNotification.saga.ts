@@ -1,19 +1,17 @@
 import { Platform, AppState, NativeModules } from 'react-native'
 import Config from 'react-native-config'
-import { users, publicChannels, PUSH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
+import { identity, users, publicChannels, PUSH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { call, select } from 'typed-redux-saga'
 import { navigationSelectors } from '../../navigation/navigation.selectors'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { createLogger } from '../../../utils/logger'
-import { MarkUnreadChannelPayload } from '@quiet/types'
 
 const logger = createLogger('showNotification')
 
 export function* showNotificationSaga(
   action: PayloadAction<ReturnType<typeof publicChannels.actions.markUnreadChannel>['payload']>
 ): Generator {
-  const payload: MarkUnreadChannelPayload = action.payload
   if (Platform.OS === 'ios') return
   if (Config.FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED === 'false') {
     logger.info('Foreground push notifications disabled by env flag')
@@ -22,10 +20,14 @@ export function* showNotificationSaga(
   if (AppState.currentState === 'background') return
 
   const screen = yield* select(navigationSelectors.currentScreen)
-  if (screen === ScreenNames.ChannelListScreen) return
+  if (screen === ScreenNames.AppHomeScreen) return
 
   const _message = action.payload.message
   if (!_message) return
+
+  const localIdentity = yield* select(identity.selectors.currentIdentity)
+  const localUserId = localIdentity?.userId
+  if (!localUserId || !_message.userId || _message.userId === localUserId) return
 
   const { channelId } = _message
   const channel = yield* select(publicChannels.selectors.getChannelById(channelId))

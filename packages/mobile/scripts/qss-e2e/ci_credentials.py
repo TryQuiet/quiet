@@ -107,11 +107,19 @@ def decrypt_client(checkout, platform, passphrase):
     return client, result.stdout
 
 
-def prepare(checkout, output, environment, qss_development_aws=False):
+def prepare(checkout, output, environment, qss_development_aws=False, staging=False):
     output.mkdir(mode=0o700, parents=True, exist_ok=False)
-    accounts = accounts_from_environment(environment)
+    # Staging QSS owns its provider credentials. Quiet CI only decrypts the
+    # native client configuration and checks its public Firebase project ID.
+    accounts = {} if staging else accounts_from_environment(environment)
+    staging_projects = {}
+    if staging:
+        for line in (checkout / "3rd-party/qss/app/.env.dev").read_text().splitlines():
+            key, separator, value = line.partition("=")
+            if separator and key in ("FIREBASE_ANDROID_PROJECT_ID", "FIREBASE_IOS_PROJECT_ID"):
+                staging_projects[key] = value.strip()
     aws_results = {}
-    if qss_development_aws and not accounts:
+    if qss_development_aws and not accounts and not staging:
         accounts, aws_results = development_accounts(checkout, environment)
     credentials = output / "firebase-accounts.json"
     if accounts:
@@ -143,7 +151,8 @@ def prepare(checkout, output, environment, qss_development_aws=False):
             project = client.get("PROJECT_ID")
             status["applicationMatches"] = client.get("BUNDLE_ID") == "com.quietmobile"
             destination = checkout / "packages/mobile/ios/GoogleService-Info.plist"
-        status["projectMatches"] = bool(project) and project == accounts.get(platform, {}).get("project_id")
+        expected_project = staging_projects.get(prefix + "PROJECT_ID") if staging else accounts.get(platform, {}).get("project_id")
+        status["projectMatches"] = bool(project) and project == expected_project
         status["ready"] = status["projectMatches"] and status["applicationMatches"]
         destination.parent.mkdir(parents=True, exist_ok=True)
         with os.fdopen(os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "wb") as stream:
@@ -157,7 +166,9 @@ def main():
     parser.add_argument("--checkout", type=Path, default=Path(__file__).resolve().parents[4])
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--require", choices=("android", "ios"))
-    parser.add_argument("--qss-development-aws", action="store_true", help="Read QSS's two DEV Firebase keys using the explicitly supplied QSS AWS CI credentials")
+    target = parser.add_mutually_exclusive_group()
+    target.add_argument("--qss-development-aws", action="store_true", help="Read QSS's two DEV Firebase keys using the explicitly supplied QSS AWS CI credentials")
+    target.add_argument("--staging", action="store_true", help="Validate only native client configuration for deployed staging QSS; never fetch provider keys")
     args = parser.parse_args()
     # Remove selected secrets before GPG or any subsequent child processes.
     names = ["QSS_NOTIFICATION_FIREBASE_CREDENTIALS", "ANDROID_FIREBASE_KEY", "IOS_FIREBASE_KEY"]
@@ -165,13 +176,16 @@ def main():
     names += ["QSS_AWS_ACCESS_KEY_ID", "QSS_AWS_SECRET_ACCESS_KEY"]
     environment = {name: os.environ.pop(name, "") for name in names}
     try:
-        report = prepare(args.checkout.resolve(), args.output.resolve(), environment, args.qss_development_aws)
+        report = prepare(args.checkout.resolve(), args.output.resolve(), environment, args.qss_development_aws, args.staging)
     except ValueError as error:
         # All errors here have fixed messages; never include parsed credentials.
         print(str(error))
         return 1
     print(json.dumps(report, indent=2))
     if args.require and not report[args.require]["ready"]:
+        if args.staging:
+            print(f"{args.require} staging Firebase client configuration is unavailable or does not match the pinned QSS development project/application. No provider server credentials are needed in Quiet CI.")
+            return 1
         print(f"{args.require} full-loop prerequisites are unavailable or mismatched. "
               "Supply the native Firebase decryption key and a matching Firebase server account "
               "via QSS_NOTIFICATION_FIREBASE_CREDENTIALS or FIREBASE_<PLATFORM>_{PROJECT_ID,CLIENT_EMAIL,PRIVATE_KEY}. "

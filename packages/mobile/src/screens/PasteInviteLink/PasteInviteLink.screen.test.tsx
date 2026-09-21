@@ -48,7 +48,13 @@ describe('PasteInviteLinkScreen', () => {
     fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(deviceInvite))
     fireEvent.press(result.getByTestId('paste-link-continue'))
 
-    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvite }))
+    // Linking a device is never done without consent.
+    expect(result.getByTestId('device-link-consent')).toBeTruthy()
+    fireEvent.press(result.getByTestId('device-link-confirm'))
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      communities.actions.linkDevice({ inviteData: deviceInvite, deviceLinkConsent: true })
+    )
     expect(dispatchSpy).toHaveBeenCalledWith(
       navigationActions.replaceScreen({
         screen: ScreenNames.ConnectionProcessScreen,
