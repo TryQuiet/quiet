@@ -9,3 +9,9 @@ export enum ServiceState {
   LAUNCHING = 'launching',
   LAUNCHED = 'launched',
 }
+
+export type AdmissionResetReceipt = {
+  id: string
+  invitationType: 'device' | 'community'
+  phase: 'pending' | 'complete'
+}

@@ -29,7 +29,7 @@ export const filterAndSortPeers = (
   })
 
   const mostWantedPeers: NetworkStats[] = stats.filter(stat => {
-    currentlyConnected.includes(stat.peerId)
+    return currentlyConnected.includes(stat.peerId)
   })
 
   for (let i = 0; i < stats.length; i++) {

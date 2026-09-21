@@ -3,15 +3,48 @@ import write from './utils/write'
 import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
 import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
+import waitForAndroidNotification from './utils/waitForAndroidNotification'
 import { BASIC, LONG, STARTUP } from './utils/consts/timeouts'
 import { deleteChannelMessage, generalChannelDeletionMessage } from '@quiet/common'
 
 const { ios } = info
 
 /* eslint-disable no-undef */
+const waitForUsernameRegistration = async () => {
+  // Staging offers a server; the e2e build proceeds straight to registration.
+  const registrationStep = element(by.text(/^(Not now|Register a username)$/))
+  await waitFor(registrationStep).toBeVisible().withTimeout(30000)
+  const step = await registrationStep.getAttributes()
+  if (step.text === 'Not now' || step.label === 'Not now') {
+    await press(element(by.text('Not now')))
+  }
+  await waitFor(element(by.text('Register a username')))
+    .toBeVisible()
+    .withTimeout(BASIC)
+}
+
+// RN 0.81's RCTTextInputComponentView replaces recycled backing inputs in both
+// directions; RCTCopyBackedTextInput does not preserve their testID. Single-line
+// forms have one native field, so an ambiguous match still fails the test.
+const singleLineInput = async placeholder => {
+  const input = element(ios ? by.type('RCTUITextField') : by.id('input'))
+  await expect(input).toBeVisible()
+  if (ios && (await input.getAttributes()).placeholder !== placeholder) {
+    throw new Error(`Expected the visible ${placeholder} field`)
+  }
+  return input
+}
+
+const generalComposer = () =>
+  element((ios ? by.type('RCTUITextView') : by.id('input')).withAncestor(by.id('chat_general')))
+
 describe('User', () => {
   beforeAll(async () => {
-    await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
+    await device.launchApp({
+      newInstance: true,
+      launchArgs: { detoxDebugVisibility: 'YES' },
+      ...(ios ? { permissions: { notifications: 'YES' } } : {}),
+    })
   })
 
   afterAll(async () => {
@@ -40,25 +73,21 @@ describe('User', () => {
   })
 
   test('enters community name', async () => {
-    await write(element(by.id('input')), 'rockets')
+    await write(await singleLineInput('Community name'), 'rockets')
 
     if (!ios) await device.pressBack()
 
-    await device.disableSynchronization()
     await press(element(by.text('Continue')), true)
   })
 
   test('enters username', async () => {
-    await waitFor(element(by.text('Register a username')))
-      .toBeVisible()
-      .withTimeout(BASIC)
+    await waitForUsernameRegistration()
     const componentName = 'username-registration-component'
     await checkVisualRegression(componentName)
 
-    await write(element(by.id('input')), 'rick')
+    await write(await singleLineInput('Enter a username'), 'rick')
 
     await press(element(by.text('Continue')), true)
-    await device.enableSynchronization()
   })
 
   // test('should see connection process screen', async () => {
@@ -68,7 +97,7 @@ describe('User', () => {
   // })
 
   test('sees channels list', async () => {
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(LONG)
   })
@@ -85,7 +114,7 @@ describe('User', () => {
     await device.launchApp({ newInstance: false })
 
     // User comes back to channel list
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })
@@ -99,8 +128,8 @@ describe('User', () => {
   })
 
   test('sends message to #general channel', async () => {
-    await press(element(by.id('input')))
-    await write(element(by.id('input')), 'We are no strangers to love')
+    await press(generalComposer())
+    await write(generalComposer(), 'We are no strangers to love')
 
     await press(element(by.id('send_message_button')), true)
 
@@ -111,15 +140,24 @@ describe('User', () => {
     if (!ios) await device.pressBack()
   })
 
-  test('navigates back to channels list', async () => {
-    await press(element(by.id('appbar_action_item')))
+  test('navigates back to channels list using Android system Back', async () => {
+    // Exercise ChannelScreen's hardwareBackPress handler. Tapping the appbar would
+    // miss Android 16 dropping legacy back events when targeting API 36.
+    if (ios) {
+      await press(element(by.id('appbar_action_item')))
+    } else {
+      await device.pressBack()
+    }
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
+
+    await expect(element(by.id('chat_general'))).not.toBeVisible()
   })
 
   test('opens context menu', async () => {
+    await waitForAndroidNotification(device)
     await press(element(by.id('open_menu')))
 
     await waitFor(element(by.id('context_menu_Rockets')))
@@ -136,10 +174,14 @@ describe('User', () => {
     const componentName = 'create-channel-component'
     await checkVisualRegression(componentName)
 
-    await press(element(by.id('input')))
-    await write(element(by.id('input')), 'roll')
+    await waitFor(element(by.id('create-channel-component')))
+      .toBeVisible()
+      .withTimeout(BASIC)
+    const channelNameInput = await singleLineInput('Channel name')
+    await press(channelNameInput)
+    await write(channelNameInput, 'roll')
 
-    await press(element(by.text('Continue')), true)
+    await press(element(by.text('Create channel')).atIndex(1))
 
     await waitFor(element(by.id('chat_roll')))
       .toBeVisible()
@@ -147,6 +189,7 @@ describe('User', () => {
   })
 
   test('deletes channel', async () => {
+    await waitForAndroidNotification(device)
     await press(element(by.id('open_menu')))
 
     await press(element(by.id('Delete channel')))
@@ -160,7 +203,7 @@ describe('User', () => {
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -174,6 +217,7 @@ describe('User', () => {
   })
 
   test('deletes #general channel', async () => {
+    await waitForAndroidNotification(device)
     await press(element(by.id('open_menu')))
 
     await press(element(by.id('Delete channel')))
@@ -184,7 +228,7 @@ describe('User', () => {
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -200,6 +244,7 @@ describe('User', () => {
   test('leaves community', async () => {
     await press(element(by.id('appbar_action_item')))
 
+    await waitForAndroidNotification(device)
     await press(element(by.id('open_menu')))
 
     await press(element(by.id('Leave community')))
@@ -243,30 +288,26 @@ describe('User', () => {
     await checkVisualRegression(componentName)
   })
   test('enters community name again', async () => {
-    await write(element(by.id('input')), 'rockets')
+    await write(await singleLineInput('Community name'), 'rockets')
 
     if (!ios) await device.pressBack()
 
-    await device.disableSynchronization()
     await press(element(by.text('Continue')), true)
   })
 
   test('enters username again', async () => {
-    await waitFor(element(by.text('Register a username')))
-      .toBeVisible()
-      .withTimeout(BASIC)
+    await waitForUsernameRegistration()
 
     const componentName = 'username-registration-component'
     await checkVisualRegression(componentName)
 
-    await write(element(by.id('input')), 'rick')
+    await write(await singleLineInput('Enter a username'), 'rick')
 
     await press(element(by.text('Continue')), true)
-    await device.enableSynchronization()
   })
 
   test('should see channels list again', async () => {
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(LONG)
   })
@@ -282,7 +323,7 @@ describe('User', () => {
     await device.launchApp({ newInstance: false })
 
     // User comes back to channel list
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })
@@ -296,8 +337,8 @@ describe('User', () => {
   })
 
   test('sends message to #general channel', async () => {
-    await press(element(by.id('input')))
-    await write(element(by.id('input')), 'We are no strangers to love')
+    await press(generalComposer())
+    await write(generalComposer(), 'We are no strangers to love')
 
     await press(element(by.id('send_message_button')), true)
 
