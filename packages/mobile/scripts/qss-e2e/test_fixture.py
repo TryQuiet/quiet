@@ -82,6 +82,64 @@ class FixtureTests(unittest.TestCase):
             self.prepare()
         self.assertFalse(self.output.exists())
 
+    @unittest.skipUnless(shutil.which("docker"), "Docker Compose CLI unavailable")
+    def test_provider_environment_round_trips_through_compose_without_entering_receipt(self):
+        credentials = self.root / "test-push.json"
+        account = {"type": "service_account", "project_id": "quiet-fixture-test", "client_email": "test@example.invalid",
+                   "private_key": "test-only-not-a-key\nsecond-line"}
+        fixture.private_json(credentials, {"android": account})
+        manifest = fixture.prepare(self.checkout, self.output, self.port, False, credentials)
+        self.assertTrue(manifest["pushNotifications"])
+        self.assertEqual(manifest["pushPlatforms"], ["android"])
+        self.assertNotIn(account["private_key"], json.dumps(manifest))
+        self.assertNotIn("FIREBASE", json.dumps(manifest))
+        self.assertEqual((self.output / "compose.json").stat().st_mode & 0o777, 0o600)
+        raw = subprocess.check_output(["docker", "compose", "-f", str(self.output / "compose.json"), "config", "--format", "json"])
+        environment = json.loads(raw)["services"]["qss"]["environment"]
+        self.assertEqual(environment["QPS_ENABLED"], "true")
+        self.assertEqual(environment["FIREBASE_ANDROID_PRIVATE_KEY"], account["private_key"])
+        self.assertNotIn("FIREBASE_IOS_PRIVATE_KEY", environment)
+
+    def test_provider_credentials_are_explicit_complete_and_private(self):
+        credentials = self.root / "push.json"
+        fixture.private_json(credentials, {"android": {"type": "service_account", "project_id": "test"}})
+        with self.assertRaisesRegex(ValueError, "Missing Firebase"):
+            fixture.push_environment(credentials)
+        credentials.chmod(0o644)
+        with self.assertRaisesRegex(ValueError, "private"):
+            fixture.push_environment(credentials)
+        self.assertEqual(fixture.push_environment(None), ({}, []))
+
+    def test_native_provider_reaches_only_server_process_and_stays_out_of_manifest(self):
+        import native
+        credentials = self.root / "native-push.json"
+        account = {"type": "service_account", "project_id": "quiet-fixture-test",
+                   "client_email": "test@example.invalid", "private_key": "test-only-key\nsecond-line"}
+        fixture.private_json(credentials, {"ios": account})
+        manifest = fixture.prepare(self.checkout, self.output, self.port, False, credentials)
+        binaries = self.native_binaries()
+        native.prepare(manifest, binaries / "node", binaries / "corepack", binaries, binaries / "redis-server")
+        observed = self.output / "observed.json"
+        code = "import json,os,time; from pathlib import Path; Path(%r).write_text(json.dumps({k:v for k,v in os.environ.items() if k.startswith('FIREBASE_') or k=='QPS_ENABLED'})); time.sleep(0.5)" % str(observed)
+        child = native.spawn(manifest, "qss", [sys.executable, "-c", code])
+        self.assertEqual(child.wait(timeout=5), 0)
+        values = json.loads(observed.read_text())
+        self.assertEqual(values["QPS_ENABLED"], "true")
+        self.assertEqual(values["FIREBASE_IOS_PRIVATE_KEY"], account["private_key"])
+        self.assertNotIn("FIREBASE_ANDROID_PRIVATE_KEY", values)
+        build_output = native.run(manifest, [sys.executable, "-c", "import os; print(any(k.startswith('FIREBASE_') for k in os.environ))"], capture=True)
+        self.assertEqual(build_output.strip(), "False")
+        self.assertNotIn("FIREBASE", (self.output / "manifest.json").read_text())
+        self.assertNotIn(account["client_email"], json.dumps(manifest))
+        runtime = self.output / "compose.json"
+        runtime.chmod(0o644)
+        with self.assertRaisesRegex(ValueError, "private"):
+            native.qss_environment(manifest)
+        runtime.chmod(0o600)
+        runtime.write_text(runtime.read_text() + " ")
+        with self.assertRaisesRegex(ValueError, "changed"):
+            native.qss_environment(manifest)
+
     def test_refuses_existing_output_and_occupied_port(self):
         with socket.socket() as listener:
             listener.bind(("127.0.0.1", self.port))

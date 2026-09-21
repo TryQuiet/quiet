@@ -13,10 +13,10 @@
 - (void)unsubscribeFromTopic:(NSString *)topic resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 @end
 
-@interface QuietTests : XCTestCase
+@interface QuietFirebaseUnavailableTests : XCTestCase
 @end
 
-@implementation QuietTests
+@implementation QuietFirebaseUnavailableTests
 
 - (BOOL)setUpWithError:(NSError **)error
 {

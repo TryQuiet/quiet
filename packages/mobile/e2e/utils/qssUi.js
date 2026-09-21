@@ -1,5 +1,6 @@
-/* global element, by, expect, waitFor */
+/* global device, element, by, expect, waitFor */
 import { singleLineInput, channelComposer } from './nativeInputs'
+import waitForAndroidNotification from './waitForAndroidNotification'
 const { parseQssInvitation } = require('./qssCommunity.cjs')
 
 export const createQssCommunity = async (communityName, username) => {
@@ -11,6 +12,7 @@ export const createQssCommunity = async (communityName, username) => {
     .toBeVisible()
     .withTimeout(10000)
   await (await singleLineInput('Community name')).typeText(communityName)
+  if (device.getPlatform() === 'android') await device.pressBack()
   await element(by.text('Continue')).tap()
   await waitFor(element(by.id('server-offer-drawer')))
     .toBeVisible()
@@ -20,6 +22,7 @@ export const createQssCommunity = async (communityName, username) => {
     .toBeVisible()
     .withTimeout(10000)
   await (await singleLineInput('Enter a username')).typeText(username)
+  if (device.getPlatform() === 'android') await device.pressBack()
   await element(by.text('Continue')).tap()
   await waitFor(element(by.id('terms-of-service-component')))
     .toBeVisible()
@@ -27,15 +30,16 @@ export const createQssCommunity = async (communityName, username) => {
   await element(by.text('Agree & Continue')).tap()
   // The real native WebView obtains hCaptcha's public test token. The app's
   // backend verifies it with QSS; no injected token or synchronization bypass.
-  await waitFor(element(by.id('channels_list')))
+  await waitFor(element(by.id('channel-list')))
     .toBeVisible()
     .withTimeout(120000)
 }
 
 export const openGeneral = async () => {
-  await waitFor(element(by.id('channels_list')))
+  await waitFor(element(by.id('channel-list')))
     .toBeVisible()
     .withTimeout(120000)
+  await waitForAndroidNotification(device)
   await element(by.id('channel_tile_general')).tap()
   await waitFor(channelComposer('general')).toBeVisible().withTimeout(30000)
 }
@@ -51,11 +55,13 @@ export const sendStoredMessage = async message => {
     .toBeVisible()
     .withTimeout(30000)
   await expect(composer).toHaveText('')
+  if (device.getPlatform() === 'android') await device.pressBack()
 }
 
 export const readQssInvitation = async communityName => {
+  await waitForAndroidNotification(device)
   await element(by.id('appbar_action_item')).tap()
-  await waitFor(element(by.id('channels_list')))
+  await waitFor(element(by.id('channel-list')))
     .toBeVisible()
     .withTimeout(10000)
   await element(by.id('open_menu')).tap()
@@ -78,5 +84,5 @@ export const closeQssInvitation = async () => {
   await waitFor(element(by.id('context_menu_Add members')))
     .not.toBeVisible()
     .withTimeout(10000)
-  await expect(element(by.id('channels_list'))).toBeVisible()
+  await expect(element(by.id('channel-list'))).toBeVisible()
 }

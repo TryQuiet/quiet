@@ -46,7 +46,7 @@ class CurrentTorBuildTests(unittest.TestCase):
                   mutate_pod=False, interrupt=False):
         def popen(argv, **kwargs):
             self.commands.append(argv)
-            self.assertEqual(kwargs['env']['ENVFILE'], '.env.staging')
+            self.assertEqual(kwargs['env']['ENVFILE'], self.args.env_file)
             self.assertEqual(kwargs['env']['FORCE_BUNDLING'], '1')
             self.assertNotIn('AWS_SECRET_ACCESS_KEY', kwargs['env'])
             app = self.output / 'DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app'
@@ -93,6 +93,17 @@ class CurrentTorBuildTests(unittest.TestCase):
             self.assertIn('embeddedTorSHA256', receipt)
         self.assertEqual((self.framework / 'binary').read_bytes(), b'unchanged upstream binary')
         self.assertFalse((self.output / '.build.lock').exists())
+
+    def test_notification_provider_build_uses_current_framework_and_receipt(self):
+        self.args.env_file = '.env.e2e.qss.push'
+        (self.ios.parent / self.args.env_file).write_text('QSS_ALLOWED=true\n')
+        self.assertEqual(self.run_build(), 0)
+        receipt = json.loads((self.output / 'result.json').read_text())
+        self.assertEqual(receipt['envFile'], '.env.e2e.qss.push')
+        self.assertEqual(receipt['torVersion'], '409.11.2')
+        self.assertTrue(receipt['torPodUnchanged'])
+        build = next(command for command in self.commands if command[0] == 'xcodebuild')
+        self.assertIn('ENVFILE=.env.e2e.qss.push', build)
 
     def test_old_installed_pod_is_rejected_before_build(self):
         self.podspec.write_text('{"version":"405.9.1"}')
