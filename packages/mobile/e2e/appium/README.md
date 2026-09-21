@@ -154,7 +154,9 @@ Write a private configuration file, for example:
 For iOS use `"platform": "ios"`, the exact simulator/device UDID, the built
 `.app` directory and its actual bundle ID. Optional fields are `platformVersion`,
 `wdaLocalPort`, `xcodeOrgId` and `updatedWDABundleId` for signing WebDriverAgent on
-physical devices. Desktop runs on the same host as the selected device's Appium
+physical devices. Set `usePreinstalledWDA` to `true` with the installed runner's
+`updatedWDABundleId` when reusing a previously signed WebDriverAgent. Desktop runs
+on the same host as the selected device's Appium
 server. Both provider clients connect directly to staging; they need no ADB
 reverse or route to a localhost QSS service. The iOS hosted workflow currently
 uses a fresh simulator. Physical devices still require normal app and

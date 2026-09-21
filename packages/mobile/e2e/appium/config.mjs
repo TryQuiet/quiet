@@ -24,6 +24,8 @@ export function validateConfig(config) {
   for (const key of ['appiumPort', 'adbPort', 'systemPort', 'wdaLocalPort']) {
     if (config[key] !== undefined) assert(Number.isInteger(config[key]) && config[key] > 1023 && config[key] < 65536, `Invalid ${key}`)
   }
+  if (config.usePreinstalledWDA !== undefined) assert.equal(typeof config.usePreinstalledWDA, 'boolean', 'usePreinstalledWDA must be a boolean')
+  if (config.usePreinstalledWDA) assert(config.updatedWDABundleId, 'Preinstalled WebDriverAgent requires its installed bundle ID')
   return config
 }
 

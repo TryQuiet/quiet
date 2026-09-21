@@ -7,6 +7,15 @@ import { promisify } from 'node:util'
 const exec = promisify(execFile)
 export const literal = text => text.includes("'") ? `concat(${text.split("'").map(s => `'${s}'`).join(',"\'",')})` : `'${text}'`
 
+export const iosCapabilities = config => ({
+  'appium:bundleId': config.bundleId,
+  'appium:wdaLocalPort': config.wdaLocalPort || 8125,
+  ...(config.platformVersion ? { 'appium:platformVersion': config.platformVersion } : {}),
+  ...(config.xcodeOrgId ? { 'appium:xcodeOrgId': config.xcodeOrgId, 'appium:xcodeSigningId': 'Apple Development' } : {}),
+  ...(config.updatedWDABundleId ? { 'appium:updatedWDABundleId': config.updatedWDABundleId } : {}),
+  ...(config.usePreinstalledWDA ? { 'appium:usePreinstalledWDA': true } : {}),
+})
+
 export class Mobile {
   constructor(config, run) { this.config = config; this.run = run; this.driver = undefined }
   get android() { return this.config.platform === 'android' }
@@ -51,13 +60,7 @@ export class Mobile {
           'appium:systemPort': this.config.systemPort || 8225,
           'appium:uiautomator2ServerInstallTimeout': 120000,
           'appium:androidInstallTimeout': 180000,
-        } : {
-          'appium:bundleId': this.config.bundleId,
-          'appium:wdaLocalPort': this.config.wdaLocalPort || 8125,
-          ...(this.config.platformVersion ? { 'appium:platformVersion': this.config.platformVersion } : {}),
-          ...(this.config.xcodeOrgId ? { 'appium:xcodeOrgId': this.config.xcodeOrgId, 'appium:xcodeSigningId': 'Apple Development' } : {}),
-          ...(this.config.updatedWDABundleId ? { 'appium:updatedWDABundleId': this.config.updatedWDABundleId } : {}),
-        }),
+        } : iosCapabilities(this.config)),
       },
     })
     await this.driver.setOrientation('PORTRAIT')
