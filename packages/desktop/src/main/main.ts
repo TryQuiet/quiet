@@ -15,7 +15,7 @@ import { createLeaveCommunityHandler } from './leaveCommunity'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { registerExternalLinkHandler } from './externalLinks'
 const ElectronStore = require('electron-store')
-const contextMenu = require('electron-context-menu')
+import { setupContextMenu } from './contextMenu'
 import sodium from 'libsodium-wrappers-sumo'
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -148,7 +148,7 @@ export const applyDevTools = async () => {
   await Promise.all(
     extensionsData.map(async extension => {
       try {
-        await session.defaultSession.loadExtension(extension.path, { allowFileAccess: true })
+        await session.defaultSession.extensions.loadExtension(extension.path, { allowFileAccess: true })
       } catch (error) {
         logger.error(`Failed to load extension from ${extension.path}:`, error)
       }
@@ -532,14 +532,7 @@ app.on('ready', async () => {
   await applyDevTools()
 
   logger.trace('Creating context menu')
-  contextMenu({
-    showInspectElement: false,
-    showSaveLinkAs: true,
-    showCopyLink: true,
-    showSaveImage: true,
-    showCopyImage: true,
-    showSaveImageAs: true,
-  })
+  setupContextMenu()
 
   if (quitting) {
     logger.warn('Quit requested before backend setup, skipping startup')

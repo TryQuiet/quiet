@@ -76,6 +76,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          npm install --global "npm@$(node -p 'require("./package.json").engines.npm')"
           python3 -m pip install setuptools
           npm ci
           # Keep checkout's exact gitlinks, including the Node 24 auth fix.
