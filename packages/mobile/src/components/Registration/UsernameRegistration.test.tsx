@@ -1,4 +1,5 @@
 import React from 'react'
+import { screen, fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { UsernameRegistration } from './UsernameRegistration.component'
 import { UsernameVariant } from './UsernameRegistration.types'
@@ -125,8 +126,11 @@ describe('UsernameRegistration', () => {
                     {
                       "alignItems": "center",
                       "backgroundColor": "#ffffff",
+                      "borderBottomLeftRadius": 16,
+                      "borderBottomRightRadius": 16,
                       "borderColor": "#B3B3B3",
-                      "borderRadius": 16,
+                      "borderTopLeftRadius": 16,
+                      "borderTopRightRadius": 16,
                       "borderWidth": 1,
                       "flexDirection": "row",
                       "flexGrow": 1,
@@ -155,16 +159,14 @@ describe('UsernameRegistration', () => {
                   placeholder="Enter a username"
                   placeholderTextColor="#7F7F7F"
                   style={
-                    [
-                      {
-                        "flexBasis": 0,
-                        "flexGrow": 1,
-                        "flexShrink": 1,
-                        "paddingBottom": 12,
-                        "paddingTop": 12,
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "flexBasis": 0,
+                      "flexGrow": 1,
+                      "flexShrink": 1,
+                      "paddingBottom": 12,
+                      "paddingTop": 12,
+                      "textAlignVertical": "center",
+                    }
                   }
                   testID="input"
                 />
@@ -239,15 +241,13 @@ describe('UsernameRegistration', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  [
-                    {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  {
+                    "color": "#ffffff",
+                    "fontFamily": "Rubik-Regular",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  }
                 }
                 verticalTextAlign="center"
               >
@@ -663,4 +663,49 @@ describe('UsernameRegistration', () => {
   //     </View>
   //   `)
   // })
+
+  // https://github.com/TryQuiet/quiet/issues/1306 - a leading hyphen used to be registered as-is.
+  // ' holmes' is included because parseName turns the leading space into a hyphen too.
+  it.each([['-holmes'], ['-1'], ['--'], [' holmes']])(
+    'user inserting name starting with a hyphen "%s" cannot submit and sees an explanation',
+    (name: string) => {
+      const registerUsernameAction = jest.fn()
+
+      renderComponent(
+        <UsernameRegistration
+          variant={UsernameVariant.NEW}
+          registerUsernameAction={registerUsernameAction}
+          usernameRegistered={false}
+          fetching={false}
+        />
+      )
+
+      fireEvent.changeText(screen.getByTestId('input'), name)
+      fireEvent.press(screen.getByTestId('button'))
+
+      expect(registerUsernameAction).not.toBeCalled()
+      expect(screen.getByText('Username must start with a letter or number')).toBeVisible()
+    }
+  )
+
+  it.each([['holmes'], ['1-holmes'], ['holmes-']])(
+    'user inserting name "%s" without a leading hyphen can still submit',
+    (name: string) => {
+      const registerUsernameAction = jest.fn()
+
+      renderComponent(
+        <UsernameRegistration
+          variant={UsernameVariant.NEW}
+          registerUsernameAction={registerUsernameAction}
+          usernameRegistered={false}
+          fetching={false}
+        />
+      )
+
+      fireEvent.changeText(screen.getByTestId('input'), name)
+      fireEvent.press(screen.getByTestId('button'))
+
+      expect(registerUsernameAction).toBeCalledWith(name)
+    }
+  )
 })

@@ -42,7 +42,7 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder --mac
+        run: bash ../../scripts/retry-network-command.sh node_modules/.bin/electron-builder --mac -p never
 
       - name: VERSION env
         working-directory: ./packages/desktop
@@ -93,4 +93,4 @@ jobs:
 
       - name: Run admission timeout recovery test
         timeout-minutes: 15
-        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQss.test.ts
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQssEndpoint.test.ts

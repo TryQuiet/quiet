@@ -520,11 +520,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
    * iOS where Tor receives a new port when the app resumes from background and
    * we want to close/re-open connections.
    */
-  public async redialPeers(peersToDial?: string[]) {
+  public async redialPeers(peersToDial?: string[], options?: { onlyPeerIds: ReadonlySet<string> }) {
     const sortedPeers = peersToDial == null ? await this.localDbService.getSortedPeers(false) : []
     const toDial = new Set(peersToDial ?? [...sortedPeers, ...this.dialedPeers])
     toDial.delete(this.localAddress)
-    const targets = [...toDial]
+    const targets = [...toDial].filter(address => options == null || options.onlyPeerIds.has(address.split('/').pop()!))
 
     if (targets.length === 0) {
       this.logger.debug('No peers to redial!')
@@ -595,6 +595,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         connectionMonitor: {
           abortConnectionOnPingFailure: true,
           pingInterval: 60_000,
+          // Tor round trips can exceed libp2p's two-second default. Aborting a
+          // live connection here can interrupt a persisted admission handshake.
+          pingTimeout: { minTimeout: 60_000 },
           enabled: true,
         } satisfies ConnectionMonitorInit,
         connectionProtector:

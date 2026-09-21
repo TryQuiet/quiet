@@ -1,7 +1,7 @@
 import { Builder, By, type WebDriver } from 'selenium-webdriver'
-import { Options } from 'selenium-webdriver/chrome'
+import { Options, ServiceBuilder } from 'selenium-webdriver/chrome'
 import { SettingsModalTabName } from '../enums'
-import { waitForSettingsTab } from '../settingsTabReady'
+import { closeSettingsTab, waitForSettingsTab, waitForSettingsTabClosed } from '../settingsTabReady'
 
 // These fixtures reproduce the panels' rendered content after their headings moved
 // into the drawer bar. Chrome supplies real layout and Selenium visibility checks.
@@ -26,9 +26,24 @@ describeLinux('settings panel readiness in Chrome', () => {
   let driver: WebDriver
 
   beforeAll(async () => {
+    const options = new Options()
+    options.addArguments('--headless=new', '--no-sandbox', '--disable-dev-shm-usage')
+    // npm adds the Electron drivers to PATH. This fixture drives installed
+    // Chrome, so let Selenium Manager select the browser's matching driver.
+    const { driverPath, browserPath } = require('selenium-webdriver/common/seleniumManager').binaryPaths([
+      '--browser',
+      'chrome',
+      '--skip-driver-in-path',
+      '--language-binding',
+      'javascript',
+      '--output',
+      'json',
+    ])
+    options.setChromeBinaryPath(browserPath)
     driver = await new Builder()
       .forBrowser('chrome')
-      .setChromeOptions(new Options().addArguments('--headless=new', '--no-sandbox', '--disable-dev-shm-usage'))
+      .setChromeOptions(options)
+      .setChromeService(new ServiceBuilder(driverPath))
       .build()
   }, 120_000)
 
@@ -61,5 +76,44 @@ describeLinux('settings panel readiness in Chrome', () => {
   it('does not accept an empty obsolete heading without panel content', async () => {
     await showPanel('<div class="Notificationstitle"></div>')
     await expect(waitForSettingsTab(driver, SettingsModalTabName.NOTIFICATIONS, 200)).rejects.toThrow("wasn't ready")
+  })
+
+  it('recognizes a closed tab when its back button is reused as the menu close button', async () => {
+    await showPanel(`<div data-testid="close-tab-button-box"><button onclick="
+      this.parentElement.removeAttribute('data-testid');
+      this.setAttribute('data-testid', 'close-settings-button');
+    ">Back</button></div>`)
+    const button = await driver.findElement(By.css('button'))
+    await button.click()
+    await expect(waitForSettingsTabClosed(driver, 1_000)).resolves.toBeUndefined()
+    expect(await button.getAttribute('data-testid')).toBe('close-settings-button')
+    expect(await button.isDisplayed()).toBe(true)
+  })
+
+  it('also accepts a hidden tab left in the DOM by an older drawer', async () => {
+    await showPanel('<div data-testid="close-tab-button-box" style="display:none"><button>Back</button></div>')
+    await expect(waitForSettingsTabClosed(driver, 1_000)).resolves.toBeUndefined()
+  })
+
+  it('still rejects a tab whose back button remains visible', async () => {
+    await showPanel('<div data-testid="close-tab-button-box"><button>Back</button></div>')
+    await expect(waitForSettingsTabClosed(driver, 200)).rejects.toThrow('Settings tab did not finish closing')
+  })
+
+  it('clicks the back button after the released drawer finishes sliding into place', async () => {
+    await showPanel(`<div id="drawer" style="position:absolute;left:100px;top:50px;transform:translateX(400px)">
+      <div data-testid="close-tab-button-box"><button onclick="
+        document.body.dataset.clickX = this.getBoundingClientRect().x;
+        document.getElementById('drawer').remove();
+      ">Back</button></div>
+    </div>`)
+    await driver.executeScript(`
+      const drawer = document.getElementById('drawer');
+      drawer.style.transition = 'transform 1s linear';
+      drawer.getBoundingClientRect();
+      drawer.style.transform = 'translateX(0)';
+    `)
+    await closeSettingsTab(driver, 3_000)
+    expect(Number(await driver.findElement(By.css('body')).getAttribute('data-click-x'))).toBeCloseTo(100, 0)
   })
 })

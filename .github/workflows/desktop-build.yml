@@ -119,7 +119,7 @@ jobs:
           pkg.version += process.env.VERSION_SUFFIX;
           fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
           NODE
-          USE_HARD_LINKS=false node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
+          USE_HARD_LINKS=false bash ../../scripts/retry-network-command.sh node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

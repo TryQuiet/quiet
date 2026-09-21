@@ -49,6 +49,7 @@ describe('One Client', () => {
   describe('User opens app for the first time', () => {
     it('User opens app', async () => {
       await app.openWithRetries()
+      expect(new URL(await app.driver.getCurrentUrl()).pathname.endsWith('/index.html')).toBe(true)
     })
 
     it('Get opened app process data', () => {
@@ -307,15 +308,9 @@ describe('One Client', () => {
       expect(await app.isSessionOpen()).toBe(true)
       await app.quitProgrammatically()
 
-      try {
-        await app.waitForClosed(5000)
-      } catch (e) {
-        // expected if app was not ready when we tried to close
-      }
-      if (await app.isSessionOpen()) {
-        // may have triggered before app was ready
-        await app.quitProgrammatically()
-      }
+      // A quit request starts asynchronous backend cleanup. Observe completion
+      // once, without retrying quit and then asserting before cleanup finishes.
+      await app.waitForClosed()
       const opened = await app.isSessionOpen()
       expect(opened).toBe(false)
     })
@@ -324,7 +319,7 @@ describe('One Client', () => {
       await new Promise(resolve => setTimeout(resolve, 2000))
       expect(await app.isSessionOpen()).toBe(true)
       const generalChannel = new Channel(app.driver, 'general')
-      expect(generalChannel.isReady()).toBeTruthy()
+      expect(await generalChannel.isReady()).toBeTruthy()
       await app.closeWindowViaX()
       if (process.platform === 'darwin') {
         // On macOS, window should be hidden but app still running

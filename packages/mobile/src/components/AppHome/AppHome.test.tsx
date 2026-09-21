@@ -167,15 +167,13 @@ describe('AppHome component', () => {
                     fontSize={14}
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#ffffff",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 14,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#ffffff",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -199,15 +197,13 @@ describe('AppHome component', () => {
               fontWeight="medium"
               horizontalTextAlign="left"
               style={
-                [
-                  {
-                    "color": "#ffffff",
-                    "fontFamily": "Rubik-Medium",
-                    "fontSize": 16,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "color": "#ffffff",
+                  "fontFamily": "Rubik-Medium",
+                  "fontSize": 16,
+                  "textAlign": "left",
+                  "textAlignVertical": "center",
+                }
               }
               verticalTextAlign="center"
             >
@@ -270,15 +266,13 @@ describe('AppHome component', () => {
                   fontWeight="medium"
                   horizontalTextAlign="left"
                   style={
-                    [
-                      {
-                        "color": "#4C4C4C",
-                        "fontFamily": "Rubik-Medium",
-                        "fontSize": 14,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "color": "#4C4C4C",
+                      "fontFamily": "Rubik-Medium",
+                      "fontSize": 14,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    }
                   }
                   verticalTextAlign="center"
                 >
@@ -289,9 +283,9 @@ describe('AppHome component', () => {
                   style={
                     {
                       "backgroundColor": "transparent",
-                      "borderRadius": 18,
-                      "height": 36,
-                      "margin": 6,
+                      "borderRadius": 24,
+                      "height": 48,
+                      "margin": 0,
                       "shadowColor": "#000",
                       "shadowOffset": {
                         "height": 0,
@@ -299,7 +293,7 @@ describe('AppHome component', () => {
                       },
                       "shadowOpacity": 0,
                       "shadowRadius": 0,
-                      "width": 36,
+                      "width": 48,
                     }
                   }
                   testID="icon-button-container-outer-layer"
@@ -310,7 +304,7 @@ describe('AppHome component', () => {
                       {
                         "backgroundColor": "transparent",
                         "borderColor": "rgba(121, 116, 126, 1)",
-                        "borderRadius": 18,
+                        "borderRadius": 24,
                         "borderWidth": 0,
                         "elevation": 0,
                         "flex": 1,
@@ -328,6 +322,7 @@ describe('AppHome component', () => {
                   >
                     <View
                       accessibilityComponentType="button"
+                      accessibilityLabel="Create channel"
                       accessibilityRole="button"
                       accessibilityState={
                         {
@@ -1282,15 +1277,13 @@ describe('AppHome component', () => {
                                       fontWeight="medium"
                                       horizontalTextAlign="left"
                                       style={
-                                        [
-                                          {
-                                            "color": "#ffffff",
-                                            "fontFamily": "Rubik-Medium",
-                                            "fontSize": 12,
-                                            "textAlign": "left",
-                                            "textAlignVertical": "center",
-                                          },
-                                        ]
+                                        {
+                                          "color": "#ffffff",
+                                          "fontFamily": "Rubik-Medium",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        }
                                       }
                                       verticalTextAlign="center"
                                     >
@@ -1840,15 +1833,13 @@ describe('AppHome component', () => {
                   fontWeight="medium"
                   horizontalTextAlign="left"
                   style={
-                    [
-                      {
-                        "color": "#4C4C4C",
-                        "fontFamily": "Rubik-Medium",
-                        "fontSize": 14,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "color": "#4C4C4C",
+                      "fontFamily": "Rubik-Medium",
+                      "fontSize": 14,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    }
                   }
                   verticalTextAlign="center"
                 >
@@ -1859,9 +1850,9 @@ describe('AppHome component', () => {
                   style={
                     {
                       "backgroundColor": "transparent",
-                      "borderRadius": 18,
-                      "height": 36,
-                      "margin": 6,
+                      "borderRadius": 24,
+                      "height": 48,
+                      "margin": 0,
                       "shadowColor": "#000",
                       "shadowOffset": {
                         "height": 0,
@@ -1869,7 +1860,7 @@ describe('AppHome component', () => {
                       },
                       "shadowOpacity": 0,
                       "shadowRadius": 0,
-                      "width": 36,
+                      "width": 48,
                     }
                   }
                   testID="icon-button-container-outer-layer"
@@ -1880,7 +1871,7 @@ describe('AppHome component', () => {
                       {
                         "backgroundColor": "transparent",
                         "borderColor": "rgba(121, 116, 126, 1)",
-                        "borderRadius": 18,
+                        "borderRadius": 24,
                         "borderWidth": 0,
                         "elevation": 0,
                         "flex": 1,
@@ -1898,6 +1889,7 @@ describe('AppHome component', () => {
                   >
                     <View
                       accessibilityComponentType="button"
+                      accessibilityLabel="New direct message"
                       accessibilityRole="button"
                       accessibilityState={
                         {
@@ -2132,23 +2124,19 @@ describe('AppHome component', () => {
                   <View
                     collapsable={false}
                     style={
-                      [
-                        {
-                          "bottom": 0,
-                          "left": 0,
-                          "position": "absolute",
-                          "right": 0,
-                          "top": 0,
-                        },
-                        {
-                          "opacity": 1,
-                          "transform": [
-                            {
-                              "rotate": "0deg",
-                            },
-                          ],
-                        },
-                      ]
+                      {
+                        "bottom": 0,
+                        "left": 0,
+                        "opacity": 1,
+                        "position": "absolute",
+                        "right": 0,
+                        "top": 0,
+                        "transform": [
+                          {
+                            "rotate": "0deg",
+                          },
+                        ],
+                      }
                     }
                     testID="cross-fade-icon-current"
                   >

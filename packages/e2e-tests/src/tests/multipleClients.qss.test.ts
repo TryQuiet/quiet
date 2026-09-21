@@ -46,6 +46,10 @@ type MultipleClientsUsers = {
   user2: UserTestData<User2Messages>
 }
 
+// QSS can finish joining before Tor bootstraps. Presence still requires a
+// direct connection, so allow the same six minutes as the P2P joining panel.
+const TOR_CONNECTION_TIMEOUT_MS = 360_000
+
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients (QSS)', () => {
   let generalChannelOwner: Channel

@@ -96,7 +96,7 @@ describe('TorControl', () => {
 
   afterEach(async () => {
     await torService.kill()
-    torService.clearHangingTorProcess()
+    await torService.clearHangingTorProcess()
     await module.close()
   })
 
@@ -150,14 +150,19 @@ describe('TorControl', () => {
   it('spawns new hidden service', async () => {
     await torService.init()
     await waitForBootstrap()
-    const hiddenService = await torService.createNewHiddenService({ targetPort: 4343 })
+    const hiddenService = await torService.createOnionIdentity()
+    await torService.waitForHiddenServicePublication({
+      targetPort: 4343,
+      onionAddress: hiddenService.onionAddress,
+      privKey: hiddenService.privateKey,
+    })
     expect(hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
   })
 
   it('spawns hidden service using private key', async () => {
     await torService.init()
     await waitForBootstrap()
-    const hiddenServiceOnionAddress = await torService.spawnHiddenService({
+    const hiddenServiceOnionAddress = await torService.waitForHiddenServicePublication({
       targetPort: 4343,
       onionAddress: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
       privKey: 'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ==',
@@ -165,42 +170,15 @@ describe('TorControl', () => {
     expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion')
   })
 
-  // Tor mints the keypair itself and answers ADD_ONION with it immediately; only
-  // publishing the descriptor needs a bootstrapped Tor. A caller that just wants the
-  // key must not be made to wait for the publish (#3565).
-  it('returns a new hidden service key without waiting for the descriptor upload', async () => {
-    const serviceId = 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad'
-    const privateKey =
-      'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
-    const sendCommandSpy = jest.spyOn(torControl, 'sendCommand').mockResolvedValue({
-      code: 250,
-      messages: [`250-ServiceID=${serviceId}`, `250-PrivateKey=${privateKey}`, '250 OK'],
-    })
-    const waitForEventSpy = jest.spyOn(torControl, 'sendCommandAndWaitForEvent')
-    const torServiceInternals = torService as any
-    torServiceInternals.torDataDirectory = `${tmpAppDataPath}/TorDataDirectory`
-
-    try {
-      const hiddenService = await torService.createNewHiddenService({
-        targetPort: 4343,
-        waitForDescriptorUpload: false,
-      })
-
-      expect(hiddenService).toEqual({ onionAddress: `${serviceId}.onion`, privateKey })
-      expect(waitForEventSpy).not.toHaveBeenCalled()
-      expect(sendCommandSpy).toHaveBeenCalledWith(expect.stringContaining('ADD_ONION NEW:BEST'))
-      // Unpublished, so it must not count as one of the session's live services.
-      expect((torService as any).initializedHiddenServices.has(serviceId)).toBe(false)
-    } finally {
-      sendCommandSpy.mockRestore()
-      waitForEventSpy.mockRestore()
-    }
-  })
-
   it('creates and destroys hidden service', async () => {
     await torService.init()
     await waitForBootstrap()
-    const hiddenService = await torService.createNewHiddenService({ targetPort: 4343 })
+    const hiddenService = await torService.createOnionIdentity()
+    await torService.waitForHiddenServicePublication({
+      targetPort: 4343,
+      onionAddress: hiddenService.onionAddress,
+      privKey: hiddenService.privateKey,
+    })
     const serviceId = hiddenService.onionAddress.split('.')[0]
     const status = await torService.destroyHiddenService(serviceId)
     expect(status).toBe(true)
@@ -214,11 +192,11 @@ describe('TorControl', () => {
     // init resolves once Tor has announced itself, so the spy goes on afterwards:
     // any call it sees is the timeout restarting a Tor that was already up.
     await torService.init(1000)
-    const pidsAtStartup = torService.getTorProcessIds().sort()
+    const pidsAtStartup = (await torService.getTorProcessIds()).sort()
     const spyOnInit = jest.spyOn(torService, 'init')
     await sleep(4000)
     expect(spyOnInit).not.toHaveBeenCalled()
-    expect(torService.getTorProcessIds().sort()).toEqual(pidsAtStartup)
+    expect((await torService.getTorProcessIds()).sort()).toEqual(pidsAtStartup)
   })
 
   // The status Tor reports while it retries a relay that timed out. RECOMMENDATION=ignore
@@ -238,7 +216,7 @@ describe('TorControl', () => {
       messages: [statusForTick(), '250 OK'],
     }))
     const initSpy = jest.spyOn(torService, 'init').mockResolvedValue(undefined)
-    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockReturnValue(['123'])
+    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockResolvedValue(['123'])
     const torServiceInternals = torService as any
 
     try {
@@ -348,7 +326,7 @@ describe('TorControl', () => {
       ],
     })
     const initSpy = jest.spyOn(torService, 'init').mockResolvedValue(undefined)
-    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockReturnValue([])
+    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockResolvedValue([])
     const torServiceInternals = torService as any
 
     try {
@@ -383,16 +361,16 @@ describe('TorControl', () => {
   it('should find hanging tor processes and kill them', async () => {
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
-    const torIds = torService.getTorProcessIds()
-    torService.clearHangingTorProcess()
+    const torIds = await torService.getTorProcessIds()
+    await torService.clearHangingTorProcess()
     expect(processKill).toHaveBeenCalledTimes(torIds.length) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
   })
 
   it('should find hanging tor processes and kill them if Quiet path includes space', async () => {
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
-    const torIds = torService.getTorProcessIds()
-    torService.clearHangingTorProcess()
+    const torIds = await torService.getTorProcessIds()
+    await torService.clearHangingTorProcess()
     expect(processKill).toHaveBeenCalledTimes(torIds.length) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
   })
 })

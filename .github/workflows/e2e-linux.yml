@@ -63,11 +63,14 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: ENVFILE=.env.e2e npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: ENVFILE=.env.e2e bash ../../scripts/retry-network-command.sh npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
+
+      - name: Verify final AppImage packaging
+        run: QUIET_TEST_APPIMAGE="$GITHUB_WORKSPACE/packages/desktop/dist/$FILE_NAME" npm run test:packaged-appimage --prefix packages/desktop
 
       - name: Run one client test
         timeout-minutes: 15
@@ -99,7 +102,7 @@ jobs:
 
       - name: Run admission timeout recovery test
         timeout-minutes: 15
-        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQss.test.ts
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQssEndpoint.test.ts
 
       # Run Tor coverage once per release run, on Linux only, using the same binary.
       - name: Run multiple clients test over Tor (release)

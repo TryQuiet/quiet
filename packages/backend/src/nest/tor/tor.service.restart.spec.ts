@@ -90,12 +90,12 @@ describe('Tor restarts while a hidden service is being published', () => {
     torService.torPidPath = path.join(quietDir, 'torPid.json')
     // Keep the test off the real process table, and off the interval that would
     // otherwise drive its own control-port I/O.
-    jest.spyOn(torService, 'getTorProcessIds').mockReturnValue([])
+    jest.spyOn(torService, 'getTorProcessIds').mockResolvedValue([])
     jest.spyOn(torService, 'startBootstrapWatcher').mockImplementation(() => undefined)
     return { torControl, torService }
   }
 
-  it('reports Tor as started even when publishing its hidden services fails', async () => {
+  it('reports Tor as started without attempting publication before bootstrap', async () => {
     const { torService } = createTorService()
     const publicationFailure = new Error('Tor control event connection closed while waiting for HS_DESC')
     const spawnHiddenServices = jest.spyOn(torService, 'spawnHiddenServices').mockRejectedValue(publicationFailure)
@@ -115,9 +115,9 @@ describe('Tor restarts while a hidden service is being published', () => {
         sleep(250).then(() => 'pending' as const),
       ])
 
-      expect(spawnHiddenServices).toHaveBeenCalledTimes(1)
-      // Publishing rejected inside a listener nobody awaits. The backend shuts
-      // itself down on an unhandled rejection, which is the crash in #3570.
+      expect(spawnHiddenServices).not.toHaveBeenCalled()
+      // Starting publication from this listener used to cause the unhandled
+      // rejection and backend shutdown in #3570.
       expect(unhandled).toEqual([])
       // A Tor at 0% cannot upload a descriptor yet, so gating this on publication
       // held init() for the whole event timeout - long enough for the next restart

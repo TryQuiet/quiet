@@ -37,7 +37,7 @@ import { navigationActions } from './store/navigation/navigation.slice'
 import { rootSaga } from './store/root.saga'
 import { sagaMiddleware } from './store/store'
 
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components/native'
 import { defaultTheme } from './styles/themes/default.theme'
 
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
@@ -79,7 +79,7 @@ const linking = {
   },
 }
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   const dispatch = useDispatch()
 
   const confirmationBox = useConfirmationBox()
@@ -91,12 +91,14 @@ function App(): JSX.Element {
   return (
     <SafeAreaProvider>
       {/*
-        Paint the status-bar strip ourselves rather than relying on StatusBar.backgroundColor:
-        the app targets SDK 35, where Android forces edge-to-edge and ignores setStatusBarColor,
-        and iOS has no status-bar background API at all. A top-edge-only SafeAreaView works on both.
+        Paint the status-bar strip ourselves: Android SDK 35+ forces edge-to-edge,
+        and iOS has no status-bar background API. Keep the other system-bar insets white.
       */}
       <SafeAreaView edges={['top']} style={{ backgroundColor: defaultTheme.palette.main.brand }} />
-      <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1 }}>
+      <SafeAreaView
+        edges={['left', 'right', 'bottom']}
+        style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
+      >
         <NavigationContainer
           ref={navigationRef}
           linking={linking}

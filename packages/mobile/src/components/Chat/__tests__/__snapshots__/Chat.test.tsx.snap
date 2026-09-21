@@ -2,6 +2,7 @@
 
 exports[`Chat component renders component 1`] = `
 <View
+  collapsable={false}
   style={
     {
       "flex": 1,
@@ -11,19 +12,17 @@ exports[`Chat component renders component 1`] = `
 >
   <View
     style={
-      [
-        {
-          "alignItems": "center",
-          "backgroundColor": "#ffffff",
-          "borderBottomColor": "#F0F0F0",
-          "borderBottomWidth": 1,
-          "display": "flex",
-          "flexDirection": "row",
-          "justifyContent": "center",
-          "maxHeight": 64,
-          "minHeight": 60,
-        },
-      ]
+      {
+        "alignItems": "center",
+        "backgroundColor": "#ffffff",
+        "borderBottomColor": "#F0F0F0",
+        "borderBottomWidth": 1,
+        "display": "flex",
+        "flexDirection": "row",
+        "justifyContent": "center",
+        "maxHeight": 64,
+        "minHeight": 60,
+      }
     }
   >
     <View
@@ -304,15 +303,13 @@ exports[`Chat component renders component 1`] = `
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Medium",
-                  "fontSize": 16,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-              ]
+              {
+                "color": "#000000",
+                "fontFamily": "Rubik-Medium",
+                "fontSize": 16,
+                "textAlign": "left",
+                "textAlignVertical": "center",
+              }
             }
             verticalTextAlign="center"
           >
@@ -765,6 +762,7 @@ exports[`Chat component renders component 1`] = `
             },
           ]
         }
+        testID="messages_general"
         viewabilityConfig={
           {
             "itemVisiblePercentThreshold": 0,
@@ -801,11 +799,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-vader"
             >
               <View
                 style={
@@ -1020,15 +1020,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1049,15 +1047,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1073,11 +1069,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
@@ -1107,11 +1105,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-windoo"
             >
               <View
                 style={
@@ -1340,15 +1340,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1369,15 +1367,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1393,11 +1389,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         We cannot grant you the rank of messager
@@ -1427,11 +1425,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-luke"
             >
               <View
                 style={
@@ -1660,15 +1660,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1689,15 +1687,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1713,11 +1709,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         The more messages the better
@@ -1747,11 +1745,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-leah"
             >
               <View
                 style={
@@ -1966,15 +1966,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -1995,15 +1993,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2019,11 +2015,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Yeah!
@@ -2053,11 +2051,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-wookie"
             >
               <View
                 style={
@@ -2272,15 +2272,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2301,15 +2299,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2325,11 +2321,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Wrough!
@@ -2359,11 +2357,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-obi"
             >
               <View
                 style={
@@ -2592,15 +2592,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2621,15 +2619,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2645,22 +2641,26 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         I Agree
                       </div>
                     </View>
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 4,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Of course, I Agree
@@ -2690,11 +2690,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-yoda"
             >
               <View
                 style={
@@ -2909,15 +2911,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2938,15 +2938,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -2962,11 +2960,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Messages more there should be
@@ -2996,11 +2996,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-anakin"
             >
               <View
                 style={
@@ -3215,15 +3217,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -3244,15 +3244,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -3268,11 +3266,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Why?
@@ -3302,11 +3302,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-anakin"
             >
               <View
                 style={
@@ -3521,15 +3523,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -3550,15 +3550,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -3574,11 +3572,13 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Uhuhu!
@@ -3608,11 +3608,13 @@ exports[`Chat component renders component 1`] = `
             }
           >
             <View
+              collapsable={false}
               style={
                 {
                   "flex": 1,
                 }
               }
+              testID="userMessages-chad"
             >
               <View
                 style={
@@ -3841,15 +3843,13 @@ exports[`Chat component renders component 1`] = `
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#000000",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 16,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -3870,15 +3870,13 @@ exports[`Chat component renders component 1`] = `
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#999999",
+                            "fontFamily": "Rubik-Regular",
+                            "fontSize": 14,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >
@@ -3894,33 +3892,39 @@ exports[`Chat component renders component 1`] = `
                     }
                   >
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 0,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Luck, I am your father!
                       </div>
                     </View>
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 4,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         That's impossible!
                       </div>
                     </View>
                     <View
+                      collapsable={false}
                       style={
                         {
                           "paddingTop": 4,
                         }
                       }
+                      testID="message-stored"
                     >
                       <div>
                         Nooo!
@@ -4002,8 +4006,11 @@ exports[`Chat component renders component 1`] = `
                   {
                     "alignItems": "center",
                     "backgroundColor": "#ffffff",
+                    "borderBottomLeftRadius": 16,
+                    "borderBottomRightRadius": 16,
                     "borderColor": "#B3B3B3",
-                    "borderRadius": 16,
+                    "borderTopLeftRadius": 16,
+                    "borderTopRightRadius": 16,
                     "borderWidth": 1,
                     "flexDirection": "row",
                     "flexGrow": 1,
@@ -4037,17 +4044,15 @@ exports[`Chat component renders component 1`] = `
                 placeholder="Message #general"
                 placeholderTextColor="#7F7F7F"
                 style={
-                  [
-                    {
-                      "flexBasis": 0,
-                      "flexGrow": 1,
-                      "flexShrink": 1,
-                      "height": 54,
-                      "paddingBottom": 0,
-                      "paddingTop": 12,
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  {
+                    "flexBasis": 0,
+                    "flexGrow": 1,
+                    "flexShrink": 1,
+                    "height": 54,
+                    "paddingBottom": 0,
+                    "paddingTop": 12,
+                    "textAlignVertical": "center",
+                  }
                 }
                 testID="input"
               />

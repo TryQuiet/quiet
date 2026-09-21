@@ -21,11 +21,25 @@ class V8_EXPORT Date : public Object {
   static V8_WARN_UNUSED_RESULT MaybeLocal<Value> New(Local<Context> context,
                                                      double time);
 
+  static V8_WARN_UNUSED_RESULT MaybeLocal<Value> Parse(
+      Local<Context> context,
+      Local<String> date_string);
+
   /**
    * A specialization of Value::NumberValue that is more efficient
    * because we know the structure of this object.
    */
   double ValueOf() const;
+
+  /**
+   * Generates ISO string representation.
+   */
+  v8::Local<v8::String> ToISOString() const;
+
+  /**
+   * Generates UTC string representation.
+   */
+  v8::Local<v8::String> ToUTCString() const;
 
   V8_INLINE static Date* Cast(Value* value) {
 #ifdef V8_ENABLE_CHECKS

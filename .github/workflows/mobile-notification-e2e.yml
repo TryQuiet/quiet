@@ -1,0 +1,164 @@
+name: Mobile notification provider tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: 'Optional reviewed commit or PR ref to build; run this workflow from develop'
+        required: false
+        type: string
+  push:
+    branches: [develop]
+    paths:
+      - .github/workflows/mobile-notification-e2e.yml
+      - packages/mobile/e2e/appium/**
+      - packages/mobile/scripts/qss-e2e/**
+      - packages/mobile/.env.e2e.qss*
+      - packages/desktop/src/main/e2eCaptchaToken*
+  pull_request:
+    paths:
+      - .github/workflows/mobile-notification-e2e.yml
+      - packages/mobile/e2e/appium/**
+      - packages/mobile/scripts/qss-e2e/**
+      - packages/mobile/.env.e2e.qss*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  android:
+    name: Android Appium (${{ matrix.lane }})
+    # PRs run local onboarding. Staging grants accept only trusted develop workflows.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: ${{ fromJSON(github.ref == 'refs/heads/develop' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && '["onboarding","provider"]' || '["onboarding"]') }}
+    env:
+      QUIET_NOTIFICATION_LANE: ${{ matrix.lane }}
+      DISPLAY: ':99'
+      IS_E2E: 'true'
+      TEST_MODE: 'true'
+      IS_LOCAL: 'true'
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - name: Initialize pinned submodules and LFS binaries
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.candidate_ref || github.sha }}
+          submodules: recursive
+          lfs: true
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
+          persist-credentials: false
+
+      - name: Test credential handling
+        run: python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p test_ci_credentials.py -v
+
+      - name: Validate staging Firebase client configuration
+        if: matrix.lane == 'provider'
+        env:
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
+          IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
+        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require android --staging
+
+      - name: Prepare runner tools and disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}/CodeQL"
+          sudo apt-get update
+          sudo apt-get install -y fluxbox xvfb x11-utils libevent-dev libfuse2t64 libasound2t64 libnss3
+          sudo chmod 666 /dev/kvm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Setup workspace
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: notification-provider
+          bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common'
+
+      - name: Install Appium and test its provider guards
+        run: |
+          npm --prefix packages/mobile/e2e/appium ci
+          npm --prefix packages/mobile/e2e/appium test
+          node --test packages/mobile/scripts/qss-only-build.test.cjs
+          node --test packages/mobile/scripts/notification-android-workflow.test.cjs packages/mobile/scripts/notification-staging-workflow.test.cjs
+
+      - name: Check staging health and automated enrollment
+        if: matrix.lane == 'provider'
+        run: node packages/mobile/e2e/appium/staging.mjs
+
+      - name: Build the shared QSS-only backend
+        run: node packages/backend/scripts/build-qss-only.cjs --output "$RUNNER_TEMP/notification-backend" --stage android,desktop
+
+      - name: Build Android for the selected lane
+        run: |
+          sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:?Android SDK location is required}}"
+          "$sdk_root/cmdline-tools/latest/bin/sdkmanager" "ndk;28.2.13676358"
+          export ANDROID_NDK_HOME="$sdk_root/ndk/28.2.13676358"
+          npm --prefix packages/mobile run prepare-android-x86_64
+          env_file=.env.e2e.qss.staging
+          if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then env_file=.env.e2e.qss.push; fi
+          cp "packages/mobile/$env_file" "$RUNNER_TEMP/notification.env"
+          printf '\nQUIET_E2E_QSS_ONLY=true\n' >> "$RUNNER_TEMP/notification.env"
+          if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then
+            sed -i 's/^QPS_ALLOWED=true$/QPS_ALLOWED=false/' "$RUNNER_TEMP/notification.env"
+          fi
+          cd packages/mobile/android
+          ENVFILE="$RUNNER_TEMP/notification.env" ./gradlew assembleStandardDebug -PreactNativeArchitectures=x86_64 --max-workers=2
+
+      - name: Build desktop peer
+        working-directory: packages/desktop
+        env:
+          ENVFILE: ${{ matrix.lane == 'provider' && '.env.e2e.qss.staging' || '.env.e2e.qss' }}
+          SOURCE_PATH: linux
+        run: |
+          npm run copyBinaries
+          npm run pullLibs
+          npm run build:prod
+          node -e 'const b = require("electron-builder"); b.build({targets: b.Platform.LINUX.createTarget("dir"), publish: "never", config: {afterAllArtifactBuild: null}}).catch(error => {console.error(error); process.exitCode = 1})'
+          sudo chown root:root dist/linux-unpacked/chrome-sandbox
+          sudo chmod 4755 dist/linux-unpacked/chrome-sandbox
+
+      - name: Run Appium ${{ matrix.lane }} journey
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          disable-animations: true
+          script: bash packages/mobile/e2e/appium/ci-android.sh
+
+      - name: Upload notification result only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-notification-${{ matrix.lane }}-result
+          if-no-files-found: ignore
+          path: |
+            ${{ runner.temp }}/notification-credentials/availability.json
+            ${{ runner.temp }}/notification-result.json
+            ${{ runner.temp }}/notification-failures.jsonl
+
+      - name: Remove private enrollment and client files
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/notification-run/ci-enrollment.jwt"
+          rm -f packages/mobile/android/app/google-services.json packages/mobile/ios/GoogleService-Info.plist

@@ -19,11 +19,19 @@ jobs:
           submodules: recursive
           token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
+      - name: Set diagnostic directory
+        shell: pwsh
+        run: '"E2E_LOG_DIR=$env:RUNNER_TEMP/quiet-e2e-logs" >> $env:GITHUB_ENV'
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
+
+      - name: Test Windows Tor process discovery
+        shell: bash
+        run: node --test packages/backend/scripts/windows-tor-processes.test.cjs
 
       - name: "Fetch jsign"
         shell: bash
@@ -92,7 +100,7 @@ jobs:
       - name: Run one client test
         timeout-minutes: 15
         shell: bash
-        run: cd packages/e2e-tests && npm run test oneClient.test.ts
+        run: cd packages/e2e-tests && npm run test oneClient.test.ts windowsBackendProcesses.test.ts applicationLogReader.test.ts
 
       - name: Run user profile test
         timeout-minutes: 25
@@ -117,4 +125,23 @@ jobs:
       - name: Run admission timeout recovery test
         timeout-minutes: 15
         shell: bash
-        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQss.test.ts
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQssEndpoint.test.ts
+
+      - name: Collect application logs
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force $env:E2E_LOG_DIR | Out-Null
+          Get-ChildItem "$env:APPDATA/e2e_*/logs/*.log" | ForEach-Object {
+            $destination = Join-Path $env:E2E_LOG_DIR $_.Directory.Parent.Name
+            New-Item -ItemType Directory -Force $destination | Out-Null
+            Copy-Item $_.FullName $destination
+          }
+
+      - name: Preserve Windows E2E logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-e2e-logs
+          path: ${{ runner.temp }}/quiet-e2e-logs
+          retention-days: 7
