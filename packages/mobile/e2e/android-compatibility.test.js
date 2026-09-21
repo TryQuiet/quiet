@@ -27,7 +27,7 @@ describeAndroid('Android SDK compatibility', () => {
     await element(by.id('BottomMenu.Canvas')).tap()
     await waitFor(element(by.id('android-compatibility-reset'))).toBeVisible().withTimeout(10000)
     await element(by.id('android-compatibility-reset')).tap()
-    await waitFor(element(by.id('channels_list'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('channel-list'))).toBeVisible().withTimeout(10000)
     await expect(channelState()).toHaveText('(none)')
     await expect(previewState()).toHaveText('closed')
   })
@@ -44,7 +44,7 @@ describeAndroid('Android SDK compatibility', () => {
     await expect(channelState()).toHaveText('general')
 
     await device.pressBack()
-    await waitFor(element(by.id('channels_list'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('channel-list'))).toBeVisible().withTimeout(10000)
     // A native-stack pop alone is insufficient: ChannelScreen must also clear
     // Redux's current channel so unread-message handling works after leaving.
     await expect(channelState()).toHaveText('(none)')

@@ -1,16 +1,35 @@
+import type { AdmissionRecoveryRequiredError } from '../admission/admission.types'
 import { Keyring, LocalUserContext, Context } from '@localfirst/auth'
+
+export type PendingDeviceAdmission = {
+  teamId: string
+  userId: string
+}
 
 export type SigChainSaveData = {
   serializedTeam: string | undefined
   localUserContext: LocalUserContext
   context?: Context
   teamKeyRing: Keyring | undefined
+  pendingMemberAdmission?: true
 }
 
 export type SerializedSigChain = {
   serializedTeam: Uint8Array | undefined
   localUserContext: LocalUserContext
   teamKeyRing: Keyring | undefined
+  pendingMemberAdmission?: true
+}
+
+export interface AdmissionPersistenceBarrier {
+  readonly teamId: string
+  readonly id: symbol
+}
+
+export interface AdmissionPersistenceState {
+  barrier: AdmissionPersistenceBarrier
+  waiters: Array<{ resolve(): void; reject(error: Error): void }>
+  recovery?: AdmissionRecoveryRequiredError
 }
 
 /**

@@ -128,8 +128,12 @@ class NSECryptoService: DeviceCryptography {
             return nil
         }
 
+        if self.stringValue(payloadValue["channelId"])?.hasPrefix("dm_") == true { return nil }
         let signature = try self.parseSignature(payloadValue["encSignature"])
         let innerEncrypted = try self.parseEncryptedPayload(payloadValue["contents"], label: "inner channel message")
+        // DMs require the active backend's descriptor, participant and ciphertext checks.
+        // Until native implements that protocol, suppress background DM previews entirely.
+        if innerEncrypted.scope.type == "DM" || innerEncrypted.scope.type == "DM_DESCRIPTOR" { return nil }
         let decryptedInner = try self.decryptPayload(innerEncrypted, teamId: teamId)
         guard let message = decryptedInner.value as? NSEJSONObject else {
             return nil

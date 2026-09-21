@@ -2,7 +2,7 @@ import React from 'react'
 import { act, fireEvent } from '@testing-library/react-native'
 import { Keyboard } from 'react-native'
 import { launchImageLibrary } from 'react-native-image-picker'
-import { communities, files, messages, publicChannels } from '@quiet/state-manager'
+import { communities, errors, files, messages, publicChannels, users } from '@quiet/state-manager'
 import { type PublicChannel } from '@quiet/types'
 import { ChannelScreen } from './Channel.screen'
 import { initSelectors } from '../../store/init/init.selectors'
@@ -37,7 +37,11 @@ describe('channel composer send context', () => {
     jest.useFakeTimers()
     mockDispatch.mockClear()
     mockSelections.clear()
+    mockSelections.set(errors.selectors.currentCommunityErrors, {})
+    mockSelections.set(users.selectors.userProfiles, {})
     mockSelections.set(publicChannels.selectors.currentChannel, privateChannel)
+    mockSelections.set(publicChannels.selectors.currentChannelId, privateChannel.id)
+    mockSelections.set(publicChannels.selectors.currentChannelName, privateChannel.name)
     mockSelections.set(publicChannels.selectors.currentChannelMessagesCount, 1)
     mockSelections.set(publicChannels.selectors.currentChannelMessagesMergedBySender, {})
     mockSelections.set(initSelectors.isWebsocketConnected, true)
@@ -74,6 +78,8 @@ describe('channel composer send context', () => {
     attachImage(view, 'private-file')
 
     mockSelections.set(publicChannels.selectors.currentChannel, publicChannel)
+    mockSelections.set(publicChannels.selectors.currentChannelId, publicChannel.id)
+    mockSelections.set(publicChannels.selectors.currentChannelName, publicChannel.name)
     view.rerender(<ChannelScreen />)
     act(() => mockKeyboardDidShow())
 
@@ -92,6 +98,8 @@ describe('channel composer send context', () => {
     fireEvent.press(view.getByTestId('send_message_button'))
 
     mockSelections.set(publicChannels.selectors.currentChannel, publicChannel)
+    mockSelections.set(publicChannels.selectors.currentChannelId, publicChannel.id)
+    mockSelections.set(publicChannels.selectors.currentChannelName, publicChannel.name)
     view.rerender(<ChannelScreen />)
     fireEvent.changeText(view.getByTestId('input'), 'public message')
     attachImage(view, 'public-file')

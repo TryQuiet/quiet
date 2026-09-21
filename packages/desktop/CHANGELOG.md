@@ -1,5 +1,25 @@
 # Changelog
 
+## [11.0.1]
+
+### Fixes
+
+* Desktop apps now check for updates within their own major version. Production releases automatically select the update bucket from the app version.
+
+### Notes
+
+* Desktop users on 11.0.0 must manually install this release to receive future 11.x updates from the corrected feed.
+
+## [11.0.0]
+
+### Features
+
+* Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
+
+### Breaking
+
+* Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
+
 ## [10.0.0]
 
 ### Features
@@ -13,6 +33,9 @@
 
 ### Fixes
 
+* Trigger push notifications only for channel messages, while syncing channel metadata, profiles and notification tokens without alerts [#3546](https://github.com/TryQuiet/quiet/issues/3546)
+* Suppress notifications for your own messages on Android when using background Tor or the foreground app, including channel-creation messages [#3547](https://github.com/TryQuiet/quiet/issues/3547)
+* Send private-channel push notifications only to the registered devices of users in that channel, including queued messages retried after reconnecting; channel deletions sync without triggering push notifications [#3545](https://github.com/TryQuiet/quiet/issues/3545)
 * Recover peer synchronization across reconnects and overlapping transports [#3480](https://github.com/TryQuiet/quiet/pull/3480)
 * Prevent repeated community leave requests from acknowledging teardown early and deleting newly created community state [#3424](https://github.com/TryQuiet/quiet/issues/3424)
 * Fix AppImage external links and desktop protocol registration when launcher library variables are present [#3453](https://github.com/TryQuiet/quiet/issues/3453)
@@ -42,6 +65,7 @@
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 * Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
+* Fix tapable area in two places in the Appbar [#3372] (https://github.com/TryQuiet/quiet/issues/3372)
 * Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
 * Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
 * Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)

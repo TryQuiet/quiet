@@ -1,5 +1,4 @@
-import { FileMetadata } from '@quiet/types'
-import { Image } from 'react-native'
+import { Image, type ImageStyle, type StyleProp } from 'react-native'
 
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
 import { ProfilePhotoProps } from './ProfilePhoto.types'
@@ -10,13 +9,14 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   photo,
   profilePhoto,
   alt,
-  borderRadius = 2,
+  borderRadius = 4,
   size = 37,
 }) => {
-  const imgStyle = {
+  const imgStyle: StyleProp<ImageStyle> = {
     width: size,
     height: size,
     borderRadius,
+    padding: 0,
   }
   const photoAltText = alt ?? `${username}'s profile image`
   return photo ? (
@@ -24,6 +24,6 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   ) : profilePhoto ? (
     <Image style={imgStyle} source={{ uri: `file://${profilePhoto.path}` }} alt={photoAltText} />
   ) : (
-    <Jdenticon value={userId} size={size} />
+    <Jdenticon value={userId} size={size} borderRadius={borderRadius} />
   )
 }

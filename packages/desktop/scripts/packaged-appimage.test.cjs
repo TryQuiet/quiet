@@ -8,7 +8,7 @@ const zlib = require('node:zlib')
 const { spawnSync } = require('node:child_process')
 const { test } = require('node:test')
 const yaml = require('js-yaml')
-const { build } = require('../package.json')
+const { build, version } = require('../package.json')
 
 test('final AppImage resolves production dependencies and has matching update metadata', t => {
   assert.ok(process.env.QUIET_TEST_APPIMAGE, 'Set QUIET_TEST_APPIMAGE to the built AppImage')
@@ -44,6 +44,7 @@ test('final AppImage resolves production dependencies and has matching update me
          assert.ok(load.resolve(name).startsWith(require('node:path').dirname(process.argv[1]) + '/'));
        }
        assert.equal(load('pkijs/package.json').version, '3.0.15');
+       assert.equal(load('./package.json').version, ${JSON.stringify(version)}, 'AppImage must contain the current app, not stale extraction output');
        console.log('Packaged runtime dependencies resolved');`,
       path.join(appDir, 'resources/app.asar/package.json'),
     ],

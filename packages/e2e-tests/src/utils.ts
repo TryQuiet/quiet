@@ -1,4 +1,5 @@
 import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
+import * as logging from 'selenium-webdriver/lib/logging'
 import { spawn, exec, execSync, type ChildProcessWithoutNullStreams, ChildProcess } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
@@ -11,6 +12,7 @@ import { config } from 'dotenv'
 
 import { createLogger } from './logger'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
+import { downloadFile } from './downloadFile'
 
 const logger = createLogger('utils')
 
@@ -32,6 +34,7 @@ export interface BuildSetupInit {
 
 export class BuildSetup {
   private driver?: ThenableWebDriver | null
+  private processOutput = ''
   public port?: number
   public debugPort?: number
   public dataDir?: string
@@ -42,6 +45,7 @@ export class BuildSetup {
   private fileName?: string
   private chromeDriverPath?: string
   private environment: NodeJS.ProcessEnv
+  private _seleniumLogger: logging.Logger
 
   constructor({
     port,
@@ -72,6 +76,8 @@ export class BuildSetup {
         path.join(appEnvironment.HOME, process.platform === 'darwin' ? 'Library/Application Support' : '.config'))
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir, appDataPath })
     logger.info('Running app from directory', this.dataDirPath)
+    this._seleniumLogger = logging.getLogger()
+    this._configureSeleniumLogging()
   }
 
   async initPorts() {
@@ -157,13 +163,32 @@ export class BuildSetup {
     }
   }
 
+  private _generateDebugSetting(): string {
+    if (process.env.TRACE_APP_LOGS == 'true') {
+      return '*:trace'
+    }
+
+    if (process.env.VERBOSE == 'true') {
+      return '*'
+    }
+
+    return 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*'
+  }
+
+  private _configureSeleniumLogging(): void {
+    if (process.env.VERBOSE == 'true') {
+      this._seleniumLogger.setLevel(logging.Level.FINEST)
+    } else {
+      this._seleniumLogger.setLevel(logging.Level.WARNING)
+    }
+
+    logging.installConsoleHandler()
+  }
+
   public async createChromeDriver(qssEnabled = false) {
     await this.initPorts()
     let env: any = {
-      DEBUG:
-        process.env.TRACE_APP_LOGS === 'true'
-          ? '*:trace'
-          : 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
+      DEBUG: this._generateDebugSetting(),
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
     }
@@ -220,10 +245,12 @@ export class BuildSetup {
     })
 
     this.child.stdout.on('data', data => {
+      this.appendProcessOutput(data)
       logger.info(`stdout:\n${data}`)
     })
 
     this.child.stderr.on('data', data => {
+      this.appendProcessOutput(data)
       // Quiet logs (handled by 'debug' package) are available in stderr and only with 'verbose' flag on chromedriver
       const trashLogs = ['DevTools', 'COMMAND', 'INFO:CONSOLE', '[INFO]:', 'libnotify-WARNING', 'ALSA lib']
       const dataString = `${data}`
@@ -236,6 +263,29 @@ export class BuildSetup {
     this.child.stdin.on('data', data => {
       logger.info(`stdin: ${data}`)
     })
+  }
+
+  private appendProcessOutput(data: unknown): void {
+    this.processOutput = `${this.processOutput}${String(data)}`.slice(-2_000_000)
+  }
+
+  public clearProcessOutput(): void {
+    this.processOutput = ''
+  }
+
+  public hasProcessOutput(text: string): boolean {
+    return this.processOutput.includes(text)
+  }
+
+  public async waitForProcessOutput(text: string, timeoutMs = 60_000): Promise<void> {
+    const deadline = Date.now() + timeoutMs
+    while (Date.now() < deadline) {
+      if (this.processOutput.includes(text)) {
+        return
+      }
+      await sleep(250)
+    }
+    throw new Error(`Process output for ${this.dataDir} did not contain "${text}" within ${timeoutMs}ms`)
   }
 
   public async getTorPid() {
@@ -415,9 +465,8 @@ export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION)
   }
   const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
   logger.info(`Downloading Quiet version: ${version} from ${downloadUrl}`)
-  // With newer curl: execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
-  execSync(`curl -LO ${downloadUrl}`)
   const appImageDownloadPath = path.join(process.cwd(), appImage)
+  downloadFile(downloadUrl, appImageDownloadPath)
   logger.info(`Downloaded to ${appImageDownloadPath}`)
   fs.renameSync(appImageDownloadPath, appImageTargetPath)
   logger.info('Moved to', appImageTargetPath)

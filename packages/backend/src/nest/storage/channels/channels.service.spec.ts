@@ -14,6 +14,7 @@ import {
   DeleteChannelResponse,
   FileMetadata,
   MessageType,
+  MessagesLoadedPayload,
   PublicChannel,
   SocketActions,
   SocketEvents,
@@ -133,7 +134,7 @@ describe('ChannelsService', () => {
     const invite = adminChain.invites.createUserInvite()
 
     const invitedChain = SigChain.createFromInvite({ seed: invite.seed }, adminChain.team!.id)
-    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: invitedChain.context })
+    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: invitedChain.localUserContext })
     adminChain.invites.admitMemberFromInvite(admission)
 
     const joinedChain = SigChain.joinForTesting(
@@ -318,6 +319,69 @@ describe('ChannelsService', () => {
   })
 
   describe('Channels', () => {
+    it.each([true, false])('stores encrypted own messages without mobile alerts (public=%s)', async isPublic => {
+      const originalBackend = process.env.BACKEND
+      const originalConnectionTime = process.env.CONNECTION_TIME
+      const stored: MessagesLoadedPayload[] = []
+      const notifications = jest.fn()
+      try {
+        process.env.BACKEND = 'mobile'
+        process.env.CONNECTION_TIME = String(Math.floor(Date.now() / 1000) - 1)
+        const response = await channelsService.handleCreateChannel({
+          name: 'new-channel',
+          public: isPublic,
+          teamId: sigChainService.team.id,
+        })
+        expect(response.status).toBe(ChannelOperationStatus.SUCCESS)
+        const createdChannel = response.channel!
+        channelsService.on(StorageEvents.MESSAGES_STORED, payload => stored.push(payload))
+        channelsService.on(StorageEvents.SEND_PUSH_NOTIFICATION, notifications)
+
+        const ownMessages = await Promise.all(
+          [MessageType.Info, MessageType.Basic].map(async type =>
+            factory.build<ChannelMessage>('ChannelMessage', {
+              channelId: createdChannel.id,
+              userId: aliceUserId,
+              createdAt: Math.floor(Date.now() / 1000),
+              type,
+              message: type === MessageType.Info ? 'Created #new-channel' : 'hello from the creator',
+            })
+          )
+        )
+        // Exercise real authenticated encryption, access control, OrbitDB append and update listeners.
+        // This is the same update path used when a pending local send completes after backgrounding.
+        for (const ownMessage of ownMessages) {
+          expect(await channelsService.sendMessage(ownMessage)).toBe(true)
+        }
+        await waitForExpect(() => {
+          expect(
+            stored
+              .flatMap(payload => payload.messages)
+              .map(item => item.id)
+              .sort()
+          ).toEqual(ownMessages.map(item => item.id).sort())
+        })
+        const loaded = await channelsService.getMessages(createdChannel.id)
+        expect(loaded?.isVerified).toBe(true)
+        expect(loaded?.messages.map(item => item.message).sort()).toEqual(ownMessages.map(item => item.message).sort())
+        const encrypted = await channelsService.channelsRepos.get(createdChannel.id)!.store.getEncryptedEntries()
+        expect(encrypted).toHaveLength(2)
+        for (const entry of encrypted) {
+          expect(entry.contents).toBeDefined()
+          expect(entry.encSignature.author.name).toBe(aliceUserId)
+          expect(entry).not.toHaveProperty('message')
+        }
+        // Wait for each async update handler to finish before asserting notification silence.
+        await new Promise(resolve => setImmediate(resolve))
+        expect(notifications).not.toHaveBeenCalled()
+      } finally {
+        if (originalBackend == null) delete process.env.BACKEND
+        else process.env.BACKEND = originalBackend
+        if (originalConnectionTime == null) delete process.env.CONNECTION_TIME
+        else process.env.CONNECTION_TIME = originalConnectionTime
+      }
+    })
+
     it('generates an opaque channel id and stores metadata encrypted', async () => {
       const payload: CreateChannelPayload = {
         name: 'secret-channel-name',

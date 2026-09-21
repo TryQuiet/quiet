@@ -21,7 +21,7 @@ module.exports = {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
       build:
-        'cd android && ENVFILE=../.env.e2e ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
+        'cd android && ENVFILE=../.env.detox ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
     },
     'android.e2e.qss': {
       type: 'android.apk',

@@ -24,18 +24,41 @@ import { MessageSendButton } from '../MessageSendButton/MessageSendButton.compon
 import { ChatProps, ListItem } from './Chat.types'
 import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
-import { DisplayableMessage } from '@quiet/types'
+import { ChannelType, DisplayableMessage, EMPTY_CHANNEL_ID } from '@quiet/types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
 import UploadFilesPreviewsComponent from '../FileAttachmentPreview/FileAttachmentPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
 import { ChatAppbarHeaderTitle } from './ChatAppbarHeaderTitle.component'
+import { countChannelMembers } from '../../utils/functions/channelMembers/channelMembers'
+import type { SelectableListOption } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.types'
+import Fuse from 'fuse.js'
+import { UpdateChannelMembershipList } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.component'
+import { generateTruncatedDmTitle } from '../../utils/functions/dmUtils/dmUtils'
+import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
+import { RecipientField } from '../RecipientField/RecipientField.component'
+import type { Recipient } from '../RecipientField/RecipientField.types'
+import { isMemberConnected } from '@quiet/common'
+
+// Copy taken from the DM designs (Figma: Direct Messages (DMs), "Pre search" 823:14606).
+const DM_SEARCH_PLACEHOLDER = 'Search for people, chats or channels'
 
 const logger = createLogger('chat:component')
 
 // UI constants
 const DEFAULT_PADDING = 20
+// Compose field rules, from the design library component "Platform=Mobile, Placeholder=False"
+// (Figma Quiet Design Library 5022:19592): the compose block is outlined in #F0F0F0 and the
+// toolbar row is separated by #F7F7F7. Neither value exists in the mobile palette yet.
+const COMPOSE_BORDER = '#F0F0F0'
+const COMPOSE_TOOLBAR_BORDER = '#F7F7F7'
+// The designs show a single-line field and do not say how far it may grow. Cap it at five lines of
+// the design's 20pt line height on top of the 42pt single-line row, then let the text scroll — the
+// desktop compose caps at 300px for the same reason. Five lines is ~20% of a 667pt screen.
+const COMPOSE_MAX_LINES = 5
+const COMPOSE_LINE_HEIGHT = 20
+const COMPOSE_MAX_HEIGHT = 54 + (COMPOSE_MAX_LINES - 1) * COMPOSE_LINE_HEIGHT
 const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
 const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
 const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
@@ -46,6 +69,15 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   loadMessagesAction,
   handleBackButton,
   channel,
+  channelName,
+  channelId,
+  newChat,
+  newChatRecipientIds,
+  openUserProfile,
+  userProfiles,
+  isUserConnected,
+  isTorInitialized,
+  me,
   messages = {
     count: 0,
     groups: {},
@@ -64,12 +96,62 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   openUrl,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
+  createOrSetDmChannelAction,
+  setDmChannelOnSelection,
   ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [isKeyboardShowing, setKeyboardShowing] = useState(false)
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
+  const [inputPlaceholder, setInputPlaceholder] = useState<string>('')
+  const [options, setOptions] = useState<SelectableListOption[] | undefined>(undefined)
+  const [visibleOptionIndices, setVisibleOptionIndices] = useState<Set<number> | undefined>(undefined)
+  const [inputError, setInputError] = useState<string | undefined>(undefined)
+  const [membershipSearchInput, setMembershipSearchInput] = useState<string | undefined>(undefined)
+  const [fuzzySearch, setFuzzySearch] = useState<Fuse<SelectableListOption> | undefined>(undefined)
+  const inputRef = useRef<TextInput>(null)
+  const [headerTitle, setHeaderTitle] = useState<string>('')
+  const [userData, setUserData] = useState<Record<string, DmChannelUserData>>({})
+
+  const _initializeOptions = () => {
+    const initialOptions: SelectableListOption[] = []
+    const visibleIndices: Set<number> = new Set()
+    const updatedUsers: { [userId: string]: DmChannelUserData } = {}
+    let index = 0
+    for (const user of Object.values(userProfiles)) {
+      const mutable = true
+      // Opened from a profile's Message button, the composer starts with that person chosen.
+      const selected = newChatRecipientIds?.includes(user.userId) ?? false
+      const hide = false
+      initialOptions.push({ label: user.nickname, id: user.userId, selected, index, mutable, hide })
+      if (!hide) {
+        visibleIndices.add(index)
+        updatedUsers[user.userId] = {
+          connected: isMemberConnected(user.userId, me?.userId, isUserConnected, isTorInitialized),
+          user,
+        } as DmChannelUserData
+      }
+      index++
+    }
+    setOptions(initialOptions)
+    setVisibleOptionIndices(visibleIndices)
+    setFuzzySearch(
+      new Fuse(initialOptions, {
+        keys: ['label'],
+        minMatchCharLength: 1,
+        ignoreDiacritics: true,
+        threshold: 0.3,
+      })
+    )
+    setUserData(updatedUsers)
+  }
+
+  const _clearOptions = () => {
+    setOptions([])
+    setVisibleOptionIndices(new Set())
+    setFuzzySearch(undefined)
+  }
 
   const messageInputRef = useRef<null | TextInput>(null)
   // keep latest input text (including any pending autocorrect) in a ref
@@ -82,6 +164,88 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current
   const isScrolling = useRef(false)
   const scrollTimer = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (newChat) {
+      setInputPlaceholder('Write a message')
+      setHeaderTitle('New message')
+    } else if ((channel?.type ?? ChannelType.CHANNEL) === ChannelType.CHANNEL) {
+      setInputPlaceholder(`Message #${channelName}`)
+      setHeaderTitle(channelName)
+    } else {
+      const truncatedDmChannelName = generateTruncatedDmTitle(channelName)
+      setInputPlaceholder(`Message ${truncatedDmChannelName}`)
+      setHeaderTitle(truncatedDmChannelName)
+    }
+  }, [channelName, channel, newChat])
+
+  useEffect(() => {
+    if (newChat) {
+      _initializeOptions()
+    } else {
+      _clearOptions()
+    }
+  }, [newChat, newChatRecipientIds, userProfiles, me, isUserConnected, isTorInitialized])
+
+  useEffect(() => {
+    if (!newChat) return
+    if (options == null) return
+    const selectedIds = options.filter(option => option.selected).map(option => option.id)
+    setDmChannelOnSelection(selectedIds)
+  }, [options, me])
+
+  const _setAllOptionsVisible = (): Set<number> => {
+    if (options == null) return new Set()
+    return new Set(Array(options.length).keys())
+  }
+
+  const _parseFilterText = (rawFilterText: string): string => {
+    if (rawFilterText === '@') {
+      return ''
+    }
+    if (rawFilterText.startsWith('@')) {
+      return rawFilterText.slice(1)
+    }
+    return rawFilterText
+  }
+
+  const _fuzzyFilterUsers = (filterText: string): Set<number> => {
+    if (fuzzySearch == null || options == null) {
+      return _setAllOptionsVisible()
+    }
+    const searchResults = fuzzySearch.search(filterText)
+    return new Set(searchResults.map(result => result.item.index))
+  }
+
+  const onChangeText = (value: string) => {
+    setInputError(undefined)
+    setMembershipSearchInput(value)
+    if (value === '') {
+      setVisibleOptionIndices(_setAllOptionsVisible())
+      return
+    }
+    const foundIndices = _fuzzyFilterUsers(_parseFilterText(value))
+    setVisibleOptionIndices(foundIndices)
+  }
+
+  // Recipients already chosen, shown as pills in the "To:" field.
+  const selectedRecipients = useMemo((): Recipient[] => {
+    return (options ?? [])
+      .filter(option => option.selected)
+      .map(option => ({
+        userId: option.id,
+        label: option.label,
+        photo: userData[option.id]?.user.photo,
+        profilePhoto: userData[option.id]?.user.profilePhoto,
+      }))
+  }, [options, userData])
+
+  const removeRecipient = useCallback(
+    (userId: string) => {
+      setOptions(current => current?.map(option => (option.id === userId ? { ...option, selected: false } : option)))
+    },
+    [setOptions]
+  )
 
   // Flatten the nested messages.groups structure into an array that combines dividers and message groups
 
@@ -313,6 +477,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     // only send if there's text or uploaded files
     if (messageInputValueRef.current.length > 0 || areFilesUploaded) {
       if (messageInputValueRef.current.length > 0) {
+        const selectedMembers = (options ?? []).filter(option => option.selected)
         // append space to force iOS to commit any pending autocorrect
         const original = messageInputValueRef.current
         const commitText = original + ' '
@@ -322,7 +487,13 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         // after commit, send trimmed text and clear input
         setTimeout(() => {
           const textToSend = messageInputValueRef.current.trim()
-          sendMessageAction(textToSend)
+          if (newChat) {
+            if (selectedMembers.length === 0 || me == null) return
+            createOrSetDmChannelAction(
+              selectedMembers.map(member => member.id),
+              textToSend
+            )
+          } else sendMessageAction(textToSend)
           // clear native input and reset state
           messageInputRef.current?.clear()
           messageInputValueRef.current = ''
@@ -345,12 +516,13 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         <Message
           key={item.id}
           data={item.messageGroup}
-          downloadStatus={downloadStatuses?.[item.id]}
+          downloadStatuses={downloadStatuses}
           downloadFile={downloadFile}
           cancelDownload={cancelDownload}
           openImagePreview={openImagePreview}
           maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
           openUrl={openUrl}
+          openUserProfile={openUserProfile}
           pendingMessages={pendingMessages}
           duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
           unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
@@ -374,11 +546,37 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     loadMessagesAction(true)
   }, [loadMessagesAction])
 
+  // The channel's size, drawn under its name in the top bar. A conversation being composed has no
+  // channel yet, so there is nothing to count.
+  const memberCount = useMemo(
+    () => (channel == null || newChat ? undefined : countChannelMembers(channel, userProfiles)),
+    [channel, newChat, userProfiles]
+  )
+
+  // A one-to-one DM has exactly one other participant; a group DM names several and so names
+  // nobody in particular, and a channel names no one at all.
+  const dmSubjectId = useMemo(() => {
+    if (newChat || channel?.type !== ChannelType.DM) return undefined
+    const others = (channel.memberIds ?? []).filter(memberId => memberId !== me?.userId)
+    return others.length === 1 ? others[0] : undefined
+  }, [channel, newChat, me])
+
   return (
-    <View style={styles.container} testID={`chat_${channel?.name}`}>
+    <View style={styles.container} testID={`chat_${channelName}`}>
       <Appbar
-        title={channel?.name}
-        titleComponent={<ChatAppbarHeaderTitle title={channel?.name} isPublic={channel?.public ?? true} />}
+        title={headerTitle}
+        titleComponent={
+          <ChatAppbarHeaderTitle
+            title={headerTitle}
+            isPublic={channel?.public ?? true}
+            isNewChat={newChat}
+            channelType={channel?.type ?? ChannelType.CHANNEL}
+            memberCount={memberCount}
+            openUserProfile={
+              dmSubjectId != null && openUserProfile != null ? () => openUserProfile(dmSubjectId) : undefined
+            }
+          />
+        }
         back={handleBackButton}
         contextMenu={contextMenu}
       />
@@ -393,7 +591,42 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         keyboardVerticalOffset={insets.bottom}
         style={styles.keyboardAvoidingView}
       >
-        {messages.count === 0 ? (
+        {newChat && (
+          <View
+            style={{
+              paddingTop: 16,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 32,
+              // React Native defaults flexShrink to 0, so this block held its full height in a
+              // column justified to flex-end while the message input below it was pushed out of
+              // view. Whether that happened depended on how tall the block happened to be — how
+              // many suggestions were listed, how many recipient pills had wrapped — which is why
+              // it looked intermittent. It yields space before the input does now.
+              flexShrink: 1,
+            }}
+          >
+            <RecipientField
+              ref={inputRef}
+              recipients={selectedRecipients}
+              query={membershipSearchInput}
+              placeholder={DM_SEARCH_PLACEHOLDER}
+              onChangeQuery={onChangeText}
+              onRemoveRecipient={removeRecipient}
+              validation={inputError}
+              testID={`update-channel-membership-input-${channelId}`}
+            />
+            <UpdateChannelMembershipList
+              options={options}
+              visibleOptionsIndices={visibleOptionIndices}
+              setOptions={setOptions}
+              channelId={channelId ?? EMPTY_CHANNEL_ID}
+              nonMembers={userData}
+              maxVisibleOptions={3}
+            />
+          </View>
+        )}
+        {!newChat && channel?.type !== ChannelType.DM && messages.count === 0 ? (
           <Loading title={'Loading messages'} caption={'Chat will become available shortly'} />
         ) : (
           <>
@@ -420,42 +653,29 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
                 onMomentumScrollEnd={handleMomentumScrollEnd}
               />
             </View>
-            <View style={styles.bottomControls}>
-              <View
-                style={[
-                  styles.inputContainer,
-                  { paddingRight: !didKeyboardShow && !areFilesUploaded ? DEFAULT_PADDING : 0 },
-                ]}
-              >
-                <View style={styles.inputRow}>
-                  <View style={styles.inputWrapper}>
-                    <View style={styles.inputContent}>
-                      <Input
-                        ref={messageInputRef}
-                        // uncontrolled: do not pass value to allow native setNativeProps to work
-                        onChangeText={onInputTextChange}
-                        onChange={onInputChange}
-                        onEndEditing={onInputEndEditing}
-                        placeholder={`Message #${channel?.name}`}
-                        multiline={true}
-                        style={styles.inputStyle}
-                        round
-                      />
-                    </View>
-                    <View
-                      style={{
-                        position: 'absolute',
-                        height: '100%',
-                        right: 10,
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <AttachmentButton onPress={openImages} />
-                    </View>
-                  </View>
-                  {(didKeyboardShow || areFilesUploaded) && (
-                    <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
-                  )}
+            {/*
+              Full-bleed compose, per the mobile DM designs ("Compose row", Figma 823:14772):
+              a borderless full-width text row, then a 48pt toolbar with the attachment control on
+              the left and send on the right. The burner-mode toggle in the design is not built yet.
+            */}
+            <View style={[styles.bottomControls, didKeyboardShow ? styles.bottomControlsKeyboard : null]}>
+              <View style={styles.inputContainer}>
+                <Input
+                  ref={messageInputRef}
+                  testID='message-composer'
+                  // uncontrolled: do not pass value to allow native setNativeProps to work
+                  onChangeText={onInputTextChange}
+                  onChange={onInputChange}
+                  onEndEditing={onInputEndEditing}
+                  placeholder={inputPlaceholder}
+                  multiline={true}
+                  maxHeight={COMPOSE_MAX_HEIGHT}
+                  style={styles.inputStyle}
+                />
+                <View style={styles.composeToolbar}>
+                  <AttachmentButton onPress={openImages} />
+                  <View style={styles.composeToolbarSpacer} />
+                  <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
                 </View>
                 {uploadedFiles && (
                   <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
@@ -468,7 +688,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       {imagePreview && setImagePreview && (
         <ImagePreviewModal
           imagePreviewData={imagePreview}
-          currentChannelName={channel?.name}
+          currentChannelName={channelName}
           resetPreviewData={() => setImagePreview(null)}
         />
       )}
@@ -486,7 +706,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     backgroundColor: defaultTheme.palette.background.white,
-    paddingBottom: DEFAULT_PADDING,
   },
   messagesContainer: {
     flex: 1,
@@ -503,23 +722,35 @@ const styles = StyleSheet.create({
   },
   bottomControls: {
     flexDirection: 'row',
-    paddingBottom: Platform.select({ ios: 20, android: 0 }),
+  },
+  // Only while the keyboard is up — the designs show no gap under the compose block otherwise.
+  bottomControlsKeyboard: {
+    paddingBottom: DEFAULT_PADDING,
   },
   inputContainer: {
     width: '100%',
-    paddingLeft: DEFAULT_PADDING,
+    backgroundColor: defaultTheme.palette.background.white,
+    borderTopWidth: 1,
+    borderTopColor: COMPOSE_BORDER,
   },
-  inputRow: {
-    flexDirection: 'row',
-  },
-  inputWrapper: {
-    flex: 1,
-  },
-  inputContent: {
-    justifyContent: 'center',
-  },
+  // Borderless and full-bleed; the field keeps its own multiline growth.
   inputStyle: {
-    paddingRight: 50,
+    borderWidth: 0,
+    borderRadius: 0,
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  composeToolbar: {
+    height: 48,
+    borderTopWidth: 1,
+    borderTopColor: COMPOSE_TOOLBAR_BORDER,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  composeToolbarSpacer: {
+    flex: 1,
   },
   attachmentButtonContainer: {
     position: 'absolute',

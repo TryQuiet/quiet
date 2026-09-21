@@ -44,7 +44,8 @@
     "luxon": "^3.4.4",
     "path-browserify": "^1.0.1",
     "selenium-webdriver": "^4.43.0",
-    "yargs": "^17.3.1"
+    "yargs": "^17.3.1",
+    "electron-chromedriver-128": "npm:electron-chromedriver@32.3.3"
   },
   "jest": {
     "preset": "ts-jest",
@@ -55,7 +56,9 @@
     "transformIgnorePatterns": [
       "node_modules/(?!variables/.*)"
     ],
-    "setupFilesAfterEnv": ["<rootDir>/src/setupTests.ts"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.ts"
+    ]
   },
   "author": "",
   "license": "GPL-3.0-or-later",
