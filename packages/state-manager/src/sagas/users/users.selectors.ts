@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { type UserData, User } from '@quiet/types'
+import { User } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('usersSelectors')

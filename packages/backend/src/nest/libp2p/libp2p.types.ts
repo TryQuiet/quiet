@@ -1,6 +1,14 @@
 import { PeerId, PrivateKey } from '@libp2p/interface'
 import { Agent } from 'http'
 
+export enum Libp2pState {
+  Started = 'started',
+  Stopped = 'stopped',
+  Starting = 'starting',
+  Stopping = 'stopping',
+  Paused = 'paused',
+}
+
 export enum Libp2pEvents {
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
@@ -22,6 +30,7 @@ export enum Libp2pDatastorePrefix {
 export interface TorBootstrapProvider {
   bootstrapped: boolean
   once(event: 'bootstrapped', listener: () => void): this
+  off?(event: 'bootstrapped', listener: () => void): this
 }
 
 export interface Libp2pNodeParams {

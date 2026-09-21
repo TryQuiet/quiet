@@ -18,6 +18,7 @@ const logger = createLogger('deepLinking:test')
 
 describe('Deep linking', () => {
   let socket: MockedSocket
+  let emitWithAck: jest.Mock
 
   let factory: FactoryGirl
   let baseTypesFactory: FactoryGirl
@@ -49,8 +50,9 @@ describe('Deep linking', () => {
       }
     }
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    emitWithAck = jest.fn(mockEmitImpl)
     // @ts-ignore
-    socket.emitWithAck = mockEmitImpl
+    socket.emitWithAck = emitWithAck
     ioMock.mockImplementation(() => socket)
   })
 
@@ -83,17 +85,25 @@ describe('Deep linking', () => {
     await act(async () => {})
     logger.info('act done')
 
+    const firstJoinRequests = emitWithAck.mock.calls.filter(([action]) => action === SocketActions.JOIN_COMMUNITY)
+    expect(firstJoinRequests).toHaveLength(1)
+    expect(firstJoinRequests[0][1]).toMatchObject({ username: 'testUser' })
+    const joinedCommunity = communities.selectors.currentCommunity(store.getState())
+    expect(joinedCommunity?.id).toBe(firstJoinRequests[0][1].id)
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
+
     // expect community to have been created
     expect(actions).toMatchInlineSnapshot(`
       [
         "Init/deepLink",
         "Init/resetDeepLink",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Navigation/replaceScreen",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
@@ -117,17 +127,21 @@ describe('Deep linking', () => {
     logger.info('currentPair', currentPair)
 
     expect(originalPair).toEqual(currentPair)
+    expect(communities.selectors.currentCommunity(store.getState())).toEqual(joinedCommunity)
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
+    expect(emitWithAck.mock.calls.filter(([action]) => action === SocketActions.JOIN_COMMUNITY)).toHaveLength(1)
 
     expect(actions).toMatchInlineSnapshot(`
       [
         "Init/deepLink",
         "Init/resetDeepLink",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Navigation/replaceScreen",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
@@ -161,8 +175,9 @@ describe('Deep linking', () => {
       }
     }
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    emitWithAck = jest.fn(mockEmitImpl)
     // @ts-ignore
-    socket.emitWithAck = mockEmitImpl
+    socket.emitWithAck = emitWithAck
     const { store, runSaga, root } = await prepareStore({}, socket)
     logger.info('Store prepared')
 
@@ -187,17 +202,23 @@ describe('Deep linking', () => {
     await act(async () => {})
     logger.info('act done')
 
-    // expect community to have been created
+    const firstJoinRequests = emitWithAck.mock.calls.filter(([action]) => action === SocketActions.JOIN_COMMUNITY)
+    expect(firstJoinRequests).toHaveLength(1)
+    expect(communities.selectors.currentCommunity(store.getState())).toBeUndefined()
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
+
+    // An explicit negative acknowledgement clears the failed attempt.
     expect(actions).toMatchInlineSnapshot(`
       [
         "Init/deepLink",
         "Init/resetDeepLink",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Navigation/replaceScreen",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
         "Network/setLoadingPanelType",
       ]
@@ -215,27 +236,35 @@ describe('Deep linking', () => {
     logger.info('currentPair', currentPair)
 
     expect(originalPair).toEqual(currentPair)
+    const joinRequests = emitWithAck.mock.calls.filter(([action]) => action === SocketActions.JOIN_COMMUNITY)
+    expect(joinRequests).toHaveLength(2)
+    expect(joinRequests[1][1].id).not.toBe(firstJoinRequests[0][1].id)
+    expect(joinRequests[1][1]).toMatchObject({ username: 'testUser' })
+    expect(communities.selectors.currentCommunity(store.getState())).toBeUndefined()
+    expect(communities.selectors.pendingJoin(store.getState())).toBeNull()
 
     expect(actions).toMatchInlineSnapshot(`
       [
         "Init/deepLink",
         "Init/resetDeepLink",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Navigation/replaceScreen",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
         "Network/setLoadingPanelType",
         "Init/deepLink",
         "Init/resetDeepLink",
         "Communities/joinCommunity",
-        "Network/setLoadingPanelType",
+        "Communities/setPendingJoinId",
         "Navigation/replaceScreen",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
         "Network/setLoadingPanelType",
       ]

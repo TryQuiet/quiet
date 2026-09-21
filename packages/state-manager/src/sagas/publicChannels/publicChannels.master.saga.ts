@@ -12,6 +12,7 @@ import { sendIntroductionMessageSaga } from './sendIntroductionMessage/sendIntro
 import { createLogger } from '../../utils/logger'
 import { addMembersChannelSaga } from './addMembersChannel/addMembersChannel.saga'
 import { dayTickSaga } from './dayTick/dayTick.saga'
+import { syncChannelDisplayNamesSaga } from './syncChannelDisplayNames/syncChannelDisplayNames.saga'
 
 const logger = createLogger('publicChannelsMasterSaga')
 
@@ -29,6 +30,7 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       takeEvery(publicChannelsActions.setCurrentChannel.type, clearUnreadChannelsSaga),
       takeEvery(publicChannelsActions.sendIntroductionMessage.type, sendIntroductionMessageSaga),
       takeEvery(publicChannelsActions.addMembersChannel.type, addMembersChannelSaga, socket),
+      takeEvery(publicChannelsActions.syncChannelDisplayNames.type, syncChannelDisplayNamesSaga),
     ])
   } finally {
     logger.info('publicChannelsMasterSaga stopping')

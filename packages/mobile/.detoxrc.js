@@ -1,3 +1,34 @@
+const path = require('path')
+
+const shellQuote = value => `'${value.replace(/'/g, "'\\''")}'`
+
+// Build the installed Tor XCFramework and retain per-run native build evidence.
+const iosSimulatorApp = (name, envFile, configuration = 'Debug') => {
+  const output =
+    process.env[`DETOX_IOS_ARM64_${name.toUpperCase().replace(/\./g, '_')}_OUTPUT`] ||
+    `/tmp/quiet-${name}-arm64-validation`
+  return {
+    type: 'ios.app',
+    binaryPath: path.join(output, 'DerivedData/Build/Products', `${configuration}-iphonesimulator/Quiet.app`),
+    build: [
+      'python3',
+      path.join(__dirname, 'scripts/tor-ios-simulator/build-ios.py'),
+      '--checkout',
+      path.resolve(__dirname, '../..'),
+      '--output',
+      output,
+      '--scheme',
+      'Quiet',
+      '--configuration',
+      configuration,
+      '--env-file',
+      envFile,
+    ]
+      .map(shellQuote)
+      .join(' '),
+  }
+}
+
 /** @type {Detox.DetoxConfig} */
 module.exports = {
   testRunner: {
@@ -21,14 +52,29 @@ module.exports = {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
       build:
-        'cd android && ENVFILE=../.env.e2e ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
+        'cd android && ENVFILE=../.env.detox ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
     },
     'android.e2e.qss': {
       type: 'android.apk',
-      binaryPath: 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
+      binaryPath:
+        process.env.DETOX_ANDROID_E2E_QSS_APK || 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
+      testBinaryPath:
+        process.env.DETOX_ANDROID_E2E_QSS_TEST_APK ||
+        'android/app/build/outputs/apk/androidTest/standard/debug/app-standard-debug-androidTest.apk',
       build:
         'cd android && ENVFILE=../.env.e2e.qss ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
-      reversePorts: [8081],
+      reversePorts: [8081, 3003],
+    },
+    'android.e2e.qss.only': {
+      type: 'android.apk',
+      binaryPath:
+        process.env.DETOX_ANDROID_E2E_QSS_APK || 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
+      testBinaryPath:
+        process.env.DETOX_ANDROID_E2E_QSS_TEST_APK ||
+        'android/app/build/outputs/apk/androidTest/standard/debug/app-standard-debug-androidTest.apk',
+      build:
+        'cd android && ENVFILE=../.env.e2e.qss.only ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
+      reversePorts: [8081, 3003],
     },
     'android.storybook': {
       type: 'android.apk',
@@ -43,54 +89,56 @@ module.exports = {
       build:
         'cd android && ENVFILE=../.env.production ./gradlew assembleStandardRelease assembleStandardReleaseAndroidTest -DtestBuildType=release',
     },
-    'ios.debug': {
+    'ios.debug': iosSimulatorApp('debug', '.env.staging'),
+    'ios.e2e': iosSimulatorApp('e2e', '.env.e2e'),
+    'ios.e2e.qss': iosSimulatorApp('e2e.qss', '.env.e2e.qss'),
+    'ios.storybook.arm64': {
       type: 'ios.app',
-      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
-      build:
-        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
+      // Prebuilt with --scheme Storybook --env-file .env.storybook.
+      binaryPath:
+        process.env.DETOX_IOS_ARM64_STORYBOOK_APP ||
+        '/tmp/quiet-storybook-arm64-validation/DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app',
     },
-    'ios.e2e': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
-      build:
-        'ENVFILE=.env.e2e xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
-    },
-    'ios.e2e.qss': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
-      build:
-        'ENVFILE=.env.e2e.qss xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
-    },
-    'ios.storybook': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/storybook/Build/Products/Debug-iphonesimulator/Quiet.app',
-      build:
-        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/storybook -arch x86_64',
-    },
-    'ios.release': {
-      type: 'ios.app',
-      binaryPath: 'ios/build/release/Build/Products/Release-iphonesimulator/Quiet.app',
-      build:
-        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build/release -arch x86_64',
-    },
+    'ios.release': iosSimulatorApp('release', '.env.production', 'Release'),
   },
   devices: {
     simulator: {
       type: 'ios.simulator',
-      device: {
-        type: 'iPhone 15 Pro',
-      },
+      bootArgs: '--arch=arm64',
+      device: process.env.DETOX_IOS_SIMULATOR_ID
+        ? { id: process.env.DETOX_IOS_SIMULATOR_ID }
+        : { type: 'iPhone 15 Pro' },
+    },
+    simulator_storybook_arm64: {
+      type: 'ios.simulator',
+      bootArgs: '--arch=arm64',
+      device: process.env.DETOX_IOS_SIMULATOR_ID
+        ? { id: process.env.DETOX_IOS_SIMULATOR_ID }
+        : { type: 'iPhone 15 Pro', os: 'iOS 18.5' },
     },
     simulator_ci: {
       type: 'ios.simulator',
-      device: {
-        type: 'iPhone 15',
-      },
+      bootArgs: '--arch=arm64',
+      device: process.env.DETOX_IOS_SIMULATOR_ID ? { id: process.env.DETOX_IOS_SIMULATOR_ID } : { type: 'iPhone 15' },
     },
     attached: {
       type: 'android.attached',
       device: {
         adbName: '.*',
+      },
+    },
+    attached_qss: {
+      type: 'android.attached',
+      device: {
+        adbName: process.env.DETOX_ANDROID_DEVICE_ID
+          ? `^${process.env.DETOX_ANDROID_DEVICE_ID.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`
+          : '^$', // QSS scenarios erase app data; require an exact owned device.
+      },
+    },
+    emulator_qss: {
+      type: 'android.emulator',
+      device: {
+        avdName: process.env.DETOX_ANDROID_QSS_AVD || 'quiet_qss_e2e',
       },
     },
     emulator: {
@@ -138,8 +186,18 @@ module.exports = {
       },
     },
     'ios.sim.storybook': {
-      device: 'simulator',
-      app: 'ios.storybook',
+      device: 'simulator_storybook_arm64',
+      app: 'ios.storybook.arm64',
+      artifacts: {
+        rootDir: './e2e/artifacts/ios',
+        plugins: {
+          instruments: 'all',
+        },
+      },
+    },
+    'ios.sim.storybook.arm64': {
+      device: 'simulator_storybook_arm64',
+      app: 'ios.storybook.arm64',
       artifacts: {
         rootDir: './e2e/artifacts/ios',
         plugins: {
@@ -151,19 +209,9 @@ module.exports = {
       device: 'simulator',
       app: 'ios.release',
     },
-    'ios.att.e2e': {
-      device: 'attached',
+    'ios.sim.e2e': {
+      device: 'simulator',
       app: 'ios.e2e',
-      artifacts: {
-        rootDir: './e2e/artifacts/ios',
-        plugins: {
-          instruments: 'all',
-        },
-      },
-    },
-    'ios.att.e2e.qss': {
-      device: 'attached',
-      app: 'ios.e2e.qss',
       artifacts: {
         rootDir: './e2e/artifacts/ios',
         plugins: {
@@ -186,11 +234,16 @@ module.exports = {
       },
     },
     'android.att.e2e.qss': {
-      device: 'attached',
+      device: 'attached_qss',
       app: 'android.e2e.qss',
       artifacts: {
         rootDir: './e2e/artifacts/android',
       },
+    },
+    'android.att.e2e.qss.only': {
+      device: 'attached_qss',
+      app: 'android.e2e.qss.only',
+      artifacts: { rootDir: './e2e/artifacts/android' },
     },
     'android.att.storybook': {
       device: 'attached',
@@ -210,12 +263,17 @@ module.exports = {
         rootDir: './e2e/artifacts/android',
       },
     },
-    'android.emu.debug.qss': {
-      device: 'emulator',
-      app: 'android.debug.qss',
+    'android.emu.e2e.qss': {
+      device: 'emulator_qss',
+      app: 'android.e2e.qss',
       artifacts: {
         rootDir: './e2e/artifacts/android',
       },
+    },
+    'android.emu.e2e.qss.only': {
+      device: 'emulator_qss',
+      app: 'android.e2e.qss.only',
+      artifacts: { rootDir: './e2e/artifacts/android' },
     },
     'android.emu.debug.ci': {
       device: 'emulator_ci',

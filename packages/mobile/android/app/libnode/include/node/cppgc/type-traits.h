@@ -9,6 +9,7 @@
 // against Oilpan types without including any other parts.
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
 namespace cppgc {
 
@@ -16,7 +17,7 @@ class Visitor;
 
 namespace internal {
 template <typename T, typename WeaknessTag, typename WriteBarrierPolicy,
-          typename CheckingPolicy>
+          typename CheckingPolicy, typename StorageType>
 class BasicMember;
 struct DijkstraWriteBarrierPolicy;
 struct NoWriteBarrierPolicy;
@@ -126,14 +127,15 @@ template <typename BasicMemberCandidate, typename WeaknessTag,
           typename WriteBarrierPolicy>
 struct IsSubclassOfBasicMemberTemplate {
  private:
-  template <typename T, typename CheckingPolicy>
+  template <typename T, typename CheckingPolicy, typename StorageType>
   static std::true_type SubclassCheck(
-      BasicMember<T, WeaknessTag, WriteBarrierPolicy, CheckingPolicy>*);
+      const BasicMember<T, WeaknessTag, WriteBarrierPolicy, CheckingPolicy,
+                        StorageType>*);
   static std::false_type SubclassCheck(...);
 
  public:
-  static constexpr bool value =
-      decltype(SubclassCheck(std::declval<BasicMemberCandidate*>()))::value;
+  static constexpr bool value = decltype(SubclassCheck(
+      std::declval<std::decay_t<BasicMemberCandidate>*>()))::value;
 };
 
 template <typename T,
@@ -169,6 +171,23 @@ struct IsComplete {
   static constexpr bool value =
       decltype(IsSizeOfKnown(std::declval<T*>()))::value;
 };
+
+template <typename T, typename U>
+constexpr bool IsDecayedSameV =
+    std::is_same_v<std::decay_t<T>, std::decay_t<U>>;
+
+template <typename B, typename D>
+constexpr bool IsStrictlyBaseOfV =
+    std::is_base_of_v<std::decay_t<B>, std::decay_t<D>> &&
+    !IsDecayedSameV<B, D>;
+
+template <typename T>
+constexpr bool IsAnyMemberTypeV = false;
+
+template <typename T, typename WeaknessTag, typename WriteBarrierPolicy,
+          typename CheckingPolicy, typename StorageType>
+constexpr bool IsAnyMemberTypeV<internal::BasicMember<
+    T, WeaknessTag, WriteBarrierPolicy, CheckingPolicy, StorageType>> = true;
 
 }  // namespace internal
 
@@ -234,6 +253,19 @@ constexpr bool IsWeakV = internal::IsWeak<T>::value;
  */
 template <typename T>
 constexpr bool IsCompleteV = internal::IsComplete<T>::value;
+
+/**
+ * Value is true for member types `Member<T>` and `WeakMember<T>`.
+ */
+template <typename T>
+constexpr bool IsMemberOrWeakMemberTypeV =
+    IsMemberTypeV<T> || IsWeakMemberTypeV<T>;
+
+/**
+ * Value is true for any member type.
+ */
+template <typename T>
+constexpr bool IsAnyMemberTypeV = internal::IsAnyMemberTypeV<std::decay_t<T>>;
 
 }  // namespace cppgc
 

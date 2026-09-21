@@ -1,5 +1,13 @@
-import { communities, connection, errors, identity } from '@quiet/state-manager'
-import { CommunityOwnership, InvitationData, JoinCommunityPayload } from '@quiet/types'
+import { communities, connection } from '@quiet/state-manager'
+import {
+  CommunityOwnership,
+  ErrorMessages,
+  type InvitationData,
+  type JoinCommunityPayload,
+  type LinkDevicePayload,
+  type DeviceInvitationData,
+  isDeviceInvitationData,
+} from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
@@ -7,6 +15,7 @@ import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { createLogger } from '../../../logger'
+import { DeviceLinkConsentComponent } from '../../DeviceLinkConsent/DeviceLinkConsent'
 
 const logger = createLogger('JoinCommunity')
 
@@ -21,17 +30,44 @@ const JoinCommunity = () => {
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
+  const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
+  const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
+  const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
+  const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
+
+  const joinCommunityErrorMessage =
+    joinCommunityError?.type === 'invalid'
+      ? ErrorMessages.INVALID_INVITE
+      : joinCommunityError?.type === 'interrupted'
+        ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
+        : joinCommunityError?.type === 'timeout'
+          ? joinCommunityError.invitationType === 'device'
+            ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+            : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+          : undefined
+
+  const clearJoinCommunityError = () => {
+    if (joinCommunityError) {
+      dispatch(communities.actions.clearJoinCommunityError())
+    }
+  }
 
   useEffect(() => {
-    if (isConnected && !currentCommunity && !invitationCodes && !joinCommunityModal.open) {
+    if (
+      isConnected &&
+      admissionResetStatus === 'idle' &&
+      !currentCommunity &&
+      !invitationCodes &&
+      !joinCommunityModal.open
+    ) {
       logger.info('Opening join community modal')
       joinCommunityModal.handleOpen()
     }
-  }, [isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
+  }, [admissionResetStatus, isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
 
   useEffect(() => {
     if (isConnected && currentCommunity && joinCommunityModal.open) {
@@ -41,9 +77,15 @@ const JoinCommunity = () => {
   }, [isConnected, currentCommunity, joinCommunityModal.open])
 
   const handleCommunityAction = (data: InvitationData) => {
+    if (isDeviceInvitationData(data)) {
+      setPendingDeviceInvite(data)
+      return
+    }
+
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
     }
+    clearJoinCommunityError()
     dispatch(communities.actions.joinCommunity(joinCommunityPayload))
     createUsernameModal.handleOpen()
     joinCommunityModal.handleClose()
@@ -63,18 +105,42 @@ const JoinCommunity = () => {
     revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
 
+  const confirmDeviceLink = () => {
+    if (!pendingDeviceInvite) return
+    const linkDevicePayload: LinkDevicePayload = {
+      inviteData: pendingDeviceInvite,
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: pendingDeviceInvite.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined,
+    }
+    loadingPanelModal.handleOpen()
+    clearJoinCommunityError()
+    dispatch(communities.actions.linkDevice(linkDevicePayload))
+    joinCommunityModal.handleClose()
+    setPendingDeviceInvite(null)
+  }
+
   return (
-    <PerformCommunityActionComponent
-      {...joinCommunityModal}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={handleRedirection}
-      isConnectionReady={isConnected}
-      isCloseDisabled={!currentCommunity}
-      hasReceivedResponse={invitationCodes === null}
-      revealInputValue={revealInputValue}
-      handleClickInputReveal={handleClickInputReveal}
-    />
+    <>
+      <PerformCommunityActionComponent
+        {...joinCommunityModal}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={handleRedirection}
+        isConnectionReady={isConnected}
+        isCloseDisabled={!currentCommunity}
+        hasReceivedResponse={invitationCodes === null}
+        fieldError={joinCommunityErrorMessage}
+        onFieldChange={clearJoinCommunityError}
+        revealInputValue={revealInputValue}
+        handleClickInputReveal={handleClickInputReveal}
+      />
+      <DeviceLinkConsentComponent
+        open={pendingDeviceInvite !== null}
+        qssEndpoint={pendingDeviceInvite?.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined}
+        onCancel={() => setPendingDeviceInvite(null)}
+        onConfirm={confirmDeviceLink}
+      />
+    </>
   )
 }
 

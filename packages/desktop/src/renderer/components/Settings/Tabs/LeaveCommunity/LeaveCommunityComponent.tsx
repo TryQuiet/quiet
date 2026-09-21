@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 
 import { styled } from '@mui/material/styles'
 
@@ -75,12 +75,26 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 export interface LeaveCommunityProps {
   communityName: string
-  leaveCommunity: () => void
+  leaveCommunity: () => Promise<void> | void
   open: boolean
   handleClose: () => void
 }
 
 export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({ leaveCommunity, handleClose }) => {
+  const [leaving, setLeaving] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const handleLeave = async () => {
+    setLeaving(true)
+    setFailed(false)
+    try {
+      await leaveCommunity()
+    } catch {
+      setFailed(true)
+    } finally {
+      setLeaving(false)
+    }
+  }
+
   return (
     <StyledGrid container justifyContent='center'>
       <Grid container item className={classes.titleContainer} xs={12} direction='row' justifyContent='center'>
@@ -92,22 +106,24 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({ leaveCommunit
         </Typography>
       </Grid>
       <Grid container item className={classes.secondaryButtonContainer} xs={12} direction='row' justifyContent='center'>
-        <Button variant='contained' onClick={handleClose} size='small' className={classes.button}>
+        <Button variant='contained' onClick={handleClose} disabled={leaving} size='small' className={classes.button}>
           Go back
         </Button>
       </Grid>
       <Grid item xs={'auto'} className={classes.buttonContainer}>
         <Button
           variant='contained'
-          onClick={leaveCommunity}
+          onClick={handleLeave}
+          disabled={leaving}
           size='small'
           fullWidth
           className={classes.secondaryButton}
           data-testid={'leave-community-button'}
         >
-          Leave community
+          {leaving ? 'Leaving community…' : 'Leave community'}
         </Button>
       </Grid>
+      {failed && <Typography role='alert'>Unable to leave the community. Please try again.</Typography>}
     </StyledGrid>
   )
 }

@@ -14,7 +14,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    CFPropertyList (3.0.9)
+    CFPropertyList (3.0.8)
     activesupport (7.1.6)
       base64
       benchmark (>= 0.3)
@@ -118,7 +118,7 @@ DEPENDENCIES
   xcodeproj!
 
 RUBY VERSION
-   ruby 2.7.5p203
+   ruby 3.3.12p206
 
 BUNDLED WITH
-   2.1.4
+   2.6.9

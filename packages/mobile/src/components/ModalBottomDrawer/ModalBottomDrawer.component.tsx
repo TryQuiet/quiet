@@ -1,5 +1,13 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react'
-import { Animated, Dimensions, Easing, PanResponder, TouchableWithoutFeedback, View, Image } from 'react-native'
+import {
+  Animated,
+  Easing,
+  PanResponder,
+  TouchableWithoutFeedback,
+  View,
+  Image,
+  useWindowDimensions,
+} from 'react-native'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { icons } from '../../assets'
 import { ModalBottomDrawerProps } from './ModalBottomDrawer.types'
@@ -13,8 +21,12 @@ export const ModalBottomDrawer: FC<ModalBottomDrawerProps> = ({
   heightRatio = 2 / 3,
   heightPx,
 }) => {
-  const screenH = Dimensions.get('screen').height
-  const SHEET_H = Math.min(Math.round(heightPx ?? screenH * heightRatio), screenH)
+  const { height: windowHeight } = useWindowDimensions()
+  const [containerHeight, setContainerHeight] = useState<number>()
+  // The parent can be smaller than the activity window (for example, inside a
+  // safe area). Its layout also changes when the activity rotates or resizes.
+  const availableHeight = containerHeight ?? windowHeight
+  const SHEET_H = Math.min(Math.round(heightPx ?? availableHeight * heightRatio), availableHeight)
   const OPEN_Y = 0
   const CLOSED_Y = SHEET_H // translateY relative to its anchored position
 
@@ -114,6 +126,8 @@ export const ModalBottomDrawer: FC<ModalBottomDrawerProps> = ({
 
   return (
     <View
+      testID={`${testIdPrefix}-container`}
+      onLayout={({ nativeEvent }) => setContainerHeight(nativeEvent.layout.height)}
       pointerEvents='box-none'
       style={{
         position: 'absolute',
@@ -142,6 +156,7 @@ export const ModalBottomDrawer: FC<ModalBottomDrawerProps> = ({
         testID={testIdPrefix}
         style={{
           height: SHEET_H,
+          maxHeight: '100%',
           width: '100%',
           backgroundColor: defaultPalette.background.white,
           borderTopLeftRadius: 12,
@@ -180,7 +195,12 @@ export const ModalBottomDrawer: FC<ModalBottomDrawerProps> = ({
             paddingHorizontal: 4,
           }}
         >
-          <TouchableWithoutFeedback onPress={onClose}>
+          <TouchableWithoutFeedback
+            testID={`${testIdPrefix}-close`}
+            accessibilityRole='button'
+            accessibilityLabel='Close drawer'
+            onPress={onClose}
+          >
             <View style={{ width: 56, height: 56, alignItems: 'center', justifyContent: 'center' }}>
               <Image
                 source={icons.arrow_left}

@@ -18,6 +18,11 @@ export enum InvitationDataVersion {
   v5 = 'v5', // LFA + QSS invites with guaranteed team ID
 }
 
+export enum InvitationKind {
+  Member = 'member',
+  Device = 'device',
+}
+
 export type InvitationDataP2P = {
   pairs: InvitationPair[]
   psk: string
@@ -47,6 +52,11 @@ export type InvitationAuthDataV5 = InvitationAuthDataV4 & {
   salt: string
 }
 
+export type DeviceInvitationAuthData = InvitationAuthDataV4 & {
+  userId: string
+  userName: string
+}
+
 export type InvitationDataV2 = InvitationDataP2P & {
   version: InvitationDataVersion.v2
   authData: InvitationAuthData
@@ -61,19 +71,41 @@ export type InvitationDataV3 = InvitationDataP2P & {
 
 // P2P invite data v4
 export type InvitationDataV4 = InvitationDataP2P & {
+  kind?: InvitationKind.Member
   version: InvitationDataVersion.v4
   authData: InvitationAuthDataV4
 }
 
 // QSS invite data v5
 export type InvitationDataV5 = InvitationDataP2P & {
+  kind?: InvitationKind.Member
   version: InvitationDataVersion.v5
   authData: InvitationAuthDataV5
   qssEnabled: boolean
   qssEndpoint: string
 }
 
-export type InvitationData = InvitationDataV4 | InvitationDataV5
+export type DeviceInvitationDataV4 = InvitationDataP2P & {
+  kind: InvitationKind.Device
+  version: InvitationDataVersion.v4
+  authData: DeviceInvitationAuthData
+}
+
+export type DeviceInvitationDataV5 = InvitationDataP2P & {
+  kind: InvitationKind.Device
+  version: InvitationDataVersion.v5
+  authData: DeviceInvitationAuthData
+  qssEnabled: boolean
+  qssEndpoint: string
+}
+
+export type DeviceInvitationData = DeviceInvitationDataV4 | DeviceInvitationDataV5
+
+export type InvitationData = InvitationDataV4 | InvitationDataV5 | DeviceInvitationData
+
+export const isDeviceInvitationData = (data: InvitationData): data is DeviceInvitationData => {
+  return data.kind === InvitationKind.Device
+}
 
 /**
  * Validation types
