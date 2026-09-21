@@ -1,4 +1,5 @@
 import { execSync } from 'child_process'
+import { getWindowsBackendPids } from './windowsBackendProcesses'
 import { DateTime } from 'luxon'
 import path from 'path'
 import { By, Key, error, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
@@ -18,7 +19,7 @@ import {
   UserListStatus,
 } from './types'
 import { createLogger } from './logger'
-import { waitForSettingsTab } from './settingsTabReady'
+import { waitForSettingsTab, waitForSettingsTabClosed } from './settingsTabReady'
 import { parseInvitationLink } from '@quiet/common'
 import { isDeviceInvitationData } from '@quiet/types'
 
@@ -237,15 +238,6 @@ export class App {
     const bundlePath = path.normalize('backend-bundle/bundle.cjs')
 
     try {
-      logger.info('Getting backend process PID')
-      const { pid } = require('@electron/remote').getGlobal('backendProcess') ?? {}
-      if (pid) pids.add(pid)
-    } catch (e) {
-      /* remote not available – ignore */
-      logger.error('Error while getting backend process PID', e)
-    }
-
-    try {
       let cmd = ''
       switch (process.platform) {
         case 'darwin':
@@ -254,11 +246,9 @@ export class App {
         case 'linux':
           cmd = `pgrep -af "${bundlePath}" | grep "${this.buildSetup.dataDir}" | grep -v grep`
           break
-        case 'win32': {
-          const bundleWin = bundlePath.replace(/\\/g, '\\\\')
-          cmd = `wmic process where "CommandLine like '%${bundleWin}%' and CommandLine like '%${this.buildSetup.dataDir}%'" get ProcessId`
+        case 'win32':
+          for (const pid of getWindowsBackendPids(this.buildSetup.dataDirPath)) pids.add(pid)
           break
-        }
       }
       if (cmd) {
         const out = execSync(cmd, { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
@@ -278,13 +268,12 @@ export class App {
             }
           })
       }
-    } catch {
-      /* scanning failed – ignore */
+    } catch (error) {
+      throw new Error(`Could not find backend for ${this.buildSetup.dataDir}: ${String(error)}`)
     }
 
     if (pids.size === 0) {
-      logger.warn(`terminateBackendProcess: no backend PID found for ${this.buildSetup.dataDir}`)
-      return
+      throw new Error(`No backend PID found for ${this.buildSetup.dataDir}`)
     }
 
     logger.info(`Terminating backend PIDs ${[...pids].join(', ')} for ${this.buildSetup.dataDir}`)
@@ -3573,7 +3562,9 @@ export class Settings {
       500
     )
     await closeTabButton.click()
-    await this.driver.wait(until.stalenessOf(closeTabButton), 10_000, 'Settings tab did not finish closing', 100)
+    // React can reuse the back button as the menu's close button in the single
+    // drawer. Wait for the tab control to disappear, not for that DOM node to die.
+    await waitForSettingsTabClosed(this.driver)
   }
 }
 

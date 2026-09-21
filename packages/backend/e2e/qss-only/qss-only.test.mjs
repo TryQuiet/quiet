@@ -85,8 +85,9 @@ test('the production community launch method registers persisted QSS-only identi
   const LaunchConsumer = new Function('SocketEvents', 'ConnectionProcessInfo', `${compiled}; return LaunchConsumer`)(SocketEvents, ConnectionProcessInfo)
   const replacement = new tor.Tor()
   await replacement.init()
-  const hiddenService = await replacement.createNewHiddenService({ targetPort: 9999 })
-  assert.equal(await replacement.destroyHiddenService(hiddenService.onionAddress), true)
+  const hiddenService = await replacement.createOnionIdentity()
+  assert.equal(replacement.hiddenServices.size, 0)
+  assert.equal(replacement.initializedHiddenServices.size, 0)
   const events = []
   const consumer = Object.assign(new LaunchConsumer(), {
     tor: replacement,
