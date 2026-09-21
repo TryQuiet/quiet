@@ -417,6 +417,21 @@ describe('Libp2pAuth buffered connections', () => {
     expect(hasAuthFor(failingPeer)).toBe(true)
   })
 
+  it('retries only the rejecting peer while another candidate transport is still connecting', async () => {
+    const rejectingPeer = peerId('rejecting-peer')
+    const slowerPeer = peerId('slower-peer')
+    await auth['onPeerConnected'](rejectingPeer, connection(rejectingPeer.toString()))
+    authFor(rejectingPeer)!.emit(LFAEvents.REMOTE_ERROR, new Error('invitation not known yet') as any)
+
+    await waitForExpect(() => {
+      expect(redialPeers).toHaveBeenCalledWith(undefined, { onlyPeerIds: new Set(['rejecting-peer']) })
+    })
+    // The slower transport can finish without being torn down by that retry.
+    await auth['onPeerConnected'](slowerPeer, connection(slowerPeer.toString()))
+    expect(hasAuthFor(slowerPeer)).toBe(true)
+    expect(auth['joinStatus']).toBe(JoinStatus.JOINING)
+  })
+
   it('allows a single available peer to participate in successive admission rounds', async () => {
     const peer = peerId('only-peer')
     await auth['onPeerConnected'](peer, connection(peer.toString()))
