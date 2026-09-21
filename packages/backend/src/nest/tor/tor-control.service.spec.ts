@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 import net from 'net'
 
 import { ConfigOptions } from '../types'
-import { TorControl } from './tor-control.service'
+import { TorControl, TOR_CONTROL_COMMAND_TIMEOUT_MS } from './tor-control.service'
 import { TorControlAuthType, TorControlParams } from './tor.types'
 
 const createTorControl = (authCookie: string) => {
@@ -82,6 +82,7 @@ describe('TorControl credential readiness', () => {
     connect = jest.spyOn(net, 'connect').mockImplementation(() => {
       const socket = new EventEmitter() as net.Socket
       socket.end = jest.fn(() => socket) as net.Socket['end']
+      socket.destroy = jest.fn(() => socket) as net.Socket['destroy']
       socket.write = jest.fn((data: string) => {
         writes.push(data)
         if (data.startsWith('AUTHENTICATE') || replyToCommands) {
@@ -112,15 +113,32 @@ describe('TorControl credential readiness', () => {
   it('queues all commands silently until credentials arrive, then serializes authentication and commands', async () => {
     const commands = ['ADD_ONION NEW:BEST Port=80,127.0.0.1:3000', 'GETINFO status/bootstrap-phase', 'SIGNAL NEWNYM']
     const results = Promise.all(commands.map(command => torControl.sendCommand(command)))
-    await jest.advanceTimersByTimeAsync(30_000)
+    await jest.advanceTimersByTimeAsync(10_000)
     expect(connect).not.toHaveBeenCalled()
-    expect(jest.getTimerCount()).toBe(0)
+    expect(jest.getTimerCount()).toBe(commands.length)
 
     supplyCookie()
     await jest.advanceTimersByTimeAsync(1)
     await expect(results).resolves.toHaveLength(3)
     expect(writes).toEqual(commands.flatMap(command => [`AUTHENTICATE ${cookie}\r\n`, `${command}\r\n`]))
     expect(torControl.isSending).toBe(false)
+  })
+
+  it('expires missing credentials and queued identity creation without replaying them after recovery', async () => {
+    const results = Promise.allSettled([
+      torControl.sendCommand('ADD_ONION NEW:ED25519-V3 Port=80'),
+      torControl.sendCommand('ADD_ONION NEW:ED25519-V3 Port=81'),
+    ])
+    await jest.advanceTimersByTimeAsync(TOR_CONTROL_COMMAND_TIMEOUT_MS)
+    for (const result of await results) {
+      expect(result.status).toBe('rejected')
+      if (result.status === 'rejected') expect(result.reason.message).toContain('Tor control to become available')
+    }
+    expect(connect).not.toHaveBeenCalled()
+    supplyCookie()
+    await expect(torControl.sendCommand('GETINFO version')).resolves.toMatchObject({ code: 250 })
+    expect(writes).toEqual([`AUTHENTICATE ${cookie}\r\n`, 'GETINFO version\r\n'])
+    expect(jest.getTimerCount()).toBe(0)
   })
 
   it('rejects incorrect credentials once and allows a later command with refreshed credentials', async () => {
@@ -169,7 +187,7 @@ describe('TorControl credential readiness', () => {
 
     session.abort(new Error('Community reset'))
     await failure
-    expect(oldSocket.end).toHaveBeenCalled()
+    expect(oldSocket.destroy).toHaveBeenCalled()
     expect(oldSocket.listenerCount('data')).toBe(0)
     expect(jest.getTimerCount()).toBe(0)
 
@@ -177,9 +195,32 @@ describe('TorControl credential readiness', () => {
     await jest.advanceTimersByTimeAsync(1)
     const nextSocket = connect.mock.results[1].value as net.Socket
     oldSocket.emit('error', new Error('Late error from cancelled connection'))
-    expect(nextSocket.end).not.toHaveBeenCalled()
+    expect(nextSocket.destroy).not.toHaveBeenCalled()
     nextSocket.emit('data', Buffer.from('250 OK\r\n'))
     await expect(nextCommand).resolves.toMatchObject({ code: 250 })
+    expect(jest.getTimerCount()).toBe(0)
+  })
+
+  it('cancels queued admission immediately without sending it after the active command finishes', async () => {
+    supplyCookie()
+    replyToCommands = false
+    const active = torControl.sendCommand('GETINFO version')
+    await jest.advanceTimersByTimeAsync(1)
+    const session = new AbortController()
+    const cancelled = expect(
+      torControl.sendCommand('ADD_ONION NEW:ED25519-V3 Port=80', session.signal)
+    ).rejects.toThrow('Community reset')
+    session.abort(new Error('Community reset'))
+    await cancelled
+    const activeSocket = connect.mock.results[0].value as net.Socket
+    activeSocket.emit('data', Buffer.from('250 OK\r\n'))
+    await expect(active).resolves.toMatchObject({ code: 250 })
+    replyToCommands = true
+    await expect(torControl.sendCommand('GETINFO status/bootstrap-phase')).resolves.toMatchObject({ code: 250 })
+    expect(writes.filter(line => !line.startsWith('AUTHENTICATE'))).toEqual([
+      'GETINFO version\r\n',
+      'GETINFO status/bootstrap-phase\r\n',
+    ])
     expect(jest.getTimerCount()).toBe(0)
   })
 
@@ -187,7 +228,7 @@ describe('TorControl credential readiness', () => {
     const session = new AbortController()
     const failure = expect(
       torControl.sendCommand('ADD_ONION NEW:BEST Port=80,127.0.0.1:3000', session.signal)
-    ).rejects.toThrow('The operation was aborted')
+    ).rejects.toThrow('Community reset')
     await jest.advanceTimersByTimeAsync(0)
     session.abort(new Error('Community reset'))
     await failure
@@ -211,6 +252,7 @@ describe('TorControl asynchronous events', () => {
     const { torControl } = createTorControl(cookie)
     const socket = new EventEmitter() as net.Socket
     socket.end = jest.fn(() => socket) as net.Socket['end']
+    socket.destroy = jest.fn(() => socket) as net.Socket['destroy']
     socket.write = jest.fn(() => true) as net.Socket['write']
     torControl.connection = socket
     const result = torControl.getDetachedOnionServices()
@@ -234,6 +276,7 @@ describe('TorControl asynchronous events', () => {
   const createPublication = (signal?: AbortSignal, timeoutMs?: number | null) => {
     const socket = new EventEmitter() as net.Socket
     socket.end = jest.fn(() => socket) as net.Socket['end']
+    socket.destroy = jest.fn(() => socket) as net.Socket['destroy']
     socket.write = jest.fn(() => {
       void Promise.resolve().then(() => socket.emit('data', Buffer.from('250 OK\r\n')))
       return true
@@ -315,6 +358,7 @@ describe('TorControl asynchronous events', () => {
     const writes: string[] = []
     const socket = new EventEmitter() as net.Socket
     socket.end = jest.fn(() => socket) as net.Socket['end']
+    socket.destroy = jest.fn(() => socket) as net.Socket['destroy']
     socket.write = jest.fn((data: string) => {
       writes.push(data)
       if (data.startsWith('AUTHENTICATE') || data.startsWith('SETEVENTS')) {

@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 import net from 'net'
 import { setTimeout as sleep } from 'timers/promises'
-import { TorControl } from './tor-control.service'
+import { TorControl, TOR_CONTROL_COMMAND_TIMEOUT_MS } from './tor-control.service'
 import { TorControlAuthType } from './tor.types'
 import type { ConfigOptions } from '../types'
 
@@ -97,6 +97,42 @@ describe('Tor control authentication over TCP', () => {
     expect(attempts).toBe(2)
     expect(commands).toHaveLength(1)
   }, 10_000)
+
+  it(
+    'bounds a silent native listener, expires queued identity creation, then recovers without replay',
+    async () => {
+      authenticate = () => undefined
+      const expired = Promise.allSettled([
+        control.sendCommand('ADD_ONION NEW:ED25519-V3 Port=80'),
+        control.sendCommand('ADD_ONION NEW:ED25519-V3 Port=81'),
+      ])
+      const startedAt = Date.now()
+      for (const result of await expired) {
+        expect(result.status).toBe('rejected')
+        if (result.status === 'rejected') expect(result.reason.message).toContain('Tor control to become available')
+      }
+      expect(Date.now() - startedAt).toBeLessThan(TOR_CONTROL_COMMAND_TIMEOUT_MS + 2_000)
+      expect(attempts).toBeGreaterThan(1)
+      expect(commands).toEqual([])
+      authenticate = socket => socket.write('250 OK\r\n')
+      await expect(control.sendCommand('GETINFO version')).resolves.toMatchObject({ code: 250 })
+      expect(commands).toEqual(['GETINFO version'])
+      await sleep(20)
+      expect(sockets.size).toBe(0)
+    },
+    TOR_CONTROL_COMMAND_TIMEOUT_MS + 5_000
+  )
+
+  it('recovers when the native TCP port disappears and comes back', async () => {
+    const port = (server.address() as net.AddressInfo).port
+    await new Promise<void>(resolve => server.close(() => resolve()))
+    const result = control.sendCommand('ADD_ONION NEW:ED25519-V3 Port=80')
+    await sleep(650)
+    expect(commands).toEqual([])
+    await new Promise<void>(resolve => server.listen(port, '127.0.0.1', resolve))
+    await expect(result).resolves.toMatchObject({ code: 250 })
+    expect(commands).toEqual(['ADD_ONION NEW:ED25519-V3 Port=80'])
+  })
 
   it('rejects an active authentication wait on shutdown without sending its command', async () => {
     let received!: () => void
