@@ -1,215 +1,154 @@
 import { AppState, NativeModules, Platform } from 'react-native'
-import { combineReducers } from '@reduxjs/toolkit'
-import { expectSaga } from 'redux-saga-test-plan'
-import { call, select } from 'redux-saga-test-plan/matchers'
+import Config from 'react-native-config'
+import { runSaga } from 'redux-saga'
 import { showNotificationSaga } from './showNotification.saga'
-import StateManager, {
+import {
   publicChannels,
-  users,
   PUSH_NOTIFICATION_CHANNEL,
   getReduxStoreFactory,
   prepareStore,
   Store,
-  communities,
   identity,
   getBaseTypesFactory,
 } from '@quiet/state-manager'
 import { StoreKeys } from '../../store.keys'
-import { initReducer, InitState } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { navigationReducer, NavigationState } from '../../navigation/navigation.slice'
-import { FactoryGirl } from 'factory-girl'
-import {
-  ChannelMessage,
-  Community,
-  FileMetadata,
-  Identity,
-  MarkUnreadChannelPayload,
-  MessageType,
-  PublicChannel,
-  UserProfile,
-} from '@quiet/types'
+import { NavigationState } from '../../navigation/navigation.slice'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel } from '@quiet/types'
 import { generateTestChannelId } from '@quiet/common'
-import { DateTime } from 'luxon'
 
 describe('showNotificationSaga', () => {
-  const initialAppState = AppState.currentState
-  let payload: MarkUnreadChannelPayload
-
   let store: Store
-  let factory: FactoryGirl
-
-  let community: Community
   let alice: Identity
-  let alicesProfile: UserProfile
+  let channel: PublicChannel
+  let message: ChannelMessage
+  let navigation: NavigationState
+  const originalPlatform = Platform.OS
+  const originalAppState = AppState.currentState
+  const originalForegroundAllowed = Config.FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED
 
-  let generalChannel: PublicChannel
-
-  let photoChannel: PublicChannel
-
-  let expectedMessage: string
-
-  let messageWithChannelName: {
-    id: string
-    type: number
-    message: string
-    createdAt: number
-    channelId: string
-    userId: string
-    media?: FileMetadata
-    channelName: string
-  }
-
-  beforeEach(() => {
+  beforeEach(async () => {
+    Platform.OS = 'android'
     AppState.currentState = 'active'
-    jest.replaceProperty(Platform, 'OS', 'android')
-    jest.replaceProperty(NativeModules, 'CommunicationModule', {
-      handleIncomingEvents: jest.fn(),
-    })
-  })
+    Config.FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED = 'true'
+    NativeModules.CommunicationModule.handleIncomingEvents = jest.fn()
+    navigation = { ...new NavigationState(), backStack: [ScreenNames.ChannelScreen] }
 
-  afterEach(() => {
-    AppState.currentState = initialAppState
-    jest.restoreAllMocks()
-  })
-
-  beforeAll(async () => {
     store = prepareStore().store
-
-    factory = await getReduxStoreFactory(store)
+    const factory = await getReduxStoreFactory(store)
     const baseTypes = await getBaseTypesFactory()
-
-    community = await factory.create('Community')
-    alice = await factory.create('Identity', {
-      communityId: community.id,
-      userId: 'userIdAlice',
-    })
-    alicesProfile = await factory.create('UserProfile', {
-      userId: alice.userId,
-      nickname: 'alice',
-    })
-
-    const generalChannelState = publicChannels.selectors.generalChannel(store.getState())
-    if (generalChannelState) generalChannel = generalChannelState
-    expect(generalChannel).not.toBeUndefined()
-
-    photoChannel = (
+    const community: Community = await factory.create('Community')
+    alice = await factory.create('Identity', { communityId: community.id, userId: 'self-id' })
+    // Identical display names must not cause someone else's message to be filtered.
+    await factory.create('UserProfile', { userId: alice.userId, nickname: 'Alice' })
+    await factory.create('UserProfile', { userId: 'other-id', nickname: 'Alice' })
+    channel = (
       await factory.create('PublicChannel', {
         channel: {
+          id: generateTestChannelId('photo'),
           name: 'photo',
           description: 'Welcome to #photo',
-          timestamp: DateTime.utc().valueOf(),
+          timestamp: Date.now(),
           owner: alice.userId,
-          id: generateTestChannelId('photo'),
           public: true,
         },
       })
     ).channel
-    const channelMessage: ChannelMessage = await baseTypes.create('ChannelMessage', {
-      channelId: photoChannel.id,
-      createdAt: 0,
-      id: 'id',
-      message: 'message',
-      userId: alice.userId,
+    message = await baseTypes.create('ChannelMessage', {
+      id: 'message-id',
+      channelId: channel.id,
+      createdAt: Math.floor(Date.now() / 1000),
+      message: 'hello',
+      userId: 'other-id',
       type: MessageType.Basic,
     })
+    expect(identity.selectors.currentIdentity(store.getState())?.userId).toBe('self-id')
+  })
 
-    payload = {
-      channelId: photoChannel.id,
-      message: channelMessage,
+  afterEach(() => {
+    Platform.OS = originalPlatform
+    AppState.currentState = originalAppState
+    Config.FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED = originalForegroundAllowed
+  })
+
+  const notify = async (overrides: Partial<ChannelMessage> = {}) => {
+    const incoming = { ...message, ...overrides }
+    await runSaga(
+      { getState: () => ({ ...store.getState(), [StoreKeys.Navigation]: navigation }) },
+      showNotificationSaga,
+      publicChannels.actions.markUnreadChannel({ channelId: incoming.channelId, message: incoming })
+    ).toPromise()
+    return incoming
+  }
+
+  it('passes another author with the same nickname to the Android notification bridge', async () => {
+    const incoming = await notify()
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).toHaveBeenCalledTimes(1)
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).toHaveBeenCalledWith(
+      PUSH_NOTIFICATION_CHANNEL,
+      JSON.stringify({ ...incoming, channelName: channel.name }),
+      'Alice'
+    )
+  })
+
+  it.each([MessageType.Basic, MessageType.Info])(
+    'suppresses own type %s messages before calling Android',
+    async type => {
+      await notify({ userId: alice.userId, type, message: type === MessageType.Info ? 'Created #photo' : 'hello' })
+      expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
     }
+  )
 
-    messageWithChannelName = { ...channelMessage, channelName: photoChannel.name }
-    expectedMessage = JSON.stringify(messageWithChannelName)
+  it('suppresses self in a mixed sequence while delivering the other author', async () => {
+    await notify({ id: 'self-before', userId: alice.userId })
+    const incoming = await notify()
+    await notify({ id: 'self-after', userId: alice.userId })
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).toHaveBeenCalledTimes(1)
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).toHaveBeenCalledWith(
+      PUSH_NOTIFICATION_CHANNEL,
+      JSON.stringify({ ...incoming, channelName: channel.name }),
+      'Alice'
+    )
   })
 
-  test('show notification for new messages', async () => {
-    await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
-      .withReducer(
-        combineReducers({
-          ...StateManager.reducers,
-          [StoreKeys.Init]: initReducer,
-          [StoreKeys.Navigation]: navigationReducer,
-        }),
-        {
-          ...store.getState(),
-          [StoreKeys.Init]: {
-            ...new InitState(),
-          },
-          [StoreKeys.Navigation]: {
-            ...new NavigationState(),
-            backStack: [ScreenNames.ChannelScreen],
-          },
-        }
-      )
-      .provide([[call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null]])
-      .call(JSON.stringify, messageWithChannelName)
-      .call(
-        NativeModules.CommunicationModule.handleIncomingEvents,
-        PUSH_NOTIFICATION_CHANNEL,
-        expectedMessage,
-        alicesProfile.nickname
-      )
-      .run()
+  it('does not notify while the authenticated local user ID is unavailable', async () => {
+    store.dispatch(identity.actions.updateIdentity({ ...alice, userId: '' }))
+    await notify({ userId: alice.userId })
+    await notify()
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
   })
 
-  test('do not show notifications when the app is in background', async () => {
+  it('leaves background notifications to the backend worker or FCM', async () => {
     AppState.currentState = 'background'
-
-    const username = 'alice'
-
-    await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
-      .withReducer(
-        combineReducers({
-          ...StateManager.reducers,
-          [StoreKeys.Init]: initReducer,
-          [StoreKeys.Navigation]: navigationReducer,
-        }),
-        {
-          ...store.getState(),
-          [StoreKeys.Init]: {
-            ...new InitState(),
-          },
-          [StoreKeys.Navigation]: {
-            ...new NavigationState(),
-            backStack: [ScreenNames.ChannelScreen],
-          },
-        }
-      )
-      .provide([
-        [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.allUsers), { userId: { username } }],
-      ])
-      .not.call.fn(NativeModules.CommunicationModule.handleIncomingEvents)
-      .run()
+    await notify()
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
   })
 
-  test('do not show notifications when current screen is a channel list', async () => {
-    const username = 'alice'
+  it('does not notify on the channel list screen', async () => {
+    navigation.backStack = [ScreenNames.AppHomeScreen]
+    await notify()
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
+  })
 
-    await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
-      .withReducer(
-        combineReducers({
-          ...StateManager.reducers,
-          [StoreKeys.Init]: initReducer,
-          [StoreKeys.Navigation]: navigationReducer,
-        }),
-        {
-          ...store.getState(),
-          [StoreKeys.Init]: {
-            ...new InitState(),
-          },
-          [StoreKeys.Navigation]: {
-            ...new NavigationState(),
-            backStack: [ScreenNames.ChannelListScreen],
-          },
-        }
-      )
-      .provide([
-        [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.allUsers), { userId: { username } }],
-      ])
-      .not.call.fn(NativeModules.CommunicationModule.handleIncomingEvents)
-      .run()
+  it('respects the foreground notification setting', async () => {
+    Config.FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED = 'false'
+    await notify()
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
+  })
+
+  it('does not use the Android notification bridge on iOS', async () => {
+    Platform.OS = 'ios'
+    await notify()
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
+  })
+
+  it('does not notify for a missing sender profile', async () => {
+    await notify({ userId: 'unknown-id' })
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
+  })
+
+  it('does not notify for an unknown channel', async () => {
+    await notify({ channelId: 'unknown-channel' })
+    expect(NativeModules.CommunicationModule.handleIncomingEvents).not.toHaveBeenCalled()
   })
 })

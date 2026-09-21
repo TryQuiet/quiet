@@ -10,8 +10,8 @@ const { parseQssInvitation, writeProof, waitForServerProof } = require('../utils
 export async function runScenario(t, fullLoop) {
   const { config, run, fixture, build } = await preflight(fullLoop)
   const suffix = run.runId.slice(-10)
-  const names = { community: `push${suffix}`, desktop: `sender-${suffix}`, mobile: `phone-${suffix}` }
-  const desktop = new Desktop(config, names, fixture)
+  const names = { community: `ci-notif-${suffix}`, desktop: `sender-${suffix}`, mobile: `phone-${suffix}` }
+  const desktop = new Desktop(config, names, fixture, run)
   const mobile = new Mobile(config, run)
   // Fixed stage labels are safe to publish when raw logs contain invitations.
   const progress = stage => fs.writeFileSync(path.join(run.directory, 'progress.json'), JSON.stringify({ stage }), { mode: 0o600 })
@@ -21,9 +21,9 @@ export async function runScenario(t, fullLoop) {
   try {
     progress('desktop-create')
     let invite = await desktop.create()
-    const metadata = parseQssInvitation(invite, names.community)
+    const metadata = parseQssInvitation(invite, names.community, fixture.endpoint)
     mobile.teamId = metadata.teamId
-    writeProof(run, { ...metadata, platform: config.platform, build, fullLoopPassed: false })
+    writeProof(run, { ...metadata, platform: config.platform, qssTarget: fixture.target || 'local', build, fullLoopPassed: false })
     progress('mobile-start')
     await mobile.start()
     progress('mobile-join')
@@ -36,7 +36,7 @@ export async function runScenario(t, fullLoop) {
     progress('foreground-receive')
     await mobile.message(foreground, names.desktop)
     progress('qss-storage-proof')
-    await waitForServerProof(run, metadata.teamId, fixture.project)
+    if (fixture.target !== 'staging') await waitForServerProof(run, metadata.teamId, fixture.project)
     if (!fullLoop) {
       await mobile.artifacts('onboarding')
       writeProof(run, { ...metadata, platform: config.platform, build, onboardingPassed: true, fullLoopPassed: false, provider: 'disabled' })
@@ -46,12 +46,12 @@ export async function runScenario(t, fullLoop) {
     const notifications = []
     await t.test('fresh UI join receives a real provider notification without relaunch', async () => {
       progress('fresh-join-background')
-      const before = await waitForServerProof(run, metadata.teamId, fixture.project)
+      const before = fixture.target === 'staging' ? null : await waitForServerProof(run, metadata.teamId, fixture.project)
       await mobile.background()
       const text = `Fresh join notification ${suffix}`
       progress('fresh-join-send')
       await desktop.send(text)
-      await waitForServerProof(run, metadata.teamId, fixture.project, { afterSyncSeq: before.maxSyncSeq })
+      if (before) await waitForServerProof(run, metadata.teamId, fixture.project, { afterSyncSeq: before.maxSyncSeq })
       progress('fresh-join-notification-tap')
       notifications.push(await mobile.notificationAndTap({ text, username: names.desktop, channel: 'general', artifact: 'fresh-join' }))
     })
@@ -67,18 +67,18 @@ export async function runScenario(t, fullLoop) {
       await mobile.tapId('channel_tile_general')
       progress('named-channel-background')
       await mobile.background()
-      const before = await waitForServerProof(run, metadata.teamId, fixture.project)
+      const before = fixture.target === 'staging' ? null : await waitForServerProof(run, metadata.teamId, fixture.project)
       const text = `Named channel notification ${suffix}`
       progress('named-channel-send')
       await desktop.send(text, channel)
-      await waitForServerProof(run, metadata.teamId, fixture.project, { afterSyncSeq: before.maxSyncSeq })
+      if (before) await waitForServerProof(run, metadata.teamId, fixture.project, { afterSyncSeq: before.maxSyncSeq })
       progress('named-channel-notification-tap')
       notifications.push(await mobile.notificationAndTap({ text, username: names.desktop, channel, artifact: 'named-channel' }))
     })
     // node:test continues after failed subtests; never write a success receipt
     // unless both actual OS interactions finished.
     if (notifications.length !== 2) throw new Error('A full-loop notification scenario failed')
-    writeProof(run, { ...metadata, platform: config.platform, build, fullLoopPassed: true, notifications })
+    writeProof(run, { ...metadata, platform: config.platform, qssTarget: fixture.target || 'local', build, fullLoopPassed: true, notifications })
     progress('provider-complete')
   } catch (error) {
     await mobile.artifacts('failure').catch(() => {})

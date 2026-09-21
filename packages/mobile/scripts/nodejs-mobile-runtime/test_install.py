@@ -102,6 +102,31 @@ class RuntimeInstallTests(unittest.TestCase):
         after = {str(p.relative_to(other)): p.read_bytes() for p in other.rglob("*") if p.is_file()}
         self.assertEqual(before, after)
 
+    def test_optional_abi_installs_alone_and_is_checked_only_when_present(self):
+        archive = self.archives["android"]
+        content = b"x86_64 runtime"
+        with zipfile.ZipFile(archive, "a") as source:
+            source.writestr("bin/x86_64/libnode.so", content)
+        self.manifest["archives"]["android"].update(size=archive.stat().st_size, sha256=installer.digest(archive))
+        self.manifest["optionalAndroidAbis"] = {
+            "x86_64": {"android/app/libnode/bin/x86_64/libnode.so": hashlib.sha256(content).hexdigest()}
+        }
+        installer.install(self.root, self.manifest, self.archives)
+        self.assertFalse((self.root / "android/app/libnode/bin/x86_64").exists())
+        self.assertEqual(installer.check(self.root, self.manifest), 4)
+        before = installer.installed_files(self.root)
+        installer.install_android_abi(self.root, self.manifest, archive, "x86_64")
+        self.assertEqual(installer.installed_files(self.root), before)  # the vendored layout is untouched
+        self.assertEqual((self.root / "android/app/libnode/bin/x86_64/libnode.so").read_bytes(), content)
+        self.assertEqual(installer.check(self.root, self.manifest), 5)
+        (self.root / "android/app/libnode/bin/x86_64/libnode.so").write_bytes(b"stale")
+        with self.assertRaisesRegex(ValueError, "x86_64/libnode.so"):
+            installer.check(self.root, self.manifest)
+        with self.assertRaisesRegex(ValueError, "no files for Android ABI"):
+            installer.install_android_abi(self.root, {"archives": self.manifest["archives"], "files": {}}, archive, "x86_64")
+        with self.assertRaisesRegex(ValueError, "Unsupported optional Android ABI"):
+            installer.android_abi_layout("armeabi-v7a")
+
 
 if __name__ == "__main__":
     unittest.main()

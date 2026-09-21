@@ -97,8 +97,18 @@ describe('websocketOverTor', () => {
 
     await torService.init()
 
-    service1 = await torService.createNewHiddenService({ targetPort: port1Target })
-    service2 = await torService.createNewHiddenService({ targetPort: port2Target })
+    service1 = await torService.createOnionIdentity()
+    await torService.waitForHiddenServicePublication({
+      targetPort: port1Target,
+      onionAddress: service1.onionAddress,
+      privKey: service1.privateKey,
+    })
+    service2 = await torService.createOnionIdentity()
+    await torService.waitForHiddenServicePublication({
+      targetPort: port2Target,
+      onionAddress: service2.onionAddress,
+      privKey: service2.privateKey,
+    })
     abortSignalOpts = {
       addEventListener,
       removeEventListener,

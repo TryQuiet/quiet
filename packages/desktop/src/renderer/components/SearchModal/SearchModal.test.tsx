@@ -116,6 +116,7 @@ describe('Search Modal', () => {
                       data-testid="ModalActions"
                     >
                       <button
+                        aria-label="Close"
                         class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                         data-testid="ModalClose"
                         tabindex="0"
@@ -163,7 +164,7 @@ describe('Search Modal', () => {
                               src="test-file-stub"
                             />
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root SearchModalComponentinput css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root SearchModalComponentinput css-3wyanu-MuiFormControl-root-MuiTextField-root"
                               data-testid="searchChannelInput"
                             >
                               <div
@@ -180,9 +181,6 @@ describe('Search Modal', () => {
                                 />
                               </div>
                             </div>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 css-1nv555-MuiTypography-root"
-                            />
                           </div>
                           <img
                             class="SearchModalComponentcloseIcon"

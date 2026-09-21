@@ -22,8 +22,21 @@ export function* sendMessageSaga(
     logger.error('Failed to send message - channel ID is missing')
     return
   }
+
+  // A plain text message holding nothing but whitespace has nothing to deliver,
+  // so drop it instead of broadcasting a blank message. Image and file messages
+  // are exempt: they legitimately carry empty text alongside their media, as do
+  // the Info messages the app generates itself. Note that we only test for
+  // blankness and never trim the content we send, because leading whitespace is
+  // markdown-significant (four spaces start a code block).
+  const isPlainTextMessage = (payload.type ?? MessageType.Basic) === MessageType.Basic && payload.media == null
+  if (isPlainTextMessage && (payload.message ?? '').trim().length === 0) {
+    logger.warn('Not sending message - it has no content')
+    return
+  }
+
   const generatedMessageId = yield* call(generateMessageId)
-  const id = payload.id || generatedMessageId
+  let id = payload.id || generatedMessageId
   let identity = yield* select(identitySelectors.currentIdentity)
   while (!identity || !identity.userId) {
     logger.info('Identity not present, waiting for identity to be added.', identity)
@@ -35,7 +48,9 @@ export function* sendMessageSaga(
     logger.info('Identity updated', identity)
   }
 
-  logger.info('Identity present', identity)
+  if (channelId.startsWith('dm_') && !id.startsWith(identity.userId + ':')) id = identity.userId + ':' + id
+
+  logger.info('Identity present')
 
   logger.info(`Sending message ${id} to channel ${channelId}`)
 
@@ -93,7 +108,7 @@ export function* sendMessageSaga(
   // (in a durable way).
   yield* waitForChannelSubscriptionSaga(channelId)
 
-  logger.info('Emitting SEND_MESSAGE', message)
+  logger.info('Emitting SEND_MESSAGE', message.id)
   yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, message))
   logger.info(`Sent message ${id}`)
 }

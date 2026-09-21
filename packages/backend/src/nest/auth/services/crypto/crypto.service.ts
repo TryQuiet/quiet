@@ -224,6 +224,10 @@ class CryptoService extends ChainServiceBase {
   }
 
   public encryptStream(stream: AsyncIterable<Uint8Array>, scope: EncryptionScope): EncryptStreamTeamPayload {
+    if (scope.type === EncryptionScopeType.DM) {
+      if (!scope.name) throw new Error('Missing DM file scope')
+      return this.sigChain.directMessages.encryptStream(stream, scope.name)
+    }
     let payload: EncryptStreamTeamPayload
     switch (scope.type) {
       // Symmetrical Encryption Types
@@ -256,6 +260,10 @@ class CryptoService extends ChainServiceBase {
     header: Uint8Array,
     scope: KeyMetadata
   ): AsyncGenerator<Uint8Array> {
+    if (scope.type === EncryptionScopeType.DM) {
+      if (!scope.name || scope.generation !== 0) throw new Error('Invalid DM file scope')
+      return this.sigChain.directMessages.decryptStream(encryptedStream, header, scope.name)
+    }
     let decryptedStream: AsyncGenerator<Uint8Array>
     switch (scope.type) {
       // Symmetrical Encryption Types

@@ -56,6 +56,31 @@ class CiCredentialsTests(unittest.TestCase):
         self.assertFalse(report["android"]["serverAccountAvailable"])
         self.assertFalse(report["android"]["ready"])
 
+    def test_staging_decrypts_real_clients_without_any_provider_credentials(self):
+        self.aws_config()  # Public project IDs from the pinned QSS development file.
+        self.encrypt("android")
+        self.encrypt("ios")
+        environment = {"ANDROID_FIREBASE_KEY": self.key, "IOS_FIREBASE_KEY": self.key,
+                       "QSS_NOTIFICATION_FIREBASE_CREDENTIALS": "unused-server-secret"}
+        with patch("ci_credentials.development_accounts", side_effect=AssertionError("must not read AWS")):
+            report = prepare(self.root, self.root / "private", environment, staging=True)
+        self.assertTrue(report["android"]["ready"])
+        self.assertTrue(report["ios"]["ready"])
+        self.assertFalse((self.root / "private/firebase-accounts.json").exists())
+        self.assertNotIn("unused-server-secret", (self.root / "private/availability.json").read_text())
+
+    def test_staging_cli_rejects_client_from_another_project(self):
+        self.aws_config()
+        self.encrypt("android", project="other-project")
+        result = subprocess.run([
+            "python3", str(Path(__file__).with_name("ci_credentials.py")),
+            "--checkout", str(self.root), "--output", str(self.root / "private"),
+            "--require", "android", "--staging",
+        ], env={**os.environ, "ANDROID_FIREBASE_KEY": self.key}, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("does not match", result.stdout)
+        self.assertNotIn(self.key, result.stdout + result.stderr)
+
     def test_wrong_project_or_production_only_application_cannot_pass(self):
         for project, package in [("other-project", "com.quietmobile.debug"), ("fixture-project", "com.quietmobile")]:
             with self.subTest(project=project, package=package):
