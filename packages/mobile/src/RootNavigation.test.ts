@@ -1,10 +1,10 @@
 import { StackRouter } from '@react-navigation/native'
 
 import { ScreenNames } from './const/ScreenNames.enum'
-import { navigate, navigationRef, pop, replaceScreen } from './RootNavigation'
+import { navigate, navigationRef, pop, replaceScreen, resetToScreen } from './RootNavigation'
 
 describe('root stack navigation', () => {
-  const router = StackRouter({ initialRouteName: ScreenNames.ChannelListScreen })
+  const router = StackRouter({ initialRouteName: ScreenNames.AppHomeScreen })
   const options = {
     routeNames: Object.values(ScreenNames),
     routeParamList: {},
@@ -38,16 +38,16 @@ describe('root stack navigation', () => {
 
     for (let visit = 0; visit < 3; visit += 1) {
       navigate(ScreenNames.ChannelScreen)
-      expect(state.routes.map(route => route.name)).toEqual([ScreenNames.ChannelListScreen, ScreenNames.ChannelScreen])
+      expect(state.routes.map(route => route.name)).toEqual([ScreenNames.AppHomeScreen, ScreenNames.ChannelScreen])
 
-      navigate(ScreenNames.ChannelListScreen)
-      expect(state.routes.map(route => route.name)).toEqual([ScreenNames.ChannelListScreen])
+      navigate(ScreenNames.AppHomeScreen)
+      expect(state.routes.map(route => route.name)).toEqual([ScreenNames.AppHomeScreen])
       expect(state.routes[0].key).toBe(listKey)
     }
 
     // A later system Back must not reopen a channel that was already closed.
     pop()
-    expect(state.routes.map(route => route.name)).toEqual([ScreenNames.ChannelListScreen])
+    expect(state.routes.map(route => route.name)).toEqual([ScreenNames.AppHomeScreen])
     expect(warn).not.toHaveBeenCalled()
   })
 
@@ -59,7 +59,7 @@ describe('root stack navigation', () => {
 
     navigate(ScreenNames.ChannelScreen)
 
-    expect(state.routes.map(route => route.name)).toEqual([ScreenNames.ChannelListScreen, ScreenNames.ChannelScreen])
+    expect(state.routes.map(route => route.name)).toEqual([ScreenNames.AppHomeScreen, ScreenNames.ChannelScreen])
     expect(state.routes[1].key).toBe(channelKey)
   })
 
@@ -80,10 +80,10 @@ describe('root stack navigation', () => {
     navigate(ScreenNames.ChannelScreen)
     replaceScreen(ScreenNames.QRCodeScreen)
 
-    expect(state.routes.map(route => route.name)).toEqual([ScreenNames.ChannelListScreen, ScreenNames.QRCodeScreen])
+    expect(state.routes.map(route => route.name)).toEqual([ScreenNames.AppHomeScreen, ScreenNames.QRCodeScreen])
 
     pop()
-    expect(state.routes.map(route => route.name)).toEqual([ScreenNames.ChannelListScreen])
+    expect(state.routes.map(route => route.name)).toEqual([ScreenNames.AppHomeScreen])
   })
 
   it('does not dispatch before the navigation container is ready', () => {
@@ -95,4 +95,12 @@ describe('root stack navigation', () => {
 
     expect(navigationRef.dispatch).not.toHaveBeenCalled()
   })
+})
+
+it('removes previous screens and invitation parameters when returning to Join Community', () => {
+  jest.spyOn(navigationRef, 'isReady').mockReturnValue(true)
+  const reset = jest.spyOn(navigationRef, 'resetRoot').mockImplementation(() => undefined)
+  resetToScreen(ScreenNames.JoinCommunityScreen)
+  expect(reset).toHaveBeenCalledWith({ index: 0, routes: [{ name: ScreenNames.JoinCommunityScreen }] })
+  jest.restoreAllMocks()
 })

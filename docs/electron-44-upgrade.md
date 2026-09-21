@@ -202,3 +202,36 @@ runtime/signing validation is left to the platform workflows and release checks.
 
 References: [Electron 44.3.0](https://releases.electronjs.org/release/v44.3.0),
 [Electron breaking changes](https://www.electronjs.org/docs/latest/breaking-changes).
+
+## Develop integration validation — 2026-09-21
+
+Refreshed against develop and the merged React Native 0.81 feature, preserving
+current auth/security, DM, Tor startup, and Selenium selector changes. The Tor
+regression now exercises develop's ten-minute no-progress policy: it preserves a
+slow bootstrap past the former deadline, then proves that a genuine stall
+restarts the process.
+
+The released 11.0.0 compatibility test now selects that release's older sidebar
+button and pinned Chromium 128 driver, while the new app uses Electron 44's
+current driver. It asserts channel creation succeeded before testing persistence.
+The Chrome settings fixture retains its concrete Options type instead of using
+a chain whose inherited return type loses Chrome-specific methods.
+
+Fresh validation on Node 24.21.0 / npm 10.8.2:
+
+- Desktop Jest: 110 suites, 395 tests, 142 snapshots pass; 6 existing skips and
+  1 existing todo.
+- Native Electron database write/reopen, legacy/fresh auth, renderer window,
+  context-menu, clipboard and paste checks pass with Electron 44.3.0 / embedded
+  Node 24.20.0. The headless check uses Xvfb and its test-only no-sandbox flag.
+- Four real-peer regression suites: 17 tests pass. Managed/native Tor startup
+  and restart coverage: 24 tests pass.
+- Chrome settings, baseline selection and download handling: 29 tests pass.
+- Desktop main and E2E TypeScript builds and E2E lint pass.
+- A fresh AppImage builds. All 26 released-11.0.0-to-current upgrade cases pass,
+  including both channels and their persisted message histories.
+
+The existing AppImage post-pack hook can reuse a stale extracted tree on a
+repeat build. The fresh validation moved that old output aside before packaging;
+PR #3484 replaces this hook. The earlier QSS multiplayer, physical-platform and
+release-signing evidence is not repeated by these Linux checks.

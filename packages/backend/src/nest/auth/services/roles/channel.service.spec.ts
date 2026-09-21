@@ -53,7 +53,10 @@ describe('channels', () => {
     expect(secondSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
   })
   it('should add second user to team', () => {
-    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: secondSigChain.context })
+    const admission = InviteService.createMemberAdmission({
+      seed: invite.seed,
+      context: secondSigChain.localUserContext,
+    })
     adminSigChain.invites.admitMemberFromInvite(admission)
     expect(() => adminSigChain.users.getUserById(secondSigChain.user.userId)).not.toThrow()
 
@@ -80,20 +83,17 @@ describe('channels', () => {
     expect(secondSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
   it('should add second user to channel', () => {
-    adminSigChain.channels.addMember(secondSigChain.context.user.userId, channelRoleName)
-    expect(adminSigChain.channels.memberInChannel(secondSigChain.context.user.userId, channelRoleName)).toBe(true)
+    adminSigChain.channels.addMember(secondSigChain.user.userId, channelRoleName)
+    expect(adminSigChain.channels.memberInChannel(secondSigChain.user.userId, channelRoleName)).toBe(true)
     expect(
-      adminSigChain.channels.canMemberAddMembersToPrivateChannel(secondSigChain.context.user.userId, channelRoleName)
+      adminSigChain.channels.canMemberAddMembersToPrivateChannel(secondSigChain.user.userId, channelRoleName)
     ).toBe(false)
     expect(
-      adminSigChain.channels.canMemberRemoveMembersFromPrivateChannel(
-        secondSigChain.context.user.userId,
-        channelRoleName
-      )
+      adminSigChain.channels.canMemberRemoveMembersFromPrivateChannel(secondSigChain.user.userId, channelRoleName)
     ).toBe(false)
-    expect(
-      adminSigChain.channels.canMemberDeletePrivateChannel(secondSigChain.context.user.userId, channelRoleName)
-    ).toBe(false)
+    expect(adminSigChain.channels.canMemberDeletePrivateChannel(secondSigChain.user.userId, channelRoleName)).toBe(
+      false
+    )
   })
   it('should fail to create channel on second user', () => {
     expect(secondSigChain.roles.amIAdmin()).toBe(false)

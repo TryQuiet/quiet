@@ -8,7 +8,8 @@ import {
   type UserProfile,
   type UserProfilesStoredEvent,
   type Identity,
-  UserData,
+  type DeviceNetworkEndpoint,
+  type NetworkEndpointsStoredEvent,
   NetworkStats,
   SetUserProfileResponse,
 } from '@quiet/types'
@@ -21,9 +22,9 @@ import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { NotificationTokensStore } from './notifications/notificationTokens.store'
+import { NetworkEndpointsStore } from './networkEndpoints/networkEndpoints.store'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { ChannelsService } from './channels/channels.service'
-import { Member } from '@localfirst/auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { DateTime } from 'luxon'
 import { createLibp2pAddress } from '@quiet/common'
@@ -50,6 +51,7 @@ export class StorageService extends EventEmitter {
     public readonly ipfsService: IpfsService,
     public readonly orbitDbService: OrbitDbService,
     public readonly userProfileStore: UserProfileStore,
+    public readonly networkEndpointsStore: NetworkEndpointsStore,
     public readonly notificationTokensStore: NotificationTokensStore,
     public readonly channelsService: ChannelsService,
     public readonly sigchainService: SigChainService,
@@ -115,6 +117,9 @@ export class StorageService extends EventEmitter {
 
     this.logger.info(`Starting database sync`)
     await this.startSync()
+
+    this.logger.info('Publishing local network endpoint')
+    await this.publishLocalNetworkEndpoint()
 
     this.logger.info('Updating peer store')
     await this.updatePeerStore()
@@ -196,6 +201,7 @@ export class StorageService extends EventEmitter {
 
     await this.channelsService.clean()
     await this.notificationTokensStore.clean()
+    await this.networkEndpointsStore.clean()
     await this.userProfileStore.clean()
     await this.ipfsService.destroyInstance()
     await this.stop()
@@ -245,6 +251,7 @@ export class StorageService extends EventEmitter {
 
   public async startSync() {
     await this.userProfileStore.startSync()
+    await this.networkEndpointsStore.startSync()
     await this.notificationTokensStore.startSync()
     await this.channelsService.startSync()
   }
@@ -273,15 +280,18 @@ export class StorageService extends EventEmitter {
       await this.localDbService.put(LocalDBKeys.PEERS, {})
     }
 
-    this.logger.info('1/4')
+    this.logger.info('1/5')
     this.attachStoreListeners()
-    this.logger.info('2/4')
+    this.logger.info('2/5')
     await this.userProfileStore.init()
 
-    this.logger.info('3/4')
+    this.logger.info('3/5')
+    await this.networkEndpointsStore.init()
+
+    this.logger.info('4/5')
     await this.notificationTokensStore.init()
 
-    this.logger.info('4/4')
+    this.logger.info('5/5')
     await this.channelsService.init()
 
     this.logger.timeEnd('Storage.initDatabases')
@@ -293,6 +303,7 @@ export class StorageService extends EventEmitter {
   public addTeamIdToDbMetas(teamId: string): void {
     this.logger.info('Adding team ID to all OrbitDB database meta fields')
     this.userProfileStore.updateMetadata({ teamId })
+    this.networkEndpointsStore.updateMetadata({ teamId })
     this.notificationTokensStore.updateMetadata({ teamId })
     this.channelsService.updateMetadata({ teamId })
   }
@@ -308,6 +319,12 @@ export class StorageService extends EventEmitter {
       await this.userProfileStore?.close()
     } catch (e) {
       this.logger.error('Error closing user profiles db', e)
+    }
+
+    try {
+      await this.networkEndpointsStore?.close()
+    } catch (e) {
+      this.logger.error('Error closing network endpoints db', e)
     }
 
     try {
@@ -343,6 +360,9 @@ export class StorageService extends EventEmitter {
 
     this.userProfileStore.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.emit(StorageEvents.USER_PROFILES_STORED, payload)
+    })
+    this.networkEndpointsStore.on(StorageEvents.NETWORK_ENDPOINTS_STORED, (payload: NetworkEndpointsStoredEvent) => {
+      this.emit(StorageEvents.NETWORK_ENDPOINTS_STORED, payload)
     })
     this.notificationTokensStore.on(StorageEvents.NOTIFICATION_TOKENS_STORED, payload => {
       this.emit(StorageEvents.NOTIFICATION_TOKENS_STORED, payload)
@@ -381,18 +401,44 @@ export class StorageService extends EventEmitter {
     return await this.localDbService.getIdentity(id)
   }
 
+  private async publishLocalNetworkEndpoint(): Promise<void> {
+    const chain = this.sigchainService.getActiveChain(false)
+    if (chain?.team == null || !chain.roles.amIMember() || !chain.team.hasDevice(chain.device.deviceId)) {
+      this.logger.warn('Skipping network endpoint publication without an active admitted device')
+      return
+    }
+
+    const community = await this.localDbService.getCurrentCommunity()
+    if (community == null) {
+      this.logger.warn('Skipping network endpoint publication without a current community')
+      return
+    }
+    const identity = await this.getIdentity(community.id)
+    if (identity == null) {
+      this.logger.warn('Skipping network endpoint publication without a local identity')
+      return
+    }
+
+    const endpoint: DeviceNetworkEndpoint = {
+      teamId: chain.team.id,
+      userId: chain.user.userId,
+      deviceId: chain.device.deviceId,
+      onionAddress: identity.networkInfo.hiddenService.onionAddress.replace(/\.onion$/, ''),
+      peerId: identity.networkInfo.peerId.id,
+    }
+    await this.networkEndpointsStore.setEntry(endpoint.deviceId, endpoint)
+  }
+
   public async updatePeerStore() {
     const team = this.sigchainService.getActiveChain().team
     if (!team) return
-    // existing peers uses the peerId as the key
     const existingPeers = await this.localDbService.getPeerStats()
-    const profiles = await this.userProfileStore.getUserProfiles()
+    const endpoints = await this.networkEndpointsStore.getNetworkEndpoints()
     if (this.sigchainService.getActiveChain(false)?.team !== team) return
-    const members: Member[] = team.members()
     const libp2p = this.ipfsService.libp2pService
     const peers: Record<string, NetworkStats> = {}
 
-    // Profile replication can lag behind LFA admission. Keep a known reachable
+    // Endpoint replication can lag behind LFA admission. Keep a known reachable
     // address only when its secured-session binding still names a current device
     // of a current member. Persist the binding for a restart during that gap.
     for (const [peerId, stats] of Object.entries(existingPeers ?? {})) {
@@ -401,32 +447,36 @@ export class StorageService extends EventEmitter {
         peers[peerId] = { ...stats, authenticatedIdentity }
       }
     }
-    // filter user profiles to only those that are in the team
-    const currentUserData = profiles
-      .filter(profile => {
-        return members.some(member => member.userId === profile.userId)
-      })
-      .map(profile => profile.userData)
-      .filter((userData): userData is UserData => {
-        return !!userData
-      })
-    // if existing peers has an entry for the user, use that
-    // otherwise, create a new entry
-    for (const userData of currentUserData) {
-      const multiaddr = createLibp2pAddress(userData.onionAddress, userData.peerId)
-      const existingStats = peers[userData.peerId] ?? existingPeers?.[userData.peerId]
+
+    // A device that has left the team must not keep a reachable address, even if its
+    // session was still authorised the last time it was seen.
+    const activeEndpoints = endpoints.filter(endpoint => team.hasDevice(endpoint.deviceId))
+    for (const endpoint of endpoints) {
+      if (!team.hasDevice(endpoint.deviceId)) delete peers[endpoint.peerId]
+    }
+
+    for (const endpoint of activeEndpoints) {
+      const multiaddr = createLibp2pAddress(endpoint.onionAddress, endpoint.peerId)
+      const retained = peers[endpoint.peerId]
+      if (retained) {
+        // Session binding already checked above; just refresh the address.
+        peers[endpoint.peerId] = { ...retained, address: multiaddr }
+        continue
+      }
+      // The endpoint itself is team-verified, but a stored session binding that
+      // failed the check above must not be carried over with it.
+      const existingStats = existingPeers[endpoint.peerId]
       if (existingStats) {
-        peers[userData.peerId] = { ...existingStats, address: multiaddr }
+        peers[endpoint.peerId] = { ...existingStats, authenticatedIdentity: undefined, address: multiaddr }
       } else {
-        peers[userData.peerId] = {
-          peerId: userData.peerId,
+        peers[endpoint.peerId] = {
+          peerId: endpoint.peerId,
           address: multiaddr,
           lastSeen: DateTime.utc().toSeconds(),
           connectionTime: 0,
         }
       }
     }
-    // update the local db with the new peers
     await this.localDbService.setPeerStats(peers)
   }
 }

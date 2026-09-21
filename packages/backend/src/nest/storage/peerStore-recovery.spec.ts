@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { multiaddr } from '@multiformats/multiaddr'
 import { type Member } from '@localfirst/auth'
 import { createLibp2pAddress } from '@quiet/common'
-import { type NetworkStats, type UserProfile } from '@quiet/types'
+import { type DeviceNetworkEndpoint, type NetworkStats } from '@quiet/types'
 import waitForExpect from 'wait-for-expect'
 import { TestModule } from '../common/test.module'
 import { libp2pInstanceParams } from '../common/utils'
@@ -13,15 +13,15 @@ import { Libp2pService } from '../libp2p/libp2p.service'
 import { LocalDbService } from '../local-db/local-db.service'
 import { StorageModule } from './storage.module'
 import { StorageService } from './storage.service'
-import { UserProfileStore } from './userProfile/userProfile.store'
+import { NetworkEndpointsStore } from './networkEndpoints/networkEndpoints.store'
 
-describe('Peer address recovery while profiles replicate', () => {
+describe('Peer address recovery while device endpoints replicate', () => {
   let module: TestingModule
   let storage: StorageService
   let libp2p: Libp2pService
   let db: LocalDbService
   let sigchain: SigChainService
-  let profiles: UserProfile[]
+  let endpoints: DeviceNetworkEndpoint[]
   let members: Member[]
   let bootstrap: NetworkStats & {
     authenticatedIdentity: { teamId: string; userId: string; deviceId: string }
@@ -45,14 +45,15 @@ describe('Peer address recovery while profiles replicate', () => {
     const team = sigchain.getActiveChain().team!
     members = [...team.members(), { userId: 'founder', devices: [{ deviceId: 'founder-device' }] } as Member]
     jest.spyOn(team, 'members').mockImplementation(() => members as any)
-    profiles = [
-      {
-        userId: sigchain.user.userId,
-        nickname: 'joining-user',
-        userData: { peerId: local.peerId.peerId.toString(), onionAddress: `${'c'.repeat(56)}.onion` },
-      },
-    ]
-    jest.spyOn(await module.resolve(UserProfileStore), 'getUserProfiles').mockImplementation(async () => profiles)
+    endpoints = []
+    jest
+      .spyOn(await module.resolve(NetworkEndpointsStore), 'getNetworkEndpoints')
+      .mockImplementation(async () => endpoints)
+    jest
+      .spyOn(team, 'hasDevice')
+      .mockImplementation((deviceId: string) =>
+        members.some(member => member.devices?.some(device => device.deviceId === deviceId))
+      )
     bootstrap = {
       peerId: remoteId,
       address: createLibp2pAddress(`${'a'.repeat(56)}.onion`, remoteId),
@@ -71,7 +72,7 @@ describe('Peer address recovery while profiles replicate', () => {
     await module.close()
   })
 
-  it('retains an authenticated bootstrap target and actually redials after disconnect before its profile arrives', async () => {
+  it('retains an authenticated bootstrap target and actually redials after disconnect before its endpoint arrives', async () => {
     const remoteId = remotePeer.toString()
     const node = libp2p.libp2pInstance!
     const dial = jest.spyOn(node, 'dial').mockResolvedValue({} as any)
@@ -81,7 +82,7 @@ describe('Peer address recovery while profiles replicate', () => {
       connectedAtSeconds: Date.now() / 1000,
     })
 
-    // The authenticated founder's profile has not replicated yet. This is the
+    // The authenticated founder's endpoint has not replicated yet. This is the
     // real storage refresh that previously removed the sole bootstrap address.
     await storage.updatePeerStore()
     expect(await db.getPeerStats(remoteId)).toMatchObject(bootstrap)
@@ -92,10 +93,12 @@ describe('Peer address recovery while profiles replicate', () => {
     await libp2p.addPeersToDialQueue()
     await waitForExpect(() => expect(dial).toHaveBeenCalledWith(multiaddr(bootstrap.address!)), 5_000, 20)
 
-    profiles.push({
+    endpoints.push({
+      teamId: sigchain.getActiveChain().team!.id,
       userId: 'founder',
-      nickname: 'founder',
-      userData: { peerId: remoteId, onionAddress: `${'b'.repeat(56)}.onion` },
+      deviceId: 'founder-device',
+      peerId: remoteId,
+      onionAddress: `${'b'.repeat(56)}.onion`,
     })
     await storage.updatePeerStore()
     expect(await db.getPeerStats(remoteId)).toMatchObject({

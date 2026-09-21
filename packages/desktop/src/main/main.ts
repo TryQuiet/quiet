@@ -75,7 +75,7 @@ if (!gotTheLock) {
   }
 
   app.on('second-instance', (_event, commandLine) => {
-    logger.info('Event: app.second-instance', commandLine)
+    logger.info('Event: app.second-instance')
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -168,7 +168,7 @@ const requestStateSaveOrQuit = () => {
 
 app.on('open-url', (event, url) => {
   // MacOS only
-  logger.info('Event app.open-url', url)
+  logger.info('Event app.open-url received')
   invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
   if (mainWindow) {
@@ -609,7 +609,9 @@ app.on('ready', async () => {
       HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
       IS_E2E: process.env.IS_E2E ?? 'false',
+      INVITATION_ADMISSION_TIMEOUT_MS: process.env.INVITATION_ADMISSION_TIMEOUT_MS,
       NETWORK_LOGGING: process.env.NETWORK_LOGGING ?? 'false',
+      LOCAL_TRANSPORT: process.env.LOCAL_TRANSPORT ?? 'false',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
@@ -852,11 +854,17 @@ app.on('ready', async () => {
       }
     }
 
-    await setupUpdater()
-    await checkForUpdate()
-    setInterval(async () => {
+    // The updater talks to the real release feed, so a CI runner whose build is a
+    // version behind downloads an update mid-run and drops the "Software update"
+    // modal over whatever the test is clicking - observed as an intercepted click
+    // on the join-community button. Nothing under test depends on the updater.
+    if (!isE2Etest) {
+      await setupUpdater()
       await checkForUpdate()
-    }, updaterInterval)
+      setInterval(async () => {
+        await checkForUpdate()
+      }, updaterInterval)
+    }
   })
 
   ipcMain.on('proceed-update', () => {

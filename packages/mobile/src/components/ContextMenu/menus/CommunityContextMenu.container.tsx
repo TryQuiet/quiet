@@ -43,6 +43,7 @@ export const CommunityContextMenu: FC = () => {
 
   const communityContextMenu = useContextMenu(MenuName.Community)
   const invitationContextMenu = useContextMenu(MenuName.Invitation)
+  const linkedDevicesContextMenu = useContextMenu(MenuName.LinkedDevices)
 
   const redirect = useCallback(
     (screen: ScreenNames) => {
@@ -72,6 +73,7 @@ export const CommunityContextMenu: FC = () => {
 
   const items: ContextMenuItemProps[] = [
     { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
+    { title: 'Linked devices', action: () => linkedDevicesContextMenu.handleOpen() },
     ...(Platform.OS === 'android' && Config.QSS_ALLOWED === 'true' && community?.qssEnabled === true
       ? [
           {
@@ -109,7 +111,7 @@ export const CommunityContextMenu: FC = () => {
 
   useEffect(() => {
     communityContextMenu.handleClose()
-  }, [screen, invitationContextMenu.visible])
+  }, [screen, invitationContextMenu.visible, linkedDevicesContextMenu.visible])
 
   return <ContextMenu title={title} items={items} {...communityContextMenu} />
 }

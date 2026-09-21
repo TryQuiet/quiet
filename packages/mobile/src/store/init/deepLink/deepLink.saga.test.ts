@@ -1,4 +1,5 @@
 import { expectSaga } from 'redux-saga-test-plan'
+import { call } from 'redux-saga-test-plan/matchers'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
@@ -13,13 +14,16 @@ import { runSaga, stdChannel } from 'redux-saga'
 import { NativeModules } from 'react-native'
 import {
   type Community,
+  type DeviceInvitationDataV4,
   InvitationData,
+  InvitationKind,
   type InvitationDataV4,
   InvitationDataVersion,
   JoinCommunityPayload,
 } from '@quiet/types'
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
 import { FactoryGirl } from 'factory-girl'
+import { confirmDeviceLink, confirmedDeviceLinkPayload } from '../../../utils/deviceLinkConfirmation'
 
 describe('deepLinkSaga', () => {
   let store: Store
@@ -45,7 +49,10 @@ describe('deepLinkSaga', () => {
       })
     )
     const joinCommunityPayload: JoinCommunityPayload = {
-      inviteData: validData,
+      inviteData: {
+        ...validData,
+        kind: InvitationKind.Member,
+      },
     }
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
@@ -94,7 +101,9 @@ describe('deepLinkSaga', () => {
       failure.payload.params.onPress(dispatch)
       await jest.advanceTimersByTimeAsync(0)
       const joins = actions.filter(action => action.type === communities.actions.joinCommunity.type)
-      expect(joins).toEqual([communities.actions.joinCommunity({ inviteData: validData })])
+      expect(joins).toEqual([
+        communities.actions.joinCommunity({ inviteData: { ...validData, kind: InvitationKind.Member } }),
+      ])
       expect(actions).toContainEqual(
         navigationActions.replaceScreen({ screen: ScreenNames.UsernameRegistrationScreen })
       )
@@ -105,6 +114,74 @@ describe('deepLinkSaga', () => {
       ;(NativeModules.CommunicationModule.handleIncomingEvents as jest.Mock).mockReset()
       jest.useRealTimers()
     }
+  })
+
+  test('links a device without opening username registration', async () => {
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001,
+        socketIOSecret: 'secret',
+      })
+    )
+    const deviceInvite: DeviceInvitationDataV4 = {
+      ...validData,
+      kind: InvitationKind.Device,
+      authData: {
+        ...validData.authData,
+        userId: 'user-id',
+        userName: 'alice',
+      },
+    }
+    const deviceCode = getValidInvitationUrlTestData(deviceInvite).code()
+    const confirmedPayload = confirmedDeviceLinkPayload(deviceInvite)
+    const reducer = combineReducers(reducers)
+
+    await expectSaga(deepLinkSaga, initActions.deepLink(deviceCode))
+      .provide([[call.fn(confirmDeviceLink), confirmedPayload]])
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(initActions.resetDeepLink())
+      .put(communities.actions.linkDevice(confirmedPayload))
+      .put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.ConnectionProcessScreen,
+        })
+      )
+      .not.put(communities.actions.joinCommunity({ inviteData: deviceInvite }))
+      .not.put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
+      .run()
+  })
+
+  test('cancels device linking without dispatching a backend operation', async () => {
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001,
+        socketIOSecret: 'secret',
+      })
+    )
+    const deviceInvite: DeviceInvitationDataV4 = {
+      ...validData,
+      kind: InvitationKind.Device,
+      authData: {
+        ...validData.authData,
+        userId: 'user-id',
+        userName: 'alice',
+      },
+    }
+    const deviceCode = getValidInvitationUrlTestData(deviceInvite).code()
+    const reducer = combineReducers(reducers)
+
+    await expectSaga(deepLinkSaga, initActions.deepLink(deviceCode))
+      .provide([[call.fn(confirmDeviceLink), null]])
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
+      .not.put.like({ action: { type: communities.actions.linkDevice.type } })
+      .run()
   })
 
   test('displays error if user already belongs to a community', async () => {

@@ -76,6 +76,9 @@ describe('Tor native session rewiring', () => {
       serverIoProvider,
       torControl
     )
+    jest
+      .spyOn(torControl, 'sendCommandAndWaitForEvent')
+      .mockImplementation(async command => await torControl.sendCommand(command))
 
     return { torControl, torService }
   }
@@ -125,7 +128,11 @@ describe('Tor native session rewiring', () => {
           await jest.advanceTimersByTimeAsync(120_000)
           expect(spawn).toHaveBeenCalledTimes(1)
         } else {
-          await jest.advanceTimersByTimeAsync(90_000)
+          // Current develop allows ten minutes without progress, so a slow
+          // descriptor download must survive the former startup deadline.
+          await jest.advanceTimersByTimeAsync(9 * 60_000)
+          expect(spawn).toHaveBeenCalledTimes(1)
+          await jest.advanceTimersByTimeAsync(60_000)
           expect(spawn).toHaveBeenCalledTimes(2)
           expect(torService.bootstrapped).toBe(false)
         }
@@ -291,14 +298,13 @@ describe('Tor native session rewiring', () => {
     const sendCommand = jest.spyOn(torControl, 'sendCommand').mockRejectedValue(new Error('control unavailable'))
 
     try {
-      torService.registerHiddenService({
+      const registration = torService.registerHiddenService({
         targetPort: 4343,
         privKey,
         onionAddress: `${onionAddress}.onion`,
         virtPort: 80,
       })
-      await Promise.resolve()
-      await Promise.resolve()
+      await expect(registration).rejects.toThrow('control unavailable')
       expect(sendCommand).toHaveBeenCalledTimes(1)
 
       torService.resetBootstrapState()
@@ -321,14 +327,13 @@ describe('Tor native session rewiring', () => {
       .mockResolvedValue(addOnionResponse())
 
     try {
-      torService.registerHiddenService({
+      const registration = torService.registerHiddenService({
         targetPort: 4343,
         privKey,
         onionAddress: `${onionAddress}.onion`,
         virtPort: 80,
       })
-      await Promise.resolve()
-      await Promise.resolve()
+      await expect(registration).rejects.toThrow('control unavailable')
       await jest.advanceTimersByTimeAsync(2500)
 
       expect(sendCommand).toHaveBeenCalledTimes(2)

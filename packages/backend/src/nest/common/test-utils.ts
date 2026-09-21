@@ -1,4 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { isLocalTransportEnabled } from '@quiet/common'
+
 import { TestModule } from './test.module'
 import {
   generateLibp2pPSK,
@@ -58,6 +60,9 @@ export const spawnLibp2pInstances = async (
       ...(await getLocalLibp2pInstanceParams()),
       ...customLibp2pInstanceParams,
       instanceName: `instance${i}`,
+    }
+    if (isLocalTransportEnabled() && customLibp2pInstanceParams?.transport == null) {
+      delete params.transport
     }
     if (sharePsk) {
       params.psk = singlePSK
