@@ -508,26 +508,37 @@ describe('Tor native session rewiring', () => {
     expect(restart).not.toHaveBeenCalled()
   })
 
-  it('does not spawn Tor after startup cleanup finishes for an invalidated session', async () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-tor-startup-close-'))
-    const { torService } = createTorService(directory)
-    const cleanup = deferred<void>()
-    torService.socksPort = 19050
-    jest.spyOn(torService, 'clearHangingTorProcess').mockReturnValue(cleanup.promise)
-    const spawn = jest
-      .spyOn(torService as unknown as { spawnTor: () => Promise<void> }, 'spawnTor')
-      .mockResolvedValue(undefined)
-    try {
-      const initializing = torService.init()
-      torService['resetBootstrapState']()
-      cleanup.resolve()
-      await initializing
-      expect(spawn).not.toHaveBeenCalled()
-    } finally {
-      await torService.onModuleDestroy()
-      fs.rmSync(directory, { recursive: true, force: true })
-    }
-  })
+  for (const phase of ['port allocation', 'process discovery']) {
+    it.each(['kill', 'onModuleDestroy'] as const)(
+      `does not spawn Tor after %s while ${phase} is pending`,
+      async shutdown => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-tor-startup-close-'))
+        const { torService } = createTorService(directory)
+        const cleanup = deferred<void>()
+        torService.torParamsProvider.torPath = 'tor-process-fixture'
+        if (phase === 'process discovery') torService.socksPort = 19050
+        const discover = jest.spyOn(torService, 'clearHangingTorProcess').mockReturnValue(cleanup.promise)
+        const spawn = jest
+          .spyOn(torService as unknown as { spawnTor: () => Promise<void> }, 'spawnTor')
+          .mockResolvedValue(undefined)
+        try {
+          const initializing = torService.init()
+          expect(torService.process).toBeNull()
+          if (phase === 'process discovery') expect(discover).toHaveBeenCalledTimes(1)
+          await torService[shutdown]()
+          cleanup.resolve()
+          await initializing
+          expect(spawn).not.toHaveBeenCalled()
+          if (phase === 'port allocation') expect(discover).not.toHaveBeenCalled()
+          expect(torService.interval).toBeUndefined()
+        } finally {
+          cleanup.resolve()
+          await torService.onModuleDestroy()
+          fs.rmSync(directory, { recursive: true, force: true })
+        }
+      }
+    )
+  }
 
   it('ignores a stale bootstrap status without spawning services or stopping the replacement watcher', async () => {
     jest.useFakeTimers()

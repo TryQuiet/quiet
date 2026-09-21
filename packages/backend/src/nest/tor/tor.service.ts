@@ -98,7 +98,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.cancelHiddenServiceWork('Tor service closed')
     for (const retryTimer of this.hiddenServiceRetryTimers.values()) clearTimeout(retryTimer)
     this.hiddenServiceRetryTimers.clear()
-    if (this.process) {
+    if (this.process || this.torParamsProvider.torPath) {
       await this.kill()
     }
   }
@@ -485,7 +485,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async init(timeout = 120_000): Promise<void> {
     this.resetBootstrapState()
+    const bootstrapGeneration = this.bootstrapGeneration
     if (!this.socksPort) this.socksPort = await getPort()
+    if (bootstrapGeneration !== this.bootstrapGeneration) return
     this.logger.info('Initializing tor...')
 
     return await new Promise((resolve, reject) => {
@@ -503,7 +505,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger.info(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
       }
 
-      const bootstrapGeneration = this.bootstrapGeneration
       let torStarted = false
       // Covers a Tor that never reports starting at all: spawnTor only settles once
       // Tor announces itself, so without this nothing would start the watcher. Once
@@ -958,12 +959,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public async kill(): Promise<void> {
     return await new Promise((resolve, reject) => {
       this.logger.info('Killing tor... with pid', this.process?.pid)
+      // Managed startup may still be awaiting process discovery or a free port.
+      // Invalidate it even before a child exists; native Tor remains externally owned.
+      if (this.process || this.torParamsProvider.torPath) this.resetBootstrapState()
       if (this.process === null) {
         this.logger.warn('TOR: Process is not initalized.')
         resolve()
         return
       }
-      this.resetBootstrapState()
       if (this.initTimeout) clearTimeout(this.initTimeout)
       if (this.interval) clearInterval(this.interval)
       this.process?.on('close', () => {
