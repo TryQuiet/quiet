@@ -1,7 +1,15 @@
-import { execFileSync } from 'child_process'
+import { execFileSync, spawn } from 'child_process'
+import { once } from 'events'
 import fs from 'fs'
 import net from 'net'
-import { namespaceCommand, stopNamespaceProcesses, type NetworkNamespace } from './networkNamespace'
+import os from 'os'
+import path from 'path'
+import {
+  namespaceCommand,
+  stopNamespaceProcesses,
+  waitForNamespaceTorProcess,
+  type NetworkNamespace,
+} from './networkNamespace'
 
 const suite = process.env.QUIET_NETWORK_PLAYERS ? describe : describe.skip
 suite('Linux namespace process launch', () => {
@@ -111,6 +119,67 @@ suite('Linux namespace process launch', () => {
       await new Promise<void>(resolve => server.close(() => resolve()))
     }
   })
+
+  it('observes a real Tor daemon in the correct namespace without backend startup logs', async () => {
+    const networks: NetworkNamespace[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet network tor '))
+    const quietDirectory = path.join(directory, 'Quiet')
+    const pidFile = path.join(quietDirectory, 'torPid.json')
+    const torDirectory = path.join(quietDirectory, 'TorDataDirectory')
+    fs.mkdirSync(quietDirectory)
+    // Existing files alone do not establish that this profile has a Tor daemon.
+    await expect(waitForNamespaceTorProcess(networks[0], directory, 200)).rejects.toThrow('No Tor process')
+    fs.writeFileSync(pidFile, String(process.pid))
+    await expect(waitForNamespaceTorProcess(networks[0], directory, 200)).rejects.toThrow('No Tor process')
+    fs.unlinkSync(pidFile)
+
+    const tor = path.resolve(__dirname, '../../../3rd-party/tor/linux/tor')
+    const command = namespaceCommand(networks[0], tor, [
+      '--SocksPort',
+      '0',
+      '--DisableNetwork',
+      '1',
+      '--DataDirectory',
+      torDirectory,
+      '--PidFile',
+      pidFile,
+    ])
+    const child = spawn(command.command, command.args, { stdio: ['pipe', 'ignore', 'pipe'] })
+    const exited = once(child, 'exit')
+    child.stderr!.resume()
+    child.stdin!.end(JSON.stringify({ ...process.env, LD_LIBRARY_PATH: path.dirname(tor) }))
+    let pid: number | undefined
+    try {
+      pid = await waitForNamespaceTorProcess(networks[0], directory)
+      expect(fs.readFileSync(`/proc/${pid}/comm`, 'utf8').trim()).toBe('tor')
+      await expect(waitForNamespaceTorProcess(networks[1], directory, 200)).rejects.toThrow('No Tor process')
+      const otherDirectory = `${directory}-other`
+      fs.mkdirSync(path.join(otherDirectory, 'Quiet'), { recursive: true })
+      try {
+        fs.writeFileSync(path.join(otherDirectory, 'Quiet', 'torPid.json'), String(pid))
+        await expect(waitForNamespaceTorProcess(networks[0], otherDirectory, 200)).rejects.toThrow('No Tor process')
+      } finally {
+        fs.rmdirSync(otherDirectory, { recursive: true })
+      }
+    } finally {
+      // Stop only the daemon launched for this temporary profile, even if discovery failed.
+      if (fs.existsSync(pidFile)) {
+        const ownedPid = Number(fs.readFileSync(pidFile, 'utf8').trim())
+        try {
+          const args = fs.readFileSync(`/proc/${ownedPid}/cmdline`, 'utf8').split('\0')
+          if (args.includes(torDirectory)) process.kill(ownedPid, 'SIGTERM')
+        } catch (error) {
+          expect(['ENOENT', 'ESRCH']).toContain(error.code)
+        }
+      }
+      await exited
+      if (pid) {
+        fs.writeFileSync(pidFile, String(pid))
+        await expect(waitForNamespaceTorProcess(networks[0], directory, 200)).rejects.toThrow('No Tor process')
+      }
+      fs.rmdirSync(directory, { recursive: true })
+    }
+  }, 30_000)
 
   it('terminates leftover namespace children without terminating the test runner', async () => {
     const network: NetworkNamespace = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)[0]

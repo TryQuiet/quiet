@@ -16,6 +16,7 @@ import {
 } from '../selectors'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import { setNetworkSpeed, type NetworkPlayer } from '../networkHarness'
+import { waitForNamespaceTorProcess } from '../networkNamespace'
 
 const enabled = process.env.QUIET_NETWORK_PLAYERS !== undefined
 const qssEnabled = process.env.QUIET_NETWORK_QSS === 'true'
@@ -84,7 +85,7 @@ suite(`Two players: ${qssEnabled ? 'QSS with Tor unavailable' : 'Tor'}, asymmetr
       )
       const [owner, guest] = apps
       await owner.open(qssEnabled)
-      if (qssEnabled) await owner.buildSetup.waitForProcessOutput('Spawned tor with pid(s):', 15_000)
+      if (qssEnabled) await waitForNamespaceTorProcess(networks[0], owner.buildSetup.dataDirPath)
       const join = new JoinCommunityModal(owner.driver)
       expect(await join.isReady()).toBeTruthy()
       await join.switchToCreateCommunity()
@@ -112,7 +113,7 @@ suite(`Two players: ${qssEnabled ? 'QSS with Tor unavailable' : 'Tor'}, asymmetr
       await settings.closeTabThenModal()
 
       await guest.open(qssEnabled)
-      if (qssEnabled) await guest.buildSetup.waitForProcessOutput('Spawned tor with pid(s):', 15_000)
+      if (qssEnabled) await waitForNamespaceTorProcess(networks[1], guest.buildSetup.dataDirPath)
       const guestJoin = new JoinCommunityModal(guest.driver)
       expect(await guestJoin.isReady()).toBeTruthy()
       await guestJoin.typeCommunityInviteLink(invitation)
