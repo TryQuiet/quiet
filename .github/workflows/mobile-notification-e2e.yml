@@ -109,6 +109,7 @@ jobs:
         run: |
           sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:?Android SDK location is required}}"
           "$sdk_root/cmdline-tools/latest/bin/sdkmanager" "ndk;28.2.13676358"
+          export ANDROID_NDK_HOME="$sdk_root/ndk/28.2.13676358"
           npm --prefix packages/mobile run prepare-android-x86_64
           env_file=.env.e2e.qss.staging
           if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then env_file=.env.e2e.qss.push; fi
