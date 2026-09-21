@@ -100,7 +100,7 @@ jobs:
       - name: Run one client test
         timeout-minutes: 15
         shell: bash
-        run: cd packages/e2e-tests && npm run test oneClient.test.ts windowsBackendProcesses.test.ts applicationLogReader.test.ts
+        run: cd packages/e2e-tests && npm run test oneClient.test.ts windowsBackendProcesses.test.ts applicationLogReader.test.ts profileCleanup.test.ts
 
       - name: Run user profile test
         timeout-minutes: 25
@@ -115,6 +115,8 @@ jobs:
       - name: Run invitation link test - Includes 2 separate application clients
         timeout-minutes: 10
         shell: bash
+        env:
+          QUIET_E2E_ALLOW_DEFAULT_PROFILE_CLEANUP: "true"
         run: cd packages/e2e-tests && npm run test invitationLink.test.ts
 
       - name: Run device linking test
