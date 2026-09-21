@@ -82,3 +82,7 @@ node --test scripts/android-abi-assets.test.cjs
 QUIET_TOR_TEST_CACHE="${TMPDIR:-/tmp}/quiet-tor-downloads" node --test scripts/fetch-android-tor.test.cjs
 ANDROID_HOME=/path/to/sdk bash scripts/test-embedded-node.sh <owned-device-serial>
 ```
+
+After Electron/host Node 24 landed, rebuilt the shared backend and x86_64 APKs
+on Node 24.21.0. All 15 Metro/CLI/Promise/Screens checks and the actual API 36
+community/message/restart test pass again with those final inputs.

@@ -1,5 +1,11 @@
 # Pinned Tor.framework 405.9.1: isolated arm64 iOS Simulator preparation
 
+**Historical recipe.** Current builds use Tor.framework 409.11.2's upstream
+XCFramework through `build-ios.py`, with no replacement framework. See
+[the current upgrade and regression instructions](../../docs/ios-tor-upgrade.md).
+The 405.9.1 recipe below is retained for old-branch comparisons; its wrapper
+deliberately rejects the current Podfile.
+
 The source recipe builds the missing arm64 simulator slice only. It does not upgrade Tor, OpenSSL, libevent, or xz, and source compilation never reads or modifies Quiet's shipped device framework. The expected product is a dynamic `Tor.framework`, preserving the existing Objective-C `TORController` / `TORThread` API. The separate opt-in simulator build below temporarily installs this simulator framework and restores the original pod before returning.
 
 Source pins and archive SHA256s are recorded in `source-manifest.json`:

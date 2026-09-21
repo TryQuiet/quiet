@@ -124,16 +124,14 @@ test('successful boot waits for readiness; screenshot targets the same owned sim
   )
 })
 
-test('actual pinned Detox CLI forwards the workflow framework/output into the guarded staging builder', t => {
+test('actual pinned Detox CLI forwards the workflow output into the XCFramework staging builder', t => {
   const f = fixture(t)
   const result = f.run('Build bundled Detox app', {}, mobile)
   assert.equal(result.status, 0, result.stderr)
   const expected = [
-    path.join(mobile, 'scripts/tor-ios-simulator/build-storybook.py'),
+    path.join(mobile, 'scripts/tor-ios-simulator/build-ios.py'),
     '--checkout',
     checkout,
-    '--framework',
-    f.env.DETOX_IOS_ARM64_TOR_FRAMEWORK,
     '--output',
     f.env.DETOX_IOS_ARM64_DEBUG_OUTPUT,
     '--scheme',
@@ -185,10 +183,8 @@ test('temporary Firebase resource is valid, refuses replacement, and has bounded
   assert.equal(fs.existsSync(resource), false)
 })
 
-test('workflow prepares Tor before compiling and uses the same staging app for both suites', () => {
-  assert.ok(
-    job.steps.indexOf(step('Prepare pinned ARM simulator Tor')) < job.steps.indexOf(step('Build bundled Detox app'))
-  )
+test('workflow installs pinned pods before compiling and uses the same staging app for both suites', () => {
+  assert.ok(job.steps.indexOf(step('Install pods from lockfile')) < job.steps.indexOf(step('Build bundled Detox app')))
   for (const name of ['Run basic tests', 'Verify message acknowledgment and persistence']) {
     assert.match(step(name).run, /^\.\/node_modules\/\.bin\/detox test .* -c ios\.sim\.debug\.ci /)
   }
@@ -205,15 +201,37 @@ test('QSS build retires the baseline cache and uses a separate guarded environme
   assert.equal(result.status, 0, result.stderr)
   assert.deepEqual(f.commands(), [
     { tool: 'xcrun', args: ['simctl', 'shutdown', udid] },
-    { tool: 'python3', args: ['scripts/qss-e2e/prepare-runner.py', '--retire-baseline', f.env.DETOX_IOS_ARM64_DEBUG_OUTPUT, '--checkout', checkout] },
-    { tool: 'python3', args: [
-      path.join(mobile, 'scripts/tor-ios-simulator/build-storybook.py'),
-      '--checkout', checkout, '--framework', f.env.DETOX_IOS_ARM64_TOR_FRAMEWORK,
-      '--output', f.env.DETOX_IOS_ARM64_E2E_QSS_OUTPUT,
-      '--scheme', 'Quiet', '--configuration', 'Debug', '--env-file', '.env.e2e.qss',
-    ] },
+    {
+      tool: 'python3',
+      args: [
+        'scripts/qss-e2e/prepare-runner.py',
+        '--retire-baseline',
+        f.env.DETOX_IOS_ARM64_DEBUG_OUTPUT,
+        '--checkout',
+        checkout,
+      ],
+    },
+    {
+      tool: 'python3',
+      args: [
+        path.join(mobile, 'scripts/tor-ios-simulator/build-ios.py'),
+        '--checkout',
+        checkout,
+        '--output',
+        f.env.DETOX_IOS_ARM64_E2E_QSS_OUTPUT,
+        '--scheme',
+        'Quiet',
+        '--configuration',
+        'Debug',
+        '--env-file',
+        '.env.e2e.qss',
+      ],
+    },
   ])
-  assert.notEqual(f.run('Build bundled QSS Detox app', { DETOX_IOS_SIMULATOR_ID: udid, QUIET_TEST_FAIL: '--scheme' }, mobile).status, 0)
+  assert.notEqual(
+    f.run('Build bundled QSS Detox app', { DETOX_IOS_SIMULATOR_ID: udid, QUIET_TEST_FAIL: '--scheme' }, mobile).status,
+    0
+  )
 })
 
 test('QSS suites prepare independent runs, keep private failure logs, and preserve exit failures', t => {
@@ -221,14 +239,22 @@ test('QSS suites prepare independent runs, keep private failure logs, and preser
   const fakeMobile = path.join(f.directory, 'mobile')
   const detox = path.join(fakeMobile, 'node_modules/.bin/detox')
   fs.mkdirSync(path.dirname(detox), { recursive: true })
-  fs.writeFileSync(detox, `#!${process.execPath}\n` +
-    `const fs = require('node:fs');\n` +
-    `const runtime = Object.fromEntries(['IS_E2E','TEST_MODE','IS_LOCAL','LOG_TO_FILE'].filter(key => process.env[key] !== undefined).map(key => [key, process.env[key]]));\n` +
-    `fs.appendFileSync(process.env.QUIET_TEST_LOG, JSON.stringify({tool:'detox',args:process.argv.slice(2),run:process.env.QUIET_QSS_E2E_RUN_DIR,runtime})+'\\n');\n` +
-    `console.error('PRIVATE-INVITATION-CANARY'); process.exit(Number(process.env.QUIET_DETOX_EXIT || 0));\n`, { mode: 0o755 })
+  fs.writeFileSync(
+    detox,
+    `#!${process.execPath}\n` +
+      `const fs = require('node:fs');\n` +
+      `const runtime = Object.fromEntries(['IS_E2E','TEST_MODE','IS_LOCAL','LOG_TO_FILE'].filter(key => process.env[key] !== undefined).map(key => [key, process.env[key]]));\n` +
+      `fs.appendFileSync(process.env.QUIET_TEST_LOG, JSON.stringify({tool:'detox',args:process.argv.slice(2),run:process.env.QUIET_QSS_E2E_RUN_DIR,runtime})+'\\n');\n` +
+      `console.error('PRIVATE-INVITATION-CANARY'); process.exit(Number(process.env.QUIET_DETOX_EXIT || 0));\n`,
+    { mode: 0o755 }
+  )
   for (const [name, output, args] of [
     ['Run single-player QSS test', f.env.QUIET_QSS_SINGLE_RUN, ['test', 'qss-community', '-c', 'ios.sim.e2e.qss']],
-    ['Run desktop and iOS QSS tests', f.env.QUIET_QSS_MIXED_RUN, ['test', '-c', 'ios.sim.e2e.qss', '--config', 'e2e/jest.desktop.config.js']],
+    [
+      'Run desktop and iOS QSS tests',
+      f.env.QUIET_QSS_MIXED_RUN,
+      ['test', '-c', 'ios.sim.e2e.qss', '--config', 'e2e/jest.desktop.config.js'],
+    ],
   ]) {
     const result = f.run(name, { QUIET_DETOX_EXIT: '37' }, fakeMobile)
     assert.equal(result.status, 37)
@@ -236,11 +262,34 @@ test('QSS suites prepare independent runs, keep private failure logs, and preser
     assert.match(fs.readFileSync(path.join(output, 'detox-private.log'), 'utf8'), /PRIVATE-INVITATION-CANARY/)
     assert.equal(fs.statSync(path.join(output, 'detox-private.log')).mode & 0o777, 0o600)
     const calls = f.commands().slice(-2)
-    assert.deepEqual(calls[0], { tool: 'python3', args: ['scripts/qss-e2e/fixture.py', 'prepare-run', '--output', f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, '--run-output', output] })
-    const runtime = name === 'Run desktop and iOS QSS tests'
-      ? { IS_E2E: 'true', TEST_MODE: 'true', IS_LOCAL: 'true', LOG_TO_FILE: 'false' }
-      : {}
-    assert.deepEqual(calls[1], { tool: 'detox', run: output, runtime, args: [...args, '--artifacts-location', path.join(output, 'artifacts'), '--json', '--outputFile', path.join(output, 'jest-private.json')] })
+    assert.deepEqual(calls[0], {
+      tool: 'python3',
+      args: [
+        'scripts/qss-e2e/fixture.py',
+        'prepare-run',
+        '--output',
+        f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT,
+        '--run-output',
+        output,
+      ],
+    })
+    const runtime =
+      name === 'Run desktop and iOS QSS tests'
+        ? { IS_E2E: 'true', TEST_MODE: 'true', IS_LOCAL: 'true', LOG_TO_FILE: 'false' }
+        : {}
+    assert.deepEqual(calls[1], {
+      tool: 'detox',
+      run: output,
+      runtime,
+      args: [
+        ...args,
+        '--artifacts-location',
+        path.join(output, 'artifacts'),
+        '--json',
+        '--outputFile',
+        path.join(output, 'jest-private.json'),
+      ],
+    })
     assert.notEqual(f.run(name, {}, fakeMobile).status, 0, 'Existing run directory must not be reused')
   }
 })
@@ -253,7 +302,12 @@ test('QSS cleanup runs only for initialized owned native process state', t => {
   fs.mkdirSync(f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT)
   fs.writeFileSync(path.join(f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, 'native-processes.json'), '{}')
   assert.equal(f.run('Stop owned QSS fixture').status, 0)
-  assert.deepEqual(f.commands(), [{ tool: 'python3', args: ['packages/mobile/scripts/qss-e2e/fixture.py', 'stop', '--output', f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT] }])
+  assert.deepEqual(f.commands(), [
+    {
+      tool: 'python3',
+      args: ['packages/mobile/scripts/qss-e2e/fixture.py', 'stop', '--output', f.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT],
+    },
+  ])
   assert.equal(f.run('Stop owned QSS fixture', { QUIET_TEST_FAIL: 'stop' }).status, 23)
 })
 
@@ -261,13 +315,26 @@ test('workflow orders resource-limited builds and baseline/QSS coverage without 
   assert.equal(job['runs-on'], 'macos-15')
   assert.equal(job.env.DEVELOPER_DIR, '/Applications/Xcode_26.3.app/Contents/Developer')
   const order = [
-    'Prepare hosted runner disk', 'Install dependencies', 'Build desktop and shared backend for QSS',
-    'Build bundled Detox app', 'Preserve baseline build receipt', 'Run basic tests',
-    'Verify message acknowledgment and persistence', 'Take screenshot',
-    'Build bundled QSS Detox app', 'Start native QSS fixture', 'Boot owned simulator for QSS',
-    'Run single-player QSS test', 'Run desktop and iOS QSS tests', 'Stop owned QSS fixture', 'Remove owned simulator',
+    'Prepare hosted runner disk',
+    'Install dependencies',
+    'Build desktop and shared backend for QSS',
+    'Build bundled Detox app',
+    'Preserve baseline build receipt',
+    'Run basic tests',
+    'Verify message acknowledgment and persistence',
+    'Take screenshot',
+    'Build bundled QSS Detox app',
+    'Start native QSS fixture',
+    'Boot owned simulator for QSS',
+    'Run single-player QSS test',
+    'Run desktop and iOS QSS tests',
+    'Stop owned QSS fixture',
+    'Remove owned simulator',
   ].map(name => job.steps.indexOf(step(name)))
-  assert.deepEqual([...order].sort((a, b) => a - b), order)
+  assert.deepEqual(
+    [...order].sort((a, b) => a - b),
+    order
+  )
   assert.equal(job.env.TEST_MODE, undefined)
   assert.equal(step('Build desktop and shared backend for QSS').env.TEST_MODE, 'true')
   assert.match(step('Install dependencies').run, /@quiet\/desktop,e2e-tests/)
@@ -275,5 +342,8 @@ test('workflow orders resource-limited builds and baseline/QSS coverage without 
   assert.doesNotMatch(step('Start native QSS fixture').run, /docker|ssh|brew services/)
   assert.match(step('Prepare pinned QSS Node').run, /e9404633bc02a5162c5c573b1e2490f5fb44648345d64a958b17e325729a5e42/)
   const uploads = step('Upload diagnostics').with.path.trim().split('\n')
-  assert.deepEqual(uploads.filter(entry => entry.includes('qss')), ['${{ runner.temp }}/quiet-qss-arm64-validation/result.json', '${{ runner.temp }}/quiet-qss-ci-summary.json'])
+  assert.deepEqual(
+    uploads.filter(entry => entry.includes('qss')),
+    ['${{ runner.temp }}/quiet-qss-arm64-validation/result.json', '${{ runner.temp }}/quiet-qss-ci-summary.json']
+  )
 })
