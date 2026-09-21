@@ -13,7 +13,9 @@ export class Desktop {
     this.names = names
     this.ciTokenFile = fixture.target === 'staging' ? path.join(run.directory, 'ci-enrollment.jwt') : undefined
     this.app = new App({ binaryPath: config.desktopBinary, username: names.desktop, qssEndpoint: fixture.endpoint,
-      environment: { ...(config.display ? { DISPLAY: config.display } : {}),
+      // The sender must trigger QPS after syncing a message; enabling QSS alone
+      // delivers foreground messages but never requests a provider notification.
+      environment: { QPS_ALLOWED: 'true', ...(config.display ? { DISPLAY: config.display } : {}),
         ...(this.ciTokenFile ? { QUIET_E2E_CI_ENROLLMENT_TOKEN_FILE: this.ciTokenFile } : {}) },
       ...(config.chromeDriverPath ? { chromeDriverPath: config.chromeDriverPath } : {}),
     })
