@@ -10,6 +10,19 @@ import { Button } from '../Button/Button.component'
 import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
+// Copy from the design library component "Create channel / Version=3" (Figma 5055:16131).
+const CHANNEL_NAME_LABEL = 'Channel name'
+const CHANNEL_NAME_PLACEHOLDER = 'Enter a channel name'
+const CREATE_CHANNEL_LABEL = 'Create channel'
+// Roles do not exist yet, so the subtitle names admins rather than promising role assignment.
+const PRIVATE_CHANNEL_SUBTITLE = 'Only assigned members and admins have access'
+const PRIVATE_ROW_HEIGHT = 80
+const PRIVATE_ROW_INSET = 16
+// "Frame 99" and "Frame 101" both inset their contents by 16 (838:9422).
+const FIELD_BLOCK_INSET = 16
+// Text starts at x=56 in the design, i.e. 40pt of icon column after the 16pt inset.
+const PRIVATE_ROW_ICON_COLUMN = 40
+
 import { icons } from '../../assets'
 import LockIcon from '../../assets/icons/svg/lock'
 
@@ -93,73 +106,75 @@ export const CreateChannel: FC<CreateChannelProps> = ({
         behavior={Platform.select({ ios: 'padding', android: 'height' })}
         style={{
           flex: 1,
-          marginTop: 24,
-          paddingLeft: 20,
-          paddingRight: 20,
           marginBottom: 16,
         }}
       >
-        <Input
-          onChangeText={onChangeText}
-          label={'Add a name for your channel'}
-          placeholder={'Channel name'}
-          length={20}
-          disabled={loading}
-          validation={inputError}
-          ref={inputRef}
-          autoCorrect={false}
-        />
-        {!inputError &&
-          createChannelInput?.length !== undefined &&
-          createChannelInput.length > 0 &&
-          parsedNameDiffers && (
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: 10,
-                alignItems: 'center',
-                marginTop: 12,
-                marginBottom: 16,
-              }}
-            >
-              <View>
-                <Image
-                  source={warning_icon}
-                  resizeMode='cover'
-                  resizeMethod='resize'
-                  style={{
-                    width: 16,
-                    height: 16,
-                  }}
-                />
+        {/* "Frame 99" (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9422): the name field inset 16 on every
+            side. The inset belongs to this block rather than to the screen, so the rows below it
+            can run their dividers the full width, as the design does. */}
+        <View style={{ padding: FIELD_BLOCK_INSET }}>
+          <Input
+            onChangeText={onChangeText}
+            label={CHANNEL_NAME_LABEL}
+            placeholder={CHANNEL_NAME_PLACEHOLDER}
+            length={20}
+            disabled={loading}
+            validation={inputError}
+            ref={inputRef}
+            autoCorrect={false}
+          />
+          {!inputError &&
+            createChannelInput?.length !== undefined &&
+            createChannelInput.length > 0 &&
+            parsedNameDiffers && (
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: 10,
+                  alignItems: 'center',
+                  marginTop: 12,
+                }}
+              >
+                <View>
+                  <Image
+                    source={warning_icon}
+                    resizeMode='cover'
+                    resizeMethod='resize'
+                    style={{
+                      width: 16,
+                      height: 16,
+                    }}
+                  />
+                </View>
+                <View testID={'create_channel_name_warning'}>
+                  <Typography fontSize={14}>{'Your channel will be created as'}</Typography>
+                  <Typography fontSize={14} fontWeight={'medium'}>
+                    {`#${createChannelInput}`}
+                  </Typography>
+                </View>
               </View>
-              <View testID={'create_channel_name_warning'}>
-                <Typography fontSize={14}>{'Your channel will be created as'}</Typography>
-                <Typography fontSize={14} fontWeight={'medium'}>
-                  {`#${createChannelInput}`}
-                </Typography>
-              </View>
-            </View>
-          )}
+            )}
+        </View>
         {canCreatePrivateChannel && (
           <View
             style={{
               display: 'flex',
               flexDirection: 'row',
-              gap: 12,
               alignItems: 'center',
-              justifyContent: 'center',
-              marginTop: 24,
-              height: 'auto',
-              width: 'auto',
+              // Row geometry from "Create channel / Version=3" (Figma 5055:16131): icon inset 16,
+              // text starting at 56, toggle right-aligned, 80pt row closed by a divider.
+              minHeight: PRIVATE_ROW_HEIGHT,
+              paddingHorizontal: PRIVATE_ROW_INSET,
+              borderBottomWidth: 1,
+              borderBottomColor: defaultTheme.palette.background.gray06,
             }}
             testID={'create_channel_private'}
           >
-            <View testID={'create_channel_private_lock'} style={{ flex: 1 }}>
+            <View testID={'create_channel_private_lock'} style={{ width: PRIVATE_ROW_ICON_COLUMN }}>
               <LockIcon fill={false} />
             </View>
-            <View testID={'create_channel_private_label'} style={{ flex: 8 }}>
+            <View testID={'create_channel_private_label'} style={{ flex: 1, paddingRight: 12 }}>
               <Typography fontSize={16}>{'Private channel'}</Typography>
               <Typography
                 fontSize={12}
@@ -168,10 +183,10 @@ export const CreateChannel: FC<CreateChannelProps> = ({
                   flexWrap: 'wrap',
                 }}
               >
-                {'Only assigned members and roles have access'}
+                {PRIVATE_CHANNEL_SUBTITLE}
               </Typography>
             </View>
-            <View testID={'create_channel_private_toggle'} style={{ flex: 2 }}>
+            <View testID={'create_channel_private_toggle'}>
               <Switch
                 trackColor={{
                   false: defaultTheme.palette.typography.gray50,
@@ -188,8 +203,9 @@ export const CreateChannel: FC<CreateChannelProps> = ({
             </View>
           </View>
         )}
-        <View style={{ marginTop: 12 + 12 }}>
-          <Button onPress={onPress} title={'Continue'} width={108} loading={loading} />
+        {/* "Frame 101" (838:9422): the same 16pt inset, with the button hugging its label. */}
+        <View style={{ padding: FIELD_BLOCK_INSET, alignItems: 'flex-start' }}>
+          <Button onPress={onPress} title={CREATE_CHANNEL_LABEL} loading={loading} newDesign />
         </View>
       </KeyboardAvoidingView>
     </View>

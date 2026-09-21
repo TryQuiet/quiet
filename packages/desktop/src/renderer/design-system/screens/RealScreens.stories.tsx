@@ -60,8 +60,8 @@ const Compare: React.FC<{
       {title}
     </h1>
     <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 4px' }}>
-      The existing component, rendered from <span style={{ fontFamily: mono }}>{source}</span> with that story&rsquo;s own
-      args, under the design system&rsquo;s tokens.
+      The existing component, rendered from <span style={{ fontFamily: mono }}>{source}</span> with that story&rsquo;s
+      own args, under the design system&rsquo;s tokens.
     </p>
     {note ? <p style={{ fontSize: 13, color: '#8A5F09', margin: '0 0 16px' }}>{note}</p> : null}
     <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
@@ -86,8 +86,8 @@ export default {
 
 export const ChannelView = () => (
   <Compare
-    title="Channel"
-    source="Components/Channel → Normal"
+    title='Channel'
+    source='Components/Channel → Normal'
     width={680}
     height={720}
     note="TextMessage.tsx and BasicMessage.tsx hardcode fontSize '0.855rem' / lineHeight '21px' / 14, 16, 21 and use no theme variants — the message list is first on the migration list."
@@ -97,10 +97,10 @@ export const ChannelView = () => (
 
 export const Sidebar = () => (
   <Compare
-    title="Sidebar"
-    source="Components/SidebarComponent → Reusable"
+    title='Sidebar'
+    source='Components/SidebarComponent → Reusable'
     width={320}
-    note="Channel rows are 14px at weight 300 with hardcoded 3px vertical padding — to migrate onto the tokens."
+    note='Channel rows are 14px at weight 300 with hardcoded 3px vertical padding — to migrate onto the tokens.'
     render={() => (
       <div style={{ height: 620, display: 'flex', alignItems: 'stretch' }}>
         {renderStory(SidebarStories.Reusable as unknown as StoryFn)}
@@ -111,8 +111,8 @@ export const Sidebar = () => (
 
 export const ChannelInput = () => (
   <Compare
-    title="Channel input"
-    source="Components/ChannelInput → Component"
+    title='Channel input'
+    source='Components/ChannelInput → Component'
     width={560}
     render={() => renderStory(ChannelInputStories.Component as unknown as StoryFn)}
   />

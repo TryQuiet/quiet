@@ -30,13 +30,13 @@ export const createQssCommunity = async (communityName, username) => {
   await element(by.text('Agree & Continue')).tap()
   // The real native WebView obtains hCaptcha's public test token. The app's
   // backend verifies it with QSS; no injected token or synchronization bypass.
-  await waitFor(element(by.id('channels_list')))
+  await waitFor(element(by.id('channel-list')))
     .toBeVisible()
     .withTimeout(120000)
 }
 
 export const openGeneral = async () => {
-  await waitFor(element(by.id('channels_list')))
+  await waitFor(element(by.id('channel-list')))
     .toBeVisible()
     .withTimeout(120000)
   await waitForAndroidNotification(device)
@@ -61,7 +61,7 @@ export const sendStoredMessage = async message => {
 export const readQssInvitation = async communityName => {
   await waitForAndroidNotification(device)
   await element(by.id('appbar_action_item')).tap()
-  await waitFor(element(by.id('channels_list')))
+  await waitFor(element(by.id('channel-list')))
     .toBeVisible()
     .withTimeout(10000)
   await element(by.id('open_menu')).tap()
@@ -84,5 +84,5 @@ export const closeQssInvitation = async () => {
   await waitFor(element(by.id('context_menu_Add members')))
     .not.toBeVisible()
     .withTimeout(10000)
-  await expect(element(by.id('channels_list'))).toBeVisible()
+  await expect(element(by.id('channel-list'))).toBeVisible()
 }

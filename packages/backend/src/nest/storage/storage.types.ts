@@ -15,6 +15,7 @@ export enum StorageEvents {
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Users
   USER_PROFILES_STORED = 'userProfilesStored',
+  NETWORK_ENDPOINTS_STORED = 'networkEndpointsStored',
   // Community
   COMMUNITY_METADATA_STORED = 'communityMetadataStored',
   COMMUNITY_UPDATED = 'communityUpdated',

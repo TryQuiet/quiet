@@ -1,4 +1,4 @@
-import React, { type FC, useCallback, useEffect } from 'react'
+import React, { type FC, useCallback, useEffect, useRef } from 'react'
 import { Platform, Share } from 'react-native'
 import Clipboard from '@react-native-clipboard/clipboard'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,17 +22,23 @@ export const LinkedDevicesContextMenu: FC = () => {
   const screen = useSelector(navigationSelectors.currentScreen)
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
+  const deviceLinkCreationFailed = useSelector(connection.selectors.deviceLinkCreationFailed)
   const linkedDevicesContextMenu = useContextMenu(MenuName.LinkedDevices)
   const confirmationBox = useConfirmationBox('Link copied')
+  const handledCurrentOpen = useRef(false)
+  const showedLinkCurrentOpen = useRef(false)
+  if (deviceLink) showedLinkCurrentOpen.current = true
 
   useEffect(() => {
-    if (!linkedDevicesContextMenu.visible) return
+    if (!linkedDevicesContextMenu.visible) {
+      handledCurrentOpen.current = false
+      showedLinkCurrentOpen.current = false
+      return
+    }
+    if (handledCurrentOpen.current) return
 
-    dispatch(connection.actions.setDeviceLinkInvite(undefined))
-  }, [dispatch, linkedDevicesContextMenu.visible])
-
-  useEffect(() => {
-    if (linkedDevicesContextMenu.visible && !deviceLinkInvite) {
+    handledCurrentOpen.current = true
+    if (!deviceLinkInvite || deviceLinkInvite.expiresAt <= Date.now()) {
       dispatch(connection.actions.createDeviceLink())
     }
   }, [deviceLinkInvite, dispatch, linkedDevicesContextMenu.visible])
@@ -99,7 +105,11 @@ export const LinkedDevicesContextMenu: FC = () => {
         title='Linked devices'
         items={[]}
         hint={
-          deviceLinkInvite
+          deviceLinkCreationFailed
+            ? 'Could not generate a device link. Close this menu and try again.'
+            : showedLinkCurrentOpen.current
+            ? 'This device link expired. Close and reopen this menu to generate another.'
+            : deviceLinkInvite
             ? 'A device link needs an active community connection. Close this menu and try again when connected.'
             : 'Generating device link...'
         }
@@ -112,7 +122,7 @@ export const LinkedDevicesContextMenu: FC = () => {
     <ContextMenu
       title='Linked devices'
       items={items}
-      hint='Use this one-time link on another device you control. Keep both devices online until linking finishes. The link expires after 30 minutes.'
+      hint='Anyone with this private link can link another device until it expires in 30 minutes. Keep it secret, and keep both devices online while linking. Expiry blocks new linking but does not remove keys already received by a linked device.'
       link={deviceLink}
       linkAction={copyLink}
       {...linkedDevicesContextMenu}

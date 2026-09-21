@@ -74,12 +74,34 @@ describe('Handle invitation code', () => {
       .run()
   })
 
-  it('links a device without opening username registration', async () => {
+  it('waits for consent before linking a device', async () => {
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validDeviceInvitationDeepUrl]))
       .withState(store.getState())
+      .put(
+        modalsActions.openModal({
+          name: ModalName.deviceLinkConsent,
+          args: { qssEndpoint: undefined },
+        })
+      )
+      .dispatch(modalsActions.confirmDeviceLinkConsent())
       .put(modalsActions.openModal({ name: ModalName.loadingPanel }))
-      .put(communities.actions.linkDevice({ inviteData: validDeviceInvitationData }))
+      .put(
+        communities.actions.linkDevice({
+          inviteData: validDeviceInvitationData,
+          deviceLinkConsent: true,
+          confirmedQssEndpoint: undefined,
+        })
+      )
       .not.put(modalsActions.openModal({ name: ModalName.createUsernameModal }))
+      .run()
+  })
+
+  it('does not link a device when consent is cancelled', async () => {
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validDeviceInvitationDeepUrl]))
+      .withState(store.getState())
+      .dispatch(modalsActions.cancelDeviceLinkConsent())
+      .put(modalsActions.closeModal(ModalName.deviceLinkConsent))
+      .not.put.actionType(communities.actions.linkDevice.type)
       .run()
   })
 
