@@ -20,6 +20,8 @@ export const decodeFileName = (name: string): string => {
   }
 }
 
+let nextPreviewId = 0
+
 export const getFileData = (filePath: string, isTmpPath = false): FilePreviewData => {
   // basename() runs again below on the decoded name: decoding can reveal a path
   // separator (`%2F`), and `name` must stay a bare file name - it is interpolated
@@ -31,7 +33,11 @@ export const getFileData = (filePath: string, isTmpPath = false): FilePreviewDat
     name: path.basename(fileName, path.extname(fileName)),
     ext: path.extname(fileName).toLowerCase(),
   }
-  const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
+  // These keys identify removable UI previews, not uploaded files or secrets.
+  // A counter preserves every selection made in one clock tick; the process
+  // prefix separates Electron's native picker from renderer drag-and-drop.
+  const producer = typeof process === 'object' && typeof process.pid === 'number' ? process.pid : 'ui'
+  const id = `preview_${producer}_${Date.now()}_${nextPreviewId++}`
   return { [id]: fileContent }
 }
 

@@ -7,6 +7,9 @@ import {
   type NetworkDataPayload,
   type NetworkStats,
   InviteResultWithSalt,
+  DeviceLinkInvite,
+  type DeviceNetworkEndpoint,
+  type NetworkEndpointsStoredEvent,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -16,6 +19,7 @@ export class ConnectionState {
   public lastConnectedTime = 0
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
+  public networkEndpoints: Record<string, DeviceNetworkEndpoint> = {}
   public isTorInitialized = false
   public isQssConnected = false
   public socketIOSecret: string | null = null
@@ -25,6 +29,8 @@ export class ConnectionState {
     text: ConnectionProcessInfo.CONNECTION_STARTED,
   }
   public longLivedInvite: InviteResultWithSalt | undefined = undefined
+  public deviceLinkInvite: DeviceLinkInvite | undefined = undefined
+  public deviceLinkCreationFailed = false
   public p2pEnabled: boolean = true
 }
 
@@ -54,6 +60,11 @@ export const connectionSlice = createSlice({
         connectionTime: prev + action.payload.connectionDuration,
       })
     },
+    setNetworkEndpoints: (state, action: PayloadAction<NetworkEndpointsStoredEvent>) => {
+      state.networkEndpoints = Object.fromEntries(
+        action.payload.endpoints.map(endpoint => [endpoint.deviceId, endpoint])
+      )
+    },
     setLastConnectedTime: (state, action: PayloadAction<number>) => {
       state.lastConnectedTime = action.payload
     },
@@ -68,6 +79,12 @@ export const connectionSlice = createSlice({
     },
     setLongLivedInvite: (state, action: PayloadAction<InviteResultWithSalt | undefined>) => {
       state.longLivedInvite = action.payload
+    },
+    setDeviceLinkInvite: (state, action: PayloadAction<DeviceLinkInvite | undefined>) => {
+      state.deviceLinkInvite = action.payload
+    },
+    setDeviceLinkCreationFailed: (state, action: PayloadAction<boolean>) => {
+      state.deviceLinkCreationFailed = action.payload
     },
     setSocketIOSecret: (state, action: PayloadAction<string>) => {
       state.socketIOSecret = action.payload
@@ -94,6 +111,9 @@ export const connectionSlice = createSlice({
       }
     },
     createInvite: (state, _action: PayloadAction<any>) => state,
+    createDeviceLink: state => {
+      state.deviceLinkCreationFailed = false
+    },
     toggleP2P: state => state,
     setP2PEnabled: (state, action: PayloadAction<boolean>) => {
       state.p2pEnabled = action.payload

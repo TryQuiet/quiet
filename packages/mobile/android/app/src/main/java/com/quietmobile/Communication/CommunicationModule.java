@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -130,7 +131,12 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void handleIncomingEvents(String event, @Nullable String payload, @Nullable String extra) {
+    public void handleIncomingEvents(String event, @Nullable String payload, @Nullable String extra) {
+        handleBackendEvent(event, payload, extra);
+    }
+
+    // Background workers call this without creating a second React Native module.
+    public static void handleBackendEvent(String event, @Nullable String payload, @Nullable String extra) {
         switch (event) {
             case BACKEND_READY_CHANNEL:
                 // Node may become ready after the grace timer fired or before React exists.
@@ -141,6 +147,14 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
                 break;
             case APP_READY_CHANNEL:
                 runOnLifecycleThread(CommunicationModule::startWebsocketConnection);
+                break;
+            case "_RECOVER_WEBSOCKET_":
+                runOnLifecycleThread(() -> {
+                    startWebsocketConnection();
+                    if (QuietStorage.isAppForeground()) {
+                        sendNodeEvent("recoverSocket", "");
+                    }
+                });
                 break;
             case PUSH_NOTIFICATION_CHANNEL:
                 if (!QuietStorage.isAppForeground()) {
@@ -170,7 +184,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveKeysInKeychain(ReadableArray newKeys) {
+    public void saveKeysInKeychain(ReadableArray newKeys) {
         for (int index = 0; index < newKeys.size(); index++) {
             try {
                 String keyAsString = newKeys.getString(index);
@@ -183,7 +197,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveChannelMetadataInKeychain(String teamId, ReadableArray updatedChannelMetadata) {
+    public void saveChannelMetadataInKeychain(String teamId, ReadableArray updatedChannelMetadata) {
         for (int index = 0; index < updatedChannelMetadata.size(); index++) {
             try {
                 String channelMetadataAsString = updatedChannelMetadata.getString(index);
@@ -196,7 +210,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey, String userId) {
+    public void saveDeviceCredentials(String deviceId, String teamId, String signingPrivateKey, String userId) {
         try {
             QuietStorage.saveDeviceCredentials(deviceId, teamId, signingPrivateKey, userId);
         } catch (Exception e) {
@@ -205,7 +219,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveUserMetadata(ReadableArray updatedMetadata) {
+    public void saveUserMetadata(ReadableArray updatedMetadata) {
         for (int index = 0; index < updatedMetadata.size(); index++) {
             try {
                 String metadataAsString = updatedMetadata.getString(index);
@@ -221,12 +235,12 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void saveNseQssUrl(String teamId, String qssUrl, String qssServerId) {
+    public void saveNseQssUrl(String teamId, String qssUrl, String qssServerId) {
         QuietStorage.saveQssConfiguration(teamId, qssUrl, qssServerId);
     }
 
     @ReactMethod
-    public static void saveNseLastSyncSeq(String teamId, double syncSeq) {
+    public void saveNseLastSyncSeq(String teamId, double syncSeq) {
         if (!QuietStorage.isAppForeground()) {
             Log.i(
                     TAG,
@@ -242,27 +256,43 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void setTeamQssEnabled(boolean enabled) {
+    public void setTeamQssEnabled(boolean enabled) {
         QuietStorage.setTeamQssEnabled(enabled);
         Log.i("CommunicationModule", "setTeamQssEnabled triggered syncBackendWorkerState enabled=" + enabled);
         syncBackendWorkerState();
     }
 
     @ReactMethod
-    public static void setUserBackgroundTorEnabled(boolean enabled) {
+    public void setUserBackgroundTorEnabled(boolean enabled) {
         QuietStorage.setUserBackgroundTorEnabled(enabled);
         Log.i("CommunicationModule", "setUserBackgroundTorEnabled triggered syncBackendWorkerState enabled=" + enabled);
         syncBackendWorkerState();
     }
 
     @ReactMethod
-    public static void clearSensitiveData() {
+    public void clearSensitiveData() {
         try {
             QuietStorage.clearAll();
             NotificationManagerCompat.from(reactContext.getApplicationContext()).cancelAll();
             deleteBackendData();
         } catch (Exception e) {
             Log.e("CommunicationModule", "clearSensitiveData failed", e);
+        }
+    }
+
+    @ReactMethod
+    public static void clearAdmissionCredentials(Promise promise) {
+        try {
+            QuietStorage.clearAdmissionCredentials();
+            NotificationManagerCompat.from(reactContext.getApplicationContext()).cancelAll();
+            promise.resolve(null);
+        } catch (Exception error) {
+            Log.e(TAG, "clearAdmissionCredentials failed", error);
+            promise.reject(
+                    "admission_cleanup_failed",
+                    "Failed to clear native admission credentials",
+                    error
+            );
         }
     }
 
@@ -520,7 +550,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
         Context context = reactContext.getApplicationContext();
         try {
-            FileUtils.deleteDirectory(new File(context.getFilesDir(), "backend/files9"));
+            FileUtils.deleteDirectory(new File(context.getFilesDir(), "backend/files11"));
         } catch (IOException e) {
             Log.e("CommunicationModule", e.toString());
         }

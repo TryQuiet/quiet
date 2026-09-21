@@ -17,7 +17,6 @@ export interface InputProps {
   hint?: string
   multiline?: boolean
   disabled?: boolean
-  round?: boolean
   style?: ViewStyle
   wrapperStyle?: ViewStyle
   children?: ReactElement
@@ -26,5 +25,11 @@ export interface InputProps {
   value?: string
   bottomSeparator?: React.ReactElement
   keyboardType?: KeyboardTypeOptions
+  /** Rendered inside the field, after the text — e.g. a clear button. */
+  rightAccessory?: React.ReactNode
+  /** Rendered inside the field, before the text — e.g. a "To:" prefix. */
+  leftAccessory?: React.ReactNode
+  /** Cap for a multiline field; past this the text scrolls instead of growing. */
+  maxHeight?: number
   testID?: string
 }

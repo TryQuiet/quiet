@@ -1,12 +1,11 @@
-import { apply, put, call, take } from 'typed-redux-saga'
-import { type PayloadAction } from '@reduxjs/toolkit'
+import { apply, put, call, take, select, cancelled } from 'typed-redux-saga'
 import { applyEmitParams, type Socket } from '../../../types'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions } from '../communities.slice'
+import { communitiesSelectors } from '../communities.selectors'
 import {
   type InitCommunityPayload,
   InvitationDataVersion,
-  JoinCommunityPayload,
   LoadingPanelType,
   ResponseJoinCommunityPayload,
   SocketActions,
@@ -18,64 +17,76 @@ import { networkActions } from '../../network/network.slice'
 
 const logger = createLogger('joinCommunitySaga')
 
-export function* joinCommunitySaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof communitiesActions.joinCommunity>['payload']>
-): Generator {
-  logger.info('Starting joinCommunitySaga')
+export function* joinCommunitySaga(socket: Socket): Generator {
+  const initialJoin = yield* select(communitiesSelectors.pendingJoin)
+  if (!initialJoin || initialJoin.status !== 'draft') return
+  const { attempt, inviteData } = initialJoin
+  const communityId = initialJoin.communityId ?? (yield* call(generateId))
+  const needsTerms =
+    inviteData.version === InvitationDataVersion.v5 && Boolean(inviteData.qssEnabled || inviteData.qssEndpoint)
 
-  const { inviteData } = action.payload as JoinCommunityPayload
-  logger.info('Set loading panel type', LoadingPanelType.Joining)
+  yield* put(communitiesActions.setPendingJoinId({ attempt, communityId }))
   yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
 
-  const communityId = yield* call(generateId)
-  // Setting invitationCodes to mark that we are in the process of joining a community
-  yield* put(communitiesActions.setInvitationCodes(inviteData))
-
-  logger.info('Waiting for user to register username')
-  const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
-    identityActions.registerUsername
-  )
-
-  let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
-  if (inviteData?.version === InvitationDataVersion.v5 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
-    yield* put(communitiesActions.requestTermsOfService())
-    acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
-    if (acceptTerms.payload.accepted) {
-      logger.info('User opted in to QSS')
-    } else {
-      logger.info('User opted out of QSS')
-      yield* put(communitiesActions.clearInvitationCodes())
-      return
+  try {
+    while (true) {
+      const pendingJoin = yield* select(communitiesSelectors.pendingJoin)
+      if (pendingJoin?.attempt !== attempt || pendingJoin.status !== 'draft') return
+      if (needsTerms && pendingJoin.tosAccepted === false) {
+        yield* put(communitiesActions.clearInvitationCodes())
+        return
+      }
+      if (pendingJoin.username && (!needsTerms || pendingJoin.tosAccepted === true)) {
+        // Mark submission before touching the socket. A lost acknowledgement must
+        // never replay a join, because the backend operation erases previous state.
+        yield* put(communitiesActions.submitPendingJoin(attempt))
+        const payload: InitCommunityPayload = {
+          id: communityId,
+          name: inviteData.authData.communityName,
+          inviteData,
+          username: pendingJoin.username,
+          tosAccepted: pendingJoin.tosAccepted === true,
+        }
+        logger.info('Updating backend with community data')
+        const response: ResponseJoinCommunityPayload | undefined = yield* apply(
+          socket,
+          socket.emitWithAck,
+          applyEmitParams(SocketActions.JOIN_COMMUNITY, payload)
+        )
+        if (!response) {
+          // An explicit negative acknowledgement is different from losing the
+          // acknowledgement altogether. Keep the existing failed-join handling.
+          yield* put(communitiesActions.clearInvitationCodes())
+          yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
+          return
+        }
+        if (!response.community || !response.identity || !response.profile) {
+          throw new Error('Invalid join response from backend')
+        }
+        yield* put(communitiesActions.addNewCommunity(response.community))
+        yield* put(communitiesActions.setCurrentCommunity(response.community.id))
+        yield* put(identityActions.addNewIdentity(response.identity))
+        yield* put(usersActions.setUserProfile(response.profile))
+        yield* put(communitiesActions.launchCommunity(response.community))
+        yield* put(communitiesActions.clearInvitationCodes())
+        return
+      }
+      if (pendingJoin.username && needsTerms) {
+        yield* put(communitiesActions.requestTermsOfService())
+      }
+      yield* take([
+        identityActions.registerUsername.type,
+        communitiesActions.setTermsOfServiceAccepted.type,
+        communitiesActions.clearInvitationCodes.type,
+      ])
+    }
+  } catch (error) {
+    // An acknowledgement failure does not prove the backend rejected the request.
+    logger.error('Joining was interrupted before acknowledgement', error)
+    yield* put(communitiesActions.interruptPendingJoin(attempt))
+  } finally {
+    if (yield* cancelled()) {
+      yield* put(communitiesActions.interruptPendingJoin(attempt))
     }
   }
-
-  const payload: InitCommunityPayload = {
-    id: communityId,
-    name: inviteData.authData.communityName,
-    inviteData,
-    username: registerAction.payload.nickname,
-    tosAccepted: acceptTerms.payload.accepted,
-  }
-
-  logger.info('Updating backend with community data')
-  const response: ResponseJoinCommunityPayload | undefined = yield* apply(
-    socket,
-    socket.emitWithAck,
-    applyEmitParams(SocketActions.JOIN_COMMUNITY, payload)
-  )
-  logger.debug('Response from backend', response)
-  if (!response) {
-    logger.error('Failed to join community - invalid response from backend')
-    yield* put(communitiesActions.clearInvitationCodes())
-    yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
-    return
-  }
-  yield* put(communitiesActions.addNewCommunity(response.community))
-  yield* put(communitiesActions.setCurrentCommunity(response.community.id))
-  yield* put(identityActions.addNewIdentity(response.identity))
-  yield* put(usersActions.setUserProfile(response.profile))
-  yield* put(communitiesActions.launchCommunity(response.community))
-  // clearing invitation codes to mark that we are done with joining a community
-  yield* put(communitiesActions.clearInvitationCodes())
 }

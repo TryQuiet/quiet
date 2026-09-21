@@ -1,0 +1,304 @@
+{
+  "recordedAtUtc": "2026-09-15T13:33:06Z",
+  "appBuildCommit": "355dbaaad6879146470fff02cae8cedc82097d97",
+  "stackBaseCommit": "77a07518137928ffa5208f99bc190044550ce0ac",
+  "host": "MacBook Air ARM64",
+  "simulator": "iPhone 16e / iOS 18.5 ARM64",
+  "xcode": "26.3 / SDK 26.2",
+  "embeddedNode": "24.18.0",
+  "libsodium": "1.0.19",
+  "upstreamLibsodiumModified": false,
+  "totalPassed": 33,
+  "suites": {
+    "starter": {
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0,
+      "capturedTextLogs": 23,
+      "nativeFallbackWarnings": 0,
+      "tests": [
+        {
+          "name": "User should see join community screen",
+          "status": "passed",
+          "durationMs": 1522
+        },
+        {
+          "name": "User switches to create community screen",
+          "status": "passed",
+          "durationMs": 2233
+        },
+        {
+          "name": "User enters community name",
+          "status": "passed",
+          "durationMs": 3971
+        },
+        {
+          "name": "User enters username",
+          "status": "passed",
+          "durationMs": 6871
+        },
+        {
+          "name": "User sees channels list",
+          "status": "passed",
+          "durationMs": 438
+        },
+        {
+          "name": "User minimizes and restores the app",
+          "status": "passed",
+          "durationMs": 6769
+        },
+        {
+          "name": "User enters #general channel",
+          "status": "passed",
+          "durationMs": 2244
+        },
+        {
+          "name": "User sends message to #general channel",
+          "status": "passed",
+          "durationMs": 8120
+        },
+        {
+          "name": "User navigates back to channels list using Android system Back",
+          "status": "passed",
+          "durationMs": 2473
+        },
+        {
+          "name": "User opens context menu",
+          "status": "passed",
+          "durationMs": 2205
+        },
+        {
+          "name": "User creates new channel",
+          "status": "passed",
+          "durationMs": 6889
+        },
+        {
+          "name": "User deletes channel",
+          "status": "passed",
+          "durationMs": 6715
+        },
+        {
+          "name": "User sees channel deletion information in #general channel",
+          "status": "passed",
+          "durationMs": 2323
+        },
+        {
+          "name": "User deletes #general channel",
+          "status": "passed",
+          "durationMs": 6667
+        },
+        {
+          "name": "User sees channel recreation information in #general channel",
+          "status": "passed",
+          "durationMs": 2262
+        },
+        {
+          "name": "User leaves community",
+          "status": "passed",
+          "durationMs": 8185
+        },
+        {
+          "name": "User should see join community screen again",
+          "status": "passed",
+          "durationMs": 441
+        },
+        {
+          "name": "User should not see create community screen",
+          "status": "passed",
+          "durationMs": 405
+        },
+        {
+          "name": "User switches to create community screen",
+          "status": "passed",
+          "durationMs": 2227
+        },
+        {
+          "name": "User enters community name again",
+          "status": "passed",
+          "durationMs": 2745
+        },
+        {
+          "name": "User enters username again",
+          "status": "passed",
+          "durationMs": 6792
+        },
+        {
+          "name": "User should see channels list again",
+          "status": "passed",
+          "durationMs": 421
+        },
+        {
+          "name": "User minimizes and restores the app",
+          "status": "passed",
+          "durationMs": 6404
+        },
+        {
+          "name": "User enters #general channel",
+          "status": "passed",
+          "durationMs": 2230
+        },
+        {
+          "name": "User sends message to #general channel",
+          "status": "passed",
+          "durationMs": 8190
+        }
+      ]
+    },
+    "nativeCommunity": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "capturedTextLogs": 3,
+      "nativeFallbackWarnings": 0,
+      "tests": [
+        {
+          "name": "Native community persistence creates a community, sends with the keyboard open, and restores the message after a process restart",
+          "status": "passed",
+          "durationMs": 44696
+        }
+      ]
+    },
+    "qssSinglePlayer": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "capturedTextLogs": 3,
+      "nativeFallbackWarnings": 0,
+      "tests": [
+        {
+          "name": "QSS community with the real native backend registers with QSS, stores a message, exposes its v5 invite, and restores after restart",
+          "status": "passed",
+          "durationMs": 62998
+        }
+      ]
+    },
+    "desktopAndIosQss": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "capturedTextLogs": 8,
+      "nativeFallbackWarnings": 0,
+      "tests": [
+        {
+          "name": "Desktop and iOS clients with QSS Stages iOS creates a server community and stores history before going offline",
+          "status": "passed",
+          "durationMs": 40067
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages desktop joins the exact iOS invitation and retrieves history with iOS offline",
+          "status": "passed",
+          "durationMs": 16427
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages both clients receive messages from each other while online",
+          "status": "passed",
+          "durationMs": 25105
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages iOS catches up after being offline, with desktop terminated during retrieval",
+          "status": "passed",
+          "durationMs": 43281
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages desktop catches up after being offline, with iOS terminated during retrieval",
+          "status": "passed",
+          "durationMs": 24226
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages both clients preserve the conversation through another restart",
+          "status": "passed",
+          "durationMs": 41002
+        }
+      ]
+    }
+  },
+  "qss": {
+    "fixturePassed": true,
+    "singlePlayer": {
+      "outcome": "success",
+      "reportPresent": true,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTotalTests": 1,
+      "messageStored": true,
+      "restarted": true,
+      "serverBaseline": {
+        "logEntryCount": 3,
+        "maxSyncSeq": 3
+      },
+      "serverActivityAfterSend": {
+        "logEntryCount": 4,
+        "maxSyncSeq": 4
+      }
+    },
+    "mixed": {
+      "outcome": "success",
+      "reportPresent": true,
+      "numPassedTests": 6,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTotalTests": 6,
+      "twoPlayerPassed": true
+    },
+    "qssCommit": "4227d340397135b120fd96a80f7538592ef520c5",
+    "qssAuthCommit": "6f534c89bceb875e8c71997943e5e76e48ccbd88"
+  },
+  "baselineNative": {
+    "buildPassed": true,
+    "torRestored": true,
+    "sourceBindingSha256": "24bfd8dc9018e75bd829cab9101f2e271f708817384347fb467e2a8c57b4e6e2",
+    "sourceBuilderSha256": "be3336a4469b45188b503e3a3a8dce79a5b665180f645596dd5733f28c8dd12b",
+    "unsignedFrameworkSha256": "b7924c249cc9e56749a4d26143989ab629a895e59235de8e01d64cea3f67f772",
+    "signedFrameworkSha256": "a2c2ba4f887cb533ab93f4e2a9f2a30702ef3ff6c99aee1b8a5d90fdf2da8c63",
+    "mainJsBundleSha256": "2fc7123044a6435c6208527cd5f6a659f8859228f2905909c3224402928e4430",
+    "embeddedLicenseMatches": true,
+    "strictFrameworkSignatureVerified": true,
+    "runtimeObservation": {
+      "simulator": "EE23750B-2A44-4126-8301-AAC8A9197E2B",
+      "app": "com.quietmobile",
+      "pid": 2897,
+      "nativeLibraryMapped": true,
+      "frameworkSha256": "a2c2ba4f887cb533ab93f4e2a9f2a30702ef3ff6c99aee1b8a5d90fdf2da8c63",
+      "observedAtUtc": "2026-09-15T13:14:42Z"
+    }
+  },
+  "qssNative": {
+    "buildPassed": true,
+    "torRestored": true,
+    "sourceBindingSha256": "24bfd8dc9018e75bd829cab9101f2e271f708817384347fb467e2a8c57b4e6e2",
+    "sourceBuilderSha256": "be3336a4469b45188b503e3a3a8dce79a5b665180f645596dd5733f28c8dd12b",
+    "unsignedFrameworkSha256": "b7924c249cc9e56749a4d26143989ab629a895e59235de8e01d64cea3f67f772",
+    "signedFrameworkSha256": "a2c2ba4f887cb533ab93f4e2a9f2a30702ef3ff6c99aee1b8a5d90fdf2da8c63",
+    "mainJsBundleSha256": "f1ba64cf8ee712420ecedc690dc4f6b1de63d5241436a0a1ddf3ec8d5c1deee4",
+    "embeddedLicenseMatches": true,
+    "strictFrameworkSignatureVerified": true,
+    "runtimeObservation": {
+      "simulator": "EE23750B-2A44-4126-8301-AAC8A9197E2B",
+      "app": "com.quietmobile",
+      "pid": 28397,
+      "nativeLibraryMapped": true,
+      "frameworkSha256": "a2c2ba4f887cb533ab93f4e2a9f2a30702ef3ff6c99aee1b8a5d90fdf2da8c63",
+      "observedAtUtc": "2026-09-15T13:28:09Z"
+    }
+  },
+  "sourceHashes": {
+    "packages/backend/platform/native-libsodium/binding.c": "24bfd8dc9018e75bd829cab9101f2e271f708817384347fb467e2a8c57b4e6e2",
+    "packages/backend/platform/native-libsodium/build.cjs": "ba381f233be3713e8ae1d92eab6699157010ecdf10e1443655ba098c3085ec56",
+    "packages/backend/platform/sodium-native.cjs": "f578ce8629a2970022feecda5c36a3ec39ac63b6b86653a3f5ce96ecdda8eb75",
+    "packages/backend/platform/sodium-loader.cjs": "f52bf7b694dcddeae4428cef6486f0d9c1e24ae96436296cbe2f2b5ee22ae47c",
+    "packages/backend/webpack.config.js": "d3604a3ec71be6b9769fc4e2d52c03fd45636ac4bd07cf2b536a608c17383b52",
+    "packages/mobile/scripts/embed-sodium-ios.cjs": "c30204d8a63eab624d37350a9f5cd643a7c1fe5735c275b82c7f7d09c8c0923d"
+  },
+  "nodeFrameworkSha256": "d2c1384fe4d315b156d67142ec8edb026290f72a2e1fd69fffda581a0d031a62",
+  "macosHostBuildFix": {
+    "description": "Select the macOS SDK explicitly when invoking the resolved clang executable; iOS compiler flags are unchanged.",
+    "finalBuilderSha256": "ba381f233be3713e8ae1d92eab6699157010ecdf10e1443655ba098c3085ec56",
+    "iosDeviceAndSimulatorRebuilt": true,
+    "iosArtifactsByteIdenticalToTestedBuilds": true,
+    "hostNode": "20.20.1",
+    "nativeHostTestsPassed": 16,
+    "nativeHostTestsFailed": 0,
+    "nativeHostTestsSkipped": 0
+  }
+}

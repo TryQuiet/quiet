@@ -1,6 +1,5 @@
 package com.quietmobile
 
-import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
@@ -9,6 +8,7 @@ import android.util.Log
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.ReactInstanceEventListener
+import com.facebook.react.ReactHost
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
@@ -16,8 +16,10 @@ import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEm
 import com.quietmobile.Backend.BackendWorkManager
 import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.Push.QuietStorage
+import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
+    private val pendingContextListeners = mutableMapOf<ReactInstanceEventListener, ReactHost>()
     companion object {
         private const val TAG = "MainActivity"
     }
@@ -36,9 +38,9 @@ class MainActivity : ReactActivity() {
             DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // pass null to super.onCreate
-        // https://github.com/software-mansion/react-native-screens?tab=readme-ov-file#android
-        super.onCreate(null)
+        // Install Screens' restoration factory before Android restores fragments.
+        supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
+        super.onCreate(savedInstanceState)
 
         val intent = intent
         checkAgainstIntentUpdate(intent)
@@ -94,21 +96,28 @@ class MainActivity : ReactActivity() {
         getCurrentReactContext { context: ReactContext -> emitSwitchChannelEvent(context, channel) }
     }
 
-    @SuppressLint("VisibleForTests")
     private fun getCurrentReactContext(callback: (ReactContext) -> Unit) {
-        val reactContext = reactInstanceManager.currentReactContext
+        val host = checkNotNull(reactHost) { "React host must be available for notification routing" }
+        val reactContext = host.currentReactContext
         if (null != reactContext) {
             callback(reactContext)
         } else {
-            reactInstanceManager.addReactInstanceEventListener(
-                    object : ReactInstanceEventListener {
-                        override fun onReactContextInitialized(context: ReactContext) {
-                            callback(context)
-                            reactInstanceManager.removeReactInstanceEventListener(this)
-                        }
-                    }
-            )
+            val listener = object : ReactInstanceEventListener {
+                override fun onReactContextInitialized(context: ReactContext) {
+                    host.removeReactInstanceEventListener(this)
+                    pendingContextListeners.remove(this)
+                    callback(context)
+                }
+            }
+            pendingContextListeners[listener] = host
+            host.addReactInstanceEventListener(listener)
         }
+    }
+
+    override fun onDestroy() {
+        pendingContextListeners.forEach { (listener, host) -> host.removeReactInstanceEventListener(listener) }
+        pendingContextListeners.clear()
+        super.onDestroy()
     }
 
     private fun emitSwitchChannelEvent(reactContext: ReactContext, channel: String) {
