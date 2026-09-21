@@ -45,6 +45,10 @@
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
 
+### Tests
+
+* Make interrupted device-admission recovery tests independent of public Tor timing and local QSS servers, while retaining separate Tor device-link coverage [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3581](https://github.com/TryQuiet/quiet/issues/3581)
+
 ## [11.0.1]
 
 ### Fixes
