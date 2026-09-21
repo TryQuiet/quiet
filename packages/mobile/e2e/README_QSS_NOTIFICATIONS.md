@@ -170,3 +170,12 @@ source existence, no duplicate compilation and correct host settings. The four
 existing XCTest cases also pass against the actual Swift transition core on Linux.
 The earlier Apple native and multiplayer evidence above was not repeated here;
 provider delivery still requires the explicitly configured full-loop lane.
+
+After the iOS Tor/Electron updates landed, refreshed the notification workflows to
+build the installed Tor 409.11.2 XCFramework from locked pods. The provider and
+onboarding shell lanes use the current guarded builder, preserve their selected
+environment, and stop before signing if the native build fails (three workflow
+regressions pass). All 58 current/fallback builder tests pass with one platform
+skip, and 20 current-Tor workflow/QSS helper tests pass. Updated native/Appium
+channel-list selectors for develop's current UI. All 13 real Android notification
+cases pass on API 36 too. No provider credentials were used in these local checks.

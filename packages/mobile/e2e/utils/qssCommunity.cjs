@@ -48,7 +48,8 @@ function validateBuild(output) {
   const app = path.resolve(output, 'DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app')
   requireCondition(
     build.status === 'passed' &&
-      build.originalRestored === true &&
+      build.torPodUnchanged === true &&
+      build.torVersion === '409.11.2' &&
       build.scheme === 'Quiet' &&
       build.configuration === 'Debug' &&
       build.envFile === '.env.e2e.qss' &&
@@ -58,6 +59,10 @@ function validateBuild(output) {
   requireCondition(
     sha256(path.join(app, 'main.jsbundle')) === build.appJSBundleSHA256,
     'QSS app differs from its build receipt'
+  )
+  requireCondition(
+    sha256(path.join(app, 'Frameworks/Tor.framework/Tor')) === build.embeddedTorSHA256,
+    'QSS Tor framework differs from its build receipt'
   )
   // react-native-config compiles this value into the native Debug payload.
   const nativeConfig = fs.readFileSync(path.join(app, 'Quiet.debug.dylib'))

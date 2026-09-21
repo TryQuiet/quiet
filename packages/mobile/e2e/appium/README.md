@@ -173,10 +173,9 @@ assertion values and raw stacks. Cleanup failures retain a failed process status
 ## CI
 
 `iOS notification Appium tests` runs separate `onboarding` and `provider` jobs on
-macOS 26 with Xcode 26.3. It builds the pinned Tor ARM simulator slice from source
-in a separate job, then builds both native clients with the normal Tor backend.
-The compiled framework cache is keyed by source/patch/build-script hashes, runner
-architecture and Xcode version; it never substitutes a device or installed-app binary.
+macOS 26 with Xcode 26.3. Both native clients use the normal Tor backend and
+the installed Tor 409.11.2 XCFramework from the committed CocoaPods lockfile.
+The guarded builder checks the shipped Tor version and preserves build receipts.
 Postgres, Redis and QSS run directly on the Mac; no Docker service is required.
 Each journey creates and removes its own iPhone simulator. The onboarding lane
 uses a push-disabled fixture and requires no provider credentials. The provider

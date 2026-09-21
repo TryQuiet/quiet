@@ -95,7 +95,7 @@ export class Mobile {
     await this.tapText('Continue')
     await this.visible(this.id('terms-of-service-component'), 90000)
     await this.tapText('Agree & Continue')
-    await this.visible(this.id('channels_list'), 120000)
+    await this.visible(this.id('channel-list'), 120000)
     await this.allowNotifications()
     await this.tapId('channel_tile_general')
     await this.visible(this.id('chat_general'))

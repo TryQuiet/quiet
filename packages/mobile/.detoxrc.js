@@ -2,26 +2,19 @@ const path = require('path')
 
 const shellQuote = value => `'${value.replace(/'/g, "'\\''")}'`
 
-// The installed Tor pod lacks an arm64 simulator slice. Every standard simulator
-// build must use the guarded wrapper with a separately prepared Tor.framework.
-// Its owned output workspace reuses DerivedData while keeping evidence per run.
+// Build the installed Tor XCFramework and retain per-run native build evidence.
 const iosSimulatorApp = (name, envFile, configuration = 'Debug') => {
   const output =
     process.env[`DETOX_IOS_ARM64_${name.toUpperCase().replace(/\./g, '_')}_OUTPUT`] ||
     `/tmp/quiet-${name}-arm64-validation`
-  const framework =
-    process.env.DETOX_IOS_ARM64_TOR_FRAMEWORK ||
-    '/tmp/quiet-tor4059-source/build/Build/Products/Release-iphonesimulator/Tor.framework'
   return {
     type: 'ios.app',
     binaryPath: path.join(output, 'DerivedData/Build/Products', `${configuration}-iphonesimulator/Quiet.app`),
     build: [
       'python3',
-      path.join(__dirname, 'scripts/tor-ios-simulator/build-storybook.py'),
+      path.join(__dirname, 'scripts/tor-ios-simulator/build-ios.py'),
       '--checkout',
       path.resolve(__dirname, '../..'),
-      '--framework',
-      framework,
       '--output',
       output,
       '--scheme',
@@ -101,7 +94,7 @@ module.exports = {
     'ios.e2e.qss': iosSimulatorApp('e2e.qss', '.env.e2e.qss'),
     'ios.storybook.arm64': {
       type: 'ios.app',
-      // Prebuilt by scripts/tor-ios-simulator/build-storybook.py; the installed Tor pod lacks an arm64 simulator slice.
+      // Prebuilt with --scheme Storybook --env-file .env.storybook.
       binaryPath:
         process.env.DETOX_IOS_ARM64_STORYBOOK_APP ||
         '/tmp/quiet-storybook-arm64-validation/DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app',

@@ -61,6 +61,24 @@ export class App {
     this.isOpened = true
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
+    // ChromeDriver can initially attach to the splash, which is destroyed when
+    // the main renderer loads. Select the app window before querying its DOM.
+    await this.driver.wait(
+      async () => {
+        for (const handle of await this.driver.getAllWindowHandles()) {
+          try {
+            await this.driver.switchTo().window(handle)
+            if (new URL(await this.driver.getCurrentUrl()).pathname.endsWith('/index.html')) return true
+          } catch (error) {
+            if (!(error instanceof Error) || error.name !== 'NoSuchWindowError') throw error
+          }
+        }
+        return false
+      },
+      30_000,
+      'Quiet main window did not finish loading',
+      100
+    )
     const startingPanel = new StartingLoadingPanel(this.driver)
     const startingPanelLoaded = startingPanel.waitForLoadingToComplete(15_000, 45_000)
     await startingPanelLoaded
@@ -389,6 +407,9 @@ export class App {
   }
 
   async isSessionOpen(): Promise<boolean> {
+    // Probing an unopened app must not create a Selenium session. Its driver
+    // server has no port yet, and Node 24 rejects that failed background session.
+    if (!this.thenableWebDriver) return false
     try {
       logger.info('Checking if session is open')
       // Try to get the session; if it fails, the app is not running
@@ -633,7 +654,7 @@ export class DirectMessageList {
    * found by the name their row displays, and the channel id is read back off that row to reach
    * its presence badge.
    */
-  async getUser(username: string, expectedState: UserListStatus): Promise<UserListItem> {
+  async getUser(username: string, expectedState: UserListStatus, statusTimeoutMs = 240_000): Promise<UserListItem> {
     logger.debug('Getting user list item', username)
     let status: UserListStatus = UserListStatus.NOT_FOUND
 
@@ -666,7 +687,7 @@ export class DirectMessageList {
 
     const statusBadge = await this.driver.wait(
       until.elementLocated(By.xpath(`//span[@data-testid="${channelId}-profile-photo-status-badge"]`)),
-      240_000,
+      statusTimeoutMs,
       `Direct message item status badge for ${username} couldn't be located within timeout`,
       500
     )
@@ -675,7 +696,7 @@ export class DirectMessageList {
       try {
         await this.driver.wait(
           until.elementIsVisible(statusBadge),
-          240_000,
+          statusTimeoutMs,
           `Direct message item status badge for ${username} was not visibile within timeout`,
           500
         )
@@ -687,7 +708,7 @@ export class DirectMessageList {
       try {
         await this.driver.wait(
           until.elementIsNotVisible(statusBadge),
-          240_000,
+          statusTimeoutMs,
           `Direct message item status badge for ${username} was not invisible within timeout`,
           500
         )
@@ -1562,11 +1583,11 @@ export class Channel {
   }
 
   async isReady(timeoutMs = 15_000): Promise<boolean> {
-    await this.driver.wait(
-      until.elementIsVisible(this.element),
+    await this.waitForCurrentElement(
+      By.xpath(`//p[@data-testid="${this.name}-channel-link-text" or @data-testid="${this.name}-link-text"]`),
+      element => element.isDisplayed(),
       timeoutMs,
-      `Channel ${this.name} wasn't ready within timeout`,
-      500
+      `Channel ${this.name} wasn't ready within timeout`
     )
     return true
   }
@@ -1576,48 +1597,55 @@ export class Channel {
     expectHeaderIcon: boolean = true,
     timeout = 15_000
   ): Promise<boolean> {
-    const titleElement = await this.driver.wait(
-      until.elementIsVisible(await this.title),
+    await this.waitForCurrentElement(
+      By.xpath(`//*[@data-testid='channelTitle']`),
+      async element => (await element.isDisplayed()) && (await element.getText()) === this.name,
       timeout,
-      `Channel title element for ${this.name} couldn't be seen within timeout`,
-      500
+      `Channel title did not change to ${this.name} within timeout`
     )
 
-    if (expectHeaderIcon) {
-      if (channelType === TestChannelType.DM) {
-        // TODO: Add logic for validating DM profile photo in header
-      } else {
-        await this.driver.wait(
-          until.elementIsVisible(await (channelType === TestChannelType.PUBLIC_CHANNEL ? this.hash : this.lock)),
-          timeout,
-          `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
-          500
-        )
-      }
+    if (expectHeaderIcon && channelType !== TestChannelType.DM) {
+      const icon = channelType === TestChannelType.PUBLIC_CHANNEL ? 'public' : 'private'
+      await this.waitForCurrentElement(
+        By.xpath(`//*[@data-testid='channelTitle-icon-${icon}']`),
+        element => element.isDisplayed(),
+        timeout,
+        `Channel title type icon element for ${this.name} couldn't be seen within timeout`
+      )
     }
-    await this.driver.wait(
-      until.elementTextIs(titleElement, this.name),
-      timeout,
-      `Channel title did not change to ${this.name} within timeout`,
-      100
-    )
     return true
   }
 
   async isMessageInputReady(): Promise<boolean> {
-    await this.driver.wait(
-      until.elementIsVisible(this.messageInput),
+    await this.waitForCurrentElement(
+      By.xpath('//*[@data-testid="messageInput"]'),
+      async element => (await element.isDisplayed()) && (await element.isEnabled()),
       15_000,
-      `Channel message input element for ${this.name} couldn't be seen within timeout`,
-      500
-    )
-    await this.driver.wait(
-      until.elementIsEnabled(this.messageInput),
-      15_000,
-      `Channel message input element for ${this.name} wasn't enabled within timeout`,
-      500
+      `Channel message input element for ${this.name} wasn't visible and enabled within timeout`
     )
     return true
+  }
+
+  private async waitForCurrentElement(
+    locator: By,
+    ready: (element: WebElement) => Promise<boolean>,
+    timeoutMs: number,
+    message: string
+  ): Promise<void> {
+    await this.driver.wait(
+      async () => {
+        try {
+          const [element] = await this.driver.findElements(locator)
+          return element !== undefined && (await ready(element))
+        } catch (failure) {
+          if (failure instanceof error.StaleElementReferenceError) return false
+          throw failure
+        }
+      },
+      timeoutMs,
+      message,
+      500
+    )
   }
 
   async waitForUserMessageByText(
