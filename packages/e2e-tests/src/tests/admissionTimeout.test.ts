@@ -179,8 +179,13 @@ describe('Timed-out P2P admission recovery', () => {
     return invitation
   }
 
-  async function expectJoinCommunityError(app: App, message: string, inputValue = ''): Promise<void> {
-    expect(await new JoinCommunityModal(app.driver).isReady(30_000)).toBeTruthy()
+  async function expectJoinCommunityError(
+    app: App,
+    message: string,
+    inputValue = '',
+    timeoutMs = 30_000
+  ): Promise<void> {
+    expect(await new JoinCommunityModal(app.driver).isReady(timeoutMs)).toBeTruthy()
     expect(await app.driver.findElement(By.xpath(`//*[contains(text(), '${message}')]`)).isDisplayed()).toBeTruthy()
     const inviteInput = await app.driver.findElement(By.xpath('//input[@placeholder="Invite link"]'))
     expect(await inviteInput.getAttribute('value')).toBe(inputValue)
@@ -260,44 +265,59 @@ describe('Timed-out P2P admission recovery', () => {
   })
 
   it('allows a valid device link after an invalid device admission', async () => {
+    const suiteAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
+    // Recovery must allow a dropped first dial and the queued retry (8 seconds
+    // after that failure). The suite's 10-second expiry budget cannot cover both.
+    // Set this before launch: both attempts use the same backend process.
+    process.env.INVITATION_ADMISSION_TIMEOUT_MS = String(LOCAL_JOIN_COMPLETION_TIMEOUT_MS)
     const owner = new App({ username: 'invaliddeviceowner' })
     const linkedDevice = new App({ username: 'invalidlinkeddevice' })
     apps.push(owner, linkedDevice)
 
-    const deviceInvitationLink = await createCommunityAndGetInvitation(
-      owner,
-      'invaliddeviceowner',
-      SettingsModalTabName.LINKED_DEVICES,
-      async settings => await (await settings.deviceLink()).getText()
-    )
-    const invalidDeviceInvitationLink = makeInvalidInvitationLink(deviceInvitationLink)
+    try {
+      const deviceInvitationLink = await createCommunityAndGetInvitation(
+        owner,
+        'invaliddeviceowner',
+        SettingsModalTabName.LINKED_DEVICES,
+        async settings => await (await settings.deviceLink()).getText()
+      )
+      const invalidDeviceInvitationLink = makeInvalidInvitationLink(deviceInvitationLink)
 
-    await linkedDevice.openWithRetries()
-    const joinModal = new JoinCommunityModal(linkedDevice.driver)
-    expect(await joinModal.isReady()).toBeTruthy()
-    await joinModal.typeCommunityInviteLink(invalidDeviceInvitationLink)
-    await joinModal.submit()
-    expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
+      await linkedDevice.openWithRetries()
+      const joinModal = new JoinCommunityModal(linkedDevice.driver)
+      expect(await joinModal.isReady()).toBeTruthy()
+      await joinModal.typeCommunityInviteLink(invalidDeviceInvitationLink)
+      await joinModal.submit()
+      expect(await new JoiningLoadingPanel(linkedDevice.driver).waitUntilVisible(15_000)).toBeTruthy()
 
-    // The preceding test covers peer-side invalid-proof rejection. Here the
-    // bounded admission timeout must clear provisional state whether the invalid
-    // proof is rejected or the first local dial is lost before reaching the owner.
-    await expectJoinCommunityError(linkedDevice, 'make sure both devices have the app open')
+      // The preceding test covers peer-side invalid-proof rejection. Here the
+      // bounded admission timeout must clear provisional state whether the invalid
+      // proof is rejected or the first local dial is lost before reaching the owner.
+      await expectJoinCommunityError(
+        linkedDevice,
+        'make sure both devices have the app open',
+        '',
+        LOCAL_JOIN_COMPLETION_TIMEOUT_MS + 30_000
+      )
 
-    // Reopening reuses the owner's unexpired link. This valid seed differs from
-    // the rejected proof and must work without restarting the target backend.
-    const freshDeviceInvitationLink = await getReusableDeviceInvitation(owner, deviceInvitationLink)
-    const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
-    await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
-    await resetJoinModal.submit()
-    await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(
-      PANEL_VISIBLE_TIMEOUT_MS,
-      joinCompletionTimeoutMs(),
-      'device link after invalid admission'
-    )
-    expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
-
-    await releaseApps(owner, linkedDevice)
+      // Reopening reuses the owner's unexpired link. This valid seed differs from
+      // the rejected proof and must work without restarting the target backend.
+      const freshDeviceInvitationLink = await getReusableDeviceInvitation(owner, deviceInvitationLink)
+      const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)
+      linkedDevice.buildSetup.clearProcessOutput()
+      await resetJoinModal.typeCommunityInviteLink(freshDeviceInvitationLink)
+      await resetJoinModal.submit()
+      await new JoiningLoadingPanel(linkedDevice.driver).waitForJoinToComplete(
+        PANEL_VISIBLE_TIMEOUT_MS,
+        joinCompletionTimeoutMs(),
+        'device link after invalid admission'
+      )
+      assertAdmissionNotReset(linkedDevice)
+      expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
+    } finally {
+      process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+      await releaseApps(owner, linkedDevice)
+    }
   })
 
   it('can join again after reopening during interrupted admission', async () => {

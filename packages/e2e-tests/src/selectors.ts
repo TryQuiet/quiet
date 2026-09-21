@@ -19,7 +19,7 @@ import {
   UserListStatus,
 } from './types'
 import { createLogger } from './logger'
-import { waitForSettingsTab, waitForSettingsTabClosed } from './settingsTabReady'
+import { closeSettingsTab, waitForSettingsTab } from './settingsTabReady'
 import { parseInvitationLink } from '@quiet/common'
 import { isDeviceInvitationData } from '@quiet/types'
 
@@ -3554,17 +3554,7 @@ export class Settings {
 
   async closeTab() {
     logger.debug('Closing settings tab')
-    const closeTabButton = await this.tabCloseElement
-    await this.driver.wait(
-      until.elementIsVisible(closeTabButton),
-      5_000,
-      `Settings tab close button wasn't visible within timeout`,
-      500
-    )
-    await closeTabButton.click()
-    // React can reuse the back button as the menu's close button in the single
-    // drawer. Wait for the tab control to disappear, not for that DOM node to die.
-    await waitForSettingsTabClosed(this.driver)
+    await closeSettingsTab(this.driver)
   }
 }
 
