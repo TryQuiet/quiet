@@ -1,7 +1,7 @@
 import { Builder, By, type WebDriver } from 'selenium-webdriver'
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome'
 import { SettingsModalTabName } from '../enums'
-import { waitForSettingsTab } from '../settingsTabReady'
+import { waitForSettingsTab, waitForSettingsTabClosed } from '../settingsTabReady'
 
 // These fixtures reproduce the panels' rendered content after their headings moved
 // into the drawer bar. Chrome supplies real layout and Selenium visibility checks.
@@ -76,5 +76,27 @@ describeLinux('settings panel readiness in Chrome', () => {
   it('does not accept an empty obsolete heading without panel content', async () => {
     await showPanel('<div class="Notificationstitle"></div>')
     await expect(waitForSettingsTab(driver, SettingsModalTabName.NOTIFICATIONS, 200)).rejects.toThrow("wasn't ready")
+  })
+
+  it('recognizes a closed tab when its back button is reused as the menu close button', async () => {
+    await showPanel(`<div data-testid="close-tab-button-box"><button onclick="
+      this.parentElement.removeAttribute('data-testid');
+      this.setAttribute('data-testid', 'close-settings-button');
+    ">Back</button></div>`)
+    const button = await driver.findElement(By.css('button'))
+    await button.click()
+    await expect(waitForSettingsTabClosed(driver, 1_000)).resolves.toBeUndefined()
+    expect(await button.getAttribute('data-testid')).toBe('close-settings-button')
+    expect(await button.isDisplayed()).toBe(true)
+  })
+
+  it('also accepts a hidden tab left in the DOM by an older drawer', async () => {
+    await showPanel('<div data-testid="close-tab-button-box" style="display:none"><button>Back</button></div>')
+    await expect(waitForSettingsTabClosed(driver, 1_000)).resolves.toBeUndefined()
+  })
+
+  it('still rejects a tab whose back button remains visible', async () => {
+    await showPanel('<div data-testid="close-tab-button-box"><button>Back</button></div>')
+    await expect(waitForSettingsTabClosed(driver, 200)).rejects.toThrow('Settings tab did not finish closing')
   })
 })

@@ -283,9 +283,9 @@ describe('AppHome component', () => {
                   style={
                     {
                       "backgroundColor": "transparent",
-                      "borderRadius": 18,
-                      "height": 36,
-                      "margin": 6,
+                      "borderRadius": 24,
+                      "height": 48,
+                      "margin": 0,
                       "shadowColor": "#000",
                       "shadowOffset": {
                         "height": 0,
@@ -293,7 +293,7 @@ describe('AppHome component', () => {
                       },
                       "shadowOpacity": 0,
                       "shadowRadius": 0,
-                      "width": 36,
+                      "width": 48,
                     }
                   }
                   testID="icon-button-container-outer-layer"
@@ -304,7 +304,7 @@ describe('AppHome component', () => {
                       {
                         "backgroundColor": "transparent",
                         "borderColor": "rgba(121, 116, 126, 1)",
-                        "borderRadius": 18,
+                        "borderRadius": 24,
                         "borderWidth": 0,
                         "elevation": 0,
                         "flex": 1,
@@ -322,6 +322,7 @@ describe('AppHome component', () => {
                   >
                     <View
                       accessibilityComponentType="button"
+                      accessibilityLabel="Create channel"
                       accessibilityRole="button"
                       accessibilityState={
                         {
@@ -1849,9 +1850,9 @@ describe('AppHome component', () => {
                   style={
                     {
                       "backgroundColor": "transparent",
-                      "borderRadius": 18,
-                      "height": 36,
-                      "margin": 6,
+                      "borderRadius": 24,
+                      "height": 48,
+                      "margin": 0,
                       "shadowColor": "#000",
                       "shadowOffset": {
                         "height": 0,
@@ -1859,7 +1860,7 @@ describe('AppHome component', () => {
                       },
                       "shadowOpacity": 0,
                       "shadowRadius": 0,
-                      "width": 36,
+                      "width": 48,
                     }
                   }
                   testID="icon-button-container-outer-layer"
@@ -1870,7 +1871,7 @@ describe('AppHome component', () => {
                       {
                         "backgroundColor": "transparent",
                         "borderColor": "rgba(121, 116, 126, 1)",
-                        "borderRadius": 18,
+                        "borderRadius": 24,
                         "borderWidth": 0,
                         "elevation": 0,
                         "flex": 1,
@@ -1888,6 +1889,7 @@ describe('AppHome component', () => {
                   >
                     <View
                       accessibilityComponentType="button"
+                      accessibilityLabel="New direct message"
                       accessibilityRole="button"
                       accessibilityState={
                         {

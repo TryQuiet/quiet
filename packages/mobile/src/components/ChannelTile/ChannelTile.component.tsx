@@ -117,7 +117,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
                     style={{ color: defaultTheme.palette.typography.grayLight }}
                     numberOfLines={1}
                   >
-                    me
+                    you
                   </Typography>
                 )}
               </View>
