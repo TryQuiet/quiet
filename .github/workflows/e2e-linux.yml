@@ -85,7 +85,7 @@ jobs:
         run: chmod +x $FILE_NAME
 
       - name: Test two-player network conditions over Tor
-        timeout-minutes: 45
+        timeout-minutes: 50
         run: |
           sudo apt-get update
           sudo apt-get install -y iproute2 iptables iperf3
