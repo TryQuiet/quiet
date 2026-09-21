@@ -31,7 +31,7 @@ export class Mobile {
   }
   async start() {
     this.onboarding = true
-    if (this.android) {
+    if (this.android && this.config.qssTarget !== 'staging') {
       await this.adb('reverse', 'tcp:3003', 'tcp:3003')
       const { stdout } = await this.adb('reverse', '--list')
       assert(stdout.includes('tcp:3003 tcp:3003'), 'The selected emulator needs the local QSS route')

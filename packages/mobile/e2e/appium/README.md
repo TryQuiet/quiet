@@ -1,7 +1,7 @@
 # Native notification journeys with Appium
 
 This package runs two provider tests against Quiet's native application on Android
-or iOS, with a real desktop peer and the pinned local QSS/QPS fixture:
+or iOS, with a real desktop peer and deployed staging QSS/QPS:
 
 1. Desktop creates a community. A fresh mobile installation joins through the
    visible invitation, completes registration and receives a foreground message.
@@ -33,13 +33,13 @@ Xcode and an APNs-capable simulator or provisioned physical test device. Match
 Firebase project configuration to the application ID, and enable APNs in the iOS
 Firebase project. Keep downloaded service accounts out of this checkout.
 
-Build the app with `.env.e2e.qss.push` and the test project's native Firebase
+Build the provider app with `.env.e2e.qss.staging` and the test project's native Firebase
 configuration (`google-services.json` on Android, `GoogleService-Info.plist` on
 iOS). On Android, after bundling the backend:
 
 ```sh
 cd packages/mobile/android
-ENVFILE=../.env.e2e.qss.push ./gradlew assembleStandardDebug \
+ENVFILE=../.env.e2e.qss.staging ./gradlew assembleStandardDebug \
   -PreactNativeArchitectures=arm64-v8a
 ```
 
@@ -48,11 +48,11 @@ that architecture, run `npm --prefix packages/mobile run prepare-android-x86_64`
 from the repository root first (NDK 28.2.13676358), then select
 `-PreactNativeArchitectures=x86_64`. The lane does not require ARM translation.
 
-For iOS, build the **Quiet** scheme with `.env.e2e.qss.push`, its bundled JS/backend,
+For iOS, build the **Quiet** scheme with `.env.e2e.qss.staging`, its bundled JS/backend,
 Firebase plist, and the app plus NSE entitlements/profiles appropriate to the
 test device. Do not resign the extension away or use `simctl push` as provider
 validation. The [guarded iOS build recipe](../../scripts/tor-ios-simulator/README.md)
-accepts `--scheme Quiet --configuration Debug --env-file .env.e2e.qss.push`
+accepts `--scheme Quiet --configuration Debug --env-file .env.e2e.qss.staging`
 for this provider lane; `.env.e2e.qss` selects push-disabled onboarding.
 
 For push-disabled iOS onboarding, use `.env.e2e.qss`. An omitted `QPS_ALLOWED`
@@ -61,7 +61,7 @@ as a bundle resource: in a disposable smoke checkout without Firebase configurat
 an empty plist dictionary satisfies the build. The full-loop preflight rejects
 that placeholder. Keep any existing Firebase configuration intact.
 
-iOS preflight inspects the built native executable and `Env.plist` for the local
+iOS preflight inspects the built native executable and `Env.plist` for the selected
 QSS endpoint, checks that push configuration matches the selected lane, and records
 frontend/backend/native hashes. Provider runs additionally require matching Firebase
 configuration and a bundled notification service extension with the correct
@@ -83,29 +83,31 @@ Physical devices retain normal development signing and provisioning.
 
 The [QSS-only backend](../../../backend/e2e/qss-only/README.md) is supported on
 Android when Tor is unavailable. Build both consumers from the same receipt and
-use a private env file containing `.env.e2e.qss.push` plus
+use a private env file containing `.env.e2e.qss.staging` plus
 `QUIET_E2E_QSS_ONLY=true`. Export `IS_E2E=true` and
 `QUIET_QSS_ONLY_BUILD_RECEIPT`. This covers real QSS authentication, encrypted
 messaging and notifications, with simulated Tor metadata and P2P disabled.
 Build/package desktop using the [mixed-suite recipe](../README_DESKTOP_QSS.md).
 
-Create a private JSON file (mode 0600) mapping `android` and/or `ios` to the
-**complete downloaded test Firebase service-account object** for that platform.
-Only explicitly supplied accounts are used. Start the provider-enabled fixture:
+The provider lane uses `wss://qss-dev.quiet-services.app`. Both clients must be
+built for that exact endpoint. Firebase/APNs provider credentials remain on QSS;
+Quiet CI decrypts only its native client configuration. Each invocation creates
+a fresh `ci-notif-…` community and retains the ordinary authentication and
+notification flows. Staging runs observe foreground delivery and both OS
+notification/tap journeys; they do not inspect staging's private database.
 
-```sh
-python3 packages/mobile/scripts/qss-e2e/fixture.py up \
-  --output /absolute/private/push-fixture --port 3003 \
-  --push-credentials /absolute/private/firebase-test-accounts.json
-```
+Public staging must retain live hCaptcha keys. Its authenticated CI enrollment
+feature verifies a short-lived GitHub Actions identity for this repository and
+the notification workflows on `develop`. It allows one community per job, with a
+five-minute enrollment grant and durable replay protection. Normal clients still
+use hCaptcha. The preflight fails if this server feature is unavailable; never
+replace staging's live keys with hCaptcha's public test keys.
 
-Provider fixture startup supports Docker and the
-[native macOS runtime](../../scripts/qss-e2e/README.md#native-macos-runtime).
-Use `--sudo-docker` where required, or `--runtime native` with the native tool paths.
-Credentials remain in the private runtime configuration and enter only the QSS
-server process, not build tools, public receipts or archived source.
-Fixture health does not prove successful delivery;
-the Appium assertions do that. For onboarding smoke, omit `--push-credentials`.
+The desktop receives the identity through a private runtime file, restricted to
+E2E mode and the exact staging endpoint. The file is removed at teardown and is
+never packaged or uploaded. No shared enrollment secret or Firebase server key
+is needed in the Quiet repository. A disconnected or failed enrollment may
+consume the job's grant; rerun the job instead of requesting unlimited grants.
 
 ## Run
 
@@ -126,6 +128,7 @@ Write a private configuration file, for example:
 
 ```json
 {
+  "qssTarget": "staging",
   "platform": "android",
   "udid": "emulator-5588",
   "disposable": true,
@@ -143,24 +146,30 @@ For iOS use `"platform": "ios"`, the exact simulator/device UDID, the built
 `.app` directory and its actual bundle ID. Optional fields are `platformVersion`,
 `wdaLocalPort`, `xcodeOrgId` and `updatedWDABundleId` for signing WebDriverAgent on
 physical devices. Desktop runs on the same host as the selected device's Appium
-server. Both clients must reach the fixture as `ws://localhost:3003`; Android
-sets ADB reverse on only the selected device. A physical iPhone requires a
-separately provisioned route to that endpoint; the current localhost fixture
-recipe targets iOS simulators.
+server. Both provider clients connect directly to staging; they need no ADB
+reverse or route to a localhost QSS service. The iOS hosted workflow currently
+uses a fresh simulator. Physical devices still require normal app and
+WebDriverAgent provisioning.
 
-From the repository root, prepare a new private run directory for each invocation:
+Run the provider workflow from `develop`, after the server change is deployed:
 
 ```sh
-export QUIET_NOTIFICATION_CONFIG=/absolute/private/appium.json
-export QUIET_QSS_LOCAL_FIXTURE_OUTPUT=/absolute/private/push-fixture
-export QUIET_QSS_E2E_RUN_DIR=/absolute/private/push-run-01
-python3 packages/mobile/scripts/qss-e2e/fixture.py prepare-run \
-  --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" \
-  --run-output "$QUIET_QSS_E2E_RUN_DIR"
-umask 077
-npm --prefix packages/mobile/e2e/appium run test:full-loop \
-  > "$QUIET_QSS_E2E_RUN_DIR/test.log" 2>&1
+gh workflow run mobile-notification-e2e.yml --ref develop
+gh workflow run mobile-notification-ios.yml --ref develop
+# A maintainer can select a reviewed candidate while keeping the workflow trusted:
+gh workflow run mobile-notification-e2e.yml --ref develop \
+  -f candidate_ref=refs/pull/NUMBER/merge
 ```
+
+The workflow needs `id-token: write`; QSS independently checks the signed
+repository IDs, workflow path, `develop` ref, event and audience. PR-triggered
+jobs run local onboarding, and cannot obtain staging enrollment grants. A
+manual dispatch on another branch also runs only onboarding.
+
+Inside the trusted provider job, the scripts prepare a private staging run,
+check its health and enrollment configuration, and obtain the GitHub token
+immediately before starting desktop. Local onboarding setup remains documented
+in [the QSS fixture guide](../../scripts/qss-e2e/README.md).
 
 Use `test:onboarding` with a push-disabled fixture to debug enrollment first.
 Both commands fail on missing prerequisites instead of skipping. The suite
@@ -181,11 +190,10 @@ assertion values and raw stacks. Cleanup failures retain a failed process status
 macOS 26 with Xcode 26.3. Both native clients use the normal Tor backend and
 the installed Tor 409.11.2 XCFramework from the committed CocoaPods lockfile.
 The guarded builder checks the shipped Tor version and preserves build receipts.
-Postgres, Redis and QSS run directly on the Mac; no Docker service is required.
-Each journey creates and removes its own iPhone simulator. The onboarding lane
-uses a push-disabled fixture and requires no provider credentials. The provider
-lane requires real Firebase/APNs setup and fails if its credential preflight or
-either notification journey fails. A passing onboarding result cannot satisfy it.
+The onboarding lane runs Postgres, Redis and a push-disabled QSS directly on
+the Mac; no Docker service is required. The provider lane connects to staging
+and starts no local QSS or database. Each journey creates and removes its own
+iPhone simulator. A passing onboarding result cannot satisfy provider delivery.
 
 The iOS runner invokes `ci-ios-build.sh` and `ci-ios.sh`; both require a fresh
 GitHub Actions runner and an explicit `QUIET_NOTIFICATION_LANE`. Only selected
@@ -194,29 +202,22 @@ are published. CI execution
 results belong in the [validation record](../README_QSS_NOTIFICATIONS.md);
 adding a workflow does not establish an iOS UI pass.
 
-`Mobile notification provider tests` runs on same-repository PRs touching this
-harness, and supports manual dispatch. The Android job validates credentials,
-builds both clients with the QSS-only backend, and runs both full-loop journeys
-on a Google APIs Android 36 emulator. It never substitutes onboarding for a
-failed provider test. Credential-availability booleans, a small result receipt
-and sanitized failure locations are published; raw logs, screenshots and
-credentials are not artifacts.
+The Android workflow builds both clients with the QSS-only backend and runs on
+a Google APIs Android 36 emulator. Relevant pushes to `develop` and trusted
+manual dispatches include the provider lane. Same-repository PRs run onboarding
+and the harness regression tests. The provider lane fails if either real OS
+notification journey fails.
 
 `ANDROID_FIREBASE_KEY` and `IOS_FIREBASE_KEY` decrypt the checked-in native
-Firebase client configurations. They are not credentials for sending pushes.
-By default the job uses `QSS_AWS_ACCESS_KEY_ID` / `QSS_AWS_SECRET_ACCESS_KEY` to
-read exactly `DEV_FIREBASE_ANDROID_PRIVATE_KEY` and
-`DEV_FIREBASE_IOS_PRIVATE_KEY` from AWS Secrets Manager. Project IDs, service
-account emails and the AWS region come from the pinned QSS `app/.env.dev`,
-matching its `PushService` / `AWSSecretsService` configuration. This performs no
-AWS writes and has no production-secret fallback. A lookup denial is reported
-as a preflight failure before any app build or provider test.
+Firebase client configurations. `ci_credentials.py --staging` checks their app
+and project IDs against the public configuration pinned in the QSS submodule.
+It ignores server credentials and never reads AWS Secrets Manager. QSS's AWS and
+Firebase server secrets remain scoped to the QSS deployment repository.
 
-A dedicated `QSS_NOTIFICATION_FIREBASE_CREDENTIALS` JSON map, or the explicit
-`FIREBASE_<PLATFORM>_{PROJECT_ID,CLIENT_EMAIL,PRIVATE_KEY}` fields, can override
-the AWS lookup. The public receipt distinguishes missing credentials from
-client/server project mismatches. A green credential check establishes build
-prerequisites only; the real Appium journeys must also pass.
+Only client-configuration availability, allowlisted result fields and sanitized
+failure locations are uploaded. Raw logs, screenshots, invitations, run files
+and the CI identity are private. A successful preflight establishes prerequisites;
+the actual Appium journeys establish provider delivery.
 
 ## Faster coverage and current limits
 

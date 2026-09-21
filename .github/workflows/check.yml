@@ -28,6 +28,13 @@ jobs:
       - name: "Validate workflow concurrency policy"
         run: node scripts/check-workflow-concurrency.test.mjs
 
+      - name: Test dependency download recovery
+        run: node --test scripts/retry-network-command.test.mjs
+
+      - name: Test Gradle wrapper download timeout
+        if: runner.os == 'Linux'
+        run: python3 scripts/test_gradle_download.py
+
       - name: "Remove test files workaround (jest types conflicting with cypress types)"
         if: ${{ runner.os == 'Windows' }}
         run: find packages/desktop/src -name '*.test.*' -delete
@@ -44,3 +51,7 @@ jobs:
       - name: "Lint"
         if: ${{ runner.os != 'Windows' }}
         run: npm run lint:all:ci
+
+      - name: Test workspace setup and native cache isolation
+        if: runner.os == 'Linux'
+        run: node --test scripts/ci-setup.test.cjs

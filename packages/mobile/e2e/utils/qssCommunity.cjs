@@ -16,7 +16,7 @@ const requireCondition = (condition, message) => {
 const sha256 = filename => createHash('sha256').update(fs.readFileSync(filename)).digest('hex')
 const readJson = filename => JSON.parse(fs.readFileSync(filename, 'utf8'))
 
-function parseQssInvitation(invitation, communityName) {
+function parseQssInvitation(invitation, communityName, expectedEndpoint = ENDPOINT) {
   // The production parser logs the complete invitation, including its secret.
   // Parse only the UI fields needed by this test and never attach input to errors.
   try {
@@ -26,7 +26,8 @@ function parseQssInvitation(invitation, communityName) {
     for (const key of ['v', 'q', 'e', 'a', 'k']) requireCondition(params.getAll(key).length === 1, 'Invalid invite')
     requireCondition(params.get('v') === 'v5' && params.get('q') === 'true', 'Invalid invite')
     const endpoint = Buffer.from(params.get('e'), 'base64url').toString('utf8')
-    requireCondition(endpoint === ENDPOINT, 'Invalid invite')
+    requireCondition([ENDPOINT, 'wss://qss-dev.quiet-services.app'].includes(expectedEndpoint), 'Invalid endpoint')
+    requireCondition(endpoint === expectedEndpoint, 'Invalid invite')
     const auth = new URLSearchParams(Buffer.from(params.get('a'), 'base64url').toString('utf8'))
     for (const key of ['c', 't', 's', 'l']) requireCondition(auth.getAll(key).length === 1, 'Invalid invite')
     requireCondition(auth.get('c') === communityName, 'Invalid invite')
@@ -38,7 +39,7 @@ function parseQssInvitation(invitation, communityName) {
     requireCondition(Buffer.from(params.get('k'), 'base64').length === 32, 'Invalid invite')
     return { version: 'v5', endpoint, communityName, teamId: auth.get('t') }
   } catch {
-    throw new Error('The visible invitation must identify this community and the local QSS fixture using v5')
+    throw new Error('The visible invitation must identify this community and the selected QSS test endpoint using v5')
   }
 }
 

@@ -18,7 +18,9 @@ function fixture(t) {
 for (const lane of ['onboarding', 'provider']) {
   test(`${lane} workflow builds the emulator ABI with the selected notification settings`, t => {
     const { root, log, record, env } = fixture(t)
-    fs.copyFileSync(path.resolve(__dirname, '../.env.e2e.qss.push'), path.join(root, 'packages/mobile/.env.e2e.qss.push'))
+    for (const file of ['.env.e2e.qss.push', '.env.e2e.qss.staging']) {
+      fs.copyFileSync(path.resolve(__dirname, '..', file), path.join(root, 'packages/mobile', file))
+    }
     for (const name of ['sdkmanager', 'npm']) {
       fs.writeFileSync(path.join(root, 'bin', name), record + `if (process.env.FAIL_INPUTS && ${JSON.stringify(name)} === 'npm') process.exit(23);\n`, { mode: 0o755 })
     }
@@ -35,6 +37,7 @@ for (const lane of ['onboarding', 'provider']) {
     assert.ok(calls[2].args.includes(`-PreactNativeArchitectures=${emulator.with.arch}`))
     const settings = fs.readFileSync(calls[2].envFile, 'utf8')
     assert.match(settings, /QUIET_E2E_QSS_ONLY=true/)
+    assert.ok(settings.includes(`QSS_ENDPOINT=${lane === 'provider' ? 'wss://qss-dev.quiet-services.app' : 'ws://localhost:3003'}`))
     assert.match(settings, new RegExp(`^QPS_ALLOWED=${lane === 'provider'}$`, 'm'))
     fs.writeFileSync(log, '')
     const failed = spawnSync('bash', ['-e', '-o', 'pipefail', '-c', build], { cwd: root, env: { ...env, QUIET_NOTIFICATION_LANE: lane, FAIL_INPUTS: '1' }, encoding: 'utf8' })

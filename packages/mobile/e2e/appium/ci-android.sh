@@ -12,7 +12,11 @@ esac
 cd "$GITHUB_WORKSPACE"
 umask 077
 
-export QUIET_QSS_LOCAL_FIXTURE_OUTPUT="$RUNNER_TEMP/notification-fixture"
+if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then
+  export QUIET_QSS_LOCAL_FIXTURE_OUTPUT="$RUNNER_TEMP/notification-fixture"
+else
+  unset QUIET_QSS_LOCAL_FIXTURE_OUTPUT
+fi
 export QUIET_QSS_E2E_RUN_DIR="$RUNNER_TEMP/notification-run"
 export QUIET_QSS_ONLY_BUILD_RECEIPT="$RUNNER_TEMP/notification-backend/qss-only-build.json"
 export QUIET_NOTIFICATION_CONFIG="$RUNNER_TEMP/notification-appium.json"
@@ -61,11 +65,11 @@ cleanup() {
   # Fluxbox aborts if Xvfb disappears while its SIGTERM handler is still using X11.
   stop_owned_child "$wm_pid"
   stop_owned_child "$xvfb_pid"
-  if [[ -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/manifest.json" ]]; then
+  if [[ -n "${QUIET_QSS_LOCAL_FIXTURE_OUTPUT:-}" && -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/manifest.json" ]]; then
     python3 packages/mobile/scripts/qss-e2e/fixture.py stop --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" > "$RUNNER_TEMP/notification-fixture-stop.log" 2>&1 || true
   fi
   # Compose's runtime file contains provider credentials; do not archive it.
-  rm -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/compose.json"
+  if [[ -n "${QUIET_QSS_LOCAL_FIXTURE_OUTPUT:-}" ]]; then rm -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/compose.json"; fi
   if [[ "$result" != 0 ]]; then echo "Android notification lane failed during $stage (exit $result)."; fi
   exit "$result"
 }
@@ -85,19 +89,20 @@ fluxbox > "$RUNNER_TEMP/notification-window-manager.log" 2>&1 &
 wm_pid=$!
 
 stage=qss-fixture
-fixture_args=(up --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003)
 if [[ "$QUIET_NOTIFICATION_LANE" == provider ]]; then
-  fixture_args+=(--push-credentials "$RUNNER_TEMP/notification-credentials/firebase-accounts.json")
+  node packages/mobile/e2e/appium/staging.mjs --prepare "$QUIET_QSS_E2E_RUN_DIR"
+else
+  python3 packages/mobile/scripts/qss-e2e/fixture.py up --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --port 3003 > "$RUNNER_TEMP/notification-fixture.log" 2>&1
+  python3 packages/mobile/scripts/qss-e2e/fixture.py prepare-run \
+    --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --run-output "$QUIET_QSS_E2E_RUN_DIR"
 fi
-python3 packages/mobile/scripts/qss-e2e/fixture.py "${fixture_args[@]}" > "$RUNNER_TEMP/notification-fixture.log" 2>&1
-python3 packages/mobile/scripts/qss-e2e/fixture.py prepare-run \
-  --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --run-output "$QUIET_QSS_E2E_RUN_DIR"
 
 python3 - <<'PY'
 import json, os
 from pathlib import Path
 root = Path(os.environ['GITHUB_WORKSPACE'])
 config = {
+    'qssTarget': 'staging' if os.environ['QUIET_NOTIFICATION_LANE'] == 'provider' else 'local',
     'platform': 'android', 'udid': 'emulator-5554', 'disposable': True,
     'bundleId': 'com.quietmobile.debug', 'appiumPort': 4725, 'systemPort': 8225,
     'app': str(root / 'packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk'),
@@ -155,6 +160,7 @@ stages = {'desktop-create', 'mobile-start', 'mobile-join', 'foreground-send', 'f
 build = proof.get('build', {})
 report = {
     'platform': 'android',
+    'qssTarget': proof.get('qssTarget'),
     'lane': os.environ['QUIET_NOTIFICATION_LANE'],
     'testExitCode': int(os.environ['QUIET_NOTIFICATION_TEST_EXIT']),
     'displayAliveAfterJourney': os.environ['QUIET_NOTIFICATION_DISPLAY_ALIVE'] == 'true',

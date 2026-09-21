@@ -1,6 +1,6 @@
 import { error, Session, WebDriver, WebElement, type ThenableWebDriver } from 'selenium-webdriver'
 import { Command, Name } from 'selenium-webdriver/lib/command'
-import { App, Channel, UserProfileContextMenu, UsersList } from './selectors'
+import { App, Channel, UserProfileContextMenu, DirectMessageList } from './selectors'
 import { PhotoExt } from './enums'
 import { UserListStatus } from './types'
 
@@ -146,17 +146,27 @@ describe('Channel readiness during a join', () => {
   })
 })
 
-describe('Initial QSS peer presence', () => {
+describe('Direct-message peer presence', () => {
   let connected: boolean
-  let users: UsersList
+  let users: DirectMessageList
 
   beforeEach(() => {
     jest.useFakeTimers({ doNotFake: ['setImmediate'] })
     connected = false
     const execute = jest.fn(async (command: Command) => {
       if (command.getName() === Name.FIND_ELEMENTS) {
-        const badge = String(command.getParameter('value')).includes('status-badge')
-        return [WebElement.buildId(badge ? 'presence-badge' : 'user-item')]
+        const locator = String(command.getParameter('value'))
+        const badge = locator.includes('status-badge')
+        expect(locator).toContain(badge ? 'dm-channel-profile-photo-status-badge' : '-dm-link-text')
+        return [WebElement.buildId(badge ? 'presence-badge' : 'user-name')]
+      }
+      if (command.getName() === Name.FIND_CHILD_ELEMENT) {
+        expect(command.getParameter('value')).toBe('ancestor::*[contains(@data-testid, "-dm-link")][1]')
+        return WebElement.buildId('user-item')
+      }
+      if (command.getName() === Name.GET_ELEMENT_ATTRIBUTE) {
+        expect(command.getParameter('name')).toBe('data-testid')
+        return 'dm-channel-dm-link'
       }
       if (command.getName() === Name.IS_ELEMENT_DISPLAYED) {
         return JSON.stringify(command.getParameters()).includes('presence-badge') ? connected : true
@@ -164,7 +174,7 @@ describe('Initial QSS peer presence', () => {
       throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
     })
     const driver = new WebDriver(new Session('qss-presence', {}), { execute })
-    users = new UsersList(driver as ThenableWebDriver)
+    users = new DirectMessageList(driver as ThenableWebDriver)
   })
 
   afterEach(() => jest.useRealTimers())
