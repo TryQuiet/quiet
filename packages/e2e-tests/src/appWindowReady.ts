@@ -12,7 +12,15 @@ export async function waitForAppWindow(driver: WebDriver, timeoutMs = 30_000): P
           // GetUrl, even though it reports the command itself as successful.
           if (url && new URL(url).pathname.endsWith('/index.html')) return true
         } catch (error) {
-          if (!(error instanceof Error) || error.name !== 'NoSuchWindowError') throw error
+          if (!(error instanceof Error)) throw error
+          // The same splash teardown can fail GetUrl after its target frame is
+          // detached, before ChromeDriver reports that the window is gone.
+          const detachedFrame =
+            error.name === 'WebDriverError' &&
+            /^unknown error: cannot determine loading status\r?\nfrom target frame detached(?:\r?\n|$)/.test(
+              error.message
+            )
+          if (error.name !== 'NoSuchWindowError' && !detachedFrame) throw error
         }
       }
       return false

@@ -34,40 +34,45 @@ describe('App window handoff', () => {
   beforeEach(() => jest.useFakeTimers({ doNotFake: ['setImmediate'] }))
   afterEach(() => jest.useRealTimers())
 
-  it.each([undefined, null, ''])(
-    'selects the main window after ChromeDriver returns %s for a disappearing splash',
-    async splashUrl => {
-      let poll = 0
-      let selected = ''
-      // Replay the actual ChromeDriver handoff: GetUrl has no value after
-      // Page.getFrameTree loses the splash target, despite a successful command.
-      const execute = jest.fn(async (command: Command) => {
-        switch (command.getName()) {
-          case Name.GET_WINDOW_HANDLES:
-            poll += 1
-            return ['splash', 'main']
-          case Name.SWITCH_TO_WINDOW:
-            selected = String(command.getParameter('handle'))
-            return
-          case Name.GET_CURRENT_URL:
-            return selected === 'splash'
-              ? splashUrl
-              : 'file:///C:/Quiet/resources/app.asar/dist/main/index.html?dataPort=1234#/main/channel/general'
-          default:
-            throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
-        }
-      })
-      const driver = new WebDriver(new Session('window-handoff', {}), { execute })
-      const result = waitForAppWindow(driver).then(
-        () => ({ ready: true }),
-        failure => ({ failure })
-      )
-      await advanceTime(500)
-      expect(await result).toEqual({ ready: true })
-      expect(selected).toBe('main')
-      expect(poll).toBe(1)
-    }
-  )
+  it.each([
+    undefined,
+    null,
+    '',
+    new error.WebDriverError(
+      'unknown error: cannot determine loading status\nfrom target frame detached\n  (Session info: chrome=152.0.7977.78)'
+    ),
+  ])('selects the main window after ChromeDriver returns %s for a disappearing splash', async splashUrl => {
+    let poll = 0
+    let selected = ''
+    // Replay the actual ChromeDriver handoff: GetUrl has no value after
+    // Page.getFrameTree loses the splash target, despite a successful command.
+    const execute = jest.fn(async (command: Command) => {
+      switch (command.getName()) {
+        case Name.GET_WINDOW_HANDLES:
+          poll += 1
+          return ['splash', 'main']
+        case Name.SWITCH_TO_WINDOW:
+          selected = String(command.getParameter('handle'))
+          return
+        case Name.GET_CURRENT_URL:
+          if (selected === 'splash' && splashUrl instanceof Error) throw splashUrl
+          return selected === 'splash'
+            ? splashUrl
+            : 'file:///C:/Quiet/resources/app.asar/dist/main/index.html?dataPort=1234#/main/channel/general'
+        default:
+          throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
+      }
+    })
+    const driver = new WebDriver(new Session('window-handoff', {}), { execute })
+    const result = waitForAppWindow(driver).then(
+      () => ({ ready: true }),
+      failure => ({ failure })
+    )
+    await advanceTime(500)
+    expect(await result).toEqual({ ready: true })
+    expect(selected).toBe('main')
+    expect(poll).toBe(1)
+  })
 
   it('retries while the splash disappears and the main renderer is still blank', async () => {
     let poll = 0
@@ -106,8 +111,10 @@ describe('App window handoff', () => {
     expect((await failure).message).toContain('Quiet main window did not finish loading')
   })
 
-  it('propagates a lost session instead of retrying it as a splash transition', async () => {
-    const failure = new error.NoSuchSessionError('Browser session closed')
+  it.each([
+    new error.NoSuchSessionError('Browser session closed'),
+    new error.WebDriverError('unknown error: cannot determine loading status\nfrom disconnected: renderer unavailable'),
+  ])('propagates %s instead of retrying it as a splash transition', async failure => {
     const execute = jest.fn(async (command: Command) => {
       if (command.getName() === Name.GET_WINDOW_HANDLES) return ['splash']
       throw failure
