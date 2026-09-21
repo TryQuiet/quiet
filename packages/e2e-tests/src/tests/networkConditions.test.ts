@@ -22,21 +22,22 @@ const enabled = process.env.QUIET_NETWORK_PLAYERS !== undefined
 const qssEnabled = process.env.QUIET_NETWORK_QSS === 'true'
 const suite = enabled ? describe : describe.skip
 const script = path.resolve(__dirname, '../../scripts/network/run.py')
-const deadline = 300_000
+const deadline = qssEnabled ? 90_000 : 300_000
 
 function shape(player: number, profile: 'fast' | 'slow') {
   execFileSync('python3', [script, '--profile', profile, '--player', String(player)], { stdio: 'inherit' })
 }
 
 // This suite deliberately never retries a scenario: a recovered retry can hide the race.
-suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetric internet connections`, () => {
+suite(`Two players: ${qssEnabled ? 'QSS with Tor unavailable' : 'Tor'}, asymmetric connections`, () => {
   let apps: App[] = []
+  let scenarioPassed = false
   let uploadDirectory: string | undefined
   afterEach(async () => {
     const errors: unknown[] = []
     for (const app of apps) {
       try {
-        if (app.isOpened) {
+        if (app.isOpened && !scenarioPassed) {
           const artifacts = path.resolve('network-artifacts')
           fs.mkdirSync(artifacts, { recursive: true })
           fs.writeFileSync(path.join(artifacts, `${app.name}.png`), await app.driver.takeScreenshot(), 'base64')
@@ -66,6 +67,7 @@ suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetr
   it.each([0, 1])(
     'joins, syncs history, and recovers when player %i has slow internet',
     async slowPlayer => {
+      scenarioPassed = false
       expect(process.platform).toBe('linux')
       expect(process.env.LOCAL_TRANSPORT).toBe('false')
       const networks: NetworkNamespace[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
@@ -83,6 +85,7 @@ suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetr
       )
       const [owner, guest] = apps
       await owner.open(qssEnabled)
+      if (qssEnabled) await owner.buildSetup.waitForProcessOutput('Spawned tor with pid(s):', 15_000)
       const join = new JoinCommunityModal(owner.driver)
       expect(await join.isReady()).toBeTruthy()
       await join.switchToCreateCommunity()
@@ -97,7 +100,7 @@ suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetr
       await register.typeUsername('owner')
       await register.submit()
       if (qssEnabled) await new TermsOfServiceModal(owner.driver).chooseAgreeAndJoin()
-      await owner.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
+      if (!qssEnabled) await owner.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
       await new JoiningLoadingPanel(owner.driver).waitForJoinToComplete(15_000, deadline)
       const ownerChannel = new Channel(owner.driver, 'general')
       expect(await ownerChannel.isReady()).toBeTruthy()
@@ -110,6 +113,7 @@ suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetr
       await settings.closeTabThenModal()
 
       await guest.open(qssEnabled)
+      if (qssEnabled) await guest.buildSetup.waitForProcessOutput('Spawned tor with pid(s):', 15_000)
       const guestJoin = new JoinCommunityModal(guest.driver)
       expect(await guestJoin.isReady()).toBeTruthy()
       await guestJoin.typeCommunityInviteLink(invitation)
@@ -120,7 +124,7 @@ suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetr
       await guestRegister.typeUsername('guest')
       await guestRegister.submit()
       if (qssEnabled) await new TermsOfServiceModal(guest.driver).chooseAgreeAndJoin()
-      await guest.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
+      if (!qssEnabled) await guest.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
       await new JoiningLoadingPanel(guest.driver).waitForJoinToComplete(15_000, deadline)
       // Resetting admission also hides the panel; it must not count as a successful join.
       expect(guest.buildSetup.hasProcessOutput('Emitting event: resetAdmission')).toBe(false)
@@ -130,38 +134,26 @@ suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetr
       await guestChannel.sendMessage('slow connection reply', 'guest')
       await ownerChannel.waitForUserMessageByText('guest', 'slow connection reply', deadline)
 
-      uploadDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-network-upload-'))
-      const payload = crypto.randomBytes(256 * 1024)
-      const filename = 'network-integrity.bin'
-      const upload = path.join(uploadDirectory, filename)
-      fs.writeFileSync(upload, payload)
-      await ownerChannel.attachFile(filename, upload, FileAttachmentType.FILE, 'owner')
-      const downloads = path.join(guest.buildSetup.dataDirPath, 'Quiet', 'downloads')
-      await guest.driver.wait(
-        () => {
-          if (!fs.existsSync(downloads)) return false
-          return fs.readdirSync(downloads).some(file => {
-            const downloaded = path.join(downloads, file)
-            return fs.statSync(downloaded).isFile() && fs.readFileSync(downloaded).equals(payload)
-          })
-        },
-        deadline,
-        'Guest did not receive the exact attachment bytes over the slow connection'
-      )
-
-      if (qssEnabled) {
-        // Prevent P2P delivery from masking a broken or unthrottled QSS path.
-        for (const app of apps) {
-          await new Sidebar(app.driver).getChannelIcon('general', true)
-          const modal = await new Sidebar(app.driver).openSettings()
-          await modal.openDebugTab()
-          expect(await modal.p2pToggleSwitchState()).toBe(true)
-          await (await modal.p2pToggleSwitch()).click()
-          await app.driver.wait(async () => !(await modal.p2pToggleSwitchState()), 10_000)
-          await modal.closeTabThenModal()
-        }
-        await ownerChannel.sendMessage('QSS delivery with P2P disabled', 'owner')
-        await guestChannel.waitForUserMessageByText('owner', 'QSS delivery with P2P disabled', deadline)
+      // Attachments use peer transfer and belong to the Tor suite, not the QSS result.
+      if (!qssEnabled) {
+        uploadDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-network-upload-'))
+        const payload = crypto.randomBytes(256 * 1024)
+        const filename = 'network-integrity.bin'
+        const upload = path.join(uploadDirectory, filename)
+        fs.writeFileSync(upload, payload)
+        await ownerChannel.attachFile(filename, upload, FileAttachmentType.FILE, 'owner')
+        const downloads = path.join(guest.buildSetup.dataDirPath, 'Quiet', 'downloads')
+        await guest.driver.wait(
+          () => {
+            if (!fs.existsSync(downloads)) return false
+            return fs.readdirSync(downloads).some(file => {
+              const downloaded = path.join(downloads, file)
+              return fs.statSync(downloaded).isFile() && fs.readFileSync(downloaded).equals(payload)
+            })
+          },
+          deadline,
+          'Guest did not receive the exact attachment bytes over the slow connection'
+        )
       }
 
       // Change an established connection in both directions, without restarting either client.
@@ -174,10 +166,15 @@ suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetr
       await guestChannel.sendMessage('message after recovery', 'guest')
       await ownerChannel.waitForUserMessageByText('guest', 'message after recovery', deadline)
       for (const app of apps) {
+        if (qssEnabled) {
+          // The app still starts Tor; QSS must succeed without Tor ever becoming ready.
+          expect(app.buildSetup.hasProcessOutput('Bootstrapping finished!')).toBe(false)
+        }
         expect(app.buildSetup.hasProcessOutput('Admission acquisition deadline expired')).toBe(false)
         expect(app.buildSetup.hasProcessOutput('Emitting event: resetAdmission')).toBe(false)
       }
+      scenarioPassed = true
     },
-    1_200_000
+    qssEnabled ? 180_000 : 1_200_000
   )
 })

@@ -118,6 +118,17 @@ class Network:
             root('sysctl', '-q', '-w', 'net.ipv4.ip_forward='+self.forwarding)
 
 
+def isolate_qss(players):
+    """Keep Tor running but unable to reach relays; only QSS can carry app traffic."""
+    gateway = players[0]['gateway']
+    for player in players:
+        prefix = ('ip', 'netns', 'exec', player['namespace'], 'iptables', '-w', '-A', 'OUTPUT')
+        root(*prefix, '-o', 'data0', '-p', 'tcp', '-d', gateway, '--dport', '3003', '-j', 'ACCEPT')
+        root(*prefix, '-o', 'data0', '-j', 'REJECT')
+    # These rules live inside the namespaces and disappear when they are deleted.
+    print('QSS isolation enabled: Tor runs, but relay access is blocked; QSS uses the shaped data link.', flush=True)
+
+
 def throughput(player, reverse=False, control=False):
     address = player['host'] if control else player['dataIP']
     server = subprocess.Popen(['sudo', '-n', 'ip', 'netns', 'exec', player['namespace'],
@@ -175,7 +186,7 @@ def main():
     for name in ('SIGTERM', 'SIGINT'):
         signal.signal(getattr(signal, name), lambda *_: sys.exit(130))
     if not args.self_test:
-        print('Local network-delay tests: allow about 20 minutes per mode (QSS also uses Tor). '
+        print('Local network-delay tests: Tor can take about 20 minutes; QSS does not wait for Tor. '
               'Run separately from, or after, the ordinary suite. Waiting for the network-test lock...', flush=True)
     lock = open('/tmp/quiet-network-tests.lock', 'w')
     fcntl.flock(lock, fcntl.LOCK_EX)
@@ -183,6 +194,8 @@ def main():
     try:
         players = network.setup()
         smoke(players)
+        if os.environ.get('QUIET_NETWORK_QSS') == 'true':
+            isolate_qss(players)
         if not args.self_test:
             command = args.command
             if command[:1] == ['--']:

@@ -1,5 +1,6 @@
 import { execFileSync } from 'child_process'
 import fs from 'fs'
+import net from 'net'
 import { namespaceCommand, stopNamespaceProcesses, type NetworkNamespace } from './networkNamespace'
 
 const suite = process.env.QUIET_NETWORK_PLAYERS ? describe : describe.skip
@@ -75,6 +76,41 @@ suite('Linux namespace process launch', () => {
     },
     30_000
   )
+
+  qssTest('blocks non-QSS data traffic even when the destination service is listening', async () => {
+    const networks: NetworkNamespace[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
+    const server = net.createServer(socket => socket.end())
+    await new Promise<void>(resolve => server.listen(0, '0.0.0.0', resolve))
+    try {
+      const port = (server.address() as net.AddressInfo).port
+      // Prove this is a live service, rather than mistaking an unused port for isolation.
+      await new Promise<void>((resolve, reject) => {
+        const socket = net.connect(port, networks[0].gateway, () => {
+          socket.destroy()
+          resolve()
+        })
+        socket.on('error', reject)
+      })
+      for (const network of networks) {
+        const command = namespaceCommand(network, process.execPath, [
+          '-e',
+          `
+          const socket = require('net').connect(${port}, '${networks[0].gateway}');
+          socket.on('connect', () => { console.log('CONNECTED'); socket.destroy(); });
+          socket.on('error', error => console.log(error.code));
+          `,
+        ])
+        const result = execFileSync(command.command, command.args, {
+          encoding: 'utf8',
+          input: JSON.stringify(process.env),
+          timeout: 5000,
+        })
+        expect(result.trim()).toBe('ECONNREFUSED')
+      }
+    } finally {
+      await new Promise<void>(resolve => server.close(() => resolve()))
+    }
+  })
 
   it('terminates leftover namespace children without terminating the test runner', async () => {
     const network: NetworkNamespace = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)[0]

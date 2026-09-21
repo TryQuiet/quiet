@@ -94,13 +94,19 @@ and keep its QSS server running until it finishes. Network-suite invocations
 serialize with each other because they temporarily configure host forwarding;
 they do not acquire a lock used by ordinary tests.
 
-**Budget roughly 20 minutes per mode, or 40 minutes for both**, excluding builds.
-Observed runs took 18m25s for Tor and 17m13s for QSS with Tor. Public Tor startup
-varies, and each scenario has a 20-minute limit plus cleanup. The QSS mode also
-uses real Tor for peer traffic and attachments: cold Tor bootstrap across four
-client launches accounts for much of its runtime, not QSS connection setup.
-The combined QSS test explicitly waits for Tor before checking joining/messages;
-it does not prove QSS usability while Tor bootstrap is still pending.
+**Tor is slow; QSS does not wait for Tor.** Allow about 20 minutes for the Tor
+mode, excluding builds (an observed run took 18m25s). Each Tor scenario has a
+20-minute limit plus cleanup. QSS instead has a three-minute limit per scenario
+and 90-second phase deadlines. A local QSS run passed both scenarios and the
+namespace checks in **2m05s**, or **2m55s including network setup and bandwidth
+checks**, excluding builds. Both commands first measure bandwidth limits.
+
+The QSS mode starts real Tor but blocks relay access in the test namespaces,
+allowing only the local QSS endpoint on the data link. Joining, history, messages,
+and recovery must succeed without Tor bootstrapping. The Tor mode tests Tor
+startup, peer messaging, and exact attachment bytes separately. This makes QSS
+failures independent of public Tor availability and prevents P2P fallback from
+masking a broken QSS path.
 
 These are important regression checks when changing joining/admission,
 synchronization, reconnect logic, file transfer, or timeout handling. Fast local
@@ -122,13 +128,14 @@ export FILE_NAME=Quiet-VERSION.AppImage
 # Tor, with QSS disabled:
 npm run test:network:tor
 
-# QSS plus Tor (start the normal QSS Docker stack first; use the QSS E2E build):
+# QSS only, with Tor running but unavailable (start QSS Docker; use the QSS E2E build):
 npm run test:network:qss
 ```
 
 Each command runs independently and reports its own failures. Keep its terminal
-open until completion, or use Ctrl-C to cancel and clean up. Screenshots remain
-in `network-artifacts/`; they are not uploaded automatically.
+open until completion, or use Ctrl-C to cancel and clean up. Failure screenshots remain
+in `network-artifacts/`; they are not uploaded automatically. Successful cases
+skip screenshot capture so diagnostics do not delay the run.
 
 To check real bandwidth limiting, process isolation cleanup on failure, and
 SIGTERM cleanup without an app or display:
@@ -137,16 +144,16 @@ SIGTERM cleanup without an app or display:
 npm run test:network:harness
 ```
 
-Each mode tests a slow owner and a slow joiner separately, beginning before Tor
-bootstrap. It checks joining, pre-existing history, bidirectional messages, a
-256 KiB random attachment by exact downloaded bytes, and delivery after changing
-an established connection from fast to slow and back. Scenarios are not retried.
+Each mode tests a slow owner and a slow joiner separately. Both check joining,
+pre-existing history, bidirectional messages, and delivery after changing an
+established connection from fast to slow and back. Tor additionally checks a
+256 KiB random attachment by exact downloaded bytes. Scenarios are not retried.
 
 QSS must publish port 3003 on all host interfaces. Both clients reach it via the
-owner's **data gateway**, which is also embedded in the invitation. After checking
-attachment integrity, the QSS mode disables P2P syncing in both clients and
-verifies QSS message delivery through slowdown and recovery. This prevents P2P
-fallback from hiding a QSS failure.
+owner's **data gateway**, which is also embedded in the invitation. The isolation
+test verifies both successful QSS WebSocket connections and rejection of other
+traffic to a live service. The app test checks that Tor was started but never
+finished bootstrapping while QSS delivered the messages.
 
 Each player gets a network namespace containing ChromeDriver, Electron, the
 backend, and its Tor process. A data veth connects it to the host's NAT. A second
@@ -163,6 +170,5 @@ The wrapper allocates non-overlapping test subnets, configures DNS and forwardin
 and removes its namespaces, processes, firewall rules, and resolver files on
 normal exit, failure, SIGINT, or SIGTERM. It restores the prior forwarding setting.
 Abrupt host shutdown/SIGKILL cannot run cleanup. Only setup/teardown use root;
-the app processes run as the caller. Explicit Tor/join/delivery waits are five
-minutes. Neither mode uses local transport: its advertised loopback addresses
+the app processes run as the caller. Tor mode uses five-minute phase deadlines; QSS uses 90 seconds. Neither mode uses local transport: its advertised loopback addresses
 cannot connect separate network namespaces.
