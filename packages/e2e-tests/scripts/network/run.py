@@ -14,7 +14,11 @@ import time
 
 
 def run(*args, check=True):
-    return subprocess.run([str(a) for a in args], check=check, text=True, capture_output=True, timeout=60)
+    try:
+        return subprocess.run([str(a) for a in args], check=check, text=True, capture_output=True, timeout=60)
+    except subprocess.CalledProcessError as error:
+        print(error.stderr, file=sys.stderr)
+        raise
 
 
 def root(*args, check=True):

@@ -27,8 +27,8 @@ module.smoke = lambda players: None
 sys.exit(module.main())
 '''
             command = f'''
-import os, pathlib, time
-pathlib.Path({str(marker)!r}).write_text(os.environ['QUIET_NETWORK_PLAYERS'])
+import json, os, pathlib, time
+pathlib.Path({str(marker)!r}).write_text(json.dumps({{'players': json.loads(os.environ['QUIET_NETWORK_PLAYERS']), 'pid': os.getpid()}}))
 {'time.sleep(120)' if cancel else 'raise SystemExit(23)'}
 '''
             before = Path('/proc/sys/net/ipv4/ip_forward').read_text()
@@ -42,11 +42,15 @@ pathlib.Path({str(marker)!r}).write_text(os.environ['QUIET_NETWORK_PLAYERS'])
                     child.terminate()
                     output = child.communicate(timeout=10)
                     self.fail(f'Test command never started: {output}')
-                players = json.loads(marker.read_text())
+                payload = json.loads(marker.read_text())
+                players = payload['players']
                 if cancel:
                     child.send_signal(signal.SIGTERM)
                 stdout, stderr = child.communicate(timeout=15)
                 self.assertEqual(child.returncode, 130 if cancel else 23, (stdout, stderr))
+                proc = Path(f"/proc/{payload['pid']}/stat")
+                self.assertTrue(not proc.exists() or proc.read_text().split()[2] == 'Z',
+                                'Wrapped test command survived cleanup')
                 namespaces = subprocess.check_output(['ip', 'netns', 'list'], text=True)
                 rules = subprocess.check_output(['sudo', '-n', 'iptables-save'], text=True)
                 links = subprocess.check_output(['ip', '-j', 'link'], text=True)
