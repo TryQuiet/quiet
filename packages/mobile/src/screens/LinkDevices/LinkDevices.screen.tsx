@@ -1,6 +1,6 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities, connection } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 
 import { LinkDevices } from '../../components/LinkDevices/LinkDevices.component'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -15,11 +15,6 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 export const LinkDevicesScreen: FC = () => {
   const dispatch = useDispatch()
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const linkedDevices = useSelector(connection.selectors.linkedDevices)
-
-  useEffect(() => {
-    dispatch(connection.actions.getLinkedDevices())
-  }, [dispatch])
 
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())
@@ -43,7 +38,6 @@ export const LinkDevicesScreen: FC = () => {
       onDisplayQrCode={onDisplayQrCode}
       onScanQrCode={onScanQrCode}
       canDisplayQrCode={Boolean(currentCommunity)}
-      linkedDevices={linkedDevices}
       handleBackButton={handleBackButton}
     />
   )

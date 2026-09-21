@@ -1,5 +1,5 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { delay, put, select } from 'typed-redux-saga'
+import { delay, put, select, takeLatest } from 'typed-redux-saga'
 
 import { type DeviceLinkInvite } from '@quiet/types'
 
@@ -16,4 +16,9 @@ export function* expireDeviceLinkSaga(action: PayloadAction<DeviceLinkInvite | u
   if (activeInvite?.id !== deviceLinkInvite.id || activeInvite.expiresAt !== deviceLinkInvite.expiresAt) return
 
   yield* put(connectionActions.setDeviceLinkInvite(undefined))
+}
+
+/** Run from the application root so a socket disconnect cannot cancel expiry. */
+export function* watchDeviceLinkExpirySaga(): Generator {
+  yield* takeLatest(connectionActions.setDeviceLinkInvite.type, expireDeviceLinkSaga)
 }

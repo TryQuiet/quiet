@@ -7,6 +7,7 @@ import { communities } from '@quiet/state-manager'
 import { type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
 
 import { ScreenNames } from '../../const/ScreenNames.enum'
+import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
 import type { ScanQrCodeVariant } from '../../route.params'
 import { initActions } from '../../store/init/init.slice'
 import { navigationActions } from '../../store/navigation/navigation.slice'
@@ -60,10 +61,12 @@ describe('ScanQrCodeScreen', () => {
     expect(dispatchSpy).toHaveBeenCalledWith(
       navigationActions.navigation({ screen: ScreenNames.UsernameRegistrationScreen })
     )
-    expect(dispatchSpy).not.toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvite }))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      communities.actions.linkDevice(confirmedDeviceLinkPayload(deviceInvite))
+    )
   })
 
-  it('links this device from a scanned device link without starting member registration', async () => {
+  it('asks for consent before linking from a scanned device link, then links on confirm', async () => {
     const { dispatchSpy, result } = await renderScreen('deviceLink')
     expect(result.getByText('Scan QR code')).toBeTruthy()
     expect(
@@ -72,7 +75,17 @@ describe('ScanQrCodeScreen', () => {
 
     scan(result.getByTestId('link-devices-qr-scanner-camera'), composeInvitationShareUrl(deviceInvite))
 
-    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvite }))
+    // Scanning alone links nothing: the consent drawer comes up first, and the
+    // camera stops behind it.
+    expect(result.getByTestId('device-link-consent')).toBeTruthy()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      communities.actions.linkDevice(confirmedDeviceLinkPayload(deviceInvite))
+    )
+    expect(result.getByTestId('link-devices-qr-scanner-camera').props.isActive).toBe(false)
+
+    fireEvent.press(result.getByTestId('device-link-confirm'))
+
+    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice(confirmedDeviceLinkPayload(deviceInvite)))
     expect(dispatchSpy).toHaveBeenCalledWith(
       navigationActions.replaceScreen({ screen: ScreenNames.ConnectionProcessScreen })
     )
@@ -82,10 +95,26 @@ describe('ScanQrCodeScreen', () => {
     )
   })
 
-  it('accepts a device link on Join with QR code, as the paste field does', async () => {
+  it('links nothing when the scanned device link is declined, and scans again', async () => {
+    const { dispatchSpy, result } = await renderScreen('deviceLink')
+
+    scan(result.getByTestId('link-devices-qr-scanner-camera'), composeInvitationShareUrl(deviceInvite))
+    fireEvent.press(result.getByTestId('device-link-cancel'))
+
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      communities.actions.linkDevice(confirmedDeviceLinkPayload(deviceInvite))
+    )
+    // Back to scanning, not stuck behind a dismissed drawer.
+    expect(result.getByTestId('link-devices-qr-scanner-camera').props.isActive).toBe(true)
+  })
+
+  it('accepts a device link on Join with QR code too, behind the same consent', async () => {
     const { dispatchSpy, result } = await renderScreen('join')
     scan(result.getByTestId('join-qr-scanner-camera'), composeInvitationShareUrl(deviceInvite))
-    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvite }))
+
+    expect(result.getByTestId('device-link-consent')).toBeTruthy()
+    fireEvent.press(result.getByTestId('device-link-confirm'))
+    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice(confirmedDeviceLinkPayload(deviceInvite)))
   })
 
   it("keeps scanning after a code that is not a Quiet invitation and shows the paste field's error", async () => {

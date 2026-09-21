@@ -1,6 +1,10 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { communities } from '@quiet/state-manager'
+import type { DeviceInvitationData } from '@quiet/types'
+
+import DeviceLinkConsentDrawer from '../../components/ModalBottomDrawer/drawers/DeviceLinkConsent.drawer'
 import { QrScanner } from '../../components/QrScanner/QrScanner.component'
 import { Splash } from '../../components/Splash/Splash.component'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -9,7 +13,11 @@ import type { PasteInviteLinkVariant, ScanQrCodeVariant } from '../../route.para
 import { initSelectors } from '../../store/init/init.selectors'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { navigationActions } from '../../store/navigation/navigation.slice'
+import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
+import { createLogger } from '../../utils/logger'
 import { ScanQrCodeScreenProps } from './ScanQrCode.types'
+
+const logger = createLogger('ScanQrCodeScreen')
 
 interface ScanQrCodeCopy {
   title: string
@@ -43,7 +51,24 @@ export const ScanQrCodeScreen: FC<ScanQrCodeScreenProps> = ({ route }) => {
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
   const active = useSelector(navigationSelectors.currentScreen) === ScreenNames.ScanQrCodeScreen
 
-  const onDecoded = useInvitationAction()
+  const [deviceLinkInvite, setDeviceLinkInvite] = useState<DeviceInvitationData | undefined>(undefined)
+
+  // A scanned device link goes through the same consent drawer a pasted one
+  // does: scanning is not a shortcut around it.
+  const onDecoded = useInvitationAction(setDeviceLinkInvite)
+
+  const linkDevice = useCallback(
+    (data: DeviceInvitationData) => {
+      logger.info('Linking this device from a scanned device link')
+      dispatch(communities.actions.linkDevice(confirmedDeviceLinkPayload(data)))
+      dispatch(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.ConnectionProcessScreen,
+        })
+      )
+    },
+    [dispatch]
+  )
 
   const onClose = useCallback(() => {
     dispatch(navigationActions.pop())
@@ -61,14 +86,25 @@ export const ScanQrCodeScreen: FC<ScanQrCodeScreenProps> = ({ route }) => {
   if (!isWebsocketConnected) return <Splash />
 
   return (
-    <QrScanner
-      title={copy.title}
-      intro={copy.intro}
-      active={active}
-      onDecoded={onDecoded}
-      onClose={onClose}
-      onUsePasteLink={onUsePasteLink}
-      testID={copy.testID}
-    />
+    <>
+      <QrScanner
+        title={copy.title}
+        intro={copy.intro}
+        // The camera stops while the consent drawer is up: nothing is scanned behind it.
+        active={active && !deviceLinkInvite}
+        onDecoded={onDecoded}
+        onClose={onClose}
+        onUsePasteLink={onUsePasteLink}
+        testID={copy.testID}
+      />
+      <DeviceLinkConsentDrawer
+        inviteData={deviceLinkInvite}
+        onConfirm={() => {
+          if (!deviceLinkInvite) return
+          linkDevice(deviceLinkInvite)
+        }}
+        onCancel={() => setDeviceLinkInvite(undefined)}
+      />
+    </>
   )
 }

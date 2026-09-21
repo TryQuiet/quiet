@@ -15,10 +15,8 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
   onDisplayQrCode,
   onScanQrCode,
   canDisplayQrCode = true,
-  linkedDevices,
   handleBackButton,
 }) => {
-  const others = (linkedDevices ?? []).filter(device => !device.isCurrent)
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
       <Appbar title={'Link devices'} back={handleBackButton} />
@@ -47,30 +45,6 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
             onPress={onScanQrCode}
             testID={'link-devices-scan-qr'}
           />
-        </View>
-        <View style={{ gap: spacing.sm }} testID={'linked-devices-list'}>
-          <Typography variant={'overline'} color={'gray50'}>
-            {'Linked devices'}
-          </Typography>
-          {others.length === 0 ? (
-            <Typography variant={'body'} color={'grayDark'} testID={'no-linked-devices'}>
-              {'No linked devices'}
-            </Typography>
-          ) : (
-            others.map(device => (
-              <View
-                key={device.deviceId}
-                style={{
-                  paddingVertical: spacing.sm,
-                  borderBottomWidth: 1,
-                  borderBottomColor: defaultTheme.palette.typography.veryLightGray,
-                }}
-                testID={`linked-device-${device.deviceName}`}
-              >
-                <Typography variant={'bodyLg'}>{device.deviceName}</Typography>
-              </View>
-            ))
-          )}
         </View>
       </View>
     </View>

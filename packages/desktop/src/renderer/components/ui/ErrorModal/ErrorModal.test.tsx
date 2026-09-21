@@ -63,6 +63,7 @@ describe('ErrorModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
+                      aria-label="Close"
                       class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ModalClose"
                       tabindex="0"
@@ -166,7 +167,7 @@ describe('ErrorModal', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-capmjd-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-6pxt0z-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-b936vi-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >

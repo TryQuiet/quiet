@@ -6,7 +6,7 @@ import { Typography } from '../Typography/Typography.component'
 
 import { ErrorProps } from './Error.types'
 
-export const Error: FC<ErrorProps> = ({ onPress, icon, title, message }) => {
+export const Error: FC<ErrorProps> = ({ onPress, icon, title, message, buttonTitle = 'Continue' }) => {
   return (
     <View
       style={{
@@ -32,7 +32,7 @@ export const Error: FC<ErrorProps> = ({ onPress, icon, title, message }) => {
         {message}
       </Typography>
       <View style={{ width: 100, marginTop: 12 }}>
-        <Button title={'Continue'} onPress={onPress} />
+        <Button title={buttonTitle} onPress={onPress} />
       </View>
     </View>
   )

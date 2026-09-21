@@ -12,17 +12,7 @@ export interface TypeStyle {
   fontWeight: RubikWeight
 }
 
-export type TypeRole =
-  | 'overline'
-  | 'caption'
-  | 'body'
-  | 'subtitle'
-  | 'bodyLg'
-  | 'h5'
-  | 'title'
-  | 'h3'
-  | 'h2'
-  | 'h1'
+export type TypeRole = 'overline' | 'caption' | 'body' | 'subtitle' | 'bodyLg' | 'h5' | 'title' | 'h3' | 'h2' | 'h1'
 
 export const TYPE_ROLES: TypeRole[] = [
   'overline',
@@ -79,4 +69,3 @@ export interface Tokens {
   type: Record<TypeRole, TypeStyle>
   radii: number[]
 }
-

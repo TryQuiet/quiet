@@ -3,7 +3,7 @@ import { type DeviceLinkInvite } from '@quiet/types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { connectionSelectors } from '../connection.selectors'
 import { connectionActions } from '../connection.slice'
-import { expireDeviceLinkSaga } from './expireDeviceLink.saga'
+import { expireDeviceLinkSaga, watchDeviceLinkExpirySaga } from './expireDeviceLink.saga'
 
 describe('expireDeviceLinkSaga', () => {
   const now = 1_700_000_000_000
@@ -71,5 +71,19 @@ describe('expireDeviceLinkSaga', () => {
     await task.toPromise()
 
     expect(connectionSelectors.deviceLinkInvite(store.getState())).toEqual(replacementInvite)
+  })
+
+  it('continues expiry after the QSS disconnect state event', async () => {
+    const { store, runSaga } = prepareStore()
+    const invite = createInvite(now + 1_000)
+    const watcher = runSaga(watchDeviceLinkExpirySaga)
+
+    store.dispatch(connectionActions.setDeviceLinkInvite(invite))
+    store.dispatch(connectionActions.setQssDisconnected())
+    jest.advanceTimersByTime(1_000)
+    await Promise.resolve()
+
+    expect(connectionSelectors.deviceLinkInvite(store.getState())).toBeUndefined()
+    watcher.cancel()
   })
 })

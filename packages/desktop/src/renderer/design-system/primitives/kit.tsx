@@ -67,8 +67,8 @@ export const Field: React.FC<{ tokens: Tokens; label: string; placeholder: strin
   placeholder,
   value,
 }) => (
-  <Stack tokens={tokens} gap="xs">
-    <Txt tokens={tokens} role="body" color="#5C6353">
+  <Stack tokens={tokens} gap='xs'>
+    <Txt tokens={tokens} role='body' color='#5C6353'>
       {label}
     </Txt>
     <div
@@ -81,7 +81,7 @@ export const Field: React.FC<{ tokens: Tokens; label: string; placeholder: strin
         minWidth: 0,
       }}
     >
-      <Txt tokens={tokens} role="bodyLg" color={value ? '#171B12' : '#9AA18C'} truncate>
+      <Txt tokens={tokens} role='bodyLg' color={value ? '#171B12' : '#9AA18C'} truncate>
         {value || placeholder}
       </Txt>
     </div>
@@ -105,7 +105,7 @@ export const Btn: React.FC<{ tokens: Tokens; children: React.ReactNode; variant?
         cursor: 'pointer',
       }}
     >
-      <Txt tokens={tokens} role="subtitle" align="center" color={primary ? '#fff' : '#171B12'}>
+      <Txt tokens={tokens} role='subtitle' align='center' color={primary ? '#fff' : '#171B12'}>
         {children}
       </Txt>
     </div>
@@ -156,10 +156,10 @@ export const BothPlatforms: React.FC<{
   render: (t: Tokens) => React.ReactNode
 }> = ({ tokens, render }) => (
   <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-    <Frame tokens={tokens} platform="desktop">
+    <Frame tokens={tokens} platform='desktop'>
       {render(tokens)}
     </Frame>
-    <Frame tokens={tokens} platform="mobile">
+    <Frame tokens={tokens} platform='mobile'>
       {render(tokens)}
     </Frame>
   </div>

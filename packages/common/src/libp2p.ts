@@ -13,7 +13,18 @@ export type LocalAddress = {
   port: number
 }
 
+/**
+ * Local transport is reserved for E2E runs. Requiring both flags prevents a
+ * production process from enabling the non-Tor path through configuration
+ * alone.
+ */
+export const isLocalTransportEnabled = (): boolean => {
+  return process.env.IS_E2E === 'true' && process.env.LOCAL_TRANSPORT === 'true'
+}
+
 export const parseLocalAddress = (address: string): LocalAddress | undefined => {
+  if (!isLocalTransportEnabled()) return undefined
+
   const match = address.match(LOCAL_ADDRESS_REGEX)
   if (match == null) return undefined
 
@@ -38,6 +49,8 @@ export const getAddressFromLibp2pAddress = (peerAddress: string): string | undef
     if (address == null) return undefined
     return address.endsWith(ONION) ? address.slice(0, -ONION.length) : address
   }
+
+  if (!isLocalTransportEnabled()) return undefined
 
   const ipIndex = segments.indexOf('ip4')
   const tcpIndex = segments.indexOf('tcp')
@@ -92,6 +105,7 @@ export const isPSKcodeValid = (psk: string): boolean => {
 export const filterValidAddresses = (addresses: string[]) => {
   return addresses.filter(address => {
     if (ONION_MULTIADDR_REGEX.test(address)) return true
+    if (!isLocalTransportEnabled()) return false
 
     const localMatch = address.match(LOCAL_MULTIADDR_REGEX)
     return localMatch != null && Number(localMatch[1]) <= 65_535

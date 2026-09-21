@@ -18,7 +18,7 @@ import { createLogger } from '../../utils/logger'
 const logger = createLogger('joinCommunity:component')
 
 /** The paste field's error for text that is not a Quiet invitation; the QR scanner shows the same. */
-export const INVALID_INVITATION_ERROR = 'Please check your invitation code and try again'
+export const INVALID_INVITATION_ERROR = 'Please check your invite link and try again'
 
 /** Title bar · heading · intro per flow. Copy is the prototype's. */
 const COPY = {
@@ -42,6 +42,8 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   hasReceivedResponse,
   variant = 'inviteLink',
   ready = true,
+  inputError: initialInputError,
+  onInputChange,
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
@@ -51,6 +53,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   const copy = COPY[variant]
 
   const onChangeText = (value: string) => {
+    onInputChange?.()
     setInputError(undefined)
     setJoinCommunityInput(value)
   }
@@ -92,12 +95,12 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     logger.info(`hasReceivedResponse changed: ${hasReceivedResponse}`)
     if (hasReceivedResponse) {
       logger.info('Resetting component state after receiving response')
-      setInputError(undefined)
+      setInputError(initialInputError)
       setJoinCommunityInput('')
       setLoading(false)
       inputRef.current?.setNativeProps({ text: '' })
     }
-  }, [hasReceivedResponse])
+  }, [hasReceivedResponse, initialInputError])
 
   return (
     <>

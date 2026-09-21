@@ -11,12 +11,14 @@ export type SigChainSaveData = {
   localUserContext: LocalUserContext
   context?: Context
   teamKeyRing: Keyring | undefined
+  pendingMemberAdmission?: true
 }
 
 export type SerializedSigChain = {
   serializedTeam: Uint8Array | undefined
   localUserContext: LocalUserContext
   teamKeyRing: Keyring | undefined
+  pendingMemberAdmission?: true
 }
 
 export interface AdmissionPersistenceBarrier {

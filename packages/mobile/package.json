@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "10.0.0-alpha.0",
+  "version": "11.1.0",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "react-native run-android --mode=storybookDebug --appIdSuffix=storybook.debug",
@@ -8,7 +8,7 @@
     "android": "react-native run-android --mode=standardDebug --appIdSuffix=debug",
     "ios": "ENVFILE=.env.development react-native run-ios",
     "start": "react-native start",
-    "pretest": "node --test scripts/metro-resolution.test.cjs scripts/cli-xml-config.test.cjs scripts/storybook-promise.test.cjs scripts/patch-react-native-screens.test.cjs",
+    "pretest": "node --test scripts/metro-resolution.test.cjs scripts/cli-xml-config.test.cjs scripts/storybook-promise.test.cjs scripts/patch-react-native-screens.test.cjs scripts/build-classic-level-android.test.cjs",
     "test": "TZ=UTC jest --testPathIgnorePatterns=\"./e2e\" --transformIgnorePatterns \"./node_modules/(?!@d11/react-native-fast-image|@react-navigation)/\"",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "npm run lint:no-fix -- --fix",
@@ -22,7 +22,8 @@
     "patch-react-native-vision-camera": "node ./scripts/apply-patch.cjs ./patch/vision-camera/CameraDevicesManager.kt.patch",
     "prepare": "npm run prepare-backend-assets && npm run patch-react-native-file-logger && npm run patch-state-manager && npm run patch-webview-crypto && npm run patch-react-native-vision-camera && npm run patch-react-native-screens && npm run build",
     "version": "react-native-version --skip-tag",
-    "patch-react-native-screens": "node ./scripts/patch-react-native-screens.cjs"
+    "patch-react-native-screens": "node ./scripts/patch-react-native-screens.cjs",
+    "prepare-android-x86_64": "python3 ./scripts/nodejs-mobile-runtime/install.py --install --abi x86_64 && node ./scripts/build-classic-level-android.cjs && bash ./scripts/fetch-android-tor.sh"
   },
   "dependencies": {
     "@d11/react-native-fast-image": "8.11.1",

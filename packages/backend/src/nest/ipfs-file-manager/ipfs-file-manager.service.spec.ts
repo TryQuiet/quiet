@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import { FileMetadata } from '@quiet/types'
+import { DownloadState, FileMetadata, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
 import path from 'path'
 import fs from 'fs'
 import { DirResult } from 'tmp'
@@ -313,6 +313,48 @@ describe('IpfsFileManagerService', () => {
     })
   })
 
+  /**
+   * The socket reaches the listener, not attachFile directly, and EventEmitter throws away the
+   * promise the listener returns. Before the catch, this exact input — the profile-photo crash, a
+   * URI where a filesystem path belongs — surfaced as an unhandledRejection, and backendManager
+   * answers those by closing every service and exiting the process.
+   */
+  it('reports a failed attachment rather than rejecting into the process', async () => {
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+
+    const metadata: FileMetadata = {
+      path: `file://${path.join(dirname, '/testUtils/non-existent.jpg')}`,
+      name: 'profile-photo',
+      ext: '.jpg',
+      cid: 'attaching_profile-photo-id',
+      message: {
+        id: 'profile-photo-id',
+        channelId: PROFILE_PHOTO_CHANNEL_ID,
+      },
+    }
+
+    const rejections: unknown[] = []
+    const record = (reason: unknown) => rejections.push(reason)
+    process.on('unhandledRejection', record)
+    try {
+      ipfsFileManagerService.emit(IpfsFilesManagerEvents.ATTACH_FILE, metadata)
+
+      await waitForExpect(() => {
+        expect(eventSpy).toHaveBeenCalledWith(StorageEvents.DOWNLOAD_PROGRESS, {
+          mid: 'profile-photo-id',
+          cid: 'attaching_profile-photo-id',
+          downloadState: DownloadState.Canceled,
+          downloadProgress: undefined,
+        })
+      })
+      // Node reports an unhandled rejection a tick after the fact, so give it one.
+      await sleep(500)
+      expect(rejections).toEqual([])
+    } finally {
+      process.off('unhandledRejection', record)
+    }
+  })
+
   it('throws error if reported file size is malicious', async () => {
     // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
@@ -605,7 +647,7 @@ describe('IpfsFileManagerService', () => {
     )
   })
 
-  it('only tries to compress/process JPEG/JPG images, not e.g. a .txt file', async () => {
+  it('only compresses JPEG attachments in channels, not PNG or e.g. a .txt file', async () => {
     // Spy on the imageCompressionService.processImage method
     const imageCompressionSpy = jest.spyOn(ipfsFileManagerService['imageCompressionService'], 'processImage')
 
@@ -669,6 +711,54 @@ describe('IpfsFileManagerService', () => {
     if (fs.existsSync(jpegPath)) {
       fs.unlinkSync(jpegPath)
     }
+  })
+
+  it('compresses a PNG profile photo, which a channel attachment would keep uncompressed', async () => {
+    const imageCompressionSpy = jest.spyOn(ipfsFileManagerService['imageCompressionService'], 'processImage')
+    const pngPath = path.join(dirname, '/testUtils/test-image.png')
+
+    // The same PNG in a channel is left alone: profile photos are force-replicated
+    // to and auto-downloaded by every member, so they carry the budget instead.
+    await ipfsFileManagerService.attachFile({
+      path: pngPath,
+      name: 'channel-png',
+      ext: '.png',
+      cid: 'channel_png_id',
+      message: { id: 'channel_png_id', channelId: 'channelId' },
+    })
+    expect(imageCompressionSpy).not.toHaveBeenCalled()
+
+    imageCompressionSpy.mockClear()
+
+    await ipfsFileManagerService.attachFile({
+      path: pngPath,
+      name: 'profile-photo-user',
+      ext: '.png',
+      cid: 'profile_png_id',
+      message: { id: 'profile_png_id', channelId: PROFILE_PHOTO_CHANNEL_ID },
+    })
+    expect(imageCompressionSpy).toHaveBeenCalledWith(expect.any(String), '.png')
+
+    imageCompressionSpy.mockClear()
+  })
+
+  it('never sends an animated profile photo through Jimp, which would flatten it', async () => {
+    const imageCompressionSpy = jest.spyOn(ipfsFileManagerService['imageCompressionService'], 'processImage')
+
+    for (const ext of ['.gif', '.apng', '.webp']) {
+      await ipfsFileManagerService
+        .attachFile({
+          path: path.join(dirname, '/testUtils/test-image.png'),
+          name: `profile-photo-user${ext}`,
+          ext,
+          cid: `profile_${ext}_id`,
+          message: { id: `profile_${ext}_id`, channelId: PROFILE_PHOTO_CHANNEL_ID },
+        })
+        .catch(() => undefined)
+      expect(imageCompressionSpy).not.toHaveBeenCalled()
+    }
+
+    imageCompressionSpy.mockClear()
   })
 
   // it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {

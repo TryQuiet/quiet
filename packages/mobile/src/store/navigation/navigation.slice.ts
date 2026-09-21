@@ -63,6 +63,10 @@ export const navigationSlice = createSlice({
       state.backStack.push(screen)
       logger.info('Backstack after navigation:', state.backStack.join(' -> '))
     },
+    resetToScreen: (state, action: PayloadAction<NavigationPayload>) => {
+      state.backStack = [action.payload.screen]
+      state.pendingNavigation = null
+    },
     // Replace screen overrides last screen in backstack
     replaceScreen: (state, action: PayloadAction<NavigationPayload>) => {
       const { screen } = action.payload

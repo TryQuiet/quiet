@@ -3,39 +3,36 @@ import { useDispatch } from 'react-redux'
 
 import { communities } from '@quiet/state-manager'
 import {
+  type DeviceInvitationData,
   type InvitationData,
   isDeviceInvitationData,
   type JoinCommunityPayload,
-  type LinkDevicePayload,
 } from '@quiet/types'
 
 import { ScreenNames } from '../const/ScreenNames.enum'
 import { navigationActions } from '../store/navigation/navigation.slice'
-import { createLogger } from '../utils/logger'
-
-const logger = createLogger('useInvitationAction')
 
 /**
- * What a Quiet invitation does once it is in hand, pasted or scanned: a device
- * link links this device and goes to the connection process; a member
+ * What a Quiet invitation does once it is in hand, pasted or scanned: a member
  * invitation starts joining and goes to Choose username.
+ *
+ * A device link is not acted on here. Linking hands the other device this
+ * account, so it is never done without consent: the invitation is handed back
+ * to the caller, which shows the consent drawer and only then dispatches
+ * `linkDevice` with `confirmedDeviceLinkPayload`. Pasting and scanning share
+ * this hook, so neither one can link a device without that step.
  */
-export const useInvitationAction = (): ((data: InvitationData) => void) => {
+export const useInvitationAction = (
+  onDeviceInvitation: (data: DeviceInvitationData) => void
+): ((data: InvitationData) => void) => {
   const dispatch = useDispatch()
 
   return useCallback(
     (data: InvitationData) => {
+      dispatch(communities.actions.clearJoinCommunityError())
+
       if (isDeviceInvitationData(data)) {
-        const payload: LinkDevicePayload = {
-          inviteData: data,
-        }
-        logger.info('Linking this device from a device link')
-        dispatch(communities.actions.linkDevice(payload))
-        dispatch(
-          navigationActions.replaceScreen({
-            screen: ScreenNames.ConnectionProcessScreen,
-          })
-        )
+        onDeviceInvitation(data)
         return
       }
 
@@ -49,6 +46,6 @@ export const useInvitationAction = (): ((data: InvitationData) => void) => {
         })
       )
     },
-    [dispatch]
+    [dispatch, onDeviceInvitation]
   )
 }

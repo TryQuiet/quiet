@@ -11,7 +11,7 @@ import {
   Settings,
   Sidebar,
 } from '../selectors'
-import { MessageIds } from '../types'
+import { DEFAULT_ADD_NEW_CHANNEL_OPTIONS, MessageIds, TestAddNewChannelButtonId } from '../types'
 import { BuildSetup, downloadInstaller, sleep } from '../utils'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, compatibilityBaseline } from '../compatibilityBaseline'
 import { createLogger } from '../logger'
@@ -33,6 +33,7 @@ describe('Backwards Compatibility', () => {
   let dataDir: string
   let settings: Settings
   let baselineVersion: string
+  let baselineUsesCurrentBuild: boolean
 
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
@@ -47,12 +48,21 @@ describe('Backwards Compatibility', () => {
     const currentVersion = new BuildSetup({ fileName: currentFileName }).getVersionFromEnv()
     const baseline = compatibilityBaseline(currentVersion, currentFileName, downloadInstaller)
     baselineVersion = baseline.version
+    baselineUsesCurrentBuild = baseline.isPlaceholder
     logger.info(baseline.isPlaceholder ? 'Same-build restart placeholder' : 'Released-version upgrade', {
       baseline: baselineVersion,
       current: currentVersion,
     })
     dataDir = `e2e_back_compat_${(Math.random() * 10 ** 18).toString(36)}`
-    ownerAppOldVersion = new App({ dataDir, fileName: baseline.fileName })
+    ownerAppOldVersion = new App({
+      dataDir,
+      fileName: baseline.fileName,
+      // Released 11.0.0 embeds Chromium 128; Electron 44's driver only matches
+      // the current app. Revisit this pin when changing the released baseline.
+      chromeDriverPath: baseline.isPlaceholder
+        ? undefined
+        : require.resolve('electron-chromedriver-128/chromedriver.js'),
+    })
   })
 
   beforeEach(async () => {
@@ -153,7 +163,14 @@ describe('Backwards Compatibility', () => {
     describe('Second channel', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
-        await sidebar.addNewChannel(newChannelName)
+        const created = await sidebar.addNewChannel(newChannelName, {
+          ...DEFAULT_ADD_NEW_CHANNEL_OPTIONS,
+          // The released 11.0.0 baseline predates the new sidebar. A same-build
+          // restart must still exercise the current button, without fallback.
+          buttonId: baselineUsesCurrentBuild ? TestAddNewChannelButtonId.DMS : TestAddNewChannelButtonId.PRE_DMS,
+        })
+        expect(created.errors ?? []).toEqual([])
+        expect(created.channel).toBeDefined()
         await sidebar.switchChannel(newChannelName)
         const channels = await sidebar.getChannelList()
         expect(channels.length).toEqual(2)

@@ -30,6 +30,7 @@ export enum Libp2pDatastorePrefix {
 export interface TorBootstrapProvider {
   bootstrapped: boolean
   once(event: 'bootstrapped', listener: () => void): this
+  off?(event: 'bootstrapped', listener: () => void): this
 }
 
 export interface Libp2pNodeParams {
