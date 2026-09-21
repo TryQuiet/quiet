@@ -564,15 +564,13 @@ describe('ChannelTile component', () => {
                         fontWeight="medium"
                         horizontalTextAlign="left"
                         style={
-                          [
-                            {
-                              "color": "#ffffff",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 12,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
+                          {
+                            "color": "#ffffff",
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 12,
+                            "textAlign": "left",
+                            "textAlignVertical": "center",
+                          }
                         }
                         verticalTextAlign="center"
                       >

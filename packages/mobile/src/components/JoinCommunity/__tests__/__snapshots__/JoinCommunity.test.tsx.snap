@@ -111,8 +111,11 @@ exports[`JoinCommunity component renders component 1`] = `
               {
                 "alignItems": "center",
                 "backgroundColor": "#ffffff",
+                "borderBottomLeftRadius": 16,
+                "borderBottomRightRadius": 16,
                 "borderColor": "#B3B3B3",
-                "borderRadius": 16,
+                "borderTopLeftRadius": 16,
+                "borderTopRightRadius": 16,
                 "borderWidth": 1,
                 "flexDirection": "row",
                 "flexGrow": 1,
@@ -139,16 +142,14 @@ exports[`JoinCommunity component renders component 1`] = `
             placeholder="Invite link"
             placeholderTextColor="#7F7F7F"
             style={
-              [
-                {
-                  "flexBasis": 0,
-                  "flexGrow": 1,
-                  "flexShrink": 1,
-                  "paddingBottom": 12,
-                  "paddingTop": 12,
-                  "textAlignVertical": "center",
-                },
-              ]
+              {
+                "flexBasis": 0,
+                "flexGrow": 1,
+                "flexShrink": 1,
+                "paddingBottom": 12,
+                "paddingTop": 12,
+                "textAlignVertical": "center",
+              }
             }
             testID="input"
           />
@@ -179,15 +180,13 @@ exports[`JoinCommunity component renders component 1`] = `
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -198,15 +197,13 @@ exports[`JoinCommunity component renders component 1`] = `
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -217,15 +214,13 @@ exports[`JoinCommunity component renders component 1`] = `
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -236,15 +231,13 @@ exports[`JoinCommunity component renders component 1`] = `
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -255,15 +248,13 @@ exports[`JoinCommunity component renders component 1`] = `
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -273,15 +264,13 @@ exports[`JoinCommunity component renders component 1`] = `
             horizontalTextAlign="left"
             onPress={[Function]}
             style={
-              [
-                {
-                  "color": "#67BFD3",
-                  "fontFamily": "Rubik-Regular",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-              ]
+              {
+                "color": "#67BFD3",
+                "fontFamily": "Rubik-Regular",
+                "fontSize": 14,
+                "textAlign": "left",
+                "textAlignVertical": "center",
+              }
             }
             verticalTextAlign="center"
           >
@@ -293,15 +282,13 @@ exports[`JoinCommunity component renders component 1`] = `
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -312,15 +299,13 @@ exports[`JoinCommunity component renders component 1`] = `
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -373,15 +358,13 @@ exports[`JoinCommunity component renders component 1`] = `
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#ffffff",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#ffffff",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -486,15 +469,13 @@ exports[`JoinCommunity component renders loading screen if not ready 1`] = `
       fontWeight="medium"
       horizontalTextAlign="left"
       style={
-        [
-          {
-            "color": "#000000",
-            "fontFamily": "Rubik-Medium",
-            "fontSize": 14,
-            "textAlign": "left",
-            "textAlignVertical": "center",
-          },
-        ]
+        {
+          "color": "#000000",
+          "fontFamily": "Rubik-Medium",
+          "fontSize": 14,
+          "textAlign": "left",
+          "textAlignVertical": "center",
+        }
       }
       verticalTextAlign="center"
     >
@@ -505,15 +486,13 @@ exports[`JoinCommunity component renders loading screen if not ready 1`] = `
       fontSize={12}
       horizontalTextAlign="left"
       style={
-        [
-          {
-            "color": "#7F7F7F",
-            "fontFamily": "Rubik-Regular",
-            "fontSize": 12,
-            "textAlign": "left",
-            "textAlignVertical": "center",
-          },
-        ]
+        {
+          "color": "#7F7F7F",
+          "fontFamily": "Rubik-Regular",
+          "fontSize": 12,
+          "textAlign": "left",
+          "textAlignVertical": "center",
+        }
       }
       verticalTextAlign="center"
     >
@@ -532,15 +511,13 @@ exports[`JoinCommunity component renders loading screen if not ready 1`] = `
       fontSize={12}
       horizontalTextAlign="left"
       style={
-        [
-          {
-            "color": "#999999",
-            "fontFamily": "Rubik-Regular",
-            "fontSize": 12,
-            "textAlign": "left",
-            "textAlignVertical": "center",
-          },
-        ]
+        {
+          "color": "#999999",
+          "fontFamily": "Rubik-Regular",
+          "fontSize": 12,
+          "textAlign": "left",
+          "textAlignVertical": "center",
+        }
       }
       verticalTextAlign="center"
     >

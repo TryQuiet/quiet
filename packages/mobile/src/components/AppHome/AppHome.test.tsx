@@ -167,15 +167,13 @@ describe('AppHome component', () => {
                     fontSize={14}
                     horizontalTextAlign="left"
                     style={
-                      [
-                        {
-                          "color": "#ffffff",
-                          "fontFamily": "Rubik-Regular",
-                          "fontSize": 14,
-                          "textAlign": "left",
-                          "textAlignVertical": "center",
-                        },
-                      ]
+                      {
+                        "color": "#ffffff",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      }
                     }
                     verticalTextAlign="center"
                   >
@@ -199,15 +197,13 @@ describe('AppHome component', () => {
               fontWeight="medium"
               horizontalTextAlign="left"
               style={
-                [
-                  {
-                    "color": "#ffffff",
-                    "fontFamily": "Rubik-Medium",
-                    "fontSize": 16,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "color": "#ffffff",
+                  "fontFamily": "Rubik-Medium",
+                  "fontSize": 16,
+                  "textAlign": "left",
+                  "textAlignVertical": "center",
+                }
               }
               verticalTextAlign="center"
             >
@@ -270,15 +266,13 @@ describe('AppHome component', () => {
                   fontWeight="medium"
                   horizontalTextAlign="left"
                   style={
-                    [
-                      {
-                        "color": "#4C4C4C",
-                        "fontFamily": "Rubik-Medium",
-                        "fontSize": 14,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "color": "#4C4C4C",
+                      "fontFamily": "Rubik-Medium",
+                      "fontSize": 14,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    }
                   }
                   verticalTextAlign="center"
                 >
@@ -1282,15 +1276,13 @@ describe('AppHome component', () => {
                                       fontWeight="medium"
                                       horizontalTextAlign="left"
                                       style={
-                                        [
-                                          {
-                                            "color": "#ffffff",
-                                            "fontFamily": "Rubik-Medium",
-                                            "fontSize": 12,
-                                            "textAlign": "left",
-                                            "textAlignVertical": "center",
-                                          },
-                                        ]
+                                        {
+                                          "color": "#ffffff",
+                                          "fontFamily": "Rubik-Medium",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        }
                                       }
                                       verticalTextAlign="center"
                                     >
@@ -1840,15 +1832,13 @@ describe('AppHome component', () => {
                   fontWeight="medium"
                   horizontalTextAlign="left"
                   style={
-                    [
-                      {
-                        "color": "#4C4C4C",
-                        "fontFamily": "Rubik-Medium",
-                        "fontSize": 14,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "color": "#4C4C4C",
+                      "fontFamily": "Rubik-Medium",
+                      "fontSize": 14,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    }
                   }
                   verticalTextAlign="center"
                 >
@@ -2132,23 +2122,19 @@ describe('AppHome component', () => {
                   <View
                     collapsable={false}
                     style={
-                      [
-                        {
-                          "bottom": 0,
-                          "left": 0,
-                          "position": "absolute",
-                          "right": 0,
-                          "top": 0,
-                        },
-                        {
-                          "opacity": 1,
-                          "transform": [
-                            {
-                              "rotate": "0deg",
-                            },
-                          ],
-                        },
-                      ]
+                      {
+                        "bottom": 0,
+                        "left": 0,
+                        "opacity": 1,
+                        "position": "absolute",
+                        "right": 0,
+                        "top": 0,
+                        "transform": [
+                          {
+                            "rotate": "0deg",
+                          },
+                        ],
+                      }
                     }
                     testID="cross-fade-icon-current"
                   >

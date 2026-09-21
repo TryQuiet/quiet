@@ -11,7 +11,7 @@ const quote = value => `'${String(value).replace(/'/g, "'\\''")}'`
 const digest = data => createHash('sha256').update(data).digest('hex')
 const delay = () => new Promise(resolve => setTimeout(resolve, 250))
 
-// Detox 20.17.1 exposes UIAutomator through this internal proxy. Keep its use
+// Detox 20.51.4 exposes UIAutomator through this internal proxy. Keep its use
 // here: normal Detox elements cannot inspect the separate system picker app.
 module.exports = async function androidPhotoPicker(device) {
   const adb = path.join(process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT, 'platform-tools', 'adb')
@@ -121,6 +121,9 @@ module.exports = async function androidPhotoPicker(device) {
         const candidates = (await shell('run-as', appId, 'ls', 'cache'))
           .split('\n')
           .filter(file => !before.has(file) && /^rn_image_picker_lib_temp_[\w-]+\.png$/.test(file))
+        // Track our copies before assertions so failed byte/thumbnail checks
+        // still remove them during teardown.
+        copiedFiles.push(...candidates)
         // The library also copies media while resolving originalPath. Verify
         // the file used by the production thumbnail, then clean all own copies.
         assert(
@@ -133,7 +136,6 @@ module.exports = async function androidPhotoPicker(device) {
             await execute(['exec-out', 'run-as', appId, 'cat', `cache/${candidate}`], { encoding: 'buffer' })
           ).stdout
           assert.equal(digest(copy), expected, 'The native picker must return the seeded image bytes')
-          copiedFiles.push(candidate)
         }
       }
     },

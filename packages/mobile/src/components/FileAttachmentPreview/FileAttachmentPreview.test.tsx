@@ -274,15 +274,13 @@ describe('FileAttachmentPreview component', () => {
                       fontSize={12}
                       horizontalTextAlign="left"
                       style={
-                        [
-                          {
-                            "color": "#000000",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 12,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 12,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        }
                       }
                       verticalTextAlign="center"
                     >

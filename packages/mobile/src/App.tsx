@@ -37,7 +37,7 @@ import { navigationActions } from './store/navigation/navigation.slice'
 import { rootSaga } from './store/root.saga'
 import { sagaMiddleware } from './store/store'
 
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components/native'
 import { defaultTheme } from './styles/themes/default.theme'
 
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
@@ -79,7 +79,7 @@ const linking = {
   },
 }
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   const dispatch = useDispatch()
 
   const confirmationBox = useConfirmationBox()

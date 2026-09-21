@@ -14,8 +14,11 @@ describeAndroid('Android photo picker compatibility', () => {
   })
 
   afterAll(async () => {
-    await device.enableSynchronization()
-    if (picker) await picker.cleanup()
+    try {
+      await device.enableSynchronization()
+    } finally {
+      if (picker) await picker.cleanup()
+    }
   })
 
   beforeEach(async () => {

@@ -47,8 +47,11 @@ describe('MessageInput component', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "#ffffff",
+                  "borderBottomLeftRadius": 16,
+                  "borderBottomRightRadius": 16,
                   "borderColor": "#B3B3B3",
-                  "borderRadius": 16,
+                  "borderTopLeftRadius": 16,
+                  "borderTopRightRadius": 16,
                   "borderWidth": 1,
                   "flexDirection": "row",
                   "flexGrow": 1,
@@ -75,16 +78,14 @@ describe('MessageInput component', () => {
               placeholder="Message #general as @holmes"
               placeholderTextColor="#7F7F7F"
               style={
-                [
-                  {
-                    "flexBasis": 0,
-                    "flexGrow": 1,
-                    "flexShrink": 1,
-                    "paddingBottom": 12,
-                    "paddingTop": 12,
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "flexBasis": 0,
+                  "flexGrow": 1,
+                  "flexShrink": 1,
+                  "paddingBottom": 12,
+                  "paddingTop": 12,
+                  "textAlignVertical": "center",
+                }
               }
               testID="input"
             />

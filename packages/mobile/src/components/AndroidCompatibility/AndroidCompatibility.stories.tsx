@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Platform, StatusBar, Text, View } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
-import { NavigationContainer } from '@react-navigation/native'
+import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { configureStore } from '@reduxjs/toolkit'
 import { Provider, useSelector } from 'react-redux'
@@ -9,7 +9,7 @@ import createSagaMiddleware from 'redux-saga'
 import { takeEvery } from 'typed-redux-saga'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import RNFS from 'react-native-fs'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components/native'
 import { communities, publicChannels, users } from '@quiet/state-manager'
 import { ChannelOperationStatus, CommunityOwnership, FileMetadata, MessageType } from '@quiet/types'
 
@@ -135,12 +135,14 @@ const FixtureContent = ({ reset }: { reset: () => void }) => {
             />
           </View>
         </View>
-        <NavigationContainer independent ref={navigationRef}>
-          <Stack.Navigator initialRouteName={ScreenNames.AppHomeScreen} screenOptions={{ headerShown: false }}>
-            <Stack.Screen name={ScreenNames.AppHomeScreen} component={AppHomeScreen} />
-            <Stack.Screen name={ScreenNames.ChannelScreen} component={ChannelScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <NavigationIndependentTree>
+          <NavigationContainer ref={navigationRef}>
+            <Stack.Navigator initialRouteName={ScreenNames.AppHomeScreen} screenOptions={{ headerShown: false }}>
+              <Stack.Screen name={ScreenNames.AppHomeScreen} component={AppHomeScreen} />
+              <Stack.Screen name={ScreenNames.ChannelScreen} component={ChannelScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </NavigationIndependentTree>
         {previewOpen && (
           <ImagePreviewModal
             imagePreviewData={previewData}
