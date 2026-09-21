@@ -31,6 +31,8 @@ describe('MessageInput component', () => {
             accessible={true}
             collapsable={false}
             focusable={true}
+            focused={false}
+            invalid={false}
             onBlur={[Function]}
             onClick={[Function]}
             onFocus={[Function]}
@@ -40,22 +42,26 @@ describe('MessageInput component', () => {
             onResponderTerminate={[Function]}
             onResponderTerminationRequest={[Function]}
             onStartShouldSetResponder={[Function]}
-            round={false}
             style={
               [
                 {
+                  "alignItems": "center",
                   "backgroundColor": "#ffffff",
-                  "borderColor": "#C4C4C4",
-                  "borderRadius": 4,
+                  "borderBottomLeftRadius": 16,
+                  "borderBottomRightRadius": 16,
+                  "borderColor": "#B3B3B3",
+                  "borderTopLeftRadius": 16,
+                  "borderTopRightRadius": 16,
                   "borderWidth": 1,
+                  "flexDirection": "row",
                   "flexGrow": 1,
-                  "height": 56,
-                  "justifyContent": "center",
+                  "height": 48,
+                  "justifyContent": "flex-start",
                   "paddingLeft": 16,
                   "paddingRight": 16,
                 },
                 {
-                  "height": 54,
+                  "height": 48,
                 },
               ]
             }
@@ -65,19 +71,21 @@ describe('MessageInput component', () => {
               editable={true}
               height={54}
               keyboardType="default"
+              onBlur={[Function]}
               onChangeText={[Function]}
               onContentSizeChange={[Function]}
+              onFocus={[Function]}
               placeholder="Message #general as @holmes"
-              placeholderTextColor="#999999"
+              placeholderTextColor="#7F7F7F"
               style={
-                [
-                  {
-                    "height": 54,
-                    "paddingBottom": 12,
-                    "paddingTop": 12,
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "flexBasis": 0,
+                  "flexGrow": 1,
+                  "flexShrink": 1,
+                  "paddingBottom": 12,
+                  "paddingTop": 12,
+                  "textAlignVertical": "center",
+                }
               }
               testID="input"
             />

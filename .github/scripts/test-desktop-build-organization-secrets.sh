@@ -10,7 +10,7 @@ if grep -Eq 'secrets\.AWS_(ACCESS_KEY_ID|SECRET_ACCESS_KEY)' "$workflow"; then
   exit 1
 fi
 
-[[ "$(grep -Fc 'secrets.QUIET_AWS_ACCESS_KEY_ID' "$workflow")" -eq 6 ]]
-[[ "$(grep -Fc 'secrets.QUIET_AWS_SECRET_ACCESS_KEY' "$workflow")" -eq 6 ]]
+[[ "$(grep -Fc 'secrets.QUIET_AWS_ACCESS_KEY_ID' "$workflow")" -eq 7 ]]
+[[ "$(grep -Fc 'secrets.QUIET_AWS_SECRET_ACCESS_KEY' "$workflow")" -eq 7 ]]
 
 echo 'Desktop Build organization-secret scope test passed'

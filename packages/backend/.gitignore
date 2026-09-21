@@ -6,3 +6,6 @@
 /testingFixtures/certificates/files3
 /src/nest/storage/testUtils/large-file*
 /src/nest/ipfs-file-manager/testUtils/large-file*
+# Written by the ipfs-file-manager spec: develop's profile-photo work compresses the uploaded
+# test-image.png, and the compression service writes its output beside the input.
+/src/nest/ipfs-file-manager/testUtils/test-image_compressed.png

@@ -6,7 +6,7 @@ import { jest } from '@jest/globals'
 import { hash } from '@localfirst/crypto'
 
 import { createLibp2pAddress } from '@quiet/common'
-import { NetworkStats, Community } from '@quiet/types'
+import { NetworkStats, Community, CommunityOwnership } from '@quiet/types'
 
 import { LocalDbModule } from './local-db.module'
 import { LocalDbService } from './local-db.service'
@@ -16,6 +16,7 @@ import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
 import { Base58 } from '@localfirst/auth'
+import { AdmissionTransport } from '../admission/admission.types'
 
 // Simple mock serializer for testing that mirrors Serializer interface
 class MockSerializer {
@@ -146,6 +147,27 @@ describe('LocalDbService', () => {
     expect(await service.get('b')).toBeNull()
   })
 
+  it('atomically claims one durable admission transport', async () => {
+    const community: Community = {
+      id: 'admission-community',
+      name: 'Admission community',
+      ownership: CommunityOwnership.User,
+      teamId: 'team',
+    }
+    await service.setCommunity(community)
+
+    const [qssClaim, p2pClaim] = await Promise.all([
+      service.claimAdmissionTransport(community.id, AdmissionTransport.QSS),
+      service.claimAdmissionTransport(community.id, AdmissionTransport.P2P),
+    ])
+
+    expect([qssClaim, p2pClaim].sort()).toEqual(['claimed', 'conflict'])
+    expect(await service.claimAdmissionTransport(community.id, AdmissionTransport.QSS)).toBe('already-owned')
+    expect(await service.getCommunity(community.id)).toMatchObject({
+      admissionTransport: AdmissionTransport.QSS,
+    })
+  })
+
   it('load ignores empty primitives / objects', async () => {
     await service.load({
       a: 1,
@@ -260,6 +282,31 @@ describe('LocalDbService', () => {
       expect(communities[community.id]).toEqual(community)
     })
 
+    it('does not include community credentials in persistence logs', async () => {
+      const seed = 'device-invitation-seed-that-must-not-be-logged'
+      const psk = 'network-psk-that-must-not-be-logged'
+      const info = jest.fn()
+      const originalLogger = service['logger']
+      ;(service as any).logger = { ...originalLogger, info }
+      try {
+        await service.setCommunity({
+          ...community,
+          psk,
+          inviteData: { authData: { seed } },
+        } as any)
+        await service.updateCommunity(community.id, {
+          inviteData: { authData: { seed: `${seed}-updated` } } as any,
+        })
+
+        const serializedLogs = JSON.stringify(info.mock.calls)
+        expect(serializedLogs).not.toContain(seed)
+        expect(serializedLogs).not.toContain(psk)
+        expect(serializedLogs).toContain('inviteData')
+      } finally {
+        ;(service as any).logger = originalLogger
+      }
+    })
+
     it('getCurrentCommunity returns correct community', async () => {
       await service.setCommunity(community)
       await service.setCurrentCommunityId('c1')
@@ -304,9 +351,14 @@ describe('LocalDbService', () => {
 
   describe('sigchain helpers', () => {
     const teamId = 'abc123'
-    const dummySigChain = {
+    const localUserContext = {
       user: { id: 'u' },
       device: { id: 'd' },
+    }
+    const dummySigChain = {
+      ...localUserContext,
+      context: localUserContext,
+      localUserContext,
       save: () => Uint8Array.from([1, 2, 3]),
       team: {
         save: () => Uint8Array.from([4, 5, 6]),
@@ -324,6 +376,20 @@ describe('LocalDbService', () => {
       await service.deleteSigChain(teamId)
       const afterDelete = await service.getSigChain(teamId)
       expect(afterDelete).toBeUndefined()
+    })
+
+    it('refuses to persist a pending device invitation context', async () => {
+      const pendingDeviceChain = SigChain.createFromDeviceInvite({
+        seed: 'device-invite-seed',
+        userName: 'alice',
+        expectedTeamId: teamId,
+        expectedUserId: 'alice-user-id',
+      })
+
+      await expect(service.setSigChain(pendingDeviceChain, teamId)).rejects.toThrow(
+        'Cannot persist pending device invitation context'
+      )
+      expect(await service.getSigChain(teamId)).toBeUndefined()
     })
   })
 

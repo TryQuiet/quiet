@@ -14,12 +14,15 @@ import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import LockIcon from '../../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
-import { UserProfile } from '@quiet/types'
+import { ChannelType } from '@quiet/types'
+import { generateTruncatedDmTitle } from '../../../utils/functions/dmUtils/dmUtils'
+import { countChannelMembers } from '../../../utils/functions/channelMembers/channelMembers'
+import { createLogger } from '../../../utils/logger'
 
-const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE = 'Permissions'
-const CHANNEL_MEMBERSHIP_TITLE = 'Members in this channel'
-const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_SUBTITLE = 'Members'
-const CHANNEL_MEMBERSHIP_SUBTITLE = undefined
+const logger = createLogger('ChannelContextMenu')
+
+const MEMBERS_IN_CHANNEL_TITLE = 'Members in this channel'
+const MEMBERS_IN_DM_TITLE = 'Members in this DM'
 
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -27,6 +30,7 @@ export const ChannelContextMenu: FC = () => {
   const [memberCountSuffix, setMemberCountSuffix] = useState<string>('')
   const [canDelete, setCanDelete] = useState<boolean>(false)
   const [canAddMembers, setCanAddMembers] = useState<boolean>(false)
+  const [title, setTitle] = useState<string>('')
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
@@ -37,16 +41,19 @@ export const ChannelContextMenu: FC = () => {
 
   const _initializeData = () => {
     if (channel == null) return
-    const membersInChannel: UserProfile[] = Object.values(userProfiles).filter(profile =>
-      profile.channels?.includes(channel.id)
-    )
-    setMemberCountSuffix(`${membersInChannel.length}`)
+    // Shared with the channel top bar, which draws the same number under the channel name.
+    setMemberCountSuffix(`${countChannelMembers(channel, userProfiles)}`)
   }
 
-  let title = ''
-  if (channel?.name) {
-    title = channel.name
-  }
+  useEffect(() => {
+    if (channel?.displayedName) {
+      const resolvedTitle =
+        (channel.type ?? ChannelType.CHANNEL) === ChannelType.CHANNEL
+          ? channel.displayedName
+          : generateTruncatedDmTitle(channel.displayedName)
+      setTitle(resolvedTitle)
+    }
+  }, [channel])
 
   useEffect(() => {
     if (channel == null) {
@@ -85,28 +92,46 @@ export const ChannelContextMenu: FC = () => {
 
   useEffect(() => {
     _initializeData()
-  }, [userProfiles])
+  }, [userProfiles, channel])
 
   let items: ContextMenuItemProps[] = []
 
-  if (channel?.public === false) {
+  if (channel != null) {
+    const isDm = channel.type === ChannelType.DM
+    const openMembership = (manageMembership: boolean) => () =>
+      redirect(ScreenNames.ChannelMembershipScreen, {
+        channelTitle: title,
+        channelName: channel?.displayedName,
+        channelId: channel?.id,
+        channelType: channel?.type ?? ChannelType.CHANNEL,
+        channelIsPublic: channel?.public ?? true,
+        manageMembership,
+      })
+
+    // One membership row for everyone, carrying the member count. Whether you can change who
+    // belongs is revealed inside the screen by the Add members button, not by the row's name. A
+    // DM's membership is fixed at creation, so it is always read-only.
+    //
+    // The design names the admin's row "Permissions", with the subtitle "Roles and members" and a
+    // count of 6 against Members' 3 (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190) — because there it
+    // governs roles as well as people. Ours governs only people, so "Permissions" would promise a
+    // capability that is not there. WHEN ROLES SHIP, split this back into two rows and restore the
+    // design's naming.
     items.push({
-      title: canAddMembers ? CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE : CHANNEL_MEMBERSHIP_TITLE,
-      subtitle: canAddMembers ? CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_SUBTITLE : CHANNEL_MEMBERSHIP_SUBTITLE,
+      title: isDm ? MEMBERS_IN_DM_TITLE : MEMBERS_IN_CHANNEL_TITLE,
       suffix: memberCountSuffix,
-      action: () =>
-        redirect(ScreenNames.ChannelMembershipScreen, {
-          channelName: channel?.name,
-          channelId: channel?.id,
-        }),
+      // An admin gets the editable form of the screen; the row reads the same either way.
+      action: openMembership(canAddMembers && !isDm),
     })
   }
 
-  if (canDelete) {
+  if (canDelete && channel?.type !== ChannelType.DM) {
     items = [
       ...items,
       {
         title: 'Delete channel',
+        // Red in the designs, as the one destructive entry in the menu.
+        destructive: true,
         action: () =>
           redirect(ScreenNames.DeleteChannelScreen, {
             channelName: channel?.name,
@@ -123,7 +148,15 @@ export const ChannelContextMenu: FC = () => {
   return (
     <ContextMenu
       title={title}
-      titleIcon={channel?.public ?? true ? <PublicChannelIcon /> : <LockIcon fill={true} />}
+      titleIcon={
+        channel?.type === ChannelType.DM ? (
+          <></>
+        ) : channel?.public ?? true ? (
+          <PublicChannelIcon />
+        ) : (
+          <LockIcon fill={true} />
+        )
+      }
       items={items}
       {...channelContextMenu}
     />

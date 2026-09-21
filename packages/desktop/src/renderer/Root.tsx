@@ -5,7 +5,7 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { Provider } from 'react-redux'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
-import { persistStore } from 'redux-persist'
+import { persistor } from './store/persistor'
 import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
@@ -27,7 +27,7 @@ import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContex
 import { UserProfileContextMenu } from './components/ContextMenu/menus/UserProfileContextMenu.container'
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
 import { AddMembersChannel } from './components/Channel/AddMembersChannel/AddMembersChannel'
-import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
+import { ChannelMembership } from './components/Channel/ChannelMembership/ChannelMembership'
 import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
 import UnregisteredModalContainer from './components/widgets/userLabel/unregistered/UnregisteredModal.container'
 import DuplicateModalContainer from './components/widgets/userLabel/duplicate/DuplicateModal.container'
@@ -35,9 +35,10 @@ import UsernameTakenModalContainer from './components/widgets/usernameTakenModal
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
 import TermsOfService from './components/TermsOfService/TermsOfService'
+import DeviceLinkConsent from './components/DeviceLinkConsent/DeviceLinkConsent'
 // Trigger lerna
 
-export const persistor = persistStore(store)
+export { persistor } from './store/persistor'
 
 export default () => {
   return (
@@ -48,6 +49,7 @@ export default () => {
             <Provider store={store}>
               <PersistGate loading={null} persistor={persistor}>
                 <WarningModal />
+                <DeviceLinkConsent />
                 <UnregisteredModalContainer />
                 <DuplicateModalContainer />
                 <SearchModal />
@@ -55,7 +57,6 @@ export default () => {
                 <PossibleImpersonationAttackModalContainer />
                 <LoadingPanel />
                 <UsernameTakenModalContainer />
-                <ChannelCreationModal />
                 <CreateChannel />
                 <JoinCommunity />
                 <CreateCommunity />
@@ -70,6 +71,7 @@ export default () => {
                 <UserProfileContextMenu />
                 <DeleteChannel />
                 <AddMembersChannel />
+                <ChannelMembership />
                 <Routes>
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />

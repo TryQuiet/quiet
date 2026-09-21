@@ -6,7 +6,7 @@ import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { createGeneralChannelSaga } from './createGeneralChannel.saga'
-import { type Community, type Identity } from '@quiet/types'
+import { ChannelType, type Community, type Identity } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
@@ -37,6 +37,7 @@ describe('createGeneralChannelSaga', () => {
     const channel: ReturnType<typeof publicChannelsActions.createChannel>['payload'] = {
       name: 'general',
       description: 'Welcome to #general',
+      type: ChannelType.CHANNEL,
       teamId: community.teamId!,
       public: true,
     }

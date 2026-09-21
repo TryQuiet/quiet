@@ -13,6 +13,20 @@ export interface ClearCommunityDependencies {
   remountRoot: () => void
 }
 
+export const createClearCommunity = (dependencies: ClearCommunityDependencies): (() => Promise<void>) => {
+  let pending: Promise<void> | undefined
+  return () => {
+    if (!pending) {
+      // Coalesce the entire operation, including the asynchronous persistence purge,
+      // so repeated clicks cannot remount or clear a newly created community twice.
+      pending = clearCommunityWithDependencies(dependencies).finally(() => {
+        pending = undefined
+      })
+    }
+    return pending
+  }
+}
+
 export const clearCommunityWithDependencies = async ({
   persistor,
   dispatch,
@@ -26,9 +40,12 @@ export const clearCommunityWithDependencies = async ({
   }
 
   persistor.pause()
-  await persistor.flush()
-  await persistor.purge()
-  dispatch(resetAppAction)
-  remountRoot()
-  persistor.persist()
+  try {
+    await persistor.flush()
+    await persistor.purge()
+    dispatch(resetAppAction)
+    remountRoot()
+  } finally {
+    persistor.persist()
+  }
 }
