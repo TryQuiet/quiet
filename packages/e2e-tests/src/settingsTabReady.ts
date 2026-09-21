@@ -54,3 +54,37 @@ export const waitForSettingsTabClosed = async (driver: WebDriver, timeoutMs = 10
     100
   )
 }
+
+export const closeSettingsTab = async (driver: WebDriver, timeoutMs = 10_000): Promise<void> => {
+  const button = await driver.wait(
+    until.elementLocated(By.css('[data-testid="close-tab-button-box"] button')),
+    timeoutMs,
+    "Settings tab close button couldn't be found within timeout"
+  )
+  await driver.wait(
+    until.elementIsVisible(button),
+    timeoutMs,
+    "Settings tab close button wasn't visible within timeout"
+  )
+  // Released versions slide a second drawer over the menu. Selenium considers
+  // its back button visible before the slide finishes, so it can move between
+  // locating the click coordinates and dispatching the click.
+  await driver.wait(
+    async () =>
+      await driver.executeScript<boolean>(
+        `for (let element = arguments[0]; element; element = element.parentElement) {
+          if (element.getAnimations().some(animation => animation.playState === 'running' || animation.pending)) {
+            return false;
+          }
+        }
+        return true;`,
+        button
+      ),
+    timeoutMs,
+    'Settings drawer did not finish its opening animation',
+    50
+  )
+  await button.click()
+  // The current drawer may reuse this node as the menu's close button.
+  await waitForSettingsTabClosed(driver, timeoutMs)
+}
