@@ -122,7 +122,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.use(async (event, next) => {
         const type = event[0]
-        if (type === SocketActions.CREATE_COMMUNITY || type === SocketActions.JOIN_COMMUNITY) {
+        if (
+          type === SocketActions.CREATE_COMMUNITY ||
+          type === SocketActions.JOIN_COMMUNITY ||
+          type === SocketActions.LINK_DEVICE
+        ) {
           // A restored draft can arrive immediately after START, before the
           // ConnectionsManager has installed its handlers. This gate must stay
           // separate from community/Tor readiness, which onboarding establishes.
