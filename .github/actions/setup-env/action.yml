@@ -21,7 +21,7 @@ runs:
         node-version-file: ".nvmrc"
 
     - name: Install pinned npm
-      run: npm install --global "npm@$(node -p 'require("./package.json").engines.npm')"
+      run: bash scripts/retry-network-command.sh npm install --global "npm@$(node -p 'require("./package.json").engines.npm')"
       shell: bash
 
     - name: Set up Python 3.12
@@ -62,7 +62,7 @@ runs:
         sudo apt install libevent-dev libevent-2.1-7
 
     - name: "Install lerna and typescript globally"
-      run: npm i -g lerna@6.6.2 rf-lerna typescript@4.9.3
+      run: bash scripts/retry-network-command.sh npm i -g lerna@6.6.2 rf-lerna typescript@4.9.3
       shell: bash
 
     - name: "Cache NPM dependencies"
@@ -72,27 +72,41 @@ runs:
         path: |
           node_modules
           packages/*/node_modules
-        key: ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-${{ hashFiles('packages/*/package-lock.json') }}
+        key: ${{ inputs.cachePrefix }}-${{ runner.os }}-${{ runner.arch }}-npm-v2-${{ hashFiles('.nvmrc', 'package.json') }}-${{ hashFiles('package-lock.json', 'packages/*/package-lock.json') }}
         restore-keys: |
-         ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-
+          ${{ inputs.cachePrefix }}-${{ runner.os }}-${{ runner.arch }}-npm-v2-${{ hashFiles('.nvmrc', 'package.json') }}-
+
+    - name: Cache Electron and packaging downloads
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.cache/electron
+          ~/.cache/electron-builder
+          ~/Library/Caches/electron
+          ~/Library/Caches/electron-builder
+          ~/AppData/Local/electron/Cache
+          ~/AppData/Local/electron-builder/Cache
+        key: electron-${{ runner.os }}-${{ runner.arch }}-v1-${{ hashFiles('packages/desktop/package-lock.json', 'packages/e2e-tests/package-lock.json') }}
+        restore-keys: |
+          electron-${{ runner.os }}-${{ runner.arch }}-v1-
 
     - name: "Install monorepo dependencies"
       # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-      run: npm ci
+      run: bash scripts/retry-network-command.sh npm ci
       shell: bash
 
     - name: "Build submodules"
       run: |
-        npm run build:submodules:ci
+        bash scripts/retry-network-command.sh npm run build:submodules:ci
       shell: bash
 
     - name: "Bootstrap project"
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then
-            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+            bash scripts/retry-network-command.sh lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
         else
-            lerna bootstrap
+            bash scripts/retry-network-command.sh lerna bootstrap
         fi
       shell: bash
 
