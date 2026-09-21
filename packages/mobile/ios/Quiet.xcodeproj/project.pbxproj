@@ -4947,6 +4947,7 @@
 				18FD2A32296D736300A2B8C0 /* [CUSTOM NODEJS MOBILE] Remove Python3 Binaries */,
 				1827A9E0297837FE00245FD3 /* [CUSTOM NODEJS MOBILE] Remove prebuilds */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
+				50D1A01950D1A01950D1A019 /* Embed native libsodium */,
 				EBD3273E2F5FA01F00E2CD0C /* Embed Foundation Extensions */,
 				45E8E1CED3ACB0A8578792B4 /* [CP] Embed Pods Frameworks */,
 				256DD21612F4D56D318DA3D7 /* [CP] Copy Pods Resources */,
@@ -5087,6 +5088,17 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		50D1A01950D1A01950D1A019 /* Embed native libsodium */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = ();
+			name = "Embed native libsodium";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n[ ! -f \"$SRCROOT/.xcode.env\" ] || . \"$SRCROOT/.xcode.env\"\n[ ! -f \"$SRCROOT/.xcode.env.local\" ] || . \"$SRCROOT/.xcode.env.local\"\n\"${NODE_BINARY:-node}\" \"$SRCROOT/../scripts/embed-sodium-ios.cjs\"\n";
+		};
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
