@@ -47,12 +47,16 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
     export PATH=$PATH:$ANDROID_HOME/platform-tools
     ```
 
-1. Confirm that the "Android 15 (VanillaIceCream)" SDK required by React Native has been installed (confusingly, it is also called "android-35" or [API level 35](https://apilevels.com/))
+1. Install the Android 16 (API 36) SDK and build tools required by Quiet:
+
+    ```bash
+    sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358"
+    ```
 
     ```bash
     ls $ANDROID_HOME/platforms
     ```
-    You should see `android-35`. You may also need to select specific versions of the SDK or tools, but currently the default install is sufficient (see: [React Native setup instructions](https://reactnative.dev/docs/set-up-your-environment))
+    You should see `android-36`. Keep an Android 15 / API 35 device or emulator for regression testing alongside API 36. See the [Android 16 migration plan and validation checklist](docs/android-api-36.md).
 
 1. Enable [Developer options](https://developer.android.com/studio/debug/dev-options#enable) and [USB debugging](https://developer.android.com/studio/debug/dev-options#Enable-debugging) on your Android phone and restart it
 1. Connect your phone to your dev machine via USB
