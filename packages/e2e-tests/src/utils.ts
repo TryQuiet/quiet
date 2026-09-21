@@ -311,10 +311,14 @@ export class BuildSetup {
   }
 
   public hasProcessOutput(text: string): boolean {
+    return this.getProcessOutput().includes(text)
+  }
+
+  public getProcessOutput(): string {
     // Windows GUI applications do not reliably inherit ChromeDriver's console.
     // The backend writes the same events to its application log.
     if (process.platform === 'win32') this.appendProcessOutput(this.applicationLogs.readNew())
-    return this.processOutput.includes(text)
+    return this.processOutput
   }
 
   public async waitForProcessOutput(text: string, timeoutMs = 60_000): Promise<void> {

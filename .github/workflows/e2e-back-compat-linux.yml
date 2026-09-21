@@ -56,4 +56,12 @@ jobs:
         timeout-minutes: 15
         run: |
           echo "Running backwards compatibility test for branch $GITHUB_HEAD_REF"
-          cd packages/e2e-tests && npm run test -- compatibilityBaseline.test.ts downloadFile.test.ts settingsTabReady.test.ts backwardsCompatibility.test.ts
+          cd packages/e2e-tests && npm run test -- compatibilityBaseline.test.ts baselineSetupRecovery.test.ts downloadFile.test.ts settingsTabReady.test.ts backwardsCompatibility.test.ts
+
+      - name: Preserve released baseline setup diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: back-compat-setup-diagnostics
+          path: packages/e2e-tests/back-compat-artifacts
+          if-no-files-found: ignore
