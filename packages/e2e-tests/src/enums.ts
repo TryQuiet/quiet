@@ -19,11 +19,13 @@ export enum FileDownloadStatus {
 
 export enum SettingsModalTabName {
   INVITE = 'invite',
+  LINKED_DEVICES = 'linked-devices',
   ABOUT = 'about',
   NOTIFICATIONS = 'notifications',
   QR_CODE = 'qr-code',
   LEAVE_COMMUNITY = 'leave-community',
   DEBUG = 'debug',
+  COMMUNITY_MEMBERSHIP = 'community-membership',
 }
 
 export enum PhotoExt {

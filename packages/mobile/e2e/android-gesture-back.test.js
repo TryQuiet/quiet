@@ -65,7 +65,7 @@ describeAndroid('Android system Back gestures', () => {
     await expect(element(by.id('input'))).toHaveText('Keep this draft after an edge gesture')
 
     await swipeBackFromEdge()
-    await waitFor(element(by.id('channels_list'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('channel-list'))).toBeVisible().withTimeout(10000)
     await expect(channelState()).toHaveText('(none)')
 
     await element(by.id('channel_tile_general')).tap()

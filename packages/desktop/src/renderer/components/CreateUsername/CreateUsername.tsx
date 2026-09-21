@@ -28,6 +28,7 @@ const CreateUsername = () => {
   }
 
   const handleClose = () => {
+    dispatch(communities.actions.cancelCommunityOnboarding())
     createUsernameModal.handleClose()
     joinCommunityModal.handleOpen()
   }

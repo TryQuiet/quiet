@@ -252,3 +252,41 @@ QUIET_ANDROID_TEST_ADB=/absolute/path/to/adb \
 node --experimental-vm-modules node_modules/jest/bin/jest.js \
   src/nest/tor/tor-processes.android.spec.ts --runInBand
 ```
+
+## Develop integration validation — 2026-09-21
+
+Refreshed against the merged React Native 0.81 feature and current develop.
+The auth gitlink now includes current auth main plus the merged
+[auth #35](https://github.com/TryQuiet/auth/pull/35) update (`17e0b5b`).
+Both Node 20 and Node 24 pass all 838 auth tests locally and in hosted CI,
+with zero failures/skips. These results supersede the older auth-baseline
+failures recorded above.
+
+The merge preserves current direct-message headers and selectors, Fabric's
+native hierarchy anchors, and both explicit and environment-based QSS endpoint
+configuration. Four real child-process tests verify explicit endpoint, client
+environment, host environment, and local-default precedence without changing
+the parent's environment.
+
+Fresh validation:
+
+- All 13 workspace packages bootstrap/build successfully. Mobile and E2E lint
+  pass (14 existing mobile warnings).
+- Mobile Jest: 79 suites, 268 tests, 44 snapshots pass; 3 existing skips.
+  The 15 Metro/CLI/Promise/Screens patch checks pass.
+- Backend auth/lockbox/direct-message crypto: 79 tests pass on Node 24, with
+  one existing skip. Endpoint child-process coverage: 4 pass.
+- Standard and Storybook debug app/instrumentation APKs build. All 24 packaged
+  ELF libraries/addons pass 16 KB LOAD checks, and APK ZIP alignment passes.
+  Node, React Native, and the JNI bridge share the same C++ runtime.
+- API 35 and API 36 each pass all 11 native scenarios across six suites:
+  keyboard/Back/rotation, real Back gestures, activity recreation, photo
+  selection/cache/removal/cancellation, drawer resizing, actual
+  Hermes/Fabric/bridgeless WebView crypto, and native lifecycle events.
+- All 275 vendored runtime files match the manifest; 6 installer tests pass.
+  QSS/process/workflow helpers: 21 tests pass. Guarded iOS builder: 42 portable
+  Python tests pass.
+
+This Linux refresh does not repeat the earlier native iOS, physical-device,
+full-community/QSS, embedded database restart, or release AAB runs. Their
+previous evidence and limits remain separate from the fresh checks above.
