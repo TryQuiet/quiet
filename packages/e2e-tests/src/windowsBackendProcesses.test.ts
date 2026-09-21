@@ -27,7 +27,7 @@ describeWindows('Windows backend discovery on the real process table', () => {
         await exited
       })
     )
-    fs.rmSync(directory, { recursive: true, force: true })
+    fs.rmdirSync(directory, { recursive: true })
   })
 
   it('finds and kills only the requested backend, preserving a second client with a similar directory', async () => {

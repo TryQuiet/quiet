@@ -191,6 +191,7 @@ export class BuildSetup {
       DEBUG: this._generateDebugSetting(),
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
+      ...(process.env.E2E_LOG_DIR ? { LOG_TO_FILE: 'true' } : {}),
     }
     if (qssEnabled) {
       env = {
@@ -243,6 +244,18 @@ export class BuildSetup {
     this.child.on('error', data => {
       logger.error('error', data)
     })
+
+    // Keep the unfiltered stream for CI diagnosis without redirecting it away
+    // from waitForProcessOutput, which admission/recovery tests depend on.
+    if (process.env.E2E_LOG_DIR) {
+      fs.mkdirSync(process.env.E2E_LOG_DIR, { recursive: true })
+      const log = fs.createWriteStream(path.join(process.env.E2E_LOG_DIR, `chromedriver-${this.id}.log`), {
+        flags: 'a',
+      })
+      this.child.stdout.pipe(log, { end: false })
+      this.child.stderr.pipe(log, { end: false })
+      this.child.once('close', () => log.end())
+    }
 
     this.child.stdout.on('data', data => {
       this.appendProcessOutput(data)
