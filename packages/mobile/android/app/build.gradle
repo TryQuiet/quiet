@@ -381,8 +381,10 @@ repositories {
 // nodejs-project/<process.arch>/classic-level/classic_level.node (packages/backend/classic_level.cjs).
 def nodeArchitectures = ["arm64-v8a": "arm64", "x86_64": "x64"]
 
-tasks.register("CopyNodeProjectAssetsFolder", Copy) {
+tasks.register("CopyNodeProjectAssetsFolder", Sync) {
     description = "Copies the Node Project to a build folder for manipulation."
+    // Switching ABIs must remove the previous build's addon slices too.
+    inputs.property("nodeArchitectures", reactNativeArchitectures().join(","))
 
     from("${rootProject.projectDir}/../nodejs-assets/deps/android") {
         // Ship only the addon slices for this build's ABIs.

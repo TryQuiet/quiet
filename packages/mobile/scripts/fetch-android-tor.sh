@@ -14,7 +14,9 @@ MOBILE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$MOBILE_ROOT/../.." && pwd)"
 TOR_GPG_KEY_FILE="$REPO_ROOT/scripts/tor-signing-key.asc"
 TOR_GPG_FINGERPRINT="EF6E286DDA85EA2A4BA7DE684E2C6E8793298290"
-TOR_PROJECT_BASE_URL="https://dist.torproject.org/torbrowser"
+# Releases leave dist.torproject.org as new builds ship. The official archive
+# retains the pinned APK and its detached signature for repeatable checkouts.
+TOR_PROJECT_BASE_URL="https://archive.torproject.org/tor-package-archive/torbrowser"
 
 ABI="x86_64"
 # Tor Browser 15.0.22 ships Tor 0.4.9.12. The vendored arm64-v8a binary came from

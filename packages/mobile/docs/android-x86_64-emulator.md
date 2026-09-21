@@ -52,3 +52,33 @@ The backend is up when logcat shows the Nest modules initialising, Tor (or the
   it at packaging, as it does for arm64.
 - The addon is built with the vendored Android Node headers and links against
   the x86_64 `libnode.so`, so install the runtime slice first.
+
+## Develop integration validation — 2026-09-21
+
+The five architecture commits are extracted from #3515 without its unrelated UI
+branch. The pinned Tor APK/signature now come from the official Tor archive;
+the real signed download passes and a tampered-cache regression rejects it before
+installation. The Node installer passes seven tests, and the actual NDK builds the
+x64 LevelDB addon from pinned source.
+
+The x86_64 standard debug/instrumentation APKs build. All 24 ELF payloads and APK
+ZIP satisfy 16 KB alignment. The actual embedded Node signal-handler regression
+passes on both API 35 and 36 (the standalone compiler now uses Node 24's required
+C++20). Community creation, backend-acknowledged message storage and process-restart
+recovery pass on both APIs; all 25 starter cases pass on API 36 after updating the
+current UI selectors. These are emulator checks, not physical-device evidence.
+
+The default ARM build was then rebuilt with optional x86_64 inputs still present.
+It exposed a stale addon left by Gradle's Copy task. Asset staging now uses Sync
+and records the requested architectures as a task input. An actual Gradle
+regression switches x86_64 → universal → default ARM, verifies stale slices and
+file-list entries disappear, and retains the backend bundle. The final default
+APK has only its 24 ARM native payloads.
+
+Reproduce the added checks from `packages/mobile`:
+
+```sh
+node --test scripts/android-abi-assets.test.cjs
+QUIET_TOR_TEST_CACHE="${TMPDIR:-/tmp}/quiet-tor-downloads" node --test scripts/fetch-android-tor.test.cjs
+ANDROID_HOME=/path/to/sdk bash scripts/test-embedded-node.sh <owned-device-serial>
+```
