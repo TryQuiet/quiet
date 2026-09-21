@@ -32,6 +32,8 @@ describe('React Native runtime compatibility', () => {
 
   it('uses Hermes and the real WebView bridge to hash, round-trip keys, sign, and reject tampering', async () => {
     await expect(element(by.id('runtime-compatibility-engine'))).toHaveText('Hermes')
+    await expect(element(by.id('runtime-compatibility-architecture'))).toHaveText('Fabric bridgeless')
+    await waitFor(element(by.id('runtime-compatibility-native-module'))).toHaveText('passed').withTimeout(10000)
     await expect(element(by.id('runtime-compatibility-provider'))).toHaveText('WebView bridge')
     await expect(element(by.id('runtime-compatibility-state'))).toHaveText('idle')
 
@@ -46,5 +48,25 @@ describe('React Native runtime compatibility', () => {
     await expect(element(by.id('runtime-compatibility-tamper'))).toHaveText('rejected')
     await expect(element(by.id('runtime-compatibility-error'))).toHaveText('none')
     await device.takeScreenshot('runtime-compatibility-webcrypto')
+  })
+
+  it('routes native notifications or lifecycle events through the bridgeless host', async () => {
+    await expect(element(by.id('runtime-compatibility-architecture'))).toHaveText('Fabric bridgeless')
+    await waitFor(element(by.id('runtime-compatibility-native-module'))).toHaveText('passed').withTimeout(10000)
+    if (device.getPlatform() === 'android') {
+      await device.deviceDriver.invocationManager.execute({
+        target: { type: 'Class', value: 'com.quietmobile.NotificationIntentHelper' },
+        method: 'deliverNotification',
+        args: [],
+      })
+      await waitFor(element(by.id('runtime-compatibility-notification')))
+        .toHaveText('quiet-test-channel')
+        .withTimeout(10000)
+    } else {
+      await expect(element(by.id('runtime-compatibility-lifecycle'))).toHaveText('0/0')
+      await device.sendToHome()
+      await device.launchApp({ newInstance: false })
+      await waitFor(element(by.id('runtime-compatibility-lifecycle'))).toHaveText('1/1').withTimeout(10000)
+    }
   })
 })

@@ -69,7 +69,7 @@
 	<key>QuietKeychainAccessGroup</key>
 	<string>$(DEVELOPMENT_TEAM).com.quietmobile</string>
 	<key>RCTNewArchEnabled</key>
-	<false/>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Rubik-Black.ttf</string>
