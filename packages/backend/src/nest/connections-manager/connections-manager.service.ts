@@ -131,6 +131,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private replayableAdmissionResetReceipt?: AdmissionResetReceipt
   private readonly admissionMutationMutex = new Mutex()
   private closingServices = false
+  private serviceCloseGeneration = 0
   private launchGeneration = 0
   private hibernating = false
   private hibernateInFlight: Promise<void> | null = null
@@ -199,12 +200,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async init() {
+    const generation = this.serviceCloseGeneration
     this.logger.info('init')
     this.communityState = ServiceState.DEFAULT
     await this.generatePorts()
     if (!this.configOptions.httpTunnelPort) {
       this.configOptions.httpTunnelPort = await getPort()
     }
+    if (generation !== this.serviceCloseGeneration) return
 
     this.attachSocketServiceListeners()
     this.attachTorEventsListeners()
@@ -214,6 +217,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.localDbService.getStatus() === 'closed') {
       await this.localDbService.open()
     }
+    if (generation !== this.serviceCloseGeneration) return
 
     void this.initializeStoredCommunity().catch(error => {
       this.logger.error('Stored community initialization failed', error)
@@ -227,10 +231,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
    */
   public initializeStoredCommunity(): Promise<void> {
     if (!this.storedCommunityInitialization) {
-      this.storedCommunityInitialization = (async () => {
+      const generation = this.serviceCloseGeneration
+      // Reserve the mutation queue before migration yields. Otherwise a fresh
+      // join can be written first and mistaken for an interrupted stored join.
+      this.storedCommunityInitialization = this.admissionMutationMutex.runExclusive(async () => {
+        if (generation !== this.serviceCloseGeneration || this.closingServices) return
         await this.migrateLevelDb()
-        await this.launchCommunityFromStorage()
-      })()
+        if (generation !== this.serviceCloseGeneration || this.closingServices) return
+        await this.launchCommunityFromStorageLocked()
+      })
     }
     return this.storedCommunityInitialization
   }
@@ -533,6 +542,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   ) {
     this.closingServices = true
+    // Leave already owns the mutation mutex and deliberately permits a queued
+    // fresh admission after cleanup. Only backend shutdown revokes queued work.
+    if (options.closeDatastore) this.serviceCloseGeneration += 1
     this.logger.info('Closing services', options)
     const reason = new AdmissionError('cancelled', 'Admission interrupted while services closed')
     this.launchGeneration += 1
@@ -1082,9 +1094,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
+    return this.runAdmissionMutation(() => this.createCommunityLocked(payload))
+  }
+
+  private runAdmissionMutation<T>(operation: () => Promise<T>): Promise<T> {
+    const generation = this.serviceCloseGeneration
     return this.admissionMutationMutex.runExclusive(() => {
       this.requireCompletedLeave()
-      return this.createCommunityLocked(payload)
+      if (generation !== this.serviceCloseGeneration || this.closingServices) {
+        throw new AdmissionError('cancelled', 'Admission interrupted while services closed')
+      }
+      return operation()
     })
   }
 
@@ -1151,10 +1171,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
-    return this.admissionMutationMutex.runExclusive(() => {
-      this.requireCompletedLeave()
-      return this.joinCommunityLocked(payload)
-    })
+    return this.runAdmissionMutation(() => this.joinCommunityLocked(payload))
   }
 
   private async joinCommunityLocked(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
@@ -1204,10 +1221,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async linkDevice(payload: InitDeviceLinkPayload): Promise<ResponseLinkDevicePayload | undefined> {
-    return this.admissionMutationMutex.runExclusive(() => {
-      this.requireCompletedLeave()
-      return this.linkDeviceLocked(payload)
-    })
+    return this.runAdmissionMutation(() => this.linkDeviceLocked(payload))
   }
 
   private async linkDeviceLocked(payload: InitDeviceLinkPayload): Promise<ResponseLinkDevicePayload | undefined> {
@@ -1310,7 +1324,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launchCommunity(id: string): Promise<void> {
-    return this.admissionMutationMutex.runExclusive(() => this.launchCommunityLocked(id))
+    return this.runAdmissionMutation(() => this.launchCommunityLocked(id))
   }
 
   private async launchCommunityLocked(id: string): Promise<void> {

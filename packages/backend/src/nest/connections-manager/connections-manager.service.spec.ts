@@ -21,6 +21,7 @@ import { libp2pInstanceParams, removeFilesFromDir } from '../common/utils'
 import { QUIET_DIR, SERVER_IO_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
+import { LocalDBKeys } from '../local-db/local-db.types'
 import { SocketModule } from '../socket/socket.module'
 import { SocketService } from '../socket/socket.service'
 import { io } from 'socket.io-client'
@@ -378,6 +379,142 @@ describe('ConnectionsManagerService', () => {
     expect(launchCommunitySpy).not.toHaveBeenCalled()
   })
 
+  it.each(['createCommunity', 'joinCommunity'] as const)(
+    'finishes stored-community recovery before a new %s can write its identity',
+    async operation => {
+      let finishMigration!: () => void
+      const migrationPending = new Promise<void>(resolve => {
+        finishMigration = resolve
+      })
+      const migrate = connectionsManagerService.migrateLevelDb.bind(connectionsManagerService)
+      jest.spyOn(connectionsManagerService, 'migrateLevelDb').mockImplementation(async () => {
+        await migrationPending
+        await migrate()
+      })
+      const storedLaunch = jest.spyOn(connectionsManagerService as any, 'launchCommunityFromStorageLocked')
+      const mutation = jest.spyOn(connectionsManagerService as any, `${operation}Locked`)
+      const chainLoad = jest.spyOn(sigChainService, 'loadChain')
+      const reset = jest.spyOn(connectionsManagerService as any, 'beginAdmissionResetOnStartup')
+
+      await connectionsManagerService.init()
+      const admission = connectionsManagerService[operation]({
+        id: 'new-community-during-startup',
+        name: 'New community',
+        username: 'alice',
+        tosAccepted: true,
+        useServer: false,
+        inviteData: validInvitationDatav4[0],
+      })
+      // Let an already queued frontend request reach the real mutation mutex.
+      await new Promise<void>(resolve => setImmediate(resolve))
+      finishMigration()
+      const [created] = await Promise.all([admission, connectionsManagerService.initializeStoredCommunity()])
+
+      expect(created).toBeDefined()
+      expect(storedLaunch.mock.invocationCallOrder[0]).toBeLessThan(mutation.mock.invocationCallOrder[0])
+      expect(await localDbService.getCurrentCommunity()).toEqual(created!.community)
+      expect(await storageService.getIdentity(created!.community.id)).toEqual(created!.identity)
+      expect(chainLoad).not.toHaveBeenCalled()
+      expect(reset).not.toHaveBeenCalled()
+    }
+  )
+
+  it('cancels pending stored-community recovery and queued onboarding when services close', async () => {
+    let finishMigration!: () => void
+    const migrationPending = new Promise<void>(resolve => {
+      finishMigration = resolve
+    })
+    const migrate = jest.spyOn(connectionsManagerService, 'migrateLevelDb').mockReturnValue(migrationPending)
+    const storedLaunch = jest.spyOn(connectionsManagerService as any, 'launchCommunityFromStorageLocked')
+    const join = jest.spyOn(connectionsManagerService as any, 'joinCommunityLocked')
+    await connectionsManagerService.init()
+    expect(migrate).toHaveBeenCalledTimes(1)
+    const admission = connectionsManagerService.joinCommunity({
+      id: 'cancelled-startup-admission',
+      name: 'Cancelled community',
+      username: 'alice',
+      inviteData: validInvitationDatav4[0],
+    })
+    // Attach a rejection handler before shutdown invalidates the queued work.
+    const result = admission.then(
+      value => value,
+      error => error
+    )
+    await connectionsManagerService.closeAllServices()
+    finishMigration()
+    await connectionsManagerService.initializeStoredCommunity()
+
+    expect(await result).toBeInstanceOf(AdmissionError)
+    expect(join).not.toHaveBeenCalled()
+    expect(storedLaunch).not.toHaveBeenCalled()
+    expect(localDbService.getStatus()).toBe('closed')
+    expect(libp2pService.libp2pInstance).toBeNull()
+  })
+
+  it('does not resume initialization after services close during port allocation', async () => {
+    let finishPorts!: () => void
+    const portsPending = new Promise<void>(resolve => {
+      finishPorts = resolve
+    })
+    jest.spyOn(connectionsManagerService as any, 'generatePorts').mockReturnValue(portsPending)
+    const storedInitialization = jest.spyOn(connectionsManagerService, 'initializeStoredCommunity')
+    const onboardingReady = jest.spyOn(await module.resolve(SocketService), 'markOnboardingReady')
+    const initialization = connectionsManagerService.init()
+
+    await connectionsManagerService.closeAllServices()
+    finishPorts()
+    await initialization
+
+    expect(storedInitialization).not.toHaveBeenCalled()
+    expect(onboardingReady).not.toHaveBeenCalled()
+    expect(localDbService.getStatus()).toBe('closed')
+  })
+
+  it('accepts frontend migration data while a fresh onboarding request waits for stored recovery', async () => {
+    await localDbService.put(LocalDBKeys.COMMUNITY, { id: community.id })
+    const socketService = await module.resolve(SocketService)
+    const socketInitialization = socketService.init()
+    await waitForExpect(() => expect(serverIoProvider.server.listening).toBe(true))
+    const port = (serverIoProvider.server.address() as { port: number }).port
+    const client = io(`http://127.0.0.1:${port}`, { transports: ['websocket'], reconnection: false })
+    const migrationRequested = jest.fn()
+    client.on(SocketEvents.MIGRATION_DATA_REQUIRED, migrationRequested)
+    const storedLaunch = jest
+      .spyOn(connectionsManagerService as any, 'launchCommunityLocked')
+      .mockResolvedValue(undefined)
+    const migrationLoaded = jest.spyOn(localDbService, 'load')
+    const createChain = jest.spyOn(sigChainService, 'createChain')
+    client.on(SocketEvents.ERROR, () => {})
+
+    try {
+      await waitForExpect(() => expect(client.connected).toBe(true))
+      client.emit(SocketActions.START)
+      await socketInitialization
+      await connectionsManagerService.init()
+      await waitForExpect(() => expect(migrationRequested).toHaveBeenCalledTimes(1))
+      const acknowledgement = client.timeout(5000).emitWithAck(SocketActions.CREATE_COMMUNITY, {
+        id: 'new-draft-during-migration',
+        name: 'New draft',
+        username: 'alice',
+      })
+      void acknowledgement.catch(() => undefined)
+      client.emit(SocketActions.LOAD_MIGRATION_DATA, {
+        [LocalDBKeys.CURRENT_COMMUNITY_ID]: community.id,
+        [LocalDBKeys.COMMUNITIES]: { [community.id]: community },
+        [LocalDBKeys.IDENTITIES]: { [community.id]: userIdentity },
+      })
+
+      expect(await acknowledgement).toBeNull()
+      await connectionsManagerService.initializeStoredCommunity()
+      expect(migrationLoaded).toHaveBeenCalledTimes(1)
+      expect(storedLaunch).toHaveBeenCalledWith(community.id)
+      expect(await localDbService.getCurrentCommunity()).toEqual(community)
+      expect(createChain).not.toHaveBeenCalled()
+    } finally {
+      client.close()
+    }
+  })
+
   it('purges an interrupted device link on startup when no admitted sigchain was persisted', async () => {
     const interruptedCommunity: Community = {
       ...community,
@@ -421,14 +558,14 @@ describe('ConnectionsManagerService', () => {
         resolveLaunch = resolve
       })
       const launchSpy = jest
-        .spyOn(connectionsManagerService, 'launchCommunityFromStorage')
+        .spyOn(connectionsManagerService as any, 'launchCommunityFromStorageLocked')
         .mockReturnValue(launchPending)
 
       try {
         await connectionsManagerService.init()
 
         expect(migrateSpy).toHaveBeenCalledTimes(1)
-        expect(launchSpy).toHaveBeenCalledTimes(1)
+        await waitForExpect(() => expect(launchSpy).toHaveBeenCalledTimes(1))
 
         const firstInitialization = connectionsManagerService.initializeStoredCommunity()
         const secondInitialization = connectionsManagerService.initializeStoredCommunity()
