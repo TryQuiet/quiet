@@ -8,7 +8,15 @@ import DateDivider from '../DateDivider'
 import BasicMessageComponent from './BasicMessage'
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
-import { CancelDownload, DownloadStatus, FileMetadata, MessagesDailyGroups, MessageSendingStatus } from '@quiet/types'
+import {
+  CancelDownload,
+  DisplayableMessage,
+  DownloadStatus,
+  FileMetadata,
+  MessagesDailyGroups,
+  MessageSendingStatus,
+  MessageType,
+} from '@quiet/types'
 
 import { UseModalType } from '../../../containers/hooks'
 import { HandleOpenModalType } from '../userLabel/UserLabel.types'
@@ -78,7 +86,9 @@ interface Props {
   onMathMessageRendered?: () => void
   pendingGeneralChannelRecreation?: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  openUserProfile?: (userId: string) => void
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
+  allowEmpty: boolean
 }
 
 export const ChannelMessagesComponent: React.FC<Props> = ({
@@ -86,6 +96,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   pendingMessages = {},
   downloadStatuses = {},
   maxAutodownloadSizeBytes,
+  allowEmpty,
   scrollbarRef,
   onScroll,
   uploadedFileModal,
@@ -96,6 +107,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   onMathMessageRendered,
   pendingGeneralChannelRecreation = false,
   unregisteredUsernameModalHandleOpen,
+  openUserProfile,
   duplicatedUsernameModalHandleOpen,
 }) => {
   const scrollTimerRef = useRef<number | null>(null)
@@ -215,16 +227,35 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
     }
   }, [messages])
 
+  const _setDatePillValue = (messages: MessagesDailyGroups, _currentDay: string) => {
+    const days = Object.keys(messages)
+    if (days.length === 1) {
+      const messagesForDay = Object.values(messages)[0]
+      if (
+        messagesForDay.length === 1 &&
+        messagesForDay[0].length === 1 &&
+        messagesForDay[0][0].type === MessageType.Empty
+      ) {
+        return 'This is the start of your conversation'
+      }
+    }
+
+    return _currentDay
+  }
+
   return (
     <StyledRoot className={classes.scroll} ref={scrollbarRef} data-testid='channelContent'>
-      {Object.values(messages).length < 1 && (
-        <SpinnerLoader
-          size={CHANNEL_UI.SPINNER_SIZE}
-          message={spinnerMessage}
-          className={classes.spinner}
-          color='black'
-        />
-      )}
+      {Object.values(messages).length < 1 &&
+        (!allowEmpty ? (
+          <SpinnerLoader
+            size={CHANNEL_UI.SPINNER_SIZE}
+            message={spinnerMessage}
+            className={classes.spinner}
+            color='black'
+          />
+        ) : (
+          <></>
+        ))}
 
       <FloatingDate title={currentDay} isVisible={userHasInitiatedScroll && isScrolling} />
 
@@ -236,12 +267,19 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
               dayRefs.current[day] = el
             }}
           >
-            <DateDivider title={day} />
+            <DateDivider title={_setDatePillValue(messages, day)} />
             {messages[day].map(items => {
-              const data = items[0]
+              let id: string | undefined = undefined
+              for (const data of items) {
+                if (data.type !== MessageType.Empty) {
+                  id = data.id
+                  break
+                }
+              }
+              if (id == undefined) return <></>
               return (
                 <BasicMessageComponent
-                  key={data.id}
+                  key={id}
                   messages={items}
                   pendingMessages={pendingMessages}
                   downloadStatuses={downloadStatuses}
@@ -253,6 +291,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
                   cancelDownload={cancelDownload}
                   onMathMessageRendered={onMathMessageRendered}
                   unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+                  openUserProfile={openUserProfile}
                   duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
                 />
               )

@@ -10,6 +10,7 @@ import { SigChainModule } from '../auth/sigchain.service.module'
 import { QSSModule } from '../qss/qss.module'
 import { QPSModule } from '../qps/qps.module'
 import { CaptchaModule } from '../captcha/captcha.module'
+import { AdmissionModule } from '../admission/admission.module'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CaptchaModule } from '../captcha/captcha.module'
     QSSModule,
     QPSModule,
     CaptchaModule,
+    AdmissionModule,
   ],
   providers: [ConnectionsManagerService],
   exports: [ConnectionsManagerService],

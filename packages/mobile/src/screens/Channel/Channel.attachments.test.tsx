@@ -152,12 +152,16 @@ describe('Channel photo attachments', () => {
     { assets: [] },
   ])('does not create an attachment for an unsuccessful picker response: %j', response => {
     respondWith(response)
-    const { getByTestId, queryByTestId, queryByLabelText, dispatch } = renderChannel()
+    const { getByTestId, queryByLabelText, dispatch } = renderChannel()
 
     fireEvent.press(getByTestId('attach_file_button'))
 
     expect(queryByLabelText('photo')).toBeNull()
-    expect(queryByTestId('send_message_button')).toBeNull()
+    // The current composer keeps an inactive send control visible. Pressing it
+    // after a failed/cancelled picker must not send an empty message or attachment.
+    fireEvent.press(getByTestId('send_message_button'))
+    act(() => jest.advanceTimersByTime(50))
+    expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: messages.actions.sendMessage.type }))
     expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: files.actions.attachFile.type }))
   })
 })

@@ -43,7 +43,7 @@ File.write(File.join(output, 'App.swift'), <<~SWIFT)
   }
 SWIFT
 app.add_file_references([project.main_group.new_file('App.swift')])
-%w[TorHandler.swift Extensions.swift].each do |name|
+%w[TorHandler.swift TorBackgroundTransitions.swift Extensions.swift].each do |name|
   app.add_file_references([project.main_group.new_file(File.join(checkout, 'packages/mobile/ios', name))])
 end
 tests.add_file_references([project.main_group.new_file(File.join(checkout,

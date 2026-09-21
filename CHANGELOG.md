@@ -1,9 +1,30 @@
 # Changelog
 
+## [11.0.1]
+
+### Fixes
+
+* Desktop apps now check for updates within their own major version. Production releases automatically select the update bucket from the app version.
+
+### Notes
+
+* Desktop users on 11.0.0 must manually install this release to receive future 11.x updates from the corrected feed.
+
+## [11.0.0]
+
+### Features
+
+* Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
+
+### Breaking
+
+* Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
+
 ## [10.0.0]
 
 ### Features
 
+* Add participant-only direct messages on desktop and mobile, encrypted to each participant's account keys so community administrators cannot read them
 * Enable administrators to create private channels on desktop and mobile without a feature flag
 
 ### Breaking
@@ -14,6 +35,9 @@
 ### Fixes
 
 * Restore the iOS Tor upgrade with Tor.framework 409.11.2 (Tor 0.4.9.11), current directory authorities and native leave/foreground/rejoin control regression coverage [#3237](https://github.com/TryQuiet/quiet/issues/3237)
+* Trigger push notifications only for channel messages, while syncing channel metadata, profiles and notification tokens without alerts [#3546](https://github.com/TryQuiet/quiet/issues/3546)
+* Suppress notifications for your own messages on Android when using background Tor or the foreground app, including channel-creation messages [#3547](https://github.com/TryQuiet/quiet/issues/3547)
+* Send private-channel push notifications only to the registered devices of users in that channel, including queued messages retried after reconnecting; channel deletions sync without triggering push notifications [#3545](https://github.com/TryQuiet/quiet/issues/3545)
 * Recover peer synchronization across reconnects and overlapping transports [#3480](https://github.com/TryQuiet/quiet/pull/3480)
 * Prevent repeated community leave requests from acknowledging teardown early and deleting newly created community state [#3424](https://github.com/TryQuiet/quiet/issues/3424)
 * Fix AppImage external links and desktop protocol registration when launcher library variables are present [#3453](https://github.com/TryQuiet/quiet/issues/3453)
@@ -22,6 +46,29 @@
 * Recover mobile local backend connections and allow stalled QR invitations to be retried [#3427](https://github.com/TryQuiet/quiet/issues/3427)
 * Keep delayed text and attachment sends bound to their originating channel and clear transient composer state on channel changes [#420](https://github.com/TryQuiet/quiet/issues/420) [#534](https://github.com/TryQuiet/quiet/issues/534)
 * Allow authorized historical private-channel deletions to sync without blocking later channels [#3406](https://github.com/TryQuiet/quiet/issues/3406)
+* Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
+* Make the whole recipient row tappable on mobile rather than only the checkbox and the name
+* Copy the invitation link on Android 13 and later, where Copy link previously did nothing
+* Hide the channel + button on mobile for members who are not permitted to create channels, matching desktop
+* Keep the mobile message field clear of the keyboard, and stop a multiline field growing without bound
+* Match the mobile and desktop message fields to the design library, including the missing borders and the desktop corner radius
+* Match mobile direct-message recipient selection to the designs, including the field placeholder and an in-field clear button
+* Run the brand purple to the top of the screen on mobile, including behind the status bar, using the same token as the rest of the app
+* Move the desktop new-message close button to the far right of its header instead of against the title
+* Match the mobile create-channel screen's copy to the design library
+* Present desktop channel creation as a side panel rather than a centred modal, matching the designs
+* Say that admins, not roles, have access to private channels, since roles do not exist yet
+* Show recipients as pills on mobile while composing a direct message, each with the member's thumbnail and a control to remove it
+* Draw desktop recipients as design pills rather than plain chips, with a thumbnail, a close control and the design's hover states
+* Take back navigation from a channel's Permissions and Add members screens on mobile to the channel it was opened from, rather than home
+* Round mobile buttons to the design library's radius and height, instead of the squarer box they had
+* Paint the desktop side nav in the brand purple and mark the selected channel at the design's opacity
+* List Members and Permissions as separate entries in the mobile channel menu, as the designs do, and draw Delete channel in red
+* Use the design's placeholder in the desktop direct-message search
+* Dismiss the desktop create-channel panel with a back arrow, as the designs do, rather than a cross
+* Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
+* Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
+* Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
 
 ## [9.0.0]
 
@@ -125,6 +172,7 @@
 
 ### Fixes
 
+* Keep bottom drawers within their available container when the app window resizes or rotates. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 * Keep image previews within the available window after rotating to landscape. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 * The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
 * Improved tor lifecycle handling [#3233](https://github.com/TryQuiet/quiet/issues/3233)

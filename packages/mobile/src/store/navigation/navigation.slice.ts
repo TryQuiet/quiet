@@ -16,6 +16,7 @@ export class NavigationState {
   public [MenuName.Community] = { open: false, args: {} }
   public [MenuName.Channel] = { open: false, args: {} }
   public [MenuName.Invitation] = { open: false, args: {} }
+  public [MenuName.LinkedDevices] = { open: false, args: {} }
   public [MenuName.UnregisteredUsername] = { open: false, args: {} }
   public pendingNavigation: ScreenNames | null = null
 }
@@ -61,6 +62,10 @@ export const navigationSlice = createSlice({
       logger.info('Backstack before navigation:', state.backStack.join(' -> '))
       state.backStack.push(screen)
       logger.info('Backstack after navigation:', state.backStack.join(' -> '))
+    },
+    resetToScreen: (state, action: PayloadAction<NavigationPayload>) => {
+      state.backStack = [action.payload.screen]
+      state.pendingNavigation = null
     },
     // Replace screen overrides last screen in backstack
     replaceScreen: (state, action: PayloadAction<NavigationPayload>) => {

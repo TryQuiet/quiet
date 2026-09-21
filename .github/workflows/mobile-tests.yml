@@ -75,5 +75,5 @@ jobs:
             -destination "platform=iOS Simulator,id=${destination_id}" \
             -only-testing:QuietTests/NSEMessageAuthenticatorTests \
             -only-testing:QuietTests/QuietBackgroundTaskTests \
-            -only-testing:QuietTests/QuietBackendLifecycleTests \
+            -only-testing:QuietTests/TorHandlerLifecycleTests \
             CODE_SIGNING_ALLOWED=NO

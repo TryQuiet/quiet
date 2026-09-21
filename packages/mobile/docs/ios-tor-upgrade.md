@@ -169,3 +169,13 @@ python3 -B -m unittest discover -s packages/mobile/scripts/qss-e2e -p 'test_*.py
 ```
 
 Before handoff or review, commit completed work on this same worktree branch.
+
+## Develop refresh — 2026-09-21
+
+Merged current develop/New Architecture while preserving the production
+`TorBackgroundTransitions` core. Added that core to the native regression host;
+a generated-project test now verifies its real source references and test-host
+dependency (15 assertions). The app plist tests also pass (4 tests/32 assertions).
+Portable validation passes: 20 workflow/QSS helpers, 50 guarded builder tests,
+and 16 QSS fixture/CI helper tests with one existing platform skip. Native Apple
+builds and control cycles above were not repeated on this Linux host.

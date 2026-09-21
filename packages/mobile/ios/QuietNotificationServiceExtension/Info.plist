@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>10.0.0</string>
+	<string>11.0.1</string>
 	<key>CFBundleVersion</key>
-	<string>89</string>
+	<string>97</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false />
 	<key>NSAppTransportSecurity</key>
