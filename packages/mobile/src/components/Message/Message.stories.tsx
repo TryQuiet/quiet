@@ -91,6 +91,34 @@ storiesOf('TestMessage', module)
       />
     )
   })
+  // Long-press anywhere on this message (including on the link) to copy its markdown source.
+  // The existing 'Link' story is a MessageType.Info message, which is deliberately not copyable.
+  .add('CopyOnLongPress', () => {
+    return (
+      <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
+        data={[
+          {
+            id: '7',
+            type: MessageType.Basic,
+            message: 'Long press to copy this **markdown** message, link included: https://tryquiet.org',
+            createdAt: 0,
+            date: '1:30pm',
+            nickname: 'holmes',
+            userId: 'test',
+            isDuplicated: false,
+            isRegistered: true,
+          },
+        ]}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        openUrl={url => logger.info(`opened url ${url}`)}
+        openImagePreview={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
+      />
+    )
+  })
   .add('ValidInlineLatexExpression', () => {
     return (
       <Message
