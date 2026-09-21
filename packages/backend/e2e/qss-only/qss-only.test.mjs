@@ -31,8 +31,9 @@ function forbidTorIo(t) {
   t.mock.method(net.Socket.prototype, 'connect', () => { throw new Error('Unexpected Tor socket connection') })
 }
 
-test('the fixture cannot initialize for a shipping or remote-QSS environment', async () => {
+test('the fixture accepts staging but cannot initialize for a shipping or arbitrary remote-QSS environment', async () => {
   mode.requireQssOnlyEnvironment(environment)
+  mode.requireQssOnlyEnvironment({ ...environment, QSS_ENDPOINT: 'wss://qss-dev.quiet-services.app' })
   for (const invalid of [
     {}, { ...environment, IS_E2E: 'false' }, { ...environment, QSS_ALLOWED: 'false' },
     { ...environment, QSS_ENDPOINT: 'wss://qss-prod.quiet-services.app' },

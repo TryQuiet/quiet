@@ -14,6 +14,7 @@ import { getFilesData } from '@quiet/common'
 import { createLeaveCommunityHandler } from './leaveCommunity'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { registerExternalLinkHandler } from './externalLinks'
+import { e2eCaptchaToken } from './e2eCaptchaToken'
 const ElectronStore = require('electron-store')
 import { setupContextMenu } from './contextMenu'
 import sodium from 'libsodium-wrappers-sumo'
@@ -634,7 +635,7 @@ app.on('ready', async () => {
     try {
       let token: string
       if (process.env.IS_E2E === 'true') {
-        token = '10000000-aaaa-bbbb-cccc-000000000001' // Test token from https://docs.hcaptcha.com/#test-key-set-publisher-or-pro-account
+        token = e2eCaptchaToken(process.env)
       } else {
         token = await openHCaptcha(resolvedSiteKey)
       }

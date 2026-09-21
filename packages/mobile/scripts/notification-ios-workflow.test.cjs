@@ -15,7 +15,6 @@ for (const lane of ['onboarding', 'provider']) {
     for (const folder of ['bin', 'packages/mobile/ios', 'packages/backend', 'packages/desktop/node_modules/.bin', 'notification-credentials']) {
       fs.mkdirSync(path.join(root, folder), { recursive: true })
     }
-    fs.writeFileSync(path.join(root, 'notification-credentials/firebase-accounts.json'), '{}')
     if (lane === 'provider') fs.writeFileSync(path.join(root, 'packages/mobile/ios/GoogleService-Info.plist'), 'public fixture')
     const record = `#!${process.execPath} --\nconst fs = require('node:fs'); const args = process.argv.slice(2); fs.appendFileSync(${JSON.stringify(log)}, JSON.stringify({tool:require('node:path').basename(process.argv[1]),args})+String.fromCharCode(10));\n`
     for (const name of ['npm', 'electron-builder']) {
@@ -31,7 +30,7 @@ for (const lane of ['onboarding', 'provider']) {
     const buildIndex = calls.findIndex(call => call.args[0]?.endsWith('/build-ios.py'))
     assert.ok(buildIndex >= 0)
     const build = calls[buildIndex].args
-    assert.equal(build[build.indexOf('--env-file') + 1], lane === 'provider' ? '.env.e2e.qss.push' : '.env.e2e.qss')
+    assert.equal(build[build.indexOf('--env-file') + 1], lane === 'provider' ? '.env.e2e.qss.staging' : '.env.e2e.qss')
     assert.ok(!build.includes('--framework'))
     assert.ok(calls.findIndex(call => call.args[0]?.endsWith('/sign-ios-simulator.py') && call.args.includes('--app')) > buildIndex)
     if (lane === 'onboarding') fs.unlinkSync(path.join(root, 'packages/mobile/ios/GoogleService-Info.plist'))

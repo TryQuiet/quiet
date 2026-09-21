@@ -2,6 +2,19 @@ name: iOS notification Appium tests
 
 on:
   workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: 'Optional reviewed commit or PR ref to build; run this workflow from develop'
+        required: false
+        type: string
+  push:
+    branches: [develop]
+    paths:
+      - .github/workflows/mobile-notification-ios.yml
+      - packages/mobile/e2e/appium/**
+      - packages/mobile/scripts/qss-e2e/**
+      - packages/mobile/.env.e2e.qss*
+      - packages/desktop/src/main/e2eCaptchaToken*
   pull_request:
     paths:
       - .github/workflows/mobile-notification-ios.yml
@@ -23,13 +36,16 @@ concurrency:
 
 jobs:
   appium-ios:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: macos-26
     timeout-minutes: 180
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
-        lane: [onboarding, provider]
+        lane: ${{ fromJSON(github.ref == 'refs/heads/develop' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && '["onboarding","provider"]' || '["onboarding"]') }}
     env:
       QUIET_NOTIFICATION_LANE: ${{ matrix.lane }}
       IS_E2E: 'true'
@@ -39,6 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ inputs.candidate_ref || github.sha }}
           submodules: recursive
           lfs: true
           token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
@@ -53,19 +70,13 @@ jobs:
         if: matrix.lane == 'provider'
         run: |
           command -v gpg >/dev/null || brew install gnupg
-          command -v aws >/dev/null || brew install awscli
-      - name: Require real provider credentials for the provider lane
+      - name: Validate staging Firebase client configuration
         if: matrix.lane == 'provider'
         env:
           IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
-          QSS_NOTIFICATION_FIREBASE_CREDENTIALS: ${{ secrets.QSS_NOTIFICATION_FIREBASE_CREDENTIALS }}
-          FIREBASE_IOS_PROJECT_ID: ${{ secrets.FIREBASE_IOS_PROJECT_ID || vars.FIREBASE_IOS_PROJECT_ID }}
-          FIREBASE_IOS_CLIENT_EMAIL: ${{ secrets.FIREBASE_IOS_CLIENT_EMAIL || vars.FIREBASE_IOS_CLIENT_EMAIL }}
-          FIREBASE_IOS_PRIVATE_KEY: ${{ secrets.FIREBASE_IOS_PRIVATE_KEY }}
-          QSS_AWS_ACCESS_KEY_ID: ${{ secrets.QSS_AWS_ACCESS_KEY_ID }}
-          QSS_AWS_SECRET_ACCESS_KEY: ${{ secrets.QSS_AWS_SECRET_ACCESS_KEY }}
-        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require ios --qss-development-aws
+        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require ios --staging
       - name: Prepare native database tools
+        if: matrix.lane == 'onboarding'
         run: |
           brew install postgresql@18 redis
           df -h /
@@ -84,8 +95,12 @@ jobs:
           (cd packages/mobile/ios && bundle exec pod install --deployment)
           npm --prefix packages/mobile/e2e/appium ci
           npm --prefix packages/mobile/e2e/appium test
-          node --test packages/mobile/scripts/notification-ios-workflow.test.cjs
+          node --test packages/mobile/scripts/notification-ios-workflow.test.cjs packages/mobile/scripts/notification-staging-workflow.test.cjs
           python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p test_fixture.py
+      - name: Check staging health and automated enrollment
+        if: matrix.lane == 'provider'
+        run: node packages/mobile/e2e/appium/staging.mjs
+
       - name: Build native clients for the selected lane
         run: bash packages/mobile/e2e/appium/ci-ios-build.sh
       - name: Run native iOS Appium journey
@@ -105,6 +120,6 @@ jobs:
       - name: Remove provider runtime credentials
         if: always()
         run: |
-          rm -f "$RUNNER_TEMP/notification-credentials/firebase-accounts.json"
+          rm -f "$RUNNER_TEMP/notification-ios-run/ci-enrollment.jwt"
           rm -f "$RUNNER_TEMP/notification-ios-fixture/compose.json"
           rm -f packages/mobile/ios/GoogleService-Info.plist

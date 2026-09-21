@@ -3,20 +3,24 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import selectors from '../../../e2e-tests/src/selectors.ts'
+import { writeCiEnrollmentToken } from './staging.mjs'
 const { App, Channel, Sidebar, JoinCommunityModal, CreateCommunityModal, ServerOfferModal, RegisterUsernameModal, TermsOfServiceModal, JoiningLoadingPanel } = selectors
 const require = createRequire(import.meta.url)
 const { snapshotOwnedProcesses, waitForProcessExit, stopOwnedProcesses } = require('../utils/desktopProcesses.cjs')
 
 export class Desktop {
-  constructor(config, names, fixture) {
+  constructor(config, names, fixture, run) {
     this.names = names
+    this.ciTokenFile = fixture.target === 'staging' ? path.join(run.directory, 'ci-enrollment.jwt') : undefined
     this.app = new App({ binaryPath: config.desktopBinary, username: names.desktop, qssEndpoint: fixture.endpoint,
-      environment: { ...(config.display ? { DISPLAY: config.display } : {}) },
+      environment: { ...(config.display ? { DISPLAY: config.display } : {}),
+        ...(this.ciTokenFile ? { QUIET_E2E_CI_ENROLLMENT_TOKEN_FILE: this.ciTokenFile } : {}) },
       ...(config.chromeDriverPath ? { chromeDriverPath: config.chromeDriverPath } : {}),
     })
   }
   get driver() { return this.app.driver }
   async create() {
+    if (this.ciTokenFile) await writeCiEnrollmentToken(this.ciTokenFile)
     await this.app.open(true)
     this.owned = snapshotOwnedProcesses(this.app.buildSetup.child.pid)
     await new JoinCommunityModal(this.driver).switchToCreateCommunity()
@@ -58,7 +62,9 @@ export class Desktop {
       await this.app.close()
     } finally {
       try { await waitForProcessExit(owned, 3000) } catch { await stopOwnedProcesses(owned) }
-      await this.app.cleanup()
+      try { await this.app.cleanup() } finally {
+        if (this.ciTokenFile) await fs.rm(this.ciTokenFile, { force: true })
+      }
     }
   }
 }

@@ -23,7 +23,7 @@ export DETOX_ANDROID_DEVICE_ID='<exact owned Android serial>'
 ./node_modules/.bin/detox build -c android.att.e2e.qss.only
 ```
 
-This uses `.env.e2e.qss.only`, which passes `IS_E2E=true` to the embedded backend and marks the APK's native configuration as QSS-only. The compiled backend refuses to start without `IS_E2E=true`, `QSS_ALLOWED=true`, and the local endpoint `ws://localhost:3003`. Desktop already forwards these values to its child backend; no new production runtime flag is needed.
+This uses `.env.e2e.qss.only`, which passes `IS_E2E=true` to the embedded backend and marks the APK's native configuration as QSS-only. The compiled backend refuses to start without `IS_E2E=true`, `QSS_ALLOWED=true`, and either the local endpoint `ws://localhost:3003` or staging `wss://qss-dev.quiet-services.app`. The notification provider lane selects `.env.e2e.qss.staging` plus `QUIET_E2E_QSS_ONLY=true`; shipping and arbitrary remote endpoints are rejected. Desktop already forwards these values to its child backend; no new production runtime flag is needed.
 
 Prepare/package desktop using the [mixed-suite recipe](../../../mobile/e2e/README_DESKTOP_QSS.md) after staging. Do not invoke the normal backend bundle build between staging and packaging. For a Linux directory build, use an actual JavaScript `null` to disable the existing AppImage-only post-build hook; the CLI interprets `null` as a filename:
 

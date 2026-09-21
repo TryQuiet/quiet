@@ -19,8 +19,7 @@ destination.write_bytes(plistlib.dumps({}))
 PY
     ;;
   provider)
-    env_file=.env.e2e.qss.push
-    test -f "$RUNNER_TEMP/notification-credentials/firebase-accounts.json"
+    env_file=.env.e2e.qss.staging
     test -f packages/mobile/ios/GoogleService-Info.plist
     ;;
   *) echo 'Select onboarding or provider explicitly.' >&2; exit 1 ;;
@@ -50,7 +49,7 @@ python3 packages/mobile/e2e/appium/sign-ios-simulator.py \
 
 (
   cd packages/desktop
-  export ENVFILE=.env.e2e.qss SOURCE_PATH=darwin
+  export ENVFILE="$env_file" SOURCE_PATH=darwin
   npm run copyBinariesDarwin
   npm run build:prod
   ./node_modules/.bin/electron-builder --mac --arm64 --dir -p never -c.mac.identity=null
