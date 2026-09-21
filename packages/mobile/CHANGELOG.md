@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [11.1.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@11.1.0-alpha.2...@quiet/mobile@11.1.0) (2026-09-21)
-
-
-### Bug Fixes
-
-* **mobile:** label self DMs as you ([c32c02b](https://github.com/TryQuiet/quiet/commit/c32c02b993cd73f6eb41667816beb3891fd22519))
-
-
-
-
-
 # Changelog
 
 ## [11.1.0]
