@@ -104,7 +104,7 @@ jobs:
 
       - name: Run admission timeout recovery test
         timeout-minutes: 15
-        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQssEndpoint.test.ts
 
       # Run Tor coverage once per release run, on Linux only, using the same binary.
       - name: Run multiple clients test over Tor (release)

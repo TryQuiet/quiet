@@ -13,6 +13,7 @@ import {
 } from '../selectors'
 import { SettingsModalTabName } from '../enums'
 import { createLogger } from '../logger'
+import { unavailableQssEndpoint } from '../unavailableQssEndpoint'
 
 const logger = createLogger('admissionTimeout')
 const previousAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
@@ -208,13 +209,13 @@ describe('Timed-out P2P admission recovery', () => {
     } as typeof invitation)
   }
 
-  function withUnavailableQss(invitationLink: string): string {
+  function withUnavailableQss(invitationLink: string, qssEndpoint: string): string {
     const invitation = parseInvitationLink(new URL(invitationLink).hash.slice(1))
     return composeInvitationShareUrl({
       ...invitation,
       version: InvitationDataVersion.v5,
       qssEnabled: true,
-      qssEndpoint: 'ws://127.0.0.1:3003',
+      qssEndpoint,
     } as DeviceInvitationDataV5)
   }
 
@@ -404,7 +405,11 @@ describe('Timed-out P2P admission recovery', () => {
       // test throws. This case holds two real-Tor apps, so leaving them running
       // would penalise the two cases that follow.
       const testApps: App[] = []
+      let unavailableQss: Awaited<ReturnType<typeof unavailableQssEndpoint>> | undefined
       try {
+        // Keep this endpoint reserved: localhost:3003 may host a real local QSS
+        // server, whose admission rejection does not exercise transport fallback.
+        unavailableQss = await unavailableQssEndpoint()
         const owner = new App({ username: 'reopendeviceowner' })
         apps.push(owner)
         testApps.push(owner)
@@ -415,9 +420,9 @@ describe('Timed-out P2P admission recovery', () => {
           SettingsModalTabName.LINKED_DEVICES,
           async settings => await (await settings.deviceLink()).getText()
         )
-        const deviceInvitationLink = withUnavailableQss(p2pDeviceInvitationLink)
+        const deviceInvitationLink = withUnavailableQss(p2pDeviceInvitationLink, unavailableQss.url)
 
-        const linkedDevice = new App({ username: 'reopenedlinkeddevice' })
+        const linkedDevice = new App({ username: 'reopenedlinkeddevice', qssEndpoint: unavailableQss.url })
         apps.push(linkedDevice)
         testApps.push(linkedDevice)
         await linkedDevice.openWithRetries(undefined, true)
@@ -459,11 +464,15 @@ describe('Timed-out P2P admission recovery', () => {
         assertAdmissionNotReset(linkedDevice)
         expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
       } finally {
-        await releaseApps(...testApps)
-        if (suiteLocalTransport == null) delete process.env.LOCAL_TRANSPORT
-        else process.env.LOCAL_TRANSPORT = suiteLocalTransport
-        if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
-        else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+        try {
+          await releaseApps(...testApps)
+        } finally {
+          await unavailableQss?.close()
+          if (suiteLocalTransport == null) delete process.env.LOCAL_TRANSPORT
+          else process.env.LOCAL_TRANSPORT = suiteLocalTransport
+          if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
+          else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+        }
       }
     },
     REAL_TRANSPORT_TEST_TIMEOUT_MS
