@@ -17,9 +17,11 @@
     "test:localBinary": "cross-env IS_E2E=true TEST_MODE=true IS_LOCAL=true DEBUG='backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p:connection-manager:auto-dial' jest --runInBand --detectOpenHandles --forceExit --verbose --",
     "test:prod": "jest --runInBand --detectOpenHandles --forceExit",
     "test:watch": "jest --watchAll",
-    "test:network:tor": "cross-env QUIET_NETWORK_QSS=false python3 scripts/network/run.py -- npm run test -- networkNamespace.test.ts networkConditions.test.ts",
-    "test:network:qss": "cross-env QUIET_NETWORK_QSS=true python3 scripts/network/run.py -- npm run test -- networkNamespace.test.ts networkConditions.test.ts",
-    "test:network:harness": "python3 scripts/network/test_lifecycle.py && python3 scripts/network/run.py --self-test",
+    "build:network": "tsc -p tsconfig.network.json",
+    "test:network": "npm run build:network && flock --no-fork /tmp/quiet-network-tests.lock node lib/network/runNetworkTests.js npm run test -- networkNamespace.test.ts networkConditions.test.ts",
+    "test:network:tor": "cross-env QUIET_NETWORK_QSS=false npm run test:network --",
+    "test:network:qss": "cross-env QUIET_NETWORK_QSS=true npm run test:network --",
+    "test:network:harness": "npm run build:network && cross-env QUIET_NETWORK_HARNESS=true flock --no-fork /tmp/quiet-network-tests.lock npm run test -- networkHarness.test.ts",
     "linux:copy": "node scripts/copyAppImage.js"
   },
   "devDependencies": {

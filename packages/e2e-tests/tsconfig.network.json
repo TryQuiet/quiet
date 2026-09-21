@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "./lib/network",
+    "declaration": false
+  },
+  "include": ["src/runNetworkTests.ts"]
+}

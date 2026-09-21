@@ -1,4 +1,3 @@
-import { execFileSync } from 'child_process'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
@@ -16,16 +15,16 @@ import {
   TermsOfServiceModal,
 } from '../selectors'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
-import { type NetworkNamespace } from '../networkNamespace'
+import { setNetworkSpeed, type NetworkPlayer } from '../networkHarness'
 
 const enabled = process.env.QUIET_NETWORK_PLAYERS !== undefined
 const qssEnabled = process.env.QUIET_NETWORK_QSS === 'true'
 const suite = enabled ? describe : describe.skip
-const script = path.resolve(__dirname, '../../scripts/network/run.py')
 const deadline = qssEnabled ? 90_000 : 300_000
 
 function shape(player: number, profile: 'fast' | 'slow') {
-  execFileSync('python3', [script, '--profile', profile, '--player', String(player)], { stdio: 'inherit' })
+  const networks: NetworkPlayer[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
+  setNetworkSpeed(networks[player], profile)
 }
 
 // This suite deliberately never retries a scenario: a recovered retry can hide the race.
@@ -70,7 +69,7 @@ suite(`Two players: ${qssEnabled ? 'QSS with Tor unavailable' : 'Tor'}, asymmetr
       scenarioPassed = false
       expect(process.platform).toBe('linux')
       expect(process.env.LOCAL_TRANSPORT).toBe('false')
-      const networks: NetworkNamespace[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
+      const networks: NetworkPlayer[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
       // Both clients use the same endpoint because it is also embedded in the invitation.
       // The owner's data gateway is reachable via data0 from either namespace.
       const qssEndpoint = `ws://${networks[0].gateway}:3003`

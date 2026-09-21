@@ -165,14 +165,24 @@ veth carries WebDriver commands without throttling. App/Tor loopback connections
 remain local to the namespace. The slow profile uses `tc netem` for 256 kbit/s
 upload, 1 Mbit/s download, and 150 ms additional delay in each direction, without
 random packet loss. Fast means no added shaping; actual public Tor performance
-still varies. The wrapper measures both directions with real TCP transfers before
-running any E2E tests, checks that the other player and control link remain fast,
+still varies. The TypeScript harness measures both directions with real TCP
+transfers before running any E2E tests, checks that the other player and control link remain fast,
 and verifies recovery after removing shaping. These are correctness checks, not
 Tor throughput benchmarks.
 
-The wrapper allocates non-overlapping test subnets, configures DNS and forwarding,
+The harness allocates non-overlapping test subnets, configures DNS and forwarding,
 and removes its namespaces, processes, firewall rules, and resolver files on
 normal exit, failure, SIGINT, or SIGTERM. It restores the prior forwarding setting.
 Abrupt host shutdown/SIGKILL cannot run cleanup. Only setup/teardown use root;
-the app processes run as the caller. Tor mode uses five-minute phase deadlines; QSS uses 90 seconds. Neither mode uses local transport: its advertised loopback addresses
-cannot connect separate network namespaces.
+the app processes run as the caller. Tor mode uses five-minute phase deadlines;
+QSS uses 90 seconds. Neither mode uses local transport: its advertised loopback
+addresses cannot connect separate network namespaces.
+
+The npm commands compile the small TypeScript runner using the existing compiler
+and hold a Linux `flock` while it owns the network. `src/networkHarness.ts`
+contains setup, `tc netem` profiles, QSS isolation, bandwidth checks, and cleanup.
+`src/runNetworkTests.ts` supervises Jest so cleanup survives Jest failure or
+cancellation. Scenarios change speeds directly through the helper; there is no
+Python subprocess. `src/networkHarness.test.ts` checks real bandwidth and
+cleanup after nonzero exit, SIGTERM, and SIGINT. The small `launch.cjs` helper
+preserves the app environment across `sudo` using stdin.
