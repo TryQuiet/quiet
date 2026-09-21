@@ -5,6 +5,23 @@ import { ChannelTile } from './ChannelTile.component'
 import { ChannelType } from '@quiet/types'
 
 describe('ChannelTile component', () => {
+  it('labels a direct message with yourself as you', () => {
+    const { getByText, queryByText } = renderComponent(
+      <ChannelTile
+        name={'alice'}
+        id={'self-dm'}
+        unread={false}
+        isPublic={false}
+        redirect={jest.fn()}
+        channelType={ChannelType.DM}
+        me={{ userId: 'alice-id', nickname: 'alice' }}
+      />
+    )
+
+    expect(getByText('you')).toBeVisible()
+    expect(queryByText('me')).toBeNull()
+  })
+
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
       <ChannelTile
