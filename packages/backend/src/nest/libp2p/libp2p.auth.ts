@@ -686,8 +686,11 @@ export class Libp2pAuth {
     if (this.failedAdmissionPeers.size > 0) {
       // Exhaust untried open peers before allowing failures to participate in a new round.
       // The coordinator's acquisition deadline still bounds the admission attempt.
+      // Other peers may still be negotiating their transport. Reconnecting them
+      // here lets a fast rejecting peer repeatedly interrupt slower candidates.
+      const failedPeers = new Set(this.failedAdmissionPeers)
       this.failedAdmissionPeers.clear()
-      await this.libp2pService.redialPeers()
+      await this.libp2pService.redialPeers(undefined, { onlyPeerIds: failedPeers })
     }
   }
 

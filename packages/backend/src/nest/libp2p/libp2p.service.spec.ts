@@ -197,6 +197,24 @@ describe('Libp2pService', () => {
     expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
   })
 
+  it('does not abort a slower peer transport when retrying a rejected admission peer', async () => {
+    const slowerPeerAddress = '/dns4/slower.onion/tcp/80/ws/p2p/slower-peer'
+    const slowerTransport = new AbortController()
+    jest
+      .spyOn(libp2pService['localDbService'], 'getSortedPeers')
+      .mockResolvedValue([remotePeerAddress, slowerPeerAddress])
+    libp2pService.dialedPeers.add(slowerPeerAddress)
+    jest.spyOn(libp2pService, 'hangUpPeers').mockImplementation(async addresses => {
+      if (addresses?.includes(slowerPeerAddress)) slowerTransport.abort()
+    })
+    const dialPeers = jest.spyOn(libp2pService, 'dialPeers').mockResolvedValue(undefined)
+
+    await libp2pService.redialPeers(undefined, { onlyPeerIds: new Set(['remote-peer']) })
+
+    expect(slowerTransport.signal.aborted).toBe(false)
+    expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
+  })
+
   it('retries a known device endpoint until its onion descriptor becomes reachable', async () => {
     libp2pService.pauseDialQueue()
     jest.useFakeTimers()
