@@ -101,12 +101,14 @@ python3 - <<'PY'
 import json, os
 from pathlib import Path
 root = Path(os.environ['GITHUB_WORKSPACE'])
+desktop_package = json.loads((root / 'packages/desktop/package.json').read_text())
+desktop_executable = desktop_package['build']['linux']['executableName']
 config = {
     'qssTarget': 'staging' if os.environ['QUIET_NOTIFICATION_LANE'] == 'provider' else 'local',
     'platform': 'android', 'udid': 'emulator-5554', 'disposable': True,
     'bundleId': 'com.quietmobile.debug', 'appiumPort': 4725, 'systemPort': 8225,
     'app': str(root / 'packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk'),
-    'desktopBinary': str(root / 'packages/desktop/dist/linux-unpacked/@quietdesktop'),
+    'desktopBinary': str(root / 'packages/desktop/dist/linux-unpacked' / desktop_executable),
     'display': ':99',
 }
 Path(os.environ['QUIET_NOTIFICATION_CONFIG']).write_text(json.dumps(config))
