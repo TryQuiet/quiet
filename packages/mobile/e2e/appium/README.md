@@ -43,6 +43,11 @@ ENVFILE=../.env.e2e.qss.push ./gradlew assembleStandardDebug \
   -PreactNativeArchitectures=arm64-v8a
 ```
 
+The hosted Android lane builds native x86_64 for its Google APIs emulator. For
+that architecture, run `npm --prefix packages/mobile run prepare-android-x86_64`
+from the repository root first (NDK 28.2.13676358), then select
+`-PreactNativeArchitectures=x86_64`. The lane does not require ARM translation.
+
 For iOS, build the **Quiet** scheme with `.env.e2e.qss.push`, its bundled JS/backend,
 Firebase plist, and the app plus NSE entitlements/profiles appropriate to the
 test device. Do not resign the extension away or use `simctl push` as provider

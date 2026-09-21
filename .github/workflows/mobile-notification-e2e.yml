@@ -88,19 +88,22 @@ jobs:
         run: |
           npm --prefix packages/mobile/e2e/appium ci
           npm --prefix packages/mobile/e2e/appium test
+          node --test packages/mobile/scripts/notification-android-workflow.test.cjs
 
       - name: Build the shared QSS-only backend
         run: node packages/backend/scripts/build-qss-only.cjs --output "$RUNNER_TEMP/notification-backend" --stage android,desktop
 
       - name: Build Android for the selected lane
         run: |
+          sdkmanager "ndk;28.2.13676358"
+          npm --prefix packages/mobile run prepare-android-x86_64
           cp packages/mobile/.env.e2e.qss.push "$RUNNER_TEMP/notification.env"
           printf '\nQUIET_E2E_QSS_ONLY=true\n' >> "$RUNNER_TEMP/notification.env"
           if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then
             sed -i 's/^QPS_ALLOWED=true$/QPS_ALLOWED=false/' "$RUNNER_TEMP/notification.env"
           fi
           cd packages/mobile/android
-          ENVFILE="$RUNNER_TEMP/notification.env" ./gradlew assembleStandardDebug -PreactNativeArchitectures=arm64-v8a --max-workers=2
+          ENVFILE="$RUNNER_TEMP/notification.env" ./gradlew assembleStandardDebug -PreactNativeArchitectures=x86_64 --max-workers=2
 
       - name: Build desktop peer
         working-directory: packages/desktop

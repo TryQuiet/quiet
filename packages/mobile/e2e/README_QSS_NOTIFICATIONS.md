@@ -179,3 +179,13 @@ regressions pass). All 58 current/fallback builder tests pass with one platform
 skip, and 20 current-Tor workflow/QSS helper tests pass. Updated native/Appium
 channel-list selectors for develop's current UI. All 13 real Android notification
 cases pass on API 36 too. No provider credentials were used in these local checks.
+
+Final develop integration (2026-09-21, Linux): the hosted Android workflow now
+prepares and builds native x86_64 inputs for its x86_64 Google APIs emulator.
+Four executable workflow regressions verify both lanes' build arguments and
+notification settings, stop on missing native inputs, reject an incompatible
+emulator ABI, and preserve cleanup/reporting on early failures. The integrated
+x86_64 Storybook and instrumentation APKs build, contain only x86_64 native
+libraries, and pass all 13 native notification cases on each API 35 and 36.
+The hosted provider lane still stops at its prerequisite check without matching
+Firebase server credentials; these native tests do not establish FCM delivery.

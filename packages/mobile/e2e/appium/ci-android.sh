@@ -32,7 +32,7 @@ owned_child_alive() {
 
 stop_owned_child() {
   local child_pid="$1"
-  if [[ -z "$child_pid" ]]; then return; fi
+  if [[ -z "$child_pid" ]]; then return 0; fi
   if owned_child_alive "$child_pid"; then
     kill "$child_pid" 2>/dev/null || true
     for attempt in $(seq 1 50); do
@@ -71,9 +71,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Quiet's embedded Node/Tor libraries are ARM64. Google's API 36 x86_64 image
-# must expose ARM64 translation, just as in the locally validated emulator.
-adb -s emulator-5554 shell getprop ro.product.cpu.abilist | grep -q 'arm64-v8a'
+# The CI APK includes native x86_64 Node/Tor/LevelDB, matching the selected image.
+adb -s emulator-5554 shell getprop ro.product.cpu.abilist | tr ',' '\n' | grep -qx 'x86_64'
 stage=display
 Xvfb :99 -screen 0 1920x1080x24 > "$RUNNER_TEMP/notification-display.log" 2>&1 &
 xvfb_pid=$!
