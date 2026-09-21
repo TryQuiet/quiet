@@ -33,6 +33,49 @@ suite('Linux namespace process launch', () => {
     expect(child.network).toBe(expected)
   })
 
+  const qssTest = process.env.QUIET_NETWORK_QSS === 'true' ? it : it.skip
+  qssTest(
+    'both players reach the Docker QSS endpoint through the shaped data link',
+    () => {
+      const networks: NetworkNamespace[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
+      const gateway = networks[0].gateway
+      for (const network of networks) {
+        const route = JSON.parse(
+          execFileSync('sudo', ['-n', 'ip', '-n', network.namespace, '-j', 'route', 'get', gateway], {
+            encoding: 'utf8',
+          })
+        )
+        expect(route[0].dev).toBe('data0')
+        const command = namespaceCommand(network, process.execPath, [
+          '-e',
+          `
+        const request = require('http').get({
+          hostname: '${gateway}', port: 3003, path: '/socket.io/?EIO=4&transport=websocket',
+          headers: { Connection: 'Upgrade', Upgrade: 'websocket',
+            'Sec-WebSocket-Version': '13', 'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ==' },
+        });
+        request.on('upgrade', (res, socket) => {
+          console.log(JSON.stringify({status: res.statusCode, upgrade: res.headers.upgrade}));
+          socket.destroy();
+        });
+        request.on('response', res => { console.error('Upgrade rejected:', res.statusCode); process.exit(1); });
+        request.on('error', error => { console.error(error); process.exit(1); });
+        `,
+        ])
+        const response = JSON.parse(
+          execFileSync(command.command, command.args, {
+            encoding: 'utf8',
+            input: JSON.stringify(process.env),
+            timeout: 10_000,
+          })
+        )
+        expect(response.status).toBe(101)
+        expect(response.upgrade).toBe('websocket')
+      }
+    },
+    30_000
+  )
+
   it('terminates leftover namespace children without terminating the test runner', async () => {
     const network: NetworkNamespace = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)[0]
     const command = namespaceCommand(network, process.execPath, [

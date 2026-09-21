@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
 
-    timeout-minutes: 180
+    timeout-minutes: 230
 
     env:
       DISPLAY: ":99.0"
@@ -87,6 +87,24 @@ jobs:
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
+
+      - name: Test two-player network conditions with QSS and Tor
+        timeout-minutes: 50
+        env:
+          QUIET_NETWORK_QSS: "true"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iproute2 iptables iperf3
+          cd packages/e2e-tests
+          python3 scripts/network/run.py -- npm run test -- networkNamespace.test.ts networkConditions.test.ts
+
+      - name: Upload network test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-test-screenshots-qss
+          path: packages/e2e-tests/network-artifacts
+          if-no-files-found: ignore
 
       - name: Run multiple clients with QSS test
         timeout-minutes: 25

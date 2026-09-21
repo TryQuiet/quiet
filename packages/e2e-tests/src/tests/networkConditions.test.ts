@@ -12,11 +12,14 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
+  ServerOfferModal,
+  TermsOfServiceModal,
 } from '../selectors'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import { type NetworkNamespace } from '../networkNamespace'
 
 const enabled = process.env.QUIET_NETWORK_PLAYERS !== undefined
+const qssEnabled = process.env.QUIET_NETWORK_QSS === 'true'
 const suite = enabled ? describe : describe.skip
 const script = path.resolve(__dirname, '../../scripts/network/run.py')
 const deadline = 300_000
@@ -26,7 +29,7 @@ function shape(player: number, profile: 'fast' | 'slow') {
 }
 
 // This suite deliberately never retries a scenario: a recovered retry can hide the race.
-suite('Two players over Tor with asymmetric internet connections', () => {
+suite(`Two players ${qssEnabled ? 'with QSS and Tor' : 'over Tor'} with asymmetric internet connections`, () => {
   let apps: App[] = []
   let uploadDirectory: string | undefined
   afterEach(async () => {
@@ -66,17 +69,20 @@ suite('Two players over Tor with asymmetric internet connections', () => {
       expect(process.platform).toBe('linux')
       expect(process.env.LOCAL_TRANSPORT).toBe('false')
       const networks: NetworkNamespace[] = JSON.parse(process.env.QUIET_NETWORK_PLAYERS!)
+      // Both clients use the same endpoint because it is also embedded in the invitation.
+      // The owner's data gateway is reachable via data0 from either namespace.
+      const qssEndpoint = `ws://${networks[0].gateway}:3003`
       shape(slowPlayer, 'slow') // Includes cold Tor bootstrap and onion-service publication.
       apps = networks.map(
         (networkNamespace, index) =>
           new App({
             username: index === 0 ? 'owner' : 'guest',
             networkNamespace,
-            environment: { LOCAL_TRANSPORT: 'false' },
+            environment: { LOCAL_TRANSPORT: 'false', ...(qssEnabled ? { QSS_ENDPOINT: qssEndpoint } : {}) },
           })
       )
       const [owner, guest] = apps
-      await owner.open()
+      await owner.open(qssEnabled)
       const join = new JoinCommunityModal(owner.driver)
       expect(await join.isReady()).toBeTruthy()
       await join.switchToCreateCommunity()
@@ -84,11 +90,13 @@ suite('Two players over Tor with asymmetric internet connections', () => {
       expect(await create.isReady()).toBeTruthy()
       await create.typeCommunityName(`network${Date.now()}`)
       await create.submit()
+      if (qssEnabled) await new ServerOfferModal(owner.driver).chooseUseServer()
       const register = new RegisterUsernameModal(owner.driver)
       await owner.driver.wait(until.elementLocated(By.xpath("//h3[text()='Register a username']")), deadline)
       expect(await register.isReady()).toBeTruthy()
       await register.typeUsername('owner')
       await register.submit()
+      if (qssEnabled) await new TermsOfServiceModal(owner.driver).chooseAgreeAndJoin()
       await owner.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
       await new JoiningLoadingPanel(owner.driver).waitForJoinToComplete(15_000, deadline)
       const ownerChannel = new Channel(owner.driver, 'general')
@@ -101,7 +109,7 @@ suite('Two players over Tor with asymmetric internet connections', () => {
       const invitation = await (await settings.invitationLink()).getText()
       await settings.closeTabThenModal()
 
-      await guest.open()
+      await guest.open(qssEnabled)
       const guestJoin = new JoinCommunityModal(guest.driver)
       expect(await guestJoin.isReady()).toBeTruthy()
       await guestJoin.typeCommunityInviteLink(invitation)
@@ -111,6 +119,7 @@ suite('Two players over Tor with asymmetric internet connections', () => {
       expect(await guestRegister.isReady()).toBeTruthy()
       await guestRegister.typeUsername('guest')
       await guestRegister.submit()
+      if (qssEnabled) await new TermsOfServiceModal(guest.driver).chooseAgreeAndJoin()
       await guest.buildSetup.waitForProcessOutput('Bootstrapping finished!', deadline)
       await new JoiningLoadingPanel(guest.driver).waitForJoinToComplete(15_000, deadline)
       // Resetting admission also hides the panel; it must not count as a successful join.
@@ -137,8 +146,23 @@ suite('Two players over Tor with asymmetric internet connections', () => {
           })
         },
         deadline,
-        'Guest did not receive the exact attachment bytes over the slow Tor connection'
+        'Guest did not receive the exact attachment bytes over the slow connection'
       )
+
+      if (qssEnabled) {
+        // Prevent P2P delivery from masking a broken or unthrottled QSS path.
+        for (const app of apps) {
+          await new Sidebar(app.driver).getChannelIcon('general', true)
+          const modal = await new Sidebar(app.driver).openSettings()
+          await modal.openDebugTab()
+          expect(await modal.p2pToggleSwitchState()).toBe(true)
+          await (await modal.p2pToggleSwitch()).click()
+          await app.driver.wait(async () => !(await modal.p2pToggleSwitchState()), 10_000)
+          await modal.closeTabThenModal()
+        }
+        await ownerChannel.sendMessage('QSS delivery with P2P disabled', 'owner')
+        await guestChannel.waitForUserMessageByText('owner', 'QSS delivery with P2P disabled', deadline)
+      }
 
       // Change an established connection in both directions, without restarting either client.
       shape(slowPlayer, 'fast')

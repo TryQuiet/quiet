@@ -4,6 +4,7 @@ import path from 'path'
 export interface NetworkNamespace {
   namespace: string
   host: string
+  gateway: string
   controlHost: string
 }
 

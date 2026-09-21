@@ -94,6 +94,16 @@ pre-existing message history, bidirectional messages, a 256 KiB random attachmen
 by exact downloaded bytes, and delivery after changing an established connection
 from fast to slow and back. Scenarios are not automatically retried.
 
+The QSS Linux workflow runs the same two scenarios with `QUIET_NETWORK_QSS=true`
+and QSS enabled, still with real Tor for peer traffic. Both clients reach the
+runner's Docker QSS server at port 3003 via the owner's **data gateway**; the
+invitation carries this same address to the guest. After checking attachment
+integrity, the suite disables P2P syncing in both clients and verifies QSS message
+delivery through slowdown and recovery. This prevents P2P fallback from hiding a
+QSS failure. To run this variant locally, start the usual QSS Docker stack, use
+the QSS E2E AppImage, and prefix the wrapper command below with
+`QUIET_NETWORK_QSS=true`. QSS must publish port 3003 on all host interfaces.
+
 Run as your normal user on a Linux VM with passwordless sudo (standard GitHub
 Ubuntu runners support this). Build/copy the E2E AppImage using the normal setup
 above and start Xvfb or use an existing X display. Then, from `packages/e2e-tests`:
