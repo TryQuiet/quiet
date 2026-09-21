@@ -35,6 +35,7 @@ services:
     image: dockurr/windows@sha256:0cff9eb0e7aee9953e55bc682852ca4fdca233145a58ae1ec94f0b0c01a2ed30
     environment:
       VERSION: '11e'
+      TZ: 'America/Los_Angeles' # Match the Windows timezone below
       USERNAME: 'QuietTester'
       PASSWORD: '${VM_PASSWORD}'
       CPU_CORES: '8'
@@ -61,6 +62,25 @@ Run `docker compose up -d` and watch installation at <http://localhost:8006>.
 Wait for the Windows desktop. Use `docker compose stop` to shut down gracefully;
 `docker compose up -d` starts the same saved installation. Closing a viewer does
 not stop Windows. The host's `shared/` folder appears as `\\host.lan\Data` in Windows.
+
+The VM exposes a local-time hardware clock. Match the container `TZ` to the
+Windows timezone to avoid an hours-long clock offset after boot. For the Pacific
+timezone above, run in an elevated Windows PowerShell:
+
+```powershell
+Set-TimeZone -Id 'Pacific Standard Time'
+Set-Service w32time -StartupType Automatic
+Start-Service w32time
+w32tm /config /manualpeerlist:"time.windows.com,0x8 time.cloudflare.com,0x8" /syncfromflags:manual /update
+w32tm /resync
+w32tm /query /status
+[DateTime]::UtcNow.ToString('o')
+```
+
+Compare that UTC value with `date -u` on Linux; matching timezone labels alone
+does not establish that the clocks agree. The time service should report a
+successful synchronization. Substitute your own matching Linux and Windows
+timezone names if needed.
 
 ## Connect with a clipboard-capable viewer
 
