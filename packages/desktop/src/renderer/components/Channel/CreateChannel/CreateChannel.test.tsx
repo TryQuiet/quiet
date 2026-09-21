@@ -211,7 +211,7 @@ describe('Add new channel', () => {
                   class="PanelHeadercentre"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body1 PanelHeadertitle css-ghvhpl-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body1 PanelHeadertitle css-1ql8hfl-MuiTypography-root"
                     data-testid="createChannelPanelTitle"
                   >
                     Create channel
@@ -226,7 +226,7 @@ describe('Add new channel', () => {
                     class="TextFieldroot css-jz4vfq"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body1 TextFieldlabel css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 TextFieldlabel css-1ql8hfl-MuiTypography-root"
                       data-testid="channelName-field-label"
                     >
                       Channel name
@@ -236,7 +236,7 @@ describe('Add new channel', () => {
                       data-testid="createChannelInput"
                     >
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-1hwo1uj-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-a81z35-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
@@ -269,7 +269,7 @@ describe('Add new channel', () => {
                   class="css-g5nfir"
                 >
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-1frwc0s-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium CreateChannelComponentbutton css-555z9v-MuiButtonBase-root-MuiButton-root"
                     data-testid="channelNameSubmit"
                     tabindex="0"
                     type="submit"

@@ -1,9 +1,9 @@
 import React from 'react'
-import { fireEvent } from '@testing-library/react-native'
+import { act, fireEvent, waitFor } from '@testing-library/react-native'
 
 import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
-import { type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
+import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
 
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { initActions } from '../../store/init/init.slice'
@@ -12,6 +12,17 @@ import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { PasteInviteLinkScreen } from './PasteInviteLink.screen'
 import { type PasteInviteLinkScreenProps } from './PasteInviteLink.types'
+import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
+
+const deviceInvite: DeviceInvitationDataV4 = {
+  ...validInvitationDatav4[0],
+  kind: InvitationKind.Device,
+  authData: {
+    ...validInvitationDatav4[0].authData,
+    userId: 'user-id',
+    userName: 'alice',
+  },
+}
 
 describe('PasteInviteLinkScreen', () => {
   const route: PasteInviteLinkScreenProps['route'] = {
@@ -30,31 +41,19 @@ describe('PasteInviteLinkScreen', () => {
     )
     const dispatchSpy = jest.spyOn(store, 'dispatch')
     const result = renderComponent(<PasteInviteLinkScreen route={route} />, store)
-    return { dispatchSpy, result }
+    return { dispatchSpy, result, store }
   }
 
   it('consumes a device link without starting member registration', async () => {
-    const deviceInvite: DeviceInvitationDataV4 = {
-      ...validInvitationDatav4[0],
-      kind: InvitationKind.Device,
-      authData: {
-        ...validInvitationDatav4[0].authData,
-        userId: 'user-id',
-        userName: 'alice',
-      },
-    }
     const { dispatchSpy, result } = await renderReadyScreen()
+    const confirmedPayload = confirmedDeviceLinkPayload(deviceInvite)
 
     fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(deviceInvite))
     fireEvent.press(result.getByTestId('paste-link-continue'))
-
     // Linking a device is never done without consent.
-    expect(result.getByTestId('device-link-consent')).toBeTruthy()
-    fireEvent.press(result.getByTestId('device-link-confirm'))
+    fireEvent.press(await result.findByTestId('device-link-confirm'))
 
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      communities.actions.linkDevice({ inviteData: deviceInvite, deviceLinkConsent: true })
-    )
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice(confirmedPayload)))
     expect(dispatchSpy).toHaveBeenCalledWith(
       navigationActions.replaceScreen({
         screen: ScreenNames.ConnectionProcessScreen,
@@ -65,6 +64,19 @@ describe('PasteInviteLinkScreen', () => {
       navigationActions.navigation({
         screen: ScreenNames.UsernameRegistrationScreen,
       })
+    )
+  })
+
+  it('keeps a cancelled device link on the paste screen without dispatching it', async () => {
+    const { dispatchSpy, result } = await renderReadyScreen()
+
+    fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(deviceInvite))
+    fireEvent.press(result.getByTestId('paste-link-continue'))
+    fireEvent.press(await result.findByTestId('device-link-cancel'))
+
+    expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: communities.actions.linkDevice.type }))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: navigationActions.replaceScreen.type })
     )
   })
 
@@ -85,5 +97,33 @@ describe('PasteInviteLinkScreen', () => {
         screen: ScreenNames.UsernameRegistrationScreen,
       })
     )
+  })
+
+  it('shows the timeout error on the paste screen', async () => {
+    const { store, result } = await renderReadyScreen()
+    act(() => {
+      store.dispatch(
+        communities.actions.setJoinCommunityError({
+          type: 'timeout',
+          invitationType: 'device',
+        })
+      )
+    })
+
+    expect(await result.findByText(ErrorMessages.DEVICE_ADMISSION_TIMEOUT)).toBeTruthy()
+  })
+
+  it('shows the interrupted error on the paste screen', async () => {
+    const { store, result } = await renderReadyScreen()
+    act(() => {
+      store.dispatch(
+        communities.actions.setJoinCommunityError({
+          type: 'interrupted',
+          invitationType: 'community',
+        })
+      )
+    })
+
+    expect(await result.findByText(ErrorMessages.ADMISSION_INTERRUPTED_RETRY)).toBeTruthy()
   })
 })

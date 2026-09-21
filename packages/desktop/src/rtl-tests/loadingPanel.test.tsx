@@ -301,7 +301,7 @@ describe('Loading panel', () => {
     await waitFor(() => {
       expect(communities.selectors.admissionResetStatus(store.getState())).toBe('finalizing')
     })
-    expect(screen.queryByPlaceholderText('Invite link')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
 
     await act(async () => resolveFlush?.())
 

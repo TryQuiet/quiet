@@ -63,7 +63,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-item css-78h0li-MuiGrid-root"
                     >
                       <div
-                        class="MuiInputBase-root MuiInputBase-colorPrimary css-mv49uc-MuiInputBase-root"
+                        class="MuiInputBase-root MuiInputBase-colorPrimary css-146pokm-MuiInputBase-root"
                       >
                         <input
                           class="MuiInputBase-input css-156xqnd-MuiInputBase-input"
@@ -133,7 +133,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-item css-78h0li-MuiGrid-root"
                     >
                       <div
-                        class="MuiInputBase-root MuiInputBase-colorPrimary css-mv49uc-MuiInputBase-root"
+                        class="MuiInputBase-root MuiInputBase-colorPrimary css-146pokm-MuiInputBase-root"
                       >
                         <input
                           class="MuiInputBase-input css-156xqnd-MuiInputBase-input"
@@ -191,19 +191,19 @@ describe('CommunityMembership', () => {
                           class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
                         >
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
                           >
                             <div
                               class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
-                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
                                 data-testid="user_1-membership-list-name"
                               >
                                 user_1
                               </h4>
                               <p
-                                class="MuiTypography-root MuiTypography-body1 MuiTypography-alignLeft CommunityMemberListItemme css-sy6q1b-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body1 MuiTypography-alignLeft CommunityMemberListItemme css-ak19ny-MuiTypography-root"
                                 data-testid="membership-list-me"
                               >
                                 you
@@ -273,7 +273,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-item css-78h0li-MuiGrid-root"
                     >
                       <div
-                        class="MuiInputBase-root MuiInputBase-colorPrimary css-mv49uc-MuiInputBase-root"
+                        class="MuiInputBase-root MuiInputBase-colorPrimary css-146pokm-MuiInputBase-root"
                       >
                         <input
                           class="MuiInputBase-input css-156xqnd-MuiInputBase-input"
@@ -331,13 +331,13 @@ describe('CommunityMembership', () => {
                           class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
                         >
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
                           >
                             <div
                               class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
-                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
                                 data-testid="user_2-membership-list-name"
                               >
                                 user_2
@@ -410,7 +410,7 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-item css-78h0li-MuiGrid-root"
                     >
                       <div
-                        class="MuiInputBase-root MuiInputBase-colorPrimary css-mv49uc-MuiInputBase-root"
+                        class="MuiInputBase-root MuiInputBase-colorPrimary css-146pokm-MuiInputBase-root"
                       >
                         <input
                           class="MuiInputBase-input css-156xqnd-MuiInputBase-input"
@@ -468,19 +468,19 @@ describe('CommunityMembership', () => {
                           class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
                         >
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
                           >
                             <div
                               class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
-                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
                                 data-testid="user_3-membership-list-name"
                               >
                                 user_3
                               </h4>
                               <p
-                                class="MuiTypography-root MuiTypography-body1 MuiTypography-alignLeft CommunityMemberListItemme css-sy6q1b-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body1 MuiTypography-alignLeft CommunityMemberListItemme css-ak19ny-MuiTypography-root"
                                 data-testid="membership-list-me"
                               >
                                 you
@@ -537,13 +537,13 @@ describe('CommunityMembership', () => {
                           class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
                         >
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
                           >
                             <div
                               class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
-                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
                                 data-testid="user_4-membership-list-name"
                               >
                                 user_4
@@ -600,13 +600,13 @@ describe('CommunityMembership', () => {
                           class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
                         >
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-m1llqv-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
                           >
                             <div
                               class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
                             >
                               <h4
-                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
                                 data-testid="user_5-membership-list-name"
                               >
                                 user_5

@@ -21,6 +21,8 @@ export const GetStarted: React.FC = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
   const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
+  // A join that failed belongs to the join flow, which reopens itself to report it.
+  const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
   const torBootstrapProcess = useSelector(connection.selectors.torBootstrapProcess)
 
   const getStartedModal = useModal(ModalName.getStartedModal)
@@ -37,6 +39,7 @@ export const GetStarted: React.FC = () => {
     if (
       isConnected &&
       admissionResetStatus === 'idle' &&
+      !joinCommunityError &&
       !currentCommunity &&
       !invitationCodes &&
       !getStartedModal.open &&
@@ -47,6 +50,7 @@ export const GetStarted: React.FC = () => {
     }
   }, [
     admissionResetStatus,
+    joinCommunityError,
     isConnected,
     currentCommunity,
     invitationCodes,

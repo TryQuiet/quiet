@@ -41,6 +41,7 @@ const JoinCommunity = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
+  const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
 
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
@@ -73,6 +74,17 @@ const JoinCommunity = () => {
   useEffect(() => {
     if (!joinCommunityModal.open) setStep('options')
   }, [joinCommunityModal.open])
+
+  // A failed join reports itself on the invite field, so the flow reopens on the paste step rather
+  // than at the three-way choice, where there is no field to carry the message.
+  useEffect(() => {
+    if (!isConnected || !joinCommunityError || currentCommunity || admissionResetStatus !== 'idle') return
+    setStep(current => (current === 'options' ? 'pasteInviteLink' : current))
+    if (!joinCommunityModal.open) {
+      logger.info('Reopening join community modal to report a join error')
+      joinCommunityModal.handleOpen()
+    }
+  }, [isConnected, joinCommunityError, currentCommunity, admissionResetStatus, joinCommunityModal.open])
 
   useEffect(() => {
     if (isConnected && currentCommunity && joinCommunityModal.open) {
@@ -111,6 +123,13 @@ const JoinCommunity = () => {
     setPendingDeviceInvite(null)
   }
 
+  // Leaving the flow dismisses a reported join error; otherwise the flow would reopen itself on
+  // the way out.
+  const leave = () => {
+    clearJoinCommunityError()
+    joinCommunityModal.handleClose()
+  }
+
   const handleBack = () => {
     switch (step) {
       case 'pasteInviteLink':
@@ -122,7 +141,7 @@ const JoinCommunity = () => {
         return
       default:
         if (!currentCommunity) getStartedModal.handleOpen()
-        joinCommunityModal.handleClose()
+        leave()
     }
   }
 
@@ -134,7 +153,7 @@ const JoinCommunity = () => {
     <>
       <Modal
         open={joinCommunityModal.open}
-        handleClose={joinCommunityModal.handleClose}
+        handleClose={leave}
         title={TITLES[step]}
         canGoBack
         handleBack={handleBack}

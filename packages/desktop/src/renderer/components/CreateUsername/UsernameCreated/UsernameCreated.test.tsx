@@ -23,7 +23,7 @@ describe('UsernameCreated', () => {
               class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 UsernameCreatedinfoConatainer css-s2k0j8-MuiGrid-root"
             >
               <h4
-                class="MuiTypography-root MuiTypography-h4 css-ajdqea-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h4 css-1inrl58-MuiTypography-root"
               >
                 You created a username
               </h4>

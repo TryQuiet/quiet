@@ -26,12 +26,12 @@ const SpacingSheet: React.FC<{ tokens: Tokens }> = ({ tokens }) => {
   const max = Math.max(...tokens.space)
   return (
     <Page title={tokens.name} subtitle={`Base ${tokens.base}px · ${tokens.space.length} steps`}>
-      <Section label="Steps">
+      <Section label='Steps'>
         {tokens.space.map(v => (
           <Step key={v} value={v} max={max} />
         ))}
       </Section>
-      <Section label="Roles — what screens actually ask for">
+      <Section label='Roles — what screens actually ask for'>
         {SEMANTIC_KEYS.map(k => (
           <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             <span style={{ fontFamily: mono, fontSize: 12, width: 34, color: INK_3 }}>{k}</span>
@@ -40,16 +40,24 @@ const SpacingSheet: React.FC<{ tokens: Tokens }> = ({ tokens }) => {
           </div>
         ))}
       </Section>
-      <Section label="As gaps">
+      <Section label='As gaps'>
         {tokens.space.map(v => (
           <Gap key={v} value={v} />
         ))}
       </Section>
-      <Section label="Radii">
+      <Section label='Radii'>
         <div style={{ display: 'flex', gap: 16 }}>
           {tokens.radii.map(r => (
             <div key={r} style={{ textAlign: 'center' }}>
-              <div style={{ width: 56, height: 56, background: '#E9EDE1', border: `1px solid ${ACCENT}33`, borderRadius: r }} />
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  background: '#E9EDE1',
+                  border: `1px solid ${ACCENT}33`,
+                  borderRadius: r,
+                }}
+              />
               <span style={{ fontFamily: mono, fontSize: 11, color: INK_3 }}>{r}</span>
             </div>
           ))}

@@ -13,7 +13,7 @@ import GetStarted from '../../Onboarding/GetStarted'
 import CreateUsername from '../../CreateUsername/CreateUsername'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
+import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
 import { communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 import {
   Site,
@@ -61,7 +61,7 @@ describe('join community', () => {
   }
   const deviceInvitationCode = getValidInvitationUrlTestData(deviceInvitationData).code()
 
-  it('clears an existing join error once when the invitation changes', async () => {
+  it('opens on the paste step and clears an existing join error once when the invitation changes', async () => {
     const { store } = await prepareStore({
       ...openModalState(ModalName.joinCommunityModal),
       [StateManagerStoreKeys.Communities]: {
@@ -73,7 +73,12 @@ describe('join community', () => {
 
     renderComponent(<JoinCommunity />, store)
 
-    await userEvent.type(await openPasteStep(), 'abc')
+    // A reported join error belongs on the invite field, so the flow opens there rather than on the
+    // three-way choice.
+    const input = await screen.findByPlaceholderText('Link')
+    expect(await screen.findByText(ErrorMessages.INVALID_INVITE)).toBeVisible()
+
+    await userEvent.type(input, 'abc')
 
     const clearErrorActions = dispatchSpy.mock.calls.filter(
       ([action]) => action.type === communities.actions.clearJoinCommunityError.type

@@ -93,43 +93,43 @@ export const LinkDevices: React.FC = () => {
 
   return (
     <>
-    <Modal
-      open={linkDevicesModal.open}
-      handleClose={linkDevicesModal.handleClose}
-      title={TITLES[step]}
-      canGoBack
-      handleBack={handleBack}
-      alignCloseLeft
-      contentWidth={'100%'}
-      testIdPrefix={'linkDevices'}
-      zIndex={1300}
-    >
-      {step === 'entry' ? (
-        <LinkDevicesComponent onDisplayQrCode={() => setStep('display')} onScanQrCode={() => setStep('scan')} />
-      ) : null}
-      {step === 'display' ? (
-        <OnboardingBody dataTestId='link-devices-display'>
-          <LinkedDevicesTab centered />
-        </OnboardingBody>
-      ) : null}
-      {step === 'scan' ? (
-        <PasteLinkComponent
-          heading={'Scan QR code'}
-          intro={'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'}
-          open={linkDevicesModal.open}
-          isConnectionReady={isConnected}
-          revealInputValue={revealInputValue}
-          handleClickInputReveal={() => setRevealInputValue(value => !value)}
-          handleCommunityAction={handleCommunityAction}
-        />
-      ) : null}
-    </Modal>
-    <DeviceLinkConsentComponent
-      open={pendingDeviceInvite !== null}
-      qssEndpoint={pendingDeviceInvite?.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined}
-      onCancel={() => setPendingDeviceInvite(null)}
-      onConfirm={confirmDeviceLink}
-    />
+      <Modal
+        open={linkDevicesModal.open}
+        handleClose={linkDevicesModal.handleClose}
+        title={TITLES[step]}
+        canGoBack
+        handleBack={handleBack}
+        alignCloseLeft
+        contentWidth={'100%'}
+        testIdPrefix={'linkDevices'}
+        zIndex={1300}
+      >
+        {step === 'entry' ? (
+          <LinkDevicesComponent onDisplayQrCode={() => setStep('display')} onScanQrCode={() => setStep('scan')} />
+        ) : null}
+        {step === 'display' ? (
+          <OnboardingBody dataTestId='link-devices-display'>
+            <LinkedDevicesTab centered />
+          </OnboardingBody>
+        ) : null}
+        {step === 'scan' ? (
+          <PasteLinkComponent
+            heading={'Scan QR code'}
+            intro={'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'}
+            open={linkDevicesModal.open}
+            isConnectionReady={isConnected}
+            revealInputValue={revealInputValue}
+            handleClickInputReveal={() => setRevealInputValue(value => !value)}
+            handleCommunityAction={handleCommunityAction}
+          />
+        ) : null}
+      </Modal>
+      <DeviceLinkConsentComponent
+        open={pendingDeviceInvite !== null}
+        qssEndpoint={pendingDeviceInvite?.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined}
+        onCancel={() => setPendingDeviceInvite(null)}
+        onConfirm={confirmDeviceLink}
+      />
     </>
   )
 }
