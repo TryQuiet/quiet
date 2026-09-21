@@ -28,7 +28,10 @@ sys.exit(module.main())
 '''
             command = f'''
 import json, os, pathlib, time
-pathlib.Path({str(marker)!r}).write_text(json.dumps({{'players': json.loads(os.environ['QUIET_NETWORK_PLAYERS']), 'pid': os.getpid()}}))
+ready = pathlib.Path({str(marker)!r})
+pending = ready.with_suffix('.tmp')
+pending.write_text(json.dumps({{'players': json.loads(os.environ['QUIET_NETWORK_PLAYERS']), 'pid': os.getpid()}}))
+pending.replace(ready)
 {'time.sleep(120)' if cancel else 'raise SystemExit(23)'}
 '''
             before = Path('/proc/sys/net/ipv4/ip_forward').read_text()

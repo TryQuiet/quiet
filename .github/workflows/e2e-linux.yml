@@ -3,7 +3,22 @@ name: E2E linux
 on: [workflow_call]
 jobs:
 
+  network-harness:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Linux network test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iproute2 iptables iperf3
+      - name: Verify real bandwidth limits and cleanup
+        run: |
+          python3 packages/e2e-tests/scripts/network/test_lifecycle.py
+          python3 packages/e2e-tests/scripts/network/run.py --self-test
+
   linux:
+    needs: network-harness
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -75,7 +90,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y iproute2 iptables iperf3
           cd packages/e2e-tests
-          python3 scripts/network/test_lifecycle.py
           python3 scripts/network/run.py -- npm run test -- networkNamespace.test.ts networkConditions.test.ts
 
       - name: Upload network test screenshots

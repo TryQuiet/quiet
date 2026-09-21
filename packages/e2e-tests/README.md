@@ -86,7 +86,8 @@ Legacy tests pending migration can be found in commit fa1256e4d19fc481e316a09523
 
 ## Linux: two players with different internet speeds
 
-The Linux E2E workflow runs `networkConditions.test.ts` against the packaged app
+The Linux E2E workflow first verifies shaping and cleanup in a separate
+`network-harness` job, then runs `networkConditions.test.ts` against the packaged app
 with real Tor (`LOCAL_TRANSPORT=false`, QSS disabled). It tests a slow owner and a
 slow joiner separately, beginning before Tor bootstrap. Each case checks joining,
 pre-existing message history, bidirectional messages, a 256 KiB random attachment
