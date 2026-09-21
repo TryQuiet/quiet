@@ -53,6 +53,7 @@ describe('FileAttachmentPreview component', () => {
             }
           >
             <View
+              accessibilityLabel="Remove image attachment"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -126,6 +127,7 @@ describe('FileAttachmentPreview component', () => {
                     "width": 64,
                   }
                 }
+                testID="attachment-preview-image"
               />
             </View>
           </View>
@@ -140,6 +142,7 @@ describe('FileAttachmentPreview component', () => {
             }
           >
             <View
+              accessibilityLabel="Remove attachment otherfile.txt"
               accessibilityState={
                 {
                   "busy": undefined,
