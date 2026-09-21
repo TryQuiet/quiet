@@ -12,7 +12,14 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { ChannelMessage, DownloadStatus, MessagesDailyGroups, MessageSendingStatus, UserProfile } from '@quiet/types'
+import {
+  ChannelMessage,
+  ChannelType,
+  DownloadStatus,
+  MessagesDailyGroups,
+  MessageSendingStatus,
+  UserProfile,
+} from '@quiet/types'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -37,6 +44,8 @@ export interface ChannelComponentProps {
   user: UserProfile | undefined
   channelId: string
   channelName: string
+  channelType: ChannelType
+  members: UserProfile[]
   isPublic: boolean
   messages: {
     count: number
@@ -62,7 +71,10 @@ export interface ChannelComponentProps {
   enableContextMenu?: boolean
   pendingGeneralChannelRecreation: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  openUserProfile?: (userId: string) => void
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
+  /** Presence for a DM, from `isDmConnected`. Omitted on a channel. */
+  dmConnected?: boolean
 }
 
 const enum ScrollPosition {
@@ -75,6 +87,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   user,
   channelId,
   channelName,
+  channelType,
+  members,
   isPublic,
   messages,
   newestMessage,
@@ -100,7 +114,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   enableContextMenu = true,
   pendingGeneralChannelRecreation,
   unregisteredUsernameModalHandleOpen,
+  openUserProfile,
   duplicatedUsernameModalHandleOpen,
+  dmConnected,
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -269,9 +285,15 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
+          channelType={channelType}
+          members={members}
+          me={user}
           isPublic={isPublic}
           openContextMenu={openContextMenu}
           enableContextMenu={enableContextMenu}
+          memberCount={members.length}
+          openUserProfile={openUserProfile}
+          dmConnected={dmConnected}
         />
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
@@ -292,7 +314,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             onMathMessageRendered={updateMathMessagesRendered}
             pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
             unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+            openUserProfile={openUserProfile}
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
+            allowEmpty={false}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>
@@ -300,7 +324,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             channelId={channelId}
             channelName={channelName}
             // TODO https://github.com/TryQuiet/ZbayLite/issues/443
-            inputPlaceholder={`#${channelName}${user ? ` as @${user?.nickname}` : ''}`}
+            inputPlaceholder={`${channelType == null || channelType === ChannelType.CHANNEL ? '#' : ''}${channelName}${user ? ` as @${user?.nickname}` : ''}`}
             onChange={value => {
               onInputChange(value)
             }}

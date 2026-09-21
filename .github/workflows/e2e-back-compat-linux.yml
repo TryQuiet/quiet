@@ -46,7 +46,7 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: bash ../../scripts/retry-network-command.sh npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
@@ -56,4 +56,4 @@ jobs:
         timeout-minutes: 15
         run: |
           echo "Running backwards compatibility test for branch $GITHUB_HEAD_REF"
-          cd packages/e2e-tests && npm run test -- compatibilityBaseline.test.ts backwardsCompatibility.test.ts
+          cd packages/e2e-tests && npm run test -- compatibilityBaseline.test.ts downloadFile.test.ts settingsTabReady.test.ts backwardsCompatibility.test.ts

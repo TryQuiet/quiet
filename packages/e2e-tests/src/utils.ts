@@ -1,4 +1,5 @@
 import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
+import * as logging from 'selenium-webdriver/lib/logging'
 import { spawn, exec, execSync, type ChildProcessWithoutNullStreams, ChildProcess } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
@@ -11,6 +12,9 @@ import { config } from 'dotenv'
 
 import { createLogger } from './logger'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
+import { downloadFile } from './downloadFile'
+import { namespaceCommand, stopNamespaceProcesses, type NetworkNamespace } from './networkNamespace'
+import { ApplicationLogReader } from './applicationLogReader'
 
 const logger = createLogger('utils')
 
@@ -19,12 +23,16 @@ const appImagesPath = `${__dirname}/../Quiet`
 const defaultChromeDriverPath = require.resolve('electron-chromedriver/chromedriver.js')
 
 export interface BuildSetupInit {
+  networkNamespace?: NetworkNamespace
   port?: number
   debugPort?: number
   defaultDataDir?: boolean
   dataDir?: string
   fileName?: string
   chromeDriverPath?: string
+  // Run a checkout's packaged app directly, without replacing /Applications/Quiet.app.
+  binaryPath?: string
+  qssEndpoint?: string
   username?: string
   /** Per-client overrides inherited by ChromeDriver and the packaged app. */
   environment?: NodeJS.ProcessEnv
@@ -33,6 +41,7 @@ export interface BuildSetupInit {
 export class BuildSetup {
   private driver?: ThenableWebDriver | null
   private processOutput = ''
+  private applicationLogs: ApplicationLogReader
   public port?: number
   public debugPort?: number
   public dataDir?: string
@@ -42,7 +51,11 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
   private chromeDriverPath?: string
+  private networkNamespace?: NetworkNamespace
+  private binaryPath?: string
+  private qssEndpoint: string
   private environment: NodeJS.ProcessEnv
+  private _seleniumLogger: logging.Logger
 
   constructor({
     port,
@@ -51,15 +64,21 @@ export class BuildSetup {
     dataDir,
     fileName,
     chromeDriverPath,
+    binaryPath,
+    qssEndpoint,
     username,
     environment = {},
+    networkNamespace,
   }: BuildSetupInit) {
+    this.networkNamespace = networkNamespace
     this.port = port
     this.debugPort = debugPort
     this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
     this.chromeDriverPath = chromeDriverPath
+    this.binaryPath = binaryPath
+    this.qssEndpoint = qssEndpoint ?? environment.QSS_ENDPOINT ?? process.env.QSS_ENDPOINT ?? 'ws://127.0.0.1:3003'
     this.environment = { ...environment }
     this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
@@ -72,7 +91,10 @@ export class BuildSetup {
       (appEnvironment.HOME &&
         path.join(appEnvironment.HOME, process.platform === 'darwin' ? 'Library/Application Support' : '.config'))
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir, appDataPath })
+    this.applicationLogs = new ApplicationLogReader(path.join(this.dataDirPath, 'logs'))
     logger.info('Running app from directory', this.dataDirPath)
+    this._seleniumLogger = logging.getLogger()
+    this._configureSeleniumLogging()
   }
 
   async initPorts() {
@@ -88,6 +110,7 @@ export class BuildSetup {
   }
 
   private getBinaryLocation(): string {
+    if (this.binaryPath) return this.binaryPath
     let binaryPath: string | undefined = undefined
     switch (process.platform) {
       case 'linux':
@@ -150,6 +173,10 @@ export class BuildSetup {
   private getChromeDriverSpawnConfig() {
     const args = [`--port=${this.port}`, '--verbose']
     const chromeDriverPath = this.chromeDriverPath ?? defaultChromeDriverPath
+    if (this.networkNamespace) {
+      args.push(`--allowed-ips=${this.networkNamespace.controlHost}`)
+      return namespaceCommand(this.networkNamespace, process.execPath, [chromeDriverPath, ...args])
+    }
 
     return {
       command: process.execPath,
@@ -158,21 +185,41 @@ export class BuildSetup {
     }
   }
 
+  private _generateDebugSetting(): string {
+    if (process.env.TRACE_APP_LOGS == 'true') {
+      return '*:trace'
+    }
+
+    if (process.env.VERBOSE == 'true') {
+      return '*'
+    }
+
+    return 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*'
+  }
+
+  private _configureSeleniumLogging(): void {
+    if (process.env.VERBOSE == 'true') {
+      this._seleniumLogger.setLevel(logging.Level.FINEST)
+    } else {
+      this._seleniumLogger.setLevel(logging.Level.WARNING)
+    }
+
+    logging.installConsoleHandler()
+  }
+
   public async createChromeDriver(qssEnabled = false) {
     await this.initPorts()
     let env: any = {
-      DEBUG:
-        process.env.TRACE_APP_LOGS === 'true'
-          ? '*:trace'
-          : 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
+      DEBUG: this._generateDebugSetting(),
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
+      ...(process.platform === 'win32' || process.env.E2E_LOG_DIR ? { LOG_TO_FILE: 'true' } : {}),
     }
     if (qssEnabled) {
       env = {
         ...env,
         QSS_ALLOWED: true,
-        QSS_ENDPOINT: 'ws://127.0.0.1:3003',
+        QSS_ENDPOINT: this.qssEndpoint,
       }
     } else {
       env = {
@@ -191,6 +238,7 @@ export class BuildSetup {
       detached: false,
       env: childEnv,
     })
+    if (this.networkNamespace) this.child.stdin.end(JSON.stringify(childEnv))
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>
       setTimeout(() => {
@@ -220,6 +268,18 @@ export class BuildSetup {
       logger.error('error', data)
     })
 
+    // Keep the unfiltered stream for CI diagnosis without redirecting it away
+    // from waitForProcessOutput, which admission/recovery tests depend on.
+    if (process.env.E2E_LOG_DIR) {
+      fs.mkdirSync(process.env.E2E_LOG_DIR, { recursive: true })
+      const log = fs.createWriteStream(path.join(process.env.E2E_LOG_DIR, `chromedriver-${this.id}.log`), {
+        flags: 'a',
+      })
+      this.child.stdout.pipe(log, { end: false })
+      this.child.stderr.pipe(log, { end: false })
+      this.child.once('close', () => log.end())
+    }
+
     this.child.stdout.on('data', data => {
       this.appendProcessOutput(data)
       logger.info(`stdout:\n${data}`)
@@ -247,16 +307,20 @@ export class BuildSetup {
 
   public clearProcessOutput(): void {
     this.processOutput = ''
+    if (process.platform === 'win32') this.applicationLogs.reset()
   }
 
   public hasProcessOutput(text: string): boolean {
+    // Windows GUI applications do not reliably inherit ChromeDriver's console.
+    // The backend writes the same events to its application log.
+    if (process.platform === 'win32') this.appendProcessOutput(this.applicationLogs.readNew())
     return this.processOutput.includes(text)
   }
 
   public async waitForProcessOutput(text: string, timeoutMs = 60_000): Promise<void> {
     const deadline = Date.now() + timeoutMs
     while (Date.now() < deadline) {
-      if (this.processOutput.includes(text)) {
+      if (this.hasProcessOutput(text)) {
         return
       }
       await sleep(250)
@@ -285,7 +349,7 @@ export class BuildSetup {
       const binary: string = this.getBinaryLocation()
       try {
         this.driver = new Builder()
-          .usingServer(`http://localhost:${this.port}`)
+          .usingServer(`http://${this.networkNamespace?.host ?? 'localhost'}:${this.port}`)
           .withCapabilities({
             'goog:chromeOptions': {
               binary,
@@ -316,6 +380,7 @@ export class BuildSetup {
 
   public async killChromeDriver() {
     logger.info(`Killing driver (DATA_DIR=${this.dataDir})`)
+    if (this.networkNamespace) stopNamespaceProcesses(this.networkNamespace)
     this.child?.kill()
     await new Promise<void>(resolve =>
       setTimeout(() => {
@@ -407,9 +472,10 @@ export class BuildSetup {
 }
 
 export const tailQssLogs = (): ChildProcess => {
-  const child = spawn('docker compose', ['-f', 'docker-compose.quiet.yml', 'logs', '-f', 'qss-quiet'], {
-    cwd: path.join('../../3rd-party/qss/app/'),
-    shell: true,
+  const composeArgs = process.env.COMPOSE_FILE ? [] : ['-f', 'docker-compose.quiet.yml']
+  const child = spawn('docker', ['compose', ...composeArgs, 'logs', '-f', 'qss-quiet'], {
+    cwd: path.resolve(__dirname, '../../../3rd-party/qss/app'),
+    shell: false,
   })
 
   child.stdout!.on('data', (data: Buffer) => {
@@ -440,9 +506,8 @@ export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION)
   }
   const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
   logger.info(`Downloading Quiet version: ${version} from ${downloadUrl}`)
-  // With newer curl: execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
-  execSync(`curl -LO ${downloadUrl}`)
   const appImageDownloadPath = path.join(process.cwd(), appImage)
+  downloadFile(downloadUrl, appImageDownloadPath)
   logger.info(`Downloaded to ${appImageDownloadPath}`)
   fs.renameSync(appImageDownloadPath, appImageTargetPath)
   logger.info('Moved to', appImageTargetPath)

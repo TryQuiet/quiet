@@ -36,24 +36,23 @@ describe('QRCode component', () => {
       >
         <View
           style={
-            [
-              {
-                "alignItems": "center",
-                "backgroundColor": "#ffffff",
-                "borderBottomColor": "#F0F0F0",
-                "borderBottomWidth": 1,
-                "display": "flex",
-                "flexDirection": "row",
-                "justifyContent": "center",
-                "maxHeight": 52,
-                "minHeight": 52,
-              },
-            ]
+            {
+              "alignItems": "center",
+              "backgroundColor": "#ffffff",
+              "borderBottomColor": "#F0F0F0",
+              "borderBottomWidth": 1,
+              "display": "flex",
+              "flexDirection": "row",
+              "justifyContent": "center",
+              "maxHeight": 64,
+              "minHeight": 60,
+            }
           }
         >
           <View
             style={
               {
+                "alignSelf": "stretch",
                 "flex": 1,
               }
             }
@@ -81,6 +80,14 @@ describe('QRCode component', () => {
               accessible={true}
               collapsable={false}
               focusable={true}
+              hitSlop={
+                {
+                  "bottom": 8,
+                  "left": 8,
+                  "right": 8,
+                  "top": 8,
+                }
+              }
               onClick={[Function]}
               onResponderGrant={[Function]}
               onResponderMove={[Function]}
@@ -90,6 +97,7 @@ describe('QRCode component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
+                  "flex": 1,
                   "opacity": 1,
                 }
               }
@@ -99,8 +107,9 @@ describe('QRCode component', () => {
                 style={
                   {
                     "alignItems": "center",
-                    "height": 50,
+                    "flex": 1,
                     "justifyContent": "center",
+                    "minHeight": 44,
                     "width": 64,
                   }
                 }
@@ -138,15 +147,13 @@ describe('QRCode component', () => {
               fontWeight="medium"
               horizontalTextAlign="left"
               style={
-                [
-                  {
-                    "color": "#000000",
-                    "fontFamily": "Rubik-Medium",
-                    "fontSize": 16,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "color": "#000000",
+                  "fontFamily": "Rubik-Medium",
+                  "fontSize": 16,
+                  "textAlign": "left",
+                  "textAlignVertical": "center",
+                }
               }
               verticalTextAlign="center"
             >
@@ -156,6 +163,7 @@ describe('QRCode component', () => {
           <View
             style={
               {
+                "alignSelf": "stretch",
                 "flex": 1,
               }
             }
@@ -242,9 +250,9 @@ describe('QRCode component', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
-                  "borderRadius": 8,
+                  "borderRadius": 16,
                   "justifyContent": "center",
-                  "minHeight": 45,
+                  "minHeight": 50,
                   "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
@@ -257,15 +265,13 @@ describe('QRCode component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  [
-                    {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  {
+                    "color": "#ffffff",
+                    "fontFamily": "Rubik-Regular",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  }
                 }
                 verticalTextAlign="center"
               >

@@ -63,11 +63,14 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: ENVFILE=.env.e2e npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: ENVFILE=.env.e2e bash ../../scripts/retry-network-command.sh npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
+
+      - name: Verify final AppImage packaging
+        run: QUIET_TEST_APPIMAGE="$GITHUB_WORKSPACE/packages/desktop/dist/$FILE_NAME" npm run test:packaged-appimage --prefix packages/desktop
 
       - name: Run one client test
         timeout-minutes: 15
@@ -92,6 +95,10 @@ jobs:
       - name: Run device linking test
         timeout-minutes: 30
         run: cd packages/e2e-tests && npm run test -- deviceLinking.test.ts
+
+      - name: Run device linking direct message test
+        timeout-minutes: 30
+        run: cd packages/e2e-tests && npm run test -- deviceLinking.dms.test.ts
 
       - name: Run admission timeout recovery test
         timeout-minutes: 15

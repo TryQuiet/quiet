@@ -72,6 +72,7 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 - [ ] Sprint column is free from QA reported blocking issues
 - [ ] QA approved the release
 - [ ] All hotfixes for issues discovered in alpha releases have been merged into the release (and develop) branch
+- [ ] The S3 bucket `quiet.<major>.x` exists for the desktop version and is accessible to the release credentials. Desktop Build selects it automatically from `packages/desktop/package.json`; prereleases use `test.quiet`.
 - [ ] CHANGELOG.md is up to date and approved by @holmesworcester
 - [ ] PM approved the release
 
@@ -89,6 +90,7 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 - [ ] Release branch with any fixes is moved back to develop and any conflicts are resolved, merged with a
       **merge commit** rather than "Squash and merge" (see [Branching Rules](#branching-rules))
 - [ ] Release build completed successfully and the assets are uploaded to the release page
+- [ ] Desktop update feeds in `quiet.<major>.x` (`latest.yml`, `latest-linux.yml`, and `latest-mac.yml`) are publicly readable, advertise the released version, and point to downloadable files. Verify that the packaged `app-update.yml` selects the same bucket.
 - [ ] Download links are updated on website
 - [ ] App is promoted and sent for review on a production track in Google Play
 - [ ] App is promoted and sent for review on an external track in App Store (Test Flight) **Note:** this is a separate step *after* the builds become visible in TestFlight!!
@@ -113,10 +115,11 @@ QA will test according to the following checklists:
 ## Breaking changes
 
 While Quiet is in its early stages and does not have known communities of active users, we have the luxury of releasing breaking changes, e.g. changes that require users to start a new community. However, we still take some reasonable steps to make breaking changes comfortable for users.
-While Quiet is in its early stages and does not have known communities of active users, we have the luxury of releasing breaking changes, e.g. changes that require users to start a new community. However, we still take some reasonable steps to make breaking changes comfortable for users.
 
 1. Update storage location on Desktop (see: https://github.com/TryQuiet/quiet/pull/2829) and Mobile (see: https://github.com/TryQuiet/quiet/pull/2831/files).
-2. Create a new S3 bucket for the new major release (the new release will fail without this step)
-3. Once the new release is available for download on our website, push a final release of the previous major branch with a notice to desktop users (e.g: https://github.com/TryQuiet/quiet/pull/2827)
-2. Do not automatically update iOS users. Instead, create a new release branch in TestFlight such that users must update manually. See: https://github.com/TryQuiet/quiet/issues/1980
-3. On Android, we currently have no great way to avoid automatic updates. In this case, decide whether to show a message a few days or weeks in advance, or not. See: https://github.com/TryQuiet/quiet/issues/1980#issuecomment-1795028313
+2. Create the S3 bucket `quiet.<major>.x` in `us-east-1` before the first production release of a new major version. The release credentials must be able to check the bucket and upload artifacts and updater metadata; uploaded files must be publicly readable. Desktop Build checks bucket access before building and fails if the bucket is unavailable. It does not create buckets.
+3. Desktop Build automatically derives the production bucket from the major number in `packages/desktop/package.json`: `11.0.1` and `11.1.0` use `quiet.11.x`; `12.0.0` uses `quiet.12.x`. All desktop builds and updater metadata uploads use this same selection. No workflow bucket edit is needed when bumping the version. Prereleases continue to use `test.quiet`.
+4. Verify the new major's published feeds and packaged updater configuration using the post-release checklist. Do not publish the new major's update metadata into an older major's bucket: older installations still check that bucket and could receive a breaking upgrade. Changing the bucket for a new build does not redirect already-installed apps. If a release shipped with the wrong bucket, document the need to manually install a corrected release, or implement and test a separate migration before offering it automatically.
+5. Once the new release is available for download on our website, push a final release of the previous major branch with a notice to desktop users (e.g: https://github.com/TryQuiet/quiet/pull/2827)
+6. Do not automatically update iOS users. Instead, create a new release branch in TestFlight such that users must update manually. See: https://github.com/TryQuiet/quiet/issues/1980
+7. On Android, we currently have no great way to avoid automatic updates. In this case, decide whether to show a message a few days or weeks in advance, or not. See: https://github.com/TryQuiet/quiet/issues/1980#issuecomment-1795028313

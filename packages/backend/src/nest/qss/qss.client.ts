@@ -331,14 +331,16 @@ export class QSSClient extends EventEmitter {
         return true
       } else {
         this.logger.warn(`hCaptcha token verification with QSS failed: ${response?.reason ?? 'no reason provided'}`)
-        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
+        this.captchaService.hcaptchaToken = null
         this.captchaVerified = false
+        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
         return false
       }
     } catch (e) {
       this.logger.error('Error while verifying hCaptcha token with QSS', e)
-      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
+      this.captchaService.hcaptchaToken = null
       this.captchaVerified = false
+      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
       return false
     }
   }

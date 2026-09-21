@@ -20,6 +20,14 @@ describe('MessageSendButton component', () => {
         }
         accessible={true}
         focusable={true}
+        hitSlop={
+          {
+            "bottom": 8,
+            "left": 8,
+            "right": 8,
+            "top": 8,
+          }
+        }
         onClick={[Function]}
         onResponderGrant={[Function]}
         onResponderMove={[Function]}
@@ -29,7 +37,9 @@ describe('MessageSendButton component', () => {
         onStartShouldSetResponder={[Function]}
         style={
           {
+            "alignItems": "center",
             "justifyContent": "center",
+            "minHeight": 44,
             "paddingLeft": 20,
             "paddingRight": 20,
           }

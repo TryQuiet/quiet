@@ -15,18 +15,12 @@ const classes = {
 }
 
 const StyledButton = styled(Button)(({ theme }) => ({
+  // Height, radius, padding and the primary colours come from the theme's Button overrides, which
+  // carry the design library's spec; overriding them here is what made this button 60 tall with no
+  // hover state of its own.
   [`&.${classes.button}`]: {
     maxWidth: 286,
     minWidth: 100,
-    height: 60,
-    backgroundColor: theme.palette.colors.quietBlue,
-    color: theme.palette.colors.white,
-    '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue,
-    },
-    '&:disabled': {
-      opacity: 0.7,
-    },
   },
 
   [`&.${classes.inProgress}`]: {
