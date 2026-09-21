@@ -5,6 +5,7 @@ export enum FieldErrors {
 export enum UsernameErrors {
   NameTooLong = 'Username must have less than 20 characters',
   WrongCharacter = 'Username must be lowercase and cannot contain any special characters',
+  LeadingHyphen = 'Username must start with a letter or number',
 }
 
 export enum CommunityNameErrors {
