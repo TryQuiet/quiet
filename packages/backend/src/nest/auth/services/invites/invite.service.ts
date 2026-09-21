@@ -21,7 +21,7 @@ import {
 import { SigChain } from '../../sigchain'
 import { RoleName } from '../roles/roles'
 import { createLogger } from '../../../common/logger'
-import { PermissionsError, InviteResultWithSalt } from '@quiet/types'
+import { DeviceLinkInvite, PermissionsError, InviteResultWithSalt } from '@quiet/types'
 import { randomKey } from '@localfirst/crypto'
 import {
   CreateDeviceAdmissionParameters,
@@ -35,6 +35,7 @@ const logger = createLogger('auth:inviteService')
 
 export const DEFAULT_INVITATION_VALID_FOR_MS = 604_800_000 // 1 week
 export const DEFAULT_LONG_LIVED_VALID_FOR_MS = 0 // no limit
+export const DEFAULT_DEVICE_INVITATION_VALID_FOR_MS = 1_800_000 // 30 minutes
 
 class InviteService extends ChainServiceBase {
   constructor(sigChain: SigChain) {
@@ -74,13 +75,21 @@ class InviteService extends ChainServiceBase {
     }
   }
 
-  public createDeviceInvite(validForMs: number = DEFAULT_INVITATION_VALID_FOR_MS, seed?: string): InviteResult {
-    const expiration = (Date.now() + validForMs) as UnixTimestamp
+  public createDeviceInvite(
+    validForMs: number = DEFAULT_DEVICE_INVITATION_VALID_FOR_MS,
+    seed?: string
+  ): DeviceLinkInvite {
+    const expiresAt = (Date.now() + validForMs) as UnixTimestamp
     const invitation: InviteResult = this.sigChain.team!.inviteDevice({
-      expiration,
+      expiration: expiresAt,
       seed,
     })
-    return invitation
+    return {
+      ...invitation,
+      expiresAt,
+      userId: this.sigChain.user.userId,
+      userName: this.sigChain.user.userName,
+    }
   }
 
   public isValidLongLivedUserInvite(id: Base58): boolean {

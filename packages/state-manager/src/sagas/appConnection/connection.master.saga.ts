@@ -1,8 +1,9 @@
-import { all, fork, cancelled, takeEvery } from 'typed-redux-saga'
+import { all, fork, cancelled, takeEvery, takeLatest } from 'typed-redux-saga'
 
 import { uptimeSaga } from './uptime/uptime.saga'
 import { type Socket } from '../../types'
 import { createInviteSaga } from './invite/createInvite.saga'
+import { createDeviceLinkSaga } from './invite/createDeviceLink.saga'
 import { connectionActions } from './connection.slice'
 import { createLogger } from '../../utils/logger'
 import { onConnectionProcessInfo } from './onConnectionProcessInfo/onConnectionProcessInfo.saga'
@@ -17,6 +18,7 @@ export function* connectionMasterSaga(socket: Socket): Generator {
       fork(uptimeSaga),
       takeEvery(connectionActions.onConnectionProcessInfo.type, onConnectionProcessInfo),
       takeEvery(connectionActions.createInvite.type, createInviteSaga, socket),
+      takeLatest(connectionActions.createDeviceLink.type, createDeviceLinkSaga, socket),
       takeEvery(connectionActions.toggleP2P.type, toggleP2PSaga, socket),
     ])
   } finally {

@@ -5,6 +5,7 @@ import type { ReactTestInstance } from 'react-test-renderer'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { Input } from './Input.component'
+import { INPUT_HEIGHT } from './Input.styles'
 
 describe('MessageInput component', () => {
   it('should match inline snapshot', () => {
@@ -34,6 +35,8 @@ describe('MessageInput component', () => {
             accessible={true}
             collapsable={false}
             focusable={true}
+            focused={false}
+            invalid={false}
             onBlur={[Function]}
             onClick={[Function]}
             onFocus={[Function]}
@@ -43,22 +46,26 @@ describe('MessageInput component', () => {
             onResponderTerminate={[Function]}
             onResponderTerminationRequest={[Function]}
             onStartShouldSetResponder={[Function]}
-            round={false}
             style={
               [
                 {
+                  "alignItems": "center",
                   "backgroundColor": "#ffffff",
-                  "borderColor": "#C4C4C4",
-                  "borderRadius": 4,
+                  "borderBottomLeftRadius": 16,
+                  "borderBottomRightRadius": 16,
+                  "borderColor": "#B3B3B3",
+                  "borderTopLeftRadius": 16,
+                  "borderTopRightRadius": 16,
                   "borderWidth": 1,
+                  "flexDirection": "row",
                   "flexGrow": 1,
-                  "height": 56,
-                  "justifyContent": "center",
+                  "height": 48,
+                  "justifyContent": "flex-start",
                   "paddingLeft": 16,
                   "paddingRight": 16,
                 },
                 {
-                  "height": 54,
+                  "height": 48,
                 },
               ]
             }
@@ -68,19 +75,21 @@ describe('MessageInput component', () => {
               editable={true}
               height={54}
               keyboardType="default"
+              onBlur={[Function]}
               onChangeText={[Function]}
               onContentSizeChange={[Function]}
+              onFocus={[Function]}
               placeholder="Message #general as @holmes"
-              placeholderTextColor="#999999"
+              placeholderTextColor="#7F7F7F"
               style={
-                [
-                  {
-                    "height": 54,
-                    "paddingBottom": 12,
-                    "paddingTop": 12,
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "flexBasis": 0,
+                  "flexGrow": 1,
+                  "flexShrink": 1,
+                  "paddingBottom": 12,
+                  "paddingTop": 12,
+                  "textAlignVertical": "center",
+                }
               }
               testID="input"
             />
@@ -156,10 +165,14 @@ describe('multiline Input auto-sizing (#2655)', () => {
     expect(wrapperHeight()).toBe(BASE_WRAPPER_HEIGHT)
   })
 
-  it('keeps pinning the height of single-line inputs', () => {
+  // Control: this fix is about the multiline branch only. Single-line fields take their height
+  // from the wrapper (INPUT_HEIGHT, "Input 2.0 base") and pin nothing on the field itself, so
+  // neither the height they had before nor the min-height added above may appear here.
+  it('leaves single-line inputs sized by their wrapper', () => {
     renderComponent(<Input onChangeText={() => {}} placeholder={'Username'} />)
 
-    expect(inputStyle().height).toBe(54)
+    expect(inputStyle().height).toBeUndefined()
     expect(inputStyle().minHeight).toBeUndefined()
+    expect(wrapperHeight()).toBe(INPUT_HEIGHT)
   })
 })

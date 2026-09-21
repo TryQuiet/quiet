@@ -7,6 +7,8 @@ import { Libp2pService, Libp2pState } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { Libp2pEvents } from './libp2p.types'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -128,6 +130,38 @@ describe('Libp2pService', () => {
     expect(libp2pListenAddress).toStrictEqual(`/dns4/onionAddress.onion/tcp/80/ws`)
   })
 
+  it('lets an auth error stream flush before hanging up the transport', async () => {
+    let deferredHangup: (() => void) | undefined
+    jest.spyOn(global, 'setTimeout').mockImplementation(((callback: () => void) => {
+      deferredHangup = callback
+      return {} as NodeJS.Timeout
+    }) as typeof setTimeout)
+    // An auth failure belongs to one transport, so the grace delay now guards
+    // hangUpAuthTransport rather than an address-wide hangup.
+    const hangUpAuthTransport = jest
+      .spyOn(libp2pService as unknown as { hangUpAuthTransport: () => Promise<void> }, 'hangUpAuthTransport')
+      .mockResolvedValue(undefined)
+    libp2pService.connectedPeers.set('remote-peer', {
+      peerId: 'remote-peer',
+      address: remotePeerAddress,
+      connectedAtSeconds: 1,
+    })
+    const connection = { id: 'remote-connection', remotePeer: { toString: () => 'remote-peer' } }
+
+    libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
+      event: {
+        type: 'LOCAL_ERROR',
+        payload: { type: 'INVITATION_PROOF_INVALID' },
+      },
+      connection,
+    })
+
+    expect(hangUpAuthTransport).not.toHaveBeenCalled()
+    expect(deferredHangup).toBeDefined()
+    deferredHangup!()
+    expect(hangUpAuthTransport).toHaveBeenCalledWith(connection, false)
+  })
+
   it('Generated libp2p psk matches psk composed from existing key', () => {
     const generatedKey = generateLibp2pPSK()
     const retrievedKey = generateLibp2pPSK(generatedKey.psk)
@@ -137,6 +171,17 @@ describe('Libp2pService', () => {
     const generatedPskBuffer = Buffer.from(generatedKey.psk, 'base64')
     const expectedFullKeyString = LIBP2P_PSK_METADATA + uint8ArrayToString(generatedPskBuffer, 'base16')
     expect(uint8ArrayToString(generatedKey.fullKey)).toEqual(expectedFullKeyString)
+  })
+
+  it('retains the exact attempt context and rejects competing owners', () => {
+    const context = { revoke: jest.fn() } as any
+    libp2pService.setAdmissionContext(context)
+    expect(libp2pService.admissionContext).toBe(context)
+    expect(() => libp2pService.setAdmissionContext({} as any)).toThrow('already has')
+    libp2pService.clearAdmissionContext({} as any)
+    expect(libp2pService.admissionContext).toBe(context)
+    libp2pService.clearAdmissionContext(context)
+    expect(libp2pService.admissionContext).toBeUndefined()
   })
 
   it('redials sorted peers even when no peers were previously dialed', async () => {
@@ -150,6 +195,62 @@ describe('Libp2pService', () => {
 
     expect(hangUpPeers).toHaveBeenCalledWith([remotePeerAddress])
     expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
+  })
+
+  it('does not abort a slower peer transport when retrying a rejected admission peer', async () => {
+    const slowerPeerAddress = '/dns4/slower.onion/tcp/80/ws/p2p/slower-peer'
+    const slowerTransport = new AbortController()
+    jest
+      .spyOn(libp2pService['localDbService'], 'getSortedPeers')
+      .mockResolvedValue([remotePeerAddress, slowerPeerAddress])
+    libp2pService.dialedPeers.add(slowerPeerAddress)
+    jest.spyOn(libp2pService, 'hangUpPeers').mockImplementation(async addresses => {
+      if (addresses?.includes(slowerPeerAddress)) slowerTransport.abort()
+    })
+    const dialPeers = jest.spyOn(libp2pService, 'dialPeers').mockResolvedValue(undefined)
+
+    await libp2pService.redialPeers(undefined, { onlyPeerIds: new Set(['remote-peer']) })
+
+    expect(slowerTransport.signal.aborted).toBe(false)
+    expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
+  })
+
+  it('retries a known device endpoint until its onion descriptor becomes reachable', async () => {
+    libp2pService.pauseDialQueue()
+    jest.useFakeTimers()
+    const address = `/dns4/unpublished.onion/tcp/80/ws/p2p/${params.peerId.peerId.toString()}`
+    let descriptorPublished = false
+    const reached = jest.fn()
+    const dial = jest.fn(async () => {
+      if (!descriptorPublished) throw new Error('Onion descriptor is not available yet')
+      reached()
+    })
+    const previousInstance = libp2pService.libp2pInstance
+    libp2pService.libp2pInstance = { peerId: { toString: () => 'local-peer' }, dial } as any
+    jest.spyOn(libp2pService['localDbService'], 'getPeerStats').mockResolvedValue({})
+    jest.spyOn(libp2pService['localDbService'], 'getSortedPeers').mockResolvedValue([])
+
+    try {
+      libp2pService.resumeDialQueue()
+      await libp2pService.dialPeer(address)
+      await jest.advanceTimersByTimeAsync(96_000)
+
+      expect(dial.mock.calls.length).toBeGreaterThan(2)
+      expect(reached).not.toHaveBeenCalled()
+      expect(libp2pService['redialQueue'].hasTask(address)).toBe(true)
+
+      descriptorPublished = true
+      await jest.advanceTimersByTimeAsync(20_000)
+      expect(reached).toHaveBeenCalledTimes(1)
+      expect(libp2pService['redialQueue'].hasTask(address)).toBe(false)
+      const attempts = dial.mock.calls.length
+      await jest.advanceTimersByTimeAsync(60_000)
+      expect(dial).toHaveBeenCalledTimes(attempts)
+    } finally {
+      libp2pService.pauseDialQueue()
+      libp2pService.libp2pInstance = previousInstance
+      jest.useRealTimers()
+    }
   })
 
   it('redials explicit peers once and hangs up their active connected address', async () => {

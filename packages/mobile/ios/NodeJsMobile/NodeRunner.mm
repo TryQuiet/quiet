@@ -189,6 +189,10 @@ void handleAppChannelMessage(NSString *msg) {
   _currentModuleInstance = module;
 }
 
+- (void)requestSocketRecovery {
+  [self sendMessageToNode:SYSTEM_CHANNEL:@"recoverSocket"];
+}
+
 - (void)sendMessageToNode:(NSString *)channelName:(NSString *)message {
   const char *c_channelName = [channelName UTF8String];
   const char *c_message = [message UTF8String];

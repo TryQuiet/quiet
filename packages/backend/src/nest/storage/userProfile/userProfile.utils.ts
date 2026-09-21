@@ -1,4 +1,5 @@
 import { SetUserProfileResponse, UserProfile } from '@quiet/types'
+import { MAX_PROFILE_PHOTO_SIZE_BYTES } from '@quiet/common'
 import { createLogger } from '../../common/logger'
 
 const logger = createLogger('UserProfileStoreUtils')
@@ -83,8 +84,8 @@ export const validatePhoto = (photoString: string, pubKey: string): SetUserProfi
     }
 
     // Apply different size limits based on image format:
-    const MAX_SIZE_JPEG = 200 * 1024 // 200KB in bytes
-    const MAX_SIZE_PNG_GIF = 200 * 1024 // 200KB in bytes
+    const MAX_SIZE_JPEG = MAX_PROFILE_PHOTO_SIZE_BYTES
+    const MAX_SIZE_PNG_GIF = MAX_PROFILE_PHOTO_SIZE_BYTES
 
     if (photoString.startsWith('data:image/jpeg;base64,')) {
       if (photoBytes.length > MAX_SIZE_JPEG) {

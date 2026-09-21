@@ -2,7 +2,7 @@ import React, { useCallback, useRef, forwardRef, useState } from 'react'
 import { TextInput, View } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 
-import { StyledTextInput, StyledWrapper } from './Input.styles'
+import { COMPOSE_MIN_HEIGHT, INPUT_HEIGHT, StyledTextInput, StyledWrapper } from './Input.styles'
 import { InputProps } from './Input.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
@@ -22,18 +22,22 @@ export const Input = forwardRef<TextInput, InputProps>(
       hint,
       multiline,
       disabled = false,
-      round = false,
       autoCorrect = true,
       style,
       wrapperStyle,
       bottomSeparator,
       keyboardType = 'default',
+      rightAccessory,
+      leftAccessory,
+      maxHeight,
       testID,
       children,
     },
     ref
   ) => {
-    const [height, setHeight] = useState(54)
+    // Seed for the multiline measurement, not a design value — the chat composer grows from here.
+    const [height, setHeight] = useState(COMPOSE_MIN_HEIGHT)
+    const [focused, setFocused] = useState(false)
 
     const textInputRef = useRef<null | TextInput>(null)
 
@@ -47,19 +51,25 @@ export const Input = forwardRef<TextInput, InputProps>(
       <View testID={testID}>
         <View style={wrapperStyle}>
           {label && (
-            <Typography fontSize={14} style={{ paddingBottom: 10, color: defaultTheme.palette.typography.gray70 }}>
+            <Typography fontSize={14} style={{ paddingBottom: 8, color: defaultTheme.palette.typography.gray70 }}>
               {label}
             </Typography>
           )}
           <StyledWrapper
             onPress={handleViewPress}
             disabled={disabled}
-            round={round}
+            focused={focused}
+            invalid={validation != null && validation !== ''}
             style={{
-              height: multiline ? Math.max(54, height + 20) : 54,
+              // A single-line field is the design library's 48. A growing one — only the chat
+              // composer — keeps the taller floor it was written against.
+              height: multiline
+                ? Math.min(maxHeight ?? Number.MAX_SAFE_INTEGER, Math.max(COMPOSE_MIN_HEIGHT, height + 20))
+                : INPUT_HEIGHT,
               ...style,
             }}
           >
+            {leftAccessory}
             <StyledTextInput
               value={value}
               onChangeText={onChangeText}
@@ -76,11 +86,13 @@ export const Input = forwardRef<TextInput, InputProps>(
                   ref.current = instance
                 }
               }}
-              height={height}
+              height={maxHeight != null && multiline ? Math.min(height, maxHeight - 14) : height}
               multiline={multiline}
               editable={!disabled}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               placeholder={placeholder}
-              placeholderTextColor={defaultTheme.palette.typography.grayDark}
+              placeholderTextColor={defaultTheme.palette.typography.gray50}
               maxLength={length}
               autoCapitalize={capitalize}
               testID={'input'}
@@ -89,6 +101,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             >
               {children}
             </StyledTextInput>
+            {rightAccessory}
           </StyledWrapper>
           {subtitle && (
             <Typography

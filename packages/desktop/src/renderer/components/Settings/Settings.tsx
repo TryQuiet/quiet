@@ -8,10 +8,12 @@ import { Notifications } from './Tabs/Notifications/Notifications'
 import { Attachments } from './Tabs/Attachments/Attachments'
 import { Invite } from './Tabs/Invite/Invite'
 import { QRCode } from './Tabs/QRCode/QRCode'
+import { LinkedDevices } from './Tabs/LinkedDevices/LinkedDevices'
 import { LeaveCommunity } from './Tabs/LeaveCommunity/LeaveCommunity'
 
 import SettingsComponent from './SettingsComponent'
 import { DebugInfoComponent } from '../debugInfo/debugInfoComponent'
+import { CommunityMembership } from './Tabs/CommunityMembership/CommunityMembership'
 
 const Settings = () => {
   const modal = useModal(ModalName.accountSettingsModal)
@@ -22,7 +24,9 @@ const Settings = () => {
     attachments: Attachments,
     invite: Invite,
     qrcode: QRCode,
+    linkedDevices: LinkedDevices,
     leaveCommunity: LeaveCommunity,
+    communityMembership: CommunityMembership,
   }
 
   if (process.env.NODE_ENV === 'development' || process.env.IS_E2E === 'true') {

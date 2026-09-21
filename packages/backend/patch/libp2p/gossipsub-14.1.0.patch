@@ -1,0 +1,769 @@
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -75,7 +75,9 @@
+   Logger,
+   ComponentLogger,
+   Topology,
+-  PrivateKey
++  PrivateKey,
++  Libp2pEvents,
++  TypedEventTarget
+ } from '@libp2p/interface'
+ import type { ConnectionManager, IncomingStreamData, Registrar } from '@libp2p/interface-internal'
+ import type { Multiaddr } from '@multiformats/multiaddr'
+@@ -280,6 +282,7 @@
+   peerStore: PeerStore
+   registrar: Registrar
+   connectionManager: ConnectionManager
++  events: TypedEventTarget<Libp2pEvents>
+   logger: ComponentLogger
+ }
+ 
+@@ -299,6 +302,20 @@
+   public readonly peers = new Set<PeerIdStr>()
+   public readonly streamsInbound = new Map<PeerIdStr, InboundStream>()
+   public readonly streamsOutbound = new Map<PeerIdStr, OutboundStream>()
++
++  private readonly streamRecoveryAttempts = new Set<Connection>()
++  private streamLifetime = 0
++  private readonly outboundConnections = new Map<PeerIdStr, Connection>()
++
++  private readonly onConnectionClosed = ({ detail: connection }: CustomEvent<Connection>): void => {
++    const id = connection.remotePeer.toString()
++    if (this.outboundConnections.get(id)?.id !== connection.id) return
++    // A v2 duplex may still be settling its sink after the transport closes.
++    // Retire only the stream owned by that transport, not a newer replacement.
++    if (this.retireOutboundStream(connection.remotePeer, this.streamsOutbound.get(id))) {
++      this.recoverPeerStreams(connection.remotePeer, connection)
++    }
++  }
+ 
+   /** Ensures outbound streams are created sequentially */
+   private outboundInflightQueue = pushable<{ peerId: PeerId, connection: Connection }>({ objectMode: true })
+@@ -622,6 +639,7 @@
+     }
+ 
+     this.log('starting')
++    const lifetime = ++this.streamLifetime
+ 
+     this.publishConfig = getPublishConfigFromPeerId(this.globalSignaturePolicy, this.components.peerId, this.components.privateKey)
+ 
+@@ -630,7 +648,7 @@
+     this.outboundInflightQueue = pushable({ objectMode: true })
+     pipe(this.outboundInflightQueue, async (source) => {
+       for await (const { peerId, connection } of source) {
+-        await this.createOutboundStream(peerId, connection)
++        await this.createOutboundStream(peerId, connection, lifetime)
+       }
+     }).catch((e) => { this.log.error('outbound inflight queue error', e) })
+ 
+@@ -712,6 +730,7 @@
+       this.addEventListener('gossipsub:prune', this.untagMeshPeer)
+     }
+ 
++    this.components.events.addEventListener('connection:close', this.onConnectionClosed)
+     this.log('started')
+   }
+ 
+@@ -728,6 +747,10 @@
+ 
+     const { registrarTopologyIds } = this.status
+     this.status = { code: GossipStatusCode.stopped }
++    this.streamLifetime++
++    this.components.events.removeEventListener('connection:close', this.onConnectionClosed)
++    this.outboundConnections.clear()
++    this.streamRecoveryAttempts.clear()
+ 
+     if (this.opts.tagMeshPeers) {
+       this.removeEventListener('gossipsub:graft', this.tagMeshPeer)
+@@ -794,7 +817,8 @@
+    * On an inbound stream opened
+    */
+   private onIncomingStream ({ stream, connection }: IncomingStreamData): void {
+-    if (!this.isStarted()) {
++    if (!this.isStarted() || connection.status !== 'open') {
++      void stream.close().catch((err) => { stream.abort(err) })
+       return
+     }
+ 
+@@ -802,7 +826,7 @@
+     // add peer to router
+     this.addPeer(peerId, connection.direction, connection.remoteAddr)
+     // create inbound stream
+-    this.createInboundStream(peerId, stream)
++    this.createInboundStream(peerId, stream, connection)
+     // attempt to create outbound stream
+     this.outboundInflightQueue.push({ peerId, connection })
+   }
+@@ -827,39 +851,46 @@
+    */
+   private onPeerDisconnected (peerId: PeerId): void {
+     this.log('connection ended %p', peerId)
+-    this.removePeer(peerId)
+-  }
+-
+-  private async createOutboundStream (peerId: PeerId, connection: Connection): Promise<void> {
+-    if (!this.isStarted()) {
++    if (!this.recoverPeerStreams(peerId)) {
++      this.removePeer(peerId)
++    }
++  }
++
++  private async createOutboundStream (peerId: PeerId, connection: Connection, lifetime = this.streamLifetime): Promise<void> {
++    if (!this.isStarted() || lifetime !== this.streamLifetime || connection.status !== 'open') {
+       return
+     }
+ 
+     const id = peerId.toString()
+-
+-    if (!this.peers.has(id)) {
++    if (!this.peers.has(id) || this.streamsOutbound.has(id)) {
+       return
+     }
+ 
+-    // TODO make this behavior more robust
+-    // This behavior is different than for inbound streams
+-    // If an outbound stream already exists, don't create a new stream
+-    if (this.streamsOutbound.has(id)) {
+-      return
+-    }
+-
+     try {
++      const rawStream = await connection.newStream(this.multicodecs, {
++        runOnLimitedConnection: this.runOnLimitedConnection
++      })
++      // Negotiation can finish after stop, restart, or a transport replacement.
++      if (!this.isStarted() || lifetime !== this.streamLifetime || connection.status !== 'open' || !this.peers.has(id) || this.streamsOutbound.has(id)) {
++        await rawStream.close().catch((err) => { rawStream.abort(err) })
++        return
++      }
+       const stream = new OutboundStream(
+-        await connection.newStream(this.multicodecs, {
+-          runOnLimitedConnection: this.runOnLimitedConnection
+-        }),
++        rawStream,
+         (e) => { this.log.error('outbound pipe error', e) },
+-        { maxBufferSize: this.opts.maxOutboundBufferSize }
++        {
++          maxBufferSize: this.opts.maxOutboundBufferSize,
++          onClose: () => {
++            if (this.retireOutboundStream(peerId, stream)) {
++              this.recoverPeerStreams(peerId, connection)
++            }
++          }
++        }
+       )
+ 
+       this.log('create outbound stream %p', peerId)
+-
+       this.streamsOutbound.set(id, stream)
++      this.outboundConnections.set(id, connection)
+ 
+       const protocol = stream.protocol
+       if (protocol === constants.FloodsubID) {
+@@ -867,7 +898,7 @@
+       }
+       this.metrics?.peersPerProtocol.inc({ protocol }, 1)
+ 
+-      // Immediately send own subscriptions via the newly attached stream
++      // Replay every local subscription on the replacement stream.
+       if (this.subscriptions.size > 0) {
+         this.log('send subscriptions to', id)
+         this.sendSubscriptions(id, Array.from(this.subscriptions), true)
+@@ -877,33 +908,81 @@
+     }
+   }
+ 
+-  private createInboundStream (peerId: PeerId, stream: Stream): void {
+-    if (!this.isStarted()) {
++  private createInboundStream (peerId: PeerId, stream: Stream, connection: Connection): void {
++    if (!this.isStarted() || connection.status !== 'open') {
++      void stream.close().catch((err) => { stream.abort(err) })
+       return
+     }
+ 
+     const id = peerId.toString()
+-
+     if (!this.peers.has(id)) {
+       return
+     }
+ 
+-    // TODO make this behavior more robust
+-    // This behavior is different than for outbound streams
+-    // If a peer initiates a new inbound connection
+-    // we assume that one is the new canonical inbound stream
+-    const priorInboundStream = this.streamsInbound.get(id)
+-    if (priorInboundStream !== undefined) {
+-      this.log('replacing existing inbound steam %s', id)
+-      priorInboundStream.close().catch((err) => { this.log.error(err) })
+-    }
+-
++    this.retireInboundStream(peerId, this.streamsInbound.get(id))
+     this.log('create inbound stream %s', id)
+ 
+     const inboundStream = new InboundStream(stream, { maxDataLength: this.opts.maxInboundDataLength })
+     this.streamsInbound.set(id, inboundStream)
+ 
+-    this.pipePeerReadStream(peerId, inboundStream.source).catch((err) => { this.log(err) })
++    this.pipePeerReadStream(peerId, inboundStream, connection).catch((err) => { this.log(err) })
++  }
++
++  private retireOutboundStream (peerId: PeerId, stream?: OutboundStream): boolean {
++    const id = peerId.toString()
++    if (stream == null || this.streamsOutbound.get(id) !== stream) {
++      return false
++    }
++    // Delete ownership before closing: late callbacks must not delete a replacement.
++    this.streamsOutbound.delete(id)
++    this.outboundConnections.delete(id)
++    this.floodsubPeers.delete(id)
++    this.metrics?.peersPerProtocol.inc({ protocol: stream.protocol }, -1)
++    void stream.close().catch((err) => { this.log.error(err) })
++    return true
++  }
++
++  private retireInboundStream (peerId: PeerId, stream?: InboundStream): boolean {
++    const id = peerId.toString()
++    if (stream == null || this.streamsInbound.get(id) !== stream) {
++      return false
++    }
++    this.streamsInbound.delete(id)
++    void stream.close().catch((err) => { this.log.error(err) })
++    return true
++  }
++
++  private recoverPeerStreams (peerId: PeerId, failedConnection?: Connection): boolean {
++    if (!this.isStarted()) {
++      return false
++    }
++    for (const attempted of this.streamRecoveryAttempts) {
++      if (attempted.status !== 'open') this.streamRecoveryAttempts.delete(attempted)
++    }
++    const connections = this.components.connectionManager.getConnections(peerId)
++      .filter((connection) => connection.status === 'open')
++    if (connections.length === 0) {
++      return false
++    }
++    const id = peerId.toString()
++    if (this.streamsOutbound.has(id)) {
++      return true
++    }
++    // Each transport gets one immediate stream repair until a valid inbound
++    // RPC proves it useful again. Do not bounce endlessly between two live
++    // transports when a peer repeatedly resets their protocol streams.
++    const candidates = [
++      ...connections.filter((candidate) => candidate.id !== failedConnection?.id),
++      ...connections.filter((candidate) => candidate.id === failedConnection?.id)
++    ]
++    const connection = candidates.find((candidate) => !this.streamRecoveryAttempts.has(candidate))
++    if (connection == null) {
++      return true
++    }
++    this.addPeer(peerId, connection.direction, connection.remoteAddr)
++    this.streamRecoveryAttempts.add(connection)
++    this.outboundInflightQueue.push({ peerId, connection })
++    return true
+   }
+ 
+   /**
+@@ -947,20 +1026,8 @@
+     this.log('delete peer %p', peerId)
+     this.peers.delete(id)
+ 
+-    const outboundStream = this.streamsOutbound.get(id)
+-    const inboundStream = this.streamsInbound.get(id)
+-
+-    if (outboundStream != null) {
+-      this.metrics?.peersPerProtocol.inc({ protocol: outboundStream.protocol }, -1)
+-    }
+-
+-    // close streams
+-    outboundStream?.close().catch((err) => { this.log.error(err) })
+-    inboundStream?.close().catch((err) => { this.log.error(err) })
+-
+-    // remove streams
+-    this.streamsOutbound.delete(id)
+-    this.streamsInbound.delete(id)
++    this.retireOutboundStream(peerId, this.streamsOutbound.get(id))
++    this.retireInboundStream(peerId, this.streamsInbound.get(id))
+ 
+     // remove peer from topics map
+     for (const peers of this.topics.values()) {
+@@ -1033,10 +1100,14 @@
+   /**
+    * Responsible for processing each RPC message received by other peers.
+    */
+-  private async pipePeerReadStream (peerId: PeerId, stream: AsyncIterable<Uint8ArrayList>): Promise<void> {
++  private async pipePeerReadStream (peerId: PeerId, stream: InboundStream, connection: Connection): Promise<void> {
++    const id = peerId.toString()
+     try {
+-      await pipe(stream, async (source) => {
++      await pipe(stream.source, async (source) => {
+         for await (const data of source) {
++          if (!this.isStarted() || this.streamsInbound.get(id) !== stream) {
++            return
++          }
+           try {
+             // TODO: Check max gossip message size, before decodeRpc()
+             const rpcBytes = data.subarray()
+@@ -1063,6 +1134,7 @@
+             })
+ 
+             this.metrics?.onRpcRecv(rpc, rpcBytes.length)
++            this.streamRecoveryAttempts.delete(connection)
+ 
+             // Since processRpc may be overridden entirely in unsafe ways,
+             // the simplest/safest option here is to wrap in a function and capture all errors
+@@ -1089,7 +1161,11 @@
+       })
+     } catch (err) {
+       this.metrics?.onPeerReadStreamError()
+-      this.handlePeerReadStreamError(err as Error, peerId)
++      this.handlePeerReadStreamError(err as Error, peerId, stream)
++    } finally {
++      if (this.retireInboundStream(peerId, stream)) {
++        this.recoverPeerStreams(peerId, connection)
++      }
+     }
+   }
+ 
+@@ -1097,9 +1173,11 @@
+    * Handle error when read stream pipe throws, less of the functional use but more
+    * to for testing purposes to spy on the error handling
+    * */
+-  private handlePeerReadStreamError (err: Error, peerId: PeerId): void {
+-    this.log.error(err)
+-    this.onPeerDisconnected(peerId)
++  private handlePeerReadStreamError (err: Error, peerId: PeerId, stream: InboundStream): void {
++    // The closing read loop owns only its stream, never the peer's replacement.
++    if (this.streamsInbound.get(peerId.toString()) === stream) {
++      this.log.error(err)
++    }
+   }
+ 
+   /**
+--- a/src/stream.ts
++++ b/src/stream.ts
+@@ -7,6 +7,8 @@
+ interface OutboundStreamOpts {
+   /** Max size in bytes for pushable buffer. If full, will throw on .push */
+   maxBufferSize?: number
++  /** The v2 duplex has no close event; observe both normal and failed sink completion. */
++  onClose?: () => void
+ }
+ 
+ interface InboundStreamOpts {
+@@ -34,7 +36,7 @@
+     pipe(
+       this.pushable,
+       this.rawStream
+-    ).catch(errCallback)
++    ).catch(errCallback).then(() => { opts.onClose?.() }).catch(errCallback)
+   }
+ 
+   get protocol (): string {
+--- a/dist/src/index.js
++++ b/dist/src/index.js
+@@ -41,6 +41,19 @@
+     peers = new Set();
+     streamsInbound = new Map();
+     streamsOutbound = new Map();
++    streamRecoveryAttempts = new Set();
++    streamLifetime = 0;
++    outboundConnections = new Map();
++    onConnectionClosed = ({ detail: connection }) => {
++        const id = connection.remotePeer.toString();
++        if (this.outboundConnections.get(id)?.id !== connection.id)
++            return;
++        // A v2 duplex may still be settling its sink after the transport closes.
++        // Retire only the stream owned by that transport, not a newer replacement.
++        if (this.retireOutboundStream(connection.remotePeer, this.streamsOutbound.get(id))) {
++            this.recoverPeerStreams(connection.remotePeer, connection);
++        }
++    };
+     /** Ensures outbound streams are created sequentially */
+     outboundInflightQueue = pushable({ objectMode: true });
+     /** Direct peers */
+@@ -295,13 +308,14 @@
+             return;
+         }
+         this.log('starting');
++        const lifetime = ++this.streamLifetime;
+         this.publishConfig = getPublishConfigFromPeerId(this.globalSignaturePolicy, this.components.peerId, this.components.privateKey);
+         // Create the outbound inflight queue
+         // This ensures that outbound stream creation happens sequentially
+         this.outboundInflightQueue = pushable({ objectMode: true });
+         pipe(this.outboundInflightQueue, async (source) => {
+             for await (const { peerId, connection } of source) {
+-                await this.createOutboundStream(peerId, connection);
++                await this.createOutboundStream(peerId, connection, lifetime);
+             }
+         }).catch((e) => { this.log.error('outbound inflight queue error', e); });
+         // set direct peer addresses in the address book
+@@ -366,6 +380,7 @@
+             this.addEventListener('gossipsub:graft', this.tagMeshPeer);
+             this.addEventListener('gossipsub:prune', this.untagMeshPeer);
+         }
++        this.components.events.addEventListener('connection:close', this.onConnectionClosed);
+         this.log('started');
+     }
+     /**
+@@ -379,6 +394,10 @@
+         }
+         const { registrarTopologyIds } = this.status;
+         this.status = { code: GossipStatusCode.stopped };
++        this.streamLifetime++;
++        this.components.events.removeEventListener('connection:close', this.onConnectionClosed);
++        this.outboundConnections.clear();
++        this.streamRecoveryAttempts.clear();
+         if (this.opts.tagMeshPeers) {
+             this.removeEventListener('gossipsub:graft', this.tagMeshPeer);
+             this.removeEventListener('gossipsub:prune', this.untagMeshPeer);
+@@ -433,14 +452,15 @@
+      * On an inbound stream opened
+      */
+     onIncomingStream({ stream, connection }) {
+-        if (!this.isStarted()) {
++        if (!this.isStarted() || connection.status !== 'open') {
++            void stream.close().catch((err) => { stream.abort(err); });
+             return;
+         }
+         const peerId = connection.remotePeer;
+         // add peer to router
+         this.addPeer(peerId, connection.direction, connection.remoteAddr);
+         // create inbound stream
+-        this.createInboundStream(peerId, stream);
++        this.createInboundStream(peerId, stream, connection);
+         // attempt to create outbound stream
+         this.outboundInflightQueue.push({ peerId, connection });
+     }
+@@ -462,64 +482,122 @@
+      */
+     onPeerDisconnected(peerId) {
+         this.log('connection ended %p', peerId);
+-        this.removePeer(peerId);
+-    }
+-    async createOutboundStream(peerId, connection) {
+-        if (!this.isStarted()) {
++        if (!this.recoverPeerStreams(peerId)) {
++            this.removePeer(peerId);
++        }
++    }
++    async createOutboundStream(peerId, connection, lifetime = this.streamLifetime) {
++        if (!this.isStarted() || lifetime !== this.streamLifetime || connection.status !== 'open') {
++            return;
++        }
++        const id = peerId.toString();
++        if (!this.peers.has(id) || this.streamsOutbound.has(id)) {
++            return;
++        }
++        try {
++            const rawStream = await connection.newStream(this.multicodecs, {
++                runOnLimitedConnection: this.runOnLimitedConnection
++            });
++            // Negotiation can finish after stop, restart, or a transport replacement.
++            if (!this.isStarted() || lifetime !== this.streamLifetime || connection.status !== 'open' || !this.peers.has(id) || this.streamsOutbound.has(id)) {
++                await rawStream.close().catch((err) => { rawStream.abort(err); });
++                return;
++            }
++            const stream = new OutboundStream(rawStream, (e) => { this.log.error('outbound pipe error', e); }, {
++                maxBufferSize: this.opts.maxOutboundBufferSize,
++                onClose: () => {
++                    if (this.retireOutboundStream(peerId, stream)) {
++                        this.recoverPeerStreams(peerId, connection);
++                    }
++                }
++            });
++            this.log('create outbound stream %p', peerId);
++            this.streamsOutbound.set(id, stream);
++            this.outboundConnections.set(id, connection);
++            const protocol = stream.protocol;
++            if (protocol === constants.FloodsubID) {
++                this.floodsubPeers.add(id);
++            }
++            this.metrics?.peersPerProtocol.inc({ protocol }, 1);
++            // Replay every local subscription on the replacement stream.
++            if (this.subscriptions.size > 0) {
++                this.log('send subscriptions to', id);
++                this.sendSubscriptions(id, Array.from(this.subscriptions), true);
++            }
++        }
++        catch (e) {
++            this.log.error('createOutboundStream error', e);
++        }
++    }
++    createInboundStream(peerId, stream, connection) {
++        if (!this.isStarted() || connection.status !== 'open') {
++            void stream.close().catch((err) => { stream.abort(err); });
+             return;
+         }
+         const id = peerId.toString();
+         if (!this.peers.has(id)) {
+             return;
+         }
+-        // TODO make this behavior more robust
+-        // This behavior is different than for inbound streams
+-        // If an outbound stream already exists, don't create a new stream
+-        if (this.streamsOutbound.has(id)) {
+-            return;
+-        }
+-        try {
+-            const stream = new OutboundStream(await connection.newStream(this.multicodecs, {
+-                runOnLimitedConnection: this.runOnLimitedConnection
+-            }), (e) => { this.log.error('outbound pipe error', e); }, { maxBufferSize: this.opts.maxOutboundBufferSize });
+-            this.log('create outbound stream %p', peerId);
+-            this.streamsOutbound.set(id, stream);
+-            const protocol = stream.protocol;
+-            if (protocol === constants.FloodsubID) {
+-                this.floodsubPeers.add(id);
+-            }
+-            this.metrics?.peersPerProtocol.inc({ protocol }, 1);
+-            // Immediately send own subscriptions via the newly attached stream
+-            if (this.subscriptions.size > 0) {
+-                this.log('send subscriptions to', id);
+-                this.sendSubscriptions(id, Array.from(this.subscriptions), true);
+-            }
+-        }
+-        catch (e) {
+-            this.log.error('createOutboundStream error', e);
+-        }
+-    }
+-    createInboundStream(peerId, stream) {
+-        if (!this.isStarted()) {
+-            return;
+-        }
+-        const id = peerId.toString();
+-        if (!this.peers.has(id)) {
+-            return;
+-        }
+-        // TODO make this behavior more robust
+-        // This behavior is different than for outbound streams
+-        // If a peer initiates a new inbound connection
+-        // we assume that one is the new canonical inbound stream
+-        const priorInboundStream = this.streamsInbound.get(id);
+-        if (priorInboundStream !== undefined) {
+-            this.log('replacing existing inbound steam %s', id);
+-            priorInboundStream.close().catch((err) => { this.log.error(err); });
+-        }
++        this.retireInboundStream(peerId, this.streamsInbound.get(id));
+         this.log('create inbound stream %s', id);
+         const inboundStream = new InboundStream(stream, { maxDataLength: this.opts.maxInboundDataLength });
+         this.streamsInbound.set(id, inboundStream);
+-        this.pipePeerReadStream(peerId, inboundStream.source).catch((err) => { this.log(err); });
++        this.pipePeerReadStream(peerId, inboundStream, connection).catch((err) => { this.log(err); });
++    }
++    retireOutboundStream(peerId, stream) {
++        const id = peerId.toString();
++        if (stream == null || this.streamsOutbound.get(id) !== stream) {
++            return false;
++        }
++        // Delete ownership before closing: late callbacks must not delete a replacement.
++        this.streamsOutbound.delete(id);
++        this.outboundConnections.delete(id);
++        this.floodsubPeers.delete(id);
++        this.metrics?.peersPerProtocol.inc({ protocol: stream.protocol }, -1);
++        void stream.close().catch((err) => { this.log.error(err); });
++        return true;
++    }
++    retireInboundStream(peerId, stream) {
++        const id = peerId.toString();
++        if (stream == null || this.streamsInbound.get(id) !== stream) {
++            return false;
++        }
++        this.streamsInbound.delete(id);
++        void stream.close().catch((err) => { this.log.error(err); });
++        return true;
++    }
++    recoverPeerStreams(peerId, failedConnection) {
++        if (!this.isStarted()) {
++            return false;
++        }
++        for (const attempted of this.streamRecoveryAttempts) {
++            if (attempted.status !== 'open')
++                this.streamRecoveryAttempts.delete(attempted);
++        }
++        const connections = this.components.connectionManager.getConnections(peerId)
++            .filter((connection) => connection.status === 'open');
++        if (connections.length === 0) {
++            return false;
++        }
++        const id = peerId.toString();
++        if (this.streamsOutbound.has(id)) {
++            return true;
++        }
++        // Each transport gets one immediate stream repair until a valid inbound
++        // RPC proves it useful again. Do not bounce endlessly between two live
++        // transports when a peer repeatedly resets their protocol streams.
++        const candidates = [
++            ...connections.filter((candidate) => candidate.id !== failedConnection?.id),
++            ...connections.filter((candidate) => candidate.id === failedConnection?.id)
++        ];
++        const connection = candidates.find((candidate) => !this.streamRecoveryAttempts.has(candidate));
++        if (connection == null) {
++            return true;
++        }
++        this.addPeer(peerId, connection.direction, connection.remoteAddr);
++        this.streamRecoveryAttempts.add(connection);
++        this.outboundInflightQueue.push({ peerId, connection });
++        return true;
+     }
+     /**
+      * Add a peer to the router
+@@ -555,17 +633,8 @@
+         // delete peer
+         this.log('delete peer %p', peerId);
+         this.peers.delete(id);
+-        const outboundStream = this.streamsOutbound.get(id);
+-        const inboundStream = this.streamsInbound.get(id);
+-        if (outboundStream != null) {
+-            this.metrics?.peersPerProtocol.inc({ protocol: outboundStream.protocol }, -1);
+-        }
+-        // close streams
+-        outboundStream?.close().catch((err) => { this.log.error(err); });
+-        inboundStream?.close().catch((err) => { this.log.error(err); });
+-        // remove streams
+-        this.streamsOutbound.delete(id);
+-        this.streamsInbound.delete(id);
++        this.retireOutboundStream(peerId, this.streamsOutbound.get(id));
++        this.retireInboundStream(peerId, this.streamsInbound.get(id));
+         // remove peer from topics map
+         for (const peers of this.topics.values()) {
+             peers.delete(id);
+@@ -624,10 +693,14 @@
+     /**
+      * Responsible for processing each RPC message received by other peers.
+      */
+-    async pipePeerReadStream(peerId, stream) {
++    async pipePeerReadStream(peerId, stream, connection) {
++        const id = peerId.toString();
+         try {
+-            await pipe(stream, async (source) => {
++            await pipe(stream.source, async (source) => {
+                 for await (const data of source) {
++                    if (!this.isStarted() || this.streamsInbound.get(id) !== stream) {
++                        return;
++                    }
+                     try {
+                         // TODO: Check max gossip message size, before decodeRpc()
+                         const rpcBytes = data.subarray();
+@@ -653,6 +726,7 @@
+                             }
+                         });
+                         this.metrics?.onRpcRecv(rpc, rpcBytes.length);
++                        this.streamRecoveryAttempts.delete(connection);
+                         // Since processRpc may be overridden entirely in unsafe ways,
+                         // the simplest/safest option here is to wrap in a function and capture all errors
+                         // to prevent a top-level unhandled exception
+@@ -682,16 +756,23 @@
+         }
+         catch (err) {
+             this.metrics?.onPeerReadStreamError();
+-            this.handlePeerReadStreamError(err, peerId);
++            this.handlePeerReadStreamError(err, peerId, stream);
++        }
++        finally {
++            if (this.retireInboundStream(peerId, stream)) {
++                this.recoverPeerStreams(peerId, connection);
++            }
+         }
+     }
+     /**
+      * Handle error when read stream pipe throws, less of the functional use but more
+      * to for testing purposes to spy on the error handling
+      * */
+-    handlePeerReadStreamError(err, peerId) {
+-        this.log.error(err);
+-        this.onPeerDisconnected(peerId);
++    handlePeerReadStreamError(err, peerId, stream) {
++        // The closing read loop owns only its stream, never the peer's replacement.
++        if (this.streamsInbound.get(peerId.toString()) === stream) {
++            this.log.error(err);
++        }
+     }
+     /**
+      * Handles an rpc request from a peer
+@@ -2504,4 +2585,3 @@
+ export function gossipsub(init = {}) {
+     return (components) => new GossipSub(components, init);
+ }
+-//# sourceMappingURL=index.js.map
+\ No newline at end of file
+--- a/dist/src/stream.js
++++ b/dist/src/stream.js
+@@ -17,7 +17,7 @@
+                 rawStream.abort(err);
+             });
+         });
+-        pipe(this.pushable, this.rawStream).catch(errCallback);
++        pipe(this.pushable, this.rawStream).catch(errCallback).then(() => { opts.onClose?.(); }).catch(errCallback);
+     }
+     get protocol() {
+         // TODO remove this non-nullish assertion after https://github.com/libp2p/js-libp2p-interfaces/pull/265 is incorporated
+@@ -64,4 +64,3 @@
+         this.closeController.abort();
+     }
+ }
+-//# sourceMappingURL=stream.js.map
+\ No newline at end of file
+--- a/dist/src/index.d.ts
++++ b/dist/src/index.d.ts
+@@ -8,7 +8,7 @@
+ import { IWantTracer } from './tracer.js';
+ import { type MsgIdFn, type TopicStr, type MsgIdStr, type PeerIdStr, type FastMsgIdFn, type AddrInfo, type DataTransform, type MsgIdToStrFn, type PublishOpts } from './types.js';
+ import type { GossipsubOptsSpec } from './config.js';
+-import type { Direction, PeerId, PeerStore, Message, PublishResult, PubSub, PubSubEvents, PubSubInit, TopicValidatorFn, Logger, ComponentLogger, PrivateKey } from '@libp2p/interface';
++import type { Direction, PeerId, PeerStore, Message, PublishResult, PubSub, PubSubEvents, PubSubInit, TopicValidatorFn, Logger, ComponentLogger, PrivateKey, Libp2pEvents, TypedEventTarget } from '@libp2p/interface';
+ import type { ConnectionManager, Registrar } from '@libp2p/interface-internal';
+ export declare const multicodec: string;
+ export interface GossipsubOpts extends GossipsubOptsSpec, PubSubInit {
+@@ -157,6 +157,7 @@
+     peerStore: PeerStore;
+     registrar: Registrar;
+     connectionManager: ConnectionManager;
++    events: TypedEventTarget<Libp2pEvents>;
+     logger: ComponentLogger;
+ }
+ export declare class GossipSub extends TypedEventEmitter<GossipsubEvents> implements PubSub<GossipsubEvents> {
+@@ -171,6 +172,10 @@
+     readonly streamsInbound: Map<string, InboundStream>;
+     readonly streamsOutbound: Map<string, OutboundStream>;
+     /** Ensures outbound streams are created sequentially */
++    private streamRecoveryAttempts;
++    private streamLifetime;
++    private outboundConnections;
++    private onConnectionClosed;
+     private outboundInflightQueue;
+     /** Direct peers */
+     readonly direct: Set<string>;
+@@ -321,6 +326,9 @@
+     private onPeerDisconnected;
+     private createOutboundStream;
+     private createInboundStream;
++    private retireOutboundStream;
++    private retireInboundStream;
++    private recoverPeerStreams;
+     /**
+      * Add a peer to the router
+      */
+@@ -564,4 +572,3 @@
+ }
+ export declare function gossipsub(init?: Partial<GossipsubOpts>): (components: GossipSubComponents) => PubSub<GossipsubEvents>;
+ export {};
+-//# sourceMappingURL=index.d.ts.map
+\ No newline at end of file
+--- a/dist/src/stream.d.ts
++++ b/dist/src/stream.d.ts
+@@ -3,6 +3,7 @@
+ interface OutboundStreamOpts {
+     /** Max size in bytes for pushable buffer. If full, will throw on .push */
+     maxBufferSize?: number;
++    onClose?: () => void;
+ }
+ interface InboundStreamOpts {
+     /** Max size in bytes for reading messages from the stream */
+@@ -30,4 +31,3 @@
+     close(): Promise<void>;
+ }
+ export {};
+-//# sourceMappingURL=stream.d.ts.map
+\ No newline at end of file
