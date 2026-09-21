@@ -19,6 +19,8 @@ export interface ContextMenuItemProps {
   title: string
   subtitle?: string
   suffix?: string
+  /** Draws the row in the warning colour, as the designs do for Delete channel. */
+  destructive?: boolean
   action: () => void
 }
 

@@ -1,0 +1,22 @@
+{
+  "libsodium": "1.0.19",
+  "sourceSha256": "018d79fe0a045cca07331d37bd0cb57b2e838c51bc48fd837a1472e50068bbea",
+  "napiVersion": 8,
+  "bindingSha256": "24bfd8dc9018e75bd829cab9101f2e271f708817384347fb467e2a8c57b4e6e2",
+  "builderSha256": "ba381f233be3713e8ae1d92eab6699157010ecdf10e1443655ba098c3085ec56",
+  "artifacts": {
+    "iphoneos": {
+      "sha256": "6717cdd6951f40c59d53ea2e28d188b14424a7b01513d6a2295d28d2da30f0c1",
+      "bytes": 250760,
+      "build": "/Users/holmes/quiet-ios-libsodium/packages/backend/platform/native-libsodium/.build/compile-kF91pL/iphoneos/quiet_sodium.node:\nLoad command 9\n      cmd LC_BUILD_VERSION\n  cmdsize 32\n platform IOS\n    minos 17.1\n      sdk 26.2\n   ntools 1\n     tool LD\n  version 1230.1",
+      "dependencies": "/Users/holmes/quiet-ios-libsodium/packages/backend/platform/native-libsodium/.build/compile-kF91pL/iphoneos/quiet_sodium.node:\n\t@rpath/QuietSodium.framework/QuietSodium (compatibility version 0.0.0, current version 0.0.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)"
+    },
+    "iphonesimulator": {
+      "sha256": "b7924c249cc9e56749a4d26143989ab629a895e59235de8e01d64cea3f67f772",
+      "bytes": 236296,
+      "build": "/Users/holmes/quiet-ios-libsodium/packages/backend/platform/native-libsodium/.build/compile-kF91pL/iphonesimulator/quiet_sodium.node:\nLoad command 9\n      cmd LC_BUILD_VERSION\n  cmdsize 32\n platform IOSSIMULATOR\n    minos 17.1\n      sdk 26.2\n   ntools 1\n     tool LD\n  version 1230.1",
+      "dependencies": "/Users/holmes/quiet-ios-libsodium/packages/backend/platform/native-libsodium/.build/compile-kF91pL/iphonesimulator/quiet_sodium.node:\n\t@rpath/QuietSodium.framework/QuietSodium (compatibility version 0.0.0, current version 0.0.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)"
+    }
+  },
+  "xcode": "Xcode 26.3\nBuild version 17C529"
+}

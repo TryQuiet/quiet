@@ -3,7 +3,15 @@
 
 # Sets the minimum version of CMake required to build the native library.
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.13)
+
+# RN's Gradle plugin cannot inject its default CMake file when the app owns one.
+# Build appmodules with RN's generated component descriptors and module providers
+# alongside the independent Node bridge below.
+project(appmodules)
+if(DEFINED REACT_ANDROID_DIR)
+    include(${REACT_ANDROID_DIR}/cmake-utils/ReactNative-application.cmake)
+endif()
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -21,8 +29,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/rn-bridge.cpp
            )
 
-include_directories(libnode/include/node/)
-include_directories(src/main/cpp/)
+target_include_directories(own-native-lib PRIVATE libnode/include/node/ src/main/cpp/)
+target_compile_features(own-native-lib PRIVATE cxx_std_20)
 
 add_library( libnode
              SHARED

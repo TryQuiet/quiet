@@ -15,24 +15,23 @@ describe('Appbar component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          [
-            {
-              "alignItems": "center",
-              "backgroundColor": "#ffffff",
-              "borderBottomColor": "#F0F0F0",
-              "borderBottomWidth": 1,
-              "display": "flex",
-              "flexDirection": "row",
-              "justifyContent": "center",
-              "maxHeight": 52,
-              "minHeight": 52,
-            },
-          ]
+          {
+            "alignItems": "center",
+            "backgroundColor": "#ffffff",
+            "borderBottomColor": "#F0F0F0",
+            "borderBottomWidth": 1,
+            "display": "flex",
+            "flexDirection": "row",
+            "justifyContent": "center",
+            "maxHeight": 64,
+            "minHeight": 60,
+          }
         }
       >
         <View
           style={
             {
+              "alignSelf": "stretch",
               "flex": 1,
             }
           }
@@ -60,6 +59,14 @@ describe('Appbar component', () => {
             accessible={true}
             collapsable={false}
             focusable={true}
+            hitSlop={
+              {
+                "bottom": 8,
+                "left": 8,
+                "right": 8,
+                "top": 8,
+              }
+            }
             onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
@@ -69,6 +76,7 @@ describe('Appbar component', () => {
             onStartShouldSetResponder={[Function]}
             style={
               {
+                "flex": 1,
                 "opacity": 1,
               }
             }
@@ -78,8 +86,9 @@ describe('Appbar component', () => {
               style={
                 {
                   "alignItems": "center",
-                  "height": 50,
+                  "flex": 1,
                   "justifyContent": "center",
+                  "minHeight": 44,
                   "width": 64,
                 }
               }
@@ -117,15 +126,13 @@ describe('Appbar component', () => {
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Medium",
-                  "fontSize": 16,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-              ]
+              {
+                "color": "#000000",
+                "fontFamily": "Rubik-Medium",
+                "fontSize": 16,
+                "textAlign": "left",
+                "textAlignVertical": "center",
+              }
             }
             verticalTextAlign="center"
           >
@@ -135,6 +142,7 @@ describe('Appbar component', () => {
         <View
           style={
             {
+              "alignSelf": "stretch",
               "flex": 1,
             }
           }
@@ -159,24 +167,23 @@ describe('Appbar component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          [
-            {
-              "alignItems": "center",
-              "backgroundColor": "#ffffff",
-              "borderBottomColor": "#F0F0F0",
-              "borderBottomWidth": 1,
-              "display": "flex",
-              "flexDirection": "row",
-              "justifyContent": "center",
-              "maxHeight": 52,
-              "minHeight": 52,
-            },
-          ]
+          {
+            "alignItems": "center",
+            "backgroundColor": "#ffffff",
+            "borderBottomColor": "#F0F0F0",
+            "borderBottomWidth": 1,
+            "display": "flex",
+            "flexDirection": "row",
+            "justifyContent": "center",
+            "maxHeight": 64,
+            "minHeight": 60,
+          }
         }
       >
         <View
           style={
             {
+              "alignSelf": "stretch",
               "flex": 1,
             }
           }
@@ -202,6 +209,14 @@ describe('Appbar component', () => {
             accessible={true}
             collapsable={false}
             focusable={true}
+            hitSlop={
+              {
+                "bottom": 8,
+                "left": 8,
+                "right": 8,
+                "top": 8,
+              }
+            }
             onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
@@ -211,6 +226,7 @@ describe('Appbar component', () => {
             onStartShouldSetResponder={[Function]}
             style={
               {
+                "flex": 1,
                 "opacity": 1,
               }
             }
@@ -220,8 +236,9 @@ describe('Appbar component', () => {
               style={
                 {
                   "alignItems": "center",
-                  "height": 50,
+                  "flex": 1,
                   "justifyContent": "center",
+                  "minHeight": 44,
                   "width": 64,
                 }
               }
@@ -243,19 +260,17 @@ describe('Appbar component', () => {
                   fontSize={14}
                   horizontalTextAlign="left"
                   style={
-                    [
-                      {
-                        "color": "#ffffff",
-                        "fontFamily": "Rubik-Regular",
-                        "fontSize": 14,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "color": "#ffffff",
+                      "fontFamily": "Rubik-Regular",
+                      "fontSize": 14,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    }
                   }
                   verticalTextAlign="center"
                 >
-                  qu
+                  Q
                 </Text>
               </View>
             </View>
@@ -275,15 +290,13 @@ describe('Appbar component', () => {
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Medium",
-                  "fontSize": 16,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-              ]
+              {
+                "color": "#000000",
+                "fontFamily": "Rubik-Medium",
+                "fontSize": 16,
+                "textAlign": "left",
+                "textAlignVertical": "center",
+              }
             }
             verticalTextAlign="center"
           >
@@ -293,6 +306,7 @@ describe('Appbar component', () => {
         <View
           style={
             {
+              "alignSelf": "stretch",
               "flex": 1,
             }
           }
@@ -320,6 +334,14 @@ describe('Appbar component', () => {
             accessible={true}
             collapsable={false}
             focusable={true}
+            hitSlop={
+              {
+                "bottom": 8,
+                "left": 8,
+                "right": 8,
+                "top": 8,
+              }
+            }
             onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
@@ -329,6 +351,7 @@ describe('Appbar component', () => {
             onStartShouldSetResponder={[Function]}
             style={
               {
+                "flex": 1,
                 "opacity": 1,
               }
             }
@@ -338,8 +361,9 @@ describe('Appbar component', () => {
               style={
                 {
                   "alignItems": "center",
-                  "height": 50,
+                  "flex": 1,
                   "justifyContent": "center",
+                  "minHeight": 44,
                   "width": 64,
                 }
               }
@@ -359,6 +383,7 @@ describe('Appbar component', () => {
                     "width": 16,
                   }
                 }
+                tintColor="#000000"
               />
             </View>
           </View>
@@ -378,9 +403,12 @@ describe('Appbar component', () => {
 
     const submitButtonView = getByTestId('submit').children[0] as ReactTestInstance
 
+    // The bar's own minimum, from Appbar's TOUCH_TARGET: 44 square, the smallest target the
+    // accessibility guidelines accept. develop asserted its own 64x50 box here; the merge kept
+    // this branch's geometry, which states the minimum rather than a fixed size.
     expect(submitButtonView.props.style).toMatchObject({
-      minWidth: 64,
-      height: 50,
+      minWidth: 44,
+      minHeight: 44,
     })
   })
 })
