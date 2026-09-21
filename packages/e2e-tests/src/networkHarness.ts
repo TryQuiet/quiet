@@ -179,10 +179,40 @@ async function throughput(
 ): Promise<number> {
   const address = control ? player.host : player.dataIP
   const server = spawn('sudo', ['-n', 'ip', 'netns', 'exec', player.namespace, 'iperf3', '-s', '-1', '-B', address], {
-    stdio: 'ignore',
+    stdio: ['ignore', 'ignore', 'pipe'],
+  })
+  let serverClosed = false
+  let serverError: Error | undefined
+  let serverOutput = ''
+  server.once('close', () => {
+    serverClosed = true
+  })
+  server.once('error', error => {
+    serverError = error
+  })
+  server.stderr!.on('data', data => {
+    serverOutput = (serverOutput + data).slice(-4096)
   })
   try {
-    await sleep(300)
+    const deadline = Date.now() + 10_000
+    let listening = false
+    while (!listening) {
+      if (signal?.aborted) throw new Error('Bandwidth check cancelled')
+      if (serverError) throw serverError
+      if (serverClosed) throw new Error(`Bandwidth server exited before listening: ${serverOutput}`)
+      // Inspect the socket without connecting: a TCP readiness probe would
+      // consume this one-shot server before the actual measurement starts.
+      const readinessOptions = { timeout: 2000, signal }
+      const { stdout } = await execute(
+        'sudo',
+        ['-n', 'ip', 'netns', 'exec', player.namespace, 'ss', '-H', '-ltn', 'sport = :5201'],
+        readinessOptions
+      )
+      listening = stdout.includes(`${address}:5201`)
+      if (listening) break
+      if (Date.now() >= deadline) throw new Error(`Bandwidth server did not listen within 10 seconds: ${serverOutput}`)
+      await sleep(50)
+    }
     if (signal?.aborted) throw new Error('Bandwidth check cancelled')
     const options = { timeout: 60_000, signal }
     const { stdout } = await execute('iperf3', ['-c', address, '-t', '5', '-J', ...(reverse ? ['-R'] : [])], options)
@@ -190,7 +220,22 @@ async function throughput(
     if (data.error) throw new Error(data.error)
     return data.end.sum_received.bits_per_second
   } finally {
-    server.kill('SIGTERM')
+    if (!serverClosed) {
+      // Reusing the port before the previous server exits can connect the next
+      // measurement to a dying server (iperf 3.9 reports "Bad file descriptor").
+      server.kill('SIGTERM')
+      await new Promise<void>((resolve, reject) => {
+        const onClose = () => {
+          clearTimeout(timer)
+          resolve()
+        }
+        const timer = setTimeout(() => {
+          server.off('close', onClose)
+          reject(new Error('Bandwidth server did not stop within 2 seconds'))
+        }, 2000)
+        server.once('close', onClose)
+      })
+    }
   }
 }
 

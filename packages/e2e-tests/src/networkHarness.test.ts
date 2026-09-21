@@ -1,4 +1,4 @@
-import { execFileSync, spawn } from 'child_process'
+import childProcess, { execFileSync, spawn } from 'child_process'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
@@ -30,6 +30,30 @@ function expectStopped(pid: number): void {
 }
 
 suite('Linux network harness (real kernel interfaces and processes)', () => {
+  it('waits for slow-starting bandwidth servers before measuring real TCP traffic', async () => {
+    const network = new NetworkHarness()
+    const forwarding = fs.readFileSync('/proc/sys/net/ipv4/ip_forward', 'utf8')
+    const realSpawn = childProcess.spawn
+    const delayedServer = jest.spyOn(childProcess, 'spawn').mockImplementation((command, args = [], options = {}) => {
+      if (command === 'sudo' && args?.includes('iperf3') && args.includes('-s')) {
+        const index = args.indexOf('iperf3')
+        return realSpawn(
+          command,
+          [...args.slice(0, index), 'sh', '-c', 'sleep 1; exec iperf3 "$@"', 'iperf3', ...args.slice(index + 1)],
+          options
+        )
+      }
+      return realSpawn(command, args, options)
+    })
+    try {
+      await verifyBandwidth(network.setup())
+    } finally {
+      delayedServer.mockRestore()
+      network.close()
+    }
+    expectRemoved(network.players, forwarding)
+  }, 120_000)
+
   it('limits both directions independently, leaves WebDriver/other player fast, and restores speed', async () => {
     const network = new NetworkHarness()
     const forwarding = fs.readFileSync('/proc/sys/net/ipv4/ip_forward', 'utf8')
