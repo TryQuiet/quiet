@@ -33,6 +33,19 @@ export interface TorControlParams {
   }
 }
 
+export interface TorControlCredentialsWaiter {
+  promise: Promise<void>
+  resolve: () => void
+  reject: (error: Error) => void
+}
+
+export interface TorControlResponse {
+  code: number
+  messages: string[]
+}
+
+export type TorControlEventMatcher = (event: string, response: TorControlResponse) => boolean
+
 export interface IParams {
   port: number
   family: number
@@ -62,6 +75,8 @@ export interface HiddenServiceData {
   onionAddress: string
 }
 
+export type SpawnHiddenServiceParams = Omit<HiddenServiceData, 'virtPort'> & { virtPort?: number }
+
 export type BootstrapStatus = {
   rawMessage: string
   done: boolean
@@ -69,11 +84,20 @@ export type BootstrapStatus = {
   tag?: string
   warning?: string
   reason?: string
+  /**
+   * Tor's own advice about the warning it just reported: `ignore` means Tor is
+   * retrying and expects to recover, `warn` that the user should be told.
+   */
+  recommendation?: string
 }
 
 export type BootstrapStallState = {
-  progress?: number
+  /** Progress as last reported. Any change to it counts as movement. */
+  progress: number
   tag?: string
-  firstObservedAt: number
-  timeoutWarningCount: number
+  /** When progress last changed - the clock a stall is measured against. */
+  lastProgressAt: number
+  /** Warnings Tor told us to ignore. Logged, never a reason to restart. */
+  ignorableWarningCount: number
+  lastSlowLogAt: number
 }

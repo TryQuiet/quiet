@@ -12,6 +12,7 @@ import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
 import Markdown, { MarkdownIt, type ASTNode, hasParents } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
+import { TouchableOpacity } from 'react-native'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 import { DateTime } from 'luxon'
 import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
@@ -31,18 +32,19 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
       alt={"Message author's profile image"}
     />
   ) : (
-    <Jdenticon value={message.userId} size={37} />
+    <Jdenticon value={message.userId} size={37} borderRadius={4} />
   )
 }
 
 const MessageInner: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
-  downloadStatus,
+  downloadStatuses,
   maxAutodownloadSizeBytes,
   downloadFile,
   cancelDownload,
   openImagePreview,
   openUrl,
+  openUserProfile,
   pendingMessages,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
@@ -70,7 +72,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             ) : (
               <FileAttachment
                 message={message}
-                downloadStatus={downloadStatus}
+                downloadStatus={downloadStatuses?.[message.id]}
                 downloadFile={downloadFile}
                 cancelDownload={cancelDownload}
               />
@@ -83,7 +85,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
         return (
           <FileAttachment
             message={message}
-            downloadStatus={downloadStatus}
+            downloadStatus={downloadStatuses?.[message.id]}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
           />
@@ -191,16 +193,29 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
               style={{ width: 37, height: 37 }}
             />
           ) : (
-            <MessageProfilePhoto message={representativeMessage} />
+            // A message is where you most often meet someone, so the photo and the name are the
+            // way to their profile. An Info message is from Quiet itself and has nobody behind it.
+            <TouchableOpacity
+              onPress={() => openUserProfile?.(representativeMessage.userId)}
+              disabled={openUserProfile == null}
+              testID={`message-author-photo-${representativeMessage.id}`}
+            >
+              <MessageProfilePhoto message={representativeMessage} />
+            </TouchableOpacity>
           )}
         </View>
         <View style={{ flex: 8 }}>
           <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
-            <View style={{ alignSelf: 'flex-start' }}>
+            <TouchableOpacity
+              style={{ alignSelf: 'flex-start' }}
+              onPress={() => openUserProfile?.(representativeMessage.userId)}
+              disabled={info || openUserProfile == null}
+              testID={`message-author-name-${representativeMessage.id}`}
+            >
               <Typography fontSize={16} fontWeight={'medium'} color={pending ? 'lightGray' : 'main'}>
                 {info ? 'Quiet' : representativeMessage.nickname}
               </Typography>
-            </View>
+            </TouchableOpacity>
 
             {userLabel && !info && (
               <View>
@@ -227,6 +242,9 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
           </View>
           <View style={{ flexShrink: 1 }}>
             {data.map((message: DisplayableMessage, index: number) => {
+              if (message.type === MessageType.Empty) {
+                return <></>
+              }
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>

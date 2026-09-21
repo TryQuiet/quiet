@@ -3,7 +3,7 @@ import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type FactoryGirl } from 'factory-girl'
-import { generateTestChannelId, createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
+import { generateTestChannelId, createdChannelMessage, verifyUserInfoMessage } from '@quiet/common'
 import { DateTime } from 'luxon'
 import {
   type Community,
@@ -11,6 +11,7 @@ import {
   MessageType,
   type PublicChannel,
   MessagesLoadedPayload,
+  type ConsumedChannelMessage,
   UserProfile,
   User,
 } from '@quiet/types'
@@ -115,28 +116,66 @@ describe('verifyMessage saga test', () => {
       .run()
   })
 
-  it('verify standard message - fail', async () => {
-    logger.info('verify standard message')
+  it('does not promote a known-author message rejected by backend signature verification', async () => {
     const action = await factory.build('AddMessages', {
       messages: [
         await baseTypes.build('ChannelMessage', {
-          userId: 'unknownUser',
+          userId: owner.userId,
           channelId: generalChannel.id,
           type: MessageType.Basic,
+          verified: false,
         }),
       ],
-      isVerified: false,
+      // A blanket batch assertion must not override the per-message rejection.
+      isVerified: true,
+      isLocal: false,
     })
+    const message = action.payload.messages[0]
 
     await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
-      .put(
+      .not.select(userProfileSelectors.getUserProfileById(message.userId))
+      .not.put(
         messagesActions.addMessageVerificationStatus({
-          id: action.payload.messages[0].id,
-          isVerified: false,
+          id: message.id,
+          isVerified: true,
         })
       )
+      .run()
+  })
+
+  it.each([
+    ['an explicit rejection', false],
+    ['no preserved verdict', undefined],
+  ])('does not promote a known-author retry carrying %s', async (_label, verified) => {
+    const message = (await baseTypes.build('ChannelMessage', {
+      userId: owner.userId,
+      channelId: generalChannel.id,
+      type: MessageType.Basic,
+      ...(verified === undefined ? {} : { verified }),
+    })) as ConsumedChannelMessage
+
+    await expectSaga(verifyMessagesSaga, messagesActions.verifyMessages({ messages: [message], isVerified: false }))
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .not.select(userProfileSelectors.getUserProfileById(message.userId))
+      .not.put(messagesActions.addMessageVerificationStatus({ id: message.id, isVerified: true }))
+      .run()
+  })
+
+  it('still allows semantic retry when the valid backend verdict was preserved', async () => {
+    const message = (await baseTypes.build('ChannelMessage', {
+      userId: owner.userId,
+      channelId: generalChannel.id,
+      type: MessageType.Basic,
+      verified: true,
+    })) as ConsumedChannelMessage
+
+    await expectSaga(verifyMessagesSaga, messagesActions.verifyMessages({ messages: [message], isVerified: false }))
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .put(messagesActions.addMessageVerificationStatus({ id: message.id, isVerified: true }))
       .run()
   })
 
@@ -191,15 +230,27 @@ describe('verifyMessage saga test', () => {
       .run()
   })
 
-  it('verify info message from user on general - success', async () => {
-    logger.info('verify info message from user on general - success')
+  it.each<[string, boolean]>([
+    ['**@bob** has joined! 🎉', true],
+    [
+      '**@bob** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)',
+      true,
+    ],
+    ['**@alice** has joined! 🎉', false],
+    [
+      '**@alice** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)',
+      false,
+    ],
+    ['**@bob** has joined! 🎉 extra text', false],
+    ['**@bob** has joined! 🎉\n', false],
+  ])('verifies join message %s as %s', async (message, isVerified) => {
     const action = await factory.build('AddMessages', {
       messages: [
         await baseTypes.build('ChannelMessage', {
           userId: bobProfile.userId,
           channelId: generalChannel.id,
           type: MessageType.Info,
-          message: userJoinedMessage(bobProfile.nickname),
+          message,
         }),
       ],
       isVerified: true,
@@ -212,7 +263,7 @@ describe('verifyMessage saga test', () => {
       .put(
         messagesActions.addMessageVerificationStatus({
           id: action.payload.messages[0].id,
-          isVerified: true,
+          isVerified,
         })
       )
       .run()

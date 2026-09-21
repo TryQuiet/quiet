@@ -108,15 +108,14 @@ export class PublicChannelMessagesService extends BaseMessagesService {
     try {
       const decryptedMessage = chain.crypto.decryptAndVerify<EncryptableMessageComponents>(
         encryptedMessage.contents,
-        encryptedMessage.encSignature,
-        false
+        encryptedMessage.encSignature
       )
       return {
         ...decryptedMessage.contents,
         userId: decryptedMessage.contents.userId,
         createdAt: decryptedMessage.contents.createdAt,
         encSignature: encryptedMessage.encSignature,
-        verified: decryptedMessage.isValid,
+        verified: true,
       }
     } catch (e) {
       throw new CompoundError(`Failed to decrypt message with error`, e)

@@ -38,8 +38,11 @@ import {
   LaunchCommunityPayload,
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
+  ClearConnectedPeersPayload,
   UpdateCommunityPayload,
   type SetChannelPermissionsPayload,
+  type AdmissionResetCompletePayload,
+  type NetworkEndpointsStoredEvent,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -67,6 +70,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
+    | ReturnType<typeof publicChannelsActions.syncChannelDisplayNames>
     | ReturnType<typeof publicChannelsActions.setChannelPermissions>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
@@ -76,10 +80,13 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof communitiesActions.updateCommunityData>
     | ReturnType<typeof communitiesActions.setCurrentCommunity>
+    | ReturnType<typeof communitiesActions.admissionResetCompleted>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.removeConnectedPeer>
+    | ReturnType<typeof networkActions.clearConnectedPeers>
     | ReturnType<typeof connectionActions.setNetworkData>
     | ReturnType<typeof connectionActions.updateNetworkData>
+    | ReturnType<typeof connectionActions.setNetworkEndpoints>
     | ReturnType<typeof networkActions.addConnectedPeers>
     | ReturnType<typeof filesActions.broadcastHostedFile>
     | ReturnType<typeof filesActions.updateMessageMedia>
@@ -110,8 +117,12 @@ export function subscribe(socket: Socket) {
       emit(networkActions.addInitializedCommunity(payload.id))
     })
     socket.on(SocketEvents.COMMUNITY_UPDATED, (payload: UpdateCommunityPayload) => {
-      logger.info(`${SocketEvents.COMMUNITY_UPDATED}`, payload)
+      logger.info(`${SocketEvents.COMMUNITY_UPDATED}`, payload.id, Object.keys(payload.updates))
       emit(communitiesActions.updateCommunityData(payload))
+    })
+    socket.on(SocketEvents.ADMISSION_RESET_COMPLETE, (payload: AdmissionResetCompletePayload) => {
+      logger.info(`${SocketEvents.ADMISSION_RESET_COMPLETE}`, payload.id, payload.invitationType)
+      emit(communitiesActions.admissionResetCompleted(payload))
     })
     socket.on(SocketEvents.TOR_INITIALIZED, () => {
       logger.info(`${SocketEvents.TOR_INITIALIZED}`)
@@ -130,6 +141,10 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.onConnectionProcessInfo(payload))
     })
     // Misc
+    socket.on(SocketEvents.PEER_CLEAR, (payload: ClearConnectedPeersPayload) => {
+      logger.info(`${SocketEvents.PEER_CLEAR}`, payload)
+      emit(networkActions.clearConnectedPeers(payload))
+    })
     socket.on(SocketEvents.PEER_CONNECTED, (payload: NetworkDataPayload) => {
       logger.info(`${SocketEvents.PEER_CONNECTED}`, payload)
       emit(networkActions.addConnectedPeers([payload.peer]))
@@ -165,6 +180,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
       logger.info(`${SocketEvents.CHANNELS_STORED}`, payload)
       emit(publicChannelsActions.channelsReplicated(payload))
+      emit(publicChannelsActions.syncChannelDisplayNames())
     })
     socket.on(SocketEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       logger.info(`${SocketEvents.CHANNEL_SUBSCRIBED}`, payload)
@@ -206,6 +222,7 @@ export function subscribe(socket: Socket) {
         payload.users.map(user => user.userId)
       )
       emit(usersActions.setUsers(payload.users))
+      emit(publicChannelsActions.syncChannelDisplayNames())
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
 
@@ -218,6 +235,11 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
       emit(usersActions.updateUserProfiles(payload.profiles))
       emit(messagesActions.retryVerification({ currentChannel: true }))
+      emit(publicChannelsActions.syncChannelDisplayNames())
+    })
+    socket.on(SocketEvents.NETWORK_ENDPOINTS_STORED, (payload: NetworkEndpointsStoredEvent) => {
+      logger.info(`${SocketEvents.NETWORK_ENDPOINTS_STORED}`, payload.endpoints.length)
+      emit(connectionActions.setNetworkEndpoints(payload))
     })
     socket.on(
       SocketEvents.CACHED_USER_PROFILE_REQUEST,
@@ -251,6 +273,8 @@ export function subscribe(socket: Socket) {
 
     return () => {
       socket.off(SocketEvents.COMMUNITY_LAUNCHED)
+      socket.off(SocketEvents.COMMUNITY_UPDATED)
+      socket.off(SocketEvents.ADMISSION_RESET_COMPLETE)
       socket.off(SocketEvents.TOR_INITIALIZED)
       socket.off(SocketEvents.QSS_CONNECTED)
       socket.off(SocketEvents.QSS_DISCONNECTED)
@@ -271,6 +295,7 @@ export function subscribe(socket: Socket) {
       socket.off(SocketEvents.USERS_UPDATED)
       socket.off(SocketEvents.USERS_REMOVED)
       socket.off(SocketEvents.USER_PROFILES_STORED)
+      socket.off(SocketEvents.NETWORK_ENDPOINTS_STORED)
       socket.off(SocketEvents.CACHED_USER_PROFILE_REQUEST)
       socket.off(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST)
       socket.off(SocketEvents.HCAPTCHA_SITE_KEY)

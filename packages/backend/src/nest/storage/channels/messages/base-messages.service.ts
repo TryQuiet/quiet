@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 
-import { ChannelMessage, ConsumedChannelMessage, type PublicChannel } from '@quiet/types'
+import { ChannelMessage, ChannelType, ConsumedChannelMessage, MessageType, type PublicChannel } from '@quiet/types'
 
 import { createLogger } from '../../../common/logger'
 import { SigChainService } from '../../../auth/sigchain.service'
@@ -57,6 +57,10 @@ export class BaseMessagesService extends EventEmitter {
     encryptedMessage: EncryptedMessage,
     channel: PublicChannel
   ): boolean {
+    if (decryptedMessage.verified !== true) {
+      this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: signature was invalid`)
+      return false
+    }
     if (decryptedMessage.id !== encryptedMessage.id) {
       this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: IDs do not match`)
       return false
@@ -65,11 +69,40 @@ export class BaseMessagesService extends EventEmitter {
       this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: message shape is not valid`)
       return false
     }
-    if (!channel.public && channel.roleName == null) {
+    if (
+      (decryptedMessage.type === MessageType.File || decryptedMessage.type === MessageType.Image) &&
+      (decryptedMessage.media?.message.id !== decryptedMessage.id ||
+        decryptedMessage.media.message.channelId !== decryptedMessage.channelId)
+    ) {
+      this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: attachment metadata is not bound to its message`)
+      return false
+    }
+    if (channel.type === ChannelType.DM) {
+      if (
+        channel.public !== false ||
+        channel.roleName != null ||
+        encryptedMessage.contents.scope.type !== 'DM' ||
+        encryptedMessage.contents.scope.name !== channel.id ||
+        !channel.memberIds?.includes(decryptedMessage.userId)
+      )
+        return false
+      if (
+        decryptedMessage.media &&
+        (decryptedMessage.media.enc?.recipient.type !== 'DM' ||
+          decryptedMessage.media.enc.recipient.name !== channel.id ||
+          decryptedMessage.media.enc.recipient.generation !== 0)
+      )
+        return false
+    }
+    if (channel.type !== ChannelType.DM && !channel.public && channel.roleName == null) {
       this.logger.warn(`Channel role name was nullish but channel is private`)
       return false
     }
-    if (!channel.public && channel.roleName !== encryptedMessage.contents.scope.name) {
+    if (
+      channel.type !== ChannelType.DM &&
+      !channel.public &&
+      channel.roleName !== encryptedMessage.contents.scope.name
+    ) {
       this.logger.warn(`Channel role name didn't match the role name that encrypted the message`)
       return false
     }

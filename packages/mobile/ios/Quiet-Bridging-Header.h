@@ -10,6 +10,7 @@
 
 // Import AppDelegate to make it visible to Swift
 #import "AppDelegate.h"
+#import "NodeJsMobile/NodeRunner.hpp"
 
 // React Native Bridge
 #import <React/RCTBridgeModule.h>

@@ -3,12 +3,14 @@
  */
 
 import { type LogEntry, type IdentitiesType, CanAppendFunc } from '@orbitdb/core'
+import { getVerifiedEntryWriter } from '../../../orbitDb/identity/lfa/entry-writer'
 import { NoCryptoEngineError } from '@quiet/types'
 import { EncryptedMessage } from '../messages.types'
 import { SigChainService } from '../../../../auth/sigchain.service'
 import { AccessControllerConfig, BaseMessagesAccessController } from './BaseMessageAccessController'
 import { Injectable } from '@nestjs/common'
 import { isEncryptedMessage } from '../../../../validation/validators'
+import { EncryptionScopeType } from '../../../../auth/services/crypto/types'
 
 const TYPE = 'privatemessagesaccess'
 
@@ -16,6 +18,7 @@ export interface PrivateAccessControllerConfig extends AccessControllerConfig {
   channelId: string
   teamId: string
   roleName: string
+  directMessage?: boolean
 }
 
 @Injectable()
@@ -28,17 +31,13 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
     return async (entry: LogEntry<EncryptedMessage>): Promise<boolean> => {
       if (!crypto) throw new NoCryptoEngineError()
 
-      const writerIdentity = await identities.getIdentity(entry.identity)
-      if (!writerIdentity) {
+      const writerIdentity = await getVerifiedEntryWriter(identities, entry)
+      if (writerIdentity == null) {
         return false
       }
 
       const { id } = writerIdentity
-      if (config.write.includes(id) || config.write.includes('*')) {
-        if (!(await identities.verifyIdentity(writerIdentity))) {
-          return false
-        }
-      } else {
+      if (!config.write.includes(id) && !config.write.includes('*')) {
         return false
       }
 
@@ -52,7 +51,7 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      if (entry.payload.value.teamId != null && entry.payload.value.teamId !== config.teamId) {
+      if (entry.payload.value.teamId !== config.teamId) {
         this.logger.error(`Entry ${entry.payload.value.id} is from a different team`)
         return false
       }
@@ -62,10 +61,29 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
+      if (
+        id !== entry.payload.value.encSignature.author.name ||
+        writerIdentity.teamId !== config.teamId ||
+        entry.payload.value.encSignature.author.type !== EncryptionScopeType.USER
+      ) {
+        this.logger.warn(`Message writer identity did not match the encrypted-signature author`)
+        return false
+      }
+
       const sigchain = config.sigchainService.getChain(config.teamId, false)
       if (sigchain == null) {
         this.logger.warn(`User is not a member of this team or team hasn't been initialized, sigchain was nullish`)
         return false
+      }
+
+      if (config.directMessage) {
+        try {
+          if (entry.payload.op !== 'ADD') return false
+          sigchain.directMessages.openMessage(entry.payload.value, config.channelId)
+          return true
+        } catch {
+          return false
+        }
       }
 
       if (!sigchain.channels.memberInChannel(id, config.roleName)) {
@@ -78,7 +96,10 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      if (config.roleName !== entry.payload.value.contents.scope.name) {
+      if (
+        entry.payload.value.contents.scope.type !== EncryptionScopeType.ROLE ||
+        config.roleName !== entry.payload.value.contents.scope.name
+      ) {
         this.logger.warn(`Message was encrypted to a different scope than the one configured on the channel`)
         return false
       }

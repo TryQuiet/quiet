@@ -2,8 +2,14 @@ import { styled, Switch, SwitchProps } from '@mui/material'
 import React from 'react'
 
 /**
- * Modified from https://v5.mui.com/material-ui/react-switch/#customization to more closely match the figma
+ * Modified from https://v5.mui.com/material-ui/react-switch/#customization to match the design
+ * library's Toggle (Figma 0j7Nna9zWmfOSNmRmQK1Uh, "Toggle"): 52 x 32 with a 28 knob, off on
+ * #F0F0F0 inside a 2px #E5E5E5 hairline, on in #80B857, and a white knob outlined at 0.5px.
  */
+const TOGGLE_OFF = '#F0F0F0'
+const TOGGLE_OFF_BORDER = '#E5E5E5'
+const TOGGLE_ON = '#80B857'
+
 export const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName='.Mui-focusVisible' disableRipple {...props} />
 ))(({ theme }) => ({
@@ -18,7 +24,7 @@ export const IOSSwitch = styled((props: SwitchProps) => (
       transform: 'translateX(20px)',
       color: '#fff',
       '& + .MuiSwitch-track': {
-        backgroundColor: theme.palette.mode === 'dark' ? '#2ECA45' : '#65C466',
+        backgroundColor: TOGGLE_ON,
         opacity: 1,
         border: 0,
       },
@@ -41,10 +47,12 @@ export const IOSSwitch = styled((props: SwitchProps) => (
     boxSizing: 'border-box',
     width: 28,
     height: 28,
+    border: '0.5px solid rgba(0, 0, 0, 0.2)',
   },
   '& .MuiSwitch-track': {
     borderRadius: 32 / 2,
-    backgroundColor: theme.palette.mode === 'light' ? '#E9E9EA' : '#39393D',
+    backgroundColor: TOGGLE_OFF,
+    border: `2px solid ${TOGGLE_OFF_BORDER}`,
     opacity: 1,
     transition: theme.transitions.create(['background-color'], {
       duration: 500,

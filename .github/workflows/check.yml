@@ -3,9 +3,13 @@ name: Check
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   check:
-    timeout-minutes: 25
+    timeout-minutes: 45
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -18,7 +22,11 @@ jobs:
 
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
+
+      - name: "Validate workflow concurrency policy"
+        run: node scripts/check-workflow-concurrency.test.mjs
 
       - name: "Remove test files workaround (jest types conflicting with cypress types)"
         if: ${{ runner.os == 'Windows' }}

@@ -1,0 +1,13 @@
+This patch to `@chainsafe/libp2p-gossipsub@14.1.0` was developed for Quiet and then compared with [upstream libp2p PR 3531](https://github.com/libp2p/js-libp2p/pull/3531), commit `7ae12f9b0a6ca49b854afdd5457211eabf00e8a9`. It changes stream lifecycle handling without changing the wire protocol or dependency version.
+
+The original router stores streams by peer. When two physical connections overlap, closing the older connection can leave its outbound stream cached while the replacement connection remains open. Subscription messages then target the closed stream. A delayed inbound reader error can also remove the replacement's state.
+
+The upstream fix evicts the current outbound wrapper when its stream closes. Version 14 has an async-iterable duplex API, so this patch observes normal/error pipe completion instead of the newer stream `close` event. It uses the same wrapper-identity check and removes the floodsub/metric bookkeeping. This is an adaptation, not a literal backport of the whole patch.
+
+A v2 sink can still be completing after its physical transport has closed. The held-sink regression demonstrates that completion alone leaves the aborted outbound wrapper cached. One outbound-owner map and a service-lifetime-managed `connection:close` listener cover that boundary; delayed completion still cannot retire the replacement.
+
+Quiet additionally reuses the existing serialized queue and subscription replay to recover on a surviving connection. The already-subscribed-peer regression fails with eviction alone because the replacement's identify callback has already fired. There is no heartbeat retry loop: each transport gets one recovery attempt until an inbound RPC establishes progress. Separate regressions cover stale inbound callbacks, unrelated peers, repeated resets and a negotiated stream completing after stop/start. The independent integration test also verifies signed auth-graph updates and historical OrbitDB messages across symmetric and asymmetric transport closure.
+
+`scripts/apply-gossipsub-patch.cjs` verifies the exact pinned package and source/runtime/declaration hashes before applying the patch. It also accepts an already-patched installation. Normal build, webpack and CI test commands verify it even when dependencies come from a cache. A dependency symlink must first be replaced with a private package copy; the installer never patches another checkout through that link.
+
+Patched generated files omit their original source-map references because their line positions have changed. Source, executable JavaScript and declarations are included in the patch.

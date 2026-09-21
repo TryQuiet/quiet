@@ -3,6 +3,10 @@ name: Desktop tests
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   desktop-tests:
     timeout-minutes: 25
@@ -32,7 +36,8 @@ jobs:
       - uses: actions/checkout@v5
         if: steps.filter.outputs.desktop == 'true'
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env

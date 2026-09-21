@@ -17,7 +17,7 @@ import { navigationRef } from '../../RootNavigation'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { RootStackParamList } from '../../route.params'
 import { ChannelScreen } from '../../screens/Channel/Channel.screen'
-import { ChannelListScreen } from '../../screens/ChannelList/ChannelList.screen'
+import { AppHomeScreen } from '../../screens/AppHome/AppHome.screen'
 import { allReducers } from '../../store/root.reducer'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { navigationSaga } from '../../store/navigation/navigation/navigation.saga'
@@ -136,8 +136,8 @@ const FixtureContent = ({ reset }: { reset: () => void }) => {
           </View>
         </View>
         <NavigationContainer independent ref={navigationRef}>
-          <Stack.Navigator initialRouteName={ScreenNames.ChannelListScreen} screenOptions={{ headerShown: false }}>
-            <Stack.Screen name={ScreenNames.ChannelListScreen} component={ChannelListScreen} />
+          <Stack.Navigator initialRouteName={ScreenNames.AppHomeScreen} screenOptions={{ headerShown: false }}>
+            <Stack.Screen name={ScreenNames.AppHomeScreen} component={AppHomeScreen} />
             <Stack.Screen name={ScreenNames.ChannelScreen} component={ChannelScreen} />
           </Stack.Navigator>
         </NavigationContainer>

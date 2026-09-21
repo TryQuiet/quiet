@@ -19,6 +19,8 @@ import {
   DownloadFilePayload,
   GetMessagesPayload,
   InitCommunityPayload,
+  type InitDeviceLinkPayload,
+  type RequestDeviceLinkPayload,
   MessagesLoadedPayload,
   SendMessagePayload,
   SocketActions,
@@ -33,6 +35,7 @@ import {
   InvitationData,
   InvitationPair,
   InvitationDataVersion,
+  InvitationKind,
   DeleteChannelPayload,
   ErrorPayload,
   ConnectionProcessInfo,
@@ -48,6 +51,7 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   AddMembersChannelStatus,
+  ChannelType,
   FileMessage,
   FileEncryptionMetadata,
   UserProfilesUpdatedPayload,
@@ -56,6 +60,7 @@ import {
   type InvitationAuthDataV4,
   type SetChannelPermissionsPayload,
   type TestMessage,
+  type ConsumedChannelMessage,
 } from '@quiet/types'
 import { createLogger } from '../logger'
 import { communitiesActions } from '../../sagas/communities/communities.slice'
@@ -120,6 +125,7 @@ export const getBaseTypesFactory = async () => {
     public: true,
     owner: factory.assoc('User', 'userId'),
     timestamp: DateTime.utc().toSeconds(),
+    type: ChannelType.CHANNEL,
     teamId: factory.assoc('Community', 'teamId'),
   })
 
@@ -204,6 +210,12 @@ export const getReduxStoreFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
   const baseTypes = await getBaseTypesFactory()
 
+  const _generateDmChannelName = (memberIds: string[], myMemberId: string): string => {
+    if (memberIds.length === 0) return 'NONAME'
+    if (memberIds.length === 1) return memberIds[0]
+    return memberIds.filter(memberId => memberId != myMemberId).join(', ')
+  }
+
   factory.setAdapter(new CustomReduxAdapter(store))
 
   factory.define<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
@@ -233,8 +245,10 @@ export const getReduxStoreFactory = async (store: Store) => {
             owner: 'alice',
             id: generateTestChannelId('general'),
             public: true,
+            type: ChannelType.CHANNEL,
             teamId: payload.teamId,
           },
+          displayedName: 'general',
         })
         return payload
       },
@@ -285,10 +299,6 @@ export const getReduxStoreFactory = async (store: Store) => {
       photo: 'dGVzdAo=',
       bio: factory.sequence('UserProfile.bio', (n: number) => `bio_${n}`),
       userId: factory.assoc('User', 'userId'),
-      userData: {
-        peerId: createPeerIdTestHelper().id,
-        onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
-      },
     }
   )
 
@@ -324,19 +334,38 @@ export const getReduxStoreFactory = async (store: Store) => {
     {
       channel: factory.sequence('PublicChannel.channel', (n: number) => {
         const name = `public-channel-${n}`
-        return {
+        const payload: PublicChannel = {
           name,
           description: 'Description',
           timestamp: DateTime.utc().toSeconds(),
           owner: 'alice', // simpler than nested assoc; tests only need non‑undefined
           id: generateTestChannelId(name),
           public: true,
+          type: ChannelType.CHANNEL,
+          memberIds: undefined,
           teamId: factory.assoc('Community', 'teamId'),
         }
+        return payload
+      }),
+      displayedName: factory.sequence('PublicChannel.displayedName', (n: number) => {
+        return `public-channel-${n}`
       }),
       status: ChannelOperationStatus.SUCCESS,
     },
     {
+      afterBuild: async (model: ReturnType<typeof publicChannelsActions.addChannel>) => {
+        return {
+          ...model,
+          payload: {
+            ...model.payload,
+            displayedName:
+              model.payload.displayedName ??
+              (model.payload.channel!.type === ChannelType.CHANNEL
+                ? model.payload.channel!.name
+                : _generateDmChannelName(model.payload.channel!.memberIds ?? [], model.payload.channel!.owner)),
+          },
+        }
+      },
       afterCreate: async (payload: ReturnType<typeof publicChannelsActions.addChannel>['payload']) => {
         await factory.create('PublicChannelsMessagesBase', {
           channelId: payload.channel!.id,
@@ -344,6 +373,7 @@ export const getReduxStoreFactory = async (store: Store) => {
         await factory.create('PublicChannelSubscription', {
           channelId: payload.channel!.id,
         })
+
         return payload
       },
     }
@@ -355,6 +385,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     {
       messages: [baseTypes.assoc('ChannelMessage')],
       isVerified: true,
+      isLocal: true,
     }
   )
 
@@ -369,11 +400,13 @@ export const getReduxStoreFactory = async (store: Store) => {
         createdAt: DateTime.utc().valueOf(),
         channelId: generateTestChannelId('general'),
         userId: factory.assoc('UserProfile', 'userId'),
+        verified: true,
       },
       verifyAutomatically: true,
     },
     {
       afterBuild: async (action: { payload: TestMessage }) => {
+        action.payload.message = { ...action.payload.message, verified: true } as ConsumedChannelMessage
         if (action.payload.verifyAutomatically) {
           await factory.create('MessageVerificationStatus', {
             message: action.payload.message,
@@ -386,6 +419,7 @@ export const getReduxStoreFactory = async (store: Store) => {
         store.dispatch(
           messagesActions.addMessages({
             messages: [payload.message],
+            isLocal: true,
           })
         )
         return payload
@@ -467,6 +501,27 @@ export const getSocketFactory = async () => {
   })
 
   // Community events
+  factory.define<InitDeviceLinkPayload>(SocketActions.LINK_DEVICE, Object, {
+    id: 'community-id',
+    deviceName: 'Test device',
+    deviceLinkConsent: true,
+    inviteData: {
+      kind: InvitationKind.Device,
+      version: InvitationDataVersion.v4,
+      pairs: [],
+      psk: 'qTJAfwE1dmKA5R6lgzdhEBjgXVZRmbdm99TpKO89MSM=',
+      authData: {
+        communityName: 'Test Community',
+        seed: 'device-invite-seed',
+        teamId: 'abc123',
+        userId: 'user-id',
+        userName: 'test-user',
+      },
+    },
+  })
+
+  factory.define<RequestDeviceLinkPayload>(SocketActions.CREATE_DEVICE_LINK, Object, {})
+
   factory.define<InitCommunityPayload>(SocketActions.JOIN_COMMUNITY, Object, {
     id: 'community-id',
     name: 'Test Community',
@@ -516,6 +571,10 @@ export const getSocketFactory = async () => {
 
   // LEAVE_COMMUNITY has no payload
   factory.define(SocketActions.LEAVE_COMMUNITY, Object, {})
+
+  factory.define<LaunchCommunityPayload>(SocketActions.RESET_ADMISSION, Object, {
+    id: 'community-id',
+  })
 
   // Messages events
   factory.define<SendMessagePayload>(SocketActions.SEND_MESSAGE, Object, {
@@ -587,6 +646,7 @@ export const getSocketFactory = async () => {
   factory.define<CreateChannelPayload>(SocketActions.CREATE_CHANNEL, Object, {
     name: 'Test Channel',
     description: 'A channel used for tests',
+    type: ChannelType.CHANNEL,
     teamId: 'foobar',
   })
 
@@ -598,8 +658,11 @@ export const getSocketFactory = async () => {
       owner: 'test-owner',
       timestamp: Date.now(),
       public: true,
+      type: ChannelType.CHANNEL,
+      memberIds: undefined,
       teamId: 'foobar',
     },
+    displayedName: 'Test Channel',
     status: ChannelOperationStatus.SUCCESS,
   })
 
@@ -653,10 +716,6 @@ export const getSocketFactory = async () => {
       nickname: 'Test User',
       photo: 'dGVzdAo=',
       bio: 'This is a test user profile',
-      userData: {
-        onionAddress: 'test.onion',
-        peerId: 'peer-id',
-      },
     },
   })
 
@@ -667,10 +726,6 @@ export const getSocketFactory = async () => {
         nickname: 'Test User',
         photo: 'dGVzdAo=',
         bio: 'This is a test user profile',
-        userData: {
-          onionAddress: 'test.onion',
-          peerId: 'peer-id',
-        },
       },
     ],
     updates: [],

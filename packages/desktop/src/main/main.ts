@@ -1,4 +1,5 @@
-import './loadMainEnvs' // Needs to be at the top of imports
+import './appImageEnvironment' // Clean host-child environment before other imports can spawn processes.
+import './loadMainEnvs'
 import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog } from 'electron'
 import fs from 'fs'
 import path from 'path'
@@ -10,8 +11,9 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { createLogger } from './logger'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '@quiet/common'
-import { type BackendLeaveCommunityMessage } from '@quiet/types'
+import { createLeaveCommunityHandler } from './leaveCommunity'
 import { updateDesktopFile, processInvitationCode } from './invitation'
+import { registerExternalLinkHandler } from './externalLinks'
 const ElectronStore = require('electron-store')
 const contextMenu = require('electron-context-menu')
 import sodium from 'libsodium-wrappers-sumo'
@@ -20,6 +22,7 @@ const remote = require('@electron/remote/main')
 remote.initialize()
 
 const logger = createLogger('main')
+registerExternalLinkHandler()
 let resetting = false
 let SOCKET_IO_SECRET: string | undefined = undefined
 let updating = false
@@ -72,7 +75,7 @@ if (!gotTheLock) {
   }
 
   app.on('second-instance', (_event, commandLine) => {
-    logger.info('Event: app.second-instance', commandLine)
+    logger.info('Event: app.second-instance')
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -165,7 +168,7 @@ const requestStateSaveOrQuit = () => {
 
 app.on('open-url', (event, url) => {
   // MacOS only
-  logger.info('Event app.open-url', url)
+  logger.info('Event app.open-url received')
   invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
   if (mainWindow) {
@@ -613,7 +616,9 @@ app.on('ready', async () => {
       HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
       IS_E2E: process.env.IS_E2E ?? 'false',
+      INVITATION_ADMISSION_TIMEOUT_MS: process.env.INVITATION_ADMISSION_TIMEOUT_MS,
       NETWORK_LOGGING: process.env.NETWORK_LOGGING ?? 'false',
+      LOCAL_TRANSPORT: process.env.LOCAL_TRANSPORT ?? 'false',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
@@ -660,17 +665,6 @@ app.on('ready', async () => {
   function isCaptchaRequestMessage(msg: unknown): msg is { type: 'request-hcaptcha'; siteKey?: string } {
     return (
       typeof msg === 'object' && msg !== null && 'type' in msg && (msg as { type: string }).type === 'request-hcaptcha'
-    )
-  }
-
-  function isLeftCommunityMessage(msg: unknown): msg is BackendLeaveCommunityMessage {
-    return (
-      typeof msg === 'object' &&
-      msg !== null &&
-      'type' in msg &&
-      (msg as { type: string }).type === 'leftCommunity' &&
-      'success' in msg &&
-      typeof (msg as { success: unknown }).success === 'boolean'
     )
   }
 
@@ -779,80 +773,16 @@ app.on('ready', async () => {
     }
   })
 
-  ipcMain.handle('clear-community', async () => {
-    logger.info('ipcMain: clear-community')
-    resetting = true
-
-    return await new Promise<boolean>(resolve => {
-      const currentBackendProcess = backendProcess
-      if (!currentBackendProcess) {
-        resetting = false
-        resolve(false)
-        return
-      }
-
-      let settled = false
-
-      const cleanup = () => {
-        currentBackendProcess.removeListener('message', leftCommunityHandler)
-        currentBackendProcess.removeListener('close', backendCloseHandler)
-        currentBackendProcess.removeListener('error', backendErrorHandler)
-        currentBackendProcess.removeListener('disconnect', backendDisconnectHandler)
-        resetting = false
-      }
-
-      const finish = (success: boolean) => {
-        if (settled) return
-
-        settled = true
-        cleanup()
-        resolve(success)
-      }
-
-      const leftCommunityHandler = (msg: unknown) => {
-        if (isLeftCommunityMessage(msg)) {
-          finish(msg.success)
-          return
-        }
-
-        if (msg === 'leftCommunity') {
-          finish(true)
-        }
-      }
-
-      const backendCloseHandler = (code: number | null, signal: NodeJS.Signals | null) => {
-        logger.warn('Backend closed before clear-community completed', code, signal)
-        finish(false)
-      }
-
-      const backendErrorHandler = (error: Error) => {
-        logger.error('Backend error before clear-community completed', error)
-        finish(false)
-      }
-
-      const backendDisconnectHandler = () => {
-        logger.warn('Backend disconnected before clear-community completed')
-        finish(false)
-      }
-
-      currentBackendProcess.on('message', leftCommunityHandler)
-      currentBackendProcess.once('close', backendCloseHandler)
-      currentBackendProcess.once('error', backendErrorHandler)
-      currentBackendProcess.once('disconnect', backendDisconnectHandler)
-
-      try {
-        currentBackendProcess.send('leaveCommunity', error => {
-          if (error) {
-            logger.error('Failed to send leaveCommunity to backend', error)
-            finish(false)
-          }
-        })
-      } catch (error) {
-        logger.error('Failed to send leaveCommunity to backend', error)
-        finish(false)
-      }
+  ipcMain.handle(
+    'clear-community',
+    createLeaveCommunityHandler({
+      getBackendProcess: () => backendProcess,
+      setResetting: value => {
+        resetting = value
+      },
+      logger,
     })
-  })
+  )
 
   ipcMain.on('restart-app', () => {
     logger.info('ipcMain: restart-app')
@@ -874,10 +804,11 @@ app.on('ready', async () => {
       id,
       name,
       ext: arg.ext,
+      channelId: arg.channelId,
     })
   })
 
-  ipcMain.on('openUploadFileDialog', async e => {
+  ipcMain.on('openUploadFileDialog', async (e, channelId: string) => {
     logger.info('ipcMain: openUploadFileDialog')
     let filesDialogResult: Electron.OpenDialogReturnValue
     if (!mainWindow) {
@@ -902,7 +833,8 @@ app.on('ready', async () => {
           filesDialogResult.filePaths.map(filePath => {
             return { path: filePath }
           })
-        )
+        ),
+        channelId
       )
     }
   })
@@ -929,11 +861,17 @@ app.on('ready', async () => {
       }
     }
 
-    await setupUpdater()
-    await checkForUpdate()
-    setInterval(async () => {
+    // The updater talks to the real release feed, so a CI runner whose build is a
+    // version behind downloads an update mid-run and drops the "Software update"
+    // modal over whatever the test is clicking - observed as an intercepted click
+    // on the join-community button. Nothing under test depends on the updater.
+    if (!isE2Etest) {
+      await setupUpdater()
       await checkForUpdate()
-    }, updaterInterval)
+      setInterval(async () => {
+        await checkForUpdate()
+      }, updaterInterval)
+    }
   })
 
   ipcMain.on('proceed-update', () => {

@@ -14,6 +14,7 @@ import {
   type BootstrapStatus,
   GetInfoTorSignal,
   HiddenServiceData,
+  type SpawnHiddenServiceParams,
   TorControlAuthType,
   TorParams,
   TorParamsProvider,
@@ -24,9 +25,20 @@ import { createLogger } from '../common/logger'
 import { toString as uint8ArrayToString } from 'uint8arrays'
 import { isUint8Array } from 'util/types'
 
-const BOOTSTRAP_DONE_MESSAGE = '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
-const BOOTSTRAP_STALL_MIN_DURATION_MS = 30_000
-const BOOTSTRAP_STALL_TIMEOUT_WARNING_COUNT = 3
+const BOOTSTRAP_DONE_PROGRESS = 100
+const BOOTSTRAP_DONE_TAG = 'done'
+// How long bootstrap may sit without its reported progress changing at all before
+// Tor is restarted. Bootstrap speed belongs to the network, not to us: a healthy
+// Tor was observed holding loading_descriptors for over two minutes, and a slow or
+// throttled link can hold a phase far longer and still finish - while restarting
+// throws away every bit of progress made so far.
+const BOOTSTRAP_NO_PROGRESS_RESTART_MS = 10 * 60_000
+// How often to report a bootstrap that is taking a long time but has not earned a
+// restart, so a slow network is still visible in the logs.
+const BOOTSTRAP_SLOW_LOG_INTERVAL_MS = 60_000
+// Tor's advice when it reports a warning it is already handling.
+const BOOTSTRAP_RECOMMENDATION_IGNORE = 'ignore'
+const HIDDEN_SERVICE_DESCRIPTOR_EVENT = 'HS_DESC'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -38,9 +50,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
   interval: any
   initTimeout: any
   private readonly logger = createLogger(Tor.name)
+  // All hidden-service maps use the onion service ID without the .onion suffix.
   private hiddenServices: Map<string, HiddenServiceData> = new Map()
   private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
   private hiddenServiceInitializationPromises: Map<string, Promise<string>> = new Map()
+  private hiddenServiceRetryTimers: Map<string, NodeJS.Timeout> = new Map()
   private hiddenServiceGeneration = 0
   private markBootstrappedPromise: Promise<void> | undefined
   private bootstrapRestartPromise: Promise<void> | undefined
@@ -74,6 +88,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.logger.info('Destroying Tor service...')
     if (this.initTimeout) clearTimeout(this.initTimeout)
     if (this.interval) clearInterval(this.interval)
+    this.hiddenServiceGeneration += 1
+    for (const retryTimer of this.hiddenServiceRetryTimers.values()) clearTimeout(retryTimer)
+    this.hiddenServiceRetryTimers.clear()
     if (this.process) {
       await this.kill()
     }
@@ -92,6 +109,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
     httpTunnelPort: number
     authCookie: string
   }) {
+    if (!authCookie) throw new Error('Missing native Tor authentication cookie')
+    const isFirstNativeSession = !this.torControl.hasCredentials
     const isSameNativeTorSession =
       Number(this.torControl.torControlParams.port) === controlPort &&
       this.torControl.torControlParams.auth.type === TorControlAuthType.COOKIE &&
@@ -104,10 +123,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
     })
     this.configOptions.torControlPort = controlPort
     this.configOptions.httpTunnelPort = httpTunnelPort
+    this.configOptions.torAuthCookie = authCookie
     this.controlPort = controlPort
-    this.torControl.torControlParams.port = controlPort
-    this.torControl.torControlParams.auth.value = authCookie
-    this.torControl.torControlParams.auth.type = TorControlAuthType.COOKIE
+    this.torControl.updateConnectionParams({
+      ...this.torControl.torControlParams,
+      port: controlPort,
+      auth: { value: authCookie, type: TorControlAuthType.COOKIE },
+    })
 
     if (isSameNativeTorSession) {
       this.logger.info('Native Tor session unchanged; preserving bootstrap and hidden-service state')
@@ -117,13 +139,17 @@ export class Tor extends EventEmitter implements OnModuleInit {
       return
     }
 
-    this.resetBootstrapState()
+    // Initial credentials make queued commands usable; they do not replace a
+    // previous session. Preserve their generation so earlier resets still count.
+    if (!isFirstNativeSession) this.resetBootstrapState()
     this.startBootstrapWatcher()
   }
 
   public resetBootstrapState() {
     this.bootstrapGeneration += 1
     this.hiddenServiceGeneration += 1
+    for (const retryTimer of this.hiddenServiceRetryTimers.values()) clearTimeout(retryTimer)
+    this.hiddenServiceRetryTimers.clear()
     this.bootstrapped = false
     this.bootstrapStallState = undefined
     this.initializedHiddenServices = new Map()
@@ -153,8 +179,16 @@ export class Tor extends EventEmitter implements OnModuleInit {
         return
       }
 
+      // A registration can arrive while publication is in flight. Drain until
+      // every desired service belongs to this Tor session, then mark the
+      // session ready synchronously so later registrations publish directly.
+      while ([...this.hiddenServices.keys()].some(onionAddress => !this.initializedHiddenServices.has(onionAddress))) {
+        await this.spawnHiddenServices(bootstrapGeneration)
+        if (bootstrapGeneration !== this.bootstrapGeneration) return
+      }
       this.logger.info('Bootstrapping finished!')
       this.bootstrapped = true
+      this.bootstrapStallState = undefined
       if (this.initTimeout) {
         clearTimeout(this.initTimeout)
         this.initTimeout = undefined
@@ -197,6 +231,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
     const watcher = setInterval(() => {
       if (!this.isCurrentBootstrapWatcher(watcher, bootstrapGeneration)) return
+      // Native Tor credentials arrive separately from backend startup. Keep
+      // watching, but avoid authentication retries until they are available.
+      if (!this.torParamsProvider.torPath && process.env.BACKEND === 'mobile' && !this.configOptions.torAuthCookie) {
+        return
+      }
       if (tickInProgress) {
         this.logger.debug('Bootstrap interval tick skipped (previous still running)', {
           tickCount,
@@ -294,14 +333,22 @@ export class Tor extends EventEmitter implements OnModuleInit {
     const tagMatch = rawMessage.match(/TAG=([^\s]+)/)
     const warningMatch = rawMessage.match(/WARNING="([^"]+)"/)
     const reasonMatch = rawMessage.match(/REASON=([^\s]+)/)
+    const recommendationMatch = rawMessage.match(/RECOMMENDATION=([^\s]+)/)
+
+    const progress = progressMatch ? Number(progressMatch[1]) : undefined
+    const tag = tagMatch ? tagMatch[1] : undefined
 
     return {
       rawMessage,
-      done: rawMessage === BOOTSTRAP_DONE_MESSAGE,
-      progress: progressMatch ? Number(progressMatch[1]) : undefined,
-      tag: tagMatch ? tagMatch[1] : undefined,
+      // Read from the fields rather than by matching the whole line: the severity
+      // and trailing fields vary, and a `done` Tor that failed this comparison
+      // would be watched, and restarted, forever.
+      done: progress === BOOTSTRAP_DONE_PROGRESS || tag === BOOTSTRAP_DONE_TAG,
+      progress,
+      tag,
       warning: warningMatch?.[1],
       reason: reasonMatch?.[1],
+      recommendation: recommendationMatch?.[1],
     }
   }
 
@@ -313,41 +360,57 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
 
     const checkedAt = Date.now()
-    const hasTimeoutWarning =
-      status.reason === 'TIMEOUT' || status.warning?.toLowerCase().includes('timed out') === true
+    const state = this.bootstrapStallState
 
-    if (
-      this.bootstrapStallState == null ||
-      this.bootstrapStallState.progress !== status.progress ||
-      this.bootstrapStallState.tag !== status.tag
-    ) {
+    // Any change in reported progress means Tor is doing something, so the clock
+    // starts over. A decrease counts too: Tor restarts its own bootstrap on a
+    // network change, and a fresh attempt is not a stall. Tor reports progress in
+    // finer steps than its notice log, so real movement does show up here.
+    if (state == null || status.progress !== state.progress) {
       this.bootstrapStallState = {
         progress: status.progress,
         tag: status.tag,
-        firstObservedAt: checkedAt,
-        timeoutWarningCount: hasTimeoutWarning ? 1 : 0,
+        lastProgressAt: checkedAt,
+        ignorableWarningCount: 0,
+        lastSlowLogAt: checkedAt,
       }
       return
     }
 
-    if (hasTimeoutWarning) {
-      this.bootstrapStallState.timeoutWarningCount += 1
+    state.tag = status.tag
+    if (status.recommendation === BOOTSTRAP_RECOMMENDATION_IGNORE) {
+      // Tor is telling us it is retrying and expects to recover - a relay that
+      // timed out, say. Counting these toward a restart is how a slow link ends
+      // up restarted every 35 seconds, never finishing.
+      state.ignorableWarningCount += 1
     }
 
-    const stalledMs = checkedAt - this.bootstrapStallState.firstObservedAt
-    if (
-      stalledMs < BOOTSTRAP_STALL_MIN_DURATION_MS ||
-      this.bootstrapStallState.timeoutWarningCount < BOOTSTRAP_STALL_TIMEOUT_WARNING_COUNT
-    ) {
+    const stalledMs = checkedAt - state.lastProgressAt
+    if (stalledMs < BOOTSTRAP_NO_PROGRESS_RESTART_MS) {
+      if (checkedAt - state.lastSlowLogAt >= BOOTSTRAP_SLOW_LOG_INTERVAL_MS) {
+        state.lastSlowLogAt = checkedAt
+        this.logger.info('Tor bootstrap has not advanced; still waiting', {
+          progress: status.progress,
+          tag: status.tag,
+          stalledMs,
+          restartAfterMs: BOOTSTRAP_NO_PROGRESS_RESTART_MS,
+          ignorableWarningCount: state.ignorableWarningCount,
+          recommendation: status.recommendation,
+        })
+      }
       return
     }
 
-    await this.restartAfterBootstrapStall(
-      status,
-      stalledMs,
-      this.bootstrapStallState.timeoutWarningCount,
-      bootstrapGeneration
-    )
+    await this.restartAfterBootstrapStall(status, stalledMs, state.ignorableWarningCount, bootstrapGeneration)
+
+    // A restart gives Tor a fresh start, so the next window is measured from here.
+    // A live restart resets this state outright; this covers the case where it did
+    // not, so a stale clock cannot make the following window expire immediately.
+    if (this.bootstrapStallState === state) {
+      const restartedAt = Date.now()
+      state.lastProgressAt = restartedAt
+      state.lastSlowLogAt = restartedAt
+    }
   }
 
   private async checkManagedTorProcessHealth(bootstrapGeneration: number): Promise<boolean> {
@@ -383,7 +446,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private async restartAfterBootstrapStall(
     status: BootstrapStatus,
     stalledMs: number,
-    timeoutWarningCount: number,
+    ignorableWarningCount: number,
     bootstrapGeneration: number
   ): Promise<void> {
     if (bootstrapGeneration !== this.bootstrapGeneration) return
@@ -392,7 +455,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         progress: status.progress,
         tag: status.tag,
         stalledMs,
-        timeoutWarningCount,
+        ignorableWarningCount,
         status: status.rawMessage,
       })
       this.bootstrapStallState = undefined
@@ -400,12 +463,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
 
     await this.restartManagedTor(
-      'Tor bootstrap appears stalled; restarting Tor',
+      'Tor bootstrap made no progress; restarting Tor',
       {
         progress: status.progress,
         tag: status.tag,
         stalledMs,
-        timeoutWarningCount,
+        ignorableWarningCount,
         controlPort: this.controlPort,
         socksPort: this.socksPort,
         torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,
@@ -460,14 +523,29 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
 
       const bootstrapGeneration = this.bootstrapGeneration
-      this.initTimeout = setTimeout(async () => {
-        if (bootstrapGeneration !== this.bootstrapGeneration) return
-        this.logger.debug('Checking init timeout')
-        const bootstrapDone = await this.isBootstrappingFinished()
-        if (bootstrapGeneration !== this.bootstrapGeneration) return
-        if (!bootstrapDone) {
-          await this.init()
-        }
+      let torStarted = false
+      // Covers a Tor that never reports starting at all: spawnTor only settles once
+      // Tor announces itself, so without this nothing would start the watcher. Once
+      // Tor has started the watcher owns restarts, because it measures a stall by
+      // progress - restarting a Tor that is still advancing throws away everything
+      // it has done, which is how bootstrap never finishes (#3564).
+      this.initTimeout = setTimeout(() => {
+        void (async () => {
+          if (bootstrapGeneration !== this.bootstrapGeneration) return
+          this.logger.debug('Checking init timeout')
+          if (torStarted) {
+            this.logger.info('Tor started; leaving further restarts to the bootstrap watcher')
+            return
+          }
+          const bootstrapDone = await this.isBootstrappingFinished()
+          if (bootstrapGeneration !== this.bootstrapGeneration) return
+          if (!bootstrapDone) {
+            this.logger.warn('Tor did not report starting within the init timeout; restarting Tor', { timeout })
+            await this.init()
+          }
+        })().catch(e => {
+          this.logger.error('Tor init timeout check failed', e)
+        })
       }, timeout)
 
       const tryToSpawnTor = async () => {
@@ -484,6 +562,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         try {
           this.logger.info('Spawning new tor process(es)')
           await this.spawnTor()
+          torStarted = true
 
           this.startBootstrapWatcher()
 
@@ -492,15 +571,29 @@ export class Tor extends EventEmitter implements OnModuleInit {
           resolve()
         } catch (e) {
           this.logger.error('Killing tor due to error', e)
-          this.clearHangingTorProcess()
-          removeFilesFromDir(this.torDataDirectory)
+          try {
+            this.clearHangingTorProcess()
+            removeFilesFromDir(this.torDataDirectory)
+          } catch (cleanupError) {
+            this.logger.error('Error while cleaning up after a failed tor spawn', cleanupError)
+          }
 
           // eslint-disable-next-line
-          process.nextTick(tryToSpawnTor)
+          process.nextTick(runTryToSpawnTor)
         }
       }
 
-      tryToSpawnTor()
+      // Neither the first attempt nor a retry is awaited by anyone, so a throw
+      // escaping tryToSpawnTor would reject into nothing - and an unhandled
+      // rejection shuts the backend down. Report it on this promise instead.
+      const runTryToSpawnTor = () => {
+        tryToSpawnTor().catch(e => {
+          this.logger.error('Failed to spawn tor', e)
+          reject(e)
+        })
+      }
+
+      runTryToSpawnTor()
     })
   }
 
@@ -509,6 +602,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.hiddenServices = new Map()
     this.initializedHiddenServices = new Map()
     this.hiddenServiceInitializationPromises.clear()
+    for (const retryTimer of this.hiddenServiceRetryTimers.values()) clearTimeout(retryTimer)
+    this.hiddenServiceRetryTimers.clear()
   }
 
   private torProcessNameCommand(oldTorPid: string): string {
@@ -526,7 +621,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
      *  Commands should output hanging tor pid
      */
     const byPlatform = {
-      android: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
+      // Toybox's command-name flags differ across Android versions. Match full
+      // arguments with -f and exclude the detector shell by its PID instead.
+      android: `pgrep -f "${this.torDataDirectory}" | awk -v detector="$$" '$1 != detector'`,
       linux: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
       darwin: `ps -A | grep "${this.torDataDirectory}" | grep -v grep | awk '{print $1}'`,
       win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(
@@ -639,14 +736,23 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger.error(`Tor process. Error occurred`, data)
       })
 
-      this.process.stdout.on('data', async (data: any) => {
+      this.process.stdout.on('data', (data: any) => {
         const bootstrappedRegexp = /Bootstrapped 0/
         // TODO: Figure out if there's a way to get this working in tests
         // const bootstrappedRegexp = /Loaded enough directory info to build circuits/
-        if (bootstrappedRegexp.test(data.toString())) {
-          await this.spawnHiddenServices()
-          resolve()
-        }
+        if (!bootstrappedRegexp.test(data.toString())) return
+
+        // Publishing is started here so a descriptor goes up as early as Tor allows,
+        // but it is deliberately not awaited. A Tor at 0% bootstrap cannot upload a
+        // descriptor yet, so awaiting the HS_DESC wait held this promise - and with
+        // it init() - for the whole event timeout, and the next restart tore the
+        // control connection down underneath it. That rejection surfaced in a
+        // listener nobody awaits, which the backend turns into a full app shutdown.
+        // Publication is retried by the bootstrap watcher and by registerHiddenService.
+        void this.spawnHiddenServices().catch(e => {
+          this.logger.error('Failed to publish hidden services for the new Tor session', e)
+        })
+        resolve()
       })
     })
   }
@@ -660,84 +766,171 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
   }
 
+  /**
+   * Records a hidden service before Tor is available. The bootstrap watcher
+   * publishes all registered services when the current Tor session is ready.
+   */
+  public async registerHiddenService({
+    targetPort,
+    privKey,
+    onionAddress,
+    virtPort,
+  }: HiddenServiceData): Promise<void> {
+    onionAddress = onionAddress.replace(/\.onion$/, '')
+    this.hiddenServices.set(onionAddress, { targetPort, privKey, virtPort, onionAddress })
+
+    if (this.bootstrapped) {
+      const registrationGeneration = this.hiddenServiceGeneration
+      try {
+        await this.spawnHiddenService({ targetPort, privKey, virtPort, onionAddress })
+      } catch (error) {
+        this.logger.error('Failed to publish registered hidden service', error)
+        if (
+          registrationGeneration === this.hiddenServiceGeneration &&
+          !this.hiddenServiceRetryTimers.has(onionAddress)
+        ) {
+          const retryTimer = setTimeout(() => {
+            this.hiddenServiceRetryTimers.delete(onionAddress)
+            if (registrationGeneration !== this.hiddenServiceGeneration) return
+            const registered = this.hiddenServices.get(onionAddress)
+            if (!registered || !this.bootstrapped) return
+            void this.registerHiddenService(registered).catch(retryError => {
+              this.logger.error('Failed to retry registered hidden-service publication', retryError)
+            })
+          }, 2500)
+          this.hiddenServiceRetryTimers.set(onionAddress, retryTimer)
+        }
+        throw error
+      }
+    }
+  }
+
   public async spawnHiddenService({
     targetPort,
     privKey,
+    onionAddress,
     virtPort = 80,
-  }: {
-    targetPort: number
-    privKey: string
-    virtPort?: number
-  }): Promise<string> {
+  }: SpawnHiddenServiceParams): Promise<string> {
+    onionAddress = onionAddress.replace(/\.onion$/, '')
     this.logger.info(`Spawning Tor hidden service`)
-    const initializedHiddenService = this.initializedHiddenServices.get(privKey)
+    const initializedHiddenService = this.initializedHiddenServices.get(onionAddress)
     if (initializedHiddenService) {
       this.logger.warn(`Hidden service already initialized for ${initializedHiddenService.onionAddress}`)
-      return initializedHiddenService.onionAddress
+      return `${initializedHiddenService.onionAddress}.onion`
     }
 
-    const initializationInFlight = this.hiddenServiceInitializationPromises.get(privKey)
+    const initializationInFlight = this.hiddenServiceInitializationPromises.get(onionAddress)
     if (initializationInFlight) return await initializationInFlight
 
     const hiddenServiceGeneration = this.hiddenServiceGeneration
     const initializationPromise = (async () => {
-      const status = await this.torControl.sendCommand(
-        `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+      const status = await this.torControl.sendCommandAndWaitForEvent(
+        `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`,
+        HIDDEN_SERVICE_DESCRIPTOR_EVENT,
+        event => this.isHiddenServiceDescriptorUploaded(event, onionAddress)
       )
       if (hiddenServiceGeneration !== this.hiddenServiceGeneration) {
         throw new Error('Tor generation changed while initializing hidden service')
       }
 
-      const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-      this.logger.debug(`Spawned hidden service with onion address ${onionAddress}`)
+      const publishedAddress = status.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
+      if (publishedAddress !== onionAddress) {
+        throw new Error('Published hidden-service address does not match the requested address')
+      }
+      this.logger.debug(`Published hidden service descriptor for onion address ${onionAddress}`)
 
       const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
-      this.hiddenServices.set(privKey, hiddenService)
-      this.initializedHiddenServices.set(privKey, hiddenService)
+      this.hiddenServices.set(onionAddress, hiddenService)
+      this.initializedHiddenServices.set(onionAddress, hiddenService)
       return `${onionAddress}.onion`
     })()
 
-    this.hiddenServiceInitializationPromises.set(privKey, initializationPromise)
+    this.hiddenServiceInitializationPromises.set(onionAddress, initializationPromise)
     try {
       return await initializationPromise
     } finally {
-      if (this.hiddenServiceInitializationPromises.get(privKey) === initializationPromise) {
-        this.hiddenServiceInitializationPromises.delete(privKey)
+      if (this.hiddenServiceInitializationPromises.get(onionAddress) === initializationPromise) {
+        this.hiddenServiceInitializationPromises.delete(onionAddress)
       }
     }
   }
 
   public async destroyHiddenService(serviceId: string): Promise<boolean> {
+    serviceId = serviceId.replace(/\.onion$/, '')
     try {
       await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
       this.hiddenServices.delete(serviceId)
+      this.initializedHiddenServices.delete(serviceId)
+      const retryTimer = this.hiddenServiceRetryTimers.get(serviceId)
+      if (retryTimer) clearTimeout(retryTimer)
+      this.hiddenServiceRetryTimers.delete(serviceId)
       return true
     } catch (err) {
+      // A timeout can mean Tor removed the service but its response was lost.
+      this.initializedHiddenServices.delete(serviceId)
       this.logger.error(`Couldn't destroy hidden service ${serviceId}`, err)
       return false
     }
   }
 
+  /**
+   * Create a hidden service and return its address and key.
+   *
+   * Tor mints the keypair itself and answers ADD_ONION with it immediately, with no
+   * network involved. Publishing the descriptor is the part that needs a bootstrapped
+   * Tor, so `waitForDescriptorUpload` is what a caller that only wants the key can
+   * turn off: it then returns as soon as Tor has answered, whatever bootstrap is
+   * doing. A caller that needs the service to be reachable leaves it on.
+   */
   public async createNewHiddenService({
     targetPort,
     virtPort = 80,
+    waitForDescriptorUpload = true,
   }: {
     targetPort: number
     virtPort?: number
+    waitForDescriptorUpload?: boolean
   }): Promise<{ onionAddress: string; privateKey: string }> {
-    const status = await this.torControl.sendCommand(
-      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-    )
+    const hiddenServiceGeneration = this.hiddenServiceGeneration
+    const command = `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+    const status = waitForDescriptorUpload
+      ? await this.torControl.sendCommandAndWaitForEvent(
+          command,
+          HIDDEN_SERVICE_DESCRIPTOR_EVENT,
+          (event, response) => {
+            const generatedAddress = response.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
+            return this.isHiddenServiceDescriptorUploaded(event, generatedAddress)
+          }
+        )
+      : await this.torControl.sendCommand(command)
 
-    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+    if (hiddenServiceGeneration !== this.hiddenServiceGeneration) {
+      throw new Error('Tor generation changed while creating hidden service')
+    }
+    const onionAddress = status.messages[0].replace('250-ServiceID=', '').replace(/\.onion$/, '')
     const privateKey = status.messages[1].replace('250-PrivateKey=', '')
     const hiddenService: HiddenServiceData = { targetPort, privKey: privateKey, virtPort, onionAddress }
     this.hiddenServices.set(onionAddress, hiddenService)
+    // Only a published descriptor makes the service reachable, so an unpublished one
+    // is not recorded as initialized: it would otherwise be skipped when the session
+    // spawns its hidden services.
+    if (waitForDescriptorUpload) {
+      this.initializedHiddenServices.set(onionAddress, hiddenService)
+    }
 
     return {
       onionAddress: `${onionAddress}.onion`,
       privateKey,
     }
+  }
+
+  private isHiddenServiceDescriptorUploaded(event: string, onionAddress: string): boolean {
+    const [, eventCode, action, serviceId] = event.trim().split(/\s+/)
+    return (
+      eventCode === HIDDEN_SERVICE_DESCRIPTOR_EVENT &&
+      action === 'UPLOADED' &&
+      serviceId?.replace(/\.onion$/, '') === onionAddress.replace(/\.onion$/, '')
+    )
   }
 
   public async switchToCleanCircuts() {

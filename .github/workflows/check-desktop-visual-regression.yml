@@ -3,6 +3,10 @@ name: Desktop visual regressions
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   chromatic-deployment:
     runs-on: ${{ matrix.os }}
@@ -32,7 +36,8 @@ jobs:
         if: steps.filter.outputs.desktop == 'true'
         with:
           fetch-depth: 0 # Required to retrieve git history
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Setup environment
         uses: ./.github/actions/setup-env

@@ -9,6 +9,7 @@ import { type FactoryGirl } from 'factory-girl'
 import { getReduxStoreFactory, getBaseTypesFactory } from '../../../utils/tests/factories'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { type ConsumedChannelMessage } from '@quiet/types'
 
 const logger = createLogger('retryVerificationSaga-test')
 
@@ -49,8 +50,14 @@ describe('retryVerification saga (store-backed)', () => {
     expect(currentChannelId).toBeTruthy()
 
     // Build two messages targeting the current channel and add them to the store
-    const msg1 = await baseTypes.build('ChannelMessage', { channelId: currentChannelId })
-    const msg2 = await baseTypes.build('ChannelMessage', { channelId: currentChannelId })
+    const msg1 = (await baseTypes.build('ChannelMessage', {
+      channelId: currentChannelId,
+      verified: true,
+    })) as ConsumedChannelMessage
+    const msg2 = (await baseTypes.build('ChannelMessage', {
+      channelId: currentChannelId,
+      verified: true,
+    })) as ConsumedChannelMessage
     store.dispatch(
       messagesActions.addMessages({
         messages: [msg1, msg2],
@@ -63,6 +70,8 @@ describe('retryVerification saga (store-backed)', () => {
 
     const expectedInvalidForCurrent =
       (messagesSelectors as any).invalidChannelMessagesEntries(currentChannelId)(store.getState()) || []
+    expect(expectedInvalidForCurrent).toHaveLength(2)
+    expect(expectedInvalidForCurrent.every((message: ConsumedChannelMessage) => message.verified === true)).toBe(true)
 
     const action = messagesActions.retryVerification({
       messages: [],

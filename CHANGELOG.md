@@ -1,6 +1,75 @@
 # Changelog
 
-## [unreleased]
+## [11.0.1]
+
+### Fixes
+
+* Desktop apps now check for updates within their own major version. Production releases automatically select the update bucket from the app version.
+
+### Notes
+
+* Desktop users on 11.0.0 must manually install this release to receive future 11.x updates from the corrected feed.
+
+## [11.0.0]
+
+### Features
+
+* Link devices to share context between multiple devices you own [#2610](https://github.com/TryQuiet/quiet/issues/2610)
+
+### Breaking
+
+* Start with new 11.x desktop and mobile data directories; existing 10.x communities and identities are not migrated
+
+## [10.0.0]
+
+### Features
+
+* Add participant-only direct messages on desktop and mobile, encrypted to each participant's account keys so community administrators cannot read them
+* Enable administrators to create private channels on desktop and mobile without a feature flag
+
+### Breaking
+
+* Use protocol 4 with member, role, device and server removal and key rotation disabled, including making those operations inert when received from modified clients [#3471](https://github.com/TryQuiet/quiet/pull/3471)
+* Start with new 10.x desktop and mobile data directories; existing 9.x communities and identities are not migrated
+
+### Fixes
+
+* Trigger push notifications only for channel messages, while syncing channel metadata, profiles and notification tokens without alerts [#3546](https://github.com/TryQuiet/quiet/issues/3546)
+* Suppress notifications for your own messages on Android when using background Tor or the foreground app, including channel-creation messages [#3547](https://github.com/TryQuiet/quiet/issues/3547)
+* Send private-channel push notifications only to the registered devices of users in that channel, including queued messages retried after reconnecting; channel deletions sync without triggering push notifications [#3545](https://github.com/TryQuiet/quiet/issues/3545)
+* Recover peer synchronization across reconnects and overlapping transports [#3480](https://github.com/TryQuiet/quiet/pull/3480)
+* Prevent repeated community leave requests from acknowledging teardown early and deleting newly created community state [#3424](https://github.com/TryQuiet/quiet/issues/3424)
+* Fix AppImage external links and desktop protocol registration when launcher library variables are present [#3453](https://github.com/TryQuiet/quiet/issues/3453)
+* Recover from consumed QSS captcha grants and synchronize captcha renewal state [#3428](https://github.com/TryQuiet/quiet/issues/3428)
+* Resume unsent mobile joins safely after a local backend connection is lost [#3426](https://github.com/TryQuiet/quiet/issues/3426)
+* Recover mobile local backend connections and allow stalled QR invitations to be retried [#3427](https://github.com/TryQuiet/quiet/issues/3427)
+* Keep delayed text and attachment sends bound to their originating channel and clear transient composer state on channel changes [#420](https://github.com/TryQuiet/quiet/issues/420) [#534](https://github.com/TryQuiet/quiet/issues/534)
+* Allow authorized historical private-channel deletions to sync without blocking later channels [#3406](https://github.com/TryQuiet/quiet/issues/3406)
+* Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
+* Make the whole recipient row tappable on mobile rather than only the checkbox and the name
+* Copy the invitation link on Android 13 and later, where Copy link previously did nothing
+* Hide the channel + button on mobile for members who are not permitted to create channels, matching desktop
+* Keep the mobile message field clear of the keyboard, and stop a multiline field growing without bound
+* Match the mobile and desktop message fields to the design library, including the missing borders and the desktop corner radius
+* Match mobile direct-message recipient selection to the designs, including the field placeholder and an in-field clear button
+* Run the brand purple to the top of the screen on mobile, including behind the status bar, using the same token as the rest of the app
+* Move the desktop new-message close button to the far right of its header instead of against the title
+* Match the mobile create-channel screen's copy to the design library
+* Present desktop channel creation as a side panel rather than a centred modal, matching the designs
+* Say that admins, not roles, have access to private channels, since roles do not exist yet
+* Show recipients as pills on mobile while composing a direct message, each with the member's thumbnail and a control to remove it
+* Draw desktop recipients as design pills rather than plain chips, with a thumbnail, a close control and the design's hover states
+* Take back navigation from a channel's Permissions and Add members screens on mobile to the channel it was opened from, rather than home
+* Round mobile buttons to the design library's radius and height, instead of the squarer box they had
+* Paint the desktop side nav in the brand purple and mark the selected channel at the design's opacity
+* List Members and Permissions as separate entries in the mobile channel menu, as the designs do, and draw Delete channel in red
+* Use the design's placeholder in the desktop direct-message search
+* Dismiss the desktop create-channel panel with a back arrow, as the designs do, rather than a cross
+* Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
+* Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
+* Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
+
+## [9.0.0]
 
 ### Features
 
@@ -8,6 +77,7 @@
 
 ### Breaking
 
+* Update data directories for 9.x [#3379](https://github.com/TryQuiet/quiet/issues/3379)
 * Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
 * Use chain permission checks to gate channel creation, deletion and membership [#3344](https://github.com/TryQuiet/quiet/issues/3344)
 * Use randomly generated role names for private channels [#3354](https://github.com/TryQuiet/quiet/issues/3354)
@@ -15,10 +85,40 @@
 
 ### Fixes
 
+* Suppress per-message notifications on Android and iOS for users with unknown usernames, and for one's own messages [#3451](https://github.com/TryQuiet/quiet/issues/3451)
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 * Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
 * Fix tapable area in two places in the Appbar [#3372] (https://github.com/TryQuiet/quiet/issues/3372)
+* Fix OrbitDB indexing to avoid overwriting previously indexed deletions with puts [#3393](https://github.com/TryQuiet/quiet/issues/3393)
+* Fix validations of private channel deletions [#3392](https://github.com/TryQuiet/quiet/issues/3392)
+* Pass channel ID to name mappings to mobile native storage and use in notifications [#3387](https://github.com/TryQuiet/quiet/issues/3387)
+* Make usernames and profile photos tapable when adding members to private channel [#3371](https://github.com/TryQuiet/quiet/issues/3371)
+* Update desktop Tor binaries to Tor 0.4.9.11 (Tor Browser 15.0.21) and fix the update script to extract LZMA-compressed macOS DMGs with 7-Zip instead of dmg2img
+* Update Android libtor.so to Tor 0.4.9.11 (16KB page aligned, from Tor Browser 15.0.21) and re-enable Android in the Tor binary update script
+* Fix the Android app crashing on every launch after the Tor 0.4.9.11 upgrade: the `--hash-password` call now passes an explicit `--DataDirectory` instead of falling back to the binary's compiled-in default (`/data/local/tmp`), which the app's uid cannot read [#3449](https://github.com/TryQuiet/quiet/issues/3449)
+* Android push notifications now appear for a device that joined a community and then saw no further membership changes; previously every background push was silently dropped [#3446](https://github.com/TryQuiet/quiet/issues/3446)
+* An invitee's admission is now saved to the sigchain by the admitting member device or storage service (QSS) before the invitee's acceptance is sent, so a crash or restart on the admitter can no longer leave the new member accepted on their side but absent from the admitter's chain [#3443](https://github.com/TryQuiet/quiet/issues/3443)
+* Fix intermittent Android crash under memory pressure, where JavaScriptCore handed the allocator a heap pointer with a truncated tag while responding to a low-memory callback and the app was aborted [#3450](https://github.com/TryQuiet/quiet/issues/3450)
+
+### Security
+
+* Sigchain changes were not signed, so any community member could forge changes attributed to another member: promoting themselves to administrator, removing any member including the founder, or re-keying a private channel they were never admitted to so that they could read its future messages while locking out the real members. Every sigchain change and identity is now bound to the device key that signed it, and the community state handed to a new member is encrypted to that member and authenticated [#3444](https://github.com/TryQuiet/quiet/issues/3444)
+* The storage service (QSS), which is designed as an untrusted relay, could add an identity it controlled to a community as a full member without any invitation and then read everything shared with members. Servers now hold a separate self-certifying identity that cannot act as a member, and membership changes must be signed by a registered member device [#3454](https://github.com/TryQuiet/quiet/issues/3454)
+* A community member could register a device under another member's account, because nothing bound the author of a device addition to the account it named [#3455](https://github.com/TryQuiet/quiet/issues/3455)
+* Anyone who observed an invitation proof, such as the member accepting it or the storage service relaying the handshake, could replay it to be admitted to the community. Admission now requires a signature from the joining device's own key over a single-use challenge [#3456](https://github.com/TryQuiet/quiet/issues/3456)
+* Any community member could inject new team, role, or channel keys through unvalidated key deliveries, taking over a private channel and excluding its members. Unauthorized re-keys are now dropped [#3431](https://github.com/TryQuiet/quiet/issues/3431)
+* An ordinary member could promote another member straight to administrator, because role grants were not administrator-gated. This fix shipped in 7.3.x, was reverted in 8.0.0, and is restored [#3457](https://github.com/TryQuiet/quiet/issues/3457)
+* A member of a channel could post a message in that channel that all clients displayed as coming from a different member, without that member's key. Messages are now cryptographically verified against their author before they are stored, shown, or used for notifications [#3438](https://github.com/TryQuiet/quiet/issues/3438)
+* An ordinary member could sign a shared-database entry with their own key while labelling it with an administrator's identity, and so pass administrator-only checks, for example to delete public channels or other members' profiles. Database entries are now bound to the device key that signed them [#3441](https://github.com/TryQuiet/quiet/issues/3441)
+* An administrator could replace another member's account keys with keys the administrator controls and then sign messages, including direct messages, as that member. Only a member can now change their own keys [#3440](https://github.com/TryQuiet/quiet/issues/3440)
+* An ordinary member could grant the basic `member` role to any user rather than only to themselves. This had no effect today because every member already holds that role, but it would have let a single member undo an administrator's removal of another member once removal ships. Non-admins can now only claim self-assignable roles for themselves [#3432](https://github.com/TryQuiet/quiet/issues/3432)
+* An administrator could create a role named `__proto__`, which corrupted the role state of every peer that synced it and disabled the checks that reject malformed sigchain changes. Such names are now rejected and role lookups no longer touch object prototypes [#3437](https://github.com/TryQuiet/quiet/issues/3437)
+* A community member could make background push notifications on iOS and Android show a forged sender or content, because iOS did not verify the message signature and Android did not check that the signer matched the claimed sender. Both platforms now verify the author before displaying a notification [#3435](https://github.com/TryQuiet/quiet/issues/3435)
+* A community member could send arbitrary notification text to another member's iOS device, enabling lock-screen phishing, because every member's push token is replicated to the whole community and the storage service accepted caller-supplied title and body. Clients no longer send notification content, and the service derives routing from the signed token [#3439](https://github.com/TryQuiet/quiet/issues/3439)
+* A malicious or compromised storage service (QSS) could have a device sign an unbound challenge with its device key, then replay that signature at a different storage service to impersonate the device there. Devices now sign only challenges bound to their own identity, team, and pinned server [#3436](https://github.com/TryQuiet/quiet/issues/3436)
+* A community member could send a message whose attachment metadata pointed at a different message or channel, or referenced hosted media without encryption metadata. Attachment metadata is now strictly validated against the signed message [#3430](https://github.com/TryQuiet/quiet/issues/3430)
+* Anyone who could reach a community's storage service (QSS), without authenticating, could crash it by sending a websocket event without an acknowledgement callback, interrupting sync and push delivery for every community on that instance. Malformed events are now rejected without crashing the service [#3442](https://github.com/TryQuiet/quiet/issues/3442)
 
 ## [8.0.0]
 
@@ -332,7 +432,7 @@
 
 ### New features
 
-* Adds a context menu in Quiet desktop for copying text ([#503](https://github.com/TryQuiet/quiet/issues/503)) and saving images ([#503](https://github.com/TryQuiet/quiet/issues/568)) Thanks @agiledev24!
+* Adds a context menu in Quiet desktop for copying text ([#503](https://github.com/TryQuiet/quiet/issues/503)) and saving images ([#568](https://github.com/TryQuiet/quiet/issues/568)) Thanks @agiledev24!
 
 ### Fixes
 
@@ -393,7 +493,7 @@
 ### Fixes
 
 * Fixed memory leak associated with autoUpdater ([#2606](https://github.com/TryQuiet/quiet/issues/2606))
-* Fixed visual regression tests ([#2644](https://github.com/TryQuiet/quiet/issues/2645))
+* Fixed visual regression tests ([#2645](https://github.com/TryQuiet/quiet/issues/2645))
 
 ## [2.3.1]
 

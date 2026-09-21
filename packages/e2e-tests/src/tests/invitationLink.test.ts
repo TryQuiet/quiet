@@ -9,7 +9,7 @@ import {
   WarningModal,
   JoiningLoadingPanel,
 } from '../selectors'
-import { composeInvitationDeepUrl, parseInvitationLink, userJoinedMessage } from '@quiet/common'
+import { composeInvitationDeepUrl, parseInvitationLink } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import { createLogger } from '../logger'
@@ -194,7 +194,7 @@ describe('New user joins using invitation link while having app opened', () => {
       expect(await generalChannel.isReady()).toBeTruthy()
 
       const messageIds = await generalChannel.getMessageIdsByText(
-        `@${joiningUserUsername} has joined and will be registered soon. 🎉 Learn more`,
+        `@${joiningUserUsername} has joined! 🎉`,
         joiningUserUsername,
         1000
       )

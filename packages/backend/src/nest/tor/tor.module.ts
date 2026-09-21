@@ -3,11 +3,10 @@ import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS, TOR_PARAMS_PROVIDER, TOR_PASSWORD_P
 import { ConfigOptions } from '../types'
 import { TorControl } from './tor-control.service'
 import { Tor } from './tor.service'
-import { TorControlAuthType, TorParamsProvider, TorPasswordProvider } from './tor.types'
+import { TorControlAuthType, TorPasswordProvider } from './tor.types'
+import { torPasswordProvider } from './tor-password.provider'
 import path from 'path'
 import * as os from 'os'
-import * as child_process from 'child_process'
-import crypto from 'crypto'
 import { SocketModule } from '../socket/socket.module'
 import { createLogger } from '../common/logger'
 
@@ -32,31 +31,18 @@ const torParamsProvider = {
   inject: [CONFIG_OPTIONS],
 }
 
-const torPasswordProvider = {
-  provide: TOR_PASSWORD_PROVIDER,
-  useFactory: (torParamsProvider: TorParamsProvider) => {
-    const password = crypto.randomBytes(16).toString('hex')
-    if (!torParamsProvider.torPath) return null
-    const hashedPassword = child_process.execSync(`${torParamsProvider.torPath} --quiet --hash-password ${password}`, {
-      env: torParamsProvider.options?.env,
-    })
-    const torPassword = password
-    const torHashedPassword = hashedPassword.toString().trim()
-
-    return { torPassword, torHashedPassword }
-  },
-  inject: [TOR_PARAMS_PROVIDER],
-}
-
 const torControlParams = {
   provide: TOR_CONTROL_PARAMS,
-  useFactory: (configOptions: ConfigOptions, torPasswordProvider: TorPasswordProvider) => {
+  useFactory: (configOptions: ConfigOptions, torPasswordProvider: TorPasswordProvider | null) => {
+    // Native Tor has no password provider and can supply its cookie after module initialization.
+    // The bootstrap watcher waits for that cookie before attempting control I/O.
+    const usesCookieAuth = Boolean(configOptions.torAuthCookie) || torPasswordProvider === null
     return {
       port: configOptions.torControlPort,
       host: 'localhost',
       auth: {
-        value: configOptions.torAuthCookie || torPasswordProvider.torPassword,
-        type: configOptions.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD,
+        value: configOptions.torAuthCookie || torPasswordProvider?.torPassword || '',
+        type: usesCookieAuth ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD,
       },
     }
   },
