@@ -196,7 +196,8 @@ export class TorControl {
     command: string,
     eventCode: string,
     matchesEvent: TorControlEventMatcher,
-    timeoutMs = TOR_EVENT_TIMEOUT_MS
+    timeoutMs = TOR_EVENT_TIMEOUT_MS,
+    onCommandAccepted?: (response: TorControlResponse) => void
   ): Promise<TorControlResponse> {
     await this.waitForCredentials()
 
@@ -300,6 +301,7 @@ export class TorControl {
     try {
       await subscriptionPromise
       response = await this.sendCommand(command)
+      onCommandAccepted?.(response)
       notifyEvent?.()
       await Promise.race([
         eventPromise,

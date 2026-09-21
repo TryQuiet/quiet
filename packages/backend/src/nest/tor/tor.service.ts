@@ -16,6 +16,7 @@ import {
   HiddenServiceData,
   type SpawnHiddenServiceParams,
   TorControlAuthType,
+  type TorControlResponse,
   TorParams,
   TorParamsProvider,
   TorPasswordProvider,
@@ -824,11 +825,30 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
     const hiddenServiceGeneration = this.hiddenServiceGeneration
     const initializationPromise = (async () => {
-      const status = await this.torControl.sendCommandAndWaitForEvent(
-        `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`,
-        HIDDEN_SERVICE_DESCRIPTOR_EVENT,
-        event => this.isHiddenServiceDescriptorUploaded(event, onionAddress)
-      )
+      const publish = async (attempt = 0): Promise<TorControlResponse> => {
+        let accepted = false
+        try {
+          return await this.torControl.sendCommandAndWaitForEvent(
+            `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`,
+            HIDDEN_SERVICE_DESCRIPTOR_EVENT,
+            event => this.isHiddenServiceDescriptorUploaded(event, onionAddress),
+            undefined,
+            response => {
+              accepted = response.messages[0] === `250-ServiceID=${onionAddress}`
+            }
+          )
+        } catch (error) {
+          if (!accepted || hiddenServiceGeneration !== this.hiddenServiceGeneration) throw error
+          // ADD_ONION succeeded even though publication did not. Leaving its
+          // detached service alive makes every later retry collide with it.
+          // Only remove the exact service accepted in this same Tor session.
+          await this.torControl.sendCommand(`DEL_ONION ${onionAddress}`)
+          if (attempt !== 0 || hiddenServiceGeneration !== this.hiddenServiceGeneration) throw error
+          this.logger.warn('Retrying hidden-service publication after removing the unpublished service')
+          return await publish(attempt + 1)
+        }
+      }
+      const status = await publish()
       if (hiddenServiceGeneration !== this.hiddenServiceGeneration) {
         throw new Error('Tor generation changed while initializing hidden service')
       }
