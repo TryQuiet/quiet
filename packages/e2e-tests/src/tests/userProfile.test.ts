@@ -78,8 +78,11 @@ describe('User Profile Feature', () => {
   })
 
   it('Owner registers successfully and sees general channel', async () => {
+    const joinPanel = new JoiningLoadingPanel(users.owner.app.driver)
+    await joinPanel.waitForJoinToComplete()
+
     generalChannelOwner = new Channel(users.owner.app.driver, 'general')
-    expect(await generalChannelOwner.isReady())
+    expect(await generalChannelOwner.isReady()).toBeTruthy()
 
     const generalChannelText = await generalChannelOwner.element.getText()
     expect(generalChannelText).toEqual('general')
