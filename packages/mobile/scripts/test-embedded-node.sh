@@ -16,7 +16,7 @@ quiet_app="$quiet_root/packages/mobile/android/app"
 quiet_build="$quiet_root/packages/mobile/android/build/embedded-node-test/$quiet_abi"
 quiet_toolchain="$quiet_ndk/toolchains/llvm/prebuilt/linux-x86_64"
 mkdir -p "$quiet_build"
-"$quiet_toolchain/bin/${quiet_target}24-clang++" -std=c++17 \
+"$quiet_toolchain/bin/${quiet_target}24-clang++" -std=c++20 \
   -I "$quiet_app/libnode/include/node" -I "$quiet_app/src/main/cpp" \
   "$quiet_app/src/test/cpp/embedded-node.test.cpp" \
   -L "$quiet_app/libnode/bin/$quiet_abi" -lnode -o "$quiet_build/embedded-node-test"
