@@ -221,3 +221,47 @@ Keep the staged RN upgrades in [issue #3013](https://github.com/TryQuiet/quiet/i
 React 19, compatible native modules/RNScreens, community JavaScriptCore
 integration, iOS validation, and removal of temporary Back compatibility.
 Broader Node LTS work remains a separate monorepo change.
+
+### Develop integration — September 21, 2026
+
+Refreshed onto `develop` at `0ab5e2010` in `948ee831b`. The merge preserves
+`develop`'s purple top safe area and JSC heap-pointer-tagging workaround while
+retaining the SDK change's white bottom/side safe areas and legacy Back dispatch.
+The compatibility fixture now mounts production `AppHomeScreen`; compatibility
+and starter tests use its current `channel-list` selector (`43aba1ea9`).
+
+- Mobile Jest passed 73 suites, 249 tests and 44 snapshots; three existing
+  suites/tests remain skipped. TypeScript and full mobile lint pass (14 warnings,
+  no errors).
+- Fresh standard debug and Storybook app/instrumentation APK builds pass.
+- All three native compatibility scenarios pass on both API 35 and API 36:
+  keyboard/channel Back ordering with Redux cleanup, native preview dismissal,
+  and rotation with retained draft and full composer/image visibility.
+- The standard APK targets API 36. All 19 packaged ELF binaries, including the
+  Node addon, pass 16 KB LOAD alignment; APK ZIP alignment also passes.
+- These native scenarios exercise production UI components without the backend.
+  They do not establish full community messaging, physical-device lifecycle,
+  iOS safe-area behavior, production signing, or push delivery.
+
+GitHub's Ubuntu check job on `43aba1ea9` stopped during dependency installation
+with npm `ETIMEDOUT`, before lint or tests. It was not a reported source failure.
+See the PR Checks tab for subsequent hosted validation.
+
+### Drawer and photo-picker integration — September 21, 2026
+
+Refreshed #3421 onto the current API 36 parent in `c358210c1`, including
+`develop` at `0ab5e2010`. No drawer/photo implementation changes were needed.
+
+- The 11-package bootstrap, mobile TypeScript, and full mobile lint pass
+  (14 warnings, no errors).
+- Full mobile Jest passes 74 suites, 252 tests and 44 snapshots, with three
+  existing suites/tests skipped.
+- Fresh Storybook app/instrumentation APK builds pass.
+- All three focused native scenarios pass on both API 35 and API 36: drawer
+  parent shrink/rotation and close/reopen; native photo-picker cancellation;
+  photo selection with byte-for-byte cached-image verification, thumbnail
+  display, and removal. Both photo cases retain the draft and current channel.
+
+These remain UI-component tests with the backend disabled. Full attachment
+transfer, iOS behavior and actual multi-window task controls are not established
+by this validation.
