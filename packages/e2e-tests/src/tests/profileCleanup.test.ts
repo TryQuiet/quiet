@@ -39,12 +39,15 @@ describe('E2E profile cleanup', () => {
     expect(fs.readFileSync(savedIdentity, 'utf8')).toBe('existing user data')
   })
 
-  it('protects the default profile when selected by its data directory name', () => {
-    const { setup, savedIdentity } = createProfile({ dataDir: DESKTOP_DATA_DIR })
+  it.each([DESKTOP_DATA_DIR, DESKTOP_DATA_DIR.toLowerCase()])(
+    'protects the default profile when selected by the data directory name %s',
+    dataDir => {
+      const { setup, savedIdentity } = createProfile({ dataDir })
 
-    expect(() => setup.clearDataDir()).toThrow('Refusing to delete the default Quiet profile')
-    expect(fs.readFileSync(savedIdentity, 'utf8')).toBe('existing user data')
-  })
+      expect(() => setup.clearDataDir()).toThrow('Refusing to delete the default Quiet profile')
+      expect(fs.readFileSync(savedIdentity, 'utf8')).toBe('existing user data')
+    }
+  )
 
   it('allows explicitly authorized cleanup of a disposable default profile', () => {
     const { setup } = createProfile({ defaultDataDir: true })

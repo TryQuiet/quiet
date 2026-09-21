@@ -400,7 +400,7 @@ export class BuildSetup {
       return
     }
     if (
-      path.basename(path.resolve(this.dataDirPath)) === DESKTOP_DATA_DIR &&
+      path.basename(path.resolve(this.dataDirPath)).toLowerCase() === DESKTOP_DATA_DIR.toLowerCase() &&
       process.env.QUIET_E2E_ALLOW_DEFAULT_PROFILE_CLEANUP !== 'true'
     ) {
       throw new Error(
