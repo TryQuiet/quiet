@@ -1,7 +1,7 @@
 import { Builder, By, type WebDriver } from 'selenium-webdriver'
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome'
 import { SettingsModalTabName } from '../enums'
-import { waitForSettingsTab, waitForSettingsTabClosed } from '../settingsTabReady'
+import { closeSettingsTab, waitForSettingsTab, waitForSettingsTabClosed } from '../settingsTabReady'
 
 // These fixtures reproduce the panels' rendered content after their headings moved
 // into the drawer bar. Chrome supplies real layout and Selenium visibility checks.
@@ -98,5 +98,22 @@ describeLinux('settings panel readiness in Chrome', () => {
   it('still rejects a tab whose back button remains visible', async () => {
     await showPanel('<div data-testid="close-tab-button-box"><button>Back</button></div>')
     await expect(waitForSettingsTabClosed(driver, 200)).rejects.toThrow('Settings tab did not finish closing')
+  })
+
+  it('clicks the back button after the released drawer finishes sliding into place', async () => {
+    await showPanel(`<div id="drawer" style="position:absolute;left:100px;top:50px;transform:translateX(400px)">
+      <div data-testid="close-tab-button-box"><button onclick="
+        document.body.dataset.clickX = this.getBoundingClientRect().x;
+        document.getElementById('drawer').remove();
+      ">Back</button></div>
+    </div>`)
+    await driver.executeScript(`
+      const drawer = document.getElementById('drawer');
+      drawer.style.transition = 'transform 1s linear';
+      drawer.getBoundingClientRect();
+      drawer.style.transform = 'translateX(0)';
+    `)
+    await closeSettingsTab(driver, 3_000)
+    expect(Number(await driver.findElement(By.css('body')).getAttribute('data-click-x'))).toBeCloseTo(100, 0)
   })
 })

@@ -33,7 +33,7 @@ test('QSS-only evidence requires a matching receipt and rejects the ordinary bac
 })
 
 test('desktop preflight inspects packaged backend bytes inside the actual app archive', async t => {
-  const asar = require(require.resolve('asar', { paths: [path.resolve(__dirname, '../../desktop')] }))
+  const asar = require(require.resolve('@electron/asar', { paths: [path.resolve(__dirname, '../../desktop')] }))
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-qss-only-asar-'))
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }))
   const source = path.join(directory, 'app')
