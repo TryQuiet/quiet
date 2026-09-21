@@ -71,3 +71,25 @@ for (const abi of ['x86_64,x86', 'arm64-v8a']) {
     assert.equal(fs.existsSync(compose), false, 'early failures must still remove the provider runtime file')
   })
 }
+
+test('Android Appium config points to the executable produced by the desktop package', t => {
+  const { root, env } = fixture(t)
+  const desktop = path.join(root, 'packages/desktop')
+  fs.mkdirSync(path.join(desktop, 'dist/linux-unpacked'), { recursive: true })
+  const metadata = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../desktop/package.json'), 'utf8'))
+  fs.writeFileSync(path.join(desktop, 'package.json'), JSON.stringify(metadata))
+  const binary = path.join(desktop, 'dist/linux-unpacked', metadata.build.linux.executableName)
+  fs.writeFileSync(binary, '#!/bin/sh\nexit 0\n', { mode: 0o755 })
+  const script = fs.readFileSync(path.resolve(__dirname, '../e2e/appium/ci-android.sh'), 'utf8')
+  const generator = script.match(/python3 - <<'PY'\n([\s\S]*?)\nPY/)[1]
+  const config = path.join(root, 'appium.json')
+  const result = spawnSync('python3', ['-c', generator], {
+    cwd: root,
+    env: { ...env, QUIET_NOTIFICATION_LANE: 'onboarding', QUIET_NOTIFICATION_CONFIG: config },
+    encoding: 'utf8',
+  })
+  assert.equal(result.status, 0, result.stderr)
+  const generated = JSON.parse(fs.readFileSync(config, 'utf8'))
+  assert.equal(generated.desktopBinary, binary)
+  fs.accessSync(generated.desktopBinary, fs.constants.X_OK)
+})
