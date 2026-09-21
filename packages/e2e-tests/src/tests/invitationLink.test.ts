@@ -20,7 +20,8 @@ const logger = createLogger('invitationLink')
 jest.setTimeout(5 * 60 * 1000)
 it.todo('New user joins using invitation link while having app closed')
 describe('New user joins using invitation link while having app opened', () => {
-  // Note: this test requires no DATA_DIR env so ran on local machine may interfere with 'Quiet' data directory
+  // OS deep links use the default profile. Run only in a disposable OS user
+  // profile; clearDataDir requires an explicit cleanup opt-in for this case.
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
   const joiningUserUsername = 'alice-joining'
