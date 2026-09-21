@@ -96,7 +96,7 @@ jobs:
       - name: Run one client test
         timeout-minutes: 15
         shell: bash
-        run: cd packages/e2e-tests && npm run test oneClient.test.ts windowsBackendProcesses.test.ts
+        run: cd packages/e2e-tests && npm run test oneClient.test.ts windowsBackendProcesses.test.ts applicationLogReader.test.ts
 
       - name: Run user profile test
         timeout-minutes: 25

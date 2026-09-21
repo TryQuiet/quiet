@@ -13,6 +13,7 @@ import { config } from 'dotenv'
 import { createLogger } from './logger'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
 import { downloadFile } from './downloadFile'
+import { ApplicationLogReader } from './applicationLogReader'
 
 const logger = createLogger('utils')
 
@@ -35,6 +36,7 @@ export interface BuildSetupInit {
 export class BuildSetup {
   private driver?: ThenableWebDriver | null
   private processOutput = ''
+  private applicationLogs: ApplicationLogReader
   public port?: number
   public debugPort?: number
   public dataDir?: string
@@ -75,6 +77,7 @@ export class BuildSetup {
       (appEnvironment.HOME &&
         path.join(appEnvironment.HOME, process.platform === 'darwin' ? 'Library/Application Support' : '.config'))
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir, appDataPath })
+    this.applicationLogs = new ApplicationLogReader(path.join(this.dataDirPath, 'logs'))
     logger.info('Running app from directory', this.dataDirPath)
     this._seleniumLogger = logging.getLogger()
     this._configureSeleniumLogging()
@@ -191,7 +194,7 @@ export class BuildSetup {
       DEBUG: this._generateDebugSetting(),
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
-      ...(process.env.E2E_LOG_DIR ? { LOG_TO_FILE: 'true' } : {}),
+      ...(process.platform === 'win32' || process.env.E2E_LOG_DIR ? { LOG_TO_FILE: 'true' } : {}),
     }
     if (qssEnabled) {
       env = {
@@ -284,16 +287,20 @@ export class BuildSetup {
 
   public clearProcessOutput(): void {
     this.processOutput = ''
+    if (process.platform === 'win32') this.applicationLogs.reset()
   }
 
   public hasProcessOutput(text: string): boolean {
+    // Windows GUI applications do not reliably inherit ChromeDriver's console.
+    // The backend writes the same events to its application log.
+    if (process.platform === 'win32') this.appendProcessOutput(this.applicationLogs.readNew())
     return this.processOutput.includes(text)
   }
 
   public async waitForProcessOutput(text: string, timeoutMs = 60_000): Promise<void> {
     const deadline = Date.now() + timeoutMs
     while (Date.now() < deadline) {
-      if (this.processOutput.includes(text)) {
+      if (this.hasProcessOutput(text)) {
         return
       }
       await sleep(250)

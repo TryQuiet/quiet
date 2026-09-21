@@ -577,61 +577,58 @@ describe('Multiple Clients', () => {
         expect(channels.length).toEqual(2)
       })
 
-      // End of tests for Windows
-      if (process.platform !== 'win32') {
-        it('User leaves community', async () => {
-          logger.info('TEST 2')
-          const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
-          expect(await settingsModal.isReady()).toBeTruthy()
-          await settingsModal.switchTab(SettingsModalTabName.LEAVE_COMMUNITY)
-          await settingsModal.leaveCommunityButton()
-        })
+      it('User leaves community', async () => {
+        logger.info('TEST 2')
+        const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
+        expect(await settingsModal.isReady()).toBeTruthy()
+        await settingsModal.switchTab(SettingsModalTabName.LEAVE_COMMUNITY)
+        await settingsModal.leaveCommunityButton()
+      })
 
-        // Delete general channel while guest is absent
-        it('Owner recreates general channel', async () => {
-          logger.info('TEST 3')
-          await sidebarOwner.switchChannel(generalChannelName, true, true)
-          expect(await generalChannelOwner.isReady()).toBeTruthy()
-          expect(await generalChannelOwner.isOpen()).toBeTruthy()
-          expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
-          channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          const { menuOpened, menuButton, iconVisible } = await channelContextMenuOwner.openMenu()
-          await channelContextMenuOwner.openDeletionChannelModal()
-          await channelContextMenuOwner.deleteChannel()
-          expect(menuButton).toBe(true)
-          expect(menuOpened).toBe(true)
-          expect(iconVisible).toBe(true)
-        })
+      // Delete general channel while guest is absent
+      it('Owner recreates general channel', async () => {
+        logger.info('TEST 3')
+        await sidebarOwner.switchChannel(generalChannelName, true, true)
+        expect(await generalChannelOwner.isReady()).toBeTruthy()
+        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
+        channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
+        const { menuOpened, menuButton, iconVisible } = await channelContextMenuOwner.openMenu()
+        await channelContextMenuOwner.openDeletionChannelModal()
+        await channelContextMenuOwner.deleteChannel()
+        expect(menuButton).toBe(true)
+        expect(menuOpened).toBe(true)
+        expect(iconVisible).toBe(true)
+      })
 
-        it('Owner sees recreated general channel', async () => {
-          logger.info('TEST 3')
-          expect(await generalChannelOwner.isReady()).toBeTruthy()
-          expect(await generalChannelOwner.isOpen()).toBeTruthy()
-          expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
-          const retryConfig = users.owner.app.retryConfig
-          const failureReason = `Expected 2 channels to be present in the sidebar within ${retryConfig.timeoutMs}ms`
-          const channels = await promiseWithRetries(
-            (async () => {
-              const channelList = await sidebarOwner.getChannelList()
-              if (channelList.length !== 2) {
-                throw new Error(`Expected 2 channels, but found ${channelList.length}`)
-              }
-              return channelList
-            })(),
-            failureReason,
-            retryConfig
-          )
-          expect(channels.length).toEqual(2)
-        })
+      it('Owner sees recreated general channel', async () => {
+        logger.info('TEST 3')
+        expect(await generalChannelOwner.isReady()).toBeTruthy()
+        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
+        const retryConfig = users.owner.app.retryConfig
+        const failureReason = `Expected 2 channels to be present in the sidebar within ${retryConfig.timeoutMs}ms`
+        const channels = await promiseWithRetries(
+          (async () => {
+            const channelList = await sidebarOwner.getChannelList()
+            if (channelList.length !== 2) {
+              throw new Error(`Expected 2 channels, but found ${channelList.length}`)
+            }
+            return channelList
+          })(),
+          failureReason,
+          retryConfig
+        )
+        expect(channels.length).toEqual(2)
+      })
 
-        it('Second user sees recreated general channel', async () => {
-          expect(await generalChannelUser3.isReady()).toBeTruthy()
-          expect(await generalChannelUser3.isOpen()).toBeTruthy()
-          expect(await generalChannelUser3.isMessageInputReady()).toBeTruthy()
-          const channels = await sidebarOwner.getChannelList()
-          expect(channels.length).toEqual(2)
-        })
-      }
+      it('Second user sees recreated general channel', async () => {
+        expect(await generalChannelUser3.isReady()).toBeTruthy()
+        expect(await generalChannelUser3.isOpen()).toBeTruthy()
+        expect(await generalChannelUser3.isMessageInputReady()).toBeTruthy()
+        const channels = await sidebarOwner.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
     })
 
     describe('Leave Community', () => {
