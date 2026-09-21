@@ -84,15 +84,19 @@ Legacy tests pending migration can be found in commit fa1256e4d19fc481e316a09523
 - lazyLoading
 - newUser.returns
 
-## Local Linux network-delay tests (slow, opt-in)
+## Linux network-delay tests: QSS in CI, Tor local-only
 
-These tests are **local-only**: CI does not run them, and ordinary Jest runs skip
-both network suites. Run them in a separate terminal alongside the normal test
-run, or after it finishes. They do not gate or delay the normal suite. When
-running desktop tests concurrently, give the network suite a separate X display
-and keep its QSS server running until it finishes. Network-suite invocations
-serialize with each other because they temporarily configure host forwarding;
-they do not acquire a lock used by ordinary tests.
+The Linux QSS workflow runs `test:network:qss` **after the ordinary QSS suites**,
+with a 15-minute step limit including setup and failure cleanup. It uses the
+existing QSS server and AppImage build, and uploads failure screenshots. The slow
+Tor mode is **local-only**; CI never invokes `test:network:tor`.
+
+Ordinary unwrapped Jest runs skip both network suites. For local testing, run
+either command in a separate terminal alongside the normal run, or afterward.
+When running desktop tests concurrently, give the network suite a separate X
+display and keep its QSS server running until it finishes. Network-suite
+invocations serialize with each other because they temporarily configure host
+forwarding; they do not acquire a lock used by ordinary tests.
 
 **Tor is slow; QSS does not wait for Tor.** Allow about 20 minutes for the Tor
 mode, excluding builds (an observed run took 18m25s). Each Tor scenario has a
@@ -134,7 +138,7 @@ npm run test:network:qss
 
 Each command runs independently and reports its own failures. Keep its terminal
 open until completion, or use Ctrl-C to cancel and clean up. Failure screenshots remain
-in `network-artifacts/`; they are not uploaded automatically. Successful cases
+in `network-artifacts/`; the QSS workflow uploads them in CI. Successful cases
 skip screenshot capture so diagnostics do not delay the run.
 
 To check real bandwidth limiting, process isolation cleanup on failure, and

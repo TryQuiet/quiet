@@ -186,7 +186,7 @@ def main():
     for name in ('SIGTERM', 'SIGINT'):
         signal.signal(getattr(signal, name), lambda *_: sys.exit(130))
     if not args.self_test:
-        print('Local network-delay tests: Tor can take about 20 minutes; QSS does not wait for Tor. '
+        print('Network-delay tests: Tor can take about 20 minutes; QSS does not wait for Tor. '
               'Run separately from, or after, the ordinary suite. Waiting for the network-test lock...', flush=True)
     lock = open('/tmp/quiet-network-tests.lock', 'w')
     fcntl.flock(lock, fcntl.LOCK_EX)
