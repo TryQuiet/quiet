@@ -17,6 +17,7 @@ import { createLogger } from '../common/logger'
 class TorControlAuthenticationError extends Error {}
 
 const TOR_CONTROL_REPLY_TIMEOUT_MS = 5000
+export const TOR_CONTROL_COMMAND_TIMEOUT_MS = 30_000
 export const TOR_EVENT_TIMEOUT_MS = 120_000
 
 @Injectable()
@@ -100,7 +101,7 @@ export class TorControl {
       this.updateAuthString()
       await this.request(connection, this.authString.trimEnd(), signal)
     } catch (error) {
-      connection.end()
+      connection.destroy()
       if (error instanceof Error && /^515\b/.test(error.message)) {
         throw new TorControlAuthenticationError(error.message)
       }
@@ -109,7 +110,6 @@ export class TorControl {
   }
 
   private async connect(signal?: AbortSignal): Promise<void> {
-    // TODO: We may want to limit the number of connection attempts.
     // eslint-disable-next-line no-constant-condition
     while (true) {
       signal?.throwIfAborted()
@@ -132,7 +132,7 @@ export class TorControl {
 
   private disconnect() {
     try {
-      this.connection?.end()
+      this.connection?.destroy()
     } catch (e) {
       this.logger.error('Disconnect failed:', e)
     }
@@ -202,28 +202,52 @@ export class TorControl {
   }
 
   public async sendCommand(command: string, signal?: AbortSignal): Promise<TorControlResponse> {
-    return this.commandMutex.runExclusive(async () => {
-      // Every command path shares this gate, including ADD_ONION during community creation.
-      signal?.throwIfAborted()
-      await raceSignal(this.waitForCredentials(), signal)
-      const commandName = command.trim().split(/\s+/, 1)[0]?.toUpperCase() || 'UNKNOWN'
-      this.logger.debug('Sending Tor command', { command: commandName })
-      this.isSending = true
-      try {
-        await this.connect(signal)
-        signal?.throwIfAborted()
-        const res = await this._sendCommand(command, signal)
-        this.logger.debug('Tor command response', {
-          command: commandName,
-          code: res.code,
-          messageCount: res.messages.length,
-        })
-        return res
-      } finally {
-        this.disconnect()
-        this.isSending = false
-      }
-    })
+    signal?.throwIfAborted()
+    const deadline = new AbortController()
+    const cancel = () => deadline.abort(signal?.reason)
+    signal?.addEventListener('abort', cancel, { once: true })
+    // Bound the entire local transaction, including the queue, missing native
+    // credentials and reconnects. This is independent of HSDir publication.
+    const timeout = setTimeout(
+      () => deadline.abort(new Error('Timeout while waiting for Tor control to become available')),
+      TOR_CONTROL_COMMAND_TIMEOUT_MS
+    )
+    const commandSignal = deadline.signal
+    try {
+      return await raceSignal(
+        this.commandMutex.runExclusive(async () => {
+          // Expired queued commands must never execute after Tor recovers.
+          commandSignal.throwIfAborted()
+          await raceSignal(this.waitForCredentials(), commandSignal)
+          const commandName = command.trim().split(/\s+/, 1)[0]?.toUpperCase() || 'UNKNOWN'
+          this.logger.debug('Sending Tor command', { command: commandName })
+          this.isSending = true
+          try {
+            await this.connect(commandSignal)
+            commandSignal.throwIfAborted()
+            const res = await this._sendCommand(command, commandSignal)
+            this.logger.debug('Tor command response', {
+              command: commandName,
+              code: res.code,
+              messageCount: res.messages.length,
+            })
+            return res
+          } finally {
+            this.disconnect()
+            this.isSending = false
+          }
+        }),
+        commandSignal
+      )
+    } catch (error) {
+      // raceSignal uses a generic AbortError; preserve the useful timeout or
+      // caller cancellation reason at this public boundary.
+      commandSignal.throwIfAborted()
+      throw error
+    } finally {
+      clearTimeout(timeout)
+      signal?.removeEventListener('abort', cancel)
+    }
   }
 
   public async getDetachedOnionServices(signal?: AbortSignal): Promise<Set<string>> {

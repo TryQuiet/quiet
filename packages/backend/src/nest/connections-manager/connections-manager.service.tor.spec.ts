@@ -2,6 +2,7 @@ import { jest } from '@jest/globals'
 
 import { type DirResult } from 'tmp'
 import crypto from 'crypto'
+import net from 'net'
 import { isPeerId } from '@libp2p/interface'
 import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
 import { createPeerId, createTmpDir, generateLibp2pPSK, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
@@ -150,6 +151,49 @@ describe('Connections manager', () => {
     expect(tor['registeredHiddenServices'].size).toBe(0)
     expect(tor['publishedHiddenServices'].size).toBe(0)
     expect(await torControl.getDetachedOnionServices()).toEqual(new Set())
+  })
+
+  it('releases failed creation and allows retry after a silent native Tor endpoint recovers', async () => {
+    await localDbService.deleteCommunity(community.id)
+    await connectionsManagerService['generatePorts']()
+    const sockets = new Set<net.Socket>()
+    const silentNativeTor = net.createServer(socket => {
+      sockets.add(socket)
+      socket.on('error', () => undefined)
+      socket.once('close', () => sockets.delete(socket))
+      socket.resume()
+    })
+    await new Promise<void>(resolve => silentNativeTor.listen(0, '127.0.0.1', resolve))
+    const workingParams = torControl.torControlParams
+    const payload = {
+      id: community.id,
+      name: 'recovered community',
+      username: 'recovered owner',
+      useServer: false,
+      tosAccepted: true,
+    }
+    try {
+      torControl.updateConnectionParams({
+        ...workingParams,
+        host: '127.0.0.1',
+        port: (silentNativeTor.address() as net.AddressInfo).port,
+      })
+      await expect(connectionsManagerService.createCommunity(payload)).rejects.toThrow(
+        'Timeout while waiting for Tor control to become available'
+      )
+      expect(await localDbService.getCommunity(community.id)).toBeUndefined()
+
+      torControl.updateConnectionParams(workingParams)
+      const created = await connectionsManagerService.createCommunity(payload)
+      expect(created?.community.name).toBe(payload.name)
+      expect(await localDbService.getCommunity(community.id)).toEqual(created!.community)
+      expect(libp2pService.libp2pInstance?.status).toBe('started')
+      expect(tor.bootstrapped).toBe(false)
+    } finally {
+      torControl.updateConnectionParams(workingParams)
+      for (const socket of sockets) socket.destroy()
+      await new Promise<void>(resolve => silentNativeTor.close(() => resolve()))
+    }
   })
 
   it('gets a valid onion identity from Tor before bootstrap and releases the temporary service', async () => {
