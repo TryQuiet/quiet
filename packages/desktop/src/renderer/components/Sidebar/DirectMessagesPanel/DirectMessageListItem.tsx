@@ -5,6 +5,7 @@ import { PublicChannelStorage, UserProfile } from '@quiet/types'
 import { DmChannelUserData } from './DirectMessagesPanel'
 import ProfilePhotoWithBadge from '../../ProfilePhoto/ProfilePhotoWithBadge'
 import SidebarRow from '../../ui/Sidebar/SidebarRow'
+import SidebarUnreadBadge from '../../ui/Sidebar/SidebarUnreadBadge'
 
 const PREFIX = 'DirectMessageListItem'
 
@@ -47,6 +48,11 @@ export interface DirectMessageListItemProps {
  *
  * The row's geometry and states come from `SidebarRow` so a DM row and a channel row share one
  * rhythm; only the avatar and the "you" annotation are this row's own.
+ *
+ * Unread is drawn the way the library draws it on a channel row: the label goes to full opacity and
+ * weight AND the row takes `badge2` at its right edge. develop marked an unread DM by weight alone,
+ * which left the two kinds of row in the same list disagreeing about what unread looks like, and
+ * left the state depending on a weight change with no non-colour cue beside it.
  */
 export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
   channel,
@@ -71,6 +77,7 @@ export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
       data-testid={`${channel.id}-dm-link`}
       labelTestId={`${channel.id}-dm-link-text`}
       glyph={<ProfilePhotoWithBadge userData={userData} channel={channel} />}
+      badge={unread ? <SidebarUnreadBadge data-testid={`${channel.id}-dm-link-unread`} /> : undefined}
       annotation={
         isConversationWithMyself ? (
           <StyledAnnotation align='left' className={classes.me} data-testid={'dm-link-text-me'}>

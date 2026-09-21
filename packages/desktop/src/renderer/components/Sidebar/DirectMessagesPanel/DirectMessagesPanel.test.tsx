@@ -99,3 +99,84 @@ describe('DM row presence', () => {
     expect(badge.textContent).toEqual('2')
   })
 })
+
+/**
+ * A channel row and a DM row sit in the same column, so unread has to look the same on both: the
+ * library gives an unread row `badge2` at its right edge as well as the heavier label.
+ */
+describe('DM row unread', () => {
+  afterEach(cleanup)
+
+  const me = { userId: 'alice', nickname: 'Alice' } as UserProfile
+  const bob = { userId: 'bob', nickname: 'Bob' } as UserProfile
+
+  const dm = (id: string): PublicChannelStorage =>
+    ({ id, type: ChannelType.DM, memberIds: ['alice', 'bob'], displayedName: id }) as PublicChannelStorage
+
+  const renderPanel = (unreadDms: string[]) =>
+    renderComponent(
+      <DirectMessagesPanel
+        myUserProfile={me}
+        userProfiles={{ alice: me, bob }}
+        dmChannels={[dm('dm_bob')]}
+        unreadDms={unreadDms}
+        currentChannelId='general'
+        isUserConnected={() => false}
+        isTorInitialized={true}
+        setCurrentChannel={jest.fn()}
+        openNewMessageWindow={jest.fn()}
+      />
+    )
+
+  it('marks an unread conversation with the badge as well as the label', () => {
+    const result = renderPanel(['dm_bob'])
+
+    expect(result.queryByTestId('dm_bob-dm-link-unread')).not.toBeNull()
+    expect(result.getByTestId('dm_bob-dm-link-text').className).toContain('SidebarRowunread')
+  })
+
+  it('leaves a read conversation unbadged', () => {
+    const result = renderPanel([])
+
+    expect(result.queryByTestId('dm_bob-dm-link-unread')).toBeNull()
+    expect(result.getByTestId('dm_bob-dm-link-text').className).not.toContain('SidebarRowunread')
+  })
+})
+
+/**
+ * Only the conversation with yourself is annotated, and the annotation is a separate element beside
+ * the name rather than part of it, so a long name truncates without taking the annotation with it.
+ */
+describe('DM row "you" annotation', () => {
+  afterEach(cleanup)
+
+  const me = { userId: 'alice', nickname: 'Alice' } as UserProfile
+  const bob = { userId: 'bob', nickname: 'Bob' } as UserProfile
+
+  const renderPanel = (memberIds: string[], id: string) =>
+    renderComponent(
+      <DirectMessagesPanel
+        myUserProfile={me}
+        userProfiles={{ alice: me, bob }}
+        dmChannels={[{ id, type: ChannelType.DM, memberIds, displayedName: id } as PublicChannelStorage]}
+        unreadDms={[]}
+        currentChannelId='general'
+        isUserConnected={() => false}
+        isTorInitialized={true}
+        setCurrentChannel={jest.fn()}
+        openNewMessageWindow={jest.fn()}
+      />
+    )
+
+  it('annotates the conversation with myself', () => {
+    const result = renderPanel(['alice'], 'dm_self')
+
+    expect(result.getByTestId('dm-link-text-me').textContent).toEqual('you')
+  })
+
+  it('leaves a conversation with someone else unannotated', () => {
+    const result = renderPanel(['alice', 'bob'], 'dm_bob')
+
+    expect(result.queryByTestId('dm-link-text-me')).toBeNull()
+  })
+})
