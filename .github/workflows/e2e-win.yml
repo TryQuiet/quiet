@@ -92,7 +92,7 @@ jobs:
       - name: Run one client test
         timeout-minutes: 15
         shell: bash
-        run: cd packages/e2e-tests && npm run test oneClient.test.ts
+        run: cd packages/e2e-tests && npm run test oneClient.test.ts windowsBackendProcesses.test.ts
 
       - name: Run user profile test
         timeout-minutes: 25
@@ -118,3 +118,11 @@ jobs:
         timeout-minutes: 15
         shell: bash
         run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts
+
+      - name: Preserve Windows app logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-e2e-logs
+          path: ~/AppData/Roaming/e2e_*/**/*.log
+          retention-days: 7
