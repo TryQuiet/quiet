@@ -32,10 +32,13 @@ export async function completeBaselineJoin(
     // current build. All baseline version/message/channel and upgrade checks
     // still run against the same released binary and its persisted data.
     const directory = path.resolve('back-compat-artifacts', `${app.name}-publication-timeout`)
-    fs.mkdirSync(directory, { recursive: true })
-    fs.writeFileSync(path.join(directory, 'process.log'), app.buildSetup.getProcessOutput())
-    fs.writeFileSync(path.join(directory, 'failure.txt'), failure.stack ?? String(failure))
-    fs.writeFileSync(path.join(directory, 'setup.png'), await app.driver.takeScreenshot(), 'base64')
+    fs.mkdirSync(directory, { recursive: true, mode: 0o700 })
+    fs.writeFileSync(path.join(directory, 'process.log'), app.buildSetup.getProcessOutput(), { mode: 0o600 })
+    fs.writeFileSync(path.join(directory, 'failure.txt'), failure.stack ?? String(failure), { mode: 0o600 })
+    fs.writeFileSync(path.join(directory, 'setup.png'), await app.driver.takeScreenshot(), {
+      encoding: 'base64',
+      mode: 0o600,
+    })
     logger.warn('Reopening released 11.0.0 after its initial Tor publication timeout', { directory })
     await app.close({ forceSaveState: true })
     app.buildSetup.clearProcessOutput()

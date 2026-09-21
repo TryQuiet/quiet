@@ -101,6 +101,10 @@ describeLinux('released baseline setup recovery', () => {
     expect(fs.readFileSync(path.join(artifacts, 'failure.txt'), 'utf8')).toContain(
       "Loading panel element didn't disappear"
     )
+    expect(fs.statSync(artifacts).mode & 0o777).toBe(0o700)
+    for (const name of ['process.log', 'failure.txt', 'setup.png']) {
+      expect(fs.statSync(path.join(artifacts, name)).mode & 0o777).toBe(0o600)
+    }
     expect(JSON.parse(fs.readFileSync(profile, 'utf8')).username).toBe('bob')
     expect(app.buildSetup.hasProcessOutput(publicationFailure)).toBe(false)
   })
