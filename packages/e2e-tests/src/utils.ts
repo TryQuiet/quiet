@@ -13,6 +13,7 @@ import { config } from 'dotenv'
 import { createLogger } from './logger'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION } from './compatibilityBaseline'
 import { downloadFile } from './downloadFile'
+import { namespaceCommand, stopNamespaceProcesses, type NetworkNamespace } from './networkNamespace'
 import { ApplicationLogReader } from './applicationLogReader'
 
 const logger = createLogger('utils')
@@ -22,6 +23,7 @@ const appImagesPath = `${__dirname}/../Quiet`
 const defaultChromeDriverPath = require.resolve('electron-chromedriver/chromedriver.js')
 
 export interface BuildSetupInit {
+  networkNamespace?: NetworkNamespace
   port?: number
   debugPort?: number
   defaultDataDir?: boolean
@@ -49,6 +51,7 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
   private chromeDriverPath?: string
+  private networkNamespace?: NetworkNamespace
   private binaryPath?: string
   private qssEndpoint: string
   private environment: NodeJS.ProcessEnv
@@ -65,7 +68,9 @@ export class BuildSetup {
     qssEndpoint,
     username,
     environment = {},
+    networkNamespace,
   }: BuildSetupInit) {
+    this.networkNamespace = networkNamespace
     this.port = port
     this.debugPort = debugPort
     this.defaultDataDir = defaultDataDir
@@ -168,6 +173,10 @@ export class BuildSetup {
   private getChromeDriverSpawnConfig() {
     const args = [`--port=${this.port}`, '--verbose']
     const chromeDriverPath = this.chromeDriverPath ?? defaultChromeDriverPath
+    if (this.networkNamespace) {
+      args.push(`--allowed-ips=${this.networkNamespace.controlHost}`)
+      return namespaceCommand(this.networkNamespace, process.execPath, [chromeDriverPath, ...args])
+    }
 
     return {
       command: process.execPath,
@@ -229,6 +238,7 @@ export class BuildSetup {
       detached: false,
       env: childEnv,
     })
+    if (this.networkNamespace) this.child.stdin.end(JSON.stringify(childEnv))
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>
       setTimeout(() => {
@@ -339,7 +349,7 @@ export class BuildSetup {
       const binary: string = this.getBinaryLocation()
       try {
         this.driver = new Builder()
-          .usingServer(`http://localhost:${this.port}`)
+          .usingServer(`http://${this.networkNamespace?.host ?? 'localhost'}:${this.port}`)
           .withCapabilities({
             'goog:chromeOptions': {
               binary,
@@ -370,6 +380,7 @@ export class BuildSetup {
 
   public async killChromeDriver() {
     logger.info(`Killing driver (DATA_DIR=${this.dataDir})`)
+    if (this.networkNamespace) stopNamespaceProcesses(this.networkNamespace)
     this.child?.kill()
     await new Promise<void>(resolve =>
       setTimeout(() => {

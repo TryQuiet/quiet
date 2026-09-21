@@ -17,7 +17,12 @@
     "test:localBinary": "cross-env SE_SKIP_DRIVER_IN_PATH=true IS_E2E=true TEST_MODE=true IS_LOCAL=true DEBUG='backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p:connection-manager:auto-dial' jest --runInBand --detectOpenHandles --forceExit --verbose --",
     "test:prod": "cross-env SE_SKIP_DRIVER_IN_PATH=true jest --runInBand --detectOpenHandles --forceExit",
     "test:watch": "cross-env SE_SKIP_DRIVER_IN_PATH=true jest --watchAll",
-    "linux:copy": "node scripts/copyAppImage.js"
+    "linux:copy": "node scripts/copyAppImage.js",
+    "build:network": "tsc -p tsconfig.network.json",
+    "test:network": "npm run build:network && flock --no-fork /tmp/quiet-network-tests.lock node lib/network/runNetworkTests.js npm run test -- networkNamespace.test.ts networkConditions.test.ts",
+    "test:network:tor": "cross-env QUIET_NETWORK_QSS=false npm run test:network --",
+    "test:network:qss": "cross-env QUIET_NETWORK_QSS=true npm run test:network --",
+    "test:network:harness": "npm run build:network && cross-env QUIET_NETWORK_HARNESS=true flock --no-fork /tmp/quiet-network-tests.lock npm run test -- networkHarness.test.ts"
   },
   "devDependencies": {
     "@quiet/eslint-config": "^2.0.2-alpha.0",
