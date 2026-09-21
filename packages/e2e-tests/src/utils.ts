@@ -403,6 +403,16 @@ export class BuildSetup {
       logger.warn('Not deleting data directory because we are running in CI')
       return
     }
+    if (
+      path.basename(path.resolve(this.dataDirPath)).toLowerCase() === DESKTOP_DATA_DIR.toLowerCase() &&
+      process.env.QUIET_E2E_ALLOW_DEFAULT_PROFILE_CLEANUP !== 'true'
+    ) {
+      throw new Error(
+        `Refusing to delete the default Quiet profile at ${this.dataDirPath}. ` +
+          'Run this test in a disposable OS user profile and explicitly set ' +
+          'QUIET_E2E_ALLOW_DEFAULT_PROFILE_CLEANUP=true.'
+      )
+    }
     logger.info(`Deleting data directory at ${this.dataDirPath}`)
     try {
       fs.rmdirSync(this.dataDirPath, { recursive: true })
