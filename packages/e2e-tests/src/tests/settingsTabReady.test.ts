@@ -1,5 +1,5 @@
 import { Builder, By, type WebDriver } from 'selenium-webdriver'
-import { Options } from 'selenium-webdriver/chrome'
+import { Options, ServiceBuilder } from 'selenium-webdriver/chrome'
 import { SettingsModalTabName } from '../enums'
 import { waitForSettingsTab, waitForSettingsTabClosed } from '../settingsTabReady'
 
@@ -26,11 +26,25 @@ describeLinux('settings panel readiness in Chrome', () => {
   let driver: WebDriver
 
   beforeAll(async () => {
-    // npm scripts set SE_SKIP_DRIVER_IN_PATH so Selenium matches system Chrome;
-    // npm also exposes Electron's older chromedriver, which only fits the app.
     const options = new Options()
     options.addArguments('--headless=new', '--no-sandbox', '--disable-dev-shm-usage')
-    driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build()
+    // npm adds the Electron drivers to PATH. This fixture drives installed
+    // Chrome, so let Selenium Manager select the browser's matching driver.
+    const { driverPath, browserPath } = require('selenium-webdriver/common/seleniumManager').binaryPaths([
+      '--browser',
+      'chrome',
+      '--skip-driver-in-path',
+      '--language-binding',
+      'javascript',
+      '--output',
+      'json',
+    ])
+    options.setChromeBinaryPath(browserPath)
+    driver = await new Builder()
+      .forBrowser('chrome')
+      .setChromeOptions(options)
+      .setChromeService(new ServiceBuilder(driverPath))
+      .build()
   }, 120_000)
 
   afterAll(async () => {

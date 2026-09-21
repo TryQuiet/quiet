@@ -6,10 +6,53 @@ import { QSSClient } from './qss.client'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SocketService } from '../socket/socket.service'
 import { ServerIoProviderTypes } from '../types'
-import { CaptchaErrorMessages, SocketEvents } from '@quiet/types'
+import { CaptchaErrorMessages, SocketActions, SocketEvents } from '@quiet/types'
 import { CommunityOperationStatus, QSSEvents, WebsocketEvents } from './qss.types'
 
 describe('QSS captcha verification state', () => {
+  it('requests a fresh token after QSS rejects the previous challenge', async () => {
+    const httpServer = createServer()
+    const server = new Server(httpServer)
+    const verifiedTokens: string[] = []
+    server.on('connection', socket => {
+      socket.on(WebsocketEvents.GET_CAPTCHA_SITE_KEY, (_message, ack) =>
+        ack({ status: CommunityOperationStatus.SUCCESS, payload: { siteKey: 'test-site-key' } })
+      )
+      socket.on(WebsocketEvents.VERIFY_CAPTCHA, (message, ack) => {
+        verifiedTokens.push(message.payload.token)
+        ack({
+          status:
+            message.payload.token === 'fresh-token' ? CommunityOperationStatus.SUCCESS : CommunityOperationStatus.ERROR,
+        })
+      })
+    })
+    await new Promise<void>(resolve => httpServer.listen(0, '127.0.0.1', resolve))
+    const address = httpServer.address()
+    if (address == null || typeof address === 'string') throw new Error('Expected TCP address')
+    const endpoint = `http://127.0.0.1:${address.port}`
+    const frontend = new EventEmitter()
+    const socketService = new EventEmitter() as SocketService
+    const serverIoProvider = { io: frontend } as unknown as ServerIoProviderTypes
+    const captcha = new CaptchaService(serverIoProvider, endpoint, socketService)
+    await captcha.onModuleInit()
+    const tokens = ['rejected-token', 'fresh-token']
+    frontend.on(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, () => {
+      socketService.emit(SocketActions.HCAPTCHA_FORM_RESPONSE, { token: tokens.shift() })
+    })
+    const client = new QSSClient(true, endpoint, serverIoProvider, captcha)
+    try {
+      await expect(client.requestCaptchaVerification()).resolves.toBe(false)
+      await expect(client.requestCaptchaVerification()).resolves.toBe(true)
+      expect(verifiedTokens).toEqual(['rejected-token', 'fresh-token'])
+      expect(tokens).toHaveLength(0)
+    } finally {
+      client.close()
+      await new Promise<void>(resolve => {
+        void server.close(() => resolve())
+      })
+    }
+  })
+
   it('invalidates renderer state before requesting a new challenge and on disconnect', async () => {
     const httpServer = createServer()
     const server = new Server(httpServer, { transports: ['websocket', 'polling'] })

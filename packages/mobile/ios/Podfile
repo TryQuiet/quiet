@@ -2,6 +2,7 @@ MIN_SUPPORTED_IPHONEOS_VERSION = '17.1'
 
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../scripts/react-native-app-plists'
+require_relative '../scripts/tor-pod-linkage'
 
 QuietReactNativeAppPlists.install!(NewArchitectureHelper)
 
@@ -12,9 +13,8 @@ install! 'cocoapods', :deterministic_uuids => false,
   :parallel_pod_downloads => true,
   :parallel_pod_download_thread_pool_size => 40
 
-# React native 0.76 defaults to using new architecture
-# Disable New Architecture
-ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+# Use Fabric and the bridgeless runtime with legacy native module interop.
+ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 
 # Host-less logic tests for the notification service extension code. Kept outside the
 # app target so they build for the simulator without the app (the Tor pod is device-only).
@@ -27,7 +27,8 @@ target 'Quiet' do
   use_frameworks! :linkage => :static
   config = use_native_modules!
 
-  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec'
+  # Includes Tor 0.4.9.11 and device/Apple Silicon simulator XCFramework slices.
+  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v409.11.2/Tor.podspec'
   pod 'FirebaseCore', '~> 10.20.0'
   pod 'FirebaseMessaging', '~> 10.20.0'
   pod 'FirebaseInstallations', '~> 10.20.0'
@@ -40,8 +41,13 @@ target 'Quiet' do
 
 
 
+  target 'QuietAppTests' do
+    inherit! :complete
+  end
+
   # Make all the other frameworks into static frameworks by overriding the static_framework? function to return true
   pre_install do |installer|
+    QuietTorLinkage.pre_install(installer)
     installer.pod_targets.each do |target|
       # Make some targets static as they throw errors if not
       if target.name.eql?('RNScreens') || target.name.eql?('react-native-image-picker') or target.name.eql?('RNCClipboard')
@@ -56,6 +62,7 @@ target 'Quiet' do
 
   post_install do |installer|
     react_native_post_install(installer, config[:reactNativePath])
+    QuietTorLinkage.post_install(installer)
 
     # Workaround for https://github.com/TryQuiet/quiet/issues/3452
     #
