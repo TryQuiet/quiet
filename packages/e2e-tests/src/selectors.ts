@@ -20,6 +20,7 @@ import {
 } from './types'
 import { createLogger } from './logger'
 import { closeSettingsTab, waitForSettingsTab } from './settingsTabReady'
+import { waitForAppWindow } from './appWindowReady'
 import { parseInvitationLink } from '@quiet/common'
 import { isDeviceInvitationData } from '@quiet/types'
 
@@ -64,22 +65,7 @@ export class App {
     await this.driver.getSession()
     // ChromeDriver can initially attach to the splash, which is destroyed when
     // the main renderer loads. Select the app window before querying its DOM.
-    await this.driver.wait(
-      async () => {
-        for (const handle of await this.driver.getAllWindowHandles()) {
-          try {
-            await this.driver.switchTo().window(handle)
-            if (new URL(await this.driver.getCurrentUrl()).pathname.endsWith('/index.html')) return true
-          } catch (error) {
-            if (!(error instanceof Error) || error.name !== 'NoSuchWindowError') throw error
-          }
-        }
-        return false
-      },
-      30_000,
-      'Quiet main window did not finish loading',
-      100
-    )
+    await waitForAppWindow(this.driver)
     const startingPanel = new StartingLoadingPanel(this.driver)
     const startingPanelLoaded = startingPanel.waitForLoadingToComplete(15_000, 45_000)
     await startingPanelLoaded
