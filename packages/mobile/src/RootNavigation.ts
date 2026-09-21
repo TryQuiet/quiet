@@ -24,3 +24,9 @@ export const pop = (): void => {
     navigationRef.dispatch(StackActions.pop())
   }
 }
+
+export const resetToScreen = (screen: ScreenNames): void => {
+  if (navigationRef.isReady()) {
+    navigationRef.resetRoot({ index: 0, routes: [{ name: screen }] })
+  }
+}

@@ -1,9 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common'
 import net from 'net'
+import { Mutex } from 'async-mutex'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
 import { ConfigOptions } from '../types'
-import { TorControlAuthType, TorControlParams } from './tor.types'
+import {
+  TorControlAuthType,
+  TorControlParams,
+  type TorControlCredentialsWaiter,
+  type TorControlEventMatcher,
+  type TorControlResponse,
+} from './tor.types'
 import { createLogger } from '../common/logger'
+
+class TorControlAuthenticationError extends Error {}
+
+const TOR_CONTROL_REPLY_TIMEOUT_MS = 5000
+const TOR_EVENT_TIMEOUT_MS = 120_000
 
 @Injectable()
 export class TorControl {
@@ -11,12 +23,54 @@ export class TorControl {
   isSending: boolean
   authString: string
   private readonly logger = createLogger(TorControl.name)
+  private readonly commandMutex = new Mutex()
+  private readonly eventConnections = new Set<net.Socket>()
+  private credentialsWaiter: TorControlCredentialsWaiter | undefined
+  private closed = false
 
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions
   ) {
     this.isSending = false
+  }
+
+  public get hasCredentials(): boolean {
+    return Boolean(this.torControlParams.auth.value)
+  }
+
+  public waitForCredentials(): Promise<void> {
+    if (this.closed) return Promise.reject(new Error('Tor control is closed'))
+    if (this.hasCredentials) return Promise.resolve()
+    if (!this.credentialsWaiter) {
+      let resolve!: () => void
+      let reject!: (error: Error) => void
+      const promise = new Promise<void>((onResolve, onReject) => {
+        resolve = onResolve
+        reject = onReject
+      })
+      this.credentialsWaiter = { promise, resolve, reject }
+      this.logger.debug('Waiting for Tor control credentials')
+    }
+    return this.credentialsWaiter.promise
+  }
+
+  public updateConnectionParams(params: TorControlParams): void {
+    this.torControlParams = { ...params, auth: { ...params.auth } }
+    if (this.hasCredentials) {
+      this.credentialsWaiter?.resolve()
+      this.credentialsWaiter = undefined
+    }
+  }
+
+  public onModuleDestroy(): void {
+    this.closed = true
+    this.commandMutex.cancel()
+    this.credentialsWaiter?.reject(new Error('Tor control is closed'))
+    this.credentialsWaiter = undefined
+    for (const connection of this.eventConnections) connection.end()
+    this.eventConnections.clear()
+    this.disconnect()
   }
 
   private updateAuthString() {
@@ -46,7 +100,8 @@ export class TorControl {
           resolve()
         } else {
           this.disconnect()
-          reject(new Error(`Tor Control port error: ${data.toString() as string}`))
+          const message = `Tor Control port error: ${data.toString() as string}`
+          reject(/^515\b/.test(data.toString()) ? new TorControlAuthenticationError(message) : new Error(message))
         }
       })
 
@@ -59,11 +114,15 @@ export class TorControl {
     // TODO: We may want to limit the number of connection attempts.
     // eslint-disable-next-line no-constant-condition
     while (true) {
+      await this.waitForCredentials()
       try {
         this.logger.debug(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
         await this._connect()
         return
       } catch (e) {
+        // Retrying the same rejected credentials cannot repair authentication.
+        // Let the caller recover or a native rewire install fresh credentials.
+        if (e instanceof TorControlAuthenticationError) throw e
         this.logger.error('Retrying due to error...', e)
         await new Promise(r => setTimeout(r, 500))
       }
@@ -79,11 +138,11 @@ export class TorControl {
     this.connection = null
   }
 
-  public _sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
+  public _sendCommand(command: string): Promise<TorControlResponse> {
     return new Promise((resolve, reject) => {
       const connectionTimeout = setTimeout(() => {
         reject('Timeout while sending command to Tor')
-      }, 5000)
+      }, TOR_CONTROL_REPLY_TIMEOUT_MS)
 
       this.connection?.on('data', data => {
         const dataArray = data.toString().split(/\r?\n/)
@@ -105,34 +164,158 @@ export class TorControl {
     })
   }
 
-  public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
-    const commandName = command.trim().split(/\s+/, 1)[0]?.toUpperCase() || 'UNKNOWN'
-    this.logger.debug('Sending Tor command', { command: commandName })
-    // Only send one command at a time.
-    if (this.isSending) {
-      this.logger.debug('Tor connection already established, waiting...')
+  public async sendCommand(command: string): Promise<TorControlResponse> {
+    return this.commandMutex.runExclusive(async () => {
+      // Every command path shares this gate, including ADD_ONION during community creation.
+      await this.waitForCredentials()
+      const commandName = command.trim().split(/\s+/, 1)[0]?.toUpperCase() || 'UNKNOWN'
+      this.logger.debug('Sending Tor command', { command: commandName })
+      this.isSending = true
+      try {
+        await this.connect()
+        const res = await this._sendCommand(command)
+        this.logger.debug('Tor command response', {
+          command: commandName,
+          code: res.code,
+          messageCount: res.messages.length,
+        })
+        return res
+      } finally {
+        this.disconnect()
+        this.isSending = false
+      }
+    })
+  }
+
+  /**
+   * Subscribes before sending a command so a fast asynchronous Tor event cannot
+   * race the command response. Events received before the response are retained
+   * and matched once the response is available.
+   */
+  public async sendCommandAndWaitForEvent(
+    command: string,
+    eventCode: string,
+    matchesEvent: TorControlEventMatcher,
+    timeoutMs = TOR_EVENT_TIMEOUT_MS
+  ): Promise<TorControlResponse> {
+    await this.waitForCredentials()
+
+    const events: string[] = []
+    let notifyEvent: (() => void) | undefined
+    let rejectEvent: ((error: Error) => void) | undefined
+    let response: TorControlResponse | undefined
+    let buffer = ''
+    let state: 'authenticating' | 'subscribing' | 'subscribed' = 'authenticating'
+    let settled = false
+
+    const connection = net.connect({
+      host: this.torControlParams.host,
+      port: this.torControlParams.port,
+      family: 4,
+    })
+    this.eventConnections.add(connection)
+
+    const close = () => {
+      this.eventConnections.delete(connection)
+      connection.end()
     }
 
-    // Wait for existing command to finish.
-    while (this.isSending) {
-      const timeout = 750
-      this.logger.debug(`Waiting for ${timeout}ms to retry command...`)
-      await new Promise(r => setTimeout(r, timeout))
-    }
+    const eventPromise = new Promise<void>((resolve, reject) => {
+      notifyEvent = () => {
+        if (!response) return
+        const matchingEvent = events.find(event => matchesEvent(event, response as TorControlResponse))
+        if (!matchingEvent || settled) return
+        settled = true
+        resolve()
+      }
+      rejectEvent = error => {
+        if (settled) return
+        settled = true
+        reject(error)
+      }
+    })
+    // The command can still be in flight when the event connection fails.
+    // Attach a handler immediately and rethrow when the promise is awaited below.
+    void eventPromise.catch(() => undefined)
 
-    this.isSending = true
+    let resolveSubscription!: () => void
+    let rejectSubscription!: (error: Error) => void
+    const subscriptionPromise = new Promise<void>((resolve, reject) => {
+      resolveSubscription = resolve
+      rejectSubscription = reject
+    })
+
+    const setupTimeout = setTimeout(() => {
+      rejectSubscription(new Error(`Timeout while subscribing to Tor ${eventCode} events`))
+    }, TOR_CONTROL_REPLY_TIMEOUT_MS)
+
+    connection.on('error', error => {
+      const wrapped = new Error(`Tor control event connection failed: ${error.message}`)
+      if (state === 'subscribed') rejectEvent?.(wrapped)
+      else rejectSubscription(wrapped)
+    })
+    connection.on('close', () => {
+      if (settled) return
+      const error = new Error(`Tor control event connection closed while waiting for ${eventCode}`)
+      if (state === 'subscribed') rejectEvent?.(error)
+      else rejectSubscription(error)
+    })
+    connection.on('data', data => {
+      buffer += data.toString()
+      const lines = buffer.split(/\r?\n/)
+      buffer = lines.pop() ?? ''
+
+      for (const line of lines) {
+        if (!line) continue
+        if (state === 'authenticating') {
+          if (line.startsWith('250')) {
+            state = 'subscribing'
+            connection.write(`SETEVENTS ${eventCode}\r\n`)
+          } else if (/^5\d\d\b/.test(line)) {
+            rejectSubscription(new Error(`Tor control authentication failed: ${line}`))
+          }
+          continue
+        }
+        if (state === 'subscribing') {
+          if (line.startsWith('250')) {
+            state = 'subscribed'
+            clearTimeout(setupTimeout)
+            resolveSubscription()
+          } else if (/^5\d\d\b/.test(line)) {
+            rejectSubscription(new Error(`Tor control event subscription failed: ${line}`))
+          }
+          continue
+        }
+        if (line.startsWith(`650 ${eventCode} `)) {
+          events.push(line)
+          notifyEvent?.()
+        }
+      }
+    })
+
+    this.updateAuthString()
+    connection.write(this.authString)
+
+    let eventTimeout: NodeJS.Timeout | undefined
     try {
-      await this.connect()
-      const res = await this._sendCommand(command)
-      this.logger.debug('Tor command response', {
-        command: commandName,
-        code: res.code,
-        messageCount: res.messages.length,
-      })
-      return res
+      await subscriptionPromise
+      response = await this.sendCommand(command)
+      notifyEvent?.()
+      await Promise.race([
+        eventPromise,
+        new Promise<void>((_, reject) => {
+          eventTimeout = setTimeout(
+            () => reject(new Error(`Timeout while waiting for Tor ${eventCode} event`)),
+            timeoutMs
+          )
+        }),
+      ])
+      return response
     } finally {
-      this.disconnect()
-      this.isSending = false
+      clearTimeout(setupTimeout)
+      if (eventTimeout) clearTimeout(eventTimeout)
+      settled = true
+      close()
     }
   }
 }

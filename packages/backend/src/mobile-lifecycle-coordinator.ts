@@ -24,6 +24,12 @@ export class MobileLifecycleCoordinator {
     return this.request({ type: MobileLifecycleIntentType.ACTIVE, services: { ...services } })
   }
 
+  public resume(): Promise<void> {
+    const pendingServices =
+      this.desiredIntent?.type === MobileLifecycleIntentType.ACTIVE ? this.desiredIntent.services : undefined
+    return this.request({ type: MobileLifecycleIntentType.ACTIVE, services: pendingServices })
+  }
+
   private request(intent: MobileLifecycleIntent): Promise<void> {
     this.desiredIntent = intent
 

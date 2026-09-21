@@ -11,6 +11,7 @@ import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/servi
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
 import { SigchainEvents } from '../../auth/types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const logger = createLogger('NotificationTokensStore')
 
@@ -211,7 +212,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
 
   public async validateEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
     try {
-      if (entry.payload.op === 'PUT') {
+      if (entry.payload.op === OrbitDbOp.PUT) {
         const encPayload = entry.payload.value!
         const decEntry = await this.decryptEntry(encPayload)
 

@@ -5,6 +5,10 @@ on:
     paths:
       - packages/mobile/**
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   unit-tests:
     timeout-minutes: 25
@@ -20,7 +24,8 @@ jobs:
 
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -30,3 +35,45 @@ jobs:
       - name: "Unit tests"
         working-directory: packages/mobile
         run: npm test
+
+  native-ios-auth-tests:
+    runs-on: macos-26
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: false
+
+      - name: 'Init submodules except 3rd-party/qss'
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
+        run: |
+          auth_url="https://x-access-token:${GH_TOKEN}@github.com/"
+          git config --global url."${auth_url}".insteadOf "https://github.com/"
+          trap 'git config --global --unset-all url."${auth_url}".insteadOf || true' EXIT
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
+
+      - name: 'Setup environment'
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common'
+          cachePrefix: 'native-ios-auth-tests'
+
+      - name: 'Install iOS pods'
+        working-directory: packages/mobile/ios
+        run: pod install
+
+      - name: 'Run native authentication and lifecycle regressions'
+        run: |
+          destination_id=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/{print $2; exit}')
+          test -n "$destination_id"
+          xcodebuild test \
+            -workspace packages/mobile/ios/Quiet.xcworkspace \
+            -scheme QuietTests \
+            -destination "platform=iOS Simulator,id=${destination_id}" \
+            -only-testing:QuietTests/NSEMessageAuthenticatorTests \
+            -only-testing:QuietTests/QuietBackgroundTaskTests \
+            -only-testing:QuietTests/TorHandlerLifecycleTests \
+            CODE_SIGNING_ALLOWED=NO

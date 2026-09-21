@@ -14,6 +14,7 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import com.quietmobile.Communication.CommunicationModulePackage
+import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.Push.QuietStorage
 import com.quietmobile.Utils.Const
 
@@ -46,6 +47,7 @@ class MainApplication : Application(), ReactApplication {
         }
         QuietStorage.init(this)
         QuietStorage.setAppForeground(false)
+        CommunicationModule.initializeLifecycle(this)
         createForegroundServiceNotificationChannel()
         createNotificationChannel()
     }

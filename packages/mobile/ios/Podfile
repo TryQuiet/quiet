@@ -13,6 +13,13 @@ install! 'cocoapods', :deterministic_uuids => false,
 # Disable New Architecture
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 
+# Host-less logic tests for the notification service extension code. Kept outside the
+# app target so they build for the simulator without the app (the Tor pod is device-only).
+target 'QuietTests' do
+  use_frameworks! :linkage => :static
+  pod 'Sodium'
+end
+
 target 'Quiet' do
   use_frameworks! :linkage => :static
   config = use_native_modules!
@@ -24,10 +31,6 @@ target 'Quiet' do
 
   use_react_native!(:path => config[:reactNativePath],)
 
-  target 'QuietTests' do
-    inherit! :complete
-    # Pods for testing
-  end
 
 
   # Make all the other frameworks into static frameworks by overriding the static_framework? function to return true
@@ -46,6 +49,36 @@ target 'Quiet' do
 
   post_install do |installer|
     react_native_post_install(installer)
+
+    # Workaround for https://github.com/TryQuiet/quiet/issues/3452
+    #
+    # React Native 0.77 pins the `fmt` pod to 11.0.2. Apple clang 21 (Xcode 26.4+,
+    # which is what the macos-26 runner image now ships) is stricter about requiring
+    # the call site of a `consteval` function to itself be a constant expression, so
+    # fmt 11.0.2's own `FMT_STRING(...)` uses inside `format-inl.h` no longer compile:
+    #
+    #   error: call to consteval function
+    #   'fmt::basic_format_string<...>::basic_format_string<FMT_COMPILE_STRING, 0>'
+    #   is not a constant expression
+    #
+    # See fmtlib/fmt#4740. fmt's `FMT_USE_CONSTEVAL` is defined unconditionally in
+    # base.h, so `-DFMT_USE_CONSTEVAL=0` / `-DFMT_CONSTEVAL=` cannot switch it off.
+    # The supported lever is the language standard: base.h disables consteval when
+    # `__cpp_lib_is_constant_evaluated` is unavailable, i.e. below C++20.
+    #
+    # The fmt pod compiles exactly one translation unit (src/format.cc), so building
+    # just that target as C++17 turns fmt's format-string checking from compile-time
+    # into run-time for fmt's own internal, fixed format literals, and changes nothing
+    # else. Every other pod (folly, the React-* pods, our own targets) keeps C++20 and
+    # keeps compile-time checking of the format strings it writes.
+    #
+    # Remove once React Native ships an fmt release containing the upstream fix.
+    installer.pods_project.targets.each do |target|
+      next unless target.name == 'fmt'
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+      end
+    end
 
     # Inject Quiet.xcconfig into Pods xcconfigs so DEVELOPMENT_TEAM and APP_BUNDLE_ID
     # are sourced from there (with optional LocalDev.xcconfig override) instead of

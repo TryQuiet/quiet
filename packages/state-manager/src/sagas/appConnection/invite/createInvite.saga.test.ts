@@ -12,6 +12,8 @@ import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
 import { getSocketFactory } from '../../../utils/tests/factories'
 
+const TEAM_ID = '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as Base58
+
 describe('createInvite', () => {
   let socket: MockedSocket
 
@@ -51,6 +53,7 @@ describe('createInvite', () => {
       seed: '5ah8uYodiwuwVybT',
       salt: '5ah8uYodiwuwVybT',
       id: '5ah8uYodiwuwVybT' as Base58,
+      teamId: TEAM_ID,
     }
     store.dispatch(connectionActions.setLongLivedInvite(existingInvite))
 
@@ -72,6 +75,7 @@ describe('createInvite', () => {
       seed: '5ah8uYodiwuwVybT',
       salt: '5ah8uYodiwuwVybT',
       id: '5ah8uYodiwuwVybT' as Base58,
+      teamId: TEAM_ID,
     }
 
     // Register a response for an invalid invite with a new invite
@@ -101,6 +105,7 @@ describe('createInvite', () => {
       seed: '5ah8uYodiwuwVybT',
       salt: '5ah8uYodiwuwVybT',
       id: '5ah8uYodiwuwVybT' as Base58,
+      teamId: TEAM_ID,
     }
 
     // Register a response for an invalid invite with a new invite
@@ -114,6 +119,7 @@ describe('createInvite', () => {
       seed: '8ah8uYodiwuwVyb5',
       salt: '8ah8uYodiwuwVyb5',
       id: '8ah8uYodiwuwVyb5' as Base58,
+      teamId: TEAM_ID,
     }
     store.dispatch(connectionActions.setLongLivedInvite(existingInvite))
 

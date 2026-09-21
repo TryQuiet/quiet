@@ -25,7 +25,8 @@ jobs:
 
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Extract version
         id: extract_version
@@ -120,14 +121,14 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: "Upload release assets"
-        uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release-production.apks
-          asset_name: app-standard-release.apks
-          asset_content_type: application/.apks
+        run: |
+          staged="${{ runner.temp }}/release-assets"
+          mkdir -p "$staged"
+          cp "./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release-production.apks" "$staged/app-standard-release.apks"
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "$staged/app-standard-release.apks" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: "Configure Google Play upload"
         run: |

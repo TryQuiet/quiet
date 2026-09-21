@@ -6,6 +6,7 @@ import { base58btc } from 'multiformats/bases/base58'
 import { UserProfileAccessController } from './UserProfileAccessController'
 import { RoleName } from '../../auth/services/roles/roles'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const emptyAsyncIterable = async function* () {}
 
@@ -99,31 +100,44 @@ const createEncryptedPayload = ({
   }) as unknown as EncryptedAndSignedPayload
 
 const createEntry = ({
-  op = 'PUT',
+  op = OrbitDbOp.PUT,
   key = 'writer-id',
   hash = `put-${key}`,
   value = createEncryptedPayload(),
   includeValue = true,
 }: {
-  op?: 'PUT' | 'DEL'
+  op?: OrbitDbOp
   key?: string
   hash?: string
   value?: EncryptedAndSignedPayload
   includeValue?: boolean
 } = {}): LogEntry<EncryptedAndSignedPayload> =>
   ({
+    // A full OrbitDB entry shape. The writer chokepoint verifies the entry signature, and
+    // `Entry.verify` re-encodes these fields, so they all have to be present and dag-cbor encodable.
+    id: 'user-profile-log',
     hash,
     identity: 'writer-identity-hash',
+    key: 'writer-public-key',
+    sig: 'writer-signature',
+    next: [],
+    refs: [],
+    clock: { id: 'writer-public-key', time: 1 },
+    v: 2,
     payload: {
       op,
       key,
-      value: includeValue ? value : undefined,
+      ...(includeValue ? { value } : {}),
     },
   }) as unknown as LogEntry<EncryptedAndSignedPayload>
 
 const createAccess = async (
   sigchainService: any,
-  writerIdentity: { id: string; teamId?: string } | undefined = { id: 'writer-id', teamId: 'team-id' },
+  writerIdentity: { id: string; teamId?: string; publicKey: string } | undefined = {
+    id: 'writer-id',
+    teamId: 'team-id',
+    publicKey: 'writer-public-key',
+  },
   verifyIdentity = true
 ) => {
   const controller = new UserProfileAccessController(sigchainService)
@@ -136,6 +150,9 @@ const createAccess = async (
     identities: {
       getIdentity: jest.fn().mockResolvedValue(writerIdentity as never),
       verifyIdentity: jest.fn().mockResolvedValue(verifyIdentity as never),
+      // Stands in for a valid entry signature; the substitution cases are covered end to end with
+      // real LFA keys in signer-substitution.spec.ts.
+      verify: jest.fn().mockResolvedValue(true as never),
     },
   })
 }
@@ -167,6 +184,13 @@ describe('UserProfileAccessController', () => {
     await expect(access.canAppend(createEntry())).resolves.toBe(true)
   })
 
+  it('rejects a profile entry whose signature key does not belong to the claimed writer identity', async () => {
+    const access = await createAccess(createSigchainService())
+    const entry = { ...createEntry(), key: 'attacker-public-key' }
+
+    await expect(access.canAppend(entry)).resolves.toBe(false)
+  })
+
   it('rejects user profile PUT entries from non-members', async () => {
     const access = await createAccess(createSigchainService({ member: false }))
 
@@ -182,7 +206,11 @@ describe('UserProfileAccessController', () => {
   })
 
   it('rejects user profile PUT entries from a different team identity', async () => {
-    const access = await createAccess(createSigchainService(), { id: 'writer-id', teamId: 'other-team-id' })
+    const access = await createAccess(createSigchainService(), {
+      id: 'writer-id',
+      teamId: 'other-team-id',
+      publicKey: 'writer-public-key',
+    })
 
     await expect(access.canAppend(createEntry())).resolves.toBe(false)
   })
@@ -201,7 +229,11 @@ describe('UserProfileAccessController', () => {
   })
 
   it('rejects user profile PUT entries when the writer does not match the encrypted signature author', async () => {
-    const access = await createAccess(createSigchainService(), { id: 'other-user-id', teamId: 'team-id' })
+    const access = await createAccess(createSigchainService(), {
+      id: 'other-user-id',
+      teamId: 'team-id',
+      publicKey: 'writer-public-key',
+    })
 
     await expect(access.canAppend(createEntry())).resolves.toBe(false)
   })
@@ -243,18 +275,18 @@ describe('UserProfileAccessController', () => {
   it('allows members to delete their own user profile', async () => {
     const access = await createAccess(createSigchainService())
 
-    await expect(access.canAppend(createEntry({ op: 'DEL' }))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry({ op: OrbitDbOp.DEL }))).resolves.toBe(true)
   })
 
   it('rejects members deleting another user profile', async () => {
     const access = await createAccess(createSigchainService())
 
-    await expect(access.canAppend(createEntry({ op: 'DEL', key: 'other-user-id' }))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry({ op: OrbitDbOp.DEL, key: 'other-user-id' }))).resolves.toBe(false)
   })
 
   it('allows admins to delete another user profile', async () => {
     const access = await createAccess(createSigchainService({ admin: true }))
 
-    await expect(access.canAppend(createEntry({ op: 'DEL', key: 'other-user-id' }))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry({ op: OrbitDbOp.DEL, key: 'other-user-id' }))).resolves.toBe(true)
   })
 })

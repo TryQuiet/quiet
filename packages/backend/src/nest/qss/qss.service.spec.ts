@@ -1,3 +1,6 @@
+import { createAdmissionAuthContext } from '../admission/admission-auth-context'
+import { AdmissionResourceScope } from '../admission/admission-resource-scope'
+import { CommunityLifecycle } from '../admission/community-lifecycle'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
 import { QSSModule } from './qss.module'
@@ -7,6 +10,7 @@ import { jest } from '@jest/globals'
 import { Socket, type Socket as ClientSocket } from 'socket.io-client'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
+import { SigChain } from '../auth/sigchain'
 import { QSSService } from './qss.service'
 import {
   GeneratePublicKeysMessage,
@@ -22,12 +26,18 @@ import {
   QSSEvents,
 } from './qss.types'
 import { createLogger } from '../common/logger'
-import { Community, Identity, ChannelMessage, SocketActions, SocketEvents, PublicChannel } from '@quiet/types'
+import {
+  Community,
+  Identity,
+  ChannelMessage,
+  SocketActions,
+  SocketEvents,
+  PublicChannel,
+  InvitationDataVersion,
+} from '@quiet/types'
 import { getReduxStoreFactory, getBaseTypesFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
-import { createKeyset, redactKeys } from '../../../../../3rd-party/auth/packages/crdx/dist'
-import { randomBytes } from 'crypto'
 import waitForExpect from 'wait-for-expect'
 import * as uint8arrays from 'uint8arrays'
 import { JoinStatus } from '../libp2p/libp2p.auth'
@@ -44,7 +54,7 @@ import { EventsType } from '@orbitdb/core'
 import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
 import { MessagesAccessController } from '../storage/channels/messages/orbitdb/MessagesAccessController'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
-import { Base58 } from '@localfirst/auth'
+import { Base58, createServer, redactServer } from '@localfirst/auth'
 import { RoleName } from '../auth/services/roles/roles'
 import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
 import { IpfsModule } from '../ipfs/ipfs.module'
@@ -52,12 +62,27 @@ import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSAuthConnection } from './qss-auth-conn'
-import { SigchainEvents } from '../auth/types'
+import { LFAEvents, SigchainEvents } from '../auth/types'
+import { InviteService } from '../auth/services/invites/invite.service'
 import { PublicChannelMessagesService } from '../storage/channels/messages/public-channel-messages.service'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
-import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
+import {
+  QSS_DEVICE_ADMISSION_MAX_ATTEMPTS,
+  QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS,
+  QSS_RECONNECT_BACKOFF_FACTOR,
+  QSS_RECONNECT_DELAY_MS,
+  QSS_RECONNECT_MAX_DELAY_MS,
+  QSSAuthConnStatus,
+} from './qss.const'
 import { QSSSyncManager } from './qss-sync-manager.service'
 import { Serializer } from '../common/serializer.service'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+
+/** Creates a test-only QSS server-key response using the current LFA server shape. */
+const generateQssServerKeys = (teamId: string) => {
+  const { serverId, identityKeys, keys } = redactServer(createServer({ host: 'localhost' }))
+  return { teamId, serverId, identityKeys, keys }
+}
 
 describe('QSSService', () => {
   let store: Store
@@ -279,7 +304,469 @@ describe('QSSService', () => {
     ;(qssSyncManager as any)._storageReadyTeams.add(teamId)
   }
 
+  describe('member role readiness', () => {
+    it('persists the invitation-granted role before marking QSS fully joined', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      let finishSaving!: () => void
+      const pendingSave = new Promise<void>(resolve => {
+        finishSaving = resolve
+      })
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain').mockReturnValue(pendingSave)
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+
+      const completion = qssService['_handleSelfAssignMember'](teamId)
+      await Promise.resolve()
+
+      expect(saveSpy).toHaveBeenCalledWith(teamId)
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+
+      finishSaving()
+      await completion
+
+      expect(authReadySpy).toHaveBeenCalledWith(teamId)
+      expect(syncReadySpy).toHaveBeenCalledWith(teamId)
+      expect(fullyJoinedSpy).toHaveBeenCalledWith(teamId)
+    })
+
+    it('surfaces an auth error when persistence fails', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      const saveError = new Error('database failure')
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain').mockRejectedValueOnce(saveError)
+      const stopSpy = jest.spyOn(qssAuthConnManager, 'stopConnection')
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      const authErrorSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, authErrorSpy)
+
+      await qssService['_handleSelfAssignMember'](teamId)
+
+      expect(saveSpy).toHaveBeenCalledTimes(1)
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+      expect(stopSpy).toHaveBeenCalledWith(teamId, false)
+      expect(authErrorSpy).toHaveBeenCalledWith({ teamId, error: saveError })
+    })
+
+    it('surfaces a terminal auth error without marking readiness when no invite grant is available', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      // Model admission before the invitation's MEMBER grant is claimed; removal is disabled.
+      jest.spyOn(sigchainService.activeChain.roles, 'amIMemberOfRole').mockReturnValue(false)
+      const saveSpy = jest.spyOn(sigchainService, 'saveChain')
+      const stopSpy = jest.spyOn(qssAuthConnManager, 'stopConnection')
+      const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+      const syncReadySpy = jest.spyOn(qssSyncManager, 'markMemberRoleReady')
+      const fullyJoinedSpy = jest.fn()
+      const authErrorSpy = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, authErrorSpy)
+
+      await qssService['_handleSelfAssignMember'](teamId)
+
+      expect(saveSpy).not.toHaveBeenCalled()
+      expect(authReadySpy).not.toHaveBeenCalled()
+      expect(syncReadySpy).not.toHaveBeenCalled()
+      expect(fullyJoinedSpy).not.toHaveBeenCalled()
+      expect(stopSpy).toHaveBeenCalledWith(teamId, false)
+      expect(authErrorSpy).toHaveBeenCalledWith({ teamId, error: expect.any(Error) })
+    })
+
+    // Regression (#346): the sign-in that precedes admission cannot emit the native push
+    // prerequisites (no team yet), so they must be emitted here, once the chain is complete
+    // and before QSS_FULLY_JOINED tells the rest of the backend the join is done.
+    it('emits the native push prerequisites once the QSS join completes, before marking fully joined', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        const teamId = sigchainService.activeChain.team!.id
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        await qssService.connect('wss://community.example/ws')
+
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+        const updateDeviceCredentialsSpy = jest.spyOn(sigchainService, 'updateDeviceCredentials')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
+        const fullyJoinedSpy = jest.fn()
+        qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+
+        await qssService['_handleSelfAssignMember'](teamId)
+
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: 'team-id',
+          qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
+        })
+        expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(teamId)
+        expect(updateKeysSpy).toHaveBeenCalledWith(teamId, true)
+        expect(fullyJoinedSpy).toHaveBeenCalledWith(teamId)
+
+        const nseUrlCall = emitSpy.mock.calls.findIndex(call => call[0] === SocketEvents.NSE_QSS_URL_UPDATED)
+        expect(emitSpy.mock.invocationCallOrder[nseUrlCall]).toBeLessThan(fullyJoinedSpy.mock.invocationCallOrder[0])
+        expect(updateDeviceCredentialsSpy.mock.invocationCallOrder[0]).toBeLessThan(
+          fullyJoinedSpy.mock.invocationCallOrder[0]
+        )
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    })
+
+    it('still completes the join when the native key sync fails', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        const teamId = sigchainService.activeChain.team!.id
+        sigchainService.activeChain.server.addServer(redactServer(createServer({ host: 'community.example' })))
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        await qssService.connect('wss://community.example/ws')
+
+        const updateKeysSpy = jest
+          .spyOn(sigchainService, 'updateKeysInNativeStorage')
+          .mockRejectedValue(new Error('native storage unavailable'))
+        const authReadySpy = jest.spyOn(qssAuthConnManager, 'markMemberRoleReady')
+        const fullyJoinedSpy = jest.fn()
+        const authErrorSpy = jest.fn()
+        qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+        qssService.on(QSSEvents.QSS_AUTH_ERROR, authErrorSpy)
+
+        await qssService['_handleSelfAssignMember'](teamId)
+
+        expect(updateKeysSpy).toHaveBeenCalledWith(teamId, true)
+        expect(authReadySpy).toHaveBeenCalledWith(teamId)
+        expect(fullyJoinedSpy).toHaveBeenCalledWith(teamId)
+        expect(authErrorSpy).not.toHaveBeenCalled()
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    })
+  })
+
   describe('connect', () => {
+    it('classifies a missing sign-in acknowledgment as availability for admission fallback', async () => {
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      jest.spyOn(qssService, 'connected', 'get').mockReturnValue(true)
+      jest.spyOn(qssClient, 'sendMessage').mockResolvedValue(undefined)
+      const chain = sigchainService.activeChain
+      await expect(qssService.prepareAdmission(chain.teamId!, chain)).rejects.toMatchObject({ kind: 'availability' })
+    })
+
+    it('preserves explicit sign-in rejection instead of treating it as unavailability', async () => {
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      jest.spyOn(qssService, 'connected', 'get').mockReturnValue(true)
+      jest.spyOn(qssClient, 'sendMessage').mockResolvedValue({
+        status: CommunityOperationStatus.UNAUTHORIZED,
+        reason: 'Invitation rejected',
+      } as any)
+      const chain = sigchainService.activeChain
+      await expect(qssService.prepareAdmission(chain.teamId!, chain)).rejects.not.toMatchObject({
+        kind: 'availability',
+      })
+    })
+
+    it('leaves pending invited-device authentication to the admission coordinator', async () => {
+      const teamId = 'pending-device-team'
+      await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)
+      const pendingChain = await sigchainService.createChainFromDeviceInvite(
+        {
+          seed: 'device-invite-seed',
+          userName: 'alice',
+          expectedTeamId: teamId,
+          expectedUserId: userIdentity.userId,
+        },
+        teamId,
+        true
+      )
+      const createCommunitySpy = jest.spyOn(qssService, 'createCommunity')
+      const signInSpy = jest.spyOn(qssService, 'signInToCommunity').mockResolvedValue(QSSOperationResult.SUCCESS)
+
+      community = {
+        ...community,
+        teamId,
+        inviteData: {
+          authData: { teamId },
+        } as any,
+      }
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      await qssService['_handleQssHandleSignIn']()
+
+      expect(createCommunitySpy).not.toHaveBeenCalled()
+      expect(signInSpy).not.toHaveBeenCalled()
+
+      const requestSignInSpy = jest
+        .spyOn(qssService, '_signInToCommunityImpl')
+        .mockResolvedValue(QSSOperationResult.SUCCESS)
+      const startAuthSpy = jest.spyOn(qssService as any, 'startAuthConnection').mockResolvedValue(true)
+      jest.spyOn(qssService as any, 'emitNseQssUrl').mockResolvedValue(undefined)
+      const startSyncSpy = jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+
+      const prepared = await qssService.prepareAdmission(teamId, pendingChain)
+      expect(requestSignInSpy).toHaveBeenCalledWith(teamId, pendingChain, false)
+      expect(startAuthSpy).not.toHaveBeenCalled()
+
+      const context = { gate: { assertCurrent: jest.fn() }, fail: jest.fn() } as any
+      const startNew = jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      await qssService.startPreparedAdmission(prepared, context)
+      expect(startNew).toHaveBeenCalledWith(teamId, context)
+      expect(startSyncSpy).not.toHaveBeenCalled()
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      qssService.pause()
+      expect(context.fail).toHaveBeenCalled()
+    })
+
+    it('passes the private context to auth without publishing readiness during startup', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      const start = jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      const push = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockResolvedValue(undefined)
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const context = { gate: { assertCurrent: jest.fn() }, fail: jest.fn() } as any
+      await qssService.startPreparedAdmission(prepared, context)
+      expect(start).toHaveBeenCalledWith(teamId, context)
+      expect(push).not.toHaveBeenCalled()
+    })
+
+    it('propagates startup errors to the owning adapter', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssAuthConnManager, 'startNewConnection').mockRejectedValue(new Error('auth startup failed'))
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      await expect(
+        qssService.startPreparedAdmission(prepared, { gate: { assertCurrent: jest.fn() }, fail: jest.fn() } as any)
+      ).rejects.toThrow('auth startup failed')
+    })
+
+    it('completes prepared admission once when auth joined notifications arrive together', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const lease = new CommunityLifecycle('community', {} as any)
+      const scope = new AdmissionResourceScope()
+      const { context, gate } = createAdmissionAuthContext({
+        attemptId: 1,
+        request: {} as any,
+        transport: AdmissionTransport.QSS,
+        chain,
+        submit: jest.fn() as any,
+        fail: jest.fn(),
+        scope,
+      })
+      lease.adopt(scope, gate)
+      gate.resume()
+      await qssService.startPreparedAdmission(prepared, context)
+      const push = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockResolvedValue(undefined)
+      const sync = jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+      const fullyJoined = jest.fn()
+      qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoined)
+
+      await Promise.all([qssService['handleQssAuthJoined'](teamId), qssService['handleQssAuthJoined'](teamId)])
+
+      expect(push).toHaveBeenCalledTimes(1)
+      expect(sync).toHaveBeenCalledTimes(1)
+      expect(fullyJoined).toHaveBeenCalledTimes(1)
+      expect(fullyJoined).toHaveBeenCalledWith(teamId)
+      await lease.drain(new Error('test complete'))
+    })
+
+    it('does not resume QSS when shutdown races with post-admission push setup', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const lease = new CommunityLifecycle('community', {} as any)
+      const scope = new AdmissionResourceScope()
+      const { context, gate } = createAdmissionAuthContext({
+        attemptId: 1,
+        request: {} as any,
+        transport: AdmissionTransport.QSS,
+        chain,
+        submit: jest.fn() as any,
+        fail: jest.fn(),
+        scope,
+      })
+      lease.adopt(scope, gate)
+      gate.resume()
+      await qssService.startPreparedAdmission(prepared, context)
+      let finish!: () => void
+      const push = jest.spyOn(qssService, 'syncNativePushPrerequisites').mockImplementation(
+        async () =>
+          new Promise<void>(resolve => {
+            finish = resolve
+          })
+      )
+      const resume = jest.spyOn(qssSyncManager, 'resume')
+      const joined = qssService['handleQssAuthJoined'](teamId)
+      await waitForExpect(() => expect(push).toHaveBeenCalled())
+      lease.revoke(new Error('shutdown'))
+      finish()
+      await expect(joined).rejects.toThrow('closed')
+      await lease.idle()
+      expect(resume).not.toHaveBeenCalled()
+    })
+
+    it('retries a retryable pending-device auth failure without surfacing it as terminal', async () => {
+      const teamId = 'pending-device-retry-team'
+      await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)
+      const pendingChain = await sigchainService.createChainFromDeviceInvite(
+        {
+          seed: 'device-invite-seed',
+          userName: 'alice',
+          expectedTeamId: teamId,
+          expectedUserId: userIdentity.userId,
+        },
+        teamId,
+        true
+      )
+      community = {
+        ...community,
+        teamId,
+        inviteData: {
+          kind: 'device',
+          authData: { teamId },
+        } as any,
+      }
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      jest.spyOn(qssService, 'connected', 'get').mockReturnValue(true)
+      const signInSpy = jest.spyOn(qssService, 'signInToCommunity').mockResolvedValue(QSSOperationResult.SUCCESS)
+      const terminalErrorHandler = jest.fn()
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, terminalErrorHandler)
+      const scheduledRetries: Array<{ callback: () => void; delay: number }> = []
+      const setTimeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation(((
+        callback: () => void,
+        delay: number
+      ) => {
+        scheduledRetries.push({ callback, delay })
+        return {} as NodeJS.Timeout
+      }) as any)
+
+      try {
+        await qssService['processQssAuthAttemptFailure']({
+          teamId,
+          code: 'INVITATION_PROOF_INVALID',
+          error: new Error('Invitation has not propagated yet'),
+          source: 'remote',
+          deviceAdmission: true,
+        })
+
+        expect(terminalErrorHandler).not.toHaveBeenCalled()
+        expect(scheduledRetries).toHaveLength(1)
+        expect(scheduledRetries[0].delay).toBe(QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS)
+
+        scheduledRetries[0].callback()
+        await new Promise<void>(resolve => setImmediate(resolve))
+        expect(signInSpy).toHaveBeenCalledWith(teamId, pendingChain)
+      } finally {
+        setTimeoutSpy.mockRestore()
+        qssService['clearDeviceAdmissionRetries']()
+      }
+    })
+
+    it('surfaces only the terminal failure after pending-device retries are exhausted', async () => {
+      const teamId = 'pending-device-exhausted-team'
+      community = {
+        ...community,
+        teamId,
+        inviteData: {
+          kind: 'device',
+          authData: { teamId },
+        } as any,
+      }
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      const failure = {
+        teamId,
+        code: 'INVITATION_PROOF_INVALID',
+        error: new Error('Invitation was not accepted'),
+        source: 'remote' as const,
+        deviceAdmission: true,
+      }
+      const terminalErrorHandler = jest.fn()
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, terminalErrorHandler)
+      qssService['deviceAdmissionRetries'].set(teamId, {
+        attempts: QSS_DEVICE_ADMISSION_MAX_ATTEMPTS - 1,
+        lastFailure: failure,
+      })
+
+      await qssService['processQssAuthAttemptFailure'](failure)
+
+      expect(terminalErrorHandler).toHaveBeenCalledWith({
+        teamId,
+        error: failure.error,
+        attempts: QSS_DEVICE_ADMISSION_MAX_ATTEMPTS,
+      })
+      expect(qssService['deviceAdmissionRetries'].has(teamId)).toBe(false)
+    })
+
+    it('invalidates an in-flight device retry when QSS is paused', async () => {
+      const teamId = 'pending-device-paused-team'
+      await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)
+      await sigchainService.createChainFromDeviceInvite(
+        {
+          seed: 'device-invite-seed',
+          userName: 'alice',
+          expectedTeamId: teamId,
+          expectedUserId: userIdentity.userId,
+        },
+        teamId,
+        true
+      )
+      jest.spyOn(qssService, 'connected', 'get').mockReturnValue(true)
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      let resolveSignIn!: (result: QSSOperationResult) => void
+      const signInPromise = new Promise<QSSOperationResult>(resolve => {
+        resolveSignIn = resolve
+      })
+      const signInSpy = jest.spyOn(qssService, 'signInToCommunity').mockReturnValue(signInPromise)
+      const terminalErrorHandler = jest.fn()
+      const failure = {
+        teamId,
+        code: 'INVITATION_PROOF_INVALID',
+        error: new Error('Invitation was not accepted'),
+        source: 'remote' as const,
+        deviceAdmission: true,
+      }
+      qssService.on(QSSEvents.QSS_AUTH_ERROR, terminalErrorHandler)
+      qssService['deviceAdmissionRetries'].set(teamId, {
+        attempts: 1,
+        lastFailure: failure,
+      })
+
+      const retryPromise = qssService['retryDeviceAdmission'](teamId)
+      await waitForExpect(() => expect(signInSpy).toHaveBeenCalledTimes(1))
+      qssService.pause()
+      resolveSignIn(QSSOperationResult.ERROR)
+      await retryPromise
+
+      expect(qssService['deviceAdmissionRetries'].has(teamId)).toBe(false)
+      expect(terminalErrorHandler).not.toHaveBeenCalled()
+    })
+
     it('connects to QSS when enabled and an endpoint string is provided', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
@@ -325,7 +812,7 @@ describe('QSSService', () => {
       expect(mockedCreateSocket).toHaveBeenNthCalledWith(2, 'ws://localhost:3001')
     })
 
-    it('backs off reconnect attempts after failures and resets after success', async () => {
+    it('preserves reconnect backoff when authentication is followed by an immediate disconnect', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       mockedCreateSocket.mockRejectedValue(new Error('QSS unavailable'))
@@ -352,12 +839,13 @@ describe('QSSService', () => {
         await qssService.connect('ws://localhost:3000')
         expect(reconnectDelays).toEqual([QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR])
 
+        await qssService['handleQssAuthJoined'](sigchainService.activeChain.teamId!)
         qssClient.emit(QSSEvents.QSS_DISCONNECTED)
 
         expect(reconnectDelays).toEqual([
           QSS_RECONNECT_DELAY_MS,
           QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR,
-          QSS_RECONNECT_DELAY_MS,
+          QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR ** 2,
         ])
       } finally {
         setTimeoutSpy.mockRestore()
@@ -438,6 +926,63 @@ describe('QSSService', () => {
       expectLifecycleHandlers(1)
     })
 
+    it('does not open a socket after pause interrupts loading community settings', async () => {
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      let finishSettings!: (status: Awaited<ReturnType<QSSService['getQssInitStatus']>>) => void
+      const settings = new Promise<Awaited<ReturnType<QSSService['getQssInitStatus']>>>(resolve => {
+        finishSettings = resolve
+      })
+      const getStatus = jest.spyOn(qssService, 'getQssInitStatus').mockReturnValue(settings)
+      const connecting = qssService.connect('ws://late-startup:3000')
+      await waitForExpect(() => expect(getStatus).toHaveBeenCalledTimes(1))
+      qssService.pause()
+      finishSettings({ communityInitialized: true, qssEnabled: true, qssSetup: true, community })
+      await expect(connecting).resolves.toBe(QSSOperationResult.DISABLED)
+      expect(mockedCreateSocket).not.toHaveBeenCalled()
+      getStatus.mockRestore()
+    })
+
+    it('closes a socket whose connection completes after pause', async () => {
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      let finishConnect!: (socket: ClientSocket) => void
+      mockedCreateSocket.mockReturnValue(
+        new Promise<ClientSocket>(resolve => {
+          finishConnect = resolve
+        })
+      )
+      const connecting = qssService.connect('ws://late-startup:3000', true)
+      await waitForExpect(() => expect(mockedCreateSocket).toHaveBeenCalledTimes(1))
+      qssService.pause()
+      mockedClientClose!.mockClear()
+      finishConnect({} as ClientSocket)
+      await expect(connecting).resolves.toBe(QSSOperationResult.DISABLED)
+      expect(mockedClientClose).toHaveBeenCalledTimes(1)
+    })
+
+    it('retains a late startup endpoint while paused and connects only on resume', async () => {
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(false)
+      const connectImpl = jest.spyOn(qssService as any, '_connectImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      qssService.pause()
+      await expect(qssService.connect('ws://late-startup:3000', true)).resolves.toBe(QSSOperationResult.DISABLED)
+      expect(connectImpl).not.toHaveBeenCalled()
+      mockedCanConnect.mockReturnValue(true)
+      await qssService.resume()
+      expect(connectImpl).toHaveBeenCalledWith('ws://late-startup:3000', true)
+      connectImpl.mockRestore()
+    })
+
+    it('honors resume before an endpoint becomes available', async () => {
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(false)
+      const connectImpl = jest.spyOn(qssService as any, '_connectImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      qssService.pause()
+      await qssService.resume()
+      expect(connectImpl).not.toHaveBeenCalled()
+      mockedCanConnect.mockReturnValue(true)
+      await qssService.connect('ws://late-startup:3000', true)
+      expect(connectImpl).toHaveBeenCalledWith('ws://late-startup:3000', true)
+      connectImpl.mockRestore()
+    })
+
     it('disconnects and reconnects on pause/resume', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
@@ -450,6 +995,18 @@ describe('QSSService', () => {
 
       await qssService.resume()
       expect(qssService.connected).toBe(true)
+    })
+
+    it('discards prepared admission state when paused for transport fallback', () => {
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      qssService['preparedAdmissions'].set('fallback-team', {
+        prepared: { teamId: 'fallback-team', kind: AdmissionKind.DEVICE },
+        sigChain: sigchainService.activeChain,
+      })
+
+      qssService.pause()
+
+      expect(qssService['preparedAdmissions'].size).toBe(0)
     })
 
     it('serializes concurrent connect requests without overlapping attempts', async () => {
@@ -491,6 +1048,36 @@ describe('QSSService', () => {
   })
 
   describe('createCommunity', () => {
+    it.each(['serverId', 'identityKeys'] as const)(
+      'identifies a missing %s in a received key response without logging key material',
+      async missingField => {
+        await initCommunity()
+        const payload: Partial<ReturnType<typeof generateQssServerKeys>> = generateQssServerKeys(
+          sigchainService.team.id
+        )
+        delete payload[missingField]
+        mockedSendMessage = jest.spyOn(qssClient, 'sendMessage').mockResolvedValue({
+          ts: Date.now(),
+          status: CommunityOperationStatus.SUCCESS,
+          payload,
+        })
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        await qssService.connect('ws://localhost:3000')
+        mockCaptchaVerification()
+        const logError = jest.spyOn(qssService['logger'], 'error')
+
+        await expect(qssService.createCommunity(sigchainService.activeChain)).resolves.toBe(false)
+        expect(logError).toHaveBeenCalledWith('Failed to generate server keys', {
+          reason: 'Invalid server key response',
+          responseReceived: true,
+          status: CommunityOperationStatus.SUCCESS,
+          teamIdMatches: true,
+          missingFields: [missingField],
+        })
+        expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      }
+    )
+
     it(`creates a community on QSS`, async () => {
       await initCommunity()
       const initStatusOrig = await qssService.getQssInitStatus()
@@ -506,12 +1093,7 @@ describe('QSSService', () => {
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
-                  payload: {
-                    teamId: sigchainService.team?.id,
-                    keys: redactKeys(
-                      createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                    ),
-                  },
+                  payload: generateQssServerKeys(sigchainService.team.id),
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
@@ -560,6 +1142,7 @@ describe('QSSService', () => {
                 sigChain: uint8arrays.toString(sigchainService.activeChain.save(), 'hex'),
               },
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),
             },
           } as CreateCommunity),
@@ -641,12 +1224,7 @@ describe('QSSService', () => {
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
-                  payload: {
-                    teamId: sigchainService.team?.id,
-                    keys: redactKeys(
-                      createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                    ),
-                  },
+                  payload: generateQssServerKeys(sigchainService.team.id),
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
@@ -695,6 +1273,7 @@ describe('QSSService', () => {
                 sigChain: uint8arrays.toString(sigchainService.activeChain.save(), 'hex'),
               },
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),
             },
           } as CreateCommunity),
@@ -723,12 +1302,7 @@ describe('QSSService', () => {
                   ts: DateTime.utc().toMillis(),
                   payload: {
                     status: CommunityOperationStatus.SUCCESS,
-                    payload: {
-                      teamId: sigchainService.team?.id,
-                      keys: redactKeys(
-                        createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                      ),
-                    },
+                    payload: generateQssServerKeys(sigchainService.team.id),
                   },
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
@@ -754,6 +1328,152 @@ describe('QSSService', () => {
     })
   })
 
+  describe('authentication backoff', () => {
+    beforeEach(async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+      const initStatus = await qssService.getQssInitStatus()
+      jest.spyOn(qssService, 'getQssInitStatus').mockResolvedValue(initStatus)
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.ERROR)
+      jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] })
+    })
+
+    afterEach(() => {
+      qssService['_clearReconnectTimer'](true)
+      jest.useRealTimers()
+    })
+
+    it('leaves coordinator-owned auth failures to the admission state machine', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.teamId!
+      const signIn = jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      const start = jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const context = { gate: { assertCurrent: jest.fn() }, fail: jest.fn() } as any
+      await qssService.startPreparedAdmission(prepared, context)
+
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, {
+        teamId,
+        code: 'TIMEOUT',
+        error: new Error('Admission auth timed out'),
+        source: 'remote',
+        deviceAdmission: false,
+      })
+      expect(context.fail).toHaveBeenCalledTimes(1)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(1)
+      expect(start).toHaveBeenCalledTimes(1)
+      expect(qssService['_reconnectQueueProcessor']).toBeUndefined()
+    })
+
+    it('retries sign-in on the connected socket with exponential backoff capped at 60 seconds', async () => {
+      const signIn = jest.spyOn(qssService, 'signInToCommunity')
+      await qssService['_handleQssHandleSignIn']()
+      expect(signIn).toHaveBeenCalledTimes(1)
+
+      for (let attempt = 0; attempt < 13; attempt++) {
+        const delay = Math.min(
+          QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR ** attempt,
+          QSS_RECONNECT_MAX_DELAY_MS
+        )
+        await jest.advanceTimersByTimeAsync(delay - 1)
+        expect(signIn).toHaveBeenCalledTimes(attempt + 1)
+        await jest.advanceTimersByTimeAsync(1)
+        expect(signIn).toHaveBeenCalledTimes(attempt + 2)
+      }
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(1)
+    })
+
+    it('retries handshake errors, coalesces duplicate failures, and resets only after auth joins', async () => {
+      const chain = sigchainService.activeChain
+      const signInImpl = jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssService as any, 'syncNativePushPrerequisites').mockResolvedValue(undefined)
+      jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+      const stop = jest.spyOn(qssAuthConnManager, 'stopConnection')
+      const fail = async () => {
+        qssAuthConnManager.emit(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, {
+          teamId: chain.teamId,
+          code: 'TIMEOUT',
+          error: new Error('Auth timeout'),
+          source: 'remote',
+          deviceAdmission: false,
+        })
+        await new Promise<void>(resolve => setImmediate(resolve))
+      }
+
+      await fail()
+      await fail()
+      expect(stop).toHaveBeenCalledWith(chain.teamId, false)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(1)
+      // A successful sign-in response and an already-connected connect() must retain backoff.
+      await qssService.connect(qssService.qssEndpoint)
+      await fail()
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(1)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(2)
+
+      await fail()
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_JOINED, chain.teamId)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(2)
+      await fail()
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(3)
+    })
+
+    it('resets on authenticated connections for established members only', async () => {
+      const signIn = jest.spyOn(qssService, 'signInToCommunity')
+      const joined = jest.spyOn(qssService, 'joinStatus').mockReturnValue(JoinStatus.PENDING_MEMBER)
+      await qssService['_handleQssHandleSignIn']()
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_CONNECTED, sigchainService.activeChain.teamId)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(2)
+
+      joined.mockReturnValue(JoinStatus.JOINED)
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_CONNECTED, sigchainService.activeChain.teamId)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(2)
+      await qssService['_handleQssHandleSignIn']()
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(4)
+    })
+
+    it('shares the auth backoff with socket reconnect failures', async () => {
+      await qssService['_handleQssHandleSignIn']()
+      socket!.connected = false
+      mockedCreateSocket.mockRejectedValue(new Error('offline'))
+      qssClient.emit(QSSEvents.QSS_DISCONNECTED)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(2)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR - 1)
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(2)
+      await jest.advanceTimersByTimeAsync(1)
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(3)
+    })
+
+    it.each(['pause', 'close'] as const)('cancels queued auth retries on %s', async action => {
+      const signIn = jest.spyOn(qssService, 'signInToCommunity')
+      await qssService['_handleQssHandleSignIn']()
+      qssService[action]()
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not retry when the community disables QSS', async () => {
+      const signIn = jest.spyOn(qssService, 'signInToCommunity')
+      await qssService['_handleQssHandleSignIn']()
+      jest.spyOn(qssService, 'getQssInitStatus').mockResolvedValue({
+        ...(await qssService.getQssInitStatus()),
+        qssEnabled: false,
+      })
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('signInToCommunity', () => {
     it(`signs into a community on QSS successfully`, async () => {
       await initCommunity()
@@ -771,9 +1491,10 @@ describe('QSSService', () => {
           WebsocketEvents.SIGN_IN_COMMUNITY,
           expect.objectContaining({
             ts: expect.any(Number),
-            status: CommunityOperationStatus.SUCCESS,
+            status: CommunityOperationStatus.SENDING,
             payload: {
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamId: sigchainService.team.id,
             },
           } as CommunitySignInMessage),
@@ -820,6 +1541,8 @@ describe('QSSService', () => {
         await localDbService.setIdentity(userIdentity)
 
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -829,9 +1552,193 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
+    })
+
+    // Regression: the native FCM handler needs qssUrl, qssServerId AND deviceId to
+    // fetch log entries for a push. The first two were emitted on every sign-in, but
+    // device credentials were only emitted from handleChainUpdate, so a device that
+    // joined and then saw no membership changes threw
+    // "Missing QSS device id in QuietStorage" on every push and rendered no notification.
+    it('emits device credentials and native keys on successful sign in, without any sigchain mutation', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const updateDeviceCredentialsSpy = jest.spyOn(sigchainService, 'updateDeviceCredentials')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
+
+        await qssService.connect('wss://community.example/ws')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id)
+        expect(updateKeysSpy).toHaveBeenCalledWith(sigchainService.activeChain.team!.id, true)
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    })
+
+    // Regression (#346): on a fresh invite join the sign-in runs while the chain is still an
+    // invitee context with no team. The emits used to fail loudly (ServerService threw
+    // "Team is nullish", the key sync dereferenced a null team) and nothing re-ran them.
+    it('defers the native push prerequisites when signing in before the chain has a team (fresh invite join)', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const teamId = sigchainService.activeChain.team!.id
+        const invite = sigchainService.activeChain.invites.createUserInvite()
+        const inviteeChain = SigChain.createFromInvite({ seed: invite.seed }, teamId)
+        expect(inviteeChain.team).toBeNull()
+
+        // Note: creating the invite above mutates the admin chain, and handleChainUpdate
+        // legitimately emits device credentials for it, so the assertions below target
+        // what only the sign-in path does: the NSE URL emit and the resendAll key sync.
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
+        const infoSpy = jest.spyOn(qssService['logger'], 'info')
+        const errorSpy = jest.spyOn(qssService['logger'], 'error')
+
+        await qssService.connect('wss://community.example/ws')
+        const result = await qssService.signInToCommunity(teamId, inviteeChain)
+
+        expect(result).toEqual(QSSOperationResult.SUCCESS)
+        expect(emitSpy).not.toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, expect.anything())
+        expect(updateKeysSpy).not.toHaveBeenCalledWith(teamId, true)
+        expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Deferring native push prerequisites'))
+        expect(errorSpy).not.toHaveBeenCalled()
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    })
+
+    // Regression (#346), end to end on one chain object: a joining device signs in to QSS
+    // while its chain is still an invitee context, then the team arrives through the QSS
+    // auth connection and the member role is confirmed. The prerequisites must come out
+    // of the second step, before QSS_FULLY_JOINED.
+    it('emits the native push prerequisites when a real invitee chain is admitted through the QSS auth connection', async () => {
+      const originalPlatform = process.platform
+      const originalQpsAllowed = process.env.QPS_ALLOWED
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      process.env.QPS_ALLOWED = 'true'
+      let conn: QSSAuthConnection | undefined
+
+      try {
+        // Owner side: the community chain with the QSS server pinned, and an invite.
+        const ownerChain = sigchainService.activeChain
+        const team = ownerChain.team!
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        ownerChain.server.addServer(pinnedQss)
+        const invite = ownerChain.invites.createLongLivedUserInvite()
+
+        // Joining device: an invitee chain with no team, registered as the active chain in
+        // place of the owner's (a device holds one chain per team).
+        const inviteeChain = SigChain.createFromInvite({ seed: invite.seed }, team.id)
+        expect(inviteeChain.team).toBeNull()
+        sigchainService['chains'].delete(team.id)
+        sigchainService.addChain(inviteeChain, true, team.id)
+        // The owner admits the invitee and grants the member role, as the auth handshake does.
+        ownerChain.invites.admitMemberFromInvite(
+          InviteService.createMemberAdmission({ seed: invite.seed, context: inviteeChain.localUserContext })
+        )
+        ownerChain.roles.addMember(inviteeChain.user.userId, RoleName.MEMBER)
+
+        // The joining device's community record carries the invite it joined with.
+        await localDbService.setCommunity({
+          ...community,
+          teamId: team.id,
+          qssEnabled: true,
+          qssEndpoint: 'wss://community.example/ws',
+          inviteData: {
+            version: InvitationDataVersion.v5,
+            pairs: [],
+            psk: community.psk ?? '',
+            authData: {
+              communityName: teamName,
+              seed: invite.seed,
+              salt: invite.salt,
+              teamId: team.id,
+            },
+            qssEnabled: true,
+            qssEndpoint: 'wss://community.example/ws',
+          },
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+        const updateDeviceCredentialsSpy = jest.spyOn(sigchainService, 'updateDeviceCredentials')
+        const updateKeysSpy = jest.spyOn(sigchainService, 'updateKeysInNativeStorage')
+        const fullyJoinedSpy = jest.fn()
+        qssService.on(QSSEvents.QSS_FULLY_JOINED, fullyJoinedSpy)
+
+        // 1. Sign-in runs before the team has arrived: nothing can be emitted yet.
+        await qssService.connect('wss://community.example/ws')
+        expect(await qssService.signInToCommunity(team.id, inviteeChain)).toEqual(QSSOperationResult.SUCCESS)
+        expect(emitSpy).not.toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, expect.anything())
+        expect(updateKeysSpy).not.toHaveBeenCalledWith(team.id, true)
+
+        // 2. The team arrives through the QSS auth connection, as on a joining device.
+        conn = new QSSAuthConnection(sigchainService, qssClient)
+        conn.teamId = team.id
+        await (conn as any)._initNewConn(inviteeChain)
+        conn.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (id: string) =>
+          qssAuthConnManager.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, id)
+        )
+        ;(conn as any)._authConnection.emit(LFAEvents.JOINED, { team, user: inviteeChain.user })
+
+        await waitForExpect(() => expect(fullyJoinedSpy).toHaveBeenCalledWith(team.id))
+        expect(inviteeChain.team).not.toBeNull()
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: team.id,
+          qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
+        })
+        expect(updateDeviceCredentialsSpy).toHaveBeenCalledWith(team.id)
+        expect(updateKeysSpy).toHaveBeenCalledWith(team.id, true)
+        const nseUrlCall = emitSpy.mock.calls.findIndex(call => call[0] === SocketEvents.NSE_QSS_URL_UPDATED)
+        expect(emitSpy.mock.invocationCallOrder[nseUrlCall]).toBeLessThan(fullyJoinedSpy.mock.invocationCallOrder[0])
+      } finally {
+        try {
+          conn?.stop(false)
+        } catch {
+          // already stopped
+        }
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        process.env.QPS_ALLOWED = originalQpsAllowed
       }
     })
 
@@ -849,6 +1756,8 @@ describe('QSSService', () => {
         await localDbService.setIdentity(userIdentity)
 
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'community.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -858,6 +1767,7 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'https://community.example/ws',
+          qssServerId: pinnedQss.serverId,
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
@@ -879,6 +1789,8 @@ describe('QSSService', () => {
 
         qssService._qssEndpoint = 'ws://configured.example/ws'
         mockSuccessfulSignIn()
+        const pinnedQss = redactServer(createServer({ host: 'configured.example' }))
+        sigchainService.activeChain.server.addServer(pinnedQss)
         mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
         const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
@@ -888,6 +1800,37 @@ describe('QSSService', () => {
         expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
           teamId: 'team-id',
           qssUrl: 'http://configured.example/ws',
+          qssServerId: pinnedQss.serverId,
+        })
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
+    })
+
+    it('clears native NSE QSS state when the endpoint has no active pinned server identity', async () => {
+      const originalPlatform = process.platform
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+
+        await qssService.connect('wss://untrusted.example/ws')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: 'team-id',
+          qssUrl: '',
+          qssServerId: '',
         })
       } finally {
         Object.defineProperty(process, 'platform', { value: originalPlatform })
@@ -991,9 +1934,10 @@ describe('QSSService', () => {
           WebsocketEvents.SIGN_IN_COMMUNITY,
           expect.objectContaining({
             ts: expect.any(Number),
-            status: CommunityOperationStatus.SUCCESS,
+            status: CommunityOperationStatus.SENDING,
             payload: {
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamId: sigchainService.team.id,
             },
           } as CommunitySignInMessage),
@@ -1003,6 +1947,7 @@ describe('QSSService', () => {
       expect(error).toBeUndefined()
       expect(result).toBeDefined()
       expect(result).toBe(QSSOperationResult.ERROR)
+      expect(qssService['_reconnectQueueProcessor']).toBeDefined()
       expect(qssService.joinStatus(sigchainService.team.id)).toBe(JoinStatus.NOT_STARTED)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
       const initStatus = await qssService.getQssInitStatus()
@@ -1026,6 +1971,7 @@ describe('QSSService', () => {
       )
 
       expect(result).toBe(QSSOperationResult.ERROR)
+      expect(qssService['_reconnectQueueProcessor']).toBeDefined()
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
       const initStatus = await qssService.getQssInitStatus()
       expect(initStatus.qssSetup).toBeFalsy()
@@ -1033,7 +1979,7 @@ describe('QSSService', () => {
   })
 
   describe('sendLogEntrySyncMessage', () => {
-    it(`sends a successful log sync to QSS`, async () => {
+    it(`syncs an OrbitDB message and triggers a push after QSS acknowledges it`, async () => {
       await initCommunity({ qssEnabled: true, qssSetup: true })
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeTruthy()
@@ -1072,20 +2018,28 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       markOutboundSyncReady(sigchainService.activeChain.team!.id)
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId: sigchainService.team.id,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
       expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       expect(update.teamId).toBe(sigchainService.team.id)
+      const pushTriggerSpy = jest.spyOn(qssClient, 'emit')
       const result = await qssSyncManager.sendLogEntrySyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -1106,6 +2060,11 @@ describe('QSSService', () => {
       })
       expect(result).toBe(true)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      expect(pushTriggerSpy).toHaveBeenCalledWith(
+        QSSEvents.QSS_LOG_SYNCED,
+        sigchainService.team.id,
+        expect.objectContaining({ type: EncryptionScopeType.ROLE, name: RoleName.MEMBER })
+      )
       expect(await localDbService.getLastSyncSeq(sigchainService.team.id)).toBe(syncSeq)
       expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_SYNC_SEQ_UPDATED, {
         teamId: sigchainService.team.id,
@@ -1318,14 +2277,21 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeFalsy()
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId: sigchainService.team.id,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       expect(hash).toBeDefined()
       const entry = await db.log.get(hash)
@@ -1695,17 +2661,25 @@ describe('QSSService', () => {
 
       const teamId = sigchainService.activeChain.team!.id
       markHistoricalSyncReady(teamId)
-      const address = 'channels.dlq-race'
-      const hash = 'dlq-race-hash'
-      const entry = {
-        hash,
-        id: 'dlq-race-db-id',
-        payload: {
-          value: {
-            teamId,
-          },
-        },
-      } as any
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
+        type: 'events',
+        Database: EventsWithStorage(),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
+        sync: true,
+      })
+      const message = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+        userId: sigchainService.activeChain.user.userId,
+      })
+      const hash = await db.add(await publicMessagesService.onSend(message, channel))
+      const entry = await db.log.get(hash)
+      const address = db.address
 
       let pendingHashes = [hash]
       const getPendingSpy = jest.spyOn(localDbService, 'getPendingQssLogSyncMessages').mockImplementation(async () => {
@@ -1845,14 +2819,21 @@ describe('QSSService', () => {
 
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.joinstatus`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -1876,14 +2857,21 @@ describe('QSSService', () => {
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage')
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.starting`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -1907,14 +2895,21 @@ describe('QSSService', () => {
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage')
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.pending-member`, {
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
         sync: true,
       })
-      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
-      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+      })
       const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
@@ -1940,7 +2935,12 @@ describe('QSSService', () => {
       await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.test`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: 'test',
+          teamId,
+        }),
         sync: true,
       })
 

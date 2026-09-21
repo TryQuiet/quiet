@@ -175,15 +175,9 @@ describe('User', () => {
         "PublicChannels/cacheMessages",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
-        "Messages/addMessageVerificationStatus",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/retryVerification",
-        "Messages/verifyMessages",
-        "Messages/addMessageVerificationStatus",
       ]
     `)
   })

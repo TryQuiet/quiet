@@ -9,6 +9,7 @@ export interface PublicChannelIconProps {
   style?: StyleProp<ViewStyle>
   accessibilityLabel?: string
   testID?: string
+  bold?: boolean
 }
 
 const PublicChannelIcon: React.FC<PublicChannelIconProps> = memo(function LockIcon({
@@ -17,7 +18,9 @@ const PublicChannelIcon: React.FC<PublicChannelIconProps> = memo(function LockIc
   style,
   accessibilityLabel,
   testID,
+  bold = false,
 }) {
+  const strokeWidth = bold ? '3' : '2'
   return (
     <Svg
       width={size}
@@ -28,10 +31,10 @@ const PublicChannelIcon: React.FC<PublicChannelIconProps> = memo(function LockIc
       accessibilityLabel={accessibilityLabel}
       testID={testID}
     >
-      <Path d='M15.7318 4.875L12.8818 19.125' stroke={color} strokeWidth='2' strokeLinecap='round' />
-      <Path d='M10.5355 4.875L7.68555 19.125' stroke={color} strokeWidth='2' strokeLinecap='round' />
-      <Path d='M6.8252 8.58594H17.7502' stroke={color} strokeWidth='2' strokeLinecap='round' />
-      <Path d='M5.875 15.4141H16.8' stroke={color} strokeWidth='2' strokeLinecap='round' />
+      <Path d='M15.7318 4.875L12.8818 19.125' stroke={color} strokeWidth={strokeWidth} strokeLinecap='round' />
+      <Path d='M10.5355 4.875L7.68555 19.125' stroke={color} strokeWidth={strokeWidth} strokeLinecap='round' />
+      <Path d='M6.8252 8.58594H17.7502' stroke={color} strokeWidth={strokeWidth} strokeLinecap='round' />
+      <Path d='M5.875 15.4141H16.8' stroke={color} strokeWidth={strokeWidth} strokeLinecap='round' />
     </Svg>
   )
 })

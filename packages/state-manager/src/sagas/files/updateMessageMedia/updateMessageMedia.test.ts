@@ -118,6 +118,7 @@ describe('downloadedFileSaga', () => {
             },
           ],
           isVerified: true,
+          isLocal: true,
         })
       )
       .run()
@@ -172,6 +173,7 @@ describe('downloadedFileSaga', () => {
             },
           ],
           isVerified: true,
+          isLocal: true,
         })
       )
       .run()

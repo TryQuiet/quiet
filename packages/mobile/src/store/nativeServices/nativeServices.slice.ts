@@ -1,5 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
+import type { FlushPersistorPayload } from './flushPersistor/flushPersistor.types'
 
 export class NativeServicesState {
   shouldClearReduxStore: boolean = false
@@ -12,7 +13,9 @@ export const nativeServicesSlice = createSlice({
     leaveCommunity: state => {
       state.shouldClearReduxStore = true
     },
-    flushPersistor: state => state,
+    flushPersistor: (state, _action: PayloadAction<FlushPersistorPayload>) => state,
+    retryAdmissionCleanup: state => state,
+    retryAdmissionFinalization: state => state,
     resetApp: state => state,
   },
 })

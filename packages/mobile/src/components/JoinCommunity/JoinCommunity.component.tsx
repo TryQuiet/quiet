@@ -23,6 +23,8 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   invitationCode,
   hasReceivedResponse,
   ready = true,
+  inputError: initialInputError,
+  onInputChange,
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
@@ -31,6 +33,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   const inputRef = useRef<TextInput>(null)
 
   const onChangeText = (value: string) => {
+    onInputChange?.()
     setInputError(undefined)
     setJoinCommunityInput(value)
   }
@@ -74,12 +77,12 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     logger.info(`hasReceivedResponse changed: ${hasReceivedResponse}`)
     if (hasReceivedResponse) {
       logger.info('Resetting component state after receiving response')
-      setInputError(undefined)
+      setInputError(initialInputError)
       setJoinCommunityInput('')
       setLoading(false)
       inputRef.current?.setNativeProps({ text: '' })
     }
-  }, [hasReceivedResponse])
+  }, [hasReceivedResponse, initialInputError])
 
   return (
     <>

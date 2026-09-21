@@ -13,7 +13,6 @@ import com.goterl.lazysodium.LazySodiumAndroid
 import com.goterl.lazysodium.SodiumAndroid
 import com.quietmobile.BuildConfig
 import com.quietmobile.Communication.CommunicationModule
-import com.quietmobile.MainApplication
 import com.quietmobile.Notification.NotificationHandler
 import com.quietmobile.Push.QuietStorage
 import com.quietmobile.R
@@ -282,8 +281,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             val socketIOSecretBytes = sodium.randomBytesBuf(32)
             socketIOSecret = sodium.sodiumBin2Hex(socketIOSecretBytes)
 
-            (applicationContext as MainApplication).socketPort = socketPort
-            (applicationContext as MainApplication).socketIOSecret = socketIOSecret
+            CommunicationModule.onSocketCredentialsReady(socketPort, socketIOSecret)
 
             // Init nodejs project
             launch { nodeProject.init() }

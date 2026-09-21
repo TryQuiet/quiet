@@ -3,10 +3,12 @@ import { jest } from '@jest/globals'
 import { TestModule } from '../common/test.module'
 import { generateLibp2pPSK, LIBP2P_PSK_METADATA, libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from './libp2p.module'
-import { Libp2pService } from './libp2p.service'
+import { Libp2pService, Libp2pState } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
+import { Libp2pEvents } from './libp2p.types'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -50,6 +52,74 @@ describe('Libp2pService', () => {
     expect(libp2pService.libp2pInstance).toBeNull()
   })
 
+  it.each([false, true])('retains early lifecycle intent through creation (resume=%s)', async resume => {
+    await libp2pService.close()
+    const resumeDialQueue = jest.spyOn(libp2pService, 'resumeDialQueue').mockImplementation(() => {})
+    try {
+      await libp2pService.pause()
+      if (resume) await libp2pService.resume()
+      await libp2pService.createInstance(params)
+      expect(libp2pService.state).toBe(resume ? Libp2pState.Started : Libp2pState.Paused)
+      expect(resumeDialQueue).toHaveBeenCalledTimes(resume ? 1 : 0)
+    } finally {
+      await libp2pService.close()
+      await libp2pService.resume()
+    }
+  })
+
+  it.each([Libp2pState.Paused, Libp2pState.Stopping, Libp2pState.Stopped])(
+    'preserves %s when libp2p start completes',
+    async requestedState => {
+      let finishStart!: () => void
+      const starting = new Promise<void>(resolve => {
+        finishStart = resolve
+      })
+      const start = jest.fn(() => starting)
+      libp2pService['setState'](Libp2pState.Starting)
+      libp2pService.libp2pInstance = { start, stop: jest.fn(async () => {}), addEventListener: jest.fn() } as any
+      jest.spyOn(libp2pService, 'hangUpPeers').mockResolvedValue(undefined)
+      const resumeDialQueue = jest.spyOn(libp2pService, 'resumeDialQueue').mockImplementation(() => {})
+      try {
+        const creation = libp2pService['afterCreation'](params.peerId)
+        expect(start).toHaveBeenCalledTimes(1)
+        if (requestedState === Libp2pState.Paused) await libp2pService.pause()
+        else if (requestedState === Libp2pState.Stopping) libp2pService.onModuleDestroy()
+        else await libp2pService.close()
+        finishStart()
+        await creation
+        expect(libp2pService.state).toBe(requestedState)
+        expect(resumeDialQueue).not.toHaveBeenCalled()
+      } finally {
+        libp2pService.libp2pInstance = null
+        await libp2pService.close()
+        await libp2pService.resume()
+      }
+    }
+  )
+
+  it('does not restart dialing when pause interrupts an asynchronous resume callback', async () => {
+    let finishRedial!: () => void
+    const redialing = new Promise<void>(resolve => {
+      finishRedial = resolve
+    })
+    libp2pService.libp2pInstance = {} as any
+    jest.spyOn(libp2pService, 'hangUpPeers').mockResolvedValue(undefined)
+    jest.spyOn(libp2pService, 'redialPeers').mockReturnValue(redialing)
+    const resumeDialQueue = jest.spyOn(libp2pService, 'resumeDialQueue').mockImplementation(() => {})
+    try {
+      const resuming = libp2pService.resume([remotePeerAddress])
+      await libp2pService.pause()
+      finishRedial()
+      await resuming
+      expect(libp2pService.state).toBe(Libp2pState.Paused)
+      expect(resumeDialQueue).not.toHaveBeenCalled()
+    } finally {
+      libp2pService.libp2pInstance = null
+      await libp2pService.close()
+      await libp2pService.resume()
+    }
+  })
+
   it('creates libp2p address', async () => {
     const libp2pAddress = libp2pService.createLibp2pAddress(params.localAddress, params.peerId.toString())
     expect(libp2pAddress).toStrictEqual(`/dns4/${params.localAddress}.onion/tcp/80/ws/p2p/${params.peerId.toString()}`)
@@ -58,6 +128,38 @@ describe('Libp2pService', () => {
   it('creates libp2p listen address', async () => {
     const libp2pListenAddress = libp2pService.createLibp2pListenAddress('onionAddress')
     expect(libp2pListenAddress).toStrictEqual(`/dns4/onionAddress.onion/tcp/80/ws`)
+  })
+
+  it('lets an auth error stream flush before hanging up the transport', async () => {
+    let deferredHangup: (() => void) | undefined
+    jest.spyOn(global, 'setTimeout').mockImplementation(((callback: () => void) => {
+      deferredHangup = callback
+      return {} as NodeJS.Timeout
+    }) as typeof setTimeout)
+    // An auth failure belongs to one transport, so the grace delay now guards
+    // hangUpAuthTransport rather than an address-wide hangup.
+    const hangUpAuthTransport = jest
+      .spyOn(libp2pService as unknown as { hangUpAuthTransport: () => Promise<void> }, 'hangUpAuthTransport')
+      .mockResolvedValue(undefined)
+    libp2pService.connectedPeers.set('remote-peer', {
+      peerId: 'remote-peer',
+      address: remotePeerAddress,
+      connectedAtSeconds: 1,
+    })
+    const connection = { id: 'remote-connection', remotePeer: { toString: () => 'remote-peer' } }
+
+    libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
+      event: {
+        type: 'LOCAL_ERROR',
+        payload: { type: 'INVITATION_PROOF_INVALID' },
+      },
+      connection,
+    })
+
+    expect(hangUpAuthTransport).not.toHaveBeenCalled()
+    expect(deferredHangup).toBeDefined()
+    deferredHangup!()
+    expect(hangUpAuthTransport).toHaveBeenCalledWith(connection, false)
   })
 
   it('Generated libp2p psk matches psk composed from existing key', () => {
@@ -69,6 +171,17 @@ describe('Libp2pService', () => {
     const generatedPskBuffer = Buffer.from(generatedKey.psk, 'base64')
     const expectedFullKeyString = LIBP2P_PSK_METADATA + uint8ArrayToString(generatedPskBuffer, 'base16')
     expect(uint8ArrayToString(generatedKey.fullKey)).toEqual(expectedFullKeyString)
+  })
+
+  it('retains the exact attempt context and rejects competing owners', () => {
+    const context = { revoke: jest.fn() } as any
+    libp2pService.setAdmissionContext(context)
+    expect(libp2pService.admissionContext).toBe(context)
+    expect(() => libp2pService.setAdmissionContext({} as any)).toThrow('already has')
+    libp2pService.clearAdmissionContext({} as any)
+    expect(libp2pService.admissionContext).toBe(context)
+    libp2pService.clearAdmissionContext(context)
+    expect(libp2pService.admissionContext).toBeUndefined()
   })
 
   it('redials sorted peers even when no peers were previously dialed', async () => {

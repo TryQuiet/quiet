@@ -26,7 +26,6 @@
     "packages/eslint-config-custom/node_modules",
     "packages/helia/node_modules",
     "packages/identity/node_modules",
-    "packages/integration-tests/node_modules",
     "packages/logger/node_modules",
     "packages/node-common/node_modules",
     "packages/types/node_modules",
