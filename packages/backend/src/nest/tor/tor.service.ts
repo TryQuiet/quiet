@@ -24,6 +24,10 @@ import {
 import { createLogger } from '../common/logger'
 import { toString as uint8ArrayToString } from 'uint8arrays'
 import { isUint8Array } from 'util/types'
+import { promisify } from 'util'
+import { getWindowsTorProcessIds } from './windows-tor-processes'
+
+const execute = promisify(childProcess.exec)
 
 const BOOTSTRAP_DONE_PROGRESS = 100
 const BOOTSTRAP_DONE_TAG = 'done'
@@ -202,7 +206,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       intervalMs,
       controlPort: this.controlPort,
       socksPort: this.socksPort,
-      torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,
+      processId: this.process?.pid,
     })
 
     const watcher = setInterval(() => {
@@ -248,7 +252,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
             e
           )
           this.logger.error('Bootstrap interval context', {
-            torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,
+            processId: this.process?.pid,
             controlPort: this.controlPort,
             socksPort: this.socksPort,
           })
@@ -397,7 +401,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
     let torPids: string[]
     try {
-      torPids = this.getTorProcessIds()
+      torPids = await this.getTorProcessIds()
+      if (bootstrapGeneration !== this.bootstrapGeneration) return false
     } catch (e) {
       this.logger.warn('Unable to check managed Tor process health during bootstrap', e)
       return false
@@ -447,7 +452,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         ignorableWarningCount,
         controlPort: this.controlPort,
         socksPort: this.socksPort,
-        torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,
+        processId: this.process?.pid,
         status: status.rawMessage,
       },
       bootstrapGeneration
@@ -530,11 +535,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
         }
 
         try {
-          this.clearHangingTorProcess()
+          await this.clearHangingTorProcess()
         } catch (e) {
           this.logger.error('Error occured while trying to clear hanging tor processes', e)
         }
 
+        if (bootstrapGeneration !== this.bootstrapGeneration) {
+          resolve()
+          return
+        }
         try {
           this.logger.info('Spawning new tor process(es)')
           await this.spawnTor()
@@ -542,13 +551,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
           this.startBootstrapWatcher()
 
-          this.logger.info(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
+          this.logger.info('Spawned Tor process', { processId: this.process?.pid })
 
           resolve()
         } catch (e) {
           this.logger.error('Killing tor due to error', e)
           try {
-            this.clearHangingTorProcess()
+            await this.clearHangingTorProcess()
             removeFilesFromDir(this.torDataDirectory)
           } catch (cleanupError) {
             this.logger.error('Error while cleaning up after a failed tor spawn', cleanupError)
@@ -604,23 +613,21 @@ export class Tor extends EventEmitter implements OnModuleInit {
       android: `pgrep -f "${this.torDataDirectory}" | awk -v detector="$$" '$1 != detector'`,
       linux: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
       darwin: `ps -A | grep "${this.torDataDirectory}" | grep -v grep | awk '{print $1}'`,
-      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(
-        /\\/g,
-        '\\\\'
-      )}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`,
     }
-    return byPlatform[process.platform as SupportedPlatform]
+    return byPlatform[process.platform as Exclude<SupportedPlatform, 'win32'>]
   }
 
-  public getTorProcessIds(): string[] {
-    const torProcessId = childProcess.execSync(this.hangingTorProcessCommand()).toString('utf8').trim()
+  public async getTorProcessIds(): Promise<string[]> {
+    if (process.platform === 'win32') return await getWindowsTorProcessIds(this.torDataDirectory)
+    const { stdout } = await execute(this.hangingTorProcessCommand(), { timeout: 10_000 })
+    const torProcessId = stdout.trim()
     if (!torProcessId) return []
     return torProcessId.split('\n') // Spawning with {shell:true} starts 2 processes
   }
 
-  public clearHangingTorProcess() {
+  public async clearHangingTorProcess(): Promise<void> {
     this.logger.info('Attempting to kill hanging tor processes')
-    const ids = this.getTorProcessIds()
+    const ids = await this.getTorProcessIds()
     if (ids.length === 0) {
       this.logger.info('No tor process(es) found to kill')
       return
@@ -967,7 +974,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.process?.on('error', () => {
         reject(new Error('TOR: Something went wrong with killing tor process'))
       })
-      this.clearHangingTorProcess()
+      void this.clearHangingTorProcess().catch(reject)
     })
   }
 }

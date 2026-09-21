@@ -96,7 +96,7 @@ describe('TorControl', () => {
 
   afterEach(async () => {
     await torService.kill()
-    torService.clearHangingTorProcess()
+    await torService.clearHangingTorProcess()
     await module.close()
   })
 
@@ -192,11 +192,11 @@ describe('TorControl', () => {
     // init resolves once Tor has announced itself, so the spy goes on afterwards:
     // any call it sees is the timeout restarting a Tor that was already up.
     await torService.init(1000)
-    const pidsAtStartup = torService.getTorProcessIds().sort()
+    const pidsAtStartup = (await torService.getTorProcessIds()).sort()
     const spyOnInit = jest.spyOn(torService, 'init')
     await sleep(4000)
     expect(spyOnInit).not.toHaveBeenCalled()
-    expect(torService.getTorProcessIds().sort()).toEqual(pidsAtStartup)
+    expect((await torService.getTorProcessIds()).sort()).toEqual(pidsAtStartup)
   })
 
   // The status Tor reports while it retries a relay that timed out. RECOMMENDATION=ignore
@@ -216,7 +216,7 @@ describe('TorControl', () => {
       messages: [statusForTick(), '250 OK'],
     }))
     const initSpy = jest.spyOn(torService, 'init').mockResolvedValue(undefined)
-    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockReturnValue(['123'])
+    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockResolvedValue(['123'])
     const torServiceInternals = torService as any
 
     try {
@@ -326,7 +326,7 @@ describe('TorControl', () => {
       ],
     })
     const initSpy = jest.spyOn(torService, 'init').mockResolvedValue(undefined)
-    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockReturnValue([])
+    const getTorProcessIdsSpy = jest.spyOn(torService, 'getTorProcessIds').mockResolvedValue([])
     const torServiceInternals = torService as any
 
     try {
@@ -361,16 +361,16 @@ describe('TorControl', () => {
   it('should find hanging tor processes and kill them', async () => {
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
-    const torIds = torService.getTorProcessIds()
-    torService.clearHangingTorProcess()
+    const torIds = await torService.getTorProcessIds()
+    await torService.clearHangingTorProcess()
     expect(processKill).toHaveBeenCalledTimes(torIds.length) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
   })
 
   it('should find hanging tor processes and kill them if Quiet path includes space', async () => {
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
-    const torIds = torService.getTorProcessIds()
-    torService.clearHangingTorProcess()
+    const torIds = await torService.getTorProcessIds()
+    await torService.clearHangingTorProcess()
     expect(processKill).toHaveBeenCalledTimes(torIds.length) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
   })
 })

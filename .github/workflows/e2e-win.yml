@@ -29,6 +29,10 @@ jobs:
           cachePrefix: "e2e-crossplatform-windows"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
 
+      - name: Test Windows Tor process discovery
+        shell: bash
+        run: node --test packages/backend/scripts/windows-tor-processes.test.cjs
+
       - name: "Fetch jsign"
         shell: bash
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar

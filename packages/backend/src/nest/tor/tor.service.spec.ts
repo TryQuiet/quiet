@@ -206,8 +206,8 @@ describe('Tor native session rewiring', () => {
       torService.socksPort = 19050
       // Replace only the OS process and control response boundaries. Exercise
       // the actual startup timer, bootstrap watcher, parser and ready event.
-      jest.spyOn(torService, 'clearHangingTorProcess').mockImplementation(() => undefined)
-      jest.spyOn(torService, 'getTorProcessIds').mockReturnValue(['123'])
+      jest.spyOn(torService, 'clearHangingTorProcess').mockResolvedValue(undefined)
+      jest.spyOn(torService, 'getTorProcessIds').mockResolvedValue(['123'])
       const spawn = jest
         .spyOn(torService as unknown as { spawnTor: () => Promise<void> }, 'spawnTor')
         .mockResolvedValue(undefined)
@@ -490,6 +490,43 @@ describe('Tor native session rewiring', () => {
       `ADD_ONION ${privKey} Flags=Detach Port=80,127.0.0.1:4343`,
       expect.any(AbortSignal)
     )
+  })
+
+  it('ignores process discovery that completes after the Tor session changes', async () => {
+    const { torService } = createTorService()
+    const processIds = deferred<string[]>()
+    torService.torParamsProvider.torPath = 'tor-process-fixture'
+    torService.torDataDirectory = 'fixture-data-directory'
+    jest.spyOn(torService, 'getTorProcessIds').mockReturnValue(processIds.promise)
+    const restart = jest.spyOn(torService, 'init').mockResolvedValue(undefined)
+
+    const health = torService['checkManagedTorProcessHealth'](torService['bootstrapGeneration'])
+    torService['resetBootstrapState']()
+    processIds.resolve([])
+
+    await expect(health).resolves.toBe(false)
+    expect(restart).not.toHaveBeenCalled()
+  })
+
+  it('does not spawn Tor after startup cleanup finishes for an invalidated session', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-tor-startup-close-'))
+    const { torService } = createTorService(directory)
+    const cleanup = deferred<void>()
+    torService.socksPort = 19050
+    jest.spyOn(torService, 'clearHangingTorProcess').mockReturnValue(cleanup.promise)
+    const spawn = jest
+      .spyOn(torService as unknown as { spawnTor: () => Promise<void> }, 'spawnTor')
+      .mockResolvedValue(undefined)
+    try {
+      const initializing = torService.init()
+      torService['resetBootstrapState']()
+      cleanup.resolve()
+      await initializing
+      expect(spawn).not.toHaveBeenCalled()
+    } finally {
+      await torService.onModuleDestroy()
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
   })
 
   it('ignores a stale bootstrap status without spawning services or stopping the replacement watcher', async () => {
