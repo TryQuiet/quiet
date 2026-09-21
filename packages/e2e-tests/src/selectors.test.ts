@@ -3,6 +3,7 @@ import { Command, Name } from 'selenium-webdriver/lib/command'
 import { App, Channel, UserProfileContextMenu, DirectMessageList } from './selectors'
 import { PhotoExt } from './enums'
 import { UserListStatus } from './types'
+import { waitForAppWindow } from './appWindowReady'
 
 const advanceTime = async (milliseconds: number) => {
   // Let WebDriver's promise chain finish before advancing each poll timer.
@@ -26,6 +27,93 @@ describe('App teardown', () => {
     } finally {
       getDriver.mockRestore()
     }
+  })
+})
+
+describe('App window handoff', () => {
+  beforeEach(() => jest.useFakeTimers({ doNotFake: ['setImmediate'] }))
+  afterEach(() => jest.useRealTimers())
+
+  it.each([undefined, null, ''])(
+    'selects the main window after ChromeDriver returns %s for a disappearing splash',
+    async splashUrl => {
+      let poll = 0
+      let selected = ''
+      // Replay the actual ChromeDriver handoff: GetUrl has no value after
+      // Page.getFrameTree loses the splash target, despite a successful command.
+      const execute = jest.fn(async (command: Command) => {
+        switch (command.getName()) {
+          case Name.GET_WINDOW_HANDLES:
+            poll += 1
+            return ['splash', 'main']
+          case Name.SWITCH_TO_WINDOW:
+            selected = String(command.getParameter('handle'))
+            return
+          case Name.GET_CURRENT_URL:
+            return selected === 'splash'
+              ? splashUrl
+              : 'file:///C:/Quiet/resources/app.asar/dist/main/index.html?dataPort=1234#/main/channel/general'
+          default:
+            throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
+        }
+      })
+      const driver = new WebDriver(new Session('window-handoff', {}), { execute })
+      const result = waitForAppWindow(driver).then(
+        () => ({ ready: true }),
+        failure => ({ failure })
+      )
+      await advanceTime(500)
+      expect(await result).toEqual({ ready: true })
+      expect(selected).toBe('main')
+      expect(poll).toBe(1)
+    }
+  )
+
+  it('retries while the splash disappears and the main renderer is still blank', async () => {
+    let poll = 0
+    const execute = jest.fn(async (command: Command) => {
+      if (command.getName() === Name.GET_WINDOW_HANDLES) {
+        poll += 1
+        return ['splash', 'main']
+      }
+      if (command.getName() === Name.SWITCH_TO_WINDOW) {
+        if (command.getParameter('handle') === 'splash') throw new error.NoSuchWindowError('Splash was destroyed')
+        return
+      }
+      if (command.getName() === Name.GET_CURRENT_URL) {
+        return poll === 1 ? 'about:blank' : 'file:///Quiet/dist/main/index.html'
+      }
+      throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
+    })
+    const driver = new WebDriver(new Session('loading-main-window', {}), { execute })
+    const ready = waitForAppWindow(driver)
+    await advanceTime(500)
+    await expect(ready).resolves.toBeUndefined()
+    expect(poll).toBe(2)
+  })
+
+  it('keeps the deadline when the main renderer never appears', async () => {
+    const execute = jest.fn(async (command: Command) => {
+      if (command.getName() === Name.GET_WINDOW_HANDLES) return ['blank']
+      if (command.getName() === Name.SWITCH_TO_WINDOW) return
+      if (command.getName() === Name.GET_CURRENT_URL) return 'about:blank'
+      throw new Error(`Unexpected WebDriver command: ${command.getName()}`)
+    })
+    const driver = new WebDriver(new Session('missing-main-window', {}), { execute })
+    const failure = waitForAppWindow(driver, 1000).catch(err => err)
+    await advanceTime(1000)
+    expect(await failure).toBeInstanceOf(error.TimeoutError)
+    expect((await failure).message).toContain('Quiet main window did not finish loading')
+  })
+
+  it('propagates a lost session instead of retrying it as a splash transition', async () => {
+    const failure = new error.NoSuchSessionError('Browser session closed')
+    const execute = jest.fn(async (command: Command) => {
+      if (command.getName() === Name.GET_WINDOW_HANDLES) return ['splash']
+      throw failure
+    })
+    const driver = new WebDriver(new Session('closed-window-session', {}), { execute })
+    await expect(waitForAppWindow(driver)).rejects.toBe(failure)
   })
 })
 
