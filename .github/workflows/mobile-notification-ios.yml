@@ -12,6 +12,7 @@ on:
     paths:
       - .github/workflows/mobile-notification-ios.yml
       - packages/mobile/e2e/appium/**
+      - packages/mobile/e2e/utils/**
       - packages/mobile/scripts/qss-e2e/**
       - packages/mobile/.env.e2e.qss*
       - packages/desktop/src/main/e2eCaptchaToken*
@@ -19,6 +20,7 @@ on:
     paths:
       - .github/workflows/mobile-notification-ios.yml
       - packages/mobile/e2e/appium/**
+      - packages/mobile/e2e/utils/**
       - packages/mobile/scripts/qss-e2e/**
       - packages/mobile/scripts/tor-ios-simulator/**
       - packages/mobile/ios/**
@@ -95,6 +97,7 @@ jobs:
           (cd packages/mobile/ios && bundle exec pod install --deployment)
           npm --prefix packages/mobile/e2e/appium ci
           npm --prefix packages/mobile/e2e/appium test
+          node --test packages/mobile/scripts/qss-only-build.test.cjs
           node --test packages/mobile/scripts/notification-ios-workflow.test.cjs packages/mobile/scripts/notification-staging-workflow.test.cjs
           python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p test_fixture.py
       - name: Check staging health and automated enrollment
