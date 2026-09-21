@@ -30,6 +30,10 @@ const webpackConfig = env => {
     module: {
       rules: [
         {
+          test: /libsodium-wrappers-sumo[\\/]dist[\\/]modules-sumo[\\/]libsodium-wrappers\.js$/,
+          loader: root('platform/sodium-loader.cjs'),
+        },
+        {
           test: /\.ts?$/,
           use: {
             loader: 'ts-loader',

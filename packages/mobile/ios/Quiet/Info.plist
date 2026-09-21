@@ -34,7 +34,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>624</string>
+	<string>625</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -69,7 +69,7 @@
 	<key>QuietKeychainAccessGroup</key>
 	<string>$(DEVELOPMENT_TEAM).com.quietmobile</string>
 	<key>RCTNewArchEnabled</key>
-	<false/>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Rubik-Black.ttf</string>

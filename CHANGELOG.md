@@ -77,6 +77,8 @@
 
 ### Fixes
 
+* Run six iOS signature and encryption operations through native libsodium in the Node 24 backend [#3536](https://github.com/TryQuiet/quiet/issues/3536)
+* Restore the iOS Tor upgrade with Tor.framework 409.11.2 (Tor 0.4.9.11), current directory authorities and native leave/foreground/rejoin control regression coverage [#3237](https://github.com/TryQuiet/quiet/issues/3237)
 * Trigger push notifications only for channel messages, while syncing channel metadata, profiles and notification tokens without alerts [#3546](https://github.com/TryQuiet/quiet/issues/3546)
 * Suppress notifications for your own messages on Android when using background Tor or the foreground app, including channel-creation messages [#3547](https://github.com/TryQuiet/quiet/issues/3547)
 * Send private-channel push notifications only to the registered devices of users in that channel, including queued messages retried after reconnecting; channel deletions sync without triggering push notifications [#3545](https://github.com/TryQuiet/quiet/issues/3545)

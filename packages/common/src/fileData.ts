@@ -1,6 +1,8 @@
 import path from 'path'
 import { FileContent, FilePreviewData } from '@quiet/types'
 
+let nextPreviewId = 0
+
 export const getFileData = (filePath: string, isTmpPath = false): FilePreviewData => {
   const fileContent: FileContent = {
     path: filePath,
@@ -8,7 +10,11 @@ export const getFileData = (filePath: string, isTmpPath = false): FilePreviewDat
     name: path.basename(filePath, path.extname(filePath)),
     ext: path.extname(filePath).toLowerCase(),
   }
-  const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
+  // These keys identify removable UI previews, not uploaded files or secrets.
+  // A counter preserves every selection made in one clock tick; the process
+  // prefix separates Electron's native picker from renderer drag-and-drop.
+  const producer = typeof process === 'object' && typeof process.pid === 'number' ? process.pid : 'ui'
+  const id = `preview_${producer}_${Date.now()}_${nextPreviewId++}`
   return { [id]: fileContent }
 }
 
