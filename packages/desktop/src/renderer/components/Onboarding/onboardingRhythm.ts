@@ -14,11 +14,12 @@ import { tokens } from '../../design-system/tokens'
  *   Create community 2811:2451  heading box     y 84  = 60 + 24
  *   Choose username  2811:2371  heading box     y 84  = 60 + 24
  *   Paste a link     3190:10892 heading box     y 84  = 60 + 24   (WIP frame)
+ *   Want a server?   2922:10009 server glyph    y 84  = 60 + 24
  *
  * One frame deviates: Join community (2811:2562) draws its heart-chat graphic
- * flush under the bar zone at y 60. Seven frames against one, and that single
- * deviation is what made moving between Get started and Join community jump, so
- * the class standard wins and the graphic takes the same 24 as the rest.
+ * flush under the bar zone at y 60. Eight frames against one, and that single
+ * deviation is half of what made moving between Get started and Join community
+ * jump, so the class standard wins and the graphic takes the same 24 as the rest.
  *
  * Sheets are a separate class: they carry a titled bar with a hairline and sit
  * their content 16 below it (2811:2601, 2811:2587, 2932:3707).

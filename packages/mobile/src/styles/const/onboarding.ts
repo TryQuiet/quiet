@@ -16,9 +16,10 @@ import { spacing } from './spacing'
  *   Create community 2811:2451  heading box     y 84  = 60 + 24
  *   Choose username  2811:2371  heading box     y 84  = 60 + 24
  *   Paste a link     3190:10892 heading box     y 84  = 60 + 24   (WIP frame)
+ *   Want a server?   2922:10009 server glyph    y 84  = 60 + 24
  *
  * One frame deviates: Join community (2811:2562) draws its heart-chat graphic
- * flush under the bar zone at y 60. Seven frames against one, and that lone
+ * flush under the bar zone at y 60. Eight frames against one, and that lone
  * deviation is half of what made moving between Get started and Join community
  * jump, so the class standard wins.
  *

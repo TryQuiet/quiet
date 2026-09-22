@@ -27,7 +27,7 @@ export const GRAPHIC_SIZE = { width: 219, height: 160 } as const
  * account" opens the Account recovery screen (2811:2535), whose routes are the
  * existing Link devices and Join with invite link flows.
  *
- * The frame draws the graphic flush under the bar zone (y 60) where the seven
+ * The frame draws the graphic flush under the bar zone (y 60) where the eight
  * other full-screen stages put their first element at y 84. That lone deviation
  * is what made Get started → Join community jump, so this screen takes the
  * class's inset like the rest (styles/const/onboarding.ts).
