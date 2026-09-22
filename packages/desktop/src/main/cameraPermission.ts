@@ -29,6 +29,12 @@ const onlyVideo = (mediaTypes: unknown): boolean =>
  * Electron grants every permission unless a handler is installed, and the app relies on
  * that (renderer `new Notification(...)`). So everything but `media` keeps the default,
  * and `media` is narrowed to the camera (no microphone), for the app's own renderer only.
+ *
+ * REVISIT ON THE ELECTRON 45 UPGRADE. On 44 a screen-capture request arrives as `media`
+ * with an empty `mediaTypes`, which `onlyVideo` denies. Electron 45 reports it as
+ * `display-capture` instead, which the grant-everything-else default below would let
+ * through silently. The app does not capture the screen, so `display-capture` should be
+ * denied explicitly rather than inherit that default.
  */
 export const registerCameraPermissionHandlers = (targetSession: Session, isAppRenderer: IsAppRenderer): void => {
   targetSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
@@ -43,7 +49,11 @@ export const registerCameraPermissionHandlers = (targetSession: Session, isAppRe
   })
   targetSession.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
     if (permission !== 'media') return true
-    return isAppRenderer(webContents, details.requestingUrl ?? requestingOrigin) && details.mediaType === 'video'
+    // Only the microphone is refused. Electron 44 calls this handler mid-getUserMedia with
+    // `mediaType` absent, so testing for `=== 'video'` answered "no camera here" to a question
+    // about the camera. The request handler above is what actually gates the stream, but this one
+    // is what `navigator.permissions.query` and repeat calls read, so it has to answer honestly.
+    return isAppRenderer(webContents, details.requestingUrl ?? requestingOrigin) && details.mediaType !== 'audio'
   })
 }
 

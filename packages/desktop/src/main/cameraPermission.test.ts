@@ -78,6 +78,21 @@ describe('registerCameraPermissionHandlers', () => {
     expect(check(otherRenderer, 'media', { requestingUrl: 'file:///app/index.html', mediaType: 'video' })).toBe(false)
   })
 
+  /**
+   * Electron 44 calls the check handler for `media` with `mediaType` absent while getUserMedia is
+   * in flight, and only supplies `'video'` afterwards. Answering "no camera here" to those calls
+   * was wrong even though the request handler is what gates the stream: this handler is what
+   * navigator.permissions.query and repeat calls read.
+   */
+  it('answers for the camera when Electron does not say which media it means', () => {
+    const { check } = session()
+    expect(check(ownRenderer, 'media', { requestingUrl: 'file:///app/index.html' })).toBe(true)
+    expect(check(ownRenderer, 'media', { requestingUrl: 'file:///app/index.html', mediaType: 'unknown' })).toBe(true)
+    // Still not for another renderer, and still never for the microphone.
+    expect(check(otherRenderer, 'media', { requestingUrl: 'file:///app/index.html' })).toBe(false)
+    expect(check(ownRenderer, 'media', { requestingUrl: 'file:///app/index.html', mediaType: 'audio' })).toBe(false)
+  })
+
   it('keeps granting everything that is not media, as before the handler existed', () => {
     const { request, check } = session()
     expect(request(otherRenderer, 'notifications', { requestingUrl: 'https://example.com/' })).toBe(true)
