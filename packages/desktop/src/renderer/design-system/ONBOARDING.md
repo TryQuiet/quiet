@@ -48,7 +48,7 @@ Agree-and-join (v1, joiner) ─ Captcha          ← drawn, not linked from anyw
 7. **Desktop variants of all of the above** — the prototype is mobile-only (375 wide); desktop = the 600px modal body the app uses, built from the same tokens. Render every screen in Storybook at both widths (the `RealScreens` harness pattern).
 8. Apply the type scale to the components touched.
 
-**Out of phase 1 (record as follow-ups):** recover account (no mechanism designed), plans / subscriptions / App Store (no product), community icon crop, moving the QSS offer to post-creation, `Agree-and-join (v1)` joiner screen (unwired).
+**Out of phase 1 (record as follow-ups):** a recover-account mechanism (none designed; the Account recovery info screen and its two routes are implemented), plans / subscriptions / App Store (no product), community icon crop, moving the QSS offer to post-creation, `Agree-and-join (v1)` joiner screen (unwired).
 
 ## Library component → code component
 
@@ -90,7 +90,8 @@ Copy:
 
 Uses: ButtonIcons (5), Divider (4), Button row (3), caret-black-r (3), Get started (1), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1)
 Goes to: Button row → join-community [prototype]; Button row → create-default [prototype]; Button row → link-devices [prototype]; Glyph → back [back]
-Implemented by: desktop `none — app opens in Join/Create modals` · mobile `none — app opens on JoinCommunity screen`
+Implemented by: desktop `Onboarding/GetStarted.tsx` (opens itself when connected without a community; Join / Create / Link devices return to it) · mobile `screens/GetStarted/GetStarted.screen.tsx`
+Departure (decided 2026-09-13): **no title bar on either platform** — the frame's "Quiet" bar is redundant with the app window on desktop and did not feel right on mobile; the content column starts under the window chrome / at the safe area with the frame's own rhythm minus the bar. Join community and the other onboarding screens keep their bars.
 
 ### Join community  ·  `join-community`
 Section: Onboarding · 375×667 · node `2811:2562` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2562)
@@ -105,7 +106,7 @@ Copy:
 
 Uses: ButtonIcons (5), Divider (4), Button row (3), caret-black-r (3), Join community (1), Title bar/Logged in (1), RightZ (1), Add (1), Avatar (1), TitleZ (1)
 Goes to: Glyph → get-started [prototype]; Content → open-invite-link [prototype]; Button row → sheet-2811-2460 [prototype]; Button row → recover-account-info [prototype]
-Implemented by: desktop `CreateJoinCommunity/JoinCommunity/JoinCommunity.tsx (paste field)` · mobile `JoinCommunity/JoinCommunity.component.tsx (paste field)`
+Implemented by: desktop `Onboarding/JoinCommunityOptionsComponent.tsx` in `CreateJoinCommunity/JoinCommunity/JoinCommunity.tsx` · mobile `JoinCommunityOptions/JoinCommunityOptions.component.tsx` — Recover account opens Account recovery
 
 ### Create a community  ·  `create-default`
 Figma frame `create--default` · Section: Onboarding · 375×667 · node `2811:2451` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2451)
@@ -150,7 +151,7 @@ Copy:
 
 Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Invite link (1), Monster (1)
 Goes to: Button → container [added]; Glyph → back [back]
-Implemented by: desktop `CreateJoinCommunity/PerformCommunityActionComponent.tsx` · mobile `JoinCommunity/JoinCommunity.component.tsx`
+Implemented by: desktop `Onboarding/OpenInviteLinkComponent.tsx` · mobile `OpenInviteLink/OpenInviteLink.component.tsx` — an invite link opened while this screen shows takes the deep-link path (desktop `sagas/invitation/customProtocol.saga.ts`, mobile `store/init/deepLink/deepLink.saga.ts`) straight to Choose username; *Paste a link* is the fallback
 
 ### Join with QR code (sheet)  ·  `sheet-2811-2460`
 Figma frame `Sheet` · Section: Onboarding · 375×499 · node `2811:2460` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2460)
@@ -177,7 +178,7 @@ Copy:
 
 Uses: ButtonIcons (8), Divider (5), Button row (4), caret-black-r (4), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1)
 Goes to: Content → link-devices [prototype]; Button row → open-invite-link [prototype]; Glyph → back [back]
-Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
+Implemented by: desktop `Onboarding/RecoverAccountComponent.tsx` (a step of the Join community modal, title bar *Account recovery*; *Use linked device* opens Link devices with a way back to this step, on both platforms) · mobile `RecoverAccount/RecoverAccount.component.tsx` — the info screen and its two prototype routes only; *More options* has no target in the file and is inert; the fourth row (*Scan QR code*) is hidden in the frame; the illustration is the frame's own `Icon=Vpn key` glyph at 64px; no recovery mechanism exists
 
 ### Link devices — QR code (sheet)  ·  `sheet-2811-2601`
 Figma frame `Sheet` · Section: Onboarding · 375×442 · node `2811:2601` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2601)

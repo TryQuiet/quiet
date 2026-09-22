@@ -118,8 +118,18 @@ describe('Onboarding', () => {
 
       const joinModal = new JoinCommunityModal(joiner.driver)
       expect(await joinModal.isReady()).toBeTruthy()
-      // Recover account has no mechanism yet
-      expect(await joinModal.isRecoverAccountDisabled()).toBe(true)
+
+      // Recover account → Account recovery; "Use invite link" reaches the same
+      // paste step, and the back arrow retraces the trail to the three-way choice
+      await joinModal.recoverAccount()
+      expect(await joinModal.isRecoverMoreOptionsDisabled()).toBe(true)
+      await joinModal.recoverWithInviteLink()
+      await joinModal.back()
+      await joinModal.waitForStep('Join with invite link')
+      await joinModal.back()
+      await joinModal.waitForStep('Recover account')
+      await joinModal.back()
+      await joinModal.waitForStep('Join community')
 
       // Join with invite link → Open invite link → Paste a link
       await joinModal.joinWithInviteLink()

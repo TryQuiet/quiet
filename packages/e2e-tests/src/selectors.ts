@@ -1403,10 +1403,35 @@ export class JoinCommunityModal {
     await (await this.findVisible('join-with-qr-code')).click()
   }
 
-  async isRecoverAccountDisabled(): Promise<boolean> {
+  /** Waits for the step whose h3 heading this is (Join community · Recover account · Join with invite link · Paste a link to Join). */
+  async waitForStep(heading: string) {
+    await this.driver.wait(
+      until.elementLocated(By.xpath(`//h3[text()='${heading}']`)),
+      10_000,
+      `${heading} couldn't be found within timeout`,
+      500
+    )
+  }
+
+  /** Join community → Recover account: the Account recovery info screen. */
+  async recoverAccount() {
     await this.enter()
-    const row = await this.findVisible('recover-account')
+    await (await this.findVisible('recover-account')).click()
+    await this.waitForStep('Recover account')
+  }
+
+  /** "More options" on Account recovery has no target in the design and stays inert. */
+  async isRecoverMoreOptionsDisabled(): Promise<boolean> {
+    const row = await this.findVisible('recover-more-options')
     return (await row.getAttribute('aria-disabled')) === 'true'
+  }
+
+  /** Account recovery → Use invite link → Open invite link → Paste a link. */
+  async recoverWithInviteLink() {
+    await (await this.findVisible('recover-use-invite-link')).click()
+    await this.waitForStep('Join with invite link')
+    await (await this.findVisible('paste-a-link')).click()
+    await this.waitForStep('Paste a link to Join')
   }
 
   /** Back arrow of the join modal (any step). */

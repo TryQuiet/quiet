@@ -6,6 +6,7 @@ import { INK_3, mono, RULE } from '../specimen/ui'
 
 import { GetStartedComponent } from '../../components/Onboarding/GetStartedComponent'
 import { JoinCommunityOptionsComponent } from '../../components/Onboarding/JoinCommunityOptionsComponent'
+import { RecoverAccountComponent } from '../../components/Onboarding/RecoverAccountComponent'
 import { OpenInviteLinkComponent } from '../../components/Onboarding/OpenInviteLinkComponent'
 import { PasteLinkComponent } from '../../components/Onboarding/PasteLinkComponent'
 import { CreateCommunityComponent } from '../../components/Onboarding/CreateCommunityComponent'
@@ -16,7 +17,7 @@ import { CreateUsernameBody } from '../../components/CreateUsername/CreateUserna
 import { CONTENT_COLUMN_WIDTH, OnboardingBody } from '../../components/Onboarding/OnboardingBody'
 import BackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
-import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
+import { composeInvitationDeepUrl, composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { InvitationKind, isDeviceInvitationData } from '@quiet/types'
 import type { InvitationData } from '@quiet/types'
 
@@ -56,52 +57,59 @@ const Column: React.FC<{ width: number; label: string; children: React.ReactNode
 
 type ShellLeft = 'back' | 'close' | 'none'
 
-/** The Modal full-window shell as the app's Modal renders it: 60px header, back arrow (or close) left, title centered. */
-const Shell: React.FC<{ title: string; left?: ShellLeft; onLeft?: () => void; children: React.ReactNode }> = ({
+/**
+ * The Modal full-window shell as the app's Modal renders it: 60px header, back
+ * arrow (or close) left, title centered. No `title` = no bar (Get started: the
+ * window chrome is the bar), the content column starting at the top.
+ */
+const Shell: React.FC<{ title?: string; left?: ShellLeft; onLeft?: () => void; children: React.ReactNode }> = ({
   title,
   left = 'back',
   onLeft,
   children,
 }) => (
   <div style={{ width: SHELL_WIDTH, minHeight: 560, background: '#fff' }}>
-    <div
-      style={{
-        height: 60,
-        display: 'flex',
-        alignItems: 'center',
-        borderBottom: `1px solid #F0F0F0`,
-        fontFamily: "'Rubik', sans-serif",
-      }}
-    >
-      <div style={{ width: 60, display: 'flex', justifyContent: 'center' }}>
-        {left === 'none' ? null : (
-          <button
-            type='button'
-            aria-label={left}
-            data-testid={`shell-${left}`}
-            onClick={onLeft}
-            style={{
-              border: 0,
-              background: 'none',
-              padding: 0,
-              display: 'flex',
-              cursor: onLeft ? 'pointer' : 'default',
-            }}
-          >
-            {left === 'back' ? <BackIcon /> : <CloseIcon />}
-          </button>
-        )}
+    {title === undefined ? null : (
+      <div
+        style={{
+          height: 60,
+          display: 'flex',
+          alignItems: 'center',
+          borderBottom: `1px solid #F0F0F0`,
+          fontFamily: "'Rubik', sans-serif",
+        }}
+      >
+        <div style={{ width: 60, display: 'flex', justifyContent: 'center' }}>
+          {left === 'none' ? null : (
+            <button
+              type='button'
+              aria-label={left}
+              data-testid={`shell-${left}`}
+              onClick={onLeft}
+              style={{
+                border: 0,
+                background: 'none',
+                padding: 0,
+                display: 'flex',
+                cursor: onLeft ? 'pointer' : 'default',
+              }}
+            >
+              {left === 'back' ? <BackIcon /> : <CloseIcon />}
+            </button>
+          )}
+        </div>
+        <div style={{ flex: 1, textAlign: 'center', fontSize: 16, lineHeight: '24px', fontWeight: 500 }}>{title}</div>
+        <div style={{ width: 60 }} />
       </div>
-      <div style={{ flex: 1, textAlign: 'center', fontSize: 16, lineHeight: '24px', fontWeight: 500 }}>{title}</div>
-      <div style={{ width: 60 }} />
-    </div>
+    )}
     {children}
   </div>
 )
 
 const Screen: React.FC<{
   title: string
-  bar: string
+  /** Title-bar text; omitted = the screen has no bar. */
+  bar?: string
   figma: string
   left?: ShellLeft
   note?: string
@@ -114,8 +122,9 @@ const Screen: React.FC<{
           {title}
         </h1>
         <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-          Figma <span style={{ fontFamily: mono }}>{figma}</span> · title bar &ldquo;{bar}&rdquo; · desktop component
-          under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
+          Figma <span style={{ fontFamily: mono }}>{figma}</span> ·{' '}
+          {bar === undefined ? 'no title bar' : <>title bar &ldquo;{bar}&rdquo;</>} · desktop component under the
+          app&rsquo;s light theme{note ? ` · ${note}` : ''}
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
@@ -143,9 +152,9 @@ export default {
 export const GetStarted = () => (
   <Screen
     title='Get started'
-    bar='Quiet'
     left='none'
     figma='2811:2550'
+    note='the entry: Onboarding/GetStarted.tsx opens it as soon as the app is connected without a community, and the other onboarding modals return to it; no title bar on either platform — the window chrome already says Quiet on desktop and the bar did not feel right on mobile (decided 2026-09-13, a deliberate departure from the frame)'
     render={() => <GetStartedComponent onJoinCommunity={noop} onCreateCommunity={noop} onLinkDevices={noop} />}
   />
 )
@@ -155,8 +164,20 @@ export const JoinCommunity = () => (
     title='Join community'
     bar='Quiet'
     figma='2811:2562'
-    note='Recover account has no mechanism yet and is disabled'
-    render={() => <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} />}
+    note='Recover account opens Account recovery (below)'
+    render={() => (
+      <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} onRecoverAccount={noop} />
+    )}
+  />
+)
+
+export const RecoverAccount = () => (
+  <Screen
+    title='Recover account'
+    bar='Account recovery'
+    figma='2811:2535'
+    note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
+    render={() => <RecoverAccountComponent onUseLinkedDevice={noop} onUseInviteLink={noop} />}
   />
 )
 
@@ -165,6 +186,7 @@ export const OpenInviteLink = () => (
     title='Open invite link'
     bar='Join with invite link'
     figma='2811:2455'
+    note='an invite link opened here takes the deep-link path (customProtocol.saga.ts) straight to Choose username; Paste a link is the fallback'
     render={() => <OpenInviteLinkComponent onPasteLink={noop} />}
   />
 )
@@ -255,6 +277,69 @@ export const ChooseUsername = () => (
   />
 )
 
+// Join with invite link as the app wires it: the link itself is the path.
+// Opening it hands Electron a quiet:// URL; customProtocol.saga.ts dispatches
+// joinCommunity({ inviteData }) and opens Choose username on top of the join
+// modal, which keeps its step underneath. Paste a link is the fallback.
+const INVITE_LINK_PATH: { label: string; bar: string; then: string; render: () => React.ReactNode }[] = [
+  {
+    label: '1 · Join community',
+    bar: 'Quiet',
+    then: 'Join with invite link →',
+    render: () => (
+      <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} onRecoverAccount={noop} />
+    ),
+  },
+  {
+    label: '2 · Open invite link',
+    bar: 'Join with invite link',
+    then: 'the user opens the link: quiet://… → customProtocol.saga.ts → joinCommunity({ inviteData }) →',
+    render: () => <OpenInviteLinkComponent onPasteLink={noop} />,
+  },
+  {
+    label: '3 · Choose username',
+    bar: 'Create a community',
+    then: 'registerUsername({ nickname }); close returns to step 2, the screen the link arrived on',
+    render: () => <CreateUsernameBody registerUsername={noop} />,
+  },
+]
+
+export const InviteLinkPath = () => (
+  <StyledEngineProvider injectFirst>
+    <ThemeProvider theme={lightTheme}>
+      <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
+        <h1 style={{ fontSize: 26, lineHeight: '34px', fontWeight: 500, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+          Join with invite link · the wired path
+        </h1>
+        <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
+          Figma <span style={{ fontFamily: mono }}>2811:2562 → 2811:2455 → 2811:2371</span> · the link is the path:
+          opening it hands the app a quiet:// URL and customProtocol.saga.ts joins and asks for a username on top of the
+          join modal · Paste a link is the fallback (Paste a link to Join, above)
+        </p>
+        <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
+          {INVITE_LINK_PATH.map(step => (
+            <Column key={step.label} width={CONTENT_COLUMN_WIDTH} label={`${step.label} · title bar “${step.bar}”`}>
+              {step.render()}
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 11,
+                  lineHeight: '16px',
+                  color: INK_3,
+                  padding: '8px 12px',
+                  borderTop: `1px solid ${RULE}`,
+                }}
+              >
+                {step.then}
+              </div>
+            </Column>
+          ))}
+        </div>
+      </div>
+    </ThemeProvider>
+  </StyledEngineProvider>
+)
+
 // ---------------------------------------------------------------------------
 // Walkthrough: the same screens wired together with in-story state. Rows,
 // buttons and the shell's back arrow navigate the way the app's containers do
@@ -267,6 +352,7 @@ export const ChooseUsername = () => (
 type Step =
   | 'getStarted'
   | 'joinCommunity'
+  | 'recoverAccount'
   | 'openInviteLink'
   | 'pasteALink'
   | 'joinWithQrCode'
@@ -276,9 +362,10 @@ type Step =
   | 'displayQrCode'
   | 'scanQrCode'
 
-const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
-  getStarted: { title: 'Get started', bar: 'Quiet', left: 'none' },
+const STEPS: Record<Step, { title: string; bar?: string; left: ShellLeft }> = {
+  getStarted: { title: 'Get started', left: 'none' },
   joinCommunity: { title: 'Join community', bar: 'Quiet', left: 'back' },
+  recoverAccount: { title: 'Recover account', bar: 'Account recovery', left: 'back' },
   openInviteLink: { title: 'Open invite link', bar: 'Join with invite link', left: 'back' },
   pasteALink: { title: 'Paste a link to Join', bar: 'Join with invite link', left: 'back' },
   joinWithQrCode: { title: 'Join with QR code', bar: 'Join with QR code', left: 'back' },
@@ -292,6 +379,8 @@ const STEPS: Record<Step, { title: string; bar: string; left: ShellLeft }> = {
 const PASTE_STEPS: Step[] = ['pasteALink', 'joinWithQrCode', 'scanQrCode']
 
 const SAMPLE_MEMBER_LINK = composeInvitationShareUrl({ ...validInvitationDatav4[0], kind: InvitationKind.Member })
+/** What the OS hands the app when the same invitation is opened as a link (quiet://). */
+const SAMPLE_MEMBER_DEEP_LINK = composeInvitationDeepUrl({ ...validInvitationDatav4[0], kind: InvitationKind.Member })
 const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
   ...validInvitationDatav4[0],
   kind: InvitationKind.Device,
@@ -372,8 +461,17 @@ const WalkthroughStory = () => {
     record(`identity.actions.registerUsername({ nickname: '${nickname}' })`)
     finish()
   }
+  // Opened from Account recovery, LinkDevices.tsx's back arrow returns there (here the trail does
+  // the same).
   const openLinkDevices = () => {
     go('linkDevices')
+  }
+  // customProtocol.saga.ts: an invite link opened while Join with invite link shows joins and asks for a username.
+  const openDeepLink = () => {
+    record(
+      `communities.actions.customProtocol(['${SAMPLE_MEMBER_DEEP_LINK.slice(0, 24)}…']) → joinCommunity({ inviteData })`
+    )
+    go('chooseUsername')
   }
 
   const render = () => {
@@ -391,7 +489,12 @@ const WalkthroughStory = () => {
           <JoinCommunityOptionsComponent
             onJoinWithInviteLink={() => go('openInviteLink')}
             onJoinWithQrCode={() => go('joinWithQrCode')}
+            onRecoverAccount={() => go('recoverAccount')}
           />
+        )
+      case 'recoverAccount':
+        return (
+          <RecoverAccountComponent onUseLinkedDevice={openLinkDevices} onUseInviteLink={() => go('openInviteLink')} />
         )
       case 'openInviteLink':
         return <OpenInviteLinkComponent onPasteLink={() => go('pasteALink')} />
@@ -440,8 +543,8 @@ const WalkthroughStory = () => {
             Walkthrough · {title}
           </h1>
           <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-            title bar &ldquo;{bar}&rdquo; · rows, buttons and the back arrow navigate; where the app dispatches, the
-            action is recorded below · trail:{' '}
+            {bar === undefined ? 'no title bar' : <>title bar &ldquo;{bar}&rdquo;</>} · rows, buttons and the back arrow
+            navigate; where the app dispatches, the action is recorded below · trail:{' '}
             <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
               {[...trail, step].map(s => STEPS[s].title).join(' › ')}
             </span>
@@ -463,6 +566,16 @@ const WalkthroughStory = () => {
             <button type='button' style={chromeButton} onClick={restart} data-testid='walkthrough-restart'>
               restart
             </button>
+            {step === 'openInviteLink' && (
+              <button
+                type='button'
+                style={chromeButton}
+                onClick={openDeepLink}
+                data-testid='walkthrough-open-deep-link'
+              >
+                open the sample invite link (quiet:// deep link)
+              </button>
+            )}
             {isPasteStep && (
               <>
                 <button

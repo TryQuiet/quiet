@@ -42,7 +42,9 @@ export const LinkDevices: React.FC = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
-  const linkDevicesModal = useModal(ModalName.linkDevicesModal)
+  // `returnTo`: where the back arrow goes when this was opened from Account recovery.
+  const linkDevicesModal = useModal<{ returnTo?: 'recoverAccount' }>(ModalName.linkDevicesModal)
+  const joinCommunityModal = useModal<{ step?: 'recoverAccount' }>(ModalName.joinCommunityModal)
   const getStartedModal = useModal(ModalName.getStartedModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
@@ -58,6 +60,12 @@ export const LinkDevices: React.FC = () => {
   const handleBack = () => {
     if (step !== 'entry') {
       setStep('entry')
+      return
+    }
+    if (linkDevicesModal.returnTo === 'recoverAccount') {
+      // Opened from Account recovery → "Use linked device": back returns there.
+      joinCommunityModal.handleOpen({ step: 'recoverAccount' })
+      linkDevicesModal.handleClose()
       return
     }
     if (!currentCommunity) getStartedModal.handleOpen()
