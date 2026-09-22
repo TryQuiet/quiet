@@ -55,6 +55,9 @@ export const defaultPalette = {
     blue: '#2373EA',
     lushSky: '#67BFD3',
     lightPurple: '#F3E8FF',
+    // The pale purple the design library fills its pills with (Want a server? 2922:10009,
+    // "It's free!"); desktop holds the same value as colors.lightPurple.
+    lightPurple03: '#F9EFFF',
     grassGreen: '#80B857',
     hotPink: '#E42656',
     grayBadge: '#C3C3C3',

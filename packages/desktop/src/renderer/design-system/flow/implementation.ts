@@ -36,9 +36,9 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
   },
   'want-a-server': {
     desktop: on('desktop/src/renderer/components/ServerOffer/ServerOfferComponent.tsx'),
-    mobile: on('mobile/src/components/ServerOffer/CreatingOffer/ServerOffer.component.tsx'),
+    mobile: on('mobile/src/components/ServerOffer/ServerOffer.component.tsx'),
     divergence:
-      'Design reaches this from Home → Add members, after the community exists; both apps show the offer during creation instead.',
+      'Both apps render the frame itself (design/want-a-server), but reach it during community creation; the design reaches it from Home → Add members, after the community exists. On mobile it is a screen, not the bottom drawer it used to arrive in.',
   },
   'no-server': {
     desktop: none('declining is a button on the offer itself; there is no confirmation screen'),
@@ -135,11 +135,6 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
 
 /** Stages the apps have that the Figma flow does not draw — divergence in the other direction. */
 export const IMPLEMENTATION_ONLY: Array<{ stage: string; desktop?: string; mobile?: string }> = [
-  {
-    stage: 'Server offer (opt in to a Quiet server)',
-    desktop: 'desktop/src/renderer/components/ServerOffer/ServerOfferComponent.tsx',
-    mobile: 'mobile/src/components/ModalBottomDrawer/drawers/ServerOffer.drawer.tsx',
-  },
   {
     stage: 'Terms of service',
     desktop: 'desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx',

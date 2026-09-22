@@ -1638,7 +1638,7 @@ export class ServerOfferModal {
   get dontShowAgainCheckbox() {
     return this.driver.wait(
       until.elementLocated(
-        By.xpath("//label[contains(@class,'ServerOfferComponent-mutedAction')]//input[@type='checkbox']")
+        By.xpath("//label[contains(@class,'ServerOfferComponent-checkboxRow')]//input[@type='checkbox']")
       ),
       5_000,
       `Don't show this again checkbox couldn't be found within timeout`,

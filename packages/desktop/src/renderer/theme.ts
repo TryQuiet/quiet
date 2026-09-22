@@ -175,6 +175,8 @@ const lightTheme = createTheme({
       border01: '#F0F0F0',
       border02: '#B3B3B3',
       border03: '#D2D2D2',
+      // The hairline around the library's light-purple pills (Want a server? 2922:10009).
+      borderLightPurple: '#ECDCF5',
       // Other custom colors
       // The side nav in the private-channel designs (Figma PVQ1Kjf6Cq8ng1czuVtvR8, "Nav bar"
       // 838:9760) is the brand purple with the selected row at 20% white.
@@ -359,6 +361,8 @@ const darkTheme = createTheme({
       border01: '#2F2F2F',
       border02: '#B3B3B3',
       border03: '#D2D2D2',
+      // The hairline around the library's light-purple pills (Want a server? 2922:10009).
+      borderLightPurple: '#ECDCF5',
       // Gradients and other run-of-the-mill things
       sidebarBackground: '#2F193D',
       sidebarSelected: '#FFFFFF33',

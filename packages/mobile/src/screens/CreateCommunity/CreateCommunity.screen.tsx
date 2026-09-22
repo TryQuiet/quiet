@@ -6,7 +6,7 @@ import { initSelectors } from '../../store/init/init.selectors'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { CreateCommunity } from '../../components/CreateCommunity/CreateCommunity.component'
-import ServerOfferDrawer from '../../components/ModalBottomDrawer/drawers/ServerOffer.drawer'
+import { ServerOffer } from '../../components/ServerOffer/ServerOffer.component'
 import Config from 'react-native-config'
 import { createLogger } from '../../utils/logger'
 
@@ -86,15 +86,18 @@ export const CreateCommunityScreen: FC = () => {
     )
   }, [dispatch])
 
+  // Want a server? (2922:10009) is a screen of its own, not a sheet over the create step: it
+  // takes the window while the offer is open, and its close glyph is "Not now".
+  if (showServerOffer) {
+    return <ServerOffer visible onClose={handleServerOfferClose} showDontShowAgain={false} />
+  }
+
   return (
-    <>
-      <CreateCommunity
-        createCommunityAction={handleCommunityNameSubmit}
-        handleBackButton={handleBackButton}
-        networkCreated={networkCreated}
-        ready={isWebsocketConnected}
-      />
-      <ServerOfferDrawer visible={showServerOffer} onClose={handleServerOfferClose} showDontShowAgain={false} />
-    </>
+    <CreateCommunity
+      createCommunityAction={handleCommunityNameSubmit}
+      handleBackButton={handleBackButton}
+      networkCreated={networkCreated}
+      ready={isWebsocketConnected}
+    />
   )
 }
