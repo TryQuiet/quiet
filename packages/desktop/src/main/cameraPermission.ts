@@ -1,6 +1,11 @@
-import { ipcMain, systemPreferences, type App, type Session, type WebContents } from 'electron'
+import { ipcMain, shell, systemPreferences, type App, type Session, type WebContents } from 'electron'
 import { pathToFileURL } from 'url'
-import { CAMERA_ACCESS_REQUEST, FAKE_CAMERA_FILE_ENV, type CameraAccessResult } from '../shared/camera'
+import {
+  CAMERA_ACCESS_REQUEST,
+  CAMERA_OPEN_PRIVACY_SETTINGS,
+  FAKE_CAMERA_FILE_ENV,
+  type CameraAccessResult,
+} from '../shared/camera'
 import { createLogger } from './logger'
 
 const logger = createLogger('cameraPermission')
@@ -84,6 +89,45 @@ export const registerCameraAccessRequestHandler = (platform: NodeJS.Platform = p
     logger.info(`Camera access on ${platform}: ${result.status}`)
     return result
   })
+}
+
+/**
+ * Where the camera toggle lives once the OS has stored a refusal. macOS only ever shows
+ * its permission dialog once, and Windows never shows one at all, so on both the setting
+ * is the only way back and the app has to be able to point at it. Linux has no such
+ * page — no permission layer, no toggle — so nothing is offered there.
+ */
+export const CAMERA_PRIVACY_SETTINGS_URL: Partial<Record<NodeJS.Platform, string>> = {
+  darwin: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Camera',
+  win32: 'ms-settings:privacy-webcam',
+}
+
+/**
+ * Opens that page. The URL is chosen here from `platform`, never taken from the renderer,
+ * so a compromised renderer cannot turn this channel into `shell.openExternal(anything)`.
+ * Returns whether a page was opened, which is what the renderer is told.
+ */
+export const openCameraPrivacySettings = async (
+  platform: NodeJS.Platform,
+  openExternal: (url: string) => Promise<void> = url => shell.openExternal(url)
+): Promise<boolean> => {
+  const url = CAMERA_PRIVACY_SETTINGS_URL[platform]
+  if (!url) {
+    logger.info(`No camera privacy settings page on ${platform}`)
+    return false
+  }
+  try {
+    await openExternal(url)
+    logger.info(`Opened the camera privacy settings page on ${platform}`)
+    return true
+  } catch (error) {
+    logger.error(`Could not open ${url} on ${platform}`, error)
+    return false
+  }
+}
+
+export const registerCameraPrivacySettingsHandler = (platform: NodeJS.Platform = process.platform): void => {
+  ipcMain.handle(CAMERA_OPEN_PRIVACY_SETTINGS, (): Promise<boolean> => openCameraPrivacySettings(platform))
 }
 
 /**
