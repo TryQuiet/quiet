@@ -2,16 +2,11 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities } from '@quiet/state-manager'
-import {
-  ErrorMessages,
-  InvitationData,
-  isDeviceInvitationData,
-  JoinCommunityPayload,
-  type DeviceInvitationData,
-} from '@quiet/types'
+import { ErrorMessages, type DeviceInvitationData } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { DeviceLinkConsent } from '../../components/DeviceLinkConsent/DeviceLinkConsent.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
+import { useInvitationAction } from '../../hooks/useInvitationAction'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { PasteInviteLinkScreenProps } from './PasteInviteLink.types'
 import { initSelectors } from '../../store/init/init.selectors'
@@ -67,27 +62,9 @@ export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route })
     [dispatch]
   )
 
-  const joinCommunityAction = useCallback(
-    (data: InvitationData) => {
-      dispatch(communities.actions.clearJoinCommunityError())
-      if (isDeviceInvitationData(data)) {
-        // Linking a device hands the other device this account, so it is never done without consent.
-        setDeviceLinkInvite(data)
-        return
-      }
-
-      const payload: JoinCommunityPayload = {
-        inviteData: data,
-      }
-      dispatch(communities.actions.joinCommunity(payload))
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    },
-    [dispatch]
-  )
+  // Pasting and scanning submit through the same hook; a device link comes back
+  // here for consent rather than being acted on.
+  const joinCommunityAction = useInvitationAction(setDeviceLinkInvite)
 
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())
