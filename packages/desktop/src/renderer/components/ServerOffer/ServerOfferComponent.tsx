@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
@@ -17,6 +17,7 @@ const classes = {
   icon: `${PREFIX}icon`,
   text: `${PREFIX}text`,
   headingGroup: `${PREFIX}headingGroup`,
+  heading: `${PREFIX}heading`,
   pill: `${PREFIX}pill`,
   body: `${PREFIX}body`,
   divider: `${PREFIX}divider`,
@@ -37,7 +38,7 @@ const PILL_PADDING_Y = 2
 
 /**
  * Want a server? · Figma 2922:10009, measured on the frame: the bar zone with
- * the close glyph and no title, then a 375 column of 24-spaced blocks — the
+ * the × glyph and no title, then a 375 column of 24-spaced blocks — the
  * glyph, the text (heading, pill, body), the actions, the full-bleed rule and
  * the checkbox. The column is the prototype's frame width hosted in the modal
  * shell, as every other onboarding stage does; it is not OnboardingBody,
@@ -67,6 +68,7 @@ const Root = styled('div')(({ theme }) => ({
   [`& .${classes.icon}`]: {
     width: GLYPH_WIDTH,
     height: GLYPH_HEIGHT,
+    color: theme.palette.colors.gray90,
   },
 
   // The frame pads its text 24 either side; the rule below it is full-bleed.
@@ -85,6 +87,10 @@ const Root = styled('div')(({ theme }) => ({
     alignItems: 'center',
     gap: theme.space.xs,
   },
+  // The frame's ink for the heading, the body and the checkbox label: #222222 (colors.gray90).
+  [`& .${classes.heading}`]: {
+    color: theme.palette.colors.gray90,
+  },
   [`& .${classes.pill}`]: {
     ...theme.typography.subtitle2,
     display: 'inline-flex',
@@ -97,6 +103,7 @@ const Root = styled('div')(({ theme }) => ({
   },
   [`& .${classes.body}`]: {
     textAlign: 'center',
+    color: theme.palette.colors.gray90,
   },
 
   // The frame's rule runs the full width of the frame, past the text's padding.
@@ -143,34 +150,49 @@ const Root = styled('div')(({ theme }) => ({
     },
     '& .MuiFormControlLabel-label': {
       ...theme.typography.body2,
+      color: theme.palette.colors.gray90,
     },
   },
 }))
 
 export interface ServerOfferComponentProps {
   open: boolean
-  handleClose: (selection: boolean) => void
+  /** An explicit decision: the server, or "Not now", each carrying the checkbox's value. */
+  handleClose: (useServer: boolean, dontShowAgain: boolean) => void
+  /** The bar glyph, the backdrop and Escape: go back to the step before, deciding nothing. */
+  handleBack: () => void
   showDontShowAgain?: boolean
+  /** The checkbox's initial state; the component owns it from there. */
+  defaultDontShowAgain?: boolean
 }
 
-export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open, handleClose, showDontShowAgain }) => {
-  // Nothing persists this yet — the offer is shown once, during community creation.
-  const [dontShowAgain, setDontShowAgain] = useState(false)
-
-  const onChoose = useCallback((useServer: boolean) => handleClose(useServer), [handleClose])
-
-  // The bar zone carries the close glyph at the left and no title; closing it is "Not now".
-  const onDismiss = useCallback(() => onChoose(false), [onChoose])
+export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({
+  open,
+  handleClose,
+  handleBack,
+  showDontShowAgain,
+  defaultDontShowAgain = false,
+}) => {
+  const [dontShowAgain, setDontShowAgain] = useState(defaultDontShowAgain)
 
   return (
-    <Modal open={open} handleClose={onDismiss} withoutTitle alignCloseLeft testIdPrefix='ServerOffer'>
-      <Root data-testid='server-offer'>
+    <Modal
+      open={open}
+      handleClose={handleBack}
+      withoutTitle
+      alignCloseLeft
+      closeAriaLabel='Go back'
+      testIdPrefix='ServerOffer'
+    >
+      <Root>
         <div className={classes.glyph}>
           <ServerBoxIcon className={classes.icon} />
         </div>
         <div className={classes.text}>
           <div className={classes.headingGroup}>
-            <Typography variant='h3'>Want a server?</Typography>
+            <Typography variant='h3' className={classes.heading}>
+              Want a server?
+            </Typography>
             <span className={classes.pill}>It’s free!</span>
           </div>
           <Typography variant='body2' className={classes.body}>
@@ -183,7 +205,7 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
             color='primary'
             size='large'
             className={classes.useServerButton}
-            onClick={() => onChoose(true)}
+            onClick={() => handleClose(true, dontShowAgain)}
             data-testid='ServerOffer-UseQuietServer'
           >
             Use Quiet’s server
@@ -192,25 +214,27 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
             variant='text'
             disableRipple
             className={classes.notNowButton}
-            onClick={() => onChoose(false)}
+            onClick={() => handleClose(false, dontShowAgain)}
             data-testid='ServerOffer-NotNow'
           >
             Not now
           </Button>
         </div>
-        {showDontShowAgain && <Divider className={classes.divider} />}
         {showDontShowAgain && (
-          <FormControlLabel
-            className={classes.checkboxRow}
-            control={
-              <Checkbox
-                color='primary'
-                checked={dontShowAgain}
-                onChange={event => setDontShowAgain(event.target.checked)}
-              />
-            }
-            label='Don’t show this again'
-          />
+          <>
+            <Divider className={classes.divider} />
+            <FormControlLabel
+              className={classes.checkboxRow}
+              control={
+                <Checkbox
+                  color='primary'
+                  checked={dontShowAgain}
+                  onChange={event => setDontShowAgain(event.target.checked)}
+                />
+              }
+              label='Don’t show this again'
+            />
+          </>
         )}
       </Root>
     </Modal>

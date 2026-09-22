@@ -28,12 +28,11 @@ describe('CreateCommunityScreen', () => {
     return { dispatchSpy, result }
   }
 
-  it('gives the offer the window instead of a sheet over the create step', async () => {
+  it('covers the create step with the offer instead of a sheet over it', async () => {
     const { dispatchSpy, result } = await openTheOffer()
 
-    // Want a server? (2922:10009) is a screen: the create step is not behind it.
+    // Want a server? (2922:10009) is a screen: it takes the window while the offer is open.
     expect(result.getByTestId('server-offer-component')).toBeTruthy()
-    expect(result.queryByTestId('create-community-component')).toBeNull()
     // Nothing is created until the offer is answered.
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       expect.objectContaining({ type: communities.actions.createCommunity.type })
@@ -68,14 +67,23 @@ describe('CreateCommunityScreen', () => {
     )
   })
 
-  it('treats the close glyph as "Not now", the way dismissing the old drawer did', async () => {
+  it("returns to the create step with the name still typed when the offer's glyph goes back", async () => {
     const { dispatchSpy, result } = await openTheOffer()
 
     fireEvent.press(result.getByTestId('appbar_action_item'))
 
-    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.createCommunity({ name: 'rockets', useServer: false }))
+    // Nothing was created and nothing was decided.
     expect(dispatchSpy).not.toHaveBeenCalledWith(
-      navigationActions.setPendingNavigation({ screen: ScreenNames.TermsOfServiceScreen })
+      expect.objectContaining({ type: communities.actions.createCommunity.type })
     )
+    expect(result.queryByTestId('server-offer-component')).toBeNull()
+    expect(result.getByPlaceholderText('Community name')).toBeTruthy()
+
+    // The form kept the name in its own state: Continue works again without retyping, and
+    // carries the same name. Unmounting the form instead would have emptied the field.
+    fireEvent.press(result.getByTestId('create-community-continue'))
+    expect(result.queryByText('Community name can not be empty')).toBeNull()
+    fireEvent.press(result.getByTestId('server-offer-use-server'))
+    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.createCommunity({ name: 'rockets', useServer: true }))
   })
 })

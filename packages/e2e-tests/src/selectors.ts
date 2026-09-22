@@ -1635,17 +1635,6 @@ export class ServerOfferModal {
     )
   }
 
-  get dontShowAgainCheckbox() {
-    return this.driver.wait(
-      until.elementLocated(
-        By.xpath("//label[contains(@class,'ServerOfferComponent-checkboxRow')]//input[@type='checkbox']")
-      ),
-      5_000,
-      `Don't show this again checkbox couldn't be found within timeout`,
-      500
-    )
-  }
-
   async isReady(timeoutMs: number = 10_000): Promise<boolean> {
     const actions = await this.useServerButton
     await this.driver.wait(
@@ -1667,13 +1656,8 @@ export class ServerOfferModal {
     await button.click()
   }
 
-  async setDontShowAgain(checked: boolean) {
-    const checkbox = await this.dontShowAgainCheckbox
-    const isChecked = await checkbox.isSelected()
-    if (isChecked !== checked) {
-      await checkbox.click()
-    }
-  }
+  // "Don't show this again" has no selector: the app never passes showDontShowAgain, so the
+  // checkbox the frame draws is not rendered in the product. See TryQuiet/quiet#3644.
 }
 
 export class TermsOfServiceModal {

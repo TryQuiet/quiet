@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useState } from 'react'
-import { Image, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, TouchableOpacity, View } from 'react-native'
 
 import { icons } from '../../assets'
 import ServerBoxIcon from '../../assets/icons/svg/server-icon'
@@ -23,35 +23,53 @@ const PILL_PADDING_Y = 2
 const LINK_SLOP = { top: 14, bottom: 14, left: 24, right: 24 }
 
 export interface ServerOfferProps {
-  visible: boolean
+  /** An explicit decision: the server, or "Not now", each carrying the checkbox's value. */
   onClose: (useServer: boolean, dontShowAgain: boolean) => void
+  /** The bar glyph: go back to the step before, deciding nothing. */
+  onBack: () => void
   showDontShowAgain: boolean
+  /** The checkbox's initial state; the component owns it from there. */
+  defaultDontShowAgain?: boolean
 }
 
 /**
  * Want a server? · Figma 2922:10009, measured on the frame: the bar zone with
- * the close glyph and no title, then 24-spaced blocks — the glyph, the text
+ * the × glyph and no title, then 24-spaced blocks — the glyph, the text
  * (heading, "It's free!" pill, body), the actions ("Use Quiet's server" and the
  * "Not now" link), the full-bleed rule and the "Don't show this again"
  * checkbox.
  *
  * A screen, not a sheet: the frame is a full screen, and the drawer it used to
- * arrive in is gone the same way Agree & join's was. Closing it is "Not now",
- * which is what dismissing the drawer used to mean.
+ * arrive in is gone the same way Agree & join's was. The frame wires its glyph
+ * to "back", so it returns to the step before rather than answering the offer;
+ * "Not now" is the decline. The column scrolls, because at the larger font
+ * scales the rule and the checkbox fall past the bottom of a phone.
  */
-export const ServerOffer: FC<ServerOfferProps> = ({ visible, onClose, showDontShowAgain }) => {
-  const [dontShowAgain, setDontShowAgain] = useState(false)
+export const ServerOffer: FC<ServerOfferProps> = ({
+  onClose,
+  onBack,
+  showDontShowAgain,
+  defaultDontShowAgain = false,
+}) => {
+  const [dontShowAgain, setDontShowAgain] = useState(defaultDontShowAgain)
 
   const handleUseServer = useCallback(() => onClose(true, dontShowAgain), [onClose, dontShowAgain])
   const handleNotNow = useCallback(() => onClose(false, dontShowAgain), [onClose, dontShowAgain])
   const toggleDontShowAgain = useCallback(() => setDontShowAgain(value => !value), [])
 
-  if (!visible) return null
-
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'server-offer-component'}>
-      <Appbar withoutTitle crossBackIcon back={handleNotNow} />
-      <View style={{ paddingTop: spacing.xl, alignItems: 'center', gap: spacing.xl }}>
+      <Appbar withoutTitle crossBackIcon back={onBack} backAccessibilityLabel={'Go back'} />
+      <ScrollView
+        testID={'server-offer-content'}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingTop: spacing.xl,
+          paddingBottom: spacing.xxl,
+          alignItems: 'center',
+          gap: spacing.xl,
+        }}
+      >
         <View style={{ width: GLYPH_BOX, height: GLYPH_BOX, alignItems: 'center', justifyContent: 'center' }}>
           <ServerBoxIcon size={GLYPH_WIDTH} color={defaultTheme.palette.typography.gray90} />
         </View>
@@ -137,7 +155,7 @@ export const ServerOffer: FC<ServerOfferProps> = ({ visible, onClose, showDontSh
             </TouchableOpacity>
           </>
         )}
-      </View>
+      </ScrollView>
     </View>
   )
 }

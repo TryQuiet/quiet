@@ -171,6 +171,9 @@ const lightTheme = createTheme({
       gray40: '#999999',
       gray50: '#7F7F7F',
       gray70: '#4C4C4C',
+      // The body ink of the onboarding frames (e.g. Want a server? 2922:10009), which mobile
+      // calls typography.gray90. Inverted in the dark theme below so text stays legible.
+      gray90: '#222222',
       // Border colors
       border01: '#F0F0F0',
       border02: '#B3B3B3',
@@ -357,6 +360,8 @@ const darkTheme = createTheme({
       gray40: '#999999',
       gray50: '#7F7F7F',
       gray70: '#4C4C4C',
+      // The light theme's #222222 body ink, inverted: the frames only specify the light theme.
+      gray90: '#FFFFFF',
       // Border colors
       border01: '#2F2F2F',
       border02: '#B3B3B3',

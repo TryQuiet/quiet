@@ -7,9 +7,8 @@ import { renderComponent } from '../../testUtils'
 
 describe('ServerOfferComponent', () => {
   it('renders the frame (2922:10009) with its rule and checkbox', async () => {
-    const handleClose = jest.fn()
     const result = renderComponent(
-      <ServerOfferComponent open={true} handleClose={handleClose} showDontShowAgain={true} />
+      <ServerOfferComponent open={true} handleClose={jest.fn()} handleBack={jest.fn()} showDontShowAgain={true} />
     )
 
     // Inline snapshot of the rendered component
@@ -54,7 +53,7 @@ describe('ServerOfferComponent', () => {
                     data-testid="ServerOfferModalActions"
                   >
                     <button
-                      aria-label="Close"
+                      aria-label="Go back"
                       class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ServerOfferModalClose"
                       tabindex="0"
@@ -84,8 +83,7 @@ describe('ServerOfferComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="css-rmthvw"
-                  data-testid="server-offer"
+                  class="css-zjfh1h"
                 >
                   <div
                     class="ServerOfferComponent-glyph"
@@ -109,7 +107,7 @@ describe('ServerOfferComponent', () => {
                       class="ServerOfferComponent-headingGroup"
                     >
                       <h3
-                        class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-h3 ServerOfferComponent-heading css-ts8dj1-MuiTypography-root"
                       >
                         Want a server?
                       </h3>
@@ -206,21 +204,24 @@ describe('ServerOfferComponent', () => {
     expect(screen.getByRole('separator')).toBeVisible()
   })
 
-  it('shows the bar with only the close glyph (2922:10009); closing is "Not now"', async () => {
+  it('shows the bar with only the glyph, and the glyph goes back without deciding', async () => {
     const handleClose = jest.fn()
-    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} />)
+    const handleBack = jest.fn()
+    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} handleBack={handleBack} />)
 
     const header = screen.getByTestId('ServerOfferModalActions').closest('.Modalheader')
     expect(header).not.toHaveClass('Modalnone')
     expect(header).not.toHaveClass('ModalheaderBorder')
     expect(header).not.toHaveTextContent(/\S/)
 
+    // The frame wires its glyph to "back" (flow.json), so it is not an answer to the offer.
     await userEvent.click(screen.getByTestId('ServerOfferModalClose'))
-    expect(handleClose).toHaveBeenCalledWith(false)
+    expect(handleBack).toHaveBeenCalledTimes(1)
+    expect(handleClose).not.toHaveBeenCalled()
   })
 
   it("carries the frame's copy: the heading, the pill and the body", () => {
-    renderComponent(<ServerOfferComponent open={true} handleClose={jest.fn()} />)
+    renderComponent(<ServerOfferComponent open={true} handleClose={jest.fn()} handleBack={jest.fn()} />)
 
     expect(screen.getByText('Want a server?')).toBeVisible()
     expect(screen.getByText('It’s free!')).toBeVisible()
@@ -236,18 +237,39 @@ describe('ServerOfferComponent', () => {
 
   it('takes the server, declines, and hides the checkbox by default', async () => {
     const handleClose = jest.fn()
-    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} />)
+    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} handleBack={jest.fn()} />)
 
     const useServerBtn = screen.getByTestId('ServerOffer-UseQuietServer')
     expect(useServerBtn).toHaveTextContent('Use Quiet’s server')
     await userEvent.click(useServerBtn)
-    expect(handleClose).toHaveBeenCalledWith(true)
+    expect(handleClose).toHaveBeenCalledWith(true, false)
 
     await userEvent.click(screen.getByTestId('ServerOffer-NotNow'))
-    expect(handleClose).toHaveBeenCalledWith(false)
+    expect(handleClose).toHaveBeenLastCalledWith(false, false)
 
     // The offer the app shows during creation has neither the rule nor the checkbox.
     expect(screen.queryByRole('checkbox')).toBeNull()
     expect(screen.queryByRole('separator')).toBeNull()
+  })
+
+  it('reports the checkbox with each decision, from its initial state on', async () => {
+    const handleClose = jest.fn()
+    renderComponent(
+      <ServerOfferComponent
+        open={true}
+        handleClose={handleClose}
+        handleBack={jest.fn()}
+        showDontShowAgain
+        defaultDontShowAgain
+      />
+    )
+
+    expect(screen.getByRole('checkbox')).toBeChecked()
+    await userEvent.click(screen.getByTestId('ServerOffer-UseQuietServer'))
+    expect(handleClose).toHaveBeenLastCalledWith(true, true)
+
+    await userEvent.click(screen.getByRole('checkbox'))
+    await userEvent.click(screen.getByTestId('ServerOffer-NotNow'))
+    expect(handleClose).toHaveBeenLastCalledWith(false, false)
   })
 })

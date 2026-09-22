@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../storybook/decorators'
@@ -11,9 +11,13 @@ const Template: ComponentStory<typeof ServerOfferComponent> = args => {
 
 const args: ServerOfferComponentProps = {
   open: true,
-  handleClose: selection => {
+  handleClose: (useServer, dontShowAgain) => {
     // eslint-disable-next-line no-console
-    console.info('ServerOffer closed with selection:', selection)
+    console.info('ServerOffer decided:', { useServer, dontShowAgain })
+  },
+  handleBack: () => {
+    // eslint-disable-next-line no-console
+    console.info('ServerOffer went back to the step before')
   },
 }
 
@@ -27,32 +31,16 @@ export const WithDontShowAgain = Template.bind({})
 WithDontShowAgain.args = { ...args, showDontShowAgain: true }
 WithDontShowAgain.storyName = "With Don't show this again"
 
-/**
- * The same with the box ticked — the library's checkbox filled in gray 50. The
- * component owns that state, so the story ticks it the way a user would. The
- * modal's portal appears a pass later than this effect, so the lookup is at
- * document level and retries until the box is there.
- */
-export const DontShowAgainChecked = () => {
-  useEffect(() => {
-    let tries = 0
-    const tick = setInterval(() => {
-      const checkbox = document.body.querySelector<HTMLInputElement>('input[type="checkbox"]')
-      if (checkbox && !checkbox.checked) checkbox.click()
-      if (checkbox || ++tries > 40) clearInterval(tick)
-    }, 25)
-    return () => clearInterval(tick)
-  }, [])
-  return <ServerOfferComponent {...args} showDontShowAgain />
-}
+/** The same with the box ticked — the library's checkbox filled in gray 50. */
+export const DontShowAgainChecked = Template.bind({})
+DontShowAgainChecked.args = { ...args, showDontShowAgain: true, defaultDontShowAgain: true }
 DontShowAgainChecked.storyName = "Don't show this again, checked"
 
 const component: ComponentMeta<typeof ServerOfferComponent> = {
   title: 'Components/ServerOffer',
   decorators: [withTheme],
   component: ServerOfferComponent,
-  // As every design-library entry does; the ticked story also clicks on mount, which
-  // Chromatic would race.
+  // As every design-library entry does.
   parameters: { chromatic: { disableSnapshot: true } },
 }
 
