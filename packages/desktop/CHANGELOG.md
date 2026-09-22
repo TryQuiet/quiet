@@ -1,3 +1,21 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [11.2.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@11.1.0...@quiet/desktop@11.2.0-alpha.0) (2026-09-22)
+
+
+### Bug Fixes
+
+* **desktop:** display profile-selected DM recipient ([#3659](https://github.com/TryQuiet/quiet/issues/3659)) ([1c51e7a](https://github.com/TryQuiet/quiet/commit/1c51e7ac5bd0562885e3051342bfea3abea8d318))
+* **desktop:** isolate native title-bar drag from app content ([#3656](https://github.com/TryQuiet/quiet/issues/3656)) ([0e94e66](https://github.com/TryQuiet/quiet/commit/0e94e6623f47ddd7273ead4b716d909f618ebcb2))
+* **desktop:** limit macOS drag region beneath embedded captcha ([#3645](https://github.com/TryQuiet/quiet/issues/3645)) ([4898cef](https://github.com/TryQuiet/quiet/commit/4898cef2b9176cb3c339d535b38a2d27f4364665))
+
+
+
+
+
 # Changelog
 
 ## [11.1.0]
