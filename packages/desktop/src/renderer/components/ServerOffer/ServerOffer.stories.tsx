@@ -51,6 +51,9 @@ const component: ComponentMeta<typeof ServerOfferComponent> = {
   title: 'Components/ServerOffer',
   decorators: [withTheme],
   component: ServerOfferComponent,
+  // As every design-library entry does; the ticked story also clicks on mount, which
+  // Chromatic would race.
+  parameters: { chromatic: { disableSnapshot: true } },
 }
 
 export default component
