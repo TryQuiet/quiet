@@ -50,6 +50,6 @@ describe('JoinCommunity component', () => {
     )
 
     expect(getByTestId('appbar_without_title')).toBeTruthy()
-    expect(getAllByText('Paste a link to Join')).toHaveLength(1)
+    expect(getAllByText('Paste a link to join')).toHaveLength(1)
   })
 })

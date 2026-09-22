@@ -223,6 +223,8 @@ Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate 
 Figma frame `Container` · Section: Onboarding · 375×667 · node `3190:10892` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=3190-10892)
 > Designer's work in progress: this frame is create--default duplicated with only the heading changed to 'Paste a link to Join' and the input placeholder to 'Link'. Title bar, subtitle and the avatar upload are unchanged.
 
+App copy uses sentence case, *Paste a link to join* (user, 2026-09-22); the frame's casing is the designer's WIP.
+
 Copy:
 - Create a community
 - Paste a link to Join

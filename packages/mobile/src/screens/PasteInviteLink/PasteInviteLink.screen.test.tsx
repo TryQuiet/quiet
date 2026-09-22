@@ -125,7 +125,7 @@ describe('PasteInviteLinkScreen', () => {
       const { result } = await renderReadyScreen(pasteLinkRoute)
 
       expect(result.queryByText('Link devices')).toBeNull()
-      expect(result.getByText('Paste a link to Join')).toBeTruthy()
+      expect(result.getByText('Paste a link to join')).toBeTruthy()
       expect(result.getByPlaceholderText('Link')).toBeTruthy()
     })
 

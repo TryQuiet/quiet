@@ -4,6 +4,8 @@
 
 ### Chores
 
+* chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
+
 * chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).
 * Declare `rimraf` in the desktop package, which every packaging script now runs to clear `dist/`, instead of relying on another dependency to hoist it
 
@@ -54,6 +56,7 @@
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
 * Drop the greyed-out "More options" row from Recover account on desktop and mobile, since it led nowhere and its glyph failed to load
+* Write the onboarding paste-link heading in sentence case, *Paste a link to join*, on desktop and mobile
 
 ### Tests
 

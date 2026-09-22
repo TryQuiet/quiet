@@ -15,7 +15,7 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('PasteInviteLinkScreen')
 
-/** "Paste a link to Join": the invite link, QR code and device link flows all submit here. */
+/** "Paste a link to join": the invite link, QR code and device link flows all submit here. */
 export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
