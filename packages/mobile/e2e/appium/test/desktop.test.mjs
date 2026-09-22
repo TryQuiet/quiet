@@ -51,3 +51,45 @@ for (const manual of [false, true]) test(`notification desktop child uses ${manu
     ...(manual ? {} : { tokenFile: path.join(directory, 'ci-enrollment.jwt') }),
   })
 })
+
+for (const failureStage of ['desktop-open', 'desktop-server-offer', 'desktop-enrollment']) {
+  test(`desktop failure receipt identifies ${failureStage} without private UI values`, t => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-desktop-progress-'))
+    t.after(() => fs.rmSync(directory, { recursive: true, force: true }))
+    const script = `
+      import { Desktop } from './desktop.mjs';
+      import selectors from '../../../e2e-tests/src/selectors.ts';
+      import assert from 'node:assert/strict';
+      import fs from 'node:fs';
+      const failure = new Error('PRIVATE_COMMUNITY_AND_INVITATION');
+      const stage = ${JSON.stringify(failureStage)};
+      const step = name => async () => { if (name === stage) throw failure; };
+      const desktop = new Desktop({ desktopBinary: process.execPath },
+        { desktop: 'PRIVATE_USERNAME', community: 'PRIVATE_COMMUNITY' },
+        { endpoint: 'ws://localhost:3003' }, { directory: ${JSON.stringify(directory)} });
+      desktop.app.open = step('desktop-open');
+      desktop.app.thenableWebDriver = {};
+      desktop.app.buildSetup.child = { pid: process.pid };
+      for (const [klass, method, label] of [
+        ['JoinCommunityModal', 'switchToCreateCommunity', 'desktop-create-form'],
+        ['CreateCommunityModal', 'typeCommunityName', 'type-community'],
+        ['CreateCommunityModal', 'submit', 'desktop-community-submit'],
+        ['ServerOfferModal', 'chooseUseServer', 'desktop-server-offer'],
+        ['RegisterUsernameModal', 'typeUsername', 'desktop-username'],
+        ['RegisterUsernameModal', 'submit', 'submit-username'],
+        ['TermsOfServiceModal', 'chooseAgreeAndJoin', 'desktop-terms'],
+        ['JoiningLoadingPanel', 'waitForJoinToComplete', 'desktop-enrollment'],
+      ]) selectors[klass].prototype[method] = step(label);
+      await assert.rejects(desktop.create(), error => error === failure);
+      const text = fs.readFileSync(${JSON.stringify(path.join(directory, 'progress.json'))}, 'utf8');
+      assert.deepEqual(JSON.parse(text), { stage });
+      assert(!text.includes('PRIVATE_'));
+    `
+    const environment = { ...process.env }
+    delete environment.NODE_TEST_CONTEXT
+    const result = spawnSync(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', script], {
+      cwd: fileURLToPath(new URL('..', import.meta.url)), env: environment, encoding: 'utf8', timeout: 30000,
+    })
+    assert.equal(result.status, 0, result.stderr)
+  })
+}

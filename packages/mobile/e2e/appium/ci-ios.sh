@@ -134,7 +134,9 @@ from pathlib import Path
 directory = Path(os.environ['QUIET_QSS_E2E_RUN_DIR'])
 proof = json.loads((directory / 'ui.json').read_text()) if (directory / 'ui.json').exists() else {}
 progress = json.loads((directory / 'progress.json').read_text()) if (directory / 'progress.json').exists() else {}
-stages = {'desktop-create', 'mobile-start', 'mobile-join', 'foreground-send',
+stages = {'desktop-open', 'desktop-create-form', 'desktop-community-submit',
+          'desktop-server-offer', 'desktop-username', 'desktop-terms',
+          'desktop-enrollment', 'desktop-invitation', 'desktop-create', 'mobile-start', 'mobile-join', 'foreground-send',
           'foreground-receive', 'qss-storage-proof', 'onboarding-complete',
           'fresh-join-background', 'fresh-join-send', 'fresh-join-notification-tap',
           'named-channel-create', 'named-channel-sync', 'named-channel-background',

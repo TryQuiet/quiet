@@ -12,6 +12,7 @@ const { snapshotOwnedProcesses, waitForProcessExit, stopOwnedProcesses } = requi
 export class Desktop {
   constructor(config, names, fixture, run) {
     this.names = names
+    this.progressPath = path.join(run.directory, 'progress.json')
     this.enrollmentMode = enrollmentMode(config, fixture)
     this.ciTokenFile = this.enrollmentMode === 'github-oidc' ? path.join(run.directory, 'ci-enrollment.jwt') : undefined
     this.app = new App({ binaryPath: config.desktopBinary, username: names.desktop, qssEndpoint: fixture.endpoint,
@@ -25,19 +26,29 @@ export class Desktop {
     })
   }
   get driver() { return this.app.driver }
+  async progress(stage) {
+    await fs.writeFile(this.progressPath, JSON.stringify({ stage }), { mode: 0o600 })
+  }
   async create() {
     if (this.ciTokenFile) await writeCiEnrollmentToken(this.ciTokenFile)
+    await this.progress('desktop-open')
     await this.app.open(true)
     this.owned = snapshotOwnedProcesses(this.app.buildSetup.child.pid)
+    await this.progress('desktop-create-form')
     await new JoinCommunityModal(this.driver).switchToCreateCommunity()
     const create = new CreateCommunityModal(this.driver)
     await create.typeCommunityName(this.names.community)
+    await this.progress('desktop-community-submit')
     await create.submit()
+    await this.progress('desktop-server-offer')
     await new ServerOfferModal(this.driver).chooseUseServer()
     const registration = new RegisterUsernameModal(this.driver)
+    await this.progress('desktop-username')
     await registration.typeUsername(this.names.desktop)
     await registration.submit()
+    await this.progress('desktop-terms')
     await new TermsOfServiceModal(this.driver).chooseAgreeAndJoin()
+    await this.progress('desktop-enrollment')
     if (this.enrollmentMode === 'manual') {
       console.log('Complete the live hCaptcha in the desktop window; waiting up to five minutes for enrollment.')
       assert(await new Channel(this.driver, 'general').isOpen(undefined, true, 300_000))
@@ -45,6 +56,7 @@ export class Desktop {
       await new JoiningLoadingPanel(this.driver).waitForJoinToComplete()
       assert(await new Channel(this.driver, 'general').isOpen())
     }
+    await this.progress('desktop-invitation')
     const settings = await new Sidebar(this.driver).openSettings()
     await settings.switchTab('invite')
     const invite = await (await settings.invitationLink()).getText()
