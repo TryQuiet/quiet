@@ -17,7 +17,9 @@ import {
   DisplayQrCodeGenerating,
   DisplayQrCodeUnavailable,
   LinkDevices,
+  LinkDevicesDeviceListUnread,
   LinkDevicesEmpty,
+  LinkDevicesNothingLinked,
   PasteLinkNotADeviceLink,
   PasteLinkOnLinkDevices,
   SettingsLinkedDevices,
@@ -173,13 +175,26 @@ describe('Screens/Onboarding — the Link devices stories', () => {
     expect(barTitle()).toBe('')
   })
 
-  it('draws no device list in either direction (nothing on this line enumerates devices)', () => {
+  it('draws the device list on the share direction and never on receive', () => {
     const { unmount } = renderComponent(<LinkDevices />)
-    expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
+    expect(screen.getAllByTestId('linked-devices-list')[0]).toBeVisible()
+    expect(screen.getAllByTestId('linked-device-laptop')[0]).toHaveTextContent('nyc-laptop')
+    // The device being read from is never a row.
+    expect(screen.queryByTestId('linked-device-this')).not.toBeInTheDocument()
     unmount()
 
+    // Receiving, there is no community and so no team graph to list devices from.
     renderComponent(<LinkDevicesEmpty />)
+    expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
+  })
+
+  it('says "No linked devices" when the read came back with none, and nothing before it lands', () => {
+    const { unmount } = renderComponent(<LinkDevicesNothingLinked />)
+    expect(screen.getAllByTestId('no-linked-devices')[0]).toHaveTextContent('No linked devices')
+    unmount()
+
+    renderComponent(<LinkDevicesDeviceListUnread />)
     expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
     expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
   })

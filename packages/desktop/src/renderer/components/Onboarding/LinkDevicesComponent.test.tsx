@@ -60,11 +60,39 @@ describe('LinkDevicesComponent', () => {
   })
 
   /**
-   * The frames draw a "Linked devices" list under the rows. It is not built on this line: the
-   * backend that would enumerate a user's devices was dropped (TryQuiet/quiet#3636), and a card
-   * that always read "No linked devices" would be false the moment a device was linked.
+   * The frames draw a "Linked devices" list under the rows (TryQuiet/quiet#3636). It belongs
+   * to the share direction, which is the one with a community and so a team graph to read the
+   * devices from, and it stays silent until that read lands: a card that always read
+   * "No linked devices" would be false the moment a device was linked.
    */
-  it('draws no device list in either direction', () => {
+  it('draws the device list on the share direction only', () => {
+    const devices = [{ deviceId: 'phone', deviceName: 'nyc-phone', isCurrent: false }]
+    const { unmount } = renderComponent(
+      <LinkDevicesComponent
+        direction='share'
+        onDisplayQrCode={jest.fn()}
+        deviceLink={'x'}
+        onLinkCopied={jest.fn()}
+        linkedDevices={devices}
+      />
+    )
+    expect(screen.getByTestId('linked-devices-list')).toBeVisible()
+    expect(screen.getByTestId('linked-device-phone')).toHaveTextContent('nyc-phone')
+    unmount()
+
+    renderComponent(
+      <LinkDevicesComponent
+        direction='receive'
+        onScanQrCode={jest.fn()}
+        onPasteLink={jest.fn()}
+        linkedDevices={devices}
+      />
+    )
+    expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
+  })
+
+  it('sharing, draws nothing about devices until the read comes back', () => {
     const { unmount } = renderComponent(
       <LinkDevicesComponent direction='share' onDisplayQrCode={jest.fn()} deviceLink={'x'} onLinkCopied={jest.fn()} />
     )
@@ -72,8 +100,15 @@ describe('LinkDevicesComponent', () => {
     expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
     unmount()
 
-    renderComponent(<LinkDevicesComponent direction='receive' onScanQrCode={jest.fn()} onPasteLink={jest.fn()} />)
-    expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
+    renderComponent(
+      <LinkDevicesComponent
+        direction='share'
+        onDisplayQrCode={jest.fn()}
+        deviceLink={'x'}
+        onLinkCopied={jest.fn()}
+        linkedDevices={[]}
+      />
+    )
+    expect(screen.getByTestId('no-linked-devices')).toHaveTextContent('No linked devices')
   })
 })

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities } from '@quiet/state-manager'
+import { communities, connection } from '@quiet/state-manager'
 import {
   type DeviceInvitationData,
   type InvitationData,
@@ -62,13 +62,15 @@ export const SCAN_QR_CODE_INTRO =
  *
  * Whichever way a device link arrives — scanned or pasted — linking hands the other
  * device this account, so it goes through the consent sheet rather than starting on
- * arrival. The frame's "Linked devices" list is not drawn: nothing on this line can
- * enumerate a user's devices (TryQuiet/quiet#3636).
+ * arrival. The frame's "Linked devices" list is drawn on the share direction only
+ * (TryQuiet/quiet#3636): it is read off the team graph, and the receive direction has no
+ * community to read one from.
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const linkedDevices = useSelector(connection.selectors.linkedDevices)
 
   const linkDevicesModal = useModal<LinkDevicesModalArgs>(ModalName.linkDevicesModal)
   const initialStep: Step = linkDevicesModal.step ?? 'entry'
@@ -87,6 +89,12 @@ export const LinkDevices: React.FC = () => {
   useEffect(() => {
     setStep(linkDevicesModal.open ? initialStep : 'entry')
   }, [linkDevicesModal.open])
+
+  // The list is read when the surface opens sharing; the master saga refreshes it
+  // afterwards whenever the user set changes.
+  useEffect(() => {
+    if (linkDevicesModal.open && direction === 'share') dispatch(connection.actions.getLinkedDevices())
+  }, [dispatch, direction, linkDevicesModal.open])
 
   const leave = () => {
     if (linkDevicesModal.returnTo === 'recoverAccount') {
@@ -170,6 +178,7 @@ export const LinkDevices: React.FC = () => {
               onLinkCopied={copyLink.onLinkCopied}
               onScanQrCode={() => setStep('scan')}
               onPasteLink={() => setStep('pasteLink')}
+              linkedDevices={direction === 'share' ? linkedDevices : undefined}
             />
             <ConfirmationToast open={copyLink.copied} message={'Copied'} onClose={copyLink.dismissCopied} />
           </>

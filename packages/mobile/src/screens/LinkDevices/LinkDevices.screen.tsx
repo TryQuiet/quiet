@@ -16,13 +16,15 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
  * this device shares: Display QR code opens #3400's device-link QR screen, Copy link
  * copies the same link and confirms. Without one it receives: Scan QR code opens the
  * scanner sheet, where a scanned device link does what a pasted one does, and Paste
- * link opens the same paste step under the Link devices title.
+ * link opens the same paste step under the Link devices title. Sharing also lists the
+ * account's other devices (TryQuiet/quiet#3636), read off the team graph a community has.
  */
 export const LinkDevicesScreen: FC = () => {
   const dispatch = useDispatch()
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
+  const linkedDevices = useSelector(connection.selectors.linkedDevices)
   const confirmationBox = useConfirmationBox('Copied')
   const inCommunity = Boolean(currentCommunity)
 
@@ -30,6 +32,12 @@ export const LinkDevicesScreen: FC = () => {
   useEffect(() => {
     if (inCommunity && !deviceLinkInvite) dispatch(connection.actions.createDeviceLink())
   }, [inCommunity, deviceLinkInvite, dispatch])
+
+  // The list is read when the screen shows sharing; the master saga refreshes it
+  // afterwards whenever the user set changes.
+  useEffect(() => {
+    if (inCommunity) dispatch(connection.actions.getLinkedDevices())
+  }, [dispatch, inCommunity])
 
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())
@@ -75,6 +83,7 @@ export const LinkDevicesScreen: FC = () => {
       onCopyLink={onCopyLink}
       onScanQrCode={onScanQrCode}
       onPasteLink={onPasteLink}
+      linkedDevices={inCommunity ? linkedDevices : undefined}
       handleBackButton={handleBackButton}
     />
   )

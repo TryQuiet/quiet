@@ -245,8 +245,8 @@ describe('Link devices → Display QR code', () => {
     expect(screen.getByTestId('link-devices-paste-link')).toBeVisible()
     expect(screen.queryByTestId('link-devices-display-qr')).not.toBeInTheDocument()
     expect(screen.queryByTestId('link-devices-copy-link')).not.toBeInTheDocument()
-    // The frame's device list is not built on this line (TryQuiet/quiet#3636): a card that always
-    // read "No linked devices" would be false the moment a device was linked.
+    // Receiving, there is no community and so no team graph to list devices from
+    // (TryQuiet/quiet#3636); the list belongs to the share direction.
     expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
     expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
   })

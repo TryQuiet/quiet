@@ -21,7 +21,7 @@ import BackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
 import { composeInvitationDeepUrl, composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { InvitationKind, isDeviceInvitationData } from '@quiet/types'
-import type { InvitationData } from '@quiet/types'
+import type { InvitationData, LinkedDevice } from '@quiet/types'
 
 // The implemented onboarding screens, one story each, plus a walkthrough that
 // wires them together with in-story state (bottom of the file). Left: the desktop
@@ -383,6 +383,14 @@ export const CreateCommunity = () => (
   />
 )
 
+// The devices the list draws in these stories. `isCurrent` is the device being read
+// from and is never a row; a removed device is gone even though the graph still has it.
+const EXAMPLE_LINKED_DEVICES: LinkedDevice[] = [
+  { deviceId: 'this', deviceName: 'this device', isCurrent: true },
+  { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
+  { deviceId: 'phone', deviceName: 'work-phone', isCurrent: false },
+]
+
 // ---------------------------------------------------------------------------
 // Link devices. Which rows are drawn follows the direction (LinkDevices.tsx): inside
 // a community this device shares (Display QR code, Copy link), without one it receives
@@ -390,7 +398,7 @@ export const CreateCommunity = () => (
 
 /** The rows follow the direction (user decision, 2026-09-13); the link-glyph rows' labels are undesigned. */
 const LINK_DEVICES_NOTE =
-  "rows in the bordered group per 2811:2575 and the Device-linking desktop frames (3RcrYKRTiFY87TpFSqZyj4 879:20987 / 880:17196); the Paste link row is a user addition (2026-09-13) with the library link glyph, its label undesigned; the frames' Linked devices list is not drawn, because nothing on this line can enumerate a user's devices (TryQuiet/quiet#3636), nor is their trash glyph (no device removal yet)"
+  "rows in the bordered group per 2811:2575 and the Device-linking desktop frames (3RcrYKRTiFY87TpFSqZyj4 879:20987 / 880:17196); the Paste link row is a user addition (2026-09-13) with the library link glyph, its label undesigned; the frames' Linked devices list is drawn on the share direction (TryQuiet/quiet#3636), which is the one with a community and so a team graph to read the devices from, and it stays silent until that read lands; the frames' trash glyph is still absent (no device removal yet)"
 
 export const LinkDevices = () => (
   <Screen
@@ -398,6 +406,42 @@ export const LinkDevices = () => (
     droppedBar='Link devices'
     figma='2811:2575'
     note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same link the QR sheet shows), the receive rows are not drawn`}
+    render={() => (
+      <LinkDevicesComponent
+        direction='share'
+        onDisplayQrCode={noop}
+        deviceLink={SAMPLE_DEVICE_LINK}
+        onLinkCopied={noop}
+        linkedDevices={EXAMPLE_LINKED_DEVICES}
+      />
+    )}
+  />
+)
+
+export const LinkDevicesNothingLinked = () => (
+  <Screen
+    title='Link devices · in a community, nothing linked yet'
+    droppedBar='Link devices'
+    figma='2811:2575'
+    note={`${LINK_DEVICES_NOTE}; the read came back with no other device, so the card says so`}
+    render={() => (
+      <LinkDevicesComponent
+        direction='share'
+        onDisplayQrCode={noop}
+        deviceLink={SAMPLE_DEVICE_LINK}
+        onLinkCopied={noop}
+        linkedDevices={[]}
+      />
+    )}
+  />
+)
+
+export const LinkDevicesDeviceListUnread = () => (
+  <Screen
+    title='Link devices · device list not read yet'
+    droppedBar='Link devices'
+    figma='2811:2575'
+    note={`${LINK_DEVICES_NOTE}; between opening the surface and the backend answering there is no card at all, because "No linked devices" would be a guess until the read lands`}
     render={() => (
       <LinkDevicesComponent
         direction='share'
@@ -524,13 +568,14 @@ export const SettingsLinkedDevices = () => (
     title='Settings · Linked devices (in app)'
     droppedBar='Linked devices'
     figma='879:19861'
-    note='the in-app entry (the Device-linking file’s Entry points board): the Settings tab shows the same Link devices content, and each row opens the Link devices modal at its step. The panel prints its own heading, so the settings bar drops the row’s title (SettingsComponent titleInPanel). The frame’s device list is absent — nothing on this line enumerates a user’s devices (TryQuiet/quiet#3636). Drawn here in the onboarding shell; the real tab sits beside the settings list'
+    note='the in-app entry (the Device-linking file’s Entry points board): the Settings tab shows the same Link devices content, and each row opens the Link devices modal at its step. The panel prints its own heading, so the settings bar drops the row’s title (SettingsComponent titleInPanel). The frame’s device list ships here (TryQuiet/quiet#3636): Settings is only reachable inside a community, so this tab always has a team graph to read the devices from. Drawn here in the onboarding shell; the real tab sits beside the settings list'
     render={() => (
       <LinkDevicesComponent
         direction='share'
         onDisplayQrCode={noop}
         deviceLink={SAMPLE_DEVICE_LINK}
         onLinkCopied={noop}
+        linkedDevices={EXAMPLE_LINKED_DEVICES}
       />
     )}
   />
