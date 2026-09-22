@@ -10,6 +10,7 @@ describe('JoinCommunityOptions component', () => {
       <JoinCommunityOptions
         onJoinWithInviteLink={jest.fn()}
         onJoinWithQrCode={jest.fn()}
+        onRecoverAccount={jest.fn()}
         handleBackButton={jest.fn()}
       />
     )
@@ -17,20 +18,25 @@ describe('JoinCommunityOptions component', () => {
     expect(toJSON()).toMatchSnapshot()
   })
 
-  it('routes the two enabled rows and keeps Recover account disabled', () => {
+  // All three rows route now: #3514 gave Recover account a screen, so the row that used to be
+  // present but disabled is live and hands over to Account recovery (2811:2535).
+  it('routes all three rows', () => {
     const onJoinWithInviteLink = jest.fn()
     const onJoinWithQrCode = jest.fn()
+    const onRecoverAccount = jest.fn()
     const { getByTestId } = renderComponent(
       <JoinCommunityOptions
         onJoinWithInviteLink={onJoinWithInviteLink}
         onJoinWithQrCode={onJoinWithQrCode}
+        onRecoverAccount={onRecoverAccount}
         handleBackButton={jest.fn()}
       />
     )
     fireEvent.press(getByTestId('join-with-invite-link'))
     fireEvent.press(getByTestId('join-with-qr-code'))
+    fireEvent.press(getByTestId('recover-account'))
     expect(onJoinWithInviteLink).toHaveBeenCalledTimes(1)
     expect(onJoinWithQrCode).toHaveBeenCalledTimes(1)
-    expect(getByTestId('recover-account').props.accessibilityState).toEqual({ disabled: true })
+    expect(onRecoverAccount).toHaveBeenCalledTimes(1)
   })
 })

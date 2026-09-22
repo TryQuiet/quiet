@@ -8,6 +8,7 @@ storiesOf('JoinCommunityOptions', module).add('Default', () => (
   <JoinCommunityOptions
     onJoinWithInviteLink={storybookLog('Join with invite link')}
     onJoinWithQrCode={storybookLog('Join with QR code')}
+    onRecoverAccount={storybookLog('Recover account')}
     handleBackButton={storybookLog('Back to Get started')}
   />
 ))

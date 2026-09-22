@@ -13,7 +13,11 @@ describe('Join community', () => {
     const onJoinWithQrCode = jest.fn()
 
     renderComponent(
-      <JoinCommunityOptionsComponent onJoinWithInviteLink={onJoinWithInviteLink} onJoinWithQrCode={onJoinWithQrCode} />,
+      <JoinCommunityOptionsComponent
+        onJoinWithInviteLink={onJoinWithInviteLink}
+        onJoinWithQrCode={onJoinWithQrCode}
+        onRecoverAccount={jest.fn()}
+      />,
       store
     )
 

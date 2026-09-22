@@ -12,138 +12,85 @@ exports[`JoinCommunityOptions component renders the heart-chat graphic above the
 >
   <View
     style={
-      {
-        "alignItems": "center",
-        "backgroundColor": "#ffffff",
-        "borderBottomColor": "#F0F0F0",
-        "borderBottomWidth": 1,
-        "display": "flex",
-        "flexDirection": "row",
-        "justifyContent": "center",
-        "maxHeight": 64,
-        "minHeight": 60,
-      }
+      [
+        {
+          "backgroundColor": "#ffffff",
+          "height": 60,
+        },
+        undefined,
+      ]
     }
+    testID="appbar_without_title"
   >
     <View
-      style={
+      accessibilityLabel="Go back"
+      accessibilityRole="button"
+      accessibilityState={
         {
-          "alignSelf": "stretch",
-          "flex": 1,
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
         }
       }
-    >
-      <View
-        accessibilityLabel="Go back"
-        accessibilityRole="button"
-        accessibilityState={
-          {
-            "busy": undefined,
-            "checked": undefined,
-            "disabled": undefined,
-            "expanded": undefined,
-            "selected": undefined,
-          }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
         }
-        accessibilityValue={
-          {
-            "max": undefined,
-            "min": undefined,
-            "now": undefined,
-            "text": undefined,
-          }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      hitSlop={
+        {
+          "bottom": 10,
+          "left": 10,
+          "right": 10,
+          "top": 10,
         }
-        accessible={true}
-        collapsable={false}
-        focusable={true}
-        hitSlop={
-          {
-            "bottom": 8,
-            "left": 8,
-            "right": 8,
-            "top": 8,
-          }
-        }
-        onClick={[Function]}
-        onResponderGrant={[Function]}
-        onResponderMove={[Function]}
-        onResponderRelease={[Function]}
-        onResponderTerminate={[Function]}
-        onResponderTerminationRequest={[Function]}
-        onStartShouldSetResponder={[Function]}
-        style={
-          {
-            "flex": 1,
-            "opacity": 1,
-          }
-        }
-        testID="appbar_action_item"
-      >
-        <View
-          style={
-            {
-              "alignItems": "center",
-              "flex": 1,
-              "justifyContent": "center",
-              "minHeight": 44,
-              "width": 64,
-            }
-          }
-        >
-          <Image
-            accessible={false}
-            resizeMethod="resize"
-            resizeMode="cover"
-            source={
-              {
-                "testUri": "../../../src/assets/icons/png/arrow_left.png",
-              }
-            }
-            style={
-              {
-                "height": 16,
-                "width": 16,
-              }
-            }
-          />
-        </View>
-      </View>
-    </View>
-    <View
+      }
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
       style={
         {
           "alignItems": "center",
-          "flex": 4,
+          "height": 28,
+          "justifyContent": "center",
+          "left": 14,
+          "opacity": 1,
+          "position": "absolute",
+          "top": 16,
+          "width": 28,
         }
       }
+      testID="appbar_action_item"
     >
-      <Text
-        color="main"
-        fontSize={16}
-        fontWeight="medium"
-        horizontalTextAlign="left"
-        style={
+      <Image
+        accessible={false}
+        resizeMethod="resize"
+        resizeMode="cover"
+        source={
           {
-            "color": "#000000",
-            "fontFamily": "Rubik-Medium",
-            "fontSize": 16,
-            "textAlign": "left",
-            "textAlignVertical": "center",
+            "testUri": "../../../src/assets/icons/png/arrow_left.png",
           }
         }
-        verticalTextAlign="center"
-      >
-        Quiet
-      </Text>
-    </View>
-    <View
-      style={
-        {
-          "alignSelf": "stretch",
-          "flex": 1,
+        style={
+          {
+            "height": 16,
+            "width": 16,
+          }
         }
-      }
-    />
+      />
+    </View>
   </View>
   <View
     style={
@@ -701,7 +648,7 @@ exports[`JoinCommunityOptions component renders the heart-chat graphic above the
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": true,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }
@@ -716,7 +663,7 @@ exports[`JoinCommunityOptions component renders the heart-chat graphic above the
         }
         accessible={true}
         collapsable={false}
-        focusable={false}
+        focusable={true}
         onClick={[Function]}
         onResponderGrant={[Function]}
         onResponderMove={[Function]}
@@ -731,7 +678,7 @@ exports[`JoinCommunityOptions component renders the heart-chat graphic above the
             "borderBottomWidth": 1,
             "flexDirection": "row",
             "gap": 12,
-            "opacity": 0.4,
+            "opacity": 1,
             "paddingVertical": 12,
           }
         }
