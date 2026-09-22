@@ -1,8 +1,9 @@
 import React from 'react'
-import type { ReactTestInstance } from 'react-test-renderer'
-import { act, fireEvent } from '@testing-library/react-native'
+import { fireEvent } from '@testing-library/react-native'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import { dragAway, hold, holdFor, holdSteadily, release } from '../../utils/functions/pressGestures/pressGestures'
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 import { CommunityHome } from './CommunityHome.component'
 
 import type { CommunityHomeChannel, CommunityHomeProps, CommunityHomeUser } from './CommunityHome.types'
@@ -32,50 +33,6 @@ const setup = (overrides: Partial<CommunityHomeProps> = {}) => {
     ...overrides,
   }
   return { props, ...renderComponent(<CommunityHome {...props} />) }
-}
-
-/**
- * `Pressable`'s pressed state is driven by the responder system, not by an
- * `onPressIn` prop, so a press is held by granting the responder and released
- * by giving it back — the same pair RNTL's own `userEvent.press` dispatches.
- * Pressability reads `persist` and `currentTarget.measure` off the event, so
- * the stub carries them.
- */
-const touchEvent = (registrationName: string) => ({
-  target: {},
-  preventDefault: () => undefined,
-  isDefaultPrevented: () => false,
-  stopPropagation: () => undefined,
-  isPropagationStopped: () => false,
-  persist: () => undefined,
-  isPersistent: () => false,
-  timeStamp: 0,
-  nativeEvent: {
-    changedTouches: [],
-    identifier: 0,
-    locationX: 0,
-    locationY: 0,
-    pageX: 0,
-    pageY: 0,
-    target: 0,
-    timestamp: Date.now(),
-    touches: [],
-  },
-  currentTarget: { measure: () => undefined },
-  dispatchConfig: { registrationName },
-})
-
-const hold = (element: ReactTestInstance) => fireEvent(element, 'responderGrant', touchEvent('onResponderGrant'))
-
-/**
- * Pressability holds the pressed look for a minimum 130ms after the finger
- * lifts, so the release only lands once the timers have run.
- */
-const release = (element: ReactTestInstance) => {
-  fireEvent(element, 'responderRelease', touchEvent('onResponderRelease'))
-  act(() => {
-    jest.advanceTimersByTime(200)
-  })
 }
 
 describe('CommunityHome component', () => {
@@ -166,7 +123,7 @@ describe('CommunityHome component', () => {
       const { getByTestId } = setup()
       const row = getByTestId('channel_tile_general')
       expect(row).toHaveStyle({ backgroundColor: 'transparent' })
-      hold(row)
+      holdSteadily(row)
       expect(row).toHaveStyle({ backgroundColor: '#F0F0F0' })
       release(row)
       expect(row).toHaveStyle({ backgroundColor: 'transparent' })
@@ -175,31 +132,89 @@ describe('CommunityHome component', () => {
     it('fills the Add members row and the create-channel circle while they are held', () => {
       const { getByTestId } = setup()
       const addMembers = getByTestId('Add members')
-      hold(addMembers)
+      holdSteadily(addMembers)
       expect(addMembers).toHaveStyle({ backgroundColor: '#F0F0F0' })
 
       // The plus keeps its 16px box so the frame's right margin holds; the
       // tapped disc is a wider circle behind it.
       const { getByTestId: q, queryByTestId } = setup()
       expect(queryByTestId('Create channel_pressed')).toBeNull()
-      hold(q('Create channel'))
+      holdSteadily(q('Create channel'))
       expect(q('Create channel_pressed')).toHaveStyle({ backgroundColor: '#F0F0F0', borderRadius: 14 })
     })
 
     it('overlays the title bar group in white at 10% while it is held', () => {
       const { getByTestId } = setup()
       const group = getByTestId('open_menu')
+      // The title bar is fixed, not scrollable, so it fills on contact.
       hold(group)
       expect(group).toHaveStyle({ backgroundColor: 'rgba(255, 255, 255, 0.10)' })
       release(group)
       expect(group).toHaveStyle({ backgroundColor: 'transparent' })
     })
 
+    // #1495: the card is one scroll view, so every row is also the surface you
+    // drag to scroll. A row that lit up on contact lit up at the start of every
+    // flick — feedback for a tap nobody made.
+    it('leaves a row unfilled while the touch could still turn into a scroll', () => {
+      const { getByTestId } = setup()
+      const row = getByTestId('channel_tile_general')
+      hold(row)
+      holdFor(TAP_FEEDBACK_DELAY_MS - 1)
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+      holdFor(1)
+      expect(row).toHaveStyle({ backgroundColor: '#F0F0F0' })
+    })
+
+    // The flash is between the finger landing and the list claiming the touch,
+    // so that is where this looks; by the time the list has claimed it the row
+    // has been deactivated either way and there is nothing left to see.
+    it('never fills a row the list takes over for a flick', () => {
+      const { getByTestId } = setup()
+      const row = getByTestId('channel_tile_general')
+      hold(row)
+      holdFor(TAP_FEEDBACK_DELAY_MS - 1)
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+      dragAway(row)
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+    })
+
+    it('never fills a member row the list takes over for a flick', () => {
+      const { getByTestId } = setup()
+      const row = getByTestId('user_tile_StoneJump')
+      hold(row)
+      holdFor(TAP_FEEDBACK_DELAY_MS - 1)
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+      dragAway(row)
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+    })
+
+    it('never fills the create-channel circle the list takes over for a flick', () => {
+      const { getByTestId, queryByTestId } = setup()
+      hold(getByTestId('Create channel'))
+      holdFor(TAP_FEEDBACK_DELAY_MS - 1)
+      expect(queryByTestId('Create channel_pressed')).toBeNull()
+      dragAway(getByTestId('Create channel'))
+      expect(queryByTestId('Create channel_pressed')).toBeNull()
+    })
+
+    // The delay must not swallow a real tap: Pressability activates and
+    // deactivates on release when the delay never ran, then fires onPress.
+    it('opens a channel tapped and released inside the delay', () => {
+      const { props, getByTestId } = setup()
+      const row = getByTestId('channel_tile_general')
+      hold(row)
+      holdFor(TAP_FEEDBACK_DELAY_MS - 1)
+      release(row)
+      expect(props.openChannel).toHaveBeenCalledWith('general-id')
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+    })
+
     it('fills a member row while it is held, now that it opens a DM', () => {
       const { getByTestId } = setup()
       const row = getByTestId('user_tile_StoneJump')
       expect(row).toHaveStyle({ backgroundColor: 'transparent' })
-      hold(row)
+      holdSteadily(row)
       expect(row).toHaveStyle({ backgroundColor: '#F0F0F0' })
       release(row)
       expect(row).toHaveStyle({ backgroundColor: 'transparent' })

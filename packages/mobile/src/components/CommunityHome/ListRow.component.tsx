@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 import { Typography } from '../Typography/Typography.component'
 
 import type { ListRowProps } from './CommunityHome.types'
@@ -33,10 +34,14 @@ export const LIST_ROW_PRESSED = defaultTheme.palette.background.gray06
  * The design library's `List item`: a 12px glyph, a label and — when the row
  * has something unseen — the unread mark at the far right. 36px tall, 16px side
  * padding, 4px between glyph and label (Figma: Community home 5446:76594).
+ *
+ * The rows are inside the card's scroll view, so the tapped fill waits out
+ * `TAP_FEEDBACK_DELAY_MS` and a flick down the list never lights one up.
  */
 export const ListRow: FC<ListRowProps> = ({ label, icon, onPress, unread = false, testID, accessibilityLabel }) => (
   <Pressable
     onPress={onPress}
+    unstable_pressDelay={TAP_FEEDBACK_DELAY_MS}
     testID={testID}
     accessibilityRole='button'
     accessibilityLabel={accessibilityLabel ?? label}

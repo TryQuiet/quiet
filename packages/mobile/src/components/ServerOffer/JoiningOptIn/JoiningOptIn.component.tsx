@@ -45,7 +45,10 @@ export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPo
   if (!visible) return null
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'server-offer-component'}>
+    <View
+      style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
+      testID={'joining-opt-in-component'}
+    >
       {/* Content */}
       <View
         style={{
@@ -92,7 +95,7 @@ export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPo
         <TouchableOpacity
           style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}
           onPress={() => setAgreedToTOS(prev => !prev)}
-          testID={'server-offer-dont-show-again'}
+          testID={'joining-opt-in-dont-show-again'}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <View

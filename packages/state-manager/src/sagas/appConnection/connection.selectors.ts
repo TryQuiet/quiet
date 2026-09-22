@@ -102,6 +102,11 @@ export const deviceLinkCreationFailed = createSelector(connectionSlice, reducerS
   return reducerState.deviceLinkCreationFailed
 })
 
+/** `undefined` until a getLinkedDevices read comes back; `[]` means no other device. */
+export const linkedDevices = createSelector(connectionSlice, reducerState => {
+  return reducerState.linkedDevices
+})
+
 export const invitationUrl = createSelector(
   communitiesSelectors.psk,
   communitiesSelectors.currentCommunity,
@@ -244,6 +249,7 @@ export const connectionSelectors = {
   deviceLinkInvite,
   deviceLinkCreationFailed,
   deviceLinkUrl,
+  linkedDevices,
   torBootstrapProcess,
   connectionProcess,
   isTorInitialized,

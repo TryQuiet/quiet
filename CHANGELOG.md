@@ -2,6 +2,11 @@
 
 ## [11.1.0]
 
+### Chores
+
+* chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).
+* Declare `rimraf` in the desktop package, which every packaging script now runs to clear `dist/`, instead of relying on another dependency to hoist it
+
 ### Features
 
 * Add participant-only direct messages on desktop and mobile, encrypted to each participant's account keys so community administrators cannot read them
@@ -106,6 +111,7 @@
 ### Features
 
 * Add beta warning message to desktop when creating/joining a community [#3351](https://github.com/TryQuiet/quiet/issues/3351)
+* Increase font size for emoji-only messages on mobile [#2422](https://github.com/TryQuiet/quiet/issues/2422)
 
 ### Breaking
 

@@ -118,15 +118,10 @@ describe('Timed-out P2P admission recovery', () => {
     const settings = await new Sidebar(owner.driver).openSettings()
     expect(await settings.isReady()).toBeTruthy()
     await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-    const linkElement = await settings.deviceLink()
-    const invitation = await owner.driver.wait<string>(
-      async () => {
-        const candidate = await linkElement.getText()
-        return /^(https?|quiet):\/\//.test(candidate) ? candidate : null
-      },
-      30_000,
-      'The device invitation was not revealed'
-    )
+    // The tab no longer shows the raw link: deviceLink() clicks Copy link until the confirmation
+    // appears and reads the result back off the clipboard, so it already polls for a minted link.
+    const invitation = await settings.deviceLink()
+    expect(invitation).toMatch(/^(https?|quiet):\/\//)
     // Bootstrap addresses may change as peers connect, but reopening must keep
     // the same unexpired admission credential.
     expect(parseInvitationLink(new URL(invitation).hash.slice(1)).authData.seed).toBe(
@@ -249,7 +244,7 @@ describe('Timed-out P2P admission recovery', () => {
         owner,
         'invaliddeviceowner',
         SettingsModalTabName.LINKED_DEVICES,
-        async settings => await (await settings.deviceLink()).getText()
+        async settings => await settings.deviceLink()
       )
       const invalidDeviceInvitationLink = makeInvalidInvitationLink(deviceInvitationLink)
 
@@ -376,7 +371,7 @@ describe('Timed-out P2P admission recovery', () => {
         owner,
         'reopendeviceowner',
         SettingsModalTabName.LINKED_DEVICES,
-        async settings => await (await settings.deviceLink()).getText()
+        async settings => await settings.deviceLink()
       )
       const deviceInvitationLink = withUnavailableQss(p2pDeviceInvitationLink, unavailableQss.url)
 
@@ -491,7 +486,7 @@ describe('Timed-out P2P admission recovery', () => {
       owner,
       'deviceowner',
       SettingsModalTabName.LINKED_DEVICES,
-      async settings => await (await settings.deviceLink()).getText()
+      async settings => await settings.deviceLink()
     )
 
     // The invite identifies the owner device, but no peer is online to admit the linked device.
@@ -514,7 +509,7 @@ describe('Timed-out P2P admission recovery', () => {
     const settings = await new Sidebar(owner.driver).openSettings()
     expect(await settings.isReady()).toBeTruthy()
     await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-    const freshDeviceInvitationLink = await (await settings.deviceLink()).getText()
+    const freshDeviceInvitationLink = await settings.deviceLink()
     await settings.closeTabThenModal()
 
     const resetJoinModal = new JoinCommunityModal(linkedDevice.driver)

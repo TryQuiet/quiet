@@ -19,6 +19,7 @@
   "exclude": [
     "node_modules",
     "**/__tests__/*",
+    "src/shared/testing",
     "src/**/*.cy.ts",
     "src/**/*.cy.tsx",
     "cypress/**/*.ts",

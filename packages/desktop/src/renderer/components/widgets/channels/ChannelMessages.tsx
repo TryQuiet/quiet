@@ -6,6 +6,7 @@ import { styled } from '@mui/material/styles'
 import FloatingDate from './FloatingDate'
 import DateDivider from '../DateDivider'
 import BasicMessageComponent from './BasicMessage'
+import { ChannelLinkNavigation } from './TextMessage'
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import {
@@ -64,10 +65,10 @@ const StyledRoot = styled('div')(({ theme }) => ({
   },
   [`& .${classes.item}`]: {
     backgroundColor: theme.palette.grey[100],
-    padding: '9px 16px',
+    padding: `${theme.space.sm}px ${theme.space.lg}px`,
   },
   [`& .${classes.bold}`]: {
-    fontWeight: 'bold',
+    fontWeight: 500,
   },
 }))
 
@@ -79,6 +80,7 @@ interface Props {
   scrollbarRef: React.RefObject<HTMLDivElement>
   onScroll: () => void
   openUrl: (url: string) => void
+  channelLinks?: ChannelLinkNavigation
   openContainingFolder?: (path: string) => void
   downloadFile?: (media: FileMetadata) => void
   cancelDownload?: (cancelDownload: CancelDownload) => void
@@ -101,6 +103,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   onScroll,
   uploadedFileModal,
   openUrl,
+  channelLinks,
   openContainingFolder,
   downloadFile,
   cancelDownload,
@@ -286,6 +289,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
                   maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
                   uploadedFileModal={uploadedFileModal}
                   openUrl={openUrl}
+                  channelLinks={channelLinks}
                   openContainingFolder={openContainingFolder}
                   downloadFile={downloadFile}
                   cancelDownload={cancelDownload}

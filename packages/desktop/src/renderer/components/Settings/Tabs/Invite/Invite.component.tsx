@@ -29,10 +29,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.titleDiv}`]: {
     marginBottom: 24,
   },
+  // The link is body text (14/20; prototype 'Add members' I2932:3711;4391:18645).
   [`& .${classes.link}`]: {
-    marginTop: '16px',
-    fontSize: '13px',
-    letterSpacing: '-0.4px',
+    marginTop: theme.space.lg,
     overflowWrap: 'break-word',
     inlineSize: 'calc(100% - 40px);',
   },
@@ -49,7 +48,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     },
   },
   [`& .${classes.bold}`]: {
-    fontWeight: 'bold',
+    fontWeight: 500,
   },
 
   [`& .${classes.linkContainer}`]: {
@@ -64,8 +63,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.eyeIcon}`]: {
-    margin: '5px',
-    top: '8px',
+    margin: theme.space.xs,
+    top: theme.space.sm,
     position: 'absolute',
     right: '0',
   },

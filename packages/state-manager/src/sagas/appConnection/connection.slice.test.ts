@@ -6,7 +6,14 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
 import { networkSelectors } from '../network/network.selectors'
-import { Community, ConnectionProcessInfo, PublicChannel, type Identity, ChannelMessage } from '@quiet/types'
+import {
+  Community,
+  ConnectionProcessInfo,
+  type LinkedDevice,
+  PublicChannel,
+  type Identity,
+  ChannelMessage,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
 import { getReduxStoreFactory } from '../../utils/tests/factories'
 import { createLogger } from '../../utils/logger'
@@ -73,5 +80,38 @@ describe('connectionReducer', () => {
     store.dispatch(connectionActions.createDeviceLink())
 
     expect(connectionSelectors.deviceLinkCreationFailed(store.getState())).toBe(false)
+  })
+
+  it('tells an unread device list apart from an empty one', () => {
+    // A surface that cannot tell these apart says "No linked devices" before the
+    // answer arrives, and would say it just as confidently with the read severed.
+    expect(connectionSelectors.linkedDevices(store.getState())).toBeUndefined()
+
+    store.dispatch(connectionActions.setLinkedDevices([]))
+
+    expect(connectionSelectors.linkedDevices(store.getState())).toEqual([])
+  })
+
+  it('forgets the device list when the current community changes', () => {
+    const devices: LinkedDevice[] = [
+      { deviceId: 'this', deviceName: 'this-device', isCurrent: true },
+      { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
+    ]
+    store.dispatch(connectionActions.setLinkedDevices(devices))
+    expect(connectionSelectors.linkedDevices(store.getState())).toEqual(devices)
+
+    // The rows belong to one community's team graph; under another community they
+    // would be someone else's devices, so they go back to "not read yet".
+    store.dispatch(communitiesActions.setCurrentCommunity('another-community'))
+
+    expect(connectionSelectors.linkedDevices(store.getState())).toBeUndefined()
+  })
+
+  it('forgets the device list when the community is deleted', () => {
+    store.dispatch(connectionActions.setLinkedDevices([{ deviceId: 'laptop', deviceName: 'l', isCurrent: false }]))
+
+    store.dispatch(communitiesActions.deleteCommunity(community.id))
+
+    expect(connectionSelectors.linkedDevices(store.getState())).toBeUndefined()
   })
 })

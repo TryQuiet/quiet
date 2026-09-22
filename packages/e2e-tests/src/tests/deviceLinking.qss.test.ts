@@ -40,8 +40,9 @@ type DeviceLinkingUsers = {
 }
 
 const logger = createLogger('deviceLinking:qss')
-const QSS_HOST = '127.0.0.1'
-const QSS_PORT = 3003
+const QSS_HOST = process.env.QSS_HOST ?? '127.0.0.1'
+// The repo's compose stack publishes 3003; a stack started under another project name can publish elsewhere.
+const QSS_PORT = Number(process.env.QSS_PORT ?? 3003)
 const previousLocalTransport = process.env.LOCAL_TRANSPORT
 
 jest.setTimeout(1_200_000) // 20 minutes
@@ -258,7 +259,7 @@ async function getDeviceInvitation(app: App): Promise<string> {
   const settings = await new Sidebar(app.driver).openSettings()
   expect(await settings.isReady()).toBeTruthy()
   await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-  const link = await (await settings.deviceLink()).getText()
+  const link = await settings.deviceLink()
   await settings.closeTabThenModal()
   return link
 }
@@ -568,7 +569,7 @@ describe('Device linking message replication (QSS)', () => {
       const deviceSettings = await new Sidebar(users.primary.app.driver).openSettings()
       expect(await deviceSettings.isReady()).toBeTruthy()
       await deviceSettings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-      deviceLink = await (await deviceSettings.deviceLink()).getText()
+      deviceLink = await deviceSettings.deviceLink()
       expect(deviceLink.length).toBeGreaterThan(0)
       await deviceSettings.closeTabThenModal()
     })

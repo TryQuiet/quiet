@@ -1,20 +1,43 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
+import { Platform } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities } from '@quiet/state-manager'
+import { communities, connection } from '@quiet/state-manager'
 
 import { LinkDevices } from '../../components/LinkDevices/LinkDevices.component'
 import { ScreenNames } from '../../const/ScreenNames.enum'
+import { useConfirmationBox } from '../../hooks/useConfirmationBox'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 
 /**
- * Link devices, reached from Get started (and later from the community menu).
- * "Display QR code" opens #3400's device-link QR screen; it needs a community
- * to mint a link, so the row is disabled until there is one. "Scan QR code"
- * opens the scanner sheet; a scanned device link does what a pasted one does.
+ * Link devices, reached from Get started and from the community menu's Linked devices
+ * row — the one full-screen stage both entry points share (Device-linking file, Entry
+ * points 879:14680); back returns to wherever it was opened from. Inside a community
+ * this device shares: Display QR code opens #3400's device-link QR screen, Copy link
+ * copies the same link and confirms. Without one it receives: Scan QR code opens the
+ * scanner sheet, where a scanned device link does what a pasted one does, and Paste
+ * link opens the same paste step under the Link devices title. Sharing also lists the
+ * account's other devices (TryQuiet/quiet#3636), read off the team graph a community has.
  */
 export const LinkDevicesScreen: FC = () => {
   const dispatch = useDispatch()
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
+  const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
+  const linkedDevices = useSelector(connection.selectors.linkedDevices)
+  const confirmationBox = useConfirmationBox('Copied')
+  const inCommunity = Boolean(currentCommunity)
+
+  // Share: the link Copy link puts on the clipboard, minted as soon as the screen shows.
+  useEffect(() => {
+    if (inCommunity && !deviceLinkInvite) dispatch(connection.actions.createDeviceLink())
+  }, [inCommunity, deviceLinkInvite, dispatch])
+
+  // The list is read when the screen shows sharing; the master saga refreshes it
+  // afterwards whenever the user set changes.
+  useEffect(() => {
+    if (inCommunity) dispatch(connection.actions.getLinkedDevices())
+  }, [dispatch, inCommunity])
 
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())
@@ -23,6 +46,17 @@ export const LinkDevicesScreen: FC = () => {
   const onDisplayQrCode = useCallback(() => {
     dispatch(navigationActions.navigation({ screen: ScreenNames.LinkedDeviceQRCodeScreen }))
   }, [dispatch])
+
+  const onCopyLink = useCallback(async () => {
+    if (!deviceLink) {
+      dispatch(connection.actions.createDeviceLink())
+      return
+    }
+    Clipboard.setString(deviceLink)
+    // Android 33+ already confirms copied content.
+    if (Platform.OS === 'android' && Platform.Version >= 33) return
+    await confirmationBox.flash()
+  }, [deviceLink, dispatch, confirmationBox])
 
   const onScanQrCode = useCallback(() => {
     dispatch(
@@ -33,11 +67,23 @@ export const LinkDevicesScreen: FC = () => {
     )
   }, [dispatch])
 
+  const onPasteLink = useCallback(() => {
+    dispatch(
+      navigationActions.navigation({
+        screen: ScreenNames.PasteInviteLinkScreen,
+        params: { variant: 'pasteDeviceLink' },
+      })
+    )
+  }, [dispatch])
+
   return (
     <LinkDevices
+      direction={inCommunity ? 'share' : 'receive'}
       onDisplayQrCode={onDisplayQrCode}
+      onCopyLink={onCopyLink}
       onScanQrCode={onScanQrCode}
-      canDisplayQrCode={Boolean(currentCommunity)}
+      onPasteLink={onPasteLink}
+      linkedDevices={inCommunity ? linkedDevices : undefined}
       handleBackButton={handleBackButton}
     />
   )

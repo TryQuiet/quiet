@@ -9,7 +9,7 @@ describe('NewMessagesInfoComponent', () => {
       <body>
         <div>
           <div
-            class="NewMessagesInfoComponentwrapper css-1piql5u"
+            class="NewMessagesInfoComponentwrapper css-11handa"
             style="display: block;"
           >
             <div

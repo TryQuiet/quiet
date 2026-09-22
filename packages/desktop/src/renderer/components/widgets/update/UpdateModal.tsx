@@ -27,12 +27,11 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   border: 'none',
 
   [`& .${classes.info}`]: {
-    marginTop: 38,
+    marginTop: theme.space.xxl + theme.space.sm,
   },
 
   [`& .${classes.button}`]: {
     height: 55,
-    fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.quietBlue,
   },
 
@@ -55,18 +54,8 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     marginBottom: 32,
   },
 
-  [`& .${classes.secondaryButton}`]: {
-    width: 160,
-    height: 40,
-    color: theme.palette.colors.darkGray,
-    backgroundColor: theme.palette.colors.white,
-    padding: theme.spacing(2),
-    '&:hover': {
-      boxShadow: 'none',
-      cursor: 'pointer',
-      backgroundColor: theme.palette.colors.white,
-    },
-  },
+  // The secondary action is the theme's outlined button (library 3505:10321), not a white contained one.
+  [`& .${classes.secondaryButton}`]: {},
 }))
 
 export interface UpdateModalProps {
@@ -114,7 +103,7 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
         </Grid>
 
         <Grid container item className={classes.secondaryButtonContainer} justifyContent='center'>
-          <Button variant='contained' onClick={handleClose} size='small' fullWidth className={classes.secondaryButton}>
+          <Button variant='outlined' onClick={handleClose} size='small' className={classes.secondaryButton}>
             Later
           </Button>
         </Grid>

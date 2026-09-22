@@ -11,7 +11,8 @@ import { JoinCommunityProps } from './JoinCommunity.types'
 import { getInvitationCodes } from '@quiet/state-manager'
 
 import { Splash } from '../Splash/Splash.component'
-import { InvitationData } from '@quiet/types'
+import { InvitationData, isDeviceInvitationData } from '@quiet/types'
+import type { PasteInviteLinkVariant } from '../../route.params'
 
 import { createLogger } from '../../utils/logger'
 
@@ -23,10 +24,11 @@ export const INVALID_INVITATION_ERROR = 'Please check your invite link and try a
 /**
  * Title bar · heading · intro per flow. Copy is the prototype's. Every variant
  * draws its own large heading, and a page with a heading gets no bar title, so
- * the variants keep only the glyph. Paste a link (3190:10892) is a full-screen
- * h1 stage whose bar title the frame itself hides. `title` is what the bar
- * would have said. The QR flows are no longer served from here: they open the
- * camera sheet, which carries its own titled bar.
+ * `titleHidden` keeps only the glyph and `title` is what the bar would have
+ * said. Paste a link (3190:10892) is a full-screen h1 stage whose bar title the
+ * frame itself hides, and both Link devices paste screens hide it too. The QR
+ * flows are no longer served from here: they open the camera sheet, which
+ * carries its own titled bar.
  */
 const COPY = {
   inviteLink: { title: 'Join with invite link', titleHidden: true, heading: 'Paste a link to Join', intro: undefined },
@@ -36,11 +38,20 @@ const COPY = {
     heading: 'Scan QR code',
     intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
   },
+  /** Link devices → Paste link (user addition, 2026-09-13): the paste step under the Link devices title. */
+  pasteDeviceLink: { title: 'Link devices', heading: 'Paste a link to Join', intro: undefined, titleHidden: true },
 } as const
+
+/** The Link devices flow's variants: only a device link is accepted there. */
+const DEVICE_LINK_VARIANTS: PasteInviteLinkVariant[] = ['deviceLink', 'pasteDeviceLink']
+
+/** Shown under the input for a member link (or any other invitation) in the Link devices flow. Undesigned copy. */
+export const NOT_A_DEVICE_LINK_ERROR = 'This is not a device link. Use the link from Link devices on your other device.'
 
 /**
  * "Paste a link to Join": one input with placeholder "Link" and Continue.
- * Member and device invitations both land here; the caller decides.
+ * Member and device invitations both land here; the caller decides — except in
+ * the Link devices flow, where a member link is an error and stays on this screen.
  * The QR scanner sheets fall back to this form when the camera cannot be used.
  */
 export const JoinCommunity: FC<JoinCommunityProps> = ({
@@ -85,6 +96,12 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     if (!submitValue) {
       setLoading(false)
       setInputError(INVALID_INVITATION_ERROR)
+      return
+    }
+
+    if (DEVICE_LINK_VARIANTS.includes(variant) && !isDeviceInvitationData(submitValue)) {
+      setLoading(false)
+      setInputError(NOT_A_DEVICE_LINK_ERROR)
       return
     }
 

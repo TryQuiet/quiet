@@ -12,7 +12,8 @@ import { Typography } from '@mui/material'
 import { QRCodeComponent } from './Tabs/QRCode/QRCode.component'
 import { composeInvitationShareUrl } from '@quiet/common'
 import { InvitationDataVersion } from '@quiet/types'
-import { LinkedDevicesComponent } from './Tabs/LinkedDevices/LinkedDevices.component'
+import type { LinkedDevice } from '@quiet/types'
+import { LinkDevicesComponent } from '../Onboarding/LinkDevicesComponent'
 
 const invitationLink = composeInvitationShareUrl({
   version: InvitationDataVersion.v4,
@@ -74,18 +75,24 @@ const QRCode: FC = () => {
   return <QRCodeComponent value={invitationLink} />
 }
 
-const LinkedDevices: FC = () => {
-  const [revealLink, setRevealLink] = useState(false)
+// Settings is only reachable inside a community, so this tab always shares and always
+// has a team graph to read devices from. This device and any removed device are filtered
+// out before the rows are drawn.
+const settingsLinkedDevices: LinkedDevice[] = [
+  { deviceId: 'this', deviceName: 'this device', isCurrent: true },
+  { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
+  { deviceId: 'phone', deviceName: 'work-phone', isCurrent: false },
+]
 
-  return (
-    <LinkedDevicesComponent
-      deviceLink={invitationLink}
-      isLoading={false}
-      revealLink={revealLink}
-      onToggleLinkVisibility={() => setRevealLink(currentValue => !currentValue)}
-    />
-  )
-}
+const LinkedDevices: FC = () => (
+  <LinkDevicesComponent
+    direction='share'
+    onDisplayQrCode={() => {}}
+    deviceLink={invitationLink}
+    onLinkCopied={() => {}}
+    linkedDevices={settingsLinkedDevices}
+  />
+)
 
 const args: SettingsComponentProps = {
   open: true,
