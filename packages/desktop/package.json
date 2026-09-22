@@ -74,7 +74,9 @@
     },
     "publish": {
       "provider": "s3",
-      "bucket": "test.quiet"
+      "bucket": "test.quiet",
+      "region": "us-east-1",
+      "forcePathStyle": true
     },
     "extraResources": [
       "tor/**/*"
