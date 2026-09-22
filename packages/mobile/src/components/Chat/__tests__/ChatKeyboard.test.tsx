@@ -1,12 +1,15 @@
 import React from 'react'
 import { act, fireEvent } from '@testing-library/react-native'
-import { DeviceEventEmitter, KeyboardAvoidingView, Platform, View } from 'react-native'
+import { DeviceEventEmitter, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native'
 import { renderComponent } from '../../../utils/functions/renderComponent/renderComponent'
 import { Chat } from '../Chat.component'
+import UploadFilesPreviewsComponent from '../../FileAttachmentPreview/FileAttachmentPreview.component'
 import { ChatProps } from '../Chat.types'
 import { FileActionsProps } from '../../FileAttachment/FileAttachment.types'
 import { ChannelType } from '@quiet/types'
-import * as safeArea from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
+jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: jest.fn() }))
 
 const dmProps = (channelName: string): ChatProps & FileActionsProps =>
   ({
@@ -46,6 +49,7 @@ const dmProps = (channelName: string): ChatProps & FileActionsProps =>
     isUserConnected: () => false,
     isTorInitialized: true,
     pendingMessages: {},
+    uploadedFiles: {},
     messages: { count: 0, groups: {} },
   } as unknown as ChatProps & FileActionsProps)
 
@@ -61,19 +65,12 @@ describe('Chat keyboard geometry', () => {
   it.each([
     { os: 'ios', top: 62, bottom: 34, resized: false },
     { os: 'ios', top: 20, bottom: 0, resized: false },
-    { os: 'android', top: 24, bottom: 24, resized: false },
+    { os: 'android', top: 172 / 2.625, bottom: 24, resized: false },
     { os: 'android', top: 24, bottom: 0, resized: true },
   ] as const)('avoids only remaining keyboard overlap: %j', async ({ os, top, bottom, resized }) => {
     Platform.OS = os
-    jest.spyOn(safeArea, 'useSafeAreaInsets').mockReturnValue({ top, bottom, left: 0, right: 0 })
+    jest.mocked(useSafeAreaInsets).mockReturnValue({ top, bottom, left: 0, right: 0 })
     const screen = renderComponent(<Chat {...dmProps('Geometry fixture')} />)
-    const root = screen.UNSAFE_getAllByType(View).find(view => view.props.testID === 'chat_Geometry fixture')
-    if (!root) throw new Error('Chat root missing')
-    root.instance.measureInWindow.mockImplementation(
-      (callback: (x: number, y: number, width: number, height: number) => void) =>
-        callback(0, top, 390, 844 - top - bottom)
-    )
-    if (root.props.onLayout) fireEvent(screen.getByTestId('chat_Geometry fixture'), 'layout')
     const keyboardView = () =>
       screen
         .UNSAFE_getByType(KeyboardAvoidingView)
@@ -95,15 +92,27 @@ describe('Chat keyboard geometry', () => {
         })
       })
     }
+    // A keyboard event can arrive before the first layout. There is no async native
+    // measurement to leave KAV using an offset of zero (Pixel's measureInWindow result).
+    await keyboard(true)
     await layout(844)
+    await keyboard(false)
     expect(keyboardView()).toHaveStyle({ paddingBottom: 0 })
     for (let cycle = 0; cycle < 2; cycle++) {
       await keyboard(true)
       if (resized) await layout(510)
       const overlap = resized ? 0 : 844 - bottom - 510
       expect(keyboardView()).toHaveStyle({ paddingBottom: overlap })
+      const padding = StyleSheet.flatten(keyboardView().props.style).paddingBottom
+      const composerBottom = (resized ? 510 : 844) - bottom - padding
+      expect(composerBottom).toBeCloseTo(510)
+      const toolbar = StyleSheet.flatten(screen.getByTestId('chat-composer-toolbar').props.style)
+      const sendTargetBottom = composerBottom - toolbar.paddingVertical
+      expect(sendTargetBottom).toBeLessThanOrEqual(510 - 8)
       expect(screen.getByTestId('chat-composer-controls')).not.toHaveStyle({ paddingBottom: 20 })
       expect(screen.getByTestId('chat-composer-toolbar')).toHaveStyle({ paddingVertical: 8 })
+      // An empty attachment strip otherwise contributes another 15pt below the toolbar.
+      expect(screen.UNSAFE_queryByType(UploadFilesPreviewsComponent)).toBeNull()
       fireEvent(screen.getByTestId('input'), 'contentSizeChange', {
         nativeEvent: { contentSize: { width: 358, height: 100 } },
       })

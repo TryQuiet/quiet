@@ -3,7 +3,6 @@
 exports[`Chat component renders component 1`] = `
 <View
   collapsable={false}
-  onLayout={[Function]}
   style={
     {
       "flex": 1,

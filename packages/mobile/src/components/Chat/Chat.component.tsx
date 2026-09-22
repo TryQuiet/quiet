@@ -12,6 +12,7 @@ import {
   TextInputChangeEventData,
   TextInputEndEditingEventData,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { Loading } from '../Loading/Loading.component'
 import { ImagePreviewModal } from '../../components/ImageAttachmentPreview/ImageAttachmentPreview.component'
@@ -97,8 +98,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   setDmChannelOnSelection,
   ready = true,
 }) => {
-  const chatRef = useRef<View>(null)
-  const [windowOffset, setWindowOffset] = useState(0)
+  const insets = useSafeAreaInsets()
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
   const [inputPlaceholder, setInputPlaceholder] = useState<string>('')
@@ -538,13 +538,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }, [channel, newChat, me])
 
   return (
-    <View
-      ref={chatRef}
-      style={styles.container}
-      testID={`chat_${channelName}`}
-      collapsable={false}
-      onLayout={() => chatRef.current?.measureInWindow((_x, y) => setWindowOffset(y))}
-    >
+    <View style={styles.container} testID={`chat_${channelName}`} collapsable={false}>
       <Appbar
         title={headerTitle}
         titleComponent={
@@ -563,12 +557,13 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         contextMenu={contextMenu}
       />
       <KeyboardAvoidingView
-        // App owns safe-area padding. Translate this child's parent-relative layout into
-        // window coordinates; a bottom inset is not the origin of the chat screen.
-        // Padding avoids only the remaining overlap, including on Android when adjustResize
-        // already shortened the window, and does not cache a pre-keyboard height.
+        // App places this headerless navigator below its top safe-area strip. That top inset
+        // is the origin for KAV's parent-relative frame; App already owns the bottom inset.
+        // Use the synchronous origin: Android measureInWindow subtracts the visible status-bar
+        // frame, and KAV does not recalculate overlap after an async offset-only update.
+        // Padding avoids only overlap left after any Android window resizing.
         behavior='padding'
-        keyboardVerticalOffset={windowOffset}
+        keyboardVerticalOffset={insets.top}
         testID='chat-keyboard-avoidance'
         style={styles.keyboardAvoidingView}
       >
@@ -659,7 +654,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
                   <View style={styles.composeToolbarSpacer} />
                   <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
                 </View>
-                {uploadedFiles && (
+                {areFilesUploaded && uploadedFiles && (
                   <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
                 )}
               </View>
