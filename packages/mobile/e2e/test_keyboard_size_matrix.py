@@ -3,6 +3,8 @@ import importlib.util
 import pathlib
 import tempfile
 import unittest
+import urllib.error
+from unittest.mock import patch
 
 PATH = pathlib.Path(__file__).with_name('run-keyboard-size-matrix.py')
 spec = importlib.util.spec_from_file_location('keyboard_matrix', PATH)
@@ -66,6 +68,31 @@ class NativeGeometryTests(unittest.TestCase):
     def test_override_restoration_preserves_prior_override(self):
         self.assertEqual(matrix.original_override('Physical size: 1080x2400\nOverride size: 720x1280\n'), '720x1280')
         self.assertEqual(matrix.original_override('Physical density: 420\n'), 'reset')
+
+
+class NavigationTests(unittest.TestCase):
+    def test_navigation_race_rereads_screen_instead_of_retrying_missing_tile(self):
+        state = {'ready': False, 'clicks': 0}
+        chat = '<hierarchy>' + ''.join(
+            f'<node resource-id="{key}" bounds="[0,0][100,100]" />'
+            for key in ['chat_general', 'input', 'chat-composer-controls', 'chat-composer-toolbar']
+        ) + '</hierarchy>'
+        with tempfile.TemporaryDirectory() as output:
+            runner = matrix.Runner(argparse.Namespace(output=output, timeout=2))
+            def api(method, path, body=None):
+                if path == '/source':
+                    return chat if state['ready'] else '<hierarchy><node resource-id="channel_tile_general" /></hierarchy>'
+                if path == '/element':
+                    if state['ready']:
+                        raise AssertionError('Do not look for the old channel tile after navigation')
+                    return {matrix.ELEMENT_KEY: 'channel-tile-id'}
+                state['clicks'] += 1
+                state['ready'] = True
+                raise urllib.error.HTTPError('http://appium/click', 404, 'Activity transitioned', {}, None)
+            runner.api = api
+            with patch.object(runner, 'click', side_effect=AssertionError('Nested polling is forbidden')), patch.object(matrix.time, 'sleep'):
+                runner.ensure_general()
+            self.assertEqual(state['clicks'], 1)
 
 
 class RestoreTests(unittest.TestCase):

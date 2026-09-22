@@ -117,7 +117,9 @@ class Runner:
                 previous = bounds
                 raise AssertionError('Waiting for stable composer after Activity recreation')
             if 'channel_tile_general' in source:
-                self.click('channel_tile_general')
+                # One attempt only: navigation can succeed even when the click response
+                # races Activity recreation. Let the outer poll reread the new screen.
+                self.api('POST', '/element/' + self.element('channel_tile_general') + '/click', {})
             raise AssertionError('Waiting for joined general chat')
         self.poll(ready)
 
@@ -234,7 +236,6 @@ class Runner:
 
                         self.hide()
                         self.capture(f'{name}-{text_label}-{cycle + 1}-closed', int(dpi) / 160, False)
-            print('PASS: 24 native layout samples across three sizes; no messages sent.', flush=True)
         except BaseException as error:
             primary_error = error
             raise
@@ -257,6 +258,7 @@ class Runner:
                 print(f'Restoration also failed: {restoration_error}', file=sys.stderr)
                 if hasattr(primary_error, 'add_note'):
                     primary_error.add_note(f'Restoration also failed: {restoration_error}')
+        print('PASS: 24 native layout samples across three sizes; display and draft restored; no messages sent.', flush=True)
 
 
 
