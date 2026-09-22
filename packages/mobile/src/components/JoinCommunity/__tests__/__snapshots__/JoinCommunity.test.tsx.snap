@@ -205,7 +205,7 @@ exports[`JoinCommunity component renders component 1`] = `
     </View>
   </View>
 </View>
-`;
+`
 
 exports[`JoinCommunity component renders loading screen if not ready 1`] = `
 <View
@@ -397,4 +397,4 @@ exports[`JoinCommunity component renders loading screen if not ready 1`] = `
     </Text>
   </View>
 </View>
-`;
+`

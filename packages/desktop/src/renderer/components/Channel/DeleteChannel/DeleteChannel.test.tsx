@@ -21,7 +21,7 @@ describe('LeaveCommunity', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -48,7 +48,7 @@ describe('LeaveCommunity', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   />
                 </div>
                 <div
@@ -89,7 +89,7 @@ describe('LeaveCommunity', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container css-elcb6w-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-1y5ofd3-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 DeleteChanneltitleContainer css-s2k0j8-MuiGrid-root"
@@ -120,7 +120,7 @@ describe('LeaveCommunity', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto DeleteChannelbuttonContainer css-1wrgmsj-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth DeleteChannelbutton css-l5ftjl-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth DeleteChannelbutton css-10flyoh-MuiButtonBase-root-MuiButton-root"
                       data-testid="deleteChannelButton"
                       tabindex="0"
                       type="button"
@@ -135,7 +135,7 @@ describe('LeaveCommunity', () => {
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 DeleteChannelsecondaryButtonContainer css-s2k0j8-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth DeleteChannelsecondaryButton css-l5ftjl-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall DeleteChannelsecondaryButton css-yjll0l-MuiButtonBase-root-MuiButton-root"
                       tabindex="0"
                       type="button"
                     >

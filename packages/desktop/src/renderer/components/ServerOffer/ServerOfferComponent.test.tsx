@@ -6,10 +6,9 @@ import { ServerOfferComponent } from './ServerOfferComponent'
 import { renderComponent } from '../../testUtils'
 
 describe('ServerOfferComponent', () => {
-  it('renders checkbox and divider when showDontShowAgain is true', async () => {
-    const handleClose = jest.fn()
+  it('renders the frame (2922:10009) with its rule and checkbox', async () => {
     const result = renderComponent(
-      <ServerOfferComponent open={true} handleClose={handleClose} showDontShowAgain={true} />
+      <ServerOfferComponent open={true} handleClose={jest.fn()} handleBack={jest.fn()} showDontShowAgain={true} />
     )
 
     // Inline snapshot of the rendered component
@@ -21,7 +20,7 @@ describe('ServerOfferComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -54,7 +53,7 @@ describe('ServerOfferComponent', () => {
                     data-testid="ServerOfferModalActions"
                   >
                     <button
-                      aria-label="Close"
+                      aria-label="Go back"
                       class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ServerOfferModalClose"
                       tabindex="0"
@@ -84,10 +83,10 @@ describe('ServerOfferComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-contentWrap css-1mbhty-MuiGrid-root"
+                  class="css-zjfh1h"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-item ServerOfferComponent-iconContainer css-13i4rnv-MuiGrid-root"
+                    class="ServerOfferComponent-glyph"
                   >
                     <svg
                       aria-hidden="true"
@@ -102,117 +101,86 @@ describe('ServerOfferComponent', () => {
                     </svg>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-text css-1mbhty-MuiGrid-root"
+                    class="ServerOfferComponent-text"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                      class="ServerOfferComponent-headingGroup"
                     >
                       <h3
-                        class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-h3 ServerOfferComponent-heading css-ts8dj1-MuiTypography-root"
                       >
                         Want a server?
                       </h3>
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-item ServerOfferComponent-pill css-13i4rnv-MuiGrid-root"
-                    >
-                      <div
-                        class="MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-filledDefault css-1b8vt3y-MuiChip-root"
-                      >
-                        <span
-                          class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
-                        >
-                          It’s free!
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                    >
-                      <p
-                        class="MuiTypography-root MuiTypography-body1 ServerOfferComponent-info css-1ql8hfl-MuiTypography-root"
-                      >
-                        Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on iPhones.
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-actions css-1mbhty-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                    >
-                      <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-kdjva8-MuiButtonBase-root-MuiButton-root"
-                        data-testid="ServerOffer-UseQuietServer"
-                        tabindex="0"
-                        type="button"
-                      >
-                        Use Quiet’s server
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                    >
-                      <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall ServerOfferComponent-notNowButton css-y45uti-MuiButtonBase-root-MuiButton-root"
-                        data-testid="ServerOffer-NotNow"
-                        tabindex="0"
-                        type="button"
-                      >
-                        No thanks
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item ServerOfferComponent-dividerWrap css-13i4rnv-MuiGrid-root"
-                  >
-                    <hr
-                      class="MuiDivider-root MuiDivider-fullWidth css-10g3z0f-MuiDivider-root"
-                    />
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                  >
-                    <label
-                      class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd ServerOfferComponent-mutedAction css-jzcd7z-MuiFormControlLabel-root"
-                    >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
+                        class="ServerOfferComponent-pill"
                       >
-                        <input
-                          class="PrivateSwitchBase-input css-1m9pwf3"
-                          data-indeterminate="false"
-                          type="checkbox"
-                        />
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                          data-testid="CheckBoxOutlineBlankIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
+                        It’s free!
                       </span>
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
-                      >
-                        Don’t show this again
-                      </span>
-                    </label>
+                    </div>
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 ServerOfferComponent-body css-1t82dwi-MuiTypography-root"
+                    >
+                      Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on iPhones.
+                    </p>
                   </div>
+                  <div
+                    class="ServerOfferComponent-actions"
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-1lg8692-MuiButtonBase-root-MuiButton-root"
+                      data-testid="ServerOffer-UseQuietServer"
+                      tabindex="0"
+                      type="button"
+                    >
+                      Use Quiet’s server
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </button>
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ServerOfferComponent-notNowButton css-1k5mnpp-MuiButtonBase-root-MuiButton-root"
+                      data-testid="ServerOffer-NotNow"
+                      tabindex="0"
+                      type="button"
+                    >
+                      Not now
+                    </button>
+                  </div>
+                  <hr
+                    class="MuiDivider-root MuiDivider-fullWidth ServerOfferComponent-divider css-10g3z0f-MuiDivider-root"
+                  />
+                  <label
+                    class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd ServerOfferComponent-checkboxRow css-jzcd7z-MuiFormControlLabel-root"
+                  >
+                    <span
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
+                    >
+                      <input
+                        class="PrivateSwitchBase-input css-1m9pwf3"
+                        data-indeterminate="false"
+                        type="checkbox"
+                      />
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="CheckBoxOutlineBlankIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                        />
+                      </svg>
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </span>
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1ql8hfl-MuiTypography-root"
+                    >
+                      Don’t show this again
+                    </span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -236,41 +204,72 @@ describe('ServerOfferComponent', () => {
     expect(screen.getByRole('separator')).toBeVisible()
   })
 
-  it('shows the bar with only the close glyph (2922:10009); closing is "No thanks"', async () => {
+  it('shows the bar with only the glyph, and the glyph goes back without deciding', async () => {
     const handleClose = jest.fn()
-    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} />)
+    const handleBack = jest.fn()
+    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} handleBack={handleBack} />)
 
     const header = screen.getByTestId('ServerOfferModalActions').closest('.Modalheader')
     expect(header).not.toHaveClass('Modalnone')
     expect(header).not.toHaveClass('ModalheaderBorder')
     expect(header).not.toHaveTextContent(/\S/)
 
+    // The frame wires its glyph to "back" (flow.json), so it is not an answer to the offer.
     await userEvent.click(screen.getByTestId('ServerOfferModalClose'))
-    expect(handleClose).toHaveBeenCalledWith(false)
+    expect(handleBack).toHaveBeenCalledTimes(1)
+    expect(handleClose).not.toHaveBeenCalled()
   })
 
-  it('renders modal and handles actions (default, no checkbox)', async () => {
-    const handleClose = jest.fn()
-    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} />)
+  it("carries the frame's copy: the heading, the pill and the body", () => {
+    renderComponent(<ServerOfferComponent open={true} handleClose={jest.fn()} handleBack={jest.fn()} />)
 
-    // Modal content
     expect(screen.getByText('Want a server?')).toBeVisible()
     expect(screen.getByText('It’s free!')).toBeVisible()
-    expect(screen.getByText(/Messages are still end-to-end encrypted/)).toBeVisible()
+    expect(
+      screen.getByText(
+        'Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on iPhones.'
+      )
+    ).toBeVisible()
+    // The frame's second action is the "Not now" text link, not the app's old "No thanks" button.
+    expect(screen.getByTestId('ServerOffer-NotNow')).toHaveTextContent('Not now')
+    expect(screen.queryByText('No thanks')).not.toBeInTheDocument()
+  })
 
-    // Use Quiet’s server button
+  it('takes the server, declines, and hides the checkbox by default', async () => {
+    const handleClose = jest.fn()
+    renderComponent(<ServerOfferComponent open={true} handleClose={handleClose} handleBack={jest.fn()} />)
+
     const useServerBtn = screen.getByTestId('ServerOffer-UseQuietServer')
-    expect(useServerBtn).toBeVisible()
+    expect(useServerBtn).toHaveTextContent('Use Quiet’s server')
     await userEvent.click(useServerBtn)
-    expect(handleClose).toHaveBeenCalledWith(true)
+    expect(handleClose).toHaveBeenCalledWith(true, false)
 
-    // Not now button
-    const notNowBtn = screen.getByTestId('ServerOffer-NotNow')
-    expect(notNowBtn).toBeVisible()
-    await userEvent.click(notNowBtn)
-    expect(handleClose).toHaveBeenCalledWith(false)
+    await userEvent.click(screen.getByTestId('ServerOffer-NotNow'))
+    expect(handleClose).toHaveBeenLastCalledWith(false, false)
 
-    // Checkbox should not be present
+    // The offer the app shows during creation has neither the rule nor the checkbox.
     expect(screen.queryByRole('checkbox')).toBeNull()
+    expect(screen.queryByRole('separator')).toBeNull()
+  })
+
+  it('reports the checkbox with each decision, from its initial state on', async () => {
+    const handleClose = jest.fn()
+    renderComponent(
+      <ServerOfferComponent
+        open={true}
+        handleClose={handleClose}
+        handleBack={jest.fn()}
+        showDontShowAgain
+        defaultDontShowAgain
+      />
+    )
+
+    expect(screen.getByRole('checkbox')).toBeChecked()
+    await userEvent.click(screen.getByTestId('ServerOffer-UseQuietServer'))
+    expect(handleClose).toHaveBeenLastCalledWith(true, true)
+
+    await userEvent.click(screen.getByRole('checkbox'))
+    await userEvent.click(screen.getByTestId('ServerOffer-NotNow'))
+    expect(handleClose).toHaveBeenLastCalledWith(false, false)
   })
 })

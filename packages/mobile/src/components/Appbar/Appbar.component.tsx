@@ -35,6 +35,7 @@ export const Appbar: FC<AppbarProps> = ({
   crossBackIcon = false,
   plain = false,
   withoutTitle = false,
+  backAccessibilityLabel,
 }) => {
   const arrow_icon = icons.arrow_left
   const cross_icon = icons.icon_close
@@ -56,7 +57,7 @@ export const Appbar: FC<AppbarProps> = ({
             onPress={back}
             testID={'appbar_action_item'}
             accessibilityRole='button'
-            accessibilityLabel={crossBackIcon ? 'Close' : 'Go back'}
+            accessibilityLabel={backAccessibilityLabel ?? (crossBackIcon ? 'Close' : 'Go back')}
             hitSlop={GLYPH_HIT_SLOP}
             style={{
               position: 'absolute',
@@ -93,7 +94,7 @@ export const Appbar: FC<AppbarProps> = ({
           style={{ flex: 1 }}
           testID={'appbar_action_item'}
           accessibilityRole={back ? 'button' : undefined}
-          accessibilityLabel={back ? (crossBackIcon ? 'Close' : 'Go back') : undefined}
+          accessibilityLabel={back ? backAccessibilityLabel ?? (crossBackIcon ? 'Close' : 'Go back') : undefined}
         >
           <View
             style={{

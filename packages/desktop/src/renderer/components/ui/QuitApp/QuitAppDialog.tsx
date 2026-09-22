@@ -34,12 +34,12 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   [`& .${classes.buttonNo}`]: {
     borderRight: `1px solid ${theme.palette.colors.border01}`,
     cursor: 'pointer',
-    padding: 10,
+    padding: theme.space.md,
   },
 
   [`& .${classes.buttonYes}`]: {
     cursor: 'pointer',
-    padding: 10,
+    padding: theme.space.md,
     color: theme.palette.colors.lushSky,
   },
 

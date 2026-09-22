@@ -1409,9 +1409,22 @@ export class JoinCommunityModal {
     await (await this.findVisible('paste-a-link')).click()
   }
 
+  /** Join with QR code: the camera sheet. Resolves once the scanner is on screen. */
   async joinWithQrCode() {
     await this.enter()
     await (await this.findVisible('join-with-qr-code')).click()
+    await this.findVisible('qr-scanner-viewfinder')
+  }
+
+  /** Camera state of the scanner: requesting | scanning | denied | unavailable | stopped. */
+  async scannerStatus(): Promise<string | null> {
+    return await (await this.findVisible('qr-scanner-viewfinder')).getAttribute('data-status')
+  }
+
+  /** The scanner's "Paste a link" (shown when the camera is denied or absent) → the paste step. */
+  async usePasteLinkFromScanner() {
+    await (await this.findVisible('qr-scanner-paste-link', 30_000)).click()
+    await this.findVisible('paste-link-input')
   }
 
   /** Waits for the step whose h3 heading this is (Join community · Recover account · Join with invite link · Paste a link to Join). */
@@ -1535,8 +1548,28 @@ export class LinkDevicesModal {
     return element
   }
 
+  /** Scan QR code: the camera sheet. Resolves once the scanner is on screen. */
   async scanQrCode() {
     await (await this.findVisible('link-devices-scan-qr')).click()
+    await this.findVisible('link-devices-scanner-viewfinder')
+  }
+
+  async scannerStatus(): Promise<string | null> {
+    return await (await this.findVisible('link-devices-scanner-viewfinder')).getAttribute('data-status')
+  }
+
+  /**
+   * Confirms the device-link consent the scanner's decode raises. A camera decodes whatever is put
+   * in front of it, so a scanned device link goes through the same consent as a pasted one.
+   */
+  async confirmScannedDeviceLink() {
+    await confirmDeviceLinkConsent(this.driver)
+  }
+
+  /** The scanner's "Paste a link" (shown when the camera is denied or absent) → the paste step. */
+  async usePasteLinkFromScanner() {
+    await (await this.findVisible('link-devices-scanner-paste-link', 30_000)).click()
+    await this.findVisible('paste-link-input')
   }
 
   async displayQrCode() {
@@ -1586,16 +1619,49 @@ export class LinkDevicesModal {
     )
   }
 
+  /** The Paste link row → the paste step, under the Link devices title. */
+  async pasteLink() {
+    await (await this.findVisible('link-devices-paste-link')).click()
+    await this.findVisible('paste-link-input')
+  }
+
   async typeDeviceLink(deviceLink: string) {
     const linkInput = await this.findVisible('paste-link-input')
     await linkInput.sendKeys(deviceLink)
   }
 
+  async clearLink() {
+    const linkInput = await this.findVisible('paste-link-input')
+    await linkInput.sendKeys(Key.CONTROL + 'a')
+    await linkInput.sendKeys(Key.DELETE)
+  }
+
+  /** The error line under the paste input, once it shows `message`. */
+  async waitForPasteLinkError(message: string, timeoutMs = 10_000): Promise<string> {
+    const error = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='paste-link']//*[text()="${message}"]`)),
+      timeoutMs,
+      `paste link error "${message}" couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(error), 5_000)
+    return await error.getText()
+  }
+
+  /**
+   * Submits the paste field. Only a device link raises the consent sheet: this field refuses a
+   * member invitation with an error and starts nothing, so waiting for a consent that will never
+   * be shown would hang the refusal case.
+   */
   async submit() {
+    const input = await this.driver.findElement(By.xpath("//*[@data-testid='paste-link-input']"))
+    const deviceLink = isDeviceLinkValue(await input.getAttribute('value'))
     const continueButton = await this.findVisible('continue-joinCommunity')
     await this.driver.wait(until.elementIsEnabled(continueButton), 5_000)
     await continueButton.click()
-    await confirmDeviceLinkConsent(this.driver)
+    if (deviceLink) {
+      await confirmDeviceLinkConsent(this.driver)
+    }
   }
 
   async back() {
@@ -3571,37 +3637,46 @@ export class Settings {
     )
   }
 
-  async deviceLink() {
-    const unlockButton = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="show-device-link"]')),
-      30_000,
-      `Show device link button couldn't be found within timeout`,
+  /**
+   * The device link. The tab never shows it: Copy link puts the link on the
+   * clipboard and confirms with the "Copied" toast; it is read back here. The link is
+   * minted when the tab opens, so the row is clicked again until the toast shows.
+   */
+  async deviceLink(): Promise<string> {
+    const copyRow = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='link-devices-copy-link']")),
+      10_000,
+      `Copy link row couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(unlockButton), 10_000)
+    await this.driver.wait(until.elementIsVisible(copyRow), 5_000)
+    let copied = false
+    for (let attempt = 0; attempt < 15 && !copied; attempt++) {
+      try {
+        await copyRow.click()
+      } catch (clickError) {
+        // The settings drawer can still be sliding after its contents become visible, so an
+        // early click lands on the drawer instead of the row. Retrying is the whole loop's job.
+        if (!(clickError instanceof error.ElementClickInterceptedError)) throw clickError
+        continue
+      }
+      try {
+        await this.driver.wait(until.elementLocated(By.xpath("//*[text()='Copied']")), 2_000)
+        copied = true
+      } catch {
+        // the link was not minted yet; try again
+      }
+    }
+    if (!copied) throw new Error('Copy link never confirmed within timeout')
 
-    // The settings drawer can still be sliding after its contents become visible.
-    await this.driver.wait(
-      async () => {
-        try {
-          await unlockButton.click()
-          return true
-        } catch (clickError) {
-          if (clickError instanceof error.ElementClickInterceptedError) return false
-          throw clickError
-        }
-      },
-      10_000,
-      'Show device link button remained obstructed',
-      200
-    )
-
-    return await this.driver.wait(
-      until.elementLocated(By.xpath("//p[@data-testid='device-link']")),
-      10_000,
-      `Unhidden device link element couldn't be found within timeout`,
-      500
-    )
+    const link = (await this.driver.executeAsyncScript(
+      `const done = arguments[arguments.length - 1];
+       navigator.clipboard.readText().then(done, error => done('ERROR: ' + error))`
+    )) as string
+    if (!link || link.startsWith('ERROR')) {
+      throw new Error(`Could not read the copied device link from the clipboard: ${link}`)
+    }
+    return link
   }
 
   /**

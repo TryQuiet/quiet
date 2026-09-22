@@ -1,38 +1,34 @@
+import React from 'react'
 import { fireEvent } from '@testing-library/react-native'
+
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+
 import { LinkDevices } from './LinkDevices.component'
 
-/**
- * Link devices · Figma 2811:2575. The frame draws a titled bar, but the screen
- * repeats that title as its own large heading, and a page with a heading gets
- * no bar title: the bar zone keeps only the back glyph.
- */
 describe('LinkDevices component', () => {
-  it('renders the bar zone without a title; the heading is the title', () => {
-    const { getByTestId, getAllByText, queryByTestId } = renderComponent(
-      <LinkDevices onDisplayQrCode={jest.fn()} onScanQrCode={jest.fn()} handleBackButton={jest.fn()} />
+  it('share: Display QR code and Copy link, and Copy link calls back', () => {
+    const onCopyLink = jest.fn()
+    const onDisplayQrCode = jest.fn()
+    const result = renderComponent(
+      <LinkDevices direction='share' onCopyLink={onCopyLink} onDisplayQrCode={onDisplayQrCode} />
     )
 
-    expect(getByTestId('appbar_without_title')).toBeTruthy()
-    expect(queryByTestId('appbar_title')).toBeNull()
-    expect(getAllByText('Link devices')).toHaveLength(1)
+    expect(result.getByText('Display QR code')).toBeTruthy()
+    expect(result.getByText('Copy link')).toBeTruthy()
+    expect(result.queryByText('Scan QR code')).toBeNull()
+    expect(result.queryByText('Paste link')).toBeNull()
+    fireEvent.press(result.getByTestId('link-devices-copy-link'))
+    expect(onCopyLink).toHaveBeenCalledTimes(1)
+    fireEvent.press(result.getByTestId('link-devices-display-qr'))
+    expect(onDisplayQrCode).toHaveBeenCalledTimes(1)
   })
 
-  it('still goes back from the glyph, and offers both QR routes', () => {
-    const handleBackButton = jest.fn()
-    const onDisplayQrCode = jest.fn()
-    const onScanQrCode = jest.fn()
-    const { getByTestId } = renderComponent(
-      <LinkDevices onDisplayQrCode={onDisplayQrCode} onScanQrCode={onScanQrCode} handleBackButton={handleBackButton} />
-    )
+  it('receive: Scan QR code and Paste link only', () => {
+    const result = renderComponent(<LinkDevices direction='receive' />)
 
-    fireEvent.press(getByTestId('appbar_action_item'))
-    expect(handleBackButton).toHaveBeenCalled()
-
-    fireEvent.press(getByTestId('link-devices-display-qr'))
-    expect(onDisplayQrCode).toHaveBeenCalled()
-
-    fireEvent.press(getByTestId('link-devices-scan-qr'))
-    expect(onScanQrCode).toHaveBeenCalled()
+    expect(result.getByText('Scan QR code')).toBeTruthy()
+    expect(result.getByText('Paste link')).toBeTruthy()
+    expect(result.queryByText('Display QR code')).toBeNull()
+    expect(result.queryByText('Copy link')).toBeNull()
   })
 })

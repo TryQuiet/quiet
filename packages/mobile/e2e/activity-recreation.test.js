@@ -15,16 +15,24 @@ const appPid = async () => {
 }
 
 const openChannelFixture = async () => {
-  await waitFor(element(by.id('BottomMenu.Sidebar'))).toBeVisible().withTimeout(120000)
+  await waitFor(element(by.id('BottomMenu.Sidebar')))
+    .toBeVisible()
+    .withTimeout(120000)
   await element(by.id('BottomMenu.Sidebar')).tap()
-  await waitFor(element(by.id('Storybook.ListView.SearchBar'))).toBeVisible().withTimeout(10000)
+  await waitFor(element(by.id('Storybook.ListView.SearchBar')))
+    .toBeVisible()
+    .withTimeout(10000)
   await element(by.id('Storybook.ListView.SearchBar')).replaceText('AndroidCompatibility')
   await element(by.text('SystemBack')).tap()
   await element(by.id('BottomMenu.Canvas')).tap()
-  await waitFor(element(by.id('android-compatibility-reset'))).toBeVisible().withTimeout(10000)
+  await waitFor(element(by.id('android-compatibility-reset')))
+    .toBeVisible()
+    .withTimeout(10000)
   await element(by.id('android-compatibility-reset')).tap()
   await element(by.id('channel_tile_general')).tap()
-  await waitFor(element(by.id('chat_general'))).toBeVisible().withTimeout(10000)
+  await waitFor(element(by.id('chat_general')))
+    .toBeVisible()
+    .withTimeout(10000)
 }
 
 describeAndroid('Android activity recreation', () => {
@@ -45,7 +53,11 @@ describeAndroid('Android activity recreation', () => {
     const recreation = JSON.parse(response.result)
     assert(recreation.screenFragments > 0, 'The original activity must contain native Screens fragments')
     assert.equal(recreation.hasSavedInstanceState, true, 'Android must supply saved instance state to the new activity')
-    assert.notEqual(recreation.recreatedActivity, recreation.originalActivity, 'Android must create a different activity')
+    assert.notEqual(
+      recreation.recreatedActivity,
+      recreation.originalActivity,
+      'Android must create a different activity'
+    )
     assert.equal(await appPid(), originalPid, 'Activity recreation must preserve the app process')
 
     // The fixture owns a component-local store, so select it again after React's
@@ -55,13 +67,17 @@ describeAndroid('Android activity recreation', () => {
     await element(by.id('input')).tap()
     // Regression: Android must keep the entire composer inside the resized
     // channel after recreating the activity and opening the keyboard.
-    await waitFor(element(by.id('input'))).toBeVisible(100).withTimeout(5000)
+    await waitFor(element(by.id('input')))
+      .toBeVisible(100)
+      .withTimeout(5000)
     await element(by.id('input')).replaceText('A draft after activity recreation')
     await device.pressBack()
     await expect(element(by.id('input'))).toHaveText('A draft after activity recreation')
     await expect(element(by.id('chat_general'))).toBeVisible()
     await device.pressBack()
-    await waitFor(element(by.id('channels_list'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(10000)
     await expect(element(by.id('android-compatibility-channel-state'))).toHaveText('(none)')
   })
 })

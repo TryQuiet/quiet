@@ -73,6 +73,9 @@ jest.mock('react-native-mathjax-html-to-svg', () => {})
 
 jest.mock('react-native-qrcode-svg', () => jest.fn())
 
+// Native camera; tests drive it through src/tests/mocks/reactNativeVisionCamera.tsx.
+jest.mock('react-native-vision-camera', () => require('./tests/mocks/reactNativeVisionCamera'))
+
 jest.mock('react-native-progress', () => ({
   CircleSnail: jest.fn(),
 }))
@@ -193,3 +196,10 @@ jest.mock('@react-native-clipboard/clipboard', () => ({
 export const ioMock = io as jest.Mock
 
 jest.resetAllMocks()
+
+// @react-native-clipboard/clipboard is a TurboModule with no jest binding; every screen that
+// copies (Link devices, the device-link QR screen, the invitation menu) would otherwise fail to load.
+jest.mock('@react-native-clipboard/clipboard', () => ({
+  setString: jest.fn(),
+  getString: jest.fn(async () => ''),
+}))

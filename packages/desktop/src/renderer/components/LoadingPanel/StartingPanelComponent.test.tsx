@@ -16,7 +16,7 @@ describe('Create StartingPanelComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -43,7 +43,7 @@ describe('Create StartingPanelComponent', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   />
                 </div>
                 <div
@@ -64,7 +64,7 @@ describe('Create StartingPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-1y7od3a-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-16hk5cy-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column StartingPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"

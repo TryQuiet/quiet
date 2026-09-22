@@ -2,6 +2,9 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import WarningIcon from '@mui/icons-material/Warning'
+import classNames from 'classnames'
+
+import { tokens } from '../../design-system/tokens'
 
 const PREFIX = 'OnboardingBody'
 
@@ -10,8 +13,10 @@ const classes = {
   intro: `${PREFIX}intro`,
   leading: `${PREFIX}leading`,
   section: `${PREFIX}section`,
+  bordered: `${PREFIX}bordered`,
   betaWarning: `${PREFIX}betaWarning`,
   betaIcon: `${PREFIX}betaIcon`,
+  flushLeading: `${PREFIX}flushLeading`,
 }
 
 /**
@@ -27,6 +32,10 @@ const Root = styled('div')(({ theme }) => ({
   margin: '0 auto',
   boxSizing: 'border-box',
   padding: `${theme.space.xl}px ${theme.space.lg}px ${theme.space.xxl}px`,
+  // A screen whose illustration sits directly under the bar (Join community, 2811:2562: graphic at y 60).
+  [`&.${classes.flushLeading}`]: {
+    paddingTop: 0,
+  },
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
@@ -47,6 +56,20 @@ const Root = styled('div')(({ theme }) => ({
   [`& .${classes.section}`]: {
     display: 'flex',
     flexDirection: 'column',
+  },
+  // The library's bordered "Buttons" group (2811:2575, 879:20987): 1px #E5E5E5, r16, rows padded 16 inside;
+  // the last row's hairline coincides with the group's stroke in the frame, so it is dropped here.
+  [`& .${classes.bordered}`]: {
+    border: `1px solid ${theme.palette.colors.border04}`,
+    borderRadius: tokens.radii[3],
+    overflow: 'hidden',
+    '& > .MuiListItemButton-root': {
+      paddingLeft: theme.space.lg,
+      paddingRight: theme.space.lg,
+    },
+    '& > .MuiListItemButton-root:last-child': {
+      borderBottom: 'none',
+    },
   },
   [`& .${classes.betaWarning}`]: {
     display: 'flex',
@@ -69,6 +92,8 @@ export interface OnboardingBodyProps {
   intro?: React.ReactNode
   /** Rendered above the heading (illustrations). */
   leading?: React.ReactNode
+  /** The leading illustration starts at the top of the column, no padding above it (as the frame draws it). */
+  flushLeading?: boolean
   betaWarning?: boolean
   dataTestId?: string
   children?: React.ReactNode
@@ -80,11 +105,12 @@ export const OnboardingBody: React.FC<OnboardingBodyProps> = ({
   heading,
   intro,
   leading,
+  flushLeading,
   betaWarning,
   dataTestId,
   children,
 }) => (
-  <Root data-testid={dataTestId}>
+  <Root data-testid={dataTestId} className={flushLeading ? classes.flushLeading : undefined}>
     {leading ? <div className={classes.leading}>{leading}</div> : null}
     {heading || intro ? (
       <div>
@@ -110,9 +136,19 @@ export const OnboardingBody: React.FC<OnboardingBodyProps> = ({
   </Root>
 )
 
-/** A stack of ActionRows. */
-export const RowGroup: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className={classes.section}>{children}</div>
+/**
+ * A stack of ActionRows. `bordered` is the library's bordered group (1px #E5E5E5, r16) the
+ * frames draw around the rows; Link devices uses it, the other screens still draw bare rows
+ * (a cross-cutting parity item, see ONBOARDING.md · Mobile parity audit).
+ */
+export const RowGroup: React.FC<{ children: React.ReactNode; bordered?: boolean; dataTestId?: string }> = ({
+  children,
+  bordered = false,
+  dataTestId,
+}) => (
+  <div className={classNames(classes.section, { [classes.bordered]: bordered })} data-testid={dataTestId}>
+    {children}
+  </div>
 )
 
 export default OnboardingBody

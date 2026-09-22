@@ -69,7 +69,7 @@ export const CreateCommunity = () => (
 
 export const LinkDevices = () => (
   <Body>
-    <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} />
+    <LinkDevicesComponent direction='receive' onScanQrCode={noop} onPasteLink={noop} />
   </Body>
 )
 

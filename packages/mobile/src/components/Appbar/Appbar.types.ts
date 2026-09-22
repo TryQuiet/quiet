@@ -16,8 +16,14 @@ export interface AppbarProps {
   submit?: () => void
   contextMenu?: ReturnType<typeof useContextMenu> | null
   crossBackIcon?: boolean
+  /**
+   * What the glyph does, for assistive tech. Defaults to the icon's own name
+   * ("Close" for the cross, "Go back" for the arrow) — pass it where the two
+   * differ, as on Want a server? (2922:10009), whose × goes back.
+   */
+  backAccessibilityLabel?: string
   iconColor?: string
-  textColor?: keyof typeof defaultPalette['typography']
+  textColor?: keyof (typeof defaultPalette)['typography']
   /** No back arrow and no community tile on the left (onboarding roots). */
   plain?: boolean
   /**
@@ -34,5 +40,5 @@ export interface HeaderTitleProps {
   title: string
   fontSize?: number
   fontWeight?: FontWeight
-  textColor?: keyof typeof defaultPalette['typography']
+  textColor?: keyof (typeof defaultPalette)['typography']
 }
