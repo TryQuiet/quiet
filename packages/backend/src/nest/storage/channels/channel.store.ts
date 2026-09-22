@@ -160,6 +160,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.latestAuth = undefined
     this.dirtyAuthors.clear()
     this.authRecheckNeeded = false
+    this.idsResendNeeded = false
     this.messageIndexWork = Promise.resolve()
   }
 
@@ -404,13 +405,16 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   }
 
   /**
-   * Hand one announcement to each registered listener not yet given it. EventEmitter.emit stops at
-   * the first throwing listener; delivering registration by registration lets the others receive
-   * the message now and a retry reach only the ones that threw. A listener that throws before its
-   * effect therefore sees the message exactly once; one that throws after its effect sees it again
-   * (at least once), which is why the state-manager upserts messages by ID.
+   * Hand one announcement to each registered listener not yet given it, while `current` holds.
+   * EventEmitter.emit stops at the first throwing listener; delivering registration by
+   * registration lets the others receive the message now and a retry reach only the ones that
+   * threw. A listener that throws before its effect therefore sees the message exactly once; one
+   * that throws after its effect sees it again (at least once), which is why the state-manager
+   * upserts messages by ID. A listener may itself change authorization (or close the store):
+   * `current` is asked again before every registration, and once it fails the rest of the fan-out
+   * waits for the announcement to be made again under the current facts.
    */
-  private deliver(event: StorageEvents, payload: unknown, delivered: Delivered): boolean {
+  private deliver(event: StorageEvents, payload: unknown, delivered: Delivered, current: () => boolean): boolean {
     let complete = true
     for (const [n, target] of this.announcementTargets.entries()) {
       const key = `${n}:${event}`
@@ -423,6 +427,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         const occurrence = seen.get(listener) ?? 0
         seen.set(listener, occurrence + 1)
         if (occurrence < (done.get(listener) ?? 0) || failed.has(listener)) continue
+        if (!current()) return false
         try {
           listener.call(target, payload)
           done.set(listener, occurrence + 1)
@@ -699,17 +704,20 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     if (!this.isCurrent(epoch, revision)) return false
     // A DM ID counts as delivered only once every listener received it.
     if (this.channelData.type === ChannelType.DM && this.deliveredDmIds.has(message.id)) return true
+    const current = () => this.isCurrent(epoch, revision)
     let complete = this.deliver(
       StorageEvents.MESSAGES_STORED,
       {
         messages: [message],
         isVerified: message.verified,
       },
-      delivered
+      delivered,
+      current
     )
+    if (!current()) return false
     if (notification !== undefined) {
       this.logger.info(`Sending authenticated message notification`)
-      complete = this.deliver(StorageEvents.SEND_PUSH_NOTIFICATION, notification, delivered) && complete
+      complete = this.deliver(StorageEvents.SEND_PUSH_NOTIFICATION, notification, delivered, current) && complete
     }
     if (complete && this.channelData.type === ChannelType.DM) this.deliveredDmIds.add(message.id)
     return complete
@@ -788,7 +796,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
       if (community) {
         const payload = { ids, channelId: this.channelData.id, communityId: community.id }
-        if (!this.deliver(StorageEvents.MESSAGE_IDS_STORED, payload, new Map())) {
+        const revision = this.authRevision
+        const current = () => epoch === this.messageIndexEpoch && revision === this.authRevision && !this.closing
+        if (this.deliver(StorageEvents.MESSAGE_IDS_STORED, payload, new Map(), current)) {
+          // A complete snapshot supersedes any earlier failed announcement.
+          if (addedIds === undefined) this.idsResendNeeded = false
+        } else {
           this.idsResendNeeded = true
           this.scheduleRetry()
         }

@@ -583,6 +583,7 @@ describe('ChannelsService', () => {
         resolveSubscription = resolve
       })
       const store = new EventEmitter() as any
+      store.forwardAnnouncementsTo = jest.fn()
       store.subscribe = jest.fn(async () => await subscriptionGate)
       const subscribedChannelIds: string[] = []
       channelsService.channelsRepos.set(channel.id, {
@@ -620,6 +621,7 @@ describe('ChannelsService', () => {
         resolveStoreCreation = resolve
       })
       const store = new EventEmitter() as any
+      store.forwardAnnouncementsTo = jest.fn()
       store.subscribe = jest.fn(async () => {})
       const createChannelStoreSpy = jest
         .spyOn(channelsService as any, 'createChannelStore')
@@ -648,6 +650,7 @@ describe('ChannelsService', () => {
         teamId: community.teamId!,
       })
       const store = new EventEmitter() as any
+      store.forwardAnnouncementsTo = jest.fn()
       store.subscribe = jest.fn(() => new Promise<void>(() => {}))
       channelsService.channelsRepos.set(channel.id, {
         store,
@@ -985,6 +988,7 @@ describe('ChannelsService', () => {
         userId: aliceUserId,
       })
       const store = new EventEmitter() as any
+      store.forwardAnnouncementsTo = jest.fn()
       store.subscribe = jest.fn(async () => {})
       store.sendMessage = jest.fn(async () => true)
       channelsService.channelsRepos.set(channel.id, {

@@ -1587,6 +1587,141 @@ describe('ChannelStore incremental message IDs', () => {
     )
   })
 
+  describe('audit regressions (Daybreak iteration 5)', () => {
+    type FakeMember = { userId: string; roles: string[]; keys?: { generation: number } }
+    const authored = (id: string, userId: string) => ({ id, channelId: 'general', teamId: 'team', userId })
+    const alice = (generation: number) => ({ userId: 'alice', roles: ['member'], keys: { generation } })
+    const settle = () => new Promise(resolve => setTimeout(resolve, 20))
+    type Seen = { id: string; consumedUnder: number }
+    const seenIn = (payload: { messages: Seen[] }) =>
+      payload.messages.map(({ id, consumedUnder }) => ({ id, consumedUnder }))
+
+    // The first consumer changes authorization from inside its callback: a narrow update to the
+    // author's keys (which the consumer then accepts or rejects) or a change to the local user's
+    // own roles that invalidates the whole index.
+    it.each([
+      ['narrow', 'accepted'],
+      ['narrow', 'rejected'],
+      ['full', 'accepted'],
+    ] as const)(
+      'M-1: a consumer that changes authorization (%s) stops the fan-out; later consumers get only the %s current result',
+      async (change, outcome) => {
+        const { store, auth, append, onConsume } = createStore()
+        ;(store as any).retryDelayMs = 1
+        let generation = 0
+        let admin = false
+        auth.getActiveChain = () => ({
+          user: { userId: 'self' },
+          team: {
+            members: (): FakeMember[] => [
+              { userId: 'self', roles: admin ? ['member', 'admin'] : ['member'] },
+              alice(generation),
+            ],
+          },
+        })
+        onConsume.mockImplementation(async message => {
+          const consumedUnder = generation + (admin ? 10 : 0)
+          if (generation >= 1 && outcome === 'rejected') return false
+          return { ...message, verified: true, consumedUnder }
+        })
+        const first: Seen[] = []
+        const second: Seen[] = []
+        store.on(StorageEvents.MESSAGES_STORED, payload => {
+          first.push(...seenIn(payload))
+          if (change === 'narrow') generation = 1
+          else admin = true
+          auth.emit(SigchainEvents.UPDATED)
+        })
+        store.on(StorageEvents.MESSAGES_STORED, payload => second.push(...seenIn(payload)))
+        await store.subscribe()
+        await append('a1', 'a1', authored('a1', 'alice'))
+        await waitFor(() => (store as any).dirtyAuthors.size === 0 && (store as any).messageIndexReady)
+        await settle()
+        // The first consumer was current when it received the message; the second must only see
+        // the result consumed under the facts the first consumer established.
+        expect(first).toEqual([{ id: 'a1', consumedUnder: 0 }])
+        if (outcome === 'rejected') {
+          expect(second).toEqual([])
+          expect(await store.getEntries(['a1'])).toEqual([])
+        } else {
+          expect(second).toEqual([{ id: 'a1', consumedUnder: change === 'narrow' ? 1 : 10 }])
+        }
+        expect((store as any).pendingHeads.size).toBe(0)
+      }
+    )
+
+    it('M-1: a push consumer that changes authorization stops the push fan-out until the current result is known', async () => {
+      const previousBackend = process.env.BACKEND
+      const previousConnectionTime = process.env.CONNECTION_TIME
+      process.env.BACKEND = 'mobile'
+      process.env.CONNECTION_TIME = '0'
+      try {
+        const { store, auth, append, onConsume } = createStore()
+        ;(store as any).retryDelayMs = 1
+        let generation = 0
+        auth.getActiveChain = () => ({
+          user: { userId: 'self' },
+          team: { members: (): FakeMember[] => [{ userId: 'self', roles: ['member'] }, alice(generation)] },
+        })
+        onConsume.mockImplementation(async message => ({ ...message, verified: true, consumedUnder: generation }))
+        const stored: Seen[] = []
+        const first: number[] = []
+        const second: number[] = []
+        store.on(StorageEvents.MESSAGES_STORED, payload => stored.push(...seenIn(payload)))
+        store.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
+          first.push(JSON.parse(payload.message).consumedUnder)
+          generation = 1
+          auth.emit(SigchainEvents.UPDATED)
+        })
+        store.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
+          second.push(JSON.parse(payload.message).consumedUnder)
+        })
+        await store.subscribe()
+        await append('a1', 'a1', { ...authored('a1', 'alice'), createdAt: Date.now() })
+        await waitFor(() => second.length > 0)
+        await settle()
+        expect(stored).toEqual([{ id: 'a1', consumedUnder: 0 }])
+        expect(first).toEqual([0])
+        expect(second).toEqual([1])
+        expect((store as any).pendingHeads.size).toBe(0)
+      } finally {
+        if (previousBackend === undefined) delete process.env.BACKEND
+        else process.env.BACKEND = previousBackend
+        if (previousConnectionTime === undefined) delete process.env.CONNECTION_TIME
+        else process.env.CONNECTION_TIME = previousConnectionTime
+      }
+    })
+
+    it('M-1: an ID consumer that changes authorization stops the ID fan-out; later consumers never see the stale ID', async () => {
+      const { store, auth, append, onConsume } = createStore()
+      ;(store as any).retryDelayMs = 1
+      let generation = 0
+      auth.getActiveChain = () => ({
+        user: { userId: 'self' },
+        team: { members: (): FakeMember[] => [{ userId: 'self', roles: ['member'] }, alice(generation)] },
+      })
+      onConsume.mockImplementation(async message => (generation >= 1 ? false : { ...message, verified: true }))
+      await store.subscribe()
+      const first: string[][] = []
+      const second: string[][] = []
+      store.on(StorageEvents.MESSAGE_IDS_STORED, event => {
+        first.push(event.ids)
+        if (event.ids.includes('a1')) {
+          generation = 1
+          auth.emit(SigchainEvents.UPDATED)
+        }
+      })
+      store.on(StorageEvents.MESSAGE_IDS_STORED, event => second.push(event.ids))
+      await append('a1', 'a1', authored('a1', 'alice'))
+      await waitFor(() => (store as any).dirtyAuthors.size === 0)
+      await waitFor(() => second.length > 0)
+      await settle()
+      expect(first[0]).toEqual(['a1'])
+      expect(second.flat()).not.toContain('a1')
+      expect(await store.getEntries(['a1'])).toEqual([])
+    })
+  })
+
   it('returns a batch of announced IDs in request order', async () => {
     const { store, append, reads } = createStore()
     await store.subscribe()
