@@ -1,6 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 import { type DeviceInvitationDataV4, type InvitationDataV4, InvitationKind } from '@quiet/types'
@@ -55,6 +55,72 @@ describe('PasteLinkComponent', () => {
     await paste('https://example.com/')
     expect(await screen.findByText(InviteLinkErrors.InvalidCode)).toBeVisible()
     expect(handleCommunityAction).not.toHaveBeenCalled()
+  })
+
+  /**
+   * `fieldError` is how a caller reports what only it can know - the backend's verdict on the
+   * link that was submitted. It shares the slot under the input with the errors raised here.
+   */
+  describe('an error reported by the caller', () => {
+    const reported = 'Please check your invite link and try again'
+
+    it('renders under the input', async () => {
+      renderComponent(
+        <PasteLinkComponent
+          heading={'Paste a link to Join'}
+          handleCommunityAction={jest.fn()}
+          fieldError={reported}
+          onFieldChange={jest.fn()}
+        />
+      )
+
+      const error = await screen.findByText(reported)
+      expect(error).toBeVisible()
+      expect(screen.getByPlaceholderText('Link').closest('.MuiFormControl-root')?.nextElementSibling).toBe(error)
+    })
+
+    it('tells the caller about every keystroke, and goes when the caller withdraws it', async () => {
+      const onFieldChange = jest.fn()
+      const { rerender } = renderComponent(
+        <PasteLinkComponent
+          heading={'Paste a link to Join'}
+          handleCommunityAction={jest.fn()}
+          fieldError={reported}
+          onFieldChange={onFieldChange}
+        />
+      )
+      expect(await screen.findByText(reported)).toBeVisible()
+
+      await userEvent.type(screen.getByPlaceholderText('Link'), 'abc')
+      expect(onFieldChange).toHaveBeenCalled()
+
+      rerender(
+        <PasteLinkComponent
+          heading={'Paste a link to Join'}
+          handleCommunityAction={jest.fn()}
+          fieldError={undefined}
+          onFieldChange={onFieldChange}
+        />
+      )
+
+      await waitFor(() => expect(screen.queryByText(reported)).not.toBeInTheDocument())
+      expect(screen.getByPlaceholderText('Link')).toHaveValue('abc')
+    })
+
+    it('does not clobber an error this form raised itself', async () => {
+      renderComponent(
+        <PasteLinkComponent
+          heading={'Paste a link to Join'}
+          handleCommunityAction={jest.fn()}
+          fieldError={undefined}
+          onFieldChange={jest.fn()}
+        />
+      )
+
+      await paste('not an invitation')
+
+      expect(await screen.findByText(InviteLinkErrors.InvalidCode)).toBeVisible()
+    })
   })
 
   describe("linkKind 'device'", () => {

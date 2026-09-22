@@ -30,3 +30,14 @@ export const resetToScreen = (screen: ScreenNames): void => {
     navigationRef.resetRoot({ index: 0, routes: [{ name: screen }] })
   }
 }
+
+/**
+ * Reset to a whole path rather than a single screen: the last entry is shown and
+ * the ones before it are what its back arrow retraces. Used when Redux state has
+ * been wiped underneath the navigator and the stack has to be rebuilt to match.
+ */
+export const resetToStack = (screens: ScreenNames[]): void => {
+  if (navigationRef.isReady() && screens.length > 0) {
+    navigationRef.resetRoot({ index: screens.length - 1, routes: screens.map(name => ({ name })) })
+  }
+}

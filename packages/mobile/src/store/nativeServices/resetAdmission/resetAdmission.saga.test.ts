@@ -14,6 +14,7 @@ import { nativeServicesActions } from '../nativeServices.slice'
 import { admissionResetMasterSaga } from '../nativeServices.master.saga'
 import { rootReducer } from '../../root.reducer'
 import {
+  ADMISSION_FAILURE_STACK,
   finishAdmissionResetSaga,
   retryAdmissionCleanupSaga,
   retryAdmissionFinalizationSaga,
@@ -40,7 +41,10 @@ describe('admission reset native cleanup', () => {
       .put(communities.actions.finalizeAdmissionReset(result))
       .call.fn(persistor.flush)
       .put(communities.actions.setAdmissionResetStatus('idle'))
-      .put(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
+      // The failure is reported on the invite field, so the flow comes back to the paste screen,
+      // not to the three-way choice, which has nowhere to put the message.
+      .put(navigationActions.resetToStack({ screens: ADMISSION_FAILURE_STACK }))
+      .not.put(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
       .not.call.fn(NativeModules.CommunicationModule.clearSensitiveData)
       .run()
   })
@@ -144,10 +148,23 @@ describe('admission reset native cleanup', () => {
       .provide([[call.fn(persistor.flush), undefined]])
       .call.fn(persistor.flush)
       .put(communities.actions.setAdmissionResetStatus('idle'))
-      .put(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
+      .put(navigationActions.resetToStack({ screens: ADMISSION_FAILURE_STACK }))
+      .not.put(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
       .not.call.fn(NativeModules.CommunicationModule.clearAdmissionCredentials)
       .not.put.like({ action: { type: communities.actions.resetAdmission.type } })
       .run()
+  })
+
+  it('lands on the paste screen with the walked path beneath it', async () => {
+    // The screen shown is the one with the invite field; the entries under it are what its
+    // back arrow retraces, which a one-deep reset would not leave.
+    expect(ADMISSION_FAILURE_STACK[ADMISSION_FAILURE_STACK.length - 1]).toBe(ScreenNames.PasteInviteLinkScreen)
+    expect(ADMISSION_FAILURE_STACK).toEqual([
+      ScreenNames.GetStartedScreen,
+      ScreenNames.JoinCommunityScreen,
+      ScreenNames.OpenInviteLinkScreen,
+      ScreenNames.PasteInviteLinkScreen,
+    ])
   })
 
   it('does nothing unless backend cleanup is complete', async () => {

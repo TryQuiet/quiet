@@ -1,6 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor } from '@testing-library/dom'
+import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
@@ -87,6 +88,164 @@ describe('join community', () => {
       ([action]) => action.type === communities.actions.clearJoinCommunityError.type
     )
     expect(clearErrorActions).toHaveLength(1)
+  })
+
+  /**
+   * A join that fails is reported where the link was typed. Every kind of failure — the
+   * link the client could not parse, and the three the backend reports after admission —
+   * shows under the invite field on the paste step, and the modal stays on that step: it
+   * does not bounce to the three-way choice or out to Get started.
+   */
+  describe('reports a failure on the invite field', () => {
+    type JoinCommunityError = Parameters<typeof communities.actions.setJoinCommunityError>[0]
+
+    const errorKinds: [string, JoinCommunityError, string][] = [
+      ['an invalid invitation', { type: 'invalid' }, ErrorMessages.INVALID_INVITE],
+      [
+        'an interrupted admission',
+        { type: 'interrupted', invitationType: 'community' },
+        ErrorMessages.ADMISSION_INTERRUPTED_RETRY,
+      ],
+      [
+        'a community admission timeout',
+        { type: 'timeout', invitationType: 'community' },
+        ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT,
+      ],
+      [
+        'a device admission timeout',
+        { type: 'timeout', invitationType: 'device' },
+        ErrorMessages.DEVICE_ADMISSION_TIMEOUT,
+      ],
+    ]
+
+    const storeReporting = async (joinCommunityError: JoinCommunityError) =>
+      await prepareStore({
+        ...openModalState(ModalName.joinCommunityModal),
+        [StateManagerStoreKeys.Communities]: {
+          ...new communities.State(),
+          joinCommunityError,
+        },
+      })
+
+    describe.each(errorKinds)('%s', (_kind, joinCommunityError, message) => {
+      it('shows the message under the invite field, on the paste step', async () => {
+        const { store } = await storeReporting(joinCommunityError)
+
+        renderComponent(
+          <>
+            <GetStarted />
+            <JoinCommunity />
+          </>,
+          store
+        )
+
+        const input = await screen.findByPlaceholderText('Link')
+        const error = await screen.findByText(message)
+        expect(error).toBeVisible()
+        // Under the input, as the field's own helper line - not a panel somewhere else on the page.
+        expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toHaveTextContent(message)
+      })
+
+      it('stays on the paste step rather than bouncing to the three-way choice or Get started', async () => {
+        const { store } = await storeReporting(joinCommunityError)
+
+        renderComponent(
+          <>
+            <GetStarted />
+            <JoinCommunity />
+          </>,
+          store
+        )
+
+        expect(await screen.findByText(message)).toBeVisible()
+        expect(screen.getByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+        expect(screen.queryByRole('heading', { name: 'Join community' })).not.toBeInTheDocument()
+        expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+      })
+
+      it('drops the message as soon as the invitation is edited, keeping what was typed', async () => {
+        const { store } = await storeReporting(joinCommunityError)
+
+        renderComponent(<JoinCommunity />, store)
+
+        const input = await screen.findByPlaceholderText('Link')
+        expect(await screen.findByText(message)).toBeVisible()
+
+        await userEvent.type(input, 'another-link')
+
+        await waitFor(() => expect(screen.queryByText(message)).not.toBeInTheDocument())
+        // The message goes, and what was typed in its place stays.
+        expect(input).toHaveValue('another-link')
+        // And the field is still the one on the paste step.
+        expect(screen.getByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+      })
+    })
+
+    it('reopens the closed flow on the paste step when the backend reports the failure', async () => {
+      // The live sequence: the flow was left for Choose username and the progress panel, and the
+      // verdict lands while this modal is shut. It must come back to the field the link was typed
+      // in, not to the three-way choice or to Get started.
+      const { store } = await prepareStore({
+        ...openModalState(ModalName.joinCommunityModal),
+        [StoreKeys.Modals]: {
+          ...new ModalsInitialState(),
+          [ModalName.joinCommunityModal]: { open: false },
+          [ModalName.loadingPanel]: { open: false },
+        },
+      })
+
+      renderComponent(
+        <>
+          <GetStarted />
+          <JoinCommunity />
+        </>,
+        store
+      )
+
+      expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
+
+      act(() => {
+        store.dispatch(communities.actions.setJoinCommunityError({ type: 'invalid' }))
+      })
+
+      const input = await screen.findByPlaceholderText('Link')
+      expect(await screen.findByText(ErrorMessages.INVALID_INVITE)).toBeVisible()
+      expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toHaveTextContent(ErrorMessages.INVALID_INVITE)
+      expect(screen.getByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+      expect(screen.queryByRole('heading', { name: 'Join community' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+    })
+
+    it('reports a link the client cannot parse on the same field, without leaving the step', async () => {
+      const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
+      const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+      renderComponent(
+        <>
+          <GetStarted />
+          <JoinCommunity />
+        </>,
+        store
+      )
+
+      const input = await openPasteStep()
+      await userEvent.type(input, 'https://example.com/not-an-invitation')
+      await userEvent.click(screen.getByTestId('continue-joinCommunity'))
+
+      const error = await screen.findByText(InviteLinkErrors.InvalidCode)
+      expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toHaveTextContent(InviteLinkErrors.InvalidCode)
+      expect(error).toBeVisible()
+      expect(screen.getByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+      expect(screen.queryByRole('heading', { name: 'Join community' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+      expect(dispatchSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: communities.actions.joinCommunity.type })
+      )
+
+      // Editing the link takes the message away again.
+      await userEvent.type(input, 'x')
+      await waitFor(() => expect(screen.queryByText(InviteLinkErrors.InvalidCode)).not.toBeInTheDocument())
+    })
   })
 
   it('walks from the three-way choice to the paste step and back to Get started', async () => {

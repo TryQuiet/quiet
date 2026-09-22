@@ -205,31 +205,76 @@ describe('PasteInviteLinkScreen', () => {
     })
   })
 
-  it('shows the timeout error on the paste screen', async () => {
-    const { store, result } = await renderReadyScreen()
-    act(() => {
-      store.dispatch(
-        communities.actions.setJoinCommunityError({
-          type: 'timeout',
-          invitationType: 'device',
+  /**
+   * A join that fails is reported where the link was typed. Every kind the backend
+   * reports lands under this screen's input, and the screen keeps the window: nothing
+   * navigates away to Join community or Get started to say it.
+   */
+  describe('reports a failed join on the invite field', () => {
+    type JoinCommunityError = Parameters<typeof communities.actions.setJoinCommunityError>[0]
+
+    const errorKinds: [string, JoinCommunityError, string][] = [
+      ['an invalid invitation', { type: 'invalid' }, ErrorMessages.INVALID_INVITE],
+      [
+        'an interrupted admission',
+        { type: 'interrupted', invitationType: 'community' },
+        ErrorMessages.ADMISSION_INTERRUPTED_RETRY,
+      ],
+      [
+        'a community admission timeout',
+        { type: 'timeout', invitationType: 'community' },
+        ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT,
+      ],
+      [
+        'a device admission timeout',
+        { type: 'timeout', invitationType: 'device' },
+        ErrorMessages.DEVICE_ADMISSION_TIMEOUT,
+      ],
+    ]
+
+    describe.each(errorKinds)('%s', (_kind, joinCommunityError, message) => {
+      it('shows the message under the input, staying on the paste screen', async () => {
+        const { dispatchSpy, result, store } = await renderReadyScreen()
+        act(() => {
+          store.dispatch(communities.actions.setJoinCommunityError(joinCommunityError))
         })
-      )
-    })
 
-    expect(await result.findByText(ErrorMessages.DEVICE_ADMISSION_TIMEOUT)).toBeTruthy()
-  })
+        const error = await result.findByText(message)
+        expect(error).toBeTruthy()
+        // Under the input, in the field's own error slot - not a screen of its own.
+        expect(result.getByTestId('paste-link-input')).toContainElement(error)
+        expect(result.getByText('Paste a link to Join')).toBeTruthy()
+        expect(dispatchSpy).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: navigationActions.navigation.type })
+        )
+        expect(dispatchSpy).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: navigationActions.replaceScreen.type })
+        )
+        expect(dispatchSpy).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: navigationActions.resetToScreen.type })
+        )
+      })
 
-  it('shows the interrupted error on the paste screen', async () => {
-    const { store, result } = await renderReadyScreen()
-    act(() => {
-      store.dispatch(
-        communities.actions.setJoinCommunityError({
-          type: 'interrupted',
-          invitationType: 'community',
+      it('drops the message when the link is edited, keeping what was typed', async () => {
+        const { dispatchSpy, result, store } = await renderReadyScreen()
+        act(() => {
+          store.dispatch(communities.actions.setJoinCommunityError(joinCommunityError))
         })
-      )
-    })
+        expect(await result.findByText(message)).toBeTruthy()
 
-    expect(await result.findByText(ErrorMessages.ADMISSION_INTERRUPTED_RETRY)).toBeTruthy()
+        const input = result.getByPlaceholderText('Link')
+        act(() => {
+          fireEvent.changeText(input, 'another-link')
+        })
+
+        await waitFor(() => expect(result.queryByText(message)).toBeNull())
+        expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.clearJoinCommunityError())
+        // Clearing the message must not take the new link with it: submitting now has to
+        // carry what was typed, not an empty field.
+        fireEvent.press(result.getByTestId('paste-link-continue'))
+        expect(result.queryByText('Community address can not be empty')).toBeNull()
+        expect(result.getByText('Please check your invite link and try again')).toBeTruthy()
+      })
+    })
   })
 })

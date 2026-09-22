@@ -116,16 +116,23 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     }
   }, [invitationCode])
 
+  // The caller's verdict on the last attempt shares the slot under the input with the
+  // errors raised here, so it is mirrored into state rather than read straight through.
+  // Clearing the field belongs to the effect below: editing the link drops the reported
+  // error, and that must not take what is being typed with it.
+  useEffect(() => {
+    setInputError(initialInputError)
+  }, [initialInputError])
+
   useEffect(() => {
     logger.info(`hasReceivedResponse changed: ${hasReceivedResponse}`)
     if (hasReceivedResponse) {
       logger.info('Resetting component state after receiving response')
-      setInputError(initialInputError)
       setJoinCommunityInput('')
       setLoading(false)
       inputRef.current?.setNativeProps({ text: '' })
     }
-  }, [hasReceivedResponse, initialInputError])
+  }, [hasReceivedResponse])
 
   return (
     <>

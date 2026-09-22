@@ -20,7 +20,7 @@ import { CONTENT_COLUMN_WIDTH, OnboardingBody } from '../../components/Onboardin
 import BackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
 import { composeInvitationDeepUrl, composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
-import { InvitationKind, isDeviceInvitationData } from '@quiet/types'
+import { ErrorMessages, InvitationKind, isDeviceInvitationData } from '@quiet/types'
 import type { InvitationData, LinkedDevice } from '@quiet/types'
 
 // The implemented onboarding screens, one story each, plus a walkthrough that
@@ -256,6 +256,48 @@ export const PasteALink = () => (
     figma='3190:10892'
     note='the WIP frame reduced to its intent: heading, one input ("Link"), Continue'
     render={() => <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={noop} />}
+  />
+)
+
+/**
+ * The same step after a join fails. No frame draws this state; the message is the
+ * field's own error line, under the input, because that is where the link was typed —
+ * the flow does not leave this screen to report it (user decision, 2026-09-22).
+ */
+const PASTE_ERROR_NOTE =
+  'no frame for this state; the message is the field’s own error line under the input — reporting a failure never takes the user off this screen'
+
+export const PasteALinkInviteError = () => (
+  <Screen
+    title='Paste a link to Join · invalid invite'
+    hiddenBar='Join with invite link'
+    figma='—'
+    note={`${PASTE_ERROR_NOTE}; a link the client cannot parse reads “Please check your invite link and try again” in the same slot`}
+    render={() => (
+      <PasteLinkComponent
+        heading={'Paste a link to Join'}
+        handleCommunityAction={noop}
+        fieldError={ErrorMessages.INVALID_INVITE}
+        onFieldChange={noop}
+      />
+    )}
+  />
+)
+
+export const PasteALinkAdmissionTimeout = () => (
+  <Screen
+    title='Paste a link to Join · admission timed out'
+    hiddenBar='Join with invite link'
+    figma='—'
+    note={`${PASTE_ERROR_NOTE}; a device link reads “…make sure both devices have the app open”, and an interrupted join “Joining was interrupted when Quiet went to sleep. Please try again.”`}
+    render={() => (
+      <PasteLinkComponent
+        heading={'Paste a link to Join'}
+        handleCommunityAction={noop}
+        fieldError={ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT}
+        onFieldChange={noop}
+      />
+    )}
   />
 )
 

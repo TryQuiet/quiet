@@ -4,7 +4,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
-import { InvitationKind } from '@quiet/types'
+import { ErrorMessages, InvitationKind } from '@quiet/types'
 
 import { renderComponent } from '../../testUtils/renderComponent'
 import { drawQr, qrImageData } from '../../testUtils/qrImage'
@@ -20,6 +20,8 @@ import {
   LinkDevicesDeviceListUnread,
   LinkDevicesEmpty,
   LinkDevicesNothingLinked,
+  PasteALinkAdmissionTimeout,
+  PasteALinkInviteError,
   PasteLinkNotADeviceLink,
   PasteLinkOnLinkDevices,
   SettingsLinkedDevices,
@@ -257,6 +259,28 @@ describe('Screens/Onboarding — the Link devices stories', () => {
     // SettingsComponent gives Linked devices `titleInPanel`, so the panel's heading is the title.
     expect(barTitle()).toBe('')
     expect(screen.getAllByRole('heading', { name: 'Link devices', level: 3 })[0]).toBeVisible()
+  })
+})
+
+describe('Screens/Onboarding — the Paste a link error states', () => {
+  it('draws the invalid invite as the field’s own error line, under the input', () => {
+    renderComponent(<PasteALinkInviteError />)
+
+    const input = screen.getAllByTestId('paste-link-input')[0]
+    const error = screen.getAllByText(ErrorMessages.INVALID_INVITE)[0]
+    expect(error).toBeVisible()
+    expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toBe(error)
+    // Still the paste step: the message is drawn here, not on a screen of its own.
+    expect(screen.getAllByRole('heading', { name: 'Paste a link to Join', level: 3 })[0]).toBeVisible()
+  })
+
+  it('draws the admission timeout in the same slot', () => {
+    renderComponent(<PasteALinkAdmissionTimeout />)
+
+    const input = screen.getAllByTestId('paste-link-input')[0]
+    const error = screen.getAllByText(ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT)[0]
+    expect(error).toBeVisible()
+    expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toBe(error)
   })
 })
 

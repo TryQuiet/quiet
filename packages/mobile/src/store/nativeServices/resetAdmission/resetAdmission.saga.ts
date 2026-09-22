@@ -95,11 +95,25 @@ export function* retryAdmissionFinalizationSaga(): Generator {
   yield* call(finishAdmissionFinalizationSaga)
 }
 
+/**
+ * Where a cleared invitation puts the user. The failure is reported on the invite
+ * field, so the flow comes back to the field the link was typed in rather than to
+ * the three-way choice, which has nothing to carry the message. `finalizeAdmissionReset`
+ * has wiped Redux, the navigator included, so the path the user would have walked is
+ * rebuilt beneath the paste screen and its back arrow retraces it.
+ */
+export const ADMISSION_FAILURE_STACK = [
+  ScreenNames.GetStartedScreen,
+  ScreenNames.JoinCommunityScreen,
+  ScreenNames.OpenInviteLinkScreen,
+  ScreenNames.PasteInviteLinkScreen,
+]
+
 export function* finishAdmissionFinalizationSaga(): Generator {
   try {
     yield* call(persistor.flush)
     yield* put(communities.actions.setAdmissionResetStatus('idle'))
-    yield* put(navigationActions.resetToScreen({ screen: ScreenNames.JoinCommunityScreen }))
+    yield* put(navigationActions.resetToStack({ screens: ADMISSION_FAILURE_STACK }))
   } catch (error) {
     logger.error('Failed to persist the completed admission reset', error)
     yield* put(
