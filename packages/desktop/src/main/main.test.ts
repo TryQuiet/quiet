@@ -4,7 +4,7 @@ import * as main from './main'
 import * as backendHelpers from './backendHelpers'
 
 import { autoUpdater } from 'electron-updater'
-import { BrowserWindow, app, ipcMain, Menu, session } from 'electron'
+import { BrowserWindow, app, ipcMain, Menu, powerSaveBlocker, session } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
 import { composeInvitationDeepUrl, getValidInvitationUrlTestData, validInvitationCodeTestData } from '@quiet/common'
@@ -25,6 +25,11 @@ const mockWindowClose = jest.fn()
 const mockSetMovable = jest.fn()
 const mockSetAlwaysOnTop = jest.fn()
 const mockIsDestroyed = jest.fn()
+const mockIsMaximized = jest.fn()
+const mockIsFullScreen = jest.fn()
+const mockGetPrimaryDisplay = jest.fn()
+const mockStoreGet = jest.fn()
+const mockStoreSet = jest.fn()
 
 const spyCreateWindow = jest.spyOn(main, 'createWindow')
 const spyGetPorts = jest.spyOn(backendHelpers, 'getPorts')
@@ -33,9 +38,16 @@ jest.spyOn(main, 'isBrowserWindow').mockReturnValue(true)
 jest.spyOn(path, 'join').mockReturnValue('path')
 
 jest.mock('electron-store', () => {
-  return {
-    initRenderer: jest.fn(),
-  }
+  // main.ts uses electron-store both as a namespace (initRenderer) and as a
+  // constructor (the persisted window size), so the mock has to be both.
+  const ElectronStoreMock: any = jest.fn().mockImplementation(() => {
+    return {
+      get: mockStoreGet,
+      set: mockStoreSet,
+    }
+  })
+  ElectronStoreMock.initRenderer = jest.fn()
+  return ElectronStoreMock
 })
 
 jest.mock('@electron/remote/main', () => {
@@ -65,6 +77,9 @@ jest.mock('child_process', () => {
 })
 
 jest.mock('electron', () => {
+  // Faithful little fake: real Electron hands back an id and tracks whether that id is still active.
+  const startedPowerSaveBlockers = new Set<number>()
+  let nextPowerSaveBlockerId = 1
   return {
     ...jest.requireActual('electron'),
     app: {
@@ -98,6 +113,8 @@ jest.mock('electron', () => {
         getPosition: jest.fn().mockImplementation(() => [600, 800]),
         setSize: jest.fn(),
         setPosition: jest.fn(),
+        isMaximized: mockIsMaximized,
+        isFullScreen: mockIsFullScreen,
         isMinimized: jest.fn(),
         restore: jest.fn(),
         focus: jest.fn(),
@@ -112,11 +129,27 @@ jest.mock('electron', () => {
     Menu: {
       setApplicationMenu: jest.fn(),
     },
+    screen: {
+      // Wrapped so the mock fn is looked up lazily - jest.mock factories run
+      // before the const declarations above are initialised.
+      getPrimaryDisplay: () => mockGetPrimaryDisplay(),
+    },
     ipcMain: {
       on: jest.fn(),
       once: jest.fn(),
       handle: jest.fn(),
       removeListener: jest.fn(),
+    },
+    powerSaveBlocker: {
+      start: jest.fn(() => {
+        const id = nextPowerSaveBlockerId++
+        startedPowerSaveBlockers.add(id)
+        return id
+      }),
+      stop: jest.fn((id: number) => {
+        startedPowerSaveBlockers.delete(id)
+      }),
+      isStarted: jest.fn((id: number) => startedPowerSaveBlockers.has(id)),
     },
     session: {
       defaultSession: {
@@ -247,6 +280,39 @@ describe('electron app ready event', () => {
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('newUpdateAvailable')
   })
 })
+
+// Issue #53: a suspended machine stops answering as a peer, which breaks registration for everyone
+// else. These run before the quit-flow tests below, while `quitting` is still false.
+describe('power save blocker', () => {
+  const powerSaveBlockerStart = powerSaveBlocker.start as jest.Mock<any, any>
+  const powerSaveBlockerStop = powerSaveBlocker.stop as jest.Mock<any, any>
+
+  it('starts one prevent-app-suspension blocker once the backend is running', () => {
+    expect(powerSaveBlockerStart).toHaveBeenCalledTimes(1)
+    expect(powerSaveBlockerStart).toHaveBeenCalledWith('prevent-app-suspension')
+  })
+
+  it('does not start a second blocker while one is already running', () => {
+    main.startPowerSaveBlocker()
+    expect(powerSaveBlockerStart).toHaveBeenCalledTimes(1)
+  })
+
+  it('stops the blocker it started when the app quits', () => {
+    const startedId = powerSaveBlockerStart.mock.results[0].value
+    const beforeQuitHandler = mockAppOnCalls.find(c => c[0] === 'before-quit')[1]
+
+    beforeQuitHandler({ preventDefault: jest.fn() })
+
+    expect(powerSaveBlockerStop).toHaveBeenCalledTimes(1)
+    expect(powerSaveBlockerStop).toHaveBeenCalledWith(startedId)
+  })
+
+  it('stopping when no blocker is running is a no-op', () => {
+    main.stopPowerSaveBlocker()
+    expect(powerSaveBlockerStop).toHaveBeenCalledTimes(1)
+  })
+})
+
 // --- EXTRA QUIT-FLOW TESTS ---
 describe('additional quit flow scenarios', () => {
   const forkMock = require('child_process').fork as jest.Mock
@@ -382,5 +448,132 @@ describe('security: socketIOSecret exposure', () => {
     // Should NOT find the call with -scrt
     const secretCall = forkCalls.find((call: (string | string[])[]) => call[1] && call[1].includes('-scrt'))
     expect(secretCall).toBeUndefined()
+  })
+})
+
+describe('window size persistence', () => {
+  const BrowserWindowMock = BrowserWindow as unknown as jest.Mock
+
+  // createWindow() builds the main window first and the splash window second.
+  const optionsOfLastWindows = () => {
+    const calls = BrowserWindowMock.mock.calls
+    return { mainWindow: calls[calls.length - 2][0], splash: calls[calls.length - 1][0] }
+  }
+
+  // 'resize' is registered on every createWindow() call, so take the latest one.
+  const lastHandlerFor = (event: string) =>
+    mockWindowOn.mock.calls.filter(call => call[0] === event).pop()![1] as (...args: any[]) => void
+
+  // 'close' is registered once, during startup, not on every createWindow() call.
+  // Capture it before the per-test mockClear() wipes the record of it.
+  let onStartupClose: (e: any) => void
+
+  beforeAll(() => {
+    onStartupClose = mockWindowOn.mock.calls.find(call => call[0] === 'close')![1]
+  })
+
+  beforeEach(() => {
+    BrowserWindowMock.mockClear()
+    mockWindowOn.mockClear()
+    mockStoreGet.mockReset()
+    mockStoreSet.mockReset()
+    mockIsMaximized.mockReturnValue(false)
+    mockIsFullScreen.mockReturnValue(false)
+    mockGetPrimaryDisplay.mockReturnValue({ workAreaSize: { width: 2560, height: 1440 } })
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('uses the built-in default size when nothing has been persisted', async () => {
+    mockStoreGet.mockReturnValue(undefined)
+
+    await main.createWindow()
+
+    expect(optionsOfLastWindows().mainWindow).toEqual(expect.objectContaining({ width: 800, height: 540 }))
+  })
+
+  it('restores a persisted size that fits on the current display', async () => {
+    mockStoreGet.mockReturnValue({ width: 1200, height: 900 })
+
+    await main.createWindow()
+
+    const { mainWindow, splash } = optionsOfLastWindows()
+    expect(mainWindow).toEqual(expect.objectContaining({ width: 1200, height: 900 }))
+    // The splash window has always matched the main window, so it still does.
+    expect(splash).toEqual(expect.objectContaining({ width: 1200, height: 900 }))
+  })
+
+  it('clamps a persisted size that no longer fits the display work area', async () => {
+    mockGetPrimaryDisplay.mockReturnValue({ workAreaSize: { width: 1366, height: 768 } })
+    mockStoreGet.mockReturnValue({ width: 3840, height: 2160 })
+
+    await main.createWindow()
+
+    expect(optionsOfLastWindows().mainWindow).toEqual(expect.objectContaining({ width: 1366, height: 768 }))
+  })
+
+  it('falls back to the default size when the persisted value is malformed', async () => {
+    mockStoreGet.mockReturnValue({ width: 'wide', height: -1 })
+
+    await main.createWindow()
+
+    expect(optionsOfLastWindows().mainWindow).toEqual(expect.objectContaining({ width: 800, height: 540 }))
+  })
+
+  it('falls back to the default size when reading the store throws', async () => {
+    mockStoreGet.mockImplementation(() => {
+      throw new Error('corrupted window-state.json')
+    })
+
+    await main.createWindow()
+
+    expect(optionsOfLastWindows().mainWindow).toEqual(expect.objectContaining({ width: 800, height: 540 }))
+  })
+
+  it('persists the new size once resizing settles', async () => {
+    jest.useFakeTimers()
+    await main.createWindow()
+    const onResize = lastHandlerFor('resize')
+
+    onResize()
+    onResize()
+    onResize()
+    expect(mockStoreSet).not.toHaveBeenCalled()
+
+    jest.advanceTimersByTime(1000)
+
+    // Debounced: a burst of resize events results in a single write.
+    expect(mockStoreSet).toHaveBeenCalledTimes(1)
+    expect(mockStoreSet).toHaveBeenCalledWith('windowSize', { width: 600, height: 800 })
+  })
+
+  it('does not persist the size of a maximised window', async () => {
+    jest.useFakeTimers()
+    await main.createWindow()
+    mockIsMaximized.mockReturnValue(true)
+
+    lastHandlerFor('resize')()
+    jest.advanceTimersByTime(1000)
+
+    expect(mockStoreSet).not.toHaveBeenCalled()
+  })
+
+  it('flushes a pending save when the window is closed', async () => {
+    jest.useFakeTimers()
+    await main.createWindow()
+
+    lastHandlerFor('resize')()
+    expect(mockStoreSet).not.toHaveBeenCalled()
+
+    onStartupClose({ preventDefault: jest.fn() })
+
+    expect(mockStoreSet).toHaveBeenCalledWith('windowSize', { width: 600, height: 800 })
+
+    // …and the pending debounce was cancelled rather than firing a second write.
+    mockStoreSet.mockClear()
+    jest.advanceTimersByTime(1000)
+    expect(mockStoreSet).not.toHaveBeenCalled()
   })
 })

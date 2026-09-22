@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { shell, ipcRenderer, webUtils } from 'electron'
 import { openExternal } from '../../openExternal'
@@ -26,6 +26,7 @@ import {
 } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
+import { ChannelLinkNavigation } from '../widgets/channels/TextMessage'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -57,6 +58,10 @@ const ChannelContent = () => {
   const isNewMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
   const newMessageRecipientIds = useSelector(publicChannels.selectors.newMessageRecipientIds)
   const currentChannelSubscribed = useSelector(publicChannels.selectors.currentChannelSubscribed)
+
+  // The channels the user can actually see - the same list the sidebar renders. Channels the user
+  // has no access to are not in the store, so mentions of them stay plain text.
+  const visibleChannels = useSelector(publicChannels.selectors.publicChannels)
 
   const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
@@ -231,6 +236,18 @@ const ChannelContent = () => {
     openExternal(url)
   }, [])
 
+  const channelLinks = useMemo<ChannelLinkNavigation>(
+    () => ({
+      // The selector yields nothing until the community's channels are in the store, and the
+      // composer renders before that, so this cannot assume a list.
+      channels: new Map((visibleChannels ?? []).map(channel => [channel.name.toLowerCase(), channel.id])),
+      onChannelLinkClick: (channelId: string) => {
+        dispatch(publicChannels.actions.setCurrentChannel({ channelId }))
+      },
+    }),
+    [visibleChannels, dispatch]
+  )
+
   const openContainingFolder = useCallback((path: string) => {
     shell.showItemInFolder(path)
   }, [])
@@ -367,6 +384,7 @@ const ChannelContent = () => {
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
     openUrl: openUrl,
+    channelLinks: channelLinks,
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,

@@ -13,12 +13,5 @@ const actions = {
 
 // Link devices (2811:2575; Device-linking file 879:15644 with linked devices, 879:15640 without).
 storiesOf('LinkDevices', module)
-  .add('In a community (share: Display QR code, Copy link)', () => (
-    <LinkDevices
-      {...actions}
-      direction='share'
-    />
-  ))
-  .add('No community (receive: Scan QR code, Paste link)', () => (
-    <LinkDevices {...actions} direction='receive' />
-  ))
+  .add('In a community (share: Display QR code, Copy link)', () => <LinkDevices {...actions} direction='share' />)
+  .add('No community (receive: Scan QR code, Paste link)', () => <LinkDevices {...actions} direction='receive' />)

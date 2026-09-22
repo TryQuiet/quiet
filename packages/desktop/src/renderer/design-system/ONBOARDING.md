@@ -351,7 +351,7 @@ Copy:
 
 Uses: Divider (2), Button (2), Want a server (1), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Close (1)
 Goes to: Button → choose-a-plan [prototype]; Button → no-server [prototype]; Glyph → back [back]
-Implemented by: desktop `ServerOffer/ServerOfferComponent.tsx` · mobile `ServerOffer/CreatingOffer/ServerOffer.component.tsx`
+Implemented by: desktop `ServerOffer/ServerOfferComponent.tsx` (the 375 column in the Modal full-window shell) · mobile `ServerOffer/ServerOffer.component.tsx` (a screen; the bottom drawer and the duplicate `CreatingOffer` copy are gone, as Agree & join's drawer went in #3524). Built to the frame on `design/want-a-server`; the apps keep showing it during community creation. The bar glyph is the frame's own link (*Glyph → back*): it returns to the create step with the typed name still in the form and creates nothing, while *Not now* is the decline that creates the community without a server.
 
 ### Choose a plan  ·  `choose-a-plan`
 Section: Onboarding · 375×697 · node `2924:13381` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2924-13381)
@@ -618,7 +618,7 @@ Audit of the Android app on `design/onboarding-entry` @ f12463cd2 against the pr
 | Link devices — Scan QR code (sheet) | 2811:2587 | screens/PasteInviteLink (deviceLink) | **old / camera missing** | paste form instead of the sheet with viewfinder; no camera dependency on any branch |
 | Join with QR code (sheet) | 2811:2460 | screens/PasteInviteLink (qrCode) | **old / camera missing** | same; duplicated heading |
 | Account recovery | 2811:2535 | components/RecoverAccount | partial | bar title hidden; rows not bordered; "More options" drawn enabled in the frame |
-| Want a server? | 2922:10009 | ServerOffer.drawer + CreatingOffer | partial | drawer header vs 60 title bar with close; title 28 bold vs h3 500; "Add server" vs "Use Quiet's server" (121×50 r16); "Not now" text 16/16 #7F7F7F; body #222222 |
+| Want a server? | 2922:10009 | components/ServerOffer | **done** (`design/want-a-server`) | rebuilt to the frame on both platforms: the bar zone with the close glyph and no title, heading h3 500, the "It's free!" pill (#F9EFFF inside #ECDCF5, r4, 14/20 #461863), body 14/20 #222222, "Use Quiet's server" (50 tall, r16) over the "Not now" link (16/16 #7F7F7F), the full-bleed rule and the 16 checkbox, 24 between every block. Mobile is a screen, not the 2/3 drawer, and the bar glyph goes back to the create step (the frame's own *Glyph → back*) rather than answering the offer. What still differs is only *when* it is shown — during creation, not from Home → Add members |
 | No server? | 2922:10050 | — | **missing** | "No server?" / "This won't work well for iPhone users in your community." / [Go back] / "Continue without server" (unwired in the file — interpretation: proceed without server) |
 | Community home / switcher | 2811:2370 / 2853:1955 | ChannelList, CommunityContextMenu | old design | in-app, not onboarding; multi-community not in the app — out of scope |
 | Agree & join, CAPTCHA, Add members (+QR), progress | — | — | in flight | design/onboarding-impl (both platforms) |
@@ -632,13 +632,6 @@ Cross-cutting: bordered row group absent (also on desktop's RowGroup); content v
 - Mobile (board `879:16665`): Link devices basic states `879:15415` etc.; QR sheet `879:15503` (Link devices—QR instance); **Linking devices** progress sheet `879:15508` (Progress-loading-template-mobile `910:33355`); Linked / Without linked / With linked / Removed states `879:15640` / `879:15644` / `879:15648`; QR-scan-code sheets `879:15946` / `879:16178`. Entry points boards `879:14680` (mobile) / `879:19861` (desktop): Get started row and the Communities switcher's "Linked devices" row.
 - Banner promos (`898:8033` mobile, `898:8104` desktop): out of scope.
 - User decisions (2026-09-13): a third row **Paste link** on Link devices (Button row + link glyph; device links only, inline error otherwise); on the QR sheet a primary **Copy link** button in the Add-members "Share code" slot, no raw link shown; desktop Link devices / Linked devices match mobile and these frames.
-
-### Device linking — desktop designs (user pointer, 2026-09-13)
-
-`Device linking` file `3RcrYKRTiFY87TpFSqZyj4`, canvas *Draft 5* (`880:17585`, Dec 2024). Exports in `figma/desktop/devicelink/` (brought over from `design/storybook-grid`):
-- Desktop (board `879:18182` "Link devices (some desktop examples)"): `879:20987` Link devices in the Modal full-window shell, no linked devices; `880:17196` with linked devices; `880:17427` Display QR code (the QR inside the shell). Rows in this draft carry subtitles ("Scan this code with another device" / "Use this device to scan a code from another device"); the 2026 prototype (`2811:2575`) drops them — prototype copy wins, these frames give the desktop structure.
-- Mobile (board `879:16665`): QR sheet `879:15503`; **Linking devices** progress sheet `879:15508` (Progress-loading-template-mobile `910:33355`); Linked / Without linked / With linked / Removed states `879:15640` / `879:15644` / `879:15648`; QR-scan-code sheets `879:15946` / `879:16178`.
-- Banner promos (`898:8033` mobile, `898:8104` desktop): out of scope.
 
 ### Purged stages (user decision, 2026-09-12)
 
