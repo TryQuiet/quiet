@@ -109,6 +109,18 @@ async function linkedDeviceNamesInSettings(app: App, expectedCount = 0): Promise
   return names
 }
 
+/** The same surface, asked whether it is drawing its "No linked devices" line. */
+async function noLinkedDevicesInSettings(app: App): Promise<boolean> {
+  const settings = await new Sidebar(app.driver).openSettings()
+  expect(await settings.isReady()).toBeTruthy()
+  await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
+  const linkDevices = new LinkDevicesModal(app.driver)
+  expect(await linkDevices.linkedDeviceNames()).toEqual([])
+  const empty = await linkDevices.hasNoLinkedDevices()
+  await settings.closeTabThenModal()
+  return empty
+}
+
 describe('Onboarding', () => {
   beforeEach(() => {
     logger.info(`░░░ ${expect.getState().currentTestName}`)
@@ -276,8 +288,8 @@ describe('Onboarding', () => {
 
     it('A creates a community and generates a device link; B links through Get started → Link devices', async () => {
       await createCommunity(owner, `onbdev${Date.now().toString(36)}`, ownerUsername)
-      // Nothing is linked yet, so the share direction shows the empty list.
-      expect(await linkedDeviceNamesInSettings(owner)).toEqual([])
+      // Nothing is linked yet, so the share direction draws its empty list.
+      expect(await noLinkedDevicesInSettings(owner)).toBe(true)
       const deviceInvitation = await getDeviceInvitation(owner)
 
       await linkedDevice.openWithRetries()
