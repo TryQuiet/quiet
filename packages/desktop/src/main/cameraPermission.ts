@@ -1,3 +1,13 @@
+/**
+ * Camera permission for QR scanning.
+ *
+ * macOS also needs the camera declared at packaging time, in two places, neither of them here:
+ * `mac.extendInfo.NSCameraUsageDescription` in package.json is the sentence the system prompt
+ * shows, and `com.apple.security.device.camera` in build/entitlements.mac.plist is what lets the
+ * hardened runtime the release build is signed with reach the camera at all. Windows and Linux
+ * need nothing declared: Windows has only the global "Allow desktop apps to access your camera"
+ * setting, read below through `getMediaAccessStatus`, and Linux has no permission layer at all.
+ */
 import { ipcMain, shell, systemPreferences, type App, type Session, type WebContents } from 'electron'
 import { pathToFileURL } from 'url'
 import {
