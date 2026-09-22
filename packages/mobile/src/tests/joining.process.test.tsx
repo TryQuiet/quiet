@@ -78,7 +78,7 @@ describe('Joining process', () => {
 
     await act(async () => {})
 
-    const channelList = screen.getByTestId('channel-list')
+    const channelList = screen.getByTestId('channels_list')
 
     expect(channelList).toBeVisible()
 

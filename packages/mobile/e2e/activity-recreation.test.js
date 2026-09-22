@@ -61,7 +61,7 @@ describeAndroid('Android activity recreation', () => {
     await expect(element(by.id('input'))).toHaveText('A draft after activity recreation')
     await expect(element(by.id('chat_general'))).toBeVisible()
     await device.pressBack()
-    await waitFor(element(by.id('channel-list'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('channels_list'))).toBeVisible().withTimeout(10000)
     await expect(element(by.id('android-compatibility-channel-state'))).toHaveText('(none)')
   })
 })
