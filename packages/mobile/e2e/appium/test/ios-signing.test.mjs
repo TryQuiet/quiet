@@ -32,6 +32,25 @@ test('real linked simulator capabilities survive signing; device signature place
   const originalConfig = fs.readFileSync(configFile)
   assert.throws(() => command('python3', [script, '--prepare', '--checkout', checkout, '--output', path.join(root, 'second')]), /existing local iOS configuration/)
   assert.deepEqual(fs.readFileSync(configFile), originalConfig)
+  // Resolve the real app target through Xcode and the actual pod-install output.
+  // Quiet.xcconfig must be included once: duplicate includes concatenate two XML
+  // entitlements documents in the linked executable and break simulator signing.
+  const ios = path.resolve(import.meta.dirname, '../../../ios')
+  const fixtureIos = path.join(checkout, 'packages/mobile/ios')
+  for (const relative of ['Quiet.xcodeproj/project.pbxproj', 'Quiet.debug.xcconfig',
+    'Pods/Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig']) {
+    const destination = path.join(fixtureIos, relative)
+    fs.mkdirSync(path.dirname(destination), { recursive: true })
+    fs.copyFileSync(path.join(ios, relative), destination)
+  }
+  const settings = command('xcodebuild', ['-showBuildSettings', '-project',
+    path.join(fixtureIos, 'Quiet.xcodeproj'), '-target', 'Quiet', '-configuration',
+    'Debug', '-sdk', 'iphonesimulator', 'CODE_SIGNING_ALLOWED=NO'])
+  const linkerFlags = settings.split('\n').find(line => /^\s*OTHER_LDFLAGS = /.test(line))
+  assert(linkerFlags, 'Xcode must resolve the actual app linker settings')
+  for (const section of ['__entitlements', '__ents_der']) {
+    assert.equal(linkerFlags.split(section).length - 1, 1, `${section} must be linked exactly once`)
+  }
   const capabilities = target => JSON.parse(command('/usr/bin/plutil', ['-convert', 'json', '-o', '-', path.join(prepared, target + '.xcent')]))
   const appCapabilities = capabilities('Quiet')
   const extensionCapabilities = capabilities('QuietNotificationServiceExtension')
