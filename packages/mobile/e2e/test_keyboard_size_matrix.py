@@ -111,7 +111,7 @@ class RestoreTests(unittest.TestCase):
             def type_fixture(self, text):
                 self.texts.append(text)
 
-            def capture(self, *args):
+            def capture(self, *args, **kwargs):
                 raise AssertionError('native send control clipped')
 
         with tempfile.TemporaryDirectory() as output:

@@ -165,7 +165,7 @@ class Runner:
                 raise AssertionError('Waiting for exact natively typed fixture text')
         self.poll(entered)
 
-    def capture(self, label, density, opened):
+    def capture(self, label, density, opened, minimum_field_height=None):
         previous = None
         def settled():
             nonlocal previous
@@ -173,6 +173,8 @@ class Runner:
             bounds = parse_bounds(source)
             ime = parse_ime(self.adb('shell', 'dumpsys', 'window').decode())
             metrics = check_geometry(bounds, ime, density, opened)
+            if minimum_field_height is not None and metrics['field_height_dp'] <= minimum_field_height:
+                raise AssertionError('Waiting for multiline native text-field growth')
             state = (bounds, ime)
             if previous != state:
                 previous = state
@@ -224,12 +226,12 @@ class Runner:
                     self.type_fixture(text)
                     for cycle in range(2):
                         self.click('input')
-                        self.capture(f'{name}-{text_label}-{cycle + 1}-open', int(dpi) / 160, True)
+                        self.capture(f'{name}-{text_label}-{cycle + 1}-open', int(dpi) / 160, True,
+                                     minimum_field_height=single_height + 5 if text_label == 'multiline' else None)
                         height = self.samples[-1]['field_height_dp']
                         if text_label == 'single':
                             single_height = height
-                        elif height <= single_height + 5:
-                            raise AssertionError('Multiline fixture did not grow the native text field')
+
                         self.hide()
                         self.capture(f'{name}-{text_label}-{cycle + 1}-closed', int(dpi) / 160, False)
             print('PASS: 24 native layout samples across three sizes; no messages sent.', flush=True)
