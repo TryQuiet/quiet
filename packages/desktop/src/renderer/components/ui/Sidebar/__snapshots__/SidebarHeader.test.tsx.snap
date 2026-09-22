@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SidebarHeader renders the title and the section action 1`] = `
+<body>
+  <div>
+    <div
+      class="SidebarHeaderroot css-1f72bw8"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
+      >
+        Channels
+      </h6>
+      <span>
+        <button
+          aria-label="Create new channel"
+          class="SidebarHeaderaction"
+          data-mui-internal-clone-element="true"
+          data-testid="sidebar-button-createChannel"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            focusable="false"
+            height="16"
+            viewBox="0 0 16 16"
+            width="16"
+          >
+            <path
+              d="M8 4V12"
+              stroke="currentColor"
+            />
+            <path
+              d="M12 8L4 8"
+              stroke="currentColor"
+            />
+            <circle
+              cx="8"
+              cy="8"
+              r="7.5"
+              stroke="currentColor"
+            />
+          </svg>
+        </button>
+      </span>
+    </div>
+  </div>
+</body>
+`

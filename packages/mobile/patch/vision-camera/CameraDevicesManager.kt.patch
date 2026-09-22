@@ -1,0 +1,14 @@
+--- node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraDevicesManager.kt
++++ node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/react/CameraDevicesManager.kt
+@@ -68,6 +68,11 @@
+         Log.i(TAG, "Initializing ExtensionsManager...")
+         extensionsManager = ExtensionsManager.getInstanceAsync(reactContext, cameraProvider!!).await(executor)
+         Log.i(TAG, "Successfully initialized!")
++        // getConstants() and initialize() ran before the provider was ready and handed JS an
++        // empty device list; nothing else re-sends it (onCameraAvailable skips known ids).
++        if (reactContext.hasActiveReactInstance()) {
++          sendAvailableDevicesChangedEvent()
++        }
+       } catch (error: Throwable) {
+         Log.e(TAG, "Failed to initialize ProcessCameraProvider/ExtensionsManager! Error: ${error.message}", error)
+       }

@@ -28,36 +28,47 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="css-1c9y83e"
+            class="IdentityPanelroot css-15v2td"
           >
-            <span
-              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"
+            <button
+              class="IdentityPanelbutton"
               data-testid="settings-panel-button"
-              role="button"
-              tabindex="0"
+              type="button"
             >
-              <h4
-                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
-                data-testid="current-community-name"
-              >
-                community_1
-              </h4>
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                data-testid="ArrowDropDownIcon"
-                focusable="false"
-                style="margin-left: 4px;"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="m7 10 5 5 5-5z"
-                />
-              </svg>
               <span
-                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-              />
-            </span>
+                aria-hidden="true"
+                class="CommunityIconroot css-1spqh73"
+              >
+                C
+              </span>
+              <span
+                class="IdentityPanelnameGroup"
+              >
+                <h4
+                  class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-1inrl58-MuiTypography-root"
+                  data-testid="current-community-name"
+                >
+                  community_1
+                </h4>
+                <span
+                  class="IdentityPanelcaret"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    width="16"
+                  >
+                    <path
+                      d="M11.5246 7.09375H4.47265C4.2937 7.09375 4.20482 7.31075 4.33234 7.43628L7.84462 10.8937C7.92224 10.9701 8.04674 10.9703 8.12467 10.8942L11.6644 7.43683C11.7927 7.31153 11.704 7.09375 11.5246 7.09375Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
           </div>
         </div>
       </body>
@@ -80,36 +91,47 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="css-1c9y83e"
+            class="IdentityPanelroot css-15v2td"
           >
-            <span
-              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"
+            <button
+              class="IdentityPanelbutton"
               data-testid="settings-panel-button"
-              role="button"
-              tabindex="0"
+              type="button"
             >
-              <h4
-                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
-                data-testid="current-community-name"
-              >
-                ...
-              </h4>
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                data-testid="ArrowDropDownIcon"
-                focusable="false"
-                style="margin-left: 4px;"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="m7 10 5 5 5-5z"
-                />
-              </svg>
               <span
-                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-              />
-            </span>
+                aria-hidden="true"
+                class="CommunityIconroot css-1spqh73"
+              >
+                .
+              </span>
+              <span
+                class="IdentityPanelnameGroup"
+              >
+                <h4
+                  class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-1inrl58-MuiTypography-root"
+                  data-testid="current-community-name"
+                >
+                  ...
+                </h4>
+                <span
+                  class="IdentityPanelcaret"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    width="16"
+                  >
+                    <path
+                      d="M11.5246 7.09375H4.47265C4.2937 7.09375 4.20482 7.31075 4.33234 7.43628L7.84462 10.8937C7.92224 10.9701 8.04674 10.9703 8.12467 10.8942L11.6644 7.43683C11.7927 7.31153 11.704 7.09375 11.5246 7.09375Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </button>
           </div>
         </div>
       </body>

@@ -1,3 +1,4 @@
+import { runSaga } from 'redux-saga'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type Socket } from '../../../types'
@@ -8,7 +9,7 @@ import { type FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { getReduxStoreFactory, getSocketFactory } from '../../../utils/tests/factories'
-import { CreateChannelPayload, CreateChannelResponse, SocketActions } from '@quiet/types'
+import { ChannelType, CreateChannelPayload, CreateChannelResponse, SocketActions } from '@quiet/types'
 import { messagesActions } from '../../messages/messages.slice'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
 
@@ -59,6 +60,7 @@ describe('createChannelSaga', () => {
         publicChannelsActions.sendInitialChannelMessage({
           channelName: createChannelResponse.channel!.name,
           channelId: createChannelResponse.channel!.id,
+          type: ChannelType.CHANNEL,
         })
       )
       .run()
@@ -96,8 +98,47 @@ describe('createChannelSaga', () => {
         publicChannelsActions.sendInitialChannelMessage({
           channelName: createChannelResponse.channel!.name,
           channelId: createChannelResponse.channel!.id,
+          type: ChannelType.CHANNEL,
         })
       )
       .run()
+  })
+  it('waits for the authenticated DM ID and keeps the initial message out of channel metadata', async () => {
+    const payload = {
+      name: 'participants',
+      public: false,
+      type: ChannelType.DM,
+      teamId: 'team',
+      memberIds: ['bob', 'carol'],
+    }
+    const channel = {
+      ...payload,
+      id: 'dm_authenticated-backend-id',
+      owner: 'bob',
+      timestamp: 1,
+      description: 'Direct message',
+    }
+    let reply!: (response: CreateChannelResponse) => void
+    const emitWithAck = jest.fn(
+      () =>
+        new Promise<CreateChannelResponse>(resolve => {
+          reply = resolve
+        })
+    )
+    const dispatched: any[] = []
+    const task = runSaga(
+      { getState: store.getState, dispatch: action => dispatched.push(action) },
+      createChannelSaga,
+      { emitWithAck } as unknown as Socket,
+      publicChannelsActions.createChannel({ ...payload, firstMessage: 'private first message' })
+    )
+    expect(emitWithAck).toHaveBeenCalledWith(SocketActions.CREATE_CHANNEL, payload)
+    expect(dispatched).toEqual([])
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: 'unrelated-public-channel' }))
+    reply({ status: 'SUCCESS' as any, channel })
+    await task.toPromise()
+    const sends = dispatched.filter(action => action.type === messagesActions.sendMessage.type)
+    expect(sends).toEqual([messagesActions.sendMessage({ channelId: channel.id, message: 'private first message' })])
+    expect(dispatched.some(action => action.type === publicChannelsActions.sendInitialChannelMessage.type)).toBe(false)
   })
 })

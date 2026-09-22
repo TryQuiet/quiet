@@ -25,14 +25,26 @@ describe('UsernameRegistration', () => {
         testID="username-registration-component"
       >
         <View
+          style={
+            [
+              {
+                "backgroundColor": "#ffffff",
+                "height": 60,
+              },
+              undefined,
+            ]
+          }
+          testID="appbar_without_title"
+        />
+        <View
           onLayout={[Function]}
           style={
             [
               {
                 "flex": 1,
-                "justifyContent": "center",
-                "paddingLeft": 20,
-                "paddingRight": 20,
+                "paddingLeft": 16,
+                "paddingRight": 16,
+                "paddingTop": 24,
               },
               {
                 "paddingBottom": 0,
@@ -42,26 +54,28 @@ describe('UsernameRegistration', () => {
         >
           <Text
             color="main"
-            fontSize={24}
+            fontSize={28}
             fontWeight="medium"
-            horizontalTextAlign="left"
+            horizontalTextAlign="center"
+            lineHeight={36}
             style={
               [
                 {
                   "color": "#000000",
                   "fontFamily": "Rubik-Medium",
-                  "fontSize": 24,
-                  "textAlign": "left",
+                  "fontSize": 28,
+                  "lineHeight": 36,
+                  "textAlign": "center",
                   "textAlignVertical": "center",
                 },
                 {
-                  "marginBottom": 30,
+                  "marginBottom": 24,
                 },
               ]
             }
             verticalTextAlign="center"
           >
-            Register a username
+            Choose username
           </Text>
           <View>
             <View>
@@ -80,13 +94,13 @@ describe('UsernameRegistration', () => {
                     },
                     {
                       "color": "#4C4C4C",
-                      "paddingBottom": 10,
+                      "paddingBottom": 8,
                     },
                   ]
                 }
                 verticalTextAlign="center"
               >
-                Choose your favorite username
+                Enter a username
               </Text>
               <View
                 accessibilityState={
@@ -109,6 +123,8 @@ describe('UsernameRegistration', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                focused={false}
+                invalid={false}
                 onBlur={[Function]}
                 onClick={[Function]}
                 onFocus={[Function]}
@@ -118,22 +134,26 @@ describe('UsernameRegistration', () => {
                 onResponderTerminate={[Function]}
                 onResponderTerminationRequest={[Function]}
                 onStartShouldSetResponder={[Function]}
-                round={false}
                 style={
                   [
                     {
+                      "alignItems": "center",
                       "backgroundColor": "#ffffff",
-                      "borderColor": "#C4C4C4",
-                      "borderRadius": 4,
+                      "borderBottomLeftRadius": 16,
+                      "borderBottomRightRadius": 16,
+                      "borderColor": "#B3B3B3",
+                      "borderTopLeftRadius": 16,
+                      "borderTopRightRadius": 16,
                       "borderWidth": 1,
+                      "flexDirection": "row",
                       "flexGrow": 1,
-                      "height": 56,
-                      "justifyContent": "center",
+                      "height": 48,
+                      "justifyContent": "flex-start",
                       "paddingLeft": 16,
                       "paddingRight": 16,
                     },
                     {
-                      "height": 54,
+                      "height": 48,
                     },
                   ]
                 }
@@ -145,19 +165,21 @@ describe('UsernameRegistration', () => {
                   height={54}
                   keyboardType="default"
                   maxLength={20}
+                  onBlur={[Function]}
                   onChangeText={[Function]}
                   onContentSizeChange={[Function]}
-                  placeholder="Enter a username"
-                  placeholderTextColor="#999999"
+                  onFocus={[Function]}
+                  placeholder="Username"
+                  placeholderTextColor="#7F7F7F"
                   style={
-                    [
-                      {
-                        "height": 54,
-                        "paddingBottom": 12,
-                        "paddingTop": 12,
-                        "textAlignVertical": "center",
-                      },
-                    ]
+                    {
+                      "flexBasis": 0,
+                      "flexGrow": 1,
+                      "flexShrink": 1,
+                      "paddingBottom": 12,
+                      "paddingTop": 12,
+                      "textAlignVertical": "center",
+                    }
                   }
                   testID="input"
                 />
@@ -183,7 +205,7 @@ describe('UsernameRegistration', () => {
                 }
                 verticalTextAlign="center"
               >
-                Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.
+                Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only.
               </Text>
             </View>
           </View>
@@ -217,9 +239,9 @@ describe('UsernameRegistration', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
-                  "borderRadius": 8,
+                  "borderRadius": 16,
                   "justifyContent": "center",
-                  "minHeight": 45,
+                  "minHeight": 50,
                   "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
@@ -232,15 +254,13 @@ describe('UsernameRegistration', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  [
-                    {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  {
+                    "color": "#ffffff",
+                    "fontFamily": "Rubik-Regular",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  }
                 }
                 verticalTextAlign="center"
               >

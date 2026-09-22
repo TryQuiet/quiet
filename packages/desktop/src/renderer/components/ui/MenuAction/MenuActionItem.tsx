@@ -10,14 +10,10 @@ const classes = {
   root: `${PREFIX}root`,
 }
 
+// Row metrics come from the theme's MuiMenuItem override ('Button row', library 5578:43515).
 const StyledMuiMenuItem = styled(MuiMenuItem)(() => ({
   [`&.${classes.root}`]: {
-    minHeight: 25,
     margin: 0,
-    fontSize: 14,
-    letterSpacing: 0.4,
-    paddingTop: 5,
-    paddingBottom: 5,
   },
 }))
 

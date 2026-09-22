@@ -17,4 +17,7 @@ RCT_EXTERN_METHOD(saveNseQssUrl:(NSString *)teamId
 RCT_EXTERN_METHOD(saveNseLastSyncSeq:(NSString *)teamId
                   syncSeq:(nonnull NSNumber *)syncSeq)
 RCT_EXTERN_METHOD(clearSensitiveData)
+RCT_EXTERN_METHOD(clearAdmissionCredentials
+                  : (RCTPromiseResolveBlock)resolve rejecter
+                  : (RCTPromiseRejectBlock)reject)
 @end

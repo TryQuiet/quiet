@@ -1,0 +1,283 @@
+{
+  "recordedAtUtc": "2026-09-15T16:36:46Z",
+  "testedCommit": "98efcc6738072a5864f3810bc16359a242e0084c",
+  "host": "MacBook Air ARM64 / Node 20.20.1",
+  "simulator": "iPhone 16e / iOS 18.5 ARM64",
+  "embeddedNode": "24.18.0",
+  "libsodium": "1.0.19",
+  "configuration": "ios.sim.e2e.qss",
+  "baselineFlows": "Starter and native-community use the rebuilt QSS app and choose no server; the earlier staging run is retained in ios-e2e.json.",
+  "nativeHostTests": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0
+  },
+  "totalPassed": 33,
+  "suites": {
+    "starter": {
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0,
+      "capturedTextLogs": 23,
+      "nativeFallbackWarnings": 0,
+      "tests": [
+        {
+          "name": "User should see join community screen",
+          "status": "passed",
+          "durationMs": 1479
+        },
+        {
+          "name": "User switches to create community screen",
+          "status": "passed",
+          "durationMs": 2348
+        },
+        {
+          "name": "User enters community name",
+          "status": "passed",
+          "durationMs": 3604
+        },
+        {
+          "name": "User enters username",
+          "status": "passed",
+          "durationMs": 7215
+        },
+        {
+          "name": "User sees channels list",
+          "status": "passed",
+          "durationMs": 424
+        },
+        {
+          "name": "User minimizes and restores the app",
+          "status": "passed",
+          "durationMs": 6578
+        },
+        {
+          "name": "User enters #general channel",
+          "status": "passed",
+          "durationMs": 2261
+        },
+        {
+          "name": "User sends message to #general channel",
+          "status": "passed",
+          "durationMs": 8032
+        },
+        {
+          "name": "User navigates back to channels list using Android system Back",
+          "status": "passed",
+          "durationMs": 2443
+        },
+        {
+          "name": "User opens context menu",
+          "status": "passed",
+          "durationMs": 2290
+        },
+        {
+          "name": "User creates new channel",
+          "status": "passed",
+          "durationMs": 6727
+        },
+        {
+          "name": "User deletes channel",
+          "status": "passed",
+          "durationMs": 6590
+        },
+        {
+          "name": "User sees channel deletion information in #general channel",
+          "status": "passed",
+          "durationMs": 2264
+        },
+        {
+          "name": "User deletes #general channel",
+          "status": "passed",
+          "durationMs": 6582
+        },
+        {
+          "name": "User sees channel recreation information in #general channel",
+          "status": "passed",
+          "durationMs": 2271
+        },
+        {
+          "name": "User leaves community",
+          "status": "passed",
+          "durationMs": 7959
+        },
+        {
+          "name": "User should see join community screen again",
+          "status": "passed",
+          "durationMs": 423
+        },
+        {
+          "name": "User should not see create community screen",
+          "status": "passed",
+          "durationMs": 383
+        },
+        {
+          "name": "User switches to create community screen",
+          "status": "passed",
+          "durationMs": 2225
+        },
+        {
+          "name": "User enters community name again",
+          "status": "passed",
+          "durationMs": 2680
+        },
+        {
+          "name": "User enters username again",
+          "status": "passed",
+          "durationMs": 6770
+        },
+        {
+          "name": "User should see channels list again",
+          "status": "passed",
+          "durationMs": 423
+        },
+        {
+          "name": "User minimizes and restores the app",
+          "status": "passed",
+          "durationMs": 6394
+        },
+        {
+          "name": "User enters #general channel",
+          "status": "passed",
+          "durationMs": 2269
+        },
+        {
+          "name": "User sends message to #general channel",
+          "status": "passed",
+          "durationMs": 8319
+        }
+      ]
+    },
+    "nativeCommunity": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "capturedTextLogs": 3,
+      "nativeFallbackWarnings": 0,
+      "tests": [
+        {
+          "name": "Native community persistence creates a community, sends with the keyboard open, and restores the message after a process restart",
+          "status": "passed",
+          "durationMs": 45159
+        }
+      ]
+    },
+    "qssSinglePlayer": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "capturedTextLogs": 3,
+      "nativeFallbackWarnings": 0,
+      "tests": [
+        {
+          "name": "QSS community with the real native backend registers with QSS, stores a message, exposes its v5 invite, and restores after restart",
+          "status": "passed",
+          "durationMs": 61618
+        }
+      ]
+    },
+    "desktopAndIosQss": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "capturedTextLogs": 8,
+      "nativeFallbackWarnings": 0,
+      "tests": [
+        {
+          "name": "Desktop and iOS clients with QSS Stages iOS creates a server community and stores history before going offline",
+          "status": "passed",
+          "durationMs": 39775
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages desktop joins the exact iOS invitation and retrieves history with iOS offline",
+          "status": "passed",
+          "durationMs": 15361
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages both clients receive messages from each other while online",
+          "status": "passed",
+          "durationMs": 24141
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages iOS catches up after being offline, with desktop terminated during retrieval",
+          "status": "passed",
+          "durationMs": 42503
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages desktop catches up after being offline, with iOS terminated during retrieval",
+          "status": "passed",
+          "durationMs": 24106
+        },
+        {
+          "name": "Desktop and iOS clients with QSS Stages both clients preserve the conversation through another restart",
+          "status": "passed",
+          "durationMs": 40166
+        }
+      ]
+    }
+  },
+  "qss": {
+    "fixturePassed": true,
+    "singlePlayer": {
+      "outcome": "success",
+      "reportPresent": true,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTotalTests": 1,
+      "messageStored": true,
+      "restarted": true,
+      "serverBaseline": {
+        "logEntryCount": 3,
+        "maxSyncSeq": 3
+      },
+      "serverActivityAfterSend": {
+        "logEntryCount": 4,
+        "maxSyncSeq": 4
+      }
+    },
+    "mixed": {
+      "outcome": "success",
+      "reportPresent": true,
+      "numPassedTests": 6,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTotalTests": 6,
+      "twoPlayerPassed": true
+    },
+    "qssCommit": "4227d340397135b120fd96a80f7538592ef520c5",
+    "qssAuthCommit": "6f534c89bceb875e8c71997943e5e76e48ccbd88"
+  },
+  "nativeLoading": {
+    "simulator": "EE23750B-2A44-4126-8301-AAC8A9197E2B",
+    "app": "com.quietmobile",
+    "pid": 91777,
+    "nativeLibraryMapped": true,
+    "frameworkSha256": "a2c2ba4f887cb533ab93f4e2a9f2a30702ef3ff6c99aee1b8a5d90fdf2da8c63",
+    "backendBundleSha256": "d9d3b205bd410219dba35872057eb629d563df6261a76f5b057d14d5dab9b6fa",
+    "observedAtUtc": "2026-09-15T16:28:45Z"
+  },
+  "build": {
+    "passed": true,
+    "torRestored": true,
+    "strictFrameworkSignatureVerified": true,
+    "embeddedLicenseMatches": true,
+    "mainJsBundleSha256": "f1ba64cf8ee712420ecedc690dc4f6b1de63d5241436a0a1ddf3ec8d5c1deee4",
+    "backendBundleSha256": "d9d3b205bd410219dba35872057eb629d563df6261a76f5b057d14d5dab9b6fa",
+    "frameworkSha256": "a2c2ba4f887cb533ab93f4e2a9f2a30702ef3ff6c99aee1b8a5d90fdf2da8c63",
+    "nodeFrameworkSha256": "d2c1384fe4d315b156d67142ec8edb026290f72a2e1fd69fffda581a0d031a62"
+  },
+  "sourceHashes": {
+    "packages/backend/platform/sodium-native.cjs": "21b8501550c2ebb6984d69d8b9e5cfb72f8adca9c81c5bd9082f4767e3631dff",
+    "packages/backend/platform/sodium-native.checks.cjs": "b32f6332c8b17866e8c63dc85a5ef51ee41c5050e897c532830cb191e5b2259f",
+    "packages/backend/platform/native-libsodium/binding.c": "24bfd8dc9018e75bd829cab9101f2e271f708817384347fb467e2a8c57b4e6e2",
+    "packages/backend/platform/native-libsodium/build.cjs": "ba381f233be3713e8ae1d92eab6699157010ecdf10e1443655ba098c3085ec56",
+    "packages/backend/platform/sodium-loader.cjs": "f52bf7b694dcddeae4428cef6486f0d9c1e24ae96436296cbe2f2b5ee22ae47c",
+    "packages/backend/webpack.config.js": "d3604a3ec71be6b9769fc4e2d52c03fd45636ac4bd07cf2b536a608c17383b52",
+    "packages/mobile/scripts/embed-sodium-ios.cjs": "c30204d8a63eab624d37350a9f5cd643a7c1fe5735c275b82c7f7d09c8c0923d",
+    "packages/mobile/e2e/starter.test.js": "33f88bd696c76e1a4af08e8dbe1544adc29ecd4b8dc8e3f755763f45e761af1e",
+    "packages/mobile/e2e/native-community.test.js": "cb7a1f7c73cf0bfec1733b148cae6152ad3c9a92b844f28ce7d5b6c6405681b9",
+    "packages/mobile/e2e/qss-community.test.js": "630d175db49f9c4e9fb712319fd9f71438cac0f4d853163c56939d6553a6829c",
+    "packages/mobile/e2e/desktop.qss.test.js": "6cd2ce1038f005d7e6fa12edc54b99c494307b648e33934da89aa8fd8cb6ef07"
+  }
+}

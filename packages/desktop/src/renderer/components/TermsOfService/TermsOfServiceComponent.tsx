@@ -1,131 +1,70 @@
 import React from 'react'
-import { shell } from 'electron'
 import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
-import Grid from '@mui/material/Grid'
+import Link from '@mui/material/Link'
 
-import Modal from '../ui/Modal/Modal'
-import Button from '@mui/material/Button'
-import { createLogger } from '../../logger'
+import { AgreeAndJoinCard } from '../Onboarding/AgreeAndJoinCard'
 
-const logger = createLogger('TermOfService:component')
+export { CARD_WIDTH, CARD_HEIGHT, WIDE_CARD_FROM } from '../Onboarding/AgreeAndJoinCard'
 
 const PREFIX = 'TermOfServiceComponent-'
 const classes = {
-  contentWrap: `${PREFIX}contentWrap`,
-  actionsWrap: `${PREFIX}actions`,
-  textWrap: `${PREFIX}text`,
   info: `${PREFIX}info`,
-  useServerButton: `${PREFIX}useServerButton`,
-  rejectButton: `${PREFIX}rejectButton`,
+  link: `${PREFIX}link`,
 }
 
-const StyledGrid = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  textAlign: 'center',
-  justifyContent: 'center',
-
-  [`&.${classes.contentWrap}`]: {
-    width: '100%',
-    flex: 1,
-    display: 'flex',
-    gap: theme.spacing(3),
-    padding: theme.spacing(0, 4),
-    alignItems: 'center',
-    justifyContent: 'center',
+const Body = styled(Typography)({
+  [`&.${classes.info}`]: {
+    textAlign: 'left',
   },
-
-  [`& .${classes.actionsWrap}`]: {
-    gap: theme.spacing(2),
+  [`& .${classes.link}`]: {
+    font: 'inherit',
+    color: 'inherit',
+    verticalAlign: 'baseline',
   },
-
-  [`& .${classes.textWrap}`]: {
-    padding: theme.spacing(0, 3),
-    gap: theme.spacing(2),
-  },
-
-  [`& .${classes.useServerButton}`]: {
-    height: '50px',
-    padding: theme.spacing(1.5, 2.5),
-    width: 'auto',
-    ...theme.typography.body1,
-  },
-
-  [`& .${classes.rejectButton}`]: {
-    minWidth: '62px',
-    padding: 0,
-    ...theme.typography.body1,
-    color: theme.palette.text.secondary,
-  },
-
-  [`& .${classes.info}`]: {
-    maxWidth: 520,
-    color: theme.palette.text.secondary,
-    ...theme.typography.body2,
-  },
-}))
+}) as typeof Typography
 
 export interface TermsOfServiceComponentProps {
   open: boolean
+  /** Back arrow, backdrop and Escape: the user did not agree. */
   handleClose: () => void
-  onChoose: (useServer: boolean) => void
+  onAgree: () => void
   openURL: () => void
+  /** The host the copy names, e.g. api.tryquiet.org. */
   qssEndPoint?: string
 }
 
+/**
+ * Agree & join · the joiner's consent to the community's server. Mobile
+ * prototype 2811:2724 / 3054:4090 (copy); the card itself is the library's
+ * modal/small — see AgreeAndJoinCard, which the device-link consent step shares.
+ * The prototype's copy is used; the library card's older wording adds
+ * "(Note: server connection is not via Tor!)".
+ */
 export const TermsOfServiceComponent: React.FC<TermsOfServiceComponentProps> = ({
   open,
   handleClose,
-  onChoose,
+  onAgree,
   openURL,
   qssEndPoint,
-}) => {
-  return (
-    <Modal open={open} handleClose={handleClose} testIdPrefix='TermOfService' title='Accept Terms of Service'>
-      <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>
-        <StyledGrid container direction='column' alignItems='center' className={classes.textWrap}>
-          <Grid item>
-            <Typography className={classes.info}>
-              This community uses a server {qssEndPoint ? `(${qssEndPoint} )` : ''}for messaging without Tor. By joining
-              you agree to this{' '}
-              <Typography
-                component='span'
-                style={{ textDecorationLine: 'underline', cursor: 'pointer' }}
-                onClick={openURL}
-              >
-                Privacy Policy and Terms of Use.
-              </Typography>
-            </Typography>
-          </Grid>
-        </StyledGrid>
-        <StyledGrid container direction='column' alignItems='center' className={classes.actionsWrap}>
-          <Grid item>
-            <Button
-              variant='contained'
-              className={classes.useServerButton}
-              onClick={() => onChoose(true)}
-              data-testid='TermOfService-UseQuietServer'
-              size='large'
-            >
-              Agree and Join
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              variant='text'
-              className={classes.rejectButton}
-              onClick={() => onChoose(false)}
-              data-testid='TermOfService-Abort'
-              size='small'
-            >
-              Leave Community
-            </Button>
-          </Grid>
-        </StyledGrid>
-      </StyledGrid>
-    </Modal>
-  )
-}
+}) => (
+  <AgreeAndJoinCard
+    open={open}
+    handleClose={handleClose}
+    onAgree={onAgree}
+    testIdPrefix='TermOfService'
+    agreeTestId='TermOfService-UseQuietServer'
+  >
+    <Body variant='body2' className={classes.info}>
+      This community uses a server {qssEndPoint ? `(${qssEndPoint}) ` : ''}for messaging without Tor. By joining you
+      agree to this{' '}
+      <Link component='button' type='button' underline='always' className={classes.link} onClick={openURL}>
+        Privacy Policy and Terms of Use
+      </Link>
+      .
+    </Body>
+  </AgreeAndJoinCard>
+)
 
 export default TermsOfServiceComponent

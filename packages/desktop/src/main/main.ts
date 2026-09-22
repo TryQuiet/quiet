@@ -1,5 +1,6 @@
-import './loadMainEnvs' // Needs to be at the top of imports
-import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog } from 'electron'
+import './appImageEnvironment' // Clean host-child environment before other imports can spawn processes.
+import './loadMainEnvs'
+import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog, powerSaveBlocker, screen } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
@@ -10,16 +11,26 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { createLogger } from './logger'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '@quiet/common'
-import { type BackendLeaveCommunityMessage } from '@quiet/types'
+import { createLeaveCommunityHandler } from './leaveCommunity'
 import { updateDesktopFile, processInvitationCode } from './invitation'
+import type ElectronStoreType from 'electron-store'
+import { registerExternalLinkHandler } from './externalLinks'
+import {
+  applyFakeCameraSwitches,
+  isAppPageUrl,
+  registerCameraAccessRequestHandler,
+  registerCameraPermissionHandlers,
+} from './cameraPermission'
+import { e2eCaptchaToken } from './e2eCaptchaToken'
 const ElectronStore = require('electron-store')
-const contextMenu = require('electron-context-menu')
+import { setupContextMenu } from './contextMenu'
 import sodium from 'libsodium-wrappers-sumo'
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 remote.initialize()
 
 const logger = createLogger('main')
+registerExternalLinkHandler()
 let resetting = false
 let SOCKET_IO_SECRET: string | undefined = undefined
 let updating = false
@@ -34,6 +45,7 @@ export const isE2Etest = process.env.IS_E2E === 'true'
 if (isE2Etest) {
   autoUpdater.autoInstallOnAppQuit = false
 }
+applyFakeCameraSwitches(app.commandLine, process.env)
 
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
@@ -72,7 +84,7 @@ if (!gotTheLock) {
   }
 
   app.on('second-instance', (_event, commandLine) => {
-    logger.info('Event: app.second-instance', commandLine)
+    logger.info('Event: app.second-instance')
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -90,9 +102,104 @@ interface IWindowSize {
 
 logger.info('electron main')
 
-const windowSize: IWindowSize = {
+// Used on first launch, and whenever the persisted size is missing or unusable.
+const defaultWindowSize: IWindowSize = {
   width: 800,
   height: 540,
+}
+
+// Mirrors mainWindow.setMinimumSize() in createWindow. Electron would enforce this
+// anyway, so there is no point restoring anything smaller.
+const minimumWindowSize: IWindowSize = {
+  width: 600,
+  height: 400,
+}
+
+// Kept in its own file so it can never interfere with the redux-persist store the
+// renderer process keeps in the same data directory.
+const WINDOW_STATE_STORE_NAME = 'window-state'
+const WINDOW_SIZE_STORE_KEY = 'windowSize'
+// 'resize' fires continuously while the user drags; only write once they stop.
+const WINDOW_SIZE_SAVE_DEBOUNCE_MS = 500
+
+type WindowStateStore = ElectronStoreType<{ windowSize?: IWindowSize }>
+
+let windowStateStore: WindowStateStore | null = null
+let windowSizeSaveTimeout: ReturnType<typeof setTimeout> | null = null
+
+const getWindowStateStore = (): WindowStateStore => {
+  // Created lazily: at module load time the app data directory may not exist yet.
+  if (windowStateStore === null) {
+    const store: WindowStateStore = new ElectronStore({ name: WINDOW_STATE_STORE_NAME, cwd: newUserDataPath })
+    windowStateStore = store
+    return store
+  }
+  return windowStateStore
+}
+
+const isUsableDimension = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value) && value > 0
+
+// max can legitimately be smaller than min on a very small display, in which case
+// the minimum wins - Electron enforces it through setMinimumSize regardless.
+const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), Math.max(min, max))
+
+/**
+ * Reconciles a persisted size with the display the window will actually open on, so
+ * a size saved while a bigger (possibly since disconnected) monitor was attached can
+ * never produce a window larger than the current work area. Anything missing or
+ * malformed falls back to the default.
+ */
+const resolveWindowSize = (stored: unknown, workAreaSize: IWindowSize): IWindowSize => {
+  if (typeof stored !== 'object' || stored === null) return { ...defaultWindowSize }
+  const { width, height } = stored as Partial<IWindowSize>
+  if (!isUsableDimension(width) || !isUsableDimension(height)) return { ...defaultWindowSize }
+  return {
+    width: clamp(Math.round(width), minimumWindowSize.width, workAreaSize.width),
+    height: clamp(Math.round(height), minimumWindowSize.height, workAreaSize.height),
+  }
+}
+
+const loadWindowSize = (): IWindowSize => {
+  try {
+    // screen is only usable after the 'ready' event, which is why this is called
+    // from createWindow rather than at module scope.
+    return resolveWindowSize(getWindowStateStore().get(WINDOW_SIZE_STORE_KEY), screen.getPrimaryDisplay().workAreaSize)
+  } catch (e) {
+    logger.warn('Could not read persisted window size, using the default', e)
+    return { ...defaultWindowSize }
+  }
+}
+
+const saveWindowSize = (): void => {
+  const window = mainWindow
+  if (window === null) return
+  try {
+    // A maximised or full-screen window reports the size of the screen; persisting
+    // that would reopen the app un-maximised but screen-sized.
+    if (window.isDestroyed() || window.isMaximized() || window.isFullScreen()) return
+    const [width, height] = window.getSize()
+    if (!isUsableDimension(width) || !isUsableDimension(height)) return
+    getWindowStateStore().set(WINDOW_SIZE_STORE_KEY, { width, height })
+  } catch (e) {
+    logger.warn('Could not persist window size', e)
+  }
+}
+
+const scheduleWindowSizeSave = (): void => {
+  if (windowSizeSaveTimeout !== null) clearTimeout(windowSizeSaveTimeout)
+  windowSizeSaveTimeout = setTimeout(() => {
+    windowSizeSaveTimeout = null
+    saveWindowSize()
+  }, WINDOW_SIZE_SAVE_DEBOUNCE_MS)
+}
+
+const flushWindowSizeSave = (): void => {
+  if (windowSizeSaveTimeout !== null) {
+    clearTimeout(windowSizeSaveTimeout)
+    windowSizeSaveTimeout = null
+  }
+  saveWindowSize()
 }
 
 const crypto = require('crypto').webcrypto
@@ -145,7 +252,7 @@ export const applyDevTools = async () => {
   await Promise.all(
     extensionsData.map(async extension => {
       try {
-        await session.defaultSession.loadExtension(extension.path, { allowFileAccess: true })
+        await session.defaultSession.extensions.loadExtension(extension.path, { allowFileAccess: true })
       } catch (error) {
         logger.error(`Failed to load extension from ${extension.path}:`, error)
       }
@@ -165,7 +272,7 @@ const requestStateSaveOrQuit = () => {
 
 app.on('open-url', (event, url) => {
   // MacOS only
-  logger.info('Event app.open-url', url)
+  logger.info('Event app.open-url received')
   invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
   if (mainWindow) {
@@ -174,18 +281,16 @@ app.on('open-url', (event, url) => {
   }
 })
 
-let browserWidth: number
-let browserHeight: number
-
 // Default title bar must be hidden for macos because we have custom styles for it
 const titleBarStyle = process.platform === 'darwin' ? 'hidden' : 'default'
 export const createWindow = async () => {
   logger.trace('Creating splash and main windows')
+  const startupWindowSize = loadWindowSize()
   logger.trace('Creating main window')
   logger.time('Created mainWindow')
   mainWindow = new BrowserWindow({
-    width: windowSize.width,
-    height: windowSize.height,
+    width: startupWindowSize.width,
+    height: startupWindowSize.height,
     show: false,
     titleBarStyle,
     webPreferences: {
@@ -200,8 +305,10 @@ export const createWindow = async () => {
   logger.trace('Creating splash window')
   logger.time('Created splash')
   splash = new BrowserWindow({
-    width: windowSize.width,
-    height: windowSize.height,
+    // The splash window has always matched the main window so the hand-over is
+    // seamless; it follows the restored size for the same reason.
+    width: startupWindowSize.width,
+    height: startupWindowSize.height,
     show: false,
     titleBarStyle,
     webPreferences: {
@@ -257,13 +364,8 @@ export const createWindow = async () => {
     rendererReady = false
     mainWindow = null
   })
-  mainWindow.on('resize', () => {
-    if (isBrowserWindow(mainWindow)) {
-      const [width, height] = mainWindow.getSize()
-      browserHeight = height
-      browserWidth = width
-    }
-  })
+  // Remember the size the user chose so the window comes back the same next boot.
+  mainWindow.on('resize', scheduleWindowSizeSave)
   electronLocalshortcut.register(mainWindow, 'CommandOrControl+L', () => {
     if (isBrowserWindow(mainWindow)) {
       mainWindow.webContents.send('openLogs')
@@ -516,6 +618,37 @@ const setupUpdater = async () => {
 
 let ports: ApplicationPorts
 let backendProcess: ChildProcess | null = null
+let powerSaveBlockerId: number | null = null
+
+/**
+ * Ask the OS not to idle-suspend us while the backend is running.
+ *
+ * A suspended machine stops answering as a peer, which is what breaks registration for everyone else
+ * (issue #53). We use 'prevent-app-suspension' and deliberately not 'prevent-display-sleep': we need
+ * the process to keep running, not the screen to stay lit. This blocks *idle* suspension only - an
+ * explicit user sleep (closing the lid, choosing Sleep) still wins on every platform.
+ */
+export const startPowerSaveBlocker = () => {
+  if (powerSaveBlockerId !== null && powerSaveBlocker.isStarted(powerSaveBlockerId)) {
+    logger.trace('Power save blocker already running, id:', powerSaveBlockerId)
+    return
+  }
+  powerSaveBlockerId = powerSaveBlocker.start('prevent-app-suspension')
+  logger.info('Started power save blocker (prevent-app-suspension), id:', powerSaveBlockerId)
+}
+
+export const stopPowerSaveBlocker = () => {
+  if (powerSaveBlockerId === null) {
+    logger.trace('No power save blocker to stop')
+    return
+  }
+  const id = powerSaveBlockerId
+  powerSaveBlockerId = null
+  if (powerSaveBlocker.isStarted(id)) {
+    powerSaveBlocker.stop(id)
+    logger.info('Stopped power save blocker, id:', id)
+  }
+}
 
 app.on('ready', async () => {
   logger.info('Event: app.ready')
@@ -529,14 +662,7 @@ app.on('ready', async () => {
   await applyDevTools()
 
   logger.trace('Creating context menu')
-  contextMenu({
-    showInspectElement: false,
-    showSaveLinkAs: true,
-    showCopyLink: true,
-    showSaveImage: true,
-    showCopyImage: true,
-    showSaveImageAs: true,
-  })
+  setupContextMenu()
 
   if (quitting) {
     logger.warn('Quit requested before backend setup, skipping startup')
@@ -547,6 +673,15 @@ app.on('ready', async () => {
   ports = await getPorts()
 
   await createWindow()
+
+  registerCameraPermissionHandlers(
+    session.defaultSession,
+    (webContents, requestingUrl) =>
+      isBrowserWindow(mainWindow) &&
+      webContents === mainWindow.webContents &&
+      isAppPageUrl(requestingUrl, path.join(__dirname, 'index.html'))
+  )
+  registerCameraAccessRequestHandler()
 
   mainWindow?.webContents.on('did-finish-load', () => {
     logger.info('Main window finished loading')
@@ -613,10 +748,15 @@ app.on('ready', async () => {
       HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
       IS_E2E: process.env.IS_E2E ?? 'false',
+      INVITATION_ADMISSION_TIMEOUT_MS: process.env.INVITATION_ADMISSION_TIMEOUT_MS,
       NETWORK_LOGGING: process.env.NETWORK_LOGGING ?? 'false',
+      LOCAL_TRANSPORT: process.env.LOCAL_TRANSPORT ?? 'false',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
+
+  // The backend is what keeps us reachable, so hold the blocker for exactly as long as it lives.
+  startPowerSaveBlocker()
 
   const solveCaptcha = async (siteKey?: string) => {
     const resolvedSiteKey = siteKey ?? process.env.HCAPTCHA_SITEKEY
@@ -636,7 +776,7 @@ app.on('ready', async () => {
     try {
       let token: string
       if (process.env.IS_E2E === 'true') {
-        token = '10000000-aaaa-bbbb-cccc-000000000001' // Test token from https://docs.hcaptcha.com/#test-key-set-publisher-or-pro-account
+        token = e2eCaptchaToken(process.env)
       } else {
         token = await openHCaptcha(resolvedSiteKey)
       }
@@ -660,17 +800,6 @@ app.on('ready', async () => {
   function isCaptchaRequestMessage(msg: unknown): msg is { type: 'request-hcaptcha'; siteKey?: string } {
     return (
       typeof msg === 'object' && msg !== null && 'type' in msg && (msg as { type: string }).type === 'request-hcaptcha'
-    )
-  }
-
-  function isLeftCommunityMessage(msg: unknown): msg is BackendLeaveCommunityMessage {
-    return (
-      typeof msg === 'object' &&
-      msg !== null &&
-      'type' in msg &&
-      (msg as { type: string }).type === 'leftCommunity' &&
-      'success' in msg &&
-      typeof (msg as { success: unknown }).success === 'boolean'
     )
   }
 
@@ -720,6 +849,10 @@ app.on('ready', async () => {
   mainWindow.on('close', e => {
     logger.info('Main window close event received')
     if (resetting) return
+
+    // The debounced save from 'resize' may still be pending; write it out now,
+    // while the window is still alive and can report its size.
+    flushWindowSizeSave()
 
     // --- macOS: hide instead of destroying the renderer ---
     if (process.platform === 'darwin' && !updating && backendProcess !== null) {
@@ -779,80 +912,16 @@ app.on('ready', async () => {
     }
   })
 
-  ipcMain.handle('clear-community', async () => {
-    logger.info('ipcMain: clear-community')
-    resetting = true
-
-    return await new Promise<boolean>(resolve => {
-      const currentBackendProcess = backendProcess
-      if (!currentBackendProcess) {
-        resetting = false
-        resolve(false)
-        return
-      }
-
-      let settled = false
-
-      const cleanup = () => {
-        currentBackendProcess.removeListener('message', leftCommunityHandler)
-        currentBackendProcess.removeListener('close', backendCloseHandler)
-        currentBackendProcess.removeListener('error', backendErrorHandler)
-        currentBackendProcess.removeListener('disconnect', backendDisconnectHandler)
-        resetting = false
-      }
-
-      const finish = (success: boolean) => {
-        if (settled) return
-
-        settled = true
-        cleanup()
-        resolve(success)
-      }
-
-      const leftCommunityHandler = (msg: unknown) => {
-        if (isLeftCommunityMessage(msg)) {
-          finish(msg.success)
-          return
-        }
-
-        if (msg === 'leftCommunity') {
-          finish(true)
-        }
-      }
-
-      const backendCloseHandler = (code: number | null, signal: NodeJS.Signals | null) => {
-        logger.warn('Backend closed before clear-community completed', code, signal)
-        finish(false)
-      }
-
-      const backendErrorHandler = (error: Error) => {
-        logger.error('Backend error before clear-community completed', error)
-        finish(false)
-      }
-
-      const backendDisconnectHandler = () => {
-        logger.warn('Backend disconnected before clear-community completed')
-        finish(false)
-      }
-
-      currentBackendProcess.on('message', leftCommunityHandler)
-      currentBackendProcess.once('close', backendCloseHandler)
-      currentBackendProcess.once('error', backendErrorHandler)
-      currentBackendProcess.once('disconnect', backendDisconnectHandler)
-
-      try {
-        currentBackendProcess.send('leaveCommunity', error => {
-          if (error) {
-            logger.error('Failed to send leaveCommunity to backend', error)
-            finish(false)
-          }
-        })
-      } catch (error) {
-        logger.error('Failed to send leaveCommunity to backend', error)
-        finish(false)
-      }
+  ipcMain.handle(
+    'clear-community',
+    createLeaveCommunityHandler({
+      getBackendProcess: () => backendProcess,
+      setResetting: value => {
+        resetting = value
+      },
+      logger,
     })
-  })
+  )
 
   ipcMain.on('restart-app', () => {
     logger.info('ipcMain: restart-app')
@@ -874,10 +943,11 @@ app.on('ready', async () => {
       id,
       name,
       ext: arg.ext,
+      channelId: arg.channelId,
     })
   })
 
-  ipcMain.on('openUploadFileDialog', async e => {
+  ipcMain.on('openUploadFileDialog', async (e, channelId: string) => {
     logger.info('ipcMain: openUploadFileDialog')
     let filesDialogResult: Electron.OpenDialogReturnValue
     if (!mainWindow) {
@@ -902,7 +972,8 @@ app.on('ready', async () => {
           filesDialogResult.filePaths.map(filePath => {
             return { path: filePath }
           })
-        )
+        ),
+        channelId
       )
     }
   })
@@ -929,11 +1000,17 @@ app.on('ready', async () => {
       }
     }
 
-    await setupUpdater()
-    await checkForUpdate()
-    setInterval(async () => {
+    // The updater talks to the real release feed, so a CI runner whose build is a
+    // version behind downloads an update mid-run and drops the "Software update"
+    // modal over whatever the test is clicking - observed as an intercepted click
+    // on the join-community button. Nothing under test depends on the updater.
+    if (!isE2Etest) {
+      await setupUpdater()
       await checkForUpdate()
-    }, updaterInterval)
+      setInterval(async () => {
+        await checkForUpdate()
+      }, updaterInterval)
+    }
   })
 
   ipcMain.on('proceed-update', () => {
@@ -972,6 +1049,7 @@ app.on('activate', async () => {
 
 app.on('before-quit', e => {
   quitting = true
+  stopPowerSaveBlocker()
   if (backendProcess !== null) {
     logger.info('App before-quit intercepted waiting for backend to exit', e)
     if (!updating) {

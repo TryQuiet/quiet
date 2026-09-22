@@ -32,14 +32,17 @@ export class ModalsInitialState {
   [ModalName.searchChannelModal] = { open: false, args: {} };
   [ModalName.warningModal] = { open: false, args: {} };
   [ModalName.loadingPanel] = { open: true, args: {} }; // Loading modal is open by default and closes on websocket connection
-  [ModalName.channelCreationModal] = { open: false, args: {} };
   [ModalName.unregisteredUsernameModal] = { open: false, args: {} };
   [ModalName.duplicatedUsernameModal] = { open: false, args: {} };
   [ModalName.usernameTakenModal] = { open: false, args: {} };
   [ModalName.possibleImpersonationAttackModal] = { open: false, args: {} };
   [ModalName.breakingChangesWarning] = { open: false, args: {} };
   [ModalName.termsOfServiceModal] = { open: false, args: {} };
-  [ModalName.addMembersChannel] = { open: false, args: {} }
+  [ModalName.addMembersChannel] = { open: false, args: {} };
+  [ModalName.channelMembership] = { open: false, args: {} };
+  [ModalName.deviceLinkConsent] = { open: false, args: {} };
+  [ModalName.getStartedModal] = { open: false, args: {} };
+  [ModalName.linkDevicesModal] = { open: false, args: {} }
 }
 
 export const modalsSlice = createSlice({
@@ -56,6 +59,8 @@ export const modalsSlice = createSlice({
       state[action.payload].open = false
       state[action.payload].args = {}
     },
+    confirmDeviceLinkConsent: state => state,
+    cancelDeviceLinkConsent: state => state,
   },
 })
 

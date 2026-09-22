@@ -4,15 +4,16 @@ import { StyledTypographyProps } from './Typography.types'
 import { getFontFamily } from './Typography.utils'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
-export const StyledTypography = styled(Text).attrs((props: StyledTypographyProps) => ({
+export const StyledTypography = styled(Text).attrs<StyledTypographyProps>(props => ({
   color: props.color ?? 'main',
   horizontalTextAlign: props.horizontalTextAlign ?? 'left',
   verticalTextAlign: props.verticalTextAlign ?? 'center',
-}))<StyledTypographyProps>`
-  ${({ fontSize, fontWeight, color, verticalTextAlign, horizontalTextAlign }) => css`
+}))`
+  ${({ fontSize, fontWeight, lineHeight, color = 'main', verticalTextAlign, horizontalTextAlign }) => css`
     color: ${defaultTheme.palette.typography[color]};
     font-family: ${getFontFamily(fontWeight)};
     font-size: ${fontSize}px;
+    ${lineHeight != null ? `line-height: ${lineHeight}px;` : ''}
     text-align: ${horizontalTextAlign};
     text-align-vertical: ${verticalTextAlign};
   `}

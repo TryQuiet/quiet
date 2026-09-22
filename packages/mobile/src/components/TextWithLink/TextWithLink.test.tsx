@@ -38,15 +38,13 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -57,15 +55,13 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -76,15 +72,13 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -95,15 +89,13 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -114,15 +106,13 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -132,15 +122,13 @@ describe('Spinner component', () => {
             horizontalTextAlign="left"
             onPress={[Function]}
             style={
-              [
-                {
-                  "color": "#67BFD3",
-                  "fontFamily": "Rubik-Regular",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-              ]
+              {
+                "color": "#67BFD3",
+                "fontFamily": "Rubik-Regular",
+                "fontSize": 14,
+                "textAlign": "left",
+                "textAlignVertical": "center",
+              }
             }
             verticalTextAlign="center"
           >
@@ -152,15 +140,13 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >
@@ -171,15 +157,13 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            [
-              {
-                "color": "#000000",
-                "fontFamily": "Rubik-Regular",
-                "fontSize": 14,
-                "textAlign": "left",
-                "textAlignVertical": "center",
-              },
-            ]
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            }
           }
           verticalTextAlign="center"
         >

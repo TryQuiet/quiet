@@ -53,8 +53,9 @@ export const InvitationContextMenu: FC = () => {
   const copyLink = async () => {
     if (!invitationLink) return
     Clipboard.setString(invitationLink)
-    // Android 33+ already shows copy confirmation, so don't show the confirmationBox
+    // Android 33+ shows its own copy confirmation, so skip ours rather than duplicating it.
     // https://developer.android.com/develop/ui/views/touch-and-input/copy-paste#duplicate-notifications
+    // This early return used to sit above setString, so on Android 33+ the link was never copied.
     if (Platform.OS === 'android' && Platform.Version >= 33) return
     await confirmationBox.flash()
   }

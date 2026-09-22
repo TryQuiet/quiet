@@ -16,6 +16,30 @@ storiesOf('ConnectionProcess', module)
       openUrl={() => logger.info('open')}
     />
   ))
+  // Joining over Tor: the explanation stays (Quiet Design Library 5978:19161),
+  // with 'Connecting via Tor' under the bar (1316:34596).
+  .add('Over Tor', () => (
+    <ConnectionProcessComponent
+      connectionProcess={{
+        number: 50,
+        text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY,
+      }}
+      openUrl={() => logger.info('open')}
+      usesServer={false}
+    />
+  ))
+  // Joining a community on a server: the simple variant (5978:19142). No Tor
+  // paragraph and no Tor link, because none of it is true of this connection.
+  .add('On a server', () => (
+    <ConnectionProcessComponent
+      connectionProcess={{
+        number: 50,
+        text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY,
+      }}
+      openUrl={() => logger.info('open')}
+      usesServer={true}
+    />
+  ))
   .add('With Share logs link (dev/alpha)', () => (
     // The "Share logs" link is gated to non-production builds via Config.NODE_ENV.
     // When running Storybook with NODE_ENV=storybook (or any non-production value),

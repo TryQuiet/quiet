@@ -16,14 +16,15 @@ const classes = {
 
 const maxHeight = 230
 
-const StyledPopper = styled(Popper)({
+// 'Overlay menu' (library 5578:43731): radius 16 and the overlay shadow (theme.shadows[6]).
+const StyledPopper = styled(Popper)(({ theme }) => ({
   [`&.${classes.root}`]: {
     maxHeight: maxHeight,
     width: 307,
-    borderRadius: 8,
+    borderRadius: 16,
     overflow: 'hidden',
-    boxShadow: '0px 2px 25px rgba(0,0,0,0.2)',
-    marginBottom: 10,
+    boxShadow: theme.shadows[6],
+    marginBottom: theme.space.sm,
   },
   [`& .${classes.thumb}`]: {
     backgroundColor: 'rgba(0,0,0,0.46)',
@@ -36,7 +37,7 @@ const StyledPopper = styled(Popper)({
     borderLeft: '1px solid',
     borderColor: 'rgba(0,0,0,0.08)',
   },
-})
+}))
 
 function isDivElement(element: Element | undefined): element is HTMLDivElement {
   return element?.nodeName === 'div'
