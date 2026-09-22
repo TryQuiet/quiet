@@ -8,7 +8,7 @@ import ProminentActionsPanel from './ProminentActionsPanel/ProminentActionsPanel
 import TorStatus, { TorStatusProps } from './TorStatus'
 import UserProfilePanel, { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import DirectMessagesPanel, { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
-import { sidebarMetrics } from '../ui/Sidebar/sidebarMetrics'
+import { headerTopInset, sidebarMetrics } from '../ui/Sidebar/sidebarMetrics'
 
 const PREFIX = 'SidebarComponent'
 
@@ -43,9 +43,11 @@ const StyledSidebar = styled('div')(({ theme }) => ({
     paddingBottom: sidebarMetrics.header.paddingBottom,
   },
 
-  // The strip the sidebar leaves clear for the window's own controls.
+  // The strip the sidebar leaves clear for the window's own controls on macOS;
+  // on Windows and Linux only the inset that aligns the community row with the
+  // channel header (see `headerTopInset`).
   [`& .${classes.windowControls}`]: {
-    height: sidebarMetrics.header.windowControlsHeight,
+    height: headerTopInset(),
     flexShrink: 0,
   },
 
