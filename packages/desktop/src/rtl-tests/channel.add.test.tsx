@@ -241,7 +241,7 @@ describe('Add new channel', () => {
     expect(screen.getByTestId('channelTitle')).toHaveTextContent(`${channelName.output}`)
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
-    expect(link).toHaveClass('ChannelsListItemselected')
+    expect(link).toHaveClass('SidebarRowselected')
     const linkIcon = screen.getByTestId(`${channelName.output}-channel-link-icon-public`)
     expect(linkIcon).toBeVisible()
   })
@@ -351,7 +351,8 @@ describe('Add new channel', () => {
     expect(screen.getByTestId('channelTitle-icon-private')).toBeVisible()
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
-    expect(link).toHaveClass('ChannelsListItemselected')
+    // The selected fill is painted by the shared SidebarRow now, not by ChannelsListItem.
+    expect(link).toHaveClass('SidebarRowselected')
     // Private channel: the sidebar shows the padlock, as the header two lines up already asserts.
     const linkIcon = screen.getByTestId(`${channelName.output}-channel-link-icon-private`)
     expect(linkIcon).toBeVisible()

@@ -57,11 +57,10 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
     marginLeft: '25vw',
   },
 
+  // The shell's title bar: 'Title bar/Logged in' (library 5825:29938 -> 6002:27130) - title 16/26 w500 (h5),
+  // 60 tall, a #F0F0F0 hairline (border01), 16 to the glyph at the edge (8 + the icon button's own 8).
   [`& .${classes.title}`]: {
-    fontSize: 15,
-    lineHeight: '18px',
-    fontStyle: 'normal',
-    fontWeight: 'normal',
+    ...theme.typography.h5,
   },
 
   [`& .${classes.header}`]: {
@@ -70,12 +69,12 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
   },
 
   [`& .${classes.headerBorder}`]: {
-    borderBottom: `1px solid ${theme.palette.colors.border03}`,
+    borderBottom: `1px solid ${theme.palette.colors.border01}`,
   },
 
   [`& .${classes.actions}`]: {
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingLeft: theme.space.sm,
+    paddingRight: theme.space.sm,
   },
 
   [`& .${classes.content}`]: {
@@ -117,11 +116,7 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
     outline: 0,
   },
 
-  [`& .${classes.bold}`]: {
-    fontSize: 16,
-    lineHeight: '26px',
-    fontWeight: 500,
-  },
+  [`& .${classes.bold}`]: {},
   [`& .${classes.none}`]: {
     display: 'none',
   },
@@ -154,6 +149,8 @@ export const Modal: React.FC<IModalProps> = ({
   fullPage = true,
   isTransparent = false,
   withoutHeader = false,
+  withoutTitle = false,
+  cornerRadius,
   ...otherProps
 }) => {
   const zIndex = 1300
@@ -168,13 +165,14 @@ export const Modal: React.FC<IModalProps> = ({
           [classes.window]: !fullPage,
           [classes.transparent]: isTransparent,
         })}
+        style={cornerRadius !== undefined ? { borderRadius: cornerRadius, overflow: 'hidden' } : undefined}
       >
         <Grid
           container
           item
           className={classNames({
             [classes.header]: true,
-            [classes.headerBorder]: addBorder,
+            [classes.headerBorder]: addBorder && !withoutTitle,
             [classes.none]: isTransparent || withoutHeader,
           })}
           direction='row'
@@ -189,17 +187,20 @@ export const Modal: React.FC<IModalProps> = ({
             alignItems='center'
           >
             <Grid item xs>
-              <Typography
-                variant='subtitle1'
-                className={classNames({
-                  [classes.title]: true,
-                  [classes.bold]: isBold,
-                })}
-                style={alignCloseLeft ? { marginRight: 36 } : { marginLeft: 36 }}
-                align='center'
-              >
-                {title}
-              </Typography>
+              {withoutTitle ? null : (
+                <Typography
+                  variant='subtitle1'
+                  className={classNames({
+                    [classes.title]: true,
+                    [classes.bold]: isBold,
+                  })}
+                  // 56 keeps the centred title clear of the 56-wide glyph zone (audit finding).
+                  style={alignCloseLeft ? { marginRight: 56 } : { marginLeft: 56 }}
+                  align='center'
+                >
+                  {title}
+                </Typography>
+              )}
             </Grid>
             <Grid item>
               <Grid

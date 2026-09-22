@@ -26,12 +26,11 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   border: 'none',
 
   [`& .${classes.info}`]: {
-    marginTop: 38,
+    marginTop: theme.space.xxl + theme.space.sm,
   },
 
   [`& .${classes.button}`]: {
     height: 55,
-    fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.quietBlue,
   },
 

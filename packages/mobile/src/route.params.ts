@@ -4,7 +4,10 @@ import { ScreenNames } from './const/ScreenNames.enum'
 import { Community, InvitationData, UserProfile, type ChannelType } from '@quiet/types'
 
 /** Which flow the paste screen belongs to; it sets the heading and the intro. */
-export type PasteInviteLinkVariant = 'inviteLink' | 'qrCode' | 'deviceLink'
+export type PasteInviteLinkVariant = 'inviteLink' | 'deviceLink'
+
+/** Which flow the scanner sheet belongs to: Join with QR code, or Link devices → Scan QR code. */
+export type ScanQrCodeVariant = 'join' | 'deviceLink'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
@@ -16,7 +19,11 @@ export type RootStackParamList = {
         variant?: PasteInviteLinkVariant
       }
     | undefined
+  [ScreenNames.RecoverAccountScreen]: undefined
   [ScreenNames.LinkDevicesScreen]: undefined
+  [ScreenNames.ScanQrCodeScreen]: {
+    variant: ScanQrCodeVariant
+  }
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
@@ -106,6 +113,8 @@ export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScre
 export type JoinCommunityRouteProp = RouteProp<RootStackParamList, ScreenNames.JoinCommunityScreen>
 
 export type PasteInviteLinkRouteProp = RouteProp<RootStackParamList, ScreenNames.PasteInviteLinkScreen>
+
+export type ScanQrCodeRouteProp = RouteProp<RootStackParamList, ScreenNames.ScanQrCodeScreen>
 
 export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
 

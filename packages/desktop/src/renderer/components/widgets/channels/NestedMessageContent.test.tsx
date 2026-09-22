@@ -24,10 +24,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1q7dbnv-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -52,10 +52,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-1q7dbnv-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-q628pt-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -122,10 +122,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-1q7dbnv-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-q628pt-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -167,7 +167,7 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
           >
             <div
               class="NestedMessageContentmessage"
@@ -248,7 +248,7 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
           >
             <div
               class="NestedMessageContentmessage"

@@ -21,9 +21,9 @@ const classes = {
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.message}`]: {
-    fontSize: '0.855rem',
+    fontSize: theme.typography.body2.fontSize,
     whiteSpace: 'pre-line',
-    lineHeight: '21px',
+    lineHeight: theme.typography.body2.lineHeight,
     overflowWrap: 'anywhere',
   },
 

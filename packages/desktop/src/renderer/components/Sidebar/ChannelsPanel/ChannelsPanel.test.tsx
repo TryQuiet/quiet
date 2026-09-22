@@ -8,7 +8,7 @@ import ChannelsPanel from './ChannelsPanel'
 import DirectMessagesPanel from '../DirectMessagesPanel/DirectMessagesPanel'
 import { DateTime } from 'luxon'
 import { generateTestChannelId } from '@quiet/common'
-import { Identity, UserProfile } from '@quiet/types'
+import { ChannelType, Identity, PublicChannel, UserProfile } from '@quiet/types'
 import { createLogger } from '../../../logger'
 
 const logger = createLogger('ChannelsPanelTest')
@@ -21,7 +21,7 @@ describe('Channels panel', () => {
     ioMock.mockImplementation(() => socket)
   })
 
-  it('displays channels and users in proper order', async () => {
+  it('displays the channel list and the direct-messages section in proper order', async () => {
     const { store } = await prepareStore(
       {},
       socket // Fork State manager's sagas
@@ -124,556 +124,442 @@ describe('Channels panel', () => {
         "asFragment": [Function],
         "baseElement": <body>
           <div>
-            <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
-            >
+            <div>
               <div
-                class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                class="SidebarHeaderroot css-1f72bw8"
               >
-                <div
-                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+                <h6
+                  class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
                 >
-                  <div
-                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                  Channels
+                </h6>
+                <span>
+                  <button
+                    aria-label="Create new channel"
+                    class="SidebarHeaderaction"
+                    data-mui-internal-clone-element="true"
+                    data-testid="sidebar-button-createChannel"
+                    type="button"
                   >
-                    <p
-                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      focusable="false"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      width="16"
                     >
-                      Channels
-                    </p>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                  >
-                    <span>
-                      <button
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
-                        data-testid="sidebar-button-createChannel"
-                        tabindex="0"
-                        type="button"
-                      >
-                        <svg
-                          fill="none"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          width="18"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M22.0499 12C22.0499 17.5505 17.5504 22.05 12 22.05C6.44949 22.05 1.94995 17.5505 1.94995 12C1.94995 6.44955 6.44949 1.95001 12 1.95001C17.5504 1.95001 22.0499 6.44955 22.0499 12Z"
-                            stroke="white"
-                            stroke-width="1.5"
-                          />
-                          <path
-                            clip-rule="evenodd"
-                            d="M17.3415 12.5982H12.5983V17.3415H11.4018V12.5982H6.65857V11.4018H11.4018V6.65851H12.5983V11.4018H17.3415V12.5982Z"
-                            fill="white"
-                            fill-rule="evenodd"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </span>
-                  </div>
-                </div>
+                      <path
+                        d="M8 4V12"
+                        stroke="currentColor"
+                      />
+                      <path
+                        d="M12 8L4 8"
+                        stroke="currentColor"
+                      />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="7.5"
+                        stroke="currentColor"
+                      />
+                    </svg>
+                  </button>
+                </span>
               </div>
-              <div
-                class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-              >
-                <ul
-                  class="MuiList-root css-1mk9mw3-MuiList-root"
-                  data-testid="channelsList"
-                >
-                  <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                    data-testid="general-link"
-                    role="button"
-                    tabindex="0"
-                  >
-                    <div
-                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                    >
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                        >
-                          <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="general-channel-link-icon-public"
-                              fill="currentColor"
-                              focusable="false"
-                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                              viewBox="0 0 24 24"
-                            >
-                              <svg
-                                fill="none"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                width="24"
-                              >
-                                <path
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M6.8252 8.58594H17.7502"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M5.875 15.4141H16.8"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                              </svg>
-                            </svg>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                              data-testid="general-channel-link-text"
-                            >
-                              general
-                            </p>
-                          </div>
-                        </div>
-                      </span>
-                    </div>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </div>
-                  <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                    data-testid="croatia-link"
-                    role="button"
-                    tabindex="0"
-                  >
-                    <div
-                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                    >
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                        >
-                          <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="croatia-channel-link-icon-public"
-                              fill="currentColor"
-                              focusable="false"
-                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                              viewBox="0 0 24 24"
-                            >
-                              <svg
-                                fill="none"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                width="24"
-                              >
-                                <path
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M6.8252 8.58594H17.7502"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M5.875 15.4141H16.8"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                              </svg>
-                            </svg>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                              data-testid="croatia-channel-link-text"
-                            >
-                              croatia
-                            </p>
-                          </div>
-                        </div>
-                      </span>
-                    </div>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </div>
-                  <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                    data-testid="allergies-link"
-                    role="button"
-                    tabindex="0"
-                  >
-                    <div
-                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                    >
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                        >
-                          <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="allergies-channel-link-icon-public"
-                              fill="currentColor"
-                              focusable="false"
-                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                              viewBox="0 0 24 24"
-                            >
-                              <svg
-                                fill="none"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                width="24"
-                              >
-                                <path
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M6.8252 8.58594H17.7502"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M5.875 15.4141H16.8"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                              </svg>
-                            </svg>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                              data-testid="allergies-channel-link-text"
-                            >
-                              allergies
-                            </p>
-                          </div>
-                        </div>
-                      </span>
-                    </div>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </div>
-                  <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                    data-testid="sailing-link"
-                    role="button"
-                    tabindex="0"
-                  >
-                    <div
-                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                    >
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                        >
-                          <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="sailing-channel-link-icon-public"
-                              fill="currentColor"
-                              focusable="false"
-                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                              viewBox="0 0 24 24"
-                            >
-                              <svg
-                                fill="none"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                width="24"
-                              >
-                                <path
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M6.8252 8.58594H17.7502"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M5.875 15.4141H16.8"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                              </svg>
-                            </svg>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                              data-testid="sailing-channel-link-text"
-                            >
-                              sailing
-                            </p>
-                          </div>
-                        </div>
-                      </span>
-                    </div>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </div>
-                  <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                    data-testid="pets-link"
-                    role="button"
-                    tabindex="0"
-                  >
-                    <div
-                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                    >
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                        >
-                          <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="pets-channel-link-icon-private"
-                              fill="currentColor"
-                              focusable="false"
-                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                              viewBox="0 0 24 24"
-                            >
-                              <svg
-                                fill="currentColor"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                width="24"
-                              >
-                                <mask
-                                  fill="#fff"
-                                  id="a"
-                                >
-                                  <path
-                                    d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
-                                  />
-                                </mask>
-                                <path
-                                  d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
-                                  mask="url(#a)"
-                                  stroke="currentColor"
-                                  stroke-width="4"
-                                />
-                                <path
-                                  clip-rule="evenodd"
-                                  d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
-                                  fill="currentColor"
-                                  fill-rule="evenodd"
-                                  stroke-width="4"
-                                />
-                              </svg>
-                            </svg>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                              data-testid="pets-channel-link-text"
-                            >
-                              pets
-                            </p>
-                          </div>
-                        </div>
-                      </span>
-                    </div>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </div>
-                  <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                    data-testid="antiques-link"
-                    role="button"
-                    tabindex="0"
-                  >
-                    <div
-                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                    >
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                        >
-                          <div
-                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="antiques-channel-link-icon-public"
-                              fill="currentColor"
-                              focusable="false"
-                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                              viewBox="0 0 24 24"
-                            >
-                              <svg
-                                fill="none"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                width="24"
-                              >
-                                <path
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M6.8252 8.58594H17.7502"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                                <path
-                                  d="M5.875 15.4141H16.8"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-width="2"
-                                />
-                              </svg>
-                            </svg>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                              data-testid="antiques-channel-link-text"
-                            >
-                              antiques
-                            </p>
-                          </div>
-                        </div>
-                      </span>
-                    </div>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </div>
-                </ul>
-              </div>
-            </div>
-            <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+              <ul
+                class="MuiList-root css-1mk9mw3-MuiList-root"
+                data-testid="channelsList"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="general-link"
+                  role="button"
+                  tabindex="0"
                 >
-                  <p
-                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
+                  <span
+                    class="SidebarRowglyph"
                   >
-                    Direct messages
-                  </p>
-                </div>
-                <div
-                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                >
-                  <span>
-                    <button
-                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
-                      data-testid="sidebar-button-createNewMessage"
-                      tabindex="0"
-                      type="button"
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="general-channel-link-icon-public"
+                      fill="currentColor"
+                      focusable="false"
+                      style="font-size: 14px;"
+                      viewBox="0 0 24 24"
                     >
                       <svg
                         fill="none"
-                        height="18"
+                        height="24"
                         viewBox="0 0 24 24"
-                        width="18"
-                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
                       >
                         <path
-                          d="M22.0499 12C22.0499 17.5505 17.5504 22.05 12 22.05C6.44949 22.05 1.94995 17.5505 1.94995 12C1.94995 6.44955 6.44949 1.95001 12 1.95001C17.5504 1.95001 22.0499 6.44955 22.0499 12Z"
-                          stroke="white"
-                          stroke-width="1.5"
+                          d="M15.7318 4.875L12.8818 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M10.5355 4.875L7.68555 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M6.8252 8.58594H17.7502"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M5.875 15.4141H16.8"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                      </svg>
+                    </svg>
+                  </span>
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                    data-testid="general-channel-link-text"
+                  >
+                    general
+                  </p>
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="croatia-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="SidebarRowglyph"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="croatia-channel-link-icon-public"
+                      fill="currentColor"
+                      focusable="false"
+                      style="font-size: 14px;"
+                      viewBox="0 0 24 24"
+                    >
+                      <svg
+                        fill="none"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        width="24"
+                      >
+                        <path
+                          d="M15.7318 4.875L12.8818 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M10.5355 4.875L7.68555 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M6.8252 8.58594H17.7502"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M5.875 15.4141H16.8"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                      </svg>
+                    </svg>
+                  </span>
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                    data-testid="croatia-channel-link-text"
+                  >
+                    croatia
+                  </p>
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="allergies-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="SidebarRowglyph"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="allergies-channel-link-icon-public"
+                      fill="currentColor"
+                      focusable="false"
+                      style="font-size: 14px;"
+                      viewBox="0 0 24 24"
+                    >
+                      <svg
+                        fill="none"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        width="24"
+                      >
+                        <path
+                          d="M15.7318 4.875L12.8818 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M10.5355 4.875L7.68555 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M6.8252 8.58594H17.7502"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M5.875 15.4141H16.8"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                      </svg>
+                    </svg>
+                  </span>
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                    data-testid="allergies-channel-link-text"
+                  >
+                    allergies
+                  </p>
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="sailing-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="SidebarRowglyph"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="sailing-channel-link-icon-public"
+                      fill="currentColor"
+                      focusable="false"
+                      style="font-size: 14px;"
+                      viewBox="0 0 24 24"
+                    >
+                      <svg
+                        fill="none"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        width="24"
+                      >
+                        <path
+                          d="M15.7318 4.875L12.8818 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M10.5355 4.875L7.68555 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M6.8252 8.58594H17.7502"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M5.875 15.4141H16.8"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                      </svg>
+                    </svg>
+                  </span>
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                    data-testid="sailing-channel-link-text"
+                  >
+                    sailing
+                  </p>
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="pets-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="SidebarRowglyph"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="pets-channel-link-icon-private"
+                      fill="currentColor"
+                      focusable="false"
+                      style="font-size: 14px;"
+                      viewBox="0 0 24 24"
+                    >
+                      <svg
+                        fill="currentColor"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        width="24"
+                      >
+                        <mask
+                          fill="#fff"
+                          id="a"
+                        >
+                          <path
+                            d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                          />
+                        </mask>
+                        <path
+                          d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                          mask="url(#a)"
+                          stroke="currentColor"
+                          stroke-width="4"
                         />
                         <path
                           clip-rule="evenodd"
-                          d="M17.3415 12.5982H12.5983V17.3415H11.4018V12.5982H6.65857V11.4018H11.4018V6.65851H12.5983V11.4018H17.3415V12.5982Z"
-                          fill="white"
+                          d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
+                          fill="currentColor"
                           fill-rule="evenodd"
+                          stroke-width="4"
                         />
                       </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
+                    </svg>
                   </span>
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                    data-testid="pets-channel-link-text"
+                  >
+                    pets
+                  </p>
                 </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="antiques-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="SidebarRowglyph"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="antiques-channel-link-icon-public"
+                      fill="currentColor"
+                      focusable="false"
+                      style="font-size: 14px;"
+                      viewBox="0 0 24 24"
+                    >
+                      <svg
+                        fill="none"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        width="24"
+                      >
+                        <path
+                          d="M15.7318 4.875L12.8818 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M10.5355 4.875L7.68555 19.125"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M6.8252 8.58594H17.7502"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                        <path
+                          d="M5.875 15.4141H16.8"
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-width="2"
+                        />
+                      </svg>
+                    </svg>
+                  </span>
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                    data-testid="antiques-channel-link-text"
+                  >
+                    antiques
+                  </p>
+                </div>
+              </ul>
+            </div>
+            <div>
+              <div
+                class="SidebarHeaderroot css-1f72bw8"
+              >
+                <h6
+                  class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
+                >
+                  Direct messages
+                </h6>
+                <span>
+                  <button
+                    aria-label="Start a new DM"
+                    class="SidebarHeaderaction"
+                    data-mui-internal-clone-element="true"
+                    data-testid="sidebar-button-createNewMessage"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      focusable="false"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      width="16"
+                    >
+                      <path
+                        d="M8 4V12"
+                        stroke="currentColor"
+                      />
+                      <path
+                        d="M12 8L4 8"
+                        stroke="currentColor"
+                      />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="7.5"
+                        stroke="currentColor"
+                      />
+                    </svg>
+                  </button>
+                </span>
               </div>
               <ul
                 class="MuiList-root css-1mk9mw3-MuiList-root"
@@ -683,556 +569,442 @@ describe('Channels panel', () => {
           </div>
         </body>,
         "container": <div>
-          <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
-          >
+          <div>
             <div
-              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+              class="SidebarHeaderroot css-1f72bw8"
             >
-              <div
-                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+              <h6
+                class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
               >
-                <div
-                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                Channels
+              </h6>
+              <span>
+                <button
+                  aria-label="Create new channel"
+                  class="SidebarHeaderaction"
+                  data-mui-internal-clone-element="true"
+                  data-testid="sidebar-button-createChannel"
+                  type="button"
                 >
-                  <p
-                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    width="16"
                   >
-                    Channels
-                  </p>
-                </div>
-                <div
-                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                >
-                  <span>
-                    <button
-                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
-                      data-testid="sidebar-button-createChannel"
-                      tabindex="0"
-                      type="button"
-                    >
-                      <svg
-                        fill="none"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        width="18"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M22.0499 12C22.0499 17.5505 17.5504 22.05 12 22.05C6.44949 22.05 1.94995 17.5505 1.94995 12C1.94995 6.44955 6.44949 1.95001 12 1.95001C17.5504 1.95001 22.0499 6.44955 22.0499 12Z"
-                          stroke="white"
-                          stroke-width="1.5"
-                        />
-                        <path
-                          clip-rule="evenodd"
-                          d="M17.3415 12.5982H12.5983V17.3415H11.4018V12.5982H6.65857V11.4018H11.4018V6.65851H12.5983V11.4018H17.3415V12.5982Z"
-                          fill="white"
-                          fill-rule="evenodd"
-                        />
-                      </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
-                  </span>
-                </div>
-              </div>
+                    <path
+                      d="M8 4V12"
+                      stroke="currentColor"
+                    />
+                    <path
+                      d="M12 8L4 8"
+                      stroke="currentColor"
+                    />
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="7.5"
+                      stroke="currentColor"
+                    />
+                  </svg>
+                </button>
+              </span>
             </div>
-            <div
-              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-            >
-              <ul
-                class="MuiList-root css-1mk9mw3-MuiList-root"
-                data-testid="channelsList"
-              >
-                <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                  data-testid="general-link"
-                  role="button"
-                  tabindex="0"
-                >
-                  <div
-                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                  >
-                    <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                    >
-                      <div
-                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="general-channel-link-icon-public"
-                            fill="currentColor"
-                            focusable="false"
-                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                            viewBox="0 0 24 24"
-                          >
-                            <svg
-                              fill="none"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              width="24"
-                            >
-                              <path
-                                d="M15.7318 4.875L12.8818 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M10.5355 4.875L7.68555 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M6.8252 8.58594H17.7502"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M5.875 15.4141H16.8"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                            </svg>
-                          </svg>
-                          <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                            data-testid="general-channel-link-text"
-                          >
-                            general
-                          </p>
-                        </div>
-                      </div>
-                    </span>
-                  </div>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </div>
-                <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                  data-testid="croatia-link"
-                  role="button"
-                  tabindex="0"
-                >
-                  <div
-                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                  >
-                    <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                    >
-                      <div
-                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="croatia-channel-link-icon-public"
-                            fill="currentColor"
-                            focusable="false"
-                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                            viewBox="0 0 24 24"
-                          >
-                            <svg
-                              fill="none"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              width="24"
-                            >
-                              <path
-                                d="M15.7318 4.875L12.8818 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M10.5355 4.875L7.68555 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M6.8252 8.58594H17.7502"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M5.875 15.4141H16.8"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                            </svg>
-                          </svg>
-                          <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                            data-testid="croatia-channel-link-text"
-                          >
-                            croatia
-                          </p>
-                        </div>
-                      </div>
-                    </span>
-                  </div>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </div>
-                <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                  data-testid="allergies-link"
-                  role="button"
-                  tabindex="0"
-                >
-                  <div
-                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                  >
-                    <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                    >
-                      <div
-                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="allergies-channel-link-icon-public"
-                            fill="currentColor"
-                            focusable="false"
-                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                            viewBox="0 0 24 24"
-                          >
-                            <svg
-                              fill="none"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              width="24"
-                            >
-                              <path
-                                d="M15.7318 4.875L12.8818 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M10.5355 4.875L7.68555 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M6.8252 8.58594H17.7502"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M5.875 15.4141H16.8"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                            </svg>
-                          </svg>
-                          <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                            data-testid="allergies-channel-link-text"
-                          >
-                            allergies
-                          </p>
-                        </div>
-                      </div>
-                    </span>
-                  </div>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </div>
-                <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                  data-testid="sailing-link"
-                  role="button"
-                  tabindex="0"
-                >
-                  <div
-                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                  >
-                    <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                    >
-                      <div
-                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="sailing-channel-link-icon-public"
-                            fill="currentColor"
-                            focusable="false"
-                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                            viewBox="0 0 24 24"
-                          >
-                            <svg
-                              fill="none"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              width="24"
-                            >
-                              <path
-                                d="M15.7318 4.875L12.8818 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M10.5355 4.875L7.68555 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M6.8252 8.58594H17.7502"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M5.875 15.4141H16.8"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                            </svg>
-                          </svg>
-                          <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                            data-testid="sailing-channel-link-text"
-                          >
-                            sailing
-                          </p>
-                        </div>
-                      </div>
-                    </span>
-                  </div>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </div>
-                <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                  data-testid="pets-link"
-                  role="button"
-                  tabindex="0"
-                >
-                  <div
-                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                  >
-                    <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                    >
-                      <div
-                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="pets-channel-link-icon-private"
-                            fill="currentColor"
-                            focusable="false"
-                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                            viewBox="0 0 24 24"
-                          >
-                            <svg
-                              fill="currentColor"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              width="24"
-                            >
-                              <mask
-                                fill="#fff"
-                                id="a"
-                              >
-                                <path
-                                  d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
-                                />
-                              </mask>
-                              <path
-                                d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
-                                mask="url(#a)"
-                                stroke="currentColor"
-                                stroke-width="4"
-                              />
-                              <path
-                                clip-rule="evenodd"
-                                d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
-                                fill="currentColor"
-                                fill-rule="evenodd"
-                                stroke-width="4"
-                              />
-                            </svg>
-                          </svg>
-                          <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                            data-testid="pets-channel-link-text"
-                          >
-                            pets
-                          </p>
-                        </div>
-                      </div>
-                    </span>
-                  </div>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </div>
-                <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1e66fo4-MuiButtonBase-root-MuiListItemButton-root"
-                  data-testid="antiques-link"
-                  role="button"
-                  tabindex="0"
-                >
-                  <div
-                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                  >
-                    <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                    >
-                      <div
-                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="antiques-channel-link-icon-public"
-                            fill="currentColor"
-                            focusable="false"
-                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                            viewBox="0 0 24 24"
-                          >
-                            <svg
-                              fill="none"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              width="24"
-                            >
-                              <path
-                                d="M15.7318 4.875L12.8818 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M10.5355 4.875L7.68555 19.125"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M6.8252 8.58594H17.7502"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                              <path
-                                d="M5.875 15.4141H16.8"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-width="2"
-                              />
-                            </svg>
-                          </svg>
-                          <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                            data-testid="antiques-channel-link-text"
-                          >
-                            antiques
-                          </p>
-                        </div>
-                      </div>
-                    </span>
-                  </div>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </div>
-              </ul>
-            </div>
-          </div>
-          <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
-          >
-            <div
-              class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+            <ul
+              class="MuiList-root css-1mk9mw3-MuiList-root"
+              data-testid="channelsList"
             >
               <div
-                class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="general-link"
+                role="button"
+                tabindex="0"
               >
-                <p
-                  class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
+                <span
+                  class="SidebarRowglyph"
                 >
-                  Direct messages
-                </p>
-              </div>
-              <div
-                class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-              >
-                <span>
-                  <button
-                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
-                    data-testid="sidebar-button-createNewMessage"
-                    tabindex="0"
-                    type="button"
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="general-channel-link-icon-public"
+                    fill="currentColor"
+                    focusable="false"
+                    style="font-size: 14px;"
+                    viewBox="0 0 24 24"
                   >
                     <svg
                       fill="none"
-                      height="18"
+                      height="24"
                       viewBox="0 0 24 24"
-                      width="18"
-                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
                     >
                       <path
-                        d="M22.0499 12C22.0499 17.5505 17.5504 22.05 12 22.05C6.44949 22.05 1.94995 17.5505 1.94995 12C1.94995 6.44955 6.44949 1.95001 12 1.95001C17.5504 1.95001 22.0499 6.44955 22.0499 12Z"
-                        stroke="white"
-                        stroke-width="1.5"
+                        d="M15.7318 4.875L12.8818 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M10.5355 4.875L7.68555 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M6.8252 8.58594H17.7502"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M5.875 15.4141H16.8"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </svg>
+                </span>
+                <p
+                  class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                  data-testid="general-channel-link-text"
+                >
+                  general
+                </p>
+              </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="croatia-link"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="SidebarRowglyph"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="croatia-channel-link-icon-public"
+                    fill="currentColor"
+                    focusable="false"
+                    style="font-size: 14px;"
+                    viewBox="0 0 24 24"
+                  >
+                    <svg
+                      fill="none"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      width="24"
+                    >
+                      <path
+                        d="M15.7318 4.875L12.8818 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M10.5355 4.875L7.68555 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M6.8252 8.58594H17.7502"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M5.875 15.4141H16.8"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </svg>
+                </span>
+                <p
+                  class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                  data-testid="croatia-channel-link-text"
+                >
+                  croatia
+                </p>
+              </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="allergies-link"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="SidebarRowglyph"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="allergies-channel-link-icon-public"
+                    fill="currentColor"
+                    focusable="false"
+                    style="font-size: 14px;"
+                    viewBox="0 0 24 24"
+                  >
+                    <svg
+                      fill="none"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      width="24"
+                    >
+                      <path
+                        d="M15.7318 4.875L12.8818 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M10.5355 4.875L7.68555 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M6.8252 8.58594H17.7502"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M5.875 15.4141H16.8"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </svg>
+                </span>
+                <p
+                  class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                  data-testid="allergies-channel-link-text"
+                >
+                  allergies
+                </p>
+              </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="sailing-link"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="SidebarRowglyph"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="sailing-channel-link-icon-public"
+                    fill="currentColor"
+                    focusable="false"
+                    style="font-size: 14px;"
+                    viewBox="0 0 24 24"
+                  >
+                    <svg
+                      fill="none"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      width="24"
+                    >
+                      <path
+                        d="M15.7318 4.875L12.8818 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M10.5355 4.875L7.68555 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M6.8252 8.58594H17.7502"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M5.875 15.4141H16.8"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </svg>
+                </span>
+                <p
+                  class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                  data-testid="sailing-channel-link-text"
+                >
+                  sailing
+                </p>
+              </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="pets-link"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="SidebarRowglyph"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="pets-channel-link-icon-private"
+                    fill="currentColor"
+                    focusable="false"
+                    style="font-size: 14px;"
+                    viewBox="0 0 24 24"
+                  >
+                    <svg
+                      fill="currentColor"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      width="24"
+                    >
+                      <mask
+                        fill="#fff"
+                        id="a"
+                      >
+                        <path
+                          d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                        />
+                      </mask>
+                      <path
+                        d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                        mask="url(#a)"
+                        stroke="currentColor"
+                        stroke-width="4"
                       />
                       <path
                         clip-rule="evenodd"
-                        d="M17.3415 12.5982H12.5983V17.3415H11.4018V12.5982H6.65857V11.4018H11.4018V6.65851H12.5983V11.4018H17.3415V12.5982Z"
-                        fill="white"
+                        d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
+                        fill="currentColor"
                         fill-rule="evenodd"
+                        stroke-width="4"
                       />
                     </svg>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </button>
+                  </svg>
                 </span>
+                <p
+                  class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                  data-testid="pets-channel-link-text"
+                >
+                  pets
+                </p>
               </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="antiques-link"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="SidebarRowglyph"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="antiques-channel-link-icon-public"
+                    fill="currentColor"
+                    focusable="false"
+                    style="font-size: 14px;"
+                    viewBox="0 0 24 24"
+                  >
+                    <svg
+                      fill="none"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      width="24"
+                    >
+                      <path
+                        d="M15.7318 4.875L12.8818 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M10.5355 4.875L7.68555 19.125"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M6.8252 8.58594H17.7502"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M5.875 15.4141H16.8"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </svg>
+                </span>
+                <p
+                  class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                  data-testid="antiques-channel-link-text"
+                >
+                  antiques
+                </p>
+              </div>
+            </ul>
+          </div>
+          <div>
+            <div
+              class="SidebarHeaderroot css-1f72bw8"
+            >
+              <h6
+                class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
+              >
+                Direct messages
+              </h6>
+              <span>
+                <button
+                  aria-label="Start a new DM"
+                  class="SidebarHeaderaction"
+                  data-mui-internal-clone-element="true"
+                  data-testid="sidebar-button-createNewMessage"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    width="16"
+                  >
+                    <path
+                      d="M8 4V12"
+                      stroke="currentColor"
+                    />
+                    <path
+                      d="M12 8L4 8"
+                      stroke="currentColor"
+                    />
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="7.5"
+                      stroke="currentColor"
+                    />
+                  </svg>
+                </button>
+              </span>
             </div>
             <ul
               class="MuiList-root css-1mk9mw3-MuiList-root"
@@ -1293,5 +1065,80 @@ describe('Channels panel', () => {
         "unmount": [Function],
       }
     `)
+  })
+  /**
+   * DM conversations are public channels in the store, so the Channels section has to exclude them
+   * by type now that they have a section of their own: without the filter every DM would be listed
+   * twice, once under its channel name. A channel created before the type existed carries none, and
+   * must still be listed.
+   */
+  it('keeps direct-message conversations out of the channel list', () => {
+    const channel = (name: string, type?: ChannelType): PublicChannel =>
+      ({
+        name,
+        id: generateTestChannelId(name),
+        description: `Welcome to #${name}`,
+        owner: 'alice',
+        timestamp: DateTime.utc().valueOf(),
+        public: true,
+        type,
+      } as unknown as PublicChannel)
+
+    const result = renderComponent(
+      <ChannelsPanel
+        channels={[channel('untyped'), channel('sailing', ChannelType.CHANNEL), channel('dm_bob', ChannelType.DM)]}
+        unreadChannels={[]}
+        setCurrentChannel={jest.fn()}
+        currentChannelId={generateTestChannelId('untyped')}
+        createChannelModal={{
+          open: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (): any {},
+        }}
+        canCreateChannel={true}
+      />
+    )
+
+    expect(result.queryByTestId('untyped-link')).not.toBeNull()
+    expect(result.queryByTestId('sailing-link')).not.toBeNull()
+    expect(result.queryByTestId('dm_bob-link')).toBeNull()
+  })
+
+  it("names the section's (+) after the action it performs", () => {
+    const result = renderComponent(
+      <ChannelsPanel
+        channels={[]}
+        unreadChannels={[]}
+        setCurrentChannel={jest.fn()}
+        currentChannelId={''}
+        createChannelModal={{
+          open: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (): any {},
+        }}
+        canCreateChannel={true}
+      />
+    )
+
+    expect(result.queryByTestId('sidebar-button-createChannel')).not.toBeNull()
+  })
+
+  it('draws no (+) for a user who may not create a channel', () => {
+    const result = renderComponent(
+      <ChannelsPanel
+        channels={[]}
+        unreadChannels={[]}
+        setCurrentChannel={jest.fn()}
+        currentChannelId={''}
+        createChannelModal={{
+          open: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (): any {},
+        }}
+        canCreateChannel={false}
+      />
+    )
+
+    expect(result.queryByTestId('sidebar-button-createChannel')).toBeNull()
   })
 })

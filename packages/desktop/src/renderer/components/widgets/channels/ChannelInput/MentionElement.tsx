@@ -19,9 +19,10 @@ const classes = {
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
+  // Rows follow 'Button row' (library 5578:43515): 12/16 padding; the selected row is 'Search result / Selected' (3799:12466).
   [`&.${classes.root}`]: {
-    paddingTop: 10,
-    paddingLeft: 16,
+    paddingTop: theme.space.md,
+    paddingLeft: theme.space.lg,
   },
 
   [`& .${classes.avatarDiv}`]: {
@@ -39,11 +40,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.data}`]: {
-    marginLeft: 9,
+    marginLeft: theme.space.sm,
   },
 
   [`&.${classes.highlight}`]: {
-    backgroundColor: theme.palette.colors.lushSky,
+    backgroundColor: theme.palette.colors.linkBlue,
     color: theme.palette.colors.white,
   },
 
@@ -52,10 +53,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.caption}`]: {
-    lineHeight: '18px',
-    fontSize: 12,
-    letterSpacing: 0.4,
-    color: 'rgba(0,0,0,0.6)',
+    fontSize: theme.typography.caption.fontSize,
+    lineHeight: theme.typography.caption.lineHeight,
+    color: theme.palette.text.secondary,
   },
 
   [`& .${classes.captionHighlight}`]: {

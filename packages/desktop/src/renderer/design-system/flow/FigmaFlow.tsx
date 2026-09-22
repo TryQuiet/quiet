@@ -20,6 +20,9 @@ export interface FlowFrame {
   name: string
   display: string
   node: string
+  /** The Figma file this frame comes from, when it is not the flow's primary file (flow.file). */
+  file?: string
+  fileName?: string
   /** Story id, derived from the export name by gen.cjs and verified with @storybook/csf. */
   id: string
   section: string
@@ -29,7 +32,12 @@ export interface FlowFrame {
   url: string
   note?: string | null
   /** The frame's own title bar, if it has one: its height (to crop when composed into the desktop shell) and its title text. */
-  titleBar?: { height: number; text: string | null } | null
+  titleBar?: {
+    height: number
+    text: string | null
+    removed?: boolean
+    /** the frame's title text when the designer hid it (full-screen h1 stages) */ hiddenTitle?: string | null
+  } | null
   /** Shadow margin the Figma export carries beyond the frame's box (effects render into exports); painted at natural size, offset by it. */
   pad?: { x: number; y: number } | null
   /** The designer's desktop frame for this stage (gen.cjs DESKTOP): 'app' = 740 split view (stretched beyond 740 only in its plain column), 'modal' = card over the desktop home with a scrim, 'content' = 715 content in the shell. Absent = mobile content in the shell. */
@@ -47,6 +55,7 @@ export interface DesktopFrame {
   width: number
   height: number
   stretch?: Stretch | null
+  /** 'content' frames that carry their own shell chrome: pixels to crop off the top */ crop?: number
   hotspots: FlowLink[]
 }
 export interface Shell {
@@ -67,10 +76,21 @@ export interface Rect {
   w: number
   h: number
 }
+/** A screen the extractor deliberately left out of a section, listed so the scope of the section is visible. */
+export interface Excluded {
+  file: string
+  fileName: string
+  section: string
+  node: string
+  name: string
+  why: string
+}
 export interface Flow {
   file: string
   start: string
   sections: string[]
+  files?: Array<{ key: string; name: string }>
+  excluded?: Excluded[]
   shell?: Shell
   mapId?: string
   frames: FlowFrame[]
@@ -81,7 +101,7 @@ export const FLOW_TITLE = 'Onboarding flow'
 // Every PNG is the designer's own export of the frame, at 2x, shown at 1x.
 const images = (require as any).context('../figma', false, /\.png$/)
 const src = (png: string): string => images(`./${png}`)
-const desktopImages = (require as any).context('../figma/desktop', false, /\.png$/)
+const desktopImages = (require as any).context('../figma/desktop', true, /\.png$/)
 const dsrc = (png: string): string => desktopImages(`./${png}`)
 import desktopJson from '../figma/desktop.json'
 export interface DesktopDesign {
@@ -238,8 +258,31 @@ const Hotspot: React.FC<{
         borderRadius: 4,
         cursor: 'pointer',
         padding: 0,
+        font: 'inherit',
+        textAlign: 'left',
       }}
-    />
+    >
+      {/* The inline label is for added rows that draw UI the frame does not have; over a drawn button it would
+          print on top of the button's own text, so only wide hotspots carry it. The side panel lists them all. */}
+      {l.kind === 'added' && outline && rect.w >= 200 ? (
+        <span
+          style={{
+            position: 'absolute',
+            left: 12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: 13,
+            color: '#8A5F09',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            maxWidth: rect.w - 24,
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {l.label}
+        </span>
+      ) : null}
+    </button>
   )
 }
 
@@ -386,7 +429,7 @@ const ScreenAt: React.FC<{
   const winW = VIEWPORTS.find(v => v.id === vp)!.width
   const dc = frame.desktop && frame.desktop.kind === 'content' ? frame.desktop : null
   const content = dc
-    ? { png: dsrc(dc.png), width: dc.width, height: dc.height, crop: 0, links: dc.hotspots }
+    ? { png: dsrc(dc.png), width: dc.width, height: dc.height, crop: dc.crop ?? 0, links: dc.hotspots }
     : {
         png: src(frame.png),
         width: frame.width,
@@ -396,7 +439,9 @@ const ScreenAt: React.FC<{
       }
   const crop = content.crop
   const contentLeft = Math.round((winW - content.width) / 2)
-  const contentTop = shell.content.y
+  // A stage whose title bar was removed (user decision: Get started) has no bar on desktop either: content starts under the top bar.
+  const noBar = !!frame.titleBar?.removed
+  const contentTop = noBar ? shell.topBar.h : shell.content.y
   const title = frame.titleBar?.text ?? ''
   const H = shell.height
   return (
@@ -434,46 +479,48 @@ const ScreenAt: React.FC<{
           />
         ))}
       </div>
-      {/* title bar: back arrow + centered title, divider below */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: shell.titleBar.y,
-          width: winW,
-          height: shell.titleBar.h,
-          boxSizing: 'border-box',
-          background: '#fff',
-          borderBottom: '1px solid #E5E5E5',
-        }}
-      >
-        <svg
-          width='24'
-          height='24'
-          viewBox='0 0 24 24'
-          style={{ position: 'absolute', left: shell.backZone.x + 2, top: shell.backZone.y - shell.titleBar.y + 2 }}
-          aria-hidden='true'
-        >
-          <path d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z' fill='#171B12' />
-        </svg>
+      {/* title bar: back arrow + centered title, divider below (absent when the stage's bar was removed) */}
+      {!noBar && (
         <div
           style={{
             position: 'absolute',
             left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 16,
-            fontWeight: 500,
-            color: INK,
+            top: shell.titleBar.y,
+            width: winW,
+            height: shell.titleBar.h,
+            boxSizing: 'border-box',
+            background: '#fff',
+            borderBottom: title ? '1px solid #E5E5E5' : 'none',
           }}
         >
-          {title}
+          <svg
+            width='24'
+            height='24'
+            viewBox='0 0 24 24'
+            style={{ position: 'absolute', left: shell.backZone.x + 2, top: shell.backZone.y - shell.titleBar.y + 2 }}
+            aria-hidden='true'
+          >
+            <path d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z' fill='#171B12' />
+          </svg>
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 16,
+              fontWeight: 500,
+              color: INK,
+            }}
+          >
+            {title}
+          </div>
         </div>
-      </div>
+      )}
       {/* content area: white to the bottom; the screen's content, its own title bar cropped, centered */}
       <div
         style={{
@@ -495,6 +542,7 @@ const ScreenAt: React.FC<{
         />
       </div>
       {content.links.map((l, i) => {
+        if (noBar && l.y < (frame.titleBar?.height ?? 0)) return null // the removed bar's back/close: nothing to draw
         if (l.y < crop || l.x < 0) {
           return l.kind === 'back' || l.label === 'Glyph' || l.label === 'Close' ? (
             <Hotspot
@@ -655,7 +703,14 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
           {frame.display}
         </h1>
         <p style={{ fontSize: 12, color: INK_3, margin: '0 0 6px' }}>
-          {frame.width}×{frame.height} · node <span style={{ fontFamily: mono }}>{frame.node}</span> ·{' '}
+          {frame.width}×{frame.height} · node <span style={{ fontFamily: mono }}>{frame.node}</span>
+          {frame.fileName ? (
+            <>
+              {' '}
+              · file <em>{frame.fileName}</em>
+            </>
+          ) : null}{' '}
+          ·{' '}
           <a href={frame.url} target='_blank' rel='noreferrer' style={{ color: '#0D6420' }}>
             open in Figma
           </a>
@@ -814,6 +869,8 @@ const SECTION_NOTE: Record<string, string> = {
     'The QSS server / plan / captcha / subscription cluster, when not already reached from Onboarding.',
   'Server agree (joiner, v1)':
     'The joiner-side agree screen ("v1 before we support multiple hosts") and its captcha. Not linked from the join flow in the prototype; the apps show ToS after username.',
+  'Join from invite link':
+    'A second prototype file, drawing what happens after the invite link is pasted: choose a username, agree & join, and the progress screen while joining. Scoped to those screens by decision (user, 2026-09-13) — the account-recovery branch and the screens this file duplicates from Get started are excluded below. One added link joins it to the paste screen.',
 }
 
 export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
@@ -822,8 +879,9 @@ export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
       Onboarding flow — every stage
     </h1>
     <p style={{ fontSize: 13, color: INK_3, margin: '0 0 20px' }}>
-      {flow.frames.length} screens in file <span style={{ fontFamily: mono }}>{flow.file}</span>, in{' '}
-      {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).length} clusters the prototype does not
+      {flow.frames.length} screens from{' '}
+      {(flow.files ?? [{ key: flow.file, name: flow.file }]).map(f => f.name).join(' and ')}, in{' '}
+      {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).length} clusters the prototypes do not
       connect. Click any stage to open it; the frame&rsquo;s buttons then walk the flow.
     </p>
     {flow.sections
@@ -852,6 +910,22 @@ export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
                 <Tile key={f.slug} f={f} />
               ))}
           </div>
+          {(flow.excluded ?? []).some(e => e.section === sec) ? (
+            <div style={{ fontSize: 12, lineHeight: '18px', color: INK_3, marginTop: 10 }}>
+              <span style={{ fontFamily: mono, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                not included
+              </span>
+              <ul style={{ margin: '2px 0 0', padding: '0 0 0 16px' }}>
+                {(flow.excluded ?? [])
+                  .filter(e => e.section === sec)
+                  .map(e => (
+                    <li key={e.node}>
+                      {e.name} <span style={{ fontFamily: mono, fontSize: 11 }}>{e.node}</span> — {e.why}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       ))}
     <h2

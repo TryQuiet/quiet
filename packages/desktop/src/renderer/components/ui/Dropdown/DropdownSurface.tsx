@@ -1,5 +1,7 @@
 import { styled } from '@mui/material/styles'
 
+import { overlayShadow } from '../../../design-system/theme/components'
+
 /**
  * The panel every suggestion list sits on: white, a 1px #E5E5E5 hairline, radius 16.
  *
@@ -20,7 +22,9 @@ export const dropdownSurfaceStyles = (isDark: boolean) => ({
   background: isDark ? DROPDOWN_BACKGROUND_DARK : '#ffffff',
   border: `1px solid ${isDark ? DROPDOWN_BORDER_DARK : DROPDOWN_BORDER_LIGHT}`,
   borderRadius: DROPDOWN_RADIUS,
-  boxShadow: '0px 5px 20px rgba(0, 0, 0, 0.3)',
+  // The library's `Overlay menu` drop shadow (5578:43731): 0 6 30 #000000 @ 0.11, which is also
+  // theme.shadows[6]. The 0 5 20 @ 0.3 this carried was never measured from a frame.
+  boxShadow: overlayShadow,
   padding: 0,
   overflowY: 'auto' as const,
   // A slim scrollbar, as the design draws it: 8 wide at 20% black, fully rounded.
