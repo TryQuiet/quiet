@@ -2463,39 +2463,33 @@ export class Sidebar {
   }
 
   async getChannelLockIcon(channelName: string): Promise<WebElement> {
-    const channelLockIcon = await this.driver.wait(
-      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-private"]`)),
-      10_000,
-      `Channel list private lock icon for ${channelName} wasn't located within timeout`,
-      500
-    )
-
-    await this.driver.wait(
-      until.elementIsVisible(channelLockIcon),
-      10_000,
-      `Channel list private lock icon for ${channelName} wasn't visible within timeout`,
-      500
-    )
-
-    return channelLockIcon
+    return this.getVisibleChannelIcon(channelName, 'private')
   }
 
   async getChannelHashIcon(channelName: string): Promise<WebElement> {
-    const channelHashIcon = await this.driver.wait(
-      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-public"]`)),
-      10_000,
-      `Channel list public hash icon for ${channelName} wasn't located within timeout`,
-      500
-    )
+    return this.getVisibleChannelIcon(channelName, 'public')
+  }
 
-    await this.driver.wait(
-      until.elementIsVisible(channelHashIcon),
+  private async getVisibleChannelIcon(channelName: string, kind: 'private' | 'public'): Promise<WebElement> {
+    return this.driver.wait(
+      async () => {
+        // Replication can replace the sidebar row between location and visibility checks.
+        // Reacquire the icon on every poll rather than retaining the detached DOM node.
+        try {
+          const icons = await this.driver.findElements(
+            By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-${kind}"]`)
+          )
+          const icon = icons[0]
+          return icon && (await icon.isDisplayed()) ? icon : false
+        } catch (e) {
+          if (e instanceof error.StaleElementReferenceError) return false
+          throw e
+        }
+      },
       10_000,
-      `Channel list public hash icon for ${channelName} wasn't visible within timeout`,
+      `Channel list ${kind} icon for ${channelName} wasn't visible within timeout`,
       500
-    )
-
-    return channelHashIcon
+    ) as Promise<WebElement>
   }
 
   /**
