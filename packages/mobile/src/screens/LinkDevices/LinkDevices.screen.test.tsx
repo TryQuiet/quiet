@@ -31,10 +31,12 @@ describe('LinkDevicesScreen', () => {
       expect(result.getByText('Paste link')).toBeTruthy()
       expect(result.queryByText('Display QR code')).toBeNull()
       expect(result.queryByText('Copy link')).toBeNull()
-      // The frame's device list is not built on this line (TryQuiet/quiet#3636).
+      // Receiving, there is no community and so no team graph to list devices from
+      // (TryQuiet/quiet#3636); the list belongs to the share direction.
       expect(result.queryByText('No linked devices')).toBeNull()
       expect(result.queryByTestId('linked-devices-list')).toBeNull()
       expect(dispatchSpy).not.toHaveBeenCalledWith(connection.actions.createDeviceLink())
+      expect(dispatchSpy).not.toHaveBeenCalledWith(connection.actions.getLinkedDevices())
     })
 
     it('Paste link opens the paste step for a device link', async () => {
@@ -75,9 +77,43 @@ describe('LinkDevicesScreen', () => {
       expect(result.queryByText('Scan QR code')).toBeNull()
       expect(result.queryByText('Paste link')).toBeNull()
       expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
-      // The frame's device list is not built on this line (TryQuiet/quiet#3636).
+      // The device list is asked for as soon as the screen shares, but nothing is drawn
+      // until the answer arrives (TryQuiet/quiet#3636): a card reading "No linked devices"
+      // before the app knows would be false as soon as a device was linked.
+      expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.getLinkedDevices())
       expect(result.queryByTestId('linked-devices-list')).toBeNull()
       expect(result.queryByText('No linked devices')).toBeNull()
+    })
+
+    it('draws the device list once the read comes back, this device and removals excluded', async () => {
+      const { store, result } = await renderScreen(true)
+
+      act(() => {
+        store.dispatch(
+          connection.actions.setLinkedDevices([
+            { deviceId: 'this', deviceName: 'pixel-here', isCurrent: true },
+            { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
+            { deviceId: 'gone', deviceName: 'old-tablet', isCurrent: false, removedAt: Date.now() },
+          ])
+        )
+      })
+
+      expect(result.getByTestId('linked-devices-list')).toBeTruthy()
+      expect(result.getByTestId('linked-devices-list-label')).toBeTruthy()
+      expect(result.getByTestId('linked-device-laptop')).toBeTruthy()
+      expect(result.queryByTestId('linked-device-this')).toBeNull()
+      expect(result.queryByTestId('linked-device-gone')).toBeNull()
+      expect(result.queryByTestId('no-linked-devices')).toBeNull()
+    })
+
+    it('says "No linked devices" once the read comes back empty', async () => {
+      const { store, result } = await renderScreen(true)
+
+      act(() => {
+        store.dispatch(connection.actions.setLinkedDevices([]))
+      })
+
+      expect(result.getByTestId('no-linked-devices')).toBeTruthy()
     })
 
     it('Copy link before the link exists asks for one and copies nothing', async () => {

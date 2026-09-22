@@ -108,6 +108,48 @@ async function getDeviceInvitation(app: App): Promise<string> {
   return link
 }
 
+/**
+ * One read of the "Linked devices" list on the share direction, which is
+ * Settings → Linked devices once you are in a community. Opening the tab mounts
+ * the surface, which is what asks the backend, so each call is a fresh answer.
+ */
+async function readLinkedDevicesOnce(app: App): Promise<{ deviceId: string; deviceName: string }[]> {
+  const settings = await new Sidebar(app.driver).openSettings()
+  expect(await settings.isReady()).toBeTruthy()
+  await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
+  const devices = await new LinkDevicesModal(app.driver).linkedDevices()
+  await settings.closeTabThenModal()
+  return devices
+}
+
+/**
+ * The list once it has at least `expectedCount` rows. The surface only asks the
+ * backend when it mounts, so the retry reopens the tab rather than re-reading a
+ * DOM that would never change on its own.
+ */
+async function linkedDevicesInSettings(
+  app: App,
+  expectedCount = 0,
+  timeoutMs = 60_000
+): Promise<{ deviceId: string; deviceName: string }[]> {
+  const deadline = Date.now() + timeoutMs
+  let devices = await readLinkedDevicesOnce(app)
+  while (devices.length < expectedCount && Date.now() < deadline) {
+    devices = await readLinkedDevicesOnce(app)
+  }
+  return devices
+}
+
+/** The same surface, asked whether it is drawing its "No linked devices" line. */
+async function noLinkedDevicesInSettings(app: App): Promise<boolean> {
+  const settings = await new Sidebar(app.driver).openSettings()
+  expect(await settings.isReady()).toBeTruthy()
+  await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
+  const empty = await new LinkDevicesModal(app.driver).hasNoLinkedDevices()
+  await settings.closeTabThenModal()
+  return empty
+}
+
 describe('Onboarding', () => {
   beforeEach(() => {
     logger.info(`░░░ ${expect.getState().currentTestName}`)
@@ -278,6 +320,8 @@ describe('Onboarding', () => {
 
     it('A creates a community and generates a device link; B links through Get started → Link devices → Paste link', async () => {
       await createCommunity(owner, `onbdev${Date.now().toString(36)}`, ownerUsername)
+      // Nothing is linked yet, so the share direction draws its empty list.
+      expect(await noLinkedDevicesInSettings(owner)).toBe(true)
       const memberInvitation = await getMemberInvitation(owner)
       const deviceInvitation = await getDeviceInvitation(owner)
 
@@ -337,11 +381,22 @@ describe('Onboarding', () => {
       await channelA.waitForUserMessageByText(ownerUsername, message)
     })
 
-    // The backend on this line exposes no linked-device listing (the branch's
-    // GET_LINKED_DEVICES handler was dropped in favour of develop's backend), so
-    // there is no device list to assert on yet.
-    it.skip("A's device list shows B", async () => {
-      logger.warn('Listing linked devices is not implemented on this line')
+    it("A's device list shows B, and B's shows A", async () => {
+      const onA = await linkedDevicesInSettings(owner, 1)
+      const onB = await linkedDevicesInSettings(linkedDevice, 1)
+      expect(onA).toHaveLength(1)
+      expect(onB).toHaveLength(1)
+
+      // A surface lists every device on the account except the one it runs on, so
+      // the single row A sees must be B's device: if it were some third device, B
+      // would be listing it too. The same argument the other way round names A.
+      const seenByA = onA[0].deviceId
+      const seenByB = onB[0].deviceId
+      expect(onB.map(device => device.deviceId)).not.toContain(seenByA)
+      expect(onA.map(device => device.deviceId)).not.toContain(seenByB)
+      expect(seenByA).not.toEqual(seenByB)
+      expect(onA[0].deviceName.length).toBeGreaterThan(0)
+      expect(onB[0].deviceName.length).toBeGreaterThan(0)
     })
 
     // #3400 ships no device removal, and this line carries #3471 (removal

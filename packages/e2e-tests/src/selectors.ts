@@ -1664,6 +1664,46 @@ export class LinkDevicesModal {
     }
   }
 
+  /**
+   * The rows under "Linked devices" (this device excluded). The surface asks the
+   * backend when it mounts and draws nothing until that read comes back, so
+   * waiting for the list itself is waiting for a real answer. Rows carry the
+   * device id in their testid; the name is only what is shown.
+   *
+   * This reads one mount. It does not retry, because a retry that only re-reads
+   * the DOM would poll a surface that never asks again: the caller reopens the
+   * tab to ask for a fresh answer.
+   */
+  async linkedDevices(timeoutMs = 30_000): Promise<{ deviceId: string; deviceName: string }[]> {
+    await this.findVisible('linked-devices-list', timeoutMs)
+    const rows = await this.driver.findElements(By.xpath("//*[starts-with(@data-testid, 'linked-device-')]"))
+    const devices: { deviceId: string; deviceName: string }[] = []
+    for (const row of rows) {
+      const testId = (await row.getAttribute('data-testid')) ?? ''
+      devices.push({ deviceId: testId.replace('linked-device-', ''), deviceName: (await row.getText()).trim() })
+    }
+    return devices
+  }
+
+  /** Device names only, for assertions that do not care which device is which. */
+  async linkedDeviceNames(timeoutMs = 30_000): Promise<string[]> {
+    return (await this.linkedDevices(timeoutMs)).map(device => device.deviceName)
+  }
+
+  /**
+   * Whether this mount of the surface drew its "No linked devices" line. Waits for
+   * it, because the line appears only once the backend has answered — before that
+   * the surface says nothing at all, so a single probe would race the read.
+   */
+  async hasNoLinkedDevices(timeoutMs = 30_000): Promise<boolean> {
+    try {
+      await this.findVisible('no-linked-devices', timeoutMs)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   async back() {
     const back = await this.findVisible('linkDevicesModalBack')
     await back.click()
