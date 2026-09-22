@@ -6,7 +6,7 @@ import { jest } from '@jest/globals'
 import { ChannelStore } from './channel.store'
 import { SigchainEvents } from '../../auth/types'
 import { StorageEvents } from '../storage.types'
-import { ConsumedChannelMessage, MessageType, PushNotificationPayload } from '@quiet/types'
+import { ChannelType, ConsumedChannelMessage, MessageType, PushNotificationPayload } from '@quiet/types'
 
 describe('ChannelStore', () => {
   const makeLogger = () => ({
@@ -1135,6 +1135,259 @@ describe('ChannelStore incremental message IDs', () => {
       } finally {
         process.off('unhandledRejection', unhandled)
       }
+    })
+  })
+
+  describe('audit regressions (Daybreak iteration 2)', () => {
+    type FakeMember = { userId: string; roles: string[]; keys?: { generation: number } }
+    const chainWith = (members: FakeMember[]) => ({ user: { userId: 'self' }, team: { members: () => members } })
+    const authored = (id: string, userId: string) => ({ id, channelId: 'general', teamId: 'team', userId })
+    const self = { userId: 'self', roles: ['member'] }
+    const alice = (generation: number) => ({ userId: 'alice', roles: ['member'], keys: { generation } })
+    const messageIds = (payload: { messages: { id: string }[] }) => payload.messages.map(message => message.id)
+    const pause = () => {
+      let resume!: () => void
+      const paused = new Promise<void>(resolve => {
+        resume = resolve
+      })
+      return { paused, resume }
+    }
+    const settle = () => new Promise(resolve => setTimeout(resolve, 20))
+
+    it.each(['rejected', 'accepted'] as const)(
+      "M-1: never announces a walk consumed under an author's superseded facts; announces the %s current result once",
+      async outcome => {
+        const { store, auth, append, onConsume } = createStore()
+        ;(store as any).retryDelayMs = 1
+        const delivered = jest.fn<(payload: { messages: { id: string; consumedUnder: number }[] }) => void>()
+        store.on(StorageEvents.MESSAGES_STORED, delivered)
+        let generation = 0
+        auth.getActiveChain = () => chainWith([self, alice(generation)])
+        await store.subscribe()
+        const { paused, resume } = pause()
+        onConsume.mockImplementation(async message => {
+          const consumedUnder = generation
+          if (consumedUnder === 0) await paused
+          if (consumedUnder === 1 && outcome === 'rejected') return false
+          return { ...message, verified: true, consumedUnder }
+        })
+        const arrival = append('a1', 'a1', authored('a1', 'alice'))
+        await waitFor(() => onConsume.mock.calls.length === 1)
+        // Alice's keys rotate while her message is being consumed under the old ones.
+        generation = 1
+        auth.emit(SigchainEvents.UPDATED)
+        resume()
+        await arrival
+        await waitFor(() => (store as any).dirtyAuthors.size === 0)
+        await settle()
+        if (outcome === 'accepted') {
+          expect(delivered.mock.calls.map(([payload]) => payload.messages.map(m => [m.id, m.consumedUnder]))).toEqual([
+            [['a1', 1]],
+          ])
+          expect(onConsume).toHaveBeenCalledTimes(2)
+        } else {
+          expect(delivered).not.toHaveBeenCalled()
+          expect((store as any).indexedEntries.has('a1')).toBe(false)
+          expect(await store.getEntries(['a1'])).toEqual([])
+        }
+        expect((store as any).pendingHeads.size).toBe(0)
+      }
+    )
+
+    it('M-1: rechecks an author again when their facts change during their own running recheck', async () => {
+      const { store, auth, append, onConsume, ids } = createStore()
+      let generation = 0
+      auth.getActiveChain = () => chainWith([self, alice(generation)])
+      await store.subscribe()
+      await append('a1', 'a1', authored('a1', 'alice'))
+      await append('a2', 'a2', authored('a2', 'alice'))
+      onConsume.mockClear()
+      const { paused, resume } = pause()
+      let pauses = 1
+      onConsume.mockImplementation(async message => {
+        const consumedUnder = generation
+        if (message.id === 'a2' && pauses-- > 0) await paused
+        return consumedUnder >= 2 ? false : { ...message, verified: true }
+      })
+      generation = 1
+      auth.emit(SigchainEvents.UPDATED)
+      await waitFor(() => onConsume.mock.calls.length === 2)
+      // Alice changes again while her generation-1 recheck is paused on her second entry.
+      generation = 2
+      auth.emit(SigchainEvents.UPDATED)
+      resume()
+      await waitFor(() => onConsume.mock.calls.length === 4)
+      await waitFor(() => ids.mock.lastCall?.[0].ids.length === 0)
+      expect(onConsume.mock.calls.map(([message]) => message.id)).toEqual(['a1', 'a2', 'a1', 'a2'])
+      expect(await store.getEntries(['a1', 'a2'])).toEqual([])
+      expect((store as any).dirtyAuthors.size).toBe(0)
+      expect((store as any).authRecheckNeeded).toBe(false)
+    })
+
+    it('M-2: delivers a DM to every listener exactly once when its first listener throws', async () => {
+      const { store, append } = createStore()
+      ;(store as any).channelData = { ...(store as any).channelData, type: ChannelType.DM }
+      ;(store as any).retryDelayMs = 1
+      const first: string[] = []
+      const second: string[] = []
+      let failures = 1
+      store.on(StorageEvents.MESSAGES_STORED, payload => {
+        if (failures-- > 0) throw new Error('first listener failed')
+        first.push(...messageIds(payload))
+      })
+      store.on(StorageEvents.MESSAGES_STORED, payload => second.push(...messageIds(payload)))
+      await store.subscribe()
+      await append('dm-1', 'dm-1', authored('dm-1', 'alice'))
+      await waitFor(() => first.length > 0)
+      await settle()
+      expect(first).toEqual(['dm-1'])
+      expect(second).toEqual(['dm-1'])
+      expect((store as any).pendingHeads.size).toBe(0)
+      expect((store as any).deliveredDmIds.has('dm-1')).toBe(true)
+    })
+
+    it('M-2: retries an announcement whose listener threw while an auth recheck was publishing it', async () => {
+      const { store, auth, append, onConsume } = createStore()
+      ;(store as any).retryDelayMs = 1
+      let generation = 0
+      auth.getActiveChain = () => chainWith([self, alice(generation)])
+      const seen: string[] = []
+      // Two failures: whichever earlier publication a retry timer already covers, the recheck's
+      // own publication still fails once and must schedule its own retry.
+      let failures = 2
+      store.on(StorageEvents.MESSAGES_STORED, payload => {
+        if (failures-- > 0) throw new Error('listener failed')
+        seen.push(...messageIds(payload))
+      })
+      await store.subscribe()
+      const { paused, resume } = pause()
+      onConsume.mockImplementationOnce(async message => {
+        await paused
+        return { ...message, verified: true }
+      })
+      const arrival = append('a1', 'a1', authored('a1', 'alice'))
+      await waitFor(() => onConsume.mock.calls.length === 1)
+      // The first recheck fails on a log read, so the retry timer is the one that publishes.
+      const log = (store as any).store.log
+      const get = log.get
+      let readFailures = 1
+      log.get = async (hash: string) => {
+        if (readFailures-- > 0) throw new Error('entry storage read failed')
+        return get(hash)
+      }
+      generation = 1
+      auth.emit(SigchainEvents.UPDATED)
+      resume()
+      await arrival
+      await waitFor(() => seen.length > 0)
+      await settle()
+      expect(seen).toEqual(['a1'])
+      expect((store as any).pendingHeads.size).toBe(0)
+    })
+
+    it('M-2: retries an announcement whose listener threw while a rebuild was publishing it', async () => {
+      const { store, auth, append, onConsume } = createStore()
+      ;(store as any).retryDelayMs = 1
+      let admin = false
+      auth.getActiveChain = () =>
+        chainWith([{ userId: 'self', roles: admin ? ['member', 'admin'] : ['member'] }, alice(0)])
+      const seen: string[] = []
+      let failures = 1
+      store.on(StorageEvents.MESSAGES_STORED, payload => {
+        if (failures-- > 0) throw new Error('listener failed')
+        seen.push(...messageIds(payload))
+      })
+      await store.subscribe()
+      const { paused, resume } = pause()
+      onConsume.mockImplementationOnce(async message => {
+        await paused
+        return { ...message, verified: true }
+      })
+      const arrival = append('m', 'm', authored('m', 'alice'))
+      await waitFor(() => onConsume.mock.calls.length === 1)
+      // The local user's own roles change: the index is rebuilt and the rebuild announces 'm'.
+      admin = true
+      auth.emit(SigchainEvents.UPDATED)
+      resume()
+      await arrival
+      await waitFor(() => seen.length > 0)
+      await settle()
+      expect(seen).toEqual(['m'])
+      expect((store as any).pendingHeads.size).toBe(0)
+    })
+
+    it('L-2: a retry after a partially failed announcement reaches only the listener that failed', async () => {
+      const { store, append } = createStore()
+      ;(store as any).retryDelayMs = 1
+      const first: string[] = []
+      const second: string[] = []
+      let failures = 1
+      store.on(StorageEvents.MESSAGES_STORED, payload => first.push(...messageIds(payload)))
+      store.on(StorageEvents.MESSAGES_STORED, payload => {
+        if (failures-- > 0) throw new Error('second listener failed')
+        second.push(...messageIds(payload))
+      })
+      await store.subscribe()
+      await append('m')
+      await waitFor(() => second.length > 0)
+      await settle()
+      expect(first).toEqual(['m'])
+      expect(second).toEqual(['m'])
+      expect((store as any).pendingHeads.size).toBe(0)
+    })
+
+    it('L-2: a failing push listener is retried without repeating MESSAGES_STORED', async () => {
+      const previousBackend = process.env.BACKEND
+      const previousConnectionTime = process.env.CONNECTION_TIME
+      process.env.BACKEND = 'mobile'
+      process.env.CONNECTION_TIME = '0'
+      try {
+        const { store, append } = createStore()
+        ;(store as any).retryDelayMs = 1
+        const stored: string[] = []
+        const pushed: string[] = []
+        let failures = 1
+        store.on(StorageEvents.MESSAGES_STORED, payload => stored.push(...messageIds(payload)))
+        store.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
+          if (failures-- > 0) throw new Error('push listener failed')
+          pushed.push(JSON.parse(payload.message).id)
+        })
+        await store.subscribe()
+        await append('m', 'm', { ...authored('m', 'sender'), createdAt: Date.now() })
+        await waitFor(() => pushed.length > 0)
+        await settle()
+        expect(stored).toEqual(['m'])
+        expect(pushed).toEqual(['m'])
+        expect((store as any).pendingHeads.size).toBe(0)
+      } finally {
+        if (previousBackend === undefined) delete process.env.BACKEND
+        else process.env.BACKEND = previousBackend
+        if (previousConnectionTime === undefined) delete process.env.CONNECTION_TIME
+        else process.env.CONNECTION_TIME = previousConnectionTime
+      }
+    })
+
+    it('serves a direct batch fetch under one set of facts, restarting when authorization changes mid-batch', async () => {
+      const { store, auth, append, onConsume } = createStore()
+      let generation = 0
+      auth.getActiveChain = () => chainWith([self, alice(generation)])
+      await store.subscribe()
+      await append('a1', 'a1', authored('a1', 'alice'))
+      await append('a2', 'a2', authored('a2', 'alice'))
+      onConsume.mockClear()
+      const { paused, resume } = pause()
+      let pauses = 1
+      onConsume.mockImplementation(async message => {
+        const consumedUnder = generation
+        if (pauses-- > 0) await paused
+        return consumedUnder >= 1 ? false : { ...message, verified: true }
+      })
+      const fetch = store.getEntries(['a1', 'a2'])
+      await waitFor(() => onConsume.mock.calls.length === 1)
+      generation = 1
+      auth.emit(SigchainEvents.UPDATED)
+      resume()
+      expect(await fetch).toEqual([])
     })
   })
 

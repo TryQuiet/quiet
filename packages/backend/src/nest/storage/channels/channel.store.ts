@@ -39,12 +39,19 @@ import { DirectMessagesService } from './messages/direct-messages.service'
 type IndexedEntry = { id: string; userId: string }
 // trusted: the head came from this log's own heads(), so its bytes may be read even before the
 // log index lists it. notify: true while its MESSAGES_STORED / push announcement is still owed,
-// false while that announcement is being published and not yet acknowledged.
-type PendingHead = { notify: boolean; trusted: boolean }
+// false while that announcement is being published and not yet acknowledged. delivered: the
+// listeners of each announcement event that already received this message, so a retry after a
+// failing listener reaches only the listeners still owed it.
+type Listener = (...args: any[]) => void
+type Delivered = Map<string, Set<Listener>>
+type PendingHead = { notify: boolean; trusted: boolean; delivered?: Delivered }
 type AuthFingerprint = { localUserId: string; members: Map<string, string> }
 // notify: arrivals this walk consumed whose announcement is still owed, keyed by their entry hash so
 // the announcement can be acknowledged (or handed back to the pending set) after it is published.
-type WalkResult = { ids: string[]; notify: Array<{ hash: string; message: ConsumedChannelMessage }>; complete: boolean }
+// revision: the authorization revision the message was consumed under; it may only be announced
+// while that revision is still current.
+type Notification = { hash: string; message: ConsumedChannelMessage; revision: number }
+type WalkResult = { ids: string[]; notify: Notification[]; complete: boolean }
 
 /**
  * Members whose consume results a sigchain update may have changed, or undefined when the whole
@@ -117,10 +124,13 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   private static readonly MAX_RETRY_DELAY_MS = 30_000
   // Authorization facts the consumers depend on. committedAuth: every indexed entry not authored by
   // a dirty member was checked under these facts. latestAuth: the facts the dirty set was diffed up
-  // to. dirtyAuthors accumulates across overlapping updates and shrinks only after a successful recheck.
+  // to. authRevision counts every accepted sigchain update; a consume is current only while the
+  // revision it started under is still the latest, and a member stays dirty until a recheck that
+  // started at or after the revision that dirtied them commits.
   private committedAuth: AuthFingerprint | undefined
   private latestAuth: AuthFingerprint | undefined
-  private readonly dirtyAuthors = new Set<string>()
+  private authRevision = 0
+  private readonly dirtyAuthors = new Map<string, number>()
   private authRecheckNeeded = false
   private authRecheckQueued = false
   private storeEvents: EventEmitter | undefined
@@ -232,7 +242,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     // roles changed. Accumulate them (updates can overlap) and recheck only their entries plus
     // entries rejected so far, after any walk already queued. In-flight walks stay valid: an
     // entry they index under the previous facts is rechecked by the same queued task.
-    for (const userId of affected) this.dirtyAuthors.add(userId)
+    this.authRevision += 1
+    for (const userId of affected) {
+      // A member already dirty under these same facts is covered by the recheck queued for them.
+      if (this.dirtyAuthors.has(userId) && this.latestAuth?.members.get(userId) === next!.members.get(userId)) continue
+      this.dirtyAuthors.set(userId, this.authRevision)
+    }
     this.latestAuth = next
     this.authRecheckNeeded = true
     if (this.authRecheckQueued) return
@@ -242,15 +257,14 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
   private async recheckAuthorization(): Promise<void> {
     const epoch = this.messageIndexEpoch
-    let authors: Set<string> | undefined
-    let target: AuthFingerprint | undefined
     try {
       const result = await this.queueMessageIndex(async (): Promise<WalkResult | undefined> => {
         this.authRecheckQueued = false
         if (epoch !== this.messageIndexEpoch || this.closing || !this.authRecheckNeeded) return undefined
-        authors = new Set(this.dirtyAuthors)
-        target = this.latestAuth
+        const authors = new Map(this.dirtyAuthors)
+        const target = this.latestAuth
         const ids: string[] = []
+        const notify: Notification[] = []
         const log = this.getStore().log
         const recheck = new Set<string>(this.rejectedHashes)
         for (const [hash, entry] of this.indexedEntries) if (authors.has(entry.userId)) recheck.add(hash)
@@ -259,27 +273,39 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
           if (epoch !== this.messageIndexEpoch || this.closing) return undefined
           const value = entry?.payload.value
           if (value?.channelId !== this.channelData.id) continue
+          const revision = this.authRevision
           const message = await this.messagesService.onConsume(value, this.channelData)
           if (epoch !== this.messageIndexEpoch || this.closing) return undefined
+          // An announcement owed for a completed entry is decided by this consume: announce the
+          // current result, or drop it now that the entry is rejected.
+          const pending = this.pendingHeads.get(hash)
+          const owed = pending?.notify === true && this.indexedAncestry.has(hash)
           if (message != null && message !== false) {
             if (!this.indexedEntries.has(hash)) ids.push(message.id)
             this.indexMessage(hash, message)
+            if (owed) {
+              notify.push({ hash, message, revision })
+              this.pendingHeads.set(hash, { ...pending!, notify: false })
+            }
           } else {
             this.unindexMessage(hash)
             this.rejectedHashes.add(hash)
+            if (owed) this.pendingHeads.delete(hash)
           }
         }
-        // Commit: members rechecked under the target facts are clean; later updates may have
-        // dirtied others meanwhile, and those stay dirty for the next queued recheck.
-        for (const userId of authors) this.dirtyAuthors.delete(userId)
+        // Commit: a member rechecked under the target facts is clean unless a later update dirtied
+        // them again meanwhile; they and any other members dirtied since stay for the next recheck.
+        for (const [userId, revision] of authors) {
+          if (this.dirtyAuthors.get(userId) === revision) this.dirtyAuthors.delete(userId)
+        }
         this.committedAuth = target
         if (this.dirtyAuthors.size === 0) this.authRecheckNeeded = false
         const pending = await this.walkPendingHeads(epoch)
-        return { ids: [...ids, ...pending.ids], notify: pending.notify, complete: pending.complete }
+        return { ids: [...ids, ...pending.ids], notify: [...notify, ...pending.notify], complete: pending.complete }
       })
       if (result === undefined || epoch !== this.messageIndexEpoch || this.closing) return
-      await this.publishNotifications(result.notify, epoch)
-      if (result.complete && !this.authRecheckNeeded) this.retryDelayMs = ChannelStore.RETRY_DELAY_MS
+      const published = await this.publishNotifications(result.notify, epoch)
+      if (result.complete && published && !this.authRecheckNeeded) this.retryDelayMs = ChannelStore.RETRY_DELAY_MS
       else this.scheduleRetry()
       // Removed IDs need the reconciliation snapshot, not a delta.
       await this.refreshMessageIds()
@@ -318,17 +344,20 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   }
 
   /**
-   * Announce arrivals in order. Each announcement is acknowledged only once it was emitted under
-   * the epoch it was consumed in; anything not yet emitted goes back to the pending set, so an
-   * auth change or a failing listener in this window delays the announcement instead of losing it.
+   * Announce arrivals in order. Each announcement is acknowledged only once every listener
+   * received it under the epoch and authorization revision it was consumed in; anything not fully
+   * delivered goes back to the pending set, so an auth change or a failing listener in this window
+   * delays the announcement (for the listeners still owed it) instead of losing or repeating it.
+   * Returns false when the caller must schedule a retry for the returned announcements.
    */
   private async publishNotifications(owed: WalkResult['notify'], epoch: number): Promise<boolean> {
     for (let n = 0; n < owed.length; n++) {
-      const { hash, message } = owed[n]
+      const { hash, message, revision } = owed[n]
       let delivered = false
       try {
         delivered =
-          epoch === this.messageIndexEpoch && !this.closing && (await this._handleMessageOnUpdate(message, epoch))
+          this.isCurrent(epoch, revision) &&
+          (await this._handleMessageOnUpdate(message, epoch, revision, this.deliveryRecord(hash)))
       } catch (error) {
         this.logger.error('Announcing a channel message failed, retrying later', hash, error)
       }
@@ -341,6 +370,39 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     return true
   }
 
+  private isCurrent(epoch: number, revision: number): boolean {
+    return epoch === this.messageIndexEpoch && revision === this.authRevision && !this.closing
+  }
+
+  private deliveryRecord(hash: string): Delivered {
+    const pending = this.pendingHeads.get(hash)
+    if (pending === undefined) return new Map()
+    pending.delivered ??= new Map()
+    return pending.delivered
+  }
+
+  /**
+   * Hand one announcement to each listener not yet given it. EventEmitter.emit stops at the first
+   * throwing listener; delivering listener by listener lets the others receive the message now and
+   * a retry reach only the ones that failed, so no listener sees a message twice.
+   */
+  private deliver(event: StorageEvents, payload: unknown, delivered: Delivered): boolean {
+    const done = delivered.get(event) ?? new Set<Listener>()
+    delivered.set(event, done)
+    let complete = true
+    for (const listener of this.listeners(event) as Listener[]) {
+      if (done.has(listener)) continue
+      try {
+        listener.call(this, payload)
+        done.add(listener)
+      } catch (error) {
+        this.logger.error(`A ${event} listener failed, retrying later`, error)
+        complete = false
+      }
+    }
+    return complete
+  }
+
   private acknowledgeNotification(hash: string): void {
     const pending = this.pendingHeads.get(hash)
     if (pending === undefined || pending.notify) return
@@ -351,7 +413,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     if (this.closing) return
     for (const { hash } of owed) {
       const pending = this.pendingHeads.get(hash)
-      this.pendingHeads.set(hash, { notify: true, trusted: pending?.trusted ?? false })
+      this.pendingHeads.set(hash, { ...pending, notify: true, trusted: pending?.trusted ?? false })
     }
   }
 
@@ -543,7 +605,11 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     // Register before queueing: a walk already running for a newer head may index this entry
     // first, and then it announces the arrival instead of this walk.
     const pending = this.pendingHeads.get(entry.hash)
-    this.pendingHeads.set(entry.hash, { notify: pending?.notify ?? true, trusted: pending?.trusted ?? false })
+    this.pendingHeads.set(entry.hash, {
+      ...pending,
+      notify: pending?.notify ?? true,
+      trusted: pending?.trusted ?? false,
+    })
     const epoch = this.messageIndexEpoch
     try {
       const result = await this.queueMessageIndex(async (): Promise<WalkResult | undefined> => {
@@ -569,10 +635,16 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
   /**
    * Announce one consumed arrival: MESSAGES_STORED, and on mobile a push notification. Returns
-   * false when the announcement could not be made under the epoch the message was consumed in;
-   * the caller then keeps it pending. Nothing is emitted or recorded before that decision.
+   * false when the announcement could not be completed under the epoch and authorization revision
+   * the message was consumed in, or when a listener failed; the caller then keeps it pending and
+   * a retry reaches only the listeners still owed it. Nothing is recorded before that decision.
    */
-  private async _handleMessageOnUpdate(message: ConsumedChannelMessage, epoch: number): Promise<boolean> {
+  private async _handleMessageOnUpdate(
+    message: ConsumedChannelMessage,
+    epoch: number,
+    revision: number,
+    delivered: Delivered
+  ): Promise<boolean> {
     let notification: PushNotificationPayload | undefined
     // Display push notifications on mobile
     if (process.env.BACKEND === 'mobile' && message.verified) {
@@ -591,20 +663,23 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       }
     }
     // The lookup may outlive authorization changes or the store itself.
-    if (epoch !== this.messageIndexEpoch || this.closing) return false
-    if (this.channelData.type === ChannelType.DM) {
-      if (this.deliveredDmIds.has(message.id)) return true
-      this.deliveredDmIds.add(message.id)
-    }
-    this.emit(StorageEvents.MESSAGES_STORED, {
-      messages: [message],
-      isVerified: message.verified,
-    })
+    if (!this.isCurrent(epoch, revision)) return false
+    // A DM ID counts as delivered only once every listener received it.
+    if (this.channelData.type === ChannelType.DM && this.deliveredDmIds.has(message.id)) return true
+    let complete = this.deliver(
+      StorageEvents.MESSAGES_STORED,
+      {
+        messages: [message],
+        isVerified: message.verified,
+      },
+      delivered
+    )
     if (notification !== undefined) {
       this.logger.info(`Sending authenticated message notification`)
-      this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, notification)
+      complete = this.deliver(StorageEvents.SEND_PUSH_NOTIFICATION, notification, delivered) && complete
     }
-    return true
+    if (complete && this.channelData.type === ChannelType.DM) this.deliveredDmIds.add(message.id)
+    return complete
   }
 
   // Messages
@@ -715,7 +790,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
             if (epoch !== this.messageIndexEpoch || this.closing) return undefined
             for (const head of heads) {
               const pending = this.pendingHeads.get(head.hash)
-              this.pendingHeads.set(head.hash, { notify: pending?.notify ?? false, trusted: true })
+              this.pendingHeads.set(head.hash, { ...pending, notify: pending?.notify ?? false, trusted: true })
             }
             return this.walkPendingHeads(epoch)
           })
@@ -731,9 +806,10 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         }
         if (epoch !== this.messageIndexEpoch || result === undefined) continue
         this.messageIndexReady = true
-        // Heads whose ancestry is not readable yet keep the rest of the index usable.
-        if (!result.complete) this.scheduleRetry()
-        await this.publishNotifications(result.notify, epoch)
+        // Heads whose ancestry is not readable yet, or whose announcement could not be completed,
+        // keep the rest of the index usable and are retried.
+        const published = await this.publishNotifications(result.notify, epoch)
+        if (!result.complete || !published) this.scheduleRetry()
       }
     })()
     try {
@@ -764,11 +840,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         const indexed = this.indexedEntries.get(head)
         const value = indexed === undefined ? undefined : await this.getStore().get(head)
         if (epoch !== this.messageIndexEpoch || this.closing) return result(false)
+        const revision = this.authRevision
         const message = value == null ? undefined : await this.messagesService.onConsume(value, this.channelData)
         if (epoch !== this.messageIndexEpoch || this.closing) return result(false)
         if (message != null && message !== false && message.id === indexed!.id) {
-          notify.push({ hash: head, message })
-          this.pendingHeads.set(head, { notify: false, trusted: pending.trusted })
+          notify.push({ hash: head, message, revision })
+          this.pendingHeads.set(head, { ...pending, notify: false })
         } else {
           this.pendingHeads.delete(head)
         }
@@ -788,13 +865,14 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         const entry = frame.entry
         const value = entry.payload.value
         if (value?.channelId === this.channelData.id) {
+          const revision = this.authRevision
           const message = await this.messagesService.onConsume(value, this.channelData)
           if (epoch !== this.messageIndexEpoch || this.closing) return result(false)
           if (message != null && message !== false) {
             this.indexMessage(entry.hash, message)
             ids.push(message.id)
             if (this.pendingHeads.get(entry.hash)?.notify) {
-              notify.push({ hash: entry.hash, message })
+              notify.push({ hash: entry.hash, message, revision })
               notified.push(entry.hash)
             }
           } else {
@@ -848,7 +926,11 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     if (!complete) {
       // Keep the head pending: consumed entries are indexed, but its ancestry is not complete,
       // so the next attempt walks it again. Its notification waits for that attempt.
-      this.pendingHeads.set(head, { notify: (pending?.notify ?? false) && !notified.includes(head), trusted })
+      this.pendingHeads.set(head, {
+        ...pending,
+        notify: (pending?.notify ?? false) && !notified.includes(head),
+        trusted,
+      })
       return result(false)
     }
     // Commit completion only after the entire delta succeeds, so a read failure cannot hide
@@ -910,13 +992,17 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         hashes.push(known.values().next().value!)
       }
       if (!ambiguous) {
+        // Every message of the batch is served under one set of facts: an auth change mid-batch
+        // restarts it, and its results are then current again.
         const epoch = this.messageIndexEpoch
+        const revision = this.authRevision
+        const stale = () => epoch !== this.messageIndexEpoch || revision !== this.authRevision
         for (const hash of hashes) {
           const value = await this.getStore().get(hash)
-          if (epoch !== this.messageIndexEpoch) return this.getEntries(ids)
+          if (stale()) return this.getEntries(ids)
           if (value == null) continue
           const message = await this.messagesService.onConsume(value, this.channelData)
-          if (epoch !== this.messageIndexEpoch) return this.getEntries(ids)
+          if (stale()) return this.getEntries(ids)
           if (message != null && message !== false && requestedIds.has(message.id)) messages.push(message)
         }
         return messages
