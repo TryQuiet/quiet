@@ -63,10 +63,23 @@ describe('ChannelStore', () => {
       ;(channelStore as any).channelData = { id: 'channel-1', name: 'general', public: true }
       ;(channelStore as any).logger = makeLogger()
       ;(channelStore as any)._messagesService = messagesService
+      // The index reads accepted entries from the log; each fake entry's hash is its message ID.
+      const logEntry = (index: number) => ({
+        hash: messages[index].id,
+        payload: { value: messages[index] },
+        next: index > 0 ? [messages[index - 1].id] : [],
+        refs: [],
+      })
+      const indexOf = (hash: string) => messages.findIndex(message => message.id === hash)
       ;(channelStore as any).store = {
         events: storeEvents,
         iterator: async function* () {
           for (const message of messages) yield { hash: message.id, value: message }
+        },
+        log: {
+          heads: async () => (messages.length === 0 ? [] : [logEntry(messages.length - 1)]),
+          has: async (hash: string) => indexOf(hash) >= 0,
+          get: async (hash: string) => (indexOf(hash) >= 0 ? logEntry(indexOf(hash)) : undefined),
         },
         sync: { start: async () => {} },
       }
@@ -103,8 +116,9 @@ describe('ChannelStore', () => {
       const listener = storeEvents.listeners('update')[0] as (entry: unknown) => Promise<void>
       await listener({ hash: message.id, payload: { value: message } })
       expect(stored).toHaveBeenLastCalledWith({ messages: [message], isVerified: message.verified })
+      // Once the index is built, an ordinary arrival announces only the IDs it added.
       expect(storedIds).toHaveBeenLastCalledWith({
-        ids: messages.map(item => item.id),
+        ids: [message.id],
         channelId: message.channelId,
         communityId: 'community-1',
       })
@@ -241,7 +255,11 @@ describe('ChannelStore incremental message IDs', () => {
       })
     }
     const reads = { iterator: 0, get: 0 }
-    const auth = Object.assign(new EventEmitter(), { team: { id: 'team' } })
+    // develop resolves the local identity from the active chain when deciding whether to notify.
+    const auth = Object.assign(new EventEmitter(), {
+      team: { id: 'team' },
+      getActiveChain: () => ({ user: { userId: 'self' } }),
+    })
     const onConsume = jest.fn<(message: any) => Promise<any>>(async message => ({ ...message, verified: true }))
     const getUsername = jest.fn<(userId: string) => Promise<string | undefined>>(async () => undefined)
     const store = new ChannelStore(
