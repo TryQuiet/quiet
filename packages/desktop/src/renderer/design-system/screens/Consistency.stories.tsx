@@ -109,7 +109,7 @@ export const Controls = () => (
       </Row>
     </Section>
 
-    <Section label='Buttons · action bar 3505:10336 · secondary = outlined, 1px #B3B3B3, 14/20 (radius: in flight)'>
+    <Section label='Buttons · action bar 3505:10336 · secondary = outlined, 1px #B3B3B3, 14/20 at size=small; radius 16 from the shared MuiButton overrides'>
       <Row>
         <Button variant='outlined' size='small'>
           Never mind

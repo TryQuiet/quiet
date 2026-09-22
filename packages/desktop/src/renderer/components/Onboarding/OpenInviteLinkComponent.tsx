@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 
 import { OnboardingBody } from './OnboardingBody'
 import { monsterIllustration } from './icons'
+import { textLinkStates } from '../ui/interactionStates'
 
 const Illustration = styled('img')(({ theme }) => ({
   width: 120,
@@ -11,14 +12,15 @@ const Illustration = styled('img')(({ theme }) => ({
   marginBottom: theme.space.sm,
 }))
 
-const PasteLink = styled('button')(({ theme }) => ({
+/** A text link rendered as a button; states from `textLinkStates`. */
+export const TextLink = styled('button')(({ theme }) => ({
   alignSelf: 'center',
   background: 'none',
   border: 'none',
   padding: 0,
   color: theme.palette.colors.linkBlue,
-  cursor: 'pointer',
   font: 'inherit',
+  ...textLinkStates(theme),
 }))
 
 export interface OpenInviteLinkComponentProps {
@@ -33,11 +35,11 @@ export const OpenInviteLinkComponent: React.FC<OpenInviteLinkComponentProps> = (
     intro={'Open an invite link from a community admin. (If you just installed Quiet, open the invite again!)'}
     dataTestId='open-invite-link'
   >
-    <PasteLink type='button' onClick={onPasteLink} data-testid='paste-a-link'>
+    <TextLink type='button' onClick={onPasteLink} data-testid='paste-a-link'>
       <Typography variant='body1' component='span' color='inherit'>
         Paste a link
       </Typography>
-    </PasteLink>
+    </TextLink>
   </OnboardingBody>
 )
 

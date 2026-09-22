@@ -68,6 +68,8 @@ describe('Create StartingPanelComponent', () => {
                     data-testid="startingPanelComponent"
                   >
                     <img
+                      alt=""
+                      aria-hidden="true"
                       class="StartingPanelComponentimage"
                       src="test-file-stub"
                     />

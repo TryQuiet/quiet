@@ -40,7 +40,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1o0v020-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1fhpzgs-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -55,7 +55,12 @@ describe('BasicMessage', () => {
                   <div
                     class="BasicMessageComponentalignAvatar"
                   >
-                    Jdenticon
+                    <span
+                      class=""
+                      data-testid="messageAuthorPhoto-0"
+                    >
+                      Jdenticon
+                    </span>
                   </div>
                 </div>
                 <div
@@ -72,6 +77,7 @@ describe('BasicMessage', () => {
                       >
                         <h5
                           class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
+                          data-testid="messageAuthorName-0"
                         >
                           gringo
                         </h5>
@@ -129,7 +135,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1o0v020-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1fhpzgs-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -144,7 +150,12 @@ describe('BasicMessage', () => {
                   <div
                     class="BasicMessageComponentalignAvatar"
                   >
-                    Jdenticon
+                    <span
+                      class=""
+                      data-testid="messageAuthorPhoto-0"
+                    >
+                      Jdenticon
+                    </span>
                   </div>
                 </div>
                 <div
@@ -161,6 +172,7 @@ describe('BasicMessage', () => {
                       >
                         <h5
                           class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
+                          data-testid="messageAuthorName-0"
                         >
                           gringo
                         </h5>
@@ -228,7 +240,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding css-1o0v020-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding css-1fhpzgs-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -263,6 +275,7 @@ describe('BasicMessage', () => {
                       >
                         <h5
                           class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
+                          data-testid="messageAuthorName-0"
                         >
                           Quiet
                         </h5>
@@ -331,7 +344,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1o0v020-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1fhpzgs-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -346,7 +359,12 @@ describe('BasicMessage', () => {
                   <div
                     class="BasicMessageComponentalignAvatar"
                   >
-                    Jdenticon
+                    <span
+                      class=""
+                      data-testid="messageAuthorPhoto-0"
+                    >
+                      Jdenticon
+                    </span>
                   </div>
                 </div>
                 <div
@@ -363,6 +381,7 @@ describe('BasicMessage', () => {
                       >
                         <h5
                           class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
+                          data-testid="messageAuthorName-0"
                         >
                           gringo
                         </h5>

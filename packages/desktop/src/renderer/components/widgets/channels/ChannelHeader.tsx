@@ -8,14 +8,21 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 
 import { createLogger } from '../../../logger'
 import ChannelTypeIcon from './ChannelTypeIcon'
+import { ChannelType, UserProfile } from '@quiet/types'
+import _ from 'lodash'
+import DMProfilePhoto from './DMProfilePhoto'
 
 const PREFIX = 'ChannelHeaderComponent'
 
 const classes = {
   root: `${PREFIX}root`,
   title: `${PREFIX}title`,
+  subtitle: `${PREFIX}subtitle`,
+  subtitleSmall: `${PREFIX}subtitleSmall`,
+  spendButton: `${PREFIX}spendButton`,
   actions: `${PREFIX}actions`,
   switch: `${PREFIX}switch`,
+  tab: `${PREFIX}tab`,
   tabs: `${PREFIX}tabs`,
   selected: `${PREFIX}selected`,
   indicator: `${PREFIX}indicator`,
@@ -26,19 +33,43 @@ const classes = {
   bold: `${PREFIX}bold`,
   menu: `${PREFIX}menu`,
   lock: `${PREFIX}lock`,
+  subjectLink: `${PREFIX}subjectLink`,
+  headerTitle: `${PREFIX}headerTitle`,
+  headerTitleChannel: `${PREFIX}headerTitleChannel`,
+  headerTitleDm: `${PREFIX}headerTitleDm`,
+  memberCount: `${PREFIX}memberCount`,
 }
 
 const Root = styled('div')(({ theme }) => ({
-  // 'Panel title bar / Type=Channel' (library 3526:11541): padding 20/16 around a title block, hairline #F0F0F0.
-  // 16 + (24 + 20) + 16 on the token line-heights = 76; the kebab keeps 20 from the edge (12 + its own 8).
   [`& .${classes.root}`]: {
-    height: 76,
+    height: '75px',
     paddingLeft: 20,
-    paddingRight: theme.space.md,
+    paddingRight: 24,
     borderBottom: `1px solid ${theme.palette.colors.border01}`,
   },
 
-  [`& .${classes.title}`]: {},
+  [`& .${classes.title}`]: {
+    fontSize: '1rem',
+    lineHeight: '1.68',
+  },
+
+  [`& .${classes.subtitle}`]: {
+    fontSize: '0.8rem',
+  },
+
+  [`& .${classes.memberCount}`]: {
+    color: theme.palette.colors.gray50,
+    lineHeight: '20px',
+  },
+
+  [`& .${classes.subtitleSmall}`]: {
+    fontSize: '0.7rem',
+    lineHeight: '0.9',
+  },
+
+  [`& .${classes.spendButton}`]: {
+    fontSize: 13,
+  },
 
   [`& .${classes.actions}`]: {},
 
@@ -48,6 +79,19 @@ const Root = styled('div')(({ theme }) => ({
     borderRadius: 4,
     borderStyle: 'solid',
     borderColor: theme.palette.colors.gray03,
+  },
+
+  [`& .${classes.tab}`]: {
+    fontSize: 12,
+    minHeight: 22,
+    width: 65,
+    minWidth: 0,
+    lineHeight: '18px',
+    padding: 0,
+    textTransform: 'none',
+    backgroundColor: theme.palette.colors.gray03,
+    color: theme.palette.colors.gray40,
+    fontWeight: 'normal',
   },
 
   [`& .${classes.tabs}`]: {
@@ -79,14 +123,17 @@ const Root = styled('div')(({ theme }) => ({
     fontWeight: 500,
   },
 
-  // Hover for the kebab: the library's icon hover is a #F0F0F0 (border01) round tint (4873:18663).
   [`& .${classes.menu}`]: {
-    display: 'flex',
-    padding: theme.space.sm,
-    borderRadius: 16,
+    padding: '20px',
+    cursor: 'pointer',
+  },
+
+  // The header of a one-to-one DM names one person, so it leads to them. A group DM names several
+  // and has no single subject, so it stays inert.
+  [`& .${classes.subjectLink}`]: {
     cursor: 'pointer',
     '&:hover': {
-      backgroundColor: theme.palette.colors.border01,
+      textDecoration: 'underline',
     },
   },
 
@@ -94,22 +141,58 @@ const Root = styled('div')(({ theme }) => ({
     marginRight: -2,
     marginLeft: -2,
   },
+
+  // The glyph and the name are one cluster, which is what the 2px/4px gaps below are for.
+  // space-between pushed them to opposite ends of the row, so a channel called "a" read as
+  // "#        a" — the shorter the name, the wider the gap.
+  [`& .${classes.headerTitle}`]: {
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    alignContent: 'center',
+    display: 'flex',
+    direction: 'row',
+  },
+
+  [`& .${classes.headerTitleChannel}`]: {
+    gap: '2px',
+  },
+
+  [`& .${classes.headerTitleDm}`]: {
+    gap: '4px',
+  },
 }))
 
 export interface ChannelHeaderProps {
   channelName: string
+  me: UserProfile | undefined
+  members: UserProfile[]
+  channelType: ChannelType
   isPublic: boolean
   openContextMenu?: () => void
   enableContextMenu: boolean
+  maxDmNames?: number
+  /** Drawn under the channel name; omitted when the count is not known. */
+  memberCount?: number
+  /** Opens a person's profile. Only a one-to-one DM names a single person to open. */
+  openUserProfile?: (userId: string) => void
+  /** Presence for a DM, from `isDmConnected`. Omitted on a channel, which has no dot. */
+  dmConnected?: boolean
 }
 
 const logger = createLogger('channels:ChannelHeader')
 
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   channelName,
+  channelType,
+  me,
+  members,
   isPublic,
   openContextMenu,
   enableContextMenu,
+  openUserProfile,
+  maxDmNames = 2,
+  memberCount,
+  dmConnected,
 }) => {
   const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
@@ -141,19 +224,42 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
     return window.removeEventListener('resize', handleResize)
   })
 
-  const channelNameTruncated = channelName?.substring(0, 20)
+  // A one-to-one DM has exactly one other participant; a group DM has several and so names nobody
+  // in particular. `members` is the participant list, me included.
+  const others = members.filter(member => member.userId !== me?.userId)
+  const dmSubjectId = channelType === ChannelType.DM && others.length === 1 ? others[0].userId : undefined
+
+  let channelNameTruncated: string
+  if (channelType == null || channelType === ChannelType.CHANNEL) {
+    channelNameTruncated = channelName.substring(0, 20)
+  } else {
+    const dmNames = channelName.split(', ')
+    if (dmNames.length > maxDmNames) {
+      const namesToShow = dmNames.slice(0, maxDmNames)
+      channelNameTruncated = `${namesToShow.join(', ')} and ${dmNames.length - namesToShow.length} more`
+    } else {
+      channelNameTruncated = channelName
+    }
+  }
 
   return (
     <Root className={classes.wrapper}>
       <Grid container className={classes.root} justifyContent='space-between' alignItems='center' direction='row'>
         <Grid item>
-          <Grid item container alignItems='center'>
-            <Grid item>
-              <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='2px'>
+          <Grid item container alignItems='flex-start' direction='column'>
+            <Grid
+              container
+              item
+              className={classNames(classes.headerTitle, {
+                [classes.headerTitleChannel]: channelType == null || channelType === ChannelType.CHANNEL,
+                [classes.headerTitleDm]: channelType === ChannelType.DM,
+              })}
+            >
+              {channelType == null || channelType === ChannelType.CHANNEL ? (
                 <ChannelTypeIcon
                   isPublic={isPublic}
                   fill={'currentColor'}
-                  style={{ ...theme.typography.h5 }}
+                  style={{ ...theme.typography.subtitle1 }}
                   className={classNames({
                     [classes.title]: true,
                     [classes.bold]: true,
@@ -161,20 +267,40 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                   })}
                   data-testid={`channelTitle-icon-${isPublic ? 'public' : 'private'}`}
                 />
-                <Typography
-                  noWrap
-                  style={{ maxWidth: wrapperWidth }}
-                  variant='h5'
-                  className={classNames({
-                    [classes.title]: true,
-                    [classes.bold]: true,
-                  })}
-                  data-testid={'channelTitle'}
+              ) : (
+                <span
+                  className={classNames({ [classes.subjectLink]: dmSubjectId != null })}
+                  onClick={() => dmSubjectId != null && openUserProfile?.(dmSubjectId)}
+                  data-testid={'channelTitle-dm-photo'}
                 >
-                  {channelNameTruncated}
-                </Typography>
-              </Grid>
+                  <DMProfilePhoto members={members} me={me} connected={dmConnected} />
+                </span>
+              )}
+              <Typography
+                noWrap
+                style={{ maxWidth: wrapperWidth }}
+                variant='subtitle1'
+                className={classNames({
+                  [classes.title]: true,
+                  [classes.bold]: true,
+                  [classes.subjectLink]: dmSubjectId != null,
+                })}
+                onClick={() => dmSubjectId != null && openUserProfile?.(dmSubjectId)}
+                data-testid={'channelTitle'}
+              >
+                {channelNameTruncated}
+              </Typography>
             </Grid>
+            {/*
+              The design puts the channel's size under its name (Figma PVQ1Kjf6Cq8ng1czuVtvR8,
+              838:9769): "32 members  5m  Auto-delete". Only the count is drawn — the other two
+              segments are disappearing messages and auto-delete, neither of which is built.
+            */}
+            {memberCount != null && (
+              <Typography variant='body2' className={classes.memberCount} data-testid={'channelMemberCount'}>
+                {`${memberCount} ${memberCount === 1 ? 'member' : 'members'}`}
+              </Typography>
+            )}
           </Grid>
         </Grid>
         <Grid

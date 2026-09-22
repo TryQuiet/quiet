@@ -2,12 +2,25 @@ name: Mobile notification provider tests
 
 on:
   workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: 'Optional reviewed commit or PR ref to build; run this workflow from develop'
+        required: false
+        type: string
+  push:
+    branches: [develop]
+    paths:
+      - .github/workflows/mobile-notification-e2e.yml
+      - packages/mobile/e2e/appium/**
+      - packages/mobile/scripts/qss-e2e/**
+      - packages/mobile/.env.e2e.qss*
+      - packages/desktop/src/main/e2eCaptchaToken*
   pull_request:
     paths:
       - .github/workflows/mobile-notification-e2e.yml
       - packages/mobile/e2e/appium/**
       - packages/mobile/scripts/qss-e2e/**
-      - packages/mobile/.env.e2e.qss.push
+      - packages/mobile/.env.e2e.qss*
 
 permissions:
   contents: read
@@ -19,14 +32,17 @@ concurrency:
 jobs:
   android:
     name: Android Appium (${{ matrix.lane }})
-    # Same-repository PRs only: never execute a fork with provider credentials.
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    # PRs run local onboarding. Staging grants accept only trusted develop workflows.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
-        lane: [onboarding, provider]
+        lane: ${{ fromJSON(github.ref == 'refs/heads/develop' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && '["onboarding","provider"]' || '["onboarding"]') }}
     env:
       QUIET_NOTIFICATION_LANE: ${{ matrix.lane }}
       DISPLAY: ':99'
@@ -38,6 +54,7 @@ jobs:
       - name: Initialize pinned submodules and LFS binaries
         uses: actions/checkout@v5
         with:
+          ref: ${{ inputs.candidate_ref || github.sha }}
           submodules: recursive
           lfs: true
           token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
@@ -46,21 +63,12 @@ jobs:
       - name: Test credential handling
         run: python3 -m unittest discover -s packages/mobile/scripts/qss-e2e -p test_ci_credentials.py -v
 
-      - name: Validate Firebase client and provider credentials
+      - name: Validate staging Firebase client configuration
         if: matrix.lane == 'provider'
         env:
           ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
           IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
-          QSS_NOTIFICATION_FIREBASE_CREDENTIALS: ${{ secrets.QSS_NOTIFICATION_FIREBASE_CREDENTIALS }}
-          FIREBASE_ANDROID_PROJECT_ID: ${{ secrets.FIREBASE_ANDROID_PROJECT_ID || vars.FIREBASE_ANDROID_PROJECT_ID }}
-          FIREBASE_ANDROID_CLIENT_EMAIL: ${{ secrets.FIREBASE_ANDROID_CLIENT_EMAIL || vars.FIREBASE_ANDROID_CLIENT_EMAIL }}
-          FIREBASE_ANDROID_PRIVATE_KEY: ${{ secrets.FIREBASE_ANDROID_PRIVATE_KEY }}
-          FIREBASE_IOS_PROJECT_ID: ${{ secrets.FIREBASE_IOS_PROJECT_ID || vars.FIREBASE_IOS_PROJECT_ID }}
-          FIREBASE_IOS_CLIENT_EMAIL: ${{ secrets.FIREBASE_IOS_CLIENT_EMAIL || vars.FIREBASE_IOS_CLIENT_EMAIL }}
-          FIREBASE_IOS_PRIVATE_KEY: ${{ secrets.FIREBASE_IOS_PRIVATE_KEY }}
-          QSS_AWS_ACCESS_KEY_ID: ${{ secrets.QSS_AWS_ACCESS_KEY_ID }}
-          QSS_AWS_SECRET_ACCESS_KEY: ${{ secrets.QSS_AWS_SECRET_ACCESS_KEY }}
-        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require android --qss-development-aws
+        run: python3 packages/mobile/scripts/qss-e2e/ci_credentials.py --output "$RUNNER_TEMP/notification-credentials" --require android --staging
 
       - name: Prepare runner tools and disk
         run: |
@@ -88,24 +96,36 @@ jobs:
         run: |
           npm --prefix packages/mobile/e2e/appium ci
           npm --prefix packages/mobile/e2e/appium test
+          node --test packages/mobile/scripts/qss-only-build.test.cjs
+          node --test packages/mobile/scripts/notification-android-workflow.test.cjs packages/mobile/scripts/notification-staging-workflow.test.cjs
+
+      - name: Check staging health and automated enrollment
+        if: matrix.lane == 'provider'
+        run: node packages/mobile/e2e/appium/staging.mjs
 
       - name: Build the shared QSS-only backend
         run: node packages/backend/scripts/build-qss-only.cjs --output "$RUNNER_TEMP/notification-backend" --stage android,desktop
 
       - name: Build Android for the selected lane
         run: |
-          cp packages/mobile/.env.e2e.qss.push "$RUNNER_TEMP/notification.env"
+          sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:?Android SDK location is required}}"
+          "$sdk_root/cmdline-tools/latest/bin/sdkmanager" "ndk;28.2.13676358"
+          export ANDROID_NDK_HOME="$sdk_root/ndk/28.2.13676358"
+          npm --prefix packages/mobile run prepare-android-x86_64
+          env_file=.env.e2e.qss.staging
+          if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then env_file=.env.e2e.qss.push; fi
+          cp "packages/mobile/$env_file" "$RUNNER_TEMP/notification.env"
           printf '\nQUIET_E2E_QSS_ONLY=true\n' >> "$RUNNER_TEMP/notification.env"
           if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then
             sed -i 's/^QPS_ALLOWED=true$/QPS_ALLOWED=false/' "$RUNNER_TEMP/notification.env"
           fi
           cd packages/mobile/android
-          ENVFILE="$RUNNER_TEMP/notification.env" ./gradlew assembleStandardDebug -PreactNativeArchitectures=arm64-v8a --max-workers=2
+          ENVFILE="$RUNNER_TEMP/notification.env" ./gradlew assembleStandardDebug -PreactNativeArchitectures=x86_64 --max-workers=2
 
       - name: Build desktop peer
         working-directory: packages/desktop
         env:
-          ENVFILE: .env.e2e.qss
+          ENVFILE: ${{ matrix.lane == 'provider' && '.env.e2e.qss.staging' || '.env.e2e.qss' }}
           SOURCE_PATH: linux
         run: |
           npm run copyBinaries
@@ -137,8 +157,8 @@ jobs:
             ${{ runner.temp }}/notification-result.json
             ${{ runner.temp }}/notification-failures.jsonl
 
-      - name: Remove provider credentials
+      - name: Remove private enrollment and client files
         if: always()
         run: |
-          rm -f "$RUNNER_TEMP/notification-credentials/firebase-accounts.json"
+          rm -f "$RUNNER_TEMP/notification-run/ci-enrollment.jwt"
           rm -f packages/mobile/android/app/google-services.json packages/mobile/ios/GoogleService-Info.plist

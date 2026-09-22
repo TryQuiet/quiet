@@ -1,7 +1,6 @@
 import { AnyAction, combineReducers } from '@reduxjs/toolkit'
 import ElectronStore from 'electron-store'
 import createElectronStorage from 'redux-persist-electron-storage'
-import path from 'path'
 import { createMigrate, persistReducer } from 'redux-persist'
 
 import stateManagerReducers, {
@@ -78,7 +77,10 @@ const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state: any, action: AnyAction) => {
   // TODO: what is state?
-  if (action.type === communities.actions.resetApp.type) {
+  if (
+    action.type === communities.actions.resetApp.type ||
+    action.type === communities.actions.finalizeAdmissionReset.type
+  ) {
     state = {
       ...resetStateAndSaveTorConnectionData(),
       [StoreKeys.Socket]: state?.[StoreKeys.Socket],

@@ -2,7 +2,7 @@ import React from 'react'
 import { styled, useTheme } from '@mui/material/styles'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { getEmojiFromShortcode } from './utils/emojiCodes'
-import { rowHover } from '../../../../design-system/theme/components'
+import { dropdownSurfaceStyles } from '../../../ui/Dropdown/DropdownSurface'
 
 const PREFIX = 'EmojiDropdown'
 
@@ -13,31 +13,13 @@ const classes = {
 }
 
 const StyledRoot = styled('div')(({ theme }) => ({
+  // The panel itself is the shared dropdown surface; only what sits inside it is emoji-specific.
   [`&.${classes.emojiDropdown}`]: {
+    ...dropdownSurfaceStyles(theme.palette.mode === 'dark'),
     maxHeight: '200px',
     width: '100%',
-    // 'Overlay menu' (library 5578:43731): radius 16, shadow theme.shadows[6]; rows are 'Search result' (3799:12467).
-    background: theme.palette.background.default,
-    borderRadius: 16,
-    boxShadow: theme.shadows[6],
-    overflowY: 'auto',
     zIndex: 9999999,
-    border: `1px solid ${theme.palette.colors.border01}`,
-    padding: '0px',
     fontFamily: "'Rubik', sans-serif",
-    '&::-webkit-scrollbar': {
-      width: '6px',
-    },
-    '&::-webkit-scrollbar-track': {
-      background: 'transparent',
-    },
-    '&::-webkit-scrollbar-thumb': {
-      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
-      borderRadius: '3px',
-    },
-    '&::-webkit-scrollbar-thumb:hover': {
-      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)',
-    },
   },
   [`& .${classes.emojiDropdownItem}`]: {
     display: 'flex',
@@ -46,10 +28,10 @@ const StyledRoot = styled('div')(({ theme }) => ({
     cursor: 'pointer',
     transition: 'background-color 0.1s ease',
     '&:hover': {
-      background: rowHover(theme),
+      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : theme.palette.colors.border01,
     },
     '&:not(:last-child)': {
-      borderBottom: `1px solid ${theme.palette.colors.border01}`,
+      borderBottom: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
     },
     '& span:first-of-type': {
       marginRight: 12,
@@ -69,12 +51,9 @@ const StyledRoot = styled('div')(({ theme }) => ({
       textAlign: 'center',
     },
   },
+  // Highlight is the design system's row hover (#F0F0F0), not the blue tint this had invented.
   [`& .${classes.selectedItem}`]: {
-    background: theme.palette.colors.linkBlue,
-    color: theme.palette.colors.white,
-    '& span:first-of-type': {
-      color: theme.palette.colors.white,
-    },
+    background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : theme.palette.colors.border01,
     fontWeight: 400,
     position: 'relative',
   },

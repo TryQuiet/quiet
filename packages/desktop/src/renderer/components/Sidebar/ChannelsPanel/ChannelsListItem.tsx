@@ -50,6 +50,8 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 
   [`& .${classes.title}`]: {
     opacity: 0.7,
+    // 400, as the design's channel rows are ("Nav bar" 838:9760); 300 rendered them lighter than
+    // the "Channels" heading above them by more than the design intends.
     fontWeight: 400,
     overflow: 'hidden',
     textOverflow: 'ellipsis',

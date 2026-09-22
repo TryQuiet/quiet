@@ -18,6 +18,7 @@ const classes = {
   circleWrapper: `${PREFIX}circleWrapper`,
   circle: `${PREFIX}circle`,
   nickname: `${PREFIX}nickname`,
+  buttonContainer: `${PREFIX}buttonContainer`,
 }
 
 const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
@@ -34,6 +35,9 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
     textAlign: 'left',
     textTransform: 'lowercase',
     backgroundColor: 'inherit',
+    // MUI rounds a Button by default, which made this hover a floating pill among sidebar rows
+    // that highlight full-bleed. The other rows use the same wash (sidebarHover).
+    borderRadius: 0,
     '&:hover': {
       backgroundColor: theme.palette.colors.sidebarHover,
     },
@@ -55,6 +59,14 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
     maxWidth: 215,
     whiteSpace: 'nowrap',
   },
+
+  [`& .${classes.buttonContainer}`]: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'center',
+    gap: 8,
+  },
 }))
 
 export interface UserProfilePanelProps {
@@ -66,7 +78,7 @@ export interface UserProfilePanelProps {
 
 export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
   currentIdentity,
-  userId: userID,
+  userId,
   userProfile,
   userProfileContextMenu,
 }) => {
@@ -88,19 +100,17 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
         classes={{ root: classes.button }}
         data-testid={'user-profile-menu-button'}
       >
-        <ProfilePhoto
-          userProfile={userProfile}
-          userId={userID}
-          className={classes.profilePhoto}
-          size={24}
-          style={{
-            marginRight: '8px',
-            marginBottom: 0,
-          }}
-        />
-        <Typography variant='body2' className={classes.nickname} data-testid='user-profile-nickname'>
-          {username}
-        </Typography>
+        <Grid container className={classes.buttonContainer}>
+          <ProfilePhoto
+            userProfile={userProfile}
+            userId={userId}
+            className={classes.profilePhoto}
+            size={theme.componentSizes.avatar.small}
+          />
+          <Typography variant='body2' className={classes.nickname} data-testid='user-profile-nickname'>
+            {username}
+          </Typography>
+        </Grid>
       </Button>
     </UserProfilePanelButtonStyled>
   )

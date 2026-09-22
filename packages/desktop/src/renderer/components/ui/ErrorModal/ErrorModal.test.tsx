@@ -63,7 +63,8 @@ describe('ErrorModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      aria-label="Close"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ModalClose"
                       tabindex="0"
                       type="button"
@@ -79,9 +80,6 @@ describe('ErrorModal', () => {
                           d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                         />
                       </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
                     </button>
                   </div>
                 </div>
@@ -129,11 +127,11 @@ describe('ErrorModal', () => {
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-rk57zm-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-1hrzc2g-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <textarea
                             aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1nexjq2-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1qk1us7-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id="traceback"
                             rows="10"
@@ -143,7 +141,7 @@ describe('ErrorModal', () => {
                           </textarea>
                           <textarea
                             aria-hidden="true"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1nexjq2-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1qk1us7-MuiInputBase-input-MuiOutlinedInput-input"
                             readonly=""
                             style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
                             tabindex="-1"
@@ -169,7 +167,7 @@ describe('ErrorModal', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-capmjd-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-1zu9wc-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-b936vi-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >

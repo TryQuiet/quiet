@@ -10,6 +10,7 @@ import CopyToClipboard from 'react-copy-to-clipboard'
 import QR from 'react-qr-code'
 
 import type { LinkedDevicesComponentProps } from './LinkedDevices.types'
+import { glyphButtonStates, primaryButtonStates } from '../../../ui/interactionStates'
 
 const PREFIX = 'LinkedDevices'
 
@@ -21,10 +22,6 @@ const classes = {
   linkContainer: `${PREFIX}linkContainer`,
   linkVisibility: `${PREFIX}linkVisibility`,
   title: `${PREFIX}title`,
-  list: `${PREFIX}list`,
-  listLabel: `${PREFIX}listLabel`,
-  device: `${PREFIX}device`,
-  empty: `${PREFIX}empty`,
   centered: `${PREFIX}centered`,
 }
 
@@ -58,31 +55,12 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     position: 'absolute',
     right: 0,
     top: 8,
-  },
-  [`& .${classes.list}`]: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.space.sm,
-    marginTop: theme.space.xl,
-  },
-  [`& .${classes.listLabel}`]: {
-    color: theme.palette.colors.darkGray,
-  },
-  [`& .${classes.device}`]: {
-    paddingTop: theme.space.sm,
-    paddingBottom: theme.space.sm,
-    borderBottom: `1px solid ${theme.palette.colors.border01}`,
-  },
-  [`& .${classes.empty}`]: {
-    color: theme.palette.colors.darkGray,
+    ...glyphButtonStates(theme, false),
   },
   [`&.${classes.centered}`]: {
     alignItems: 'center',
     textAlign: 'center',
     [`& .${classes.linkContainer}`]: {
-      width: '100%',
-    },
-    [`& .${classes.list}`]: {
       width: '100%',
     },
   },
@@ -93,10 +71,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginTop: 24,
     textTransform: 'none',
     width: '100%',
-    '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue,
-      opacity: 0.7,
-    },
+    ...primaryButtonStates(theme, false),
   },
 }))
 
@@ -107,10 +82,8 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
   isLoading,
   revealLink,
   onToggleLinkVisibility,
-  linkedDevices,
   centered = false,
 }) => {
-  const otherDevices = (linkedDevices ?? []).filter(device => !device.isCurrent && device.removedAt == null)
   return (
     <StyledGrid container direction='column' className={centered ? classes.centered : undefined}>
       <Grid item className={classes.title}>
@@ -126,7 +99,7 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
           <Grid item className={classes.description}>
             <Typography variant='body2'>
               {isLoading
-                ? 'Quiet is creating a private, one-time link for your other device.'
+                ? 'Quiet is creating a private link for your other device.'
                 : 'Make sure this device is connected to the community, then close and reopen Linked devices to try again.'}
             </Typography>
           </Grid>
@@ -145,7 +118,9 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
           </Grid>
           <Grid item className={classes.description}>
             <Typography variant='body2'>
-              This one-time link expires after 30 minutes. Only share it with a device you control.
+              This link can be used by more than one device until it expires after 30 minutes. Anyone who keeps the link
+              and a copy of the community history may retain historical encryption keys after it expires or is revoked.
+              Treat it like a password and only share it with devices you control.
             </Typography>
           </Grid>
           <Grid item className={classes.linkContainer}>
@@ -157,6 +132,7 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
               size='small'
               onClick={onToggleLinkVisibility}
               className={classes.linkVisibility}
+              disableRipple
             >
               {revealLink ? (
                 <Visibility color='primary' fontSize='small' />
@@ -174,27 +150,6 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
           </Grid>
         </>
       )}
-      <Grid item className={classes.list} data-testid='linked-devices-list'>
-        <Typography variant='overline' className={classes.listLabel}>
-          Linked devices
-        </Typography>
-        {otherDevices.length === 0 ? (
-          <Typography variant='body2' className={classes.empty} data-testid='no-linked-devices'>
-            No linked devices
-          </Typography>
-        ) : (
-          otherDevices.map(device => (
-            <Typography
-              variant='body1'
-              className={classes.device}
-              key={device.deviceId}
-              data-testid={`linked-device-${device.deviceName}`}
-            >
-              {device.deviceName}
-            </Typography>
-          ))
-        )}
-      </Grid>
     </StyledGrid>
   )
 }

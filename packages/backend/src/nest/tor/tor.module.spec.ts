@@ -97,67 +97,76 @@ describe('TorModule authentication initialization', () => {
     })
   })
 
-  it('keeps community hidden-service creation pending until first native readiness establishes its generation', async () => {
+  it('allows explicit publication waits across the first native credential update', async () => {
     module = await createModuleBuilder().compile()
     const tor = module.get(Tor)
     const torControl = module.get(TorControl)
-    const connect = jest.spyOn(torControl as any, '_connect').mockResolvedValue(undefined)
-    const sendCommand = jest.spyOn(torControl, '_sendCommand').mockResolvedValue({
-      code: 250,
-      messages: ['250-ServiceID=created-service', '250-PrivateKey=ED25519-V3:test-key', '250 OK'],
+    const sendCommandAndWaitForEvent = jest.spyOn(torControl, 'waitForEventAfter').mockImplementation(async () => {
+      await torControl.waitForCredentials()
+      return {
+        code: 250,
+        messages: ['250-ServiceID=existing-service', '250 OK'],
+      }
     })
     jest.useFakeTimers()
-    const creation = tor.createNewHiddenService({ targetPort: 3000 })
+    const creation = tor.waitForHiddenServicePublication({
+      targetPort: 3000,
+      privKey: 'test-key',
+      onionAddress: 'existing-service',
+    })
     await jest.advanceTimersByTimeAsync(5000)
-    expect(connect).not.toHaveBeenCalled()
-    expect(sendCommand).not.toHaveBeenCalled()
+    expect(sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
 
     tor.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
-    await expect(creation).resolves.toEqual({
-      onionAddress: 'created-service.onion',
-      privateKey: 'ED25519-V3:test-key',
-    })
-    expect(sendCommand).toHaveBeenCalledTimes(1)
+    await expect(creation).resolves.toBe('existing-service.onion')
+    expect(sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
   })
 
   it('publishes an existing hidden service queued before native credentials without a stale-generation failure', async () => {
     module = await createModuleBuilder().compile()
     const tor = module.get(Tor)
     const torControl = module.get(TorControl)
-    const connect = jest.spyOn(torControl as any, '_connect').mockResolvedValue(undefined)
-    const sendCommand = jest.spyOn(torControl, '_sendCommand').mockResolvedValue({
-      code: 250,
-      messages: ['250-ServiceID=existing-service', '250 OK'],
+    const sendCommandAndWaitForEvent = jest.spyOn(torControl, 'waitForEventAfter').mockImplementation(async () => {
+      await torControl.waitForCredentials()
+      return {
+        code: 250,
+        messages: ['250-ServiceID=existing-service', '250 OK'],
+      }
     })
     jest.useFakeTimers()
-    const publication = tor.spawnHiddenService({
+    const publication = tor.waitForHiddenServicePublication({
       targetPort: 3000,
       privKey: 'test-key',
       onionAddress: 'existing-service',
     })
     await jest.advanceTimersByTimeAsync(5000)
-    expect(connect).not.toHaveBeenCalled()
-    expect(sendCommand).not.toHaveBeenCalled()
+    expect(sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
     expect(() => tor.rewireNativeTor({ controlPort, httpTunnelPort, authCookie: '' })).toThrow('Missing native Tor')
     expect(torControl.hasCredentials).toBe(false)
 
     tor.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
     await expect(publication).resolves.toBe('existing-service.onion')
-    expect(sendCommand).toHaveBeenCalledTimes(1)
+    expect(sendCommandAndWaitForEvent).toHaveBeenCalledTimes(1)
   })
 
   it('still rejects stale community creation if its generation was reset while waiting for the first cookie', async () => {
     module = await createModuleBuilder().compile()
     const tor = module.get(Tor)
     const torControl = module.get(TorControl)
-    jest.spyOn(torControl as any, '_connect').mockResolvedValue(undefined)
-    jest.spyOn(torControl, '_sendCommand').mockResolvedValue({
-      code: 250,
-      messages: ['250-ServiceID=stale-service', '250-PrivateKey=ED25519-V3:stale-key', '250 OK'],
+    jest.spyOn(torControl, 'waitForEventAfter').mockImplementation(async () => {
+      await torControl.waitForCredentials()
+      return {
+        code: 250,
+        messages: ['250-ServiceID=stale-service', '250-PrivateKey=ED25519-V3:stale-key', '250 OK'],
+      }
     })
     jest.useFakeTimers()
-    const creation = tor.createNewHiddenService({ targetPort: 3000 })
-    const failure = expect(creation).rejects.toThrow('Tor generation changed while creating hidden service')
+    const creation = tor.waitForHiddenServicePublication({
+      targetPort: 3000,
+      privKey: 'test-key',
+      onionAddress: 'existing-service',
+    })
+    const failure = expect(creation).rejects.toThrow('Tor generation changed while initializing hidden service')
     tor.resetBootstrapState()
     tor.rewireNativeTor({ controlPort, httpTunnelPort, authCookie })
     await failure

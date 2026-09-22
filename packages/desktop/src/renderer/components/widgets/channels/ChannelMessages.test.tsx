@@ -44,6 +44,7 @@ describe('ChannelMessages', () => {
         duplicatedUsernameModalHandleOpen={jest.fn()}
         unregisteredUsernameModalHandleOpen={jest.fn()}
         maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        allowEmpty={false}
         messages={messages}
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}
@@ -83,7 +84,7 @@ describe('ChannelMessages', () => {
               <div>
                 <div
                   aria-label="Messages from Today"
-                  class="MuiGrid-root MuiGrid-container css-aaog9h-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-12vglnp-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
@@ -110,7 +111,7 @@ describe('ChannelMessages', () => {
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1o0v020-MuiListItem-root"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1fhpzgs-MuiListItem-root"
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -125,7 +126,12 @@ describe('ChannelMessages', () => {
                         <div
                           class="BasicMessageComponentalignAvatar"
                         >
-                          Jdenticon
+                          <span
+                            class=""
+                            data-testid="messageAuthorPhoto-string"
+                          >
+                            Jdenticon
+                          </span>
                         </div>
                       </div>
                       <div
@@ -142,6 +148,7 @@ describe('ChannelMessages', () => {
                             >
                               <h5
                                 class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
+                                data-testid="messageAuthorName-string"
                               >
                                 string
                               </h5>

@@ -26,29 +26,14 @@ export const radius = { sm: radii[0], md: radii[1], lg: radii[2] }
 export const overlayShadow = '0px 6px 30px rgba(0, 0, 0, 0.11)'
 
 /**
- * Secondary button: the library's `Button` next to the filled action in
- * `action bar / Buttons=Single with Cancel` (3505:10321) - white, 1px #B3B3B3
- * (border02), Rubik 14/20 w400, padding 6/12. Wired into MuiButton by theme.ts.
- * Its corner radius follows the primary button's (MuiButton root), which is
- * being set on design/onboarding-impl.
+ * The outlined (secondary) button is `action bar / Buttons=Single with Cancel` (3505:10321) -
+ * white, 1px #B3B3B3 (border02), Rubik 14/20 w400, padding 6/12.
+ *
+ * It is no longer wired in from here: develop's `buttonStyleOverrides` in theme.ts carries the
+ * outlined variant with the same #B3B3B3 border, and puts the library's Large metrics on the
+ * button root with Small as the override. A secondary button at 14/20 with 6/12 padding is
+ * therefore `size='small'` on that scale, rather than every outlined button being pinned small.
  */
-export const buttonOutlined = ({ theme }: { theme: Theme }) => ({
-  textTransform: 'none' as const,
-  fontSize: type.body.fontSize,
-  lineHeight: `${type.body.lineHeight}px`,
-  fontWeight: type.body.fontWeight,
-  paddingTop: 6,
-  paddingBottom: 6,
-  paddingLeft: space.md,
-  paddingRight: space.md,
-  color: theme.palette.text.primary,
-  borderColor: theme.palette.colors.border02,
-  backgroundColor: theme.palette.background.default,
-  '&:hover': {
-    borderColor: theme.palette.colors.border02,
-    backgroundColor: theme.palette.action.hover,
-  },
-})
 
 export const designComponents: Components<Theme> = {
   // Body text is the `body` role (14/20). theme.ts used to pin 14/24 here.

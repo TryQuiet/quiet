@@ -107,7 +107,7 @@ export const ContextMenuItemList: FC<ContextMenuItemListProps> = ({ items }) => 
   )
 }
 
-export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
+export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suffix, destructive, action }) => {
   const theme = useTheme()
 
   return (
@@ -123,16 +123,41 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         }}
         sx={{ '&:hover': { backgroundColor: rowHover(theme) } }}
         onClick={action}
-        data-testid={`contextMenuItem${title.replace(' ', '_')}`}
+        data-testid={`contextMenuItem${title.replace(/ /g, '_')}`}
       >
         <Grid
           style={{
             flex: 8,
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          <Typography>{title}</Typography>
+          {/* The weight is the theme's, not a per-call override. */}
+          <Typography style={{ color: destructive ? theme.palette.error.main : undefined }}>{title}</Typography>
+          {subtitle && (
+            <Typography
+              fontWeight={'normal'}
+              style={{ fontSize: 12, lineHeight: '16px', color: theme.palette.colors.gray50 }}
+            >
+              {subtitle}
+            </Typography>
+          )}
         </Grid>
-        <Grid style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+        <Grid
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          {suffix && (
+            <Typography fontWeight={'normal'} style={{ color: theme.palette.colors.gray50 }}>
+              {suffix}
+            </Typography>
+          )}
           <NavigateNextIcon />
         </Grid>
       </Grid>

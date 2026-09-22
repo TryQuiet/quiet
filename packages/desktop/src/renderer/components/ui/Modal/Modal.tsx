@@ -227,6 +227,7 @@ export const Modal: React.FC<IModalProps> = ({
                         }
                       }}
                       dataTestId={`${testIdPrefix}ModalClose`}
+                      ariaLabel='Close'
                     >
                       <ClearIcon />
                     </IconButton>

@@ -204,25 +204,7 @@ export const LinkDevices = () => (
     title='Link devices'
     bar='Link devices'
     figma='2811:2575'
-    render={() => (
-      <LinkDevicesComponent
-        onDisplayQrCode={noop}
-        onScanQrCode={noop}
-        linkedDevices={[
-          { deviceId: 'this', deviceName: 'this device', isCurrent: true },
-          { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
-        ]}
-      />
-    )}
-  />
-)
-
-export const LinkDevicesEmpty = () => (
-  <Screen
-    title='Link devices · no linked devices'
-    bar='Link devices'
-    figma='2811:2575'
-    render={() => <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} linkedDevices={[]} />}
+    render={() => <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} />}
   />
 )
 
@@ -322,11 +304,6 @@ const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
 
 const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
-const WALKTHROUGH_DEVICES = [
-  { deviceId: 'this', deviceName: 'this device', isCurrent: true },
-  { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
-]
-
 /** Type a value into every paste input under `root` the way a user would (React sees a native input event). */
 const fillPasteInputs = (root: HTMLElement | null, value: string) => {
   if (!root) return
@@ -395,9 +372,7 @@ const WalkthroughStory = () => {
     record(`identity.actions.registerUsername({ nickname: '${nickname}' })`)
     finish()
   }
-  // LinkDevices.tsx refreshes the device list when its modal opens.
   const openLinkDevices = () => {
-    record('connection.actions.getLinkedDevices()')
     go('linkDevices')
   }
 
@@ -430,11 +405,7 @@ const WalkthroughStory = () => {
         return <CreateUsernameBody registerUsername={onRegister} />
       case 'linkDevices':
         return (
-          <LinkDevicesComponent
-            onDisplayQrCode={() => go('displayQrCode')}
-            onScanQrCode={() => go('scanQrCode')}
-            linkedDevices={WALKTHROUGH_DEVICES}
-          />
+          <LinkDevicesComponent onDisplayQrCode={() => go('displayQrCode')} onScanQrCode={() => go('scanQrCode')} />
         )
       case 'displayQrCode':
         return (
@@ -444,7 +415,6 @@ const WalkthroughStory = () => {
               isLoading={false}
               revealLink={revealLink}
               onToggleLinkVisibility={() => setRevealLink(v => !v)}
-              linkedDevices={WALKTHROUGH_DEVICES}
               centered
             />
           </OnboardingBody>

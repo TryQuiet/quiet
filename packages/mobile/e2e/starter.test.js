@@ -97,7 +97,7 @@ describe('User', () => {
   // })
 
   test('sees channels list', async () => {
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(LONG)
   })
@@ -114,7 +114,7 @@ describe('User', () => {
     await device.launchApp({ newInstance: false })
 
     // User comes back to channel list
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })
@@ -149,7 +149,7 @@ describe('User', () => {
       await device.pressBack()
     }
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
 
@@ -174,14 +174,14 @@ describe('User', () => {
     const componentName = 'create-channel-component'
     await checkVisualRegression(componentName)
 
-    await waitFor(element(by.text('Create channel')))
+    await waitFor(element(by.id('create-channel-component')))
       .toBeVisible()
       .withTimeout(BASIC)
     const channelNameInput = await singleLineInput('Channel name')
     await press(channelNameInput)
     await write(channelNameInput, 'roll')
 
-    await press(element(by.text('Continue')), true)
+    await press(element(by.text('Create channel')).atIndex(1))
 
     await waitFor(element(by.id('chat_roll')))
       .toBeVisible()
@@ -203,7 +203,7 @@ describe('User', () => {
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -228,7 +228,7 @@ describe('User', () => {
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -307,7 +307,7 @@ describe('User', () => {
   })
 
   test('should see channels list again', async () => {
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(LONG)
   })
@@ -323,7 +323,7 @@ describe('User', () => {
     await device.launchApp({ newInstance: false })
 
     // User comes back to channel list
-    await waitFor(element(by.id('channels_list')))
+    await waitFor(element(by.id('channel-list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })

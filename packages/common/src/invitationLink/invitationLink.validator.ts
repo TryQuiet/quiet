@@ -155,6 +155,8 @@ export const validatePeerData = ({ peerId, onionAddress }: { peerId: string; oni
     return false
   }
 
+  // parseLocalAddress rejects loopback addresses unless the E2E-only local
+  // transport gate is enabled.
   const address = onionAddress.trim()
   if (!address.match(ONION_ADDRESS_REGEX) && parseLocalAddress(address) == null) {
     logger.warn(`Peer address ${onionAddress} is not valid`)

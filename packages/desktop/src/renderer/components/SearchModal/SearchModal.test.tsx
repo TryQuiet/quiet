@@ -116,7 +116,8 @@ describe('Search Modal', () => {
                       data-testid="ModalActions"
                     >
                       <button
-                        class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                        aria-label="Close"
+                        class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                         data-testid="ModalClose"
                         tabindex="0"
                         type="button"
@@ -132,9 +133,6 @@ describe('Search Modal', () => {
                             d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                           />
                         </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
                       </button>
                     </div>
                   </div>
@@ -166,7 +164,7 @@ describe('Search Modal', () => {
                               src="test-file-stub"
                             />
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root SearchModalComponentinput css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root SearchModalComponentinput css-3wyanu-MuiFormControl-root-MuiTextField-root"
                               data-testid="searchChannelInput"
                             >
                               <div
@@ -183,9 +181,6 @@ describe('Search Modal', () => {
                                 />
                               </div>
                             </div>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 css-1nv555-MuiTypography-root"
-                            />
                           </div>
                           <img
                             class="SearchModalComponentcloseIcon"
