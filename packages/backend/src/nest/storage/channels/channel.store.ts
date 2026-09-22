@@ -43,7 +43,8 @@ type IndexedEntry = { id: string; userId: string }
 // listeners of each announcement event that already received this message, so a retry after a
 // failing listener reaches only the listeners still owed it.
 type Listener = (...args: any[]) => void
-type Delivered = Map<string, Set<Listener>>
+// Per announcement event, how many registrations of each listener already received the message.
+type Delivered = Map<string, Map<Listener, number>>
 type PendingHead = { notify: boolean; trusted: boolean; delivered?: Delivered }
 type AuthFingerprint = { localUserId: string; members: Map<string, string> }
 // notify: arrivals this walk consumed whose announcement is still owed, keyed by their entry hash so
@@ -51,7 +52,9 @@ type AuthFingerprint = { localUserId: string; members: Map<string, string> }
 // revision: the authorization revision the message was consumed under; it may only be announced
 // while that revision is still current.
 type Notification = { hash: string; message: ConsumedChannelMessage; revision: number }
-type WalkResult = { ids: string[]; notify: Notification[]; complete: boolean }
+// revision: the authorization revision the walk started under; its ids may only be announced as a
+// delta while that revision is current, otherwise the next reconciliation snapshot carries them.
+type WalkResult = { ids: string[]; notify: Notification[]; complete: boolean; revision: number }
 
 /**
  * Members whose consume results a sigchain update may have changed, or undefined when the whole
@@ -301,7 +304,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         this.committedAuth = target
         if (this.dirtyAuthors.size === 0) this.authRecheckNeeded = false
         const pending = await this.walkPendingHeads(epoch)
-        return { ids: [...ids, ...pending.ids], notify: [...notify, ...pending.notify], complete: pending.complete }
+        return { ...pending, ids: [...ids, ...pending.ids], notify: [...notify, ...pending.notify] }
       })
       if (result === undefined || epoch !== this.messageIndexEpoch || this.closing) return
       const published = await this.publishNotifications(result.notify, epoch)
@@ -320,15 +323,16 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   private async walkPendingHeads(epoch: number): Promise<WalkResult> {
     const ids: string[] = []
     const notify: WalkResult['notify'] = []
+    const revision = this.authRevision
     let complete = true
     for (const [hash, pending] of [...this.pendingHeads]) {
       const result = await this.walkAncestry(hash, epoch, pending.trusted)
-      if (epoch !== this.messageIndexEpoch || this.closing) return { ids, notify, complete: false }
+      if (epoch !== this.messageIndexEpoch || this.closing) return { ids, notify, complete: false, revision }
       ids.push(...result.ids)
       notify.push(...result.notify)
       if (!result.complete) complete = false
     }
-    return { ids, notify, complete }
+    return { ids, notify, complete, revision }
   }
 
   /** Emit the delta announcement and per-message notifications outside the index queue. */
@@ -340,7 +344,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     const published = await this.publishNotifications(result.notify, epoch)
     if (result.complete && published) this.retryDelayMs = ChannelStore.RETRY_DELAY_MS
     else this.scheduleRetry()
-    await this.refreshMessageIds(result.ids, epoch)
+    await this.refreshMessageIds(result.ids, epoch, result.revision)
   }
 
   /**
@@ -382,21 +386,30 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   }
 
   /**
-   * Hand one announcement to each listener not yet given it. EventEmitter.emit stops at the first
-   * throwing listener; delivering listener by listener lets the others receive the message now and
-   * a retry reach only the ones that failed, so no listener sees a message twice.
+   * Hand one announcement to each registered listener not yet given it. EventEmitter.emit stops at
+   * the first throwing listener; delivering registration by registration lets the others receive
+   * the message now and a retry reach only the ones that threw. A listener that throws before its
+   * effect therefore sees the message exactly once; one that throws after its effect sees it again
+   * (at least once), which is why the forwarding boundary in ChannelsService never throws back here
+   * and the state-manager upserts messages by ID.
    */
   private deliver(event: StorageEvents, payload: unknown, delivered: Delivered): boolean {
-    const done = delivered.get(event) ?? new Set<Listener>()
+    const done = delivered.get(event) ?? new Map<Listener, number>()
     delivered.set(event, done)
+    // rawListeners keeps once() wrappers (calling one unregisters it) and repeated registrations.
+    const seen = new Map<Listener, number>()
+    const failed = new Set<Listener>()
     let complete = true
-    for (const listener of this.listeners(event) as Listener[]) {
-      if (done.has(listener)) continue
+    for (const listener of this.rawListeners(event) as Listener[]) {
+      const occurrence = seen.get(listener) ?? 0
+      seen.set(listener, occurrence + 1)
+      if (occurrence < (done.get(listener) ?? 0) || failed.has(listener)) continue
       try {
         listener.call(this, payload)
-        done.add(listener)
+        done.set(listener, occurrence + 1)
       } catch (error) {
         this.logger.error(`A ${event} listener failed, retrying later`, error)
+        failed.add(listener)
         complete = false
       }
     }
@@ -732,7 +745,11 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    *
    * @emits StorageEvents.MESSAGE_IDS_STORED
    */
-  private async refreshMessageIds(addedIds?: string[], addedEpoch = this.messageIndexEpoch): Promise<void> {
+  private async refreshMessageIds(
+    addedIds?: string[],
+    addedEpoch = this.messageIndexEpoch,
+    addedRevision = this.authRevision
+  ): Promise<void> {
     try {
       const wasReady = this.messageIndexReady
       await this.ensureMessageIndex()
@@ -740,7 +757,10 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       const epoch = this.messageIndexEpoch
       // The frontend treats IDs as candidates to fetch, not an authoritative replacement list.
       // Ordinary arrivals need only announce the delta; reconciliation still sends a snapshot.
-      const ids = wasReady && addedIds !== undefined && addedEpoch === epoch ? addedIds : [...this.messageHashes.keys()]
+      // Both are announced only under current facts: a delta consumed under superseded facts and
+      // the entries of members whose recheck is still owed wait for the recheck's own snapshot.
+      const current = addedEpoch === epoch && addedRevision === this.authRevision
+      const ids = wasReady && addedIds !== undefined && current ? addedIds : this.announcedIds()
       if (addedIds !== undefined && ids.length === 0) return
       const community = await this.localDbService.getCurrentCommunity()
       if (epoch !== this.messageIndexEpoch) return
@@ -762,6 +782,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         this.scheduleRetry()
       }
     }
+  }
+
+  /** Every indexed ID whose author is not awaiting a recheck. */
+  private announcedIds(): string[] {
+    const ids = new Set<string>()
+    for (const entry of this.indexedEntries.values()) {
+      if (!this.dirtyAuthors.has(entry.userId)) ids.add(entry.id)
+    }
+    return [...ids]
   }
 
   /** Coalesce initial sync and auth-triggered rebuilds; ordinary arrivals update the index above. */
@@ -828,7 +857,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   private async walkAncestry(head: string, epoch: number, trusted: boolean): Promise<WalkResult> {
     const ids: string[] = []
     const notify: WalkResult['notify'] = []
-    const result = (complete: boolean): WalkResult => ({ ids, notify, complete })
+    const startRevision = this.authRevision
+    const result = (complete: boolean): WalkResult => ({ ids, notify, complete, revision: startRevision })
     if (epoch !== this.messageIndexEpoch || this.closing) return result(false)
     const log = this.getStore().log
     const pending = this.pendingHeads.get(head)

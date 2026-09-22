@@ -1157,27 +1157,38 @@ describe('ChannelStore incremental message IDs', () => {
     it.each(['rejected', 'accepted'] as const)(
       "M-1: never announces a walk consumed under an author's superseded facts; announces the %s current result once",
       async outcome => {
-        const { store, auth, append, onConsume } = createStore()
+        const { store, auth, append, onConsume, ids } = createStore()
         ;(store as any).retryDelayMs = 1
         const delivered = jest.fn<(payload: { messages: { id: string; consumedUnder: number }[] }) => void>()
         store.on(StorageEvents.MESSAGES_STORED, delivered)
         let generation = 0
         auth.getActiveChain = () => chainWith([self, alice(generation)])
         await store.subscribe()
-        const { paused, resume } = pause()
+        const walk = pause()
+        const recheck = pause()
         onConsume.mockImplementation(async message => {
           const consumedUnder = generation
-          if (consumedUnder === 0) await paused
-          if (consumedUnder === 1 && outcome === 'rejected') return false
+          if (consumedUnder === 0) await walk.paused
+          if (consumedUnder === 1) {
+            await recheck.paused
+            if (outcome === 'rejected') return false
+          }
           return { ...message, verified: true, consumedUnder }
         })
         const arrival = append('a1', 'a1', authored('a1', 'alice'))
         await waitFor(() => onConsume.mock.calls.length === 1)
         // Alice's keys rotate while her message is being consumed under the old ones.
         generation = 1
+        const announcedBefore = ids.mock.calls.length
         auth.emit(SigchainEvents.UPDATED)
-        resume()
+        walk.resume()
         await arrival
+        // The walk published under superseded facts: until the current recheck decides, no event
+        // may name a1, neither MESSAGES_STORED nor a MESSAGE_IDS_STORED delta or snapshot.
+        await waitFor(() => onConsume.mock.calls.length === 2)
+        expect(delivered).not.toHaveBeenCalled()
+        expect(ids.mock.calls.slice(announcedBefore).flatMap(([event]) => event.ids)).not.toContain('a1')
+        recheck.resume()
         await waitFor(() => (store as any).dirtyAuthors.size === 0)
         await settle()
         if (outcome === 'accepted') {
@@ -1185,8 +1196,10 @@ describe('ChannelStore incremental message IDs', () => {
             [['a1', 1]],
           ])
           expect(onConsume).toHaveBeenCalledTimes(2)
+          expect(ids.mock.lastCall?.[0].ids).toEqual(['a1'])
         } else {
           expect(delivered).not.toHaveBeenCalled()
+          expect(ids.mock.calls.slice(announcedBefore).flatMap(([event]) => event.ids)).not.toContain('a1')
           expect((store as any).indexedEntries.has('a1')).toBe(false)
           expect(await store.getEntries(['a1'])).toEqual([])
         }
@@ -1388,6 +1401,61 @@ describe('ChannelStore incremental message IDs', () => {
       auth.emit(SigchainEvents.UPDATED)
       resume()
       expect(await fetch).toEqual([])
+    })
+  })
+
+  describe('audit regressions (Daybreak iteration 3)', () => {
+    const messageIds = (payload: { messages: { id: string }[] }) => payload.messages.map(message => message.id)
+    const settle = () => new Promise(resolve => setTimeout(resolve, 20))
+
+    it('L-1: a once() listener receives one announcement and is unregistered', async () => {
+      const { store, append } = createStore()
+      const once = jest.fn()
+      store.once(StorageEvents.MESSAGES_STORED, once)
+      await store.subscribe()
+      await append('m1')
+      await append('m2')
+      expect(once).toHaveBeenCalledTimes(1)
+      expect(store.listenerCount(StorageEvents.MESSAGES_STORED)).toBe(0)
+    })
+
+    it('L-1: a listener registered twice receives each announcement twice, also across a retry', async () => {
+      const { store, append } = createStore()
+      ;(store as any).retryDelayMs = 1
+      const seen: string[] = []
+      let failures = 1
+      const listener = (payload: { messages: { id: string }[] }) => {
+        if (failures-- > 0) throw new Error('first registration failed once')
+        seen.push(...messageIds(payload))
+      }
+      store.on(StorageEvents.MESSAGES_STORED, listener)
+      store.on(StorageEvents.MESSAGES_STORED, listener)
+      await store.subscribe()
+      await append('m')
+      await waitFor(() => seen.length === 2)
+      await settle()
+      expect(seen).toEqual(['m', 'm'])
+      expect((store as any).pendingHeads.size).toBe(0)
+    })
+
+    it('L-2: a listener that throws after its effect is redelivered to; its siblings are not', async () => {
+      const { store, append } = createStore()
+      ;(store as any).retryDelayMs = 1
+      const healthy: string[] = []
+      const fragile: string[] = []
+      let failures = 1
+      store.on(StorageEvents.MESSAGES_STORED, payload => healthy.push(...messageIds(payload)))
+      store.on(StorageEvents.MESSAGES_STORED, payload => {
+        fragile.push(...messageIds(payload))
+        if (failures-- > 0) throw new Error('failed after recording')
+      })
+      await store.subscribe()
+      await append('m')
+      await waitFor(() => fragile.length === 2)
+      await settle()
+      expect(healthy).toEqual(['m'])
+      expect(fragile).toEqual(['m', 'm'])
+      expect((store as any).pendingHeads.size).toBe(0)
     })
   })
 

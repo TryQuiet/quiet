@@ -382,6 +382,44 @@ describe('ChannelsService', () => {
       }
     })
 
+    it('announces each message once to healthy consumers even when another consumer throws', async () => {
+      const response = await channelsService.handleCreateChannel({
+        name: 'fragile-consumers',
+        public: true,
+        teamId: sigChainService.team.id,
+      })
+      expect(response.status).toBe(ChannelOperationStatus.SUCCESS)
+      const createdChannel = response.channel!
+      const healthy: string[] = []
+      channelsService.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
+        healthy.push(...payload.messages.map(item => item.id))
+      })
+      channelsService.on(StorageEvents.MESSAGES_STORED, () => {
+        throw new Error('a downstream consumer failed')
+      })
+      const messages = await Promise.all(
+        ['first', 'second'].map(text =>
+          factory.build<ChannelMessage>('ChannelMessage', {
+            channelId: createdChannel.id,
+            userId: aliceUserId,
+            createdAt: Math.floor(Date.now() / 1000),
+            type: MessageType.Basic,
+            message: text,
+          })
+        )
+      )
+      for (const item of messages) {
+        expect(await channelsService.sendMessage(item)).toBe(true)
+      }
+      await waitForExpect(() => {
+        expect([...healthy].sort()).toEqual(messages.map(item => item.id).sort())
+      })
+      // Longer than the store's first announcement retry: a throwing consumer must not make the
+      // store announce the same message again to the consumer that already handled it.
+      await new Promise(resolve => setTimeout(resolve, 1_500))
+      expect(healthy).toHaveLength(2)
+    })
+
     it('generates an opaque channel id and stores metadata encrypted', async () => {
       const payload: CreateChannelPayload = {
         name: 'secret-channel-name',
