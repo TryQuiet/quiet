@@ -50,10 +50,18 @@ const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
 
 const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
-/** What JoinCommunity.tsx / LinkDevices.tsx dispatch for a decoded code, recorded under the columns. */
+/**
+ * What JoinCommunity.tsx / LinkDevices.tsx do with a decoded code, recorded under the columns.
+ *
+ * A member link joins straight away. A device link does not: both containers raise the device-link
+ * consent sheet and only dispatch `linkDevice` once it is confirmed, because a camera decodes
+ * whatever is put in front of it and that is not consent to hand this account to another device.
+ * The scanner itself is what these stories render, so the consent sheet is named here rather than
+ * drawn.
+ */
 const describeInvitation = (data: InvitationData) =>
   isDeviceInvitationData(data)
-    ? `communities.actions.linkDevice({ inviteData }) · device link · ${data.authData.userName}`
+    ? `device link · ${data.authData.userName} → device-link consent, then communities.actions.linkDevice({ inviteData, deviceLinkConsent: true })`
     : `communities.actions.joinCommunity({ inviteData }) · member link · ${data.authData.communityName}`
 
 /**
@@ -373,7 +381,7 @@ export const ScanQrCodeDecoded = () => (
     title='Scan QR code · decoded'
     bar='Scan QR code'
     figma='2811:2587'
-    note='the camera shows a QR code of the sample device link; linkDevice is dispatched below and the camera released'
+    note='the camera shows a QR code of the sample device link; the camera is released and the consent sheet is raised — linkDevice follows only once it is confirmed'
     intro={SCAN_QR_INTRO}
     camera={{ kind: 'code', text: SAMPLE_DEVICE_LINK }}
   />
