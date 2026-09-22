@@ -2670,6 +2670,30 @@ export class Sidebar {
     return channel
   }
 
+  private async clickChannelPrivacyToggle(): Promise<WebElement> {
+    return (await this.driver.wait(
+      async () => {
+        try {
+          const toggle = await this.driver.findElement(
+            By.css('[data-testid="createChannel-private-form-control-toggle"]')
+          )
+          if (!(await toggle.isDisplayed()) || !(await toggle.isEnabled())) return false
+          await toggle.click()
+          return toggle
+        } catch (e) {
+          // The entering drawer can be visible before its switch can receive a native click.
+          // Retry only failed clicks, so a successful toggle is never applied twice.
+          if (e instanceof error.ElementClickInterceptedError || e instanceof error.StaleElementReferenceError)
+            return false
+          throw e
+        }
+      },
+      5_000,
+      'Channel privacy toggle did not become clickable',
+      100
+    )) as WebElement
+  }
+
   async addNewChannel(
     name: string,
     options: TestAddNewChannelOptions = DEFAULT_ADD_NEW_CHANNEL_OPTIONS
@@ -2719,7 +2743,7 @@ export class Sidebar {
 
     try {
       logger.debug('Checking for private toggle', expectToggle, options.isPublic)
-      const channelPrivateToggle = await this.driver.wait(
+      let channelPrivateToggle = await this.driver.wait(
         until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
         5_000,
         `Channel private toggle couldn't be found within timeout`,
@@ -2736,7 +2760,7 @@ export class Sidebar {
       }
       if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
         if (options.isPublic) {
-          await channelPrivateToggle.click()
+          channelPrivateToggle = await this.clickChannelPrivacyToggle()
           if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
             errors.push(new Error(`Channel privacy toggle was enabled before clicking and couldn't be disabled`))
             return {
@@ -2750,7 +2774,7 @@ export class Sidebar {
       }
       if (!options.isPublic) {
         logger.debug('Enabled private toggle')
-        await channelPrivateToggle.click()
+        channelPrivateToggle = await this.clickChannelPrivacyToggle()
         if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
           errors.push(new Error('Channel privacy toggle was disabled after clicking'))
           return {
