@@ -71,7 +71,7 @@ describe('QSS Onboarding', () => {
         .toBeVisible()
         .withTimeout(LONG)
 
-      await press(element(by.text('Agree & Continue')))
+      await press(element(by.text('Agree & Join')))
     })
 
     test('lands on channels list and can open #general', async () => {

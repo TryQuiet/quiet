@@ -47,13 +47,14 @@ describe('JoinCommunityScreen', () => {
     )
   })
 
-  it('offers Recover account as disabled, since it has no mechanism yet', async () => {
+  it('opens Account recovery, the designed info screen', async () => {
     const { dispatchSpy, result } = await renderScreen()
 
     const row = result.getByTestId('recover-account')
-    expect(row.props.accessibilityState.disabled).toBe(true)
+    expect(row.props.accessibilityState?.disabled).toBeFalsy()
 
     fireEvent.press(row)
-    expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: navigationActions.navigation.type }))
+
+    expect(dispatchSpy).toHaveBeenCalledWith(navigationActions.navigation({ screen: ScreenNames.RecoverAccountScreen }))
   })
 })

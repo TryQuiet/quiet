@@ -72,12 +72,17 @@ describe('PasteInviteLinkScreen', () => {
 
     fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(deviceInvite))
     fireEvent.press(result.getByTestId('paste-link-continue'))
-    fireEvent.press(await result.findByTestId('device-link-cancel'))
+
+    // Agree & join takes the window; its back arrow is how the user declines (3054:4090).
+    expect(await result.findByTestId('device-link-consent')).toBeTruthy()
+    fireEvent.press(result.getByTestId('appbar_action_item'))
 
     expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: communities.actions.linkDevice.type }))
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       expect.objectContaining({ type: navigationActions.replaceScreen.type })
     )
+    // Declining returns to the paste step, with the field still there.
+    expect(result.getByPlaceholderText('Link')).toBeTruthy()
   })
 
   it('keeps member invitations on the username registration flow', async () => {
