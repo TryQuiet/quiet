@@ -17,7 +17,8 @@ suite('Authenticated desktop/mobile DM', () => {
       await new Promise(resolve => setTimeout(resolve, 250))
     }
   }
-  const visible = async (matcher, timeout = 180_000) => await waitFor(element(matcher)).toBeVisible().withTimeout(timeout)
+  const visible = async (matcher, timeout = 180_000) =>
+    await waitFor(element(matcher)).toBeVisible().withTimeout(timeout)
   const compose = () => element(by.id('input').withAncestor(by.id('message-composer')))
   const send = async text => {
     await compose().tap()
@@ -33,7 +34,9 @@ suite('Authenticated desktop/mobile DM', () => {
     await device.launchApp({ delete: true, newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
     // Ignore long-lived Tor/QSS sockets while retaining UI/keyboard synchronization.
   })
-  afterAll(async () => { await device.terminateApp() })
+  afterAll(async () => {
+    await device.terminateApp()
+  })
 
   it('joins through a real invitation, receives authenticated text and a file, and sends after a restart', async () => {
     await visible(by.text('Join community'))
@@ -46,7 +49,7 @@ suite('Authenticated desktop/mobile DM', () => {
     await element(by.text('Continue')).tap()
     await visible(by.text('Agree & Continue'))
     await element(by.text('Agree & Continue')).tap()
-    await visible(by.id('messages-home-container'))
+    await visible(by.id('channels_list'))
     signal('mobile-joined')
 
     await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
@@ -61,7 +64,10 @@ suite('Authenticated desktop/mobile DM', () => {
     const adb = process.env.ADB_PATH || 'adb'
     const args = ['-s', process.env.QUIET_DM_ANDROID_DEVICE, 'shell', 'run-as', 'com.quietmobile.debug']
     const listing = execFileSync(adb, [...args, 'find', 'files', '-type', 'f', '-name', '*.txt'], { encoding: 'utf8' })
-    const downloads = listing.trim().split('\n').filter(file => file.includes('/downloads/'))
+    const downloads = listing
+      .trim()
+      .split('\n')
+      .filter(file => file.includes('/downloads/'))
     assert(
       downloads.some(file => execFileSync(adb, [...args, 'cat', file], { encoding: 'utf8' }) === scenario.fileContents),
       'Downloaded DM attachment must match the original plaintext byte for byte'
@@ -76,7 +82,7 @@ suite('Authenticated desktop/mobile DM', () => {
     for (let restart = 0; restart < 3; restart += 1) {
       await device.terminateApp()
       await device.launchApp({ newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
-      await visible(by.id('messages-home-container'))
+      await visible(by.id('channels_list'))
       await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
       await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
       await visible(by.id(scenario.firstMessage))

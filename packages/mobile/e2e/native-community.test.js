@@ -42,7 +42,7 @@ describe('Native community persistence', () => {
       .withTimeout(10000)
     await element(by.id('input')).typeText('nativeowner')
     await element(by.text('Continue')).tap()
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(120000)
     await element(by.id('channel_tile_general')).tap()
@@ -72,7 +72,7 @@ describe('Native community persistence', () => {
     // A new process must reopen the saved community instead of onboarding again.
     await device.terminateApp()
     await device.launchApp({ newInstance: true })
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(120000)
     // RCTDevLoadingView hides bundled iOS debug builds' Metro banner after 15s.

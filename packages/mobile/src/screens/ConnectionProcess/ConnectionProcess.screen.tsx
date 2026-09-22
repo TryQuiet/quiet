@@ -21,6 +21,9 @@ export const ConnectionProcessScreen: FC = () => {
   const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
   const currentCommunityId = useSelector(communities.selectors.currentCommunityId)
   const currentCommunityErrors = useSelector(errors.selectors.currentCommunityErrors)
+  // A community on a server never connects over Tor, so the Tor explanation is
+  // not true of it.
+  const usesServer = useSelector(communities.selectors.usesServer)
   const hasCurrentCommunityError = Boolean(currentCommunityId && Object.keys(currentCommunityErrors).length > 0)
   const launchError = currentCommunityErrors[SocketActions.LAUNCH_COMMUNITY]
   const invalidInvite = launchError?.message === ErrorMessages.INVALID_INVITE
@@ -68,7 +71,11 @@ export const ConnectionProcessScreen: FC = () => {
 
   return (
     <JoinRecovery>
-      <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
+      <ConnectionProcessComponent
+        openUrl={openUrl}
+        connectionProcess={connectionProcessSelector}
+        usesServer={usesServer}
+      />
     </JoinRecovery>
   )
 }

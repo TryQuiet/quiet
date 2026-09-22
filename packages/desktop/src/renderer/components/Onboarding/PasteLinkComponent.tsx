@@ -57,9 +57,7 @@ const Form = styled('form')(({ theme }) => ({
     maxWidth: 'none',
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
-    textTransform: 'none',
-    height: 48,
-    fontWeight: 'normal',
+    height: 50,
   },
 }))
 
@@ -201,7 +199,7 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
         <LoadingButton
           type='submit'
           variant='contained'
-          size='small'
+          size='large'
           color='primary'
           text={'Continue'}
           data-testid={'continue-joinCommunity'}

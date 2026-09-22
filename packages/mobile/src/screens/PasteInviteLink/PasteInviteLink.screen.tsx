@@ -2,16 +2,11 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities } from '@quiet/state-manager'
-import {
-  ErrorMessages,
-  InvitationData,
-  isDeviceInvitationData,
-  JoinCommunityPayload,
-  type DeviceInvitationData,
-} from '@quiet/types'
+import { ErrorMessages, type DeviceInvitationData } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
-import DeviceLinkConsentDrawer from '../../components/ModalBottomDrawer/drawers/DeviceLinkConsent.drawer'
+import { DeviceLinkConsent } from '../../components/DeviceLinkConsent/DeviceLinkConsent.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
+import { useInvitationAction } from '../../hooks/useInvitationAction'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { PasteInviteLinkScreenProps } from './PasteInviteLink.types'
 import { initSelectors } from '../../store/init/init.selectors'
@@ -36,12 +31,12 @@ export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route })
     joinCommunityError?.type === 'invalid'
       ? ErrorMessages.INVALID_INVITE
       : joinCommunityError?.type === 'interrupted'
-      ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
-      : joinCommunityError?.type === 'timeout'
-      ? joinCommunityError.invitationType === 'device'
-        ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
-        : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
-      : undefined
+        ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
+        : joinCommunityError?.type === 'timeout'
+          ? joinCommunityError.invitationType === 'device'
+            ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+            : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+          : undefined
 
   // Handle deep linking (opening app with quiet://)
   useEffect(() => {
@@ -67,52 +62,37 @@ export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route })
     [dispatch]
   )
 
-  const joinCommunityAction = useCallback(
-    (data: InvitationData) => {
-      dispatch(communities.actions.clearJoinCommunityError())
-      if (isDeviceInvitationData(data)) {
-        // Linking a device hands the other device this account, so it is never done without consent.
-        setDeviceLinkInvite(data)
-        return
-      }
-
-      const payload: JoinCommunityPayload = {
-        inviteData: data,
-      }
-      dispatch(communities.actions.joinCommunity(payload))
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    },
-    [dispatch]
-  )
+  // Pasting and scanning submit through the same hook; a device link comes back
+  // here for consent rather than being acted on.
+  const joinCommunityAction = useInvitationAction(setDeviceLinkInvite)
 
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())
   }, [dispatch])
 
-  return (
-    <>
-      <JoinCommunity
-        joinCommunityAction={joinCommunityAction}
-        handleBackButton={handleBackButton}
-        hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
-        invitationCode={invitationCode}
-        variant={route.params?.variant ?? 'inviteLink'}
-        ready={isWebsocketConnected}
-        inputError={joinCommunityErrorMessage}
-        onInputChange={() => dispatch(communities.actions.clearJoinCommunityError())}
-      />
-      <DeviceLinkConsentDrawer
+  // Agree & join (3054:4090) is a screen of its own, not a sheet over the paste step: it takes
+  // the window while the decision is open, and its back arrow declines and returns here.
+  if (deviceLinkInvite) {
+    return (
+      <DeviceLinkConsent
         inviteData={deviceLinkInvite}
-        onConfirm={() => {
-          if (!deviceLinkInvite) return
-          linkDevice(deviceLinkInvite)
-        }}
+        visible
+        onConfirm={() => linkDevice(deviceLinkInvite)}
         onCancel={() => setDeviceLinkInvite(undefined)}
       />
-    </>
+    )
+  }
+
+  return (
+    <JoinCommunity
+      joinCommunityAction={joinCommunityAction}
+      handleBackButton={handleBackButton}
+      hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
+      invitationCode={invitationCode}
+      variant={route.params?.variant ?? 'inviteLink'}
+      ready={isWebsocketConnected}
+      inputError={joinCommunityErrorMessage}
+      onInputChange={() => dispatch(communities.actions.clearJoinCommunityError())}
+    />
   )
 }

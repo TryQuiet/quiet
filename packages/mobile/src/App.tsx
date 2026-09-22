@@ -22,6 +22,8 @@ import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.scree
 import { GetStartedScreen } from './screens/GetStarted/GetStarted.screen'
 import { OpenInviteLinkScreen } from './screens/OpenInviteLink/OpenInviteLink.screen'
 import { PasteInviteLinkScreen } from './screens/PasteInviteLink/PasteInviteLink.screen'
+import { ScanQrCodeScreen } from './screens/ScanQrCode/ScanQrCode.screen'
+import { RecoverAccountScreen } from './screens/RecoverAccount/RecoverAccount.screen'
 import { LinkDevicesScreen } from './screens/LinkDevices/LinkDevices.screen'
 import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
 import { NotifierScreen } from './screens/Notifier/Notifier.screen'
@@ -140,6 +142,8 @@ function App(): React.JSX.Element {
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
                 <Screen component={OpenInviteLinkScreen} name={ScreenNames.OpenInviteLinkScreen} />
                 <Screen component={PasteInviteLinkScreen} name={ScreenNames.PasteInviteLinkScreen} />
+                <Screen component={ScanQrCodeScreen} name={ScreenNames.ScanQrCodeScreen} />
+                <Screen component={RecoverAccountScreen} name={ScreenNames.RecoverAccountScreen} />
                 <Screen component={LinkDevicesScreen} name={ScreenNames.LinkDevicesScreen} />
                 <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
                 <Screen component={NotifierScreen} name={ScreenNames.NotifierScreen} />

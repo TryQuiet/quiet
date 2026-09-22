@@ -69,9 +69,7 @@ const Form = styled('form')(({ theme }) => ({
     maxWidth: 'none',
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
-    textTransform: 'none',
-    height: 48,
-    fontWeight: 'normal',
+    height: 50,
   },
 
   [`& .${classes.inputLabel}`]: {
@@ -220,6 +218,7 @@ export const CreateUsernameBody: React.FC<CreateUsernameBodyProps> = ({ open = t
           </div>
         ) : null}
         <LoadingButton
+          size='large'
           variant='contained'
           color='primary'
           // Choose username (2811:2371): Continue is disabled until the name is valid.
@@ -250,7 +249,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   <Modal
     open={open}
     handleClose={handleClose}
-    title={'Create a community'}
+    // Choose username (2811:2371) hides its bar title ("Create a community"); only the close glyph shows.
+    withoutTitle
     isCloseDisabled={false}
     alignCloseLeft
     contentWidth={'100%'}

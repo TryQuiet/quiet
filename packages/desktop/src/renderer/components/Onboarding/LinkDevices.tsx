@@ -32,6 +32,8 @@ type Step = LinkDevicesStep
 /** Settings → Linked devices opens the modal straight at a row's step; back / close from there leave the modal. */
 export interface LinkDevicesModalArgs {
   step?: LinkDevicesStep
+  /** Where the back arrow goes when Account recovery handed over to this modal (#3514). */
+  returnTo?: 'recoverAccount'
 }
 
 /**
@@ -71,6 +73,7 @@ export const LinkDevices: React.FC = () => {
   const linkDevicesModal = useModal<LinkDevicesModalArgs>(ModalName.linkDevicesModal)
   const initialStep: Step = linkDevicesModal.step ?? 'entry'
   const getStartedModal = useModal(ModalName.getStartedModal)
+  const joinCommunityModal = useModal<{ step?: 'recoverAccount' }>(ModalName.joinCommunityModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
@@ -86,6 +89,13 @@ export const LinkDevices: React.FC = () => {
   }, [linkDevicesModal.open])
 
   const leave = () => {
+    if (linkDevicesModal.returnTo === 'recoverAccount') {
+      // Opened from Account recovery → "Use linked device" (#3514): back returns there,
+      // not to Get started.
+      joinCommunityModal.handleOpen({ step: 'recoverAccount' })
+      linkDevicesModal.handleClose()
+      return
+    }
     if (!currentCommunity) getStartedModal.handleOpen()
     linkDevicesModal.handleClose()
   }

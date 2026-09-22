@@ -16,6 +16,7 @@ const classes = {
   bordered: `${PREFIX}bordered`,
   betaWarning: `${PREFIX}betaWarning`,
   betaIcon: `${PREFIX}betaIcon`,
+  flushLeading: `${PREFIX}flushLeading`,
 }
 
 /**
@@ -31,6 +32,10 @@ const Root = styled('div')(({ theme }) => ({
   margin: '0 auto',
   boxSizing: 'border-box',
   padding: `${theme.space.xl}px ${theme.space.lg}px ${theme.space.xxl}px`,
+  // A screen whose illustration sits directly under the bar (Join community, 2811:2562: graphic at y 60).
+  [`&.${classes.flushLeading}`]: {
+    paddingTop: 0,
+  },
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
@@ -87,6 +92,8 @@ export interface OnboardingBodyProps {
   intro?: React.ReactNode
   /** Rendered above the heading (illustrations). */
   leading?: React.ReactNode
+  /** The leading illustration starts at the top of the column, no padding above it (as the frame draws it). */
+  flushLeading?: boolean
   betaWarning?: boolean
   dataTestId?: string
   children?: React.ReactNode
@@ -98,11 +105,12 @@ export const OnboardingBody: React.FC<OnboardingBodyProps> = ({
   heading,
   intro,
   leading,
+  flushLeading,
   betaWarning,
   dataTestId,
   children,
 }) => (
-  <Root data-testid={dataTestId}>
+  <Root data-testid={dataTestId} className={flushLeading ? classes.flushLeading : undefined}>
     {leading ? <div className={classes.leading}>{leading}</div> : null}
     {heading || intro ? (
       <div>

@@ -130,8 +130,18 @@ describe('Onboarding', () => {
 
       const joinModal = new JoinCommunityModal(joiner.driver)
       expect(await joinModal.isReady()).toBeTruthy()
-      // Recover account has no mechanism yet
-      expect(await joinModal.isRecoverAccountDisabled()).toBe(true)
+
+      // Recover account → Account recovery; "Use invite link" reaches the same
+      // paste step, and the back arrow retraces the trail to the three-way choice
+      await joinModal.recoverAccount()
+      expect(await joinModal.isRecoverMoreOptionsDisabled()).toBe(true)
+      await joinModal.recoverWithInviteLink()
+      await joinModal.back()
+      await joinModal.waitForStep('Join with invite link')
+      await joinModal.back()
+      await joinModal.waitForStep('Recover account')
+      await joinModal.back()
+      await joinModal.waitForStep('Join community')
 
       // Join with invite link → Open invite link → Paste a link
       await joinModal.joinWithInviteLink()
@@ -197,6 +207,48 @@ describe('Onboarding', () => {
       await new Sidebar(owner.driver).waitForUserProfilesNum(2)
     } finally {
       await closeAndCleanupApps(apps)
+    }
+  })
+
+  // Every step of the redesign is reachable and reversible before anything is
+  // committed. One app, no community: this is the modal graph, not a join.
+  it('walks back out of each onboarding branch to Get started', async () => {
+    const app = new App({ username: 'onboarding-navigation' })
+
+    try {
+      await app.openWithRetries()
+      const getStarted = new GetStartedModal(app.driver)
+      expect(await getStarted.isReady()).toBeTruthy()
+
+      // Link devices → Display QR code → back to the Link devices choice → back to Get started
+      await getStarted.linkDevices()
+      const linkDevices = new LinkDevicesModal(app.driver)
+      expect(await linkDevices.isReady()).toBeTruthy()
+      await linkDevices.displayQrCode()
+      expect(await linkDevices.isOnDisplayQrStep()).toBeTruthy()
+      // connection.selectors.deviceLinkUrl returns '' without a current community, so
+      // this step cannot show a QR code here however long it waits: it reports why.
+      // Assert that settled copy, so the test cannot pass on a blank container, on
+      // the transient loading line, or on a QR that should be impossible here.
+      expect(await linkDevices.settledDeviceLinkStatus()).toBe('Device link unavailable')
+      await linkDevices.back()
+      expect(await linkDevices.isReady()).toBeTruthy()
+      await linkDevices.back()
+      expect(await getStarted.isReady()).toBeTruthy()
+
+      // Join community → back to Get started → Create a new community. This is the
+      // branch of switchToCreateCommunity that the other suites never reach, because
+      // they call it while the app is still on Get started.
+      await getStarted.joinCommunity()
+      const joinModal = new JoinCommunityModal(app.driver)
+      // enter() waits for the choice screen itself. isReady() also accepts the Get
+      // started entry, so it can return before the click lands and let
+      // switchToCreateCommunity take its no-back path, proving nothing.
+      await joinModal.enter()
+      await joinModal.switchToCreateCommunity()
+      expect(await new CreateCommunityModal(app.driver).isReady()).toBeTruthy()
+    } finally {
+      await closeAndCleanupApps([app])
     }
   })
 

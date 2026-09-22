@@ -6,7 +6,8 @@ import type { defaultTheme } from '../../styles/themes/default.theme'
 import type { defaultPalette } from '../../styles/palettes/default.palette'
 
 export interface AppbarProps {
-  title: string
+  /** Bar title; not rendered with `withoutTitle`. */
+  title?: string
   titleComponent?: React.JSX.Element
   prefix?: string
   position?: 'flex-start' | 'center'
@@ -16,13 +17,15 @@ export interface AppbarProps {
   contextMenu?: ReturnType<typeof useContextMenu> | null
   crossBackIcon?: boolean
   iconColor?: string
-  textColor?: keyof typeof defaultPalette['typography']
+  textColor?: keyof (typeof defaultPalette)['typography']
   /** No back arrow and no community tile on the left (onboarding roots). */
   plain?: boolean
   /**
-   * A full-screen h1 stage (the prototype hides the bar's title on screens with a large
-   * heading): the glyph alone, no title text and no divider — the h1 is the title. Sheets
-   * keep their titled bar.
+   * The bar zone (60, the library's Title bar) with the back/close glyph at its
+   * designed place and nothing else: no title text, no hairline. The full-screen
+   * h1 stages of the onboarding — the prototype hides their bar title and the
+   * heading is the title (ONBOARDING.md, "No top bar title on full-screen h1
+   * stages"); titled bars remain on sheets and the community home.
    */
   withoutTitle?: boolean
 }
@@ -31,5 +34,5 @@ export interface HeaderTitleProps {
   title: string
   fontSize?: number
   fontWeight?: FontWeight
-  textColor?: keyof typeof defaultPalette['typography']
+  textColor?: keyof (typeof defaultPalette)['typography']
 }

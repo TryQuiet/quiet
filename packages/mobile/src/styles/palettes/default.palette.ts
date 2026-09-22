@@ -33,6 +33,10 @@ export const defaultPalette = {
     blue: '#2373EA',
     lightGray: '#B2B2B2',
     darkPurple: '#461863',
+    // Community home list text and glyphs (Figma: Community home 5446:76594).
+    charcoal: '#222222',
+    // Letter on the community icon tile.
+    vividPurple: '#9C00FF',
   },
   // Desktop theme.ts: border01 / border02 / border04
   border: {
@@ -63,6 +67,8 @@ export const defaultPalette = {
     lushSky: '#67BFD3',
     lightPurple: '#F3E8FF',
     grassGreen: '#80B857',
+    // Community icon tile behind the community's initial.
+    paleLavender: '#F9F0FF',
     hotPink: '#E42656',
     grayBadge: '#C3C3C3',
   },

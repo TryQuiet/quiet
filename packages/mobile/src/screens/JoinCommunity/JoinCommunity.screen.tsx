@@ -7,8 +7,8 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { JoinCommunityScreenProps } from './JoinCommunity.types'
 
 /**
- * Join community: the three-way choice. Without a scanner on this branch,
- * "Join with QR code" takes the link the camera would have read.
+ * Join community: the three-way choice. "Join with QR code" opens the scanner
+ * sheet; a scanned code does what the same link pasted does.
  */
 export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = () => {
   const dispatch = useDispatch()
@@ -24,16 +24,21 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = () => {
   const onJoinWithQrCode = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.PasteInviteLinkScreen,
-        params: { variant: 'qrCode' },
+        screen: ScreenNames.ScanQrCodeScreen,
+        params: { variant: 'join' },
       })
     )
+  }, [dispatch])
+
+  const onRecoverAccount = useCallback(() => {
+    dispatch(navigationActions.navigation({ screen: ScreenNames.RecoverAccountScreen }))
   }, [dispatch])
 
   return (
     <JoinCommunityOptions
       onJoinWithInviteLink={onJoinWithInviteLink}
       onJoinWithQrCode={onJoinWithQrCode}
+      onRecoverAccount={onRecoverAccount}
       handleBackButton={handleBackButton}
     />
   )

@@ -15,25 +15,24 @@ const pr = (path: string): Impl => ({ path, status: 'pr3400' })
 
 export const IMPLEMENTATION: Record<string, StageImpl> = {
   'get-started': {
-    desktop: none('app opens directly into the Join / Create modals'),
-    mobile: none('app opens directly on the JoinCommunity screen'),
-    divergence: 'The design has an entry screen with three routes; both apps skip it.',
+    desktop: on('desktop/src/renderer/components/Onboarding/GetStarted.tsx'),
+    mobile: on('mobile/src/screens/GetStarted/GetStarted.screen.tsx'),
   },
   'join-community': {
-    desktop: on('desktop/src/renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity.tsx'),
-    mobile: on('mobile/src/components/JoinCommunity/JoinCommunity.component.tsx'),
-    divergence:
-      'Design is a three-way choice (invite link / QR code / recover account) — decided: adopt it. Both apps ship a single invite-link paste field.',
+    desktop: on('desktop/src/renderer/components/Onboarding/JoinCommunityOptionsComponent.tsx'),
+    mobile: on('mobile/src/components/JoinCommunityOptions/JoinCommunityOptions.component.tsx'),
+    divergence: 'Join with QR code lands on the paste step: neither app has a scanner on this branch.',
   },
   'open-invite-link': {
-    desktop: on('desktop/src/renderer/components/CreateJoinCommunity/PerformCommunityActionComponent.tsx'),
-    mobile: on('mobile/src/components/JoinCommunity/JoinCommunity.component.tsx'),
+    desktop: on('desktop/src/renderer/components/Onboarding/OpenInviteLinkComponent.tsx'),
+    mobile: on('mobile/src/components/OpenInviteLink/OpenInviteLink.component.tsx'),
+    divergence:
+      'An invite link opened while this screen shows takes the deep-link path (desktop customProtocol.saga.ts, mobile deepLink.saga.ts) straight to Choose username.',
   },
   container: {
-    desktop: on('desktop/src/renderer/components/CreateJoinCommunity/PerformCommunityActionComponent.tsx'),
-    mobile: on('mobile/src/components/JoinCommunity/JoinCommunity.component.tsx'),
-    divergence:
-      'This is the paste-a-link stage. Both apps implement it as their whole join screen; in the design it is one of three routes.',
+    desktop: on('desktop/src/renderer/components/Onboarding/PasteLinkComponent.tsx'),
+    mobile: on('mobile/src/screens/PasteInviteLink/PasteInviteLink.screen.tsx'),
+    divergence: "The WIP frame reduced to its intent: heading, one input ('Link'), Continue.",
   },
   'want-a-server': {
     desktop: on('desktop/src/renderer/components/ServerOffer/ServerOfferComponent.tsx'),
@@ -79,8 +78,10 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     mobile: on('mobile/src/components/Chat/Chat.component.tsx'),
   },
   'recover-account-info': {
-    desktop: none('no account-recovery flow'),
-    mobile: none('no account-recovery flow'),
+    desktop: on('desktop/src/renderer/components/Onboarding/RecoverAccountComponent.tsx'),
+    mobile: on('mobile/src/components/RecoverAccount/RecoverAccount.component.tsx'),
+    divergence:
+      "The info screen and its two prototype routes (Link devices, Open invite link) only; there is no recovery mechanism. 'More options' leads nowhere in the design and is inert.",
   },
   'create-default': {
     desktop: on('desktop/src/renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity.tsx'),
@@ -101,6 +102,35 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     divergence:
       "#3400 vocabulary: DeviceLinkInvite, deviceLinkUrl, LinkedDevices; strings 'Generating device link…', 'Device link unavailable'. It lives under Settings, not onboarding.",
   },
+  // Join from invite link + prototype (the join path after the link is pasted).
+  'username-unpopulated': {
+    desktop: on('desktop/src/renderer/components/CreateUsername/CreateUsernameComponent.tsx'),
+    mobile: on('mobile/src/components/Registration/UsernameRegistration.component.tsx'),
+    divergence:
+      'Both apps use one username screen for the create and join paths; the design draws them differently — this one keeps the bar title "Choose a username" and its divider, the create-side frames hide the title.',
+  },
+  'username-populated-2811-2749': {
+    desktop: on('desktop/src/renderer/components/CreateUsername/CreateUsernameComponent.tsx'),
+    mobile: on('mobile/src/components/Registration/UsernameRegistration.component.tsx'),
+  },
+  'agree-and-join': {
+    desktop: on('desktop/src/renderer/components/Onboarding/AgreeAndJoinCard.tsx'),
+    mobile: on('mobile/src/components/AgreeAndJoin/AgreeAndJoin.component.tsx'),
+    divergence:
+      'The frame is one card, and two steps ask for consent through it, so the card is the shared shell and each step brings its own body: the terms step (desktop TermsOfServiceComponent, mobile TermsOfService) carries the policy copy, and the device-link step (desktop DeviceLinkConsent, mobile DeviceLinkConsent — the "use Quiet\'s server?" step in desktop join, desktop Link devices and the mobile paste flow) carries what contacting the named host exposes. The prototype wires consent after username, which is where mobile shows JoiningOptIn + TermsOfService today. The design names the server in the body (api.tryquiet.org) instead of in a heading.',
+  },
+  'globe-animation': {
+    desktop: on('desktop/src/renderer/components/LoadingPanel/JoiningPanelComponent.tsx'),
+    mobile: on('mobile/src/components/ConnectionProcess/ConnectionProcess.component.tsx'),
+    divergence:
+      'Both already render "Joining now!", the 300×4 bar and a ConnectionProcessInfo status line under it — the QSS variant keeps exactly that and drops the Tor paragraph and the "Learn more about Tor and Quiet" link both apps still show. Bar fill is teal #67BFD3 by decision; desktop uses lushSky and mobile’s base fill is #2196f3.',
+  },
+  'starting-quiet': {
+    desktop: on('desktop/src/renderer/components/LoadingPanel/StartingPanelComponent.tsx'),
+    mobile: on('mobile/src/components/Splash/Splash.component.tsx'),
+    divergence:
+      'App start, not joining. Desktop renders only the Quiet logo — the progress-bar and status styles are declared in StartingPanelComponent but never rendered; mobile shows the logo with "Starting backend" / "This can take some time" and no bar. The frame draws a bar, "Starting Quiet" and the status message "Connecting to Tor…".',
+  },
 }
 
 /** Stages the apps have that the Figma flow does not draw — divergence in the other direction. */
@@ -116,14 +146,8 @@ export const IMPLEMENTATION_ONLY: Array<{ stage: string; desktop?: string; mobil
     mobile: 'mobile/src/components/TermsOfService/TermsOfService.component.tsx',
   },
   {
-    stage: 'Connecting / loading',
-    desktop: 'desktop/src/renderer/components/LoadingPanel/StartingPanelComponent.tsx',
-    mobile: 'mobile/src/components/ConnectionProcess/ConnectionProcess.component.tsx',
-  },
-  {
     stage: 'Username created / success',
     desktop: 'desktop/src/renderer/components/CreateUsername/UsernameCreated/UsernameCreated.tsx',
     mobile: 'mobile/src/components/Success/Success.component.tsx',
   },
-  { stage: 'Splash', mobile: 'mobile/src/components/Splash/Splash.component.tsx' },
 ]

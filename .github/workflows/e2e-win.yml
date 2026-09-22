@@ -125,7 +125,7 @@ jobs:
       - name: Run admission timeout recovery test
         timeout-minutes: 15
         shell: bash
-        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts
+        run: cd packages/e2e-tests && npm run test admissionTimeout.test.ts unavailableQssEndpoint.test.ts
 
       - name: Collect application logs
         if: always()

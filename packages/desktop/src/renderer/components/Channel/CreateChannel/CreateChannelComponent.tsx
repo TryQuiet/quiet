@@ -265,7 +265,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                 <LoadingButton
                   variant='contained'
                   color='primary'
-                  inProgress={false}
                   type='submit'
                   text='Create channel'
                   classes={{ button: classes.button }}
