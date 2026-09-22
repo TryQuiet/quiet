@@ -28,7 +28,8 @@ import { TextMessageComponent } from './TextMessage'
  * must NOT be touched by any future change here: content inside a fenced code
  * block (blank lines, indentation) is untouched by this normalization.
  */
-const helloWorld = (msg: string) => render(withTheme(() => <TextMessageComponent message={msg} messageId={'1618'} pending={false} openUrl={() => {}} />))
+const helloWorld = (msg: string) =>
+  render(withTheme(() => <TextMessageComponent message={msg} messageId={'1618'} pending={false} openUrl={() => {}} />))
 
 describe('TextMessage - issue #1618 blank line handling', () => {
   it('strips a large run of leading and trailing blank lines', () => {
