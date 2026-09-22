@@ -35,22 +35,31 @@ describe('Main', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SidebarComponentroot css-120gc7k-MuiGrid-root"
+                    class="SidebarComponentroot css-lfb242"
+                    data-testid="sidebar"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true SidebarComponentpadding css-1fzha0v-MuiGrid-root"
+                      class="SidebarComponentheader"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        class="SidebarComponentwindowControls"
+                      />
+                      <div
+                        class="IdentityPanelroot css-15v2td"
                       >
-                        <div
-                          class="css-1qcb2jx"
+                        <button
+                          class="IdentityPanelbutton"
+                          data-testid="settings-panel-button"
+                          type="button"
                         >
                           <span
-                            class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1k5mnpp-MuiButtonBase-root-MuiButton-root"
-                            data-testid="settings-panel-button"
-                            role="button"
-                            tabindex="0"
+                            aria-hidden="true"
+                            class="CommunityIconroot css-1spqh73"
+                          >
+                            C
+                          </span>
+                          <span
+                            class="IdentityPanelnameGroup"
                           >
                             <h4
                               class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-1inrl58-MuiTypography-root"
@@ -58,226 +67,246 @@ describe('Main', () => {
                             >
                               community_1
                             </h4>
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                              data-testid="ArrowDropDownIcon"
-                              focusable="false"
-                              style="margin-left: 4px;"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                d="m7 10 5 5 5-5z"
-                              />
-                            </svg>
                             <span
-                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                            />
+                              class="IdentityPanelcaret"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                fill="none"
+                                focusable="false"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                width="16"
+                              >
+                                <path
+                                  d="M11.5246 7.09375H4.47265C4.2937 7.09375 4.20482 7.31075 4.33234 7.43628L7.84462 10.8937C7.92224 10.9701 8.04674 10.9703 8.12467 10.8942L11.6644 7.43683C11.7927 7.31153 11.704 7.09375 11.5246 7.09375Z"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                            </span>
                           </span>
-                        </div>
+                        </button>
                       </div>
+                    </div>
+                    <div
+                      class="SidebarComponentscrollArea"
+                    >
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+                        style="overflow: visible; height: 0px; width: 0px;"
                       >
                         <div
-                          style="overflow: visible; height: 0px; width: 0px;"
+                          class="rc-scrollbars-container"
+                          style="position: relative; overflow: hidden; width: 0px; height: 0px;"
                         >
                           <div
-                            class="rc-scrollbars-container"
-                            style="position: relative; overflow: hidden; width: 0px; height: 0px;"
+                            class="rc-scrollbars-view"
+                            style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px; overflow-x: hidden;"
                           >
                             <div
-                              class="rc-scrollbars-view"
-                              style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px; overflow-x: hidden;"
+                              class="SidebarComponentcontent"
                             >
-                              <div
-                                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+                              <ul
+                                class="MuiList-root css-1mk9mw3-MuiList-root"
+                                data-testid="prominentActionsList"
                               >
                                 <div
-                                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-1qtf1b2-MuiButtonBase-root-MuiListItemButton-root"
+                                  data-testid="add-members-link"
+                                  role="button"
+                                  tabindex="0"
                                 >
-                                  <div
-                                    class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
+                                  <span
+                                    class="SidebarRowglyph"
                                   >
-                                    <div
-                                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                                    <svg
+                                      aria-hidden="true"
+                                      fill="none"
+                                      focusable="false"
+                                      height="12"
+                                      viewBox="0 0 12 12"
+                                      width="12"
                                     >
-                                      <p
-                                        class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
-                                      >
-                                        Channels
-                                      </p>
-                                    </div>
-                                    <div
-                                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                                    >
-                                      <span>
-                                        <button
-                                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
-                                          data-testid="sidebar-button-createChannel"
-                                          tabindex="0"
-                                          type="button"
-                                        >
-                                          <svg
-                                            fill="none"
-                                            height="18"
-                                            viewBox="0 0 24 24"
-                                            width="18"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                          >
-                                            <path
-                                              d="M22.0499 12C22.0499 17.5505 17.5504 22.05 12 22.05C6.44949 22.05 1.94995 17.5505 1.94995 12C1.94995 6.44955 6.44949 1.95001 12 1.95001C17.5504 1.95001 22.0499 6.44955 22.0499 12Z"
-                                              stroke="white"
-                                              stroke-width="1.5"
-                                            />
-                                            <path
-                                              clip-rule="evenodd"
-                                              d="M17.3415 12.5982H12.5983V17.3415H11.4018V12.5982H6.65857V11.4018H11.4018V6.65851H12.5983V11.4018H17.3415V12.5982Z"
-                                              fill="white"
-                                              fill-rule="evenodd"
-                                            />
-                                          </svg>
-                                          <span
-                                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                          />
-                                        </button>
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div
-                                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                                >
-                                  <ul
-                                    class="MuiList-root css-1mk9mw3-MuiList-root"
-                                    data-testid="channelsList"
-                                  >
-                                    <div
-                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-2ej6tf-MuiButtonBase-root-MuiListItemButton-root"
-                                      data-testid="general-link"
-                                      role="button"
-                                      tabindex="0"
-                                    >
-                                      <div
-                                        class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
-                                      >
-                                        <span
-                                          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
-                                        >
-                                          <div
-                                            class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-                                          >
-                                            <div
-                                              class="MuiGrid-root MuiGrid-container css-6rpaur-MuiGrid-root"
-                                            >
-                                              <svg
-                                                aria-hidden="true"
-                                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                                                data-testid="general-channel-link-icon-public"
-                                                fill="currentColor"
-                                                focusable="false"
-                                                style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
-                                                viewBox="0 0 24 24"
-                                              >
-                                                <svg
-                                                  fill="none"
-                                                  height="24"
-                                                  viewBox="0 0 24 24"
-                                                  width="24"
-                                                >
-                                                  <path
-                                                    d="M15.7318 4.875L12.8818 19.125"
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-width="2"
-                                                  />
-                                                  <path
-                                                    d="M10.5355 4.875L7.68555 19.125"
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-width="2"
-                                                  />
-                                                  <path
-                                                    d="M6.8252 8.58594H17.7502"
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-width="2"
-                                                  />
-                                                  <path
-                                                    d="M5.875 15.4141H16.8"
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-width="2"
-                                                  />
-                                                </svg>
-                                              </svg>
-                                              <p
-                                                class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
-                                                data-testid="general-channel-link-text"
-                                              >
-                                                general
-                                              </p>
-                                            </div>
-                                          </div>
-                                        </span>
-                                      </div>
-                                      <span
-                                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                      <circle
+                                        cx="4.5"
+                                        cy="4"
+                                        r="1.5"
+                                        stroke="currentColor"
                                       />
-                                    </div>
-                                  </ul>
+                                      <path
+                                        d="M9.5 3.5C9.5 4.67157 9.5 6.5 9.5 6.5"
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-width="0.75"
+                                      />
+                                      <path
+                                        d="M11 5C9.82843 5 8 5 8 5"
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-width="0.75"
+                                      />
+                                      <path
+                                        d="M7.82375 8.77097C7.2907 7.40505 5.66103 6.86719 4.5 6.86719C3.33611 6.86719 1.70127 7.3863 1.17233 8.77001C0.975132 9.28589 1.44742 9.75 1.99971 9.75H4.5H7.00012C7.5524 9.75 8.02453 9.28547 7.82375 8.77097Z"
+                                        stroke="currentColor"
+                                      />
+                                    </svg>
+                                  </span>
+                                  <p
+                                    class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                                    data-testid="add-members-link-text"
+                                  >
+                                    Add members
+                                  </p>
                                 </div>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
-                              >
+                              </ul>
+                              <div>
                                 <div
-                                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-15hylfe-MuiGrid-root"
+                                  class="SidebarHeaderroot css-1f72bw8"
+                                >
+                                  <h6
+                                    class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
+                                  >
+                                    Channels
+                                  </h6>
+                                  <span>
+                                    <button
+                                      aria-label="Create new channel"
+                                      class="SidebarHeaderaction"
+                                      data-mui-internal-clone-element="true"
+                                      data-testid="sidebar-button-createChannel"
+                                      type="button"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        fill="none"
+                                        focusable="false"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        width="16"
+                                      >
+                                        <path
+                                          d="M8 4V12"
+                                          stroke="currentColor"
+                                        />
+                                        <path
+                                          d="M12 8L4 8"
+                                          stroke="currentColor"
+                                        />
+                                        <circle
+                                          cx="8"
+                                          cy="8"
+                                          r="7.5"
+                                          stroke="currentColor"
+                                        />
+                                      </svg>
+                                    </button>
+                                  </span>
+                                </div>
+                                <ul
+                                  class="MuiList-root css-1mk9mw3-MuiList-root"
+                                  data-testid="channelsList"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-1qtf1b2-MuiButtonBase-root-MuiListItemButton-root"
+                                    data-testid="general-link"
+                                    role="button"
+                                    tabindex="0"
                                   >
-                                    <p
-                                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
+                                    <span
+                                      class="SidebarRowglyph"
                                     >
-                                      Direct messages
-                                    </p>
-                                  </div>
-                                  <div
-                                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                                  >
-                                    <span>
-                                      <button
-                                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
-                                        data-testid="sidebar-button-createNewMessage"
-                                        tabindex="0"
-                                        type="button"
+                                      <svg
+                                        aria-hidden="true"
+                                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                        data-testid="general-channel-link-icon-public"
+                                        fill="currentColor"
+                                        focusable="false"
+                                        style="font-size: 14px;"
+                                        viewBox="0 0 24 24"
                                       >
                                         <svg
                                           fill="none"
-                                          height="18"
+                                          height="24"
                                           viewBox="0 0 24 24"
-                                          width="18"
-                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="24"
                                         >
                                           <path
-                                            d="M22.0499 12C22.0499 17.5505 17.5504 22.05 12 22.05C6.44949 22.05 1.94995 17.5505 1.94995 12C1.94995 6.44955 6.44949 1.95001 12 1.95001C17.5504 1.95001 22.0499 6.44955 22.0499 12Z"
-                                            stroke="white"
-                                            stroke-width="1.5"
+                                            d="M15.7318 4.875L12.8818 19.125"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-width="2"
                                           />
                                           <path
-                                            clip-rule="evenodd"
-                                            d="M17.3415 12.5982H12.5983V17.3415H11.4018V12.5982H6.65857V11.4018H11.4018V6.65851H12.5983V11.4018H17.3415V12.5982Z"
-                                            fill="white"
-                                            fill-rule="evenodd"
+                                            d="M10.5355 4.875L7.68555 19.125"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-width="2"
+                                          />
+                                          <path
+                                            d="M6.8252 8.58594H17.7502"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-width="2"
+                                          />
+                                          <path
+                                            d="M5.875 15.4141H16.8"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-width="2"
                                           />
                                         </svg>
-                                        <span
-                                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                        />
-                                      </button>
+                                      </svg>
                                     </span>
+                                    <p
+                                      class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
+                                      data-testid="general-channel-link-text"
+                                    >
+                                      general
+                                    </p>
                                   </div>
+                                </ul>
+                              </div>
+                              <div>
+                                <div
+                                  class="SidebarHeaderroot css-1f72bw8"
+                                >
+                                  <h6
+                                    class="MuiTypography-root MuiTypography-subtitle2 SidebarHeadertitle css-1oy8xdk-MuiTypography-root"
+                                  >
+                                    Direct messages
+                                  </h6>
+                                  <span>
+                                    <button
+                                      aria-label="Start a new DM"
+                                      class="SidebarHeaderaction"
+                                      data-mui-internal-clone-element="true"
+                                      data-testid="sidebar-button-createNewMessage"
+                                      type="button"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        fill="none"
+                                        focusable="false"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        width="16"
+                                      >
+                                        <path
+                                          d="M8 4V12"
+                                          stroke="currentColor"
+                                        />
+                                        <path
+                                          d="M12 8L4 8"
+                                          stroke="currentColor"
+                                        />
+                                        <circle
+                                          cx="8"
+                                          cy="8"
+                                          r="7.5"
+                                          stroke="currentColor"
+                                        />
+                                      </svg>
+                                    </button>
+                                  </span>
                                 </div>
                                 <ul
                                   class="MuiList-root css-1mk9mw3-MuiList-root"
@@ -285,68 +314,60 @@ describe('Main', () => {
                                 />
                               </div>
                             </div>
-                            <div
-                              class="rc-scrollbars-track rc-scrollbars-track-h"
-                              style="position: absolute; right: 2px; bottom: 2px; z-index: 100; border-radius: 3px; left: 2px; height: 6px; display: none;"
-                            >
-                              <div
-                                class="rc-scrollbars-thumb rc-scrollbars-thumb-h"
-                                style="position: relative; display: block; height: 100%; cursor: pointer; border-radius: inherit; background-color: rgba(0, 0, 0, 0.2);"
-                              />
-                            </div>
-                            <div
-                              class="rc-scrollbars-track rc-scrollbars-track-v"
-                              style="position: absolute; right: 2px; bottom: 2px; z-index: 100; border-radius: 3px; top: 2px; width: 6px; display: none;"
-                            >
-                              <div
-                                class="rc-scrollbars-thumb rc-scrollbars-thumb-v"
-                                style="position: relative; display: block; height: 100%; cursor: pointer; border-radius: inherit; background-color: rgba(0, 0, 0, 0.2);"
-                              />
-                            </div>
                           </div>
-                        </div>
-                        <div
-                          class="resize-triggers"
-                        >
                           <div
-                            class="expand-trigger"
+                            class="rc-scrollbars-track rc-scrollbars-track-h"
+                            style="position: absolute; right: 2px; bottom: 2px; z-index: 100; border-radius: 3px; left: 2px; height: 6px; display: none;"
                           >
                             <div
-                              style="width: 1px; height: 1px;"
+                              class="rc-scrollbars-thumb rc-scrollbars-thumb-h"
+                              style="position: relative; display: block; height: 100%; cursor: pointer; border-radius: inherit; background-color: rgba(0, 0, 0, 0.2);"
                             />
                           </div>
                           <div
-                            class="contract-trigger"
-                          />
+                            class="rc-scrollbars-track rc-scrollbars-track-v"
+                            style="position: absolute; right: 2px; bottom: 2px; z-index: 100; border-radius: 3px; top: 2px; width: 6px; display: none;"
+                          >
+                            <div
+                              class="rc-scrollbars-thumb rc-scrollbars-thumb-v"
+                              style="position: relative; display: block; height: 100%; cursor: pointer; border-radius: inherit; background-color: rgba(0, 0, 0, 0.2);"
+                            />
+                          </div>
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        class="resize-triggers"
                       >
                         <div
-                          class="css-7c8zaq"
+                          class="expand-trigger"
                         >
                           <div
-                            class="MuiButtonBase-root MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1k5mnpp-MuiButtonBase-root-MuiButton-root"
-                            data-testid="user-profile-menu-button"
-                            role="button"
-                            tabindex="0"
-                          >
-                            <div
-                              class="MuiGrid-root MuiGrid-container UserProfilePanel-buttonContainer css-11lq3yg-MuiGrid-root"
-                            >
-                              Jdenticon
-                              <p
-                                class="MuiTypography-root MuiTypography-body2 UserProfilePanel-nickname css-1t82dwi-MuiTypography-root"
-                                data-testid="user-profile-nickname"
-                              />
-                            </div>
-                            <span
-                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                            />
-                          </div>
+                            style="width: 1px; height: 1px;"
+                          />
                         </div>
+                        <div
+                          class="contract-trigger"
+                        />
                       </div>
+                    </div>
+                    <div
+                      class="UserProfilePanel-root css-1baejcn"
+                    >
+                      <button
+                        class="UserProfilePanel-button"
+                        data-testid="user-profile-menu-button"
+                        type="button"
+                      >
+                        <span
+                          class="UserProfilePanel-profilePhoto"
+                        >
+                          Jdenticon
+                        </span>
+                        <p
+                          class="MuiTypography-root MuiTypography-body2 UserProfilePanel-nickname css-1t82dwi-MuiTypography-root"
+                          data-testid="user-profile-nickname"
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>

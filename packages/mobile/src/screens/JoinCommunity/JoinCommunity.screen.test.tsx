@@ -34,26 +34,29 @@ describe('JoinCommunityScreen', () => {
     expect(dispatchSpy).toHaveBeenCalledWith(navigationActions.navigation({ screen: ScreenNames.OpenInviteLinkScreen }))
   })
 
-  it('takes the pasted link for the QR-code flow, since this build has no scanner', async () => {
+  it('opens the scanner for the QR-code flow', async () => {
     const { dispatchSpy, result } = await renderScreen()
 
     fireEvent.press(result.getByTestId('join-with-qr-code'))
 
+    // This build has a scanner now. The sheet itself falls back to the paste
+    // form when the camera cannot be used; that is ScanQrCodeScreen's job.
     expect(dispatchSpy).toHaveBeenCalledWith(
       navigationActions.navigation({
-        screen: ScreenNames.PasteInviteLinkScreen,
-        params: { variant: 'qrCode' },
+        screen: ScreenNames.ScanQrCodeScreen,
+        params: { variant: 'join' },
       })
     )
   })
 
-  it('offers Recover account as disabled, since it has no mechanism yet', async () => {
+  it('opens Account recovery, the designed info screen', async () => {
     const { dispatchSpy, result } = await renderScreen()
 
     const row = result.getByTestId('recover-account')
-    expect(row.props.accessibilityState.disabled).toBe(true)
+    expect(row.props.accessibilityState?.disabled).toBeFalsy()
 
     fireEvent.press(row)
-    expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: navigationActions.navigation.type }))
+
+    expect(dispatchSpy).toHaveBeenCalledWith(navigationActions.navigation({ screen: ScreenNames.RecoverAccountScreen }))
   })
 })

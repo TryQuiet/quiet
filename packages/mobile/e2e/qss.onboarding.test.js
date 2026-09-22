@@ -71,11 +71,11 @@ describe('QSS Onboarding', () => {
         .toBeVisible()
         .withTimeout(LONG)
 
-      await press(element(by.text('Agree & Continue')))
+      await press(element(by.text('Agree & Join')))
     })
 
     test('lands on channels list and can open #general', async () => {
-      await waitFor(element(by.id('channel-list')))
+      await waitFor(element(by.id('channels_list')))
         .toBeVisible()
         .withTimeout(LONG)
 
@@ -138,7 +138,7 @@ describe('QSS Onboarding', () => {
     })
 
     test('joins and sees general channel without ToS', async () => {
-      await waitFor(element(by.id('channel-list')))
+      await waitFor(element(by.id('channels_list')))
         .toBeVisible()
         .withTimeout(LONG)
 

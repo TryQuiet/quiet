@@ -1,112 +1,8 @@
-import React, { useRef } from 'react'
-import { styled } from '@mui/material/styles'
-import classNames from 'classnames'
-import { Typography, Grid, ListItemButton, useTheme } from '@mui/material'
-import ListItemText from '@mui/material/ListItemText'
+import React from 'react'
 import { PublicChannel } from '@quiet/types'
 import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
-
-const PREFIX = 'ChannelsListItem'
-
-const classes = {
-  root: `${PREFIX}root`,
-  selected: `${PREFIX}selected`,
-  primary: `${PREFIX}primary`,
-  title: `${PREFIX}title`,
-  titlePublic: `${PREFIX}titlePublic`,
-  newMessages: `${PREFIX}newMessages`,
-  connectedIcon: `${PREFIX}connectedIcon`,
-  notConnectedIcon: `${PREFIX}notConnectedIcon`,
-  itemText: `${PREFIX}itemText`,
-  disabled: `${PREFIX}disabled`,
-  lock: `${PREFIX}lock`,
-  lockNewMessages: `${PREFIX}lockNewMessages`,
-}
-
-const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
-  // 'List item' (library 3797:16039): 220x26, padding 3/16, gap 4, text 14/20 at 70%;
-  // hover #FFFFFF@0.05 (3797:16112), selected @0.10 (3797:16118). Only Rubik 400/500 exist.
-  [`&.${classes.root}`]: {
-    width: 220,
-    height: 'hug',
-    padding: `3px 0px 3px 0px`,
-    gap: theme.space.xs,
-    opacity: 1,
-    display: 'flex',
-    backgroundColor: 'inherit',
-  },
-
-  [`&.${classes.root}:hover`]: {
-    backgroundColor: theme.palette.colors.sidebarHover,
-  },
-
-  [`&.${classes.selected}`]: {
-    backgroundColor: theme.palette.colors.sidebarSelected,
-  },
-
-  [`& .${classes.primary}`]: {
-    display: 'flex',
-  },
-
-  [`& .${classes.title}`]: {
-    opacity: 0.7,
-    // 400, as the design's channel rows are ("Nav bar" 838:9760); 300 rendered them lighter than
-    // the "Channels" heading above them by more than the design intends.
-    fontWeight: 400,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    maxWidth: 215,
-    whiteSpace: 'nowrap',
-    textTransform: 'lowercase',
-  },
-
-  [`& .${classes.titlePublic}`]: {
-    paddingLeft: 16,
-    paddingRight: 2,
-  },
-
-  [`& .${classes.newMessages}`]: {
-    opacity: 1,
-    fontWeight: 500,
-  },
-
-  [`& .${classes.lock}`]: {
-    opacity: 0.7,
-    marginLeft: theme.space.lg,
-    marginRight: 0,
-    fontWeight: 400,
-    paddingRight: 0,
-  },
-
-  [`& .${classes.lockNewMessages}`]: {
-    opacity: 1,
-    fontWeight: 500,
-  },
-
-  [`& .${classes.connectedIcon}`]: {
-    marginLeft: 16,
-    marginRight: -8,
-    width: 11,
-    height: 11,
-  },
-
-  [`& .${classes.notConnectedIcon}`]: {
-    marginLeft: 16,
-    marginRight: -8,
-    width: 11,
-    height: 11,
-    opacity: 0.5,
-  },
-
-  [`& .${classes.itemText}`]: {
-    margin: 0,
-  },
-  [`&.${classes.disabled}`]: {
-    opacity: '0.3',
-    pointerEvents: 'none',
-    cursor: 'not-allowed',
-  },
-}))
+import SidebarRow from '../../ui/Sidebar/SidebarRow'
+import SidebarUnreadBadge from '../../ui/Sidebar/SidebarUnreadBadge'
 
 export interface ChannelsListItemProps {
   channel: PublicChannel
@@ -116,6 +12,10 @@ export interface ChannelsListItemProps {
   disabled: boolean
 }
 
+/**
+ * One channel in the sidebar's "Channels" section — the Quiet Design Library's
+ * `List item` (`3797:16113`), with the library's `#` and lock glyphs.
+ */
 export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   channel,
   unread,
@@ -123,54 +23,31 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   setCurrentChannel,
   disabled = false,
 }) => {
-  const theme = useTheme()
-  const ref = useRef<HTMLDivElement>(null)
   const isPublic = channel.public ?? true
 
   return (
-    <StyledListItemButton
-      ref={ref}
-      disableGutters
+    <SidebarRow
+      label={channel.name}
+      selected={selected}
+      unread={unread}
+      disabled={disabled}
       onClick={() => {
         setCurrentChannel(channel.id)
       }}
-      className={classNames(classes.root, {
-        [classes.selected]: selected,
-        [classes.disabled]: disabled,
-      })}
       data-testid={`${channel.name}-link`}
-    >
-      <ListItemText
-        primary={
-          <Grid container alignItems='center'>
-            <Grid container alignItems='center' direction='row' gap={`${theme.space.xs}px`} display='flex'>
-              <ChannelTypeIcon
-                isPublic={isPublic}
-                fill={'currentColor'}
-                style={{ ...theme.typography.subtitle1 }}
-                className={classNames(classes.lock, {
-                  [classes.lockNewMessages]: unread,
-                })}
-                data-testid={`${channel.name}-channel-link-icon-${isPublic ? 'public' : 'private'}`}
-              />
-              <Typography
-                variant='body2'
-                className={classNames(classes.title, {
-                  [classes.newMessages]: unread,
-                })}
-                data-testid={`${channel.name}-channel-link-text`}
-              >
-                {channel.name}
-              </Typography>
-            </Grid>
-          </Grid>
-        }
-        classes={{
-          primary: classes.primary,
-        }}
-        className={classes.itemText}
-      />
-    </StyledListItemButton>
+      labelTestId={`${channel.name}-channel-link-text`}
+      glyph={
+        <ChannelTypeIcon
+          isPublic={isPublic}
+          fill={'currentColor'}
+          // The library draws the glyph at 7 x 8 inside its 12px box; these
+          // icons carry a 24 viewBox, so 14px reproduces that size.
+          style={{ fontSize: 14 }}
+          data-testid={`${channel.name}-channel-link-icon-${isPublic ? 'public' : 'private'}`}
+        />
+      }
+      badge={unread ? <SidebarUnreadBadge data-testid={`${channel.name}-channel-link-unread`} /> : undefined}
+    />
   )
 }
 

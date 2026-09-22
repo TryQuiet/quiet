@@ -58,6 +58,8 @@
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Quiet uses the document directory for storing files and images sent through the app.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Quiet uses the camera to scan invite and device-link QR codes.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Quiet uses the document directory for storing files and images sent through the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

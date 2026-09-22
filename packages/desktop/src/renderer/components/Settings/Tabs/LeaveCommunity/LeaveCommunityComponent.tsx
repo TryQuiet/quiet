@@ -1,10 +1,12 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useRef, useState } from 'react'
 
 import { styled } from '@mui/material/styles'
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+
+import ActionProgress from '../../../ui/ActionProgress/ActionProgress'
 
 const PREFIX = 'LeaveCommunity'
 
@@ -17,6 +19,8 @@ const classes = {
   button: `${PREFIX}button`,
   secondaryButtonContainer: `${PREFIX}secondaryButtonContainer`,
   secondaryButton: `${PREFIX}secondaryButton`,
+  progressContainer: `${PREFIX}progressContainer`,
+  error: `${PREFIX}error`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -59,9 +63,44 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginBottom: 1,
   },
 
-  // The secondary action is the theme's outlined button (library 3505:10321), not a white contained one.
-  [`& .${classes.secondaryButton}`]: {},
+  [`& .${classes.secondaryButton}`]: {
+    width: 160,
+    height: 40,
+    color: theme.palette.colors.darkGray,
+    backgroundColor: theme.palette.colors.white,
+    padding: theme.spacing(2),
+    '&:hover': {
+      boxShadow: 'none',
+      cursor: 'pointer',
+      backgroundColor: theme.palette.colors.white,
+    },
+  },
+
+  // The progress takes the action area's place, so the modal keeps its height.
+  [`& .${classes.progressContainer}`]: {
+    marginTop: 24,
+    marginBottom: 1,
+  },
+
+  [`& .${classes.error}`]: {
+    marginTop: 16,
+    color: theme.palette.error.main,
+  },
 }))
+
+/**
+ * Leaving a community. The confirmation is the library's `Remove community` /
+ * `Type=Leave` (Quiet Design Library 0j7Nna9zWmfOSNmRmQK1Uh, 5548:33995): a
+ * warning icon, the title, the warning, then a primary `Go back` (5548:33987)
+ * with `Leave community` under it as grey text (5548:33988) - so the quiet
+ * grey is the design, not a disabled state.
+ *
+ * The design draws no leaving state, so the in-progress one is the library's
+ * progress pattern (ui/ActionProgress) with the app's own wording, in place of
+ * those two actions. The button used to stay put, disabled, with the status as
+ * its label, which made a designedly-grey action read as a dead one.
+ */
+export const LEAVING_STATUS = 'Leaving community…'
 
 export interface LeaveCommunityProps {
   communityName: string
@@ -73,7 +112,12 @@ export interface LeaveCommunityProps {
 export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({ leaveCommunity, handleClose }) => {
   const [leaving, setLeaving] = useState(false)
   const [failed, setFailed] = useState(false)
+  // The button is gone while leaving, so a second click needs a detached node;
+  // the ref makes that a no-op anyway rather than a second clearCommunity().
+  const inFlight = useRef(false)
   const handleLeave = async () => {
+    if (inFlight.current) return
+    inFlight.current = true
     setLeaving(true)
     setFailed(false)
     try {
@@ -81,6 +125,7 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({ leaveCommunit
     } catch {
       setFailed(true)
     } finally {
+      inFlight.current = false
       setLeaving(false)
     }
   }
@@ -95,25 +140,47 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({ leaveCommunit
           You will no longer have access to this community. This can't be undone.
         </Typography>
       </Grid>
-      <Grid container item className={classes.secondaryButtonContainer} xs={12} direction='row' justifyContent='center'>
-        <Button variant='contained' onClick={handleClose} disabled={leaving} size='small' className={classes.button}>
-          Go back
-        </Button>
-      </Grid>
-      <Grid item xs={'auto'} className={classes.buttonContainer}>
-        <Button
-          variant='outlined'
-          onClick={handleLeave}
-          disabled={leaving}
-          size='small'
-          fullWidth
-          className={classes.secondaryButton}
-          data-testid={'leave-community-button'}
-        >
-          {leaving ? 'Leaving community…' : 'Leave community'}
-        </Button>
-      </Grid>
-      {failed && <Typography role='alert'>Unable to leave the community. Please try again.</Typography>}
+      {leaving ? (
+        // Leaving takes the action area's place: the title and the warning stay,
+        // the buttons go. Nothing here is clickable, so nothing is greyed out.
+        <Grid container item className={classes.progressContainer} xs={12} direction='row' justifyContent='center'>
+          <ActionProgress status={LEAVING_STATUS} data-testid={'leave-community-progress'} />
+        </Grid>
+      ) : (
+        <>
+          <Grid
+            container
+            item
+            className={classes.secondaryButtonContainer}
+            xs={12}
+            direction='row'
+            justifyContent='center'
+          >
+            <Button variant='contained' onClick={handleClose} size='small' className={classes.button}>
+              Go back
+            </Button>
+          </Grid>
+          <Grid item xs={'auto'} className={classes.buttonContainer}>
+            <Button
+              variant='contained'
+              onClick={handleLeave}
+              size='small'
+              fullWidth
+              className={classes.secondaryButton}
+              data-testid={'leave-community-button'}
+            >
+              Leave community
+            </Button>
+          </Grid>
+        </>
+      )}
+      {failed && (
+        <Grid container item xs={12} direction='row' justifyContent='center'>
+          <Typography variant='body2' role='alert' className={classes.error}>
+            Unable to leave the community. Please try again.
+          </Typography>
+        </Grid>
+      )}
     </StyledGrid>
   )
 }
