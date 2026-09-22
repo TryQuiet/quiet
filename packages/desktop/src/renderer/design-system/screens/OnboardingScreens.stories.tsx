@@ -59,23 +59,27 @@ type ShellLeft = 'back' | 'close' | 'none'
 
 /**
  * The Modal full-window shell as the app's Modal renders it: 60px header, back
- * arrow (or close) left, title centered. No `title` = no bar (Get started: the
+ * arrow (or close) left, title centered. `withoutTitle` = the bar zone with the
+ * glyph only, no title text and no hairline (the full-screen h1 stages, as the
+ * prototype hides their titles — ONBOARDING.md "No top bar title on full-screen
+ * h1 stages"). No `title` and no `withoutTitle` = no bar (Get started: the
  * window chrome is the bar), the content column starting at the top.
  */
-const Shell: React.FC<{ title?: string; left?: ShellLeft; onLeft?: () => void; children: React.ReactNode }> = ({
-  title,
-  left = 'back',
-  onLeft,
-  children,
-}) => (
+const Shell: React.FC<{
+  title?: string
+  withoutTitle?: boolean
+  left?: ShellLeft
+  onLeft?: () => void
+  children: React.ReactNode
+}> = ({ title, withoutTitle = false, left = 'back', onLeft, children }) => (
   <div style={{ width: SHELL_WIDTH, minHeight: 560, background: '#fff' }}>
-    {title === undefined ? null : (
+    {title === undefined && !withoutTitle ? null : (
       <div
         style={{
           height: 60,
           display: 'flex',
           alignItems: 'center',
-          borderBottom: `1px solid #F0F0F0`,
+          borderBottom: withoutTitle ? 'none' : `1px solid #F0F0F0`,
           fontFamily: "'Rubik', sans-serif",
         }}
       >
@@ -98,7 +102,9 @@ const Shell: React.FC<{ title?: string; left?: ShellLeft; onLeft?: () => void; c
             </button>
           )}
         </div>
-        <div style={{ flex: 1, textAlign: 'center', fontSize: 16, lineHeight: '24px', fontWeight: 500 }}>{title}</div>
+        <div style={{ flex: 1, textAlign: 'center', fontSize: 16, lineHeight: '24px', fontWeight: 500 }}>
+          {withoutTitle ? null : title}
+        </div>
         <div style={{ width: 60 }} />
       </div>
     )}
@@ -106,15 +112,35 @@ const Shell: React.FC<{ title?: string; left?: ShellLeft; onLeft?: () => void; c
   </div>
 )
 
+/**
+ * Caption for a screen's bar: a title the frame shows, a title the frame itself
+ * hides (glyph only), a title dropped here because the screen carries its own
+ * large heading, or no bar at all.
+ */
+const barCaption = (bar?: string, hiddenBar?: string, droppedBar?: string) =>
+  bar !== undefined ? (
+    <>title bar &ldquo;{bar}&rdquo;</>
+  ) : hiddenBar !== undefined ? (
+    <>no bar title, glyph only (the frame hides &ldquo;{hiddenBar}&rdquo;)</>
+  ) : droppedBar !== undefined ? (
+    <>no bar title, glyph only (the frame draws &ldquo;{droppedBar}&rdquo;; dropped — the screen has its own heading)</>
+  ) : (
+    'no title bar'
+  )
+
 const Screen: React.FC<{
   title: string
-  /** Title-bar text; omitted = the screen has no bar. */
+  /** Title-bar text (a bar the frame shows and this screen keeps). */
   bar?: string
+  /** The frame's title text the designer hid: the bar zone shows the glyph only, no title, no hairline. */
+  hiddenBar?: string
+  /** A title the frame draws but this screen drops, because it has a large heading of its own. */
+  droppedBar?: string
   figma: string
   left?: ShellLeft
   note?: string
   render: () => React.ReactNode
-}> = ({ title, bar, figma, left, note, render }) => (
+}> = ({ title, bar, hiddenBar, droppedBar, figma, left, note, render }) => (
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={lightTheme}>
       <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
@@ -122,13 +148,12 @@ const Screen: React.FC<{
           {title}
         </h1>
         <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-          Figma <span style={{ fontFamily: mono }}>{figma}</span> ·{' '}
-          {bar === undefined ? 'no title bar' : <>title bar &ldquo;{bar}&rdquo;</>} · desktop component under the
-          app&rsquo;s light theme{note ? ` · ${note}` : ''}
+          Figma <span style={{ fontFamily: mono }}>{figma}</span> · {barCaption(bar, hiddenBar, droppedBar)} · desktop
+          component under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-            <Shell title={bar} left={left}>
+            <Shell title={bar} withoutTitle={hiddenBar !== undefined || droppedBar !== undefined} left={left}>
               {render()}
             </Shell>
           </Column>
@@ -162,7 +187,7 @@ export const GetStarted = () => (
 export const JoinCommunity = () => (
   <Screen
     title='Join community'
-    bar='Quiet'
+    hiddenBar='Quiet'
     figma='2811:2562'
     note='Recover account opens Account recovery (below)'
     render={() => (
@@ -174,7 +199,7 @@ export const JoinCommunity = () => (
 export const RecoverAccount = () => (
   <Screen
     title='Recover account'
-    bar='Account recovery'
+    hiddenBar='Account recovery'
     figma='2811:2535'
     note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
     render={() => <RecoverAccountComponent onUseLinkedDevice={noop} onUseInviteLink={noop} />}
@@ -184,7 +209,7 @@ export const RecoverAccount = () => (
 export const OpenInviteLink = () => (
   <Screen
     title='Open invite link'
-    bar='Join with invite link'
+    hiddenBar='Join with invite link'
     figma='2811:2455'
     note='an invite link opened here takes the deep-link path (customProtocol.saga.ts) straight to Choose username; Paste a link is the fallback'
     render={() => <OpenInviteLinkComponent onPasteLink={noop} />}
@@ -194,7 +219,7 @@ export const OpenInviteLink = () => (
 export const PasteALink = () => (
   <Screen
     title='Paste a link to Join'
-    bar='Join with invite link'
+    hiddenBar='Join with invite link'
     figma='3190:10892'
     note='the WIP frame reduced to its intent: heading, one input ("Link"), Continue'
     render={() => <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={noop} />}
@@ -204,7 +229,7 @@ export const PasteALink = () => (
 export const JoinWithQrCode = () => (
   <Screen
     title='Join with QR code'
-    bar='Join with QR code'
+    droppedBar='Join with QR code'
     figma='2811:2460'
     note='desktop has no camera: the sheet becomes the paste step'
     render={() => <PasteLinkComponent heading={'Join with QR code'} handleCommunityAction={noop} />}
@@ -214,7 +239,7 @@ export const JoinWithQrCode = () => (
 export const CreateCommunity = () => (
   <Screen
     title='Create a community'
-    bar='Create a community'
+    hiddenBar='Create a community'
     figma='2811:2451'
     note='community icon upload is phase 2'
     render={() => <CreateCommunityComponent handleCommunityAction={noop} />}
@@ -224,7 +249,7 @@ export const CreateCommunity = () => (
 export const LinkDevices = () => (
   <Screen
     title='Link devices'
-    bar='Link devices'
+    droppedBar='Link devices'
     figma='2811:2575'
     render={() => <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} />}
   />
@@ -233,7 +258,7 @@ export const LinkDevices = () => (
 export const DisplayQrCode = () => (
   <Screen
     title='Display QR code'
-    bar='QR code'
+    droppedBar='QR code'
     figma='2811:2601'
     note="#3400's Linked devices surface, shown inside the Link devices modal"
     render={() => (
@@ -253,7 +278,7 @@ export const DisplayQrCode = () => (
 export const ScanQrCode = () => (
   <Screen
     title='Scan QR code'
-    bar='Scan QR code'
+    droppedBar='Scan QR code'
     figma='2811:2587'
     note='desktop has no camera: the sheet copy introduces the paste step'
     render={() => (
@@ -269,7 +294,7 @@ export const ScanQrCode = () => (
 export const ChooseUsername = () => (
   <Screen
     title='Choose username'
-    bar='Create a community'
+    hiddenBar='Create a community'
     left='close'
     figma='2811:2371'
     note="the prototype's copy; the library's Register username is stale"
@@ -284,7 +309,7 @@ export const ChooseUsername = () => (
 const INVITE_LINK_PATH: { label: string; bar: string; then: string; render: () => React.ReactNode }[] = [
   {
     label: '1 · Join community',
-    bar: 'Quiet',
+    bar: 'no bar title (the frame hides “Quiet”)',
     then: 'Join with invite link →',
     render: () => (
       <JoinCommunityOptionsComponent onJoinWithInviteLink={noop} onJoinWithQrCode={noop} onRecoverAccount={noop} />
@@ -292,13 +317,13 @@ const INVITE_LINK_PATH: { label: string; bar: string; then: string; render: () =
   },
   {
     label: '2 · Open invite link',
-    bar: 'Join with invite link',
+    bar: 'no bar title (the frame hides “Join with invite link”)',
     then: 'the user opens the link: quiet://… → customProtocol.saga.ts → joinCommunity({ inviteData }) →',
     render: () => <OpenInviteLinkComponent onPasteLink={noop} />,
   },
   {
     label: '3 · Choose username',
-    bar: 'Create a community',
+    bar: 'no bar title (the frame hides “Create a community”)',
     then: 'registerUsername({ nickname }); close returns to step 2, the screen the link arrived on',
     render: () => <CreateUsernameBody registerUsername={noop} />,
   },
@@ -318,7 +343,7 @@ export const InviteLinkPath = () => (
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           {INVITE_LINK_PATH.map(step => (
-            <Column key={step.label} width={CONTENT_COLUMN_WIDTH} label={`${step.label} · title bar “${step.bar}”`}>
+            <Column key={step.label} width={CONTENT_COLUMN_WIDTH} label={`${step.label} · ${step.bar}`}>
               {step.render()}
               <div
                 style={{
@@ -362,18 +387,18 @@ type Step =
   | 'displayQrCode'
   | 'scanQrCode'
 
-const STEPS: Record<Step, { title: string; bar?: string; left: ShellLeft }> = {
+const STEPS: Record<Step, { title: string; bar?: string; hiddenBar?: string; droppedBar?: string; left: ShellLeft }> = {
   getStarted: { title: 'Get started', left: 'none' },
-  joinCommunity: { title: 'Join community', bar: 'Quiet', left: 'back' },
-  recoverAccount: { title: 'Recover account', bar: 'Account recovery', left: 'back' },
-  openInviteLink: { title: 'Open invite link', bar: 'Join with invite link', left: 'back' },
-  pasteALink: { title: 'Paste a link to Join', bar: 'Join with invite link', left: 'back' },
-  joinWithQrCode: { title: 'Join with QR code', bar: 'Join with QR code', left: 'back' },
-  createCommunity: { title: 'Create a community', bar: 'Create a community', left: 'back' },
-  chooseUsername: { title: 'Choose username', bar: 'Create a community', left: 'close' },
-  linkDevices: { title: 'Link devices', bar: 'Link devices', left: 'back' },
-  displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'back' },
-  scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
+  joinCommunity: { title: 'Join community', hiddenBar: 'Quiet', left: 'back' },
+  recoverAccount: { title: 'Recover account', hiddenBar: 'Account recovery', left: 'back' },
+  openInviteLink: { title: 'Open invite link', hiddenBar: 'Join with invite link', left: 'back' },
+  pasteALink: { title: 'Paste a link to Join', hiddenBar: 'Join with invite link', left: 'back' },
+  joinWithQrCode: { title: 'Join with QR code', droppedBar: 'Join with QR code', left: 'back' },
+  createCommunity: { title: 'Create a community', hiddenBar: 'Create a community', left: 'back' },
+  chooseUsername: { title: 'Choose username', hiddenBar: 'Create a community', left: 'close' },
+  linkDevices: { title: 'Link devices', droppedBar: 'Link devices', left: 'back' },
+  displayQrCode: { title: 'Display QR code', droppedBar: 'QR code', left: 'back' },
+  scanQrCode: { title: 'Scan QR code', droppedBar: 'Scan QR code', left: 'back' },
 }
 
 const PASTE_STEPS: Step[] = ['pasteALink', 'joinWithQrCode', 'scanQrCode']
@@ -529,7 +554,7 @@ const WalkthroughStory = () => {
     }
   }
 
-  const { title, bar, left } = STEPS[step]
+  const { title, bar, hiddenBar, droppedBar, left } = STEPS[step]
   const isPasteStep = PASTE_STEPS.includes(step)
   const onLeft = left === 'back' ? back : left === 'close' ? restart : undefined
 
@@ -543,15 +568,20 @@ const WalkthroughStory = () => {
             Walkthrough · {title}
           </h1>
           <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-            {bar === undefined ? 'no title bar' : <>title bar &ldquo;{bar}&rdquo;</>} · rows, buttons and the back arrow
-            navigate; where the app dispatches, the action is recorded below · trail:{' '}
+            {barCaption(bar, hiddenBar, droppedBar)} · rows, buttons and the back arrow navigate; where the app
+            dispatches, the action is recorded below · trail:{' '}
             <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
               {[...trail, step].map(s => STEPS[s].title).join(' › ')}
             </span>
           </p>
           <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
             <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-              <Shell title={bar} left={left} onLeft={onLeft}>
+              <Shell
+                title={bar}
+                withoutTitle={hiddenBar !== undefined || droppedBar !== undefined}
+                left={left}
+                onLeft={onLeft}
+              >
                 {render()}
               </Shell>
             </Column>

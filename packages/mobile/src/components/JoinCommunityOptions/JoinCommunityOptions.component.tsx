@@ -13,7 +13,9 @@ import type { JoinCommunityOptionsProps } from './JoinCommunityOptions.types'
 /**
  * Join community · Figma 2811:2562: the three-way choice. "Recover account"
  * opens the Account recovery screen (2811:2535), whose routes are the
- * existing Link devices and Join with invite link flows.
+ * existing Link devices and Join with invite link flows. The frame hides its
+ * bar title ("Quiet"): the back glyph alone, the heading is the title, content
+ * top-anchored 24 under the bar zone.
  */
 export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
   onJoinWithInviteLink,
@@ -25,8 +27,8 @@ export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
     style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
     testID={'join-community-options-component'}
   >
-    <Appbar title={'Quiet'} back={handleBackButton} />
-    <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, gap: spacing.xl }}>
+    <Appbar withoutTitle back={handleBackButton} />
+    <View style={{ flex: 1, paddingTop: spacing.xl, paddingHorizontal: spacing.lg, gap: spacing.xl }}>
       <Typography variant={'h3'} horizontalTextAlign={'center'}>
         {'Join community'}
       </Typography>

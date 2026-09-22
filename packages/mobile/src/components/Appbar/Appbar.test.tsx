@@ -392,6 +392,27 @@ describe('Appbar component', () => {
     `)
   })
 
+  it('withoutTitle keeps the bar zone with the glyph only: no title text, no hairline', () => {
+    const { getByTestId, getByLabelText, queryByText } = renderComponent(
+      <Appbar title={'Create a community'} withoutTitle back={() => {}} />
+    )
+
+    expect(queryByText('Create a community')).toBeNull()
+    expect(getByLabelText('Go back')).toBeTruthy()
+    const zone = getByTestId('appbar_without_title')
+    expect(zone.props.style).toMatchObject([{ height: 60 }, undefined])
+    expect(JSON.stringify(zone.props.style)).not.toContain('borderBottom')
+    const glyph = getByTestId('appbar_action_item')
+    expect(glyph.props.style).toMatchObject({ position: 'absolute', left: 14, top: 16, width: 28, height: 28 })
+  })
+
+  it('withoutTitle without a back handler renders the empty bar zone', () => {
+    const { getByTestId, queryByTestId } = renderComponent(<Appbar withoutTitle plain />)
+
+    expect(getByTestId('appbar_without_title')).toBeTruthy()
+    expect(queryByTestId('appbar_action_item')).toBeNull()
+  })
+
   it('labels the back button as "Close" when crossBackIcon is set', () => {
     const { getByLabelText } = renderComponent(<Appbar title={'general'} back={() => {}} crossBackIcon />)
 

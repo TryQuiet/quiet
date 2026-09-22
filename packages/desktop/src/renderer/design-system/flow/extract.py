@@ -79,13 +79,16 @@ def title_bar(n):
     while stack:
         x=stack.pop()
         if x.get("type")=="INSTANCE" and (x.get("name") or "").startswith("Title bar"):
-            h=round((x.get("absoluteBoundingBox") or {}).get("height",0)); q=[x]; text=None
+            # The prototype hides the bar's title on full-screen (h1) stages: only the back/close glyph shows and the
+            # heading is the title. Respect Figma's visible:false on the text and its ancestors (user, 2026-09-13).
+            h=round((x.get("absoluteBoundingBox") or {}).get("height",0)); q=[(x, x.get("visible", True) is not False)]; text=None; shown=False
             while q:
-                y=q.pop()
-                if y.get("type")=="TEXT" and y.get("name")=="Title" and (y.get("characters") or "").strip(): text=y["characters"].strip(); break
-                q.extend(y.get("children") or [])
+                y,vis=q.pop()
+                if y.get("type")=="TEXT" and y.get("name")=="Title" and (y.get("characters") or "").strip():
+                    text=y["characters"].strip(); shown=vis; break
+                q.extend((c, vis and c.get("visible", True) is not False) for c in (y.get("children") or []))
             if text=="Title": text=None
-            return {"height":h,"text":text}
+            return {"height":h,"text":text if shown else None,"hiddenTitle":(text if (text and not shown) else None)}
         stack.extend(x.get("children") or [])
     return None
 frames=[]

@@ -100,9 +100,17 @@ describe('join community', () => {
 
     expect(screen.getByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
     expect(screen.getByTestId('recover-account')).not.toHaveAttribute('aria-disabled', 'true')
+    // Full-screen h1 stage (2811:2562): the bar keeps only the back glyph — no "Quiet" title, no hairline
+    expect(screen.queryByText('Quiet')).not.toBeInTheDocument()
+    const header = screen.getByTestId('joinCommunityModalActions').closest('.Modalheader')
+    expect(header).not.toHaveClass('Modalnone')
+    expect(header).not.toHaveClass('ModalheaderBorder')
+    expect(screen.getByTestId('joinCommunityModalBack')).toBeVisible()
 
     await userEvent.click(screen.getByTestId('join-with-invite-link'))
     expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
+    // Open invite link (2811:2455): the heading is the only "Join with invite link" on screen
+    expect(screen.getAllByText('Join with invite link')).toHaveLength(1)
 
     await userEvent.click(screen.getByTestId('paste-a-link'))
     expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
@@ -125,7 +133,8 @@ describe('join community', () => {
 
     await userEvent.click(screen.getByTestId('recover-account'))
     expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
-    expect(screen.getByText('Account recovery')).toBeVisible()
+    // Account recovery (2811:2535) hides its bar title
+    expect(screen.queryByText('Account recovery')).not.toBeInTheDocument()
     expect(screen.getByTestId('recover-more-options')).toHaveAttribute('aria-disabled', 'true')
 
     await userEvent.click(screen.getByTestId('recover-use-invite-link'))
@@ -175,6 +184,14 @@ describe('join community', () => {
     await userEvent.click(screen.getByTestId('join-with-qr-code'))
     expect(await screen.findByRole('heading', { name: 'Join with QR code', level: 3 })).toBeVisible()
     expect(screen.getByPlaceholderText('Link')).toBeVisible()
+
+    // The prototype draws this one as a titled sheet (2811:2460), but on desktop it is the
+    // full-window paste step under its own heading, so the bar keeps only the back glyph.
+    expect(screen.getAllByText('Join with QR code')).toHaveLength(1)
+    const header = screen.getByTestId('joinCommunityModalActions').closest('.Modalheader')
+    expect(header).not.toHaveClass('Modalnone')
+    expect(header).not.toHaveClass('ModalheaderBorder')
+    expect(screen.getByTestId('joinCommunityModalBack')).toBeVisible()
   })
 
   it('user goes from joining community to username registration, then comes back', async () => {

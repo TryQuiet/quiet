@@ -87,7 +87,8 @@ const CreateCommunity = () => {
       <Modal
         open={createCommunityModal.open}
         handleClose={createCommunityModal.handleClose}
-        title={'Create a community'}
+        // Create a community (2811:2451) hides its bar title; the heading is the title.
+        withoutTitle
         canGoBack
         handleBack={handleBack}
         alignCloseLeft
