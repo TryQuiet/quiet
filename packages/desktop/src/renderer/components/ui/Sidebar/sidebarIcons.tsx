@@ -8,19 +8,6 @@ import React from 'react'
  * raise it.
  */
 
-/** `st-person-add-2` — the "Add members" glyph, drawn in a 12px box. */
-export const PersonAddIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg width='12' height='12' viewBox='0 0 12 12' fill='none' className={className} aria-hidden focusable='false'>
-    <circle cx='4.5' cy='4' r='1.5' stroke='currentColor' />
-    <path d='M9.5 3.5C9.5 4.67157 9.5 6.5 9.5 6.5' stroke='currentColor' strokeWidth='0.75' strokeLinecap='round' />
-    <path d='M11 5C9.82843 5 8 5 8 5' stroke='currentColor' strokeWidth='0.75' strokeLinecap='round' />
-    <path
-      d='M7.82375 8.77097C7.2907 7.40505 5.66103 6.86719 4.5 6.86719C3.33611 6.86719 1.70127 7.3863 1.17233 8.77001C0.975132 9.28589 1.44742 9.75 1.99971 9.75H4.5H7.00012C7.5524 9.75 8.02453 9.28547 7.82375 8.77097Z'
-      stroke='currentColor'
-    />
-  </svg>
-)
-
 /** `t-caret-down-dark` — the caret beside the community name. */
 export const CaretDownIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg width='16' height='16' viewBox='0 0 16 16' fill='none' className={className} aria-hidden focusable='false'>

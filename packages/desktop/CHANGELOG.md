@@ -15,6 +15,7 @@
 * Accept a direct-message descriptor naming a participant this device has not replicated yet, instead of losing that conversation permanently
 * Show an error when a chosen profile photo is too large, and compress PNG profile photos as JPEG ones already were [#2953](https://github.com/TryQuiet/quiet/issues/2953)
 * Offer Members or Add members in the channel menu according to whether you administer the channel, and resolve a public channel's membership as the whole community
+* Open Add members from the community menu on desktop, where it has always lived; the sidebar column no longer carries an Add members row of its own
 * Give the mobile appbar, send and attachment controls a full-size touch target, and stop the new-message block pushing the message field off screen
 * Give the mobile Channels and Direct Messages `+` buttons a full-size touch target, and let a screen reader announce what each one does [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Give the mobile remove-attachment control a full-size touch target, and stop it hanging outside its parent where Android delivered no touch to it at all [#3595](https://github.com/TryQuiet/quiet/issues/3595)

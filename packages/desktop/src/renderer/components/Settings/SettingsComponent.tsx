@@ -73,7 +73,7 @@ export interface SettingsComponentProps {
   tabs: any
   leaveCommunityModal: ReturnType<typeof useModal>
   isWindows?: boolean
-  /** Tab to open the drawer on, e.g. the sidebar's "Add members" row asks for 'invite'. */
+  /** Tab to open the drawer on, rather than its menu — e.g. 'invite' for Add Members. */
   focusTab?: string
 }
 

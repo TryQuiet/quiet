@@ -4,7 +4,6 @@ import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 import IdentityPanel, { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import ChannelsPanel, { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
-import ProminentActionsPanel from './ProminentActionsPanel/ProminentActionsPanel'
 import TorStatus, { TorStatusProps } from './TorStatus'
 import UserProfilePanel, { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import DirectMessagesPanel, { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
@@ -80,6 +79,12 @@ export type SidebarComponentProps = IdentityPanelProps &
  * The library's full component set (`5439:58626`) puts a search field under the
  * community row; V1 does not ("Top bar without search", `6222:13638`), and the
  * app's channel search stays on Ctrl/Cmd+K.
+ *
+ * V1 also draws an "Add members" row above the channel list. The app does not:
+ * Add members lives in the community menu, the settings drawer the community
+ * name and caret open (user decision, 2026-09-22). The designer's own desktop
+ * app frame draws it there too (`1430:48372`, exported as
+ * `design-system/figma/desktop/desktop-community-menu-open.png`).
  */
 const SidebarComponent: React.FC<SidebarComponentProps> = ({ ...props }) => {
   return (
@@ -98,7 +103,6 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ ...props }) => {
               renderView={viewProps => <div {...viewProps} style={{ ...viewProps.style, overflowX: 'hidden' }} />}
             >
               <div className={classes.content}>
-                <ProminentActionsPanel accountSettingsModal={props.accountSettingsModal} />
                 <ChannelsPanel {...props} />
                 <DirectMessagesPanel {...props} />
               </div>
