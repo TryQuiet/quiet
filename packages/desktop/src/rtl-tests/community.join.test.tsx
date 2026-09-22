@@ -33,7 +33,14 @@ import {
   ChannelType,
   type InvitationAuthDataV4,
 } from '@quiet/types'
-import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav5 } from '@quiet/common'
+import {
+  CHOOSE_USERNAME_HEADING,
+  JOIN_COMMUNITY_HEADING,
+  PASTE_LINK_PLACEHOLDER,
+  composeInvitationShareUrl,
+  getValidInvitationUrlTestData,
+  validInvitationDatav5,
+} from '@quiet/common'
 import { communities } from '@quiet/state-manager'
 
 import { createLogger } from './logger'
@@ -45,7 +52,7 @@ const logger = createLogger('community.join.test')
 const openPasteStep = async () => {
   await userEvent.click(await screen.findByTestId('join-with-invite-link'))
   await userEvent.click(await screen.findByTestId('paste-a-link'))
-  return await screen.findByPlaceholderText('Link')
+  return await screen.findByPlaceholderText(PASTE_LINK_PLACEHOLDER)
 }
 
 jest.setTimeout(20_000)
@@ -203,7 +210,7 @@ describe('User', () => {
     })
 
     // Confirm proper modal title is displayed
-    const joinCommunityTitle = screen.getByRole('heading', { name: 'Join community', level: 3 })
+    const joinCommunityTitle = screen.getByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })
     expect(joinCommunityTitle).toBeVisible()
 
     // Enter community address and hit button
@@ -214,7 +221,7 @@ describe('User', () => {
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Choose username')
+    const createUsernameTitle = await screen.findByText(CHOOSE_USERNAME_HEADING)
     expect(createUsernameTitle).toBeVisible()
     expect(communities.selectors.pendingJoin(store.getState())).toMatchObject({
       status: 'draft',
@@ -322,7 +329,7 @@ describe('User', () => {
     })
 
     // Confirm proper modal title is displayed
-    const joinCommunityTitle = screen.getByRole('heading', { name: 'Join community', level: 3 })
+    const joinCommunityTitle = screen.getByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })
     expect(joinCommunityTitle).toBeVisible()
 
     // Enter community address and hit button
@@ -332,7 +339,7 @@ describe('User', () => {
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Choose username')
+    const createUsernameTitle = await screen.findByText(CHOOSE_USERNAME_HEADING)
     expect(createUsernameTitle).toBeVisible()
 
     // Enter username and hit button
@@ -509,7 +516,7 @@ describe('join community - qss', () => {
     const { code } = getValidInvitationUrlTestData(validInvitationDatav5[0])
     const qss = code()
     // Confirm proper modal title is displayed
-    const joinCommunityTitle = await screen.findByRole('heading', { name: 'Join community', level: 3 })
+    const joinCommunityTitle = await screen.findByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })
     expect(joinCommunityTitle).toBeVisible()
 
     // Enter community address and hit button
@@ -525,7 +532,7 @@ describe('join community - qss', () => {
     const abort = await screen.findByTestId('TermOfServiceModalBack')
     await userEvent.click(abort)
 
-    const joinTitle = await screen.findByRole('heading', { name: 'Join community', level: 3 })
+    const joinTitle = await screen.findByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })
     expect(joinTitle).toBeVisible()
   })
 })

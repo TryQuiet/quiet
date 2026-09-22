@@ -2,7 +2,13 @@ import React from 'react'
 import { act, fireEvent, waitFor } from '@testing-library/react-native'
 import type { ReactTestInstance } from 'react-test-renderer'
 
-import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
+import {
+  JOIN_WITH_QR_CODE_HEADING,
+  SCAN_QR_CODE_HEADING,
+  SCAN_QR_CODE_INTRO,
+  composeInvitationShareUrl,
+  validInvitationDatav4,
+} from '@quiet/common'
 import { InvitationKind } from '@quiet/types'
 
 import { resetVisionCameraMock, visionCameraMock } from '../../tests/mocks/reactNativeVisionCamera'
@@ -12,7 +18,6 @@ import { QrScanner } from './QrScanner.component'
 import { SCANNER_COPY } from './QrScannerSheet.component'
 
 const memberLink = composeInvitationShareUrl(validInvitationDatav4[0])
-const intro = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /** What the native code scanner does when a QR code is in the frame. */
 const scan = (camera: ReactTestInstance, value: string) =>
@@ -29,7 +34,7 @@ describe('QrScanner', () => {
     const onUsePasteLink = jest.fn()
     const result = renderComponent(
       <QrScanner
-        title={'Join with QR code'}
+        title={JOIN_WITH_QR_CODE_HEADING}
         onDecoded={onDecoded}
         onClose={onClose}
         onUsePasteLink={onUsePasteLink}
@@ -116,9 +121,13 @@ describe('QrScanner', () => {
   })
 
   it('carries the Link devices copy above the camera', () => {
-    const { result } = renderScanner({ title: 'Scan QR code', intro, testID: 'link-devices-qr-scanner' })
-    expect(result.getByText('Scan QR code')).toBeTruthy()
-    expect(result.getByText(intro)).toBeTruthy()
+    const { result } = renderScanner({
+      title: SCAN_QR_CODE_HEADING,
+      intro: SCAN_QR_CODE_INTRO,
+      testID: 'link-devices-qr-scanner',
+    })
+    expect(result.getByText(SCAN_QR_CODE_HEADING)).toBeTruthy()
+    expect(result.getByText(SCAN_QR_CODE_INTRO)).toBeTruthy()
     expect(result.getByTestId('link-devices-qr-scanner-frame')).toBeTruthy()
   })
 })

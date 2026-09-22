@@ -4,6 +4,12 @@ import { styled } from '@mui/material/styles'
 import { ActionRow } from './ActionRow'
 import { OnboardingBody, RowGroup } from './OnboardingBody'
 import { HEART_CHAT_SIZE, heartChatIllustration, onboardingIcons } from './icons'
+import {
+  JOIN_COMMUNITY_HEADING,
+  JOIN_WITH_INVITE_LINK_HEADING,
+  JOIN_WITH_QR_CODE_HEADING,
+  RECOVER_ACCOUNT_HEADING,
+} from '@quiet/common'
 
 const Illustration = styled('img')({
   ...HEART_CHAT_SIZE,
@@ -30,25 +36,25 @@ export const JoinCommunityOptionsComponent: React.FC<JoinCommunityOptionsCompone
   <OnboardingBody
     leading={<Illustration src={heartChatIllustration} alt='' aria-hidden data-testid='join-community-graphic' />}
     flushLeading
-    heading={'Join community'}
+    heading={JOIN_COMMUNITY_HEADING}
     dataTestId='join-community-options'
   >
     <RowGroup>
       <ActionRow
         icon={onboardingIcons.inviteLink}
-        label={'Join with invite link'}
+        label={JOIN_WITH_INVITE_LINK_HEADING}
         onClick={onJoinWithInviteLink}
         dataTestId='join-with-invite-link'
       />
       <ActionRow
         icon={onboardingIcons.qrCode}
-        label={'Join with QR code'}
+        label={JOIN_WITH_QR_CODE_HEADING}
         onClick={onJoinWithQrCode}
         dataTestId='join-with-qr-code'
       />
       <ActionRow
         icon={onboardingIcons.info}
-        label={'Recover account'}
+        label={RECOVER_ACCOUNT_HEADING}
         onClick={onRecoverAccount}
         dataTestId='recover-account'
       />

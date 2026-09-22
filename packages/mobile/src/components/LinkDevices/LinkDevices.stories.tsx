@@ -2,12 +2,13 @@ import { storiesOf } from '@storybook/react-native'
 import React from 'react'
 import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 import { LinkDevices } from './LinkDevices.component'
+import { PASTE_LINK_LABEL, SCAN_QR_CODE_HEADING } from '@quiet/common'
 
 const actions = {
   onDisplayQrCode: storybookLog('Display QR code'),
   onCopyLink: storybookLog('Copy link'),
-  onScanQrCode: storybookLog('Scan QR code'),
-  onPasteLink: storybookLog('Paste link'),
+  onScanQrCode: storybookLog(SCAN_QR_CODE_HEADING),
+  onPasteLink: storybookLog(PASTE_LINK_LABEL),
   handleBackButton: storybookLog('Back'),
 }
 

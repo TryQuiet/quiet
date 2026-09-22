@@ -1,7 +1,13 @@
 import React from 'react'
 import { act, fireEvent, waitFor } from '@testing-library/react-native'
 
-import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
+import {
+  LINK_DEVICES_HEADING,
+  PASTE_LINK_HEADING,
+  PASTE_LINK_PLACEHOLDER,
+  composeInvitationShareUrl,
+  validInvitationDatav4,
+} from '@quiet/common'
 import { communities } from '@quiet/state-manager'
 import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
 
@@ -64,7 +70,7 @@ describe('PasteInviteLinkScreen', () => {
     const { dispatchSpy, result } = await renderReadyScreen()
     const confirmedPayload = confirmedDeviceLinkPayload(deviceInvite)
 
-    fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(deviceInvite))
+    fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(deviceInvite))
     fireEvent.press(result.getByTestId('paste-link-continue'))
     // Linking a device is never done without consent.
     fireEvent.press(await result.findByTestId('device-link-confirm'))
@@ -86,7 +92,7 @@ describe('PasteInviteLinkScreen', () => {
   it('keeps a cancelled device link on the paste screen without dispatching it', async () => {
     const { dispatchSpy, result } = await renderReadyScreen()
 
-    fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(deviceInvite))
+    fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(deviceInvite))
     fireEvent.press(result.getByTestId('paste-link-continue'))
 
     // Agree & join takes the window; its back arrow is how the user declines (3054:4090).
@@ -98,13 +104,13 @@ describe('PasteInviteLinkScreen', () => {
       expect.objectContaining({ type: navigationActions.replaceScreen.type })
     )
     // Declining returns to the paste step, with the field still there.
-    expect(result.getByPlaceholderText('Link')).toBeTruthy()
+    expect(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER)).toBeTruthy()
   })
 
   it('keeps member invitations on the username registration flow', async () => {
     const { dispatchSpy, result } = await renderReadyScreen()
 
-    fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(memberInvite))
+    fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(memberInvite))
     fireEvent.press(result.getByTestId('paste-link-continue'))
 
     expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.joinCommunity({ inviteData: parsedMemberInvite }))
@@ -124,15 +130,15 @@ describe('PasteInviteLinkScreen', () => {
     it('shows the paste step with no bar title (an h1 screen)', async () => {
       const { result } = await renderReadyScreen(pasteLinkRoute)
 
-      expect(result.queryByText('Link devices')).toBeNull()
-      expect(result.getByText('Paste a link to join')).toBeTruthy()
-      expect(result.getByPlaceholderText('Link')).toBeTruthy()
+      expect(result.queryByText(LINK_DEVICES_HEADING)).toBeNull()
+      expect(result.getByText(PASTE_LINK_HEADING)).toBeTruthy()
+      expect(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER)).toBeTruthy()
     })
 
     it('a device link links this device once its consent is given', async () => {
       const { dispatchSpy, result } = await renderReadyScreen(pasteLinkRoute)
 
-      fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(deviceInvite))
+      fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(deviceInvite))
       fireEvent.press(result.getByTestId('paste-link-continue'))
 
       // Linking hands the other device this account, so the paste raises the consent drawer and
@@ -157,11 +163,11 @@ describe('PasteInviteLinkScreen', () => {
     it('a member link shows the not-a-device-link error and dispatches nothing', async () => {
       const { dispatchSpy, result } = await renderReadyScreen(pasteLinkRoute)
 
-      fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(memberInvite))
+      fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(memberInvite))
       fireEvent.press(result.getByTestId('paste-link-continue'))
 
       expect(result.getByText(NOT_A_DEVICE_LINK_ERROR)).toBeTruthy()
-      expect(result.getByPlaceholderText('Link')).toBeTruthy() // still on the paste step
+      expect(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER)).toBeTruthy() // still on the paste step
       expect(dispatchSpy).not.toHaveBeenCalledWith(
         communities.actions.joinCommunity({ inviteData: parsedMemberInvite })
       )
@@ -183,7 +189,7 @@ describe('PasteInviteLinkScreen', () => {
     it('text that is not an invitation shows the invalid-code error', async () => {
       const { dispatchSpy, result } = await renderReadyScreen(pasteLinkRoute)
 
-      fireEvent.changeText(result.getByPlaceholderText('Link'), 'https://example.com/')
+      fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), 'https://example.com/')
       fireEvent.press(result.getByTestId('paste-link-continue'))
 
       expect(result.getByText('Please check your invite link and try again')).toBeTruthy()
@@ -195,7 +201,7 @@ describe('PasteInviteLinkScreen', () => {
     it('the Scan QR code stand-in (variant deviceLink) rejects a member link the same way', async () => {
       const { dispatchSpy, result } = await renderReadyScreen({ ...route, params: { variant: 'deviceLink' } })
 
-      fireEvent.changeText(result.getByPlaceholderText('Link'), composeInvitationShareUrl(memberInvite))
+      fireEvent.changeText(result.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), composeInvitationShareUrl(memberInvite))
       fireEvent.press(result.getByTestId('paste-link-continue'))
 
       expect(result.getByText(NOT_A_DEVICE_LINK_ERROR)).toBeTruthy()
@@ -246,7 +252,7 @@ describe('PasteInviteLinkScreen', () => {
         expect(error).toBeTruthy()
         // Under the input, in the field's own error slot - not a screen of its own.
         expect(result.getByTestId('paste-link-input')).toContainElement(error)
-        expect(result.getByText('Paste a link to join')).toBeTruthy()
+        expect(result.getByText(PASTE_LINK_HEADING)).toBeTruthy()
         expect(dispatchSpy).not.toHaveBeenCalledWith(
           expect.objectContaining({ type: navigationActions.navigation.type })
         )

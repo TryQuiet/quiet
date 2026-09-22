@@ -9,6 +9,7 @@ import { OnboardingBody } from '../OnboardingBody'
 import { TextLink } from '../OpenInviteLinkComponent'
 import { parseScannedCode } from './decodeQr'
 import { useQrScanner, type QrScannerStatus } from './useQrScanner'
+import { PASTE_A_LINK_LABEL } from '@quiet/common'
 
 const PREFIX = 'QrScannerComponent'
 
@@ -95,7 +96,7 @@ export const SCANNER_COPY = {
   denied: 'Camera access was denied.',
   unavailable: 'No camera is available.',
   /** The Open invite link frame's own link text. */
-  pasteLink: 'Paste a link',
+  pasteLink: PASTE_A_LINK_LABEL,
 } as const
 
 const BLOCKED: QrScannerStatus[] = ['denied', 'unavailable']

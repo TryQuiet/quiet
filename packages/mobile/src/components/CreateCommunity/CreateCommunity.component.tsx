@@ -9,6 +9,7 @@ import { Typography } from '../Typography/Typography.component'
 
 import { CreateCommunityProps } from './CreateCommunity.types'
 import { Splash } from '../Splash/Splash.component'
+import { CREATE_COMMUNITY_HEADING } from '@quiet/common'
 
 /**
  * Create a community · Figma 2811:2451. The frame hides its bar title: the back
@@ -70,7 +71,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
             }}
           >
             <Typography variant={'h3'} horizontalTextAlign={'center'}>
-              {'Create a community'}
+              {CREATE_COMMUNITY_HEADING}
             </Typography>
             <Input
               onChangeText={onChangeText}

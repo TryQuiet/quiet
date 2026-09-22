@@ -7,6 +7,7 @@ import { ActionRow } from './ActionRow'
 import { LinkedDevicesList } from './LinkedDevicesList'
 import { OnboardingBody, RowGroup } from './OnboardingBody'
 import { onboardingIcons } from './icons'
+import { LINK_DEVICES_HEADING, PASTE_LINK_LABEL, SCAN_QR_CODE_HEADING } from '@quiet/common'
 
 /**
  * Which way this device links (user decision, 2026-09-13): inside a community it
@@ -72,7 +73,7 @@ export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
   )
   return (
     <OnboardingBody
-      heading={'Link devices'}
+      heading={LINK_DEVICES_HEADING}
       intro={
         'Display the QR code on one device and scan it with another. Linked devices share all communities, and you will not lose access to anything.'
       }
@@ -99,13 +100,13 @@ export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
           <>
             <ActionRow
               icon={onboardingIcons.qrScan}
-              label={'Scan QR code'}
+              label={SCAN_QR_CODE_HEADING}
               onClick={onScanQrCode}
               dataTestId='link-devices-scan-qr'
             />
             <ActionRow
               icon={onboardingIcons.inviteLink}
-              label={'Paste link'}
+              label={PASTE_LINK_LABEL}
               onClick={onPasteLink}
               dataTestId='link-devices-paste-link'
             />

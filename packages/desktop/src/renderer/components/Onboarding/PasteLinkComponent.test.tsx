@@ -4,7 +4,12 @@ import { screen, waitFor } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 import { type DeviceInvitationDataV4, type InvitationDataV4, InvitationKind } from '@quiet/types'
-import { getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
+import {
+  PASTE_LINK_HEADING,
+  PASTE_LINK_PLACEHOLDER,
+  getValidInvitationUrlTestData,
+  validInvitationDatav4,
+} from '@quiet/common'
 
 import { renderComponent } from '../../testUtils/renderComponent'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
@@ -32,16 +37,14 @@ const deviceInvitationData: DeviceInvitationDataV4 = {
 const deviceLink = getValidInvitationUrlTestData(deviceInvitationData).shareUrl()
 
 const paste = async (link: string) => {
-  await userEvent.type(screen.getByPlaceholderText('Link'), link)
+  await userEvent.type(screen.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), link)
   await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 }
 
 describe('PasteLinkComponent', () => {
   it('passes a parsed member link to the caller', async () => {
     const handleCommunityAction = jest.fn()
-    renderComponent(
-      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
-    )
+    renderComponent(<PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />)
 
     await paste(memberLink)
     expect(handleCommunityAction).toHaveBeenCalledWith(memberInvitationData)
@@ -49,9 +52,7 @@ describe('PasteLinkComponent', () => {
 
   it('passes a parsed device link to the caller', async () => {
     const handleCommunityAction = jest.fn()
-    renderComponent(
-      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
-    )
+    renderComponent(<PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />)
 
     await paste(deviceLink)
     expect(handleCommunityAction).toHaveBeenCalledWith(deviceInvitationData)
@@ -59,9 +60,7 @@ describe('PasteLinkComponent', () => {
 
   it('shows the invalid-code error for text that is not an invitation', async () => {
     const handleCommunityAction = jest.fn()
-    renderComponent(
-      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
-    )
+    renderComponent(<PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />)
 
     await paste('https://example.com/')
     expect(await screen.findByText(InviteLinkErrors.InvalidCode)).toBeVisible()
@@ -77,7 +76,7 @@ describe('PasteLinkComponent', () => {
   describe('the join field validation', () => {
     it('asks the shared validation about what was submitted, with the field’s kind', async () => {
       renderComponent(
-        <PasteLinkComponent heading={'Paste a link to join'} linkKind='device' handleCommunityAction={jest.fn()} />
+        <PasteLinkComponent heading={PASTE_LINK_HEADING} linkKind='device' handleCommunityAction={jest.fn()} />
       )
 
       await paste(deviceLink)
@@ -88,9 +87,7 @@ describe('PasteLinkComponent', () => {
     it('shows whatever the shared validation says, not a verdict of its own', async () => {
       const onlyTheRuleKnows = 'The rule said so' as InviteLinkErrors
       const handleCommunityAction = jest.fn()
-      renderComponent(
-        <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
-      )
+      renderComponent(<PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />)
 
       validate.mockReturnValueOnce({ error: onlyTheRuleKnows })
       // A link the real rule accepts: only delegation can turn it into an error.
@@ -102,9 +99,7 @@ describe('PasteLinkComponent', () => {
 
     it('passes on exactly the invitation the shared validation parsed', async () => {
       const handleCommunityAction = jest.fn()
-      renderComponent(
-        <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
-      )
+      renderComponent(<PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />)
 
       await paste(memberLink)
 
@@ -123,7 +118,7 @@ describe('PasteLinkComponent', () => {
     it('renders under the input', async () => {
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to join'}
+          heading={PASTE_LINK_HEADING}
           handleCommunityAction={jest.fn()}
           fieldError={reported}
           onFieldChange={jest.fn()}
@@ -139,7 +134,7 @@ describe('PasteLinkComponent', () => {
       const onFieldChange = jest.fn()
       const { rerender } = renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to join'}
+          heading={PASTE_LINK_HEADING}
           handleCommunityAction={jest.fn()}
           fieldError={reported}
           onFieldChange={onFieldChange}
@@ -152,7 +147,7 @@ describe('PasteLinkComponent', () => {
 
       rerender(
         <PasteLinkComponent
-          heading={'Paste a link to join'}
+          heading={PASTE_LINK_HEADING}
           handleCommunityAction={jest.fn()}
           fieldError={undefined}
           onFieldChange={onFieldChange}
@@ -166,7 +161,7 @@ describe('PasteLinkComponent', () => {
     it('does not clobber an error this form raised itself', async () => {
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to join'}
+          heading={PASTE_LINK_HEADING}
           handleCommunityAction={jest.fn()}
           fieldError={undefined}
           onFieldChange={jest.fn()}
@@ -184,7 +179,7 @@ describe('PasteLinkComponent', () => {
       const handleCommunityAction = jest.fn()
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to join'}
+          heading={PASTE_LINK_HEADING}
           linkKind='device'
           handleCommunityAction={handleCommunityAction}
         />
@@ -199,7 +194,7 @@ describe('PasteLinkComponent', () => {
       const handleCommunityAction = jest.fn()
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to join'}
+          heading={PASTE_LINK_HEADING}
           linkKind='device'
           handleCommunityAction={handleCommunityAction}
         />
@@ -214,7 +209,7 @@ describe('PasteLinkComponent', () => {
       const handleCommunityAction = jest.fn()
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to join'}
+          heading={PASTE_LINK_HEADING}
           linkKind='device'
           handleCommunityAction={handleCommunityAction}
         />

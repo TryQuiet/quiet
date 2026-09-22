@@ -4,6 +4,7 @@ import { fireEvent } from '@testing-library/react-native'
 import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { BETA_WARNING, GetStarted } from './GetStarted.component'
+import { GET_STARTED_HEADING } from '@quiet/common'
 
 describe('GetStarted component', () => {
   it('shows the entry without an app bar and routes its three rows', async () => {
@@ -21,7 +22,7 @@ describe('GetStarted component', () => {
       store
     )
 
-    expect(result.getByText('Let’s get started...')).toBeTruthy()
+    expect(result.getByText(GET_STARTED_HEADING)).toBeTruthy()
     expect(result.getByText(BETA_WARNING)).toBeTruthy()
     // No app bar on Get started (a deliberate departure from the frame's "Quiet" bar)
     expect(result.queryByTestId('appbar_action_item')).toBeNull()

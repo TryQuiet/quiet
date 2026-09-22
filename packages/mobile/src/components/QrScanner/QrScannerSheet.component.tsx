@@ -8,6 +8,7 @@ import { INVALID_INVITATION_ERROR } from '../../utils/inviteLink'
 import { Typography } from '../Typography/Typography.component'
 
 import type { QrScannerSheetProps, QrScannerStatus } from './QrScanner.types'
+import { PASTE_A_LINK_LABEL } from '@quiet/common'
 
 /** The camera area of the prototype's sheets (2811:2460, 2811:2587): the sheet's full width, 375×384. */
 export const VIEWFINDER_ASPECT_RATIO = 375 / 384
@@ -25,7 +26,7 @@ export const SCANNER_COPY = {
   denied: 'Camera access was denied.',
   unavailable: 'No camera is available.',
   /** The Open invite link frame's own link text. */
-  pasteLink: 'Paste a link',
+  pasteLink: PASTE_A_LINK_LABEL,
 } as const
 
 const BLOCKED: QrScannerStatus[] = ['denied', 'unavailable']

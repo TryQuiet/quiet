@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
+import { SCAN_QR_CODE_INTRO, composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { InvitationKind } from '@quiet/types'
 
 import { renderComponent } from '../../../testUtils/renderComponent'
@@ -100,11 +100,10 @@ describe('QrScannerComponent', () => {
 
   it('renders the sheet copy above the camera when given', async () => {
     camera = mockCamera()
-    const intro = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
-    renderComponent(<QrScannerComponent intro={intro} onDecoded={jest.fn()} onUsePasteLink={jest.fn()} />)
+    renderComponent(<QrScannerComponent intro={SCAN_QR_CODE_INTRO} onDecoded={jest.fn()} onUsePasteLink={jest.fn()} />)
 
-    expect(screen.getByText(intro)).toBeVisible()
+    expect(screen.getByText(SCAN_QR_CODE_INTRO)).toBeVisible()
     await waitFor(() => expect(status()).toBe('scanning'), DECODE_TIMEOUT)
   })
 

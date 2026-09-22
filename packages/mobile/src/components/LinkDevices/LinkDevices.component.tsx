@@ -11,6 +11,7 @@ import { Typography } from '../Typography/Typography.component'
 import type { LinkedDevice } from '@quiet/types'
 
 import type { LinkDevicesProps } from './LinkDevices.types'
+import { LINK_DEVICES_HEADING, PASTE_LINK_LABEL, SCAN_QR_CODE_HEADING } from '@quiet/common'
 
 /**
  * The rows the list draws: the other devices on this account. This device is never one
@@ -54,12 +55,12 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
   const otherDevices = linkedDevices ? otherLinkedDevices(linkedDevices) : undefined
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
-      {/* The screen's own h3 says "Link devices"; a page with a heading gets no bar title. */}
+      {/* The screen's own h3 says LINK_DEVICES_HEADING; a page with a heading gets no bar title. */}
       <Appbar withoutTitle back={handleBackButton} />
       <View style={{ flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, gap: spacing.xl }}>
         <View style={{ gap: spacing.sm }}>
           <Typography variant={'h3'} horizontalTextAlign={'center'}>
-            {'Link devices'}
+            {LINK_DEVICES_HEADING}
           </Typography>
           <Typography variant={'body'} horizontalTextAlign={'center'}>
             {
@@ -88,13 +89,13 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
             <>
               <ActionRow
                 icon={<QrScanIcon />}
-                label={'Scan QR code'}
+                label={SCAN_QR_CODE_HEADING}
                 onPress={onScanQrCode}
                 testID={'link-devices-scan-qr'}
               />
               <ActionRow
                 icon={<InviteLinkIcon />}
-                label={'Paste link'}
+                label={PASTE_LINK_LABEL}
                 onPress={onPasteLink}
                 divider={false}
                 testID={'link-devices-paste-link'}

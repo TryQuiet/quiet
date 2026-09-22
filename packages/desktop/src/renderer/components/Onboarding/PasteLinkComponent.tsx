@@ -14,6 +14,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { inviteLinkField } from '../../forms/fields/communityFields'
 import { validateInviteLink, type InviteLinkKind } from '../../forms/inviteLink'
 import { OnboardingBody } from './OnboardingBody'
+import { PASTE_LINK_PLACEHOLDER } from '@quiet/common'
 
 const PREFIX = 'PasteLinkComponent'
 
@@ -155,7 +156,7 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
                 [classes.margin]: true,
                 [classes.error]: errors.name,
               })}
-              placeholder={'Link'}
+              placeholder={PASTE_LINK_PLACEHOLDER}
               errors={errors}
               variant='outlined'
               onchange={event => {

@@ -12,13 +12,14 @@ import { StoreKeys } from '../../store/store.keys'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { ModalsInitialState } from '../../sagas/modals/modals.slice'
 import { communities } from '@quiet/state-manager'
+import { CHOOSE_USERNAME_HEADING, CREATE_COMMUNITY_HEADING } from '@quiet/common'
 
 describe('Create username', () => {
   it('shows only the close glyph in the bar: no title text, no hairline (2811:2371)', () => {
     renderComponent(<CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />)
 
-    expect(screen.getByRole('heading', { name: 'Choose username', level: 3 })).toBeVisible()
-    expect(screen.queryByText('Create a community')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: CHOOSE_USERNAME_HEADING, level: 3 })).toBeVisible()
+    expect(screen.queryByText(CREATE_COMMUNITY_HEADING)).not.toBeInTheDocument()
     const header = screen.getByTestId('createUsernameModalActions').closest('.Modalheader')
     expect(header).not.toHaveClass('Modalnone')
     expect(header).not.toHaveClass('ModalheaderBorder')
