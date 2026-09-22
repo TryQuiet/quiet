@@ -1722,6 +1722,55 @@ describe('ChannelStore incremental message IDs', () => {
     })
   })
 
+  describe('liveness: entries become readable once keys or members arrive', () => {
+    type FakeMember = { userId: string; roles: string[]; keys?: { generation: number } }
+    const authored = (id: string, userId: string) => ({ id, channelId: 'general', teamId: 'team', userId })
+    const settle = () => new Promise(resolve => setTimeout(resolve, 20))
+
+    // Authorization is monotonic today (no member removal, no key rotation): what matters is
+    // that an entry rejected for a missing key or an unknown author is retried as soon as the
+    // sigchain update that makes it readable arrives, and shown exactly once.
+    it.each([
+      ['a new member is admitted (narrow recheck)', 'admission'],
+      ["the local user gains the channel's role (full rebuild)", 'own-role'],
+    ] as const)('shows a previously unreadable entry exactly once after %s', async (_label, change) => {
+      const { store, auth, append, onConsume, ids } = createStore()
+      ;(store as any).retryDelayMs = 1
+      let members: FakeMember[] = [{ userId: 'self', roles: ['member'] }]
+      auth.getActiveChain = () => ({ user: { userId: 'self' }, team: { members: () => members } })
+      const delivered: string[] = []
+      store.on(StorageEvents.MESSAGES_STORED, payload => delivered.push(...payload.messages.map((m: any) => m.id)))
+      let readable = false
+      onConsume.mockImplementation(async message =>
+        message.id === 'locked' && !readable ? undefined : { ...message, verified: true }
+      )
+      await store.subscribe()
+      await append('locked', 'locked', authored('locked', 'alice'))
+      await append('open', 'open', authored('open', 'alice'))
+      expect(ids.mock.calls.flatMap(([event]) => event.ids)).not.toContain('locked')
+      expect(await store.getEntries(['locked'])).toEqual([])
+      onConsume.mockClear()
+      readable = true
+      members =
+        change === 'admission'
+          ? [
+              { userId: 'self', roles: ['member'] },
+              { userId: 'alice', roles: ['member'] },
+            ]
+          : [{ userId: 'self', roles: ['member', 'private-chat'] }]
+      auth.emit(SigchainEvents.UPDATED, 'team')
+      await waitFor(() => ids.mock.calls.some(([event]) => event.ids.includes('locked')))
+      await settle()
+      // Consumed once more (plus the rebuild's re-walk of 'open' in the full case), announced once.
+      expect(onConsume.mock.calls.filter(([message]) => message.id === 'locked')).toHaveLength(1)
+      expect(ids.mock.calls.filter(([event]) => event.ids.includes('locked'))).toHaveLength(1)
+      expect(delivered.filter(id => id === 'locked').length).toBeLessThanOrEqual(1)
+      expect((await store.getEntries(['locked'])).map(message => message.id)).toEqual(['locked'])
+      expect((store as any).rejectedHashes.has('locked')).toBe(false)
+      expect((store as any).retryTimer).toBeUndefined()
+    })
+  })
+
   it('returns a batch of announced IDs in request order', async () => {
     const { store, append, reads } = createStore()
     await store.subscribe()
