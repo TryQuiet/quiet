@@ -1,9 +1,11 @@
 import { testSaga } from 'redux-saga-test-plan'
-import { ErrorCodes, ErrorMessages, ErrorTypes } from '@quiet/types'
+import { ErrorCodes, ErrorMessages, ErrorTypes, SocketActions } from '@quiet/types'
+import { communitiesActions } from '../../communities/communities.slice'
 import { errorsActions } from '../errors.slice'
 import { handleErrorsSaga } from './handleErrors.saga'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 
 describe('handle errors', () => {
   test('Error adds error to store', async () => {
@@ -14,5 +16,86 @@ describe('handle errors', () => {
     }
     const addErrorAction = errorsActions.handleError(errorPayload)
     testSaga(handleErrorsSaga, addErrorAction).next().put(errorsActions.addError(errorPayload)).next().isDone()
+  })
+
+  test.each([ErrorMessages.ADMISSION_TIMEOUT, ErrorMessages.ADMISSION_INTERRUPTED])(
+    'Recoverable admission error requests cleanup: %s',
+    message => {
+      const errorPayload = {
+        type: SocketActions.LAUNCH_COMMUNITY,
+        message,
+        community: 'pending-community',
+      }
+      const addErrorAction = errorsActions.handleError(errorPayload)
+      testSaga(handleErrorsSaga, addErrorAction)
+        .next()
+        .select(communitiesSelectors.currentCommunityId)
+        .next('pending-community')
+        .select(communitiesSelectors.admissionResetStatus)
+        .next('idle')
+        .put(errorsActions.addError(errorPayload))
+        .next()
+        .put(communitiesActions.resetAdmission('pending-community'))
+        .next()
+        .isDone()
+    }
+  )
+
+  test('Interrupted backend receipt seeds its ID and requests guarded cleanup without a community entity', () => {
+    const errorPayload = {
+      type: SocketActions.LAUNCH_COMMUNITY,
+      message: ErrorMessages.ADMISSION_INTERRUPTED,
+      community: 'receipt-community',
+    }
+
+    testSaga(handleErrorsSaga, errorsActions.handleError(errorPayload))
+      .next()
+      .select(communitiesSelectors.currentCommunityId)
+      .next('')
+      .select(communitiesSelectors.admissionResetStatus)
+      .next('idle')
+      .put(communitiesActions.setCurrentCommunity('receipt-community'))
+      .next()
+      .put(errorsActions.addError(errorPayload))
+      .next()
+      .put(communitiesActions.resetAdmission('receipt-community'))
+      .next()
+      .isDone()
+  })
+
+  test('Interrupted backend receipt does not reset a different current community', () => {
+    const errorPayload = {
+      type: SocketActions.LAUNCH_COMMUNITY,
+      message: ErrorMessages.ADMISSION_INTERRUPTED,
+      community: 'old-receipt-community',
+    }
+
+    testSaga(handleErrorsSaga, errorsActions.handleError(errorPayload))
+      .next()
+      .select(communitiesSelectors.currentCommunityId)
+      .next('new-community')
+      .select(communitiesSelectors.admissionResetStatus)
+      .next('idle')
+      .put(errorsActions.addError(errorPayload))
+      .next()
+      .isDone()
+  })
+
+  test('Interrupted backend receipt does not restart cleanup while finalizing', () => {
+    const errorPayload = {
+      type: SocketActions.LAUNCH_COMMUNITY,
+      message: ErrorMessages.ADMISSION_INTERRUPTED,
+      community: 'receipt-community',
+    }
+
+    testSaga(handleErrorsSaga, errorsActions.handleError(errorPayload))
+      .next()
+      .select(communitiesSelectors.currentCommunityId)
+      .next('')
+      .select(communitiesSelectors.admissionResetStatus)
+      .next('finalizing')
+      .put(errorsActions.addError(errorPayload))
+      .next()
+      .isDone()
   })
 })

@@ -17,14 +17,14 @@ const classes = {
 }
 
 const StyledButton = styled(Button)(({ theme }) => ({
-  // Hover / pressed / focus-visible / disabled for every caller, including those passing their own `button` class.
+  // Height, radius, padding and the primary colours come from the theme's Button overrides, which
+  // carry the design library's spec; overriding them here is what made this button 60 tall with no
+  // hover state of its own. Pressed and focus-visible come on top, for every caller, including
+  // those passing their own `button` class.
   ...primaryButtonStates(theme),
   [`&.${classes.button}`]: {
     maxWidth: 286,
     minWidth: 100,
-    height: 60,
-    backgroundColor: theme.palette.colors.quietBlue,
-    color: theme.palette.colors.white,
   },
 
   // A button showing progress is disabled but keeps its full colour.

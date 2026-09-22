@@ -1,7 +1,10 @@
 import React from 'react'
+import { StyleSheet } from 'react-native'
+import { fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import FileAttachmentPreview from './FileAttachmentPreview.component'
 import { FilePreviewData } from '@quiet/types'
+import { getFilesData } from '@quiet/common'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('attachingPreview:test')
@@ -47,13 +50,12 @@ describe('FileAttachmentPreview component', () => {
               {
                 "alignItems": "flex-start",
                 "flexWrap": "nowrap",
-                "marginRight": 10,
-                "marginTop": 10,
               }
             }
           >
             <View
               accessibilityLabel="Remove image attachment"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -74,42 +76,53 @@ describe('FileAttachmentPreview component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "backgroundColor": "#ffffff",
-                  "borderColor": "#B8B8B8",
-                  "borderRadius": 100,
-                  "borderWidth": 1,
-                  "height": 22,
-                  "justifyContent": "center",
-                  "marginLeft": 0,
-                  "padding": 0,
+                  "alignItems": "flex-end",
+                  "height": 44,
+                  "justifyContent": "flex-start",
                   "position": "absolute",
-                  "right": -10,
-                  "top": -10,
-                  "width": 22,
+                  "right": 0,
+                  "top": 0,
+                  "width": 44,
                   "zIndex": 1000,
                 }
               }
+              testID="remove_file_myFile.jpg"
             >
-              <Image
-                source={
-                  {
-                    "testUri": "../../../src/assets/icons/png/icon_close.png",
-                  }
-                }
+              <View
                 style={
                   {
-                    "alignSelf": "center",
-                    "height": 10,
-                    "position": "relative",
-                    "width": 10,
+                    "alignItems": "center",
+                    "backgroundColor": "#ffffff",
+                    "borderColor": "#B8B8B8",
+                    "borderRadius": 11,
+                    "borderWidth": 1,
+                    "height": 22,
+                    "justifyContent": "center",
+                    "width": 22,
                   }
                 }
-              />
+              >
+                <Image
+                  source={
+                    {
+                      "testUri": "../../../src/assets/icons/png/icon_close.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 10,
+                      "width": 10,
+                    }
+                  }
+                />
+              </View>
             </View>
             <View
               style={
                 {
                   "height": 64,
+                  "marginRight": 10,
+                  "marginTop": 10,
                 }
               }
             >
@@ -136,13 +149,12 @@ describe('FileAttachmentPreview component', () => {
               {
                 "alignItems": "flex-start",
                 "flexWrap": "nowrap",
-                "marginRight": 10,
-                "marginTop": 10,
               }
             }
           >
             <View
               accessibilityLabel="Remove attachment otherfile.txt"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -163,42 +175,53 @@ describe('FileAttachmentPreview component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "backgroundColor": "#ffffff",
-                  "borderColor": "#B8B8B8",
-                  "borderRadius": 100,
-                  "borderWidth": 1,
-                  "height": 22,
-                  "justifyContent": "center",
-                  "marginLeft": 0,
-                  "padding": 0,
+                  "alignItems": "flex-end",
+                  "height": 44,
+                  "justifyContent": "flex-start",
                   "position": "absolute",
-                  "right": -10,
-                  "top": -10,
-                  "width": 22,
+                  "right": 0,
+                  "top": 0,
+                  "width": 44,
                   "zIndex": 1000,
                 }
               }
+              testID="remove_file_otherfile.txt"
             >
-              <Image
-                source={
-                  {
-                    "testUri": "../../../src/assets/icons/png/icon_close.png",
-                  }
-                }
+              <View
                 style={
                   {
-                    "alignSelf": "center",
-                    "height": 10,
-                    "position": "relative",
-                    "width": 10,
+                    "alignItems": "center",
+                    "backgroundColor": "#ffffff",
+                    "borderColor": "#B8B8B8",
+                    "borderRadius": 11,
+                    "borderWidth": 1,
+                    "height": 22,
+                    "justifyContent": "center",
+                    "width": 22,
                   }
                 }
-              />
+              >
+                <Image
+                  source={
+                    {
+                      "testUri": "../../../src/assets/icons/png/icon_close.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 10,
+                      "width": 10,
+                    }
+                  }
+                />
+              </View>
             </View>
             <View
               style={
                 {
                   "height": 64,
+                  "marginRight": 10,
+                  "marginTop": 10,
                 }
               }
             >
@@ -294,5 +317,63 @@ describe('FileAttachmentPreview component', () => {
         </View>
       </RCTScrollView>
     `)
+  })
+
+  // https://github.com/TryQuiet/quiet/issues/1701
+  it('shows spaces rather than %20 for a file picked through a document picker URI', () => {
+    // what react-native-document-picker hands back in `fileCopyUri` for "My File.pdf"
+    const pickedFiles = getFilesData([
+      { path: 'file:///data/user/0/com.quiet.mobile/cache/My%20File.pdf', isTmp: true },
+    ])
+
+    const { getByText, queryByText } = renderComponent(
+      <FileAttachmentPreview
+        filesData={pickedFiles}
+        removeFile={function (id: string): void {
+          logger.info(`removeFile ${id}`)
+        }}
+      />
+    )
+
+    expect(getByText('My File')).toBeTruthy()
+    expect(queryByText('My%20File')).toBeNull()
+  })
+})
+
+describe('remove-attachment control', () => {
+  const oneFile: FilePreviewData = {
+    '12345': { path: 'file://data/0/myFile.jpg', name: 'myFile.jpg', ext: '.jpg' },
+  }
+
+  it('is at least 44x44, the only way to drop a file picked by mistake', () => {
+    const { getByTestId } = renderComponent(<FileAttachmentPreview filesData={oneFile} removeFile={jest.fn()} />)
+
+    const style = StyleSheet.flatten(getByTestId('remove_file_myFile.jpg').props.style)
+    expect(style.width).toBeGreaterThanOrEqual(44)
+    expect(style.height).toBeGreaterThanOrEqual(44)
+  })
+
+  it('keeps the whole target inside its parent, which is what Android needs to deliver the touch', () => {
+    const { getByTestId } = renderComponent(<FileAttachmentPreview filesData={oneFile} removeFile={jest.fn()} />)
+
+    // Negative insets put the control outside the parent's bounds, where Android drops touches on
+    // it. The overhang belongs to the thumbnail's margin instead, so these stay at zero.
+    const style = StyleSheet.flatten(getByTestId('remove_file_myFile.jpg').props.style)
+    expect(style.top).toBe(0)
+    expect(style.right).toBe(0)
+  })
+
+  it('removes the file it names when tapped', () => {
+    const removeFile = jest.fn()
+    const { getByTestId } = renderComponent(<FileAttachmentPreview filesData={oneFile} removeFile={removeFile} />)
+
+    fireEvent.press(getByTestId('remove_file_myFile.jpg'))
+    expect(removeFile).toHaveBeenCalledWith('12345')
+  })
+
+  it('preserves the accessible image-removal label and exposes a button', () => {
+    const { getByLabelText } = renderComponent(<FileAttachmentPreview filesData={oneFile} removeFile={jest.fn()} />)
+
+    expect(getByLabelText('Remove image attachment').props.accessibilityRole).toBe('button')
   })
 })

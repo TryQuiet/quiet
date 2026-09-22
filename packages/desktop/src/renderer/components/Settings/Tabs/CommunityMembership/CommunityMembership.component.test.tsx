@@ -1,0 +1,680 @@
+import { getReduxStoreFactory, Store } from '@quiet/state-manager'
+import { UserProfile } from '@quiet/types'
+import '@testing-library/jest-dom'
+import { FactoryGirl } from 'factory-girl'
+import { prepareStore } from '../../../../testUtils'
+import React from 'react'
+import MockedSocket from 'socket.io-mock'
+import { renderComponent } from '../../../../testUtils/renderComponent'
+import { CommunityMembershipComponent } from './CommunityMembership.component'
+
+describe('CommunityMembership', () => {
+  let store: Store
+  let socket: MockedSocket
+  let factory: FactoryGirl
+  beforeAll(async () => {
+    socket = new MockedSocket()
+    const preparedStore = await prepareStore(
+      {},
+      socket // Fork State manager's sagas
+    )
+    store = preparedStore.store
+    factory = await getReduxStoreFactory(store)
+  })
+
+  it('renderComponent - empty user list', () => {
+    const result = renderComponent(
+      <CommunityMembershipComponent
+        userProfiles={{}}
+        me={undefined}
+        isUserConnected={() => false}
+        isTorInitialized={false}
+        openUserProfilePanel={jest.fn()}
+        open={true}
+      />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1sg20tk-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershiptitleDiv css-89gxc5-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item CommunityMembershiptitle css-13i4rnv-MuiGrid-root"
+              />
+            </div>
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipcomponentContainer css-1f064cs-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item css-1v82g0-MuiGrid-root"
+                data-testid="community-membership-search"
+              >
+                <div
+                  class="UserSearchFuzzywrapper css-kcqj7g"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item UserSearchFuzzyroot css-btzz3s-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-78h0li-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiInputBase-root MuiInputBase-colorPrimary css-146pokm-MuiInputBase-root"
+                      >
+                        <input
+                          class="MuiInputBase-input css-156xqnd-MuiInputBase-input"
+                          placeholder="Search for users in your community"
+                          type="text"
+                          value=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item css-10gxzgy-MuiGrid-root"
+              >
+                <ul
+                  class="MuiList-root css-1mk9mw3-MuiList-root"
+                  data-testid="community-membership-list"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+
+  it('renderComponent - user list with one user, me tag, and connected badge', async () => {
+    const me: UserProfile = await factory.create<UserProfile>('UserProfile')
+    const result = renderComponent(
+      <CommunityMembershipComponent
+        userProfiles={{ [me.userId]: me }}
+        me={me}
+        isUserConnected={() => false}
+        isTorInitialized={true}
+        openUserProfilePanel={jest.fn()}
+        open={true}
+      />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1sg20tk-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershiptitleDiv css-89gxc5-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item CommunityMembershiptitle css-13i4rnv-MuiGrid-root"
+              />
+            </div>
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipcomponentContainer css-1f064cs-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item css-1v82g0-MuiGrid-root"
+                data-testid="community-membership-search"
+              >
+                <div
+                  class="UserSearchFuzzywrapper css-kcqj7g"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item UserSearchFuzzyroot css-btzz3s-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-78h0li-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiInputBase-root MuiInputBase-colorPrimary css-146pokm-MuiInputBase-root"
+                      >
+                        <input
+                          class="MuiInputBase-input css-156xqnd-MuiInputBase-input"
+                          placeholder="Search for users in your community"
+                          type="text"
+                          value=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item css-10gxzgy-MuiGrid-root"
+              >
+                <ul
+                  class="MuiList-root css-1mk9mw3-MuiList-root"
+                  data-testid="community-membership-list"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        data-testid="user_1-membership-list-item"
+                        role="button"
+                        tabindex="-1"
+                      >
+                        <span
+                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                        >
+                          <span
+                            class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
+                            style="border-radius: 4px;"
+                          >
+                            <div
+                              style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                            >
+                              <img
+                                alt="user_1"
+                                src="dGVzdAo="
+                                style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                              />
+                            </div>
+                          </span>
+                          <span
+                            class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                            data-testid="user_1-profile-photo-status-badge"
+                          />
+                        </span>
+                        <div
+                          class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
+                        >
+                          <span
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
+                          >
+                            <div
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
+                            >
+                              <h4
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
+                                data-testid="user_1-membership-list-name"
+                              >
+                                user_1
+                              </h4>
+                              <p
+                                class="MuiTypography-root MuiTypography-body1 MuiTypography-alignLeft CommunityMemberListItemme css-ak19ny-MuiTypography-root"
+                                data-testid="membership-list-me"
+                              >
+                                you
+                              </p>
+                            </div>
+                          </span>
+                        </div>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipdivider css-1f064cs-MuiGrid-root"
+                    >
+                      <li />
+                    </div>
+                  </div>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+
+  it('renderComponent - user list with one user, no me tag, and no connected badge', async () => {
+    const me: UserProfile = await factory.create<UserProfile>('UserProfile')
+    const result = renderComponent(
+      <CommunityMembershipComponent
+        userProfiles={{ [me.userId]: me }}
+        me={undefined}
+        isUserConnected={() => false}
+        isTorInitialized={false}
+        openUserProfilePanel={jest.fn()}
+        open={true}
+      />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1sg20tk-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershiptitleDiv css-89gxc5-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item CommunityMembershiptitle css-13i4rnv-MuiGrid-root"
+              />
+            </div>
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipcomponentContainer css-1f064cs-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item css-1v82g0-MuiGrid-root"
+                data-testid="community-membership-search"
+              >
+                <div
+                  class="UserSearchFuzzywrapper css-kcqj7g"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item UserSearchFuzzyroot css-btzz3s-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-78h0li-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiInputBase-root MuiInputBase-colorPrimary css-146pokm-MuiInputBase-root"
+                      >
+                        <input
+                          class="MuiInputBase-input css-156xqnd-MuiInputBase-input"
+                          placeholder="Search for users in your community"
+                          type="text"
+                          value=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item css-10gxzgy-MuiGrid-root"
+              >
+                <ul
+                  class="MuiList-root css-1mk9mw3-MuiList-root"
+                  data-testid="community-membership-list"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        data-testid="user_2-membership-list-item"
+                        role="button"
+                        tabindex="-1"
+                      >
+                        <span
+                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                        >
+                          <span
+                            class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
+                            style="border-radius: 4px;"
+                          >
+                            <div
+                              style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                            >
+                              <img
+                                alt="user_2"
+                                src="dGVzdAo="
+                                style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                              />
+                            </div>
+                          </span>
+                          <span
+                            class="MuiBadge-badge MuiBadge-dot MuiBadge-invisible MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge MuiBadge-invisible css-10f6i39-MuiBadge-badge"
+                            data-testid="user_2-profile-photo-status-badge"
+                          />
+                        </span>
+                        <div
+                          class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
+                        >
+                          <span
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
+                          >
+                            <div
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
+                            >
+                              <h4
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
+                                data-testid="user_2-membership-list-name"
+                              >
+                                user_2
+                              </h4>
+                            </div>
+                          </span>
+                        </div>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipdivider css-1f064cs-MuiGrid-root"
+                    >
+                      <li />
+                    </div>
+                  </div>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+
+  it('renderComponent - user list with multiple users', async () => {
+    const me: UserProfile = await factory.create<UserProfile>('UserProfile')
+    const user1: UserProfile = await factory.create<UserProfile>('UserProfile')
+    const user2: UserProfile = await factory.create<UserProfile>('UserProfile')
+    const result = renderComponent(
+      <CommunityMembershipComponent
+        userProfiles={{ [me.userId]: me, [user1.userId]: user1, [user2.userId]: user2 }}
+        me={me}
+        // Everyone online: the other two through a connected device, you through Tor.
+        isUserConnected={() => true}
+        isTorInitialized={true}
+        openUserProfilePanel={jest.fn()}
+        open={true}
+      />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1sg20tk-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershiptitleDiv css-89gxc5-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item CommunityMembershiptitle css-13i4rnv-MuiGrid-root"
+              />
+            </div>
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipcomponentContainer css-1f064cs-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item css-1v82g0-MuiGrid-root"
+                data-testid="community-membership-search"
+              >
+                <div
+                  class="UserSearchFuzzywrapper css-kcqj7g"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item UserSearchFuzzyroot css-btzz3s-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-78h0li-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiInputBase-root MuiInputBase-colorPrimary css-146pokm-MuiInputBase-root"
+                      >
+                        <input
+                          class="MuiInputBase-input css-156xqnd-MuiInputBase-input"
+                          placeholder="Search for users in your community"
+                          type="text"
+                          value=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item css-10gxzgy-MuiGrid-root"
+              >
+                <ul
+                  class="MuiList-root css-1mk9mw3-MuiList-root"
+                  data-testid="community-membership-list"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        data-testid="user_3-membership-list-item"
+                        role="button"
+                        tabindex="-1"
+                      >
+                        <span
+                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                        >
+                          <span
+                            class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
+                            style="border-radius: 4px;"
+                          >
+                            <div
+                              style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                            >
+                              <img
+                                alt="user_3"
+                                src="dGVzdAo="
+                                style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                              />
+                            </div>
+                          </span>
+                          <span
+                            class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                            data-testid="user_3-profile-photo-status-badge"
+                          />
+                        </span>
+                        <div
+                          class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
+                        >
+                          <span
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
+                          >
+                            <div
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
+                            >
+                              <h4
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
+                                data-testid="user_3-membership-list-name"
+                              >
+                                user_3
+                              </h4>
+                              <p
+                                class="MuiTypography-root MuiTypography-body1 MuiTypography-alignLeft CommunityMemberListItemme css-ak19ny-MuiTypography-root"
+                                data-testid="membership-list-me"
+                              >
+                                you
+                              </p>
+                            </div>
+                          </span>
+                        </div>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipdivider css-1f064cs-MuiGrid-root"
+                    >
+                      <li />
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        data-testid="user_4-membership-list-item"
+                        role="button"
+                        tabindex="-1"
+                      >
+                        <span
+                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                        >
+                          <span
+                            class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
+                            style="border-radius: 4px;"
+                          >
+                            <div
+                              style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                            >
+                              <img
+                                alt="user_4"
+                                src="dGVzdAo="
+                                style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                              />
+                            </div>
+                          </span>
+                          <span
+                            class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                            data-testid="user_4-profile-photo-status-badge"
+                          />
+                        </span>
+                        <div
+                          class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
+                        >
+                          <span
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
+                          >
+                            <div
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
+                            >
+                              <h4
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
+                                data-testid="user_4-membership-list-name"
+                              >
+                                user_4
+                              </h4>
+                            </div>
+                          </span>
+                        </div>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipdivider css-1f064cs-MuiGrid-root"
+                    >
+                      <li />
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        data-testid="user_5-membership-list-item"
+                        role="button"
+                        tabindex="-1"
+                      >
+                        <span
+                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                        >
+                          <span
+                            class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
+                            style="border-radius: 4px;"
+                          >
+                            <div
+                              style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                            >
+                              <img
+                                alt="user_5"
+                                src="dGVzdAo="
+                                style="width: 28px; height: 28px; size: 28px; border-radius: 4px;"
+                              />
+                            </div>
+                          </span>
+                          <span
+                            class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                            data-testid="user_5-profile-photo-status-badge"
+                          />
+                        </span>
+                        <div
+                          class="MuiListItemText-root CommunityMemberListItemitemText CommunityMemberListItemprimary css-tlelie-MuiListItemText-root"
+                        >
+                          <span
+                            class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-q1dkw0-MuiTypography-root"
+                          >
+                            <div
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item css-109yjxx-MuiGrid-root"
+                            >
+                              <h4
+                                class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-1inrl58-MuiTypography-root"
+                                data-testid="user_5-membership-list-name"
+                              >
+                                user_5
+                              </h4>
+                            </div>
+                          </span>
+                        </div>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item CommunityMembershipdivider css-1f064cs-MuiGrid-root"
+                    >
+                      <li />
+                    </div>
+                  </div>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+  /**
+   * The membership list answers presence per user, so a member with a linked device shows online
+   * while any one of their devices is connected; your own row follows Tor, since you are not your
+   * own peer.
+   */
+  describe('presence', () => {
+    const badgeClass = (result: ReturnType<typeof renderComponent>, nickname: string) =>
+      result.getByTestId(`${nickname}-profile-photo-status-badge`).className
+
+    it('lights a member whose device is connected', async () => {
+      const me: UserProfile = await factory.create<UserProfile>('UserProfile')
+      const other: UserProfile = await factory.create<UserProfile>('UserProfile')
+      const result = renderComponent(
+        <CommunityMembershipComponent
+          userProfiles={{ [me.userId]: me, [other.userId]: other }}
+          me={me}
+          isUserConnected={userId => userId === other.userId}
+          isTorInitialized={false}
+          openUserProfilePanel={jest.fn()}
+          open={true}
+        />
+      )
+      expect(badgeClass(result, other.nickname)).not.toContain('MuiBadge-invisible')
+      // Tor is down, so my own row is dark even though the other member is reachable.
+      expect(badgeClass(result, me.nickname)).toContain('MuiBadge-invisible')
+    })
+
+    it('darkens a member with no connected device', async () => {
+      const me: UserProfile = await factory.create<UserProfile>('UserProfile')
+      const other: UserProfile = await factory.create<UserProfile>('UserProfile')
+      const result = renderComponent(
+        <CommunityMembershipComponent
+          userProfiles={{ [me.userId]: me, [other.userId]: other }}
+          me={me}
+          isUserConnected={() => false}
+          isTorInitialized={true}
+          openUserProfilePanel={jest.fn()}
+          open={true}
+        />
+      )
+      expect(badgeClass(result, other.nickname)).toContain('MuiBadge-invisible')
+      expect(badgeClass(result, me.nickname)).not.toContain('MuiBadge-invisible')
+    })
+  })
+})

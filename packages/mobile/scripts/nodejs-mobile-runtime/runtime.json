@@ -30,6 +30,11 @@
       "sha256": "849526f5861a235e97d4ecc7a3272f1d6bb63d324716dbe1cc2bb5019992257a"
     }
   },
+  "optionalAndroidAbis": {
+    "x86_64": {
+      "android/app/libnode/bin/x86_64/libnode.so": "6f0dec1e512c3ed8faf00b3c0489a8ba3673b22dc7f91fe05b5fa83680555c75"
+    }
+  },
   "files": {
     "android/app/libnode/bin/arm64-v8a/libnode.so": "9d1d86d9bb86bd6ae9db037828b542ca2be08062d2e4d029452ea9e7a4a07a53",
     "android/app/libnode/include/node/cppgc/allocation.h": "c694f793b748b67e8c3869f05ee7ae83aaed1c59e01a1bf6891e9c921d4255a9",

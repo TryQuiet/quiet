@@ -56,6 +56,8 @@ export interface JoinCommunityPayload {
 export interface LinkDevicePayload {
   inviteData: DeviceInvitationData
   deviceName?: string
+  deviceLinkConsent: true
+  confirmedQssEndpoint?: string
 }
 
 export interface InitDeviceLinkPayload extends LinkDevicePayload {
@@ -68,6 +70,11 @@ export interface LaunchCommunityPayload {
 
 export interface LeaveCommunityPayload {
   id: string
+}
+
+export interface AdmissionResetCompletePayload {
+  id: string
+  invitationType: 'device' | 'community'
 }
 
 // ----- State-Manager <-> Backend Payloads -----
@@ -136,18 +143,6 @@ export interface DeviceLinkInvite extends InviteResult {
 }
 
 export type RequestDeviceLinkPayload = Record<string, never>
-
-/** A device on the current user's LFA member record, as the Link devices list shows it. */
-export interface LinkedDevice {
-  deviceId: string
-  deviceName: string
-  created?: number
-  removedAt?: number
-  /** The device this backend runs on. */
-  isCurrent: boolean
-}
-
-export type RequestLinkedDevicesPayload = Record<string, never>
 
 export interface ResponseInvitePayload {
   valid: boolean

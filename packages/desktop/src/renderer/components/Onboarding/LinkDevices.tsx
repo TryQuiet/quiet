@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, connection } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 import {
+  type DeviceInvitationData,
   type InvitationData,
   type JoinCommunityPayload,
   type LinkDevicePayload,
@@ -10,6 +11,7 @@ import {
 } from '@quiet/types'
 
 import Modal from '../ui/Modal/Modal'
+import { DeviceLinkConsentComponent } from '../DeviceLinkConsent/DeviceLinkConsent'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
@@ -39,24 +41,31 @@ export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const linkedDevices = useSelector(connection.selectors.linkedDevices)
 
-  const linkDevicesModal = useModal(ModalName.linkDevicesModal)
+  // `returnTo`: where the back arrow goes when this was opened from Account recovery.
+  const linkDevicesModal = useModal<{ returnTo?: 'recoverAccount' }>(ModalName.linkDevicesModal)
+  const joinCommunityModal = useModal<{ step?: 'recoverAccount' }>(ModalName.joinCommunityModal)
   const getStartedModal = useModal(ModalName.getStartedModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const [step, setStep] = useState<Step>('entry')
   const [revealInputValue, setRevealInputValue] = useState(false)
+  const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
 
   useEffect(() => {
     if (!linkDevicesModal.open) setStep('entry')
-    if (linkDevicesModal.open && isConnected) dispatch(connection.actions.getLinkedDevices())
-  }, [linkDevicesModal.open, isConnected])
+  }, [linkDevicesModal.open])
 
   const handleBack = () => {
     if (step !== 'entry') {
       setStep('entry')
+      return
+    }
+    if (linkDevicesModal.returnTo === 'recoverAccount') {
+      // Opened from Account recovery → "Use linked device": back returns there.
+      joinCommunityModal.handleOpen({ step: 'recoverAccount' })
+      linkDevicesModal.handleClose()
       return
     }
     if (!currentCommunity) getStartedModal.handleOpen()
@@ -65,11 +74,8 @@ export const LinkDevices: React.FC = () => {
 
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
-      const payload: LinkDevicePayload = { inviteData: data }
-      logger.info('Linking this device from a pasted device link')
-      loadingPanelModal.handleOpen()
-      dispatch(communities.actions.linkDevice(payload))
-      linkDevicesModal.handleClose()
+      // Linking a device hands the other device this account, so it is never done without consent.
+      setPendingDeviceInvite(data)
       return
     }
     // A member invitation pasted here still joins, the way Join community does.
@@ -79,42 +85,60 @@ export const LinkDevices: React.FC = () => {
     linkDevicesModal.handleClose()
   }
 
+  const confirmDeviceLink = () => {
+    if (!pendingDeviceInvite) return
+    const payload: LinkDevicePayload = {
+      inviteData: pendingDeviceInvite,
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: pendingDeviceInvite.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined,
+    }
+    logger.info('Linking this device from a pasted device link')
+    loadingPanelModal.handleOpen()
+    dispatch(communities.actions.linkDevice(payload))
+    linkDevicesModal.handleClose()
+    setPendingDeviceInvite(null)
+  }
+
   return (
-    <Modal
-      open={linkDevicesModal.open}
-      handleClose={linkDevicesModal.handleClose}
-      title={TITLES[step]}
-      canGoBack
-      handleBack={handleBack}
-      alignCloseLeft
-      contentWidth={'100%'}
-      testIdPrefix={'linkDevices'}
-      zIndex={1300}
-    >
-      {step === 'entry' ? (
-        <LinkDevicesComponent
-          onDisplayQrCode={() => setStep('display')}
-          onScanQrCode={() => setStep('scan')}
-          linkedDevices={linkedDevices}
-        />
-      ) : null}
-      {step === 'display' ? (
-        <OnboardingBody dataTestId='link-devices-display'>
-          <LinkedDevicesTab centered />
-        </OnboardingBody>
-      ) : null}
-      {step === 'scan' ? (
-        <PasteLinkComponent
-          heading={'Scan QR code'}
-          intro={'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'}
-          open={linkDevicesModal.open}
-          isConnectionReady={isConnected}
-          revealInputValue={revealInputValue}
-          handleClickInputReveal={() => setRevealInputValue(value => !value)}
-          handleCommunityAction={handleCommunityAction}
-        />
-      ) : null}
-    </Modal>
+    <>
+      <Modal
+        open={linkDevicesModal.open}
+        handleClose={linkDevicesModal.handleClose}
+        title={TITLES[step]}
+        canGoBack
+        handleBack={handleBack}
+        alignCloseLeft
+        contentWidth={'100%'}
+        testIdPrefix={'linkDevices'}
+        zIndex={1300}
+      >
+        {step === 'entry' ? (
+          <LinkDevicesComponent onDisplayQrCode={() => setStep('display')} onScanQrCode={() => setStep('scan')} />
+        ) : null}
+        {step === 'display' ? (
+          <OnboardingBody dataTestId='link-devices-display'>
+            <LinkedDevicesTab centered />
+          </OnboardingBody>
+        ) : null}
+        {step === 'scan' ? (
+          <PasteLinkComponent
+            heading={'Scan QR code'}
+            intro={'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'}
+            open={linkDevicesModal.open}
+            isConnectionReady={isConnected}
+            revealInputValue={revealInputValue}
+            handleClickInputReveal={() => setRevealInputValue(value => !value)}
+            handleCommunityAction={handleCommunityAction}
+          />
+        ) : null}
+      </Modal>
+      <DeviceLinkConsentComponent
+        open={pendingDeviceInvite !== null}
+        qssEndpoint={pendingDeviceInvite?.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined}
+        onCancel={() => setPendingDeviceInvite(null)}
+        onConfirm={confirmDeviceLink}
+      />
+    </>
   )
 }
 

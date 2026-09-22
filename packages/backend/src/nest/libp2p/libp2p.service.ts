@@ -13,12 +13,13 @@ import * as filters from '@libp2p/websockets/filters'
 import { ConnectionMonitorInit, createLibp2p } from 'libp2p'
 
 import { isMultiaddr, multiaddr } from '@multiformats/multiaddr'
+import { peerConnectionAddress } from './peerConnectionAddress'
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 
 import { EventEmitter } from 'events'
 import { DateTime } from 'luxon'
 
-import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { createLibp2pAddress, createLibp2pListenAddress, isLocalTransportEnabled } from '@quiet/common'
 import {
   ConnectionProcessInfo,
   type NetworkDataPayload,
@@ -165,8 +166,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
         const connection: Connection | undefined = args[0].connection
         if (connection) {
-          // Auth errors are delivered on an ephemeral stream. Give that stream
-          // time to flush before the transport it uses is hung up.
+          // Auth errors are delivered on an ephemeral stream. Give that stream time to
+          // flush before tearing down the transport it uses, and never tear a transport
+          // down while the admission gate is frozen or closed (device linking).
           const timer = setTimeout(() => {
             this.authErrorTimers.delete(timer)
             if (this.admissionContext?.gate.frozen || this.admissionContext?.gate.closed) return
@@ -481,7 +483,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       }
     }
 
-    if (redial && ![Libp2pState.Stopping, Libp2pState.Stopped, Libp2pState.Paused].includes(this.state)) {
+    if (
+      redial &&
+      !peerAddress.startsWith('/p2p/') &&
+      ![Libp2pState.Stopping, Libp2pState.Stopped, Libp2pState.Paused].includes(this.state)
+    ) {
       await this.redialPeerAfterDelay(peerAddress)
     }
   }
@@ -501,6 +507,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         return
       const stats = await this.localDbService.getPeerStats(connection.remotePeer.toString())
       const address = stats?.address ?? connection.remoteAddr.toString()
+      // A bare /p2p/ address carries no transport to dial.
+      if (address.startsWith('/p2p/')) return
       await this.redialPeerAfterDelay(address)
     } catch (error) {
       this.logger.warn('Failed to close auth transport', connection.id, error)
@@ -512,11 +520,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
    * iOS where Tor receives a new port when the app resumes from background and
    * we want to close/re-open connections.
    */
-  public async redialPeers(peersToDial?: string[]) {
+  public async redialPeers(peersToDial?: string[], options?: { onlyPeerIds: ReadonlySet<string> }) {
     const sortedPeers = peersToDial == null ? await this.localDbService.getSortedPeers(false) : []
     const toDial = new Set(peersToDial ?? [...sortedPeers, ...this.dialedPeers])
     toDial.delete(this.localAddress)
-    const targets = [...toDial]
+    const targets = [...toDial].filter(address => options == null || options.onlyPeerIds.has(address.split('/').pop()!))
 
     if (targets.length === 0) {
       this.logger.debug('No peers to redial!')
@@ -587,6 +595,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         connectionMonitor: {
           abortConnectionOnPingFailure: true,
           pingInterval: 60_000,
+          // Tor round trips can exceed libp2p's two-second default. Aborting a
+          // live connection here can interrupt a persisted admission handshake.
+          pingTimeout: { minTimeout: 60_000 },
           enabled: true,
         } satisfies ConnectionMonitorInit,
         connectionProtector:
@@ -614,7 +625,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         connectionEncrypters: [noise({ crypto: pureJsCrypto })],
         transports:
           params.transport ??
-          (process.env.LOCAL_TRANSPORT === 'true'
+          (isLocalTransportEnabled()
             ? [webSockets()]
             : [
                 webSocketsOverTor({
@@ -761,7 +772,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         return
       }
 
-      const address = peerStats[remotePeerId].address || activeConnection.remoteAddr?.toString() || remoteAddr || ''
+      const address = peerConnectionAddress(activeConnection, peerStats[remotePeerId].address)
       const connectedPeer: Libp2pConnectedPeer = {
         peerId: remotePeerId,
         address,
