@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { spacing } from '../../styles/const/spacing'
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 import { AddCircleIcon } from '../../assets/icons/svg/community-home-icons'
 import { Typography } from '../Typography/Typography.component'
 import { LIST_ROW_PRESSED, LIST_TEXT_OPACITY } from './ListRow.component'
@@ -30,7 +31,8 @@ const ADD_PRESS_SIZE = 28
  *
  * The title row itself has no hover state in the library (`List title`
  * 3797:16103 draws no fill on Hover) — only the plus is clickable, so only the
- * plus takes a tapped state, filling its own circle.
+ * plus takes a tapped state, filling its own circle — and, being inside the
+ * scroll view like the rows around it, only after `TAP_FEEDBACK_DELAY_MS`.
  */
 export const ListSectionTitle: FC<ListSectionTitleProps> = ({
   title,
@@ -61,6 +63,7 @@ export const ListSectionTitle: FC<ListSectionTitleProps> = ({
     {onAdd && (
       <Pressable
         onPress={onAdd}
+        unstable_pressDelay={TAP_FEEDBACK_DELAY_MS}
         testID={addTestID}
         accessibilityRole='button'
         accessibilityLabel={addAccessibilityLabel ?? `Add to ${title}`}

@@ -1,10 +1,24 @@
 import React from 'react'
+import { Animated } from 'react-native'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import { dragAway, hold, holdFor, holdSteadily, release } from '../../utils/functions/pressGestures/pressGestures'
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 
 import { ContextMenu } from './ContextMenu.component'
 
 import { ContextMenuItemProps } from './ContextMenu.types'
+
+/**
+ * A menu row is a `TouchableOpacity`, which dims by animating its opacity on
+ * the native driver. That never writes the value back into the test tree, so
+ * the dim is watched where it begins instead: the `Animated.timing` call whose
+ * target is the row's active opacity.
+ */
+const ROW_ACTIVE_OPACITY = 0.2
+
+const dimStarted = (timing: jest.SpyInstance) =>
+  timing.mock.calls.some(call => (call[1] as { toValue?: number } | undefined)?.toValue === ROW_ACTIVE_OPACITY)
 
 describe('ContextMenu component', () => {
   it('should match inline snapshot for visible menu', () => {
@@ -1429,5 +1443,77 @@ describe('ContextMenu component', () => {
         </View>
       </View>
     `)
+  })
+
+  // #1495: the rows are a FlatList, so the row you start a flick on used to dim
+  // under your finger before the list had a chance to take the touch over.
+  describe('a row that a flick starts on', () => {
+    const action = jest.fn()
+    const renderMenu = () =>
+      renderComponent(
+        <ContextMenu
+          visible={true}
+          handleClose={jest.fn()}
+          title={'Rockets'}
+          items={[{ title: 'Settings', action } as ContextMenuItemProps]}
+        />
+      )
+
+    let timing: jest.SpyInstance
+
+    beforeEach(() => {
+      jest.useFakeTimers()
+      action.mockClear()
+      timing = jest.spyOn(Animated, 'timing')
+    })
+
+    afterEach(() => {
+      timing.mockRestore()
+      jest.useRealTimers()
+    })
+
+    it('stays undimmed while the touch could still turn into a scroll', () => {
+      const { getByTestId } = renderMenu()
+      const row = getByTestId('Settings')
+      timing.mockClear()
+
+      hold(row)
+      holdFor(TAP_FEEDBACK_DELAY_MS - 1)
+      expect(dimStarted(timing)).toBe(false)
+
+      holdFor(1)
+      expect(dimStarted(timing)).toBe(true)
+    })
+
+    it('never dims when the list takes the touch over', () => {
+      const { getByTestId } = renderMenu()
+      const row = getByTestId('Settings')
+      timing.mockClear()
+
+      hold(row)
+      holdFor(TAP_FEEDBACK_DELAY_MS - 1)
+      dragAway(row)
+      expect(dimStarted(timing)).toBe(false)
+    })
+
+    // The delay must not swallow a real tap.
+    it('still runs its action when the tap is released inside the delay', () => {
+      const { getByTestId } = renderMenu()
+      const row = getByTestId('Settings')
+
+      hold(row)
+      holdFor(TAP_FEEDBACK_DELAY_MS - 1)
+      release(row)
+      expect(action).toHaveBeenCalled()
+    })
+
+    it('dims a deliberate press, which is what the feedback is for', () => {
+      const { getByTestId } = renderMenu()
+      const row = getByTestId('Settings')
+      timing.mockClear()
+
+      holdSteadily(row)
+      expect(dimStarted(timing)).toBe(true)
+    })
   })
 })

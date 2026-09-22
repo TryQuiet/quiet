@@ -3,6 +3,7 @@ import { Pressable } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 import { ProfilePhotoWithBadge } from '../ProfilePhoto/ProfilePhotoWithBadge.component'
 import { ProfilePhotoSize } from '../ProfilePhoto/ProfilePhoto.types'
 import { Typography } from '../Typography/Typography.component'
@@ -24,12 +25,16 @@ export const PERSON_ROW_HEIGHT = 40
  * state for `List item--people` (4606:16448) like every other clickable row:
  * white 5%/10% on the dark sidebar, its light-surface counterpart #F0F0F0 here.
  *
+ * Like every row on this card it sits in a scroll view, so the fill waits out
+ * `TAP_FEEDBACK_DELAY_MS` rather than following the first frame of a flick.
+ *
  * The avatar carries the member's presence badge, the same one the DM list
  * shows elsewhere in the app.
  */
 export const PersonRow: FC<PersonRowProps> = ({ user, onPress, testID }) => (
   <Pressable
     onPress={onPress}
+    unstable_pressDelay={TAP_FEEDBACK_DELAY_MS}
     testID={testID}
     accessibilityRole='button'
     accessibilityLabel={`${user.nickname}, send a direct message`}
