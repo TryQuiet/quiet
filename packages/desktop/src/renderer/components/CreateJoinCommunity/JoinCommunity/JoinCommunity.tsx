@@ -1,44 +1,59 @@
-import { communities, connection } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 import {
-  CommunityOwnership,
   ErrorMessages,
+  type DeviceInvitationData,
   type InvitationData,
   type JoinCommunityPayload,
   type LinkDevicePayload,
-  type DeviceInvitationData,
   isDeviceInvitationData,
 } from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
+
+import Modal from '../../ui/Modal/Modal'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { createLogger } from '../../../logger'
 import { DeviceLinkConsentComponent } from '../../DeviceLinkConsent/DeviceLinkConsent'
+import { JoinCommunityOptionsComponent } from '../../Onboarding/JoinCommunityOptionsComponent'
+import { OpenInviteLinkComponent } from '../../Onboarding/OpenInviteLinkComponent'
+import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
+import { createLogger } from '../../../logger'
 
 const logger = createLogger('JoinCommunity')
 
+type Step = 'options' | 'openInviteLink' | 'pasteInviteLink' | 'pasteQrCode'
+
+const TITLES: Record<Step, string> = {
+  options: 'Quiet',
+  openInviteLink: 'Join with invite link',
+  pasteInviteLink: 'Join with invite link',
+  pasteQrCode: 'Join with QR code',
+}
+
+/**
+ * Join community: the three-way choice, then Open invite link → Paste a link.
+ * Desktop has no camera, so "Join with QR code" also lands on the paste step.
+ */
 const JoinCommunity = () => {
   const dispatch = useDispatch()
 
   const isConnected = useSelector(socketSelectors.isConnected)
-
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const invitationCodes = useSelector(communities.selectors.invitationCodes)
-
-  const createUsernameModal = useModal(ModalName.createUsernameModal)
-  const joinCommunityModal = useModal(ModalName.joinCommunityModal)
-  const createCommunityModal = useModal(ModalName.createCommunityModal)
-  const loadingPanelModal = useModal(ModalName.loadingPanel)
-
-  const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
-
-  const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
-  const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
   const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
   const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
 
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
+  const joinCommunityModal = useModal(ModalName.joinCommunityModal)
+  const getStartedModal = useModal(ModalName.getStartedModal)
+  const loadingPanelModal = useModal(ModalName.loadingPanel)
+
+  const [step, setStep] = useState<Step>('options')
+  const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
+  const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
+
+  // Admission failures are reported on the invite field, the way the join form has always reported
+  // a bad link.
   const joinCommunityErrorMessage =
     joinCommunityError?.type === 'invalid'
       ? ErrorMessages.INVALID_INVITE
@@ -57,17 +72,19 @@ const JoinCommunity = () => {
   }
 
   useEffect(() => {
-    if (
-      isConnected &&
-      admissionResetStatus === 'idle' &&
-      !currentCommunity &&
-      !invitationCodes &&
-      !joinCommunityModal.open
-    ) {
-      logger.info('Opening join community modal')
+    if (!joinCommunityModal.open) setStep('options')
+  }, [joinCommunityModal.open])
+
+  // A failed join reports itself on the invite field, so the flow reopens on the paste step rather
+  // than at the three-way choice, where there is no field to carry the message.
+  useEffect(() => {
+    if (!isConnected || !joinCommunityError || currentCommunity || admissionResetStatus !== 'idle') return
+    setStep(current => (current === 'options' ? 'pasteInviteLink' : current))
+    if (!joinCommunityModal.open) {
+      logger.info('Reopening join community modal to report a join error')
       joinCommunityModal.handleOpen()
     }
-  }, [admissionResetStatus, isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
+  }, [isConnected, joinCommunityError, currentCommunity, admissionResetStatus, joinCommunityModal.open])
 
   useEffect(() => {
     if (isConnected && currentCommunity && joinCommunityModal.open) {
@@ -78,6 +95,7 @@ const JoinCommunity = () => {
 
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
+      // Linking a device hands the other device this account, so it is never done without consent.
       setPendingDeviceInvite(data)
       return
     }
@@ -89,20 +107,6 @@ const JoinCommunity = () => {
     dispatch(communities.actions.joinCommunity(joinCommunityPayload))
     createUsernameModal.handleOpen()
     joinCommunityModal.handleClose()
-  }
-
-  // From 'You can create a new community instead' link
-  const handleRedirection = () => {
-    if (!createCommunityModal.open) {
-      createCommunityModal.handleOpen()
-      joinCommunityModal.handleClose()
-    } else {
-      joinCommunityModal.handleClose()
-    }
-  }
-
-  const handleClickInputReveal = () => {
-    revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
 
   const confirmDeviceLink = () => {
@@ -119,21 +123,65 @@ const JoinCommunity = () => {
     setPendingDeviceInvite(null)
   }
 
+  // Leaving the flow dismisses a reported join error; otherwise the flow would reopen itself on
+  // the way out.
+  const leave = () => {
+    clearJoinCommunityError()
+    joinCommunityModal.handleClose()
+  }
+
+  const handleBack = () => {
+    switch (step) {
+      case 'pasteInviteLink':
+        setStep('openInviteLink')
+        return
+      case 'openInviteLink':
+      case 'pasteQrCode':
+        setStep('options')
+        return
+      default:
+        if (!currentCommunity) getStartedModal.handleOpen()
+        leave()
+    }
+  }
+
+  const handleClickInputReveal = () => {
+    setRevealInputValue(value => !value)
+  }
+
   return (
     <>
-      <PerformCommunityActionComponent
-        {...joinCommunityModal}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={handleRedirection}
-        isConnectionReady={isConnected}
-        isCloseDisabled={!currentCommunity}
-        hasReceivedResponse={invitationCodes === null}
-        fieldError={joinCommunityErrorMessage}
-        onFieldChange={clearJoinCommunityError}
-        revealInputValue={revealInputValue}
-        handleClickInputReveal={handleClickInputReveal}
-      />
+      <Modal
+        open={joinCommunityModal.open}
+        handleClose={leave}
+        title={TITLES[step]}
+        canGoBack
+        handleBack={handleBack}
+        alignCloseLeft
+        contentWidth={'100%'}
+        testIdPrefix={'joinCommunity'}
+        zIndex={1300}
+      >
+        {step === 'options' ? (
+          <JoinCommunityOptionsComponent
+            onJoinWithInviteLink={() => setStep('openInviteLink')}
+            onJoinWithQrCode={() => setStep('pasteQrCode')}
+          />
+        ) : null}
+        {step === 'openInviteLink' ? <OpenInviteLinkComponent onPasteLink={() => setStep('pasteInviteLink')} /> : null}
+        {step === 'pasteInviteLink' || step === 'pasteQrCode' ? (
+          <PasteLinkComponent
+            heading={step === 'pasteQrCode' ? 'Join with QR code' : 'Paste a link to Join'}
+            open={joinCommunityModal.open}
+            isConnectionReady={isConnected}
+            revealInputValue={revealInputValue}
+            handleClickInputReveal={handleClickInputReveal}
+            handleCommunityAction={handleCommunityAction}
+            fieldError={joinCommunityErrorMessage}
+            onFieldChange={clearJoinCommunityError}
+          />
+        ) : null}
+      </Modal>
       <DeviceLinkConsentComponent
         open={pendingDeviceInvite !== null}
         qssEndpoint={pendingDeviceInvite?.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined}

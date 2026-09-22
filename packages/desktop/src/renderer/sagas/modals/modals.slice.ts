@@ -40,7 +40,9 @@ export class ModalsInitialState {
   [ModalName.termsOfServiceModal] = { open: false, args: {} };
   [ModalName.addMembersChannel] = { open: false, args: {} };
   [ModalName.channelMembership] = { open: false, args: {} };
-  [ModalName.deviceLinkConsent] = { open: false, args: {} }
+  [ModalName.deviceLinkConsent] = { open: false, args: {} };
+  [ModalName.getStartedModal] = { open: false, args: {} };
+  [ModalName.linkDevicesModal] = { open: false, args: {} }
 }
 
 export const modalsSlice = createSlice({

@@ -6,6 +6,7 @@ import { defaultTheme } from '../../../styles/themes/default.theme'
 // If you have a ServerBoxIcon for mobile, import it here and uncomment in the JSX
 import ServerBoxIcon from '../../../assets/icons/svg/server-icon'
 import { createLogger } from '../../../utils/logger'
+import { spacing } from '../../../styles/const/spacing'
 
 const logger = createLogger('JoiningOptInComponent')
 
@@ -13,10 +14,9 @@ const CHECK_SIZE = 14
 const CHECK_BORDER = 2
 const CHECK_RADIUS = 2
 
-const SPACING_UNIT = 8
-const GAP_CONTENT = SPACING_UNIT * 3 // 24px;
-const GAP_TEXT = SPACING_UNIT * 2 // 16px;
-const GAP_ACTIONS = SPACING_UNIT * 2 // 16px;
+const GAP_CONTENT = spacing.xl // 24px
+const GAP_TEXT = spacing.lg // 16px
+const GAP_ACTIONS = spacing.lg // 16px
 
 const serverHost = '' // You can pass the server host as a prop if needed
 const privacyPolicyUrl = 'https://github.com/TryQuiet/quiet/wiki/Privacy-Policy'

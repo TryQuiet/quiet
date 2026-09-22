@@ -36,7 +36,7 @@ describe('Create username', () => {
   ])('user inserting wrong name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
     renderComponent(<CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />)
 
-    const input = screen.getByPlaceholderText('Enter a username')
+    const input = screen.getByPlaceholderText('Username')
 
     await userEvent.type(input, name)
     expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(
@@ -51,16 +51,34 @@ describe('Create username', () => {
 
     renderComponent(<CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />)
 
-    const input = screen.getByPlaceholderText('Enter a username')
-    const button = screen.getByText('Register')
+    const input = screen.getByPlaceholderText('Username')
+    const button = screen.getByTestId('continue-createUsername')
 
     await userEvent.type(input, name)
-    await userEvent.click(button)
+    await userEvent.tab()
 
-    await waitFor(() => expect(registerUsername).not.toBeCalled())
+    // Continue stays disabled for an invalid name; the error shows once the field is touched.
+    await waitFor(() => expect(button).toBeDisabled())
+    expect(registerUsername).not.toBeCalled()
 
     const message = await screen.findByText(error)
     expect(message).toBeVisible()
+  })
+
+  it('keeps Continue disabled until the username is valid', async () => {
+    const registerUsername = jest.fn()
+
+    renderComponent(<CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />)
+
+    const input = screen.getByPlaceholderText('Username')
+    const button = screen.getByTestId('continue-createUsername')
+    await waitFor(() => expect(button).toBeDisabled())
+
+    await userEvent.type(input, 'alice')
+    await waitFor(() => expect(button).toBeEnabled())
+
+    await userEvent.click(button)
+    await waitFor(() => expect(registerUsername).toBeCalledWith('alice'))
   })
 
   // https://github.com/TryQuiet/quiet/issues/1306 - a leading hyphen used to be accepted silently.
@@ -74,13 +92,14 @@ describe('Create username', () => {
         <CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />
       )
 
-      const input = screen.getByPlaceholderText('Enter a username')
-      const button = screen.getByText('Register')
+      const input = screen.getByPlaceholderText('Username')
+      const button = screen.getByTestId('continue-createUsername')
 
       await userEvent.type(input, name)
-      await userEvent.click(button)
+      await userEvent.tab()
 
-      await waitFor(() => expect(registerUsername).not.toBeCalled())
+      await waitFor(() => expect(button).toBeDisabled())
+      expect(registerUsername).not.toBeCalled()
 
       const message = await screen.findByText(UsernameErrors.LeadingHyphen)
       expect(message).toBeVisible()
@@ -96,10 +115,12 @@ describe('Create username', () => {
         <CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />
       )
 
-      const input = screen.getByPlaceholderText('Enter a username')
-      const button = screen.getByText('Register')
+      const input = screen.getByPlaceholderText('Username')
+      const button = screen.getByTestId('continue-createUsername')
 
       await userEvent.type(input, name)
+      await waitFor(() => expect(button).toBeEnabled())
+
       await userEvent.click(button)
 
       await waitFor(() => expect(registerUsername).toBeCalledWith(name))

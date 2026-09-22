@@ -48,7 +48,7 @@ describe('UnregisteredModalComponent', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-jxzupi-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-1d2bvqm-MuiTypography-root"
                     style="margin-left: 36px;"
                   >
                     Unregistered username
@@ -63,7 +63,7 @@ describe('UnregisteredModalComponent', () => {
                   >
                     <button
                       aria-label="Close"
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ModalClose"
                       tabindex="0"
                       type="button"
@@ -79,9 +79,6 @@ describe('UnregisteredModalComponent', () => {
                           d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                         />
                       </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
                     </button>
                   </div>
                 </div>
@@ -98,7 +95,7 @@ describe('UnregisteredModalComponent', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-1ihp1v3-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 UnregisteredModalComponent-bodyText css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 UnregisteredModalComponent-bodyText css-1t82dwi-MuiTypography-root"
                   >
                     The username 
                     <strong>

@@ -6,7 +6,7 @@ import { JoinCommunity } from './JoinCommunity.component'
 storiesOf('JoinCommunity', module).add('Default', () => (
   <JoinCommunity
     joinCommunityAction={storybookLog('Opening username registration!')}
-    redirectionAction={storybookLog('Navigating to create community')}
+    handleBackButton={storybookLog('Navigating to create community')}
     hasReceivedResponse={false}
   />
 ))

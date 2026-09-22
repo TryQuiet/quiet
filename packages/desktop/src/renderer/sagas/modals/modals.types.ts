@@ -28,4 +28,6 @@ export enum ModalName {
   addMembersChannel = 'addMembersChannel',
   channelMembership = 'channelMembership',
   deviceLinkConsent = 'deviceLinkConsent',
+  getStartedModal = 'getStartedModal',
+  linkDevicesModal = 'linkDevicesModal',
 }

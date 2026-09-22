@@ -137,7 +137,7 @@ describe('Channels panel', () => {
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
                     >
                       Channels
                     </p>
@@ -196,7 +196,7 @@ describe('Channels panel', () => {
                       class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -210,7 +210,7 @@ describe('Channels panel', () => {
                               data-testid="general-channel-link-icon-public"
                               fill="currentColor"
                               focusable="false"
-                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                               viewBox="0 0 24 24"
                             >
                               <svg
@@ -246,7 +246,7 @@ describe('Channels panel', () => {
                               </svg>
                             </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                               data-testid="general-channel-link-text"
                             >
                               general
@@ -269,7 +269,7 @@ describe('Channels panel', () => {
                       class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -283,7 +283,7 @@ describe('Channels panel', () => {
                               data-testid="croatia-channel-link-icon-public"
                               fill="currentColor"
                               focusable="false"
-                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                               viewBox="0 0 24 24"
                             >
                               <svg
@@ -319,7 +319,7 @@ describe('Channels panel', () => {
                               </svg>
                             </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                               data-testid="croatia-channel-link-text"
                             >
                               croatia
@@ -342,7 +342,7 @@ describe('Channels panel', () => {
                       class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -356,7 +356,7 @@ describe('Channels panel', () => {
                               data-testid="allergies-channel-link-icon-public"
                               fill="currentColor"
                               focusable="false"
-                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                               viewBox="0 0 24 24"
                             >
                               <svg
@@ -392,7 +392,7 @@ describe('Channels panel', () => {
                               </svg>
                             </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                               data-testid="allergies-channel-link-text"
                             >
                               allergies
@@ -415,7 +415,7 @@ describe('Channels panel', () => {
                       class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -429,7 +429,7 @@ describe('Channels panel', () => {
                               data-testid="sailing-channel-link-icon-public"
                               fill="currentColor"
                               focusable="false"
-                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                               viewBox="0 0 24 24"
                             >
                               <svg
@@ -465,7 +465,7 @@ describe('Channels panel', () => {
                               </svg>
                             </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                               data-testid="sailing-channel-link-text"
                             >
                               sailing
@@ -488,7 +488,7 @@ describe('Channels panel', () => {
                       class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -502,7 +502,7 @@ describe('Channels panel', () => {
                               data-testid="pets-channel-link-icon-private"
                               fill="currentColor"
                               focusable="false"
-                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                               viewBox="0 0 24 24"
                             >
                               <svg
@@ -535,7 +535,7 @@ describe('Channels panel', () => {
                               </svg>
                             </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                               data-testid="pets-channel-link-text"
                             >
                               pets
@@ -558,7 +558,7 @@ describe('Channels panel', () => {
                       class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -572,7 +572,7 @@ describe('Channels panel', () => {
                               data-testid="antiques-channel-link-icon-public"
                               fill="currentColor"
                               focusable="false"
-                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                               viewBox="0 0 24 24"
                             >
                               <svg
@@ -608,7 +608,7 @@ describe('Channels panel', () => {
                               </svg>
                             </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                               data-testid="antiques-channel-link-text"
                             >
                               antiques
@@ -634,7 +634,7 @@ describe('Channels panel', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
                   >
                     Direct messages
                   </p>
@@ -696,7 +696,7 @@ describe('Channels panel', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
                   >
                     Channels
                   </p>
@@ -755,7 +755,7 @@ describe('Channels panel', () => {
                     class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -769,7 +769,7 @@ describe('Channels panel', () => {
                             data-testid="general-channel-link-icon-public"
                             fill="currentColor"
                             focusable="false"
-                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                             viewBox="0 0 24 24"
                           >
                             <svg
@@ -805,7 +805,7 @@ describe('Channels panel', () => {
                             </svg>
                           </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                             data-testid="general-channel-link-text"
                           >
                             general
@@ -828,7 +828,7 @@ describe('Channels panel', () => {
                     class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -842,7 +842,7 @@ describe('Channels panel', () => {
                             data-testid="croatia-channel-link-icon-public"
                             fill="currentColor"
                             focusable="false"
-                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                             viewBox="0 0 24 24"
                           >
                             <svg
@@ -878,7 +878,7 @@ describe('Channels panel', () => {
                             </svg>
                           </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                             data-testid="croatia-channel-link-text"
                           >
                             croatia
@@ -901,7 +901,7 @@ describe('Channels panel', () => {
                     class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -915,7 +915,7 @@ describe('Channels panel', () => {
                             data-testid="allergies-channel-link-icon-public"
                             fill="currentColor"
                             focusable="false"
-                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                             viewBox="0 0 24 24"
                           >
                             <svg
@@ -951,7 +951,7 @@ describe('Channels panel', () => {
                             </svg>
                           </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                             data-testid="allergies-channel-link-text"
                           >
                             allergies
@@ -974,7 +974,7 @@ describe('Channels panel', () => {
                     class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -988,7 +988,7 @@ describe('Channels panel', () => {
                             data-testid="sailing-channel-link-icon-public"
                             fill="currentColor"
                             focusable="false"
-                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                             viewBox="0 0 24 24"
                           >
                             <svg
@@ -1024,7 +1024,7 @@ describe('Channels panel', () => {
                             </svg>
                           </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                             data-testid="sailing-channel-link-text"
                           >
                             sailing
@@ -1047,7 +1047,7 @@ describe('Channels panel', () => {
                     class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -1061,7 +1061,7 @@ describe('Channels panel', () => {
                             data-testid="pets-channel-link-icon-private"
                             fill="currentColor"
                             focusable="false"
-                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                             viewBox="0 0 24 24"
                           >
                             <svg
@@ -1094,7 +1094,7 @@ describe('Channels panel', () => {
                             </svg>
                           </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                             data-testid="pets-channel-link-text"
                           >
                             pets
@@ -1117,7 +1117,7 @@ describe('Channels panel', () => {
                     class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-q1dkw0-MuiTypography-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
@@ -1131,7 +1131,7 @@ describe('Channels panel', () => {
                             data-testid="antiques-channel-link-icon-public"
                             fill="currentColor"
                             focusable="false"
-                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            style="font-size: 16px; line-height: 24px; font-weight: 400; font-family: 'Rubik', sans-serif,Menlo Regular;"
                             viewBox="0 0 24 24"
                           >
                             <svg
@@ -1167,7 +1167,7 @@ describe('Channels panel', () => {
                             </svg>
                           </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-1t82dwi-MuiTypography-root"
                             data-testid="antiques-channel-link-text"
                           >
                             antiques
@@ -1193,7 +1193,7 @@ describe('Channels panel', () => {
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-1t82dwi-MuiTypography-root"
                 >
                   Direct messages
                 </p>

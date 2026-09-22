@@ -26,14 +26,130 @@ describe('UsernameRegistration', () => {
         testID="username-registration-component"
       >
         <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#ffffff",
+              "borderBottomColor": "#F0F0F0",
+              "borderBottomWidth": 1,
+              "display": "flex",
+              "flexDirection": "row",
+              "justifyContent": "center",
+              "maxHeight": 64,
+              "minHeight": 60,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignSelf": "stretch",
+                "flex": 1,
+              }
+            }
+          >
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              hitSlop={
+                {
+                  "bottom": 8,
+                  "left": 8,
+                  "right": 8,
+                  "top": 8,
+                }
+              }
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "flex": 1,
+                  "opacity": 1,
+                }
+              }
+              testID="appbar_action_item"
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "flex": 1,
+                    "justifyContent": "center",
+                    "minHeight": 44,
+                    "width": 64,
+                  }
+                }
+              />
+            </View>
+          </View>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flex": 4,
+              }
+            }
+          >
+            <Text
+              color="main"
+              fontSize={16}
+              fontWeight="medium"
+              horizontalTextAlign="left"
+              style={
+                {
+                  "color": "#000000",
+                  "fontFamily": "Rubik-Medium",
+                  "fontSize": 16,
+                  "textAlign": "left",
+                  "textAlignVertical": "center",
+                }
+              }
+              verticalTextAlign="center"
+            >
+              Create a community
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "alignSelf": "stretch",
+                "flex": 1,
+              }
+            }
+          />
+        </View>
+        <View
           onLayout={[Function]}
           style={
             [
               {
                 "flex": 1,
                 "justifyContent": "center",
-                "paddingLeft": 20,
-                "paddingRight": 20,
+                "paddingLeft": 16,
+                "paddingRight": 16,
               },
               {
                 "paddingBottom": 0,
@@ -43,26 +159,28 @@ describe('UsernameRegistration', () => {
         >
           <Text
             color="main"
-            fontSize={24}
+            fontSize={28}
             fontWeight="medium"
-            horizontalTextAlign="left"
+            horizontalTextAlign="center"
+            lineHeight={36}
             style={
               [
                 {
                   "color": "#000000",
                   "fontFamily": "Rubik-Medium",
-                  "fontSize": 24,
-                  "textAlign": "left",
+                  "fontSize": 28,
+                  "lineHeight": 36,
+                  "textAlign": "center",
                   "textAlignVertical": "center",
                 },
                 {
-                  "marginBottom": 30,
+                  "marginBottom": 24,
                 },
               ]
             }
             verticalTextAlign="center"
           >
-            Register a username
+            Choose username
           </Text>
           <View>
             <View>
@@ -87,7 +205,7 @@ describe('UsernameRegistration', () => {
                 }
                 verticalTextAlign="center"
               >
-                Choose your favorite username
+                Enter a username
               </Text>
               <View
                 accessibilityState={
@@ -156,7 +274,7 @@ describe('UsernameRegistration', () => {
                   onChangeText={[Function]}
                   onContentSizeChange={[Function]}
                   onFocus={[Function]}
-                  placeholder="Enter a username"
+                  placeholder="Username"
                   placeholderTextColor="#7F7F7F"
                   style={
                     {
@@ -192,7 +310,7 @@ describe('UsernameRegistration', () => {
                 }
                 verticalTextAlign="center"
               >
-                Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.
+                Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only.
               </Text>
             </View>
           </View>

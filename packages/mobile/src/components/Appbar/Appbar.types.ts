@@ -17,6 +17,8 @@ export interface AppbarProps {
   crossBackIcon?: boolean
   iconColor?: string
   textColor?: keyof typeof defaultPalette['typography']
+  /** No back arrow and no community tile on the left (onboarding roots). */
+  plain?: boolean
 }
 
 export interface HeaderTitleProps {

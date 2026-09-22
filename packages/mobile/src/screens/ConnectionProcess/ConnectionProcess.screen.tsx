@@ -53,7 +53,7 @@ export const ConnectionProcessScreen: FC = () => {
       dispatch(navigationActions.clearBackStack())
       dispatch(
         navigationActions.navigation({
-          screen: ScreenNames.JoinCommunityScreen,
+          screen: ScreenNames.GetStartedScreen,
         })
       )
     }

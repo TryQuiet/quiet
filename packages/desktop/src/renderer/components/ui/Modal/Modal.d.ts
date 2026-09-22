@@ -9,6 +9,8 @@ export interface IModalProps {
   isBold?: boolean
   step?: number
   setStep?: (arg0?: any) => void
+  /** Back-arrow handler; used instead of setStep(step - 1) when given. */
+  handleBack?: () => void
   contentWidth?: string | number
   contentHeight?: string | number
   isCloseDisabled?: boolean

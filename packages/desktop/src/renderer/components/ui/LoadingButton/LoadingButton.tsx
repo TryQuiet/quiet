@@ -6,6 +6,8 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 import classNames from 'classnames'
 
+import { primaryButtonStates } from '../interactionStates'
+
 const PREFIX = 'LoadingButton'
 
 const classes = {
@@ -17,17 +19,18 @@ const classes = {
 const StyledButton = styled(Button)(({ theme }) => ({
   // Height, radius, padding and the primary colours come from the theme's Button overrides, which
   // carry the design library's spec; overriding them here is what made this button 60 tall with no
-  // hover state of its own.
+  // hover state of its own. Pressed and focus-visible come on top, for every caller, including
+  // those passing their own `button` class.
+  ...primaryButtonStates(theme),
   [`&.${classes.button}`]: {
     maxWidth: 286,
     minWidth: 100,
   },
 
-  [`&.${classes.inProgress}`]: {
-    '&:disabled': {
-      backgroundColor: theme.palette.colors.quietBlue,
-      opacity: 1,
-    },
+  // A button showing progress is disabled but keeps its full colour.
+  [`&&.${classes.inProgress}.Mui-disabled`]: {
+    backgroundColor: theme.palette.colors.quietBlue,
+    opacity: 1,
   },
 
   [`& .${classes.progress}`]: {

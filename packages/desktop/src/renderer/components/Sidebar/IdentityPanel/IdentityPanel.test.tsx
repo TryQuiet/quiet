@@ -37,7 +37,7 @@ describe('IdentityPanel', () => {
               tabindex="0"
             >
               <h4
-                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-1inrl58-MuiTypography-root"
                 data-testid="current-community-name"
               >
                 community_1
@@ -89,7 +89,7 @@ describe('IdentityPanel', () => {
               tabindex="0"
             >
               <h4
-                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-1inrl58-MuiTypography-root"
                 data-testid="current-community-name"
               >
                 ...

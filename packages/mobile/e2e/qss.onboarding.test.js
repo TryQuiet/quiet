@@ -21,14 +21,14 @@ describe('QSS Onboarding', () => {
     })
 
     test('should see join community screen', async () => {
-      await waitFor(element(by.text('Join community')))
+      await waitFor(element(by.text('Let’s get started...')))
         .toBeVisible()
         .withTimeout(STARTUP)
-      await checkVisualRegression('join-community-component')
+      await checkVisualRegression('get-started-component')
     })
 
     test('switches to create community screen', async () => {
-      await press(element(by.text('create a new community')))
+      await press(element(by.id('get-started-create')))
 
       await waitFor(element(by.text('Create a community')))
         .toBeVisible()
@@ -55,7 +55,7 @@ describe('QSS Onboarding', () => {
     })
 
     test('registers username and proceeds to ToS', async () => {
-      await waitFor(element(by.text('Register a username')))
+      await waitFor(element(by.text('Choose username')))
         .toBeVisible()
         .withTimeout(BASIC)
       await checkVisualRegression('username-registration-component')
@@ -98,11 +98,11 @@ describe('QSS Onboarding', () => {
     })
 
     test('navigates to create and submits name', async () => {
-      await waitFor(element(by.text('Join community')))
+      await waitFor(element(by.text('Let’s get started...')))
         .toBeVisible()
         .withTimeout(STARTUP)
 
-      await press(element(by.text('create a new community')))
+      await press(element(by.id('get-started-create')))
 
       await waitFor(element(by.text('Create a community')))
         .toBeVisible()
@@ -123,7 +123,7 @@ describe('QSS Onboarding', () => {
     })
 
     test('registers username; ToS is not shown', async () => {
-      await waitFor(element(by.text('Register a username')))
+      await waitFor(element(by.text('Choose username')))
         .toBeVisible()
         .withTimeout(BASIC)
 

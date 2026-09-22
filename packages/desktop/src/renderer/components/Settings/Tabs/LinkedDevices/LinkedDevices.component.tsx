@@ -10,6 +10,7 @@ import CopyToClipboard from 'react-copy-to-clipboard'
 import QR from 'react-qr-code'
 
 import type { LinkedDevicesComponentProps } from './LinkedDevices.types'
+import { glyphButtonStates, primaryButtonStates } from '../../../ui/interactionStates'
 
 const PREFIX = 'LinkedDevices'
 
@@ -21,6 +22,7 @@ const classes = {
   linkContainer: `${PREFIX}linkContainer`,
   linkVisibility: `${PREFIX}linkVisibility`,
   title: `${PREFIX}title`,
+  centered: `${PREFIX}centered`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -53,6 +55,14 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     position: 'absolute',
     right: 0,
     top: 8,
+    ...glyphButtonStates(theme, false),
+  },
+  [`&.${classes.centered}`]: {
+    alignItems: 'center',
+    textAlign: 'center',
+    [`& .${classes.linkContainer}`]: {
+      width: '100%',
+    },
   },
   [`& .${classes.button}`]: {
     backgroundColor: theme.palette.colors.quietBlue,
@@ -61,10 +71,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginTop: 24,
     textTransform: 'none',
     width: '100%',
-    '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue,
-      opacity: 0.7,
-    },
+    ...primaryButtonStates(theme, false),
   },
 }))
 
@@ -75,9 +82,10 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
   isLoading,
   revealLink,
   onToggleLinkVisibility,
+  centered = false,
 }) => {
   return (
-    <StyledGrid container direction='column'>
+    <StyledGrid container direction='column' className={centered ? classes.centered : undefined}>
       <Grid item className={classes.title}>
         <Typography variant='h3' data-testid='linked-devices-title'>
           Linked devices
@@ -124,6 +132,7 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
               size='small'
               onClick={onToggleLinkVisibility}
               className={classes.linkVisibility}
+              disableRipple
             >
               {revealLink ? (
                 <Visibility color='primary' fontSize='small' />

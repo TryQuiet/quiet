@@ -16,6 +16,8 @@ import QuitAppDialog from './containers/ui/QuitAppDialog'
 import { useTheme } from './theme'
 import CreateCommunity from './components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
 import JoinCommunity from './components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
+import GetStarted from './components/Onboarding/GetStarted'
+import LinkDevices from './components/Onboarding/LinkDevices'
 import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
 import LoadingPanel from './components/LoadingPanel/LoadingPanel'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -58,8 +60,10 @@ export default () => {
                 <LoadingPanel />
                 <UsernameTakenModalContainer />
                 <CreateChannel />
+                <GetStarted />
                 <JoinCommunity />
                 <CreateCommunity />
+                <LinkDevices />
                 <CreateUsername />
                 <TermsOfService />
                 <CssBaseline />

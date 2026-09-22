@@ -4,12 +4,15 @@ import { TextProps } from 'react-native'
 
 import { StyledTypography } from './Typography.styles'
 import { TypographyProps } from './Typography.types'
+import { typeScale } from '../../styles/const/typography'
 
 export const Typography: FC<TypographyProps & TextProps> = ({
   onPress,
   children,
+  variant,
   fontSize,
   fontWeight,
+  lineHeight,
   color,
   style,
   horizontalTextAlign,
@@ -17,19 +20,24 @@ export const Typography: FC<TypographyProps & TextProps> = ({
   numberOfLines,
   ellipsizeMode,
   ...props
-}) => (
-  <StyledTypography
-    onPress={onPress}
-    color={color}
-    fontSize={fontSize}
-    fontWeight={fontWeight}
-    horizontalTextAlign={horizontalTextAlign}
-    numberOfLines={numberOfLines}
-    style={style}
-    verticalTextAlign={verticalTextAlign}
-    ellipsizeMode={ellipsizeMode}
-    {...props}
-  >
-    {children}
-  </StyledTypography>
-)
+}) => {
+  const scale = variant ? typeScale[variant] : undefined
+  const resolvedLineHeight = lineHeight ?? scale?.lineHeight
+  return (
+    <StyledTypography
+      onPress={onPress}
+      color={color}
+      fontSize={fontSize ?? scale?.fontSize}
+      fontWeight={fontWeight ?? scale?.fontWeight}
+      {...(resolvedLineHeight != null ? { lineHeight: resolvedLineHeight } : {})}
+      horizontalTextAlign={horizontalTextAlign}
+      numberOfLines={numberOfLines}
+      style={style}
+      verticalTextAlign={verticalTextAlign}
+      ellipsizeMode={ellipsizeMode}
+      {...props}
+    >
+      {children}
+    </StyledTypography>
+  )
+}

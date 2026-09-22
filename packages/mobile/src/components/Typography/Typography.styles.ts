@@ -9,10 +9,11 @@ export const StyledTypography = styled(Text).attrs<StyledTypographyProps>(props 
   horizontalTextAlign: props.horizontalTextAlign ?? 'left',
   verticalTextAlign: props.verticalTextAlign ?? 'center',
 }))`
-  ${({ fontSize, fontWeight, color = 'main', verticalTextAlign, horizontalTextAlign }) => css`
+  ${({ fontSize, fontWeight, lineHeight, color = 'main', verticalTextAlign, horizontalTextAlign }) => css`
     color: ${defaultTheme.palette.typography[color]};
     font-family: ${getFontFamily(fontWeight)};
     font-size: ${fontSize}px;
+    ${lineHeight != null ? `line-height: ${lineHeight}px;` : ''}
     text-align: ${horizontalTextAlign};
     text-align-vertical: ${verticalTextAlign};
   `}

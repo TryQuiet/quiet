@@ -8,9 +8,9 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
+import GetStarted from '../renderer/components/Onboarding/GetStarted'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { JoinCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import Channel from '../renderer/components/Channel/Channel'
@@ -40,6 +40,13 @@ import { createLogger } from './logger'
 import { socketActions } from '../renderer/sagas/socket/socket.slice'
 
 const logger = createLogger('community.join.test')
+
+/** Three-way choice → Open invite link → Paste a link, returning the link input. */
+const openPasteStep = async () => {
+  await userEvent.click(await screen.findByTestId('join-with-invite-link'))
+  await userEvent.click(await screen.findByTestId('paste-a-link'))
+  return await screen.findByPlaceholderText('Link')
+}
 
 jest.setTimeout(20_000)
 
@@ -196,19 +203,18 @@ describe('User', () => {
     })
 
     // Confirm proper modal title is displayed
-    const dictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(dictionary.header)
+    const joinCommunityTitle = screen.getByRole('heading', { name: 'Join community', level: 3 })
     expect(joinCommunityTitle).toBeVisible()
 
     // Enter community address and hit button
-    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const joinCommunityButton = screen.getByText(dictionary.button)
+    const joinCommunityInput = await openPasteStep()
+    const joinCommunityButton = screen.getByTestId('continue-joinCommunity')
     await userEvent.type(joinCommunityInput, validCode)
     expect(joinCommunityInput).toHaveValue(validCode)
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
+    const createUsernameTitle = await screen.findByText('Choose username')
     expect(createUsernameTitle).toBeVisible()
     expect(communities.selectors.pendingJoin(store.getState())).toMatchObject({
       status: 'draft',
@@ -216,8 +222,8 @@ describe('User', () => {
     })
 
     // Enter username and hit button
-    const createUsernameInput = screen.getByPlaceholderText('Enter a username')
-    const createUsernameButton = screen.getByText('Register')
+    const createUsernameInput = screen.getByPlaceholderText('Username')
+    const createUsernameButton = screen.getByTestId('continue-createUsername')
     expect(createUsernameButton).toBeVisible()
     expect(createUsernameInput).toBeVisible()
     await userEvent.type(createUsernameInput, 'alice')
@@ -316,23 +322,22 @@ describe('User', () => {
     })
 
     // Confirm proper modal title is displayed
-    const dictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(dictionary.header)
+    const joinCommunityTitle = screen.getByRole('heading', { name: 'Join community', level: 3 })
     expect(joinCommunityTitle).toBeVisible()
 
     // Enter community address and hit button
-    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const joinCommunityButton = screen.getByText(dictionary.button)
+    const joinCommunityInput = await openPasteStep()
+    const joinCommunityButton = screen.getByTestId('continue-joinCommunity')
     await userEvent.type(joinCommunityInput, validCode)
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
+    const createUsernameTitle = await screen.findByText('Choose username')
     expect(createUsernameTitle).toBeVisible()
 
     // Enter username and hit button
-    const createUsernameInput = screen.getByPlaceholderText('Enter a username')
-    const createUsernameButton = screen.getByText('Register')
+    const createUsernameInput = screen.getByPlaceholderText('Username')
+    const createUsernameButton = screen.getByTestId('continue-createUsername')
     await userEvent.type(createUsernameInput, 'bob')
     await userEvent.click(createUsernameButton)
 
@@ -375,6 +380,7 @@ describe('join community - qss', () => {
 
     renderComponent(
       <>
+        <GetStarted />
         <JoinCommunity />
         <CreateUsername />
         <TermsOfService />
@@ -384,6 +390,7 @@ describe('join community - qss', () => {
     )
 
     store.dispatch(socketActions.setConnected())
+    await userEvent.click(await screen.findByTestId('get-started-join'))
 
     const mockEmitImpl = makeMockEmitImpl(socket, { qss: true })
 
@@ -404,17 +411,16 @@ describe('join community - qss', () => {
     const qssCode = code()
     logger.info('Using qss invitation code:', qssCode)
 
-    const joinDictionary = JoinCommunityDictionary()
-    const joinInput = screen.getByPlaceholderText(joinDictionary.placeholder)
-    const joinButton = screen.getByText(joinDictionary.button)
+    const joinInput = await openPasteStep()
+    const joinButton = screen.getByTestId('continue-joinCommunity')
     await userEvent.type(joinInput, qssCode)
     expect(joinInput).toHaveValue(qssCode)
     await userEvent.click(joinButton)
 
     // complete username registration
-    const usernameInput = await screen.findByPlaceholderText('Enter a username')
+    const usernameInput = await screen.findByPlaceholderText('Username')
     await userEvent.type(usernameInput, 'alice')
-    const registerButton = screen.getByText('Register')
+    const registerButton = screen.getByTestId('continue-createUsername')
     await userEvent.click(registerButton)
 
     // ToS should appear
@@ -429,6 +435,7 @@ describe('join community - qss', () => {
 
     renderComponent(
       <>
+        <GetStarted />
         <JoinCommunity />
         <CreateUsername />
         <TermsOfService />
@@ -438,6 +445,7 @@ describe('join community - qss', () => {
     )
 
     store.dispatch(socketActions.setConnected())
+    await userEvent.click(await screen.findByTestId('get-started-join'))
 
     const mockEmitImpl = makeMockEmitImpl(socket, { qss: true })
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
@@ -454,11 +462,10 @@ describe('join community - qss', () => {
 
     const { code } = getValidInvitationUrlTestData(validInvitationDatav5[0])
     const qssCode = code()
-    const joinDictionary = JoinCommunityDictionary()
-    await userEvent.type(screen.getByPlaceholderText(joinDictionary.placeholder), qssCode)
-    await userEvent.click(screen.getByText(joinDictionary.button))
-    await userEvent.type(await screen.findByPlaceholderText('Enter a username'), 'alice')
-    await userEvent.click(screen.getByText('Register'))
+    await userEvent.type(await openPasteStep(), qssCode)
+    await userEvent.click(screen.getByTestId('continue-joinCommunity'))
+    await userEvent.type(await screen.findByPlaceholderText('Username'), 'alice')
+    await userEvent.click(screen.getByTestId('continue-createUsername'))
 
     const agree = await screen.findByTestId('TermOfService-UseQuietServer')
     await userEvent.click(agree)
@@ -474,6 +481,7 @@ describe('join community - qss', () => {
 
     renderComponent(
       <>
+        <GetStarted />
         <JoinCommunity />
         <CreateUsername />
         <TermsOfService />
@@ -483,6 +491,7 @@ describe('join community - qss', () => {
     )
 
     store.dispatch(socketActions.setConnected())
+    await userEvent.click(await screen.findByTestId('get-started-join'))
 
     const mockEmitImpl = makeMockEmitImpl(socket, { qss: true })
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
@@ -499,24 +508,23 @@ describe('join community - qss', () => {
 
     const { code } = getValidInvitationUrlTestData(validInvitationDatav5[0])
     const qss = code()
-    const joinDictionary = JoinCommunityDictionary()
     // Confirm proper modal title is displayed
-    const joinCommunityTitle = screen.getByText(joinDictionary.header)
+    const joinCommunityTitle = await screen.findByRole('heading', { name: 'Join community', level: 3 })
     expect(joinCommunityTitle).toBeVisible()
 
     // Enter community address and hit button
-    const joinCommunityInput = screen.getByPlaceholderText(joinDictionary.placeholder)
-    const joinCommunityButton = screen.getByText(joinDictionary.button)
+    const joinCommunityInput = await openPasteStep()
+    const joinCommunityButton = screen.getByTestId('continue-joinCommunity')
     await userEvent.type(joinCommunityInput, qss)
     await userEvent.click(joinCommunityButton)
 
-    await userEvent.type(await screen.findByPlaceholderText('Enter a username'), 'alice')
-    await userEvent.click(screen.getByText('Register'))
+    await userEvent.type(await screen.findByPlaceholderText('Username'), 'alice')
+    await userEvent.click(screen.getByTestId('continue-createUsername'))
 
     const abort = await screen.findByTestId('TermOfService-Abort')
     await userEvent.click(abort)
 
-    const joinTitle = await screen.findByText(joinDictionary.header)
+    const joinTitle = await screen.findByRole('heading', { name: 'Join community', level: 3 })
     expect(joinTitle).toBeVisible()
   })
 })
