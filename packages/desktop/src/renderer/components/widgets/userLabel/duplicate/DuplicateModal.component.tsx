@@ -22,7 +22,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.image}`]: {
     width: '70px',
     height: '70px',
-    margin: '30px 0 24px',
+    margin: `${theme.space.xxl}px 0 ${theme.space.xl}px`,
   },
 }))
 

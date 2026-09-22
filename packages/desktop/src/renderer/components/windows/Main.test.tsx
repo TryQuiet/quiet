@@ -110,7 +110,7 @@ describe('Main', () => {
                                 data-testid="prominentActionsList"
                               >
                                 <div
-                                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-1qtf1b2-MuiButtonBase-root-MuiListItemButton-root"
+                                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
                                   data-testid="add-members-link"
                                   role="button"
                                   tabindex="0"
@@ -206,7 +206,7 @@ describe('Main', () => {
                                   data-testid="channelsList"
                                 >
                                   <div
-                                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-1qtf1b2-MuiButtonBase-root-MuiListItemButton-root"
+                                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot SidebarRowselected css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
                                     data-testid="general-link"
                                     role="button"
                                     tabindex="0"

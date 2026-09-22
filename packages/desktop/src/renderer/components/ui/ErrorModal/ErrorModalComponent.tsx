@@ -37,7 +37,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.stackTrace}`]: {
-    fontSize: '14px',
+    fontSize: theme.typography.body2.fontSize,
     wordBreak: 'break-all',
   },
 

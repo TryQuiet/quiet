@@ -12,6 +12,7 @@ import { searchChannelField } from '../../forms/fields/searchChannelField'
 import { TextField } from '../ui/TextField/TextField'
 import { useCyclingFocus, Variant } from '../../containers/hooks'
 import ChannelItem from './ChannelItem'
+import { rowHover } from '../../design-system/theme/components'
 
 const PREFIX = 'SearchModalComponent'
 
@@ -47,21 +48,23 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     overflow: 'hidden',
     minHeight: '255px',
   },
+  // 'Search bar' (library 3797:17977): 16 padding, 24px search and close glyphs; rows are 'Search result'
+  // (3799:12467): 8/16 padding, hover a 6% wash, selected #1B6FEC with white text.
   [`& .${classes.wrapper}`]: {
-    padding: '24px',
+    padding: theme.space.lg,
   },
   [`& .${classes.wrapperRecent}`]: {
-    padding: '16px 24px 8px',
+    padding: `${theme.space.lg}px ${theme.space.lg}px ${theme.space.sm}px`,
   },
   [`& .${classes.magnifyingGlassIcon}`]: {
-    width: 18,
-    heigth: 18,
+    width: 24,
+    height: 24,
     justifyContent: 'center',
-    marginRight: '16px',
+    marginRight: theme.space.lg,
   },
   [`& .${classes.closeIcon}`]: {
-    width: 14,
-    heigth: 14,
+    width: 24,
+    height: 24,
     justifyContent: 'center',
     cursor: 'pointer',
   },
@@ -74,22 +77,21 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.channelWrapper}`]: {
     border: '0',
     cursor: 'pointer',
-    padding: '8px 24px',
+    padding: `${theme.space.sm}px ${theme.space.lg}px`,
     '&:hover': {
-      backgroundColor: theme.palette.colors.lushSky,
-      color: 'white',
+      backgroundColor: rowHover(theme),
     },
     '&:focus': {
-      backgroundColor: theme.palette.colors.lushSky,
-      color: 'white',
+      backgroundColor: theme.palette.colors.linkBlue,
+      color: theme.palette.colors.white,
     },
     '&:focus-visible': {
       outline: '0',
     },
   },
   [`& .${classes.channelWrapperSelected}`]: {
-    backgroundColor: theme.palette.colors.lushSky,
-    color: 'white',
+    backgroundColor: theme.palette.colors.linkBlue,
+    color: theme.palette.colors.white,
     '&:focus-visible': {
       outline: '0',
     },
@@ -107,7 +109,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
   [`& .${classes.input}`]: {
     minWidth: '250px',
-    caretColor: '#2288FF',
+    caretColor: theme.palette.colors.linkBlue,
     '& div': {
       '&:hover': {
         border: 'none',

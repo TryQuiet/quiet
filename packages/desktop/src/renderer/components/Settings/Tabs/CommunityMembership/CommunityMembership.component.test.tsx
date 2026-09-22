@@ -160,13 +160,13 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1tn16s6-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_1-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
                         <span
-                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                          class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
                         >
                           <span
                             class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
@@ -300,13 +300,13 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1tn16s6-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_2-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
                         <span
-                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                          class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
                         >
                           <span
                             class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
@@ -437,13 +437,13 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1tn16s6-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_3-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
                         <span
-                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                          class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
                         >
                           <span
                             class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
@@ -506,13 +506,13 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1tn16s6-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_4-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
                         <span
-                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                          class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
                         >
                           <span
                             class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"
@@ -569,13 +569,13 @@ describe('CommunityMembership', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                     >
                       <div
-                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1110tdb-MuiButtonBase-root-MuiListItemButton-root"
+                        class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-1tn16s6-MuiButtonBase-root-MuiListItemButton-root"
                         data-testid="user_5-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
                         <span
-                          class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+                          class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
                         >
                           <span
                             class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarMedium"

@@ -21,7 +21,7 @@ describe('PossibleImpersonationAttackModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -48,7 +48,7 @@ describe('PossibleImpersonationAttackModal', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   >
                     Warning!
                   </h6>
@@ -91,7 +91,7 @@ describe('PossibleImpersonationAttackModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-e4g1qd-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-wyu7bv-MuiGrid-root"
                   data-testid="possible-impersonation-attack-modal-component"
                 >
                   <img
