@@ -271,7 +271,7 @@ describe('Screens/Onboarding — the Paste a link error states', () => {
     expect(error).toBeVisible()
     expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toBe(error)
     // Still the paste step: the message is drawn here, not on a screen of its own.
-    expect(screen.getAllByRole('heading', { name: 'Paste a link to Join', level: 3 })[0]).toBeVisible()
+    expect(screen.getAllByRole('heading', { name: 'Paste a link to join', level: 3 })[0]).toBeVisible()
   })
 
   it('draws the admission timeout in the same slot', () => {

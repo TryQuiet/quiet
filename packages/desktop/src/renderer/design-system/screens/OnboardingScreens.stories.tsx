@@ -269,13 +269,13 @@ const PASTE_ERROR_NOTE =
 
 export const PasteALinkInviteError = () => (
   <Screen
-    title='Paste a link to Join · invalid invite'
+    title='Paste a link to join · invalid invite'
     hiddenBar='Join with invite link'
     figma='—'
     note={`${PASTE_ERROR_NOTE}; a link the client cannot parse reads “Please check your invite link and try again” in the same slot`}
     render={() => (
       <PasteLinkComponent
-        heading={'Paste a link to Join'}
+        heading={'Paste a link to join'}
         handleCommunityAction={noop}
         fieldError={ErrorMessages.INVALID_INVITE}
         onFieldChange={noop}
@@ -286,13 +286,13 @@ export const PasteALinkInviteError = () => (
 
 export const PasteALinkAdmissionTimeout = () => (
   <Screen
-    title='Paste a link to Join · admission timed out'
+    title='Paste a link to join · admission timed out'
     hiddenBar='Join with invite link'
     figma='—'
     note={`${PASTE_ERROR_NOTE}; a device link reads “…make sure both devices have the app open”, and an interrupted join “Joining was interrupted when Quiet went to sleep. Please try again.”`}
     render={() => (
       <PasteLinkComponent
-        heading={'Paste a link to Join'}
+        heading={'Paste a link to join'}
         handleCommunityAction={noop}
         fieldError={ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT}
         onFieldChange={noop}

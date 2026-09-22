@@ -67,7 +67,7 @@ describe('PasteLinkComponent', () => {
     it('renders under the input', async () => {
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to Join'}
+          heading={'Paste a link to join'}
           handleCommunityAction={jest.fn()}
           fieldError={reported}
           onFieldChange={jest.fn()}
@@ -83,7 +83,7 @@ describe('PasteLinkComponent', () => {
       const onFieldChange = jest.fn()
       const { rerender } = renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to Join'}
+          heading={'Paste a link to join'}
           handleCommunityAction={jest.fn()}
           fieldError={reported}
           onFieldChange={onFieldChange}
@@ -96,7 +96,7 @@ describe('PasteLinkComponent', () => {
 
       rerender(
         <PasteLinkComponent
-          heading={'Paste a link to Join'}
+          heading={'Paste a link to join'}
           handleCommunityAction={jest.fn()}
           fieldError={undefined}
           onFieldChange={onFieldChange}
@@ -110,7 +110,7 @@ describe('PasteLinkComponent', () => {
     it('does not clobber an error this form raised itself', async () => {
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to Join'}
+          heading={'Paste a link to join'}
           handleCommunityAction={jest.fn()}
           fieldError={undefined}
           onFieldChange={jest.fn()}

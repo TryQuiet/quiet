@@ -243,7 +243,7 @@ describe('PasteInviteLinkScreen', () => {
         expect(error).toBeTruthy()
         // Under the input, in the field's own error slot - not a screen of its own.
         expect(result.getByTestId('paste-link-input')).toContainElement(error)
-        expect(result.getByText('Paste a link to Join')).toBeTruthy()
+        expect(result.getByText('Paste a link to join')).toBeTruthy()
         expect(dispatchSpy).not.toHaveBeenCalledWith(
           expect.objectContaining({ type: navigationActions.navigation.type })
         )

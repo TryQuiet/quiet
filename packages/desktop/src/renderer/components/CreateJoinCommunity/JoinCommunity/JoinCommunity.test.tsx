@@ -158,7 +158,7 @@ describe('join community', () => {
         )
 
         expect(await screen.findByText(message)).toBeVisible()
-        expect(screen.getByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+        expect(screen.getByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
         expect(screen.queryByRole('heading', { name: 'Join community' })).not.toBeInTheDocument()
         expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
       })
@@ -177,7 +177,7 @@ describe('join community', () => {
         // The message goes, and what was typed in its place stays.
         expect(input).toHaveValue('another-link')
         // And the field is still the one on the paste step.
-        expect(screen.getByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+        expect(screen.getByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
       })
     })
 
@@ -211,7 +211,7 @@ describe('join community', () => {
       const input = await screen.findByPlaceholderText('Link')
       expect(await screen.findByText(ErrorMessages.INVALID_INVITE)).toBeVisible()
       expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toHaveTextContent(ErrorMessages.INVALID_INVITE)
-      expect(screen.getByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+      expect(screen.getByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
       expect(screen.queryByRole('heading', { name: 'Join community' })).not.toBeInTheDocument()
       expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
     })
@@ -235,7 +235,7 @@ describe('join community', () => {
       const error = await screen.findByText(InviteLinkErrors.InvalidCode)
       expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toHaveTextContent(InviteLinkErrors.InvalidCode)
       expect(error).toBeVisible()
-      expect(screen.getByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+      expect(screen.getByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
       expect(screen.queryByRole('heading', { name: 'Join community' })).not.toBeInTheDocument()
       expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
       expect(dispatchSpy).not.toHaveBeenCalledWith(
