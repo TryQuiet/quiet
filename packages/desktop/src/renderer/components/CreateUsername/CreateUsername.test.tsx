@@ -14,6 +14,17 @@ import { ModalsInitialState } from '../../sagas/modals/modals.slice'
 import { communities } from '@quiet/state-manager'
 
 describe('Create username', () => {
+  it('shows only the close glyph in the bar: no title text, no hairline (2811:2371)', () => {
+    renderComponent(<CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />)
+
+    expect(screen.getByRole('heading', { name: 'Choose username', level: 3 })).toBeVisible()
+    expect(screen.queryByText('Create a community')).not.toBeInTheDocument()
+    const header = screen.getByTestId('createUsernameModalActions').closest('.Modalheader')
+    expect(header).not.toHaveClass('Modalnone')
+    expect(header).not.toHaveClass('ModalheaderBorder')
+    expect(screen.getByTestId('createUsernameModalClose')).toBeVisible()
+  })
+
   it('cancels pending onboarding when the username modal is closed', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Modals]: {

@@ -7,7 +7,7 @@ import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
+import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import CreateUsername from '../../CreateUsername/CreateUsername'
 import GetStarted from '../../Onboarding/GetStarted'
 import CreateCommunity from './CreateCommunity'
@@ -28,6 +28,42 @@ const createModalOpen = {
 }
 
 describe('Create community', () => {
+  it('closes the form once the progress screen opens for the submitted community', async () => {
+    const { store } = await prepareStore(createModalOpen)
+
+    renderComponent(
+      <>
+        <CreateCommunity />
+        <CreateUsername />
+      </>,
+      store
+    )
+
+    await userEvent.type(screen.getByPlaceholderText('Community name'), 'rockets')
+    await userEvent.click(screen.getByTestId('continue-createCommunity'))
+    expect(await screen.findByText('Choose username')).toBeVisible()
+    // The form is still mounted underneath (aria-hidden behind Choose username) while the username and the terms are asked
+    expect(screen.getByRole('heading', { name: 'Create a community', level: 3, hidden: true })).toBeInTheDocument()
+
+    // Creation proceeds: the loading panel opens (terms accepted / username registered)
+    store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('heading', { name: 'Create a community', level: 3, hidden: true })
+      ).not.toBeInTheDocument()
+    )
+  })
+
+  it('keeps the form while the loading panel is open for something else', async () => {
+    const { store } = await prepareStore(createModalOpen)
+
+    renderComponent(<CreateCommunity />, store)
+
+    // Nothing submitted yet: a loading panel (e.g. the app starting) must not take the form away
+    store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
+    expect(screen.getByRole('heading', { name: 'Create a community', level: 3 })).toBeInTheDocument()
+  })
+
   it('goes back to Get started from the create screen', async () => {
     const { store } = await prepareStore(createModalOpen)
 
@@ -40,6 +76,11 @@ describe('Create community', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'Create a community', level: 3 })).toBeVisible()
+    // Full-screen h1 stage (2811:2451): the heading is the only "Create a community"; the bar has no title, no hairline
+    expect(screen.getAllByText('Create a community')).toHaveLength(1)
+    const header = screen.getByTestId('createCommunityModalActions').closest('.Modalheader')
+    expect(header).not.toHaveClass('Modalnone')
+    expect(header).not.toHaveClass('ModalheaderBorder')
 
     await userEvent.click(screen.getByTestId('createCommunityModalBack'))
 

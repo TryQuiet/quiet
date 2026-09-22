@@ -27,7 +27,7 @@ export const createQssCommunity = async (communityName, username) => {
   await waitFor(element(by.id('terms-of-service-component')))
     .toBeVisible()
     .withTimeout(30000)
-  await element(by.text('Agree & Continue')).tap()
+  await element(by.text('Agree & Join')).tap()
   // The real native WebView obtains hCaptcha's public test token. The app's
   // backend verifies it with QSS; no injected token or synchronization bypass.
   await waitFor(element(by.id('channel-list')))

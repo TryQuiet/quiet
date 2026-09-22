@@ -68,7 +68,8 @@ export interface StartingPanelComponentProps {
 
 const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({ open, handleClose }) => {
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
+    // No bar (as Get started and JoiningPanel): the frame's "Quiet" bar (2811:2770) is the window's own name on desktop.
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader>
       <StyledGrid container justifyContent='center' alignItems='center' className={classes.root}>
         <Grid
           container
