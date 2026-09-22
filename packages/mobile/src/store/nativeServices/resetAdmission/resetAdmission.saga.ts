@@ -1,9 +1,10 @@
 import { apply, call, put, select } from 'typed-redux-saga'
 import { NativeModules } from 'react-native'
-import { communities } from '@quiet/state-manager'
+import { communities, type JoinCommunityError } from '@quiet/state-manager'
 import type { Dispatch } from 'redux'
 import { persistor } from '../../store'
 import { navigationActions } from '../../navigation/navigation.slice'
+import { JOIN_FAILURE_STACK } from '../../navigation/joinFailure'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { createLogger } from '../../../utils/logger'
 import { icons } from '../../../assets'
@@ -11,13 +12,23 @@ import { nativeServicesActions } from '../nativeServices.slice'
 
 const logger = createLogger('resetAdmission')
 
+/** The kind of invitation a failure names, for the failures that name one at all. */
+const invitationTypeOf = (result: JoinCommunityError): 'device' | 'community' | undefined =>
+  'invitationType' in result ? result.invitationType : undefined
+
+/**
+ * Whether two reset results are the same failure, so that a replay can be told from a newer
+ * reset. Kept keyed on what a failure actually carries rather than on which kinds happen to
+ * carry an invitation type today.
+ */
 const sameAdmissionResetResult = (
   first: ReturnType<typeof communities.selectors.admissionResetResult>,
   second: ReturnType<typeof communities.selectors.admissionResetResult>
-): boolean =>
-  first?.type === second?.type &&
-  (first?.type === 'invalid' ||
-    (second != null && second.type !== 'invalid' && first?.invitationType === second.invitationType))
+): boolean => {
+  if (first == null || second == null) return false
+  if (first.type !== second.type) return false
+  return invitationTypeOf(first) === invitationTypeOf(second)
+}
 
 export function* finishAdmissionResetSaga(
   action: ReturnType<typeof communities.actions.setAdmissionResetStatus>
@@ -95,25 +106,11 @@ export function* retryAdmissionFinalizationSaga(): Generator {
   yield* call(finishAdmissionFinalizationSaga)
 }
 
-/**
- * Where a cleared invitation puts the user. The failure is reported on the invite
- * field, so the flow comes back to the field the link was typed in rather than to
- * the three-way choice, which has nothing to carry the message. `finalizeAdmissionReset`
- * has wiped Redux, the navigator included, so the path the user would have walked is
- * rebuilt beneath the paste screen and its back arrow retraces it.
- */
-export const ADMISSION_FAILURE_STACK = [
-  ScreenNames.GetStartedScreen,
-  ScreenNames.JoinCommunityScreen,
-  ScreenNames.OpenInviteLinkScreen,
-  ScreenNames.PasteInviteLinkScreen,
-]
-
 export function* finishAdmissionFinalizationSaga(): Generator {
   try {
     yield* call(persistor.flush)
     yield* put(communities.actions.setAdmissionResetStatus('idle'))
-    yield* put(navigationActions.resetToStack({ screens: ADMISSION_FAILURE_STACK }))
+    yield* put(navigationActions.resetToStack({ screens: JOIN_FAILURE_STACK }))
   } catch (error) {
     logger.error('Failed to persist the completed admission reset', error)
     yield* put(

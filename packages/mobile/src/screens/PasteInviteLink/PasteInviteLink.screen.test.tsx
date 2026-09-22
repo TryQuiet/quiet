@@ -10,7 +10,7 @@ import { initActions } from '../../store/init/init.slice'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
-import { NOT_A_DEVICE_LINK_ERROR } from '../../utils/inviteLink'
+import { INVALID_INVITATION_ERROR, NOT_A_DEVICE_LINK_ERROR } from '../../utils/inviteLink'
 import { PasteInviteLinkScreen } from './PasteInviteLink.screen'
 import { type PasteInviteLinkScreenProps } from './PasteInviteLink.types'
 import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
@@ -230,6 +230,9 @@ describe('PasteInviteLinkScreen', () => {
         { type: 'timeout', invitationType: 'device' },
         ErrorMessages.DEVICE_ADMISSION_TIMEOUT,
       ],
+      // The backend refused and said nothing about why, so the field says no more than it
+      // says about a link it could not read itself.
+      ['a request the backend refused outright', { type: 'refused' }, INVALID_INVITATION_ERROR],
     ]
 
     describe.each(errorKinds)('%s', (_kind, joinCommunityError, message) => {

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import ConnectionProcessComponent from '../../components/ConnectionProcess/ConnectionProcess.component'
 import { Linking } from 'react-native'
 import { navigationActions } from '../../store/navigation/navigation.slice'
+import { JOIN_FAILURE_STACK } from '../../store/navigation/joinFailure'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { createLogger } from '../../utils/logger'
 import { ErrorMessages, LoadingPanelType, SocketActions } from '@quiet/types'
@@ -19,6 +20,7 @@ export const ConnectionProcessScreen: FC = () => {
   const loadingPanelType = useSelector(network.selectors.loadingPanelType)
   const admissionFailure = useSelector(errors.selectors.admissionFailure)
   const admissionResetStatus = useSelector(communities.selectors.admissionResetStatus)
+  const joinCommunityError = useSelector(communities.selectors.joinCommunityError)
   const currentCommunityId = useSelector(communities.selectors.currentCommunityId)
   const currentCommunityErrors = useSelector(errors.selectors.currentCommunityErrors)
   // A community on a server never connects over Tor, so the Tor explanation is
@@ -63,11 +65,17 @@ export const ConnectionProcessScreen: FC = () => {
   }, [hasCurrentCommunityError, admissionFailure, invalidInvite, dispatch])
 
   useEffect(() => {
-    if (loadingPanelType === LoadingPanelType.Failed && admissionResetStatus === 'idle') {
-      dispatch(navigationActions.clearBackStack())
-      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
+    if (loadingPanelType !== LoadingPanelType.Failed || admissionResetStatus !== 'idle') return
+    // A failed join is reported on the invite field, so it goes back to the field the link was
+    // typed in - including a request the backend refused outright, which says nothing about why.
+    // A failed create has no such field and keeps the three-way choice it had before.
+    if (joinCommunityError) {
+      dispatch(navigationActions.resetToStack({ screens: JOIN_FAILURE_STACK }))
+      return
     }
-  }, [admissionResetStatus, loadingPanelType])
+    dispatch(navigationActions.clearBackStack())
+    dispatch(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
+  }, [admissionResetStatus, loadingPanelType, joinCommunityError, dispatch])
 
   return (
     <JoinRecovery>

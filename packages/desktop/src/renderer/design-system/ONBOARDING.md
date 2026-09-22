@@ -242,14 +242,17 @@ Goes to: Glyph → back [back]
 Implemented by: desktop `Onboarding/PasteLinkComponent.tsx` · mobile `JoinCommunity.component.tsx` (variant `inviteLink`)
 
 Error copy under the input (undrawn state; the strings are the app's, unchanged):
-- *Please check your invite link and try again* — the client could not read the link at all (`InviteLinkErrors.InvalidCode` / mobile `INVALID_INVITATION_ERROR`); a scanned code that is not an invitation says the same.
+- *Please check your invite link and try again* — the client could not read the link at all (`InviteLinkErrors.InvalidCode` / mobile `INVALID_INVITATION_ERROR`); a scanned code that is not an invitation says the same, and so does a request the backend refused outright (`JoinCommunityError` kind `refused`), which tells us nothing about why and so says nothing more.
 - *This invite is invalid or has expired. Please try again.* — `ErrorMessages.INVALID_INVITE`.
 - *Joining was interrupted when Quiet went to sleep. Please try again.* — `ErrorMessages.ADMISSION_INTERRUPTED_RETRY`.
 - *Joining timed out. Please try again when other peers are online.* — `ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT`.
 - *Joining timed out. Please try again and make sure both devices have the app open.* — `ErrorMessages.DEVICE_ADMISSION_TIMEOUT`.
 - *This is not a device link. Use the link from Link devices on your other device.* — only on the Link devices variants (`InviteLinkErrors.NotDeviceLink`; undesigned, see the 2026-09-13 decision).
 
-All six are drawn in the same slot and none of them moves the user off this screen (user decision, 2026-09-22).
+All six are drawn in the same slot and none of them moves the user off this screen (user decision, 2026-09-22). That includes the case that used to have no message at all: a join the backend
+refuses outright now reports itself as a `refused` failure, so it comes back here like the rest
+instead of dropping the user at the three-way choice. A failed *community creation* reaches the
+same progress screen with no invite field to return to, so it keeps the three-way choice.
 
 **One rule, not one per screen (user, 2026-09-22).** What counts as an invite link, and what to
 say when it is not one, was the pre-redesign *Join community* form's job (desktop

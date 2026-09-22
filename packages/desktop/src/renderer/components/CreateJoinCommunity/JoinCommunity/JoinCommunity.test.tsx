@@ -116,6 +116,9 @@ describe('join community', () => {
         { type: 'timeout', invitationType: 'device' },
         ErrorMessages.DEVICE_ADMISSION_TIMEOUT,
       ],
+      // The backend refused and said nothing about why, so the field says no more than it
+      // says about a link it could not read itself.
+      ['a request the backend refused outright', { type: 'refused' }, InviteLinkErrors.InvalidCode],
     ]
 
     const storeReporting = async (joinCommunityError: JoinCommunityError) =>

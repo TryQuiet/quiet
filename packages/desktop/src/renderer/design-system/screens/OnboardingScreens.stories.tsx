@@ -272,7 +272,7 @@ export const PasteALinkInviteError = () => (
     title='Paste a link to join · invalid invite'
     hiddenBar='Join with invite link'
     figma='—'
-    note={`${PASTE_ERROR_NOTE}; a link the client cannot parse reads “Please check your invite link and try again” in the same slot`}
+    note={`${PASTE_ERROR_NOTE}; “Please check your invite link and try again” fills the same slot both for a link the client cannot parse and for a request the backend refused outright, which says nothing about why`}
     render={() => (
       <PasteLinkComponent
         heading={'Paste a link to join'}

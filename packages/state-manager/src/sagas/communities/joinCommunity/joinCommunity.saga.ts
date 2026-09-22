@@ -50,8 +50,11 @@ export function* joinCommunitySaga(socket: Socket): Generator {
         )
         if (!response) {
           // An explicit negative acknowledgement is different from losing the
-          // acknowledgement altogether. Keep the existing failed-join handling.
+          // acknowledgement altogether. Keep the existing failed-join handling, and report
+          // it the way every other failed join is reported - on the invite field - so the
+          // user lands back on the link they pasted rather than at a dead end.
           yield* put(communitiesActions.clearInvitationCodes())
+          yield* put(communitiesActions.setJoinCommunityError({ type: 'refused' }))
           yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
           return
         }
