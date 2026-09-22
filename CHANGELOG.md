@@ -59,6 +59,7 @@
 * Write the onboarding paste-link heading in sentence case, *Paste a link to join*, on desktop and mobile
 * Draw the digits of a message at the message's own size, rather than at emoji size, on mobile and desktop; a number, `#` or `*` is only emoji as part of a full keycap like 1️⃣
 * Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
+* Let a released Mac build open the camera when you scan a QR code, by granting the signed app the camera entitlement its hardened runtime requires, and ask for the camera in Quiet's own words rather than Electron's placeholder ones
 
 ### Tests
 

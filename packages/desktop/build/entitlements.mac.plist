@@ -15,5 +15,14 @@
     -->
     <key>com.apple.security.cs.allow-jit</key>
     <true/>
+    <!--
+    Scanning a QR code opens the camera. Under the hardened runtime a signed app is denied
+    the camera without this entitlement, even with NSCameraUsageDescription in Info.plist
+    (see `mac.extendInfo` in package.json).
+
+    https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.device.camera
+    -->
+    <key>com.apple.security.device.camera</key>
+    <true/>
   </dict>
 </plist>

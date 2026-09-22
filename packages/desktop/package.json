@@ -24,6 +24,9 @@
       "entitlementsInherit": "build/entitlements.mac.plist",
       "category": "public.app-category.social-networking",
       "minimumSystemVersion": "13.0.0",
+      "extendInfo": {
+        "NSCameraUsageDescription": "Quiet uses the camera to scan QR codes for joining a community or linking a device."
+      },
       "files": [
         "dist/**/*",
         "build/icon.*",
