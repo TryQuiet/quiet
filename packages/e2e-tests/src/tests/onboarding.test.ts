@@ -97,16 +97,35 @@ async function getDeviceInvitation(app: App): Promise<string> {
 }
 
 /**
- * The "Linked devices" list on the share direction, which is Settings → Linked
- * devices once you are in a community. Names of the other devices only.
+ * One read of the "Linked devices" list on the share direction, which is
+ * Settings → Linked devices once you are in a community. Opening the tab mounts
+ * the surface, which is what asks the backend, so each call is a fresh answer.
  */
-async function linkedDeviceNamesInSettings(app: App, expectedCount = 0): Promise<string[]> {
+async function readLinkedDevicesOnce(app: App): Promise<{ deviceId: string; deviceName: string }[]> {
   const settings = await new Sidebar(app.driver).openSettings()
   expect(await settings.isReady()).toBeTruthy()
   await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-  const names = await new LinkDevicesModal(app.driver).linkedDeviceNames(expectedCount)
+  const devices = await new LinkDevicesModal(app.driver).linkedDevices()
   await settings.closeTabThenModal()
-  return names
+  return devices
+}
+
+/**
+ * The list once it has at least `expectedCount` rows. The surface only asks the
+ * backend when it mounts, so the retry reopens the tab rather than re-reading a
+ * DOM that would never change on its own.
+ */
+async function linkedDevicesInSettings(
+  app: App,
+  expectedCount = 0,
+  timeoutMs = 60_000
+): Promise<{ deviceId: string; deviceName: string }[]> {
+  const deadline = Date.now() + timeoutMs
+  let devices = await readLinkedDevicesOnce(app)
+  while (devices.length < expectedCount && Date.now() < deadline) {
+    devices = await readLinkedDevicesOnce(app)
+  }
+  return devices
 }
 
 /** The same surface, asked whether it is drawing its "No linked devices" line. */
@@ -114,9 +133,7 @@ async function noLinkedDevicesInSettings(app: App): Promise<boolean> {
   const settings = await new Sidebar(app.driver).openSettings()
   expect(await settings.isReady()).toBeTruthy()
   await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-  const linkDevices = new LinkDevicesModal(app.driver)
-  expect(await linkDevices.linkedDeviceNames()).toEqual([])
-  const empty = await linkDevices.hasNoLinkedDevices()
+  const empty = await new LinkDevicesModal(app.driver).hasNoLinkedDevices()
   await settings.closeTabThenModal()
   return empty
 }
@@ -329,13 +346,22 @@ describe('Onboarding', () => {
       await channelA.waitForUserMessageByText(ownerUsername, message)
     })
 
-    it("A's device list shows B", async () => {
-      // Each device lists the other one and never itself, so the two lists differ.
-      const names = await linkedDeviceNamesInSettings(owner, 1)
-      expect(names).toHaveLength(1)
-      const namesOnB = await linkedDeviceNamesInSettings(linkedDevice, 1)
-      expect(namesOnB).toHaveLength(1)
-      expect(namesOnB).not.toEqual(names)
+    it("A's device list shows B, and B's shows A", async () => {
+      const onA = await linkedDevicesInSettings(owner, 1)
+      const onB = await linkedDevicesInSettings(linkedDevice, 1)
+      expect(onA).toHaveLength(1)
+      expect(onB).toHaveLength(1)
+
+      // A surface lists every device on the account except the one it runs on, so
+      // the single row A sees must be B's device: if it were some third device, B
+      // would be listing it too. The same argument the other way round names A.
+      const seenByA = onA[0].deviceId
+      const seenByB = onB[0].deviceId
+      expect(onB.map(device => device.deviceId)).not.toContain(seenByA)
+      expect(onA.map(device => device.deviceId)).not.toContain(seenByB)
+      expect(seenByA).not.toEqual(seenByB)
+      expect(onA[0].deviceName.length).toBeGreaterThan(0)
+      expect(onB[0].deviceName.length).toBeGreaterThan(0)
     })
 
     // #3400 ships no device removal, and this line carries #3471 (removal

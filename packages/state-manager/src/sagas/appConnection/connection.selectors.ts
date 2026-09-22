@@ -102,8 +102,9 @@ export const deviceLinkCreationFailed = createSelector(connectionSlice, reducerS
   return reducerState.deviceLinkCreationFailed
 })
 
+/** `undefined` until a getLinkedDevices read comes back; `[]` means no other device. */
 export const linkedDevices = createSelector(connectionSlice, reducerState => {
-  return reducerState.linkedDevices ?? []
+  return reducerState.linkedDevices
 })
 
 export const invitationUrl = createSelector(

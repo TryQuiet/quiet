@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom'
 import React from 'react'
+import { act } from '@testing-library/react'
 
 import { communities, connection, getReduxStoreFactory, identity } from '@quiet/state-manager'
 import type { DeviceLinkInvite, LinkedDevice } from '@quiet/types'
@@ -60,8 +61,8 @@ describe('LinkedDevices', () => {
     const result = renderComponent(<LinkedDevices />, store)
 
     expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.getLinkedDevices())
-    expect(result.getByTestId('linked-device-nyc-phone')).toHaveTextContent('nyc-phone')
-    expect(result.queryByTestId('linked-device-desktop-here')).toBeNull()
+    expect(result.getByTestId('linked-device-phone')).toHaveTextContent('nyc-phone')
+    expect(result.queryByTestId('linked-device-this')).toBeNull()
   })
 
   it('does not ask for a device list without a community to read one from', async () => {
@@ -72,5 +73,29 @@ describe('LinkedDevices', () => {
 
     expect(dispatchSpy).not.toHaveBeenCalledWith(connection.actions.getLinkedDevices())
     expect(result.queryByTestId('linked-devices-list')).toBeNull()
+  })
+
+  it('says nothing about linked devices until the read comes back', async () => {
+    const { store } = await prepareStore()
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Community', {
+      name: 'Community',
+      teamId: 'team-id',
+      psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+    })
+    const community = communities.selectors.currentCommunity(store.getState())!
+    await factory.create('Identity', { communityId: community.id })
+
+    const result = renderComponent(<LinkedDevices />, store)
+
+    // The request is in flight; claiming "No linked devices" here would be a guess.
+    expect(result.queryByTestId('linked-devices-list')).toBeNull()
+    expect(result.queryByTestId('no-linked-devices')).toBeNull()
+
+    act(() => {
+      store.dispatch(connection.actions.setLinkedDevices([]))
+    })
+
+    expect(result.getByTestId('no-linked-devices')).toHaveTextContent('No linked devices')
   })
 })

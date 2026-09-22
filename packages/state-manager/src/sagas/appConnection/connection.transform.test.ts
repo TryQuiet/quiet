@@ -33,8 +33,10 @@ describe('ConnectionTransform', () => {
     const state = Object.assign(new ConnectionState(), { linkedDevices: devices })
 
     // The list is read back from the team graph on demand, so a persisted copy
-    // would show devices that may since have been removed.
-    expect(ConnectionTransform.in(state, StoreKeys.Connection, {}).linkedDevices).toEqual([])
-    expect(ConnectionTransform.out(state, StoreKeys.Connection, {}).linkedDevices).toEqual([])
+    // would show devices that may since have been removed. It comes back as
+    // undefined, not [], so the surface does not claim "no linked devices"
+    // before the first read of the new session lands.
+    expect(ConnectionTransform.in(state, StoreKeys.Connection, {}).linkedDevices).toBeUndefined()
+    expect(ConnectionTransform.out(state, StoreKeys.Connection, {}).linkedDevices).toBeUndefined()
   })
 })

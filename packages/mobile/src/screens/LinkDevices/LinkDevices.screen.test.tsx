@@ -1,6 +1,7 @@
 import { it, describe, expect, jest } from '@jest/globals'
 import React from 'react'
 import '@testing-library/jest-native/extend-expect'
+import { act } from '@testing-library/react-native'
 
 import { communities, connection, getReduxStoreFactory } from '@quiet/state-manager'
 import type { LinkedDevice } from '@quiet/types'
@@ -29,8 +30,8 @@ describe('LinkDevicesScreen', () => {
     const { getByTestId, queryByTestId } = renderComponent(<LinkDevicesScreen />, store)
 
     expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.getLinkedDevices())
-    expect(getByTestId('linked-device-nyc-laptop')).toBeTruthy()
-    expect(queryByTestId('linked-device-pixel-here')).toBeNull()
+    expect(getByTestId('linked-device-laptop')).toBeTruthy()
+    expect(queryByTestId('linked-device-this')).toBeNull()
   })
 
   it('does not ask for a device list without a community to read one from', async () => {
@@ -41,5 +42,23 @@ describe('LinkDevicesScreen', () => {
 
     expect(dispatchSpy).not.toHaveBeenCalledWith(connection.actions.getLinkedDevices())
     expect(queryByTestId('linked-devices-list')).toBeNull()
+  })
+
+  it('says nothing about linked devices until the read comes back', async () => {
+    const { store } = await prepareStore()
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Community', { name: 'Community' })
+
+    const { getByTestId, queryByTestId } = renderComponent(<LinkDevicesScreen />, store)
+
+    // The request is in flight; claiming "No linked devices" here would be a guess.
+    expect(queryByTestId('linked-devices-list')).toBeNull()
+    expect(queryByTestId('no-linked-devices')).toBeNull()
+
+    act(() => {
+      store.dispatch(connection.actions.setLinkedDevices([]))
+    })
+
+    expect(getByTestId('no-linked-devices')).toBeTruthy()
   })
 })

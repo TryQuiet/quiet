@@ -105,6 +105,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
  * The rows the list draws: the other devices on this account. This device is
  * never one of them (it is the one being read from), and a device removed from
  * the account is gone from the list even though the graph still carries it.
+ * Rows are keyed and identified by `deviceId`; only the name is displayed, and
+ * names are not guaranteed unique.
  */
 export const otherLinkedDevices = (linkedDevices: LinkedDevice[]): LinkedDevice[] =>
   linkedDevices.filter(device => !device.isCurrent && device.removedAt == null)
@@ -188,7 +190,10 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
       )}
       {otherDevices ? (
         <Grid item className={classes.list} data-testid='linked-devices-list'>
-          <Typography variant='overline' className={classes.listLabel}>
+          {/* The frame draws this overline with the same words as the h3 above it
+              (2811:2575's copy lists "Linked devices" twice), so it carries a testid:
+              querying this list by text would be ambiguous with the heading. */}
+          <Typography variant='overline' className={classes.listLabel} data-testid='linked-devices-list-label'>
             Linked devices
           </Typography>
           {otherDevices.length === 0 ? (
@@ -201,7 +206,7 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
                 variant='body1'
                 className={classes.device}
                 key={device.deviceId}
-                data-testid={`linked-device-${device.deviceName}`}
+                data-testid={`linked-device-${device.deviceId}`}
               >
                 {device.deviceName}
               </Typography>

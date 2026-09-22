@@ -56,8 +56,10 @@ describe('LinkDevices component', () => {
     ])
 
     expect(getByTestId('linked-devices-list')).toBeTruthy()
-    expect(getByTestId('linked-device-nyc-laptop')).toBeTruthy()
-    expect(getByTestId('linked-device-nyc-tablet')).toBeTruthy()
+    expect(getByTestId('linked-devices-list-label')).toBeTruthy()
+    expect(getByTestId('linked-devices-scroll')).toBeTruthy()
+    expect(getByTestId('linked-device-laptop')).toBeTruthy()
+    expect(getByTestId('linked-device-tablet')).toBeTruthy()
     expect(queryByTestId('no-linked-devices')).toBeNull()
   })
 
@@ -66,7 +68,7 @@ describe('LinkDevices component', () => {
       { deviceId: 'this', deviceName: 'pixel-here', isCurrent: true },
     ])
 
-    expect(queryByTestId('linked-device-pixel-here')).toBeNull()
+    expect(queryByTestId('linked-device-this')).toBeNull()
     expect(getByTestId('no-linked-devices')).toBeTruthy()
   })
 
@@ -77,8 +79,8 @@ describe('LinkDevices component', () => {
       { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
     ])
 
-    expect(queryByTestId('linked-device-old-tablet')).toBeNull()
-    expect(getByTestId('linked-device-nyc-laptop')).toBeTruthy()
+    expect(queryByTestId('linked-device-gone')).toBeNull()
+    expect(getByTestId('linked-device-laptop')).toBeTruthy()
   })
 
   it('says so when this is the only device', () => {
@@ -88,7 +90,7 @@ describe('LinkDevices component', () => {
     expect(getByTestId('no-linked-devices')).toBeTruthy()
   })
 
-  it('draws no list at all outside a community, where there is no team graph to read', () => {
+  it('draws no list until a read comes back, so it never says "No linked devices" first', () => {
     const { queryByTestId } = renderWithDevices(undefined)
 
     expect(queryByTestId('linked-devices-list')).toBeNull()

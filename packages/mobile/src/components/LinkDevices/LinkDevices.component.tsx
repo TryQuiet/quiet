@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import { QrDisplayIcon, QrScanIcon } from '../../assets/icons/svg/onboarding-icons'
 import { defaultTheme } from '../../styles/themes/default.theme'
@@ -16,6 +16,8 @@ import type { LinkDevicesProps } from './LinkDevices.types'
  * The rows the list draws: the other devices on this account. This device is
  * never one of them (it is the one being read from), and a device removed from
  * the account is gone from the list even though the graph still carries it.
+ * Rows are keyed and identified by `deviceId`; only the name is displayed, and
+ * names are not guaranteed unique.
  */
 export const otherLinkedDevices = (linkedDevices: LinkedDevice[]): LinkedDevice[] =>
   linkedDevices.filter(device => !device.isCurrent && device.removedAt == null)
@@ -60,8 +62,11 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
           />
         </View>
         {otherDevices ? (
-          <View style={{ gap: spacing.sm }} testID={'linked-devices-list'}>
-            <Typography variant={'overline'} color={'gray50'}>
+          <View style={{ flex: 1, gap: spacing.sm }} testID={'linked-devices-list'}>
+            {/* The frame draws this overline with the screen's own words; the h3 above
+                says "Link devices" and this says "Linked devices", so the testid is what
+                tests key on rather than either string. */}
+            <Typography variant={'overline'} color={'gray50'} testID={'linked-devices-list-label'}>
               {'Linked devices'}
             </Typography>
             {otherDevices.length === 0 ? (
@@ -69,19 +74,23 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
                 {'No linked devices'}
               </Typography>
             ) : (
-              otherDevices.map(device => (
-                <View
-                  key={device.deviceId}
-                  style={{
-                    paddingVertical: spacing.sm,
-                    borderBottomWidth: 1,
-                    borderBottomColor: defaultTheme.palette.typography.veryLightGray,
-                  }}
-                  testID={`linked-device-${device.deviceName}`}
-                >
-                  <Typography variant={'bodyLg'}>{device.deviceName}</Typography>
-                </View>
-              ))
+              // A phone fits about eight rows; past that the list scrolls rather than
+              // running off the screen (desktop sits inside the settings drawer's scroll).
+              <ScrollView testID={'linked-devices-scroll'}>
+                {otherDevices.map(device => (
+                  <View
+                    key={device.deviceId}
+                    style={{
+                      paddingVertical: spacing.sm,
+                      borderBottomWidth: 1,
+                      borderBottomColor: defaultTheme.palette.typography.veryLightGray,
+                    }}
+                    testID={`linked-device-${device.deviceId}`}
+                  >
+                    <Typography variant={'bodyLg'}>{device.deviceName}</Typography>
+                  </View>
+                ))}
+              </ScrollView>
             )}
           </View>
         ) : null}

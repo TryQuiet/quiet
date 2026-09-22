@@ -297,6 +297,16 @@ export const DisplayQrCodeEmpty = () => (
   />
 )
 
+export const DisplayQrCodeUnread = () => (
+  <Screen
+    title='Display QR code · device list not read yet'
+    droppedBar='QR code'
+    figma='2811:2601'
+    note='between opening the surface and the backend answering: no list block at all, because "no linked devices" would be a guess until the read lands'
+    render={() => <DisplayQrCodeBody linkedDevices={undefined} />}
+  />
+)
+
 export const ScanQrCode = () => (
   <Screen
     title='Scan QR code'
