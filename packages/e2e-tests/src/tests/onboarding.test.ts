@@ -201,7 +201,12 @@ describe('Onboarding', () => {
       const linkDevices = new LinkDevicesModal(app.driver)
       expect(await linkDevices.isReady()).toBeTruthy()
       await linkDevices.displayQrCode()
-      expect(await linkDevices.isDisplayingQrCode()).toBeTruthy()
+      expect(await linkDevices.isOnDisplayQrStep()).toBeTruthy()
+      // connection.selectors.deviceLinkUrl returns '' without a current community, so
+      // this step cannot show a QR code here however long it waits: it reports why.
+      // Assert that settled copy, so the test cannot pass on a blank container, on
+      // the transient loading line, or on a QR that should be impossible here.
+      expect(await linkDevices.settledDeviceLinkStatus()).toBe('Device link unavailable')
       await linkDevices.back()
       expect(await linkDevices.isReady()).toBeTruthy()
       await linkDevices.back()

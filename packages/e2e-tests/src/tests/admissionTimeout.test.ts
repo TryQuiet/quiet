@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals'
-import { By } from 'selenium-webdriver'
+import { By, until } from 'selenium-webdriver'
 import { composeInvitationShareUrl, parseInvitationLink } from '@quiet/common'
 import { InvitationDataVersion, type DeviceInvitationDataV5 } from '@quiet/types'
 import {
@@ -188,7 +188,16 @@ describe('Timed-out P2P admission recovery', () => {
   ): Promise<void> {
     const joinModal = new JoinCommunityModal(app.driver)
     expect(await joinModal.isReady(timeoutMs)).toBeTruthy()
-    expect(await app.driver.findElement(By.xpath(`//*[contains(text(), '${message}')]`)).isDisplayed()).toBeTruthy()
+    // submit() returns as soon as the click round-trip completes, while the form
+    // validates asynchronously before it renders the helper text. Wait for the
+    // message instead of reading the DOM once and racing it.
+    const messageElement = await app.driver.wait(
+      until.elementLocated(By.xpath(`//*[contains(text(), '${message}')]`)),
+      timeoutMs,
+      `Join community error "${message}" was not shown within timeout`,
+      500
+    )
+    expect(await messageElement.isDisplayed()).toBeTruthy()
     const inviteInput = await joinModal.inviteLinkInput()
     expect(await inviteInput.getAttribute('value')).toBe(inputValue)
   }
@@ -453,6 +462,12 @@ describe('Timed-out P2P admission recovery', () => {
         // dial assertion below measures the retry alone and not a second bootstrap.
         await waitForTransportReady(linkedDevice)
         linkedDevice.buildSetup.clearProcessOutput()
+        // The first join attempt already dialled this fixture, so the count has to be
+        // baselined here or the assertion below is satisfied before the retry runs.
+        const qssDialsBeforeRetry = unavailableQss.connectionCount
+        // Pin that premise: if the first attempt ever stops reaching QSS, this says so
+        // rather than quietly turning the assertion below back into "greater than 0".
+        expect(qssDialsBeforeRetry).toBeGreaterThan(0)
 
         // The interrupted provisional state has been purged, so a failed QSS
         // attempt must fall back to libp2p and dial the still-reachable inviter.
@@ -467,7 +482,8 @@ describe('Timed-out P2P admission recovery', () => {
         )
         // A rejected connection is the only local evidence that the device really
         // tried QSS before falling back, which is what this case exists to prove.
-        expect(unavailableQss.connectionCount).toBeGreaterThan(0)
+        // Measured against the baseline, so a retry that skipped QSS entirely fails.
+        expect(unavailableQss.connectionCount).toBeGreaterThan(qssDialsBeforeRetry)
         assertAdmissionNotReset(linkedDevice)
         expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
       } finally {

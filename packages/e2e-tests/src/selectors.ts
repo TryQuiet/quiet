@@ -1518,10 +1518,47 @@ export class LinkDevicesModal {
     await (await this.findVisible('link-devices-display-qr')).click()
   }
 
-  /** The Display QR code step shows the Linked devices surface, which mints the link. */
-  async isDisplayingQrCode(timeoutMs = 10_000): Promise<boolean> {
+  /**
+   * The Display QR code step, identified by the Linked devices surface it hosts.
+   * It does not imply a QR code: the device link can only be minted from inside a
+   * community, so reached from onboarding this surface reports why there is none.
+   * Read `deviceLinkStatus` to assert which of the two the screen is showing.
+   */
+  async isOnDisplayQrStep(timeoutMs = 10_000): Promise<boolean> {
     await this.findVisible('link-devices-display', timeoutMs)
+    await this.findVisible('linked-devices-title', timeoutMs)
     return true
+  }
+
+  /**
+   * The Linked devices surface's status line: "Link a new device" once a link
+   * exists, otherwise "Generating device link…" or "Device link unavailable".
+   */
+  async deviceLinkStatus(timeoutMs = 10_000): Promise<string> {
+    const status = await this.driver.wait(
+      until.elementLocated(By.xpath('//*[@data-testid="link-devices-display"]//h5')),
+      timeoutMs,
+      `The Linked devices surface showed no status line within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(status), 5_000)
+    return await status.getText()
+  }
+
+  /**
+   * The status line once the surface has stopped generating, so callers assert a
+   * terminal state instead of racing the loading text.
+   */
+  async settledDeviceLinkStatus(timeoutMs = 30_000): Promise<string> {
+    return await this.driver.wait<string>(
+      async () => {
+        const status = await this.deviceLinkStatus(timeoutMs)
+        return status.startsWith('Generating device link') ? undefined : status
+      },
+      timeoutMs,
+      `The Linked devices surface never settled out of its loading state`,
+      500
+    )
   }
 
   async typeDeviceLink(deviceLink: string) {

@@ -2,6 +2,11 @@ import http from 'http'
 import net from 'net'
 import { unavailableQssEndpoint } from '../unavailableQssEndpoint'
 
+// These cases bind and release real sockets. The default 5s leaves no room to
+// report a bind that is merely slow, so a contended box would fail them as a bare
+// jest timeout rather than on the assertion that actually did not hold.
+jest.setTimeout(30_000)
+
 const request = (url: string) =>
   new Promise<number | undefined>((resolve, reject) => {
     http
@@ -33,13 +38,27 @@ describe('unavailable QSS endpoint', () => {
     const port = Number(new URL(endpoint.url).port)
     const otherServer = net.createServer()
     try {
-      const occupied = new Promise(resolve => otherServer.once('error', resolve))
+      // Settle on 'listening' too: if the port were not held, waiting on 'error'
+      // alone would hang to the default jest timeout with a misleading message.
+      const occupied = new Promise((resolve, reject) => {
+        otherServer.once('error', resolve)
+        otherServer.once('listening', () => reject(new Error('the reserved port was not held')))
+      })
       otherServer.listen(port, '127.0.0.1')
       await expect(occupied).resolves.toMatchObject({ code: 'EADDRINUSE' })
     } finally {
       await endpoint.close()
     }
-    await new Promise<void>(resolve => otherServer.listen(port, '127.0.0.1', resolve))
+    // The first listener was consumed proving EADDRINUSE, so the re-bind needs its
+    // own: an unhandled 'error' here (the port taken in the window after close)
+    // would kill the jest worker instead of failing this test.
+    await new Promise<void>((resolve, reject) => {
+      otherServer.once('error', reject)
+      otherServer.listen(port, '127.0.0.1', () => {
+        otherServer.removeListener('error', reject)
+        resolve()
+      })
+    })
     await new Promise<void>(resolve => otherServer.close(() => resolve()))
   })
 
