@@ -17,16 +17,13 @@ import { createArbitraryFile, promiseWithRetries } from '../utils'
 import { DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS, MessageIds, UserListStatus, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import { FileAttachmentType, SettingsModalTabName } from '../enums'
-import {
-  BIG_FILE_SIZE,
-  TEST_BIG_FILE_NAME,
-  TEST_FILE_NAME,
-  TEST_IMAGE_FILE_NAME,
-  UPLOAD_FILE_DIR,
-} from '../attachFile.const'
+import { TEST_BIG_FILE_NAME, TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../attachFile.const'
 import { deleteChannelMessage } from '@quiet/common'
 
 const logger = createLogger('multipleClients:privateChannels')
+// Above the 20 MiB automatic-download limit: each cancellation case starts its
+// own pending transfer, with its cancel observer armed before the start click.
+const CANCELLATION_FILE_SIZE = 21 * 1024 * 1024
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients (Private Channels)', () => {
@@ -809,7 +806,7 @@ describe('Multiple Clients (Private Channels)', () => {
       describe('Large Files and Cancellation', () => {
         it('Owner uploads a large file in private channel', async () => {
           const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_BIG_FILE_NAME)
-          createArbitraryFile(uploadFilePath, BIG_FILE_SIZE)
+          await createArbitraryFile(uploadFilePath, CANCELLATION_FILE_SIZE)
           largeFileMessageIds = await privateChannel2Owner.attachFile(
             TEST_BIG_FILE_NAME,
             uploadFilePath,
@@ -830,7 +827,7 @@ describe('Multiple Clients (Private Channels)', () => {
 
         it(`Guest cancels download of large file in private channel`, async () => {
           expect(largeFileMessageIds).toBeDefined()
-          expect(await privateChannel2User1.cancelFileDownload(largeFileMessageIds!)).toBeTruthy()
+          expect(await privateChannel2User1.startAndCancelFileDownload(largeFileMessageIds!)).toBeTruthy()
         })
       })
     })
@@ -918,7 +915,7 @@ describe('Multiple Clients (Private Channels)', () => {
       describe('Large Files and Cancellation', () => {
         it('Owner uploads a large file in general', async () => {
           const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_BIG_FILE_NAME)
-          createArbitraryFile(uploadFilePath, BIG_FILE_SIZE)
+          await createArbitraryFile(uploadFilePath, CANCELLATION_FILE_SIZE)
           largeFileMessageIds = await generalChannelOwner.attachFile(
             TEST_BIG_FILE_NAME,
             uploadFilePath,
@@ -949,12 +946,12 @@ describe('Multiple Clients (Private Channels)', () => {
 
         it(`First user cancels download of large file in general`, async () => {
           expect(largeFileMessageIds).toBeDefined()
-          expect(await generalChannelUser1.cancelFileDownload(largeFileMessageIds!)).toBeTruthy()
+          expect(await generalChannelUser1.startAndCancelFileDownload(largeFileMessageIds!)).toBeTruthy()
         })
 
         it(`Second user cancels download of large file in general`, async () => {
           expect(largeFileMessageIds).toBeDefined()
-          expect(await generalChannelUser2.cancelFileDownload(largeFileMessageIds!)).toBeTruthy()
+          expect(await generalChannelUser2.startAndCancelFileDownload(largeFileMessageIds!)).toBeTruthy()
         })
       })
     })

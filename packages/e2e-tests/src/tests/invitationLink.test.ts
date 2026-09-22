@@ -19,7 +19,8 @@ const logger = createLogger('invitationLink')
 jest.setTimeout(5 * 60 * 1000)
 it.todo('New user joins using invitation link while having app closed')
 describe('New user joins using invitation link while having app opened', () => {
-  // Note: this test requires no DATA_DIR env so ran on local machine may interfere with 'Quiet' data directory
+  // OS deep links use the default profile. Run only in a disposable OS user
+  // profile; clearDataDir requires an explicit cleanup opt-in for this case.
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
   const joiningUserUsername = 'alice-joining'
@@ -75,8 +76,11 @@ describe('New user joins using invitation link while having app opened', () => {
 
     it('Owner sees general channel', async () => {
       logger.info('Invitation Link', 8)
+      const joinPanel = new JoiningLoadingPanel(ownerApp.driver)
+      await joinPanel.waitForJoinToComplete()
+
       const generalChannel = new Channel(ownerApp.driver, 'general')
-      expect(await generalChannel.isReady())
+      expect(await generalChannel.isReady()).toBeTruthy()
 
       const generalChannelText = await generalChannel.element.getText()
       expect(generalChannelText).toEqual('general')

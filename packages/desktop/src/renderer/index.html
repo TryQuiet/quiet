@@ -107,8 +107,12 @@
     </script>
   </head>
   <body>
-    <div style="width: 100%; height: 25px; -webkit-app-region: drag">
-      <div id="root"></div>
-    </div>
+    <div id="root"></div>
+    <!-- app-region is inherited: the drag surface must never contain app content. -->
+    <div id="title-bar-drag" hidden aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100%; height: 25px; -webkit-app-region: drag"></div>
+    <script>
+      // Windows and Linux keep their native title bars; their top content row must stay clickable.
+      if (process.platform === 'darwin') document.getElementById('title-bar-drag').hidden = false;
+    </script>
   </body>
 </html>

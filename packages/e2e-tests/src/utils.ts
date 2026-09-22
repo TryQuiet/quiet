@@ -311,10 +311,14 @@ export class BuildSetup {
   }
 
   public hasProcessOutput(text: string): boolean {
+    return this.getProcessOutput().includes(text)
+  }
+
+  public getProcessOutput(): string {
     // Windows GUI applications do not reliably inherit ChromeDriver's console.
     // The backend writes the same events to its application log.
     if (process.platform === 'win32') this.appendProcessOutput(this.applicationLogs.readNew())
-    return this.processOutput.includes(text)
+    return this.processOutput
   }
 
   public async waitForProcessOutput(text: string, timeoutMs = 60_000): Promise<void> {
@@ -398,6 +402,16 @@ export class BuildSetup {
     if (process.env.IS_CI === 'true' && !force) {
       logger.warn('Not deleting data directory because we are running in CI')
       return
+    }
+    if (
+      path.basename(path.resolve(this.dataDirPath)).toLowerCase() === DESKTOP_DATA_DIR.toLowerCase() &&
+      process.env.QUIET_E2E_ALLOW_DEFAULT_PROFILE_CLEANUP !== 'true'
+    ) {
+      throw new Error(
+        `Refusing to delete the default Quiet profile at ${this.dataDirPath}. ` +
+          'Run this test in a disposable OS user profile and explicitly set ' +
+          'QUIET_E2E_ALLOW_DEFAULT_PROFILE_CLEANUP=true.'
+      )
     }
     logger.info(`Deleting data directory at ${this.dataDirPath}`)
     try {
@@ -634,17 +648,20 @@ export const logAndReturnError = (error: string | Error): Error => {
   return err
 }
 
-export const createArbitraryFile = (filePath: string, sizeBytes: number) => {
-  const stream = fs.createWriteStream(filePath)
-  const maxChunkSize = 1048576 // 1MB
+export const createArbitraryFile = (filePath: string, sizeBytes: number): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const stream = fs.createWriteStream(filePath)
+    stream.once('error', reject)
+    stream.once('finish', resolve)
+    const maxChunkSize = 1048576 // 1MB
 
-  let remainingSize = sizeBytes
+    let remainingSize = sizeBytes
 
-  while (remainingSize > 0) {
-    const chunkSize = Math.min(maxChunkSize, remainingSize)
-    stream.write(crypto.randomBytes(chunkSize))
-    remainingSize -= chunkSize
-  }
+    while (remainingSize > 0) {
+      const chunkSize = Math.min(maxChunkSize, remainingSize)
+      stream.write(crypto.randomBytes(chunkSize))
+      remainingSize -= chunkSize
+    }
 
-  stream.end()
-}
+    stream.end()
+  })

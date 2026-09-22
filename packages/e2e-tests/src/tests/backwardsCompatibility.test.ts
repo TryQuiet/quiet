@@ -6,7 +6,6 @@ import {
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
-  JoiningLoadingPanel,
   RegisterUsernameModal,
   Settings,
   Sidebar,
@@ -15,6 +14,7 @@ import { DEFAULT_ADD_NEW_CHANNEL_OPTIONS, MessageIds, TestAddNewChannelButtonId 
 import { BuildSetup, downloadInstaller, sleep } from '../utils'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, compatibilityBaseline } from '../compatibilityBaseline'
 import { createLogger } from '../logger'
+import { completeBaselineJoin } from '../baselineSetupRecovery'
 
 const logger = createLogger('backwardsCompatibility')
 
@@ -115,8 +115,10 @@ describe('Backwards Compatibility', () => {
       })
 
       itif(process.platform == 'linux')('Owner waits for join to complete', async () => {
-        const joinPanel = new JoiningLoadingPanel(ownerAppOldVersion.driver)
-        await joinPanel.waitForJoinToComplete()
+        await completeBaselineJoin(ownerAppOldVersion, {
+          version: baselineVersion,
+          isPlaceholder: baselineUsesCurrentBuild,
+        })
         try {
           await ownerAppOldVersion.closeUpdateModalIfPresent()
           logger.info('Closed update modal')

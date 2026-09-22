@@ -155,7 +155,9 @@ source = Path(os.environ['QUIET_QSS_E2E_RUN_DIR']) / 'ui.json'
 proof = json.loads(source.read_text()) if source.exists() else {}
 progress_file = source.with_name('progress.json')
 progress = json.loads(progress_file.read_text()).get('stage') if progress_file.exists() else None
-stages = {'desktop-create', 'mobile-start', 'mobile-join', 'foreground-send', 'foreground-receive',
+stages = {'desktop-open', 'desktop-create-form', 'desktop-community-submit',
+          'desktop-server-offer', 'desktop-username', 'desktop-terms',
+          'desktop-enrollment', 'desktop-invitation', 'desktop-create', 'mobile-start', 'mobile-join', 'foreground-send', 'foreground-receive',
           'qss-storage-proof', 'onboarding-complete', 'fresh-join-background', 'fresh-join-send',
           'fresh-join-notification-tap', 'named-channel-create', 'named-channel-sync',
           'named-channel-background', 'named-channel-send', 'named-channel-notification-tap', 'provider-complete'}
