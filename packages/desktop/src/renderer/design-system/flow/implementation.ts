@@ -114,10 +114,10 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     mobile: on('mobile/src/components/Registration/UsernameRegistration.component.tsx'),
   },
   'agree-and-join': {
-    desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
-    mobile: on('mobile/src/components/ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx'),
+    desktop: on('desktop/src/renderer/components/Onboarding/AgreeAndJoinCard.tsx'),
+    mobile: on('mobile/src/components/AgreeAndJoin/AgreeAndJoin.component.tsx'),
     divergence:
-      'The prototype wires consent after username, which is where mobile shows JoiningOptIn + TermsOfService today; desktop shows Terms of Service on join. The design names the server in the body (api.tryquiet.org) instead of in a heading.',
+      'The frame is one card, and two steps ask for consent through it, so the card is the shared shell and each step brings its own body: the terms step (desktop TermsOfServiceComponent, mobile TermsOfService) carries the policy copy, and the device-link step (desktop DeviceLinkConsent, mobile DeviceLinkConsent — the "use Quiet\'s server?" step in desktop join, desktop Link devices and the mobile paste flow) carries what contacting the named host exposes. The prototype wires consent after username, which is where mobile shows JoiningOptIn + TermsOfService today. The design names the server in the body (api.tryquiet.org) instead of in a heading.',
   },
   'globe-animation': {
     desktop: on('desktop/src/renderer/components/LoadingPanel/JoiningPanelComponent.tsx'),

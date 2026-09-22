@@ -22,4 +22,31 @@ describe('DeviceLinkConsentComponent', () => {
     expect(confirm).toHaveBeenCalledTimes(1)
     expect(cancel).not.toHaveBeenCalled()
   })
+
+  // The design (3054:4090) gives this step the Agree & join card: a titled bar with a back
+  // arrow, and one pill. There is no second button — declining is the back arrow.
+  it('is the Agree & join card: a titled bar whose back arrow declines, and one button', async () => {
+    const confirm = jest.fn()
+    const cancel = jest.fn()
+    const result = renderComponent(
+      <DeviceLinkConsentComponent open qssEndpoint={'wss://link.example.test:443'} onCancel={cancel} onConfirm={confirm} />
+    )
+
+    expect(result.getByText('Agree & join')).toBeVisible()
+    expect(result.queryByText('No thanks')).not.toBeInTheDocument()
+    expect(result.queryByText('Link this device?')).not.toBeInTheDocument()
+
+    await userEvent.click(result.getByTestId('deviceLinkConsentModalBack'))
+    expect(cancel).toHaveBeenCalledTimes(1)
+    expect(confirm).not.toHaveBeenCalled()
+  })
+
+  it('falls back to the Tor wording when the invite carries no endpoint', () => {
+    const result = renderComponent(
+      <DeviceLinkConsentComponent open onCancel={jest.fn()} onConfirm={jest.fn()} />
+    )
+
+    expect(result.getByText(/connect to the linked device over Tor/)).toBeVisible()
+    expect(result.queryByTestId('device-link-endpoint')).not.toBeInTheDocument()
+  })
 })
