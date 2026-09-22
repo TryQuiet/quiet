@@ -29,7 +29,7 @@ describe('PasteLinkComponent', () => {
   it('passes a parsed member link to the caller', async () => {
     const handleCommunityAction = jest.fn()
     renderComponent(
-      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />
+      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
     )
 
     await paste(memberLink)
@@ -39,7 +39,7 @@ describe('PasteLinkComponent', () => {
   it('passes a parsed device link to the caller', async () => {
     const handleCommunityAction = jest.fn()
     renderComponent(
-      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />
+      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
     )
 
     await paste(deviceLink)
@@ -49,7 +49,7 @@ describe('PasteLinkComponent', () => {
   it('shows the invalid-code error for text that is not an invitation', async () => {
     const handleCommunityAction = jest.fn()
     renderComponent(
-      <PasteLinkComponent heading={'Paste a link to Join'} handleCommunityAction={handleCommunityAction} />
+      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
     )
 
     await paste('https://example.com/')
@@ -62,7 +62,7 @@ describe('PasteLinkComponent', () => {
       const handleCommunityAction = jest.fn()
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to Join'}
+          heading={'Paste a link to join'}
           linkKind='device'
           handleCommunityAction={handleCommunityAction}
         />
@@ -77,7 +77,7 @@ describe('PasteLinkComponent', () => {
       const handleCommunityAction = jest.fn()
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to Join'}
+          heading={'Paste a link to join'}
           linkKind='device'
           handleCommunityAction={handleCommunityAction}
         />
@@ -92,7 +92,7 @@ describe('PasteLinkComponent', () => {
       const handleCommunityAction = jest.fn()
       renderComponent(
         <PasteLinkComponent
-          heading={'Paste a link to Join'}
+          heading={'Paste a link to join'}
           linkKind='device'
           handleCommunityAction={handleCommunityAction}
         />

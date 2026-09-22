@@ -142,7 +142,7 @@ describe('ScanQrCodeScreen', () => {
     )
   })
 
-  it('falls back to "Paste a link to Join" from Join with QR code', async () => {
+  it('falls back to "Paste a link to join" from Join with QR code', async () => {
     visionCameraMock.device = undefined
     const { dispatchSpy, result } = await renderScreen('join')
     fireEvent.press(result.getByTestId('join-qr-scanner-paste-link'))

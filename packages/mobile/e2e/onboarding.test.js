@@ -10,7 +10,7 @@ const { ios } = info
 /* eslint-disable no-undef */
 
 // The onboarding redesign: Get started → Join community (three-way choice) →
-// Open invite link → Paste a link to Join, and Get started → Create a
+// Open invite link → Paste a link to join, and Get started → Create a
 // community → Choose username. One device; no community is joined here.
 describe('Onboarding', () => {
   beforeAll(async () => {
@@ -54,7 +54,7 @@ describe('Onboarding', () => {
       .withTimeout(BASIC)
     await checkVisualRegression('open-invite-link-component')
     await press(element(by.id('paste-a-link')))
-    await waitFor(element(by.text('Paste a link to Join')))
+    await waitFor(element(by.text('Paste a link to join')))
       .toBeVisible()
       .withTimeout(BASIC)
     await checkVisualRegression('join-community-component')

@@ -63,7 +63,7 @@ exports[`JoinCommunity component renders component 1`] = `
         }
         verticalTextAlign="center"
       >
-        Paste a link to Join
+        Paste a link to join
       </Text>
     </View>
     <View
