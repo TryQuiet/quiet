@@ -770,7 +770,7 @@ describe('Multiple Clients', () => {
 
       it('Owner uploads a large file', async () => {
         const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_BIG_FILE_NAME)
-        createArbitraryFile(uploadFilePath, BIG_FILE_SIZE)
+        await createArbitraryFile(uploadFilePath, BIG_FILE_SIZE)
         largeFileMessageIds = await generalChannelOwner.attachFile(
           TEST_BIG_FILE_NAME,
           uploadFilePath,

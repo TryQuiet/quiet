@@ -1,6 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { UserProfile } from '@quiet/types'
 
@@ -26,6 +26,32 @@ const userProfiles: Record<string, UserProfile> = {
 }
 
 describe('Recipient pills', () => {
+  it('shows the profile-selected recipient and keeps visible pills in sync with the send recipients', async () => {
+    const handleInputChange = jest.fn()
+    renderComponent(
+      <UserSearchAutocomplete
+        userProfiles={userProfiles}
+        me={userProfiles.deniseUserId}
+        placeholderText='Search for people, chats or channels'
+        handleInputChange={handleInputChange}
+        initialMemberIds={['gordonUserId']}
+      />
+    )
+
+    // Profile -> Message preloads the send target before the composer is shown.
+    await waitFor(() => expect(handleInputChange).toHaveBeenLastCalledWith([userProfiles.gordonUserId]))
+    expect(screen.getByTestId('new-message-recipient-pill-gordon')).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('new-message-recipient-pill-remove-gordon'))
+    expect(screen.queryByTestId('new-message-recipient-pill-gordon')).toBeNull()
+    await waitFor(() => expect(handleInputChange).toHaveBeenLastCalledWith([]))
+
+    await userEvent.click(screen.getByPlaceholderText('Search for people, chats or channels'))
+    await userEvent.click(await screen.findByTestId('new-message-add-members-autocomplete-option-gordon'))
+    expect(screen.getByTestId('new-message-recipient-pill-gordon')).toBeVisible()
+    await waitFor(() => expect(handleInputChange).toHaveBeenLastCalledWith([userProfiles.gordonUserId]))
+  })
+
   it('turns a picked member into a pill with a thumbnail, and takes it back out again', async () => {
     const handleInputChange = jest.fn()
     renderComponent(

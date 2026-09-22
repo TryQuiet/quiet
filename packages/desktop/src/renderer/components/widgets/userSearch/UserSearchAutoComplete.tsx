@@ -409,6 +409,8 @@ export const UserSearchAutocomplete: React.FC<UserSearchProps> = ({
               multiple
               autoHighlight
               options={autoCompleteOptions}
+              value={selectedMembers}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
               // Recipients are drawn as design pills rather than MUI's default Chip, which is a
               // pill-shaped grey capsule with no avatar. See RecipientPill for the spec.
               renderTags={(value: SelectableListOption[], getTagProps) =>

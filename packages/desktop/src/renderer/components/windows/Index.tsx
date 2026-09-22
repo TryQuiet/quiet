@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles'
 
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import Loading from './Loading'
+import { windowDragRegion } from './windowDragRegion'
 
 const PREFIX = 'Index'
 
@@ -16,7 +17,7 @@ const StyledWindowWrapper = styled(WindowWrapper)(() => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
+    ...windowDragRegion(process.platform),
   },
 }))
 

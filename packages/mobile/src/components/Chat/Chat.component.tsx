@@ -1,11 +1,11 @@
 import React, { FC, useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import {
-  Keyboard,
   View,
+  Keyboard,
+  Platform,
   FlatList,
   TextInput,
   KeyboardAvoidingView,
-  Platform,
   NativeSyntheticEvent,
   NativeScrollEvent,
   Animated,
@@ -100,8 +100,18 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   setDmChannelOnSelection,
   ready = true,
 }) => {
-  const [didKeyboardShow, setKeyboardShow] = useState(false)
-  const [isKeyboardShowing, setKeyboardShowing] = useState(false)
+  const insets = useSafeAreaInsets()
+  const [keyboardVisible, setKeyboardVisible] = useState(() => Keyboard.isVisible())
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
+    return () => {
+      show.remove()
+      hide.remove()
+    }
+  }, [])
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
   const [inputPlaceholder, setInputPlaceholder] = useState<string>('')
@@ -156,9 +166,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const messageInputRef = useRef<null | TextInput>(null)
   // keep latest input text (including any pending autocorrect) in a ref
   const messageInputValueRef = useRef<string>('')
-
-  // useSafeAreaInsets hook to get the insets for the current device
-  const insets = useSafeAreaInsets()
 
   // Animation value for date marker fade effect
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -403,24 +410,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   // Store result of the check
   const shouldDisableSubmit = checkShouldDisableSubmit()
 
-  useEffect(() => {
-    const onKeyboardDidShow = () => {
-      setKeyboardShow(true)
-    }
-
-    const onKeyboardDidHide = () => {
-      setKeyboardShowing(false)
-    }
-
-    const showSubscription = Keyboard.addListener('keyboardDidShow', onKeyboardDidShow)
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', onKeyboardDidHide)
-
-    return () => {
-      showSubscription.remove()
-      hideSubscription.remove()
-    }
-  }, [messageInput?.length, setKeyboardShow, setKeyboardShowing])
-
   // Clean up any timers when component unmounts
   useEffect(() => {
     return () => {
@@ -581,14 +570,17 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         contextMenu={contextMenu}
       />
       <KeyboardAvoidingView
-        // Android 15+ enforces edge-to-edge when targeting API 35+, so
-        // adjustResize no longer shrinks the window and the composer ends up
-        // under the keyboard. "padding" measures the actual overlap between this
-        // view and the keyboard, so it adds nothing when the window did resize
-        // (older Android) and avoids the cached-height problem of "height"
-        // after Activity recreation.
+        // App places this headerless navigator below its top safe-area strip. That top inset
+        // is the origin for KAV's parent-relative frame; App already owns the bottom inset.
+        // Use the synchronous origin: Android measureInWindow subtracts the visible status-bar
+        // frame, and KAV does not recalculate overlap after an async offset-only update.
+        // Padding avoids only overlap left after any Android window resizing.
         behavior='padding'
-        keyboardVerticalOffset={insets.bottom}
+        // Android's hide event uses visible-frame height, not the absolute screenY used on
+        // show. KAV treats both as coordinates; disable it when hidden to avoid a residual gap.
+        enabled={Platform.OS !== 'android' || keyboardVisible}
+        keyboardVerticalOffset={insets.top}
+        testID='chat-keyboard-avoidance'
         style={styles.keyboardAvoidingView}
       >
         {newChat && (
@@ -656,10 +648,10 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
             </View>
             {/*
               Full-bleed compose, per the mobile DM designs ("Compose row", Figma 823:14772):
-              a borderless full-width text row, then a 48pt toolbar with the attachment control on
+              a borderless full-width text row, then a padded toolbar with the attachment control on
               the left and send on the right. The burner-mode toggle in the design is not built yet.
             */}
-            <View style={[styles.bottomControls, didKeyboardShow ? styles.bottomControlsKeyboard : null]}>
+            <View style={styles.bottomControls} testID='chat-composer-controls'>
               <View style={styles.inputContainer}>
                 <Input
                   ref={messageInputRef}
@@ -673,12 +665,12 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
                   maxHeight={COMPOSE_MAX_HEIGHT}
                   style={styles.inputStyle}
                 />
-                <View style={styles.composeToolbar}>
+                <View style={styles.composeToolbar} testID='chat-composer-toolbar'>
                   <AttachmentButton onPress={openImages} />
                   <View style={styles.composeToolbarSpacer} />
                   <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
                 </View>
-                {uploadedFiles && (
+                {areFilesUploaded && uploadedFiles && (
                   <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
                 )}
               </View>
@@ -724,10 +716,6 @@ const styles = StyleSheet.create({
   bottomControls: {
     flexDirection: 'row',
   },
-  // Only while the keyboard is up — the designs show no gap under the compose block otherwise.
-  bottomControlsKeyboard: {
-    paddingBottom: DEFAULT_PADDING,
-  },
   inputContainer: {
     width: '100%',
     backgroundColor: defaultTheme.palette.background.white,
@@ -742,7 +730,10 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   composeToolbar: {
-    height: 48,
+    // Keep breathing room inside the toolbar, independent of keyboard visibility or OS.
+    // The attachment and send controls retain their 44pt touch targets.
+    minHeight: 60,
+    paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: COMPOSE_TOOLBAR_BORDER,
     flexDirection: 'row',

@@ -13,6 +13,17 @@ export const literal = text =>
         .join(',"\'",')})`
     : `'${text}'`
 
+export const iosCapabilities = config => ({
+  'appium:bundleId': config.bundleId,
+  'appium:wdaLocalPort': config.wdaLocalPort || 8125,
+  ...(config.platformVersion ? { 'appium:platformVersion': config.platformVersion } : {}),
+  ...(config.xcodeOrgId
+    ? { 'appium:xcodeOrgId': config.xcodeOrgId, 'appium:xcodeSigningId': 'Apple Development' }
+    : {}),
+  ...(config.updatedWDABundleId ? { 'appium:updatedWDABundleId': config.updatedWDABundleId } : {}),
+  ...(config.usePreinstalledWDA ? { 'appium:usePreinstalledWDA': true } : {}),
+})
+
 export class Mobile {
   constructor(config, run) {
     this.config = config
@@ -85,22 +96,12 @@ export class Mobile {
               'appium:uiautomator2ServerInstallTimeout': 120000,
               'appium:androidInstallTimeout': 180000,
             }
-          : {
-              'appium:bundleId': this.config.bundleId,
-              'appium:wdaLocalPort': this.config.wdaLocalPort || 8125,
-              ...(this.config.platformVersion ? { 'appium:platformVersion': this.config.platformVersion } : {}),
-              ...(this.config.xcodeOrgId
-                ? { 'appium:xcodeOrgId': this.config.xcodeOrgId, 'appium:xcodeSigningId': 'Apple Development' }
-                : {}),
-              ...(this.config.updatedWDABundleId
-                ? { 'appium:updatedWDABundleId': this.config.updatedWDABundleId }
-                : {}),
-            }),
+          : iosCapabilities(this.config)),
       },
     })
     await this.driver.setOrientation('PORTRAIT')
     await this.allowNotifications()
-    await this.visible(this.text('Join community'), 120000)
+    await this.visible(this.id('get-started-component'), 120000)
   }
   async allowNotifications() {
     if (this.android) {
@@ -124,25 +125,38 @@ export class Mobile {
     }
   }
   async input(placeholder, value) {
+    // React Native exposes Input's pressable wrapper as XCUIElementTypeOther on
+    // physical iOS devices. Focus that accessibility element, then type through
+    // the active keyboard instead of requiring a TextField node that is absent.
     const selector = this.android
       ? '//android.widget.EditText'
-      : `//XCUIElementTypeTextField[@value=${literal(placeholder)}]`
+      : `//*[@label=${literal(placeholder)} or @name=${literal(placeholder)}]`
     const input = await this.visible(selector)
     try {
-      await input.setValue(value)
+      if (this.android) await input.setValue(value)
+      else {
+        await input.click()
+        // Appium's sendKeys uses WDA's native text-typing endpoint. browser.keys()
+        // creates incompatible grouped key actions, while mobile: keys waits for
+        // XCTest once per character and can time out on a full invitation.
+        await this.driver.sendKeys([value])
+      }
     } catch {
       throw new Error('Could not fill the native onboarding field (input redacted)')
     }
     if (this.android && (await this.driver.isKeyboardShown())) await this.driver.back()
   }
   async join(invite, username) {
-    await this.input('Invite link', invite)
+    await this.tapId('get-started-join')
+    await this.tapId('join-with-invite-link')
+    await this.tapId('paste-a-link')
+    await this.input('Link', invite)
     await this.tapText('Continue')
-    await this.visible(this.text('Register a username'), 90000)
-    await this.input('Enter a username', username)
+    await this.visible(this.id('username-registration-component'), 90000)
+    await this.input('Username', username)
     await this.tapText('Continue')
     await this.visible(this.id('terms-of-service-component'), 90000)
-    await this.tapText('Agree & Continue')
+    await this.tapId('terms-of-service-agree')
     await this.visible(this.id('channels_list'), 120000)
     await this.allowNotifications()
     await this.tapId('channel_tile_general')
