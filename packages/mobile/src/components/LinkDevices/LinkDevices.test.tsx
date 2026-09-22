@@ -23,11 +23,7 @@ describe('LinkDevices component', () => {
     const onDisplayQrCode = jest.fn()
     const onScanQrCode = jest.fn()
     const { getByTestId } = renderComponent(
-      <LinkDevices
-        onDisplayQrCode={onDisplayQrCode}
-        onScanQrCode={onScanQrCode}
-        handleBackButton={handleBackButton}
-      />
+      <LinkDevices onDisplayQrCode={onDisplayQrCode} onScanQrCode={onScanQrCode} handleBackButton={handleBackButton} />
     )
 
     fireEvent.press(getByTestId('appbar_action_item'))

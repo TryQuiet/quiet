@@ -29,7 +29,12 @@ describe('DeviceLinkConsentComponent', () => {
     const confirm = jest.fn()
     const cancel = jest.fn()
     const result = renderComponent(
-      <DeviceLinkConsentComponent open qssEndpoint={'wss://link.example.test:443'} onCancel={cancel} onConfirm={confirm} />
+      <DeviceLinkConsentComponent
+        open
+        qssEndpoint={'wss://link.example.test:443'}
+        onCancel={cancel}
+        onConfirm={confirm}
+      />
     )
 
     expect(result.getByText('Agree & join')).toBeVisible()
@@ -42,9 +47,7 @@ describe('DeviceLinkConsentComponent', () => {
   })
 
   it('falls back to the Tor wording when the invite carries no endpoint', () => {
-    const result = renderComponent(
-      <DeviceLinkConsentComponent open onCancel={jest.fn()} onConfirm={jest.fn()} />
-    )
+    const result = renderComponent(<DeviceLinkConsentComponent open onCancel={jest.fn()} onConfirm={jest.fn()} />)
 
     expect(result.getByText(/connect to the linked device over Tor/)).toBeVisible()
     expect(result.queryByTestId('device-link-endpoint')).not.toBeInTheDocument()

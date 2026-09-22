@@ -823,10 +823,10 @@ const Tile: React.FC<{ f: FlowFrame }> = ({ f }) => {
   const tag = !impl
     ? 'intermediate'
     : impl.desktop.status === 'none' && impl.mobile.status === 'none'
-    ? 'no implementation'
-    : impl.desktop.status === 'pr3400'
-    ? 'in PR #3400'
-    : 'implemented'
+      ? 'no implementation'
+      : impl.desktop.status === 'pr3400'
+        ? 'in PR #3400'
+        : 'implemented'
   return (
     <button
       type='button'
