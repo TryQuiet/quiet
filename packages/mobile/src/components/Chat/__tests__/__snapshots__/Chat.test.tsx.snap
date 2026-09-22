@@ -3,6 +3,7 @@
 exports[`Chat component renders component 1`] = `
 <View
   collapsable={false}
+  onLayout={[Function]}
   style={
     {
       "flex": 1,
@@ -443,6 +444,7 @@ exports[`Chat component renders component 1`] = `
         },
       ]
     }
+    testID="chat-keyboard-avoidance"
   >
     <View
       style={
@@ -3947,13 +3949,11 @@ exports[`Chat component renders component 1`] = `
     </View>
     <View
       style={
-        [
-          {
-            "flexDirection": "row",
-          },
-          null,
-        ]
+        {
+          "flexDirection": "row",
+        }
       }
+      testID="chat-composer-controls"
     >
       <View
         style={
@@ -4066,11 +4066,13 @@ exports[`Chat component renders component 1`] = `
               "borderTopColor": "#F7F7F7",
               "borderTopWidth": 1,
               "flexDirection": "row",
-              "height": 48,
+              "minHeight": 60,
               "paddingLeft": 16,
               "paddingRight": 16,
+              "paddingVertical": 8,
             }
           }
+          testID="chat-composer-toolbar"
         >
           <View
             accessibilityState={
