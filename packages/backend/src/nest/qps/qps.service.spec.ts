@@ -6,6 +6,7 @@ import { RoleName } from '../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { SigChain } from '../auth/sigchain'
+import { EncryptionScopeType } from '../auth/services/crypto/types'
 
 /**
  * Lightweight mocks — avoid bootstrapping the full NestJS module graph.
@@ -37,6 +38,10 @@ class MockSigChainService extends EventEmitter {
     } catch {
       return undefined
     }
+  }
+  getChain(teamId: string) {
+    if (teamId !== this.activeTeamId) throw new Error('Unknown team')
+    return this.getActiveChain()
   }
   getActiveChain(throwError = true) {
     if (this.activeChain == null) {
@@ -111,7 +116,11 @@ describe('QPSService', () => {
       team: { id: TEAM_ID, name: SigChain.generateRandomTeamName() },
       context: { user: sigChainService.user },
       user: sigChainService.user,
-      roles: { amIMemberOfRole: (role: string) => role === RoleName.MEMBER, amIMember: () => true },
+      roles: {
+        amIMemberOfRole: (role: string) => role === RoleName.MEMBER,
+        amIMember: () => true,
+        getMembersForRole: jest.fn<any>().mockReturnValue([{ userId: 'user-a' }, { userId: 'user-b' }]),
+      },
     }
   }
 
@@ -453,9 +462,10 @@ describe('QPSService', () => {
 
   describe('sendBatchPush', () => {
     const UCANS = ['ucan-user-a', 'ucan-user-b']
+    const scope = { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER }
 
     beforeEach(() => {
-      qssClient.connected = true
+      setReady()
       notificationTokensStore.getAllEntries.mockResolvedValue([
         { userId: 'user-a', tokens: ['ucan-user-a'] },
         { userId: 'user-b', tokens: ['ucan-user-b'] },
@@ -464,19 +474,79 @@ describe('QPSService', () => {
     })
 
     it('sends SEND_BATCH_PUSH with all UCANs when enabled and connected', async () => {
-      await qpsService.sendBatchPush(TEAM_ID)
+      await qpsService.sendBatchPush(TEAM_ID, scope)
 
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.SEND_BATCH_PUSH,
         expect.objectContaining({
           status: CommunityOperationStatus.SENDING,
-          payload: expect.objectContaining({
-            ucans: UCANS,
-            data: { teamId: TEAM_ID },
-          }),
+          payload: { ucans: UCANS },
         }),
         true
       )
+    })
+
+    it('includes every device of current channel members and excludes other users before batching', async () => {
+      const memberTokens = Array.from({ length: 550 }, (_, i) => `member-device-${i}`)
+      notificationTokensStore.getAllEntries.mockResolvedValue([
+        { userId: 'user-b', tokens: ['outsider-device'] },
+        { userId: 'user-a', tokens: memberTokens },
+        { userId: 'former-member', tokens: ['stale-device'] },
+      ])
+      sigChainService.activeChain.roles.getMembersForRole.mockReturnValue([{ userId: 'user-a' }])
+
+      await qpsService.sendBatchPush(TEAM_ID, { type: EncryptionScopeType.ROLE, name: 'private-role' })
+
+      expect(sigChainService.activeChain.roles.getMembersForRole).toHaveBeenCalledWith('private-role')
+      const batches = qssClient.sendMessage.mock.calls.map(
+        ([, message]) => (message as { payload: { ucans: string[] } }).payload.ucans
+      )
+      expect(batches).toEqual([memberTokens.slice(0, 500), memberTokens.slice(500)])
+    })
+
+    it.each([
+      undefined,
+      { type: EncryptionScopeType.ROLE },
+      { type: EncryptionScopeType.ROLE, name: '' },
+      { type: EncryptionScopeType.TEAM },
+      { type: EncryptionScopeType.USER, name: 'user-a' },
+    ])('skips unresolved recipient scope %j', async recipientScope => {
+      await qpsService.sendBatchPush(TEAM_ID, recipientScope)
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('skips an empty or deleted channel role', async () => {
+      sigChainService.activeChain.roles.getMembersForRole.mockReturnValue([])
+      await qpsService.sendBatchPush(TEAM_ID, { type: EncryptionScopeType.ROLE, name: 'deleted-role' })
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('skips when membership lookup fails', async () => {
+      sigChainService.activeChain.roles.getMembersForRole.mockImplementation(() => {
+        throw new Error('Role unavailable')
+      })
+      await expect(qpsService.sendBatchPush(TEAM_ID, scope)).resolves.toBeUndefined()
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('handles token-store failures without an unhandled rejection', async () => {
+      notificationTokensStore.getAllEntries.mockRejectedValue(new Error('Store closed'))
+      await expect(qpsService.sendBatchPush(TEAM_ID, scope)).resolves.toBeUndefined()
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('skips a delayed sync from another community', async () => {
+      await qpsService.sendBatchPush('previous-team', scope)
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('rechecks the active team after reading tokens', async () => {
+      notificationTokensStore.getAllEntries.mockImplementation(async () => {
+        sigChainService.activeChain = null
+        return [{ userId: 'user-a', tokens: ['ucan-user-a'] }]
+      })
+      await qpsService.sendBatchPush(TEAM_ID, scope)
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })
 
     it('skips when QPS is disabled', async () => {
@@ -490,7 +560,7 @@ describe('QPSService', () => {
         notificationTokensStore as any
       )
 
-      await disabled.sendBatchPush(TEAM_ID)
+      await disabled.sendBatchPush(TEAM_ID, scope)
 
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })
@@ -498,7 +568,7 @@ describe('QPSService', () => {
     it('skips when QSS is not connected', async () => {
       qssClient.connected = false
 
-      await qpsService.sendBatchPush(TEAM_ID)
+      await qpsService.sendBatchPush(TEAM_ID, scope)
 
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })
@@ -506,7 +576,7 @@ describe('QPSService', () => {
     it('skips when no UCANs are registered', async () => {
       notificationTokensStore.getAllEntries.mockResolvedValue([])
 
-      await qpsService.sendBatchPush(TEAM_ID)
+      await qpsService.sendBatchPush(TEAM_ID, scope)
 
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })
@@ -518,31 +588,28 @@ describe('QPSService', () => {
         reason: 'server error',
       })
 
-      await expect(qpsService.sendBatchPush(TEAM_ID)).resolves.toBeUndefined()
+      await expect(qpsService.sendBatchPush(TEAM_ID, scope)).resolves.toBeUndefined()
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
     })
 
     it('handles thrown errors gracefully', async () => {
       qssClient.sendMessage.mockRejectedValueOnce(new Error('network error'))
 
-      await expect(qpsService.sendBatchPush(TEAM_ID)).resolves.toBeUndefined()
+      await expect(qpsService.sendBatchPush(TEAM_ID, scope)).resolves.toBeUndefined()
     })
 
     it('sends multiple batches when UCANs exceed batch size', async () => {
       const manyUcans = Array.from({ length: 550 }, (_, i) => `ucan-${i}`)
       notificationTokensStore.getAllEntries.mockResolvedValue([{ userId: 'user-a', tokens: manyUcans }])
 
-      await qpsService.sendBatchPush(TEAM_ID)
+      await qpsService.sendBatchPush(TEAM_ID, scope)
 
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(2)
       expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
         1,
         WebsocketEvents.SEND_BATCH_PUSH,
         expect.objectContaining({
-          payload: expect.objectContaining({
-            ucans: manyUcans.slice(0, 500),
-            data: { teamId: TEAM_ID },
-          }),
+          payload: { ucans: manyUcans.slice(0, 500) },
         }),
         true
       )
@@ -550,10 +617,7 @@ describe('QPSService', () => {
         2,
         WebsocketEvents.SEND_BATCH_PUSH,
         expect.objectContaining({
-          payload: expect.objectContaining({
-            ucans: manyUcans.slice(500),
-            data: { teamId: TEAM_ID },
-          }),
+          payload: { ucans: manyUcans.slice(500) },
         }),
         true
       )
@@ -564,17 +628,17 @@ describe('QPSService', () => {
       notificationTokensStore.getAllEntries.mockResolvedValue([{ userId: 'user-a', tokens: manyUcans }])
       qssClient.sendMessage.mockRejectedValueOnce(new Error('network error'))
 
-      await expect(qpsService.sendBatchPush(TEAM_ID)).resolves.toBeUndefined()
+      await expect(qpsService.sendBatchPush(TEAM_ID, scope)).resolves.toBeUndefined()
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(2)
     })
 
     it('QSS_LOG_SYNCED event fires sendBatchPush', async () => {
       const sendBatchPushSpy = jest.spyOn(qpsService, 'sendBatchPush').mockResolvedValue()
 
-      qssClient.emit(QSSEvents.QSS_LOG_SYNCED, TEAM_ID)
+      qssClient.emit(QSSEvents.QSS_LOG_SYNCED, TEAM_ID, scope)
       await new Promise(resolve => setTimeout(resolve, 10))
 
-      expect(sendBatchPushSpy).toHaveBeenCalledWith(TEAM_ID)
+      expect(sendBatchPushSpy).toHaveBeenCalledWith(TEAM_ID, scope)
     })
   })
 
@@ -584,10 +648,23 @@ describe('QPSService', () => {
       qssClient.sendMessage.mockResolvedValue(pushSuccessResponse)
     })
 
+    it('sends only the recipient UCAN in the push envelope', async () => {
+      await qpsService.sendPush('ucan-user-a')
+
+      expect(qssClient.sendMessage).toHaveBeenCalledWith(
+        WebsocketEvents.SEND_PUSH,
+        expect.objectContaining({
+          status: CommunityOperationStatus.SENDING,
+          payload: { ucan: 'ucan-user-a' },
+        }),
+        true
+      )
+    })
+
     it('skips single push when QSS is not connected', async () => {
       qssClient.connected = false
 
-      await qpsService.sendPush('ucan-user-a', 'title', 'body', { cid: 'cid-1' })
+      await qpsService.sendPush('ucan-user-a')
 
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })

@@ -22,10 +22,12 @@ import { RoleName } from '../../auth/services/roles/roles'
 import { SigChainService } from '../../auth/sigchain.service'
 import { EncryptedAndSignedPayload } from '../../auth/services/crypto/types'
 import { createLogger } from '../../common/logger'
+import { getVerifiedEntryWriter } from '../orbitDb/identity/lfa/entry-writer'
 import { posixJoin } from '../orbitDb/util'
 import { validateUserProfile } from './userProfile.utils'
 import type { SigChain } from '../../auth/sigchain'
-import type { UserProfileAccessControllerConfig, UserProfileWriterIdentity } from './UserProfileAccessController.types'
+import type { UserProfileAccessControllerConfig } from './UserProfileAccessController.types'
+import { OrbitDbOp } from '../orbitDb/orbitdb.types'
 
 const TYPE = 'userprofileaccess'
 const codec = dagCbor
@@ -109,16 +111,12 @@ export class UserProfileAccessController {
 
   protected canAppend(config: UserProfileAccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
     return async (entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> => {
-      const writerIdentity = (await identities.getIdentity(entry.identity)) as UserProfileWriterIdentity
-      if (!writerIdentity) {
+      const writerIdentity = await getVerifiedEntryWriter(identities, entry)
+      if (writerIdentity == null) {
         return false
       }
 
       if (!config.write.includes(writerIdentity.id) && !config.write.includes('*')) {
-        return false
-      }
-
-      if (!(await identities.verifyIdentity(writerIdentity as any))) {
         return false
       }
 
@@ -142,7 +140,7 @@ export class UserProfileAccessController {
         return false
       }
 
-      if (entry.payload.op === 'PUT' && !(await this.canAppendPutEntry(entry, chain, writerIdentity.id))) {
+      if (entry.payload.op === OrbitDbOp.PUT && !(await this.canAppendPutEntry(entry, chain, writerIdentity.id))) {
         return false
       }
 
@@ -157,7 +155,7 @@ export class UserProfileAccessController {
         return false
       }
 
-      if (entry.payload.op === 'DEL') {
+      if (entry.payload.op === OrbitDbOp.DEL) {
         return this.canAppendDeleteEntry(entry, writerIdentity.id)
       }
 

@@ -23,7 +23,7 @@ const StyledTooltip = styled(Tooltip)(({ theme }) => ({
     textAlign: 'left',
     justifyContent: 'start',
     '&:hover': {
-      backgroundColor: 'rgba(0,0,0,0.08)',
+      backgroundColor: theme.palette.colors.sidebarHover,
       opacity: 1,
     },
     opacity: 0.7,
@@ -31,7 +31,7 @@ const StyledTooltip = styled(Tooltip)(({ theme }) => ({
   },
 
   [`&.${classes.tooltip}`]: {
-    marginTop: 5,
+    marginTop: theme.space.xs,
   },
 }))
 

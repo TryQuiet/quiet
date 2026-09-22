@@ -8,6 +8,7 @@ Object {
   "message": "message_1",
   "type": 1,
   "userId": Any<String>,
+  "verified": true,
 }
 `;
 
@@ -19,6 +20,7 @@ Object {
   "message": "message_2",
   "type": 3,
   "userId": Any<String>,
+  "verified": true,
 }
 `;
 
@@ -30,6 +32,7 @@ Object {
   "message": "message_3",
   "type": 3,
   "userId": Any<String>,
+  "verified": true,
 }
 `;
 
@@ -41,6 +44,7 @@ Object {
   "message": "message_4",
   "type": 1,
   "userId": Any<String>,
+  "verified": true,
 }
 `;
 
@@ -52,6 +56,7 @@ Object {
   "message": "message_5",
   "type": 1,
   "userId": Any<String>,
+  "verified": true,
 }
 `;
 
@@ -63,6 +68,7 @@ Object {
   "message": "message_6",
   "type": 1,
   "userId": Any<String>,
+  "verified": true,
 }
 `;
 
@@ -74,6 +80,7 @@ Object {
   "message": "message_7",
   "type": 1,
   "userId": Any<String>,
+  "verified": true,
 }
 `;
 
@@ -85,6 +92,7 @@ Object {
   "message": "message_8",
   "type": 1,
   "userId": Any<String>,
+  "verified": true,
 }
 `;
 
@@ -96,5 +104,6 @@ Object {
   "message": "message_9",
   "type": 1,
   "userId": Any<String>,
+  "verified": true,
 }
 `;

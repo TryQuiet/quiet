@@ -1,4 +1,3 @@
-import Darwin
 import Foundation
 import OSLog
 import Tor
@@ -46,6 +45,7 @@ final class TorHandler: NSObject {
     let id: UInt
     let generation: UInt
     let mode: DesiredMode
+    let step: Int
   }
 
   private static let logger = Logger(
@@ -60,46 +60,10 @@ final class TorHandler: NSObject {
   private static let stableUptime: TimeInterval = 60
   private static let sharedLifecycleQueue = DispatchQueue(label: "com.quietmobile.tor-lifecycle")
 
-  // Tor 0.4.5.9's compiled-in authority identities are stale. Keep this list
-  // synchronized with the Tor Project's audited auth_dirs.inc. Bundling these
-  // trust anchors keeps bootstrap independent of a runtime network fetch.
-  // Source: tor commit 4b996aa6469ac78fe746bcc8d6d8f100643e3c01.
-  private static let directoryAuthorities = """
-    moria1 orport=9201 v3ident=F533C81CEF0BC0267857C99B2F471ADF249FA232 128.31.0.39:9231 1A25C6358DB91342AA51720A5038B72742732498
-    tor26 orport=443 v3ident=2F3DF9CA0E5D36F2685A2DA67184EB8DCB8CBA8C ipv6=[2a02:16a8:662:2203::1]:443 217.196.147.77:80 FAA4BCA4A6AC0FB4CA2F8AD5A11D9E122BA894F6
-    dizum orport=443 v3ident=E8A9C45EDE6D711294FADF8E7951F4DE6CA56B58 45.66.35.11:80 7EA6EAD6FD83083C538F44038BBFA077587DD755
-    gabelmoo orport=443 v3ident=ED03BB616EB2F60BEC80151114BB25CEF515B226 ipv6=[2001:638:a000:4140::ffff:189]:443 131.188.40.189:80 F2044413DAC2E02E3D6BCF4735A19BCA1DE97281
-    dannenberg orport=443 v3ident=0232AF901C31A04EE9848595AF9BB7620D4C5B2E ipv6=[2001:678:558:1000::244]:443 193.23.244.244:80 7BE683E65D48141321C5ED92F075C55364AC7123
-    maatuska orport=80 v3ident=49015F787433103580E3B66A1707A00E60F2D15B ipv6=[2001:67c:289c::9]:80 171.25.193.9:443 BD6A829255CB08E66FBE7D3748363586E46B3810
-    longclaw orport=443 v3ident=23D15D965BC35114467363C165C4F724B64B4F66 199.58.81.140:80 74A910646BCEEFBCD2E874FC1DC997430F968145
-    bastet orport=443 v3ident=27102BC123E7AF1D4741AE047E160C91ADC76B21 ipv6=[2620:13:4000:6000::1000:118]:443 204.13.164.118:80 24E2F139121D4394C54B5BCC368B3B411857C413
-    faravahar orport=443 v3ident=70849B868D606BAECFB6128C5E3D782029AA394F 216.218.219.41:80 E3E42D35F801C9D5AB23584E0025D56FE2B33396
-    """.split(separator: "\n").map(String.init)
-
-  // Tor.framework registers callbacks globally and appends each registration.
-  // Tor 0.4.5.9 also asserts if its callback is registered before init_logging,
-  // so install one pair per Tor generation only after control authentication.
-  private static func installLoggingCallbacks() {
-    TORInstallTorLoggingCallback { severity, message in
-      guard severity != .debug, severity != .info else { return }
-      let text = String(cString: message).trimmingCharacters(in: .whitespacesAndNewlines)
-      if severity == .error || severity == .fault {
-        TorHandler.logger.error("Tor: \(text, privacy: .public)")
-      } else {
-        TorHandler.logger.notice("Tor: \(text, privacy: .public)")
-      }
-    }
-
-    TORInstallEventLoggingCallback { severity, message in
-      guard severity != .debug, severity != .info else { return }
-      let text = String(cString: message).trimmingCharacters(in: .whitespacesAndNewlines)
-      if severity == .error || severity == .fault {
-        TorHandler.logger.error("libevent: \(text, privacy: .public)")
-      } else {
-        TorHandler.logger.notice("libevent: \(text, privacy: .public)")
-      }
-    }
-  }
+  // Tor.framework's callback installers enable all debug logging in Tor and
+  // libevent before calling our filter. Formatting that volume of discarded
+  // logs can starve the control port during consensus download. Keep Tor's
+  // configured notice-level stdout log and this handler's OSLog diagnostics.
 
   @objc weak var delegate: TorHandlerDelegate?
 
@@ -110,6 +74,7 @@ final class TorHandler: NSObject {
   private var desiredMode = DesiredMode.stopped
 
   private var configuration: TorConfiguration?
+  private var socksPort: UInt16 = 0
   private var controlPort: UInt16 = 0
   private var httpTunnelPort: UInt16 = 0
 
@@ -129,10 +94,10 @@ final class TorHandler: NSObject {
   private var restartAttempts = 0
   private var authenticationInFlight = false
   private var readyNotificationPending = false
-  private var loggingCallbacksGeneration: UInt?
 
   private var cookieData: Data?
   private var authCookie: String?
+  private let backgroundTransitions = TorBackgroundTransitions()
 
   deinit {
     monitorTimer?.cancel()
@@ -150,11 +115,16 @@ final class TorHandler: NSObject {
           httpTunnelPort: httpTunnelPort
         )
         self.controlPort = controlPort
+        self.socksPort = socksPort
         self.httpTunnelPort = httpTunnelPort
       }
 
-      self.desiredMode = .active
-      self.readyNotificationPending = true
+      // Preserve a background intent that arrived before Tor configuration.
+      // The initial stopped state still starts active during a normal launch.
+      if self.desiredMode != .dormant {
+        self.desiredMode = .active
+        self.readyNotificationPending = true
+      }
       self.ensureThreadRunning()
     }
   }
@@ -164,22 +134,70 @@ final class TorHandler: NSObject {
   @objc func enterForeground() {
     lifecycleQueue.async { [weak self] in
       guard let self else { return }
+      self.finishAllBackgroundTransitions(success: false)
       self.desiredMode = .active
       self.readyNotificationPending = true
+      // Even a missed/expired background callback can leave reclaimed listeners
+      // behind while the Tor thread and Unix controller are still alive.
+      if self.state == .active { self.state = .unknown }
       self.ensureThreadRunning()
       self.applyDesiredMode()
     }
   }
 
-  /// Put Tor into its low-activity mode without destroying process-global state.
+  /// Close network sockets before suspension while preserving the Tor process.
   @objc func enterBackground() {
     lifecycleQueue.async { [weak self] in
       guard let self else { return }
-      self.desiredMode = .dormant
-      self.readyNotificationPending = false
-      self.scheduledReadiness = nil
-      self.applyDesiredMode()
+      self.requestBackgroundMode()
     }
+  }
+
+  /// Requests DORMANT and reports when Tor has confirmed the transition. The
+  /// transition identifier lets the app cancel an expired UIKit background task
+  /// without changing Tor's latest desired mode.
+  @objc(enterBackgroundWithTransitionId:completion:)
+  func enterBackground(
+    transitionId: String,
+    completion: @escaping (Bool) -> Void
+  ) {
+    lifecycleQueue.async { [weak self] in
+      guard let self else {
+        DispatchQueue.main.async { completion(false) }
+        return
+      }
+
+      guard self.backgroundTransitions.register(transitionId, completion: completion) else { return }
+      self.requestBackgroundMode()
+    }
+  }
+
+  /// Cancels only the acknowledgment waiter. Expiration must not overwrite a
+  /// newer foreground/background intent already serialized on lifecycleQueue.
+  @objc(cancelBackgroundTransition:)
+  func cancelBackgroundTransition(_ transitionId: String) {
+    lifecycleQueue.async { [weak self] in
+      self?.backgroundTransitions.cancel(transitionId)
+    }
+  }
+
+  private func requestBackgroundMode() {
+    desiredMode = .dormant
+    readyNotificationPending = false
+    scheduledReadiness = nil
+
+    // A Tor process that has not started (or has already exited) has no native
+    // work left to make dormant.
+    guard !backgroundTransitions.finishIfTorUnavailable(
+      hasTorThread: torThread != nil,
+      torThreadIsFinished: torThread?.isFinished == true
+    ) else {
+      state = .stopped
+      return
+    }
+
+    applyDesiredMode()
+    finishBackgroundTransitionsIfDormant()
   }
 
   /// Explicit teardown is reserved for process termination. Normal app lifecycle
@@ -193,6 +211,7 @@ final class TorHandler: NSObject {
       self.restartScheduled = false
       self.state = .stopping
       self.pendingModeCommand = nil
+      self.finishAllBackgroundTransitions(success: false)
 
       guard let controller = self.controller, controller.isConnected else { return }
       controller.sendCommand("SIGNAL SHUTDOWN", arguments: nil, data: nil) { _, _, stop in
@@ -218,12 +237,37 @@ final class TorHandler: NSObject {
       "--ControlPort", "127.0.0.1:\(controlPort)",
       "--HTTPTunnelPort", "127.0.0.1:\(httpTunnelPort)",
       "--Log", "notice stdout",
-    ] + Self.directoryAuthorities.flatMap { ["--AlternateDirAuthority", $0] }
+    ]
 
     if let dataDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
       .first?.appendingPathComponent("tor", isDirectory: true) {
       try? FileManager.default.createDirectory(at: dataDirectory, withIntermediateDirectories: true)
       configuration.dataDirectory = dataDirectory
+    }
+
+    // iOS can silently reclaim TCP listeners during suspension (Apple TN2277).
+    // Keep native lifecycle control on a Unix socket so it can close/reopen all
+    // TCP listeners without killing the process-global Tor thread. The backend
+    // continues using the authenticated loopback ControlPort on every platform.
+    // Keep the device path inside its writable Library and short enough for
+    // sockaddr_un. The container root itself is not writable on physical iOS.
+    // Simulator container paths exceed sockaddr_un.sun_path's 104-byte limit.
+    #if targetEnvironment(simulator)
+    let controlDirectory = URL(fileURLWithPath: "/tmp")
+      .appendingPathComponent("quiet-tor-\(UUID().uuidString)", isDirectory: true)
+    #else
+    let controlDirectory = URL(fileURLWithPath: NSHomeDirectory())
+      .appendingPathComponent("Library/tc", isDirectory: true)
+    #endif
+    do {
+      try FileManager.default.createDirectory(
+        at: controlDirectory,
+        withIntermediateDirectories: true,
+        attributes: [.posixPermissions: 0o700]
+      )
+      configuration.controlSocket = controlDirectory.appendingPathComponent("c")
+    } catch {
+      Self.logger.error("Cannot create local Tor control directory: \(error.localizedDescription, privacy: .public)")
     }
 
     return configuration
@@ -323,6 +367,10 @@ final class TorHandler: NSObject {
     torThread = nil
     state = .stopped
 
+    if desiredMode == .dormant {
+      finishAllBackgroundTransitions(success: true)
+    }
+
     guard desiredMode == .active else {
       Self.logger.info("Tor stopped while the app does not require an active connection")
       return
@@ -411,15 +459,16 @@ final class TorHandler: NSObject {
       control = existingController
     } else {
       controller = nil
-      guard controlPortIsReachable() else {
-        Self.logger.debug("Tor control port is not ready; retrying")
+      guard let controlSocket = configuration?.controlSocket,
+            FileManager.default.fileExists(atPath: controlSocket.path) else {
+        Self.logger.debug("Tor control socket is not ready; retrying")
         scheduleControllerRetry(generation: generation)
         return
       }
 
-      let newController = TorController(socketHost: "127.0.0.1", port: controlPort)
+      let newController = TorController(socketURL: controlSocket)
       guard newController.isConnected else {
-        Self.logger.debug("Tor control port is not ready; retrying")
+        Self.logger.debug("Tor control socket is not ready; retrying")
         scheduleControllerRetry(generation: generation)
         return
       }
@@ -442,10 +491,6 @@ final class TorHandler: NSObject {
         if success {
           guard self.desiredMode != .stopped,
                 self.torThread?.isFinished == false else { return }
-          if self.loggingCallbacksGeneration != generation {
-            Self.installLoggingCallbacks()
-            self.loggingCallbacksGeneration = generation
-          }
           self.authCookie = cookieData.hexEncodedString()
           self.applyDesiredMode()
         } else {
@@ -516,6 +561,7 @@ final class TorHandler: NSObject {
       return
     }
     if desiredMode == .dormant, state == .dormant {
+      finishAllBackgroundTransitions(success: true)
       return
     }
 
@@ -523,18 +569,44 @@ final class TorHandler: NSObject {
   }
 
   private func sendModeCommand(_ mode: DesiredMode, controller: TorController) {
-    guard let signal = mode.signal else { return }
+    guard mode.signal != nil else { return }
 
     commandSequence &+= 1
-    let command = PendingModeCommand(id: commandSequence, generation: generation, mode: mode)
+    let command = PendingModeCommand(id: commandSequence, generation: generation, mode: mode, step: 0)
+    sendModeCommandStep(command, controller: controller)
+  }
+
+  private func sendModeCommandStep(_ command: PendingModeCommand, controller: TorController) {
+    guard let signal = command.mode.signal else { return }
+    // DisableNetwork also closes outgoing sockets/circuits: those can be
+    // reclaimed during suspension too. ControlSocket remains usable. Close the
+    // TCP listeners explicitly even on recovery; unchanged port configuration
+    // cannot repair a listener whose kernel resources vanished.
+    let closeListeners = "SETCONF DisableNetwork=1 SocksPort=0 HTTPTunnelPort=0 ControlPort=0"
+    let openListeners = "SETCONF DisableNetwork=0 SocksPort=127.0.0.1:\(socksPort) HTTPTunnelPort=127.0.0.1:\(httpTunnelPort) ControlPort=127.0.0.1:\(controlPort)"
+    let commands = command.mode == .active
+      ? [closeListeners, openListeners, "SIGNAL \(signal)"]
+      : [closeListeners, "SIGNAL \(signal)"]
     pendingModeCommand = command
 
-    controller.sendCommand("SIGNAL \(signal)", arguments: nil, data: nil) { [weak self] codes, _, stop in
+    controller.sendCommand(commands[command.step], arguments: nil, data: nil) { [weak self, weak controller] codes, _, stop in
       guard let code = codes.first?.intValue else { return false }
       stop.pointee = true
       let success = code == 250
       self?.lifecycleQueue.async {
-        self?.finishModeCommand(command, success: success)
+        guard let self, let controller,
+              self.pendingModeCommand?.id == command.id,
+              self.pendingModeCommand?.step == command.step,
+              command.generation == self.generation,
+              controller === self.controller else { return }
+        if success, command.step + 1 < commands.count {
+          self.sendModeCommandStep(
+            PendingModeCommand(id: command.id, generation: command.generation, mode: command.mode, step: command.step + 1),
+            controller: controller
+          )
+        } else {
+          self.finishModeCommand(command, success: success)
+        }
       }
       return true
     }
@@ -543,12 +615,14 @@ final class TorHandler: NSObject {
       guard let self,
             self.pendingModeCommand?.id == command.id,
             self.pendingModeCommand?.generation == command.generation,
+            self.pendingModeCommand?.step == command.step,
             controller === self.controller else { return }
 
       self.pendingModeCommand = nil
       self.state = .unknown
       self.controller = nil
-      Self.logger.debug("Tor mode command timed out; reconnecting the controller")
+      let transitions = self.backgroundTransitions.pendingIds.joined(separator: ",")
+      Self.logger.error("Tor mode command timed out; command=\(command.id) pendingBackgroundTransitions=\(transitions, privacy: .public); reconnecting")
       self.connectController(generation: command.generation)
     }
   }
@@ -563,14 +637,30 @@ final class TorHandler: NSObject {
       if desiredMode == command.mode {
         if command.mode == .active {
           notifyReadyIfNeeded()
+        } else {
+          finishAllBackgroundTransitions(success: true)
         }
         return
       }
       applyDesiredMode()
     } else {
       state = .unknown
+      let transitions = backgroundTransitions.pendingIds.joined(separator: ",")
+      Self.logger.error("Tor mode command failed; command=\(command.id) pendingBackgroundTransitions=\(transitions, privacy: .public); retrying")
       scheduleControllerRetry(generation: generation)
     }
+  }
+
+  private func finishBackgroundTransitionsIfDormant() {
+    backgroundTransitions.finishIfDormant(
+      desiresDormant: desiredMode == .dormant,
+      isDormant: state == .dormant,
+      commandPending: pendingModeCommand != nil
+    )
+  }
+
+  private func finishAllBackgroundTransitions(success: Bool) {
+    backgroundTransitions.finishAll(success: success)
   }
 
   private func notifyReadyIfNeeded() {
@@ -619,50 +709,6 @@ final class TorHandler: NSObject {
         authCookie: authCookie
       )
     }
-  }
-
-  private func controlPortIsReachable() -> Bool {
-    let socketDescriptor = Darwin.socket(AF_INET, SOCK_STREAM, 0)
-    guard socketDescriptor >= 0 else { return false }
-    defer { Darwin.close(socketDescriptor) }
-
-    guard fcntl(socketDescriptor, F_SETFL, O_NONBLOCK) != -1 else { return false }
-
-    var address = sockaddr_in()
-    address.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
-    address.sin_family = sa_family_t(AF_INET)
-    address.sin_port = controlPort.bigEndian
-    address.sin_addr.s_addr = inet_addr("127.0.0.1")
-
-    let connectionResult = withUnsafePointer(to: &address) { pointer in
-      pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) { socketAddress in
-        Darwin.connect(
-          socketDescriptor,
-          socketAddress,
-          socklen_t(MemoryLayout<sockaddr_in>.size)
-        )
-      }
-    }
-
-    if connectionResult == 0 {
-      return true
-    }
-    guard errno == EINPROGRESS else { return false }
-
-    var descriptor = pollfd(fd: socketDescriptor, events: Int16(POLLOUT), revents: 0)
-    guard Darwin.poll(&descriptor, 1, 100) > 0 else { return false }
-
-    var socketError: Int32 = 0
-    var socketErrorLength = socklen_t(MemoryLayout<Int32>.size)
-    guard Darwin.getsockopt(
-      socketDescriptor,
-      SOL_SOCKET,
-      SO_ERROR,
-      &socketError,
-      &socketErrorLength
-    ) == 0 else { return false }
-
-    return socketError == 0
   }
 
   private func authCookieURL(configuration: TorConfiguration) -> URL? {

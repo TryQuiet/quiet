@@ -13,7 +13,6 @@ import com.goterl.lazysodium.LazySodiumAndroid
 import com.goterl.lazysodium.SodiumAndroid
 import com.quietmobile.BuildConfig
 import com.quietmobile.Communication.CommunicationModule
-import com.quietmobile.MainApplication
 import com.quietmobile.Notification.NotificationHandler
 import com.quietmobile.Push.QuietStorage
 import com.quietmobile.R
@@ -204,13 +203,13 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         private fun handleBackendReady() {
             markBackendReady()
             Log.i(TAG, "Backend reported ready: " + lifecycleSummary())
-            CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_READY_CHANNEL, "", "")
+            CommunicationModule.handleBackendEvent(CommunicationModule.BACKEND_READY_CHANNEL, "", "")
         }
 
         private fun handleBackendClosed() {
             markBackendClosed()
             Log.i(TAG, "Backend reported closed: " + lifecycleSummary())
-            CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
+            CommunicationModule.handleBackendEvent(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
         }
     }
 
@@ -282,8 +281,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             val socketIOSecretBytes = sodium.randomBytesBuf(32)
             socketIOSecret = sodium.sodiumBin2Hex(socketIOSecretBytes)
 
-            (applicationContext as MainApplication).socketPort = socketPort
-            (applicationContext as MainApplication).socketIOSecret = socketIOSecret
+            CommunicationModule.onSocketCredentialsReady(socketPort, socketIOSecret)
 
             // Init nodejs project
             launch { nodeProject.init() }
@@ -321,7 +319,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         markBackendClosed()
         Log.i(TAG, "Backend worker finished: " + lifecycleSummary())
-        CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
+        CommunicationModule.handleBackendEvent(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
 
         // Indicate whether the work finished successfully with the Result
         return Result.success()

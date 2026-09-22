@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>8.0.0</string>
+	<string>11.1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -34,40 +34,44 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>587</string>
+	<string>625</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<false />
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
-	<true />
+	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true />
+	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
-		<false />
+		<false/>
 		<key>NSAllowsLocalNetworking</key>
-		<true />
+		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>localhost</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true />
+				<true/>
 			</dict>
 		</dict>
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Quiet uses the document directory for storing files and images sent through the app.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Quiet uses the camera to scan invite and device-link QR codes.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Quiet uses the document directory for storing files and images sent through the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string />
+	<string></string>
 	<key>NSPhotoLibraryLimitedAccessAPISupport</key>
-	<true />
+	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Quiet access photos for sending images through the app.</string>
 	<key>QuietKeychainAccessGroup</key>
 	<string>$(DEVELOPMENT_TEAM).com.quietmobile</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Rubik-Black.ttf</string>
@@ -90,8 +94,10 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>UIDesignRequiresCompatibility</key>
+	<true/>
 	<key>UIFileSharingEnabled</key>
-	<true />
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -105,8 +111,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false />
-	<key>UIDesignRequiresCompatibility</key>
-	<true />
+	<false/>
 </dict>
 </plist>

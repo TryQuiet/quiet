@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { communities } from '@quiet/state-manager'
-import { CommunityOwnership, CreateCommunityPayload } from '@quiet/types'
-import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
+import { CreateCommunityPayload } from '@quiet/types'
+import Modal from '../../ui/Modal/Modal'
+import { CreateCommunityComponent } from '../../Onboarding/CreateCommunityComponent'
 import { ServerOfferComponent } from '../../ServerOffer/ServerOfferComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
@@ -19,8 +20,9 @@ const CreateCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
   const createCommunityModal = useModal(ModalName.createCommunityModal)
-  const joinCommunityModal = useModal(ModalName.joinCommunityModal)
+  const getStartedModal = useModal(ModalName.getStartedModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
+  const loadingPanelModal = useModal(ModalName.loadingPanel)
   const [pendingCommunityName, setPendingCommunityName] = useState<string | null>(null)
   const [showServerOffer, setShowServerOffer] = useState(false)
 
@@ -35,6 +37,15 @@ const CreateCommunity = () => {
       setPendingCommunityName(null)
     }
   }, [currentCommunity])
+
+  useEffect(() => {
+    // The submitted community is being created behind the progress screen (the terms
+    // accepted, or the username registered without a server): the form has done its
+    // job. Left open until the backend replied, it sat above the loading panel.
+    if (loadingPanelModal.open && pendingCommunityName !== null && createCommunityModal.open) {
+      createCommunityModal.handleClose()
+    }
+  }, [loadingPanelModal.open, pendingCommunityName])
 
   const handleCommunityAction = (name: string) => {
     if (currentCommunity?.name === name) {
@@ -62,7 +73,7 @@ const CreateCommunity = () => {
     }
   }
 
-  const handleServerOfferClose = (useServer: boolean) => {
+  const handleServerOfferClose = (useServer: boolean, dontShowAgain: boolean) => {
     setShowServerOffer(false)
     if (pendingCommunityName) {
       const payload: CreateCommunityPayload = {
@@ -70,34 +81,53 @@ const CreateCommunity = () => {
         useServer,
       }
       logger.info('Creating community with payload:', payload)
+      // Nothing persists the preference yet - see TryQuiet/quiet#3644.
+      if (dontShowAgain) logger.info('User asked not to be shown the server offer again')
       dispatch(communities.actions.createCommunity(payload))
       createUsernameModal.handleOpen()
     }
   }
 
-  // From 'You can join a community instead' link
-  const handleRedirection = () => {
-    if (!joinCommunityModal.open) {
-      joinCommunityModal.handleOpen()
-      createCommunityModal.handleClose()
-    } else {
-      createCommunityModal.handleClose()
-    }
+  // Want a server? (2922:10009) draws its bar glyph as a way back, not as a decision: it
+  // returns to the create form with the typed name still in it and creates nothing.
+  const handleServerOfferBack = () => {
+    setShowServerOffer(false)
+    setPendingCommunityName(null)
+  }
+
+  // Back arrow: return to Get started while there is nothing to go back into.
+  const handleBack = () => {
+    if (!currentCommunity) getStartedModal.handleOpen()
+    createCommunityModal.handleClose()
   }
 
   return (
     <>
-      <PerformCommunityActionComponent
-        {...createCommunityModal}
-        communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={handleRedirection}
-        isConnectionReady={isConnected}
-        isCloseDisabled={!currentCommunity}
-        hasReceivedResponse={Boolean(currentCommunity)}
-        revealInputValue={true}
-      />
-      {showServerOffer && <ServerOfferComponent open={showServerOffer} handleClose={handleServerOfferClose} />}
+      <Modal
+        open={createCommunityModal.open}
+        handleClose={createCommunityModal.handleClose}
+        // Create a community (2811:2451) hides its bar title; the heading is the title.
+        withoutTitle
+        canGoBack
+        handleBack={handleBack}
+        alignCloseLeft
+        contentWidth={'100%'}
+        testIdPrefix={'createCommunity'}
+        zIndex={1300}
+      >
+        <CreateCommunityComponent
+          open={createCommunityModal.open}
+          isConnectionReady={isConnected}
+          handleCommunityAction={handleCommunityAction}
+        />
+      </Modal>
+      {showServerOffer && (
+        <ServerOfferComponent
+          open={showServerOffer}
+          handleClose={handleServerOfferClose}
+          handleBack={handleServerOfferBack}
+        />
+      )}
     </>
   )
 }

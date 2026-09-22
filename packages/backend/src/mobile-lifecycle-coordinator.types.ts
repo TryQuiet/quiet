@@ -9,10 +9,10 @@ export type MobileLifecycleIntent =
   | { type: MobileLifecycleIntentType.PAUSED }
   | {
       type: MobileLifecycleIntentType.ACTIVE
-      services: OpenServices
+      services?: OpenServices
     }
 
 export interface MobileLifecycleHandlers {
   pause: () => Promise<void>
-  activate: (services: OpenServices) => Promise<void>
+  activate: (services?: OpenServices) => Promise<void>
 }

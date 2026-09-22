@@ -17,6 +17,7 @@ import { UserProfile } from '@quiet/types'
 import { createLogger } from '../../common/logger'
 import { Libp2pEvents } from '../libp2p.types'
 import { EncryptedAndSignedPayload } from '../../auth/services/crypto/types'
+import { OrbitDbOp } from '../../storage/orbitDb/orbitdb.types'
 
 const logger = createLogger('UserProfile-sync')
 const N_PEERS = 3
@@ -233,7 +234,7 @@ describe('UserProfileStore OrbitDB Sync', () => {
       bobStore.identity,
       bobStore.log.id,
       {
-        op: 'PUT',
+        op: OrbitDbOp.PUT,
         key: userIds[0],
         value: aliceEncryptedProfile,
       },

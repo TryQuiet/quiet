@@ -64,7 +64,7 @@ describe('sendFileMessageSaga', () => {
     message = Math.random().toString(36).substr(2.9)
   })
 
-  test('saves message with media', async () => {
+  test('saves media in its submitted channel even when another channel is current', async () => {
     const currentChannel = currentChannelId(store.getState())
 
     if (!currentChannel) throw new Error('no current channel id')
@@ -81,13 +81,17 @@ describe('sendFileMessageSaga', () => {
       tmpPath: undefined,
     }
     const reducer = combineReducers(testReducers)
-    await expectSaga(sendFileMessageSaga, filesActions.attachFile(media))
+    await expectSaga(sendFileMessageSaga, filesActions.attachFile({ ...media, channelId: currentChannel }))
       .withReducer(reducer)
-      .withState(store.getState())
+      .withState({
+        ...store.getState(),
+        PublicChannels: { ...store.getState().PublicChannels, currentChannelId: generateTestChannelId('other') },
+      })
       .provide([[call.fn(generateMessageId), message]])
       .put(
         messagesActions.sendMessage({
           id: message,
+          channelId: currentChannel,
           message: '',
           type: MessageType.File,
           media,
@@ -127,13 +131,14 @@ describe('sendFileMessageSaga', () => {
     }
 
     const reducer = combineReducers(testReducers)
-    await expectSaga(sendFileMessageSaga, filesActions.attachFile(media))
+    await expectSaga(sendFileMessageSaga, filesActions.attachFile({ ...media, channelId: currentChannel }))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(generateMessageId), message]])
       .put(
         messagesActions.sendMessage({
           id: message,
+          channelId: currentChannel,
           message: '',
           type: MessageType.File,
           media: updatedMedia,

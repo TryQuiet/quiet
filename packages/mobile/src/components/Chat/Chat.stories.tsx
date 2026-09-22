@@ -3,7 +3,6 @@ import { storiesOf } from '@storybook/react-native'
 import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
 import { Chat } from './Chat.component'
-import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { createLogger } from '../../utils/logger'
 
@@ -33,6 +32,9 @@ storiesOf('Chat', module)
         public: true,
         teamId: 'foobar',
       }}
+      channelName='Quiet'
+      isUserConnected={() => false}
+      isTorInitialized={true}
       messages={{
         count: 16,
         groups: {
@@ -244,17 +246,18 @@ storiesOf('Chat', module)
           ],
         },
       }}
-      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateFileAttachments')
-      }}
       updateImageAttachments={function (_assets: Asset[]): void {
         logger.info('updateImageAttachments')
       }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))
   .add('Empty', () => (
@@ -280,17 +283,21 @@ storiesOf('Chat', module)
         public: true,
         teamId: 'foobar',
       }}
-      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateFileAttachments')
-      }}
+      channelName='Quiet'
+      isUserConnected={() => false}
+      isTorInitialized={true}
       updateImageAttachments={function (_assets: Asset[]): void {
         logger.info('updateImageAttachments')
       }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))
   .add('MultiDayChat', () => (
@@ -307,9 +314,6 @@ storiesOf('Chat', module)
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
-      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateFileAttachments')
-      }}
       updateImageAttachments={function (_assets: Asset[]): void {
         logger.info('updateImageAttachments')
       }}
@@ -325,6 +329,9 @@ storiesOf('Chat', module)
         public: true,
         teamId: 'foobar',
       }}
+      isUserConnected={() => false}
+      isTorInitialized={true}
+      channelName='StickyDateTest'
       messages={{
         count: 40,
         groups: {
@@ -754,7 +761,11 @@ storiesOf('Chat', module)
           ],
         },
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))

@@ -3,7 +3,7 @@ import os.log
 
 private let netLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NSENetworkClient")
 
-class NSENetworkClient {
+class NSENetworkClient: NSEAuthNetworking {
     let baseURL: URL
     let session: URLSession
 
@@ -14,7 +14,6 @@ class NSENetworkClient {
         return e
     }()
 
-    private static let decoder = JSONDecoder()
 
     // Each client gets a fresh session so path transitions cannot poison pooled connections.
     private static func makeDefaultSession() -> URLSession {
@@ -41,23 +40,23 @@ class NSENetworkClient {
         let body = ["deviceId": deviceId, "teamId": teamId]
         request.httpBody = try Self.encoder.encode(body)
 
-        return try await perform(request: request, as: ChallengeResponse.self) { code in
+        return try await perform(request: request, as: ChallengeResponse.self, maxResponseBytes: Self.maximumAuthResponseBytes) { code in
             throw NSEAuthError.challengeRequestFailed(statusCode: code)
         }
     }
 
     // MARK: - POST /nse-auth/token
 
-    func requestToken(challengeId: String, deviceId: String, proof: ProofPayload) async throws -> TokenResponse {
+    func requestToken(challengeId: String, deviceId: String, signature: String) async throws -> TokenResponse {
         let url = baseURL.appendingPathComponent("nse-auth/token")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let body = TokenRequest(challengeId: challengeId, deviceId: deviceId, proof: proof)
+        let body = TokenRequest(challengeId: challengeId, deviceId: deviceId, signature: signature)
         request.httpBody = try Self.encoder.encode(body)
 
-        return try await perform(request: request, as: TokenResponse.self) { code in
+        return try await perform(request: request, as: TokenResponse.self, maxResponseBytes: Self.maximumAuthResponseBytes) { code in
             throw NSEAuthError.tokenRequestFailed(statusCode: code)
         }
     }
@@ -85,9 +84,19 @@ class NSENetworkClient {
 
     // MARK: - Private helper
 
+    /// The relay is untrusted and the extension runs under a tight memory limit, so a 2xx
+    /// challenge or token body is rejected before decoding when it is larger than the
+    /// protocol could legitimately need. This is checked after `URLSession` has buffered the
+    /// body, so it bounds the parse work (the challenge is scanned twice), not the download;
+    /// enforcing it while receiving needs a delegate-based session and is a follow-up.
+    /// Log fetches are not capped: the server does not page them, so a cap would permanently
+    /// stall a device whose valid backlog exceeded it.
+    static let maximumAuthResponseBytes = 16 * 1024
+
     private func perform<T: Decodable>(
         request: URLRequest,
         as type: T.Type,
+        maxResponseBytes: Int? = nil,
         onError: (Int) throws -> Void
     ) async throws -> T {
         let method = request.httpMethod ?? "GET"
@@ -116,8 +125,13 @@ class NSENetworkClient {
             throw NSEAuthError.invalidResponse // unreachable; onError always throws
         }
 
+        if let maxResponseBytes, data.count > maxResponseBytes {
+            os_log("perform: %{public}@ response of %{public}d bytes exceeds limit %{public}d", log: netLog, type: .error, urlStr, data.count, maxResponseBytes)
+            throw NSEAuthError.invalidResponse
+        }
+
         do {
-            return try Self.decoder.decode(T.self, from: data)
+            return try NSEJSON.decode(T.self, from: data)
         } catch {
             let body = String(data: data, encoding: .utf8) ?? "(non-UTF8 body)"
             os_log("perform: decoding failed for %{public}@: %{public}@\nresponse body: %{public}@",

@@ -1,21 +1,27 @@
-import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put } from 'typed-redux-saga'
 
 import { messagesActions } from '../messages.slice'
 import { ChannelMessage, MessageType, type MessageVerificationStatus } from '@quiet/types'
 import { generalChannel, publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { deleteChannelMessageRegex, generalChannelDeletionMessageRegex, verifyUserInfoMessage } from '@quiet/common'
+import {
+  deleteChannelMessageRegex,
+  generalChannelDeletionMessageRegex,
+  userJoinedMessageRegex,
+  verifyUserInfoMessage,
+} from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
+import { isMessageTransportVerified } from '../utils/message.utils'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('verifyMessagesSaga')
 
 export function* verifyMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>>['payload']
+  action: ReturnType<typeof messagesActions.addMessages> | ReturnType<typeof messagesActions.verifyMessages>
 ): Generator {
   const messages: ChannelMessage[] = action.payload.messages
 
   for (const message of messages) {
+    if (!isMessageTransportVerified(message, action.payload.isLocal)) continue
     let isVerified = true
     const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
     if (author === null) {
@@ -36,7 +42,13 @@ export function* verifyMessagesSaga(
         logger.debug('Trusting deletion message until we have a better solution')
       } else {
         const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
-        if (message.message !== expectedMessage) {
+        const joinMessageMatch = userJoinedMessageRegex.exec(message.message)
+        const isJoinMessage =
+          channel.name === 'general' &&
+          channel.owner !== author.userId &&
+          joinMessageMatch?.[0] === message.message &&
+          joinMessageMatch[1] === author.nickname
+        if (message.message !== expectedMessage && !isJoinMessage) {
           logger.warn(`${author.nickname} tried to send a malicious info message`)
           logger.info('Expected message:', expectedMessage)
           logger.info('Received message:', message.message)

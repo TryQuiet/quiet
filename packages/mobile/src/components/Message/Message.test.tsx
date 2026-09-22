@@ -1,99 +1,170 @@
 import React from 'react'
+import { act, fireEvent, screen } from '@testing-library/react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
+import { DisplayableMessage, MessageType } from '@quiet/types'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { Message } from './Message.component'
-import { isPlainMessageText } from './Message.utils'
 
-import { MessageType, type DisplayableMessage } from '@quiet/types'
+const LINK_HREF = 'https://tryquiet.org'
 
-// Message.test.disabled.tsx in this folder is unused and unrelated to these tests.
-
-// Overrides the global Markdown mock (setupTests.tsx) so the text/paragraph
-// rules actually run, mirroring the real text -> paragraph flow. hasParents is
-// real (not stubbed) so isPlainMessageText's exclusion logic is really tested.
-jest.mock('@ronradtke/react-native-markdown-display', () => ({
-  __esModule: true,
-  default: ({ children, rules }: any) => {
-    // Real ancestor chain for plain top-level message text: [paragraph, ...].
-    const textNode = rules.text({ key: 'text', content: children }, [], [{ type: 'paragraph' }], {})
-    return rules.paragraph(null, [textNode], null, null)
-  },
-  MarkdownIt: jest.fn(() => ({})),
-  hasParents: jest.fn((parents: any[], type: string) => parents.findIndex((el: any) => el.type === type) > -1),
-}))
-
-describe('Message component', () => {
-  const baseProps = {
-    duplicatedUsernameHandleBack: () => {},
-    unregisteredUsernameHandleBack: (_username: string) => {},
-    pendingMessages: {},
-    openUrl: () => {},
-    openImagePreview: () => {},
-    downloadFile: () => {},
-    cancelDownload: () => {},
+// src/setupTests.tsx replaces the markdown renderer with `<div>{children}</div>`, which never
+// calls the `rules` the component passes it. That would leave the `link` rule - the one place
+// where a long press has to beat an existing onPress - completely uncovered. This stand-in
+// keeps the setupTests behaviour and additionally renders what the component's own `link` rule
+// returns, so the real rule is exercised.
+jest.mock('@ronradtke/react-native-markdown-display', () => {
+  const react = require('react')
+  const href = 'https://tryquiet.org'
+  // Anchored to the tail of this file's own fixture rather than searching the text for the url.
+  // An unanchored `children.includes(href)` reads as URL-origin sanitization - it is what
+  // CodeQL's js/incomplete-url-substring-sanitization flags, and that is a required check on
+  // this repo. Nothing here authorizes anything: the stand-in only has to recognise the single
+  // fixture that ends in a link, so an anchored match states that and drops the false signal.
+  const fixtureEndingInLink = /, see https:\/\/tryquiet\.org\s*$/
+  return {
+    __esModule: true,
+    default: ({ children, rules }: any) =>
+      react.createElement(
+        'div',
+        null,
+        children,
+        // Stands in for linkify: when the markdown source is the fixture ending in the url,
+        // render whatever the component's own `link` rule returns for it.
+        typeof children === 'string' && fixtureEndingInLink.test(children)
+          ? rules.link({ key: 'link', attributes: { href } }, [href], [], { link: {} })
+          : null
+      ),
+    MarkdownIt: jest.fn(),
+    hasParents: jest.fn(),
   }
+})
 
-  const makeMessage = (text: string): DisplayableMessage => ({
-    id: 'id',
-    type: MessageType.Basic,
-    message: text,
-    createdAt: 0,
-    date: '1:30pm',
-    nickname: 'holmes',
-    isDuplicated: false,
-    isRegistered: true,
-    userId: 'test',
+// Clipboard itself is mocked globally in src/setupTests.tsx, next to the other native modules.
+const setString = Clipboard.setString as jest.Mock
+
+const basicMessage: DisplayableMessage = {
+  id: 'message-id',
+  type: MessageType.Basic,
+  // Deliberately markdown: we copy the source the author typed, not the rendered text.
+  message: `Hello **world**, see ${LINK_HREF}`,
+  createdAt: 1698483600,
+  date: '28 Oct, 10:00',
+  nickname: 'alice',
+  userId: 'aliceUserId',
+  isDuplicated: false,
+  isRegistered: true,
+}
+
+const imageMessage: DisplayableMessage = {
+  ...basicMessage,
+  id: 'image-message-id',
+  type: MessageType.Image,
+  message: 'image.png',
+  media: {
+    cid: 'cid',
+    path: '/mnt/storage/image.png',
+    name: 'image',
+    ext: '.png',
+    message: { id: 'image-message-id', channelId: 'channel-id' },
+    width: 100,
+    height: 100,
+    size: 1024,
+  },
+}
+
+const renderMessage = (data: DisplayableMessage[], openUrl: jest.Mock = jest.fn()) => {
+  renderComponent(
+    <Message
+      data={data}
+      maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+      openUrl={openUrl}
+      openImagePreview={jest.fn()}
+      downloadFile={jest.fn()}
+      cancelDownload={jest.fn()}
+      duplicatedUsernameHandleBack={jest.fn()}
+      unregisteredUsernameHandleBack={jest.fn()}
+    />
+  )
+  return { openUrl }
+}
+
+describe('Message component - copy on long press', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+    setString.mockClear()
   })
 
-  const renderMessage = (text: string) => renderComponent(<Message {...baseProps} data={[makeMessage(text)]} />)
-
-  const renderMessageText = (text: string) => renderMessage(text).getByTestId(text)
-
-  it('renders a regular text message at the default font size', () => {
-    const text = 'Brownie powder marshmallow dessert carrot cake.'
-    expect(renderMessageText(text).props.fontSize).toEqual(14)
+  afterEach(() => {
+    jest.useRealTimers()
   })
 
-  it('renders an emoji-only message at a larger font size', () => {
-    const text = '🎉🎉🎉'
-    expect(renderMessageText(text).props.fontSize).toEqual(28)
+  it('copies the raw message text to the clipboard on long press', () => {
+    renderMessage([basicMessage])
+
+    fireEvent(screen.getByTestId(`message-copy-${basicMessage.id}`), 'longPress')
+
+    expect(setString).toHaveBeenCalledTimes(1)
+    expect(setString).toHaveBeenCalledWith(`Hello **world**, see ${LINK_HREF}`)
   })
 
-  it('keeps the default font size when a message mixes text and emoji', () => {
-    const text = 'Hello 🎉'
-    expect(renderMessageText(text).props.fontSize).toEqual(14)
-  })
+  it('shows a "Copied" indicator that disappears on its own', () => {
+    renderMessage([basicMessage])
 
-  it('renders an inline emoji within mixed text at a larger size than the surrounding text', () => {
-    const { getByText } = renderMessage('Hello 🎉')
-    expect(getByText('🎉').props.style.fontSize).toEqual(22)
-  })
+    expect(screen.queryByTestId(`message-copied-${basicMessage.id}`)).toBeNull()
 
-  it('renders multiple inline emoji in one message at the larger size', () => {
-    const { getByText } = renderMessage('Great 🎉 job 🎊 everyone')
-    expect(getByText('🎉').props.style.fontSize).toEqual(22)
-    expect(getByText('🎊').props.style.fontSize).toEqual(22)
-  })
+    fireEvent(screen.getByTestId(`message-copy-${basicMessage.id}`), 'longPress')
+    expect(screen.getByTestId(`message-copied-${basicMessage.id}`)).toBeTruthy()
 
-  describe('isPlainMessageText', () => {
-    it('treats plain message text as eligible for inline emoji sizing', () => {
-      expect(isPlainMessageText([])).toBe(true)
-      expect(isPlainMessageText([{ type: 'paragraph' } as any])).toBe(true)
+    act(() => {
+      jest.advanceTimersByTime(1500)
     })
+    expect(screen.queryByTestId(`message-copied-${basicMessage.id}`)).toBeNull()
+  })
 
-    it('excludes text nested in blockquotes, lists, tables, links, and bold/italic spans', () => {
-      expect(isPlainMessageText([{ type: 'blockquote' } as any])).toBe(false)
-      expect(isPlainMessageText([{ type: 'list_item' } as any, { type: 'bullet_list' } as any])).toBe(false)
-      expect(isPlainMessageText([{ type: 'td' } as any, { type: 'table' } as any])).toBe(false)
-      expect(isPlainMessageText([{ type: 'link' } as any])).toBe(false)
-      expect(isPlainMessageText([{ type: 'strong' } as any])).toBe(false)
-      expect(isPlainMessageText([{ type: 'em' } as any])).toBe(false)
-    })
+  it('does not copy on a normal press', () => {
+    renderMessage([basicMessage])
 
-    it('excludes text nested in inline code and code blocks', () => {
-      expect(isPlainMessageText([{ type: 'code_inline' } as any])).toBe(false)
-      expect(isPlainMessageText([{ type: 'code_block' } as any])).toBe(false)
-      expect(isPlainMessageText([{ type: 'fence' } as any])).toBe(false)
-    })
+    fireEvent.press(screen.getByTestId(`message-copy-${basicMessage.id}`))
+
+    expect(setString).not.toHaveBeenCalled()
+    expect(screen.queryByTestId(`message-copied-${basicMessage.id}`)).toBeNull()
+  })
+
+  it('copies only the long-pressed message out of a grouped set', () => {
+    const second: DisplayableMessage = { ...basicMessage, id: 'second-id', message: 'second message' }
+    renderMessage([basicMessage, second])
+
+    fireEvent(screen.getByTestId(`message-copy-${second.id}`), 'longPress')
+
+    expect(setString).toHaveBeenCalledTimes(1)
+    expect(setString).toHaveBeenCalledWith('second message')
+    expect(screen.getByTestId(`message-copied-${second.id}`)).toBeTruthy()
+    expect(screen.queryByTestId(`message-copied-${basicMessage.id}`)).toBeNull()
+  })
+
+  it('still opens a link when the link is tapped', () => {
+    const { openUrl } = renderMessage([basicMessage])
+
+    fireEvent.press(screen.getByText(LINK_HREF))
+
+    expect(openUrl).toHaveBeenCalledWith(LINK_HREF)
+    expect(setString).not.toHaveBeenCalled()
+  })
+
+  it('copies instead of opening a link when the long press starts on the link', () => {
+    const { openUrl } = renderMessage([basicMessage])
+
+    fireEvent(screen.getByText(LINK_HREF), 'longPress')
+
+    expect(setString).toHaveBeenCalledWith(`Hello **world**, see ${LINK_HREF}`)
+    expect(openUrl).not.toHaveBeenCalled()
+  })
+
+  it('does not make image messages copyable', () => {
+    renderMessage([imageMessage])
+
+    expect(screen.queryByTestId(`message-copy-${imageMessage.id}`)).toBeNull()
   })
 })

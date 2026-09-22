@@ -1,20 +1,12 @@
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
-import { createKeyset, redactKeys, Server } from '@localfirst/auth'
+import { createServer, redactServer, Server } from '@localfirst/auth'
 
 const logger = createLogger('auth:services:invite.spec')
 
 describe('servers', () => {
   const adminSigChain = SigChain.create()
-  const server: Server = {
-    host: 'testserver',
-    keys: redactKeys(
-      createKeyset({
-        type: 'SERVER',
-        name: 'testserver',
-      })
-    ),
-  }
+  const server: Server = redactServer(createServer({ host: 'testserver' }))
 
   it('should add server to chain', () => {
     adminSigChain.server.addServer(server)
@@ -29,6 +21,8 @@ describe('servers', () => {
     const thisServer = adminSigChain.server.getServer(server.host)
     expect(thisServer).toBeDefined()
     expect(thisServer?.host).toBe(server.host)
+    expect(thisServer?.serverId).toBe(server.serverId)
+    expect(thisServer?.identityKeys).toEqual(server.identityKeys)
     expect(thisServer?.keys).toEqual(server.keys)
   })
 })

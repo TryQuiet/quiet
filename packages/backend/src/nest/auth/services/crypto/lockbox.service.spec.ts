@@ -44,8 +44,7 @@ describe('lockbox', () => {
     expect(lockbox.contents.name).toBe(RoleName.MEMBER)
     expect(lockbox.contents.type).toBe(EncryptionScopeType.ROLE)
 
-    const keysFromLockbox = adminSigChain.team?.allKeys(generatedKeys.keys)
-    expect(keysFromLockbox).toBeDefined()
-    expect(keysFromLockbox!['ROLE'][RoleName.MEMBER].length).toBe(1)
+    // Creating an out-of-band lockbox must not publish it to the team graph.
+    expect(adminSigChain.team?.allKeys(generatedKeys.keys)[EncryptionScopeType.ROLE]?.[RoleName.MEMBER]).toBeUndefined()
   })
 })

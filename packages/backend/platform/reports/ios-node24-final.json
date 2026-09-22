@@ -1,0 +1,73 @@
+{
+  "node": "v24.18.0",
+  "platform": "ios",
+  "arch": "arm64",
+  "cases": [
+    {
+      "name": "replacement calls the native library; the differential reference remains unchanged",
+      "milliseconds": 67.44624999999996
+    },
+    {
+      "name": "Ed25519 and X25519 outputs interoperate, including offsets, mutation, and reused buffers",
+      "milliseconds": 4073.9438340000006
+    },
+    {
+      "name": "malformed Ed25519 secret/public halves preserve sodium behavior instead of being repaired",
+      "milliseconds": 19.107625000000553
+    },
+    {
+      "name": "box ciphertext is byte-identical, bidirectional, and rejects changed ciphertext/nonces/keys",
+      "milliseconds": 295.6737919999996
+    },
+    {
+      "name": "all 151 Wycheproof Ed25519 cases retain sodium acceptance and rejection",
+      "milliseconds": 3144.7426670000004
+    },
+    {
+      "name": "all 518 Wycheproof X25519 cases retain sodium box output or rejection",
+      "milliseconds": 12064.136666999999
+    },
+    {
+      "name": "small-order and noncanonical signature encodings retain the libsodium rejection policy",
+      "milliseconds": 1.304707999999664
+    },
+    {
+      "name": "invalid sizes, types and formats fail without accepting malformed inputs",
+      "milliseconds": 0.3647500000006403
+    },
+    {
+      "name": "iOS activates after ready, other platforms preserve sodium, and unsupported capability falls back atomically",
+      "milliseconds": 178.03795900000114
+    },
+    {
+      "name": "unsupported export descriptors and Proxy traps never partially install native crypto",
+      "milliseconds": 672.5672500000001
+    },
+    {
+      "name": "unsupported module namespaces and ready properties are left untouched before activation",
+      "milliseconds": 10.021457999999257
+    },
+    {
+      "name": "custom Promise species cannot run activation side effects",
+      "milliseconds": 0.3162080000001879
+    }
+  ],
+  "libsodium": "1.0.19",
+  "webpackNativeCalls": 3,
+  "timings": [
+    {
+      "name": "reference",
+      "verifies": 1000,
+      "milliseconds": 29541.76175
+    },
+    {
+      "name": "native",
+      "verifies": 1000,
+      "milliseconds": 44.35204199999862
+    }
+  ],
+  "passed": true,
+  "nodeFrameworkSHA256": "d2c1384fe4d315b156d67142ec8edb026290f72a2e1fd69fffda581a0d031a62",
+  "sodiumFrameworkSHA256": "b7924c249cc9e56749a4d26143989ab629a895e59235de8e01d64cea3f67f772",
+  "payloadSHA256": "687dc2e3add8fef03865643a80684a37d47d949befe70fa84222e6aa0cfd8934"
+}

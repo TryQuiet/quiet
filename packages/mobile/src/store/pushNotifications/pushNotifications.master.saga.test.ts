@@ -20,6 +20,8 @@ import {
 import Config from 'react-native-config'
 import nativeEventEmitter from '../nativeServices/events/nativeEventEmitter'
 import { InitState } from '../init/init.slice'
+import { NavigationState, navigationActions } from '../navigation/navigation.slice'
+import { ScreenNames } from '../../const/ScreenNames.enum'
 import { StoreKeys } from '../store.keys'
 import { NotificationPermissionStatus } from './pushNotifications.types'
 import { PushNotificationsState, pushNotificationsActions } from './pushNotifications.slice'
@@ -64,6 +66,7 @@ describe('pushNotificationMasterSaga', () => {
         permissionRequested: false,
         permissionStatus: NotificationPermissionStatus.Granted,
       },
+      [StoreKeys.Navigation]: { ...new NavigationState(), backStack: [ScreenNames.GetStartedScreen] },
     }
     const task = runSaga(
       {
@@ -106,6 +109,51 @@ describe('pushNotificationMasterSaga', () => {
           }),
         ])
       )
+    } finally {
+      task.cancel()
+      await task.toPromise()
+    }
+  })
+
+  it('holds the launch-time notification request while the QR scanner sheet is in front', async () => {
+    Platform.OS = 'android'
+    Config.QPS_ALLOWED = 'true'
+
+    const channel = stdChannel()
+    let state = {
+      [StoreKeys.Init]: { ...new InitState(), isWebsocketConnected: true },
+      [StoreKeys.PushNotifications]: { ...new PushNotificationsState(), permissionRequested: false },
+      [StoreKeys.Navigation]: {
+        ...new NavigationState(),
+        backStack: [ScreenNames.JoinCommunityScreen, ScreenNames.ScanQrCodeScreen],
+      },
+    }
+    const task = runSaga(
+      {
+        channel,
+        dispatch: action => {
+          if (action && typeof action === 'object' && 'type' in action) channel.put(action as DispatchedAction)
+        },
+        getState: () => state,
+      },
+      pushNotificationsMasterSaga
+    )
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 50))
+      expect(NativeModules.CommunicationModule.requestNotificationPermission).not.toHaveBeenCalled()
+
+      // The sheet is closed (or replaced by Choose username / the paste form): the prompt may come now.
+      // A new root state, as every reducer run produces (the selector memoises on it).
+      state = {
+        ...state,
+        [StoreKeys.Navigation]: { ...state[StoreKeys.Navigation], backStack: [ScreenNames.JoinCommunityScreen] },
+      }
+      channel.put(navigationActions.pop())
+
+      await waitForExpect(() => {
+        expect(NativeModules.CommunicationModule.requestNotificationPermission).toHaveBeenCalledTimes(1)
+      })
     } finally {
       task.cancel()
       await task.toPromise()

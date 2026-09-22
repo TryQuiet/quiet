@@ -1,6 +1,9 @@
 import { FileMetadata } from './files'
 
-export interface UserData {
+export interface DeviceNetworkEndpoint {
+  teamId: string
+  userId: string
+  deviceId: string
   onionAddress: string
   peerId: string
 }
@@ -26,7 +29,6 @@ export interface UserProfile {
   photo?: string // base64 encoded image (legacy)
   fileMetadata?: FileMetadata
   bio?: string
-  userData?: UserData
   profilePhoto?: FileMetadata
   channels?: string[]
 }
@@ -59,6 +61,10 @@ export interface SetUserProfileResponse {
 
 export interface UserProfilesStoredEvent {
   profiles: UserProfile[]
+}
+
+export interface NetworkEndpointsStoredEvent {
+  endpoints: DeviceNetworkEndpoint[]
 }
 
 export interface CachedUserProfileRequest {

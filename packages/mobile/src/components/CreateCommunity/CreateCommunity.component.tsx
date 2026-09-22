@@ -1,19 +1,22 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View, Image } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { spacing } from '../../styles/const/spacing'
+import { Appbar } from '../Appbar/Appbar.component'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
-import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { CreateCommunityProps } from './CreateCommunity.types'
 import { Splash } from '../Splash/Splash.component'
 
-import { icons } from '../../assets'
-
+/**
+ * Create a community · Figma 2811:2451. The frame hides its bar title: the back
+ * glyph alone, the heading is the title, content top-anchored 24 under the bar zone.
+ */
 export const CreateCommunity: FC<CreateCommunityProps> = ({
   createCommunityAction,
-  redirectionAction,
+  handleBackButton,
   networkCreated,
   ready = true,
 }) => {
@@ -56,16 +59,17 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
           style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
           testID={'create-community-component'}
         >
+          <Appbar withoutTitle back={handleBackButton} />
           <KeyboardAvoidingView
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
               flex: 1,
-              justifyContent: 'center',
-              paddingLeft: 20,
-              paddingRight: 20,
+              paddingTop: spacing.xl,
+              paddingHorizontal: spacing.lg,
+              gap: spacing.xl,
             }}
           >
-            <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
+            <Typography variant={'h3'} horizontalTextAlign={'center'}>
               {'Create a community'}
             </Typography>
             <Input
@@ -76,47 +80,9 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
               validation={inputError}
               ref={inputRef}
               autoCorrect={false}
+              testID={'create-community-input'}
             />
-            <View style={{ marginTop: 32 }}>
-              <TextWithLink
-                text={'You can %a instead'}
-                links={[
-                  {
-                    tag: 'a',
-                    label: 'join a community',
-                    action: redirectionAction,
-                  },
-                ]}
-              />
-            </View>
-            <View style={{ marginTop: 32 + 12 }}>
-              <Button onPress={onPress} title={'Continue'} loading={loading} />
-            </View>
-            <View
-              style={{
-                marginTop: 32 + 12,
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                gap: 4,
-              }}
-            >
-              <Image
-                source={icons.icon_warning}
-                resizeMode='cover'
-                resizeMethod='resize'
-                style={{
-                  width: 16,
-                  height: 16,
-                }}
-              />
-              <Typography
-                fontSize={14}
-                style={{ color: defaultTheme.palette.typography.grayDark, textAlign: 'center' }}
-              >
-                {"Quiet is in beta and shouldn't be used for activities requiring security."}
-              </Typography>
-            </View>
+            <Button onPress={onPress} title={'Continue'} loading={loading} testID={'create-community-continue'} />
           </KeyboardAvoidingView>
         </View>
       ) : (

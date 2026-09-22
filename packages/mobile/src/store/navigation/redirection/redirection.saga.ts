@@ -49,7 +49,7 @@ export function* redirectionSaga(): Generator {
     logger.info('INIT_NAVIGATION: Switching to the channel list screen (community membership).')
     yield* put(
       navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
+        screen: ScreenNames.AppHomeScreen,
       })
     )
     return
@@ -64,10 +64,10 @@ export function* redirectionSaga(): Generator {
     yield* put(communities.actions.setCurrentCommunity(''))
   }
 
-  logger.info('INIT_NAVIGATION: Switching to the join community screen.')
+  logger.info('INIT_NAVIGATION: Switching to the get started screen.')
   yield* put(
     navigationActions.replaceScreen({
-      screen: ScreenNames.JoinCommunityScreen,
+      screen: ScreenNames.GetStartedScreen,
     })
   )
 }

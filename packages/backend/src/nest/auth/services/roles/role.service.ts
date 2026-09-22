@@ -49,13 +49,15 @@ class RoleService extends ChainServiceBase {
     this.sigChain.team!.addMemberRole(memberId, roleName)
   }
 
-  public addSelf(roleName: RoleName | string, seed: string, salt: string) {
+  public addSelf(roleName: RoleName | string, seed: string, _salt?: string) {
     logger.info(`Adding role ${roleName} to self`)
     if (!SELF_ASSIGN_ROLES.includes(roleName)) {
       throw new Error(`Role ${roleName} cannot be self-assigned!`)
     }
-    const inviteKeys = this.sigChain.lockbox.generateLockboxKeys(seed, salt)
-    this.sigChain.team!.addMemberRoleToSelf(roleName, inviteKeys.keys)
+    const claimed = this.sigChain.team!.addMemberRoleFromInvitation(roleName, seed)
+    if (!claimed) {
+      throw new Error(`Invitation does not grant role ${roleName}`)
+    }
   }
 
   public revokeMembership(memberId: string, roleName: RoleName | string) {

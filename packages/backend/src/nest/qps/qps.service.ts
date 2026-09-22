@@ -21,6 +21,7 @@ import { SigchainEvents } from '../auth/types'
 import { QSSSyncManager } from '../qss/qss-sync-manager.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
+import { EncryptionScope, EncryptionScopeType } from '../auth/services/crypto/types'
 
 const PUSH_BATCH_SIZE = 500 // FCM allows up to 500 tokens per batch request
 const LEAVE_TOMBSTONE_ACK_TIMEOUT_MS = 5_000
@@ -69,7 +70,10 @@ export class QPSService implements OnModuleInit {
     this.qssService.on(QSSEvents.QSS_AUTH_JOINED, () => this._flushPendingToken())
     this.qssService.on(QSSEvents.QSS_FULLY_JOINED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_CONNECTED, () => this._flushPendingToken())
-    this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.sendBatchPush(teamId))
+    this.qssClient.on(
+      QSSEvents.QSS_LOG_SYNCED,
+      (teamId: string, scope: EncryptionScope | undefined) => void this.sendBatchPush(teamId, scope)
+    )
     this.sigChainService.on(SigchainEvents.UPDATED, () => this._flushPendingToken())
   }
 
@@ -110,7 +114,7 @@ export class QPSService implements OnModuleInit {
     try {
       const sigchain = this.sigChainService.getActiveChain()
       teamId = sigchain?.team?.id
-      userId = sigchain.context.user.userId
+      userId = sigchain.user.userId
     } catch (e) {
       this.logger.warn('Cannot tombstone notification tokens before leave: no active team chain')
       this._pendingDeviceToken = undefined
@@ -118,6 +122,11 @@ export class QPSService implements OnModuleInit {
     }
     if (teamId == null) {
       this.logger.warn('Cannot tombstone notification tokens before leave: no active team id')
+      this._pendingDeviceToken = undefined
+      return false
+    }
+    if (userId == null) {
+      this.logger.warn('Cannot tombstone notification tokens before leave: no active user id')
       this._pendingDeviceToken = undefined
       return false
     }
@@ -219,12 +228,7 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  public async sendBatchPush(
-    teamId: string,
-    title?: string,
-    body?: string,
-    data?: Record<string, string>
-  ): Promise<void> {
+  public async sendBatchPush(teamId: string, scope: EncryptionScope | undefined): Promise<void> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping push trigger')
       return
@@ -235,8 +239,27 @@ export class QPSService implements OnModuleInit {
       return
     }
 
-    const allTokens = await this.notificationTokensStore.getAllEntries()
-    const ucans = allTokens.flatMap(t => t.tokens)
+    if (scope?.type !== EncryptionScopeType.ROLE || !scope.name) {
+      this.logger.warn('Cannot determine recipient role, skipping push trigger')
+      return
+    }
+
+    let ucans: string[]
+    try {
+      const allTokens = await this.notificationTokensStore.getAllEntries()
+      // The token store belongs to the active team. A delayed ack from a previous team
+      // must not notify users in the newly active community.
+      if (teamId !== this.sigChainService.activeTeamId) {
+        this.logger.warn('Synced entry is not for the active team, skipping push trigger')
+        return
+      }
+      const chain = this.sigChainService.getChain(teamId)
+      const recipientIds = new Set(chain.roles.getMembersForRole(scope.name).map(member => member.userId))
+      ucans = allTokens.filter(entry => recipientIds.has(entry.userId)).flatMap(entry => entry.tokens)
+    } catch (error) {
+      this.logger.warn('Cannot resolve notification recipients, skipping push trigger', error)
+      return
+    }
     if (ucans.length === 0) {
       this.logger.info('No registered device UCANs, skipping push trigger')
       return
@@ -245,11 +268,6 @@ export class QPSService implements OnModuleInit {
     const batches: string[][] = []
     for (let i = 0; i < ucans.length; i += PUSH_BATCH_SIZE) {
       batches.push(ucans.slice(i, i + PUSH_BATCH_SIZE))
-    }
-
-    const mergedData: Record<string, string> = {
-      teamId,
-      ...data,
     }
 
     this.logger.info(
@@ -262,7 +280,9 @@ export class QPSService implements OnModuleInit {
           {
             ts: DateTime.utc().toMillis(),
             status: CommunityOperationStatus.SENDING,
-            payload: { ucans: batch, title, body, data: mergedData },
+            // QSS derives teamId from each signed recipient UCAN. Keep this
+            // client-authorized envelope free of notification presentation.
+            payload: { ucans: batch },
           },
           true
         )
@@ -277,12 +297,7 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  public async sendPush(
-    ucan: string,
-    title?: string,
-    body?: string,
-    data?: Record<string, string>
-  ): Promise<SendPushResponse | undefined> {
+  public async sendPush(ucan: string): Promise<SendPushResponse | undefined> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping push')
       return undefined
@@ -299,7 +314,7 @@ export class QPSService implements OnModuleInit {
         {
           ts: DateTime.utc().toMillis(),
           status: CommunityOperationStatus.SENDING,
-          payload: { ucan, title, body, data },
+          payload: { ucan },
         },
         true
       )

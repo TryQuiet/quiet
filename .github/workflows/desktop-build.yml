@@ -7,7 +7,36 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  resolve-update-bucket:
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/tags/@quiet/desktop')
+    outputs:
+      bucket: ${{ steps.bucket.outputs.bucket }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Test release bucket selection
+        run: node --test packages/desktop/scripts/releaseBucket.test.js
+
+      - name: Select update bucket from desktop version
+        if: github.event_name == 'release'
+        id: bucket
+        run: node packages/desktop/scripts/releaseBucket.js
+
+      - name: Verify access to the release bucket
+        if: github.event_name == 'release'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          S3_BUCKET: ${{ steps.bucket.outputs.bucket }}
+        run: aws s3api head-bucket --bucket "$S3_BUCKET"
+
   build-debug-distributables:
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     strategy:
@@ -43,6 +72,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -89,7 +119,7 @@ jobs:
           pkg.version += process.env.VERSION_SUFFIX;
           fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
           NODE
-          USE_HARD_LINKS=false node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
+          USE_HARD_LINKS=false bash ../../scripts/retry-network-command.sh node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -106,7 +136,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Extract version
         id: extract_version
@@ -127,19 +158,23 @@ jobs:
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
     uses: ./.github/workflows/e2e-linux.yml
+    secrets: inherit
 
   run-e2e-tests-mac:
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
     uses: ./.github/workflows/e2e-mac.yml
+    secrets: inherit
 
   run-e2e-tests-win:
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
     uses: ./.github/workflows/e2e-win.yml
+    secrets: inherit
 
   build-linux-prod:
-    # needs: run-e2e-tests-linux
+    needs:
+      - resolve-update-bucket
     runs-on: ubuntu-22.04
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
@@ -147,13 +182,14 @@ jobs:
     env:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.8.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Extract version
         id: extract_version
@@ -181,8 +217,8 @@ jobs:
       - name: "Release"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           ARCH: x86_64
         run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
@@ -192,8 +228,8 @@ jobs:
       - name: "Push electron-updater new checksum to S3"
         uses: TryQuiet/upload-s3-action@c1c7c2268c91fbbc1293455e7b4bb2292267d2bd # master
         with:
-          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_key_id: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ env.S3_BUCKET }}
           source_dir: ${{ env.CHECKSUM_PATH }}
           destination_dir: ''
@@ -205,14 +241,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage
-          asset_name: Quiet-${{ steps.extract_version.outputs.version }}.AppImage
-          asset_content_type: application/.AppImage
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -224,20 +257,22 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-macos-prod:
-    # needs: run-e2e-tests-mac
-    runs-on: macos-26-intel
+    needs:
+      - resolve-update-bucket
+    runs-on: macos-15-intel
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.8.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
 
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Extract version
         id: extract_version
@@ -271,17 +306,23 @@ jobs:
             --package packages/desktop/package.json \
             --bucket "$S3_BUCKET"
 
+      - name: Prepare signing keychain
+        uses: ./.github/actions/mac-signing-keychain
+        with:
+          csc-link: ${{ secrets.MAC_CSC_LINK }}
+          csc-key-password: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+
       - name: "Release"
         uses: nick-fields/retry@v3
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          # CSC_KEYCHAIN is set by the "Prepare signing keychain" step; with
+          # CSC_LINK unset electron-builder signs from that keychain as-is.
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
         with:
           timeout_minutes: 60
@@ -289,6 +330,13 @@ jobs:
           retry_wait_seconds: 90
           shell: bash
           command: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac
+
+      - name: Remove signing keychain
+        if: always()
+        run: |
+          if [ -n "${{ env.CSC_KEYCHAIN }}" ]; then
+            security delete-keychain "${{ env.CSC_KEYCHAIN }}" || true
+          fi
 
       - name: Collect Intel updater metadata
         env:
@@ -318,14 +366,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
-          asset_content_type: application/.dmg
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -337,6 +382,8 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-macos-arm64-prod:
+    needs:
+      - resolve-update-bucket
     runs-on: macos-26
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
@@ -344,12 +391,13 @@ jobs:
     env:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.8.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
 
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Extract version
         id: extract_version
@@ -383,17 +431,23 @@ jobs:
             --package packages/desktop/package.json \
             --bucket "$S3_BUCKET"
 
+      - name: Prepare signing keychain
+        uses: ./.github/actions/mac-signing-keychain
+        with:
+          csc-link: ${{ secrets.MAC_CSC_LINK }}
+          csc-key-password: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+
       - name: "Release"
         uses: nick-fields/retry@v3
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          # CSC_KEYCHAIN is set by the "Prepare signing keychain" step; with
+          # CSC_LINK unset electron-builder signs from that keychain as-is.
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
         with:
           timeout_minutes: 60
@@ -401,6 +455,13 @@ jobs:
           retry_wait_seconds: 90
           shell: bash
           command: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac --arm64
+
+      - name: Remove signing keychain
+        if: always()
+        run: |
+          if [ -n "${{ env.CSC_KEYCHAIN }}" ]; then
+            security delete-keychain "${{ env.CSC_KEYCHAIN }}" || true
+          fi
 
       - name: Collect arm64 updater metadata
         env:
@@ -427,14 +488,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
-          asset_content_type: application/.dmg
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -447,6 +505,7 @@ jobs:
 
   publish-macos-update-metadata:
     needs:
+      - resolve-update-bucket
       - build-macos-prod
       - build-macos-arm64-prod
     runs-on: ubuntu-22.04
@@ -455,7 +514,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.8.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
       MAC_UPDATE_CHANNEL_FILE: ${{ github.event.action == 'released' && 'latest-mac.yml' || 'alpha-mac.yml' }}
 
     steps:
@@ -511,8 +570,8 @@ jobs:
       - name: Publish mac updater metadata
         uses: TryQuiet/upload-s3-action@c1c7c2268c91fbbc1293455e7b4bb2292267d2bd # master
         with:
-          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_key_id: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ env.S3_BUCKET }}
           source_dir: mac-update-info/publish/${{ env.MAC_UPDATE_CHANNEL_FILE }}
           destination_dir: ''
@@ -537,7 +596,8 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-windows-prod:
-    # needs: run-e2e-tests-win
+    needs:
+      - resolve-update-bucket
     runs-on: windows-latest
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
@@ -545,12 +605,13 @@ jobs:
     env:
       ENV_FILE: ${{ github.event.action == 'prereleased' && '.env.staging' || '.env.production' }}
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.8.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ needs.resolve-update-bucket.outputs.bucket }}
 
     steps:
       - uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_READ_TOKEN || github.token }}
 
       - name: Extract version
         id: extract_version
@@ -595,8 +656,8 @@ jobs:
           CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.QUIET_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.QUIET_AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
         run: cd packages/desktop && node_modules/.bin/electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
 
@@ -607,14 +668,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
-          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
-          asset_content_type: application/.exe
+        shell: bash
+        run: |
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier

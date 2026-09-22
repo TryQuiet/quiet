@@ -20,10 +20,10 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-b4ycit-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption Slidertitle css-1m4pgvy-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-sb3pb0-MuiTypography-root"
             >
               this is a title of the slider
             </span>
@@ -37,7 +37,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-d2974-MuiTypography-root"
                   />
                 </div>
                 <div
@@ -61,7 +61,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-d2974-MuiTypography-root"
                   />
                 </div>
               </div>
@@ -88,10 +88,10 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-b4ycit-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption Slidertitle css-1m4pgvy-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-sb3pb0-MuiTypography-root"
             >
               this is a title of the slider
             </span>
@@ -105,7 +105,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-d2974-MuiTypography-root"
                   >
                     $ MIN
                   </p>
@@ -131,7 +131,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-d2974-MuiTypography-root"
                   >
                     $ MAX
                   </p>
@@ -160,10 +160,10 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-b4ycit-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption Slidertitle css-1m4pgvy-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-sb3pb0-MuiTypography-root"
             >
               this is a title of the slider
             </span>
@@ -177,7 +177,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-d2974-MuiTypography-root"
                   />
                 </div>
                 <div
@@ -202,7 +202,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-d2974-MuiTypography-root"
                   />
                 </div>
               </div>

@@ -1,23 +1,24 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import { useModal } from '../../../containers/hooks'
-import { PublicChannel, UserProfile } from '@quiet/types'
+import { ChannelType, PublicChannel } from '@quiet/types'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import ChannelsListItem from './ChannelsListItem'
 
 export interface ChannelsPanelProps {
   channels: PublicChannel[]
-  userProfiles: Record<string, UserProfile>
-  connectedPeers: string[]
   unreadChannels: string[]
   setCurrentChannel: (id: string) => void
   currentChannelId: string
   createChannelModal: ReturnType<typeof useModal>
-  isTorInitialized: boolean
   canCreateChannel: boolean
 }
 
+/**
+ * The "Channels" section of the Quiet Design Library's desktop sidebar
+ * (`6218:16416`): a `List title` with the section's (+), then one `List item`
+ * per channel.
+ */
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
   unreadChannels,
@@ -27,18 +28,20 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   createChannelModal,
 }) => {
   return (
-    <Grid container item xs direction='column'>
-      <Grid item>
-        <SidebarHeader
-          title={'Channels'}
-          action={canCreateChannel ? createChannelModal.handleOpen : undefined}
-          actionTitle={canCreateChannel ? createChannelModal.handleOpen : undefined}
-          tooltipText='Create new channel'
-        />
-      </Grid>
-      <Grid item>
-        <List disablePadding data-testid='channelsList'>
-          {channels.map((channel, _index) => {
+    <div>
+      <SidebarHeader
+        title={'Channels'}
+        // The (+) is only drawn for users who may actually create a channel.
+        action={canCreateChannel ? createChannelModal.handleOpen : undefined}
+        actionTitle={canCreateChannel ? 'createChannel' : undefined}
+        tooltipText='Create new channel'
+      />
+      <List disablePadding data-testid='channelsList'>
+        {channels
+          // DM conversations live in their own section now, so they must not also
+          // appear under "Channels". An older channel carries no type at all.
+          .filter(channel => channel.type == null || channel.type === ChannelType.CHANNEL)
+          .map(channel => {
             const unread = unreadChannels.some(id => id === channel.id)
             const selected = currentChannelId === channel.id
             return (
@@ -52,16 +55,8 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
               />
             )
           })}
-        </List>
-      </Grid>
-      {/* <Grid item>
-        <QuickActionButton
-          text='Find Channel'
-          action={}
-          icon={<Icon src={SearchIcon} />}
-        />
-      </Grid> */}
-    </Grid>
+      </List>
+    </div>
   )
 }
 export default ChannelsPanel

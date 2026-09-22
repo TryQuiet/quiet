@@ -3,7 +3,7 @@ import { FixedTask } from 'typed-redux-saga'
 import { Socket } from 'socket.io-client'
 import { StoreKeys } from '../store.keys'
 import { initChecksAdapter } from './init.adapter'
-import { InitCheck } from './init.types'
+import { InitCheck, WebsocketConnectionPayload } from './init.types'
 import { InitCheckKeys } from './initCheck.keys'
 
 export class InitState {
@@ -24,10 +24,7 @@ export interface InitCheckPayload {
   passed: boolean
 }
 
-export interface WebsocketConnectionPayload {
-  dataPort: number
-  socketIOSecret: string
-}
+export type { WebsocketConnectionPayload } from './init.types'
 
 export interface CloseConnectionPayload {
   task: FixedTask<Generator>
@@ -58,6 +55,7 @@ export const initSlice = createSlice({
       })
     },
     startWebsocketConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
+    resumeWebsocketConnection: state => state,
     suspendWebsocketConnection: state => {
       state.isWebsocketConnected = false
     },

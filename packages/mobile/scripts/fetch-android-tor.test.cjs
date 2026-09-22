@@ -1,0 +1,36 @@
+// Use the authentic downloaded APK/signature: QUIET_TOR_TEST_CACHE=/tmp/quiet-tor-downloads node --test scripts/fetch-android-tor.test.cjs
+const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const os = require('node:os')
+const path = require('node:path')
+const { spawnSync } = require('node:child_process')
+const { test } = require('node:test')
+
+test('the real Tor signature admits the pinned APK and rejects a tampered cached APK', t => {
+  assert.ok(process.env.QUIET_TOR_TEST_CACHE, 'Set QUIET_TOR_TEST_CACHE to the downloaded APK/signature directory')
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'quiet-tor-signature-'))
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }))
+  const scripts = path.join(directory, 'packages/mobile/scripts')
+  const cache = path.join(directory, 'cache')
+  fs.mkdirSync(scripts, { recursive: true })
+  fs.mkdirSync(path.join(directory, 'scripts'))
+  fs.mkdirSync(cache)
+  fs.copyFileSync(path.join(__dirname, 'fetch-android-tor.sh'), path.join(scripts, 'fetch-android-tor.sh'))
+  fs.copyFileSync(path.resolve(__dirname, '../../../scripts/tor-signing-key.asc'), path.join(directory, 'scripts/tor-signing-key.asc'))
+  const apk = 'tor-browser-android-x86_64-15.0.22.apk'
+  for (const name of [apk, `${apk}.asc`]) {
+    fs.copyFileSync(path.join(process.env.QUIET_TOR_TEST_CACHE, name), path.join(cache, name), fs.constants.COPYFILE_FICLONE)
+  }
+  const run = () => spawnSync('bash', [path.join(scripts, 'fetch-android-tor.sh'), '--cache', cache], { encoding: 'utf8', timeout: 30000 })
+  const accepted = run()
+  assert.equal(accepted.status, 0, accepted.stderr)
+  assert.match(accepted.stdout, /Signature verified/)
+  const target = path.join(directory, 'packages/mobile/android/app/src/main/jniLibs/x86_64/libtor.so')
+  assert.ok(fs.statSync(target).size > 0)
+  fs.unlinkSync(target)
+  fs.appendFileSync(path.join(cache, apk), 'tampered fixture')
+  const rejected = run()
+  assert.notEqual(rejected.status, 0)
+  assert.match(rejected.stderr, /GPG signature verification failed/)
+  assert.equal(fs.existsSync(target), false, 'unverified input must never be installed')
+})

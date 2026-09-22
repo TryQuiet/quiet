@@ -2,42 +2,32 @@ import React from 'react'
 
 import { styled } from '@mui/material/styles'
 import Button, { ButtonClasses, ButtonProps } from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
 
-import classNames from 'classnames'
+import { primaryButtonStates } from '../interactionStates'
+
+/**
+ * The app's primary button. It used to swap its label for a spinner while the
+ * action ran (`inProgress`), which the Quiet Design Library has no variant for
+ * - Button set 3505:10206 is Default / Hover / Disabled only. An action in
+ * progress is ui/ActionProgress instead, and the button goes away while it
+ * runs, so that affordance is gone.
+ */
 
 const PREFIX = 'LoadingButton'
 
 const classes = {
   button: `${PREFIX}button`,
-  inProgress: `${PREFIX}inProgress`,
-  progress: `${PREFIX}progress`,
 }
 
 const StyledButton = styled(Button)(({ theme }) => ({
+  // Height, radius, padding and the primary colours come from the theme's Button overrides, which
+  // carry the design library's spec; overriding them here is what made this button 60 tall with no
+  // hover state of its own. Pressed and focus-visible come on top, for every caller, including
+  // those passing their own `button` class.
+  ...primaryButtonStates(theme),
   [`&.${classes.button}`]: {
     maxWidth: 286,
     minWidth: 100,
-    height: 60,
-    backgroundColor: theme.palette.colors.quietBlue,
-    color: theme.palette.colors.white,
-    '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue,
-    },
-    '&:disabled': {
-      opacity: 0.7,
-    },
-  },
-
-  [`&.${classes.inProgress}`]: {
-    '&:disabled': {
-      backgroundColor: theme.palette.colors.quietBlue,
-      opacity: 1,
-    },
-  },
-
-  [`& .${classes.progress}`]: {
-    color: theme.palette.colors.white,
   },
 }))
 
@@ -46,13 +36,11 @@ interface LoadingButtonClasses extends ButtonClasses {
 }
 
 interface LoadingButtonProps {
-  inProgress?: boolean
   text?: string
   classes?: Partial<LoadingButtonClasses>
 }
 
 export const LoadingButton: React.FC<ButtonProps & LoadingButtonProps> = ({
-  inProgress = false,
   text = 'Continue',
   classes: customClasses,
   ...buttonProps
@@ -63,15 +51,8 @@ export const LoadingButton: React.FC<ButtonProps & LoadingButtonProps> = ({
   }
 
   return (
-    <StyledButton
-      className={classNames(mergedClasses.button, { [mergedClasses.inProgress]: inProgress })}
-      {...buttonProps}
-    >
-      {inProgress ? (
-        <CircularProgress size={20} className={mergedClasses.progress} data-testid={'loading-button-progress'} />
-      ) : (
-        text
-      )}
+    <StyledButton className={mergedClasses.button} {...buttonProps}>
+      {text}
     </StyledButton>
   )
 }
