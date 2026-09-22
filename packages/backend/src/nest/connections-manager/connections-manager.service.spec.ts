@@ -1704,7 +1704,7 @@ describe('ConnectionsManagerService', () => {
     expect(saveChainSpy).toHaveBeenCalledWith(chain.teamId)
   })
 
-  it('lists the current user\'s devices through the socket listener, marking this one current', async () => {
+  it("lists the current user's devices through the socket listener, marking this one current", async () => {
     await connectionsManagerService.init()
     const activeChain = await sigChainService.loadChain(chain.teamId!, true)
     const callback = jest.fn()
