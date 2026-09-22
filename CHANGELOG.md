@@ -2,6 +2,10 @@
 
 ## [11.1.0]
 
+### Chores
+
+* chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).
+
 ### Features
 
 * Add participant-only direct messages on desktop and mobile, encrypted to each participant's account keys so community administrators cannot read them
