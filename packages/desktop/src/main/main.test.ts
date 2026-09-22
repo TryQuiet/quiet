@@ -293,7 +293,7 @@ describe('backend bundle resolution', () => {
   it('resolves backend-bundle to the committed stub, not the gitignored build artifact', () => {
     // Also covers the bundled case: with bundle.cjs present the mapping is still what answers,
     // so dropping it does not quietly go unnoticed on a machine that has built the backend.
-    expect(require.resolve('backend-bundle')).toBe(require.resolve('../shared/testing/backendBundleMock'))
+    expect(require.resolve('backend-bundle')).toBe(require.resolve('../shared/__tests__/backendBundleMock'))
   })
 
   it('forks the backend from the resolved backend-bundle entry point', () => {

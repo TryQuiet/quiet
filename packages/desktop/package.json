@@ -305,7 +305,7 @@
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/shared/testing/fileMock.ts",
       "\\.(scss|css|less)$": "identity-obj-proxy",
-      "^backend-bundle$": "<rootDir>/src/shared/testing/backendBundleMock.ts"
+      "^backend-bundle$": "<rootDir>/src/shared/__tests__/backendBundleMock.ts"
     },
     "testRegex": "src/.*\\.test\\.(t|j)sx?$",
     "snapshotSerializers": [

@@ -14,8 +14,9 @@
 // resolves the real `bundle.cjs` through `packages/desktop/node_modules/backend-bundle`, and the
 // webpack configs only build the renderer, which never imports `backend-bundle`.
 //
-// Both build tsconfigs exclude this directory, so neither this stub nor the file mock beside it
-// reaches `dist/` and the packaged app. They stay inside `src/` rather than moving under
-// `__tests__/` because tsconfig.json excludes that name, which would put them outside every
-// TSConfig project and make eslint fail to parse them.
+// It lives under `__tests__/` because tsconfig.build.json and tsconfig.build.prepare.json both
+// exclude that directory, which keeps it out of `dist/` and so out of the packaged app. jest's
+// `testRegex` only matches `*.test.*`, so it is not picked up as a suite. tsconfig.json, which is
+// what eslint type-checks against, deliberately does NOT exclude `__tests__` - otherwise this file
+// would sit outside every TSConfig project and `npm run lint:no-fix` would fail to parse it.
 export {}
