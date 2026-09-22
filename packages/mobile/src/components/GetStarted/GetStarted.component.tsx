@@ -55,7 +55,12 @@ export const GetStarted: FC<GetStartedProps> = ({ onJoinCommunity, onCreateCommu
         testID={'beta-warning'}
       >
         <Image source={icons.icon_warning} resizeMode='cover' resizeMethod='resize' style={{ width: 16, height: 16 }} />
-        <Typography variant={'caption'} color={'grayDark'} horizontalTextAlign={'center'} style={{ flexShrink: 1 }}>
+        {/*
+         * The beta line is drawn as `Status`, Rubik 12/16 w400 #222222 - Get started 6066:27523,
+         * and the same in all 21 beta-warning nodes across the four onboarding files. It is not
+         * the library's general caption grey. `gray90` is that ink; desktop took it in #3666.
+         */}
+        <Typography variant={'caption'} color={'gray90'} horizontalTextAlign={'center'} style={{ flexShrink: 1 }}>
           {BETA_WARNING}
         </Typography>
       </View>

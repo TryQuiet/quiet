@@ -134,3 +134,26 @@ describe('TextMessage channel mentions', () => {
     expect(openUrl).not.toHaveBeenCalled()
   })
 })
+
+describe('TextMessage emoji sizing', () => {
+  // `TextMessage` prefixes its class names; this is the one that doubles the font size.
+  const EMOJI_MESSAGE_CLASS = 'TextMessageemojiMessage'
+
+  const messageBody = (message: string) =>
+    renderMessage(message).baseElement.querySelector('[data-testid="messagesGroupContent-message-id"]')
+
+  it.each([['🎉'], ['🙂🙂🙂'], ['🐈‍⬛ ❤️‍🔥'], ['1️⃣']])('enlarges the emoji-only message %s', (message: string) => {
+    expect(messageBody(message)).toHaveClass(EMOJI_MESSAGE_CLASS)
+  })
+
+  it.each([
+    ['digits', '86'],
+    ['a number and text', 'see you at 8'],
+    ['a channel mention', '#general'],
+    ['an asterisk', '*'],
+    ['plain text', 'hello'],
+    ['text alongside an emoji', 'nice 🎉'],
+  ])('leaves %s at the body font size', (_label: string, message: string) => {
+    expect(messageBody(message)).not.toHaveClass(EMOJI_MESSAGE_CLASS)
+  })
+})
