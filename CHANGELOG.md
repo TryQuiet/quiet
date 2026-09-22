@@ -49,6 +49,10 @@
 
 * Make interrupted device-admission recovery tests independent of public Tor timing and local QSS servers, while retaining separate Tor device-link coverage [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3581](https://github.com/TryQuiet/quiet/issues/3581)
 
+### Chores
+
+* Run the backend unit tests in a recycled worker rather than one long-lived process, so the heap no longer climbs across the suites until it reaches the 4 GB ceiling and fails the job with "Ineffective mark-compacts near heap limit" [#3634](https://github.com/TryQuiet/quiet/issues/3634)
+
 ## [11.0.1]
 
 ### Fixes
