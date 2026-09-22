@@ -9,34 +9,45 @@ export interface TextSegment {
 // carries every plain ASCII keycap *base* - `0`-`9`, `#` and `*` - so anything built on it reports
 // "86" or "#general" as emoji, and a caller that sizes emoji separately then draws the digits of an
 // ordinary message at emoji size. Here a digit, `#` or `*` counts only as part of a complete keycap
-// sequence (`1️⃣`). A single emoji is one of:
+// sequence (`1️⃣`). One emoji is one of:
 //
-//   [0-9#*]\uFE0F?\u20E3                   a keycap:               1️⃣
-//   \p{RI}\p{RI}                           a regional-indicator pair, i.e. a flag: 🇵🇱
-//   \p{Extended_Pictographic}[…]*          a pictograph, with any skin-tone modifier, emoji
-//                                          presentation selector, or subdivision-flag tag run: 👍🏽 🏴󠁧󠁢󠁳󠁣󠁴󠁿
+//   [0-9#*]\uFE0F?\u20E3            a keycap: 1️⃣
+//   \p{RI}\p{RI}                    a regional-indicator pair, i.e. a flag: 🇵🇱
+//   \p{Extended_Pictographic}(?:…)* a pictograph and anything bound to it: a skin-tone modifier,
+//                                   the presentation selector, a subdivision flag's tag run, and a
+//                                   zero-width joiner leading to the next pictograph: 👍🏽 🏴󠁧󠁢󠁳󠁣󠁴󠁿 ❤️‍🔥
 //
-// and a zero-width joiner binds one to the next (`🐈‍⬛`, `❤️‍🔥`), so a run of them is a single emoji.
+// The pattern matches exactly one emoji and never repeats itself. `splitEmoji` walks it across the
+// string and joins neighbours, which is what puts the two halves of a joined pair (`🐈` + `⬛`) in
+// one run. Wrapping it in a repetition instead leaves its own tail ambiguous with the next repeat -
+// a variation selector could be taken by either - which is the shape CodeQL reports as
+// `js/polynomial-redos`, and a message is untrusted input. One emoji at a time has no such choice.
 //
 // Keep this one regex literal, assembled from nothing. A bundler rewrites a literal's property
 // escapes and astral ranges for the engine it targets - Metro does, for Hermes - so reading
 // `.source` back off a fragment and building the real pattern from the pieces gives a pattern that
 // no longer means the same thing, or anything, under the `u` flag.
-const EMOJI_RUN =
-  /(?:\u200D?(?:[0-9#*]\uFE0F?\u20E3|\p{RI}\p{RI}|\p{Extended_Pictographic}[\p{Emoji_Modifier}\uFE0F\u{E0020}-\u{E007F}]*))+/gu
+const EMOJI =
+  /[0-9#*]\uFE0F?\u20E3|\p{RI}\p{RI}|\p{Extended_Pictographic}(?:[\p{Emoji_Modifier}\uFE0F\u{E0020}-\u{E007F}]|\u200D)*/gu
 
 // Splits a string into text/emoji runs so callers can style emoji separately.
 export const splitEmoji = (testString: string): TextSegment[] => {
-  EMOJI_RUN.lastIndex = 0
+  EMOJI.lastIndex = 0
   const segments: TextSegment[] = []
   let lastIndex = 0
   let match: RegExpExecArray | null
 
-  while ((match = EMOJI_RUN.exec(testString)) !== null) {
+  while ((match = EMOJI.exec(testString)) !== null) {
+    const previous = segments[segments.length - 1]
     if (match.index > lastIndex) {
       segments.push({ text: testString.slice(lastIndex, match.index), isEmoji: false })
+      segments.push({ text: match[0], isEmoji: true })
+    } else if (previous?.isEmoji) {
+      // Touching the emoji before it: one run, so a caller styles them as one.
+      previous.text += match[0]
+    } else {
+      segments.push({ text: match[0], isEmoji: true })
     }
-    segments.push({ text: match[0], isEmoji: true })
     lastIndex = match.index + match[0].length
   }
 
@@ -48,8 +59,8 @@ export const splitEmoji = (testString: string): TextSegment[] => {
 }
 
 export const hasEmoji = (testString: string) => {
-  EMOJI_RUN.lastIndex = 0
-  return EMOJI_RUN.test(testString)
+  EMOJI.lastIndex = 0
+  return EMOJI.test(testString)
 }
 
 // True when a string is nothing but emoji and whitespace. A string with no emoji in it at all,

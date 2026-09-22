@@ -116,5 +116,15 @@ describe('Emoji Utilities', () => {
       { text: 'yes ', isEmoji: false },
       { text: '🎉🎉🎉', isEmoji: true },
     ])
+
+    // Different emoji, touching, are still one run.
+    expect(splitEmoji('🎉🎊🥳')).toEqual([{ text: '🎉🎊🥳', isEmoji: true }])
+
+    // A zero-width joiner holds a sequence together across its parts.
+    expect(splitEmoji('the 👨‍👩‍👧‍👦 emoji')).toEqual([
+      { text: 'the ', isEmoji: false },
+      { text: '👨‍👩‍👧‍👦', isEmoji: true },
+      { text: ' emoji', isEmoji: false },
+    ])
   })
 })
