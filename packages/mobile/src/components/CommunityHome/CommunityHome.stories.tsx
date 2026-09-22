@@ -56,6 +56,27 @@ storiesOf('CommunityHome', module)
   .add('Connecting', () => (
     <CommunityHome communityName='nyc-activism' channels={[]} users={[]} canCreateChannel {...handlers} />
   ))
+  // The tapped state is only half the story on a list you can flick: this one is
+  // deliberately taller than any phone, so a drag can be started on a row and the
+  // row checked for a flash (#1495).
+  .add('Long enough to scroll', () => (
+    <CommunityHome
+      communityName='nyc-activism'
+      channels={Array.from({ length: 30 }, (_, index) => ({
+        id: `channel-${index}`,
+        name: `channel-${index}`,
+        isPublic: index % 3 !== 0,
+        unread: index % 5 === 0,
+      }))}
+      users={Array.from({ length: 20 }, (_, index) => ({
+        userId: `member-${index}`,
+        nickname: `Member${index}`,
+        connected: index % 2 === 0,
+      }))}
+      canCreateChannel
+      {...handlers}
+    />
+  ))
   .add('Long community name', () => (
     <CommunityHome
       communityName='a-very-long-community-name-that-will-not-fit'

@@ -9,6 +9,7 @@ import { Spinner } from '../../Spinner/Spinner.component'
 import { createLogger } from '../../../utils/logger'
 import { uniqueId } from 'lodash'
 import { SELECTABLE_USER_ROW_HEIGHT } from '../ChannelMembership.types'
+import { TAP_FEEDBACK_DELAY_MS } from '../../../utils/const/tapFeedback'
 import { ProfilePhotoWithBadge } from '../../ProfilePhoto/ProfilePhotoWithBadge.component'
 import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 
@@ -75,6 +76,9 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
     return (
       <TouchableOpacity
         activeOpacity={item.mutable ? 0.2 : 1}
+        // The candidate list scrolls, so the row only dims once the finger has stayed put; a
+        // flick through a long member list should leave every row alone (#1495).
+        delayPressIn={TAP_FEEDBACK_DELAY_MS}
         disabled={!item.mutable}
         onPress={() => updateOptionsOnCheck(item)}
         testID={`update-channel-membership-list-row-${channelId}-${item.id}`}

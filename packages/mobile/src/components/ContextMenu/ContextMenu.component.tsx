@@ -5,6 +5,7 @@ import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { icons } from '../../assets'
 import { createLogger } from '../../utils/logger'
+import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 const logger = createLogger('contextMenu:component')
@@ -203,7 +204,9 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suf
   const paddingVertical = 11
   const minHeight = 48
   return (
-    <TouchableOpacity onPress={action} testID={title}>
+    // The rows are a FlatList, so the dim waits out TAP_FEEDBACK_DELAY_MS: a menu long enough to
+    // scroll should not flash the row your flick started on (#1495).
+    <TouchableOpacity onPress={action} delayPressIn={TAP_FEEDBACK_DELAY_MS} testID={title}>
       <View
         style={{
           display: 'flex',
