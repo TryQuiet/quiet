@@ -8,15 +8,27 @@ import { ActionRow } from '../ActionRow/ActionRow.component'
 import { Appbar } from '../Appbar/Appbar.component'
 import { Typography } from '../Typography/Typography.component'
 
+import type { LinkedDevice } from '@quiet/types'
+
 import type { LinkDevicesProps } from './LinkDevices.types'
+
+/**
+ * The rows the list draws: the other devices on this account. This device is
+ * never one of them (it is the one being read from), and a device removed from
+ * the account is gone from the list even though the graph still carries it.
+ */
+export const otherLinkedDevices = (linkedDevices: LinkedDevice[]): LinkedDevice[] =>
+  linkedDevices.filter(device => !device.isCurrent && device.removedAt == null)
 
 /** Link devices · Figma 2811:2575. */
 export const LinkDevices: FC<LinkDevicesProps> = ({
   onDisplayQrCode,
   onScanQrCode,
   canDisplayQrCode = true,
+  linkedDevices,
   handleBackButton,
 }) => {
+  const otherDevices = linkedDevices ? otherLinkedDevices(linkedDevices) : undefined
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
       {/* The screen's own h3 says "Link devices"; a page with a heading gets no bar title. */}
@@ -47,6 +59,32 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
             testID={'link-devices-scan-qr'}
           />
         </View>
+        {otherDevices ? (
+          <View style={{ gap: spacing.sm }} testID={'linked-devices-list'}>
+            <Typography variant={'overline'} color={'gray50'}>
+              {'Linked devices'}
+            </Typography>
+            {otherDevices.length === 0 ? (
+              <Typography variant={'body'} color={'grayDark'} testID={'no-linked-devices'}>
+                {'No linked devices'}
+              </Typography>
+            ) : (
+              otherDevices.map(device => (
+                <View
+                  key={device.deviceId}
+                  style={{
+                    paddingVertical: spacing.sm,
+                    borderBottomWidth: 1,
+                    borderBottomColor: defaultTheme.palette.typography.veryLightGray,
+                  }}
+                  testID={`linked-device-${device.deviceName}`}
+                >
+                  <Typography variant={'bodyLg'}>{device.deviceName}</Typography>
+                </View>
+              ))
+            )}
+          </View>
+        ) : null}
       </View>
     </View>
   )

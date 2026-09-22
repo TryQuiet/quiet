@@ -9,6 +9,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import QR from 'react-qr-code'
 
+import type { LinkedDevice } from '@quiet/types'
+
 import type { LinkedDevicesComponentProps } from './LinkedDevices.types'
 import { glyphButtonStates, primaryButtonStates } from '../../../ui/interactionStates'
 
@@ -22,6 +24,10 @@ const classes = {
   linkContainer: `${PREFIX}linkContainer`,
   linkVisibility: `${PREFIX}linkVisibility`,
   title: `${PREFIX}title`,
+  list: `${PREFIX}list`,
+  listLabel: `${PREFIX}listLabel`,
+  device: `${PREFIX}device`,
+  empty: `${PREFIX}empty`,
   centered: `${PREFIX}centered`,
 }
 
@@ -57,10 +63,30 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     top: 8,
     ...glyphButtonStates(theme, false),
   },
+  [`& .${classes.list}`]: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.space.sm,
+    marginTop: theme.space.xl,
+  },
+  [`& .${classes.listLabel}`]: {
+    color: theme.palette.colors.darkGray,
+  },
+  [`& .${classes.device}`]: {
+    paddingTop: theme.space.sm,
+    paddingBottom: theme.space.sm,
+    borderBottom: `1px solid ${theme.palette.colors.border01}`,
+  },
+  [`& .${classes.empty}`]: {
+    color: theme.palette.colors.darkGray,
+  },
   [`&.${classes.centered}`]: {
     alignItems: 'center',
     textAlign: 'center',
     [`& .${classes.linkContainer}`]: {
+      width: '100%',
+    },
+    [`& .${classes.list}`]: {
       width: '100%',
     },
   },
@@ -75,6 +101,14 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 }))
 
+/**
+ * The rows the list draws: the other devices on this account. This device is
+ * never one of them (it is the one being read from), and a device removed from
+ * the account is gone from the list even though the graph still carries it.
+ */
+export const otherLinkedDevices = (linkedDevices: LinkedDevice[]): LinkedDevice[] =>
+  linkedDevices.filter(device => !device.isCurrent && device.removedAt == null)
+
 const HIDDEN_DEVICE_LINK = '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'
 
 export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
@@ -82,8 +116,10 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
   isLoading,
   revealLink,
   onToggleLinkVisibility,
+  linkedDevices,
   centered = false,
 }) => {
+  const otherDevices = linkedDevices ? otherLinkedDevices(linkedDevices) : undefined
   return (
     <StyledGrid container direction='column' className={centered ? classes.centered : undefined}>
       <Grid item className={classes.title}>
@@ -150,6 +186,29 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
           </Grid>
         </>
       )}
+      {otherDevices ? (
+        <Grid item className={classes.list} data-testid='linked-devices-list'>
+          <Typography variant='overline' className={classes.listLabel}>
+            Linked devices
+          </Typography>
+          {otherDevices.length === 0 ? (
+            <Typography variant='body2' className={classes.empty} data-testid='no-linked-devices'>
+              No linked devices
+            </Typography>
+          ) : (
+            otherDevices.map(device => (
+              <Typography
+                variant='body1'
+                className={classes.device}
+                key={device.deviceId}
+                data-testid={`linked-device-${device.deviceName}`}
+              >
+                {device.deviceName}
+              </Typography>
+            ))
+          )}
+        </Grid>
+      ) : null}
     </StyledGrid>
   )
 }

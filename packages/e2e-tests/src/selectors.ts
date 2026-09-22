@@ -1598,6 +1598,35 @@ export class LinkDevicesModal {
     await confirmDeviceLinkConsent(this.driver)
   }
 
+  /**
+   * Device names listed under "Linked devices" (this device excluded). The list
+   * is fetched from the backend when the surface opens, so wait for at least
+   * `expectedCount` rows before reading it.
+   */
+  async linkedDeviceNames(expectedCount = 0, timeoutMs = 30_000): Promise<string[]> {
+    await this.findVisible('linked-devices-list')
+    const readNames = async () => {
+      const rows = await this.driver.findElements(By.xpath("//*[starts-with(@data-testid, 'linked-device-')]"))
+      const names: string[] = []
+      for (const row of rows) names.push((await row.getText()).trim())
+      return names
+    }
+    if (expectedCount > 0) {
+      await this.driver.wait(
+        async () => (await readNames()).length >= expectedCount,
+        timeoutMs,
+        `Expected ${expectedCount} linked device(s) within timeout`,
+        500
+      )
+    }
+    return await readNames()
+  }
+
+  async hasNoLinkedDevices(): Promise<boolean> {
+    const empty = await this.driver.findElements(By.xpath("//*[@data-testid='no-linked-devices']"))
+    return empty.length > 0
+  }
+
   async back() {
     const back = await this.findVisible('linkDevicesModalBack')
     await back.click()

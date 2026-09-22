@@ -19,7 +19,7 @@ import BackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
 import { composeInvitationDeepUrl, composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { InvitationKind, isDeviceInvitationData } from '@quiet/types'
-import type { InvitationData } from '@quiet/types'
+import type { InvitationData, LinkedDevice } from '@quiet/types'
 
 // The implemented onboarding screens, one story each, plus a walkthrough that
 // wires them together with in-story state (bottom of the file). Left: the desktop
@@ -255,23 +255,45 @@ export const LinkDevices = () => (
   />
 )
 
+// The share direction is the only place with a team graph to read devices off,
+// so the "Linked devices" list lives under the QR code and not on the entry
+// screen. `isCurrent` rows and removed rows never reach it (879:15640 ff.).
+const EXAMPLE_LINKED_DEVICES: LinkedDevice[] = [
+  { deviceId: 'this', deviceName: 'this device', isCurrent: true },
+  { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
+  { deviceId: 'phone', deviceName: 'work-phone', isCurrent: false },
+]
+
+const DisplayQrCodeBody: React.FC<{ linkedDevices?: LinkedDevice[] }> = ({ linkedDevices }) => (
+  <OnboardingBody dataTestId='link-devices-display'>
+    <LinkedDevicesComponent
+      deviceLink={'https://tryquiet.org/join#example-device-link'}
+      isLoading={false}
+      revealLink={false}
+      onToggleLinkVisibility={noop}
+      linkedDevices={linkedDevices}
+      centered
+    />
+  </OnboardingBody>
+)
+
 export const DisplayQrCode = () => (
   <Screen
     title='Display QR code'
     droppedBar='QR code'
     figma='2811:2601'
     note="#3400's Linked devices surface, shown inside the Link devices modal"
-    render={() => (
-      <OnboardingBody dataTestId='link-devices-display'>
-        <LinkedDevicesComponent
-          deviceLink={'https://tryquiet.org/join#example-device-link'}
-          isLoading={false}
-          revealLink={false}
-          onToggleLinkVisibility={noop}
-          centered
-        />
-      </OnboardingBody>
-    )}
+    render={() => <DisplayQrCodeBody linkedDevices={EXAMPLE_LINKED_DEVICES} />}
+  />
+)
+
+export const DisplayQrCodeEmpty = () => (
+  <Screen
+    title='Display QR code · no linked devices'
+    droppedBar='QR code'
+    figma='2811:2601'
+    note='the same surface with nothing linked yet: the list keeps its overline and says so'
+    render={() => <DisplayQrCodeBody linkedDevices={[]} />}
   />
 )
 

@@ -96,6 +96,19 @@ async function getDeviceInvitation(app: App): Promise<string> {
   return link
 }
 
+/**
+ * The "Linked devices" list on the share direction, which is Settings → Linked
+ * devices once you are in a community. Names of the other devices only.
+ */
+async function linkedDeviceNamesInSettings(app: App, expectedCount = 0): Promise<string[]> {
+  const settings = await new Sidebar(app.driver).openSettings()
+  expect(await settings.isReady()).toBeTruthy()
+  await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
+  const names = await new LinkDevicesModal(app.driver).linkedDeviceNames(expectedCount)
+  await settings.closeTabThenModal()
+  return names
+}
+
 describe('Onboarding', () => {
   beforeEach(() => {
     logger.info(`░░░ ${expect.getState().currentTestName}`)
@@ -263,6 +276,8 @@ describe('Onboarding', () => {
 
     it('A creates a community and generates a device link; B links through Get started → Link devices', async () => {
       await createCommunity(owner, `onbdev${Date.now().toString(36)}`, ownerUsername)
+      // Nothing is linked yet, so the share direction shows the empty list.
+      expect(await linkedDeviceNamesInSettings(owner)).toEqual([])
       const deviceInvitation = await getDeviceInvitation(owner)
 
       await linkedDevice.openWithRetries()
@@ -302,11 +317,13 @@ describe('Onboarding', () => {
       await channelA.waitForUserMessageByText(ownerUsername, message)
     })
 
-    // The backend on this line exposes no linked-device listing (the branch's
-    // GET_LINKED_DEVICES handler was dropped in favour of develop's backend), so
-    // there is no device list to assert on yet.
-    it.skip("A's device list shows B", async () => {
-      logger.warn('Listing linked devices is not implemented on this line')
+    it("A's device list shows B", async () => {
+      // Each device lists the other one and never itself, so the two lists differ.
+      const names = await linkedDeviceNamesInSettings(owner, 1)
+      expect(names).toHaveLength(1)
+      const namesOnB = await linkedDeviceNamesInSettings(linkedDevice, 1)
+      expect(namesOnB).toHaveLength(1)
+      expect(namesOnB).not.toEqual(names)
     })
 
     // #3400 ships no device removal, and this line carries #3471 (removal

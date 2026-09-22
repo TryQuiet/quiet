@@ -50,7 +50,7 @@ Starting Quiet                                 ← second file, app start, not w
 3. **Open invite link** (explanatory) + **Paste a link to Join** (the WIP frame’s intent: title, one input with placeholder *Link*, *Continue*; keep the title bar, drop the leftover avatar/subtitle from the duplicated create screen — note this in the PR as an interpretation of an unfinished frame).
 4. **Join with QR code** sheet (mobile: scan; desktop: no camera — show the QR *display* and route to paste).
 5. **Create a community** (name + *Continue*); **Choose username** with the real helper copy. Community icon upload/crop: **out** (needs an asset pipeline; note as phase 2).
-6. **Link devices** entry from Get started → the #3400 `LinkedDevices` / `LinkedDeviceQRCode` surfaces, with the design’s copy on the entry screen and the *Linked devices / No linked devices* list.
+6. **Link devices** entry from Get started → the #3400 `LinkedDevices` / `LinkedDeviceQRCode` surfaces, with the design’s copy on the entry screen and the *Linked devices / No linked devices* list. Ships (#3636): the list only appears where there is a community to read the team graph from, so on desktop it sits on the share direction — Settings → Linked devices, and the same surface inside the Link devices modal’s *Display QR code* step — while on mobile it stays on the Link devices screen itself, hidden until you are in a community. This device is never a row, and a device removed from the account drops out.
 7. **Desktop variants of all of the above** — the prototype is mobile-only (375 wide); desktop = the 600px modal body the app uses, built from the same tokens. Render every screen in Storybook at both widths (the `RealScreens` harness pattern).
 8. Apply the type scale to the components touched.
 
@@ -145,7 +145,7 @@ Copy:
 
 Uses: ButtonIcons (5), Divider (3), Button row (2), caret-black-r (2), Title bar/Logged in (1), RightZ (1), Qr code (1), Avatar (1), TitleZ (1), LeftZ (1)
 Goes to: Glyph → get-started [prototype]; Content → sheet-2811-2601 [prototype]; Button row → sheet-2811-2587 [prototype]
-Implemented by: desktop `#3400 Settings/Tabs/LinkedDevices/LinkedDevices.component.tsx` · mobile `#3400 screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen.tsx`
+Implemented by: desktop `Onboarding/LinkDevicesComponent.tsx` (the two routes) → `Settings/Tabs/LinkedDevices/LinkedDevices.component.tsx` (the share direction, which carries the *Linked devices / No linked devices* list) · mobile `components/LinkDevices/LinkDevices.component.tsx` (routes and list) → `screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen.tsx` (the QR). The *Subtitle* and *Label* strings above are the frame’s hidden placeholder nodes and are not drawn.
 
 ### Join with invite link  ·  `open-invite-link`
 Figma frame `Open invite link` · Section: Onboarding · 375×667 · node `2811:2455` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2455)
@@ -603,7 +603,7 @@ Audit of the Android app on `design/onboarding-entry` @ f12463cd2 against the pr
 | Paste a link to Join | 3190:10892 | components/JoinCommunity (inviteLink) | partial | close glyph (mobile back); bar title hidden; Input3.0 42 tall r8 1px #999999 placeholder 14/20 #767676; Continue 108×50 r16 centred, 30% until valid |
 | Create a community | 2811:2451 / 2811:2366 | components/CreateCommunity | partial | input label hidden in frame; input/button shapes + disabled-until-valid; bar title hidden; top-anchored |
 | Choose username | 2811:2371 / 2811:2373 | components/Registration/UsernameRegistration | partial | back glyph + divider visible; label hidden; caption 12/16 #7F7F7F; input/button shapes |
-| Link devices | 2811:2575 | components/LinkDevices + screens/LinkDevices | partial | bar title hidden; rows not bordered; Linked devices list styled per the hidden nodes (overline 10/16 #7F7F7F header, bordered card, "No linked devices" 14/20 #767676) |
+| Link devices | 2811:2575 | components/LinkDevices + screens/LinkDevices | partial | bar title hidden; rows not bordered; the Linked devices list ships (#3636) with the overline header and the "No linked devices" line, but as hairline-separated rows rather than the hidden nodes' bordered card; on desktop it is on the share direction (Settings → Linked devices and the Display QR code step), not this entry screen |
 | Link devices — QR code (sheet) | 2811:2601 | screens/LinkedDeviceQRCode → components/QRCode | **old design** | full screen not a sheet; title "Link a device"; #3400 copy; "Share code" button (design: "Reset QR code" text link); QR 172 bare (design: qr-code-box 220, 1px #B3B3B3 r4, 188 QR); no "Generating device link…" state |
 | Link devices — Scan QR code (sheet) | 2811:2587 | screens/PasteInviteLink (deviceLink) | **old / camera missing** | paste form instead of the sheet with viewfinder; no camera dependency on any branch |
 | Join with QR code (sheet) | 2811:2460 | screens/PasteInviteLink (qrCode) | **old / camera missing** | same; duplicated heading |
@@ -675,6 +675,6 @@ The desktop shell for onboarding is the library's **Modal full-window** (715 wid
 
 ## E2E requirements for the implementation PR
 
-- Desktop: extend `packages/e2e-tests/src/tests/` following `multipleClients.test.ts` / `multipleClients.qss.test.ts` (two clients, selenium): cover Get started → three-way join → paste link → username; create → username; and **device linking multiplayer**: client A creates a community and generates a device link (`LinkedDevices` tab); client B joins via that link as the *same user’s second device*; both show the community; a message sent from B appears on A; A’s device list shows B; unlink from A and B loses access.
+- Desktop: extend `packages/e2e-tests/src/tests/` following `multipleClients.test.ts` / `multipleClients.qss.test.ts` (two clients, selenium): cover Get started → three-way join → paste link → username; create → username; and **device linking multiplayer**: client A creates a community and generates a device link (`LinkedDevices` tab); client B joins via that link as the *same user’s second device*; both show the community; a message sent from B appears on A; A’s device list shows B; unlink from A and B loses access. All but the last run in `onboarding.test.ts` today — A's list is empty before B links and names B afterwards, and each device lists only the other — while unlink stays skipped because #3400 ships no device removal.
 - Mobile: build on `packages/mobile/e2e` and the Appium work in #3483; the same device-linking scenario with an Android emulator as the second device where the harness allows, otherwise desktop↔mobile.
 - Every new story passes `sb-gate.sh` and is agent-verified before the PR is called ready; `tsc --noEmit` on every commit (the Storybook build is babel-only).
