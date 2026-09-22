@@ -37,6 +37,11 @@ export interface PendingNavigationPayload {
   screen: ScreenNames
 }
 
+export interface ResetToStackPayload {
+  /** Bottom of the stack first; the last entry is the screen that is shown. */
+  screens: ScreenNames[]
+}
+
 export interface OpenMenuPayload {
   menu: MenuName
   args?: Record<string, unknown>
@@ -64,6 +69,15 @@ export const navigationSlice = createSlice({
     },
     resetToScreen: (state, action: PayloadAction<NavigationPayload>) => {
       state.backStack = [action.payload.screen]
+      state.pendingNavigation = null
+    },
+    /**
+     * Reset to a walked path: the last screen is shown, the ones before it are what
+     * its back arrow retraces. `resetToScreen` leaves a stack one deep, so the screen
+     * it lands on has nothing to go back to.
+     */
+    resetToStack: (state, action: PayloadAction<ResetToStackPayload>) => {
+      state.backStack = [...action.payload.screens]
       state.pendingNavigation = null
     },
     // Replace screen overrides last screen in backstack

@@ -195,7 +195,9 @@ describe('Deep linking', () => {
     await act(async () => {})
     logger.info('act done')
 
-    // expect community to not have been created
+    // expect community to not have been created. The refusal is reported on the invite field,
+    // which is what reopens the flow on the paste step rather than at the three-way choice
+    // with nothing said.
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/customProtocol",
@@ -207,6 +209,7 @@ describe('Deep linking', () => {
         "Identity/setUsername",
         "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
+        "Communities/setJoinCommunityError",
         "Network/setLoadingPanelType",
       ]
     `)
@@ -237,6 +240,7 @@ describe('Deep linking', () => {
         "Identity/setUsername",
         "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
+        "Communities/setJoinCommunityError",
         "Network/setLoadingPanelType",
         "Communities/customProtocol",
         "Communities/joinCommunity",
@@ -247,6 +251,7 @@ describe('Deep linking', () => {
         "Identity/setUsername",
         "Communities/submitPendingJoin",
         "Communities/clearInvitationCodes",
+        "Communities/setJoinCommunityError",
         "Network/setLoadingPanelType",
       ]
     `)

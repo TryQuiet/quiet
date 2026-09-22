@@ -8,11 +8,9 @@ import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
-import { getInvitationCodes } from '@quiet/state-manager'
 
 import { Splash } from '../Splash/Splash.component'
-import { InvitationData, isDeviceInvitationData } from '@quiet/types'
-import type { PasteInviteLinkVariant } from '../../route.params'
+import { validateInviteLink } from '../../utils/inviteLink'
 
 import { createLogger } from '../../utils/logger'
 import {
@@ -25,9 +23,6 @@ import {
 } from '@quiet/common'
 
 const logger = createLogger('joinCommunity:component')
-
-/** The paste field's error for text that is not a Quiet invitation; the QR scanner shows the same. */
-export const INVALID_INVITATION_ERROR = 'Please check your invite link and try again'
 
 /**
  * Title bar · heading · intro per flow. Copy is the prototype's. Every variant
@@ -54,12 +49,6 @@ const COPY = {
   /** Link devices → Paste link (user addition, 2026-09-13): the paste step under the Link devices title. */
   pasteDeviceLink: { title: LINK_DEVICES_HEADING, heading: PASTE_LINK_HEADING, intro: undefined, titleHidden: true },
 } as const
-
-/** The Link devices flow's variants: only a device link is accepted there. */
-const DEVICE_LINK_VARIANTS: PasteInviteLinkVariant[] = ['deviceLink', 'pasteDeviceLink']
-
-/** Shown under the input for a member link (or any other invitation) in the Link devices flow. Undesigned copy. */
-export const NOT_A_DEVICE_LINK_ERROR = 'This is not a device link. Use the link from Link devices on your other device.'
 
 /**
  * "Paste a link to join": one input with placeholder "Link" and Continue.
@@ -90,35 +79,19 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     setJoinCommunityInput(value)
   }
 
+  // The field carries no rules of its own: what counts as an invite link, and what to say
+  // when it is not one, is the join field's shared validation.
   const onPress = () => {
     Keyboard.dismiss()
 
-    if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
+    const result = validateInviteLink(joinCommunityInput, variant)
+    if (result.error !== undefined) {
       setLoading(false)
-      setInputError('Community address can not be empty')
+      setInputError(result.error)
       return
     }
 
-    let submitValue: InvitationData | null = null
-    try {
-      submitValue = getInvitationCodes(joinCommunityInput.trim())
-    } catch (e) {
-      logger.error(`Could not parse invitation code`, e)
-    }
-
-    if (!submitValue) {
-      setLoading(false)
-      setInputError(INVALID_INVITATION_ERROR)
-      return
-    }
-
-    if (DEVICE_LINK_VARIANTS.includes(variant) && !isDeviceInvitationData(submitValue)) {
-      setLoading(false)
-      setInputError(NOT_A_DEVICE_LINK_ERROR)
-      return
-    }
-
-    joinCommunityAction(submitValue)
+    joinCommunityAction(result.data)
   }
 
   useEffect(() => {
@@ -129,16 +102,23 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     }
   }, [invitationCode])
 
+  // The caller's verdict on the last attempt shares the slot under the input with the
+  // errors raised here, so it is mirrored into state rather than read straight through.
+  // Clearing the field belongs to the effect below: editing the link drops the reported
+  // error, and that must not take what is being typed with it.
+  useEffect(() => {
+    setInputError(initialInputError)
+  }, [initialInputError])
+
   useEffect(() => {
     logger.info(`hasReceivedResponse changed: ${hasReceivedResponse}`)
     if (hasReceivedResponse) {
       logger.info('Resetting component state after receiving response')
-      setInputError(initialInputError)
       setJoinCommunityInput('')
       setLoading(false)
       inputRef.current?.setNativeProps({ text: '' })
     }
-  }, [hasReceivedResponse, initialInputError])
+  }, [hasReceivedResponse])
 
   return (
     <>

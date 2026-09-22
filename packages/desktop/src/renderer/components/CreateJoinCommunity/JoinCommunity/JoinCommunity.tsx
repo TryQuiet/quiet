@@ -1,4 +1,4 @@
-import { communities } from '@quiet/state-manager'
+import { communities, type JoinCommunityError } from '@quiet/state-manager'
 import {
   ErrorMessages,
   type DeviceInvitationData,
@@ -19,6 +19,7 @@ import { JoinCommunityOptionsComponent } from '../../Onboarding/JoinCommunityOpt
 import { RecoverAccountComponent } from '../../Onboarding/RecoverAccountComponent'
 import { OpenInviteLinkComponent } from '../../Onboarding/OpenInviteLinkComponent'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
+import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { QrScannerComponent } from '../../Onboarding/qrScanner/QrScannerComponent'
 import { createLogger } from '../../../logger'
 import { PASTE_LINK_HEADING } from '@quiet/common'
@@ -39,6 +40,35 @@ type Step = 'options' | 'recoverAccount' | 'openInviteLink' | 'pasteInviteLink' 
  * map: a step without a heading would take one.
  */
 const TITLED_STEPS: Partial<Record<Step, string>> = {}
+
+/**
+ * What each way a join can fail reads as on the invite field. Every failure is reported
+ * there, the way the join form has always reported a bad link.
+ *
+ * Exhaustive on purpose: the `never` makes a new kind of failure choose its words here
+ * rather than compile into a field that silently says nothing.
+ */
+const joinErrorMessage = (error: JoinCommunityError | null): string | undefined => {
+  if (!error) return undefined
+  switch (error.type) {
+    case 'invalid':
+      return ErrorMessages.INVALID_INVITE
+    case 'interrupted':
+      return ErrorMessages.ADMISSION_INTERRUPTED_RETRY
+    case 'timeout':
+      return error.invitationType === 'device'
+        ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+        : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+    // The backend refused and said nothing about why, so this says no more than the field
+    // says about a link it could not read itself.
+    case 'refused':
+      return InviteLinkErrors.InvalidCode
+    default: {
+      const unreported: never = error
+      return unreported
+    }
+  }
+}
 
 /**
  * Join community: the three-way choice, then Open invite link → Paste a link,
@@ -73,18 +103,7 @@ const JoinCommunity = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
   const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
 
-  // Admission failures are reported on the invite field, the way the join form has always reported
-  // a bad link.
-  const joinCommunityErrorMessage =
-    joinCommunityError?.type === 'invalid'
-      ? ErrorMessages.INVALID_INVITE
-      : joinCommunityError?.type === 'interrupted'
-        ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
-        : joinCommunityError?.type === 'timeout'
-          ? joinCommunityError.invitationType === 'device'
-            ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
-            : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
-          : undefined
+  const joinCommunityErrorMessage = joinErrorMessage(joinCommunityError)
 
   const clearJoinCommunityError = () => {
     if (joinCommunityError) {

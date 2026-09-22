@@ -57,17 +57,17 @@ export const sidebarMetrics = {
   content: {
     paddingTop: 16,
     paddingBottom: 40,
-    /** Gap between "Add members", "Channels" and "Users". */
+    /** Gap between the "Channels" and "Direct messages" sections. */
     sectionGap: 32,
   },
 
-  /** "List item" — the channel and prominent-action rows. */
+  /** "List item" — the channel and direct-message rows. */
   row: {
     height: 26,
     paddingY: 3,
     paddingX: 16,
     gap: 4,
-    /** Every row glyph (#, lock, person-add) is drawn in a 12px box. */
+    /** Every row glyph (#, lock) is drawn in a 12px box. */
     glyph: 12,
   },
 
@@ -144,7 +144,7 @@ export const sidebarMetrics = {
   opacity: {
     /** Row labels, section titles and the profile name. */
     label: 0.7,
-    /** Row glyphs (#, lock, person-add). */
+    /** Row glyphs (#, lock). */
     glyph: 0.5,
     /** The (+) in a section header — 1 on hover, per List title State=Hover. */
     titleAction: 0.6,

@@ -2,11 +2,12 @@ import React from 'react'
 import '@testing-library/jest-dom'
 import { fireEvent } from '@testing-library/react'
 
-import { communities, getReduxStoreFactory } from '@quiet/state-manager'
+import { communities, connection, getReduxStoreFactory } from '@quiet/state-manager'
 
 import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
 import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
+import { Invite } from './Tabs/Invite/Invite'
 import { LinkedDevices } from './Tabs/LinkedDevices/LinkedDevices'
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
 
@@ -20,16 +21,40 @@ const LeaveCommunityTab: React.FC = () => (
  * The Linked devices tab is the real one, not a stand-in: what the bar does depends on the panel
  * printing its own heading, so a stub would decide the answer.
  */
-const renderSettings = async () => {
+/**
+ * What the Invite tab needs before it has a link to show: a community with a pre-shared key, a
+ * peer address for this device, and a long-lived invite. Without them the same panel renders its
+ * "Only admins can invite new members" branch instead, so a test of the Add Members path has to
+ * put them in place rather than assert on the empty case.
+ */
+type LongLivedInvite = Parameters<typeof connection.actions.setLongLivedInvite>[0]
+
+const seedInvitation = async (store: any, factory: any, community: any) => {
+  await factory.create('Identity', { communityId: community.id })
+  store.dispatch(
+    connection.actions.setLongLivedInvite({
+      // The id and team id are Base58-branded in the auth package, which desktop's tsconfig does
+      // not path-map; the values are the shape the selector reads.
+      seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
+      id: '5ah8uYodiwuwVybT',
+      teamId: community.teamId,
+    } as LongLivedInvite)
+  )
+}
+
+const renderSettings = async (overrides: Partial<SettingsComponentProps> = {}, withInvitation = false) => {
   const { store } = await prepareStore()
   const factory = await getReduxStoreFactory(store)
-  const community = await factory.create('Community', { name: 'devices' })
+  const community = await factory.create('Community', { name: 'devices', psk: '12345' })
   store.dispatch(communities.actions.setCurrentCommunity(community.id))
+  if (withInvitation) await seedInvitation(store, factory, community)
 
   const props: SettingsComponentProps = {
     open: true,
     handleClose: jest.fn(),
     tabs: {
+      invite: Invite,
       linkedDevices: LinkedDevices,
       communityMembership: CommunityMembershipTab,
       leaveCommunity: LeaveCommunityTab,
@@ -39,6 +64,7 @@ const renderSettings = async () => {
       handleOpen: jest.fn(),
       handleClose: jest.fn(),
     },
+    ...overrides,
   }
   return renderComponent(<SettingsComponent {...props} />, store)
 }
@@ -53,6 +79,34 @@ describe('SettingsComponent', () => {
     expect(result.getByTestId('linked-devices-settings-tab')).toBeVisible()
     // Our own membership tab is still there beside it.
     expect(result.getByTestId('community-membership-settings-tab')).toBeVisible()
+  })
+
+  /**
+   * Add members is reached here and nowhere else on desktop: the sidebar column has no row for it
+   * (user decision, 2026-09-22), so the community menu this drawer draws is the whole path from
+   * the community name and caret to the invitation link.
+   */
+  it('offers Add Members in the community menu and opens the invitation panel from it', async () => {
+    const result = await renderSettings({}, true)
+
+    const row = result.getByTestId('invite-settings-tab')
+    expect(row).toBeVisible()
+    fireEvent.click(row)
+
+    // The Invite tab itself, not a stand-in: its masked link is what the panel is for.
+    expect(result.getByTestId('invitation-link')).toBeVisible()
+    // The bar carries the row's title, so the panel body does not repeat it.
+    expect(result.getAllByText('Add Members')).toHaveLength(1)
+    // Leaving the panel goes back to the menu, where the row is offered again.
+    fireEvent.click(result.getByTestId('close-tab-button-box').querySelector('button') as HTMLElement)
+    expect(result.getByTestId('invite-settings-tab')).toBeVisible()
+  })
+
+  it('opens straight on Add Members when a caller asks the drawer for the invite tab', async () => {
+    const result = await renderSettings({ focusTab: 'invite' }, true)
+
+    expect(result.getByTestId('invitation-link')).toBeVisible()
+    expect(result.queryByTestId('invite-settings-tab')).toBeNull()
   })
 
   it('opens the Link devices content from that row', async () => {
