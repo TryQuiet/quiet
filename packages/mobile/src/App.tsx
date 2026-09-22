@@ -12,7 +12,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { MenuProvider } from 'react-native-popup-menu'
 import { ScreenNames } from './const/ScreenNames.enum'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
-import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
+import { AppHomeScreen } from './screens/AppHome/AppHome.screen'
 import { ConnectionProcessScreen } from './screens/ConnectionProcess/ConnectionProcess.screen'
 import { CreateChannelScreen } from './screens/CreateChannel/CreateChannel.screen'
 import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity.screen'
@@ -62,6 +62,7 @@ import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonati
 import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
 import { ChannelMembershipScreen } from './screens/ChannelMembership/ChannelMembership.screen'
 import { UpdateChannelMembershipScreen } from './screens/ChannelMembership/UpdateChannelMembership/UpdateChannelMembership.screen'
+import { UserProfileScreen } from './screens/UserProfile/UserProfile.screen'
 import { CaptchaModal } from './components/Captcha/CaptchaModal.component'
 
 const logger = createLogger('app')
@@ -92,7 +93,15 @@ function App(): React.JSX.Element {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}>
+      {/*
+        Paint the status-bar strip ourselves: Android SDK 35+ forces edge-to-edge,
+        and iOS has no status-bar background API. Keep the other system-bar insets white.
+      */}
+      <SafeAreaView edges={['top']} style={{ backgroundColor: defaultTheme.palette.main.brand }} />
+      <SafeAreaView
+        edges={['left', 'right', 'bottom']}
+        style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
+      >
         <NavigationContainer
           ref={navigationRef}
           linking={linking}
@@ -103,14 +112,14 @@ function App(): React.JSX.Element {
           <WebviewCrypto />
           <MenuProvider>
             <ThemeProvider theme={defaultTheme}>
-              <StatusBar backgroundColor={defaultTheme.palette.background.white} barStyle={'dark-content'} />
+              <StatusBar backgroundColor={defaultTheme.palette.main.brand} barStyle={'light-content'} />
               <Navigator
                 initialRouteName={ScreenNames.SplashScreen}
                 screenOptions={{
                   headerShown: false,
                 }}
               >
-                <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
+                <Screen component={AppHomeScreen} name={ScreenNames.AppHomeScreen} />
                 <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
                 <Screen component={CreateChannelScreen} name={ScreenNames.CreateChannelScreen} />
                 <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />
@@ -118,6 +127,7 @@ function App(): React.JSX.Element {
                 <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />
                 <Screen component={ChannelMembershipScreen} name={ScreenNames.ChannelMembershipScreen} />
                 <Screen component={UpdateChannelMembershipScreen} name={ScreenNames.UpdateChannelMembershipScreen} />
+                <Screen component={UserProfileScreen} name={ScreenNames.UserProfileScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
                 <Screen component={DuplicatedUsernameScreen} name={ScreenNames.DuplicatedUsernameScreen} />
                 <Screen component={UsernameTakenScreen} name={ScreenNames.UsernameTakenScreen} />

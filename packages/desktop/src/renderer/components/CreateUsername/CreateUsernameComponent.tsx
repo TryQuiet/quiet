@@ -67,7 +67,6 @@ const Form = styled('form')(({ theme }) => ({
   [`& .${classes.button}`]: {
     width: '100%',
     maxWidth: 'none',
-    borderRadius: 8,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     textTransform: 'none',
@@ -126,7 +125,7 @@ export const CreateUsernameBody: React.FC<CreateUsernameBodyProps> = ({ open = t
 
   const {
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     setError,
     clearErrors,
     control,
@@ -223,7 +222,8 @@ export const CreateUsernameBody: React.FC<CreateUsernameBodyProps> = ({ open = t
         <LoadingButton
           variant='contained'
           color='primary'
-          disabled={Boolean(errors.userName)}
+          // Choose username (2811:2371): Continue is disabled until the name is valid.
+          disabled={!isValid}
           type='submit'
           text={'Continue'}
           data-testid={'continue-createUsername'}

@@ -9,6 +9,10 @@ export class AdmissionProtocolGate {
 
   constructor(private owner: AdmissionOperationOwner) {}
 
+  get signal(): AbortSignal {
+    return this.owner.signal
+  }
+
   get frozen(): boolean {
     return this.mode === 'frozen'
   }

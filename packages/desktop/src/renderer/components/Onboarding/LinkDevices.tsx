@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, connection } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 import {
+  type DeviceInvitationData,
   type InvitationData,
   type JoinCommunityPayload,
   type LinkDevicePayload,
@@ -10,6 +11,7 @@ import {
 } from '@quiet/types'
 
 import Modal from '../ui/Modal/Modal'
+import { DeviceLinkConsentComponent } from '../DeviceLinkConsent/DeviceLinkConsent'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
@@ -54,13 +56,17 @@ export const SCAN_QR_CODE_INTRO =
  * and offers the paste field when it cannot, "Paste link" opens that field directly;
  * pasted here only a device link is accepted) and, inside a community, from Settings
  * (share: "Display QR code" shows the QR code sheet 2811:2601, whose close returns
- * here; "Copy link" copies the same one-time link and confirms).
+ * here; "Copy link" copies the same link and confirms).
+ *
+ * Whichever way a device link arrives — scanned or pasted — linking hands the other
+ * device this account, so it goes through the consent sheet rather than starting on
+ * arrival. The frame's "Linked devices" list is not drawn: nothing on this line can
+ * enumerate a user's devices (TryQuiet/quiet#3636).
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const linkedDevices = useSelector(connection.selectors.linkedDevices)
 
   const linkDevicesModal = useModal<LinkDevicesModalArgs>(ModalName.linkDevicesModal)
   const initialStep: Step = linkDevicesModal.step ?? 'entry'
@@ -70,14 +76,14 @@ export const LinkDevices: React.FC = () => {
 
   const [step, setStep] = useState<Step>('entry')
   const [revealInputValue, setRevealInputValue] = useState(false)
+  const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
   // Inside a community this device shares (Display QR code, Copy link); without one it receives.
   const direction = currentCommunity ? 'share' : 'receive'
   const copyLink = useCopyDeviceLink(linkDevicesModal.open && step === 'entry' && direction === 'share')
 
   useEffect(() => {
     setStep(linkDevicesModal.open ? initialStep : 'entry')
-    if (linkDevicesModal.open && isConnected) dispatch(connection.actions.getLinkedDevices())
-  }, [linkDevicesModal.open, isConnected])
+  }, [linkDevicesModal.open])
 
   const leave = () => {
     if (!currentCommunity) getStartedModal.handleOpen()
@@ -98,11 +104,10 @@ export const LinkDevices: React.FC = () => {
 
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
-      const payload: LinkDevicePayload = { inviteData: data }
-      logger.info('Linking this device from a device link')
-      loadingPanelModal.handleOpen()
-      dispatch(communities.actions.linkDevice(payload))
-      linkDevicesModal.handleClose()
+      // Linking a device hands the other device this account, so it is never done without
+      // consent. A scanned code is no more deliberate than a pasted one: the camera decodes
+      // whatever is in front of it, so the scan path needs the gate at least as much.
+      setPendingDeviceInvite(data)
       return
     }
     // A member invitation scanned here still joins, the way Join community does
@@ -113,59 +118,80 @@ export const LinkDevices: React.FC = () => {
     linkDevicesModal.handleClose()
   }
 
+  const confirmDeviceLink = () => {
+    if (!pendingDeviceInvite) return
+    const payload: LinkDevicePayload = {
+      inviteData: pendingDeviceInvite,
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: pendingDeviceInvite.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined,
+    }
+    logger.info('Linking this device from a device link')
+    loadingPanelModal.handleOpen()
+    dispatch(communities.actions.linkDevice(payload))
+    linkDevicesModal.handleClose()
+    setPendingDeviceInvite(null)
+  }
+
   // The QR code sheet (2811:2601) has a close glyph, not a back arrow; closing it reveals Link devices —
   // or, opened straight at the sheet from Settings, leaves the modal.
   const isSheet = step === 'display'
 
   return (
-    <Modal
-      open={linkDevicesModal.open}
-      handleClose={isSheet && step !== initialStep ? () => setStep('entry') : leave}
-      title={TITLED_STEPS[step] ?? ''}
-      withoutTitle={!TITLED_STEPS[step]}
-      canGoBack={!isSheet}
-      handleBack={handleBack}
-      alignCloseLeft
-      contentWidth={'100%'}
-      testIdPrefix={'linkDevices'}
-      zIndex={1300}
-    >
-      {step === 'entry' ? (
-        <>
-          <LinkDevicesComponent
-            direction={direction}
-            onDisplayQrCode={() => setStep('display')}
-            deviceLink={copyLink.deviceLink}
-            onCopyLink={copyLink.onCopyLink}
-            onLinkCopied={copyLink.onLinkCopied}
-            onScanQrCode={() => setStep('scan')}
-            onPasteLink={() => setStep('pasteLink')}
-            linkedDevices={linkedDevices}
+    <>
+      <Modal
+        open={linkDevicesModal.open}
+        handleClose={isSheet && step !== initialStep ? () => setStep('entry') : leave}
+        title={TITLED_STEPS[step] ?? ''}
+        withoutTitle={!TITLED_STEPS[step]}
+        canGoBack={!isSheet}
+        handleBack={handleBack}
+        alignCloseLeft
+        contentWidth={'100%'}
+        testIdPrefix={'linkDevices'}
+        zIndex={1300}
+      >
+        {step === 'entry' ? (
+          <>
+            <LinkDevicesComponent
+              direction={direction}
+              onDisplayQrCode={() => setStep('display')}
+              deviceLink={copyLink.deviceLink}
+              onCopyLink={copyLink.onCopyLink}
+              onLinkCopied={copyLink.onLinkCopied}
+              onScanQrCode={() => setStep('scan')}
+              onPasteLink={() => setStep('pasteLink')}
+            />
+            <ConfirmationToast open={copyLink.copied} message={'Copied'} onClose={copyLink.dismissCopied} />
+          </>
+        ) : null}
+        {step === 'display' ? <DisplayQrCode dataTestId='link-devices-display' /> : null}
+        {step === 'scan' ? (
+          <QrScannerComponent
+            intro={SCAN_QR_CODE_INTRO}
+            onDecoded={handleCommunityAction}
+            onUsePasteLink={() => setStep('paste')}
+            dataTestId='link-devices-scanner'
           />
-          <ConfirmationToast open={copyLink.copied} message={'Copied'} onClose={copyLink.dismissCopied} />
-        </>
-      ) : null}
-      {step === 'display' ? <DisplayQrCode dataTestId='link-devices-display' /> : null}
-      {step === 'scan' ? (
-        <QrScannerComponent
-          intro={SCAN_QR_CODE_INTRO}
-          onDecoded={handleCommunityAction}
-          onUsePasteLink={() => setStep('paste')}
-          dataTestId='link-devices-scanner'
-        />
-      ) : null}
-      {PASTE_STEPS.includes(step) ? (
-        <PasteLinkComponent
-          heading={'Paste a link to Join'}
-          open={linkDevicesModal.open}
-          isConnectionReady={isConnected}
-          revealInputValue={revealInputValue}
-          handleClickInputReveal={() => setRevealInputValue(value => !value)}
-          linkKind='device'
-          handleCommunityAction={handleCommunityAction}
-        />
-      ) : null}
-    </Modal>
+        ) : null}
+        {PASTE_STEPS.includes(step) ? (
+          <PasteLinkComponent
+            heading={'Paste a link to Join'}
+            open={linkDevicesModal.open}
+            isConnectionReady={isConnected}
+            revealInputValue={revealInputValue}
+            handleClickInputReveal={() => setRevealInputValue(value => !value)}
+            linkKind='device'
+            handleCommunityAction={handleCommunityAction}
+          />
+        ) : null}
+      </Modal>
+      <DeviceLinkConsentComponent
+        open={pendingDeviceInvite !== null}
+        qssEndpoint={pendingDeviceInvite?.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined}
+        onCancel={() => setPendingDeviceInvite(null)}
+        onConfirm={confirmDeviceLink}
+      />
+    </>
   )
 }
 

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { connection } from '@quiet/state-manager'
 
 /**
- * The Copy link row's link: the same one-time device link the QR sheet shows, minted as
+ * The Copy link row's link: the same device link the QR sheet shows, minted as
  * soon as the share direction is on screen so the row copies on the first click; a click
  * before it exists just asks for it. `copied` drives the "Copied" toast.
  */

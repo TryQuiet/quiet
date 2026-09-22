@@ -39,6 +39,16 @@ const deviceLink = `${QUIET_JOIN_PAGE}#${getValidInvitationUrlTestData(deviceInv
 const memberLink = getValidInvitationUrlTestData(validInvitationDatav4[0]).shareUrl()
 const memberInvitationData: InvitationDataV4 = { ...validInvitationDatav4[0], kind: InvitationKind.Member }
 
+/**
+ * What the app dispatches once the user has consented. `confirmedQssEndpoint` is only carried for a
+ * v5 invitation; this fixture is v4, so it is undefined.
+ */
+const consentedLinkDevice = communities.actions.linkDevice({
+  inviteData: deviceInvitationData,
+  deviceLinkConsent: true,
+  confirmedQssEndpoint: undefined,
+})
+
 let camera: ReturnType<typeof mockCamera> | undefined
 afterEach(() => {
   camera?.restore()
@@ -46,7 +56,7 @@ afterEach(() => {
 })
 
 describe('Link devices → Scan QR code', () => {
-  it('opens the camera with the sheet copy and links this device from the scanned code', async () => {
+  it('opens the camera with the sheet copy and asks for consent before linking from the scanned code', async () => {
     camera = mockCamera({ frame: qrImageData(deviceLink) })
     const { store } = await prepareStore(openState())
     const dispatchSpy = jest.spyOn(store, 'dispatch')
@@ -58,16 +68,35 @@ describe('Link devices → Scan QR code', () => {
     expect(screen.getByTestId('link-devices-scanner-viewfinder')).toBeVisible()
     expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
 
-    await waitFor(
-      () =>
-        expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData })),
-      { timeout: 5000 }
-    )
-    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined }))
+    // A camera decodes whatever is put in front of it, so the scan path is gated exactly as the
+    // paste path is: nothing is linked until the user says so.
+    expect(await screen.findByTestId('device-link-consent', {}, { timeout: 5000 })).toBeVisible()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(consentedLinkDevice)
     expect(camera.stop).toHaveBeenCalled()
+
+    await userEvent.click(screen.getByTestId('confirm-device-link'))
+
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(consentedLinkDevice))
+    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined }))
   })
 
-  it('offers the paste field when there is no camera, and the pasted device link links the device', async () => {
+  it('links nothing when the consent for a scanned code is declined', async () => {
+    camera = mockCamera({ frame: qrImageData(deviceLink) })
+    const { store } = await prepareStore(openState())
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LinkDevices />, store)
+
+    await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
+    expect(await screen.findByTestId('device-link-consent', {}, { timeout: 5000 })).toBeVisible()
+
+    await userEvent.click(screen.getByTestId('cancel-device-link'))
+
+    await waitFor(() => expect(screen.queryByTestId('device-link-consent')).not.toBeInTheDocument())
+    expect(dispatchSpy).not.toHaveBeenCalledWith(consentedLinkDevice)
+  })
+
+  it('offers the paste field when there is no camera, and the pasted device link links after consent', async () => {
     camera = mockCamera({ error: cameraError('NotFoundError') })
     const { store } = await prepareStore(openState())
     const dispatchSpy = jest.spyOn(store, 'dispatch')
@@ -80,9 +109,11 @@ describe('Link devices → Scan QR code', () => {
 
     await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
-    await waitFor(() =>
-      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData }))
-    )
+
+    expect(await screen.findByTestId('device-link-consent')).toBeVisible()
+    await userEvent.click(screen.getByTestId('confirm-device-link'))
+
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(consentedLinkDevice))
   })
 
   it('back from the paste field returns to the scanner, then to the entry screen', async () => {
@@ -117,9 +148,13 @@ describe('Link devices → Paste link', () => {
 
     await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
-    await waitFor(() =>
-      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.linkDevice({ inviteData: deviceInvitationData }))
-    )
+
+    // Pasted or scanned, a device link is only acted on once its consent is given.
+    expect(await screen.findByTestId('device-link-consent')).toBeVisible()
+    expect(dispatchSpy).not.toHaveBeenCalledWith(consentedLinkDevice)
+    await userEvent.click(screen.getByTestId('confirm-device-link'))
+
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(consentedLinkDevice))
     expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined }))
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       communities.actions.joinCommunity({ inviteData: memberInvitationData })
@@ -142,6 +177,8 @@ describe('Link devices → Paste link', () => {
       communities.actions.joinCommunity({ inviteData: memberInvitationData })
     )
     expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: communities.actions.linkDevice.type }))
+    // A refused link raises no consent sheet, because nothing was going to be linked.
+    expect(screen.queryByTestId('device-link-consent')).not.toBeInTheDocument()
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       modalsActions.openModal({ name: ModalName.loadingPanel, args: undefined })
     )
@@ -207,7 +244,10 @@ describe('Link devices → Display QR code', () => {
     expect(screen.getByTestId('link-devices-paste-link')).toBeVisible()
     expect(screen.queryByTestId('link-devices-display-qr')).not.toBeInTheDocument()
     expect(screen.queryByTestId('link-devices-copy-link')).not.toBeInTheDocument()
-    expect(screen.getByTestId('no-linked-devices')).toHaveTextContent('No linked devices')
+    // The frame's device list is not built on this line (TryQuiet/quiet#3636): a card that always
+    // read "No linked devices" would be false the moment a device was linked.
+    expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
   })
 
   it('inside a community it opens the QR code sheet, mints a link, and close returns to Link devices', async () => {

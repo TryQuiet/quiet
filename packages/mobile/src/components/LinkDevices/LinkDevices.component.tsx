@@ -34,10 +34,8 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
   onCopyLink,
   onScanQrCode,
   onPasteLink,
-  linkedDevices,
   handleBackButton,
 }) => {
-  const others = (linkedDevices ?? []).filter(device => !device.isCurrent && device.removedAt == null)
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
       <Appbar title={'Link devices'} back={handleBackButton} withoutTitle />
@@ -86,46 +84,6 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
               />
             </>
           )}
-        </View>
-        <View testID={'linked-devices-list'}>
-          <Typography
-            variant={'overline'}
-            color={'gray50'}
-            style={{ paddingTop: spacing.xl, paddingBottom: spacing.sm, letterSpacing: 1, textTransform: 'uppercase' }}
-          >
-            {'Linked devices'}
-          </Typography>
-          <View style={card}>
-            {others.length === 0 ? (
-              <Typography
-                variant={'body'}
-                color={'gray60'}
-                horizontalTextAlign={'center'}
-                style={{ padding: spacing.lg }}
-                testID={'no-linked-devices'}
-              >
-                {'No linked devices'}
-              </Typography>
-            ) : (
-              others.map((device, index) => (
-                <View
-                  key={device.deviceId}
-                  style={{
-                    paddingVertical: spacing.md,
-                    paddingHorizontal: spacing.lg,
-                    borderBottomWidth: index === others.length - 1 ? 0 : 1,
-                    borderBottomColor: defaultTheme.palette.border.hairline,
-                  }}
-                  testID={`linked-device-${device.deviceName}`}
-                >
-                  <Typography variant={'bodyLg'}>{device.deviceName}</Typography>
-                  <Typography variant={'caption'} color={'gray50'}>
-                    {'Active'}
-                  </Typography>
-                </View>
-              ))
-            )}
-          </View>
         </View>
       </View>
     </View>

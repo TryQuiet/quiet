@@ -24,15 +24,16 @@ describe('LinkDevicesScreen', () => {
   }
 
   describe('without a community (this device receives)', () => {
-    it('shows Scan QR code and Paste link only, and asks for the linked devices', async () => {
+    it('shows Scan QR code and Paste link only, and mints nothing', async () => {
       const { dispatchSpy, result } = await renderScreen()
 
       expect(result.getByText('Scan QR code')).toBeTruthy()
       expect(result.getByText('Paste link')).toBeTruthy()
       expect(result.queryByText('Display QR code')).toBeNull()
       expect(result.queryByText('Copy link')).toBeNull()
-      expect(result.getByText('No linked devices')).toBeTruthy()
-      expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.getLinkedDevices())
+      // The frame's device list is not built on this line (TryQuiet/quiet#3636).
+      expect(result.queryByText('No linked devices')).toBeNull()
+      expect(result.queryByTestId('linked-devices-list')).toBeNull()
       expect(dispatchSpy).not.toHaveBeenCalledWith(connection.actions.createDeviceLink())
     })
 
@@ -64,34 +65,17 @@ describe('LinkDevicesScreen', () => {
   })
 
   describe('in a community (this device shares)', () => {
-    it('shows Display QR code and Copy link only, mints the link, and lists the linked devices', async () => {
-      const { store, dispatchSpy, result } = await renderScreen(true)
+    it('shows Display QR code and Copy link only, and mints the link', async () => {
+      const { dispatchSpy, result } = await renderScreen(true)
 
       expect(result.getByText('Display QR code')).toBeTruthy()
       expect(result.getByText('Copy link')).toBeTruthy()
       expect(result.queryByText('Scan QR code')).toBeNull()
       expect(result.queryByText('Paste link')).toBeNull()
       expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
-
-      await act(async () => {
-        store.dispatch(
-          connection.actions.setLinkedDevices([
-            { deviceId: 'me', deviceName: 'this phone', isCurrent: true },
-            { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
-            { deviceId: 'old', deviceName: 'old-phone', isCurrent: false, removedAt: 1 },
-          ])
-        )
-      })
-
-      expect(result.getByTestId('linked-device-nyc-laptop')).toBeTruthy()
-      expect(result.getByText('Active')).toBeTruthy()
-      expect(result.queryByTestId('linked-device-old-phone')).toBeNull()
+      // The frame's device list is not built on this line (TryQuiet/quiet#3636).
+      expect(result.queryByTestId('linked-devices-list')).toBeNull()
       expect(result.queryByText('No linked devices')).toBeNull()
-
-      fireEvent.press(result.getByTestId('link-devices-display-qr'))
-      expect(dispatchSpy).toHaveBeenCalledWith(
-        navigationActions.navigation({ screen: ScreenNames.LinkedDeviceQRCodeScreen })
-      )
     })
 
     it('Copy link before the link exists asks for one and copies nothing', async () => {

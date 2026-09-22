@@ -3,7 +3,6 @@ import fsAsync from 'fs/promises'
 import getPort from 'get-port'
 import path from 'path'
 import { Server } from 'socket.io'
-import { UserData } from '@quiet/types'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { generateKeyPair } from '@libp2p/crypto/keys'
 import { peerIdFromPrivateKey } from '@libp2p/peer-id'
@@ -185,14 +184,6 @@ export const torDirForPlatform = (basePath?: string): string => {
   } else {
     return prodPath
   }
-}
-
-export const getUsersAddresses = async (users: UserData[]): Promise<string[]> => {
-  const peers = users.map(async (userData: UserData) => {
-    return createLibp2pAddress(userData.onionAddress, userData.peerId)
-  })
-
-  return await Promise.all(peers)
 }
 
 /**

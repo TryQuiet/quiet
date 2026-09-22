@@ -10,7 +10,7 @@ describe('LinkDevices component', () => {
     const onCopyLink = jest.fn()
     const onDisplayQrCode = jest.fn()
     const result = renderComponent(
-      <LinkDevices direction='share' onCopyLink={onCopyLink} onDisplayQrCode={onDisplayQrCode} linkedDevices={[]} />
+      <LinkDevices direction='share' onCopyLink={onCopyLink} onDisplayQrCode={onDisplayQrCode} />
     )
 
     expect(result.getByText('Display QR code')).toBeTruthy()
@@ -24,7 +24,7 @@ describe('LinkDevices component', () => {
   })
 
   it('receive: Scan QR code and Paste link only', () => {
-    const result = renderComponent(<LinkDevices direction='receive' linkedDevices={[]} />)
+    const result = renderComponent(<LinkDevices direction='receive' />)
 
     expect(result.getByText('Scan QR code')).toBeTruthy()
     expect(result.getByText('Paste link')).toBeTruthy()

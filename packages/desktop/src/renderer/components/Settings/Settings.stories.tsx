@@ -80,7 +80,6 @@ const LinkedDevices: FC = () => (
     onDisplayQrCode={() => {}}
     deviceLink={invitationLink}
     onLinkCopied={() => {}}
-    linkedDevices={[{ deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false }]}
   />
 )
 

@@ -60,7 +60,7 @@ const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display 
 
 /** The rows follow the direction (user decision, 2026-09-13); the link-glyph rows' labels are undesigned. */
 const LINK_DEVICES_NOTE =
-  "rows in the bordered group and the Linked devices list per 2811:2575 and the Device-linking desktop frames (3RcrYKRTiFY87TpFSqZyj4 879:20987 / 880:17196); the Paste link row is a user addition (2026-09-13) with the library link glyph, its label undesigned; the frames' trash glyph is not drawn (no device removal yet)"
+  "rows in the bordered group per 2811:2575 and the Device-linking desktop frames (3RcrYKRTiFY87TpFSqZyj4 879:20987 / 880:17196); the Paste link row is a user addition (2026-09-13) with the library link glyph, its label undesigned; the frames' Linked devices list is not drawn, because nothing on this line can enumerate a user's devices (TryQuiet/quiet#3636), nor is their trash glyph (no device removal yet)"
 
 const LINK_DEVICES_EXPORTS = (desktop: string, desktopLabel: string): FigmaExport[] => [
   { label: 'figma · 2811:2575 (prototype, 375)', src: linkDevicesExport, width: CONTENT_COLUMN_WIDTH },
@@ -68,7 +68,7 @@ const LINK_DEVICES_EXPORTS = (desktop: string, desktopLabel: string): FigmaExpor
 ]
 
 const QR_CODE_NOTE =
-  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet’s sentence and Reset QR code per 2811:2601 / desktop 880:17427; Copy link (user decision 2026-09-13) sits in the slot the Add members QR sheet 2932:3707 gives its primary button — the raw link is never shown; "Link copied" and the generating (ActionProgress, #3518) / unavailable states have no frame'
+  'the QR in the qr-code-box (220, 1px #B3B3B3 r4, 188 code), the sheet\u2019s sentence and Reset QR code per 2811:2601 / desktop 880:17427; Copy link (user decision 2026-09-13) sits in the slot the Add members QR sheet 2932:3707 gives its primary button — the raw link is never shown; "Link copied" and the generating (ActionProgress, #3518) / unavailable states have no frame'
 
 const QR_CODE_EXPORTS: FigmaExport[] = [
   { label: 'figma · 2811:2601 (prototype sheet, 375)', src: qrSheetExport, width: CONTENT_COLUMN_WIDTH },
@@ -90,10 +90,18 @@ const fillPasteInputs = (root: HTMLElement | null, value: string) => {
   })
 }
 
-/** What JoinCommunity.tsx / LinkDevices.tsx dispatch for a decoded code, recorded under the columns. */
+/**
+ * What JoinCommunity.tsx / LinkDevices.tsx do with a decoded code, recorded under the columns.
+ *
+ * A member link joins straight away. A device link does not: both containers raise the device-link
+ * consent sheet and only dispatch `linkDevice` once it is confirmed, because a camera decodes
+ * whatever is put in front of it and that is not consent to hand this account to another device.
+ * The scanner itself is what these stories render, so the consent sheet is named here rather than
+ * drawn.
+ */
 const describeInvitation = (data: InvitationData) =>
   isDeviceInvitationData(data)
-    ? `communities.actions.linkDevice({ inviteData }) · device link · ${data.authData.userName}`
+    ? `device link · ${data.authData.userName} → device-link consent, then communities.actions.linkDevice({ inviteData, deviceLinkConsent: true })`
     : `communities.actions.joinCommunity({ inviteData }) · member link · ${data.authData.communityName}`
 
 /**
@@ -395,7 +403,7 @@ export const LinkDevices = () => (
     title='Link devices · in a community (share)'
     bar=''
     figma='2811:2575'
-    note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same one-time link the QR sheet shows), the receive rows are not drawn`}
+    note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same link the QR sheet shows), the receive rows are not drawn`}
     exports={LINK_DEVICES_EXPORTS(
       desktopLinkDevicesWithLinkedExport,
       'figma · Device linking 880:17196 (desktop, 715)'
@@ -406,10 +414,6 @@ export const LinkDevices = () => (
         onDisplayQrCode={noop}
         deviceLink={SAMPLE_DEVICE_LINK}
         onLinkCopied={noop}
-        linkedDevices={[
-          { deviceId: 'this', deviceName: 'this device', isCurrent: true },
-          { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
-        ]}
       />
     )}
   />
@@ -422,9 +426,7 @@ export const LinkDevicesEmpty = () => (
     figma='2811:2575'
     note={`${LINK_DEVICES_NOTE}; without a community this device receives: Scan QR code and Paste link, the share rows are not drawn`}
     exports={LINK_DEVICES_EXPORTS(desktopLinkDevicesExport, 'figma · Device linking 879:20987 (desktop, 715)')}
-    render={() => (
-      <LinkDevicesComponent direction='receive' onScanQrCode={noop} onPasteLink={noop} linkedDevices={[]} />
-    )}
+    render={() => <LinkDevicesComponent direction='receive' onScanQrCode={noop} onPasteLink={noop} />}
   />
 )
 
@@ -500,7 +502,7 @@ export const DisplayQrCodeGenerating = () => (
     left='close'
     divider={false}
     figma='2811:2601'
-    note='no frame for this state: while the backend mints the one-time link the box carries #3400’s "Generating device link…", the actions give way to the library progress bar (ActionProgress, #3518) with the status line'
+    note='no frame for this state: while the backend mints the link the box carries #3400’s "Generating device link…", the actions give way to the library progress bar (ActionProgress, #3518) with the status line'
     render={() => <DisplayQrCodeComponent deviceLink={''} isLoading onReset={noop} />}
   />
 )
@@ -523,18 +525,13 @@ export const SettingsLinkedDevices = () => (
     bar='Settings'
     left='close'
     figma='879:19861'
-    note='the in-app entry (the Device-linking file’s Entry points board): the Settings tab shows the same Link devices content with the community’s device list, Display QR code enabled; each row opens the Link devices modal at its step'
+    note='the in-app entry (the Device-linking file’s Entry points board): the Settings tab shows the same Link devices content, Display QR code enabled; each row opens the Link devices modal at its step. The frame’s device list is absent — nothing on this line enumerates a user’s devices (TryQuiet/quiet#3636)'
     render={() => (
       <LinkDevicesComponent
         direction='share'
         onDisplayQrCode={noop}
         deviceLink={SAMPLE_DEVICE_LINK}
         onLinkCopied={noop}
-        linkedDevices={[
-          { deviceId: 'this', deviceName: 'this device', isCurrent: true },
-          { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
-          { deviceId: 'old', deviceName: 'old-phone', isCurrent: false, removedAt: 1 },
-        ]}
       />
     )}
   />
@@ -556,7 +553,7 @@ export const ScanQrCodeDecoded = () => (
     title='Scan QR code · decoded'
     bar='Scan QR code'
     figma='2811:2587'
-    note='the camera shows a QR code of the sample device link; linkDevice is dispatched below and the camera released'
+    note='the camera shows a QR code of the sample device link; the camera is released and the consent sheet is raised — linkDevice follows only once it is confirmed'
     intro={SCAN_QR_INTRO}
     camera={{ kind: 'code', text: SAMPLE_DEVICE_LINK }}
   />
@@ -628,11 +625,6 @@ const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromScan', 'pasteLinkDevice']
 type WalkthroughCamera = 'code' | 'blank' | 'denied' | 'none'
 const WALKTHROUGH_CAMERAS: WalkthroughCamera[] = ['code', 'blank', 'denied', 'none']
 
-const WALKTHROUGH_DEVICES = [
-  { deviceId: 'this', deviceName: 'this device', isCurrent: true },
-  { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
-]
-
 const chromeButton: React.CSSProperties = {
   fontFamily: mono,
   fontSize: 11,
@@ -698,9 +690,7 @@ const WalkthroughStory = () => {
     record(`identity.actions.registerUsername({ nickname: '${nickname}' })`)
     finish()
   }
-  // LinkDevices.tsx refreshes the device list when its modal opens.
   const openLinkDevices = () => {
-    record('connection.actions.getLinkedDevices()')
     go('linkDevices')
   }
 
@@ -737,7 +727,6 @@ const WalkthroughStory = () => {
             direction='receive'
             onScanQrCode={() => go('scanQrCode')}
             onPasteLink={() => go('pasteLinkDevice')}
-            linkedDevices={WALKTHROUGH_DEVICES}
           />
         )
       case 'displayQrCode':

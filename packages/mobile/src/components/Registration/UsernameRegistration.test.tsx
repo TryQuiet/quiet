@@ -1,4 +1,5 @@
 import React from 'react'
+import { screen, fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { UsernameRegistration } from './UsernameRegistration.component'
 import { UsernameVariant } from './UsernameRegistration.types'
@@ -34,14 +35,15 @@ describe('UsernameRegistration', () => {
               "display": "flex",
               "flexDirection": "row",
               "justifyContent": "center",
-              "maxHeight": 52,
-              "minHeight": 52,
+              "maxHeight": 64,
+              "minHeight": 60,
             }
           }
         >
           <View
             style={
               {
+                "alignSelf": "stretch",
                 "flex": 1,
               }
             }
@@ -67,6 +69,14 @@ describe('UsernameRegistration', () => {
               accessible={true}
               collapsable={false}
               focusable={true}
+              hitSlop={
+                {
+                  "bottom": 8,
+                  "left": 8,
+                  "right": 8,
+                  "top": 8,
+                }
+              }
               onClick={[Function]}
               onResponderGrant={[Function]}
               onResponderMove={[Function]}
@@ -76,6 +86,7 @@ describe('UsernameRegistration', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
+                  "flex": 1,
                   "opacity": 1,
                 }
               }
@@ -85,8 +96,9 @@ describe('UsernameRegistration', () => {
                 style={
                   {
                     "alignItems": "center",
-                    "height": 50,
+                    "flex": 1,
                     "justifyContent": "center",
+                    "minHeight": 44,
                     "width": 64,
                   }
                 }
@@ -123,6 +135,7 @@ describe('UsernameRegistration', () => {
           <View
             style={
               {
+                "alignSelf": "stretch",
                 "flex": 1,
               }
             }
@@ -186,7 +199,7 @@ describe('UsernameRegistration', () => {
                     },
                     {
                       "color": "#4C4C4C",
-                      "paddingBottom": 10,
+                      "paddingBottom": 8,
                     },
                   ]
                 }
@@ -215,6 +228,8 @@ describe('UsernameRegistration', () => {
                 accessible={true}
                 collapsable={false}
                 focusable={true}
+                focused={false}
+                invalid={false}
                 onBlur={[Function]}
                 onClick={[Function]}
                 onFocus={[Function]}
@@ -224,25 +239,26 @@ describe('UsernameRegistration', () => {
                 onResponderTerminate={[Function]}
                 onResponderTerminationRequest={[Function]}
                 onStartShouldSetResponder={[Function]}
-                round={false}
                 style={
                   [
                     {
+                      "alignItems": "center",
                       "backgroundColor": "#ffffff",
-                      "borderBottomLeftRadius": 4,
-                      "borderBottomRightRadius": 4,
-                      "borderColor": "#C4C4C4",
-                      "borderTopLeftRadius": 4,
-                      "borderTopRightRadius": 4,
+                      "borderBottomLeftRadius": 16,
+                      "borderBottomRightRadius": 16,
+                      "borderColor": "#B3B3B3",
+                      "borderTopLeftRadius": 16,
+                      "borderTopRightRadius": 16,
                       "borderWidth": 1,
+                      "flexDirection": "row",
                       "flexGrow": 1,
-                      "height": 56,
-                      "justifyContent": "center",
+                      "height": 48,
+                      "justifyContent": "flex-start",
                       "paddingLeft": 16,
                       "paddingRight": 16,
                     },
                     {
-                      "height": 54,
+                      "height": 48,
                     },
                   ]
                 }
@@ -254,13 +270,17 @@ describe('UsernameRegistration', () => {
                   height={54}
                   keyboardType="default"
                   maxLength={20}
+                  onBlur={[Function]}
                   onChangeText={[Function]}
                   onContentSizeChange={[Function]}
+                  onFocus={[Function]}
                   placeholder="Username"
-                  placeholderTextColor="#999999"
+                  placeholderTextColor="#7F7F7F"
                   style={
                     {
-                      "height": 54,
+                      "flexBasis": 0,
+                      "flexGrow": 1,
+                      "flexShrink": 1,
                       "paddingBottom": 12,
                       "paddingTop": 12,
                       "textAlignVertical": "center",
@@ -324,9 +344,9 @@ describe('UsernameRegistration', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
-                  "borderRadius": 8,
+                  "borderRadius": 16,
                   "justifyContent": "center",
-                  "minHeight": 45,
+                  "minHeight": 50,
                   "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
@@ -761,4 +781,49 @@ describe('UsernameRegistration', () => {
   //     </View>
   //   `)
   // })
+
+  // https://github.com/TryQuiet/quiet/issues/1306 - a leading hyphen used to be registered as-is.
+  // ' holmes' is included because parseName turns the leading space into a hyphen too.
+  it.each([['-holmes'], ['-1'], ['--'], [' holmes']])(
+    'user inserting name starting with a hyphen "%s" cannot submit and sees an explanation',
+    (name: string) => {
+      const registerUsernameAction = jest.fn()
+
+      renderComponent(
+        <UsernameRegistration
+          variant={UsernameVariant.NEW}
+          registerUsernameAction={registerUsernameAction}
+          usernameRegistered={false}
+          fetching={false}
+        />
+      )
+
+      fireEvent.changeText(screen.getByTestId('input'), name)
+      fireEvent.press(screen.getByTestId('button'))
+
+      expect(registerUsernameAction).not.toBeCalled()
+      expect(screen.getByText('Username must start with a letter or number')).toBeVisible()
+    }
+  )
+
+  it.each([['holmes'], ['1-holmes'], ['holmes-']])(
+    'user inserting name "%s" without a leading hyphen can still submit',
+    (name: string) => {
+      const registerUsernameAction = jest.fn()
+
+      renderComponent(
+        <UsernameRegistration
+          variant={UsernameVariant.NEW}
+          registerUsernameAction={registerUsernameAction}
+          usernameRegistered={false}
+          fetching={false}
+        />
+      )
+
+      fireEvent.changeText(screen.getByTestId('input'), name)
+      fireEvent.press(screen.getByTestId('button'))
+
+      expect(registerUsernameAction).toBeCalledWith(name)
+    }
+  )
 })

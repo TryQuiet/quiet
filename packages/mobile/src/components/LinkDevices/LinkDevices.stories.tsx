@@ -17,13 +17,8 @@ storiesOf('LinkDevices', module)
     <LinkDevices
       {...actions}
       direction='share'
-      linkedDevices={[
-        { deviceId: 'this', deviceName: 'this phone', isCurrent: true },
-        { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
-        { deviceId: 'old', deviceName: 'old-phone', isCurrent: false, removedAt: 1 },
-      ]}
     />
   ))
   .add('No community (receive: Scan QR code, Paste link)', () => (
-    <LinkDevices {...actions} direction='receive' linkedDevices={[]} />
+    <LinkDevices {...actions} direction='receive' />
   ))

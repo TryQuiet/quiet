@@ -18,6 +18,7 @@ export const Typography: FC<TypographyProps & TextProps> = ({
   horizontalTextAlign,
   verticalTextAlign,
   numberOfLines,
+  ellipsizeMode,
   ...props
 }) => {
   const scale = variant ? typeScale[variant] : undefined
@@ -33,6 +34,7 @@ export const Typography: FC<TypographyProps & TextProps> = ({
       numberOfLines={numberOfLines}
       style={style}
       verticalTextAlign={verticalTextAlign}
+      ellipsizeMode={ellipsizeMode}
       {...props}
     >
       {children}

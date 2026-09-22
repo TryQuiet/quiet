@@ -14,22 +14,17 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
  * row — the one full-screen stage both entry points share (Device-linking file, Entry
  * points 879:14680); back returns to wherever it was opened from. Inside a community
  * this device shares: Display QR code opens #3400's device-link QR screen, Copy link
- * copies the same one-time link and confirms. Without one it receives: Scan QR code has
+ * copies the same link and confirms. Without one it receives: Scan QR code has
  * no scanner on this branch and takes the pasted device link instead; Paste link opens
  * the same paste step under the Link devices title.
  */
 export const LinkDevicesScreen: FC = () => {
   const dispatch = useDispatch()
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const linkedDevices = useSelector(connection.selectors.linkedDevices)
   const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
   const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
   const confirmationBox = useConfirmationBox('Copied')
   const inCommunity = Boolean(currentCommunity)
-
-  useEffect(() => {
-    dispatch(connection.actions.getLinkedDevices())
-  }, [dispatch])
 
   // Share: the link Copy link puts on the clipboard, minted as soon as the screen shows.
   useEffect(() => {
@@ -80,7 +75,6 @@ export const LinkDevicesScreen: FC = () => {
       onCopyLink={onCopyLink}
       onScanQrCode={onScanQrCode}
       onPasteLink={onPasteLink}
-      linkedDevices={linkedDevices}
       handleBackButton={handleBackButton}
     />
   )

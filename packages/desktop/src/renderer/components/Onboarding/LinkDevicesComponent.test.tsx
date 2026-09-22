@@ -17,7 +17,6 @@ describe('LinkDevicesComponent', () => {
         onDisplayQrCode={onDisplayQrCode}
         deviceLink={'https://tryquiet.org/join#device-link'}
         onLinkCopied={onLinkCopied}
-        linkedDevices={[]}
       />
     )
 
@@ -58,5 +57,23 @@ describe('LinkDevicesComponent', () => {
     await userEvent.click(screen.getByTestId('link-devices-paste-link'))
     expect(onScanQrCode).toHaveBeenCalledTimes(1)
     expect(onPasteLink).toHaveBeenCalledTimes(1)
+  })
+
+  /**
+   * The frames draw a "Linked devices" list under the rows. It is not built on this line: the
+   * backend that would enumerate a user's devices was dropped (TryQuiet/quiet#3636), and a card
+   * that always read "No linked devices" would be false the moment a device was linked.
+   */
+  it('draws no device list in either direction', () => {
+    const { unmount } = renderComponent(
+      <LinkDevicesComponent direction='share' onDisplayQrCode={jest.fn()} deviceLink={'x'} onLinkCopied={jest.fn()} />
+    )
+    expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
+    unmount()
+
+    renderComponent(<LinkDevicesComponent direction='receive' onScanQrCode={jest.fn()} onPasteLink={jest.fn()} />)
+    expect(screen.queryByTestId('linked-devices-list')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('no-linked-devices')).not.toBeInTheDocument()
   })
 })

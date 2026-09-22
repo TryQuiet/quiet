@@ -29,13 +29,16 @@ import {
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
   type AddMembersChannelPayload,
+  EMPTY_CHANNEL_ID,
   ChannelOperationStatus,
+  ChannelType,
   type GenericChannelPermissions,
   DEFAULT_GENERIC_CHANNEL_PERMISSIONS,
   type SetChannelPermissionsPayload,
   type PrivateChannelPermissions,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import { prevChannelId } from './publicChannels.selectors'
 
 const logger = createLogger('publicChannelsSlice')
 
@@ -48,6 +51,16 @@ export class PublicChannelsState {
 
   public channelsStatus: EntityState<PublicChannelStatus> = publicChannelsStatusAdapter.getInitialState()
 
+  public newMessageOpen = false
+
+  /**
+   * Who the composer should open with already chosen. A DM started from a profile names its one
+   * recipient up front; the composer is otherwise opened empty and this stays [].
+   */
+  public newMessageRecipientIds: string[] = []
+
+  public prevChannelId: string = INITIAL_CURRENT_CHANNEL_ID
+
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
 
@@ -55,13 +68,20 @@ export class PublicChannelsState {
 
   public channelSpecificPermissions: EntityState<PrivateChannelPermissions> =
     channelSpecificPermissionsAdapter.getInitialState()
+
+  // Bumped once per local calendar day by dayTickSaga. Not read for its value -
+  // it exists only so selectors that memoize on it (e.g. dailyGroupedCurrentChannelMessages)
+  // are forced to recompute their 'Today' / 'Yesterday' message-date labels when the
+  // day rolls over, instead of only recomputing when a new message arrives.
+  // See https://github.com/TryQuiet/quiet/issues/2751 and #1661.
+  public dayTick: number = 0
 }
 
 export const publicChannelsSlice = createSlice({
   initialState: { ...new PublicChannelsState() },
   name: StoreKeys.PublicChannels,
   reducers: {
-    createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
+    createChannel: (state, _action: PayloadAction<CreateChannelPayload & { firstMessage?: string }>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
     addMembersChannel: (state, action: PayloadAction<AddMembersChannelPayload>) => state,
     completeChannelDeletion: (state, _action) => state,
@@ -99,7 +119,7 @@ export const publicChannelsSlice = createSlice({
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
       logger.info('addChannel', action.payload)
-      const { channel, status } = action.payload
+      const { channel, displayedName, status } = action.payload
       if (status === ChannelOperationStatus.FAILED) {
         logger.error('addChannel got a failed status!')
         return
@@ -110,6 +130,8 @@ export const publicChannelsSlice = createSlice({
       }
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
+        type: channel.type ?? ChannelType.CHANNEL,
+        displayedName: displayedName ?? channel.name,
         messages: channelMessagesAdapter.getInitialState(),
       })
       publicChannelsStatusAdapter.addOne(state.channelsStatus, {
@@ -117,6 +139,7 @@ export const publicChannelsSlice = createSlice({
         unread: false,
         newestMessage: null,
         public: channel.public,
+        type: channel.type ?? ChannelType.CHANNEL,
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {
@@ -128,6 +151,7 @@ export const publicChannelsSlice = createSlice({
       })
     },
     channelsReplicated: (state, _action: PayloadAction<ChannelsReplicatedPayload>) => state,
+    syncChannelDisplayNames: state => state,
     setCurrentChannel: (state, action: PayloadAction<SetCurrentChannelPayload>) => {
       const { channelId } = action.payload
       state.currentChannelId = channelId
@@ -171,6 +195,17 @@ export const publicChannelsSlice = createSlice({
       state.genericChannelPermissions = genericPermissions
       channelSpecificPermissionsAdapter.setAll(state.channelSpecificPermissions, channelSpecificPermissions)
     },
+    // Dispatched by dayTickSaga shortly after local midnight. See PublicChannelsState.dayTick.
+    // Guarded rather than a bare `+= 1`: this slice is persisted, and the rehydrate path
+    // (PublicChannelsTransform -> sanitizePublicChannelsPersistenceState) spreads the stored
+    // object instead of constructing a PublicChannelsState, so the class-field default above
+    // does NOT apply to state restored from a build that predates dayTick. An unguarded
+    // increment would yield NaN there, and since reselect compares with === (and NaN !== NaN)
+    // that would permanently defeat memoization of dailyGroupedCurrentChannelMessages.
+    // See dayTick/dayTickRehydration.test.ts.
+    tickCurrentDay: state => {
+      state.dayTick = Number.isFinite(state.dayTick) ? state.dayTick + 1 : 1
+    },
     // Utility action for testing purposes
     test_message: (
       state,
@@ -183,6 +218,41 @@ export const publicChannelsSlice = createSlice({
       const channel = state.channels.entities[message.channelId]
       if (!channel) return
       channelMessagesAdapter.addOne(channel.messages, message)
+    },
+    setNewMessageOpen: (
+      state,
+      action: PayloadAction<{ isOpen: boolean; prevChannelId?: string; recipientIds?: string[] }>
+    ) => {
+      const { isOpen, prevChannelId, recipientIds } = action.payload
+      if (prevChannelId != null) {
+        state.prevChannelId = prevChannelId
+      }
+
+      if (isOpen) {
+        state.currentChannelId = EMPTY_CHANNEL_ID
+      }
+      state.newMessageOpen = isOpen
+      // Cleared on close as well as set on open, so a later empty composer cannot inherit the
+      // recipient of an earlier one.
+      state.newMessageRecipientIds = isOpen ? (recipientIds ?? []) : []
+    },
+    setDisplayedName: (state, action: PayloadAction<{ channelId: string; displayedName: string }>) => {
+      const { channelId, displayedName } = action.payload
+      publicChannelsAdapter.updateOne(state.channels, {
+        id: channelId,
+        changes: {
+          displayedName,
+        },
+      })
+    },
+    setMemberIdHash: (state, action: PayloadAction<{ channelId: string; memberIdHash: string }>) => {
+      const { channelId, memberIdHash } = action.payload
+      publicChannelsAdapter.updateOne(state.channels, {
+        id: channelId,
+        changes: {
+          memberIdHash,
+        },
+      })
     },
   },
 })

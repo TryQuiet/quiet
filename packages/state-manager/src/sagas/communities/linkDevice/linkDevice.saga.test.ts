@@ -37,11 +37,17 @@ describe('linkDeviceSaga', () => {
   const socket = {
     emitWithAck: jest.fn(),
   } as unknown as Socket
-  const action = communitiesActions.linkDevice({ inviteData })
+  const action = communitiesActions.linkDevice({
+    inviteData,
+    deviceLinkConsent: true,
+    confirmedQssEndpoint: inviteData.qssEndpoint,
+  })
   const payload = {
     id: communityId,
     inviteData,
     deviceName: undefined,
+    deviceLinkConsent: true,
+    confirmedQssEndpoint: inviteData.qssEndpoint,
   }
 
   it('stores and launches the linked community without creating a new profile', () => {
@@ -109,5 +115,30 @@ describe('linkDeviceSaga', () => {
       .put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
       .next()
       .isDone()
+  })
+
+  it.each([
+    ['missing consent', { inviteData }],
+    ['different endpoint', { inviteData, deviceLinkConsent: true, confirmedQssEndpoint: 'wss://other.invalid' }],
+  ])('does not contact the backend with %s', (_label, unsafePayload) => {
+    const unsafeAction = communitiesActions.linkDevice(unsafePayload as typeof action.payload)
+
+    testSaga(linkDeviceSaga, socket, unsafeAction)
+      .next()
+      .put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
+      .next()
+      .isDone()
+
+    expect(socket.emitWithAck).not.toHaveBeenCalled()
+  })
+
+  it('allows an explicitly confirmed v5 invite when QSS is disabled', () => {
+    const p2pV5Invite = { ...inviteData, qssEnabled: false }
+    const p2pAction = communitiesActions.linkDevice({
+      inviteData: p2pV5Invite,
+      deviceLinkConsent: true,
+    })
+
+    testSaga(linkDeviceSaga, socket, p2pAction).next().put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
   })
 })

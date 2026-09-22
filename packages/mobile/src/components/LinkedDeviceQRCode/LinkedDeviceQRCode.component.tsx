@@ -21,8 +21,17 @@ export const LINKED_DEVICE_QR_COPY = {
   scan: 'Scan this from “Link devices” on another device to link the devices.',
   copyLink: 'Copy link',
   reset: 'Reset QR code',
-  /** While the backend mints the one-time link (#3400's copy; the frame draws no such state) — the ActionProgress status line. */
+  /** While the backend mints the link (#3400's copy; the frame draws no such state) — the ActionProgress status line. */
   generating: 'Generating device link…',
+  /**
+   * develop's security copy, kept verbatim. It is the only place that says what the link actually
+   * is: reusable until it expires, not a one-shot code — and that expiry does not take back keys
+   * a linked device already holds. The frame has no such paragraph, and dropping it would leave
+   * people to guess at the risk.
+   */
+  security:
+    'Anyone with this private code can link another device until it expires in 30 minutes. Keep it secret, and keep both devices online while linking. Expiry blocks new linking but does not remove keys already received by a linked device.',
+  failed: 'Could not generate a device link. Go back and try again.',
 } as const
 
 /**
@@ -37,6 +46,7 @@ export const LINKED_DEVICE_QR_COPY = {
 export const LinkedDeviceQRCode: FC<LinkedDeviceQRCodeProps> = ({
   value,
   isLoading,
+  failed = false,
   onCopyLink,
   onReset,
   handleBackButton,
@@ -67,6 +77,19 @@ export const LinkedDeviceQRCode: FC<LinkedDeviceQRCodeProps> = ({
         <Typography variant={'body'} horizontalTextAlign={'center'}>
           {LINKED_DEVICE_QR_COPY.scan}
         </Typography>
+        <Typography
+          variant={'caption'}
+          color={'gray50'}
+          horizontalTextAlign={'center'}
+          testID={'linked-device-qr-code-security'}
+        >
+          {LINKED_DEVICE_QR_COPY.security}
+        </Typography>
+        {failed && !ready ? (
+          <Typography variant={'body'} horizontalTextAlign={'center'} testID={'linked-device-qr-code-failed'}>
+            {LINKED_DEVICE_QR_COPY.failed}
+          </Typography>
+        ) : null}
         {isLoading && !ready ? (
           <ActionProgress status={LINKED_DEVICE_QR_COPY.generating} testID={'linked-device-qr-code-progress'} />
         ) : null}

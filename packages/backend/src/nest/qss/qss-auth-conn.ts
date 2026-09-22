@@ -1,4 +1,5 @@
 import type { AdmissionAuthContext } from '../admission/admission-auth-context.types'
+import { AdmissionError } from '../admission/admission.types'
 /**
  * Abstraction of LFA auth sync connection logic for QSS
  */
@@ -100,6 +101,7 @@ export class QSSAuthConnection extends EventEmitter {
 
   private _onQssDisconnected = (): void => {
     this.logger.warn('QSS disconnected, closing auth connection', this.teamId)
+    this.admissionContext?.fail(new AdmissionError('transport', 'QSS disconnected during admission'))
     this.stop(false)
   }
 

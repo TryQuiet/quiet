@@ -73,17 +73,25 @@ export const DISPLAY_QR_CODE_COPY = {
   reset: 'Reset QR code',
   /** The confirmation after Copy link. Not in a frame. */
   copied: 'Link copied',
-  /** While the backend mints the one-time link (#3400's copy; the frames draw no such state) — the ActionProgress status line. */
+  /** While the backend mints the link (#3400's copy; the frames draw no such state) — the ActionProgress status line. */
   generating: 'Generating device link…',
   /** No community to mint a link from (#3400's copy; the frames draw no such state). */
   unavailable: 'Device link unavailable',
+  /**
+   * develop's security copy, kept verbatim. It is the only place that says what the link actually
+   * is: reusable until it expires, not a one-shot code — and that expiry does not take back keys
+   * a linked device already holds. The frames have no such paragraph, and dropping it would leave
+   * people to guess at the risk.
+   */
+  security:
+    'This link can be used by more than one device until it expires after 30 minutes. Anyone who keeps the link and a copy of the community history may retain historical encryption keys after it expires or is revoked.',
 } as const
 
 export interface DisplayQrCodeComponentProps {
   /** The device link; empty while it is being minted, or when none can be minted. */
   deviceLink: string
   isLoading: boolean
-  /** Reset QR code: mint a new one-time link. */
+  /** Reset QR code: invalidate the current link and mint another. */
   onReset: () => void
   dataTestId?: string
 }
@@ -118,6 +126,9 @@ export const DisplayQrCodeComponent: React.FC<DisplayQrCodeComponentProps> = ({
         </div>
         <Typography variant='body2' className={classes.copy} component='p'>
           {DISPLAY_QR_CODE_COPY.scan}
+        </Typography>
+        <Typography variant='caption' align='center' data-testid={`${dataTestId}-security`}>
+          {DISPLAY_QR_CODE_COPY.security}
         </Typography>
         {isLoading && !ready ? (
           <ActionProgress status={DISPLAY_QR_CODE_COPY.generating} data-testid={`${dataTestId}-progress`} />

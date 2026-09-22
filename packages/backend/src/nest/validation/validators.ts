@@ -7,6 +7,7 @@ import { createLogger } from '../common/logger'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { isUint8Array } from 'util/types'
 import { CID } from 'multiformats/cid'
+import { decodeWireBytes } from './byte-encoding'
 
 const logger = createLogger('validators')
 
@@ -125,7 +126,11 @@ const encryptedMessageSchema = joi.object({
     contents: joi
       .any()
       .required()
-      .custom((value, _helpers) => {
+      .custom((value, helpers) => {
+        if (helpers.state.ancestors[0]?.scope?.type === 'DM') {
+          decodeWireBytes(value, 2 * 1024 * 1024)
+          return value
+        }
         if (!Buffer.isBuffer(value) && !isUint8Array(value)) {
           throw new Error('value must be a Uint8Array or Buffer')
         }
@@ -146,6 +151,10 @@ const encryptedMessageSchema = joi.object({
 })
 
 const channelSchema = joi.object({
+  type: joi.string().valid('channel', 'dm').optional(),
+  memberIds: joi.array().items(joi.string()).optional(),
+  memberIdHash: joi.string().optional(),
+  displayedName: joi.string().optional(),
   name: joi.string().required(),
   description: joi.string().required(),
   owner: joi.string().required(),
@@ -185,13 +194,13 @@ export const isMessage = (msg: ChannelMessage): boolean => {
 
 export const isConsumedChannelMessage = (msg: ChannelMessage): boolean => {
   const value: joi.ValidationResult = consumedChannelMessageSchema.validate(msg, { convert: false })
-  if (value.error) logger.error('isConsumedChannelMessage', value.error)
+  if (value.error) logger.error('Invalid consumed message shape')
   return !value.error
 }
 
 export const isEncryptedMessage = (msg: EncryptedMessage): boolean => {
   const value: joi.ValidationResult = encryptedMessageSchema.validate(msg)
-  if (value.error) logger.error('isEncryptedMessage', value.error)
+  if (value.error) logger.error('Invalid encrypted message shape')
   return !value.error
 }
 

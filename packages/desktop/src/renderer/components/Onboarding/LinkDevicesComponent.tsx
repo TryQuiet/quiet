@@ -3,10 +3,7 @@ import CopyToClipboard from 'react-copy-to-clipboard'
 
 import { ActionRow } from './ActionRow'
 import { OnboardingBody, RowGroup } from './OnboardingBody'
-import { LinkedDevicesList, type LinkedDeviceRow } from './LinkedDevicesList'
 import { onboardingIcons } from './icons'
-
-export type { LinkedDeviceRow } from './LinkedDevicesList'
 
 /**
  * Which way this device links (user decision, 2026-09-13): inside a community it
@@ -20,7 +17,7 @@ export interface LinkDevicesComponentProps {
   /** share: opens the QR code sheet. */
   onDisplayQrCode?: () => void
   /**
-   * share: the device link to copy (the same one-time link the QR sheet shows); empty
+   * share: the device link to copy (the same link the QR sheet shows); empty
    * while it is being minted, in which case the row asks for one via `onCopyLink`.
    */
   deviceLink?: string
@@ -31,16 +28,18 @@ export interface LinkDevicesComponentProps {
   onScanQrCode?: () => void
   /** receive: the Paste link row (user addition, 2026-09-13; not in 2811:2575). */
   onPasteLink?: () => void
-  /** Devices linked to this user; undefined while unknown. */
-  linkedDevices?: LinkedDeviceRow[]
 }
 
 /**
  * Link devices · Figma 2811:2575, in the shell of the Device-linking desktop frames
- * 879:20987 / 880:17196: the rows in the library's bordered group, then the Linked
- * devices list. The rows follow the direction (above). Copy link and Paste link carry
- * the library's link glyph (the one Join with invite link uses on 2811:2562); their
- * labels are not the designer's.
+ * 879:20987 / 880:17196: the rows in the library's bordered group. The rows follow the
+ * direction (above). Copy link and Paste link carry the library's link glyph (the one
+ * Join with invite link uses on 2811:2562); their labels are not the designer's.
+ *
+ * The frames also draw a "Linked devices" list under the rows. It is not built: nothing
+ * on this line can enumerate a user's devices (TryQuiet/quiet#3636), and a card that
+ * always read "No linked devices" would state something false as soon as a device was
+ * linked. The list returns with the backend that can fill it.
  */
 export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
   direction,
@@ -50,7 +49,6 @@ export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
   onLinkCopied,
   onScanQrCode,
   onPasteLink,
-  linkedDevices,
 }) => {
   const copyRow = (
     <ActionRow
@@ -102,7 +100,6 @@ export const LinkDevicesComponent: React.FC<LinkDevicesComponentProps> = ({
           </>
         )}
       </RowGroup>
-      <LinkedDevicesList devices={linkedDevices} />
     </OnboardingBody>
   )
 }

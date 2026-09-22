@@ -15,8 +15,8 @@ import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { qrImageData } from '../../../testUtils/qrImage'
 import { cameraError, mockCamera } from '../../../testUtils/mockCamera'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
-import { communities } from '@quiet/state-manager'
+import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
+import { communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 import {
   Site,
   QUIET_JOIN_PAGE,
@@ -62,6 +62,31 @@ describe('join community', () => {
     },
   }
   const deviceInvitationCode = getValidInvitationUrlTestData(deviceInvitationData).code()
+
+  it('opens on the paste step and clears an existing join error once when the invitation changes', async () => {
+    const { store } = await prepareStore({
+      ...openModalState(ModalName.joinCommunityModal),
+      [StateManagerStoreKeys.Communities]: {
+        ...new communities.State(),
+        joinCommunityError: { type: 'invalid' },
+      },
+    })
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<JoinCommunity />, store)
+
+    // A reported join error belongs on the invite field, so the flow opens there rather than on the
+    // three-way choice.
+    const input = await screen.findByPlaceholderText('Link')
+    expect(await screen.findByText(ErrorMessages.INVALID_INVITE)).toBeVisible()
+
+    await userEvent.type(input, 'abc')
+
+    const clearErrorActions = dispatchSpy.mock.calls.filter(
+      ([action]) => action.type === communities.actions.clearJoinCommunityError.type
+    )
+    expect(clearErrorActions).toHaveLength(1)
+  })
 
   it('walks from the three-way choice to the paste step and back to Get started', async () => {
     const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
@@ -123,7 +148,7 @@ describe('join community', () => {
       expect(camera.stop).toHaveBeenCalled()
     })
 
-    it('scans a device link and links this device', async () => {
+    it('scans a device link and links this device once the consent is given', async () => {
       camera = mockCamera({ frame: qrImageData(`${QUIET_JOIN_PAGE}#${deviceInvitationCode}`) })
       const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
       const dispatchSpy = jest.spyOn(store, 'dispatch')
@@ -136,14 +161,22 @@ describe('join community', () => {
         store
       )
 
+      const consentedLinkDevice = communities.actions.linkDevice({
+        inviteData: deviceInvitationData,
+        deviceLinkConsent: true,
+        confirmedQssEndpoint: undefined,
+      })
+
       await userEvent.click(screen.getByTestId('join-with-qr-code'))
-      await waitFor(
-        () =>
-          expect(dispatchSpy).toHaveBeenCalledWith(
-            communities.actions.linkDevice({ inviteData: deviceInvitationData })
-          ),
-        { timeout: 5000 }
-      )
+
+      // A device link scanned here is gated exactly as a pasted one is: the camera decodes whatever
+      // is in front of it, so the decode alone is not consent to hand this account to that device.
+      expect(await screen.findByTestId('device-link-consent', {}, { timeout: 5000 })).toBeVisible()
+      expect(dispatchSpy).not.toHaveBeenCalledWith(consentedLinkDevice)
+
+      await userEvent.click(screen.getByTestId('confirm-device-link'))
+
+      await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(consentedLinkDevice))
       expect(screen.queryByText('Choose username')).not.toBeInTheDocument()
     })
 
@@ -207,10 +240,15 @@ describe('join community', () => {
     await userEvent.type(await openPasteStep(), deviceInvitationCode)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
+    // Linking a device is never done without consent.
+    expect(screen.getByTestId('device-link-consent')).toBeVisible()
+    await userEvent.click(screen.getByTestId('confirm-device-link'))
+
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalledWith(
         communities.actions.linkDevice({
           inviteData: deviceInvitationData,
+          deviceLinkConsent: true,
         })
       )
     })
