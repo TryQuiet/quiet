@@ -30,9 +30,10 @@ const CARD_RADIUS = 16
  * members. Rows carry no message preview: the mobile design is a navigation
  * list, not an inbox.
  *
- * The member rows are the people in the community, which is what the frame of
- * record draws. Quiet has direct messages now, so a member row is no longer
- * inert: tapping one opens the conversation with that person, or starts it.
+ * The last section keeps the frame's own heading, "Direct messages", over the
+ * people the frame draws under it: the community's members. Quiet has direct
+ * messages now, so a member row is no longer inert — tapping one opens the
+ * conversation with that person, or starts it.
  */
 export const CommunityHome: FC<CommunityHomeProps> = ({
   communityName,
@@ -96,7 +97,7 @@ export const CommunityHome: FC<CommunityHomeProps> = ({
             {/* The empty community (6124:9816) draws no member section at all. */}
             {users.length > 0 && (
               <View>
-                <ListSectionTitle title='Members' testID={'members_section'} />
+                <ListSectionTitle title='Direct messages' testID={'members_section'} />
                 {users.map(user => (
                   <PersonRow
                     key={user.userId}

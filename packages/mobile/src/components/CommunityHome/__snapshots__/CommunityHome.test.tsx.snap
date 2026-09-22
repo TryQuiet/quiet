@@ -1345,7 +1345,7 @@ exports[`CommunityHome component matches the snapshot 1`] = `
               }
               verticalTextAlign="center"
             >
-              Members
+              Direct messages
             </Text>
           </View>
           <View

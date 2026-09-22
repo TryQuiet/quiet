@@ -90,7 +90,7 @@ describe('CommunityHome component', () => {
     expect(getByText('Channels')).toBeTruthy()
     expect(getByText('general')).toBeTruthy()
     expect(getByText('philosophy')).toBeTruthy()
-    expect(getByText('Members')).toBeTruthy()
+    expect(getByText('Direct messages')).toBeTruthy()
     expect(getByText('StoneJump')).toBeTruthy()
   })
 
@@ -100,11 +100,9 @@ describe('CommunityHome component', () => {
     expect(props.openMember).toHaveBeenCalledWith('stone-jump')
   })
 
-  it('gives the members section no plus — a DM is started from the member row', () => {
-    const { queryByTestId, queryByText } = setup()
+  it('gives the section no plus — a DM is started from the member row', () => {
+    const { queryByTestId } = setup()
     expect(queryByTestId('New direct message')).toBeNull()
-    // The design draws no Direct messages section on this screen.
-    expect(queryByText('Direct messages')).toBeNull()
   })
 
   it('opens a channel by id', () => {
@@ -151,7 +149,7 @@ describe('CommunityHome component', () => {
   // The empty community (6124:9816) draws no member section at all.
   it('hides the members section until profiles arrive', () => {
     const { queryByText } = setup({ users: [] })
-    expect(queryByText('Members')).toBeNull()
+    expect(queryByText('Direct messages')).toBeNull()
   })
 
   it('labels yourself in the member list, which includes you', () => {

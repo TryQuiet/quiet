@@ -62,7 +62,7 @@ describe('Community home screen', () => {
     await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })
     renderComponent(<AppHomeScreen />, store)
 
-    expect(screen.getByText('Members')).toBeVisible()
+    expect(screen.getByText('Direct messages')).toBeVisible()
     expect(screen.getByTestId('user_tile_alice')).toBeVisible()
 
     root?.cancel()
