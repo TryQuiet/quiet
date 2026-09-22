@@ -1444,10 +1444,9 @@ export class JoinCommunityModal {
     await this.waitForStep('Recover account')
   }
 
-  /** "More options" on Account recovery has no target in the design and stays inert. */
-  async isRecoverMoreOptionsDisabled(): Promise<boolean> {
-    const row = await this.findVisible('recover-more-options')
-    return (await row.getAttribute('aria-disabled')) === 'true'
+  /** The frame's "More options" row has no target in the design, so it is not built. */
+  async isRecoverMoreOptionsAbsent(): Promise<boolean> {
+    return !(await this.isPresent('recover-more-options'))
   }
 
   /** Account recovery → Use invite link → Open invite link → Paste a link. */
