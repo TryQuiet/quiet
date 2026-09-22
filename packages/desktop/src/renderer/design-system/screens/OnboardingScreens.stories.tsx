@@ -106,9 +106,11 @@ type ShellLeft = 'back' | 'close' | 'none'
  * The Modal full-window shell as the app's Modal renders it: 60px header, back
  * arrow (or close) left, title centered. `withoutTitle` = the bar zone with the
  * glyph only, no title text (the full-screen h1 stages, as the prototype hides
- * their titles — ONBOARDING.md "No top bar title on full-screen h1 stages"). No
- * `title` and no `withoutTitle` = no bar (Get started: the window chrome is the
- * bar), the content column starting at the top.
+ * their titles — ONBOARDING.md "No top bar title on full-screen h1 stages").
+ * `withoutTitle` with `left='none'` = the zone with nothing in it at all, which
+ * is what Get started draws: no title, nothing to go back to, and the 60 still
+ * reserved so every stage's content column starts at the same y (ONBOARDING.md
+ * "Vertical rhythm"). Only the loading panels drop the zone.
  */
 const Shell: React.FC<{
   title?: string
@@ -167,13 +169,18 @@ const Shell: React.FC<{
  * hides (glyph only), a title dropped here because the screen carries its own
  * large heading, or no bar at all.
  */
-const barCaption = (bar?: string, hiddenBar?: string, droppedBar?: string) =>
+const barCaption = (bar?: string, hiddenBar?: string, droppedBar?: string, emptyBar?: string) =>
   bar !== undefined ? (
     <>title bar &ldquo;{bar}&rdquo;</>
   ) : hiddenBar !== undefined ? (
     <>no bar title, glyph only (the frame hides &ldquo;{hiddenBar}&rdquo;)</>
   ) : droppedBar !== undefined ? (
     <>no bar title, glyph only (the frame draws &ldquo;{droppedBar}&rdquo;; dropped — the screen has its own heading)</>
+  ) : emptyBar !== undefined ? (
+    <>
+      empty bar zone (the frame draws &ldquo;{emptyBar}&rdquo;; no title and nothing to go back to, the 60 kept so the
+      column starts where every other stage starts)
+    </>
   ) : (
     'no title bar'
   )
@@ -186,11 +193,13 @@ const Screen: React.FC<{
   hiddenBar?: string
   /** A title the frame draws but this screen drops, because it has a large heading of its own. */
   droppedBar?: string
+  /** A bar the frame draws that this screen empties: the 60 zone kept, no title, no glyph (Get started). */
+  emptyBar?: string
   figma: string
   left?: ShellLeft
   note?: string
   render: () => React.ReactNode
-}> = ({ title, bar, hiddenBar, droppedBar, figma, left, note, render }) => (
+}> = ({ title, bar, hiddenBar, droppedBar, emptyBar, figma, left, note, render }) => (
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={lightTheme}>
       <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
@@ -198,12 +207,16 @@ const Screen: React.FC<{
           {title}
         </h1>
         <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-          Figma <span style={{ fontFamily: mono }}>{figma}</span> · {barCaption(bar, hiddenBar, droppedBar)} · desktop
-          component under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
+          Figma <span style={{ fontFamily: mono }}>{figma}</span> · {barCaption(bar, hiddenBar, droppedBar, emptyBar)} ·
+          desktop component under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-            <Shell title={bar} withoutTitle={hiddenBar !== undefined || droppedBar !== undefined} left={left}>
+            <Shell
+              title={bar}
+              withoutTitle={hiddenBar !== undefined || droppedBar !== undefined || emptyBar !== undefined}
+              left={left}
+            >
               {render()}
             </Shell>
           </Column>
@@ -228,8 +241,9 @@ export const GetStarted = () => (
   <Screen
     title='Get started'
     left='none'
+    emptyBar='Quiet'
     figma='2811:2550'
-    note='the entry: Onboarding/GetStarted.tsx opens it as soon as the app is connected without a community, and the other onboarding modals return to it; no title bar on either platform — the window chrome already says Quiet on desktop and the bar did not feel right on mobile (decided 2026-09-13, a deliberate departure from the frame)'
+    note='the entry: Onboarding/GetStarted.tsx opens it as soon as the app is connected without a community, and the other onboarding modals return to it; no bar title and no glyph on either platform — the window chrome already says Quiet on desktop and the bar did not feel right on mobile (decided 2026-09-13, a deliberate departure from the frame); the 60 bar zone itself is kept, so the column starts at the same y as on every screen this one leads to'
     render={() => <GetStartedComponent onJoinCommunity={noop} onCreateCommunity={noop} onLinkDevices={noop} />}
   />
 )
@@ -337,8 +351,10 @@ const ScannerScreen: React.FC<
     note: string
     intro?: string
     camera: StoryCamera
+    /** Which OS the denied state names a setting for; Storybook is on none of them. */
+    platform?: NodeJS.Platform
   } & ScannerBar
-> = ({ title, bar, droppedBar, figma, note, intro, camera }) => {
+> = ({ title, bar, droppedBar, figma, note, intro, camera, platform }) => {
   const [decoded, setDecoded] = React.useState<string[]>([])
   const record = (entry: string) => setDecoded(list => [...list, entry])
   return (
@@ -352,6 +368,7 @@ const ScannerScreen: React.FC<
         render={() => (
           <QrScannerComponent
             intro={intro}
+            platform={platform}
             onDecoded={data => record(describeInvitation(data))}
             onUsePasteLink={() => record('→ Paste a link to join (the paste step)')}
           />
@@ -412,14 +429,39 @@ export const JoinWithQrCodeInvalid = () => (
   />
 )
 
+/**
+ * The refusal is stored by the OS, so the copy has to name the page the toggle is on and
+ * offer to open it — macOS shows its permission dialog once and Windows shows none at all.
+ * Three platforms, because the copy is the only thing that differs between them and Linux
+ * has no such page. Open settings is inert here: the IPC it calls needs a main process.
+ */
 export const JoinWithQrCodeDenied = () => (
-  <ScannerScreen
-    title='Join with QR code · camera denied'
-    droppedBar={JOIN_WITH_QR_CODE_HEADING}
-    figma='2811:2460'
-    note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
-    camera={{ kind: 'denied' }}
-  />
+  <>
+    <ScannerScreen
+      title='Join with QR code · camera denied · macOS'
+      droppedBar={JOIN_WITH_QR_CODE_HEADING}
+      figma='2811:2460'
+      note='no frame in the prototype for this state; Open settings opens System Settings → Privacy & Security → Camera, and the scanner asks the camera again when the window is refocused afterwards'
+      camera={{ kind: 'denied' }}
+      platform='darwin'
+    />
+    <ScannerScreen
+      title='Join with QR code · camera denied · Windows'
+      droppedBar={JOIN_WITH_QR_CODE_HEADING}
+      figma='2811:2460'
+      note='the same state naming the Windows page; Open settings opens Settings → Privacy & security → Camera'
+      camera={{ kind: 'denied' }}
+      platform='win32'
+    />
+    <ScannerScreen
+      title='Join with QR code · camera denied · Linux'
+      droppedBar={JOIN_WITH_QR_CODE_HEADING}
+      figma='2811:2460'
+      note='unchanged: Linux has no camera permission and no page to send anyone to, so the copy is the minimum and "Paste a link" is the only way on'
+      camera={{ kind: 'denied' }}
+      platform='linux'
+    />
+  </>
 )
 
 export const JoinWithQrCodeNoCamera = () => (
@@ -770,8 +812,11 @@ type Step =
   | 'pasteFromScan'
   | 'pasteLink'
 
-const STEPS: Record<Step, { title: string; bar?: string; hiddenBar?: string; droppedBar?: string; left: ShellLeft }> = {
-  getStarted: { title: 'Get started', left: 'none' },
+const STEPS: Record<
+  Step,
+  { title: string; bar?: string; hiddenBar?: string; droppedBar?: string; emptyBar?: string; left: ShellLeft }
+> = {
+  getStarted: { title: 'Get started', emptyBar: 'Quiet', left: 'none' },
   joinCommunity: { title: JOIN_COMMUNITY_HEADING, hiddenBar: 'Quiet', left: 'back' },
   recoverAccount: { title: RECOVER_ACCOUNT_HEADING, hiddenBar: 'Account recovery', left: 'back' },
   openInviteLink: { title: OPEN_INVITE_LINK_HEADING, hiddenBar: JOIN_WITH_INVITE_LINK_HEADING, left: 'back' },
@@ -990,7 +1035,7 @@ const WalkthroughStory = () => {
     }
   }
 
-  const { title, bar, hiddenBar, droppedBar, left } = STEPS[step]
+  const { title, bar, hiddenBar, droppedBar, emptyBar, left } = STEPS[step]
   const isPasteStep = PASTE_STEPS.includes(step)
   // Choose username's close leaves onboarding (the story restarts); the QR sheet's close
   // returns to Link devices, as LinkDevices.tsx does when the sheet is not the initial step.
@@ -1007,8 +1052,8 @@ const WalkthroughStory = () => {
               Walkthrough · {title}
             </h1>
             <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-              {barCaption(bar, hiddenBar, droppedBar)} · rows, buttons and the back arrow navigate; where the app
-              dispatches, the action is recorded below · trail:{' '}
+              {barCaption(bar, hiddenBar, droppedBar, emptyBar)} · rows, buttons and the back arrow navigate; where the
+              app dispatches, the action is recorded below · trail:{' '}
               <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
                 {[...trail, step].map(s => STEPS[s].title).join(' › ')}
               </span>
@@ -1017,7 +1062,7 @@ const WalkthroughStory = () => {
               <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
                 <Shell
                   title={bar}
-                  withoutTitle={hiddenBar !== undefined || droppedBar !== undefined}
+                  withoutTitle={hiddenBar !== undefined || droppedBar !== undefined || emptyBar !== undefined}
                   left={left}
                   onLeft={onLeft}
                 >

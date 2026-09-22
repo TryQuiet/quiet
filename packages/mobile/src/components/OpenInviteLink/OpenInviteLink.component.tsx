@@ -5,6 +5,7 @@ import { icons } from '../../assets'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { Appbar } from '../Appbar/Appbar.component'
+import { OnboardingBody } from '../OnboardingBody/OnboardingBody.component'
 import { Typography } from '../Typography/Typography.component'
 
 import type { OpenInviteLinkProps } from './OpenInviteLink.types'
@@ -17,7 +18,7 @@ export const OpenInviteLink: FC<OpenInviteLinkProps> = ({ onPasteLink, handleBac
     testID={'open-invite-link-component'}
   >
     <Appbar withoutTitle back={handleBackButton} />
-    <View style={{ flex: 1, paddingTop: spacing.xl, paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+    <OnboardingBody>
       <Image source={icons.monster} style={{ width: 120, height: 120, alignSelf: 'center' }} accessible={false} />
       <View style={{ gap: spacing.sm }}>
         <Typography variant={'h3'} horizontalTextAlign={'center'}>
@@ -37,6 +38,6 @@ export const OpenInviteLink: FC<OpenInviteLinkProps> = ({ onPasteLink, handleBac
           {PASTE_A_LINK_LABEL}
         </Typography>
       </TouchableOpacity>
-    </View>
+    </OnboardingBody>
   </View>
 )

@@ -6,6 +6,8 @@ import { LinkDevicesIcon, PersonAddIcon, PlusIcon } from '../../assets/icons/svg
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { ActionRow } from '../ActionRow/ActionRow.component'
+import { Appbar } from '../Appbar/Appbar.component'
+import { OnboardingBody } from '../OnboardingBody/OnboardingBody.component'
 import { Typography } from '../Typography/Typography.component'
 
 import type { GetStartedProps } from './GetStarted.types'
@@ -14,14 +16,17 @@ import { GET_STARTED_HEADING, LINK_DEVICES_HEADING } from '@quiet/common'
 export const BETA_WARNING = "Quiet is in beta and shouldn't be used for activities requiring security."
 
 /**
- * Get started · Figma 2811:2550. No app bar at all: the frame's "Quiet" bar did
- * not feel right on mobile (decided 2026-09-13). The other full-screen
- * onboarding stages keep the bar zone for their back glyph but hide the title
- * (Appbar's withoutTitle). The content starts at the safe area App.tsx provides.
+ * Get started · Figma 2811:2550. No bar title and no glyph: the frame's "Quiet"
+ * bar did not feel right on mobile (decided 2026-09-13) and there is nothing to
+ * go back to from the entry. The 60 bar zone itself is kept, as on every other
+ * full-screen stage, so the content column starts at the same y here as on the
+ * screens this one leads to. Dropping the zone and centring the block instead is
+ * what made Get started → Join community jump 76 (styles/const/onboarding.ts).
  */
 export const GetStarted: FC<GetStartedProps> = ({ onJoinCommunity, onCreateCommunity, onLinkDevices }) => (
   <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'get-started-component'}>
-    <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, gap: spacing.xl }}>
+    <Appbar withoutTitle />
+    <OnboardingBody>
       <Image
         source={icons.get_started_circle_logo}
         style={{ width: 120, height: 120, alignSelf: 'center' }}
@@ -64,6 +69,6 @@ export const GetStarted: FC<GetStartedProps> = ({ onJoinCommunity, onCreateCommu
           {BETA_WARNING}
         </Typography>
       </View>
-    </View>
+    </OnboardingBody>
   </View>
 )

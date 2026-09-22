@@ -98,8 +98,10 @@ exports[`JoinCommunityOptions component renders the heart-chat graphic above the
         "flex": 1,
         "gap": 24,
         "paddingHorizontal": 16,
+        "paddingTop": 24,
       }
     }
+    testID="onboarding-body"
   >
     <Image
       accessible={false}
@@ -827,4 +829,4 @@ exports[`JoinCommunityOptions component renders the heart-chat graphic above the
     </View>
   </View>
 </View>
-`
+`;

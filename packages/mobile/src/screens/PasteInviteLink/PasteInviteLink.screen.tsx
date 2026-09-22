@@ -3,6 +3,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities, type JoinCommunityError } from '@quiet/state-manager'
 import { ErrorMessages, type DeviceInvitationData } from '@quiet/types'
+import { AlreadyBelongToCommunityWarning } from '@quiet/common'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { DeviceLinkConsent } from '../../components/DeviceLinkConsent/DeviceLinkConsent.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
@@ -38,6 +39,10 @@ const joinErrorMessage = (error: JoinCommunityError | null): string | undefined 
     // says about a link it could not read itself.
     case 'refused':
       return INVALID_INVITATION_ERROR
+    // Quiet is one community at a time. The designed copy is the error screen's, said here
+    // on the field the link was typed into rather than on a screen of its own.
+    case 'alreadyMember':
+      return AlreadyBelongToCommunityWarning.MESSAGE
     default: {
       const unreported: never = error
       return unreported

@@ -201,6 +201,15 @@ describe('DM trust boundaries and application effects', () => {
     const fanout: ChannelMessage[] = []
     const notifications: unknown[] = []
     const ids: string[][] = []
+    // The channel store indexes the log by entry hash, so a redelivered message needs a fresh
+    // entry, as a second OrbitDB entry carrying the same message would be.
+    const logEntry = (index: number) => ({
+      hash: `entry-${index}`,
+      payload: { value: history[index] },
+      next: index > 0 ? [`entry-${index - 1}`] : [],
+      refs: [],
+    })
+    const indexOf = (hash: string) => Number(hash.replace('entry-', ''))
     const subscribe = async () => {
       const storeEvents = new EventEmitter()
       const store = new ChannelStore(
@@ -222,7 +231,12 @@ describe('DM trust boundaries and application effects', () => {
           events: storeEvents,
           sync: { start: async () => {} },
           iterator: async function* () {
-            for (const value of history) yield { value }
+            for (const [index, value] of history.entries()) yield { hash: `entry-${index}`, value }
+          },
+          log: {
+            heads: async () => (history.length === 0 ? [] : [logEntry(history.length - 1)]),
+            has: async (hash: string) => indexOf(hash) < history.length,
+            get: async (hash: string) => (indexOf(hash) < history.length ? logEntry(indexOf(hash)) : undefined),
           },
         },
       })
@@ -235,7 +249,8 @@ describe('DM trust boundaries and application effects', () => {
         deliver: async (value: EncryptedMessage) => {
           history.push(value)
           // Await the real asynchronous OrbitDB update listener rather than a timer.
-          for (const listener of storeEvents.listeners('update')) await listener({ hash: 'entry', payload: { value } })
+          const entry = logEntry(history.length - 1)
+          for (const listener of storeEvents.listeners('update')) await listener(entry)
         },
       }
     }

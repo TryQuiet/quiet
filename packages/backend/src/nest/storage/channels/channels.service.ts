@@ -9,9 +9,7 @@ import {
   FileMetadata,
   type MessagesLoadedPayload,
   PublicChannel,
-  PushNotificationPayload,
   SocketEvents,
-  ChannelMessageIdsResponse,
   DeleteChannelResponse,
   CreateChannelPayload,
   ChannelSubscribedPayload,
@@ -1235,17 +1233,9 @@ export class ChannelsService extends EventEmitter {
    */
   private handleMessageEventsOnChannelStore(channelId: string, repo: ChannelRepo): void {
     this.logger.info(`Subscribing to channel updates`, channelId)
-    repo.store.on(StorageEvents.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
-      this.emit(StorageEvents.MESSAGE_IDS_STORED, payload)
-    })
-
-    repo.store.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
-      this.emit(StorageEvents.MESSAGES_STORED, payload)
-    })
-
-    repo.store.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
-      this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
-    })
+    // The store delivers to this service's listeners registration by registration, so a failing
+    // consumer neither hides an announcement from the others nor gets it repeated to them.
+    repo.store.forwardAnnouncementsTo(this)
   }
 
   /**

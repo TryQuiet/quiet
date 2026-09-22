@@ -6,6 +6,7 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { ActionRow } from '../ActionRow/ActionRow.component'
 import { Appbar } from '../Appbar/Appbar.component'
+import { OnboardingBody } from '../OnboardingBody/OnboardingBody.component'
 import { Typography } from '../Typography/Typography.component'
 
 import type { LinkedDevice } from '@quiet/types'
@@ -57,7 +58,7 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
       {/* The screen's own h3 says LINK_DEVICES_HEADING; a page with a heading gets no bar title. */}
       <Appbar withoutTitle back={handleBackButton} />
-      <View style={{ flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, gap: spacing.xl }}>
+      <OnboardingBody>
         <View style={{ gap: spacing.sm }}>
           <Typography variant={'h3'} horizontalTextAlign={'center'}>
             {LINK_DEVICES_HEADING}
@@ -143,7 +144,7 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
             </View>
           </View>
         ) : null}
-      </View>
+      </OnboardingBody>
     </View>
   )
 }

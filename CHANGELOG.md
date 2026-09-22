@@ -16,8 +16,9 @@
 
 ### Fixes
 
+* fix(desktop,mobile): onboarding screens no longer jump vertically as you move between them — every full-screen stage now reserves the same 60 bar zone and starts its content 24 below it, the inset eight of the nine Figma frames share. Get started kept no bar at all and centred its block; Join community hung its graphic flush; Choose username indented only one of its two variants
 * fix(desktop): on Windows and Linux the sidebar no longer reserves the macOS window-control strip, so the community name sits in line with the channel header title
-
+* Stop re-scanning and re-verifying a channel's whole message history every time a new message arrives, by indexing the messages already accepted and walking only the ancestry a replicated head brings in; the index is rebuilt when membership or keys change, and a notification no longer fires for a store that was closed or re-authorized while it was being prepared [#3536](https://github.com/TryQuiet/quiet/issues/3536) [#3539](https://github.com/TryQuiet/quiet/pull/3539)
 * Show a private channel on a device that was still missing the channel's key when its metadata arrived, retrying about once a minute until the key lands, instead of waiting for unrelated community activity that may never happen [#3563](https://github.com/TryQuiet/quiet/issues/3563)
 * Ask the local Tor daemon to generate onion identities on desktop and mobile, and start communities without waiting for Tor network publication; recover detached registrations after lost replies or control connections without an onion-address collision loop, and handle fragmented or interrupted local control authentication [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
 * Show a member as online when any of their linked devices is connected, rather than only the one device presence used to be read from
@@ -26,6 +27,7 @@
 * Show an error when a chosen profile photo is too large, and compress PNG profile photos as JPEG ones already were [#2953](https://github.com/TryQuiet/quiet/issues/2953)
 * Offer Members or Add members in the channel menu according to whether you administer the channel, and resolve a public channel's membership as the whole community
 * Open Add members from the community menu on desktop, where it has always lived; the sidebar column no longer carries an Add members row of its own
+* Say "You already belong to a community" when an invitation is pasted, scanned or opened on a device that is already in one, on every entry point rather than only a cold-start deep link, and map the backend's own refusal of a second community to the same message
 * Give the mobile appbar, send and attachment controls a full-size touch target, and stop the new-message block pushing the message field off screen
 * Give the mobile Channels and Direct Messages `+` buttons a full-size touch target, and let a screen reader announce what each one does [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Give the mobile remove-attachment control a full-size touch target, and stop it hanging outside its parent where Android delivered no touch to it at all [#3595](https://github.com/TryQuiet/quiet/issues/3595)
@@ -60,6 +62,8 @@
 * Write the onboarding paste-link heading in sentence case, *Paste a link to join*, on desktop and mobile
 * Draw the digits of a message at the message's own size, rather than at emoji size, on mobile and desktop; a number, `#` or `*` is only emoji as part of a full keycap like 1️⃣
 * Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
+* Let a released Mac build open the camera when you scan a QR code, by granting the signed app the camera entitlement its hardened runtime requires, and ask for the camera in Quiet's own words rather than Electron's placeholder ones
+* Point a refused camera at the setting that would allow it when scanning a QR code on desktop, naming the macOS or Windows page, opening it, and asking the camera again when you come back, instead of only saying access was denied
 
 ### Tests
 

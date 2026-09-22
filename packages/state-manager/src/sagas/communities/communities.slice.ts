@@ -102,6 +102,12 @@ export const communitiesSlice = createSlice({
       state.joinCommunityError = action.payload
     },
     setJoinCommunityError: (state, action: PayloadAction<JoinCommunityError>) => {
+      // A backend that refuses a join because a community already exists says so twice: once
+      // on the error channel and once by negatively acknowledging the request. The two arrive
+      // over the same socket but are processed by different paths, so neither order is
+      // guaranteed. 'alreadyMember' is the reason behind that bare 'refused', so it is kept
+      // whichever way round they land.
+      if (action.payload.type === 'refused' && state.joinCommunityError?.type === 'alreadyMember') return
       state.joinCommunityError = action.payload
     },
     clearJoinCommunityError: state => {

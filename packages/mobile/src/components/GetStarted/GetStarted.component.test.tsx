@@ -7,7 +7,7 @@ import { BETA_WARNING, GetStarted } from './GetStarted.component'
 import { GET_STARTED_HEADING } from '@quiet/common'
 
 describe('GetStarted component', () => {
-  it('shows the entry without an app bar and routes its three rows', async () => {
+  it('shows the entry under an empty bar zone and routes its three rows', async () => {
     const { store } = await prepareStore()
     const onJoinCommunity = jest.fn()
     const onCreateCommunity = jest.fn()
@@ -24,7 +24,10 @@ describe('GetStarted component', () => {
 
     expect(result.getByText(GET_STARTED_HEADING)).toBeTruthy()
     expect(result.getByText(BETA_WARNING)).toBeTruthy()
-    // No app bar on Get started (a deliberate departure from the frame's "Quiet" bar)
+    // The bar zone is reserved so this screen starts where the ones it leads to start,
+    // but it carries no title and no glyph: a deliberate departure from the frame's
+    // "Quiet" bar, and there is nothing to go back to from the entry.
+    expect(result.getByTestId('appbar_without_title')).toBeTruthy()
     expect(result.queryByTestId('appbar_action_item')).toBeNull()
     expect(result.queryByText('Quiet')).toBeNull()
 

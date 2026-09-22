@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { requestCameraAccess } from '../../../camera'
 import { createLogger } from '../../../logger'
@@ -37,12 +37,34 @@ const statusForError = (error: unknown): QrScannerStatus => {
 /**
  * Opens the camera into the returned <video>, decodes a frame every `intervalMs` and
  * releases the stream when a code is accepted or the component unmounts.
+ *
+ * `retryWhenRefocused` arms one more attempt: sending the user to the OS privacy setting
+ * takes the window's focus, so getting it back is the moment to find out whether the
+ * toggle was flipped. Without it a user who granted the camera would sit in front of the
+ * denied state until they left the step and came back.
  */
 export const useQrScanner = ({ onCode, intervalMs = 100 }: UseQrScannerOptions) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [status, setStatus] = useState<QrScannerStatus>('requesting')
+  const [attempt, setAttempt] = useState(0)
+  /** Set only by `retryWhenRefocused`, and cleared by the focus it is waiting for. */
+  const armedRef = useRef(false)
   const onCodeRef = useRef(onCode)
   onCodeRef.current = onCode
+
+  const retryWhenRefocused = useCallback(() => {
+    armedRef.current = true
+  }, [])
+
+  useEffect(() => {
+    const onFocus = () => {
+      if (!armedRef.current) return
+      armedRef.current = false
+      setAttempt(previous => previous + 1)
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -78,6 +100,7 @@ export const useQrScanner = ({ onCode, intervalMs = 100 }: UseQrScannerOptions) 
     }
 
     const start = async () => {
+      setStatus('requesting')
       const access = await requestCameraAccess()
       if (cancelled) return
       if (access.status === 'denied') {
@@ -120,7 +143,7 @@ export const useQrScanner = ({ onCode, intervalMs = 100 }: UseQrScannerOptions) 
       release()
       if (videoRef.current) videoRef.current.srcObject = null
     }
-  }, [intervalMs])
+  }, [intervalMs, attempt])
 
-  return { videoRef, status }
+  return { videoRef, status, retryWhenRefocused }
 }

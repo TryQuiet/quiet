@@ -12,11 +12,12 @@ export interface MockCameraOptions {
 
 export const mockCamera = ({ frame, error }: MockCameraOptions = {}) => {
   let current = frame
+  let failure = error
   const stop = jest.fn()
   const track = { stop, readyState: 'live' }
   const stream = { getTracks: () => [track] } as unknown as MediaStream
   const getUserMedia = jest.fn(async () => {
-    if (error) throw error
+    if (failure) throw failure
     return stream
   })
   const context = {
@@ -55,6 +56,10 @@ export const mockCamera = ({ frame, error }: MockCameraOptions = {}) => {
     stop,
     setFrame: (next?: ImageData) => {
       current = next
+    },
+    /** What the next getUserMedia does; `undefined` lets it succeed, as a granted camera does. */
+    setError: (next?: Error) => {
+      failure = next
     },
     restore: () => {
       restoreDescriptor(navigator, 'mediaDevices', mediaDevices)

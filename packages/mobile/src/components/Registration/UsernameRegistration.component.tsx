@@ -7,8 +7,9 @@ import { UsernameRegistrationProps, UsernameVariant } from './UsernameRegistrati
 import { icons } from '../../assets'
 import { CHOOSE_USERNAME_HEADING, parseName } from '@quiet/common'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { spacing } from '../../styles/const/spacing'
 import { Appbar } from '../Appbar/Appbar.component'
+import { onboardingStageBody } from '../../styles/const/onboarding'
+import { ONBOARDING_BODY_TEST_ID } from '../OnboardingBody/OnboardingBody.component'
 
 export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
@@ -93,22 +94,20 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
       )}
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: 'height' })}
-        style={{
-          flex: 1,
-          paddingTop: isNewUser ? spacing.xl : 0,
-          paddingLeft: spacing.lg,
-          paddingRight: spacing.lg,
-        }}
+        // Both variants are full-screen stages under a 60 bar zone, so both take the
+        // class's inset; the taken-username variant used to start flush at 0.
+        style={onboardingStageBody}
+        testID={ONBOARDING_BODY_TEST_ID}
       >
         {isNewUser ? (
           <>
-            <Typography variant={'h3'} horizontalTextAlign={'center'} style={{ marginBottom: spacing.xl }}>
+            <Typography variant={'h3'} horizontalTextAlign={'center'}>
               {CHOOSE_USERNAME_HEADING}
             </Typography>
           </>
         ) : (
           <>
-            <Typography fontSize={14} style={{ marginBottom: 30, marginTop: 30 }}>
+            <Typography fontSize={14}>
               We’re sorry, but the username{' '}
               <Typography fontSize={14} fontWeight={'medium'}>{`@${currentUsername}`}</Typography> was already claimed
               by someone else. Can you choose another name?
@@ -131,7 +130,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           autoCorrect={false}
         />
         {!inputError && userName !== undefined && userName.length > 0 && parsedNameDiffers && (
-          <View style={{ flexDirection: 'row', marginTop: 10 }}>
+          <View style={{ flexDirection: 'row' }}>
             <View style={{ justifyContent: 'center', alignContent: 'center', padding: 5 }}>
               <Image
                 source={icon}
@@ -151,7 +150,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           </View>
         )}
 
-        <View style={{ marginTop: 20 + 12 }}>
+        <View>
           <Button
             disabled={Boolean(inputError) || loading}
             onPress={onPress}

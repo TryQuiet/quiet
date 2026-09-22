@@ -11,15 +11,17 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import JoinCommunity from './JoinCommunity'
 import GetStarted from '../../Onboarding/GetStarted'
+import WarningModal from '../../../containers/widgets/WarningModal/WarningModal'
 import LinkDevices from '../../Onboarding/LinkDevices'
 import CreateUsername from '../../CreateUsername/CreateUsername'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { qrImageData } from '../../../testUtils/qrImage'
 import { cameraError, mockCamera } from '../../../testUtils/mockCamera'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
+import { CommunityOwnership, ErrorMessages, type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
 import { communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 import {
+  AlreadyBelongToCommunityWarning,
   CHOOSE_USERNAME_HEADING,
   GET_STARTED_HEADING,
   JOIN_COMMUNITY_HEADING,
@@ -99,6 +101,83 @@ describe('join community', () => {
   })
 
   /**
+   * Quiet is one community at a time. Inside a community this flow closes itself, so there is
+   * no invite field left to carry the refusal: "You already belong to a community" goes where
+   * the deep link already puts it, on the warning modal. The check itself sits in front of the
+   * dispatch, so an invitation acted on before the flow has closed joins nothing either.
+   */
+  describe('while this app already belongs to a community', () => {
+    const joinedCommunity = {
+      id: 'already-joined',
+      name: 'rockets',
+      teamId: 'rockets-team',
+      ownership: CommunityOwnership.User,
+    }
+
+    const storeInCommunity = async (isConnected = true) => {
+      const { store } = await prepareStore({
+        ...openModalState(ModalName.joinCommunityModal),
+        [StoreKeys.Socket]: { ...new SocketState(), isConnected },
+      })
+      store.dispatch(communities.actions.addNewCommunity(joinedCommunity))
+      store.dispatch(communities.actions.setCurrentCommunity(joinedCommunity.id))
+      return store
+    }
+
+    it('reports a refused join on the warning modal, the way the deep link does', async () => {
+      const store = await storeInCommunity()
+      const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+      renderComponent(
+        <>
+          <JoinCommunity />
+          <WarningModal />
+        </>,
+        store
+      )
+
+      // What the backend's own refusal (COMMUNITY_ALREADY_INITIALIZED) turns into.
+      act(() => {
+        store.dispatch(communities.actions.setJoinCommunityError({ type: 'alreadyMember' }))
+      })
+
+      expect(await screen.findByText(AlreadyBelongToCommunityWarning.TITLE)).toBeVisible()
+      expect(screen.getByText(AlreadyBelongToCommunityWarning.MESSAGE)).toBeVisible()
+      // Spent on the way, or the modal would come back on every render.
+      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.clearJoinCommunityError())
+    })
+
+    it('joins nothing from an invitation acted on before the flow has closed itself', async () => {
+      // The socket is down, so the effect that closes this flow inside a community has not run
+      // and the scanner is still up. The check in front of the dispatch is what holds here.
+      const camera = mockCamera({ frame: qrImageData(`${QUIET_JOIN_PAGE}#${validCode}`) })
+      try {
+        const store = await storeInCommunity(false)
+        const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+        renderComponent(
+          <>
+            <JoinCommunity />
+            <CreateUsername />
+          </>,
+          store
+        )
+
+        await userEvent.click(screen.getByTestId('join-with-qr-code'))
+        expect(await screen.findByTestId('qr-scanner-viewfinder')).toBeVisible()
+
+        await waitFor(() =>
+          expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.setJoinCommunityError({ type: 'alreadyMember' }))
+        )
+        expect(dispatchSpy).not.toHaveBeenCalledWith(communities.actions.joinCommunity({ inviteData: data }))
+        expect(screen.queryByText(CHOOSE_USERNAME_HEADING)).not.toBeInTheDocument()
+      } finally {
+        camera.restore()
+      }
+    })
+  })
+
+  /**
    * A join that fails is reported where the link was typed. Every kind of failure — the
    * link the client could not parse, and the three the backend reports after admission —
    * shows under the invite field on the paste step, and the modal stays on that step: it
@@ -127,6 +206,11 @@ describe('join community', () => {
       // The backend refused and said nothing about why, so the field says no more than it
       // says about a link it could not read itself.
       ['a request the backend refused outright', { type: 'refused' }, InviteLinkErrors.InvalidCode],
+      [
+        'a device that already belongs to a community',
+        { type: 'alreadyMember' },
+        AlreadyBelongToCommunityWarning.MESSAGE,
+      ],
     ]
 
     const storeReporting = async (joinCommunityError: JoinCommunityError) =>

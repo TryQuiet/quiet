@@ -3,6 +3,7 @@ import { act, fireEvent, waitFor } from '@testing-library/react-native'
 import type { ReactTestInstance } from 'react-test-renderer'
 
 import {
+  AlreadyBelongToCommunityWarning,
   JOIN_WITH_QR_CODE_HEADING,
   SCAN_QR_CODE_HEADING,
   SCAN_QR_CODE_INTRO,
@@ -10,7 +11,7 @@ import {
   validInvitationDatav4,
 } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
-import { type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
+import { CommunityOwnership, type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
 
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
@@ -45,10 +46,25 @@ describe('ScanQrCodeScreen', () => {
     params: { variant },
   })
 
-  const renderScreen = async (variant: ScanQrCodeVariant, connected = true) => {
+  const renderScreen = async (
+    variant: ScanQrCodeVariant,
+    connected = true,
+    { joined = false }: { joined?: boolean } = {}
+  ) => {
     const { store } = await prepareStore()
     if (connected) {
       store.dispatch(initActions.setWebsocketConnected({ dataPort: 5001, socketIOSecret: 'secret' }))
+    }
+    if (joined) {
+      store.dispatch(
+        communities.actions.addNewCommunity({
+          id: 'already-joined',
+          name: 'rockets',
+          teamId: 'rockets-team',
+          ownership: CommunityOwnership.User,
+        })
+      )
+      store.dispatch(communities.actions.setCurrentCommunity('already-joined'))
     }
     store.dispatch(navigationActions.navigation({ screen: ScreenNames.ScanQrCodeScreen, params: { variant } }))
     const dispatchSpy = jest.spyOn(store, 'dispatch')
@@ -175,6 +191,59 @@ describe('ScanQrCodeScreen', () => {
     expect(dispatchSpy).toHaveBeenCalledWith(
       communities.actions.joinCommunity({ inviteData: { ...memberInvite, kind: InvitationKind.Member } })
     )
+  })
+
+  /**
+   * Quiet is one community at a time. A camera frame is not a field, so the refusal goes where
+   * the deep link puts it: the designed error screen, rather than a join that the backend would
+   * refuse without saying why.
+   */
+  describe('while this device already belongs to a community', () => {
+    it('refuses a scanned member invite on the error screen instead of joining', async () => {
+      const { dispatchSpy, result } = await renderScreen('join', true, { joined: true })
+
+      scan(result.getByTestId('join-qr-scanner-camera'), composeInvitationShareUrl(memberInvite))
+
+      await waitFor(() =>
+        expect(dispatchSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: navigationActions.replaceScreen.type,
+            payload: expect.objectContaining({
+              screen: ScreenNames.ErrorScreen,
+              params: expect.objectContaining({
+                title: AlreadyBelongToCommunityWarning.TITLE,
+                message: AlreadyBelongToCommunityWarning.MESSAGE,
+              }),
+            }),
+          })
+        )
+      )
+      expect(dispatchSpy).not.toHaveBeenCalledWith(
+        communities.actions.joinCommunity({ inviteData: { ...memberInvite, kind: InvitationKind.Member } })
+      )
+      expect(dispatchSpy).not.toHaveBeenCalledWith(
+        navigationActions.navigation({ screen: ScreenNames.UsernameRegistrationScreen })
+      )
+    })
+
+    it('refuses a scanned device link the same way, without raising consent', async () => {
+      const { dispatchSpy, result } = await renderScreen('deviceLink', true, { joined: true })
+
+      scan(result.getByTestId('link-devices-qr-scanner-camera'), composeInvitationShareUrl(deviceInvite))
+
+      expect(result.queryByTestId('device-link-consent')).toBeNull()
+      expect(dispatchSpy).not.toHaveBeenCalledWith(
+        communities.actions.linkDevice(confirmedDeviceLinkPayload(deviceInvite))
+      )
+      await waitFor(() =>
+        expect(dispatchSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: navigationActions.replaceScreen.type,
+            payload: expect.objectContaining({ screen: ScreenNames.ErrorScreen }),
+          })
+        )
+      )
+    })
   })
 
   it('closes with the title bar ✕', async () => {

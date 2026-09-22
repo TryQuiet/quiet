@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 
 import type { InvitationData } from '@quiet/types'
 
+import { openCameraPrivacySettings } from '../../../camera'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { OnboardingBody } from '../OnboardingBody'
 import { TextLink } from '../OpenInviteLinkComponent'
@@ -83,6 +84,8 @@ export interface QrScannerComponentProps {
   onDecoded: (data: InvitationData) => void
   /** Route to the paste field when the camera cannot be used. */
   onUsePasteLink: () => void
+  /** Which OS setting the denied state names; the running one, except in stories and tests. */
+  platform?: NodeJS.Platform
   dataTestId?: string
 }
 
@@ -93,11 +96,32 @@ export interface QrScannerComponentProps {
  */
 export const SCANNER_COPY = {
   requesting: 'Requesting camera access…',
+  /**
+   * Linux has no camera permission to grant, so a refusal there came from the browser
+   * stack and names no setting. On the two platforms that do store the refusal, saying
+   * only that it happened is a dead end: macOS shows its dialog once and Windows shows
+   * none at all, so the copy names the page the toggle is on and `openSettings` opens it.
+   */
   denied: 'Camera access was denied.',
+  deniedDarwin: 'Allow Quiet to use the camera in System Settings → Privacy & Security → Camera.',
+  deniedWin32: 'Allow Quiet to use the camera in Windows Settings → Privacy & security → Camera.',
+  openSettings: 'Open settings',
   unavailable: 'No camera is available.',
   /** The Open invite link frame's own link text. */
   pasteLink: PASTE_A_LINK_LABEL,
 } as const
+
+/**
+ * The copy for a refusal on `platform`, and whether that platform has a settings page to
+ * offer. Mobile keeps its own copy of the map (mobile QrScannerSheet.component.tsx): it
+ * asks Android and iOS for the camera through their own APIs and has no desktop IPC, so
+ * the two maps are the same three lines and diverge from here on.
+ */
+export const deniedCopy = (platform: NodeJS.Platform): { message: string; canOpenSettings: boolean } => {
+  if (platform === 'darwin') return { message: SCANNER_COPY.deniedDarwin, canOpenSettings: true }
+  if (platform === 'win32') return { message: SCANNER_COPY.deniedWin32, canOpenSettings: true }
+  return { message: SCANNER_COPY.denied, canOpenSettings: false }
+}
 
 const BLOCKED: QrScannerStatus[] = ['denied', 'unavailable']
 
@@ -111,6 +135,7 @@ export const QrScannerComponent: React.FC<QrScannerComponentProps> = ({
   intro,
   onDecoded,
   onUsePasteLink,
+  platform = process.platform,
   dataTestId = 'qr-scanner',
 }) => {
   const [invalid, setInvalid] = useState(false)
@@ -129,8 +154,15 @@ export const QrScannerComponent: React.FC<QrScannerComponentProps> = ({
     [onDecoded]
   )
 
-  const { videoRef, status } = useQrScanner({ onCode })
+  const { videoRef, status, retryWhenRefocused } = useQrScanner({ onCode })
   const blocked = BLOCKED.includes(status)
+  const denied = deniedCopy(platform)
+
+  /** Arm the retry on the click, not on the IPC's answer: the window may lose focus first. */
+  const openSettings = useCallback(() => {
+    retryWhenRefocused()
+    void openCameraPrivacySettings()
+  }, [retryWhenRefocused])
 
   return (
     <OnboardingBody intro={intro} dataTestId={dataTestId}>
@@ -147,8 +179,15 @@ export const QrScannerComponent: React.FC<QrScannerComponentProps> = ({
         {blocked ? (
           <div className={classes.overlay} role='status'>
             <Typography variant='body2' color='inherit' data-testid={`${dataTestId}-message`}>
-              {status === 'denied' ? SCANNER_COPY.denied : SCANNER_COPY.unavailable}
+              {status === 'denied' ? denied.message : SCANNER_COPY.unavailable}
             </Typography>
+            {status === 'denied' && denied.canOpenSettings ? (
+              <TextLink type='button' onClick={openSettings} data-testid={`${dataTestId}-open-settings`}>
+                <Typography variant='body1' component='span' color='inherit'>
+                  {SCANNER_COPY.openSettings}
+                </Typography>
+              </TextLink>
+            ) : null}
             <TextLink type='button' onClick={onUsePasteLink} data-testid={`${dataTestId}-paste-link`}>
               <Typography variant='body1' component='span' color='inherit'>
                 {SCANNER_COPY.pasteLink}
