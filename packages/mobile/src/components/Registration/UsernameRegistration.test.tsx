@@ -42,8 +42,8 @@ describe('UsernameRegistration', () => {
             [
               {
                 "flex": 1,
-                "paddingLeft": 16,
-                "paddingRight": 16,
+                "gap": 24,
+                "paddingHorizontal": 16,
                 "paddingTop": 24,
               },
               {
@@ -51,6 +51,7 @@ describe('UsernameRegistration', () => {
               },
             ]
           }
+          testID="onboarding-body"
         >
           <Text
             color="main"
@@ -59,19 +60,14 @@ describe('UsernameRegistration', () => {
             horizontalTextAlign="center"
             lineHeight={36}
             style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Medium",
-                  "fontSize": 28,
-                  "lineHeight": 36,
-                  "textAlign": "center",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "marginBottom": 24,
-                },
-              ]
+              {
+                "color": "#000000",
+                "fontFamily": "Rubik-Medium",
+                "fontSize": 28,
+                "lineHeight": 36,
+                "textAlign": "center",
+                "textAlignVertical": "center",
+              }
             }
             verticalTextAlign="center"
           >
@@ -209,13 +205,7 @@ describe('UsernameRegistration', () => {
               </Text>
             </View>
           </View>
-          <View
-            style={
-              {
-                "marginTop": 32,
-              }
-            }
-          >
+          <View>
             <View
               accessibilityState={
                 {

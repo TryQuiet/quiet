@@ -6,6 +6,7 @@ import ServerBoxIcon from '../../assets/icons/svg/server-icon'
 import { spacing } from '../../styles/const/spacing'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Appbar } from '../Appbar/Appbar.component'
+import { ONBOARDING_BLOCK_GAP, ONBOARDING_STAGE_INSET } from '../../styles/const/onboarding'
 import { Button } from '../Button/Button.component'
 import { Typography } from '../Typography/Typography.component'
 
@@ -64,10 +65,10 @@ export const ServerOffer: FC<ServerOfferProps> = ({
         testID={'server-offer-content'}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingTop: spacing.xl,
+          paddingTop: ONBOARDING_STAGE_INSET,
           paddingBottom: spacing.xxl,
           alignItems: 'center',
-          gap: spacing.xl,
+          gap: ONBOARDING_BLOCK_GAP,
         }}
       >
         <View style={{ width: GLYPH_BOX, height: GLYPH_BOX, alignItems: 'center', justifyContent: 'center' }}>

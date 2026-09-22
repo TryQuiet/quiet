@@ -6,6 +6,7 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { ActionRow } from '../ActionRow/ActionRow.component'
 import { Appbar } from '../Appbar/Appbar.component'
+import { OnboardingBody } from '../OnboardingBody/OnboardingBody.component'
 import { Typography } from '../Typography/Typography.component'
 
 import type { RecoverAccountProps } from './RecoverAccount.types'
@@ -27,7 +28,7 @@ export const RecoverAccount: FC<RecoverAccountProps> = ({ onUseLinkedDevice, onU
     testID={'recover-account-component'}
   >
     <Appbar withoutTitle back={handleBackButton} />
-    <View style={{ flex: 1, paddingTop: spacing.xl, paddingHorizontal: spacing.lg, gap: spacing.xl }}>
+    <OnboardingBody>
       <View style={{ alignSelf: 'center' }}>
         <InfoIcon size={64} />
       </View>
@@ -53,6 +54,6 @@ export const RecoverAccount: FC<RecoverAccountProps> = ({ onUseLinkedDevice, onU
           testID={'recover-use-invite-link'}
         />
       </View>
-    </View>
+    </OnboardingBody>
   </View>
 )

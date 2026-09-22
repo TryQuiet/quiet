@@ -16,6 +16,7 @@
 
 ### Fixes
 
+* fix(desktop,mobile): onboarding screens no longer jump vertically as you move between them — every full-screen stage now reserves the same 60 bar zone and starts its content 24 below it, the inset eight of the nine Figma frames share. Get started kept no bar at all and centred its block; Join community hung its graphic flush; Choose username indented only one of its two variants
 * fix(desktop): on Windows and Linux the sidebar no longer reserves the macOS window-control strip, so the community name sits in line with the channel header title
 
 * Show a private channel on a device that was still missing the channel's key when its metadata arrived, retrying about once a minute until the key lands, instead of waiting for unrelated community activity that may never happen [#3563](https://github.com/TryQuiet/quiet/issues/3563)

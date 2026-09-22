@@ -24,6 +24,53 @@ Storybook **is the new design library**, being rebuilt from this spec: one desig
 
 **The mobile prototype is canonical** for layout, alignment and copy. Desktop = the same 375-wide content column centered inside the `Modal full-window` shell. Measured in the file: 26 of the 30 onboarding screens have a **centered** title (the exceptions are iOS crop-screen "Done" buttons and in-app chrome — channel names, the plan card, the iOS share sheet). Rule for every onboarding screen, both platforms: centered title and subtitle; centered illustration where one exists (exported as SVG, never redrawn); full-width action rows / inputs / primary button below; the beta caption at the bottom of the entry screen. The older Dec-2024 desktop frames and the app's current desktop modals are left-aligned and are **not** followed.
 
+## Vertical rhythm (decided 2026-09-22)
+
+Moving between onboarding screens jumped vertically — Get started sat much lower than the Join community it leads to. Two causes, both in the code rather than the frames, and one deviation in a frame.
+
+**The frames.** Every full-screen stage is a 375-wide frame with a **60-tall bar zone** at the top and puts its **first content element 24 below that zone** — the illustration where the screen has one, otherwise the heading. Measured off the exports in `figma/`:
+
+| Frame | Node | First element | Top | Inset below the bar zone |
+| --- | --- | --- | --- | --- |
+| Get started | `2811:2550` | logo, 120 | 84 | 24 |
+| Join community | `2811:2562` | heart-chat graphic, 219×160 | 60 | **0** |
+| Link devices | `2811:2575` | heading | 84 | 24 |
+| Account recovery | `2811:2535` | key glyph, 64 | 84 | 24 |
+| Join with invite link | `2811:2455` | illustration, 120 | 84 | 24 |
+| Create a community | `2811:2451` | heading | 84 | 24 |
+| Choose username | `2811:2371` | heading | 84 | 24 |
+| Paste a link to join (WIP) | `3190:10892` | heading | 84 | 24 |
+| Want a server? | `2922:10009` | server glyph | 84 | 24 |
+
+Eight frames agree on 24; **Join community is the one deviation**, its graphic flush against the bar zone. It is not marked WIP, and the pull-up is probably deliberate — the graphic is the tallest in the set, so starting it 24 higher brings its heading back near Get started's. It is still the odd one out, and it is half of what made the two screens one tap apart land 76 apart, so **the class standard wins and Join community takes the same 24**. Worth putting back to the designer; if the graphic is meant to hang flush, the right answer is a shorter graphic, not a per-screen inset.
+
+Sheets are a separate class: a **titled bar with a hairline** and content **16** below it (`2811:2601`, `2811:2587`, `2932:3707`). The camera sheet (`2811:2460`) is flush, the camera filling the panel. Sheets are unchanged by this pass; desktop draws their content at 24 rather than the frames' 16, which is a known 8px gap.
+
+**The standard, both platforms.**
+
+| | Measure |
+| --- | --- |
+| Bar zone, every full-screen stage | 60 |
+| First content element below it | 24 (`xl`) |
+| Block to block inside the column | 24 (`xl`) |
+| Sheet content below its titled bar | 16 (`lg`) |
+
+Every full-screen stage puts its first element at **y 84**. Desktop: `components/Onboarding/onboardingRhythm.ts` and `OnboardingBody`, which no screen overrides — the `flushLeading` escape hatch is gone. Mobile: `styles/const/onboarding.ts` and `components/OnboardingBody`, which the stage screens render or spread into their `KeyboardAvoidingView`. `components/Onboarding/onboardingRhythm.test.tsx` (desktop) sweeps every `Screens/Onboarding` story and `components/OnboardingBody/onboardingRhythm.test.tsx` (mobile) sweeps every stage, so a screen added later is covered as soon as it renders the column.
+
+**The bar zone stays even when the bar is empty.** "No bar title on full-screen h1 stages" (2026-09-13) hides the *title*; Get started additionally has no glyph, since there is nothing to go back to from the entry. Dropping the 60 as well — desktop `Modal withoutHeader`, mobile no `Appbar` at all — is what put Get started's whole block 60 above every screen it leads to, and mobile then centred it on top of that. Get started now renders the zone empty (desktop `Modal withoutTitle`, mobile `Appbar withoutTitle` with no `back`) and top-anchors its column like the rest. Only the loading panels (`StartingPanel`, `TorJoiningPanel`, `ResetFailedPanel`) still drop the zone; they are full-bleed progress screens, not stages.
+
+**What moved.** Desktop, measured off the `Screens/Onboarding` stories (y from the top of the 715 shell):
+
+| Screen | First element | Heading | First row / button |
+| --- | --- | --- | --- |
+| Get started | 24 → **84** | 168 → **228** | 228 → **288** |
+| Join community | 60 → **84** | 244 → **268** | 304 → **328** |
+| every other stage | 84 (unchanged) | unchanged | unchanged |
+
+Get started → Join community: the first element no longer moves at all, and the heading and rows go from **76 apart to 40**. The remaining 40 is the two frames' own illustration heights (120 against 160) and is not invented away — the frames do not align headings across this class, and a fixed illustration slot has no support in them.
+
+Mobile took the same two fixes plus three smaller ones the sweep turned up: *Join with invite link* was spacing its blocks 16 where the class and its own frame use 24; *Choose username* set its inset only on the new-user variant, leaving the taken-username variant flush at 0; and that screen's ad hoc child margins (`24` under the heading, `10` above the parsed-name hint, `32` above the button) are gone, so the column's gap spaces it as it already does on *Create a community*. Net effect there: the heading-to-input distance is unchanged at 24, and the button sits 8 tighter.
+
 ## The flow as the prototype wires it
 
 30 screens across the two prototype files. 24 of the Get started file's 25 are one connected graph from Get started; the 25th is the joiner-side v1 agree screen, unwired by design. The other five come from *Join from invite link* and hang off the paste screen by an added link. 47 prototype links, 16 inferred back/close, 3 added. Ids are the Storybook story ids under `Onboarding flow`. The back/close inference now skips glyphs the designer hid, which dropped two hotspots that pointed at nothing: the entry screen's bar (`2811:2550`) has no visible back arrow, and the community switcher's second, hidden title bar drew a second one.
@@ -99,7 +146,7 @@ Copy:
 Uses: ButtonIcons (5), Divider (4), Button row (3), caret-black-r (3), Get started (1), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1)
 Goes to: Button row → join-community [prototype]; Button row → create-default [prototype]; Button row → link-devices [prototype]; Glyph → back [back]
 Implemented by: desktop `Onboarding/GetStarted.tsx` (opens itself when connected without a community; Join / Create / Link devices return to it) · mobile `screens/GetStarted/GetStarted.screen.tsx`
-Departure (decided 2026-09-13): **no title bar on either platform** — the frame's "Quiet" bar is redundant with the app window on desktop and did not feel right on mobile; the content column starts under the window chrome / at the safe area with the frame's own rhythm minus the bar. Join community and the other onboarding screens keep their bars.
+Departure (decided 2026-09-13, amended 2026-09-22): **no bar title and no glyph on either platform** — the frame's "Quiet" bar is redundant with the app window on desktop, did not feel right on mobile, and there is nothing to go back to from the entry. The **60 bar zone itself is kept**, as on every other stage: the amendment, because dropping it put this screen's whole block 60 above every screen it leads to (see *Vertical rhythm*). Join community and the other onboarding screens keep their bars.
 
 ### Join community  ·  `join-community`
 Section: Onboarding · 375×667 · node `2811:2562` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2562)

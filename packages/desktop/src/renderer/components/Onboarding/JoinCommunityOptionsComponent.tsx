@@ -22,11 +22,15 @@ export interface JoinCommunityOptionsComponentProps {
 }
 
 /**
- * Join community · Figma 2811:2562: the heart-chat illustration directly under
- * the bar, the title 24 below it, then the three-way choice (graphic at y 60,
- * title at 244, rows from 302 in the frame). "Recover account" opens the
- * Account recovery screen (2811:2535), whose routes are the existing Link
- * devices and Join with invite link flows.
+ * Join community · Figma 2811:2562: the heart-chat illustration, the title 24
+ * below it, then the three-way choice. "Recover account" opens the Account
+ * recovery screen (2811:2535), whose routes are the existing Link devices and
+ * Join with invite link flows.
+ *
+ * The frame draws the graphic flush under the bar zone (y 60) where the seven
+ * other full-screen stages put their first element at y 84. That lone deviation
+ * is what made Get started → Join community jump, so this screen takes the
+ * class's inset like the rest; see `onboardingRhythm.ts`.
  */
 export const JoinCommunityOptionsComponent: React.FC<JoinCommunityOptionsComponentProps> = ({
   onJoinWithInviteLink,
@@ -35,7 +39,6 @@ export const JoinCommunityOptionsComponent: React.FC<JoinCommunityOptionsCompone
 }) => (
   <OnboardingBody
     leading={<Illustration src={heartChatIllustration} alt='' aria-hidden data-testid='join-community-graphic' />}
-    flushLeading
     heading={JOIN_COMMUNITY_HEADING}
     dataTestId='join-community-options'
   >
