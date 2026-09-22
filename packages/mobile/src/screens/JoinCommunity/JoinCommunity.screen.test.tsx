@@ -55,8 +55,6 @@ describe('JoinCommunityScreen', () => {
 
     fireEvent.press(row)
 
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      navigationActions.navigation({ screen: ScreenNames.RecoverAccountScreen })
-    )
+    expect(dispatchSpy).toHaveBeenCalledWith(navigationActions.navigation({ screen: ScreenNames.RecoverAccountScreen }))
   })
 })
