@@ -1,38 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [11.2.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@11.1.0...@quiet/mobile@11.2.0-alpha.0) (2026-09-22)
-
-
-### Bug Fixes
-
-* **ios:** declare the generated Tor version header in Xcode ([b046580](https://github.com/TryQuiet/quiet/commit/b0465807d9070c68579acce80f27a9381a7caa3d))
-* **ios:** embed notification capabilities in simulator executables ([26173de](https://github.com/TryQuiet/quiet/commit/26173decb83949e990ba79c5c6957071e91071c6))
-* **ios:** include simulator entitlement linker inputs only once ([#3647](https://github.com/TryQuiet/quiet/issues/3647)) ([9e4069d](https://github.com/TryQuiet/quiet/commit/9e4069d3cbd944eaaa5c0480705bbf5519021ffc))
-* **ios:** retain simulator push entitlements and select CI Xcode ([5a379ab](https://github.com/TryQuiet/quiet/commit/5a379ab7eba5b2cfd94e7d9288eaad9e44782e5c))
-* **ios:** run notification regressions in the hostless test target ([6e63064](https://github.com/TryQuiet/quiet/commit/6e63064ab08e971340addcd4de3a70d9085a5d66))
-* **ios:** use ARM simulator for Storybook Detox ([5a27723](https://github.com/TryQuiet/quiet/commit/5a27723974dbb88ed70cc35e0166e3468d8739c6))
-* **mobile:** correct keyboard overlap and composer spacing ([#3662](https://github.com/TryQuiet/quiet/issues/3662)) ([a6fd4aa](https://github.com/TryQuiet/quiet/commit/a6fd4aad588e6527c84bb6d86cafa6987d5f08f7))
-* **mobile:** keep composer above keyboard under edge-to-edge ([e60c64c](https://github.com/TryQuiet/quiet/commit/e60c64c35a9657754f32b4bbdf2c3f924724fdbd))
-* **mobile:** limit iOS architecture plist updates to app targets ([93522f9](https://github.com/TryQuiet/quiet/commit/93522f9c7047c13d9bca78ccd376f456bfef1931))
-* **mobile:** preserve keyboard layout and update migration tooling ([16f89f4](https://github.com/TryQuiet/quiet/commit/16f89f446742dfc2b56a8fa65ae055daa4ffef0d))
-* **mobile:** preserve React Native promises in iOS Storybook ([37a1ccf](https://github.com/TryQuiet/quiet/commit/37a1ccfc2350bbae75e2611a6a17b939d45b6c90))
-* **mobile:** use current React Navigation action signature ([c080853](https://github.com/TryQuiet/quiet/commit/c0808537caace56472d78513e32c333658799455))
-* **mobile:** validate React Native 0.81 iOS device build ([27dc3d6](https://github.com/TryQuiet/quiet/commit/27dc3d62891022a98e4371cdeef24567f10d6319))
-
-
-### Features
-
-* **mobile:** advance React Native to 0.79 ([5739a57](https://github.com/TryQuiet/quiet/commit/5739a571682575c9c900d4ae6f8ab8df7b3da3e9))
-* **mobile:** establish React Native 0.78 and React 19 checkpoint ([08c19f9](https://github.com/TryQuiet/quiet/commit/08c19f9c6c1bba3aaa7062c941b91726498f6b3e))
-* **mobile:** migrate Android runtime to React Native 0.81 ([a207fcd](https://github.com/TryQuiet/quiet/commit/a207fcd2f2ceb28fe17d00d5eb9ff6bd3f3a1be8))
-
-
-
-
-
 # Changelog
 
 ## [11.1.0]
@@ -112,6 +77,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Fixes
 
+* Run six iOS signature and encryption operations through native libsodium in the Node 24 backend [#3536](https://github.com/TryQuiet/quiet/issues/3536)
+* Restore the iOS Tor upgrade with Tor.framework 409.11.2 (Tor 0.4.9.11), current directory authorities and native leave/foreground/rejoin control regression coverage [#3237](https://github.com/TryQuiet/quiet/issues/3237)
 * Trigger push notifications only for channel messages, while syncing channel metadata, profiles and notification tokens without alerts [#3546](https://github.com/TryQuiet/quiet/issues/3546)
 * Suppress notifications for your own messages on Android when using background Tor or the foreground app, including channel-creation messages [#3547](https://github.com/TryQuiet/quiet/issues/3547)
 * Send private-channel push notifications only to the registered devices of users in that channel, including queued messages retried after reconnecting; channel deletions sync without triggering push notifications [#3545](https://github.com/TryQuiet/quiet/issues/3545)
@@ -226,6 +193,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Fixes
 
+* Keep bottom drawers within their available container when the app window resizes or rotates. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
+* Keep image previews within the available window after rotating to landscape. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 * The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
 * Improved tor lifecycle handling [#3233](https://github.com/TryQuiet/quiet/issues/3233)
 * Fixed Android crash on leaving a community when `google-services.json` was missing from the build [#3238](https://github.com/TryQuiet/quiet/pull/3238)
@@ -245,6 +214,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
 
 ### Chores
+
+* Target Android 16 (API 36), preserve Android Back navigation, and handle modal safe areas while retaining the current React Native version. [#3013](https://github.com/TryQuiet/quiet/issues/3013)
 
 ## [7.0.1]
 
