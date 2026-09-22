@@ -44,6 +44,10 @@
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
 
+### Chores
+
+* Run the desktop main-process tests in a checkout that has not bundled the backend, instead of failing to load because the gitignored `backend-bundle` build artifact is missing
+
 ## [11.0.1]
 
 ### Fixes
