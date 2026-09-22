@@ -186,7 +186,7 @@ export const UserProfileContextMenu: FC = () => {
       logger.error('Cannot start a DM without both parties')
       return
     }
-    const existing = findDmChannelWithMembers([myUserProfile.userId, shownProfile.userId], channels)
+    const existing = findDmChannelWithMembers([shownProfile.userId], myUserProfile.userId, channels)
     contextMenu.handleClose()
     if (existing != null) {
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: existing.id }))

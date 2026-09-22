@@ -91,7 +91,7 @@ export const AppHomeScreen: FC = () => {
         logger.error('Cannot start a DM without knowing who I am')
         return
       }
-      const existing = findDmChannelWithMembers([me.userId, userId], allChannels)
+      const existing = findDmChannelWithMembers([userId], me.userId, allChannels)
       dispatch(
         publicChannels.actions.setCurrentChannel({
           channelId: existing?.id ?? '',
@@ -130,7 +130,7 @@ export const AppHomeScreen: FC = () => {
         .map(profile => {
           // The conversation with this person, if there is one. Its unread mark belongs on their
           // row, because the conversation itself is never listed as a channel.
-          const dm = me != null ? findDmChannelWithMembers([me.userId, profile.userId], allChannels) : undefined
+          const dm = me != null ? findDmChannelWithMembers([profile.userId], me.userId, allChannels) : undefined
           return {
             userId: profile.userId,
             nickname: profile.nickname,

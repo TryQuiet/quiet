@@ -134,6 +134,32 @@ describe('New message composer selection', () => {
     root?.cancel()
   })
 
+  // The composer asks the same shared lookup as every other entry point, which also matches a DM
+  // replicated before `memberIdHash` was stored.
+  it('finds a DM that carries no stored member hash', async () => {
+    const { store, root, me } = await prepare()
+    const CAROL = 'carol-id'
+    await factory.create('UserProfile', { userId: CAROL, nickname: 'carol' })
+    await factory.create('PublicChannel', {
+      channel: {
+        id: 'carol-dm-id',
+        name: 'Direct message',
+        description: 'Direct message',
+        owner: me.userId,
+        timestamp: 0,
+        public: false,
+        type: ChannelType.DM,
+        memberIds: [CAROL, me.userId],
+      },
+    })
+    renderComponent(<ChannelScreen />, store)
+
+    fireEvent.press(row(CAROL))
+    await waitFor(() => expect(currentChannelId(store)).toEqual('carol-dm-id'))
+
+    root?.cancel()
+  })
+
   it('keeps a recipient whose profile is missing for a moment', async () => {
     const { store, root, me } = await prepare()
     renderComponent(<ChannelScreen />, store)

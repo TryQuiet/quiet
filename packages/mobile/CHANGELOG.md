@@ -10,6 +10,7 @@
 * Start a conversation from a plus on the Community home's Direct messages heading, as the design draws it — available to everyone, unlike creating a channel
 * Direct messages no longer appear in the Community home's Channels section as rows reading "Direct message"; a conversation is listed under the person it is with, and its unread mark now sits on their row
 * The new-message composer keeps the recipients you chose, yourself included, through the profile and connection updates that arrive after every send — they used to be dropped a moment after the tap, blanking the conversation below — and its send button stays disabled until someone is chosen, so a refused send no longer leaves a stray space in the message
+* The new-message composer finds an existing conversation through the same shared lookup as the profile and Community home entry points, including a conversation replicated before its member hash was stored
 
 ### Features
 

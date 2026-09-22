@@ -83,7 +83,7 @@ export const UserProfileScreen: FC<UserProfileScreenProps> = ({ route }) => {
       logger.error('Cannot start a DM without knowing who I am')
       return
     }
-    const existing = findDmChannelWithMembers([me.userId, userId], channels)
+    const existing = findDmChannelWithMembers([userId], me.userId, channels)
     dispatch(
       publicChannels.actions.setCurrentChannel({
         channelId: existing?.id ?? '',
