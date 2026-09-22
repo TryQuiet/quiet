@@ -10,10 +10,10 @@ describe('Index', () => {
       <body>
         <div>
           <div
-            class="WindowWrapperwrapper Indexroot css-7im36y"
+            class="WindowWrapperwrapper Indexroot css-1yrzw3n"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Loadingroot css-1po2vjj-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Loadingroot css-rsouup-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
@@ -60,10 +60,10 @@ describe('Index', () => {
       <body>
         <div>
           <div
-            class="WindowWrapperwrapper Indexroot css-7im36y"
+            class="WindowWrapperwrapper Indexroot css-1yrzw3n"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Loadingroot css-1po2vjj-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Loadingroot css-rsouup-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"

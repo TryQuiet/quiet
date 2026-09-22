@@ -36,6 +36,7 @@
         margin: 0;
         width: 100vw;
         height: 100vh;
+        -webkit-app-region: no-drag;
         background: var(--bg-color);
         color: var(--text-primary);
         display: flex;
@@ -44,8 +45,17 @@
         line-height: 1.4;
       }
 
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0 0 auto;
+        height: 25px;
+        -webkit-app-region: drag;
+      }
+
       .screen {
         width: min(420px, 100%);
+        -webkit-app-region: no-drag;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -77,6 +87,7 @@
 
       .captcha-container {
         width: 100%;
+        -webkit-app-region: no-drag;
         min-height: 96px;
         display: flex;
         align-items: center;

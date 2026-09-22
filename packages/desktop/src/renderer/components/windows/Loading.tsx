@@ -27,7 +27,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: '100vw',
     height: '100vh',
-    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
+    WebkitAppRegion: 'no-drag',
   },
 
   [`& .${classes.icon}`]: {
