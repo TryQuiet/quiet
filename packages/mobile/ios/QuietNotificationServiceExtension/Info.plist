@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>11.2.0</string>
 	<key>CFBundleVersion</key>
-	<string>106</string>
+	<string>107</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false />
 	<key>NSAppTransportSecurity</key>
