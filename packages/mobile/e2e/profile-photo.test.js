@@ -6,6 +6,7 @@ import { execFileSync } from 'child_process'
 import press from './utils/press'
 import write from './utils/write'
 import { BASIC, LONG, STARTUP } from './utils/consts/timeouts'
+import { CREATE_COMMUNITY_HEADING, JOIN_COMMUNITY_HEADING } from '@quiet/common'
 
 /**
  * One player, no second client: create a community, open your own profile, set a photo, and prove
@@ -104,12 +105,12 @@ suite('Profile photo', () => {
   })
 
   test('creates a community on its own', async () => {
-    await waitFor(element(by.text('Join community')))
+    await waitFor(element(by.text(JOIN_COMMUNITY_HEADING)))
       .toBeVisible()
       .withTimeout(STARTUP)
     await press(element(by.text('create a new community')))
 
-    await waitFor(element(by.text('Create a community')))
+    await waitFor(element(by.text(CREATE_COMMUNITY_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
     await write(element(by.id('input')), COMMUNITY)

@@ -14,6 +14,7 @@ import { act } from 'react-dom/test-utils'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
 import { ChannelType, LoadingPanelType } from '@quiet/types'
 import { socketActions } from '../renderer/sagas/socket/socket.slice'
+import { CREATE_COMMUNITY_HEADING, JOIN_COMMUNITY_HEADING } from '@quiet/common'
 
 jest.setTimeout(20_000)
 
@@ -82,10 +83,10 @@ describe('Restart app works correctly', () => {
     const startAppLoadingText = screen.queryByText(LoadingPanelType.StartingApplication)
     expect(startAppLoadingText).toBeNull()
 
-    const joinCommunityTitle = screen.queryByRole('heading', { name: 'Join community', level: 3 })
+    const joinCommunityTitle = screen.queryByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })
     expect(joinCommunityTitle).toBeNull()
 
-    const createCommunityTitle = screen.queryByRole('heading', { name: 'Create a community', level: 3 })
+    const createCommunityTitle = screen.queryByRole('heading', { name: CREATE_COMMUNITY_HEADING, level: 3 })
     expect(createCommunityTitle).toBeNull()
 
     const channelName = await screen.findByText('general')

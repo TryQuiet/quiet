@@ -1,14 +1,15 @@
 /* global device, element, by, expect, waitFor */
 import { singleLineInput, channelComposer } from './nativeInputs'
 import waitForAndroidNotification from './waitForAndroidNotification'
+import { CREATE_COMMUNITY_HEADING, JOIN_COMMUNITY_HEADING } from '@quiet/common'
 const { parseQssInvitation } = require('./qssCommunity.cjs')
 
 export const createQssCommunity = async (communityName, username) => {
-  await waitFor(element(by.text('Join community')))
+  await waitFor(element(by.text(JOIN_COMMUNITY_HEADING)))
     .toBeVisible()
     .withTimeout(120000)
   await element(by.text('create a new community')).tap()
-  await waitFor(element(by.text('Create a community')))
+  await waitFor(element(by.text(CREATE_COMMUNITY_HEADING)))
     .toBeVisible()
     .withTimeout(10000)
   await (await singleLineInput('Community name')).typeText(communityName)

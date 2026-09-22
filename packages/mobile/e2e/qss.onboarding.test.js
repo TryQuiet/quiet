@@ -4,6 +4,7 @@ import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
 import { BASIC, LONG, STARTUP } from './utils/consts/timeouts'
 import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
+import { CHOOSE_USERNAME_HEADING, CREATE_COMMUNITY_HEADING, GET_STARTED_HEADING } from '@quiet/common'
 
 const { ios } = info
 
@@ -21,7 +22,7 @@ describe('QSS Onboarding', () => {
     })
 
     test('should see join community screen', async () => {
-      await waitFor(element(by.text('Let’s get started...')))
+      await waitFor(element(by.text(GET_STARTED_HEADING)))
         .toBeVisible()
         .withTimeout(STARTUP)
       await checkVisualRegression('get-started-component')
@@ -30,7 +31,7 @@ describe('QSS Onboarding', () => {
     test('switches to create community screen', async () => {
       await press(element(by.id('get-started-create')))
 
-      await waitFor(element(by.text('Create a community')))
+      await waitFor(element(by.text(CREATE_COMMUNITY_HEADING)))
         .toBeVisible()
         .withTimeout(BASIC)
       await checkVisualRegression('create-community-component')
@@ -55,7 +56,7 @@ describe('QSS Onboarding', () => {
     })
 
     test('registers username and proceeds to ToS', async () => {
-      await waitFor(element(by.text('Choose username')))
+      await waitFor(element(by.text(CHOOSE_USERNAME_HEADING)))
         .toBeVisible()
         .withTimeout(BASIC)
       await checkVisualRegression('username-registration-component')
@@ -98,13 +99,13 @@ describe('QSS Onboarding', () => {
     })
 
     test('navigates to create and submits name', async () => {
-      await waitFor(element(by.text('Let’s get started...')))
+      await waitFor(element(by.text(GET_STARTED_HEADING)))
         .toBeVisible()
         .withTimeout(STARTUP)
 
       await press(element(by.id('get-started-create')))
 
-      await waitFor(element(by.text('Create a community')))
+      await waitFor(element(by.text(CREATE_COMMUNITY_HEADING)))
         .toBeVisible()
         .withTimeout(BASIC)
 
@@ -123,7 +124,7 @@ describe('QSS Onboarding', () => {
     })
 
     test('registers username; ToS is not shown', async () => {
-      await waitFor(element(by.text('Choose username')))
+      await waitFor(element(by.text(CHOOSE_USERNAME_HEADING)))
         .toBeVisible()
         .withTimeout(BASIC)
 

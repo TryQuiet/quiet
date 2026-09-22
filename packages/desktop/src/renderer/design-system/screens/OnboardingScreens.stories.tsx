@@ -19,7 +19,24 @@ import { CreateUsernameBody } from '../../components/CreateUsername/CreateUserna
 import { CONTENT_COLUMN_WIDTH, OnboardingBody } from '../../components/Onboarding/OnboardingBody'
 import BackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
-import { composeInvitationDeepUrl, composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
+import {
+  CHOOSE_USERNAME_HEADING,
+  CREATE_COMMUNITY_HEADING,
+  JOIN_COMMUNITY_HEADING,
+  JOIN_WITH_INVITE_LINK_HEADING,
+  JOIN_WITH_QR_CODE_HEADING,
+  LINK_DEVICES_HEADING,
+  OPEN_INVITE_LINK_HEADING,
+  PASTE_A_LINK_LABEL,
+  PASTE_LINK_HEADING,
+  PASTE_LINK_LABEL,
+  RECOVER_ACCOUNT_HEADING,
+  SCAN_QR_CODE_HEADING,
+  SCAN_QR_CODE_INTRO,
+  composeInvitationDeepUrl,
+  composeInvitationShareUrl,
+  validInvitationDatav4,
+} from '@quiet/common'
 import { InvitationKind, isDeviceInvitationData } from '@quiet/types'
 import type { InvitationData, LinkedDevice } from '@quiet/types'
 
@@ -219,7 +236,7 @@ export const GetStarted = () => (
 
 export const JoinCommunity = () => (
   <Screen
-    title='Join community'
+    title={JOIN_COMMUNITY_HEADING}
     hiddenBar='Quiet'
     figma='2811:2562'
     note='Recover account opens Account recovery (below)'
@@ -231,7 +248,7 @@ export const JoinCommunity = () => (
 
 export const RecoverAccount = () => (
   <Screen
-    title='Recover account'
+    title={RECOVER_ACCOUNT_HEADING}
     hiddenBar='Account recovery'
     figma='2811:2535'
     note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); the frame’s third row, More options, goes nowhere in the design, so it is omitted until the design gives it a target (user, 2026-09-22); no recovery mechanism exists'
@@ -241,8 +258,8 @@ export const RecoverAccount = () => (
 
 export const OpenInviteLink = () => (
   <Screen
-    title='Open invite link'
-    hiddenBar='Join with invite link'
+    title={OPEN_INVITE_LINK_HEADING}
+    hiddenBar={JOIN_WITH_INVITE_LINK_HEADING}
     figma='2811:2455'
     note='an invite link opened here takes the deep-link path (customProtocol.saga.ts) straight to Choose username; Paste a link is the fallback'
     render={() => <OpenInviteLinkComponent onPasteLink={noop} />}
@@ -251,11 +268,11 @@ export const OpenInviteLink = () => (
 
 export const PasteALink = () => (
   <Screen
-    title='Paste a link to join'
-    hiddenBar='Join with invite link'
+    title={PASTE_LINK_HEADING}
+    hiddenBar={JOIN_WITH_INVITE_LINK_HEADING}
     figma='3190:10892'
     note='the WIP frame reduced to its intent: heading, one input ("Link"), Continue'
-    render={() => <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={noop} />}
+    render={() => <PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={noop} />}
   />
 )
 
@@ -315,8 +332,8 @@ const ScannerScreen: React.FC<
 
 export const JoinWithQrCode = () => (
   <ScannerScreen
-    title='Join with QR code'
-    droppedBar='Join with QR code'
+    title={JOIN_WITH_QR_CODE_HEADING}
+    droppedBar={JOIN_WITH_QR_CODE_HEADING}
     figma='2811:2460'
     note='scanning; the camera is a canvas stream with no code in view'
     camera={{ kind: 'blank' }}
@@ -326,7 +343,7 @@ export const JoinWithQrCode = () => (
 export const JoinWithQrCodeRequesting = () => (
   <ScannerScreen
     title='Join with QR code · requesting camera access'
-    droppedBar='Join with QR code'
+    droppedBar={JOIN_WITH_QR_CODE_HEADING}
     figma='2811:2460'
     note='no frame in the prototype for this state; getUserMedia never settles here'
     camera={{ kind: 'pending' }}
@@ -336,7 +353,7 @@ export const JoinWithQrCodeRequesting = () => (
 export const JoinWithQrCodeDecoded = () => (
   <ScannerScreen
     title='Join with QR code · decoded'
-    droppedBar='Join with QR code'
+    droppedBar={JOIN_WITH_QR_CODE_HEADING}
     figma='2811:2460'
     note='the camera shows a QR code of the sample member link; the decoded link is dispatched below and the camera released'
     camera={{ kind: 'code', text: SAMPLE_MEMBER_LINK }}
@@ -346,7 +363,7 @@ export const JoinWithQrCodeDecoded = () => (
 export const JoinWithQrCodeInvalid = () => (
   <ScannerScreen
     title='Join with QR code · not an invitation'
-    droppedBar='Join with QR code'
+    droppedBar={JOIN_WITH_QR_CODE_HEADING}
     figma='2811:2460'
     note="the camera shows a QR code of https://example.com/: the paste field's error, scanning continues"
     camera={{ kind: 'code', text: 'https://example.com/' }}
@@ -356,7 +373,7 @@ export const JoinWithQrCodeInvalid = () => (
 export const JoinWithQrCodeDenied = () => (
   <ScannerScreen
     title='Join with QR code · camera denied'
-    droppedBar='Join with QR code'
+    droppedBar={JOIN_WITH_QR_CODE_HEADING}
     figma='2811:2460'
     note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
     camera={{ kind: 'denied' }}
@@ -366,7 +383,7 @@ export const JoinWithQrCodeDenied = () => (
 export const JoinWithQrCodeNoCamera = () => (
   <ScannerScreen
     title='Join with QR code · no camera'
-    droppedBar='Join with QR code'
+    droppedBar={JOIN_WITH_QR_CODE_HEADING}
     figma='2811:2460'
     note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
     camera={{ kind: 'none' }}
@@ -375,8 +392,8 @@ export const JoinWithQrCodeNoCamera = () => (
 
 export const CreateCommunity = () => (
   <Screen
-    title='Create a community'
-    hiddenBar='Create a community'
+    title={CREATE_COMMUNITY_HEADING}
+    hiddenBar={CREATE_COMMUNITY_HEADING}
     figma='2811:2451'
     note='community icon upload is phase 2'
     render={() => <CreateCommunityComponent handleCommunityAction={noop} />}
@@ -403,7 +420,7 @@ const LINK_DEVICES_NOTE =
 export const LinkDevices = () => (
   <Screen
     title='Link devices · in a community (share)'
-    droppedBar='Link devices'
+    droppedBar={LINK_DEVICES_HEADING}
     figma='2811:2575'
     note={`${LINK_DEVICES_NOTE}; inside a community this device shares: Display QR code and Copy link (the same link the QR sheet shows), the receive rows are not drawn`}
     render={() => (
@@ -421,7 +438,7 @@ export const LinkDevices = () => (
 export const LinkDevicesNothingLinked = () => (
   <Screen
     title='Link devices · in a community, nothing linked yet'
-    droppedBar='Link devices'
+    droppedBar={LINK_DEVICES_HEADING}
     figma='2811:2575'
     note={`${LINK_DEVICES_NOTE}; the read came back with no other device, so the card says so`}
     render={() => (
@@ -439,7 +456,7 @@ export const LinkDevicesNothingLinked = () => (
 export const LinkDevicesDeviceListUnread = () => (
   <Screen
     title='Link devices · device list not read yet'
-    droppedBar='Link devices'
+    droppedBar={LINK_DEVICES_HEADING}
     figma='2811:2575'
     note={`${LINK_DEVICES_NOTE}; between opening the surface and the backend answering there is no card at all, because "No linked devices" would be a guess until the read lands`}
     render={() => (
@@ -456,7 +473,7 @@ export const LinkDevicesDeviceListUnread = () => (
 export const LinkDevicesEmpty = () => (
   <Screen
     title='Link devices · no community (receive)'
-    droppedBar='Link devices'
+    droppedBar={LINK_DEVICES_HEADING}
     figma='2811:2575'
     note={`${LINK_DEVICES_NOTE}; without a community this device receives: Scan QR code and Paste link, the share rows are not drawn`}
     render={() => <LinkDevicesComponent direction='receive' onScanQrCode={noop} onPasteLink={noop} />}
@@ -471,13 +488,11 @@ const PASTE_LINK_NOTE =
 
 export const PasteLinkOnLinkDevices = () => (
   <Screen
-    title='Paste link'
-    droppedBar='Link devices'
+    title={PASTE_LINK_LABEL}
+    droppedBar={LINK_DEVICES_HEADING}
     figma='—'
     note={PASTE_LINK_NOTE}
-    render={() => (
-      <PasteLinkComponent heading={'Paste a link to join'} linkKind='device' handleCommunityAction={noop} />
-    )}
+    render={() => <PasteLinkComponent heading={PASTE_LINK_HEADING} linkKind='device' handleCommunityAction={noop} />}
   />
 )
 
@@ -500,12 +515,12 @@ export const PasteLinkNotADeviceLink = () => (
   <SubmitOnMount link={SAMPLE_MEMBER_LINK}>
     <Screen
       title='Paste link · not a device link'
-      droppedBar='Link devices'
+      droppedBar={LINK_DEVICES_HEADING}
       figma='—'
       note={`${PASTE_LINK_NOTE}; the sample member link was pasted and submitted — the error copy is undesigned`}
       render={() => (
         <PasteLinkComponent
-          heading={'Paste a link to join'}
+          heading={PASTE_LINK_HEADING}
           linkKind='device'
           revealInputValue
           handleCommunityAction={noop}
@@ -583,11 +598,11 @@ export const SettingsLinkedDevices = () => (
 
 export const ScanQrCode = () => (
   <ScannerScreen
-    title='Scan QR code'
-    bar='Scan QR code'
+    title={SCAN_QR_CODE_HEADING}
+    bar={SCAN_QR_CODE_HEADING}
     figma='2811:2587'
     note='scanning, with the sheet copy above the camera; the camera is a canvas stream with no code in view'
-    intro={SCAN_QR_INTRO}
+    intro={SCAN_QR_CODE_INTRO}
     camera={{ kind: 'blank' }}
   />
 )
@@ -595,10 +610,10 @@ export const ScanQrCode = () => (
 export const ScanQrCodeDecoded = () => (
   <ScannerScreen
     title='Scan QR code · decoded'
-    bar='Scan QR code'
+    bar={SCAN_QR_CODE_HEADING}
     figma='2811:2587'
     note='the camera shows a QR code of the sample device link; the camera is released and the consent sheet is raised — linkDevice follows only once it is confirmed'
-    intro={SCAN_QR_INTRO}
+    intro={SCAN_QR_CODE_INTRO}
     camera={{ kind: 'code', text: SAMPLE_DEVICE_LINK }}
   />
 )
@@ -606,18 +621,18 @@ export const ScanQrCodeDecoded = () => (
 export const ScanQrCodeDenied = () => (
   <ScannerScreen
     title='Scan QR code · camera denied'
-    bar='Scan QR code'
+    bar={SCAN_QR_CODE_HEADING}
     figma='2811:2587'
     note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
-    intro={SCAN_QR_INTRO}
+    intro={SCAN_QR_CODE_INTRO}
     camera={{ kind: 'denied' }}
   />
 )
 
 export const ChooseUsername = () => (
   <Screen
-    title='Choose username'
-    hiddenBar='Create a community'
+    title={CHOOSE_USERNAME_HEADING}
+    hiddenBar={CREATE_COMMUNITY_HEADING}
     left='close'
     figma='2811:2371'
     note="the prototype's copy; the library's Register username is stale"
@@ -715,21 +730,21 @@ type Step =
 
 const STEPS: Record<Step, { title: string; bar?: string; hiddenBar?: string; droppedBar?: string; left: ShellLeft }> = {
   getStarted: { title: 'Get started', left: 'none' },
-  joinCommunity: { title: 'Join community', hiddenBar: 'Quiet', left: 'back' },
-  recoverAccount: { title: 'Recover account', hiddenBar: 'Account recovery', left: 'back' },
-  openInviteLink: { title: 'Open invite link', hiddenBar: 'Join with invite link', left: 'back' },
-  pasteALink: { title: 'Paste a link to join', hiddenBar: 'Join with invite link', left: 'back' },
-  joinWithQrCode: { title: 'Join with QR code', droppedBar: 'Join with QR code', left: 'back' },
-  pasteFromQrCode: { title: 'Paste a link to join', droppedBar: 'Join with QR code', left: 'back' },
-  createCommunity: { title: 'Create a community', hiddenBar: 'Create a community', left: 'back' },
-  chooseUsername: { title: 'Choose username', hiddenBar: 'Create a community', left: 'close' },
-  linkDevices: { title: 'Link devices', droppedBar: 'Link devices', left: 'back' },
+  joinCommunity: { title: JOIN_COMMUNITY_HEADING, hiddenBar: 'Quiet', left: 'back' },
+  recoverAccount: { title: RECOVER_ACCOUNT_HEADING, hiddenBar: 'Account recovery', left: 'back' },
+  openInviteLink: { title: OPEN_INVITE_LINK_HEADING, hiddenBar: JOIN_WITH_INVITE_LINK_HEADING, left: 'back' },
+  pasteALink: { title: PASTE_LINK_HEADING, hiddenBar: JOIN_WITH_INVITE_LINK_HEADING, left: 'back' },
+  joinWithQrCode: { title: JOIN_WITH_QR_CODE_HEADING, droppedBar: JOIN_WITH_QR_CODE_HEADING, left: 'back' },
+  pasteFromQrCode: { title: PASTE_LINK_HEADING, droppedBar: JOIN_WITH_QR_CODE_HEADING, left: 'back' },
+  createCommunity: { title: CREATE_COMMUNITY_HEADING, hiddenBar: CREATE_COMMUNITY_HEADING, left: 'back' },
+  chooseUsername: { title: CHOOSE_USERNAME_HEADING, hiddenBar: CREATE_COMMUNITY_HEADING, left: 'close' },
+  linkDevices: { title: LINK_DEVICES_HEADING, droppedBar: LINK_DEVICES_HEADING, left: 'back' },
   // The two sheets keep the bar title their frames give them: neither draws a heading
   // of its own, so nothing would repeat it (LinkDevices.tsx TITLED_STEPS).
   displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'close' },
-  scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
-  pasteFromScan: { title: 'Paste a link to join', droppedBar: 'Link devices', left: 'back' },
-  pasteLink: { title: 'Paste link', droppedBar: 'Link devices', left: 'back' },
+  scanQrCode: { title: SCAN_QR_CODE_HEADING, bar: SCAN_QR_CODE_HEADING, left: 'back' },
+  pasteFromScan: { title: PASTE_LINK_HEADING, droppedBar: LINK_DEVICES_HEADING, left: 'back' },
+  pasteLink: { title: PASTE_LINK_LABEL, droppedBar: LINK_DEVICES_HEADING, left: 'back' },
 }
 
 const PASTE_STEPS: Step[] = ['pasteALink', 'pasteFromQrCode', 'pasteFromScan', 'pasteLink']
@@ -750,8 +765,6 @@ const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
     userName: 'Alice device owner',
   },
 })
-
-const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /** Type a value into every paste input under `root` the way a user would (React sees a native input event). */
 const fillPasteInputs = (root: HTMLElement | null, value: string) => {
@@ -883,7 +896,7 @@ const WalkthroughStory = () => {
       case 'openInviteLink':
         return <OpenInviteLinkComponent onPasteLink={() => go('pasteALink')} />
       case 'pasteALink':
-        return <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={onInvitation} />
+        return <PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={onInvitation} />
       // Keyed on the camera: the scanner asks for it once, on mount, so switching the mode
       // while looking at this step has to re-open it or the button would do nothing.
       case 'joinWithQrCode':
@@ -891,7 +904,7 @@ const WalkthroughStory = () => {
           <QrScannerComponent key={cameraMode} onDecoded={onInvitation} onUsePasteLink={() => go('pasteFromQrCode')} />
         )
       case 'pasteFromQrCode':
-        return <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={onInvitation} />
+        return <PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={onInvitation} />
       case 'createCommunity':
         return <CreateCommunityComponent handleCommunityAction={onCreate} />
       case 'chooseUsername':
@@ -920,7 +933,7 @@ const WalkthroughStory = () => {
         return (
           <QrScannerComponent
             key={cameraMode}
-            intro={SCAN_QR_INTRO}
+            intro={SCAN_QR_CODE_INTRO}
             onDecoded={onInvitation}
             onUsePasteLink={() => go('pasteFromScan')}
             dataTestId='link-devices-scanner'
@@ -930,7 +943,7 @@ const WalkthroughStory = () => {
       case 'pasteFromScan':
       case 'pasteLink':
         return (
-          <PasteLinkComponent heading={'Paste a link to join'} linkKind='device' handleCommunityAction={onInvitation} />
+          <PasteLinkComponent heading={PASTE_LINK_HEADING} linkKind='device' handleCommunityAction={onInvitation} />
         )
     }
   }

@@ -2,6 +2,7 @@ import fs from 'fs'
 import assert from 'assert'
 import path from 'path'
 import { execFileSync } from 'child_process'
+import { JOIN_COMMUNITY_HEADING } from '@quiet/common'
 
 // Launched by the desktop cross-platform suite after it creates the real community.
 const scenarioPath = process.env.QUIET_DM_SCENARIO
@@ -39,7 +40,7 @@ suite('Authenticated desktop/mobile DM', () => {
   })
 
   it('joins through a real invitation, receives authenticated text and a file, and sends after a restart', async () => {
-    await visible(by.text('Join community'))
+    await visible(by.text(JOIN_COMMUNITY_HEADING))
     await element(by.id('input')).typeText(scenario.invitation)
     await device.pressBack()
     await element(by.text('Continue')).tap()
