@@ -18,6 +18,7 @@
   "exclude": [
     "node_modules",
     "**/__tests__/*",
+    "src/shared/testing",
     "src/rtl-tests",
     "src/renderer",
     "src/**/*.cy.ts",

@@ -281,6 +281,28 @@ describe('electron app ready event', () => {
   })
 })
 
+// The backend bundle is a gitignored build artifact, so in a checkout that has not bundled
+// @quiet/backend this suite only loads because jest maps `backend-bundle` to a stub. Remove that
+// mapping and, in such a checkout, every test in this file fails at the
+// `jest.mock('backend-bundle', ...)` call above; where the bundle *has* been built it quietly
+// resolves the real artifact instead - which is why the resolution is asserted here rather than
+// left implicit.
+describe('backend bundle resolution', () => {
+  const forkMock = require('child_process').fork as jest.Mock
+
+  it('resolves backend-bundle to the committed stub, not the gitignored build artifact', () => {
+    // Also covers the bundled case: with bundle.cjs present the mapping is still what answers,
+    // so dropping it does not quietly go unnoticed on a machine that has built the backend.
+    expect(require.resolve('backend-bundle')).toBe(require.resolve('../shared/testing/backendBundleMock'))
+  })
+
+  it('forks the backend from the resolved backend-bundle entry point', () => {
+    expect(forkMock.mock.calls.length).toBeGreaterThan(0)
+    const [bundlePath] = forkMock.mock.calls[0]
+    expect(bundlePath).toBe(path.normalize(require.resolve('backend-bundle')))
+  })
+})
+
 // Issue #53: a suspended machine stops answering as a peer, which breaks registration for everyone
 // else. These run before the quit-flow tests below, while `quitting` is still false.
 describe('power save blocker', () => {
