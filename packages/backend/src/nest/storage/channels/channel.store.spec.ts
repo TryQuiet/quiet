@@ -508,6 +508,13 @@ describe('ChannelStore incremental message IDs', () => {
   })
 
   const value = (id: string) => ({ id, channelId: 'general', teamId: 'team' })
+  const waitFor = async (condition: () => boolean, timeoutMs = 5_000) => {
+    const started = Date.now()
+    while (!condition()) {
+      if (Date.now() - started > timeoutMs) throw new Error('Timed out waiting for the background retry')
+      await new Promise(resolve => setTimeout(resolve, 5))
+    }
+  }
 
   it('ignores a shared-bus head until this peer actually joins it', async () => {
     const events = new EventEmitter()
@@ -573,20 +580,40 @@ describe('ChannelStore incremental message IDs', () => {
     }
     // Log.append sets heads before awaiting entry/index.put. Hold that write pending while
     // auth reconciliation reads the new head, then finish it before the local update event.
+    // A head the log itself reports may be read from its bytes; here they are not written yet.
     const log = (store as any).store.log
     log.heads = async () => [pendingHead]
     auth.emit(SigchainEvents.UPDATED)
     await (store as any).messageIndexRefresh
     await new Promise(resolve => setImmediate(resolve))
     expect(onConsume).not.toHaveBeenCalled()
-    expect(logReads).toEqual({ has: 1, get: 0 })
+    expect(logReads).toEqual({ has: 1, get: 1 })
     expect(ids.mock.lastCall?.[0].ids).toEqual([])
     save({ hash: pendingHead.hash, value: pendingHead.payload.value, next: pendingHead.next })
     expect(logEntries.has(pendingHead.hash)).toBe(true)
     await announce(pendingHead.hash)
     expect(onConsume.mock.calls.map(([message]) => message.id)).toEqual(['previous', 'pending-append'])
     expect(ids.mock.lastCall?.[0].ids).toEqual(['previous', 'pending-append'])
-    expect(logReads).toEqual({ has: 3, get: 2 })
+    expect(logReads).toEqual({ has: 3, get: 3 })
+  })
+
+  it('indexes a head the log reports from its bytes when the log index lags behind heads()', async () => {
+    // Log.append persists heads, then entry bytes, then the index entry. A process killed in
+    // between leaves a head that heads() and the iterator show but has() denies. It must not be
+    // skipped by the rebuild, or the message would never be announced.
+    const { store, save, onConsume, ids, logReads } = createStore()
+    save({ hash: 'previous', value: value('previous') })
+    save({ hash: 'unindexed-head', value: value('unindexed-head'), next: ['previous'] })
+    const log = (store as any).store.log
+    const has = log.has
+    log.has = async (hash: string) => (await has(hash)) && hash !== 'unindexed-head'
+    await store.subscribe()
+    expect(new Set(onConsume.mock.calls.map(([message]) => message.id))).toEqual(
+      new Set(['previous', 'unindexed-head'])
+    )
+    expect(new Set(ids.mock.lastCall?.[0].ids)).toEqual(new Set(['previous', 'unindexed-head']))
+    expect(logReads).toEqual({ has: 2, get: 2 })
+    expect((await store.getEntries(['unindexed-head'])).map(message => message.id)).toEqual(['unindexed-head'])
   })
 
   it('indexes every missed message when only the joined head emits an update', async () => {
@@ -734,15 +761,223 @@ describe('ChannelStore incremental message IDs', () => {
     await store.subscribe()
     save({ hash: 'good', value: value('good') })
     save({ hash: 'head', value: value('head'), next: ['missing', 'good'] })
-    await expect(announce('head')).rejects.toThrow('not joined')
+    // The listener runs un-awaited on a shared bus: a rejection here would be an
+    // unhandledRejection, which backendManager answers with a full shutdown.
+    await expect(announce('head')).resolves.toBeUndefined()
     expect(onConsume).toHaveBeenCalledTimes(1)
     expect(logReads.get).toBe(2) // Never fetch an unjoined block, even if it is available.
-    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual([])
+    expect(ids.mock.calls.flatMap(([event]) => event.ids)).toEqual(['good'])
     save({ hash: 'missing', value: value('missing') })
     await announce('head')
     expect(onConsume).toHaveBeenCalledTimes(4)
     expect(new Set(ids.mock.lastCall?.[0].ids)).toEqual(new Set(['good', 'missing', 'head']))
   })
+
+  it('retries an unreadable ancestor in the background and announces it once it can be read', async () => {
+    const { store, save, announce, onConsume, ids } = createStore()
+    ;(store as any).retryDelayMs = 1
+    await store.subscribe()
+    save({ hash: 'good', value: value('good') })
+    save({ hash: 'head', value: value('head'), next: ['missing', 'good'] })
+    await announce('head')
+    expect(store.isSubscribing).toBe(false)
+    save({ hash: 'missing', value: value('missing') })
+    await waitFor(() => ids.mock.calls.some(([event]) => event.ids.includes('head')))
+    expect(new Set(ids.mock.lastCall?.[0].ids)).toEqual(new Set(['good', 'missing', 'head']))
+    expect(onConsume.mock.calls.filter(([message]) => message.id === 'head')).toHaveLength(1)
+    expect((await store.getEntries(['missing'])).map(message => message.id)).toEqual(['missing'])
+  })
+
+  it('subscribes when the initial rebuild cannot read an ancestor, then indexes it on retry', async () => {
+    const { store, save, ids } = createStore()
+    ;(store as any).retryDelayMs = 1
+    save({ hash: 'head', value: value('head'), next: ['missing'] })
+    await expect(store.subscribe()).resolves.toBeUndefined()
+    expect(store.isSubscribing).toBe(false)
+    // Ancestors are consumed before their descendants, so nothing is announced yet.
+    expect(ids.mock.lastCall?.[0].ids).toEqual([])
+    save({ hash: 'missing', value: value('missing') })
+    await waitFor(() => ids.mock.calls.some(([event]) => event.ids.includes('head')))
+    expect(new Set(ids.mock.lastCall?.[0].ids)).toEqual(new Set(['missing', 'head']))
+    expect((await store.getEntries(['missing'])).map(message => message.id)).toEqual(['missing'])
+  })
+
+  it('never rejects the shared update listener when a log read fails, and retries the head', async () => {
+    const { store, save, announce, ids } = createStore()
+    ;(store as any).retryDelayMs = 1
+    await store.subscribe()
+    save({ hash: 'flaky', value: value('flaky') })
+    const log = (store as any).store.log
+    const get = log.get
+    let failures = 1
+    log.get = async (hash: string) => {
+      if (failures-- > 0) throw new Error('entry storage read failed')
+      return get(hash)
+    }
+    await expect(announce('flaky')).resolves.toBeUndefined()
+    await waitFor(() => ids.mock.calls.some(([event]) => event.ids.includes('flaky')))
+  })
+
+  it('announces an arrival exactly once when an auth update interrupts its walk', async () => {
+    const { store, auth, append, onConsume } = createStore()
+    const delivered = jest.fn<(payload: { messages: { id: string }[] }) => void>()
+    store.on(StorageEvents.MESSAGES_STORED, delivered)
+    await store.subscribe()
+    let resume!: () => void
+    const paused = new Promise<void>(resolve => {
+      resume = resolve
+    })
+    onConsume.mockImplementationOnce(async message => {
+      await paused
+      return { ...message, verified: true }
+    })
+    const arrival = append('interrupted')
+    await new Promise(resolve => setImmediate(resolve))
+    auth.emit(SigchainEvents.UPDATED)
+    resume()
+    await arrival
+    await waitFor(() => delivered.mock.calls.length > 0)
+    await new Promise(resolve => setImmediate(resolve))
+    expect(delivered.mock.calls.flatMap(([payload]) => payload.messages.map(message => message.id))).toEqual([
+      'interrupted',
+    ])
+  })
+
+  it('announces each concurrent head once even when an earlier walk indexed it', async () => {
+    const { store, save, announce, onConsume } = createStore()
+    const delivered = jest.fn<(payload: { messages: { id: string }[] }) => void>()
+    store.on(StorageEvents.MESSAGES_STORED, delivered)
+    await store.subscribe()
+    save({ hash: 'older', value: value('older') })
+    save({ hash: 'newer', value: value('newer'), next: ['older'] })
+    await Promise.all([announce('newer'), announce('older')])
+    expect(onConsume).toHaveBeenCalledTimes(2)
+    expect(delivered.mock.calls.flatMap(([payload]) => payload.messages.map(message => message.id)).sort()).toEqual([
+      'newer',
+      'older',
+    ])
+  })
+
+  describe('sigchain updates', () => {
+    type FakeMember = { userId: string; roles: string[]; keys?: { generation: number } }
+    const chainWith = (members: FakeMember[], localUserId = 'self') => ({
+      user: { userId: localUserId },
+      team: { members: () => members },
+    })
+    const authored = (id: string, userId: string) => ({ id, channelId: 'general', teamId: 'team', userId })
+
+    const setup = async (members: FakeMember[]) => {
+      const fixture = createStore()
+      fixture.auth.getActiveChain = () => chainWith(members)
+      await fixture.store.subscribe()
+      return fixture
+    }
+
+    it('keeps checked consumes when a sigchain update only admits a new member', async () => {
+      const members = [
+        { userId: 'self', roles: ['member'] },
+        { userId: 'alice', roles: ['member'] },
+      ]
+      const { store, auth, append, onConsume, ids, reads } = await setup(members)
+      for (let n = 0; n < 50; n++) await append(`alice-${n}`, `alice-${n}`, authored(`alice-${n}`, 'alice'))
+      onConsume.mockClear()
+      ids.mockClear()
+      auth.getActiveChain = () => chainWith([...members, { userId: 'bob', roles: ['member'] }])
+      auth.emit(SigchainEvents.UPDATED)
+      await new Promise(resolve => setImmediate(resolve))
+      expect(onConsume).not.toHaveBeenCalled()
+      expect(ids.mock.lastCall?.[0].ids).toHaveLength(50)
+      expect((await store.getEntries(['alice-7'])).map(message => message.id)).toEqual(['alice-7'])
+      expect(reads.iterator).toBe(0)
+    })
+
+    it('rechecks only the messages of a member whose keys or roles changed', async () => {
+      const members = [
+        { userId: 'self', roles: ['member'] },
+        { userId: 'alice', roles: ['member'], keys: { generation: 0 } },
+        { userId: 'carol', roles: ['member'], keys: { generation: 0 } },
+      ]
+      const { store, auth, append, onConsume, ids } = await setup(members)
+      for (let n = 0; n < 5; n++) {
+        await append(`alice-${n}`, `alice-${n}`, authored(`alice-${n}`, 'alice'))
+        await append(`carol-${n}`, `carol-${n}`, authored(`carol-${n}`, 'carol'))
+      }
+      onConsume.mockClear()
+      onConsume.mockImplementation(async message =>
+        message.userId === 'carol' ? false : { ...message, verified: true }
+      )
+      auth.getActiveChain = () =>
+        chainWith([members[0], members[1], { userId: 'carol', roles: ['member'], keys: { generation: 1 } }])
+      auth.emit(SigchainEvents.UPDATED)
+      await new Promise(resolve => setImmediate(resolve))
+      expect(onConsume.mock.calls.map(([message]) => message.userId)).toEqual(Array(5).fill('carol'))
+      expect(new Set(ids.mock.lastCall?.[0].ids)).toEqual(new Set(Array.from({ length: 5 }, (_, n) => `alice-${n}`)))
+      expect(await store.getEntries(['carol-2'])).toEqual([])
+      expect((await store.getEntries(['alice-2'])).map(message => message.id)).toEqual(['alice-2'])
+    })
+
+    it('retries rejected entries on a sigchain update without rewalking accepted history', async () => {
+      const members = [
+        { userId: 'self', roles: ['member'] },
+        { userId: 'alice', roles: ['member'] },
+      ]
+      const { store, auth, append, onConsume, ids } = await setup(members)
+      let allowed = false
+      onConsume.mockImplementation(async message =>
+        message.id === 'locked' && !allowed ? undefined : { ...message, verified: true }
+      )
+      await append('locked', 'locked', authored('locked', 'alice'))
+      for (let n = 0; n < 20; n++) await append(`open-${n}`, `open-${n}`, authored(`open-${n}`, 'alice'))
+      expect(ids.mock.calls.flatMap(([event]) => event.ids)).not.toContain('locked')
+      onConsume.mockClear()
+      allowed = true
+      auth.emit(SigchainEvents.UPDATED)
+      await new Promise(resolve => setImmediate(resolve))
+      expect(onConsume.mock.calls.map(([message]) => message.id)).toEqual(['locked'])
+      expect(ids.mock.lastCall?.[0].ids).toContain('locked')
+      expect((await store.getEntries(['locked'])).map(message => message.id)).toEqual(['locked'])
+    })
+
+    it("rebuilds the whole index when the local user's own authorization changes", async () => {
+      const members = [
+        { userId: 'self', roles: ['member'] },
+        { userId: 'alice', roles: ['member'] },
+      ]
+      const { auth, append, onConsume } = await setup(members)
+      for (let n = 0; n < 10; n++) await append(`alice-${n}`, `alice-${n}`, authored(`alice-${n}`, 'alice'))
+      onConsume.mockClear()
+      auth.getActiveChain = () => chainWith([{ userId: 'self', roles: ['member', 'admin'] }, members[1]])
+      auth.emit(SigchainEvents.UPDATED)
+      await new Promise(resolve => setImmediate(resolve))
+      expect(onConsume).toHaveBeenCalledTimes(10)
+    })
+  })
+
+  it('fetches a batch of announced IDs directly without rescanning history', async () => {
+    const { store, append, reads, onConsume } = createStore()
+    await store.subscribe()
+    for (let n = 0; n < 100; n++) await append(`message-${n}`)
+    onConsume.mockClear()
+    const batch = await store.getEntries(['message-3', 'message-50', 'message-97', 'unknown'])
+    expect(batch.map(message => message.id)).toEqual(['message-3', 'message-50', 'message-97'])
+    expect(reads).toEqual({ iterator: 0, get: 3 })
+    expect(onConsume).toHaveBeenCalledTimes(3)
+  })
+
+  it.each(['close', 'clean'] as const)(
+    'detaches its update listener from the shared events bus on %s',
+    async method => {
+      const events = new EventEmitter()
+      const { store } = createStore(events)
+      const baseline = events.listenerCount('update')
+      await store.subscribe()
+      expect(events.listenerCount('update')).toBe(baseline + 1)
+      await store.subscribe()
+      expect(events.listenerCount('update')).toBe(baseline + 1)
+      await store[method]()
+      expect(events.listenerCount('update')).toBe(baseline)
+    }
+  )
 
   it('retries unreadable history and removes old IDs when authorization changes', async () => {
     const { store, auth, entries, onConsume, ids } = createStore()
