@@ -13,4 +13,9 @@
 // unaffected: the electron main process is compiled by tsc, not bundled, so at runtime node
 // resolves the real `bundle.cjs` through `packages/desktop/node_modules/backend-bundle`, and the
 // webpack configs only build the renderer, which never imports `backend-bundle`.
+//
+// Both build tsconfigs exclude this directory, so neither this stub nor the file mock beside it
+// reaches `dist/` and the packaged app. They stay inside `src/` rather than moving under
+// `__tests__/` because tsconfig.json excludes that name, which would put them outside every
+// TSConfig project and make eslint fail to parse them.
 export {}

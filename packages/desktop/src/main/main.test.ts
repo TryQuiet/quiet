@@ -283,8 +283,10 @@ describe('electron app ready event', () => {
 
 // The backend bundle is a gitignored build artifact, so in a checkout that has not bundled
 // @quiet/backend this suite only loads because jest maps `backend-bundle` to a stub. Remove that
-// mapping and every test in this file fails at the `jest.mock('backend-bundle', ...)` call above,
-// which is why the resolution is asserted here rather than left implicit.
+// mapping and, in such a checkout, every test in this file fails at the
+// `jest.mock('backend-bundle', ...)` call above; where the bundle *has* been built it quietly
+// resolves the real artifact instead - which is why the resolution is asserted here rather than
+// left implicit.
 describe('backend bundle resolution', () => {
   const forkMock = require('child_process').fork as jest.Mock
 

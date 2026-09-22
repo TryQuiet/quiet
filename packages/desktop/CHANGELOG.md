@@ -46,7 +46,7 @@
 
 ### Chores
 
-* Run the desktop main-process tests in a checkout that has not bundled the backend, instead of failing to load because the gitignored `backend-bundle` build artifact is missing
+* Run the desktop main-process tests in a checkout that has not bundled the backend
 
 ## [11.0.1]
 
