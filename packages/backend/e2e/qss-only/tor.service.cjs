@@ -45,8 +45,12 @@ class Tor extends EventEmitter {
     this.initializedHiddenServices.delete(serviceId)
     return this.hiddenServices.delete(serviceId)
   }
-  async createNewHiddenService({ targetPort, virtPort = 80 } = {}) {
+  async createOnionIdentity() {
     const privateKey = `QSS-ONLY-E2E:${randomBytes(32).toString('hex')}`
+    return { privateKey, onionAddress: simulatedOnion(privateKey) }
+  }
+  async createNewHiddenService({ targetPort, virtPort = 80 } = {}) {
+    const { privateKey } = await this.createOnionIdentity()
     const onionAddress = await this.spawnHiddenService({ targetPort, virtPort, privKey: privateKey })
     return { privateKey, onionAddress }
   }

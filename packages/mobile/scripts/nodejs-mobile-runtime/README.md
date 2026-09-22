@@ -40,6 +40,12 @@ replacement fails. It writes only these four locations:
 The existing classic-level 1.4.1 addon binaries and Tor framework are separate
 inputs and are preserved.
 
+`--install --abi x86_64` adds only `android/app/libnode/bin/x86_64` from the same
+pinned Android archive (its file hash is under `optionalAndroidAbis` in
+`runtime.json`) for emulator builds on x86_64 hosts; that directory is not
+committed, and `--check` verifies it only while it exists. See
+`docs/android-x86_64-emulator.md` for the other x86_64 inputs.
+
 ## Provenance and rebuilding
 
 [runtime.json](runtime.json) records the archive URLs, SHA-256 values, exact

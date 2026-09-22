@@ -30,8 +30,6 @@ import {
   type DeviceLinkInvite,
   type InitDeviceLinkPayload,
   type RequestDeviceLinkPayload,
-  type RequestLinkedDevicesPayload,
-  type LinkedDevice,
   type ResponseLinkDevicePayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
@@ -97,6 +95,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     const connection = new Promise<void>(resolve => {
       this.serverIoProvider.io.on(SocketActions.CONNECTION, socket => {
         socket.on(SocketActions.START, async () => {
+          this.emit(SocketActions.START)
           resolve()
         })
       })
@@ -233,6 +232,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActions.LEAVE_COMMUNITY, callback)
       })
 
+      socket.on(
+        SocketActions.RESET_ADMISSION,
+        (payload: LaunchCommunityPayload, callback: (success: boolean) => void) => {
+          this.emit(SocketActions.RESET_ADMISSION, payload, callback)
+        }
+      )
+
       // ====== Users ======
 
       socket.on(
@@ -261,13 +267,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         SocketActions.CREATE_DEVICE_LINK,
         async (payload: RequestDeviceLinkPayload, callback: (response?: DeviceLinkInvite) => void) => {
           this.emit(SocketActions.CREATE_DEVICE_LINK, payload, callback)
-        }
-      )
-
-      socket.on(
-        SocketActions.GET_LINKED_DEVICES,
-        async (payload: RequestLinkedDevicesPayload, callback: (response?: LinkedDevice[]) => void) => {
-          this.emit(SocketActions.GET_LINKED_DEVICES, payload, callback)
         }
       )
 

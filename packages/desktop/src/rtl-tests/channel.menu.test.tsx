@@ -68,7 +68,7 @@ describe('Channel menu', () => {
     const channelContextMenu = screen.getByTestId('contextMenu')
     expect(channelContextMenu).toBeVisible()
 
-    const deleteChannelItem = screen.queryByTestId('contextMenuItemDelete')
+    const deleteChannelItem = screen.queryByTestId('contextMenuItemDelete_channel')
     expect(deleteChannelItem).not.toBeInTheDocument()
   })
 
@@ -106,7 +106,7 @@ describe('Channel menu', () => {
     await userEvent.click(menu)
 
     // Confirm context menu has opened
-    const deleteChannelItem = screen.getByTestId('contextMenuItemDelete')
+    const deleteChannelItem = screen.getByTestId('contextMenuItemDelete_channel')
     expect(deleteChannelItem).toBeVisible()
 
     await userEvent.click(deleteChannelItem)

@@ -52,7 +52,7 @@
     "lint-staged": "^15.2.2"
   },
   "lint-staged": {
-    "*.{ts}": "npm run lint:no-fix"
+    "*.ts": "npm run lint:no-fix"
   },
   "volta": {
     "extends": "../../package.json"

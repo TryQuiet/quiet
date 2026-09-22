@@ -50,5 +50,7 @@ export const Num: React.FC<{ children: React.ReactNode; color?: string; width?: 
   color,
   width,
 }) => (
-  <span style={{ fontFamily: mono, fontSize: 12, color: color ?? INK, width, display: 'inline-block' }}>{children}</span>
+  <span style={{ fontFamily: mono, fontSize: 12, color: color ?? INK, width, display: 'inline-block' }}>
+    {children}
+  </span>
 )

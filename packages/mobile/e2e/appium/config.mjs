@@ -4,6 +4,7 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
+import { STAGING_ENDPOINT, validateStagingTarget, checkStaging } from './staging.mjs'
 const require = createRequire(import.meta.url)
 const { androidSdkTool } = require('../utils/androidQssBuild.cjs')
 const { validateQssOnlyBundle, validateDesktopQssOnlyBuild, MARKER } = require('../utils/qssOnlyBuild.cjs')
@@ -26,6 +27,7 @@ export function validateConfig(config) {
 }
 
 export function validateProviderFixture(fixture, platform, fullLoop) {
+  if (fixture.target === 'staging') return validateStagingTarget(fixture, fullLoop)
   const { manifest, result } = fixture
   assert.equal(manifest.endpoint, ENDPOINT)
   assert.equal(manifest.productionQss, false)
@@ -43,7 +45,8 @@ export function validateProviderFixture(fixture, platform, fullLoop) {
   return manifest
 }
 
-export function inspectIosBuild(config, fullLoop) {
+export function inspectIosBuild(config, fullLoop, endpoint = ENDPOINT) {
+  assert([ENDPOINT, STAGING_ENDPOINT].includes(endpoint), 'Select the local fixture or staging QSS')
   assert.equal(process.platform, 'darwin', 'iOS Appium requires a Mac with Xcode')
   const plist = name => JSON.parse(execFileSync('/usr/bin/plutil', [
     '-convert', 'json', '-o', '-', path.join(config.app, name),
@@ -51,16 +54,16 @@ export function inspectIosBuild(config, fullLoop) {
   const info = plist('Info.plist')
   assert.equal(info.CFBundleIdentifier, config.bundleId, 'The iOS app must match the selected application ID')
   const env = plist('Env.plist')
-  assert.equal(env.QSS_ENDPOINT, ENDPOINT, 'Rebuild iOS for the loopback QSS fixture')
+  assert.equal(env.QSS_ENDPOINT, endpoint, 'Rebuild iOS for the selected QSS test endpoint')
   assert.equal(env.QSS_ALLOWED, 'true', 'Rebuild iOS with QSS_ALLOWED=true')
   assert.equal(env.QPS_ALLOWED ?? 'false', fullLoop ? 'true' : 'false', 'The iOS push configuration must match this test lane')
   // NodeRunner loads Env.plist into the embedded backend; react-native-config
   // separately compiles the app configuration. Both must target this fixture.
   const executable = path.join(config.app, 'Quiet.debug.dylib')
   const native = fs.readFileSync(fs.existsSync(executable) ? executable : path.join(config.app, info.CFBundleExecutable))
-  assert(native.includes(Buffer.from(ENDPOINT)), 'The iOS native configuration lacks the loopback QSS endpoint')
-  for (const endpoint of ['wss://qss-dev.quiet-services.app', 'wss://qss-prod.quiet-services.app']) {
-    assert(!native.includes(Buffer.from(endpoint)), 'The iOS native configuration contains a remote QSS endpoint')
+  assert(native.includes(Buffer.from(endpoint)), 'The iOS native configuration lacks the selected QSS endpoint')
+  for (const other of [ENDPOINT, STAGING_ENDPOINT, 'wss://qss-prod.quiet-services.app'].filter(value => value !== endpoint)) {
+    assert(!native.includes(Buffer.from(other)), 'The iOS native configuration contains a different QSS endpoint')
   }
   let extensionSHA256
   if (fullLoop) {
@@ -95,14 +98,20 @@ export async function preflight(fullLoop) {
   const config = validateConfig(JSON.parse(fs.readFileSync(configPath, 'utf8')))
   const run = prepareRun(process.env.QUIET_QSS_E2E_RUN_DIR)
   const fixture = validateProviderFixture(run.fixture, config.platform, fullLoop)
-  assert.equal(process.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, fixture.output, 'Use the prepared local fixture inspector')
+  if (fixture.target === 'staging') {
+    assert.equal(config.qssTarget, 'staging', 'Select staging explicitly for this device')
+    assert.equal(process.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, undefined, 'Do not mix staging with a local fixture inspector')
+  } else {
+    assert.notEqual(config.qssTarget, 'staging')
+    assert.equal(process.env.QUIET_QSS_LOCAL_FIXTURE_OUTPUT, fixture.output, 'Use the prepared local fixture inspector')
+  }
   let build
   if (config.platform === 'android') {
     const badging = execFileSync(androidSdkTool('aapt2'), ['dump', 'badging', config.app], { encoding: 'utf8' })
     assert(badging.startsWith(`package: name='${config.bundleId}' `), 'The APK must match the explicitly selected application ID')
     const resources = execFileSync(androidSdkTool('aapt2'), ['dump', 'resources', config.app], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
     const value = key => resources.match(new RegExp(`resource 0x[0-9a-f]+ string/${key}\\n\\s+\\(\\) "([^"\\n]*)"`))?.[1]
-    assert.equal(value('QSS_ENDPOINT'), ENDPOINT)
+    assert.equal(value('QSS_ENDPOINT'), fixture.endpoint)
     assert.equal(value('QSS_ALLOWED'), 'true')
     if (fullLoop) {
       assert.equal(value('QPS_ALLOWED'), 'true', 'Rebuild the APK with QPS_ALLOWED=true')
@@ -116,9 +125,10 @@ export async function preflight(fullLoop) {
     } else build = { backendMode: 'native-tor', backendSHA256: createHash('sha256').update(backend).digest('hex') }
     build.appSHA256 = sha256(config.app)
   } else {
-    build = inspectIosBuild(config, fullLoop)
+    build = inspectIosBuild(config, fullLoop, fixture.endpoint)
     if (fullLoop) build.entitlements = inspectIosProviderEntitlements(config.app)
   }
-  await checkLiveFixture()
+  if (fixture.target === 'staging') await checkStaging()
+  else await checkLiveFixture()
   return { config, run, fixture, build }
 }

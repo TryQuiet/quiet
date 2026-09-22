@@ -112,27 +112,35 @@ const Shell: React.FC<{
   </div>
 )
 
-/** Caption for a screen's bar, from the frame: shown title, hidden title (glyph only), or no bar at all. */
-const barCaption = (bar?: string, hiddenBar?: string) =>
+/**
+ * Caption for a screen's bar: a title the frame shows, a title the frame itself
+ * hides (glyph only), a title dropped here because the screen carries its own
+ * large heading, or no bar at all.
+ */
+const barCaption = (bar?: string, hiddenBar?: string, droppedBar?: string) =>
   bar !== undefined ? (
     <>title bar &ldquo;{bar}&rdquo;</>
   ) : hiddenBar !== undefined ? (
     <>no bar title, glyph only (the frame hides &ldquo;{hiddenBar}&rdquo;)</>
+  ) : droppedBar !== undefined ? (
+    <>no bar title, glyph only (the frame draws &ldquo;{droppedBar}&rdquo;; dropped — the screen has its own heading)</>
   ) : (
     'no title bar'
   )
 
 const Screen: React.FC<{
   title: string
-  /** Title-bar text (sheets). */
+  /** Title-bar text (a bar the frame shows and this screen keeps). */
   bar?: string
   /** The frame's title text the designer hid: the bar zone shows the glyph only, no title, no hairline. */
   hiddenBar?: string
+  /** A title the frame draws but this screen drops, because it has a large heading of its own. */
+  droppedBar?: string
   figma: string
   left?: ShellLeft
   note?: string
   render: () => React.ReactNode
-}> = ({ title, bar, hiddenBar, figma, left, note, render }) => (
+}> = ({ title, bar, hiddenBar, droppedBar, figma, left, note, render }) => (
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={lightTheme}>
       <div style={{ padding: 24, fontFamily: "'Rubik', sans-serif", color: '#171B12' }}>
@@ -140,12 +148,12 @@ const Screen: React.FC<{
           {title}
         </h1>
         <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-          Figma <span style={{ fontFamily: mono }}>{figma}</span> · {barCaption(bar, hiddenBar)} · desktop component
-          under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
+          Figma <span style={{ fontFamily: mono }}>{figma}</span> · {barCaption(bar, hiddenBar, droppedBar)} · desktop
+          component under the app&rsquo;s light theme{note ? ` · ${note}` : ''}
         </p>
         <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
           <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-            <Shell title={bar} withoutTitle={hiddenBar !== undefined} left={left}>
+            <Shell title={bar} withoutTitle={hiddenBar !== undefined || droppedBar !== undefined} left={left}>
               {render()}
             </Shell>
           </Column>
@@ -193,7 +201,7 @@ export const RecoverAccount = () => (
     title='Recover account'
     hiddenBar='Account recovery'
     figma='2811:2535'
-    note='Use linked device → Link devices, Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
+    note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
     render={() => <RecoverAccountComponent onUseLinkedDevice={noop} onUseInviteLink={noop} />}
   />
 )
@@ -221,7 +229,7 @@ export const PasteALink = () => (
 export const JoinWithQrCode = () => (
   <Screen
     title='Join with QR code'
-    bar='Join with QR code'
+    droppedBar='Join with QR code'
     figma='2811:2460'
     note='desktop has no camera: the sheet becomes the paste step'
     render={() => <PasteLinkComponent heading={'Join with QR code'} handleCommunityAction={noop} />}
@@ -241,34 +249,16 @@ export const CreateCommunity = () => (
 export const LinkDevices = () => (
   <Screen
     title='Link devices'
-    bar='Link devices'
+    droppedBar='Link devices'
     figma='2811:2575'
-    render={() => (
-      <LinkDevicesComponent
-        onDisplayQrCode={noop}
-        onScanQrCode={noop}
-        linkedDevices={[
-          { deviceId: 'this', deviceName: 'this device', isCurrent: true },
-          { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
-        ]}
-      />
-    )}
-  />
-)
-
-export const LinkDevicesEmpty = () => (
-  <Screen
-    title='Link devices · no linked devices'
-    bar='Link devices'
-    figma='2811:2575'
-    render={() => <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} linkedDevices={[]} />}
+    render={() => <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} />}
   />
 )
 
 export const DisplayQrCode = () => (
   <Screen
     title='Display QR code'
-    bar='QR code'
+    droppedBar='QR code'
     figma='2811:2601'
     note="#3400's Linked devices surface, shown inside the Link devices modal"
     render={() => (
@@ -288,7 +278,7 @@ export const DisplayQrCode = () => (
 export const ScanQrCode = () => (
   <Screen
     title='Scan QR code'
-    bar='Scan QR code'
+    droppedBar='Scan QR code'
     figma='2811:2587'
     note='desktop has no camera: the sheet copy introduces the paste step'
     render={() => (
@@ -397,18 +387,18 @@ type Step =
   | 'displayQrCode'
   | 'scanQrCode'
 
-const STEPS: Record<Step, { title: string; bar?: string; hiddenBar?: string; left: ShellLeft }> = {
+const STEPS: Record<Step, { title: string; bar?: string; hiddenBar?: string; droppedBar?: string; left: ShellLeft }> = {
   getStarted: { title: 'Get started', left: 'none' },
   joinCommunity: { title: 'Join community', hiddenBar: 'Quiet', left: 'back' },
   recoverAccount: { title: 'Recover account', hiddenBar: 'Account recovery', left: 'back' },
   openInviteLink: { title: 'Open invite link', hiddenBar: 'Join with invite link', left: 'back' },
   pasteALink: { title: 'Paste a link to Join', hiddenBar: 'Join with invite link', left: 'back' },
-  joinWithQrCode: { title: 'Join with QR code', bar: 'Join with QR code', left: 'back' },
+  joinWithQrCode: { title: 'Join with QR code', droppedBar: 'Join with QR code', left: 'back' },
   createCommunity: { title: 'Create a community', hiddenBar: 'Create a community', left: 'back' },
   chooseUsername: { title: 'Choose username', hiddenBar: 'Create a community', left: 'close' },
-  linkDevices: { title: 'Link devices', bar: 'Link devices', left: 'back' },
-  displayQrCode: { title: 'Display QR code', bar: 'QR code', left: 'back' },
-  scanQrCode: { title: 'Scan QR code', bar: 'Scan QR code', left: 'back' },
+  linkDevices: { title: 'Link devices', droppedBar: 'Link devices', left: 'back' },
+  displayQrCode: { title: 'Display QR code', droppedBar: 'QR code', left: 'back' },
+  scanQrCode: { title: 'Scan QR code', droppedBar: 'Scan QR code', left: 'back' },
 }
 
 const PASTE_STEPS: Step[] = ['pasteALink', 'joinWithQrCode', 'scanQrCode']
@@ -427,11 +417,6 @@ const SAMPLE_DEVICE_LINK = composeInvitationShareUrl({
 })
 
 const SCAN_QR_INTRO = 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
-
-const WALKTHROUGH_DEVICES = [
-  { deviceId: 'this', deviceName: 'this device', isCurrent: true },
-  { deviceId: 'other', deviceName: 'nyc-laptop', isCurrent: false },
-]
 
 /** Type a value into every paste input under `root` the way a user would (React sees a native input event). */
 const fillPasteInputs = (root: HTMLElement | null, value: string) => {
@@ -501,9 +486,9 @@ const WalkthroughStory = () => {
     record(`identity.actions.registerUsername({ nickname: '${nickname}' })`)
     finish()
   }
-  // LinkDevices.tsx refreshes the device list when its modal opens.
+  // Opened from Account recovery, LinkDevices.tsx's back arrow returns there (here the trail does
+  // the same).
   const openLinkDevices = () => {
-    record('connection.actions.getLinkedDevices()')
     go('linkDevices')
   }
   // customProtocol.saga.ts: an invite link opened while Join with invite link shows joins and asks for a username.
@@ -548,11 +533,7 @@ const WalkthroughStory = () => {
         return <CreateUsernameBody registerUsername={onRegister} />
       case 'linkDevices':
         return (
-          <LinkDevicesComponent
-            onDisplayQrCode={() => go('displayQrCode')}
-            onScanQrCode={() => go('scanQrCode')}
-            linkedDevices={WALKTHROUGH_DEVICES}
-          />
+          <LinkDevicesComponent onDisplayQrCode={() => go('displayQrCode')} onScanQrCode={() => go('scanQrCode')} />
         )
       case 'displayQrCode':
         return (
@@ -562,7 +543,6 @@ const WalkthroughStory = () => {
               isLoading={false}
               revealLink={revealLink}
               onToggleLinkVisibility={() => setRevealLink(v => !v)}
-              linkedDevices={WALKTHROUGH_DEVICES}
               centered
             />
           </OnboardingBody>
@@ -574,7 +554,7 @@ const WalkthroughStory = () => {
     }
   }
 
-  const { title, bar, hiddenBar, left } = STEPS[step]
+  const { title, bar, hiddenBar, droppedBar, left } = STEPS[step]
   const isPasteStep = PASTE_STEPS.includes(step)
   const onLeft = left === 'back' ? back : left === 'close' ? restart : undefined
 
@@ -588,15 +568,20 @@ const WalkthroughStory = () => {
             Walkthrough · {title}
           </h1>
           <p style={{ fontSize: 13, lineHeight: '19px', color: INK_3, margin: '0 0 16px' }}>
-            {barCaption(bar, hiddenBar)} · rows, buttons and the back arrow navigate; where the app dispatches, the
-            action is recorded below · trail:{' '}
+            {barCaption(bar, hiddenBar, droppedBar)} · rows, buttons and the back arrow navigate; where the app
+            dispatches, the action is recorded below · trail:{' '}
             <span style={{ fontFamily: mono }} data-testid='walkthrough-trail'>
               {[...trail, step].map(s => STEPS[s].title).join(' › ')}
             </span>
           </p>
           <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
             <Column width={SHELL_WIDTH} label='desktop · modal full-window shell (715) · 375 column centered'>
-              <Shell title={bar} withoutTitle={hiddenBar !== undefined} left={left} onLeft={onLeft}>
+              <Shell
+                title={bar}
+                withoutTitle={hiddenBar !== undefined || droppedBar !== undefined}
+                left={left}
+                onLeft={onLeft}
+              >
                 {render()}
               </Shell>
             </Column>

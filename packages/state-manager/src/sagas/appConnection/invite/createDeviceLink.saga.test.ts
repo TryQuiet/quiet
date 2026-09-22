@@ -34,6 +34,25 @@ describe('createDeviceLink', () => {
       .withState(store.getState())
       .apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
       .putResolve(connectionActions.setDeviceLinkInvite(invite))
+      .putResolve(connectionActions.setDeviceLinkCreationFailed(false))
+      .run()
+  })
+
+  it('reuses an active invitation instead of minting another one', async () => {
+    const invite: DeviceLinkInvite = {
+      id: '5ah8uYodiwuwVybT' as DeviceLinkInvite['id'],
+      teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as DeviceLinkInvite['teamId'],
+      seed: 'existing-device-link-seed',
+      expiresAt: Date.now() + 1_800_000,
+      userId: 'user-id',
+      userName: 'Alice',
+    }
+    const store = prepareStore().store
+    store.dispatch(connectionActions.setDeviceLinkInvite(invite))
+
+    await expectSaga(createDeviceLinkSaga, socket as unknown as Socket)
+      .withState(store.getState())
+      .not.apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
       .run()
   })
 
@@ -46,6 +65,20 @@ describe('createDeviceLink', () => {
       .withState(store.getState())
       .apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
       .putResolve(connectionActions.setDeviceLinkInvite(undefined))
+      .putResolve(connectionActions.setDeviceLinkCreationFailed(true))
+      .run()
+  })
+
+  it('reports generation failure when the socket acknowledgement rejects', async () => {
+    jest.spyOn(socket, 'emitWithAck').mockRejectedValueOnce(new Error('socket closed'))
+    const store = prepareStore().store
+
+    await expectSaga(createDeviceLinkSaga, socket as unknown as Socket)
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.CREATE_DEVICE_LINK, {}))
+      .putResolve(connectionActions.setDeviceLinkInvite(undefined))
+      .putResolve(connectionActions.setDeviceLinkCreationFailed(true))
       .run()
   })
 })

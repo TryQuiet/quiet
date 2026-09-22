@@ -76,4 +76,5 @@ jobs:
             -only-testing:QuietTests/NSEMessageAuthenticatorTests \
             -only-testing:QuietTests/NSEAuthProtocolTests \
             -only-testing:QuietTests/QuietBackgroundTaskTests \
+            -only-testing:QuietTests/TorHandlerLifecycleTests \
             CODE_SIGNING_ALLOWED=NO

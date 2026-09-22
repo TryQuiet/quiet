@@ -5,7 +5,7 @@
 #include <string>
 #include <unistd.h>
 
-#include "node.h"
+#include "embedded-node.h"
 #include "rn-bridge.h"
 
 // cache the environment variable for the thread running node to call into java
@@ -22,7 +22,7 @@ Java_com_quietmobile_Backend_BackendWorker_sendMessageToNodeChannel(
 }
 
 extern "C" int callIntoNode(int argc, char *argv[]) {
-  const int exit_code = node::Start(argc, argv);
+  const int exit_code = runEmbeddedNode(argc, argv);
   return exit_code;
 }
 

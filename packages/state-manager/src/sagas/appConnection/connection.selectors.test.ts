@@ -8,7 +8,6 @@ import {
   InvitationDataVersion,
   InvitationKind,
   InvitationPair,
-  UserProfile,
   isDeviceInvitationData,
   type InvitationAuthDataV4,
 } from '@quiet/types'
@@ -21,7 +20,6 @@ import { publicChannelsSelectors } from '../publicChannels/publicChannels.select
 import { networkActions } from '../network/network.slice'
 import { identityActions } from '../identity/identity.slice'
 import { identitySelectors } from '../identity/identity.selectors'
-import { usersActions } from '../users/users.slice'
 
 const logger = createLogger('connection.selectors.test')
 const INVITE_TEAM_ID = '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3' as Base58
@@ -96,20 +94,12 @@ describe('communitiesSelectors', () => {
       '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/80/ws/p2p/12D3KooWPYjyHnYYwe3kzEESMVbpAUHkQyEQpRHehH8QYtGRntVn',
     ]
 
-    const userProfiles: UserProfile[] = []
-    for (const [i, peer] of expectedArray.entries()) {
+    const endpoints = expectedArray.map((peer, index) => {
       const onionAddress = peer.split('/')[2]
       const peerId = peer.split('/')[7]
-      const userProfile = {
-        userId: peerId,
-        userData: {
-          onionAddress,
-          peerId,
-        },
-      } as UserProfile
-      userProfiles.push(userProfile)
-    }
-    store.dispatch(usersActions.setUserProfiles(userProfiles))
+      return { teamId: 'team-id', userId: `user-${index}`, deviceId: `device-${index}`, onionAddress, peerId }
+    })
+    store.dispatch(connectionActions.setNetworkEndpoints({ endpoints }))
 
     const peersList = connectionSelectors.peerList(store.getState())
     expect(peersList).toMatchObject(expectedArray)
@@ -215,11 +205,9 @@ describe('communitiesSelectors', () => {
       expect(connectionSelectors.deviceLinkUrl(store.getState())).not.toEqual('')
 
       jest.setSystemTime(expiresAt)
-      store.dispatch(connectionActions.setDeviceLinkInvite({ ...deviceInvite }))
       expect(connectionSelectors.deviceLinkUrl(store.getState())).toEqual('')
 
       jest.setSystemTime(expiresAt + 1)
-      store.dispatch(connectionActions.setDeviceLinkInvite({ ...deviceInvite }))
       expect(connectionSelectors.deviceLinkUrl(store.getState())).toEqual('')
     } finally {
       jest.useRealTimers()

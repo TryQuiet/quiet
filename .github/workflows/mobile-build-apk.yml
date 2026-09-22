@@ -79,6 +79,12 @@ jobs:
         with:
           bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common'
 
+      - name: Cache Gradle distribution
+        uses: actions/cache@v5
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('packages/mobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+
       - name: 'Create gradle configuration directory'
         run: mkdir -p $HOME/.gradle
 
@@ -106,7 +112,7 @@ jobs:
           ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
 
       - name: 'Build .apk'
-        run: cd ./packages/mobile/android && ./gradlew assembleStandardRelease
+        run: cd ./packages/mobile/android && bash ../../../scripts/retry-network-command.sh ./gradlew assembleStandardRelease
 
       - name: 'Upload .apk to artifacts'
         continue-on-error: true
@@ -116,7 +122,7 @@ jobs:
           path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
 
       - name: 'Build debug .apk'
-        run: cd ./packages/mobile/android && ./gradlew assembleStandardDebug
+        run: cd ./packages/mobile/android && bash ../../../scripts/retry-network-command.sh ./gradlew assembleStandardDebug
 
       - name: 'Upload debug .apk to artifacts'
         continue-on-error: true
@@ -138,24 +144,24 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: 'Upload release assets'
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk
-          asset_name: app-standard-release.apk
-          asset_content_type: application/.apk
+        run: |
+          staged="${{ runner.temp }}/release-assets"
+          mkdir -p "$staged"
+          cp "./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk" "$staged/app-standard-release.apk"
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "$staged/app-standard-release.apk" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: 'Upload debug release assets'
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk
-          asset_name: app-standard-debug.apk
-          asset_content_type: application/.apk
+        run: |
+          staged="${{ runner.temp }}/release-assets"
+          mkdir -p "$staged"
+          cp "./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk" "$staged/app-standard-debug.apk"
+          gh release upload "${{ steps.get_release.outputs.tag_name }}" \
+            "$staged/app-standard-debug.apk" --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
@@ -217,6 +223,12 @@ jobs:
           bootstrap-packages: '@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common'
           cachePrefix: 'mobile-debug-apk'
 
+      - name: Cache Gradle distribution
+        uses: actions/cache@v5
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('packages/mobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+
       - name: 'Create gradle configuration directory'
         run: mkdir -p $HOME/.gradle
 
@@ -230,7 +242,7 @@ jobs:
           ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
 
       - name: 'Build debug .apk'
-        run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
+        run: cd ./packages/mobile/android && ENVFILE=../.env.staging bash ../../../scripts/retry-network-command.sh ./gradlew assembleStandardDebug
 
       - name: 'Test native notification authentication'
         run: |
