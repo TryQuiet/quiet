@@ -13,6 +13,7 @@ import {
 } from '../selectors'
 import { SettingsModalTabName } from '../enums'
 import { createLogger } from '../logger'
+import { unavailableQssEndpoint } from '../unavailableQssEndpoint'
 
 const logger = createLogger('admissionTimeout')
 const previousAdmissionTimeout = process.env.INVITATION_ADMISSION_TIMEOUT_MS
@@ -209,13 +210,13 @@ describe('Timed-out P2P admission recovery', () => {
     } as typeof invitation)
   }
 
-  function withUnavailableQss(invitationLink: string): string {
+  function withUnavailableQss(invitationLink: string, qssEndpoint: string): string {
     const invitation = parseInvitationLink(new URL(invitationLink).hash.slice(1))
     return composeInvitationShareUrl({
       ...invitation,
       version: InvitationDataVersion.v5,
       qssEnabled: true,
-      qssEndpoint: 'ws://127.0.0.1:3003',
+      qssEndpoint,
     } as DeviceInvitationDataV5)
   }
 
@@ -408,6 +409,9 @@ describe('Timed-out P2P admission recovery', () => {
       // test throws. This case holds two real-Tor apps, so leaving them running
       // would penalise the two cases that follow.
       const testApps: App[] = []
+      // Keep this endpoint reserved: localhost:3003 may host a real local QSS
+      // server, whose admission rejection does not exercise transport fallback.
+      const unavailableQss = await unavailableQssEndpoint()
       try {
         const owner = new App({ username: 'reopendeviceowner' })
         apps.push(owner)
@@ -419,9 +423,10 @@ describe('Timed-out P2P admission recovery', () => {
           SettingsModalTabName.LINKED_DEVICES,
           async settings => await (await settings.deviceLink()).getText()
         )
-        const deviceInvitationLink = withUnavailableQss(p2pDeviceInvitationLink)
+        const deviceInvitationLink = withUnavailableQss(p2pDeviceInvitationLink, unavailableQss.url)
 
-        const linkedDevice = new App({ username: 'reopenedlinkeddevice' })
+        // Also the app's own QSS_ENDPOINT, which otherwise defaults to port 3003.
+        const linkedDevice = new App({ username: 'reopenedlinkeddevice', qssEndpoint: unavailableQss.url })
         apps.push(linkedDevice)
         testApps.push(linkedDevice)
         await linkedDevice.openWithRetries(undefined, true)
@@ -460,14 +465,21 @@ describe('Timed-out P2P admission recovery', () => {
           joinCompletionTimeoutMs(),
           'device link retry after interrupted admission'
         )
+        // A rejected connection is the only local evidence that the device really
+        // tried QSS before falling back, which is what this case exists to prove.
+        expect(unavailableQss.connectionCount).toBeGreaterThan(0)
         assertAdmissionNotReset(linkedDevice)
         expect(await new Channel(linkedDevice.driver, 'general').isReady()).toBeTruthy()
       } finally {
-        await releaseApps(...testApps)
-        if (suiteLocalTransport == null) delete process.env.LOCAL_TRANSPORT
-        else process.env.LOCAL_TRANSPORT = suiteLocalTransport
-        if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
-        else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+        try {
+          await releaseApps(...testApps)
+        } finally {
+          await unavailableQss.close()
+          if (suiteLocalTransport == null) delete process.env.LOCAL_TRANSPORT
+          else process.env.LOCAL_TRANSPORT = suiteLocalTransport
+          if (suiteAdmissionTimeout == null) delete process.env.INVITATION_ADMISSION_TIMEOUT_MS
+          else process.env.INVITATION_ADMISSION_TIMEOUT_MS = suiteAdmissionTimeout
+        }
       }
     },
     REAL_TRANSPORT_TEST_TIMEOUT_MS
