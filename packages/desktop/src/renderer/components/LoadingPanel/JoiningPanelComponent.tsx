@@ -56,7 +56,9 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   // either transport, so this state replaces both screens rather than sitting
   // inside them.
   if (resetFailed) {
-    return <ResetFailedPanel open={open} handleClose={handleClose} message={resetFailureMessage} onRetry={onRetryReset} />
+    return (
+      <ResetFailedPanel open={open} handleClose={handleClose} message={resetFailureMessage} onRetry={onRetryReset} />
+    )
   }
 
   if (usesServer) {
