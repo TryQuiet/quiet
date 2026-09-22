@@ -13,12 +13,10 @@ import {
   InvitationDataVersion,
   InvitationKind,
   type DeviceInvitationData,
-  type UserProfile,
   type NetworkStats,
   type User,
   type InvitationAuthDataV5,
 } from '@quiet/types'
-import { userProfileSelectors } from '../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('connectionSelectors')
 
@@ -38,6 +36,38 @@ export const socketIOSecret = createSelector(connectionSlice, reducerState => re
 
 export const p2pEnabled = createSelector(connectionSlice, reducerState => reducerState.p2pEnabled)
 
+export const networkEndpoints = createSelector(connectionSlice, reducerState =>
+  Object.values(reducerState.networkEndpoints ?? {})
+)
+
+/**
+ * The set of user ids that have at least one device currently connected.
+ *
+ * A user is one identity across several devices, so presence is a property of the user, not of a
+ * peer: any one of their endpoints being connected means the user is reachable. Before device
+ * linking a profile carried a single `userData.peerId` and the two were the same thing; they no
+ * longer are, and reading presence off one endpoint would show a user offline whenever they are
+ * online on their other device.
+ */
+export const connectedUserIds = createSelector(networkEndpoints, connectedPeers, (endpoints, connected) => {
+  const connectedPeerIds = new Set(connected)
+  const userIds = new Set<string>()
+  for (const endpoint of endpoints) {
+    if (connectedPeerIds.has(endpoint.peerId)) {
+      userIds.add(endpoint.userId)
+    }
+  }
+  return userIds
+})
+
+/**
+ * `connectedUserIds` as a predicate, for components that ask about one user at a time.
+ */
+export const isUserConnected = createSelector(
+  connectedUserIds,
+  userIds => (userId: string | undefined) => userId != null && userIds.has(userId)
+)
+
 export const peerStats = createSelector(connectionSlice, reducerState => {
   let stats: NetworkStats[]
   if (reducerState.peersStats === undefined) {
@@ -49,23 +79,12 @@ export const peerStats = createSelector(connectionSlice, reducerState => {
 })
 
 export const peerList = createSelector(
-  userProfileSelectors.userProfiles,
+  networkEndpoints,
   identitySelectors.currentPeerAddress,
   peerStats,
   connectedPeers,
-  (userProfiles, localPeerAddress, stats, connectedPeers) => {
-    let arr: string[] = []
-    if (userProfiles) {
-      const profiles = Object.values(userProfiles)
-      arr = profiles
-        .map((user: UserProfile) => {
-          if (!user.userData) return null
-          if (!user.userData.onionAddress) return null
-          if (!user.userData.peerId) return null
-          return createLibp2pAddress(user.userData.onionAddress, user.userData.peerId)
-        })
-        .filter((address): address is string => address !== null && address !== undefined)
-    }
+  (endpoints, localPeerAddress, stats, connectedPeers) => {
+    const arr = endpoints.map(endpoint => createLibp2pAddress(endpoint.onionAddress, endpoint.peerId))
     const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress, true, connectedPeers)
     return filteredAndSortedPeers
   }
@@ -79,8 +98,8 @@ export const deviceLinkInvite = createSelector(connectionSlice, reducerState => 
   return reducerState.deviceLinkInvite
 })
 
-export const linkedDevices = createSelector(connectionSlice, reducerState => {
-  return reducerState.linkedDevices ?? []
+export const deviceLinkCreationFailed = createSelector(connectionSlice, reducerState => {
+  return reducerState.deviceLinkCreationFailed
 })
 
 export const invitationUrl = createSelector(
@@ -145,19 +164,20 @@ export const invitationUrl = createSelector(
   }
 )
 
-export const deviceLinkUrl = createSelector(
+const createDeviceLinkUrl = createSelector(
   communitiesSelectors.psk,
   communitiesSelectors.currentCommunity,
   peerList,
   deviceLinkInvite,
-  (communityPsk, currentCommunity, sortedPeerList, deviceLinkInvite) => {
+  (_state: StoreState, currentTime: number) => currentTime,
+  (communityPsk, currentCommunity, sortedPeerList, deviceLinkInvite, currentTime) => {
     if (
       !sortedPeerList ||
       sortedPeerList.length === 0 ||
       !communityPsk ||
       !currentCommunity ||
       !deviceLinkInvite ||
-      deviceLinkInvite.expiresAt <= Date.now()
+      deviceLinkInvite.expiresAt <= currentTime
     ) {
       return ''
     }
@@ -202,6 +222,10 @@ export const deviceLinkUrl = createSelector(
   }
 )
 
+// Date is an explicit selector input so repeated reads cannot return a memoized,
+// already-expired invitation when no socket or Redux event occurs at the boundary.
+export const deviceLinkUrl = (state: StoreState): string => createDeviceLinkUrl(state, Date.now())
+
 export const isJoiningCompleted = createSelector(
   isTorInitialized,
   isCurrentCommunityInitialized,
@@ -218,6 +242,7 @@ export const connectionSelectors = {
   invitationUrl,
   longLivedInvite,
   deviceLinkInvite,
+  deviceLinkCreationFailed,
   deviceLinkUrl,
   torBootstrapProcess,
   connectionProcess,
@@ -226,6 +251,8 @@ export const connectionSelectors = {
   socketIOSecret,
   isJoiningCompleted,
   peerStats,
+  networkEndpoints,
+  connectedUserIds,
+  isUserConnected,
   p2pEnabled,
-  linkedDevices,
 }

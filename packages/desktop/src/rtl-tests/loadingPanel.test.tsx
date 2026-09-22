@@ -1,6 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
@@ -17,6 +17,7 @@ import {
   network,
   LoadingPanelType,
   identity,
+  errors,
 } from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { act } from '@testing-library/react'
@@ -26,8 +27,19 @@ import { createLogger } from './logger'
 // state-manager re-exports a LoadingPanelType of its own with only two members
 // (sagas/network/network.types.ts); the four-member one the slice and the panel
 // actually use is this one.
-import { CommunityOwnership, LoadingPanelType as PanelType } from '@quiet/types'
+import {
+  CommunityOwnership,
+  ErrorMessages,
+  InvitationDataVersion,
+  InvitationKind,
+  LoadingPanelType as PanelType,
+  SocketActions,
+} from '@quiet/types'
 import { channel } from 'diagnostics_channel'
+import { createStore } from 'redux'
+import { rootReducer } from '../renderer/store/reducers'
+import { persistor } from '../renderer/store/persistor'
+import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 
 const logger = createLogger('loadingPanel')
 
@@ -190,5 +202,144 @@ describe('Loading panel', () => {
     expect(screen.getByTestId('serverJoiningPanel')).toBeVisible()
     expect(screen.getByTestId('actionProgressStatus')).toHaveTextContent('Creating community “Rockets”')
     expect(screen.queryByText(/Joining community/)).toBeNull()
+  })
+
+  it('requests backend cleanup before clearing an invalid provisional device link', async () => {
+    const { store } = await prepareStore()
+    const factory = await getReduxStoreFactory(store)
+    const community = await factory.create('Community', {
+      ownership: CommunityOwnership.User,
+      inviteData: {
+        kind: InvitationKind.Device,
+        version: InvitationDataVersion.v4,
+        pairs: [],
+        psk: 'credential-psk',
+        authData: {
+          communityName: 'Linked community',
+          seed: 'credential-seed',
+          teamId: 'team-id',
+          userId: 'user-id',
+          userName: 'Alice',
+        },
+      },
+    })
+    store.dispatch(network.actions.setLoadingPanelType(PanelType.Failed))
+    store.dispatch(
+      errors.actions.addError({
+        type: SocketActions.LAUNCH_COMMUNITY,
+        message: ErrorMessages.INVALID_INVITE,
+        community: community.id,
+      })
+    )
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LoadingPanel />, store)
+
+    await waitFor(() => {
+      expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.resetAdmission(community.id))
+    })
+    expect(communities.selectors.currentCommunity(store.getState())).toEqual(
+      expect.objectContaining({ id: community.id })
+    )
+    expect(dispatchSpy).not.toHaveBeenCalledWith(communities.actions.resetApp(undefined))
+  })
+
+  it('shows a retry action when backend admission cleanup fails', async () => {
+    const { store } = await prepareStore()
+    const factory = await getReduxStoreFactory(store)
+    const community = await factory.create('Community', { ownership: CommunityOwnership.User })
+    store.dispatch(network.actions.setLoadingPanelType(PanelType.Failed))
+    store.dispatch(communities.actions.setAdmissionResetStatus('failed'))
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LoadingPanel />, store)
+    fireEvent.click(screen.getByTestId('retry-admission-reset'))
+
+    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.resetAdmission(community.id))
+  })
+
+  it('shows pending receipt cleanup instead of the starting panel without a community entity', () => {
+    const store = createStore(rootReducer)
+    store.dispatch(communities.actions.setCurrentCommunity('receipt-community'))
+    store.dispatch(communities.actions.setAdmissionResetStatus('pending'))
+
+    renderComponent(<LoadingPanel />, store)
+
+    expect(screen.getByTestId('joiningPanelComponent')).toBeVisible()
+    expect(screen.queryByTestId('startingPanelComponent')).not.toBeInTheDocument()
+  })
+
+  it('retries failed receipt cleanup by ID without a community entity', async () => {
+    const store = createStore(rootReducer)
+    store.dispatch(communities.actions.setCurrentCommunity('receipt-community'))
+    store.dispatch(communities.actions.setAdmissionResetStatus('failed'))
+    store.dispatch(modalsActions.closeModal(ModalName.loadingPanel))
+    store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<LoadingPanel />, store)
+    await waitFor(() => expect(screen.getByTestId('joiningPanelComponent')).toBeVisible())
+    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.closeModal(ModalName.joinCommunityModal))
+    expect(dispatchSpy).toHaveBeenCalledWith(modalsActions.openModal({ name: ModalName.loadingPanel }))
+    fireEvent.click(screen.getByTestId('retry-admission-reset'))
+
+    expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.resetAdmission('receipt-community'))
+  })
+
+  it('keeps final persistence failure visible after the root state reset', async () => {
+    const store = createStore(rootReducer)
+    const result = { type: 'invalid' as const }
+    store.dispatch(communities.actions.setAdmissionResetResult(result))
+    store.dispatch(communities.actions.setAdmissionResetStatus('complete'))
+    const flush = jest
+      .spyOn(persistor, 'flush')
+      .mockRejectedValueOnce(new Error('disk unavailable'))
+      .mockResolvedValueOnce(undefined as never)
+
+    renderComponent(<LoadingPanel />, store)
+
+    expect(await screen.findByText('Couldn’t reset the failed link')).toBeVisible()
+    expect(screen.getByText(/could not save the updated app state/)).toBeVisible()
+    expect(communities.selectors.admissionResetStatus(store.getState())).toBe('finalizing')
+    fireEvent.click(screen.getByTestId('retry-admission-reset'))
+    await waitFor(() => expect(flush).toHaveBeenCalledTimes(2))
+    await waitFor(() => {
+      expect(communities.selectors.admissionResetStatus(store.getState())).toBe('idle')
+    })
+    flush.mockRestore()
+  })
+
+  it('shows the invalid invite error after reset finalization reopens Join Community', async () => {
+    const store = createStore(rootReducer)
+    store.dispatch(socketActions.setConnected())
+    store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
+    store.dispatch(communities.actions.setAdmissionResetResult({ type: 'invalid' }))
+    store.dispatch(communities.actions.setAdmissionResetStatus('complete'))
+    let resolveFlush: (() => void) | undefined
+    const pendingFlush = new Promise<void>(resolve => {
+      resolveFlush = resolve
+    })
+    const flush = jest.spyOn(persistor, 'flush').mockReturnValue(pendingFlush as never)
+
+    renderComponent(
+      <>
+        <LoadingPanel />
+        <JoinCommunity />
+      </>,
+      store
+    )
+
+    await waitFor(() => {
+      expect(communities.selectors.admissionResetStatus(store.getState())).toBe('finalizing')
+    })
+    expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
+
+    await act(async () => resolveFlush?.())
+
+    expect(await screen.findByText(ErrorMessages.INVALID_INVITE)).toBeVisible()
+    expect(communities.selectors.currentCommunity(store.getState())).toBeUndefined()
+    expect(communities.selectors.joinCommunityError(store.getState())).toEqual({ type: 'invalid' })
+    expect(communities.selectors.admissionResetStatus(store.getState())).toBe('idle')
+    flush.mockRestore()
   })
 })

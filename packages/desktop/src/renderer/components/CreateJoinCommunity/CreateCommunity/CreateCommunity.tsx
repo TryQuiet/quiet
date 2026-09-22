@@ -22,6 +22,7 @@ const CreateCommunity = () => {
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const getStartedModal = useModal(ModalName.getStartedModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
+  const loadingPanelModal = useModal(ModalName.loadingPanel)
   const [pendingCommunityName, setPendingCommunityName] = useState<string | null>(null)
   const [showServerOffer, setShowServerOffer] = useState(false)
 
@@ -36,6 +37,15 @@ const CreateCommunity = () => {
       setPendingCommunityName(null)
     }
   }, [currentCommunity])
+
+  useEffect(() => {
+    // The submitted community is being created behind the progress screen (the terms
+    // accepted, or the username registered without a server): the form has done its
+    // job. Left open until the backend replied, it sat above the loading panel.
+    if (loadingPanelModal.open && pendingCommunityName !== null && createCommunityModal.open) {
+      createCommunityModal.handleClose()
+    }
+  }, [loadingPanelModal.open, pendingCommunityName])
 
   const handleCommunityAction = (name: string) => {
     if (currentCommunity?.name === name) {

@@ -54,6 +54,7 @@ describe('ServerOfferComponent', () => {
                     data-testid="ServerOfferModalActions"
                   >
                     <button
+                      aria-label="Close"
                       class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ServerOfferModalClose"
                       tabindex="0"
@@ -142,7 +143,7 @@ describe('ServerOfferComponent', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-1i72s9j-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge ServerOfferComponent-useServerButton css-kdjva8-MuiButtonBase-root-MuiButton-root"
                         data-testid="ServerOffer-UseQuietServer"
                         tabindex="0"
                         type="button"
@@ -157,7 +158,7 @@ describe('ServerOfferComponent', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall ServerOfferComponent-notNowButton css-1a4wy9e-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall ServerOfferComponent-notNowButton css-y45uti-MuiButtonBase-root-MuiButton-root"
                         data-testid="ServerOffer-NotNow"
                         tabindex="0"
                         type="button"

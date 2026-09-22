@@ -19,15 +19,12 @@ destination.write_bytes(plistlib.dumps({}))
 PY
     ;;
   provider)
-    env_file=.env.e2e.qss.push
-    test -f "$RUNNER_TEMP/notification-credentials/firebase-accounts.json"
+    env_file=.env.e2e.qss.staging
     test -f packages/mobile/ios/GoogleService-Info.plist
     ;;
   *) echo 'Select onboarding or provider explicitly.' >&2; exit 1 ;;
 esac
 
-mkdir "$RUNNER_TEMP/notification-tor"
-tar -xzf "$RUNNER_TEMP/notification-tor.tgz" -C "$RUNNER_TEMP/notification-tor"
 python3 - <<'PY'
 import os, shlex, shutil
 from pathlib import Path
@@ -41,9 +38,8 @@ PY
 python3 packages/mobile/e2e/appium/sign-ios-simulator.py --prepare \
   --checkout "$GITHUB_WORKSPACE" \
   --output "$RUNNER_TEMP/notification-ios-entitlements"
-python3 packages/mobile/scripts/tor-ios-simulator/build-storybook.py \
+python3 packages/mobile/scripts/tor-ios-simulator/build-ios.py \
   --checkout "$GITHUB_WORKSPACE" \
-  --framework "$RUNNER_TEMP/notification-tor/Tor.framework" \
   --output "$RUNNER_TEMP/notification-ios-build" \
   --scheme Quiet --configuration Debug --env-file "$env_file"
 python3 packages/mobile/e2e/appium/sign-ios-simulator.py \
@@ -53,7 +49,7 @@ python3 packages/mobile/e2e/appium/sign-ios-simulator.py \
 
 (
   cd packages/desktop
-  export ENVFILE=.env.e2e.qss SOURCE_PATH=darwin
+  export ENVFILE="$env_file" SOURCE_PATH=darwin
   npm run copyBinariesDarwin
   npm run build:prod
   ./node_modules/.bin/electron-builder --mac --arm64 --dir -p never -c.mac.identity=null

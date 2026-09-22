@@ -14,8 +14,8 @@ import LinkDevices from '../../Onboarding/LinkDevices'
 import CreateUsername from '../../CreateUsername/CreateUsername'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
-import { communities } from '@quiet/state-manager'
+import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
+import { communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 import {
   Site,
   QUIET_JOIN_PAGE,
@@ -61,6 +61,31 @@ describe('join community', () => {
     },
   }
   const deviceInvitationCode = getValidInvitationUrlTestData(deviceInvitationData).code()
+
+  it('opens on the paste step and clears an existing join error once when the invitation changes', async () => {
+    const { store } = await prepareStore({
+      ...openModalState(ModalName.joinCommunityModal),
+      [StateManagerStoreKeys.Communities]: {
+        ...new communities.State(),
+        joinCommunityError: { type: 'invalid' },
+      },
+    })
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+    renderComponent(<JoinCommunity />, store)
+
+    // A reported join error belongs on the invite field, so the flow opens there rather than on the
+    // three-way choice.
+    const input = await screen.findByPlaceholderText('Link')
+    expect(await screen.findByText(ErrorMessages.INVALID_INVITE)).toBeVisible()
+
+    await userEvent.type(input, 'abc')
+
+    const clearErrorActions = dispatchSpy.mock.calls.filter(
+      ([action]) => action.type === communities.actions.clearJoinCommunityError.type
+    )
+    expect(clearErrorActions).toHaveLength(1)
+  })
 
   it('walks from the three-way choice to the paste step and back to Get started', async () => {
     const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
@@ -122,11 +147,12 @@ describe('join community', () => {
     expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
   })
 
-  it('"Use linked device" on Account recovery hands over to Link devices', async () => {
+  it('"Use linked device" on Account recovery hands over to Link devices, whose back returns to Account recovery', async () => {
     const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
 
     renderComponent(
       <>
+        <GetStarted />
         <JoinCommunity />
         <LinkDevices />
       </>,
@@ -138,6 +164,16 @@ describe('join community', () => {
 
     expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
     expect(screen.queryByRole('heading', { name: 'Recover account' })).not.toBeInTheDocument()
+
+    // Back from Link devices returns to the screen it was opened from, not to Get started
+    await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: 'Link devices' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+
+    // And the trail continues back to the three-way choice
+    await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
+    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
   })
 
   it('takes the pasted link for "Join with QR code" since desktop has no camera', async () => {
@@ -148,6 +184,14 @@ describe('join community', () => {
     await userEvent.click(screen.getByTestId('join-with-qr-code'))
     expect(await screen.findByRole('heading', { name: 'Join with QR code', level: 3 })).toBeVisible()
     expect(screen.getByPlaceholderText('Link')).toBeVisible()
+
+    // The prototype draws this one as a titled sheet (2811:2460), but on desktop it is the
+    // full-window paste step under its own heading, so the bar keeps only the back glyph.
+    expect(screen.getAllByText('Join with QR code')).toHaveLength(1)
+    const header = screen.getByTestId('joinCommunityModalActions').closest('.Modalheader')
+    expect(header).not.toHaveClass('Modalnone')
+    expect(header).not.toHaveClass('ModalheaderBorder')
+    expect(screen.getByTestId('joinCommunityModalBack')).toBeVisible()
   })
 
   it('user goes from joining community to username registration, then comes back', async () => {
@@ -191,10 +235,15 @@ describe('join community', () => {
     await userEvent.type(await openPasteStep(), deviceInvitationCode)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
+    // Linking a device is never done without consent.
+    expect(screen.getByTestId('device-link-consent')).toBeVisible()
+    await userEvent.click(screen.getByTestId('confirm-device-link'))
+
     await waitFor(() => {
       expect(dispatchSpy).toHaveBeenCalledWith(
         communities.actions.linkDevice({
           inviteData: deviceInvitationData,
+          deviceLinkConsent: true,
         })
       )
     })

@@ -247,9 +247,10 @@ platforms retain the existing native bridge architecture.
   expand equal border radii without changing rendered values.
 - Raise Gradle's metaspace limit from 512 MB to 1 GB after release lint
   exhausted class-metadata space with the upgraded Kotlin/native dependencies.
-- Let Android's existing `adjustResize` control the composer's flex layout.
-  KeyboardAvoidingView's cached height could exceed the resized channel after
-  Activity recreation and hide the input. Retain keyboard padding on iOS.
+- Use keyboard padding on both platforms. Android 15+ edge-to-edge windows
+  may not resize for the keyboard, so measure the actual overlap rather than
+  keeping the cached height that could hide the composer after Activity
+  recreation. Preserve the bottom safe-area offset.
 
 Validation on this checkpoint:
 
@@ -321,3 +322,34 @@ runs. The edge-gesture test requires gesture navigation and does not change the
 device's settings. Build the standard `.env.e2e` flavor in a separate Gradle
 invocation before running the full `starter` test; dotenv configuration is shared
 within an invocation.
+
+## Develop integration validation — 2026-09-21
+
+Refreshed this feature with current develop and the Android drawer/photo-picker
+PR #3421. The merge preserves current direct-message, device-linking,
+notification-author, and authentication changes. React 19 requires an explicit
+initial value for the linked-device QR SVG ref. Native fixtures now use the
+production AppHome screen and its `channel-list` selector. Failed/cancelled
+attachment tests press the current disabled send control and assert that no
+message or file action is emitted. Reviewed snapshots only change style
+serialization and expand equivalent border radii.
+
+Fresh Linux validation of this integration:
+
+- Mobile TypeScript and lint pass (14 existing warnings).
+- Mobile Jest: 78 suites, 267 tests, and 44 snapshots pass, with 3 existing
+  skips. The 14 Metro/CLI/Promise regression checks also pass.
+- Identity certificate/signature tests: 7 pass.
+- Standard and Storybook debug app and AndroidTest APKs build successfully.
+- The standard APK targets API 36; all 19 packaged ELF libraries/addons meet
+  16 KB LOAD alignment, and APK ZIP alignment passes.
+- API 35 and API 36 each pass all 9 native scenarios across 6 suites: keyboard,
+  channel and modal Back; rotation; real edge gestures; activity recreation;
+  photo cancellation and selection/cache/removal; drawer resize/rotation; and
+  Hermes with the actual WebView crypto bridge.
+- Classic-level builder/real addon regression: 6 checks pass on Node 20.20.1.
+  Tor simulator builder: 20 portable Python tests pass.
+
+This refresh does not repeat the earlier release AAB or native iOS validation.
+The Ruby plist check could not run because Ruby is absent on this Linux host.
+The full-backend/physical-device limitations above still apply.

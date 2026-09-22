@@ -7,15 +7,18 @@ test -n "${GITHUB_WORKSPACE:-}"
 cd "$GITHUB_WORKSPACE"
 umask 077
 case "${QUIET_NOTIFICATION_LANE:-}" in
-  onboarding) test_file=onboarding.test.mjs; push_args=() ;;
+  onboarding) test_file=onboarding.test.mjs ;;
   provider)
     test_file=full-loop.test.mjs
-    push_args=(--push-credentials "$RUNNER_TEMP/notification-credentials/firebase-accounts.json")
     ;;
   *) echo 'Select onboarding or provider explicitly.' >&2; exit 1 ;;
 esac
 
-export QUIET_QSS_LOCAL_FIXTURE_OUTPUT="$RUNNER_TEMP/notification-ios-fixture"
+if [[ "$QUIET_NOTIFICATION_LANE" == onboarding ]]; then
+  export QUIET_QSS_LOCAL_FIXTURE_OUTPUT="$RUNNER_TEMP/notification-ios-fixture"
+else
+  unset QUIET_QSS_LOCAL_FIXTURE_OUTPUT
+fi
 export QUIET_QSS_E2E_RUN_DIR="$RUNNER_TEMP/notification-ios-run"
 export QUIET_NOTIFICATION_CONFIG="$RUNNER_TEMP/notification-ios-appium.json"
 appium_pid=''
@@ -35,15 +38,18 @@ cleanup() {
     xcrun simctl shutdown "$simulator_id" >/dev/null 2>&1 || true
     xcrun simctl delete "$simulator_id" >/dev/null 2>&1 || true
   fi
-  if [[ -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/manifest.json" ]]; then
+  if [[ -n "${QUIET_QSS_LOCAL_FIXTURE_OUTPUT:-}" && -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/manifest.json" ]]; then
     python3 packages/mobile/scripts/qss-e2e/fixture.py stop --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" > "$RUNNER_TEMP/notification-ios-stop.log" 2>&1 || true
   fi
-  rm -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/compose.json"
+  if [[ -n "${QUIET_QSS_LOCAL_FIXTURE_OUTPUT:-}" ]]; then rm -f "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT/compose.json"; fi
   if [[ "$result" != 0 ]]; then echo "iOS notification lane failed during $stage (exit $result)."; fi
   exit "$result"
 }
 trap cleanup EXIT
 
+if [[ "$QUIET_NOTIFICATION_LANE" == provider ]]; then
+  node packages/mobile/e2e/appium/staging.mjs --prepare "$QUIET_QSS_E2E_RUN_DIR"
+else
 # QSS has a separately pinned Node version. Verify the official archive before
 # installing it into this job's directory; leave the application's Node unchanged.
 mkdir "$RUNNER_TEMP/notification-qss-node"
@@ -70,10 +76,11 @@ python3 packages/mobile/scripts/qss-e2e/fixture.py up --runtime native \
   --corepack "$RUNNER_TEMP/notification-qss-node/node-v22.14.0-darwin-arm64/bin/corepack" \
   --postgres-bin "$(brew --prefix postgresql@18)/bin" \
   --redis-server "$(brew --prefix redis)/bin/redis-server" \
-  "${push_args[@]}" > "$RUNNER_TEMP/notification-ios-fixture.log" 2>&1
+  > "$RUNNER_TEMP/notification-ios-fixture.log" 2>&1
 python3 packages/mobile/scripts/qss-e2e/fixture.py prepare-run \
   --output "$QUIET_QSS_LOCAL_FIXTURE_OUTPUT" --run-output "$QUIET_QSS_E2E_RUN_DIR"
 
+fi
 stage=simulator
 python3 - <<'PY'
 import json, os, subprocess
@@ -87,6 +94,7 @@ runtime = sorted(candidates, key=lambda item: (item['version'].startswith('26.3'
 udid = subprocess.check_output(['xcrun', 'simctl', 'create', 'Quiet Notification CI', 'com.apple.CoreSimulator.SimDeviceType.iPhone-16e', runtime['identifier']], text=True).strip()
 (temporary / 'notification-ios-simulator').write_text(udid)
 config = {
+    'qssTarget': 'staging' if os.environ['QUIET_NOTIFICATION_LANE'] == 'provider' else 'local',
     'platform': 'ios', 'udid': udid, 'disposable': True, 'bundleId': 'com.quietmobile',
     'appiumPort': 4725, 'wdaLocalPort': 8125,
     'app': str(temporary / 'notification-ios-build/DerivedData/Build/Products/Debug-iphonesimulator/Quiet.app'),
@@ -133,7 +141,7 @@ stages = {'desktop-create', 'mobile-start', 'mobile-join', 'foreground-send',
           'named-channel-send', 'named-channel-notification-tap', 'provider-complete'}
 lane = os.environ['QUIET_NOTIFICATION_LANE']
 report = {
-    'platform': 'ios', 'lane': lane, 'testExitCode': int(os.environ['QUIET_NOTIFICATION_TEST_EXIT']),
+    'platform': 'ios', 'qssTarget': proof.get('qssTarget'), 'lane': lane, 'testExitCode': int(os.environ['QUIET_NOTIFICATION_TEST_EXIT']),
     'onboardingPassed': proof.get('onboardingPassed') is True,
     'fullLoopPassed': proof.get('fullLoopPassed') is True,
     'completedNotificationJourneys': len(proof.get('notifications', [])),

@@ -98,7 +98,11 @@ export const tosRequested = createSelector(communitiesSlice, reducerState => {
   return reducerState.tosRequested
 })
 
+export const joinCommunityError = createSelector(communitiesSlice, reducerState => reducerState.joinCommunityError)
+
 export const communitiesSelectors = {
+  admissionResetStatus: createSelector(communitiesSlice, state => state.admissionResetStatus ?? 'idle'),
+  admissionResetResult: createSelector(communitiesSlice, state => state.admissionResetResult ?? null),
   selectById,
   selectEntities,
   selectCommunities,
@@ -114,4 +118,5 @@ export const communitiesSelectors = {
   psk,
   isOwner,
   tosRequested,
+  joinCommunityError,
 }

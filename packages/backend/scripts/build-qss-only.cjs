@@ -20,7 +20,9 @@ async function buildQssOnly({ output, stage = [] }) {
   config.context = backend
   // ts-loader's relative config path is resolved against the source file;
   // pin the build config as well for callers outside packages/backend.
-  config.module.rules[0].use.options.configFile = path.join(backend, 'tsconfig.build.json')
+  const typescript = config.module.rules.find(rule => rule.use?.loader === 'ts-loader')
+  if (!typescript) throw new Error('The backend TypeScript loader must be configured')
+  typescript.use.options.configFile = path.join(backend, 'tsconfig.build.json')
   const stats = await new Promise((resolve, reject) => {
     const compiler = webpack(config)
     compiler.run((error, result) => {

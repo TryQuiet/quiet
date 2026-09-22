@@ -1,10 +1,7 @@
 import React, { FC } from 'react'
-import { View, Text, Linking } from 'react-native'
-import { Button } from '../Button/Button.component'
+import { Text, Linking } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
-import { defaultTheme } from '../../styles/themes/default.theme'
-import { spacing } from '../../styles/const/spacing'
-import { Appbar } from '../Appbar/Appbar.component'
+import { AgreeAndJoin } from '../AgreeAndJoin/AgreeAndJoin.component'
 
 export type TermsOfServiceProps = {
   onAgree: () => void
@@ -17,10 +14,9 @@ export type TermsOfServiceProps = {
 const privacyPolicyUrl = 'https://github.com/TryQuiet/quiet/wiki/Privacy-Policy'
 
 /**
- * Agree & join · Figma 3054:4090 (server opt-in) / 2811:2724 (joiner): a
- * titled bar ("Agree & join", back arrow, hairline — this one is designed
- * titled), one left-aligned paragraph naming the host with the policy and
- * terms as one underlined link, and one button. Nothing else.
+ * Agree & join · Figma 3054:4090 (server opt-in) / 2811:2724 (joiner). The
+ * screen is the shared AgreeAndJoin shell, which the device-link consent step
+ * also uses; this one carries the policy copy.
  */
 export const TermsOfService: FC<TermsOfServiceProps> = ({ onAgree, onBack, serverHost }) => {
   const openLink = () => {
@@ -28,26 +24,21 @@ export const TermsOfService: FC<TermsOfServiceProps> = ({ onAgree, onBack, serve
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: defaultTheme.palette.background.white,
-      }}
+    <AgreeAndJoin
+      onAgree={onAgree}
+      onBack={onBack}
       testID={'terms-of-service-component'}
+      agreeTestID={'terms-of-service-agree'}
     >
-      <Appbar title={'Agree & join'} back={onBack} />
-      <View style={{ padding: spacing.lg, gap: spacing.lg, alignItems: 'flex-start' }}>
-        <Typography variant={'body'}>
-          This community uses a server {serverHost ? `(${serverHost}) ` : ''}for messaging without Tor. By joining you
-          agree to this{' '}
-          <Text onPress={openLink} accessibilityRole='link' style={{ textDecorationLine: 'underline' }}>
-            Privacy Policy and Terms of Use
-          </Text>
-          .
-        </Typography>
-        <Button title={'Agree & Join'} onPress={onAgree} newDesign testID={'terms-of-service-agree'} />
-      </View>
-    </View>
+      <Typography variant={'body'}>
+        This community uses a server {serverHost ? `(${serverHost}) ` : ''}for messaging without Tor. By joining you
+        agree to this{' '}
+        <Text onPress={openLink} accessibilityRole='link' style={{ textDecorationLine: 'underline' }}>
+          Privacy Policy and Terms of Use
+        </Text>
+        .
+      </Typography>
+    </AgreeAndJoin>
   )
 }
 

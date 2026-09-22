@@ -37,17 +37,22 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
   'want-a-server': {
     desktop: on('desktop/src/renderer/components/ServerOffer/ServerOfferComponent.tsx'),
     mobile: on('mobile/src/components/ServerOffer/CreatingOffer/ServerOffer.component.tsx'),
-    divergence: 'Design reaches this from Home → Add members, after the community exists; both apps show the offer during creation instead.',
+    divergence:
+      'Design reaches this from Home → Add members, after the community exists; both apps show the offer during creation instead.',
   },
   'no-server': {
     desktop: none('declining is a button on the offer itself; there is no confirmation screen'),
     mobile: none('declining is a button on the offer itself; there is no confirmation screen'),
   },
-  'choose-a-plan': { desktop: none('no plans or subscriptions exist'), mobile: none('no plans or subscriptions exist') },
+  'choose-a-plan': {
+    desktop: none('no plans or subscriptions exist'),
+    mobile: none('no plans or subscriptions exist'),
+  },
   'agree-and-join-v-1-before-we-support-multiple-hosts': {
     desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
     mobile: on('mobile/src/components/ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx'),
-    divergence: 'Design: one Agree & Join screen reached from nowhere. Implementation: an opt-in drawer plus a separate Terms of Service screen, shown after username (mobile) / on join (desktop).',
+    divergence:
+      'Design: one Agree & Join screen reached from nowhere. Implementation: an opt-in drawer plus a separate Terms of Service screen, shown after username (mobile) / on join (desktop).',
   },
   'agree-and-join-server-opt-in-3054-4090': {
     desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
@@ -56,7 +61,8 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
   'captcha-3054-4052': {
     desktop: on('desktop/src/renderer/captcha.html'),
     mobile: on('mobile/src/components/Captcha/CaptchaModal.component.tsx'),
-    divergence: 'hCaptcha. Desktop loads it in captcha.html via preload.captcha.ts; the backend verifies in captcha.service.ts. Open bugs: #3428 reappearing captcha, #3368 no offline/timeout messaging.',
+    divergence:
+      'hCaptcha. Desktop loads it in captcha.html via preload.captcha.ts; the backend verifies in captcha.service.ts. Open bugs: #3428 reappearing captcha, #3368 no offline/timeout messaging.',
   },
   'home-add-members': {
     desktop: on('desktop/src/renderer/components/Channel/ChannelComponent.tsx'),
@@ -108,10 +114,10 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     mobile: on('mobile/src/components/Registration/UsernameRegistration.component.tsx'),
   },
   'agree-and-join': {
-    desktop: on('desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx'),
-    mobile: on('mobile/src/components/ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx'),
+    desktop: on('desktop/src/renderer/components/Onboarding/AgreeAndJoinCard.tsx'),
+    mobile: on('mobile/src/components/AgreeAndJoin/AgreeAndJoin.component.tsx'),
     divergence:
-      'The prototype wires consent after username, which is where mobile shows JoiningOptIn + TermsOfService today; desktop shows Terms of Service on join. The design names the server in the body (api.tryquiet.org) instead of in a heading.',
+      'The frame is one card, and two steps ask for consent through it, so the card is the shared shell and each step brings its own body: the terms step (desktop TermsOfServiceComponent, mobile TermsOfService) carries the policy copy, and the device-link step (desktop DeviceLinkConsent, mobile DeviceLinkConsent — the "use Quiet\'s server?" step in desktop join, desktop Link devices and the mobile paste flow) carries what contacting the named host exposes. The prototype wires consent after username, which is where mobile shows JoiningOptIn + TermsOfService today. The design names the server in the body (api.tryquiet.org) instead of in a heading.',
   },
   'globe-animation': {
     desktop: on('desktop/src/renderer/components/LoadingPanel/JoiningPanelComponent.tsx'),
@@ -139,5 +145,9 @@ export const IMPLEMENTATION_ONLY: Array<{ stage: string; desktop?: string; mobil
     desktop: 'desktop/src/renderer/components/TermsOfService/TermsOfServiceComponent.tsx',
     mobile: 'mobile/src/components/TermsOfService/TermsOfService.component.tsx',
   },
-  { stage: 'Username created / success', desktop: 'desktop/src/renderer/components/CreateUsername/UsernameCreated/UsernameCreated.tsx', mobile: 'mobile/src/components/Success/Success.component.tsx' },
+  {
+    stage: 'Username created / success',
+    desktop: 'desktop/src/renderer/components/CreateUsername/UsernameCreated/UsernameCreated.tsx',
+    mobile: 'mobile/src/components/Success/Success.component.tsx',
+  },
 ]

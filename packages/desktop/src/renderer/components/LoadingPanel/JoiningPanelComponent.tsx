@@ -3,6 +3,7 @@ import React from 'react'
 import { ConnectionProcessInfo } from '@quiet/types'
 import { createLogger } from '../../logger'
 
+import ResetFailedPanel from './ResetFailedPanel'
 import TorJoiningPanel from './TorJoiningPanel'
 import ServerJoiningPanel from './ServerJoiningPanel'
 
@@ -31,6 +32,9 @@ export interface JoiningPanelComponentProps {
   usesServer?: boolean
   communityName?: string
   withSidebar?: boolean
+  resetFailed?: boolean
+  resetFailureMessage?: string
+  onRetryReset?: () => void
 }
 
 const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
@@ -42,8 +46,18 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   usesServer = false,
   communityName,
   withSidebar = false,
+  resetFailed = false,
+  resetFailureMessage = 'Quiet could not safely clear the incomplete community. Check your connection and try again.',
+  onRetryReset,
 }) => {
   logger.info('Generating JoiningPanelComponent with props:', { open, connectionInfo, isOwner, usesServer })
+
+  // Clearing a failed admission did not work: there is no progress to draw, on
+  // either transport, so this state replaces both screens rather than sitting
+  // inside them.
+  if (resetFailed) {
+    return <ResetFailedPanel open={open} handleClose={handleClose} message={resetFailureMessage} onRetry={onRetryReset} />
+  }
 
   if (usesServer) {
     return (
