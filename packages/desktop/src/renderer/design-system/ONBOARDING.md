@@ -633,7 +633,7 @@ Audit of the Android app on `design/onboarding-entry` @ f12463cd2 against the pr
 
 | stage | node | mobile file | status | what differs |
 |---|---|---|---|---|
-| Get started | 2811:2550 | components/GetStarted | partial | rows not in the bordered group (1px #E5E5E5 r16; rows 48, pad 16/11, gap 16, #F0F0F0 dividers); row title 16/26; beta caption left-aligned 12/16 #222222; content top-anchored (24 under the bar) |
+| Get started | 2811:2550 | components/GetStarted | partial | rows not in the bordered group (1px #E5E5E5 r16; rows 48, pad 16/11, gap 16, #F0F0F0 dividers); row title 16/26; beta caption centred, not left-aligned (its ink is now the frames' #222222 - `gray90`, matching desktop's #3666); content top-anchored (24 under the bar) |
 | Join community | 2811:2562 | components/JoinCommunityOptions | partial | missing the heart-chat illustration (I2815:2504;6181:27547, 219×160); bar title hidden in the frame (glyph only); rows not bordered; 24 side margin |
 | Open invite link | 2811:2455 | components/OpenInviteLink | partial | bar title hidden in frame; top-anchored; link 16/16 #1B6FEC |
 | Paste a link to Join | 3190:10892 | components/JoinCommunity (inviteLink) | partial | close glyph (mobile back); bar title hidden; Input3.0 42 tall r8 1px #999999 placeholder 14/20 #767676; Continue 108×50 r16 centred, 30% until valid; a failed join is reported under this input and never navigates away (2026-09-22) |

@@ -35,4 +35,17 @@ describe('GetStarted component', () => {
     expect(onCreateCommunity).toHaveBeenCalledTimes(1)
     expect(onLinkDevices).toHaveBeenCalledTimes(1)
   })
+
+  it('draws the beta caption in the onboarding ink the frames use, not the caption grey', async () => {
+    const { store } = await prepareStore()
+
+    const result = renderComponent(
+      <GetStarted onJoinCommunity={jest.fn()} onCreateCommunity={jest.fn()} onLinkDevices={jest.fn()} />,
+      store
+    )
+
+    // `Status`, Rubik 12/16 w400 #222222 (Get started 6066:27523), as desktop draws it since #3666.
+    // #999999 is the library's general caption grey and is wrong for this one line.
+    expect(result.getByText(BETA_WARNING)).toHaveStyle({ color: '#222222', fontSize: 12, lineHeight: 16 })
+  })
 })

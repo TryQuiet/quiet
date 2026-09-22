@@ -78,6 +78,29 @@ describe('Message component', () => {
     expect(getByText('🎊').props.style.fontSize).toEqual(22)
   })
 
+  it('renders a message that is only digits at the default font size', () => {
+    expect(renderMessageText('86').props.fontSize).toEqual(14)
+    expect(renderMessageText('#general').props.fontSize).toEqual(14)
+  })
+
+  it('leaves the digits of a message with a number in it in the surrounding text', () => {
+    // The regression: digits are keycap bases, so an emoji test built on `\p{Emoji}` pulled them
+    // into their own enlarged Text and "86" was drawn much larger than the words around it.
+    const { getByText, queryByText } = renderMessage('The score was 86 to 12')
+    expect(getByText('The score was 86 to 12')).toBeTruthy()
+    expect(queryByText('86')).toBeNull()
+    expect(queryByText('12')).toBeNull()
+  })
+
+  it('renders a keycap emoji at the larger inline size', () => {
+    const { getByText } = renderMessage('we meet on 1️⃣ today')
+    expect(getByText('1️⃣').props.style.fontSize).toEqual(22)
+  })
+
+  it('renders a keycap-only message at the larger font size', () => {
+    expect(renderMessageText('1️⃣').props.fontSize).toEqual(28)
+  })
+
   describe('isPlainMessageText', () => {
     it('treats plain message text as eligible for inline emoji sizing', () => {
       expect(isPlainMessageText([])).toBe(true)
