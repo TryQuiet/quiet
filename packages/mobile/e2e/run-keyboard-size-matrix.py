@@ -10,6 +10,7 @@ import json
 import pathlib
 import re
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -97,13 +98,24 @@ class Runner:
         return element.get(ELEMENT_KEY) or element['ELEMENT']
 
     def click(self, resource_id):
-        self.api('POST', '/element/' + self.element(resource_id) + '/click', {})
+        self.poll(lambda: self.api('POST', '/element/' + self.element(resource_id) + '/click', {}))
+
+    def restart_app(self):
+        # Recreate the Activity at each display size without resetting fixture data.
+        self.adb('shell', 'am', 'force-stop', 'com.quietmobile.debug')
+        self.adb('shell', 'am', 'start', '-n', 'com.quietmobile.debug/com.quietmobile.MainActivity')
 
     def ensure_general(self):
+        previous = None
         def ready():
+            nonlocal previous
             source = self.source()
-            if 'chat_general' in parse_bounds(source):
-                return True
+            bounds = parse_bounds(source)
+            if all(len(bounds.get(key, [])) == 4 for key in ('chat_general', 'input', 'chat-composer-controls', 'chat-composer-toolbar')):
+                if previous == bounds:
+                    return True
+                previous = bounds
+                raise AssertionError('Waiting for stable composer after Activity recreation')
             if 'channel_tile_general' in source:
                 self.click('channel_tile_general')
             raise AssertionError('Waiting for joined general chat')
@@ -137,6 +149,20 @@ class Runner:
             actual = self.api('GET', '/element/' + element + '/attribute/text') or ''
             if text and actual != text:
                 raise AssertionError('Waiting for exact fixture text, including native newlines')
+        self.poll(entered)
+
+    def type_fixture(self, text):
+        # Appium bulk setValue bypasses some RN content-size updates. Exercise actual
+        # EditText key events, including ENTER, instead of weakening multiline checks.
+        self.replace_text('')
+        for index, line in enumerate(text.split('\n')):
+            if index:
+                self.adb('shell', 'input', 'keyevent', '66')
+            self.adb('shell', 'input', 'text', line.replace(' ', '%s'))
+        def entered():
+            actual = self.api('GET', '/element/' + self.element('input') + '/attribute/text')
+            if actual != text:
+                raise AssertionError('Waiting for exact natively typed fixture text')
         self.poll(entered)
 
     def capture(self, label, density, opened):
@@ -184,16 +210,18 @@ class Runner:
         if draft == hint:
             draft = ''
         was_open = parse_ime(self.adb('shell', 'dumpsys', 'window').decode())['visible']
+        primary_error = None
         try:
             for name, dimensions, dpi in SIZES:
                 self.hide()
                 self.adb('shell', 'wm', 'size', dimensions)
                 self.adb('shell', 'wm', 'density', dpi)
+                self.restart_app()
                 self.ensure_general()
                 single_height = None
                 for text_label, text in [('single', 'Keyboard geometry fixture'), ('multiline', 'Keyboard geometry fixture\nSecond line\nThird line')]:
                     self.click('input')
-                    self.replace_text(text)
+                    self.type_fixture(text)
                     for cycle in range(2):
                         self.click('input')
                         self.capture(f'{name}-{text_label}-{cycle + 1}-open', int(dpi) / 160, True)
@@ -205,17 +233,29 @@ class Runner:
                         self.hide()
                         self.capture(f'{name}-{text_label}-{cycle + 1}-closed', int(dpi) / 160, False)
             print('PASS: 24 native layout samples across three sizes; no messages sent.', flush=True)
+        except BaseException as error:
+            primary_error = error
+            raise
         finally:
-            # Restore display even if draft restoration/navigation fails.
             try:
-                self.adb('shell', 'wm', 'size', size)
-            finally:
-                self.adb('shell', 'wm', 'density', density)
-            self.ensure_general()
-            self.click('input')
-            self.replace_text(draft)
-            if not was_open:
-                self.hide()
+                # Attempt both display restorations even if one fails.
+                try:
+                    self.adb('shell', 'wm', 'size', size)
+                finally:
+                    self.adb('shell', 'wm', 'density', density)
+                self.restart_app()
+                self.ensure_general()
+                self.click('input')
+                self.replace_text(draft)
+                if not was_open:
+                    self.hide()
+            except Exception as restoration_error:
+                if primary_error is None:
+                    raise
+                print(f'Restoration also failed: {restoration_error}', file=sys.stderr)
+                if hasattr(primary_error, 'add_note'):
+                    primary_error.add_note(f'Restoration also failed: {restoration_error}')
+
 
 
 def main():

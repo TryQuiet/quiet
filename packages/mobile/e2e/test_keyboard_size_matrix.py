@@ -108,6 +108,9 @@ class RestoreTests(unittest.TestCase):
             def replace_text(self, text):
                 self.texts.append(text)
 
+            def type_fixture(self, text):
+                self.texts.append(text)
+
             def capture(self, *args):
                 raise AssertionError('native send control clipped')
 

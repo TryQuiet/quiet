@@ -11,7 +11,7 @@ python3 packages/mobile/e2e/run-keyboard-size-matrix.py \
   --output /tmp/quiet-keyboard-matrix
 ```
 
-The runner verifies the serial belongs to both the existing session and an emulator. It covers 720×1280 at 320dpi, 1080×2400 at 420dpi, and 1600×2560 at 320dpi. Each size checks single-line and three-line text through two keyboard show/hide cycles. Geometry must settle before capture: the composer/toolbar meets the keyboard or safe-area boundary, the send control retains a 44dp target and 8dp clearance, and multiline text grows the field. Original display overrides, composer text, and keyboard visibility are restored in `finally`.
+The runner verifies the serial belongs to both the existing session and an emulator. It covers 720×1280 at 320dpi, 1080×2400 at 420dpi, and 1600×2560 at 320dpi. The dedicated emulator app restarts after each display change without resetting its data. Fixture text uses native key events because Appium bulk setValue does not reliably grow the React Native input. Each size checks single-line and three-line text through two keyboard show/hide cycles. Geometry must settle before capture: the composer/toolbar meets the keyboard or safe-area boundary, the send control retains a 44dp target and 8dp clearance, and multiline text grows the field. Original display overrides, composer text, and keyboard visibility are restored in `finally`.
 
 The output contains 24 successful layout records, screenshots, and native UI trees, or failure artifacts at the first incorrect layout. These artifacts can contain fixture chat text. No message/draft text is printed in the geometry report.
 
