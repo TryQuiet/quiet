@@ -264,20 +264,22 @@ export const PasteALink = () => (
 // denied and no-camera states have no frame; their copy is the implementation's
 // minimum (QrScannerComponent SCANNER_COPY), not the designer's.
 
-const ScannerScreen: React.FC<{
-  title: string
-  /**
-   * Link devices' scanner keeps the frame's bar title: it draws a camera, not a heading, so
-   * nothing would repeat it (LinkDevices.tsx TITLED_STEPS.scan).
-   */
-  bar?: string
-  /** Join community drops every one of its bar titles, the scanner included (JoinCommunity.tsx). */
-  droppedBar?: string
-  figma: string
-  note: string
-  intro?: string
-  camera: StoryCamera
-}> = ({ title, bar, droppedBar, figma, note, intro, camera }) => {
+/**
+ * One of the two, never neither: `bar` for Link devices' scanner, which keeps the frame's bar
+ * title because it draws a camera and not a heading (LinkDevices.tsx TITLED_STEPS.scan), and
+ * `droppedBar` for Join community's, whose modal drops every bar title (JoinCommunity.tsx).
+ */
+type ScannerBar = { bar: string; droppedBar?: never } | { droppedBar: string; bar?: never }
+
+const ScannerScreen: React.FC<
+  {
+    title: string
+    figma: string
+    note: string
+    intro?: string
+    camera: StoryCamera
+  } & ScannerBar
+> = ({ title, bar, droppedBar, figma, note, intro, camera }) => {
   const [decoded, setDecoded] = React.useState<string[]>([])
   const record = (entry: string) => setDecoded(list => [...list, entry])
   return (
@@ -735,6 +737,12 @@ const WalkthroughStory = () => {
   // Get started, which only shows without one, so it starts on the receive side.
   const [inCommunity, setInCommunity] = React.useState(false)
   const rootRef = React.useRef<HTMLDivElement>(null)
+  /**
+   * The app has one camera; this story draws the step twice, so both columns' scanners decode
+   * the same code and would each hand it over. The first one through wins and the log records
+   * what the app would dispatch — once. Navigating clears it, so the next screen starts fresh.
+   */
+  const handled = React.useRef(false)
 
   // The story camera follows the step: Join with QR code sees the sample member link,
   // Scan QR code the sample device link.
@@ -744,18 +752,21 @@ const WalkthroughStory = () => {
       : { kind: cameraMode }
 
   const go = (next: Step) => {
+    handled.current = false
     setTrail([...trail, step])
     setStep(next)
   }
   const back = () => {
     const prev = trail[trail.length - 1]
     if (!prev) return
+    handled.current = false
     setTrail(trail.slice(0, -1))
     setStep(prev)
   }
   const record = (action: string) => setDispatched(d => [...d, action])
   /** The container closes its modal and the joining panel takes over; the story returns to the entry screen. */
   const finish = () => {
+    handled.current = false
     setTrail([])
     setStep('getStarted')
   }
@@ -768,13 +779,16 @@ const WalkthroughStory = () => {
   // link does not link on arrival — scanned or pasted, it raises the consent sheet first, and
   // only confirming it dispatches. The sheet is named here rather than drawn.
   const onInvitation = (data: InvitationData) => {
+    if (handled.current) return
     if (isDeviceInvitationData(data)) {
       record('device-link consent, then communities.actions.linkDevice({ inviteData, deviceLinkConsent: true })')
       finish()
-      return
+    } else {
+      record('communities.actions.joinCommunity({ inviteData })')
+      go('chooseUsername')
     }
-    record('communities.actions.joinCommunity({ inviteData })')
-    go('chooseUsername')
+    // Last: go() and finish() clear the flag for the screen being opened, and this decode is done.
+    handled.current = true
   }
   // CreateCommunity.tsx without QSS_ALLOWED.
   const onCreate = (name: string) => {

@@ -7,7 +7,7 @@ import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { InvitationKind } from '@quiet/types'
 
 import { renderComponent } from '../../testUtils/renderComponent'
-import { qrImageData } from '../../testUtils/qrImage'
+import { drawQr, qrImageData } from '../../testUtils/qrImage'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { DISPLAY_QR_CODE_COPY } from '../../components/Onboarding/DisplayQrCodeComponent'
 import { SCANNER_COPY } from '../../components/Onboarding/qrScanner/QrScannerComponent'
@@ -23,6 +23,19 @@ import {
   SettingsLinkedDevices,
   Walkthrough,
 } from './OnboardingScreens.stories'
+
+/**
+ * `storyCamera.ts` paints the code with this, so spying on it records the exact text the
+ * story chose to put in front of the camera — which is how the step-dependent choice
+ * (a device link on Scan QR code, a member link on Join with QR code) is checked.
+ */
+jest.mock('../../testUtils/qrImage', () => {
+  const actual = jest.requireActual('../../testUtils/qrImage')
+  return { ...actual, drawQr: jest.fn(actual.drawQr) }
+})
+const paintedQr = drawQr as jest.MockedFunction<typeof drawQr>
+/** Every text the story camera has painted since the story mounted. */
+const painted = () => paintedQr.mock.calls.map(call => call[1])
 
 /**
  * These stories are the design library's record of what the onboarding screens look like,
@@ -57,11 +70,15 @@ const firstRows = () => screen.getAllByTestId('link-devices-rows')[0]
 
 /**
  * jsdom has neither a canvas nor `captureStream`, which the stories' own camera
- * (`storyCamera.ts`) uses to hand the scanner a painted QR code. This supplies both:
- * painting is a no-op and every 2D context reads back `frame`, a real QR image of a real
- * link made by the app's own encoder — so the scanner runs its real video → canvas → jsQR
- * pipeline. The `denied` and `none` camera modes never reach a canvas; they are the story
- * camera's own rejections, unmocked.
+ * (`storyCamera.ts`) uses to hand the scanner a painted QR code. This supplies both: painting
+ * goes nowhere and every 2D context reads back `frame`, a real QR image of a real link made by
+ * the app's own encoder — so the scanner runs its real video → canvas → jsQR pipeline and the
+ * decoded link is genuinely decoded.
+ *
+ * What it does NOT stand in for: because painting goes nowhere, the frame the scanner reads is
+ * the one injected here, not the one the story painted. Which link the story chose is checked
+ * separately, through the `drawQr` spy above. The `denied` and `none` camera modes never reach
+ * a canvas at all; they are the story camera's own rejections, unmocked.
  */
 const installJsdomCanvas = (frame?: ImageData) => {
   const context = {
@@ -72,7 +89,17 @@ const installJsdomCanvas = (frame?: ImageData) => {
       () => frame ?? ({ data: new Uint8ClampedArray(4 * 4 * 4).fill(255), width: 4, height: 4 } as ImageData)
     ),
   }
-  const track = { stop: jest.fn(), readyState: 'live' }
+  /**
+   * A real track reports 'ended' once stopped, and storyCamera's repaint interval watches for
+   * exactly that to clear itself — so the stub has to end too, or the story keeps painting
+   * into a released camera for the rest of the suite.
+   */
+  const track: { readyState: MediaStreamTrackState; stop: jest.Mock } = {
+    readyState: 'live',
+    stop: jest.fn(() => {
+      track.readyState = 'ended'
+    }),
+  }
   const stream = { getTracks: () => [track], getVideoTracks: () => [track] }
 
   const mediaDevices = Object.getOwnPropertyDescriptor(navigator, 'mediaDevices')
@@ -118,6 +145,7 @@ let canvasStub: ReturnType<typeof installJsdomCanvas> | undefined
 afterEach(() => {
   canvasStub?.restore()
   canvasStub = undefined
+  paintedQr.mockClear()
 })
 
 describe('Screens/Onboarding — the Link devices stories', () => {
@@ -223,6 +251,9 @@ describe('Screens/Onboarding — the walkthrough camera', () => {
     user.click(screen.getAllByTestId(testId)[0])
   const trail = () => screen.getAllByTestId('walkthrough-trail')[0].textContent
   const dispatched = () => screen.getAllByTestId('walkthrough-dispatched')[0].textContent
+  /** How many actions the log holds, which is how many the app would have dispatched. */
+  const dispatchCount = () =>
+    Number(/dispatched \((\d+)\)/.exec(screen.getAllByTestId('walkthrough-dispatched')[0].textContent ?? '')?.[1])
 
   it('opens the real camera on Join with QR code, and a decoded member link joins', async () => {
     canvasStub = installJsdomCanvas(qrImageData(memberLink))
@@ -242,6 +273,16 @@ describe('Screens/Onboarding — the walkthrough camera', () => {
       DECODE_TIMEOUT
     )
     expect(trail()).toContain('Choose username')
+
+    // Both columns draw a camera and both decode the same code, but the app has one: the log
+    // records the join once. Left ungated this is 2, which is what it was.
+    expect(dispatchCount()).toBe(1)
+    // The story put the member link in front of the camera, not the device one.
+    expect(painted()).toContain(memberLink)
+    expect(painted()).not.toContain(deviceLink)
+    // Accepting a code releases the camera, and the released track reports itself ended.
+    expect(canvasStub?.track.stop).toHaveBeenCalled()
+    expect(canvasStub?.track.readyState).toBe('ended')
   })
 
   it('lets the camera buttons deny the camera and take it away, and back', async () => {
@@ -265,6 +306,10 @@ describe('Screens/Onboarding — the walkthrough camera', () => {
       () => expect(dispatched()).toContain('communities.actions.joinCommunity({ inviteData })'),
       DECODE_TIMEOUT
     )
+    expect(dispatchCount()).toBe(1)
+    // The camera repaints on an interval, so what matters is which links were ever in front of
+    // it: only the member one. denied and none never reach a canvas and paint nothing at all.
+    expect([...new Set(painted())]).toEqual([memberLink])
   })
 
   it('offers the paste field when the camera is refused, and goes to it', async () => {
@@ -307,5 +352,10 @@ describe('Screens/Onboarding — the walkthrough camera', () => {
     // A scanned device link does not link on arrival: the consent sheet comes first.
     await waitFor(() => expect(dispatched()).toContain('device-link consent'), DECODE_TIMEOUT)
     expect(dispatched()).toContain('deviceLinkConsent: true')
+    expect(dispatchCount()).toBe(1)
+    // On this step the camera shows the device link, which is the step-dependent choice.
+    expect(painted()).toContain(deviceLink)
+    expect(painted()).not.toContain(memberLink)
+    expect(canvasStub?.track.readyState).toBe('ended')
   })
 })
