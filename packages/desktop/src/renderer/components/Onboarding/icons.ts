@@ -11,6 +11,7 @@ import qrCode from '../../static/images/onboarding/qr-code.svg'
 import qrDisplay from '../../static/images/onboarding/qr-display.svg'
 import qrScan from '../../static/images/onboarding/qr-scan.svg'
 import monster from '../../static/images/onboarding/monster@2x.png'
+import heartChat from '../../static/images/onboarding/heart-chat@2x.png'
 import circleLogo from '../../static/images/onboarding/get-started-circle-logo.svg'
 
 export const onboardingIcons = {
@@ -30,6 +31,14 @@ export const onboardingIcons = {
 
 /** The "Monster" illustration from the Open invite link frame, exported at 2x (120px box). */
 export const monsterIllustration = monster
+
+/**
+ * The heart-chat graphic the Join community frame (2811:2562) opens with —
+ * instance I2815:2504;6181:27547 (Graphic--heart-chat), exported at 2x, drawn at
+ * its frame size. The same export the mobile screen uses.
+ */
+export const heartChatIllustration = heartChat
+export const HEART_CHAT_SIZE = { width: 219, height: 160 } as const
 
 /**
  * The Quiet mark as the Get started frame (2811:2550) draws it: a 120px circle

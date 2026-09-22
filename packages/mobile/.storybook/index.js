@@ -15,6 +15,7 @@ configure(() => {
   require('../src/components/RuntimeCompatibility/RuntimeCompatibility.stories')
   require('../src/components/AndroidCompatibility/AndroidDrawer.stories')
   require('../src/components/JoinCommunity/JoinCommunity.stories')
+  require('../src/components/JoinCommunityOptions/JoinCommunityOptions.stories')
   require('../src/components/LeaveCommunity/LeaveCommunity.stories')
   require('../src/components/ConnectionProcess/ConnectionProcess.stories')
   require('../src/components/ContextMenu/ContextMenu.stories')
