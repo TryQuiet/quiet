@@ -641,6 +641,7 @@ async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Prom
     id: randomUUID(),
     inviteData,
     deviceName: 'Adversarial retry linked device',
+    deviceLinkConsent: true,
   })
   if (linkResponse == null) {
     throw new Error('Backend did not prepare the P2P-linked device community')
@@ -1085,6 +1086,8 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
         id: communityId,
         inviteData,
         deviceName: 'Lifecycle device',
+        deviceLinkConsent: true,
+        confirmedQssEndpoint: inviteData.qssEndpoint,
       })
     } else {
       prepared = await peer.connectionsManager.joinCommunity({
@@ -1241,6 +1244,8 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
       id: randomUUID(),
       inviteData,
       deviceName: 'QSS integration linked device',
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: inviteData.qssEndpoint,
     })
     if (linkResponse == null) {
       throw new Error('Backend did not prepare the linked device community')

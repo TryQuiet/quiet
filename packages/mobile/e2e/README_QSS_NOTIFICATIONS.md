@@ -152,3 +152,40 @@ channel's active notification, so counting visible cards cannot prove every
 message was presented. Quick reply is not covered. A fixture that force-stops
 Android is appropriate for offline history tests, not push-receivable background
 state. The Appium journeys use Home/background instead.
+
+## Develop integration validation — 2026-09-21
+
+Updated against current develop/New Architecture/auth 17e0b5b. Both deterministic
+notification fixtures reproduce the pinned auth codecs. Eight notification/leave
+saga tests pass. The actual Android notification handler passes all 13 native
+cases on API 35. Portable tests pass: 22 harness cases (one existing platform skip),
+49 guarded builder cases (one skip), 28 fixture/credential cases (one skip), five
+real QSS-only Nest/libp2p cases, and four Appium reporter/preflight cases (two Apple
+platform skips).
+
+The Xcode merge preserves develop's hostless Tor lifecycle tests and production
+transition core. Firebase-unconfigured tests remain in the app-hosted target.
+A real-project regression passes 36 assertions, including unique object IDs,
+source existence, no duplicate compilation and correct host settings. The four
+existing XCTest cases also pass against the actual Swift transition core on Linux.
+The earlier Apple native and multiplayer evidence above was not repeated here;
+provider delivery still requires the explicitly configured full-loop lane.
+
+After the iOS Tor/Electron updates landed, refreshed the notification workflows to
+build the installed Tor 409.11.2 XCFramework from locked pods. The provider and
+onboarding shell lanes use the current guarded builder, preserve their selected
+environment, and stop before signing if the native build fails (three workflow
+regressions pass). All 58 current/fallback builder tests pass with one platform
+skip, and 20 current-Tor workflow/QSS helper tests pass. Updated native/Appium
+channel-list selectors for develop's current UI. All 13 real Android notification
+cases pass on API 36 too. No provider credentials were used in these local checks.
+
+Final develop integration (2026-09-21, Linux): the hosted Android workflow now
+prepares and builds native x86_64 inputs for its x86_64 Google APIs emulator.
+Four executable workflow regressions verify both lanes' build arguments and
+notification settings, stop on missing native inputs, reject an incompatible
+emulator ABI, and preserve cleanup/reporting on early failures. The integrated
+x86_64 Storybook and instrumentation APKs build, contain only x86_64 native
+libraries, and pass all 13 native notification cases on each API 35 and 36.
+The hosted provider lane still stops at its prerequisite check without matching
+Firebase server credentials; these native tests do not establish FCM delivery.

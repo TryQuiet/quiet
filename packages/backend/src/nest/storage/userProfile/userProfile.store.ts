@@ -56,12 +56,32 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
         })
       })
     })
+    this.store.events.on('join', this.handlePeerJoined)
 
     await this.store!.retryIndexingUnindexedEntries()
 
     this.emit(StorageEvents.USER_PROFILES_STORED, {
       profiles: await this.getUserProfiles(),
     })
+  }
+
+  private readonly handlePeerJoined = async (_peerId: string, heads: LogEntry[]): Promise<void> => {
+    const store = this.store
+    // OrbitDB shares its event bus with other stores. Only announce profile
+    // heads, and read them from our own validated log.
+    if (!store || !heads.some(head => head.id === store.address)) return
+    try {
+      // A new client can write its profile before pubsub starts. Heads exchange
+      // delivers it to us, but existing peers need an announcement to learn it.
+      for (const head of await store.log.heads()) await store.sync.add(head)
+    } catch (error) {
+      logger.error('Failed to announce user profiles after peer synchronization:', error)
+    }
+  }
+
+  public async close(): Promise<void> {
+    this.store?.events.off('join', this.handlePeerJoined)
+    await super.close()
   }
 
   private readonly handleAuthUpdated = async (): Promise<void> => {
@@ -327,6 +347,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     logger.info('Cleaning user profiles store')
     this.deferredProfiles = []
     const store = this.store
+    store?.events.off('join', this.handlePeerJoined)
     try {
       await store?.sync?.stop?.()
     } catch (err) {

@@ -106,6 +106,102 @@ describe('SigChainService', () => {
   })
 })
 
+describe('SigChainService legacy storage migration', () => {
+  let module: TestingModule
+  let sigChainService: SigChainService
+  let localDbService: LocalDbService
+
+  beforeEach(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, SigChainModule, LocalDbModule],
+    }).compile()
+    sigChainService = await module.resolve(SigChainService)
+    localDbService = await module.resolve(LocalDbService)
+    await localDbService.open()
+  })
+
+  afterEach(async () => {
+    await localDbService.close()
+    await module.close()
+  })
+
+  it('migrates a legacy team-name key to the team-ID key and retains the legacy record', async () => {
+    const legacyTeamName = 'legacy-community'
+    const chain = await sigChainService.createChain(true)
+    const teamId = chain.teamId!
+    await localDbService.setSigChain(chain, legacyTeamName)
+    await sigChainService.deleteChain(teamId, true)
+
+    const loaded = await sigChainService.loadChain(teamId, true, legacyTeamName)
+
+    expect(loaded.teamId).toBe(teamId)
+    expect(sigChainService.getActiveChain()).toBe(loaded)
+    expect(await localDbService.getSigChain(teamId)).toBeDefined()
+    expect(await localDbService.getSigChain(legacyTeamName)).toBeDefined()
+  })
+
+  it('prefers the team-ID key when a legacy key also exists', async () => {
+    const legacyTeamName = 'legacy-community'
+    const currentChain = await sigChainService.createChain(true)
+    const legacyChain = await sigChainService.createChain(false)
+    await localDbService.setSigChain(legacyChain, legacyTeamName)
+    await sigChainService.deleteChain(legacyChain.teamId!, true)
+    await sigChainService.deleteChain(currentChain.teamId!, false)
+
+    const loaded = await sigChainService.loadChain(currentChain.teamId!, true, legacyTeamName)
+
+    expect(loaded.teamId).toBe(currentChain.teamId)
+  })
+
+  it('rejects a legacy record whose cryptographic team ID does not match', async () => {
+    const legacyTeamName = 'legacy-community'
+    const chain = await sigChainService.createChain(true)
+    await localDbService.setSigChain(chain, legacyTeamName)
+    await sigChainService.deleteChain(chain.teamId!, true)
+    const expectedTeamId = 'different-team-id'
+
+    await expect(sigChainService.loadChain(expectedTeamId, true, legacyTeamName)).rejects.toThrow(
+      `does not match expected team ${expectedTeamId}`
+    )
+    expect(() => sigChainService.getActiveChain()).toThrow()
+    expect(await localDbService.getSigChain(expectedTeamId)).toBeUndefined()
+  })
+
+  it('does not fall back when the team-ID record exists but is corrupt', async () => {
+    const legacyTeamName = 'legacy-community'
+    const chain = await sigChainService.createChain(true)
+    const teamId = chain.teamId!
+    await localDbService.setSigChain(chain, legacyTeamName)
+    const currentData = await localDbService.getSigChain(teamId)
+    await localDbService.setSigChainData(
+      {
+        serializedTeam: undefined,
+        localUserContext: currentData!.localUserContext,
+        teamKeyRing: currentData!.teamKeyRing,
+      },
+      teamId
+    )
+    await sigChainService.deleteChain(teamId, false)
+
+    await expect(sigChainService.loadChain(teamId, true, legacyTeamName)).rejects.toThrow('missing serialized team')
+    expect(() => sigChainService.getActiveChain()).toThrow()
+  })
+
+  it('does not register or activate a migrated chain until persistence succeeds', async () => {
+    const legacyTeamName = 'legacy-community'
+    const chain = await sigChainService.createChain(true)
+    const teamId = chain.teamId!
+    await localDbService.setSigChain(chain, legacyTeamName)
+    await sigChainService.deleteChain(teamId, true)
+    jest.spyOn(localDbService, 'setSigChain').mockRejectedValueOnce(new Error('migration write failed'))
+
+    await expect(sigChainService.loadChain(teamId, true, legacyTeamName)).rejects.toThrow('migration write failed')
+    expect(() => sigChainService.getChain(teamId)).toThrow()
+    expect(() => sigChainService.getActiveChain()).toThrow()
+    expect(await localDbService.getSigChain(legacyTeamName)).toBeDefined()
+  })
+})
+
 describe('SigChainService - listener lifecycle', () => {
   let module: TestingModule
   let sigChainService: SigChainService

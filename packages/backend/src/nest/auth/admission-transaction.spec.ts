@@ -174,3 +174,109 @@ it('rejects waiting and future saves after an uncertain write while retaining th
   expect(f.service.hasAdmissionPersistenceBarrier(f.request.teamId)).toBe(true)
   expect(f.write).toHaveBeenCalledTimes(1)
 })
+
+it.each(['success', 'recovery'] as const)('settles every concurrent save waiter after admission %s', async outcome => {
+  const f = fixture()
+  let finish!: () => void
+  let fail!: (error: Error) => void
+  f.write.mockImplementationOnce(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        finish = resolve
+        fail = reject
+      })
+  )
+  const commit = f.transaction.commit(f.candidate)
+  const commitResult = Promise.allSettled([commit])
+  await flush()
+  let settled = false
+  const waiters = Promise.allSettled(Array.from({ length: 32 }, () => f.service.saveChain(f.request.teamId)))
+  void waiters.then(() => {
+    settled = true
+  })
+  await flush()
+  expect(settled).toBe(false)
+  expect(f.write).toHaveBeenCalledTimes(1)
+  if (outcome === 'success') finish()
+  else fail(new Error('write outcome unknown'))
+  const [result] = await commitResult
+  const saves = await waiters
+  if (outcome === 'success') {
+    expect(result.status).toBe('fulfilled')
+    expect(saves.every(save => save.status === 'fulfilled')).toBe(true)
+    expect(f.service.getActiveChain()).toBe(f.chain)
+    expect(f.service.hasAdmissionPersistenceBarrier(f.request.teamId)).toBe(false)
+  } else {
+    expect(result).toMatchObject({ status: 'rejected', reason: { kind: 'recovery' } })
+    for (const save of saves) expect(save).toMatchObject({ status: 'rejected', reason: { kind: 'recovery' } })
+    await expect(f.service.saveChain(f.request.teamId)).rejects.toMatchObject({ kind: 'recovery' })
+    expect(f.service.getActiveChain()).toBe(f.base)
+    expect(f.service.hasAdmissionPersistenceBarrier(f.request.teamId)).toBe(true)
+  }
+  expect(f.write).toHaveBeenCalledTimes(1)
+  expect(f.service.pendingPersistCount(f.request.teamId)).toBe(0)
+})
+
+it('refuses a second staged candidate while the selected snapshot is being written', async () => {
+  const f = fixture()
+  const second = f.transaction.stage()
+  let finish!: () => void
+  f.write.mockImplementationOnce(
+    () =>
+      new Promise<void>(resolve => {
+        finish = resolve
+      })
+  )
+  const commit = f.transaction.commit(f.candidate)
+  await flush()
+  await expect(f.transaction.commit({ ...f.candidate, chain: second })).rejects.toMatchObject({ kind: 'validation' })
+  expect(f.write).toHaveBeenCalledTimes(1)
+  expect(f.service.getActiveChain()).toBe(f.base)
+  finish()
+  await commit
+  expect(f.service.getActiveChain()).toBe(f.chain)
+  expect(f.write).toHaveBeenCalledTimes(1)
+})
+
+it('requires recovery if the active community changes after the snapshot write starts', async () => {
+  const f = fixture()
+  let finish!: () => void
+  f.write.mockImplementationOnce(
+    () =>
+      new Promise<void>(resolve => {
+        finish = resolve
+      })
+  )
+  const commit = f.transaction.commit(f.candidate)
+  const rejectedCommit = expect(commit).rejects.toMatchObject({ kind: 'recovery' })
+  const save = f.service.saveChain(f.request.teamId)
+  const rejectedSave = expect(save).rejects.toMatchObject({ kind: 'recovery' })
+  await flush()
+  const replacement = SigChain.create()
+  f.service.addChain(replacement, true, replacement.team!.id)
+  finish()
+  await rejectedCommit
+  await rejectedSave
+  expect(f.service.getActiveChain()).toBe(replacement)
+  expect(f.service.getChain(f.request.teamId)).toBe(f.base)
+  expect(f.service.hasAdmissionPersistenceBarrier(f.request.teamId)).toBe(true)
+  await expect(f.service.saveChain(f.request.teamId)).rejects.toMatchObject({ kind: 'recovery' })
+  expect(f.write).toHaveBeenCalledTimes(1)
+})
+
+it('does not let a discarded transaction cancel the replacement admission barrier', async () => {
+  const f = fixture()
+  f.transaction.discard()
+  const replacement = f.service.beginAdmission(f.request)
+  const chain = replacement.stage()
+  const waiting = f.service.saveChain(f.request.teamId)
+  await flush()
+  f.transaction.discard()
+  expect(f.service.hasAdmissionPersistenceBarrier(f.request.teamId)).toBe(true)
+  expect(f.write).not.toHaveBeenCalled()
+  await replacement.commit({ ...f.candidate, chain })
+  await waiting
+  expect(f.service.getActiveChain()).toBe(chain)
+  expect(f.service.hasAdmissionPersistenceBarrier(f.request.teamId)).toBe(false)
+  expect(f.write).toHaveBeenCalledTimes(1)
+})

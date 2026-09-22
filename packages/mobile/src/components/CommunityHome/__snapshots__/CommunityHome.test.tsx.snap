@@ -1318,7 +1318,7 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                 "paddingVertical": 8,
               }
             }
-            testID="users_section"
+            testID="dm_section"
           >
             <Text
               color="charcoal"
@@ -1345,36 +1345,63 @@ exports[`CommunityHome component matches the snapshot 1`] = `
               }
               verticalTextAlign="center"
             >
-              Users
+              Direct messages
             </Text>
-          </View>
-          <View
-            accessibilityLabel="StoneJump"
-            style={
-              {
-                "alignItems": "center",
-                "flexDirection": "row",
-                "gap": 8,
-                "height": 40,
-                "paddingHorizontal": 16,
-                "paddingVertical": 8,
-              }
-            }
-            testID="user_tile_StoneJump"
-          >
             <View
-              style={
+              accessibilityLabel="New direct message"
+              accessibilityRole="button"
+              accessibilityState={
                 {
-                  "width": 24,
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
                 }
               }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              hitSlop={
+                {
+                  "bottom": 12,
+                  "left": 12,
+                  "right": 12,
+                  "top": 12,
+                }
+              }
+              onBlur={[Function]}
+              onClick={[Function]}
+              onFocus={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "height": 16,
+                  "width": 16,
+                }
+              }
+              testID="New direct message"
             >
               <RNSVGSvgView
                 align="xMidYMid"
-                bbHeight={24}
-                bbWidth={24}
+                bbHeight={16}
+                bbWidth={16}
+                fill="none"
                 focusable={false}
-                height={24}
+                height={16}
                 meetOrSlice={0}
                 minX={0}
                 minY={0}
@@ -1386,69 +1413,295 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                     },
                     {
                       "flex": 0,
-                      "height": 24,
-                      "width": 24,
+                      "height": 16,
+                      "width": 16,
                     },
                   ]
                 }
-                vbHeight={24}
-                vbWidth={24}
-                width={24}
-                xml="<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#2e708c" d="M12 7L7 7L7 2ZM12 7L12 2L17 2ZM12 17L17 17L17 22ZM12 17L12 22L7 22ZM7 12L2 12L2 7ZM17 12L17 7L22 7ZM17 12L22 12L22 17ZM7 12L7 17L2 17Z"/><path fill="#e3e3e3" d="M2 2L7 2L7 4.5ZM22 2L22 7L19.5 7ZM22 22L17 22L17 19.5ZM2 22L2 17L4.5 17Z"/><path fill="#59a6c7" d="M7 7L12 7L12 7.8L9.9 12L7 12ZM17 7L17 12L16.2 12L12 9.9L12 7ZM17 17L12 17L12 16.2L14.1 12L17 12ZM7 17L7 12L7.8 12L12 14.1L12 17Z"/></svg>"
-                xmlns="http://www.w3.org/2000/svg"
+                vbHeight={16}
+                vbWidth={16}
+                width={16}
               >
                 <RNSVGGroup
-                  fill={
-                    {
-                      "payload": 4278190080,
-                      "type": 0,
-                    }
+                  fill={null}
+                  propList={
+                    [
+                      "fill",
+                    ]
                   }
                 >
-                  <RNSVGPath
-                    d="M12 7L7 7L7 2ZM12 7L12 2L17 2ZM12 17L17 17L17 22ZM12 17L12 22L7 22ZM7 12L2 12L2 7ZM17 12L17 7L22 7ZM17 12L22 12L22 17ZM7 12L7 17L2 17Z"
+                  <RNSVGGroup
                     fill={
                       {
-                        "payload": 4281233548,
+                        "payload": 4278190080,
                         "type": 0,
                       }
                     }
-                    propList={
-                      [
-                        "fill",
-                      ]
-                    }
-                  />
-                  <RNSVGPath
-                    d="M2 2L7 2L7 4.5ZM22 2L22 7L19.5 7ZM22 22L17 22L17 19.5ZM2 22L2 17L4.5 17Z"
-                    fill={
-                      {
-                        "payload": 4293125091,
-                        "type": 0,
+                    opacity={0.6}
+                  >
+                    <RNSVGPath
+                      d="M8 4V12"
+                      fill={
+                        {
+                          "payload": 4278190080,
+                          "type": 0,
+                        }
                       }
-                    }
-                    propList={
-                      [
-                        "fill",
-                      ]
-                    }
-                  />
-                  <RNSVGPath
-                    d="M7 7L12 7L12 7.8L9.9 12L7 12ZM17 7L17 12L16.2 12L12 9.9L12 7ZM17 17L12 17L12 16.2L14.1 12L17 12ZM7 17L7 12L7.8 12L12 14.1L12 17Z"
-                    fill={
-                      {
-                        "payload": 4284065479,
-                        "type": 0,
+                      propList={
+                        [
+                          "stroke",
+                          "strokeWidth",
+                        ]
                       }
-                    }
-                    propList={
-                      [
-                        "fill",
-                      ]
-                    }
-                  />
+                      stroke={
+                        {
+                          "payload": 4280427042,
+                          "type": 0,
+                        }
+                      }
+                      strokeWidth={1}
+                    />
+                    <RNSVGPath
+                      d="M12 8L4 8"
+                      fill={
+                        {
+                          "payload": 4278190080,
+                          "type": 0,
+                        }
+                      }
+                      propList={
+                        [
+                          "stroke",
+                          "strokeWidth",
+                        ]
+                      }
+                      stroke={
+                        {
+                          "payload": 4280427042,
+                          "type": 0,
+                        }
+                      }
+                      strokeWidth={1}
+                    />
+                    <RNSVGCircle
+                      cx={8}
+                      cy={8}
+                      fill={
+                        {
+                          "payload": 4278190080,
+                          "type": 0,
+                        }
+                      }
+                      propList={
+                        [
+                          "stroke",
+                          "strokeWidth",
+                        ]
+                      }
+                      r={7.5}
+                      stroke={
+                        {
+                          "payload": 4280427042,
+                          "type": 0,
+                        }
+                      }
+                      strokeWidth={1}
+                    />
+                  </RNSVGGroup>
                 </RNSVGGroup>
               </RNSVGSvgView>
+            </View>
+          </View>
+          <View
+            accessibilityLabel="StoneJump, direct message"
+            accessibilityRole="button"
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "transparent",
+                "flexDirection": "row",
+                "gap": 8,
+                "height": 40,
+                "paddingHorizontal": 16,
+                "paddingVertical": 8,
+              }
+            }
+            testID="dm_tile_StoneJump"
+          >
+            <View
+              style={{}}
+            >
+              <View
+                style={
+                  {
+                    "alignContent": "center",
+                    "alignItems": "center",
+                    "borderRadius": 4,
+                    "height": 24,
+                    "justifyContent": "center",
+                    "width": 24,
+                  }
+                }
+              >
+                <RNSVGSvgView
+                  align="xMidYMid"
+                  bbHeight={24}
+                  bbWidth={24}
+                  focusable={false}
+                  height={24}
+                  meetOrSlice={0}
+                  minX={0}
+                  minY={0}
+                  style={
+                    [
+                      {
+                        "backgroundColor": "transparent",
+                        "borderWidth": 0,
+                      },
+                      {
+                        "borderRadius": 4,
+                        "height": 24,
+                        "width": 24,
+                      },
+                      {
+                        "flex": 0,
+                        "height": 24,
+                        "width": 24,
+                      },
+                    ]
+                  }
+                  vbHeight={24}
+                  vbWidth={24}
+                  width={24}
+                  xml="<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#2e708c" d="M12 6L6 6L6 0ZM12 6L12 0L18 0ZM12 18L18 18L18 24ZM12 18L12 24L6 24ZM6 12L0 12L0 6ZM18 12L18 6L24 6ZM18 12L24 12L24 18ZM6 12L6 18L0 18Z"/><path fill="#e3e3e3" d="M0 0L6 0L6 3ZM24 0L24 6L21 6ZM24 24L18 24L18 21ZM0 24L0 18L3 18Z"/><path fill="#59a6c7" d="M6 6L12 6L12 7L9.5 12L6 12ZM18 6L18 12L17 12L12 9.5L12 6ZM18 18L12 18L12 17L14.5 12L18 12ZM6 18L6 12L7 12L12 14.5L12 18Z"/></svg>"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <RNSVGGroup
+                    fill={
+                      {
+                        "payload": 4278190080,
+                        "type": 0,
+                      }
+                    }
+                  >
+                    <RNSVGRect
+                      fill={
+                        {
+                          "payload": 4294967295,
+                          "type": 0,
+                        }
+                      }
+                      height="100%"
+                      opacity={1}
+                      propList={
+                        [
+                          "fill",
+                        ]
+                      }
+                      width="100%"
+                      x={0}
+                      y={0}
+                    />
+                    <RNSVGPath
+                      d="M12 6L6 6L6 0ZM12 6L12 0L18 0ZM12 18L18 18L18 24ZM12 18L12 24L6 24ZM6 12L0 12L0 6ZM18 12L18 6L24 6ZM18 12L24 12L24 18ZM6 12L6 18L0 18Z"
+                      fill={
+                        {
+                          "payload": 4281233548,
+                          "type": 0,
+                        }
+                      }
+                      propList={
+                        [
+                          "fill",
+                        ]
+                      }
+                    />
+                    <RNSVGPath
+                      d="M0 0L6 0L6 3ZM24 0L24 6L21 6ZM24 24L18 24L18 21ZM0 24L0 18L3 18Z"
+                      fill={
+                        {
+                          "payload": 4293125091,
+                          "type": 0,
+                        }
+                      }
+                      propList={
+                        [
+                          "fill",
+                        ]
+                      }
+                    />
+                    <RNSVGPath
+                      d="M6 6L12 6L12 7L9.5 12L6 12ZM18 6L18 12L17 12L12 9.5L12 6ZM18 18L12 18L12 17L14.5 12L18 12ZM6 18L6 12L7 12L12 14.5L12 18Z"
+                      fill={
+                        {
+                          "payload": 4284065479,
+                          "type": 0,
+                        }
+                      }
+                      propList={
+                        [
+                          "fill",
+                        ]
+                      }
+                    />
+                  </RNSVGGroup>
+                </RNSVGSvgView>
+              </View>
+              <Text
+                collapsable={false}
+                numberOfLines={1}
+                style={
+                  {
+                    "alignSelf": "flex-end",
+                    "backgroundColor": "#80B857",
+                    "borderColor": "#ffffff",
+                    "borderRadius": 5.5,
+                    "borderWidth": 1,
+                    "color": "rgba(255, 255, 255, 1)",
+                    "fontSize": 5.5,
+                    "height": 11,
+                    "lineHeight": 5.5,
+                    "minWidth": 11,
+                    "opacity": 1,
+                    "overflow": "hidden",
+                    "paddingHorizontal": 3,
+                    "position": "absolute",
+                    "right": -4,
+                    "textAlign": "center",
+                    "textAlignVertical": "center",
+                    "top": 15,
+                  }
+                }
+              />
             </View>
             <Text
               color="charcoal"
@@ -1468,7 +1721,6 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                     "textAlignVertical": "center",
                   },
                   {
-                    "flex": 1,
                     "opacity": 0.7,
                   },
                 ]
@@ -1477,12 +1729,50 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             >
               StoneJump
             </Text>
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            />
           </View>
           <View
-            accessibilityLabel="MoonThinke8"
+            accessibilityLabel="MoonThinke8, direct message"
+            accessibilityRole="button"
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
             style={
               {
                 "alignItems": "center",
+                "backgroundColor": "transparent",
                 "flexDirection": "row",
                 "gap": 8,
                 "height": 40,
@@ -1490,81 +1780,139 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                 "paddingVertical": 8,
               }
             }
-            testID="user_tile_MoonThinke8"
+            testID="dm_tile_MoonThinke8"
           >
             <View
-              style={
-                {
-                  "width": 24,
-                }
-              }
+              style={{}}
             >
-              <RNSVGSvgView
-                align="xMidYMid"
-                bbHeight={24}
-                bbWidth={24}
-                focusable={false}
-                height={24}
-                meetOrSlice={0}
-                minX={0}
-                minY={0}
+              <View
                 style={
-                  [
-                    {
-                      "backgroundColor": "transparent",
-                      "borderWidth": 0,
-                    },
-                    {
-                      "flex": 0,
-                      "height": 24,
-                      "width": 24,
-                    },
-                  ]
-                }
-                vbHeight={24}
-                vbWidth={24}
-                width={24}
-                xml="<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#a83879" d="M7.8 4.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M12.8 4.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M12.8 19.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M7.8 19.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M2.8 9.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M17.8 9.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M17.8 14.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M2.8 14.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0"/><path fill="#d175aa" d="M7 4.5L4.5 7L2 4.5L4.5 2ZM19.5 7L17 4.5L19.5 2L22 4.5ZM17 19.5L19.5 17L22 19.5L19.5 22ZM4.5 17L7 19.5L4.5 22L2 19.5ZM7 7L12 7L12 10.5L9 9L10.5 12L7 12ZM17 7L17 12L13.5 12L15 9L12 10.5L12 7ZM17 17L12 17L12 13.5L15 15L13.5 12L17 12ZM7 17L7 12L10.5 12L9 15L12 13.5L12 17Z"/></svg>"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <RNSVGGroup
-                  fill={
-                    {
-                      "payload": 4278190080,
-                      "type": 0,
-                    }
+                  {
+                    "alignContent": "center",
+                    "alignItems": "center",
+                    "borderRadius": 4,
+                    "height": 24,
+                    "justifyContent": "center",
+                    "width": 24,
                   }
+                }
+              >
+                <RNSVGSvgView
+                  align="xMidYMid"
+                  bbHeight={24}
+                  bbWidth={24}
+                  focusable={false}
+                  height={24}
+                  meetOrSlice={0}
+                  minX={0}
+                  minY={0}
+                  style={
+                    [
+                      {
+                        "backgroundColor": "transparent",
+                        "borderWidth": 0,
+                      },
+                      {
+                        "borderRadius": 4,
+                        "height": 24,
+                        "width": 24,
+                      },
+                      {
+                        "flex": 0,
+                        "height": 24,
+                        "width": 24,
+                      },
+                    ]
+                  }
+                  vbHeight={24}
+                  vbWidth={24}
+                  width={24}
+                  xml="<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#a83879" d="M7 3a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M13 3a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M13 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M7 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M1 9a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 9a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M1 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0"/><path fill="#d175aa" d="M6 3L3 6L0 3L3 0ZM21 6L18 3L21 0L24 3ZM18 21L21 18L24 21L21 24ZM3 18L6 21L3 24L0 21ZM6 6L12 6L12 10.2L8.4 8.4L10.2 12L6 12ZM18 6L18 12L13.8 12L15.6 8.4L12 10.2L12 6ZM18 18L12 18L12 13.8L15.6 15.6L13.8 12L18 12ZM6 18L6 12L10.2 12L8.4 15.6L12 13.8L12 18Z"/></svg>"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <RNSVGPath
-                    d="M7.8 4.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M12.8 4.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M12.8 19.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M7.8 19.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M2.8 9.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M17.8 9.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M17.8 14.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0M2.8 14.5a1.7,1.7 0 1,1 3.3,0a1.7,1.7 0 1,1 -3.3,0"
+                  <RNSVGGroup
                     fill={
                       {
-                        "payload": 4289214585,
+                        "payload": 4278190080,
                         "type": 0,
                       }
                     }
-                    propList={
-                      [
-                        "fill",
-                      ]
-                    }
-                  />
-                  <RNSVGPath
-                    d="M7 4.5L4.5 7L2 4.5L4.5 2ZM19.5 7L17 4.5L19.5 2L22 4.5ZM17 19.5L19.5 17L22 19.5L19.5 22ZM4.5 17L7 19.5L4.5 22L2 19.5ZM7 7L12 7L12 10.5L9 9L10.5 12L7 12ZM17 7L17 12L13.5 12L15 9L12 10.5L12 7ZM17 17L12 17L12 13.5L15 15L13.5 12L17 12ZM7 17L7 12L10.5 12L9 15L12 13.5L12 17Z"
-                    fill={
-                      {
-                        "payload": 4291917226,
-                        "type": 0,
+                  >
+                    <RNSVGRect
+                      fill={
+                        {
+                          "payload": 4294967295,
+                          "type": 0,
+                        }
                       }
-                    }
-                    propList={
-                      [
-                        "fill",
-                      ]
-                    }
-                  />
-                </RNSVGGroup>
-              </RNSVGSvgView>
+                      height="100%"
+                      opacity={1}
+                      propList={
+                        [
+                          "fill",
+                        ]
+                      }
+                      width="100%"
+                      x={0}
+                      y={0}
+                    />
+                    <RNSVGPath
+                      d="M7 3a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M13 3a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M13 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M7 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M1 9a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 9a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M1 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0"
+                      fill={
+                        {
+                          "payload": 4289214585,
+                          "type": 0,
+                        }
+                      }
+                      propList={
+                        [
+                          "fill",
+                        ]
+                      }
+                    />
+                    <RNSVGPath
+                      d="M6 3L3 6L0 3L3 0ZM21 6L18 3L21 0L24 3ZM18 21L21 18L24 21L21 24ZM3 18L6 21L3 24L0 21ZM6 6L12 6L12 10.2L8.4 8.4L10.2 12L6 12ZM18 6L18 12L13.8 12L15.6 8.4L12 10.2L12 6ZM18 18L12 18L12 13.8L15.6 15.6L13.8 12L18 12ZM6 18L6 12L10.2 12L8.4 15.6L12 13.8L12 18Z"
+                      fill={
+                        {
+                          "payload": 4291917226,
+                          "type": 0,
+                        }
+                      }
+                      propList={
+                        [
+                          "fill",
+                        ]
+                      }
+                    />
+                  </RNSVGGroup>
+                </RNSVGSvgView>
+              </View>
+              <Text
+                collapsable={false}
+                numberOfLines={1}
+                style={
+                  {
+                    "alignSelf": "flex-end",
+                    "backgroundColor": "#C3C3C3",
+                    "borderColor": "#ffffff",
+                    "borderRadius": 5.5,
+                    "borderWidth": 1,
+                    "color": "rgba(255, 255, 255, 1)",
+                    "fontSize": 5.5,
+                    "height": 11,
+                    "lineHeight": 5.5,
+                    "minWidth": 11,
+                    "opacity": 1,
+                    "overflow": "hidden",
+                    "paddingHorizontal": 3,
+                    "position": "absolute",
+                    "right": -4,
+                    "textAlign": "center",
+                    "textAlignVertical": "center",
+                    "top": 15,
+                  }
+                }
+              />
             </View>
             <Text
               color="charcoal"
@@ -1584,7 +1932,6 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                     "textAlignVertical": "center",
                   },
                   {
-                    "flex": 1,
                     "opacity": 0.7,
                   },
                 ]
@@ -1593,6 +1940,25 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             >
               MoonThinke8
             </Text>
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            />
+            <View
+              accessibilityLabel="Unread messages"
+              style={
+                {
+                  "backgroundColor": "#E42656",
+                  "borderRadius": 4,
+                  "height": 8,
+                  "width": 8,
+                }
+              }
+              testID="dm_tile_MoonThinke8_unread"
+            />
           </View>
         </View>
       </View>

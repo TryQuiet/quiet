@@ -1,10 +1,12 @@
 import React, { FC } from 'react'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
+import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
-import { ProfilePhoto } from '../ProfilePhoto/ProfilePhoto.component'
+import { ProfilePhotoWithBadge } from '../ProfilePhoto/ProfilePhotoWithBadge.component'
+import { ProfilePhotoSize } from '../ProfilePhoto/ProfilePhoto.types'
 import { Typography } from '../Typography/Typography.component'
-import { LIST_TEXT_OPACITY } from './ListRow.component'
+import { LIST_ROW_PRESSED, LIST_TEXT_OPACITY, UnreadDot } from './ListRow.component'
 
 import type { PersonRowProps } from './CommunityHome.types'
 
@@ -13,36 +15,48 @@ export const PERSON_ROW_HEIGHT = 40
 
 /**
  * The design library's `List item--people`: a 24px avatar and a name, 40px tall
- * with 8px between them (Figma: Community home 5446:76594). Quiet has no direct
- * messages, so these rows are not tappable — they are the community's members.
+ * with 8px between them (Figma: Community home 5446:76594).
  *
- * Nothing to tap means no tapped state: the library's Hover and Selected fills
- * for `List item--people` (4606:16448) belong to a row that opens a
- * conversation, and there is no conversation to open.
+ * The row opens a direct message, so it takes the library's tapped state for
+ * `List item--people` (4606:16448) the way every other clickable row does —
+ * white 5%/10% on the dark sidebar, its light-surface counterpart #F0F0F0 here.
+ * The avatar carries the other person's presence badge, as the channel list
+ * does elsewhere in the app.
  */
-export const PersonRow: FC<PersonRowProps> = ({ user, testID }) => (
-  <View
+export const PersonRow: FC<PersonRowProps> = ({ conversation, onPress, testID }) => (
+  <Pressable
+    onPress={onPress}
     testID={testID}
-    accessibilityLabel={user.nickname}
-    style={{
+    accessibilityRole='button'
+    accessibilityLabel={`${conversation.name}, direct message`}
+    style={({ pressed }) => ({
       height: PERSON_ROW_HEIGHT,
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.sm,
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.sm,
-    }}
+      backgroundColor: pressed ? LIST_ROW_PRESSED : 'transparent',
+    })}
   >
-    <ProfilePhoto
-      userId={user.userId}
-      username={user.nickname}
-      photo={user.photo}
-      profilePhoto={user.profilePhoto}
-      borderRadius={4}
-      size={24}
+    <ProfilePhotoWithBadge
+      userData={conversation.userData}
+      channel={conversation.channel}
+      size={ProfilePhotoSize.SMALL}
     />
-    <Typography variant={'body'} color={'charcoal'} numberOfLines={1} style={{ flex: 1, opacity: LIST_TEXT_OPACITY }}>
-      {user.nickname}
+    <Typography variant={'body'} color={'charcoal'} numberOfLines={1} style={{ opacity: LIST_TEXT_OPACITY }}>
+      {conversation.name}
     </Typography>
-  </View>
+    {conversation.isMe && (
+      <Typography
+        variant={'body'}
+        numberOfLines={1}
+        style={{ opacity: LIST_TEXT_OPACITY, color: defaultTheme.palette.typography.grayLight }}
+      >
+        you
+      </Typography>
+    )}
+    <View style={{ flex: 1 }} />
+    {conversation.unread && <UnreadDot testID={testID ? `${testID}_unread` : undefined} />}
+  </Pressable>
 )

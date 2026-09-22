@@ -1,5 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { select, put, delay } from 'typed-redux-saga'
+import { select, put, delay, take } from 'typed-redux-saga'
 import {
   type InvitationData,
   type JoinCommunityPayload,
@@ -91,8 +91,26 @@ export function* customProtocolSaga(
   }
 
   if (isDeviceInvitationData(data)) {
+    const qssEndpoint = data.version === 'v5' ? data.qssEndpoint : undefined
+    yield* put(
+      modalsActions.openModal({
+        name: ModalName.deviceLinkConsent,
+        args: { qssEndpoint },
+      })
+    )
+    const decision:
+      | ReturnType<typeof modalsActions.confirmDeviceLinkConsent>
+      | ReturnType<typeof modalsActions.cancelDeviceLinkConsent> = yield* take([
+      modalsActions.confirmDeviceLinkConsent,
+      modalsActions.cancelDeviceLinkConsent,
+    ])
+    yield* put(modalsActions.closeModal(ModalName.deviceLinkConsent))
+    if (decision.type === modalsActions.cancelDeviceLinkConsent.type) return
+
     const payload: LinkDevicePayload = {
       inviteData: data,
+      deviceLinkConsent: true,
+      confirmedQssEndpoint: qssEndpoint,
     }
     logger.info('Dispatching link device action')
     yield* put(modalsActions.openModal({ name: ModalName.loadingPanel }))

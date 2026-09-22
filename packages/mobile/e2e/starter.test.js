@@ -178,14 +178,14 @@ describe('User', () => {
     const componentName = 'create-channel-component'
     await checkVisualRegression(componentName)
 
-    await waitFor(element(by.text('Create channel')))
+    await waitFor(element(by.id('create-channel-component')))
       .toBeVisible()
       .withTimeout(BASIC)
     const channelNameInput = await singleLineInput('Channel name')
     await press(channelNameInput)
     await write(channelNameInput, 'roll')
 
-    await press(element(by.text('Continue')), true)
+    await press(element(by.text('Create channel')).atIndex(1))
 
     await waitFor(element(by.id('chat_roll')))
       .toBeVisible()

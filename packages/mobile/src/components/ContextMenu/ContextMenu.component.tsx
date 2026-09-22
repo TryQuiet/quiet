@@ -167,13 +167,18 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                   data={items}
                   keyExtractor={item => item.title}
                   renderItem={({ item, index }) => (
-                    <View
-                      style={[
-                        { borderTopWidth: 1, borderColor: defaultPalette.background.gray06 },
-                        index === items.length - 1 ? { borderBottomWidth: 1 } : { borderBottomWidth: 0 },
-                      ]}
-                    >
+                    <View>
                       <ContextMenuItem {...item} />
+                      {/* The design's "Divider-quiet" stops at the row's own 16pt inset rather than
+                          running the full width (DM settings 816:28609), and sits under each row —
+                          including the last, which closes the group. */}
+                      <View
+                        style={{
+                          height: 1,
+                          marginHorizontal: 16,
+                          backgroundColor: defaultPalette.background.gray06,
+                        }}
+                      />
                     </View>
                   )}
                   style={{ backgroundColor: defaultPalette.background.white }}
@@ -190,8 +195,11 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   )
 }
 
-export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suffix, action }) => {
+export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suffix, destructive, action }) => {
   const icon_arrow = icons.arrow_right_short
+  // "Button row" geometry from the design library (Figma PVQ1Kjf6Cq8ng1czuVtvR8, 838:9190): 16pt
+  // side inset, 11pt above and below, so a single-line row is 48 tall and one with a subtitle 64.
+  const paddingHorizontal = 16
   const paddingVertical = 11
   const minHeight = 48
   return (
@@ -201,8 +209,8 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suf
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          paddingLeft: 20,
-          paddingRight: 20,
+          paddingLeft: paddingHorizontal,
+          paddingRight: paddingHorizontal,
           paddingVertical,
           minHeight,
           width: '100%',
@@ -211,35 +219,42 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suf
       >
         <View
           style={{
-            flex: 8,
+            flex: 1,
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'flex-start',
           }}
         >
           <View style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-            <Typography fontSize={16} fontWeight={'normal'} style={{ lineHeight: 26 }}>
+            <Typography
+              fontSize={16}
+              fontWeight={'normal'}
+              style={{ lineHeight: 26, color: destructive ? defaultTheme.palette.typography.destructive : undefined }}
+            >
               {title}
             </Typography>
             {subtitle && (
               <Typography
                 fontSize={12}
                 fontWeight={'normal'}
-                style={{ lineHeight: 16, color: defaultTheme.palette.typography.gray50 }}
+                style={{ lineHeight: 16, letterSpacing: 0.4, color: defaultTheme.palette.typography.gray50 }}
               >
                 {subtitle}
               </Typography>
             )}
           </View>
         </View>
+        {/* The count and chevron hug their content and never shrink; the title column takes the
+            rest. Sharing the row 8:1 left the count about 22pt of space, so anything past a single
+            digit wrapped or vanished (design: the text frame grows, this group is 42 wide). */}
         <View
           style={{
-            flex: 1,
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'flex-end',
             gap: 8,
             alignItems: 'center',
+            flexShrink: 0,
           }}
         >
           {suffix && (

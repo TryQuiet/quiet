@@ -5,7 +5,9 @@ import { act, fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { CommunityHome } from './CommunityHome.component'
 
-import type { CommunityHomeChannel, CommunityHomeProps, CommunityHomeUser } from './CommunityHome.types'
+import { ChannelType, type PublicChannelStorage } from '@quiet/types'
+
+import type { CommunityHomeChannel, CommunityHomeConversation, CommunityHomeProps } from './CommunityHome.types'
 
 const channels: CommunityHomeChannel[] = [
   { id: 'general-id', name: 'general', isPublic: true, unread: false },
@@ -13,20 +15,42 @@ const channels: CommunityHomeChannel[] = [
   { id: 'philosophy-id', name: 'philosophy', isPublic: false, unread: false },
 ]
 
-const users: CommunityHomeUser[] = [
-  { userId: 'stone-jump', nickname: 'StoneJump' },
-  { userId: 'moon-thinke', nickname: 'MoonThinke8' },
+const dmChannel = (id: string, name: string): PublicChannelStorage =>
+  ({
+    id,
+    name,
+    displayedName: name,
+    type: ChannelType.DM,
+    memberIds: ['me', id],
+  }) as unknown as PublicChannelStorage
+
+const conversations: CommunityHomeConversation[] = [
+  {
+    id: 'stone-jump-dm',
+    name: 'StoneJump',
+    unread: false,
+    channel: dmChannel('stone-jump-dm', 'StoneJump'),
+    userData: { connected: true, user: { userId: 'stone-jump', nickname: 'StoneJump' } as never },
+  },
+  {
+    id: 'moon-thinke-dm',
+    name: 'MoonThinke8',
+    unread: true,
+    channel: dmChannel('moon-thinke-dm', 'MoonThinke8'),
+    userData: { connected: false, user: { userId: 'moon-thinke', nickname: 'MoonThinke8' } as never },
+  },
 ]
 
 const setup = (overrides: Partial<CommunityHomeProps> = {}) => {
   const props: CommunityHomeProps = {
     communityName: 'Nyc-activism',
     channels,
-    users,
+    conversations,
     canCreateChannel: true,
     openCommunityMenu: jest.fn(),
     addMembers: jest.fn(),
     createChannel: jest.fn(),
+    createDm: jest.fn(),
     openChannel: jest.fn(),
     ...overrides,
   }
@@ -83,16 +107,34 @@ describe('CommunityHome component', () => {
     expect(toJSON()).toMatchSnapshot()
   })
 
-  it('lists every channel and member, and no message previews', () => {
-    const { getByText, queryByText } = setup()
+  it('lists every channel and conversation, and no message previews', () => {
+    const { getByText } = setup()
     expect(getByText('Add members')).toBeTruthy()
     expect(getByText('Channels')).toBeTruthy()
     expect(getByText('general')).toBeTruthy()
     expect(getByText('philosophy')).toBeTruthy()
-    expect(getByText('Users')).toBeTruthy()
+    expect(getByText('Direct messages')).toBeTruthy()
     expect(getByText('StoneJump')).toBeTruthy()
-    // The design's "Direct messages" heading is not used — Quiet has no DMs.
-    expect(queryByText('Direct messages')).toBeNull()
+  })
+
+  it('opens a conversation by its channel id', () => {
+    const { props, getByTestId } = setup()
+    fireEvent.press(getByTestId('dm_tile_StoneJump'))
+    expect(props.openChannel).toHaveBeenCalledWith('stone-jump-dm')
+  })
+
+  it('starts a new direct message from the section plus', () => {
+    const { props, getByTestId } = setup()
+    fireEvent.press(getByTestId('New direct message'))
+    expect(props.createDm).toHaveBeenCalled()
+  })
+
+  it('marks an unread conversation, and the community with it', () => {
+    const { getByTestId, queryByTestId } = setup({ channels: channels.map(c => ({ ...c, unread: false })) })
+    expect(getByTestId('dm_tile_MoonThinke8_unread')).toBeTruthy()
+    expect(queryByTestId('dm_tile_StoneJump_unread')).toBeNull()
+    // Nothing else is unread, so the community mark comes from the conversation.
+    expect(getByTestId('community_unread')).toBeTruthy()
   })
 
   it('opens a channel by id', () => {
@@ -132,13 +174,17 @@ describe('CommunityHome component', () => {
   })
 
   it('leaves the community unmarked when nothing is unread', () => {
-    const { queryByTestId } = setup({ channels: channels.map(channel => ({ ...channel, unread: false })) })
+    const { queryByTestId } = setup({
+      channels: channels.map(channel => ({ ...channel, unread: false })),
+      conversations: conversations.map(conversation => ({ ...conversation, unread: false })),
+    })
     expect(queryByTestId('community_unread')).toBeNull()
   })
 
-  it('hides the members section until profiles arrive', () => {
-    const { queryByText } = setup({ users: [] })
-    expect(queryByText('Users')).toBeNull()
+  it('keeps the Direct messages section and its plus with no conversations yet', () => {
+    const { getByText, getByTestId } = setup({ conversations: [] })
+    expect(getByText('Direct messages')).toBeTruthy()
+    expect(getByTestId('New direct message')).toBeTruthy()
   })
 
   // "Tapped state for all clickable stuff" — the designer's V1 note 6220:24045.
@@ -179,9 +225,14 @@ describe('CommunityHome component', () => {
       expect(group).toHaveStyle({ backgroundColor: 'transparent' })
     })
 
-    it('leaves member rows without a tapped state — there is nothing to open', () => {
+    it('fills a conversation row while it is held, now that it opens something', () => {
       const { getByTestId } = setup()
-      expect(getByTestId('user_tile_StoneJump').props.onStartShouldSetResponder).toBeUndefined()
+      const row = getByTestId('dm_tile_StoneJump')
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
+      hold(row)
+      expect(row).toHaveStyle({ backgroundColor: '#F0F0F0' })
+      release(row)
+      expect(row).toHaveStyle({ backgroundColor: 'transparent' })
     })
   })
 

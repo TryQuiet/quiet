@@ -26,22 +26,23 @@ const CARD_RADIUS = 16
  * `StatusBar backgroundColor` anyway. Colouring it purple needs an edge-to-edge
  * change in App.tsx, which is out of this screen's scope.
  *
- * The card holds the Add members row, the Channels section and the community's
- * members. Channel rows carry no message preview: the mobile design is a
+ * The card holds the Add members row, the Channels section and the Direct
+ * messages section. Rows carry no message preview: the mobile design is a
  * navigation list, not an inbox.
  */
 export const CommunityHome: FC<CommunityHomeProps> = ({
   communityName,
   channels,
-  users,
+  conversations,
   canCreateChannel,
   openCommunityMenu,
   addMembers,
   createChannel,
+  createDm,
   openChannel,
 }) => {
   const loading = channels.length === 0
-  const unread = channels.some(channel => channel.unread)
+  const unread = channels.some(channel => channel.unread) || conversations.some(c => c.unread)
 
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.main.brand }} testID={'channel-list-component'}>
@@ -88,14 +89,23 @@ export const CommunityHome: FC<CommunityHomeProps> = ({
               ))}
             </View>
 
-            {users.length > 0 && (
-              <View>
-                <ListSectionTitle title='Users' testID={'users_section'} />
-                {users.map(user => (
-                  <PersonRow key={user.userId} user={user} testID={`user_tile_${user.nickname}`} />
-                ))}
-              </View>
-            )}
+            <View>
+              <ListSectionTitle
+                title='Direct messages'
+                testID={'dm_section'}
+                onAdd={createDm}
+                addTestID={'New direct message'}
+                addAccessibilityLabel='New direct message'
+              />
+              {conversations.map(conversation => (
+                <PersonRow
+                  key={conversation.id}
+                  conversation={conversation}
+                  onPress={() => openChannel(conversation.id)}
+                  testID={`dm_tile_${conversation.name}`}
+                />
+              ))}
+            </View>
           </ScrollView>
         )}
       </View>

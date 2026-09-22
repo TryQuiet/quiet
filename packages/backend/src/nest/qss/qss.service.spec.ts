@@ -71,6 +71,7 @@ import {
   QSS_DEVICE_ADMISSION_RETRY_INITIAL_MS,
   QSS_RECONNECT_BACKOFF_FACTOR,
   QSS_RECONNECT_DELAY_MS,
+  QSS_RECONNECT_MAX_DELAY_MS,
   QSSAuthConnStatus,
 } from './qss.const'
 import { QSSSyncManager } from './qss-sync-manager.service'
@@ -811,7 +812,7 @@ describe('QSSService', () => {
       expect(mockedCreateSocket).toHaveBeenNthCalledWith(2, 'ws://localhost:3001')
     })
 
-    it('backs off reconnect attempts after failures and resets after success', async () => {
+    it('preserves reconnect backoff when authentication is followed by an immediate disconnect', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       mockedCreateSocket.mockRejectedValue(new Error('QSS unavailable'))
@@ -838,12 +839,13 @@ describe('QSSService', () => {
         await qssService.connect('ws://localhost:3000')
         expect(reconnectDelays).toEqual([QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR])
 
+        await qssService['handleQssAuthJoined'](sigchainService.activeChain.teamId!)
         qssClient.emit(QSSEvents.QSS_DISCONNECTED)
 
         expect(reconnectDelays).toEqual([
           QSS_RECONNECT_DELAY_MS,
           QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR,
-          QSS_RECONNECT_DELAY_MS,
+          QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR ** 2,
         ])
       } finally {
         setTimeoutSpy.mockRestore()
@@ -1326,6 +1328,152 @@ describe('QSSService', () => {
     })
   })
 
+  describe('authentication backoff', () => {
+    beforeEach(async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+      const initStatus = await qssService.getQssInitStatus()
+      jest.spyOn(qssService, 'getQssInitStatus').mockResolvedValue(initStatus)
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.ERROR)
+      jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] })
+    })
+
+    afterEach(() => {
+      qssService['_clearReconnectTimer'](true)
+      jest.useRealTimers()
+    })
+
+    it('leaves coordinator-owned auth failures to the admission state machine', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.teamId!
+      const signIn = jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      const start = jest.spyOn(qssAuthConnManager, 'startNewConnection').mockResolvedValue(undefined)
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const context = { gate: { assertCurrent: jest.fn() }, fail: jest.fn() } as any
+      await qssService.startPreparedAdmission(prepared, context)
+
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, {
+        teamId,
+        code: 'TIMEOUT',
+        error: new Error('Admission auth timed out'),
+        source: 'remote',
+        deviceAdmission: false,
+      })
+      expect(context.fail).toHaveBeenCalledTimes(1)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(1)
+      expect(start).toHaveBeenCalledTimes(1)
+      expect(qssService['_reconnectQueueProcessor']).toBeUndefined()
+    })
+
+    it('retries sign-in on the connected socket with exponential backoff capped at 60 seconds', async () => {
+      const signIn = jest.spyOn(qssService, 'signInToCommunity')
+      await qssService['_handleQssHandleSignIn']()
+      expect(signIn).toHaveBeenCalledTimes(1)
+
+      for (let attempt = 0; attempt < 13; attempt++) {
+        const delay = Math.min(
+          QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR ** attempt,
+          QSS_RECONNECT_MAX_DELAY_MS
+        )
+        await jest.advanceTimersByTimeAsync(delay - 1)
+        expect(signIn).toHaveBeenCalledTimes(attempt + 1)
+        await jest.advanceTimersByTimeAsync(1)
+        expect(signIn).toHaveBeenCalledTimes(attempt + 2)
+      }
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(1)
+    })
+
+    it('retries handshake errors, coalesces duplicate failures, and resets only after auth joins', async () => {
+      const chain = sigchainService.activeChain
+      const signInImpl = jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssService as any, 'syncNativePushPrerequisites').mockResolvedValue(undefined)
+      jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+      const stop = jest.spyOn(qssAuthConnManager, 'stopConnection')
+      const fail = async () => {
+        qssAuthConnManager.emit(QSSEvents.QSS_AUTH_ATTEMPT_FAILED, {
+          teamId: chain.teamId,
+          code: 'TIMEOUT',
+          error: new Error('Auth timeout'),
+          source: 'remote',
+          deviceAdmission: false,
+        })
+        await new Promise<void>(resolve => setImmediate(resolve))
+      }
+
+      await fail()
+      await fail()
+      expect(stop).toHaveBeenCalledWith(chain.teamId, false)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(1)
+      // A successful sign-in response and an already-connected connect() must retain backoff.
+      await qssService.connect(qssService.qssEndpoint)
+      await fail()
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(1)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(2)
+
+      await fail()
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_JOINED, chain.teamId)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(2)
+      await fail()
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signInImpl).toHaveBeenCalledTimes(3)
+    })
+
+    it('resets on authenticated connections for established members only', async () => {
+      const signIn = jest.spyOn(qssService, 'signInToCommunity')
+      const joined = jest.spyOn(qssService, 'joinStatus').mockReturnValue(JoinStatus.PENDING_MEMBER)
+      await qssService['_handleQssHandleSignIn']()
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_CONNECTED, sigchainService.activeChain.teamId)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(2)
+
+      joined.mockReturnValue(JoinStatus.JOINED)
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_CONNECTED, sigchainService.activeChain.teamId)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(2)
+      await qssService['_handleQssHandleSignIn']()
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(4)
+    })
+
+    it('shares the auth backoff with socket reconnect failures', async () => {
+      await qssService['_handleQssHandleSignIn']()
+      socket!.connected = false
+      mockedCreateSocket.mockRejectedValue(new Error('offline'))
+      qssClient.emit(QSSEvents.QSS_DISCONNECTED)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS)
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(2)
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR - 1)
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(2)
+      await jest.advanceTimersByTimeAsync(1)
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(3)
+    })
+
+    it.each(['pause', 'close'] as const)('cancels queued auth retries on %s', async action => {
+      const signIn = jest.spyOn(qssService, 'signInToCommunity')
+      await qssService['_handleQssHandleSignIn']()
+      qssService[action]()
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not retry when the community disables QSS', async () => {
+      const signIn = jest.spyOn(qssService, 'signInToCommunity')
+      await qssService['_handleQssHandleSignIn']()
+      jest.spyOn(qssService, 'getQssInitStatus').mockResolvedValue({
+        ...(await qssService.getQssInitStatus()),
+        qssEnabled: false,
+      })
+      await jest.advanceTimersByTimeAsync(QSS_RECONNECT_MAX_DELAY_MS)
+      expect(signIn).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('signInToCommunity', () => {
     it(`signs into a community on QSS successfully`, async () => {
       await initCommunity()
@@ -1799,6 +1947,7 @@ describe('QSSService', () => {
       expect(error).toBeUndefined()
       expect(result).toBeDefined()
       expect(result).toBe(QSSOperationResult.ERROR)
+      expect(qssService['_reconnectQueueProcessor']).toBeDefined()
       expect(qssService.joinStatus(sigchainService.team.id)).toBe(JoinStatus.NOT_STARTED)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
       const initStatus = await qssService.getQssInitStatus()
@@ -1822,6 +1971,7 @@ describe('QSSService', () => {
       )
 
       expect(result).toBe(QSSOperationResult.ERROR)
+      expect(qssService['_reconnectQueueProcessor']).toBeDefined()
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
       const initStatus = await qssService.getQssInitStatus()
       expect(initStatus.qssSetup).toBeFalsy()
@@ -1829,7 +1979,7 @@ describe('QSSService', () => {
   })
 
   describe('sendLogEntrySyncMessage', () => {
-    it(`sends a successful log sync to QSS`, async () => {
+    it(`syncs an OrbitDB message and triggers a push after QSS acknowledges it`, async () => {
       await initCommunity({ qssEnabled: true, qssSetup: true })
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeTruthy()
@@ -1889,6 +2039,7 @@ describe('QSSService', () => {
       expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       expect(update.teamId).toBe(sigchainService.team.id)
+      const pushTriggerSpy = jest.spyOn(qssClient, 'emit')
       const result = await qssSyncManager.sendLogEntrySyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -1909,6 +2060,11 @@ describe('QSSService', () => {
       })
       expect(result).toBe(true)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      expect(pushTriggerSpy).toHaveBeenCalledWith(
+        QSSEvents.QSS_LOG_SYNCED,
+        sigchainService.team.id,
+        expect.objectContaining({ type: EncryptionScopeType.ROLE, name: RoleName.MEMBER })
+      )
       expect(await localDbService.getLastSyncSeq(sigchainService.team.id)).toBe(syncSeq)
       expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_SYNC_SEQ_UPDATED, {
         teamId: sigchainService.team.id,
@@ -2505,17 +2661,25 @@ describe('QSSService', () => {
 
       const teamId = sigchainService.activeChain.team!.id
       markHistoricalSyncReady(teamId)
-      const address = 'channels.dlq-race'
-      const hash = 'dlq-race-hash'
-      const entry = {
-        hash,
-        id: 'dlq-race-db-id',
-        payload: {
-          value: {
-            teamId,
-          },
-        },
-      } as any
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${channel.id}`, {
+        type: 'events',
+        Database: EventsWithStorage(),
+        AccessController: messagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService,
+          channelId: channel.id,
+          teamId,
+        }),
+        sync: true,
+      })
+      const message = await baseFactory.create<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+        userId: sigchainService.activeChain.user.userId,
+      })
+      const hash = await db.add(await publicMessagesService.onSend(message, channel))
+      const entry = await db.log.get(hash)
+      const address = db.address
 
       let pendingHashes = [hash]
       const getPendingSpy = jest.spyOn(localDbService, 'getPendingQssLogSyncMessages').mockImplementation(async () => {

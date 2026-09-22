@@ -76,7 +76,7 @@ describe('Native community persistence', () => {
       .toBeVisible()
       .withTimeout(120000)
     // RCTDevLoadingView hides bundled iOS debug builds' Metro banner after 15s.
-    await waitFor(element(by.text('Native-validation')))
+    await waitFor(element(by.text('native-validation')))
       .toBeVisible()
       .withTimeout(20000)
     await element(by.id('channel_tile_general')).tap()

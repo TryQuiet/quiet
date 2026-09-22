@@ -6,6 +6,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { createAdmissionAuthContext } from './admission-auth-context'
 import { AdmissionClock } from './admission-clock'
+import { ADMISSION_DRAIN_TIMEOUT_MS, ADMISSION_TOR_BOOTSTRAP_TIMEOUT_MS } from './admission.const'
 import { CommunityLifecycle } from './community-lifecycle'
 import { AdmissionResourceScope } from './admission-resource-scope'
 import { transition } from './admission.machine'
@@ -32,6 +33,7 @@ import {
 @Injectable()
 export class AdmissionCoordinator {
   private activeSession?: AdmissionSession
+  private readonly loadDeadlines = new WeakMap<AdmissionSession, NodeJS.Timeout>()
   private readonly logger = createLogger(AdmissionCoordinator.name)
 
   constructor(
@@ -93,16 +95,11 @@ export class AdmissionCoordinator {
       state: { status: 'loading' },
       scope: new AdmissionResourceScope(),
       startedAt: this.clock.now(),
-      deadlineAt: this.clock.now() + request.timeoutMs,
+      deadlineAt: Number.POSITIVE_INFINITY,
     }
     lease.ownAdmission(handle)
     this.activeSession = session
-    session.deadline = this.clock.after(request.timeoutMs, () =>
-      this.dispatch(session, {
-        type: 'DEADLINE',
-        error: new AdmissionError('timeout', 'Admission acquisition deadline expired'),
-      })
-    )
+    this.startLoadDeadline(session)
     this.run(session, async () => {
       const community = await session.scope.run(() => this.db.getCommunity(request.communityId))
       session.scope.assertCurrent()
@@ -127,6 +124,11 @@ export class AdmissionCoordinator {
     const previous = session.state
     const update = transition(previous, event, session.request)
     session.state = update.state
+    const attempt = 'attempt' in update.state ? update.state.attempt : undefined
+    if (event.type === 'LOADED') this.clearLoadDeadline(session)
+    if ((event.type === 'LOADED' || event.type === 'ATTEMPT_DRAINED') && attempt != null) {
+      this.startDeadlineWhenReady(session, attempt.transport)
+    }
     this.logger.info('Admission transition', {
       sessionId: session.id,
       attemptId: 'attempt' in previous ? previous.attempt?.id : undefined,
@@ -255,7 +257,10 @@ export class AdmissionCoordinator {
         this.run(session, async () => {
           await state.attempt.scope.idle()
           await session.scope.idle()
+          // A drain timeout fences recovery; late I/O must not begin a new durable write.
+          if (session.state !== state) return
           await state.transaction.commit(state.candidate)
+          if (session.state !== state) return
           try {
             session.lease.adopt(state.attempt.scope, state.attempt.gate)
           } catch (error) {
@@ -349,16 +354,69 @@ export class AdmissionCoordinator {
   }
 
   private clearTimers(session: AdmissionSession): void {
+    this.clearLoadDeadline(session)
     this.clock.clear(session.deadline)
     this.clock.clear(session.fallback)
     this.clock.clear(session.watchdog)
+    this.clock.clear(session.bootstrapDeadline)
+    session.removeBootstrapListener?.()
+    session.removeBootstrapListener = undefined
+  }
+  private startLoadDeadline(session: AdmissionSession): void {
+    this.loadDeadlines.set(
+      session,
+      this.clock.after(session.request.timeoutMs, () =>
+        this.dispatch(session, {
+          type: 'DEADLINE',
+          error: new AdmissionError('timeout', 'Admission community loading deadline expired'),
+        })
+      )
+    )
+  }
+  private clearLoadDeadline(session: AdmissionSession): void {
+    this.clock.clear(this.loadDeadlines.get(session))
+    this.loadDeadlines.delete(session)
+  }
+  private startDeadlineWhenReady(session: AdmissionSession, transport: AdmissionTransport): void {
+    if (session.deadline != null || session.deadlineWaitingForTor) return
+    if (transport === AdmissionTransport.P2P) {
+      const torBootstrap = session.lease.libp2pParams.torBootstrap
+      if (torBootstrap != null && !torBootstrap.bootstrapped) {
+        session.deadlineWaitingForTor = true
+        session.bootstrapDeadline = this.clock.after(ADMISSION_TOR_BOOTSTRAP_TIMEOUT_MS, () =>
+          this.dispatch(session, {
+            type: 'DEADLINE',
+            error: new AdmissionError('timeout', 'Tor bootstrap timed out; check your connection and retry'),
+          })
+        )
+        const onBootstrapped = () => {
+          this.clock.clear(session.bootstrapDeadline)
+          session.deadlineWaitingForTor = false
+          if (
+            this.activeSession !== session ||
+            ['draining', 'failed', 'recovery-required', 'succeeded'].includes(session.state.status)
+          )
+            return
+          this.startDeadlineWhenReady(session, transport)
+        }
+        session.removeBootstrapListener = () => torBootstrap.off?.('bootstrapped', onBootstrapped)
+        torBootstrap.once('bootstrapped', onBootstrapped)
+        return
+      }
+    }
+    session.deadlineAt = this.clock.now() + session.request.timeoutMs
+    session.deadline = this.clock.after(session.request.timeoutMs, () =>
+      this.dispatch(session, {
+        type: 'DEADLINE',
+        error: new AdmissionError('timeout', 'Admission acquisition deadline expired'),
+      })
+    )
   }
   private watch(session: AdmissionSession): void {
-    session.watchdog = this.clock.after(30_000, () =>
-      this.logger.error('Admission operation stalled; ownership remains fenced', {
-        sessionId: session.id,
-        state: session.state.status,
-        elapsedMs: this.clock.now() - session.startedAt,
+    session.watchdog = this.clock.after(ADMISSION_DRAIN_TIMEOUT_MS, () =>
+      this.dispatch(session, {
+        type: 'RECOVERY_REQUIRED',
+        error: new AdmissionRecoveryRequiredError('Admission operation stalled; restart Quiet to recover safely'),
       })
     )
   }

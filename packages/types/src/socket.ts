@@ -7,6 +7,7 @@ import {
   UsersUpdatedEvent,
   CachedUserProfileRequest,
   CachedUserProfileResponse,
+  NetworkEndpointsStoredEvent,
 } from './user'
 import {
   type DeleteChannelPayload,
@@ -44,16 +45,16 @@ import {
   LaunchCommunityPayload,
   RequestInvitePayload,
   RequestDeviceLinkPayload,
-  RequestLinkedDevicesPayload,
-  LinkedDevice,
   ResponseInvitePayload,
   InviteResultWithSalt,
   DeviceLinkInvite,
   JoinCommunityPayload,
   UpdateCommunityPayload,
+  AdmissionResetCompletePayload,
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
+import { ClearConnectedPeersPayload } from './connection'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent, NseQssUrlUpdatedEvent, NseSyncSeqUpdatedEvent } from './keys'
 
 // -----------------------------------------------------------------------------
@@ -80,6 +81,7 @@ export enum SocketActions {
   LINK_DEVICE = 'linkDevice',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  RESET_ADMISSION = 'resetAdmission',
 
   // ====== Channels ======
 
@@ -108,7 +110,6 @@ export enum SocketActions {
 
   VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE = 'validateOrCreateLongLivedLfaInvite',
   CREATE_DEVICE_LINK = 'createDeviceLink',
-  GET_LINKED_DEVICES = 'getLinkedDevices',
 
   // ====== Captcha ======
   HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
@@ -139,6 +140,7 @@ export enum SocketEvents {
   // ====== Community ======
   COMMUNITY_LAUNCHED = 'communityLaunched',
   COMMUNITY_UPDATED = 'communityUpdated',
+  ADMISSION_RESET_COMPLETE = 'admissionResetComplete',
 
   // ====== Channels ======
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
@@ -155,6 +157,7 @@ export enum SocketEvents {
   USERS_UPDATED = 'usersUpdated',
   USERS_REMOVED = 'usersRemoved',
   USER_PROFILES_STORED = 'userProfilesStored',
+  NETWORK_ENDPOINTS_STORED = 'networkEndpointsStored',
   CACHED_USER_PROFILE_REQUEST = 'cachedUserProfileRequest',
   KEYS_UPDATED = 'keysUpdated',
   DEVICE_CREDENTIALS_UPDATED = 'deviceCredentialsUpdated',
@@ -169,6 +172,7 @@ export enum SocketEvents {
   CREATED_LONG_LIVED_LFA_INVITE = 'createdLongLivedLfaInvite',
 
   // ====== Network ======
+  PEER_CLEAR = 'peerClear',
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   TOR_INITIALIZED = 'torInitialized',
@@ -208,6 +212,7 @@ export interface SocketActionsMap {
     (response?: ResponseLaunchCommunityPayload) => void
   >
   [SocketActions.LEAVE_COMMUNITY]: EmitEvent<LeaveCommunityPayload, (response?: ResponseLeaveCommunityPayload) => void>
+  [SocketActions.RESET_ADMISSION]: EmitEvent<LaunchCommunityPayload, (success: boolean) => void>
 
   // ====== Channels ======
   [SocketActions.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>
@@ -236,7 +241,6 @@ export interface SocketActionsMap {
     (response?: ResponseInvitePayload) => void
   >
   [SocketActions.CREATE_DEVICE_LINK]: EmitEvent<RequestDeviceLinkPayload, (response?: DeviceLinkInvite) => void>
-  [SocketActions.GET_LINKED_DEVICES]: EmitEvent<RequestLinkedDevicesPayload, (response?: LinkedDevice[]) => void>
 
   // ====== Captcha ======
   [SocketActions.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
@@ -266,6 +270,7 @@ export interface SocketEventsMap {
   // ====== Community ======
   [SocketEvents.COMMUNITY_LAUNCHED]: EmitEvent<LaunchCommunityPayload>
   [SocketEvents.COMMUNITY_UPDATED]: EmitEvent<UpdateCommunityPayload>
+  [SocketEvents.ADMISSION_RESET_COMPLETE]: EmitEvent<AdmissionResetCompletePayload>
 
   // ====== Channels ======
   [SocketEvents.CHANNEL_SUBSCRIBED]: EmitEvent<ChannelSubscribedPayload>
@@ -282,6 +287,7 @@ export interface SocketEventsMap {
   [SocketEvents.USERS_UPDATED]: EmitEvent<UsersUpdatedEvent>
   [SocketEvents.USERS_REMOVED]: EmitEvent<UsersRemovedEvent>
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
+  [SocketEvents.NETWORK_ENDPOINTS_STORED]: EmitEvent<NetworkEndpointsStoredEvent>
   [SocketEvents.CACHED_USER_PROFILE_REQUEST]: EmitEvent<
     CachedUserProfileRequest,
     (response?: CachedUserProfileResponse) => void
@@ -299,6 +305,7 @@ export interface SocketEventsMap {
   [SocketEvents.CREATED_LONG_LIVED_LFA_INVITE]: EmitEvent<InviteResultWithSalt>
 
   // ====== Network ======
+  [SocketEvents.PEER_CLEAR]: EmitEvent<ClearConnectedPeersPayload>
   [SocketEvents.PEER_CONNECTED]: EmitEvent<any>
   [SocketEvents.PEER_DISCONNECTED]: EmitEvent<any>
   [SocketEvents.TOR_INITIALIZED]: EmitEvent<void>
