@@ -187,12 +187,12 @@ Copy:
 - Use linked device
 - Subtitle
 - Use invite link
-- More options
+- More options *(row omitted in both apps — no prototype target)*
 - Scan QR code
 
 Uses: ButtonIcons (8), Divider (5), Button row (4), caret-black-r (4), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1)
 Goes to: Content → link-devices [prototype]; Button row → open-invite-link [prototype]; Glyph → back [back]
-Implemented by: desktop `Onboarding/RecoverAccountComponent.tsx` (a step of the Join community modal, title bar *Account recovery*; *Use linked device* opens Link devices with a way back to this step, on both platforms) · mobile `RecoverAccount/RecoverAccount.component.tsx` — the info screen and its two prototype routes only; *More options* has no target in the file and is inert; the fourth row (*Scan QR code*) is hidden in the frame; the illustration is the frame's own `Icon=Vpn key` glyph at 64px; no recovery mechanism exists
+Implemented by: desktop `Onboarding/RecoverAccountComponent.tsx` (a step of the Join community modal, title bar *Account recovery*; *Use linked device* opens Link devices with a way back to this step, on both platforms) · mobile `RecoverAccount/RecoverAccount.component.tsx` — the info screen and its two prototype routes only; *More options* is drawn in the frame (2811:2535) but has no target anywhere in the prototype, so **both platforms omit the row** until the design gives it one (user, 2026-09-22); the fourth row (*Scan QR code*) is hidden in the frame; the illustration is the frame's own `Icon=Vpn key` glyph at 64px; no recovery mechanism exists
 
 ### Link devices — QR code (sheet)  ·  `sheet-2811-2601`
 
@@ -617,7 +617,7 @@ Audit of the Android app on `design/onboarding-entry` @ f12463cd2 against the pr
 | Link devices — QR code (sheet) | 2811:2601 | screens/LinkedDeviceQRCode → components/QRCode | **old design** | full screen not a sheet; title "Link a device"; #3400 copy; "Share code" button (design: "Reset QR code" text link); QR 172 bare (design: qr-code-box 220, 1px #B3B3B3 r4, 188 QR); no "Generating device link…" state |
 | Link devices — Scan QR code (sheet) | 2811:2587 | screens/PasteInviteLink (deviceLink) | **old / camera missing** | paste form instead of the sheet with viewfinder; no camera dependency on any branch |
 | Join with QR code (sheet) | 2811:2460 | screens/PasteInviteLink (qrCode) | **old / camera missing** | same; duplicated heading |
-| Account recovery | 2811:2535 | components/RecoverAccount | partial | bar title hidden; rows not bordered; "More options" drawn enabled in the frame |
+| Account recovery | 2811:2535 | components/RecoverAccount | partial | bar title hidden; rows not bordered; the frame's "More options" row is omitted (no prototype target — user, 2026-09-22) |
 | Want a server? | 2922:10009 | components/ServerOffer | **done** (`design/want-a-server`) | rebuilt to the frame on both platforms: the bar zone with the close glyph and no title, heading h3 500, the "It's free!" pill (#F9EFFF inside #ECDCF5, r4, 14/20 #461863), body 14/20 #222222, "Use Quiet's server" (50 tall, r16) over the "Not now" link (16/16 #7F7F7F), the full-bleed rule and the 16 checkbox, 24 between every block. Mobile is a screen, not the 2/3 drawer, and the bar glyph goes back to the create step (the frame's own *Glyph → back*) rather than answering the offer. What still differs is only *when* it is shown — during creation, not from Home → Add members |
 | No server? | 2922:10050 | — | **missing** | "No server?" / "This won't work well for iPhone users in your community." / [Go back] / "Continue without server" (unwired in the file — interpretation: proceed without server) |
 | Community home / switcher | 2811:2370 / 2853:1955 | ChannelList, CommunityContextMenu | old design | in-app, not onboarding; multi-community not in the app — out of scope |

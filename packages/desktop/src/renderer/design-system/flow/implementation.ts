@@ -81,7 +81,7 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     desktop: on('desktop/src/renderer/components/Onboarding/RecoverAccountComponent.tsx'),
     mobile: on('mobile/src/components/RecoverAccount/RecoverAccount.component.tsx'),
     divergence:
-      "The info screen and its two prototype routes (Link devices, Open invite link) only; there is no recovery mechanism. 'More options' leads nowhere in the design and is inert.",
+      "The info screen and its two prototype routes (Link devices, Open invite link) only; there is no recovery mechanism. The frame's 'More options' row leads nowhere in the design, so neither app builds it (user, 2026-09-22).",
   },
   'create-default': {
     desktop: on('desktop/src/renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity.tsx'),

@@ -137,7 +137,8 @@ describe('join community', () => {
     expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
     // Account recovery (2811:2535) hides its bar title
     expect(screen.queryByText('Account recovery')).not.toBeInTheDocument()
-    expect(screen.getByTestId('recover-more-options')).toHaveAttribute('aria-disabled', 'true')
+    // The frame's targetless "More options" row is not built
+    expect(screen.queryByTestId('recover-more-options')).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByTestId('recover-use-invite-link'))
     expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()

@@ -49,6 +49,7 @@
 * Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
+* Drop the greyed-out "More options" row from Recover account on desktop and mobile, since it led nowhere and its glyph failed to load
 
 ### Tests
 

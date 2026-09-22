@@ -107,19 +107,6 @@ export const InfoIcon: React.FC<OnboardingIconProps> = ({
   </Svg>
 )
 
-/** Material baseline more_horiz, the "More options" row's glyph on the Account recovery frame (2811:2535), gray 50. */
-export const MoreHorizIcon: React.FC<OnboardingIconProps> = ({
-  size = 24,
-  color = defaultTheme.palette.typography.gray50,
-}) => (
-  <Svg width={size} height={size} viewBox='0 0 24 24' fill='none'>
-    <Path
-      d='M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'
-      fill={color}
-    />
-  </Svg>
-)
-
 export const QrDisplayIcon: React.FC<OnboardingIconProps> = ({
   size = 24,
   color = defaultTheme.palette.typography.main,
