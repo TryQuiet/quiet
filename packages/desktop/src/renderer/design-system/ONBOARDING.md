@@ -251,6 +251,15 @@ Error copy under the input (undrawn state; the strings are the app's, unchanged)
 
 All six are drawn in the same slot and none of them moves the user off this screen (user decision, 2026-09-22).
 
+**One rule, not one per screen (user, 2026-09-22).** What counts as an invite link, and what to
+say when it is not one, was the pre-redesign *Join community* form's job (desktop
+`PerformCommunityActionComponent`, the `CommunityOwnership.User` branch; mobile the old
+`JoinCommunity.component`). Those screens are gone and the redesign had copied their rule into
+each new surface. It now lives in one place per platform — desktop `forms/inviteLink.ts`,
+mobile `utils/inviteLink.ts` — with the error copy alongside it (desktop keeps the strings in
+`forms/fieldsErrors.ts`). The paste step, the QR scanner and both Link devices variants all call
+it, so the scanner's message and the field's message cannot drift apart.
+
 ### Crop photo  ·  `crop-photo-3`
 Figma frame `crop photo 3` · Section: Onboarding · 375×667 · node `2811:2394` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2394)
 

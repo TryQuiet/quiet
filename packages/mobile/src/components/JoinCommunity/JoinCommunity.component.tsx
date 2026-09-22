@@ -8,18 +8,13 @@ import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
-import { getInvitationCodes } from '@quiet/state-manager'
 
 import { Splash } from '../Splash/Splash.component'
-import { InvitationData, isDeviceInvitationData } from '@quiet/types'
-import type { PasteInviteLinkVariant } from '../../route.params'
+import { validateInviteLink } from '../../utils/inviteLink'
 
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('joinCommunity:component')
-
-/** The paste field's error for text that is not a Quiet invitation; the QR scanner shows the same. */
-export const INVALID_INVITATION_ERROR = 'Please check your invite link and try again'
 
 /**
  * Title bar · heading · intro per flow. Copy is the prototype's. Every variant
@@ -41,12 +36,6 @@ const COPY = {
   /** Link devices → Paste link (user addition, 2026-09-13): the paste step under the Link devices title. */
   pasteDeviceLink: { title: 'Link devices', heading: 'Paste a link to join', intro: undefined, titleHidden: true },
 } as const
-
-/** The Link devices flow's variants: only a device link is accepted there. */
-const DEVICE_LINK_VARIANTS: PasteInviteLinkVariant[] = ['deviceLink', 'pasteDeviceLink']
-
-/** Shown under the input for a member link (or any other invitation) in the Link devices flow. Undesigned copy. */
-export const NOT_A_DEVICE_LINK_ERROR = 'This is not a device link. Use the link from Link devices on your other device.'
 
 /**
  * "Paste a link to join": one input with placeholder "Link" and Continue.
@@ -77,35 +66,19 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     setJoinCommunityInput(value)
   }
 
+  // The field carries no rules of its own: what counts as an invite link, and what to say
+  // when it is not one, is the join field's shared validation.
   const onPress = () => {
     Keyboard.dismiss()
 
-    if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
+    const result = validateInviteLink(joinCommunityInput, variant)
+    if (result.error !== undefined) {
       setLoading(false)
-      setInputError('Community address can not be empty')
+      setInputError(result.error)
       return
     }
 
-    let submitValue: InvitationData | null = null
-    try {
-      submitValue = getInvitationCodes(joinCommunityInput.trim())
-    } catch (e) {
-      logger.error(`Could not parse invitation code`, e)
-    }
-
-    if (!submitValue) {
-      setLoading(false)
-      setInputError(INVALID_INVITATION_ERROR)
-      return
-    }
-
-    if (DEVICE_LINK_VARIANTS.includes(variant) && !isDeviceInvitationData(submitValue)) {
-      setLoading(false)
-      setInputError(NOT_A_DEVICE_LINK_ERROR)
-      return
-    }
-
-    joinCommunityAction(submitValue)
+    joinCommunityAction(result.data)
   }
 
   useEffect(() => {

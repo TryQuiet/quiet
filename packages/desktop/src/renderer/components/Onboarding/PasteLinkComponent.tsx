@@ -7,17 +7,13 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
-import { getInvitationCodes } from '@quiet/state-manager'
-import { type InvitationData, isDeviceInvitationData } from '@quiet/types'
+import { type InvitationData } from '@quiet/types'
 
 import { TextField } from '../ui/TextField/TextField'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { inviteLinkField } from '../../forms/fields/communityFields'
-import { InviteLinkErrors } from '../../forms/fieldsErrors'
+import { validateInviteLink, type InviteLinkKind } from '../../forms/inviteLink'
 import { OnboardingBody } from './OnboardingBody'
-import { createLogger } from '../../logger'
-
-const logger = createLogger('pasteLink:component')
 
 const PREFIX = 'PasteLinkComponent'
 
@@ -78,7 +74,7 @@ export interface PasteLinkComponentProps {
    * What the field accepts: any invitation (default), or only a device link — a member
    * link then shows InviteLinkErrors.NotDeviceLink under the input and nothing is passed on.
    */
-  linkKind?: 'any' | 'device'
+  linkKind?: InviteLinkKind
   /** Receives the parsed invitation (member or device; only device when linkKind is 'device'). */
   handleCommunityAction: (data: InvitationData) => void
   /** An admission failure reported by the backend, shown on the field. */
@@ -116,22 +112,15 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
     clearErrors,
   } = useForm<PasteLinkFormValues>({ mode: 'onTouched' })
 
+  // The field carries no rules of its own: what counts as an invite link, and what to say
+  // when it is not one, is the join field's shared validation.
   const onSubmit = (values: PasteLinkFormValues) => {
-    let data: InvitationData | undefined
-    try {
-      data = getInvitationCodes(values.name.trim())
-    } catch (e) {
-      logger.error('Could not parse invitation code', e)
-    }
-    if (!data) {
-      setError('name', { message: InviteLinkErrors.InvalidCode })
+    const result = validateInviteLink(values.name, linkKind)
+    if (result.error !== undefined) {
+      setError('name', { message: result.error })
       return
     }
-    if (linkKind === 'device' && !isDeviceInvitationData(data)) {
-      setError('name', { message: InviteLinkErrors.NotDeviceLink })
-      return
-    }
-    handleCommunityAction(data)
+    handleCommunityAction(result.data)
   }
 
   useEffect(() => {

@@ -8,7 +8,18 @@ import { getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/com
 
 import { renderComponent } from '../../testUtils/renderComponent'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
+import { validateInviteLink } from '../../forms/inviteLink'
 import { PasteLinkComponent } from './PasteLinkComponent'
+
+// The real rule, through a spy: every case below still runs the actual validation, and the
+// reuse test can make it say something this component could not have come up with alone.
+jest.mock('../../forms/inviteLink', () => {
+  const actual = jest.requireActual('../../forms/inviteLink')
+  return { ...actual, validateInviteLink: jest.fn(actual.validateInviteLink) }
+})
+const validate = validateInviteLink as jest.MockedFunction<typeof validateInviteLink>
+
+beforeEach(() => validate.mockClear())
 
 const memberInvitationData: InvitationDataV4 = { ...validInvitationDatav4[0], kind: InvitationKind.Member }
 const memberLink = getValidInvitationUrlTestData(validInvitationDatav4[0]).shareUrl()
@@ -55,6 +66,51 @@ describe('PasteLinkComponent', () => {
     await paste('https://example.com/')
     expect(await screen.findByText(InviteLinkErrors.InvalidCode)).toBeVisible()
     expect(handleCommunityAction).not.toHaveBeenCalled()
+  })
+
+  /**
+   * The field has no rules of its own. It was the pre-redesign Join community form that
+   * decided what an invite link is and what to say when it is not one; that screen is gone
+   * and the rule lives in `forms/inviteLink`, so what this asserts is that the field asks it
+   * rather than carrying a second copy.
+   */
+  describe('the join field validation', () => {
+    it('asks the shared validation about what was submitted, with the field’s kind', async () => {
+      renderComponent(
+        <PasteLinkComponent heading={'Paste a link to join'} linkKind='device' handleCommunityAction={jest.fn()} />
+      )
+
+      await paste(deviceLink)
+
+      expect(validate).toHaveBeenCalledWith(deviceLink, 'device')
+    })
+
+    it('shows whatever the shared validation says, not a verdict of its own', async () => {
+      const onlyTheRuleKnows = 'The rule said so' as InviteLinkErrors
+      const handleCommunityAction = jest.fn()
+      renderComponent(
+        <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
+      )
+
+      validate.mockReturnValueOnce({ error: onlyTheRuleKnows })
+      // A link the real rule accepts: only delegation can turn it into an error.
+      await paste(memberLink)
+
+      expect(await screen.findByText(onlyTheRuleKnows)).toBeVisible()
+      expect(handleCommunityAction).not.toHaveBeenCalled()
+    })
+
+    it('passes on exactly the invitation the shared validation parsed', async () => {
+      const handleCommunityAction = jest.fn()
+      renderComponent(
+        <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />
+      )
+
+      await paste(memberLink)
+
+      expect(validate).toHaveReturnedWith({ data: memberInvitationData })
+      expect(handleCommunityAction).toHaveBeenCalledWith(memberInvitationData)
+    })
   })
 
   /**
