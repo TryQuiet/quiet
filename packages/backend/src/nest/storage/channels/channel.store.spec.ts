@@ -3,8 +3,6 @@ import { CryptoService } from '../../auth/services/crypto/crypto.service'
 import { PublicChannelMessagesService } from './messages/public-channel-messages.service'
 import EventEmitter from 'node:events'
 import { jest } from '@jest/globals'
-import { type PushNotificationPayload } from '@quiet/types'
-
 import { ChannelStore } from './channel.store'
 import { SigchainEvents } from '../../auth/types'
 import { StorageEvents } from '../storage.types'
@@ -253,6 +251,7 @@ describe('ChannelStore incremental message IDs', () => {
       } as any,
       { onConsume } as any,
       {} as any,
+      {} as any, // DirectMessagesService (develop)
       { getUsername } as any,
       auth as any,
       {} as any,

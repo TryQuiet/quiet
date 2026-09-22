@@ -9,6 +9,7 @@
 
 ### Fixes
 
+* Stop re-scanning and re-verifying a channel's whole message history every time a new message arrives, by indexing the messages already accepted and walking only the ancestry a replicated head brings in; the index is rebuilt when membership or keys change, and a notification no longer fires for a store that was closed or re-authorized while it was being prepared [#3536](https://github.com/TryQuiet/quiet/issues/3536) [#3539](https://github.com/TryQuiet/quiet/pull/3539)
 * Show a private channel on a device that was still missing the channel's key when its metadata arrived, retrying about once a minute until the key lands, instead of waiting for unrelated community activity that may never happen [#3563](https://github.com/TryQuiet/quiet/issues/3563)
 * Ask the local Tor daemon to generate onion identities on desktop and mobile, and start communities without waiting for Tor network publication; recover detached registrations after lost replies or control connections without an onion-address collision loop, and handle fragmented or interrupted local control authentication [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
 * Show a member as online when any of their linked devices is connected, rather than only the one device presence used to be read from

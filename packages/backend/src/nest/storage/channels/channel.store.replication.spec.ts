@@ -122,6 +122,7 @@ describe.each([true, false])('ChannelStore replicated %s-public channel history'
         { getCurrentCommunity: async () => ({ id: 'community' }) } as any,
         publicMessages,
         privateMessages,
+        {} as any, // DirectMessagesService (develop)
         { getUsername: async () => 'owner' } as any,
         auth,
         publicAccess,
