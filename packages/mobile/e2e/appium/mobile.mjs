@@ -85,9 +85,20 @@ export class Mobile {
     }
   }
   async input(placeholder, value) {
-    const selector = this.android ? '//android.widget.EditText' : `//XCUIElementTypeTextField[@value=${literal(placeholder)}]`
+    // React Native exposes Input's pressable wrapper as XCUIElementTypeOther on
+    // physical iOS devices. Focus that accessibility element, then type through
+    // the active keyboard instead of requiring a TextField node that is absent.
+    const selector = this.android
+      ? '//android.widget.EditText'
+      : `//*[@label=${literal(placeholder)} or @name=${literal(placeholder)}]`
     const input = await this.visible(selector)
-    try { await input.setValue(value) } catch { throw new Error('Could not fill the native onboarding field (input redacted)') }
+    try {
+      if (this.android) await input.setValue(value)
+      else {
+        await input.click()
+        await this.driver.keys(value)
+      }
+    } catch { throw new Error('Could not fill the native onboarding field (input redacted)') }
     if (this.android && await this.driver.isKeyboardShown()) await this.driver.back()
   }
   async join(invite, username) {
