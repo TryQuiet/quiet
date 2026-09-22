@@ -114,8 +114,10 @@ export const missingChannelMessages = (ids: string[], channelId: string) =>
   createSelector(publicChannelsMessagesBase, base => {
     const channelMessagesBase = base[channelId]
     if (!channelMessagesBase) return []
-    const channelMessages = channelMessagesAdapter.getSelectors().selectIds(channelMessagesBase.messages)
-    return ids.filter(id => !channelMessages.includes(id))
+    const entities = channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
+    // The normalized entity index avoids scanning the entire history for each
+    // announced ID. An inherited property is not a locally stored message.
+    return ids.filter(id => !Object.prototype.hasOwnProperty.call(entities, id) || entities[id] === undefined)
   })
 
 export const missingChannelFiles = (channelId: string) =>
