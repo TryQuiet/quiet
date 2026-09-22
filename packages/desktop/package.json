@@ -111,6 +111,7 @@
     "test": "TZ=UTC LOG_TO_FILE=false jest --runInBand",
     "test:watch": "TZ=UTC LOG_TO_FILE=false jest --watchAll",
     "test:electron": "npm run build:main && node scripts/test-electron.cjs",
+    "test:macos-native-drag": "node scripts/test-macos-native-drag.cjs",
     "rtl-test": "TZ=UTC LOG_TO_FILE=false jest ./src/rtl-tests",
     "cypress:open": "cypress open --component",
     "cypress:run": "cypress run --component",
