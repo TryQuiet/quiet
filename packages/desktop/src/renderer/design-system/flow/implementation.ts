@@ -97,7 +97,7 @@ export const IMPLEMENTATION: Record<string, StageImpl> = {
     mobile: on('mobile/src/components/Registration/UsernameRegistration.component.tsx'),
   },
   'link-devices': {
-    desktop: pr('desktop/src/renderer/components/Settings/Tabs/LinkedDevices/LinkedDevices.component.tsx'),
+    desktop: pr('desktop/src/renderer/components/Settings/Tabs/LinkedDevices/LinkedDevices.tsx'),
     mobile: pr('mobile/src/screens/LinkedDeviceQRCode/LinkedDeviceQRCode.screen.tsx'),
     divergence:
       "#3400 vocabulary: DeviceLinkInvite, deviceLinkUrl, LinkedDevices; strings 'Generating device link…', 'Device link unavailable'. It lives under Settings, not onboarding.",

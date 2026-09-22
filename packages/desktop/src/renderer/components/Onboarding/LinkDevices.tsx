@@ -15,78 +15,83 @@ import { DeviceLinkConsentComponent } from '../DeviceLinkConsent/DeviceLinkConse
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { LinkedDevices as LinkedDevicesTab } from '../Settings/Tabs/LinkedDevices/LinkedDevices'
+import { ConfirmationToast } from '../ui/ConfirmationToast/ConfirmationToast'
+import { DisplayQrCode } from './DisplayQrCode'
 import { LinkDevicesComponent } from './LinkDevicesComponent'
+import { useCopyDeviceLink } from './useCopyDeviceLink'
 import { PasteLinkComponent } from './PasteLinkComponent'
-import { OnboardingBody } from './OnboardingBody'
 import { QrScannerComponent } from './qrScanner/QrScannerComponent'
 import { createLogger } from '../../logger'
 
 const logger = createLogger('LinkDevices')
 
-type Step = 'entry' | 'display' | 'scan' | 'paste'
+/** `paste` is the scanner's fallback (back returns to the camera); `pasteLink` is the Paste link row's (back returns here). */
+export type LinkDevicesStep = 'entry' | 'display' | 'scan' | 'paste' | 'pasteLink'
+type Step = LinkDevicesStep
+
+/** Settings → Linked devices opens the modal straight at a row's step; back / close from there leave the modal. */
+export interface LinkDevicesModalArgs {
+  step?: LinkDevicesStep
+  /** Where the back arrow goes when Account recovery handed over to this modal (#3514). */
+  returnTo?: 'recoverAccount'
+}
 
 /**
- * The title the prototype's frames put in the bar (2811:2575, 2811:2601,
- * 2811:2587). Every step but one draws those same words as its own large
- * heading — "Link devices", "Linked devices", "Paste a link to Join" — and a
- * page with a heading gets no bar title, so the bar keeps only the back glyph
- * and these are what it would have said.
- *
- * The scanner is the exception. It draws the camera and the sheet's intro, not
- * a heading, so under the same rule its step keeps the bar title the frame
- * gives it; otherwise that screen would carry no title at all.
+ * Only the sheets keep a titled bar (2811:2601 "QR code", 2811:2587 "Scan QR code").
+ * Link devices and the paste step are full-screen h1 stages: the frames hide the bar's
+ * title (the Device-linking desktop frame 879:20987 draws dots, arrow, then the h1) —
+ * only the glyph, the h1 is the title.
  */
-const HIDDEN_TITLES: Record<Step, string> = {
-  entry: 'Link devices',
+const TITLED_STEPS: Partial<Record<Step, string>> = {
   display: 'QR code',
   scan: 'Scan QR code',
-  paste: 'Scan QR code',
 }
+
+const PASTE_STEPS: Step[] = ['paste', 'pasteLink']
 
 /** The Scan QR code sheet's copy (2811:2587). */
 export const SCAN_QR_CODE_INTRO =
   'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /**
- * Link devices, reached from Get started. "Display QR code" shows #3400's
- * Linked devices surface (a link can only be minted from inside a community);
- * "Scan QR code" opens the camera, and offers the paste field when it cannot.
+ * Link devices, reached from Get started (receive: "Scan QR code" opens the camera
+ * and offers the paste field when it cannot, "Paste link" opens that field directly;
+ * pasted here only a device link is accepted) and, inside a community, from Settings
+ * (share: "Display QR code" shows the QR code sheet 2811:2601, whose close returns
+ * here; "Copy link" copies the same link and confirms).
  *
- * Whichever way the link arrives — scanned or pasted — linking hands the other device this
- * account, so it goes through the same consent sheet rather than starting on arrival.
+ * Whichever way a device link arrives — scanned or pasted — linking hands the other
+ * device this account, so it goes through the consent sheet rather than starting on
+ * arrival. The frame's "Linked devices" list is not drawn: nothing on this line can
+ * enumerate a user's devices (TryQuiet/quiet#3636).
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
-  // `returnTo`: where the back arrow goes when this was opened from Account recovery.
-  const linkDevicesModal = useModal<{ returnTo?: 'recoverAccount' }>(ModalName.linkDevicesModal)
-  const joinCommunityModal = useModal<{ step?: 'recoverAccount' }>(ModalName.joinCommunityModal)
+  const linkDevicesModal = useModal<LinkDevicesModalArgs>(ModalName.linkDevicesModal)
+  const initialStep: Step = linkDevicesModal.step ?? 'entry'
   const getStartedModal = useModal(ModalName.getStartedModal)
+  const joinCommunityModal = useModal<{ step?: 'recoverAccount' }>(ModalName.joinCommunityModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const [step, setStep] = useState<Step>('entry')
   const [revealInputValue, setRevealInputValue] = useState(false)
   const [pendingDeviceInvite, setPendingDeviceInvite] = useState<DeviceInvitationData | null>(null)
+  // Inside a community this device shares (Display QR code, Copy link); without one it receives.
+  const direction = currentCommunity ? 'share' : 'receive'
+  const copyLink = useCopyDeviceLink(linkDevicesModal.open && step === 'entry' && direction === 'share')
 
   useEffect(() => {
-    if (!linkDevicesModal.open) setStep('entry')
+    setStep(linkDevicesModal.open ? initialStep : 'entry')
   }, [linkDevicesModal.open])
 
-  const handleBack = () => {
-    if (step === 'paste') {
-      setStep('scan')
-      return
-    }
-    if (step !== 'entry') {
-      setStep('entry')
-      return
-    }
+  const leave = () => {
     if (linkDevicesModal.returnTo === 'recoverAccount') {
-      // Opened from Account recovery → "Use linked device": back returns there.
+      // Opened from Account recovery → "Use linked device" (#3514): back returns there,
+      // not to Get started.
       joinCommunityModal.handleOpen({ step: 'recoverAccount' })
       linkDevicesModal.handleClose()
       return
@@ -95,15 +100,28 @@ export const LinkDevices: React.FC = () => {
     linkDevicesModal.handleClose()
   }
 
+  const handleBack = () => {
+    if (step === initialStep) {
+      leave()
+      return
+    }
+    if (step === 'paste') {
+      setStep('scan')
+      return
+    }
+    setStep('entry')
+  }
+
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
-      // Linking a device hands the other device this account, so it is never done without consent.
-      // A scanned code is no more deliberate than a pasted one here: the camera decodes whatever is
-      // in front of it, so the scan path needs the gate at least as much as the paste path does.
+      // Linking a device hands the other device this account, so it is never done without
+      // consent. A scanned code is no more deliberate than a pasted one: the camera decodes
+      // whatever is in front of it, so the scan path needs the gate at least as much.
       setPendingDeviceInvite(data)
       return
     }
-    // A member invitation here still joins, the way Join community does.
+    // A member invitation scanned here still joins, the way Join community does
+    // (the paste field passes device links only).
     const payload: JoinCommunityPayload = { inviteData: data }
     dispatch(communities.actions.joinCommunity(payload))
     createUsernameModal.handleOpen()
@@ -124,14 +142,18 @@ export const LinkDevices: React.FC = () => {
     setPendingDeviceInvite(null)
   }
 
+  // The QR code sheet (2811:2601) has a close glyph, not a back arrow; closing it reveals Link devices —
+  // or, opened straight at the sheet from Settings, leaves the modal.
+  const isSheet = step === 'display'
+
   return (
     <>
       <Modal
         open={linkDevicesModal.open}
-        handleClose={linkDevicesModal.handleClose}
-        title={HIDDEN_TITLES[step]}
-        withoutTitle={step !== 'scan'}
-        canGoBack
+        handleClose={isSheet && step !== initialStep ? () => setStep('entry') : leave}
+        title={TITLED_STEPS[step] ?? ''}
+        withoutTitle={!TITLED_STEPS[step]}
+        canGoBack={!isSheet}
         handleBack={handleBack}
         alignCloseLeft
         contentWidth={'100%'}
@@ -139,13 +161,20 @@ export const LinkDevices: React.FC = () => {
         zIndex={1300}
       >
         {step === 'entry' ? (
-          <LinkDevicesComponent onDisplayQrCode={() => setStep('display')} onScanQrCode={() => setStep('scan')} />
+          <>
+            <LinkDevicesComponent
+              direction={direction}
+              onDisplayQrCode={() => setStep('display')}
+              deviceLink={copyLink.deviceLink}
+              onCopyLink={copyLink.onCopyLink}
+              onLinkCopied={copyLink.onLinkCopied}
+              onScanQrCode={() => setStep('scan')}
+              onPasteLink={() => setStep('pasteLink')}
+            />
+            <ConfirmationToast open={copyLink.copied} message={'Copied'} onClose={copyLink.dismissCopied} />
+          </>
         ) : null}
-        {step === 'display' ? (
-          <OnboardingBody dataTestId='link-devices-display'>
-            <LinkedDevicesTab centered />
-          </OnboardingBody>
-        ) : null}
+        {step === 'display' ? <DisplayQrCode dataTestId='link-devices-display' /> : null}
         {step === 'scan' ? (
           <QrScannerComponent
             intro={SCAN_QR_CODE_INTRO}
@@ -154,13 +183,14 @@ export const LinkDevices: React.FC = () => {
             dataTestId='link-devices-scanner'
           />
         ) : null}
-        {step === 'paste' ? (
+        {PASTE_STEPS.includes(step) ? (
           <PasteLinkComponent
             heading={'Paste a link to Join'}
             open={linkDevicesModal.open}
             isConnectionReady={isConnected}
             revealInputValue={revealInputValue}
             handleClickInputReveal={() => setRevealInputValue(value => !value)}
+            linkKind='device'
             handleCommunityAction={handleCommunityAction}
           />
         ) : null}

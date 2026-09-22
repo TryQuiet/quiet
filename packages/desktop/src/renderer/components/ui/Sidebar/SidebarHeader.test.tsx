@@ -34,7 +34,12 @@ describe('SidebarHeader', () => {
 
   it('names the action in the test id, so each addable section has its own (+)', () => {
     renderComponent(
-      <SidebarHeader title='Direct messages' action={jest.fn()} actionTitle='createNewMessage' tooltipText='Start a new DM' />
+      <SidebarHeader
+        title='Direct messages'
+        action={jest.fn()}
+        actionTitle='createNewMessage'
+        tooltipText='Start a new DM'
+      />
     )
 
     expect(screen.getByTestId('sidebar-button-createNewMessage')).not.toBeNull()

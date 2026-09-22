@@ -31,12 +31,12 @@ export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route })
     joinCommunityError?.type === 'invalid'
       ? ErrorMessages.INVALID_INVITE
       : joinCommunityError?.type === 'interrupted'
-      ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
-      : joinCommunityError?.type === 'timeout'
-      ? joinCommunityError.invitationType === 'device'
-        ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
-        : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
-      : undefined
+        ? ErrorMessages.ADMISSION_INTERRUPTED_RETRY
+        : joinCommunityError?.type === 'timeout'
+          ? joinCommunityError.invitationType === 'device'
+            ? ErrorMessages.DEVICE_ADMISSION_TIMEOUT
+            : ErrorMessages.COMMUNITY_ADMISSION_TIMEOUT
+          : undefined
 
   // Handle deep linking (opening app with quiet://)
   useEffect(() => {

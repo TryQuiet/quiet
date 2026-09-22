@@ -33,13 +33,7 @@ const handlers = {
 
 storiesOf('CommunityHome', module)
   .add('Default', () => (
-    <CommunityHome
-      communityName='nyc-activism'
-      channels={channels}
-      users={users}
-      canCreateChannel
-      {...handlers}
-    />
+    <CommunityHome communityName='nyc-activism' channels={channels} users={users} canCreateChannel {...handlers} />
   ))
   .add('Without create permission', () => (
     <CommunityHome

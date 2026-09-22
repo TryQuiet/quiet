@@ -92,12 +92,7 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
     >
       {({ TransitionProps, placement }) => {
         const splitPlacement: keyof typeof classes = placement.split('-')[0] as
-          | 'wrapper'
-          | 'paper'
-          | 'bottom'
-          | 'top'
-          | 'arrow'
-          | 'popper'
+          'wrapper' | 'paper' | 'bottom' | 'top' | 'arrow' | 'popper'
         return (
           <Grow
             {...TransitionProps}

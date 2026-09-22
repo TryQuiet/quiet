@@ -11,7 +11,7 @@ import { OpenInviteLinkComponent } from '../../components/Onboarding/OpenInviteL
 import { PasteLinkComponent } from '../../components/Onboarding/PasteLinkComponent'
 import { CreateCommunityComponent } from '../../components/Onboarding/CreateCommunityComponent'
 import { LinkDevicesComponent } from '../../components/Onboarding/LinkDevicesComponent'
-import { LinkedDevicesComponent } from '../../components/Settings/Tabs/LinkedDevices/LinkedDevices.component'
+import { DisplayQrCodeComponent } from '../../components/Onboarding/DisplayQrCodeComponent'
 import { QrScannerComponent } from '../../components/Onboarding/qrScanner/QrScannerComponent'
 import { installStoryCamera, type StoryCamera } from './storyCamera'
 
@@ -374,7 +374,7 @@ export const LinkDevices = () => (
     title='Link devices'
     droppedBar='Link devices'
     figma='2811:2575'
-    render={() => <LinkDevicesComponent onDisplayQrCode={noop} onScanQrCode={noop} />}
+    render={() => <LinkDevicesComponent direction='receive' onScanQrCode={noop} onPasteLink={noop} />}
   />
 )
 
@@ -385,15 +385,12 @@ export const DisplayQrCode = () => (
     figma='2811:2601'
     note="#3400's Linked devices surface, shown inside the Link devices modal"
     render={() => (
-      <OnboardingBody dataTestId='link-devices-display'>
-        <LinkedDevicesComponent
-          deviceLink={'https://tryquiet.org/join#example-device-link'}
-          isLoading={false}
-          revealLink={false}
-          onToggleLinkVisibility={noop}
-          centered
-        />
-      </OnboardingBody>
+      <DisplayQrCodeComponent
+        deviceLink={'https://tryquiet.org/join#example-device-link'}
+        isLoading={false}
+        onReset={noop}
+        dataTestId='link-devices-display'
+      />
     )}
   />
 )
@@ -673,19 +670,20 @@ const WalkthroughStory = () => {
         return <CreateUsernameBody registerUsername={onRegister} />
       case 'linkDevices':
         return (
-          <LinkDevicesComponent onDisplayQrCode={() => go('displayQrCode')} onScanQrCode={() => go('scanQrCode')} />
+          <LinkDevicesComponent
+            direction='share'
+            onDisplayQrCode={() => go('displayQrCode')}
+            onScanQrCode={() => go('scanQrCode')}
+          />
         )
       case 'displayQrCode':
         return (
-          <OnboardingBody dataTestId='link-devices-display'>
-            <LinkedDevicesComponent
-              deviceLink={SAMPLE_DEVICE_LINK}
-              isLoading={false}
-              revealLink={revealLink}
-              onToggleLinkVisibility={() => setRevealLink(v => !v)}
-              centered
-            />
-          </OnboardingBody>
+          <DisplayQrCodeComponent
+            deviceLink={SAMPLE_DEVICE_LINK}
+            isLoading={false}
+            onReset={noop}
+            dataTestId='link-devices-display'
+          />
         )
       case 'scanQrCode':
         return (

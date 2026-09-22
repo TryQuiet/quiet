@@ -1082,7 +1082,7 @@ describe('Channels panel', () => {
         timestamp: DateTime.utc().valueOf(),
         public: true,
         type,
-      } as unknown as PublicChannel)
+      }) as unknown as PublicChannel
 
     const result = renderComponent(
       <ChannelsPanel

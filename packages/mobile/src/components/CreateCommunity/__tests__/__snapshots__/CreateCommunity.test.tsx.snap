@@ -220,7 +220,7 @@ exports[`Spinner component renders component 1`] = `
     </View>
   </View>
 </View>
-`;
+`
 
 exports[`Spinner component renders loading screen if not ready 1`] = `
 <View
@@ -412,4 +412,4 @@ exports[`Spinner component renders loading screen if not ready 1`] = `
     </Text>
   </View>
 </View>
-`;
+`
