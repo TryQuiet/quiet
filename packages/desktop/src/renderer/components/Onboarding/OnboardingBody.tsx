@@ -105,10 +105,13 @@ export const BETA_WARNING = "Quiet is in beta and shouldn't be used for activiti
  * Get started (`0j7Nna9zWmfOSNmRmQK1Uh` `6066:27523`) and on Join community (`6072:19844`).
  * Every beta-warning caption in the Figma cache - 21 nodes across four files - is #222222;
  * none is grey. `variant='caption'` alone paints it gray40 (#999999), which is the library's
- * caption ink in general but not what these frames use. The colour has to sit on this
- * element's own class: MUI writes the variant's colour onto the element, so neither an
- * inherited colour nor a rule on the row above it reaches the text. `gray90` is that ink,
- * inverted in the dark theme, which is how the library's Dark mode file draws text this size.
+ * caption ink in general but not what these frames use. MUI writes the variant's colour onto
+ * the element itself, so a colour inherited from the row never reaches the text - which is
+ * what the row's old `darkGray` was doing, reaching only the gap beside the glyph. A class on
+ * the row would win in a browser, on specificity, but jsdom resolves `getComputedStyle` by
+ * document order, so it would report the grey and no test could tell. Declaring the colour on
+ * this element's own class is the one placement both agree on. `gray90` is that ink, inverted
+ * in the dark theme, which is how the library's Dark mode file draws text this size.
  */
 const BetaCaption = styled(Typography)(({ theme }) => ({
   color: theme.palette.colors.gray90,
