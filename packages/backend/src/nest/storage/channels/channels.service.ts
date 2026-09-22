@@ -9,9 +9,7 @@ import {
   FileMetadata,
   type MessagesLoadedPayload,
   PublicChannel,
-  PushNotificationPayload,
   SocketEvents,
-  ChannelMessageIdsResponse,
   DeleteChannelResponse,
   CreateChannelPayload,
   ChannelSubscribedPayload,
@@ -1235,30 +1233,9 @@ export class ChannelsService extends EventEmitter {
    */
   private handleMessageEventsOnChannelStore(channelId: string, repo: ChannelRepo): void {
     this.logger.info(`Subscribing to channel updates`, channelId)
-    repo.store.on(StorageEvents.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
-      this.forward(StorageEvents.MESSAGE_IDS_STORED, payload)
-    })
-
-    repo.store.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
-      this.forward(StorageEvents.MESSAGES_STORED, payload)
-    })
-
-    repo.store.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
-      this.forward(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
-    })
-  }
-
-  /**
-   * Re-emit a channel store announcement. The store retries an announcement whose listener threw,
-   * so a failure in a downstream consumer must not surface here as a failed delivery: it would make
-   * the store announce the same message again to every consumer that had already handled it.
-   */
-  private forward(event: StorageEvents, payload: unknown): void {
-    try {
-      this.emit(event, payload)
-    } catch (error) {
-      this.logger.error(`A ${event} consumer failed`, error)
-    }
+    // The store delivers to this service's listeners registration by registration, so a failing
+    // consumer neither hides an announcement from the others nor gets it repeated to them.
+    repo.store.forwardAnnouncementsTo(this)
   }
 
   /**

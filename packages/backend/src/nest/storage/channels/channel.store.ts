@@ -43,7 +43,8 @@ type IndexedEntry = { id: string; userId: string }
 // listeners of each announcement event that already received this message, so a retry after a
 // failing listener reaches only the listeners still owed it.
 type Listener = (...args: any[]) => void
-// Per announcement event, how many registrations of each listener already received the message.
+// Per announcement target and event, how many registrations of each listener already received
+// the message.
 type Delivered = Map<string, Map<Listener, number>>
 type PendingHead = { notify: boolean; trusted: boolean; delivered?: Delivered }
 type AuthFingerprint = { localUserId: string; members: Map<string, string> }
@@ -136,6 +137,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   private readonly dirtyAuthors = new Map<string, number>()
   private authRecheckNeeded = false
   private authRecheckQueued = false
+  private idsResendNeeded = false
+  // Emitters whose listeners receive this store's announcements exactly as this store's own do.
+  private readonly announcementTargets: EventEmitter[] = [this]
   private storeEvents: EventEmitter | undefined
   private storeUpdateListener: ((entry: LogEntry<EncryptedMessage>) => Promise<void>) | undefined
 
@@ -187,6 +191,11 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       if (this.authRecheckNeeded) {
         await this.recheckAuthorization()
         return
+      }
+      if (this.idsResendNeeded) {
+        // A MESSAGE_IDS_STORED consumer failed: the snapshot repeats for everyone, IDs are candidates.
+        this.idsResendNeeded = false
+        await this.refreshMessageIds()
       }
       const epoch = this.messageIndexEpoch
       const result = await this.queueMessageIndex(() => this.walkPendingHeads(epoch))
@@ -386,31 +395,42 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   }
 
   /**
+   * Announce to the listeners of another emitter as if they were registered on this store: each
+   * registration is delivered to individually, so one failing consumer neither hides an
+   * announcement from the others nor makes a retry repeat it to them.
+   */
+  public forwardAnnouncementsTo(target: EventEmitter): void {
+    if (!this.announcementTargets.includes(target)) this.announcementTargets.push(target)
+  }
+
+  /**
    * Hand one announcement to each registered listener not yet given it. EventEmitter.emit stops at
    * the first throwing listener; delivering registration by registration lets the others receive
    * the message now and a retry reach only the ones that threw. A listener that throws before its
    * effect therefore sees the message exactly once; one that throws after its effect sees it again
-   * (at least once), which is why the forwarding boundary in ChannelsService never throws back here
-   * and the state-manager upserts messages by ID.
+   * (at least once), which is why the state-manager upserts messages by ID.
    */
   private deliver(event: StorageEvents, payload: unknown, delivered: Delivered): boolean {
-    const done = delivered.get(event) ?? new Map<Listener, number>()
-    delivered.set(event, done)
-    // rawListeners keeps once() wrappers (calling one unregisters it) and repeated registrations.
-    const seen = new Map<Listener, number>()
-    const failed = new Set<Listener>()
     let complete = true
-    for (const listener of this.rawListeners(event) as Listener[]) {
-      const occurrence = seen.get(listener) ?? 0
-      seen.set(listener, occurrence + 1)
-      if (occurrence < (done.get(listener) ?? 0) || failed.has(listener)) continue
-      try {
-        listener.call(this, payload)
-        done.set(listener, occurrence + 1)
-      } catch (error) {
-        this.logger.error(`A ${event} listener failed, retrying later`, error)
-        failed.add(listener)
-        complete = false
+    for (const [n, target] of this.announcementTargets.entries()) {
+      const key = `${n}:${event}`
+      const done = delivered.get(key) ?? new Map<Listener, number>()
+      delivered.set(key, done)
+      // rawListeners keeps once() wrappers (calling one unregisters it) and repeated registrations.
+      const seen = new Map<Listener, number>()
+      const failed = new Set<Listener>()
+      for (const listener of target.rawListeners(event) as Listener[]) {
+        const occurrence = seen.get(listener) ?? 0
+        seen.set(listener, occurrence + 1)
+        if (occurrence < (done.get(listener) ?? 0) || failed.has(listener)) continue
+        try {
+          listener.call(target, payload)
+          done.set(listener, occurrence + 1)
+        } catch (error) {
+          this.logger.error(`A ${event} listener failed, retrying later`, error)
+          failed.add(listener)
+          complete = false
+        }
       }
     }
     return complete
@@ -755,22 +775,23 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       await this.ensureMessageIndex()
       if (this.closing) return
       const epoch = this.messageIndexEpoch
+      const community = await this.localDbService.getCurrentCommunity()
+      if (epoch !== this.messageIndexEpoch || this.closing) return
       // The frontend treats IDs as candidates to fetch, not an authoritative replacement list.
       // Ordinary arrivals need only announce the delta; reconciliation still sends a snapshot.
-      // Both are announced only under current facts: a delta consumed under superseded facts and
-      // the entries of members whose recheck is still owed wait for the recheck's own snapshot.
+      // Both are announced only under current facts, decided after the last await: a delta
+      // consumed under superseded facts and the entries of members whose recheck is still owed
+      // wait for the recheck's own snapshot.
       const current = addedEpoch === epoch && addedRevision === this.authRevision
       const ids = wasReady && addedIds !== undefined && current ? addedIds : this.announcedIds()
       if (addedIds !== undefined && ids.length === 0) return
-      const community = await this.localDbService.getCurrentCommunity()
-      if (epoch !== this.messageIndexEpoch) return
 
       if (community) {
-        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
-          ids,
-          channelId: this.channelData.id,
-          communityId: community.id,
-        })
+        const payload = { ids, channelId: this.channelData.id, communityId: community.id }
+        if (!this.deliver(StorageEvents.MESSAGE_IDS_STORED, payload, new Map())) {
+          this.idsResendNeeded = true
+          this.scheduleRetry()
+        }
       }
     } catch (e) {
       const error = e instanceof Error ? e : new Error(String(e))

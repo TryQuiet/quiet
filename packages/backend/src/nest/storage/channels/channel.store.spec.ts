@@ -1459,6 +1459,134 @@ describe('ChannelStore incremental message IDs', () => {
     })
   })
 
+  describe('audit regressions (Daybreak iteration 4)', () => {
+    type FakeMember = { userId: string; roles: string[]; keys?: { generation: number } }
+    const chainWith = (members: FakeMember[]) => ({ user: { userId: 'self' }, team: { members: () => members } })
+    const authored = (id: string, userId: string) => ({ id, channelId: 'general', teamId: 'team', userId })
+    const self = { userId: 'self', roles: ['member'] }
+    const alice = (generation: number) => ({ userId: 'alice', roles: ['member'], keys: { generation } })
+    const messageIds = (payload: { messages: { id: string }[] }) => payload.messages.map(message => message.id)
+    const pause = () => {
+      let resume!: () => void
+      const paused = new Promise<void>(resolve => {
+        resume = resolve
+      })
+      return { paused, resume }
+    }
+    const settle = () => new Promise(resolve => setTimeout(resolve, 20))
+
+    it.each(['delta', 'snapshot'] as const)(
+      'M-1: never announces an ID whose author changed during the community lookup (%s)',
+      async kind => {
+        const { store, auth, append, save, onConsume, ids } = createStore()
+        ;(store as any).retryDelayMs = 1
+        let generation = 0
+        auth.getActiveChain = () => chainWith([self, alice(generation)])
+        const lookup = pause()
+        let pauses = 0
+        ;(store as any).localDbService = {
+          getCurrentCommunity: async () => {
+            if (pauses-- > 0) await lookup.paused
+            return { id: 'community' }
+          },
+        }
+        const recheck = pause()
+        onConsume.mockImplementation(async message => {
+          if (generation >= 1) {
+            await recheck.paused
+            return false
+          }
+          return { ...message, verified: true }
+        })
+        let announcing: Promise<unknown>
+        if (kind === 'delta') {
+          await store.subscribe()
+          pauses = 1
+          announcing = append('a1', 'a1', authored('a1', 'alice'))
+        } else {
+          save({ hash: 'a1', value: authored('a1', 'alice') })
+          pauses = 1
+          announcing = store.subscribe()
+        }
+        await waitFor(() => pauses < 1)
+        // Alice's facts change while the announcement waits on the community lookup.
+        generation = 1
+        auth.emit(SigchainEvents.UPDATED)
+        lookup.resume()
+        await announcing
+        await waitFor(() => onConsume.mock.calls.length === 2)
+        expect(ids.mock.calls.flatMap(([event]) => event.ids)).not.toContain('a1')
+        recheck.resume()
+        await waitFor(() => (store as any).dirtyAuthors.size === 0)
+        await settle()
+        expect(ids.mock.calls.flatMap(([event]) => event.ids)).not.toContain('a1')
+        expect(await store.getEntries(['a1'])).toEqual([])
+      }
+    )
+
+    it('M-2: a throwing MESSAGE_IDS_STORED consumer neither hides the delta from later consumers nor misses it', async () => {
+      const { store, append } = createStore()
+      ;(store as any).retryDelayMs = 1
+      await store.subscribe()
+      const fragile: string[][] = []
+      const healthy: string[][] = []
+      let failures = 1
+      store.on(StorageEvents.MESSAGE_IDS_STORED, event => {
+        if (failures-- > 0) throw new Error('first ids consumer failed')
+        fragile.push(event.ids)
+      })
+      store.on(StorageEvents.MESSAGE_IDS_STORED, event => healthy.push(event.ids))
+      await append('m')
+      expect(healthy).toEqual([['m']])
+      await waitFor(() => fragile.length > 0)
+      await settle()
+      expect(fragile).toEqual([['m']])
+      for (const announced of healthy) expect(announced).toEqual(['m'])
+    })
+
+    it.each([StorageEvents.MESSAGES_STORED, StorageEvents.SEND_PUSH_NOTIFICATION] as const)(
+      'M-2: %s consumers of a forwarding emitter are delivered to one by one, and only the one that threw is retried',
+      async event => {
+        const previousBackend = process.env.BACKEND
+        const previousConnectionTime = process.env.CONNECTION_TIME
+        process.env.BACKEND = 'mobile'
+        process.env.CONNECTION_TIME = '0'
+        try {
+          const { store, append } = createStore()
+          ;(store as any).retryDelayMs = 1
+          const service = new EventEmitter()
+          store.forwardAnnouncementsTo(service)
+          const idOf = (payload: any) =>
+            event === StorageEvents.MESSAGES_STORED ? messageIds(payload) : [JSON.parse(payload.message).id]
+          const fragile: string[] = []
+          const healthy: string[] = []
+          const contexts: unknown[] = []
+          let failures = 1
+          service.on(event, function (this: unknown, payload: any) {
+            contexts.push(this)
+            if (failures-- > 0) throw new Error('first consumer failed')
+            fragile.push(...idOf(payload))
+          })
+          service.on(event, (payload: any) => healthy.push(...idOf(payload)))
+          await store.subscribe()
+          await append('m', 'm', { ...authored('m', 'sender'), createdAt: Date.now() })
+          expect(healthy).toEqual(['m'])
+          await waitFor(() => fragile.length > 0)
+          await settle()
+          expect(fragile).toEqual(['m'])
+          expect(healthy).toEqual(['m'])
+          expect(contexts.every(context => context === service)).toBe(true)
+          expect((store as any).pendingHeads.size).toBe(0)
+        } finally {
+          if (previousBackend === undefined) delete process.env.BACKEND
+          else process.env.BACKEND = previousBackend
+          if (previousConnectionTime === undefined) delete process.env.CONNECTION_TIME
+          else process.env.CONNECTION_TIME = previousConnectionTime
+        }
+      }
+    )
+  })
+
   it('returns a batch of announced IDs in request order', async () => {
     const { store, append, reads } = createStore()
     await store.subscribe()

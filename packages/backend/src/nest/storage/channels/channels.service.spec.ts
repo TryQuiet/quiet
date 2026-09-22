@@ -382,7 +382,7 @@ describe('ChannelsService', () => {
       }
     })
 
-    it('announces each message once to healthy consumers even when another consumer throws', async () => {
+    it('announces each message once to every consumer even when an earlier consumer throws', async () => {
       const response = await channelsService.handleCreateChannel({
         name: 'fragile-consumers',
         public: true,
@@ -390,12 +390,16 @@ describe('ChannelsService', () => {
       })
       expect(response.status).toBe(ChannelOperationStatus.SUCCESS)
       const createdChannel = response.channel!
+      const fragile: string[] = []
       const healthy: string[] = []
+      let failures = 1
+      // The throwing consumer is registered first: EventEmitter.emit would stop at it.
+      channelsService.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
+        if (failures-- > 0) throw new Error('a downstream consumer failed')
+        fragile.push(...payload.messages.map(item => item.id))
+      })
       channelsService.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
         healthy.push(...payload.messages.map(item => item.id))
-      })
-      channelsService.on(StorageEvents.MESSAGES_STORED, () => {
-        throw new Error('a downstream consumer failed')
       })
       const messages = await Promise.all(
         ['first', 'second'].map(text =>
@@ -411,13 +415,16 @@ describe('ChannelsService', () => {
       for (const item of messages) {
         expect(await channelsService.sendMessage(item)).toBe(true)
       }
+      const expected = messages.map(item => item.id).sort()
       await waitForExpect(() => {
-        expect([...healthy].sort()).toEqual(messages.map(item => item.id).sort())
-      })
-      // Longer than the store's first announcement retry: a throwing consumer must not make the
-      // store announce the same message again to the consumer that already handled it.
+        expect([...healthy].sort()).toEqual(expected)
+        expect([...fragile].sort()).toEqual(expected)
+      }, 10_000)
+      // Longer than the store's first announcement retry: the retry that reached the consumer
+      // which threw must not repeat the message to the consumer that already handled it.
       await new Promise(resolve => setTimeout(resolve, 1_500))
       expect(healthy).toHaveLength(2)
+      expect(fragile).toHaveLength(2)
     })
 
     it('generates an opaque channel id and stores metadata encrypted', async () => {
