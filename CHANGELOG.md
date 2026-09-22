@@ -57,6 +57,7 @@
 * Drop the greyed-out "More options" row from Recover account on desktop and mobile, since it led nowhere and its glyph failed to load
 * Write the onboarding paste-link heading in sentence case, *Paste a link to join*, on desktop and mobile
 * Draw the digits of a message at the message's own size, rather than at emoji size, on mobile and desktop; a number, `#` or `*` is only emoji as part of a full keycap like 1️⃣
+* Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
 
 ### Tests
 
