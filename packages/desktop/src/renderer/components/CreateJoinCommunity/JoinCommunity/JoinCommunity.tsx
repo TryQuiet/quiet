@@ -26,15 +26,17 @@ const logger = createLogger('JoinCommunity')
 type Step = 'options' | 'recoverAccount' | 'openInviteLink' | 'pasteInviteLink' | 'pasteQrCode'
 
 /**
- * The bar per step. The full-screen frames hide their title text (Join
- * community 2811:2562 "Quiet", Account recovery 2811:2535, Open invite link
- * 2811:2455 and Paste a link 3190:10892 "Join with invite link"): only the
- * back glyph shows and the heading is the title. The Join with QR code sheet
- * (2811:2460) keeps its titled bar.
+ * The bar per step. Every step of this modal carries its own large heading, and
+ * a page with a heading gets no bar title: only the back glyph shows and the
+ * heading is the title. The full-screen frames already hide their title text
+ * (Join community 2811:2562 "Quiet", Account recovery 2811:2535, Open invite
+ * link 2811:2455, Paste a link 3190:10892 "Join with invite link"); the Join
+ * with QR code sheet (2811:2460) is drawn titled in the prototype, but on
+ * desktop it is the full-window paste step under its own "Join with QR code"
+ * heading, so its bar title goes too. Left as a map: a step without a heading
+ * would take one.
  */
-const TITLED_STEPS: Partial<Record<Step, string>> = {
-  pasteQrCode: 'Join with QR code',
-}
+const TITLED_STEPS: Partial<Record<Step, string>> = {}
 
 /**
  * Join community: the three-way choice, then Open invite link → Paste a link.

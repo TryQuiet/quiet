@@ -18,16 +18,20 @@ import { createLogger } from '../../utils/logger'
 const logger = createLogger('joinCommunity:component')
 
 /**
- * Title bar · heading · intro per flow. Copy is the prototype's. Paste a link
- * (3190:10892) is a full-screen h1 stage whose bar title is hidden in the frame
- * (glyph only); the two QR flows stand in for titled sheets (2811:2460, 2811:2587).
+ * Title bar · heading · intro per flow. Copy is the prototype's. Every variant
+ * draws its own large heading, and a page with a heading gets no bar title, so
+ * all three keep only the glyph. Paste a link (3190:10892) is a full-screen h1
+ * stage whose bar title the frame itself hides; the two QR flows stand in for
+ * sheets the prototype draws titled (2811:2460, 2811:2587) — here they are
+ * full screens under their own heading, so the title goes with it. `title` is
+ * what the bar would have said.
  */
 const COPY = {
   inviteLink: { title: 'Join with invite link', titleHidden: true, heading: 'Paste a link to Join', intro: undefined },
-  qrCode: { title: 'Join with QR code', titleHidden: false, heading: 'Join with QR code', intro: undefined },
+  qrCode: { title: 'Join with QR code', titleHidden: true, heading: 'Join with QR code', intro: undefined },
   deviceLink: {
     title: 'Link devices',
-    titleHidden: false,
+    titleHidden: true,
     heading: 'Scan QR code',
     intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
   },

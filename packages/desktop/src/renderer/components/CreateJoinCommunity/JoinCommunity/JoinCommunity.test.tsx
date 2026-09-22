@@ -184,6 +184,14 @@ describe('join community', () => {
     await userEvent.click(screen.getByTestId('join-with-qr-code'))
     expect(await screen.findByRole('heading', { name: 'Join with QR code', level: 3 })).toBeVisible()
     expect(screen.getByPlaceholderText('Link')).toBeVisible()
+
+    // The prototype draws this one as a titled sheet (2811:2460), but on desktop it is the
+    // full-window paste step under its own heading, so the bar keeps only the back glyph.
+    expect(screen.getAllByText('Join with QR code')).toHaveLength(1)
+    const header = screen.getByTestId('joinCommunityModalActions').closest('.Modalheader')
+    expect(header).not.toHaveClass('Modalnone')
+    expect(header).not.toHaveClass('ModalheaderBorder')
+    expect(screen.getByTestId('joinCommunityModalBack')).toBeVisible()
   })
 
   it('user goes from joining community to username registration, then comes back', async () => {
