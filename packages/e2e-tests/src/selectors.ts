@@ -3519,7 +3519,9 @@ export class Settings {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//p[text()='Community Settings']")),
+      // Either element: released 11.x draws the bar's title as body text, while this line draws
+      // it as the heading that names the dialog.
+      until.elementLocated(By.xpath("//*[self::p or self::h2][text()='Community Settings']")),
       15_000,
       `Settings modal couldn't be found within timeout`,
       500

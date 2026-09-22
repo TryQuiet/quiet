@@ -228,8 +228,8 @@ describe('CopyLink', () => {
       />
     )
 
-    // The drawer bar above this panel already says "Add Members" (the Add members sheet
-    // 2932:3709 draws the title in the bar and starts the body at the copy), so the panel
+    // The drawer bar above this panel already says "Add Members", as a heading (the Add members
+    // sheet 2932:3709 draws the title in the bar and starts the body at the copy), so the panel
     // draws no title of its own.
     expect(result.queryByTestId('invite-a-friend')).toBeNull()
     expect(result.queryByText('Add Members')).toBeNull()
