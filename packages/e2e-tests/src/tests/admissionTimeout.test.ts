@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals'
-import { By } from 'selenium-webdriver'
+import { By, until } from 'selenium-webdriver'
 import { composeInvitationShareUrl, parseInvitationLink } from '@quiet/common'
 import { InvitationDataVersion, type DeviceInvitationDataV5 } from '@quiet/types'
 import {
@@ -142,9 +142,20 @@ describe('Timed-out P2P admission recovery', () => {
     inputValue = '',
     timeoutMs = 30_000
   ): Promise<void> {
-    expect(await new JoinCommunityModal(app.driver).isReady(timeoutMs)).toBeTruthy()
-    expect(await app.driver.findElement(By.xpath(`//*[contains(text(), '${message}')]`)).isDisplayed()).toBeTruthy()
-    const inviteInput = await app.driver.findElement(By.xpath('//input[@placeholder="Invite link"]'))
+    const joinModal = new JoinCommunityModal(app.driver)
+    expect(await joinModal.isReady(timeoutMs)).toBeTruthy()
+    // submit() returns as soon as the click round-trip completes, while the form
+    // validates asynchronously before it renders the helper text. Wait for the
+    // message instead of reading the DOM once and racing it.
+    const messageElement = await app.driver.wait(
+      until.elementLocated(By.xpath(`//*[contains(text(), '${message}')]`)),
+      timeoutMs,
+      `Join community error "${message}" was not shown within timeout`,
+      500
+    )
+    expect(await messageElement.isDisplayed()).toBeTruthy()
+    // By test id, not by placeholder: the redesigned field's placeholder is "Link".
+    const inviteInput = await joinModal.inviteLinkInput()
     expect(await inviteInput.getAttribute('value')).toBe(inputValue)
   }
 
@@ -404,6 +415,9 @@ describe('Timed-out P2P admission recovery', () => {
       const ownerChannel = new Channel(owner.driver, 'general')
       expect(await ownerChannel.isReady()).toBeTruthy()
       const qssAttemptsBeforeRetry = unavailableQss.connectionCount
+      // Pin that premise: if the first attempt ever stops reaching QSS, this says so
+      // rather than quietly turning the assertion below back into "greater than 0".
+      expect(qssAttemptsBeforeRetry).toBeGreaterThan(0)
       linkedDevice.buildSetup.clearProcessOutput()
       const retryJoinModal = new JoinCommunityModal(linkedDevice.driver)
       await retryJoinModal.typeCommunityInviteLink(deviceInvitationLink)

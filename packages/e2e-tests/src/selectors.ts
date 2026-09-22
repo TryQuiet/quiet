@@ -1335,9 +1335,19 @@ export class JoinCommunityModal {
     this.driver = driver
   }
 
+  /**
+   * Every screen the join flow can be showing, plus the Get started entry it is
+   * reached from. A reported join error reopens the flow on the paste step rather
+   * than on the three-way choice, because the choice has no field to carry the
+   * message, so a wait on the choice alone never sees the error state. Matching
+   * on the screens' test ids rather than their headings also keeps this off the
+   * copy, which the redesign changes per step.
+   */
+  private static readonly SCREENS = ['get-started', 'join-community-options', 'open-invite-link', 'paste-link'] as const
+
   private waitForElement(timeoutMs: number = 10_000) {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Join community' or text()='Let’s get started...']")),
+      until.elementLocated(By.css(JoinCommunityModal.SCREENS.map(id => `[data-testid="${id}"]`).join(', '))),
       timeoutMs,
       `Join community modal couldn't be found within timeout`,
       500
@@ -1348,9 +1358,10 @@ export class JoinCommunityModal {
     return this.waitForElement()
   }
 
+  /** The three-way choice specifically, as opposed to any screen of the flow. */
   get optionsElement() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Join community']")),
+      until.elementLocated(By.css('[data-testid="join-community-options"]')),
       10_000,
       `Join community choice couldn't be found within timeout`,
       500
@@ -1455,6 +1466,14 @@ export class JoinCommunityModal {
     await getStarted.createCommunity()
   }
 
+  /**
+   * The paste step's link field. Callers assert on its value rather than
+   * re-deriving it from a placeholder, which is copy and moves with the design.
+   */
+  async inviteLinkInput(timeoutMs = 10_000) {
+    return await this.findVisible('paste-link-input', timeoutMs)
+  }
+
   /** Walks to the paste step when needed, then types the link. */
   async typeCommunityInviteLink(inviteLink: string) {
     if (!(await this.isPresent('paste-link-input'))) {
@@ -1522,6 +1541,49 @@ export class LinkDevicesModal {
 
   async displayQrCode() {
     await (await this.findVisible('link-devices-display-qr')).click()
+  }
+
+  /**
+   * The Display QR code step, identified by the Linked devices surface it hosts.
+   * It does not imply a QR code: the device link can only be minted from inside a
+   * community, so reached from onboarding this surface reports why there is none.
+   * Read `deviceLinkStatus` to assert which of the two the screen is showing.
+   */
+  async isOnDisplayQrStep(timeoutMs = 10_000): Promise<boolean> {
+    await this.findVisible('link-devices-display', timeoutMs)
+    await this.findVisible('linked-devices-title', timeoutMs)
+    return true
+  }
+
+  /**
+   * The Linked devices surface's status line: "Link a new device" once a link
+   * exists, otherwise "Generating device link…" or "Device link unavailable".
+   */
+  async deviceLinkStatus(timeoutMs = 10_000): Promise<string> {
+    const status = await this.driver.wait(
+      until.elementLocated(By.xpath('//*[@data-testid="link-devices-display"]//h5')),
+      timeoutMs,
+      `The Linked devices surface showed no status line within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(status), 5_000)
+    return await status.getText()
+  }
+
+  /**
+   * The status line once the surface has stopped generating, so callers assert a
+   * terminal state instead of racing the loading text.
+   */
+  async settledDeviceLinkStatus(timeoutMs = 30_000): Promise<string> {
+    return await this.driver.wait<string>(
+      async () => {
+        const status = await this.deviceLinkStatus(timeoutMs)
+        return status.startsWith('Generating device link') ? undefined : status
+      },
+      timeoutMs,
+      `The Linked devices surface never settled out of its loading state`,
+      500
+    )
   }
 
   async typeDeviceLink(deviceLink: string) {

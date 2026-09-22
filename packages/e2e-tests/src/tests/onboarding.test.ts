@@ -154,6 +154,90 @@ describe('Onboarding', () => {
     }
   })
 
+  // Desktop has no camera, so the QR-code branch of the three-way choice lands on the
+  // same paste field. It is a second route into the join flow, not a second join, so it
+  // needs its own run to prove the branch reaches admission.
+  it('Get started → join with QR code → paste link → username', async () => {
+    const owner = new App({ username: 'onboarding-qr-owner' })
+    const joiner = new App({ username: 'onboarding-qr-member' })
+    const apps = [owner, joiner]
+
+    try {
+      await createCommunity(owner, `onbqr${Date.now().toString(36)}`, 'onboardingqrowner')
+      const invitation = await getMemberInvitation(owner)
+
+      await joiner.openWithRetries()
+
+      const getStarted = new GetStartedModal(joiner.driver)
+      expect(await getStarted.isReady()).toBeTruthy()
+      await getStarted.joinCommunity()
+
+      const joinModal = new JoinCommunityModal(joiner.driver)
+      expect(await joinModal.isReady()).toBeTruthy()
+      await joinModal.joinWithQrCode()
+      await joinModal.typeCommunityInviteLink(invitation)
+      await joinModal.submit()
+
+      const registerModal = new RegisterUsernameModal(joiner.driver)
+      expect(await registerModal.isReady()).toBeTruthy()
+      await registerModal.clearInput()
+      await registerModal.typeUsername('onboardingqrmember')
+      await registerModal.submit()
+
+      await new JoiningLoadingPanel(joiner.driver).waitForJoinToComplete(
+        timeouts.joinPanelVisible,
+        timeouts.joinCompletion
+      )
+      const channel = new Channel(joiner.driver, 'general')
+      expect(await channel.isReady()).toBeTruthy()
+      await new Sidebar(owner.driver).waitForUserProfilesNum(2)
+    } finally {
+      await closeAndCleanupApps(apps)
+    }
+  })
+
+  // Every step of the redesign is reachable and reversible before anything is
+  // committed. One app, no community: this is the modal graph, not a join.
+  it('walks back out of each onboarding branch to Get started', async () => {
+    const app = new App({ username: 'onboarding-navigation' })
+
+    try {
+      await app.openWithRetries()
+      const getStarted = new GetStartedModal(app.driver)
+      expect(await getStarted.isReady()).toBeTruthy()
+
+      // Link devices → Display QR code → back to the Link devices choice → back to Get started
+      await getStarted.linkDevices()
+      const linkDevices = new LinkDevicesModal(app.driver)
+      expect(await linkDevices.isReady()).toBeTruthy()
+      await linkDevices.displayQrCode()
+      expect(await linkDevices.isOnDisplayQrStep()).toBeTruthy()
+      // connection.selectors.deviceLinkUrl returns '' without a current community, so
+      // this step cannot show a QR code here however long it waits: it reports why.
+      // Assert that settled copy, so the test cannot pass on a blank container, on
+      // the transient loading line, or on a QR that should be impossible here.
+      expect(await linkDevices.settledDeviceLinkStatus()).toBe('Device link unavailable')
+      await linkDevices.back()
+      expect(await linkDevices.isReady()).toBeTruthy()
+      await linkDevices.back()
+      expect(await getStarted.isReady()).toBeTruthy()
+
+      // Join community → back to Get started → Create a new community. This is the
+      // branch of switchToCreateCommunity that the other suites never reach, because
+      // they call it while the app is still on Get started.
+      await getStarted.joinCommunity()
+      const joinModal = new JoinCommunityModal(app.driver)
+      // enter() waits for the choice screen itself. isReady() also accepts the Get
+      // started entry, so it can return before the click lands and let
+      // switchToCreateCommunity take its no-back path, proving nothing.
+      await joinModal.enter()
+      await joinModal.switchToCreateCommunity()
+      expect(await new CreateCommunityModal(app.driver).isReady()).toBeTruthy()
+    } finally {
+      await closeAndCleanupApps([app])
+    }
+  })
+
   it('Get started → create → username', async () => {
     const owner = new App({ username: 'onboarding-create-owner' })
 
