@@ -56,15 +56,38 @@ test('the declared rimraf is the one that resolves', () => {
 
 const desktopDir = path.join(__dirname, '..')
 
-/** Reads a flat `<key>x</key><true/>` entitlements plist without pulling in a plist parser. */
+/**
+ * Reads a flat `<key>x</key><true/>` entitlements plist without pulling in a plist parser.
+ *
+ * Scanned by index rather than matched by regex. The comments in that file cite entitlements by
+ * name, including in a documentation URL, so a key has to be read as markup and not from text that
+ * merely mentions it -- and a regex that strips `<!-- -->` first is the incomplete HTML
+ * sanitization CodeQL rejects, rightly, since it cannot be written correctly that way.
+ */
 const readEntitlements = relativePath => {
   const file = path.join(desktopDir, relativePath)
   assert.ok(fs.existsSync(file), `${relativePath} is referenced by the mac build but does not exist`)
-  const xml = fs.readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->/g, '')
+  const xml = fs.readFileSync(file, 'utf8')
   const granted = new Set()
-  const entry = /<key>([^<]+)<\/key>\s*<(true|false)\s*\/>/g
-  for (const [, key, value] of xml.matchAll(entry)) {
-    if (value === 'true') granted.add(key)
+  let at = 0
+  while (at < xml.length) {
+    const key = xml.indexOf('<key>', at)
+    if (key === -1) break
+    // A comment before the next key is skipped whole, so nothing inside one is read as markup.
+    const comment = xml.indexOf('<!--', at)
+    if (comment !== -1 && comment < key) {
+      const commentEnd = xml.indexOf('-->', comment + '<!--'.length)
+      if (commentEnd === -1) break
+      at = commentEnd + '-->'.length
+      continue
+    }
+    const keyEnd = xml.indexOf('</key>', key)
+    if (keyEnd === -1) break
+    const name = xml.slice(key + '<key>'.length, keyEnd)
+    let value = keyEnd + '</key>'.length
+    while (value < xml.length && ' \t\r\n'.includes(xml[value])) value += 1
+    if (xml.startsWith('<true/>', value)) granted.add(name)
+    at = value
   }
   return granted
 }
