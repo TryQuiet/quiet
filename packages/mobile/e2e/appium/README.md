@@ -25,6 +25,23 @@ push-disabled fixture. It exercises the Appium selectors and peer coordination
 without provider credentials. Its receipt explicitly records
 `fullLoopPassed: false`; it is not a substitute for either provider test.
 
+## Automated hCaptcha enrollment
+
+Local onboarding already supports hCaptcha's public integration test keys through
+[the isolated QSS fixture](../../scripts/qss-e2e/README.md). The fixture configures
+both the test site key and matching server secret; its protocol probe checks that
+missing tokens are rejected and the official test token is accepted by QSS through
+hCaptcha's `siteverify` API. Use `.env.e2e.qss` and `test:onboarding` for this lane.
+This setup landed in [#3423](https://github.com/TryQuiet/quiet/pull/3423) and is
+already included in `11.2.0`.
+
+Provider tests use public staging, whose live secret cannot verify a test-key
+token. Their automated enrollment is the GitHub OIDC path added in
+[#3613](https://github.com/TryQuiet/quiet/pull/3613). Local operator-assisted
+staging enrollment below is optional; it does not replace the automated test-key
+lane. The local fixture disables push, so a successful onboarding run does not
+prove APNs/FCM delivery.
+
 ## Build and fixture
 
 Use a disposable device or emulator/simulator and the normal workspace setup.
@@ -109,6 +126,15 @@ never packaged or uploaded. No shared enrollment secret or Firebase server key
 is needed in the Quiet repository. A disconnected or failed enrollment may
 consume the job's grant; rerun the job instead of requesting unlimited grants.
 
+For a local operator-assisted staging provider run, add `"stagingEnrollment":
+"manual"` to the private configuration (alongside `"qssTarget": "staging"`).
+Use the normal native-Tor desktop build, with no local QSS fixture configured.
+The desktop uses its unchanged live hCaptcha window; complete that challenge
+within five minutes. No GitHub identity is requested or saved. This option is
+rejected in GitHub Actions and when `CI=true`; unattended jobs retain the default
+`github-oidc` enrollment. The receipt records the selected enrollment mode, and
+both real provider notification/tap assertions remain required.
+
 ## Run
 
 Install the independent pinned Appium toolchain (Node >=20.19):
@@ -145,7 +171,9 @@ Write a private configuration file, for example:
 For iOS use `"platform": "ios"`, the exact simulator/device UDID, the built
 `.app` directory and its actual bundle ID. Optional fields are `platformVersion`,
 `wdaLocalPort`, `xcodeOrgId` and `updatedWDABundleId` for signing WebDriverAgent on
-physical devices. Desktop runs on the same host as the selected device's Appium
+physical devices. Set `usePreinstalledWDA` to `true` with the installed runner's
+`updatedWDABundleId` when reusing a previously signed WebDriverAgent. Desktop runs
+on the same host as the selected device's Appium
 server. Both provider clients connect directly to staging; they need no ADB
 reverse or route to a localhost QSS service. The iOS hosted workflow currently
 uses a fresh simulator. Physical devices still require normal app and

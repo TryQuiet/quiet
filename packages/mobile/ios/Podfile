@@ -94,16 +94,9 @@ target 'Quiet' do
       end
     end
 
-    # Inject Quiet.xcconfig into Pods xcconfigs so DEVELOPMENT_TEAM and APP_BUNDLE_ID
-    # are sourced from there (with optional LocalDev.xcconfig override) instead of
-    # being hardcoded in project.pbxproj.
-    ['debug', 'release'].each do |cfg|
-      path = "#{installer.sandbox.root}/Target Support Files/Pods-Quiet/Pods-Quiet.#{cfg}.xcconfig"
-      content = File.read(path)
-      unless content.include?('#include "../../../Quiet.xcconfig"')
-        File.open(path, 'a') { |f| f.puts '#include "../../../Quiet.xcconfig"' }
-      end
-    end
+    # Quiet.debug/release.xcconfig already include Quiet.xcconfig after the
+    # CocoaPods settings. Including it here too duplicates local linker inputs
+    # (including simulator notification entitlements).
 
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|

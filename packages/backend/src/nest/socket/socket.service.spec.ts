@@ -115,6 +115,7 @@ describe('SocketService', () => {
     )
 
     socketService.on(SocketActions.LINK_DEVICE, listener)
+    socketService.markOnboardingReady()
 
     await expect(client.emitWithAck(SocketActions.LINK_DEVICE, payload)).resolves.toEqual(response)
     expect(listener).toHaveBeenCalledWith(payload, expect.any(Function))
@@ -123,7 +124,11 @@ describe('SocketService', () => {
   })
 
   it('there are no fragile endpoints in the collection of suspendables', async () => {
-    const fragile: string[] = [SocketActions.CREATE_COMMUNITY.valueOf(), SocketActions.JOIN_COMMUNITY.valueOf()]
+    const fragile: string[] = [
+      SocketActions.CREATE_COMMUNITY.valueOf(),
+      SocketActions.JOIN_COMMUNITY.valueOf(),
+      SocketActions.LINK_DEVICE.valueOf(),
+    ]
 
     fragile.forEach(event => {
       expect(suspendableSocketEvents).not.toContain(event)

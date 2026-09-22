@@ -1,4 +1,5 @@
 import { execSync } from 'child_process'
+import assert from 'assert'
 import { getWindowsBackendPids } from './windowsBackendProcesses'
 import { DateTime } from 'luxon'
 import path from 'path'
@@ -31,6 +32,7 @@ import {
   RECOVER_ACCOUNT_HEADING,
   parseInvitationLink,
 } from '@quiet/common'
+import { cancelAttachmentDownload, startAndCancelAttachmentDownload, waitForFileStatus } from './fileDownload'
 import { isDeviceInvitationData } from '@quiet/types'
 
 const logger = createLogger('selectors')
@@ -1483,7 +1485,7 @@ export class JoinCommunityModal {
       await this.back()
     }
     const getStarted = new GetStartedModal(this.driver)
-    expect(await getStarted.isReady()).toBeTruthy()
+    assert(await getStarted.isReady(), 'Get started did not become ready')
     await getStarted.createCommunity()
   }
 
@@ -2091,30 +2093,10 @@ export class Channel {
     filename: string,
     baseElement: WebElement
   ): Promise<WebElement | undefined> {
-    try {
-      const filenameComponentElement = await this.driver.wait(
-        baseElement.findElement(By.xpath(`//*[@class='FileComponentfilename']`)),
-        20_000,
-        `Filename parent component for uploaded file ${filename} in channel ${this.name} couldn't be found within timeout`,
-        500
-      )
-      const parsedPath = path.parse(filename)
-      // this is split because we print the message as multiple lines and contains doesn't return true when searching the full filename
-      const filenameElement = await this.driver.wait(
-        filenameComponentElement.findElement(By.xpath(`//h5[contains(text(), "${parsedPath.name}")]`)),
-        15_000,
-        `Filename component with correct filename for uploaded file ${filename} in channel ${this.name} couldn't be found within timeout`,
-        500
-      )
-      if ((await filenameElement.getText()) === filename) {
-        return filenameElement
-      }
-    } catch (e) {
-      if (!e.message.includes('no such element')) {
-        throw e
-      }
+    const candidates = await baseElement.findElements(By.css('.FileComponentfilename h5'))
+    for (const candidate of candidates) {
+      if ((await candidate.getText()) === filename) return candidate
     }
-
     return undefined
   }
 
@@ -2122,20 +2104,10 @@ export class Channel {
     filename: string,
     baseElement: WebElement
   ): Promise<WebElement | undefined> {
-    try {
-      const filenameElement = await this.driver.wait(
-        baseElement.findElement(By.xpath(`//p[text()='${filename}']`)),
-        25_000,
-        `Filename component for uploaded image ${filename} in channel ${this.name} couldn't be found within timeout`,
-        500
-      )
-      return filenameElement
-    } catch (e) {
-      if (!e.message.includes('no such element')) {
-        throw e
-      }
+    const candidates = await baseElement.findElements(By.css('p'))
+    for (const candidate of candidates) {
+      if ((await candidate.getText()) === filename) return candidate
     }
-
     return undefined
   }
 
@@ -2197,62 +2169,25 @@ export class Channel {
     return this.getMessageIdsByFile(filename, fileType, username)
   }
 
-  async cancelFileDownload(messageIds: MessageIds): Promise<boolean> {
+  async startAndCancelFileDownload(messageIds: MessageIds, timeoutMs = 90_000): Promise<boolean> {
     try {
-      const messageElement = await this.waitForMessageContentById(messageIds.messageId)
-      let statusElement: WebElement | undefined = undefined
-      try {
-        statusElement = await this.waitForFileDownloadStatus(FileDownloadStatus.QUEUED, messageElement, 15_000)
-      } catch (e) {
-        logger.warn(
-          `Couldn't find a queued status element for this file, this is likely because it is already downloading...`
-        )
-      }
+      await startAndCancelAttachmentDownload(this.driver, messageIds.messageId, timeoutMs)
+      return true
+    } catch (e) {
+      logger.error(`Error occurred while starting and canceling download`, e)
+      return false
+    }
+  }
 
-      let endTime = DateTime.utc().toMillis() + 90_000
-      while (DateTime.utc().toMillis() < endTime) {
-        try {
-          statusElement = await this.waitForFileDownloadStatus(FileDownloadStatus.DOWNLOADING, messageElement, 15_000)
-          break
-        } catch (e) {
-          logger.warn(`Couldn't find status element with downloading status`)
-        }
+  async startFileDownload(messageIds: MessageIds): Promise<void> {
+    await waitForFileStatus(this.driver, messageIds.messageId, [FileDownloadStatus.DOWNLOAD_FILE], 45_000, {
+      click: true,
+    })
+  }
 
-        try {
-          statusElement = await this.waitForFileDownloadStatus(
-            FileDownloadStatus.DOWNLOADING_CAN_CANCEL,
-            messageElement,
-            15_000
-          )
-          break
-        } catch (e) {
-          logger.warn(`Couldn't find status element with downloading cancelable status`)
-        }
-        sleep(2_000)
-      }
-
-      if (statusElement == null) {
-        throw new Error(`File didn't start downloading within a reasonable time`)
-      }
-
-      await statusElement.click()
-      endTime = DateTime.utc().toMillis() + 90_000
-      while (DateTime.utc().toMillis() < endTime) {
-        try {
-          statusElement = await this.waitForFileDownloadStatus(FileDownloadStatus.CANCELED, messageElement, 15_000)
-          break
-        } catch (e) {
-          logger.warn(`Couldn't find status element with canceled status`)
-        }
-
-        try {
-          statusElement = await this.waitForFileDownloadStatus(FileDownloadStatus.DOWNLOAD_FILE, messageElement, 15_000)
-          break
-        } catch (e) {
-          logger.warn(`Couldn't find status element with download file status`)
-        }
-        sleep(2_000)
-      }
+  async cancelFileDownload(messageIds: MessageIds, timeoutMs = 90_000): Promise<boolean> {
+    try {
+      await cancelAttachmentDownload(this.driver, messageIds.messageId, timeoutMs)
       return true
     } catch (e) {
       logger.error(`Error occurred while canceling download`, e)
@@ -2504,7 +2439,7 @@ export class Channel {
     logger.info(`Waiting for file content for message with filename ${filename} and type ${fileType}`)
     await this.getFileAttachmentnameElementByType(filename, fileType, messageElement)
     const messageContentElements = await this.driver.wait(
-      messageElement.findElements(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-")]`)),
+      messageElement.findElements(By.xpath(`.//*[contains(@data-testid, "messagesGroupContent-")]`)),
       45_000,
       `Message content element for filename ${filename} in channel ${this.name} couldn't be found within timeout`,
       500
@@ -2552,11 +2487,8 @@ export class Channel {
       case FileAttachmentType.IMAGE:
         // wait for the downloading placeholder to appear and then disappear
         try {
-          const placeholderElement = await this.driver.wait(
-            until.elementLocated(By.xpath(`//*[@class='ImageAttachmentPlaceholderplaceholder']`)),
-            20_000,
-            `Image placeholder element for ${filename} in channel ${this.name} couldn't be found within timeout`,
-            500
+          const placeholderElement = await testableMessageContentElement.findElement(
+            By.css('.ImageAttachmentPlaceholderplaceholder')
           )
           await this.driver.wait(
             until.elementIsNotVisible(placeholderElement),
@@ -2571,7 +2503,7 @@ export class Channel {
         }
 
         containerElements = await this.driver.wait(
-          testableMessageContentElement.findElements(By.xpath(`//*[@class='ImageAttachmentcontainer']`)),
+          testableMessageContentElement.findElements(By.xpath(`.//*[@class='ImageAttachmentcontainer']`)),
           30_000,
           `Image container elements in channel ${this.name} couldn't be found within timeout`,
           500
@@ -2579,7 +2511,7 @@ export class Channel {
         break
       case FileAttachmentType.FILE:
         containerElements = await this.driver.wait(
-          testableMessageContentElement.findElements(By.xpath(`//*[contains(@data-testid, "-fileComponent")]`)),
+          testableMessageContentElement.findElements(By.xpath(`.//*[contains(@data-testid, "-fileComponent")]`)),
           15_000,
           `File container elements for ${filename} in channel ${this.name} couldn't be found within timeout`,
           500
@@ -2598,7 +2530,7 @@ export class Channel {
       switch (fileType) {
         case FileAttachmentType.IMAGE:
           contentElement = await this.driver.wait(
-            container.findElement(By.xpath(`//img[@class='ImageAttachmentimage']`)),
+            container.findElement(By.xpath(`.//img[@class='ImageAttachmentimage']`)),
             30_000,
             `Image element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
@@ -2606,7 +2538,7 @@ export class Channel {
           break
         case FileAttachmentType.FILE:
           contentElement = await this.driver.wait(
-            container.findElement(By.xpath(`//img[@class='FileComponentactionIcon']`)),
+            container.findElement(By.xpath(`.//img[@class='FileComponentactionIcon']`)),
             30_000,
             `File element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
@@ -2634,35 +2566,10 @@ export class Channel {
     messageElement: WebElement,
     timeoutMs = 45_000
   ): Promise<WebElement> {
-    let locatorString: string | undefined = undefined
-    switch (status) {
-      case FileDownloadStatus.QUEUED:
-        locatorString = 'Queued for download'
-        break
-      case FileDownloadStatus.DOWNLOADING:
-        locatorString = 'Downloading...'
-        break
-      case FileDownloadStatus.DOWNLOADING_CAN_CANCEL:
-        locatorString = 'Cancel download'
-        break
-      case FileDownloadStatus.COMPLETED:
-        locatorString = 'Show in folder'
-        break
-      case FileDownloadStatus.CANCELED:
-        locatorString = 'Canceled'
-        break
-      case FileDownloadStatus.DOWNLOAD_FILE:
-        locatorString = 'Download file'
-        break
-      default:
-        throw new Error(`Unknown status type ${status}`)
-    }
-    return await this.driver.wait(
-      messageElement.findElement(By.xpath(`//p[text()='${locatorString!}']`)),
-      timeoutMs,
-      `File download status element with text ${locatorString} in channel ${this.name} couldn't be found within timeout`,
-      2_000
-    )
+    const testId = await messageElement.getAttribute('data-testid')
+    const prefix = 'messagesGroupContent-'
+    if (!testId?.startsWith(prefix)) throw new Error('Expected an attachment message container')
+    return waitForFileStatus(this.driver, testId.slice(prefix.length), [status], timeoutMs)
   }
 
   async waitForLabelsNotPresent(username: string, timeout = 15_000) {
@@ -2940,39 +2847,33 @@ export class Sidebar {
   }
 
   async getChannelLockIcon(channelName: string): Promise<WebElement> {
-    const channelLockIcon = await this.driver.wait(
-      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-private"]`)),
-      10_000,
-      `Channel list private lock icon for ${channelName} wasn't located within timeout`,
-      500
-    )
-
-    await this.driver.wait(
-      until.elementIsVisible(channelLockIcon),
-      10_000,
-      `Channel list private lock icon for ${channelName} wasn't visible within timeout`,
-      500
-    )
-
-    return channelLockIcon
+    return this.getVisibleChannelIcon(channelName, 'private')
   }
 
   async getChannelHashIcon(channelName: string): Promise<WebElement> {
-    const channelHashIcon = await this.driver.wait(
-      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-public"]`)),
-      10_000,
-      `Channel list public hash icon for ${channelName} wasn't located within timeout`,
-      500
-    )
+    return this.getVisibleChannelIcon(channelName, 'public')
+  }
 
-    await this.driver.wait(
-      until.elementIsVisible(channelHashIcon),
+  private async getVisibleChannelIcon(channelName: string, kind: 'private' | 'public'): Promise<WebElement> {
+    return this.driver.wait(
+      async () => {
+        // Replication can replace the sidebar row between location and visibility checks.
+        // Reacquire the icon on every poll rather than retaining the detached DOM node.
+        try {
+          const icons = await this.driver.findElements(
+            By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-${kind}"]`)
+          )
+          const icon = icons[0]
+          return icon && (await icon.isDisplayed()) ? icon : false
+        } catch (e) {
+          if (e instanceof error.StaleElementReferenceError) return false
+          throw e
+        }
+      },
       10_000,
-      `Channel list public hash icon for ${channelName} wasn't visible within timeout`,
+      `Channel list ${kind} icon for ${channelName} wasn't visible within timeout`,
       500
-    )
-
-    return channelHashIcon
+    ) as Promise<WebElement>
   }
 
   /**
@@ -3153,6 +3054,30 @@ export class Sidebar {
     return channel
   }
 
+  private async clickChannelPrivacyToggle(): Promise<WebElement> {
+    return (await this.driver.wait(
+      async () => {
+        try {
+          const toggle = await this.driver.findElement(
+            By.css('[data-testid="createChannel-private-form-control-toggle"]')
+          )
+          if (!(await toggle.isDisplayed()) || !(await toggle.isEnabled())) return false
+          await toggle.click()
+          return toggle
+        } catch (e) {
+          // The entering drawer can be visible before its switch can receive a native click.
+          // Retry only failed clicks, so a successful toggle is never applied twice.
+          if (e instanceof error.ElementClickInterceptedError || e instanceof error.StaleElementReferenceError)
+            return false
+          throw e
+        }
+      },
+      5_000,
+      'Channel privacy toggle did not become clickable',
+      100
+    )) as WebElement
+  }
+
   async addNewChannel(
     name: string,
     options: TestAddNewChannelOptions = DEFAULT_ADD_NEW_CHANNEL_OPTIONS
@@ -3204,7 +3129,7 @@ export class Sidebar {
 
     try {
       logger.debug('Checking for private toggle', expectToggle, options.isPublic)
-      const channelPrivateToggle = await this.driver.wait(
+      let channelPrivateToggle = await this.driver.wait(
         until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
         5_000,
         `Channel private toggle couldn't be found within timeout`,
@@ -3221,7 +3146,7 @@ export class Sidebar {
       }
       if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
         if (options.isPublic) {
-          await channelPrivateToggle.click()
+          channelPrivateToggle = await this.clickChannelPrivacyToggle()
           if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
             errors.push(new Error(`Channel privacy toggle was enabled before clicking and couldn't be disabled`))
             return {
@@ -3235,7 +3160,7 @@ export class Sidebar {
       }
       if (!options.isPublic) {
         logger.debug('Enabled private toggle')
-        await channelPrivateToggle.click()
+        channelPrivateToggle = await this.clickChannelPrivacyToggle()
         if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
           errors.push(new Error('Channel privacy toggle was disabled after clicking'))
           return {
