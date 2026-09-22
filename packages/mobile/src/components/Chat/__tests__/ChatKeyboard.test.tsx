@@ -88,7 +88,12 @@ describe('Chat keyboard geometry', () => {
         DeviceEventEmitter.emit(`keyboard${os === 'ios' ? 'Will' : 'Did'}${show ? 'Show' : 'Hide'}`, {
           duration: 0,
           easing: 'keyboard',
-          endCoordinates: { screenX: 0, screenY: show ? 510 : 844, width: 390, height: show ? 334 : 0 },
+          endCoordinates: {
+            screenX: 0,
+            screenY: show ? 510 : os === 'android' ? 844 - top : 844,
+            width: 390,
+            height: show ? 334 : 0,
+          },
         })
       })
     }

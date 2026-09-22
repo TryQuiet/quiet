@@ -1,6 +1,8 @@
 import React, { FC, useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import {
   View,
+  Keyboard,
+  Platform,
   FlatList,
   TextInput,
   KeyboardAvoidingView,
@@ -99,6 +101,17 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   ready = true,
 }) => {
   const insets = useSafeAreaInsets()
+  const [keyboardVisible, setKeyboardVisible] = useState(() => Keyboard.isVisible())
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
+    return () => {
+      show.remove()
+      hide.remove()
+    }
+  }, [])
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
   const [inputPlaceholder, setInputPlaceholder] = useState<string>('')
@@ -563,6 +576,9 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         // frame, and KAV does not recalculate overlap after an async offset-only update.
         // Padding avoids only overlap left after any Android window resizing.
         behavior='padding'
+        // Android's hide event uses visible-frame height, not the absolute screenY used on
+        // show. KAV treats both as coordinates; disable it when hidden to avoid a residual gap.
+        enabled={Platform.OS !== 'android' || keyboardVisible}
         keyboardVerticalOffset={insets.top}
         testID='chat-keyboard-avoidance'
         style={styles.keyboardAvoidingView}
