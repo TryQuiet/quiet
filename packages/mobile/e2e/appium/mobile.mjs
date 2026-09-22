@@ -96,7 +96,10 @@ export class Mobile {
       if (this.android) await input.setValue(value)
       else {
         await input.click()
-        await this.driver.keys(value)
+        // WebdriverIO's browser.keys() groups every keyDown before every keyUp.
+        // Current WebDriverAgent rejects that action sequence. Its native mobile
+        // command types into the focused control with paired key events.
+        await this.driver.execute('mobile: keys', { keys: [...value] })
       }
     } catch { throw new Error('Could not fill the native onboarding field (input redacted)') }
     if (this.android && await this.driver.isKeyboardShown()) await this.driver.back()

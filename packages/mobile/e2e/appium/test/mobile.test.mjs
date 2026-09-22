@@ -46,12 +46,12 @@ test('physical iOS onboarding focuses the accessible wrapper before typing', asy
       assert.equal(selector, "//*[@label='Invite link' or @name='Invite link']")
       return input
     },
-    async keys(value) { events.push(['type', value]) },
+    async execute(command, value) { events.push(['type', command, value]) },
   }
 
   await mobile.input('Invite link', 'quiet-test-invite')
 
-  assert.deepEqual(events, ['focus', ['type', 'quiet-test-invite']])
+  assert.deepEqual(events, ['focus', ['type', 'mobile: keys', { keys: [...'quiet-test-invite'] }]])
 })
 
 test('native onboarding input errors do not disclose entered values', async () => {
@@ -59,7 +59,7 @@ test('native onboarding input errors do not disclose entered values', async () =
   mobile.driver = {
     async waitUntil(check) { assert.equal(await check(), true) },
     async $() { return { async isDisplayed() { return true }, async click() {} } },
-    async keys() { throw new Error('driver included sensitive input') },
+    async execute() { throw new Error('driver included sensitive input') },
   }
 
   await assert.rejects(mobile.input('Invite link', 'quiet-test-invite'), error => {
