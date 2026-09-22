@@ -33,7 +33,9 @@ const Demo: React.FC<{ label: string; raw: string; testId: string }> = ({ label,
     >
       {JSON.stringify(raw)}
     </div>
-    <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#888', marginBottom: 4 }}>Rendered to the receiver:</div>
+    <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#888', marginBottom: 4 }}>
+      Rendered to the receiver:
+    </div>
     <div style={{ border: '1px solid #ddd', padding: 8 }}>
       <TextMessageComponent message={raw} messageId={testId} pending={false} openUrl={() => {}} />
     </div>
@@ -42,13 +44,19 @@ const Demo: React.FC<{ label: string; raw: string; testId: string }> = ({ label,
 
 describe('TextMessage - issue #1618 blank line handling (visual evidence)', () => {
   it('a message padded with leading/trailing blank lines does not create a blank area on the receiver side', () => {
-    mount(withTheme(() => <Demo label="Raw message string sent over the wire:" raw={rawSenderInput} testId="1618-blank" />))
+    mount(
+      withTheme(() => <Demo label='Raw message string sent over the wire:' raw={rawSenderInput} testId='1618-blank' />)
+    )
     cy.wait(0)
     cy.screenshot('1618-blank-lines-current', { overwrite: true, capture: 'viewport' })
   })
 
   it('blank lines and content inside a fenced code block are left alone', () => {
-    mount(withTheme(() => <Demo label="Raw message string sent over the wire:" raw={codeFenceInput} testId="1618-codefence" />))
+    mount(
+      withTheme(() => (
+        <Demo label='Raw message string sent over the wire:' raw={codeFenceInput} testId='1618-codefence' />
+      ))
+    )
     cy.wait(0)
     cy.screenshot('1618-code-fence-preserved', { overwrite: true, capture: 'viewport' })
   })
