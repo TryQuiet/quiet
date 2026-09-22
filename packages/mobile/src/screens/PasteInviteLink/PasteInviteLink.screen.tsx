@@ -10,7 +10,7 @@ import {
   type DeviceInvitationData,
 } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
-import DeviceLinkConsentDrawer from '../../components/ModalBottomDrawer/drawers/DeviceLinkConsent.drawer'
+import { DeviceLinkConsent } from '../../components/DeviceLinkConsent/DeviceLinkConsent.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { PasteInviteLinkScreenProps } from './PasteInviteLink.types'
@@ -93,26 +93,29 @@ export const PasteInviteLinkScreen: FC<PasteInviteLinkScreenProps> = ({ route })
     dispatch(navigationActions.pop())
   }, [dispatch])
 
-  return (
-    <>
-      <JoinCommunity
-        joinCommunityAction={joinCommunityAction}
-        handleBackButton={handleBackButton}
-        hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
-        invitationCode={invitationCode}
-        variant={route.params?.variant ?? 'inviteLink'}
-        ready={isWebsocketConnected}
-        inputError={joinCommunityErrorMessage}
-        onInputChange={() => dispatch(communities.actions.clearJoinCommunityError())}
-      />
-      <DeviceLinkConsentDrawer
+  // Agree & join (3054:4090) is a screen of its own, not a sheet over the paste step: it takes
+  // the window while the decision is open, and its back arrow declines and returns here.
+  if (deviceLinkInvite) {
+    return (
+      <DeviceLinkConsent
         inviteData={deviceLinkInvite}
-        onConfirm={() => {
-          if (!deviceLinkInvite) return
-          linkDevice(deviceLinkInvite)
-        }}
+        visible
+        onConfirm={() => linkDevice(deviceLinkInvite)}
         onCancel={() => setDeviceLinkInvite(undefined)}
       />
-    </>
+    )
+  }
+
+  return (
+    <JoinCommunity
+      joinCommunityAction={joinCommunityAction}
+      handleBackButton={handleBackButton}
+      hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
+      invitationCode={invitationCode}
+      variant={route.params?.variant ?? 'inviteLink'}
+      ready={isWebsocketConnected}
+      inputError={joinCommunityErrorMessage}
+      onInputChange={() => dispatch(communities.actions.clearJoinCommunityError())}
+    />
   )
 }

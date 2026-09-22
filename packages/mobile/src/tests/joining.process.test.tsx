@@ -10,6 +10,7 @@ import { getReduxStoreFactory, communities, identity, connection, errors } from 
 import { ScreenNames } from '../const/ScreenNames.enum'
 import { AppHomeScreen } from '../screens/AppHome/AppHome.screen'
 import { ConnectionProcessScreen } from '../screens/ConnectionProcess/ConnectionProcess.screen'
+import { TOR_STATUS } from '../components/ConnectionProcess/ConnectionProcess.component'
 import { UsernameRegistrationScreen } from '../screens/UsernameRegistration/UsernameRegistration.screen'
 import { ConnectionProcessInfo, ErrorMessages, SocketActions } from '@quiet/types'
 import { createLogger } from '../utils/logger'
@@ -58,21 +59,26 @@ describe('Joining process', () => {
 
     expect(connectionProcessScreen).toBeVisible()
 
+    // A Tor community: the bar's status names the transport and the phase the app
+    // reports moves to the line under it (Figma 1316:34596).
     const processText = screen.getByTestId('connection-process-text')
-    expect(processText.props.children).toEqual(ConnectionProcessInfo.CONNECTION_STARTED)
+    expect(processText.props.children).toEqual(TOR_STATUS)
+    const phase = screen.getByTestId('connection-process-secondary')
+    expect(phase.props.children).toEqual(ConnectionProcessInfo.CONNECTION_STARTED)
 
     store.dispatch(
       connection.actions.setConnectionProcess({ info: ConnectionProcessInfo.INITIALIZING_IPFS, isOwner: true })
     )
     await act(async () => {})
 
-    const processText2 = screen.getByTestId('connection-process-text')
-    logger.info(processText2.props)
-    expect(processText2.props.children).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
+    const phase2 = screen.getByTestId('connection-process-secondary')
+    logger.info(phase2.props)
+    expect(phase2.props.children).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
+    expect(screen.getByTestId('connection-process-text').props.children).toEqual(TOR_STATUS)
 
     await act(async () => {})
 
-    const channelList = screen.getByTestId('channel-list')
+    const channelList = screen.getByTestId('channels_list')
 
     expect(channelList).toBeVisible()
 
@@ -124,7 +130,8 @@ describe('Joining process', () => {
     expect(connectionProcessScreen).toBeVisible()
 
     const processText = screen.getByTestId('connection-process-text')
-    expect(processText.props.children).toEqual('Connecting process started')
+    expect(processText.props.children).toEqual(TOR_STATUS)
+    expect(screen.getByTestId('connection-process-secondary').props.children).toEqual('Connecting process started')
     // Stop state-manager sagas
     root?.cancel()
   })

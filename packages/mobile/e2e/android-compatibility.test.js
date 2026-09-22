@@ -36,7 +36,7 @@ describeAndroid('Android SDK compatibility', () => {
       .toBeVisible()
       .withTimeout(10000)
     await element(by.id('android-compatibility-reset')).tap()
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(10000)
     await expect(channelState()).toHaveText('(none)')
@@ -57,7 +57,7 @@ describeAndroid('Android SDK compatibility', () => {
     await expect(channelState()).toHaveText('general')
 
     await device.pressBack()
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(10000)
     // A native-stack pop alone is insufficient: ChannelScreen must also clear

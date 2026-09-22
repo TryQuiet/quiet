@@ -46,7 +46,7 @@ suite('Authenticated desktop/mobile DM', () => {
     await element(by.text('Continue')).tap()
     await visible(by.text('Agree & Continue'))
     await element(by.text('Agree & Continue')).tap()
-    await visible(by.id('messages-home-container'))
+    await visible(by.id('channels_list'))
     signal('mobile-joined')
 
     await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
@@ -76,7 +76,7 @@ suite('Authenticated desktop/mobile DM', () => {
     for (let restart = 0; restart < 3; restart += 1) {
       await device.terminateApp()
       await device.launchApp({ newInstance: true, launchArgs: { detoxURLBlacklistRegex: '.*' } })
-      await visible(by.id('messages-home-container'))
+      await visible(by.id('channels_list'))
       await visible(by.text(scenario.desktopUser).withAncestor(by.id('dm-list')))
       await element(by.text(scenario.desktopUser).withAncestor(by.id('dm-list'))).tap()
       await visible(by.id(scenario.firstMessage))

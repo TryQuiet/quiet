@@ -17,6 +17,7 @@ export enum ScreenNames {
   JoinCommunityScreen = 'JoinCommunityScreen',
   OpenInviteLinkScreen = 'OpenInviteLinkScreen',
   PasteInviteLinkScreen = 'PasteInviteLinkScreen',
+  RecoverAccountScreen = 'RecoverAccountScreen',
   LinkDevicesScreen = 'LinkDevicesScreen',
   LeaveCommunityScreen = 'LeaveCommunityScreen',
   NotifierScreen = 'NotifierScreen',

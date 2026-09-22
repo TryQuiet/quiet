@@ -23,5 +23,15 @@ export interface IModalProps {
   children?: React.ReactNode
   isTransparent?: boolean
   withoutHeader?: boolean
+  /**
+   * The header zone stays (60px, the back/close glyph at its designed place) but
+   * carries no title text and no hairline: the screen's large heading is its
+   * title. Full-screen h1 stages of the onboarding (ONBOARDING.md, "No top bar
+   * title on full-screen h1 stages"); the prototype hides the frame's title
+   * text on them and keeps titled bars only on sheets.
+   */
+  withoutTitle?: boolean
+  /** Rounded corners for a windowed (`fullPage={false}`) card — the library's modal/small. */
+  cornerRadius?: number
   zIndex?: number
 }
