@@ -2,7 +2,7 @@ import React from 'react'
 import { act, fireEvent } from '@testing-library/react-native'
 import { DeviceEventEmitter, Platform } from 'react-native'
 import { launchImageLibrary } from 'react-native-image-picker'
-import { communities, errors, files, messages, publicChannels, users } from '@quiet/state-manager'
+import { communities, errors, files, messages, publicChannels, StoreKeys, users } from '@quiet/state-manager'
 import { type PublicChannel } from '@quiet/types'
 import { ChannelScreen } from './Channel.screen'
 import { initSelectors } from '../../store/init/init.selectors'
@@ -11,9 +11,14 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 const mockDispatch = jest.fn()
 const mockSelections = new Map()
 
+// The screen reads `newMessageOpen` straight from the store when deciding whether a recipient sync
+// still applies, so the mocked react-redux has to offer a store as well as the hooks.
+const mockState = { [StoreKeys.PublicChannels]: { newMessageOpen: false } }
+
 jest.mock('react-redux', () => ({
   useDispatch: () => mockDispatch,
   useSelector: (selector: unknown) => mockSelections.get(selector),
+  useStore: () => ({ getState: () => mockState }),
 }))
 jest.mock('../../hooks/useContextMenu', () => ({
   useContextMenu: () => null,

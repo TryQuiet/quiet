@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { BackHandler, Linking } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector, useStore } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
 import { communities, publicChannels, messages, files, users, errors, connection } from '@quiet/state-manager'
 import {
@@ -25,8 +25,22 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('ChannelScreen')
 
+/**
+ * Leaves the channel screen for the community home. Rendered rather than dispatched inline so the
+ * navigation happens in an effect, after the render that discovered there is nothing to show.
+ */
+const ReturnHome: FC = () => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(navigationActions.navigation({ screen: ScreenNames.AppHomeScreen }))
+    dispatch(publicChannels.actions.setCurrentChannel({ channelId: '' }))
+  }, [dispatch])
+  return null
+}
+
 const ChannelScreenContent: FC = () => {
   const dispatch = useDispatch()
+  const store = useStore()
 
   // The DM rows in the home nav still go straight to the conversation; only a person shown inside
   // a message or a read-only list leads to their profile.
@@ -255,26 +269,31 @@ const ChannelScreenContent: FC = () => {
 
   /**
    * Update the channel ID in-place to show messages from an existing DM when changing user selection on new chat view
+   *
+   * This only ever describes what the *open* composer has selected. Pointing the current channel at
+   * EMPTY_CHANNEL_ID once the composer has closed strands the screen: nothing is being composed and
+   * no channel is current, which is the one state this screen cannot draw. That is how sending the
+   * first message of a new DM white-screened the app — the conversation was created and the message
+   * delivered, then a late selection sync overwrote the brand new channel id with the empty
+   * sentinel, and the screen rendered nothing until the app was restarted.
+   *
+   * The guard therefore reads the store rather than this closure. A copy of this callback taken
+   * while the composer was open — one already held by an effect, say — must not still be willing to
+   * reset the channel once it has closed, and a captured `isNewMessageOpen` would be.
    */
   const setDmChannelOnSelection = useCallback(
     (selectedIds: string[]) => {
-      if (!isNewMessageOpen) return
+      if (!publicChannels.selectors.isNewMessageOpen(store.getState())) return
       if (channels == null || selectedIds.length === 0) {
         dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
         return
       }
-      if (me != null) {
-        selectedIds.push(me.userId)
-      }
-      const memberHash = generateDmMemberHash(selectedIds)
+      const withMe = me != null ? [...selectedIds, me.userId] : selectedIds
+      const memberHash = generateDmMemberHash(withMe)
       const existing = channels.find(channel => channel.type === ChannelType.DM && channel.memberIdHash === memberHash)
-      if (existing) {
-        dispatch(publicChannels.actions.setCurrentChannel({ channelId: existing.id }))
-      } else {
-        dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
-      }
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: existing?.id ?? EMPTY_CHANNEL_ID }))
     },
-    [dispatch, channels, me]
+    [dispatch, store, channels, me]
   )
 
   const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
@@ -283,7 +302,22 @@ const ChannelScreenContent: FC = () => {
     void Linking.openURL(url)
   }, [])
 
-  if (!isNewMessageOpen && !currentChannel) return null
+  /**
+   * Nothing is being composed and the current channel id names no channel we have. There is no
+   * conversation to draw, and rendering nothing leaves the user on a blank screen they cannot get
+   * off without restarting the app, so send them back to the list they came from.
+   *
+   * EMPTY_CHANNEL_ID specifically means "the composer settled on no conversation"; a real id that
+   * simply has not replicated yet is a different, transient state and still renders nothing for
+   * that moment rather than navigating away underneath the user.
+   */
+  if (!isNewMessageOpen && !currentChannel) {
+    if (currentChannelId === EMPTY_CHANNEL_ID) {
+      logger.warn('No conversation to show and none being composed; returning to the community home')
+      return <ReturnHome />
+    }
+    return null
+  }
 
   return (
     <Chat

@@ -29,6 +29,7 @@ const handlers = {
   createChannel: () => logger.info('create channel'),
   openChannel: (id: string) => logger.info(`open channel ${id}`),
   openMember: (userId: string) => logger.info(`message ${userId}`),
+  startDm: () => logger.info('start dm'),
 }
 
 storiesOf('CommunityHome', module)

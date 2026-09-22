@@ -66,6 +66,19 @@ export const AppHomeScreen: FC = () => {
   }, [dispatch])
 
   /**
+   * The plus on the Direct messages title: the composer with nobody chosen yet, for a conversation
+   * with someone who is not on the list below. Opening it is all there is to do — the conversation
+   * itself only exists once its first message is sent.
+   *
+   * Unlike the Channels plus this is not permission-gated. Creating a channel is a community-level
+   * act others have to live with; messaging someone is not.
+   */
+  const startDm = useCallback(() => {
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: true }))
+    dispatch(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
+  }, [dispatch])
+
+  /**
    * A DM is created together with its first message, so there is nothing to create here. Either the
    * conversation already exists, in which case open it, or the composer opens with this person
    * already chosen and the message they type is what brings the DM into being. Same path as the
@@ -131,6 +144,7 @@ export const AppHomeScreen: FC = () => {
       createChannel={createChannel}
       openChannel={openChannel}
       openMember={openMember}
+      startDm={startDm}
     />
   )
 }

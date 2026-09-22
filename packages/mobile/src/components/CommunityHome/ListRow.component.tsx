@@ -12,12 +12,19 @@ import type { ListRowProps } from './CommunityHome.types'
 export const LIST_ROW_HEIGHT = 36
 
 /**
- * The library draws every list label — row, section title and member name —
- * with the ink at 70% (Figma: `List group` 3797:16806 `Type=List`, whose
- * `List title` and `List item` text sit at opacity 0.7, the row glyph at 0.5
- * and `t-add` at 0.6). On the dark sidebar that ink is white; on the mobile
- * card it is #222222, which at 70% over white lands on #656565 — what the
- * exported Community home frames render.
+ * Every list label on this card — row, section title and member name — is drawn
+ * at 70% of #222222, which over white lands on #656565.
+ *
+ * That greyness is the design's, not an accident of reusing a dark-sidebar
+ * component. The mobile Community home frame itself (Figma: Quiet Design
+ * Library, Structure & Nav, `Community home` 5446:76594 variant "Mode=Light,
+ * Content=For V1 2025" 6220:10609, the 375pt-wide mobile frame) gives each
+ * label text node its own `opacity: 0.7` over a solid #222222 fill: the
+ * `List item` labels (Add members I6220:10613;3797:16032, General
+ * I6220:10616;3797:16032), the `List title` labels (Channels
+ * I6220:10615;3797:15987, Direct messages I6220:10876;3797:15987) and the
+ * person rows' `Name` (I6220:10877;4606:16451). The row glyph sits at 0.5 and
+ * `t-add` at 0.6. Only the unread badge's digits are solid.
  */
 export const LIST_TEXT_OPACITY = 0.7
 

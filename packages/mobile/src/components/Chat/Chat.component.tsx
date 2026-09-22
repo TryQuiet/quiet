@@ -13,6 +13,7 @@ import {
   StyleSheet,
   TextInputChangeEventData,
   TextInputEndEditingEventData,
+  LayoutChangeEvent,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
@@ -101,17 +102,74 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   ready = true,
 }) => {
   const insets = useSafeAreaInsets()
-  const [keyboardVisible, setKeyboardVisible] = useState(() => Keyboard.isVisible())
+  /**
+   * How much of the screen the keyboard takes, straight from the keyboard event.
+   *
+   * Android 15+ lays every window out edge to edge and no longer resizes it for the keyboard, so
+   * the visible display frame that `KeyboardAvoidingView` measures its overlap from can come back
+   * the full height of the window with the keyboard already up. The overlap then reads as zero and
+   * the send and attach controls sit under the keyboard.
+   *
+   * `endCoordinates.height` does not have that problem: React Native takes it from
+   * `WindowInsets.Type.ime()` minus the system bars, so it is the keyboard's true height above the
+   * navigation bar whether or not the window resized. App already reserves the navigation bar's
+   * inset around the navigator, so that height is exactly the lift this view needs.
+   */
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+  // The height this view has when nothing is covering it, so a window that *did* resize can be told
+  // apart from one that did not: a resized window has already made the room the keyboard needs.
+  const [unobstructedHeight, setUnobstructedHeight] = useState<number | undefined>(undefined)
+  const [avoidanceHeight, setAvoidanceHeight] = useState<number | undefined>(undefined)
+
+  const keyboardHeightRef = useRef(0)
 
   useEffect(() => {
     if (Platform.OS !== 'android') return
-    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
-    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
+    const remember = (height: number) => {
+      keyboardHeightRef.current = height
+      setKeyboardHeight(height)
+    }
+    const show = Keyboard.addListener('keyboardDidShow', event => remember(event.endCoordinates.height))
+    const hide = Keyboard.addListener('keyboardDidHide', () => remember(0))
     return () => {
       show.remove()
       hide.remove()
     }
   }, [])
+
+  const onAvoidanceLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout
+    setAvoidanceHeight(height)
+    if (keyboardHeightRef.current === 0) setUnobstructedHeight(height)
+  }, [])
+
+  /**
+   * Avoid only what the window did not already give way for.
+   *
+   * An edge-to-edge window does not resize, so this view keeps its height and the whole keyboard
+   * has to be avoided here. A window that really did resize — older Android, where adjustResize
+   * still shrinks the view hierarchy — lays this view out shorter by the keyboard's height, and
+   * that much has already been avoided for us. Adding padding does not change this view's own
+   * height, so the two measurements cannot feed back into each other.
+   *
+   * With no keyboard-free height recorded yet the give-way reads as nothing, which is right for
+   * every edge-to-edge device and at worst lifts an old one too far until the keyboard next closes.
+   * Too high is a blemish; too low puts the send button back under the keyboard.
+   */
+  const windowGaveWay =
+    unobstructedHeight != null && avoidanceHeight != null ? Math.max(unobstructedHeight - avoidanceHeight, 0) : 0
+  const keyboardAvoidance = Platform.OS === 'android' ? Math.max(keyboardHeight - windowGaveWay, 0) : 0
+
+  // A plain view on Android, because the padding is computed above; KeyboardAvoidingView composes
+  // its own `paddingBottom` over whatever style it is given, so it cannot simply be switched off.
+  const KeyboardAvoidance = Platform.OS === 'android' ? View : KeyboardAvoidingView
+  const avoidanceProps =
+    Platform.OS === 'android'
+      ? {
+          onLayout: onAvoidanceLayout,
+          style: [styles.keyboardAvoidingView, { paddingBottom: keyboardAvoidance }],
+        }
+      : { behavior: 'padding' as const, keyboardVerticalOffset: insets.top, style: styles.keyboardAvoidingView }
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
   const [inputPlaceholder, setInputPlaceholder] = useState<string>('')
@@ -194,12 +252,23 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     }
   }, [newChat, newChatRecipientIds, userProfiles, me, isUserConnected, isTorInitialized])
 
+  // Who the composer currently has chosen. The candidate list itself is rebuilt whenever anybody's
+  // connection state changes, so keying the sync below on the list would tell the screen to
+  // re-resolve the conversation every time a peer or Tor changed status — including in the seconds
+  // between sending a new DM's first message and the backend answering with the channel it created.
+  const selectedRecipientIds = useMemo(
+    () => (options ?? []).filter(option => option.selected).map(option => option.id),
+    [options]
+  )
+  const selectedRecipientKey = selectedRecipientIds.join(',')
+
   useEffect(() => {
     if (!newChat) return
     if (options == null) return
-    const selectedIds = options.filter(option => option.selected).map(option => option.id)
-    setDmChannelOnSelection(selectedIds)
-  }, [options, me])
+    setDmChannelOnSelection(selectedRecipientIds)
+    // Only the selection itself decides which conversation the composer is pointing at.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRecipientKey, newChat])
 
   const _setAllOptionsVisible = (): Set<number> => {
     if (options == null) return new Set()
@@ -569,19 +638,18 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         back={handleBackButton}
         contextMenu={contextMenu}
       />
-      <KeyboardAvoidingView
-        // App places this headerless navigator below its top safe-area strip. That top inset
-        // is the origin for KAV's parent-relative frame; App already owns the bottom inset.
-        // Use the synchronous origin: Android measureInWindow subtracts the visible status-bar
-        // frame, and KAV does not recalculate overlap after an async offset-only update.
-        // Padding avoids only overlap left after any Android window resizing.
-        behavior='padding'
-        // Android's hide event uses visible-frame height, not the absolute screenY used on
-        // show. KAV treats both as coordinates; disable it when hidden to avoid a residual gap.
-        enabled={Platform.OS !== 'android' || keyboardVisible}
-        keyboardVerticalOffset={insets.top}
+      <KeyboardAvoidance
+        // Padding avoids only the overlap left after any window resizing — the model #3662 settled
+        // on. On Android the overlap is measured here rather than by KeyboardAvoidingView, which
+        // derives it from the visible display frame; an edge-to-edge window (API 35+) need not
+        // shrink that frame for the keyboard, and then the overlap reads as nothing. Same intent,
+        // an input that does not depend on the window resizing.
+        //
+        // On iOS KeyboardAvoidingView still does the work. App places this headerless navigator
+        // below its top safe-area strip, which is the origin for the frame that view measures
+        // against; App already owns the bottom inset.
         testID='chat-keyboard-avoidance'
-        style={styles.keyboardAvoidingView}
+        {...avoidanceProps}
       >
         {newChat && (
           <View
@@ -677,7 +745,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
             </View>
           </>
         )}
-      </KeyboardAvoidingView>
+      </KeyboardAvoidance>
       {imagePreview && setImagePreview && (
         <ImagePreviewModal
           imagePreviewData={imagePreview}
