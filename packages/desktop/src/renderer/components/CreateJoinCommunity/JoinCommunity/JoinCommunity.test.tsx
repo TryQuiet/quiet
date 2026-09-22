@@ -192,40 +192,43 @@ describe('join community', () => {
       })
     })
 
-    it('reopens the closed flow on the paste step when the backend reports the failure', async () => {
-      // The live sequence: the flow was left for Choose username and the progress panel, and the
-      // verdict lands while this modal is shut. It must come back to the field the link was typed
-      // in, not to the three-way choice or to Get started.
-      const { store } = await prepareStore({
-        ...openModalState(ModalName.joinCommunityModal),
-        [StoreKeys.Modals]: {
-          ...new ModalsInitialState(),
-          [ModalName.joinCommunityModal]: { open: false },
-          [ModalName.loadingPanel]: { open: false },
-        },
-      })
+    it.each(errorKinds)(
+      'reopens the closed flow on the paste step when the backend reports %s',
+      async (_kind, joinCommunityError, message) => {
+        // The live sequence: the flow was left for Choose username and the progress panel, and the
+        // verdict lands while this modal is shut. It must come back to the field the link was typed
+        // in, not to the three-way choice or to Get started.
+        const { store } = await prepareStore({
+          ...openModalState(ModalName.joinCommunityModal),
+          [StoreKeys.Modals]: {
+            ...new ModalsInitialState(),
+            [ModalName.joinCommunityModal]: { open: false },
+            [ModalName.loadingPanel]: { open: false },
+          },
+        })
 
-      renderComponent(
-        <>
-          <GetStarted />
-          <JoinCommunity />
-        </>,
-        store
-      )
+        renderComponent(
+          <>
+            <GetStarted />
+            <JoinCommunity />
+          </>,
+          store
+        )
 
-      expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
+        expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
 
-      act(() => {
-        store.dispatch(communities.actions.setJoinCommunityError({ type: 'invalid' }))
-      })
+        act(() => {
+          store.dispatch(communities.actions.setJoinCommunityError(joinCommunityError))
+        })
 
-      const input = await screen.findByPlaceholderText('Link')
-      expect(await screen.findByText(ErrorMessages.INVALID_INVITE)).toBeVisible()
-      expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toHaveTextContent(ErrorMessages.INVALID_INVITE)
-      expect(screen.getByRole('heading', { name: PASTE_LINK_HEADING, level: 3 })).toBeVisible()
-      expect(screen.queryByRole('heading', { name: 'Join community' })).not.toBeInTheDocument()
-      expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
-    })
+        const input = await screen.findByPlaceholderText('Link')
+        expect(await screen.findByText(message)).toBeVisible()
+        expect(input.closest('.MuiFormControl-root')?.nextElementSibling).toHaveTextContent(message)
+        expect(screen.getByRole('heading', { name: PASTE_LINK_HEADING, level: 3 })).toBeVisible()
+        expect(screen.queryByRole('heading', { name: JOIN_COMMUNITY_HEADING })).not.toBeInTheDocument()
+        expect(screen.queryByRole('heading', { name: GET_STARTED_HEADING })).not.toBeInTheDocument()
+      }
+    )
 
     it('reports a link the client cannot parse on the same field, without leaving the step', async () => {
       const { store } = await prepareStore(openModalState(ModalName.joinCommunityModal))
