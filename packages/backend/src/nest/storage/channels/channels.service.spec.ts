@@ -382,6 +382,51 @@ describe('ChannelsService', () => {
       }
     })
 
+    it('announces each message once to every consumer even when an earlier consumer throws', async () => {
+      const response = await channelsService.handleCreateChannel({
+        name: 'fragile-consumers',
+        public: true,
+        teamId: sigChainService.team.id,
+      })
+      expect(response.status).toBe(ChannelOperationStatus.SUCCESS)
+      const createdChannel = response.channel!
+      const fragile: string[] = []
+      const healthy: string[] = []
+      let failures = 1
+      // The throwing consumer is registered first: EventEmitter.emit would stop at it.
+      channelsService.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
+        if (failures-- > 0) throw new Error('a downstream consumer failed')
+        fragile.push(...payload.messages.map(item => item.id))
+      })
+      channelsService.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
+        healthy.push(...payload.messages.map(item => item.id))
+      })
+      const messages = await Promise.all(
+        ['first', 'second'].map(text =>
+          factory.build<ChannelMessage>('ChannelMessage', {
+            channelId: createdChannel.id,
+            userId: aliceUserId,
+            createdAt: Math.floor(Date.now() / 1000),
+            type: MessageType.Basic,
+            message: text,
+          })
+        )
+      )
+      for (const item of messages) {
+        expect(await channelsService.sendMessage(item)).toBe(true)
+      }
+      const expected = messages.map(item => item.id).sort()
+      await waitForExpect(() => {
+        expect([...healthy].sort()).toEqual(expected)
+        expect([...fragile].sort()).toEqual(expected)
+      }, 10_000)
+      // Longer than the store's first announcement retry: the retry that reached the consumer
+      // which threw must not repeat the message to the consumer that already handled it.
+      await new Promise(resolve => setTimeout(resolve, 1_500))
+      expect(healthy).toHaveLength(2)
+      expect(fragile).toHaveLength(2)
+    })
+
     it('generates an opaque channel id and stores metadata encrypted', async () => {
       const payload: CreateChannelPayload = {
         name: 'secret-channel-name',
@@ -538,6 +583,7 @@ describe('ChannelsService', () => {
         resolveSubscription = resolve
       })
       const store = new EventEmitter() as any
+      store.forwardAnnouncementsTo = jest.fn()
       store.subscribe = jest.fn(async () => await subscriptionGate)
       const subscribedChannelIds: string[] = []
       channelsService.channelsRepos.set(channel.id, {
@@ -575,6 +621,7 @@ describe('ChannelsService', () => {
         resolveStoreCreation = resolve
       })
       const store = new EventEmitter() as any
+      store.forwardAnnouncementsTo = jest.fn()
       store.subscribe = jest.fn(async () => {})
       const createChannelStoreSpy = jest
         .spyOn(channelsService as any, 'createChannelStore')
@@ -603,6 +650,7 @@ describe('ChannelsService', () => {
         teamId: community.teamId!,
       })
       const store = new EventEmitter() as any
+      store.forwardAnnouncementsTo = jest.fn()
       store.subscribe = jest.fn(() => new Promise<void>(() => {}))
       channelsService.channelsRepos.set(channel.id, {
         store,
@@ -940,6 +988,7 @@ describe('ChannelsService', () => {
         userId: aliceUserId,
       })
       const store = new EventEmitter() as any
+      store.forwardAnnouncementsTo = jest.fn()
       store.subscribe = jest.fn(async () => {})
       store.sendMessage = jest.fn(async () => true)
       channelsService.channelsRepos.set(channel.id, {
