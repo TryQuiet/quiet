@@ -20,6 +20,9 @@ export interface FlowFrame {
   name: string
   display: string
   node: string
+  /** The Figma file this frame comes from, when it is not the flow's primary file (flow.file). */
+  file?: string
+  fileName?: string
   /** Story id, derived from the export name by gen.cjs and verified with @storybook/csf. */
   id: string
   section: string
@@ -73,10 +76,21 @@ export interface Rect {
   w: number
   h: number
 }
+/** A screen the extractor deliberately left out of a section, listed so the scope of the section is visible. */
+export interface Excluded {
+  file: string
+  fileName: string
+  section: string
+  node: string
+  name: string
+  why: string
+}
 export interface Flow {
   file: string
   start: string
   sections: string[]
+  files?: Array<{ key: string; name: string }>
+  excluded?: Excluded[]
   shell?: Shell
   mapId?: string
   frames: FlowFrame[]
@@ -248,7 +262,9 @@ const Hotspot: React.FC<{
         textAlign: 'left',
       }}
     >
-      {l.kind === 'added' && outline ? (
+      {/* The inline label is for added rows that draw UI the frame does not have; over a drawn button it would
+          print on top of the button's own text, so only wide hotspots carry it. The side panel lists them all. */}
+      {l.kind === 'added' && outline && rect.w >= 200 ? (
         <span
           style={{
             position: 'absolute',
@@ -687,7 +703,14 @@ export const Stage: React.FC<{ flow: Flow; frame: FlowFrame }> = ({ flow, frame 
           {frame.display}
         </h1>
         <p style={{ fontSize: 12, color: INK_3, margin: '0 0 6px' }}>
-          {frame.width}×{frame.height} · node <span style={{ fontFamily: mono }}>{frame.node}</span> ·{' '}
+          {frame.width}×{frame.height} · node <span style={{ fontFamily: mono }}>{frame.node}</span>
+          {frame.fileName ? (
+            <>
+              {' '}
+              · file <em>{frame.fileName}</em>
+            </>
+          ) : null}{' '}
+          ·{' '}
           <a href={frame.url} target='_blank' rel='noreferrer' style={{ color: '#0D6420' }}>
             open in Figma
           </a>
@@ -846,6 +869,8 @@ const SECTION_NOTE: Record<string, string> = {
     'The QSS server / plan / captcha / subscription cluster, when not already reached from Onboarding.',
   'Server agree (joiner, v1)':
     'The joiner-side agree screen ("v1 before we support multiple hosts") and its captcha. Not linked from the join flow in the prototype; the apps show ToS after username.',
+  'Join from invite link':
+    'A second prototype file, drawing what happens after the invite link is pasted: choose a username, agree & join, and the progress screen while joining. Scoped to those screens by decision (user, 2026-09-13) — the account-recovery branch and the screens this file duplicates from Get started are excluded below. One added link joins it to the paste screen.',
 }
 
 export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
@@ -854,8 +879,9 @@ export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
       Onboarding flow — every stage
     </h1>
     <p style={{ fontSize: 13, color: INK_3, margin: '0 0 20px' }}>
-      {flow.frames.length} screens in file <span style={{ fontFamily: mono }}>{flow.file}</span>, in{' '}
-      {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).length} clusters the prototype does not
+      {flow.frames.length} screens from{' '}
+      {(flow.files ?? [{ key: flow.file, name: flow.file }]).map(f => f.name).join(' and ')}, in{' '}
+      {flow.sections.filter(sec => flow.frames.some(f => f.section === sec)).length} clusters the prototypes do not
       connect. Click any stage to open it; the frame&rsquo;s buttons then walk the flow.
     </p>
     {flow.sections
@@ -884,6 +910,22 @@ export const FlowMap: React.FC<{ flow: Flow }> = ({ flow }) => (
                 <Tile key={f.slug} f={f} />
               ))}
           </div>
+          {(flow.excluded ?? []).some(e => e.section === sec) ? (
+            <div style={{ fontSize: 12, lineHeight: '18px', color: INK_3, marginTop: 10 }}>
+              <span style={{ fontFamily: mono, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                not included
+              </span>
+              <ul style={{ margin: '2px 0 0', padding: '0 0 0 16px' }}>
+                {(flow.excluded ?? [])
+                  .filter(e => e.section === sec)
+                  .map(e => (
+                    <li key={e.node}>
+                      {e.name} <span style={{ fontFamily: mono, fontSize: 11 }}>{e.node}</span> — {e.why}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       ))}
     <h2

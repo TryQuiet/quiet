@@ -281,11 +281,11 @@ describe('joining across a real mobile state-manager disconnect', () => {
       </Provider>
     )
     expect(screen.getByText('Joining paused')).toBeTruthy()
-    expect(screen.queryByText('Agree & Continue')).toBeNull()
+    expect(screen.queryByText('Agree & Join')).toBeNull()
     await act(async () => {
       socket.connect()
     })
-    fireEvent.press(screen.getByText('Agree & Continue'))
+    fireEvent.press(screen.getByText('Agree & Join'))
     await flush()
     expect(joinCalls()).toHaveLength(1)
   })

@@ -448,11 +448,11 @@
   "png": "desktop-creating-community.png",
   "url": "https://www.figma.com/design/y8h6w8PYR9jyI3zjYHL9Cl?node-id=1430-48030",
   "copy": [
-   "Creating community \"Rockets\"",
-   "Additional info if needed…"
+   "Creating community “Rockets”",
+   "Additional info if needed can go here otherwise this is hidden."
   ],
-  "counterpart": null,
-  "note": "The desktop Connecting / creating stage (the map lists it as a stage the apps have that the prototype does not draw): sidebar greyed, progress bar and a line of status text."
+  "counterpart": "globe-animation",
+  "note": "The desktop QSS progress stage: 220 sidebar with the channels greyed, and centred in the chat area a progress bar, the heading, and a second line for status (“Additional info if needed can go here otherwise this is hidden.”) — the status line under the bar, drawn. Its mobile counterpart is the prototype’s Joining now! frame; the heading here says “Creating” because the frame draws the creator case."
  },
  {
   "slug": "desktop-community-switcher-overlay",

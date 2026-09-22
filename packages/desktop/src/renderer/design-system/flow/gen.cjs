@@ -72,6 +72,14 @@ const DISPLAY = {
   'add-members-options': 'Add members',
   'add-members-qr-code': 'Add members — QR code',
   'agree-and-join-v-1-before-we-support-multiple-hosts': 'Use Quiet’s server? (v1)',
+  // Join from invite link + prototype (dSEZJr9crJjcV3ILogea9C). The username and Agree & join titles collide
+  // with the create-side screens above, so they carry the path as a parenthetical; the two progress screens
+  // are named by the heading the frame draws.
+  'username-unpopulated': 'Choose a username (join)',
+  'username-populated-2811-2749': 'Choose a username (join) — name typed',
+  'agree-and-join': 'Agree & join (joiner)',
+  'globe-animation': 'Joining now!',
+  'starting-quiet': 'Starting Quiet',
 }
 const rows = []
 for (const f of flow.frames) {
@@ -120,6 +128,12 @@ const DESKTOP = {
   'sheet-2811-2601': { kind: 'content', png: 'devicelink/desktop-link-devices-qr.png', node: '880:17427', width: 715, height: 1018, crop: 96, hotspots: [
     { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
   ] },
+  // The joining-progress stage is an in-app screen, not a modal, so the shell composition does not apply: the
+  // designer drew the desktop version (Draft 6 'Frame 1320'), already in Desktop designs. Its content sits in the
+  // chat area with nothing at the frame's right edge, so wider windows extend the chat's plain white to the right
+  // (stretch col 700) and the block keeps its place next to the sidebar — the design has no wider variant. The
+  // stage has no outgoing links once Community home is excluded, so it has no hotspots.
+  'globe-animation': { kind: 'app', png: 'desktop-creating-community.png', node: '1430:48030', width: 740, height: 800, stretch: { col: 700, right: 740 }, hotspots: [] },
   'choose-a-plan': { kind: 'content', png: 'desktop-choose-a-plan.png', node: '2840:6718', width: 715, height: 929, hotspots: [
     { x: 32, y: 297, w: 103, h: 48, label: 'Upgrade (Free)', from: 'Button', nth: 0 },
     { x: 265, y: 297, w: 104, h: 48, label: 'Upgrade ($20)', from: 'Button', nth: 1 },
