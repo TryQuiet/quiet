@@ -21,10 +21,11 @@ const card = {
 /**
  * Link devices · Figma 2811:2575 (states 879:15640 / 879:15644 in the Device-linking
  * file): a full-screen h1 stage, so the bar shows the back glyph alone (no title, no
- * divider); the rows in the bordered group, then the Linked devices list — an overline
- * heading over a bordered card; "No linked devices" 14/20 #767676 when empty, else one
- * row per device (name over "Active"). The frames' trash glyph is not drawn: #3400 ships
- * no device removal. The rows follow the direction (LinkDevicesDirection); Copy link and
+ * divider), and the rows in the bordered group. The frames also draw a Linked devices
+ * list below them; it is not built, because nothing on this line can enumerate a user's
+ * devices (TryQuiet/quiet#3636) and a card that always read "No linked devices" would be
+ * false as soon as a device was linked. Nor is the frames' trash glyph: #3400 ships no
+ * device removal. The rows follow the direction (LinkDevicesDirection); Copy link and
  * Paste link carry the library's link glyph (the one Join with invite link uses on
  * 2811:2562), their labels are not the designer's (user decisions, 2026-09-13).
  */
