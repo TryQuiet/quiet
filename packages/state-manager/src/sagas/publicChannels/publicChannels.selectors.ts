@@ -294,10 +294,24 @@ export const channelsStatus = createSelector(selectState, state => {
   return publicChannelsStatusAdapter.getSelectors().selectEntities(state.channelsStatus)
 })
 
+/**
+ * The community's channels, newest conversation first — channels only.
+ *
+ * A direct message is a channel underneath, so it has a status like any other, but it belongs in
+ * the direct-message list and is named after the people in it rather than after itself. Left in, a
+ * DM shows up wherever channels are listed as a row reading "Direct message", which is what
+ * happened on the mobile Community home. Desktop's `ChannelsPanel` has always dropped them on the
+ * way in; this keeps the two from having to remember separately.
+ *
+ * A channel created before the type existed carries none, and those are channels.
+ */
 export const channelsStatusSorted = createSelector(selectState, selectChannels, (state, channels) => {
   if (!state?.channelsStatus) return []
   const channelNamesById = new Map(channels.map(channel => [channel.id, channel.name]))
-  const statuses = publicChannelsStatusAdapter.getSelectors().selectAll(state.channelsStatus)
+  const statuses = publicChannelsStatusAdapter
+    .getSelectors()
+    .selectAll(state.channelsStatus)
+    .filter(status => status.type == null || status.type === ChannelType.CHANNEL)
 
   return statuses
     .map((status): PublicChannelStatusWithName | undefined => {

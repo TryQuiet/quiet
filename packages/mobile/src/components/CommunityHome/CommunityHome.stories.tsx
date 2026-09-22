@@ -17,7 +17,7 @@ const channels: CommunityHomeChannel[] = [
 ]
 
 const users: CommunityHomeUser[] = [
-  { userId: 'stone-jump', nickname: 'StoneJump', connected: true },
+  { userId: 'stone-jump', nickname: 'StoneJump', connected: true, unread: true },
   { userId: 'wave-dance', nickname: 'WaveDanceg2lgb7fjl', connected: false },
   { userId: 'moon-thinke', nickname: 'MoonThinke8', connected: true },
   { userId: 'leaf-laughu', nickname: 'LeafLaughu0emn9f' },

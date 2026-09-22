@@ -120,6 +120,23 @@ describe('CommunityHome component', () => {
     expect(() => getByText('1')).toThrow()
   })
 
+  // A conversation is not a channel row, so the frame's `badge2` on `List item--people` is the only
+  // place its unread mark can go, and it has to reach the community badge too.
+  it('marks a member row whose conversation is unread, and the community with it', () => {
+    const allRead = channels.map(channel => ({ ...channel, unread: false }))
+    const quiet = setup({ channels: allRead })
+    expect(quiet.queryByTestId('user_tile_StoneJump_unread')).toBeNull()
+    expect(quiet.queryByTestId('community_unread')).toBeNull()
+
+    const withUnreadDm = setup({
+      channels: allRead,
+      users: [{ ...users[0], unread: true }, users[1]],
+    })
+    expect(withUnreadDm.getByTestId('user_tile_StoneJump_unread')).toBeTruthy()
+    expect(withUnreadDm.queryByTestId('user_tile_MoonThinke8_unread')).toBeNull()
+    expect(withUnreadDm.getByTestId('community_unread')).toBeTruthy()
+  })
+
   it('leaves the community unmarked when nothing is unread', () => {
     const { queryByTestId } = setup({ channels: channels.map(channel => ({ ...channel, unread: false })) })
     expect(queryByTestId('community_unread')).toBeNull()

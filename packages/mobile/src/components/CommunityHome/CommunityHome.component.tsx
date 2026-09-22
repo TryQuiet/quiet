@@ -53,7 +53,9 @@ export const CommunityHome: FC<CommunityHomeProps> = ({
   startDm,
 }) => {
   const loading = channels.length === 0
-  const unread = channels.some(channel => channel.unread)
+  // The community is marked unread for anything unseen inside it, and a conversation counts: a DM
+  // is not listed as a channel, so its mark lives on the person's row.
+  const unread = channels.some(channel => channel.unread) || users.some(user => user.unread)
 
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.main.brand }} testID={'channel-list-component'}>

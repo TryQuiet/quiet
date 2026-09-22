@@ -31,6 +31,12 @@ export interface CommunityHomeUser {
   connected?: boolean
   /** You are in the community's member list, and are labelled as such. */
   isMe?: boolean
+  /**
+   * Whether the conversation with this person has messages you have not seen.
+   * A DM is not listed as a channel, so this is the only place its unread mark
+   * can be drawn.
+   */
+  unread?: boolean
 }
 
 export interface CommunityHomeProps {

@@ -1721,6 +1721,7 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                     "textAlignVertical": "center",
                   },
                   {
+                    "flexShrink": 1,
                     "opacity": 0.7,
                   },
                 ]
@@ -1729,6 +1730,13 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             >
               StoneJump
             </Text>
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            />
           </View>
           <View
             accessibilityLabel="MoonThinke8, send a direct message"
@@ -1925,6 +1933,7 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                     "textAlignVertical": "center",
                   },
                   {
+                    "flexShrink": 1,
                     "opacity": 0.7,
                   },
                 ]
@@ -1933,6 +1942,13 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             >
               MoonThinke8
             </Text>
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            />
           </View>
         </View>
       </View>

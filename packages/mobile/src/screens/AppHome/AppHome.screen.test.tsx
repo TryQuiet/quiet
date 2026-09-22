@@ -68,6 +68,74 @@ describe('Community home screen', () => {
     root?.cancel()
   })
 
+  /**
+   * A DM is a channel underneath, so before this it appeared in the Channels section as a row
+   * reading "Direct message" — its own name, not the name of the person in it.
+   */
+  it('never lists a direct message under Channels', async () => {
+    const { store, root, identity } = await prepare()
+    await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })
+    const memberIds = [identity.userId, 'alice-id']
+    await factory.create('PublicChannel', {
+      channel: {
+        name: 'Direct message',
+        description: 'Direct message',
+        owner: identity.userId,
+        timestamp: 0,
+        id: 'alice-dm-id',
+        public: false,
+        type: ChannelType.DM,
+        memberIds,
+        memberIdHash: generateDmMemberHash(memberIds),
+      },
+      displayedName: 'alice',
+    })
+    renderComponent(<AppHomeScreen />, store)
+
+    // The public channel is listed; the conversation is not, under either name.
+    expect(screen.getByTestId('channel_tile_general')).toBeVisible()
+    expect(screen.queryByTestId('channel_tile_Direct message')).toBeNull()
+    expect(screen.queryByTestId('channel_tile_alice')).toBeNull()
+    expect(screen.queryByText('Direct message')).toBeNull()
+
+    // It is reachable as the person it is with.
+    expect(screen.getByTestId('user_tile_alice')).toBeVisible()
+
+    root?.cancel()
+  })
+
+  // The conversation is not a channel row any more, so its unread mark has to live on the person's
+  // row — the frame's `badge2` on `List item--people`.
+  it('marks the member row when the conversation with them is unread', async () => {
+    const { store, root, identity } = await prepare()
+    await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })
+    const memberIds = [identity.userId, 'alice-id']
+    await factory.create('PublicChannel', {
+      channel: {
+        name: 'Direct message',
+        description: 'Direct message',
+        owner: identity.userId,
+        timestamp: 0,
+        id: 'alice-dm-id',
+        public: false,
+        type: ChannelType.DM,
+        memberIds,
+        memberIdHash: generateDmMemberHash(memberIds),
+      },
+      displayedName: 'alice',
+    })
+    renderComponent(<AppHomeScreen />, store)
+    expect(screen.queryByTestId('user_tile_alice_unread')).toBeNull()
+
+    store.dispatch(publicChannels.actions.markUnreadChannel({ channelId: 'alice-dm-id' }))
+
+    expect(await screen.findByTestId('user_tile_alice_unread')).toBeVisible()
+    // The community carries the mark too, since nothing else on this screen shows it.
+    expect(screen.getByTestId('community_unread')).toBeVisible()
+
+    root?.cancel()
+  })
+
   it('opens the existing conversation when a member already has one', async () => {
     const { store, root, identity } = await prepare()
     await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })
