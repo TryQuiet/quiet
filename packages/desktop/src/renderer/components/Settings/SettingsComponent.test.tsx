@@ -8,8 +8,13 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
 import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
 import { LinkedDevices } from './Tabs/LinkedDevices/LinkedDevices'
+import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
 
 const CommunityMembershipTab: React.FC = () => <div data-testid='community-membership-panel' />
+
+const LeaveCommunityTab: React.FC = () => (
+  <LeaveCommunityComponent communityName='devices' leaveCommunity={jest.fn()} open={true} handleClose={jest.fn()} />
+)
 
 /**
  * The Linked devices tab is the real one, not a stand-in: what the bar does depends on the panel
@@ -27,6 +32,7 @@ const renderSettings = async () => {
     tabs: {
       linkedDevices: LinkedDevices,
       communityMembership: CommunityMembershipTab,
+      leaveCommunity: LeaveCommunityTab,
     },
     leaveCommunityModal: {
       open: false,
@@ -70,5 +76,53 @@ describe('SettingsComponent', () => {
     expect(result.queryByText('Linked devices')).toBeNull()
     // The bar itself is still there, with its back control.
     expect(result.getByTestId('close-tab-button-box')).toBeVisible()
+  })
+
+  /**
+   * The panels stopped printing their own heading when the bar took the title over, so the bar's
+   * title has to be a heading - otherwise a panel has none at all and nothing names the dialog.
+   */
+  it('gives a panel whose title lives in the bar one heading, and names the dialog by it', async () => {
+    const result = await renderSettings()
+    fireEvent.click(result.getByTestId('leave-community-settings-tab'))
+
+    // Exactly one heading, and it is the row's title.
+    const headings = result.getAllByRole('heading')
+    expect(headings).toHaveLength(1)
+    expect(headings[0]).toHaveTextContent('Leave community')
+
+    // The panel's content is there under it, so this is the open tab and not the menu.
+    expect(result.getByTestId('leave-community-button')).toBeVisible()
+
+    // The panel is the dialog, and it takes its name from that heading.
+    const dialog = result.getByRole('dialog')
+    expect(headings[0].getAttribute('id')).toBeTruthy()
+    expect(dialog).toHaveAttribute('aria-labelledby', headings[0].getAttribute('id'))
+    expect(dialog).toContainElement(headings[0])
+    expect(dialog).toHaveAccessibleName('Leave community')
+  })
+
+  /** The menu itself is a panel too, and it is what the dialog opens on. */
+  it('names the dialog by the menu heading before a row is chosen', async () => {
+    const result = await renderSettings()
+
+    const headings = result.getAllByRole('heading')
+    expect(headings).toHaveLength(1)
+    expect(headings[0]).toHaveTextContent('Community Settings')
+    expect(result.getByRole('dialog')).toHaveAccessibleName('Community Settings')
+  })
+
+  /**
+   * Linked devices keeps its heading in the panel, so the bar draws none - and an empty heading
+   * would be worse than no heading. The dialog names itself with the row's words instead.
+   */
+  it('draws no empty bar heading for a panel that prints its own, and still names the dialog', async () => {
+    const result = await renderSettings()
+    fireEvent.click(result.getByTestId('linked-devices-settings-tab'))
+
+    for (const heading of result.getAllByRole('heading')) {
+      expect(heading.textContent).not.toBe('')
+    }
+    expect(result.getByRole('dialog')).toHaveAccessibleName('Linked devices')
   })
 })

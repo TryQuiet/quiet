@@ -95,11 +95,16 @@ const LinkedDevices: FC = () => (
  * One tab in the chrome the drawer puts around it: the bar that titles it, then the tab's own
  * content inset by 16. MUI's Drawer portals out of the story root, so the panels are drawn here
  * without it; everything else is what `SettingsComponent` renders.
+ *
+ * `boxSizing: border-box` because the app gets it from the `CssBaseline` mounted in `Root`, which
+ * Storybook does not mount: without it the 375 body plus its 16 insets is 407 wide inside a 375
+ * frame, and a centred code reads 16 off centre - the story would contradict what it is here to
+ * show.
  */
 const Panel: FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <Box width={PANEL_WIDTH} sx={{ border: '1px solid #E5E5E5' }}>
+  <Box width={PANEL_WIDTH} sx={{ border: '1px solid #E5E5E5', boxSizing: 'border-box' }}>
     <PanelHeader title={title} handleClose={noop} leading={'back'} />
-    <Box p={2} width={PANEL_WIDTH}>
+    <Box p={2} width={PANEL_WIDTH} sx={{ boxSizing: 'border-box', '& *': { boxSizing: 'border-box' } }}>
       {children}
     </Box>
   </Box>

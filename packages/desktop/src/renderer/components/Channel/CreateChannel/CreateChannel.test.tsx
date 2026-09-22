@@ -207,16 +207,16 @@ describe('Add new channel', () => {
                     class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                   />
                 </button>
-                <span
+                <div
                   class="PanelHeadercentre"
                 >
-                  <p
+                  <h2
                     class="MuiTypography-root MuiTypography-body1 PanelHeadertitle css-1ql8hfl-MuiTypography-root"
                     data-testid="createChannelPanelTitle"
                   >
                     Create channel
-                  </p>
-                </span>
+                  </h2>
+                </div>
               </div>
               <form>
                 <div

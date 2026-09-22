@@ -28,6 +28,7 @@
 * Give the mobile remove-attachment control a full-size touch target, and stop it hanging outside its parent where Android delivered no touch to it at all [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Build the desktop community menu from design rows in a single drawer, so choosing a tab goes deeper instead of sliding one panel out and another in
 * Draw one title per desktop Settings panel, with Add members and Leave community no longer repeating the drawer bar's heading, and centre the invitation QR code and its copy as the design draws them
+* Announce each desktop Settings panel by name to a screen reader, drawing the drawer bar's title as a heading and naming the panel dialog by it
 * Match the desktop direct-message composer, channel header and message list to the designs, including recipient names that were invisible on the dark theme
 * Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
 * Make the whole recipient row tappable on mobile rather than only the checkbox and the name
