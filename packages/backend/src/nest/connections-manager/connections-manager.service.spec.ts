@@ -11,6 +11,7 @@ import {
   type Community,
   type DeviceInvitationDataV5,
   type DeviceLinkInvite,
+  type LinkedDevice,
   type Identity,
   SocketEvents,
   type PublicChannel,
@@ -1701,6 +1702,42 @@ describe('ConnectionsManagerService', () => {
       expiration: deviceInvite.expiresAt,
     })
     expect(saveChainSpy).toHaveBeenCalledWith(chain.teamId)
+  })
+
+  it('lists the current user\'s devices through the socket listener, marking this one current', async () => {
+    await connectionsManagerService.init()
+    const activeChain = await sigChainService.loadChain(chain.teamId!, true)
+    const callback = jest.fn()
+
+    connectionsManagerService['socketService'].emit(SocketActions.GET_LINKED_DEVICES, {}, callback)
+    await waitForExpect(() => expect(callback).toHaveBeenCalledTimes(1))
+
+    const devices = callback.mock.calls[0][0] as LinkedDevice[]
+    const ownDeviceId = activeChain.context.device.deviceId
+    expect(devices.length).toBeGreaterThan(0)
+    expect(devices).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          deviceId: ownDeviceId,
+          deviceName: activeChain.context.device.deviceName,
+          isCurrent: true,
+        }),
+      ])
+    )
+    // Only this device has been linked, so nothing else may claim to be current.
+    expect(devices.filter(device => device.isCurrent)).toHaveLength(1)
+    expect(devices.every(device => device.removedAt == null)).toBe(true)
+  })
+
+  it('answers the linked-device list with an empty array when no chain is active', async () => {
+    await connectionsManagerService.init()
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue(undefined as any)
+    const callback = jest.fn()
+
+    connectionsManagerService['socketService'].emit(SocketActions.GET_LINKED_DEVICES, {}, callback)
+    await waitForExpect(() => expect(callback).toHaveBeenCalledTimes(1))
+
+    expect(callback.mock.calls[0][0]).toEqual([])
   })
 
   describe('updateUserChannelMetadataInFrontend', () => {

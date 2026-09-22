@@ -21,6 +21,7 @@ import {
   InitCommunityPayload,
   type InitDeviceLinkPayload,
   type RequestDeviceLinkPayload,
+  type RequestLinkedDevicesPayload,
   MessagesLoadedPayload,
   SendMessagePayload,
   SocketActions,
@@ -521,6 +522,8 @@ export const getSocketFactory = async () => {
   })
 
   factory.define<RequestDeviceLinkPayload>(SocketActions.CREATE_DEVICE_LINK, Object, {})
+
+  factory.define<RequestLinkedDevicesPayload>(SocketActions.GET_LINKED_DEVICES, Object, {})
 
   factory.define<InitCommunityPayload>(SocketActions.JOIN_COMMUNITY, Object, {
     id: 'community-id',

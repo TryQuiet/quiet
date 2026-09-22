@@ -8,6 +8,7 @@ import { io, Socket } from 'socket.io-client'
 import waitForExpect from 'wait-for-expect'
 import {
   type DeviceLinkInvite,
+  type LinkedDevice,
   type InitDeviceLinkPayload,
   type ResponseLinkDevicePayload,
   SocketActions,
@@ -79,6 +80,23 @@ describe('SocketService', () => {
     expect(listener).toHaveBeenCalledWith({}, expect.any(Function))
 
     socketService.off(SocketActions.CREATE_DEVICE_LINK, listener)
+  })
+
+  it('forwards linked-device list requests and acknowledgements', async () => {
+    const devices: LinkedDevice[] = [
+      { deviceId: 'this-device', deviceName: 'this-device', isCurrent: true },
+      { deviceId: 'laptop', deviceName: 'laptop', isCurrent: false },
+    ]
+    const listener = jest.fn((_payload: Record<string, never>, callback: (response?: LinkedDevice[]) => void) =>
+      callback(devices)
+    )
+
+    socketService.on(SocketActions.GET_LINKED_DEVICES, listener)
+
+    await expect(client.emitWithAck(SocketActions.GET_LINKED_DEVICES, {})).resolves.toEqual(devices)
+    expect(listener).toHaveBeenCalledWith({}, expect.any(Function))
+
+    socketService.off(SocketActions.GET_LINKED_DEVICES, listener)
   })
 
   it('forwards device admission requests and acknowledgements', async () => {
