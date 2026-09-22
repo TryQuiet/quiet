@@ -185,9 +185,10 @@ describe('Timed-out P2P admission recovery', () => {
     inputValue = '',
     timeoutMs = 30_000
   ): Promise<void> {
-    expect(await new JoinCommunityModal(app.driver).isReady(timeoutMs)).toBeTruthy()
+    const joinModal = new JoinCommunityModal(app.driver)
+    expect(await joinModal.isReady(timeoutMs)).toBeTruthy()
     expect(await app.driver.findElement(By.xpath(`//*[contains(text(), '${message}')]`)).isDisplayed()).toBeTruthy()
-    const inviteInput = await app.driver.findElement(By.xpath('//input[@placeholder="Invite link"]'))
+    const inviteInput = await joinModal.inviteLinkInput()
     expect(await inviteInput.getAttribute('value')).toBe(inputValue)
   }
 
@@ -228,7 +229,10 @@ describe('Timed-out P2P admission recovery', () => {
     await guestJoinModal.typeCommunityInviteLink('invalid-invite')
     await guestJoinModal.submit()
 
-    await expectJoinCommunityError(guest, 'Please check your invitation code and try again', 'invalid-invite')
+    // InviteLinkErrors.InvalidCode in packages/desktop/src/renderer/forms/fieldsErrors.ts.
+    // The wording moved from "invitation code" to "invite link" in #3509; the e2e
+    // package cannot import the renderer's enum, so it is repeated here.
+    await expectJoinCommunityError(guest, 'Please check your invite link and try again', 'invalid-invite')
 
     await releaseApps(guest)
   })

@@ -1335,9 +1335,19 @@ export class JoinCommunityModal {
     this.driver = driver
   }
 
+  /**
+   * Every screen the join flow can be showing, plus the Get started entry it is
+   * reached from. A reported join error reopens the flow on the paste step rather
+   * than on the three-way choice, because the choice has no field to carry the
+   * message, so a wait on the choice alone never sees the error state. Matching
+   * on the screens' test ids rather than their headings also keeps this off the
+   * copy, which the redesign changes per step.
+   */
+  private static readonly SCREENS = ['get-started', 'join-community-options', 'open-invite-link', 'paste-link'] as const
+
   private waitForElement(timeoutMs: number = 10_000) {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Join community' or text()='Let’s get started...']")),
+      until.elementLocated(By.css(JoinCommunityModal.SCREENS.map(id => `[data-testid="${id}"]`).join(', '))),
       timeoutMs,
       `Join community modal couldn't be found within timeout`,
       500
@@ -1348,9 +1358,10 @@ export class JoinCommunityModal {
     return this.waitForElement()
   }
 
+  /** The three-way choice specifically, as opposed to any screen of the flow. */
   get optionsElement() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Join community']")),
+      until.elementLocated(By.css('[data-testid="join-community-options"]')),
       10_000,
       `Join community choice couldn't be found within timeout`,
       500
@@ -1428,6 +1439,14 @@ export class JoinCommunityModal {
     const getStarted = new GetStartedModal(this.driver)
     expect(await getStarted.isReady()).toBeTruthy()
     await getStarted.createCommunity()
+  }
+
+  /**
+   * The paste step's link field. Callers assert on its value rather than
+   * re-deriving it from a placeholder, which is copy and moves with the design.
+   */
+  async inviteLinkInput(timeoutMs = 10_000) {
+    return await this.findVisible('paste-link-input', timeoutMs)
   }
 
   /** Walks to the paste step when needed, then types the link. */
