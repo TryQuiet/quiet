@@ -19,6 +19,7 @@ export type RootStackParamList = {
         variant?: PasteInviteLinkVariant
       }
     | undefined
+  [ScreenNames.RecoverAccountScreen]: undefined
   [ScreenNames.LinkDevicesScreen]: undefined
   [ScreenNames.ScanQrCodeScreen]: {
     variant: ScanQrCodeVariant

@@ -30,10 +30,15 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = () => {
     )
   }, [dispatch])
 
+  const onRecoverAccount = useCallback(() => {
+    dispatch(navigationActions.navigation({ screen: ScreenNames.RecoverAccountScreen }))
+  }, [dispatch])
+
   return (
     <JoinCommunityOptions
       onJoinWithInviteLink={onJoinWithInviteLink}
       onJoinWithQrCode={onJoinWithQrCode}
+      onRecoverAccount={onRecoverAccount}
       handleBackButton={handleBackButton}
     />
   )

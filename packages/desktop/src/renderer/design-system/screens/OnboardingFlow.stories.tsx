@@ -98,3 +98,18 @@ export const AgreeAndJoinV_1BeforeWeSupportMultipleHosts = () => (
   <Stage flow={flow} frame={frame('agree-and-join-v-1-before-we-support-multiple-hosts')} />
 )
 AgreeAndJoinV_1BeforeWeSupportMultipleHosts.storyName = 'Use Quiet’s server? (v1)'
+
+export const UsernameUnpopulated = () => <Stage flow={flow} frame={frame('username-unpopulated')} />
+UsernameUnpopulated.storyName = 'Choose a username (join)'
+
+export const UsernamePopulated_2811_2749 = () => <Stage flow={flow} frame={frame('username-populated-2811-2749')} />
+UsernamePopulated_2811_2749.storyName = 'Choose a username (join) — name typed'
+
+export const AgreeAndJoin = () => <Stage flow={flow} frame={frame('agree-and-join')} />
+AgreeAndJoin.storyName = 'Agree & join (joiner)'
+
+export const GlobeAnimation = () => <Stage flow={flow} frame={frame('globe-animation')} />
+GlobeAnimation.storyName = 'Joining now!'
+
+export const StartingQuiet = () => <Stage flow={flow} frame={frame('starting-quiet')} />
+StartingQuiet.storyName = 'Starting Quiet'

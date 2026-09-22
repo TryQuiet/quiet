@@ -97,7 +97,7 @@ describe('User', () => {
   // })
 
   test('sees channels list', async () => {
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(LONG)
   })
@@ -114,7 +114,7 @@ describe('User', () => {
     await device.launchApp({ newInstance: false })
 
     // User comes back to channel list
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })
@@ -149,7 +149,7 @@ describe('User', () => {
       await device.pressBack()
     }
 
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(BASIC)
 
@@ -169,6 +169,10 @@ describe('User', () => {
   })
 
   test('creates new channel', async () => {
+    // Create channel moved out of the community context menu and onto the
+    // Community home card's Channels header, so close the menu first.
+    await press(element(by.id('context_menu_close')))
+
     await press(element(by.id('Create channel')))
 
     const componentName = 'create-channel-component'
@@ -203,7 +207,7 @@ describe('User', () => {
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -228,7 +232,7 @@ describe('User', () => {
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -307,7 +311,7 @@ describe('User', () => {
   })
 
   test('should see channels list again', async () => {
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(LONG)
   })
@@ -323,7 +327,7 @@ describe('User', () => {
     await device.launchApp({ newInstance: false })
 
     // User comes back to channel list
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })

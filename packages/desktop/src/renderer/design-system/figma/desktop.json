@@ -448,11 +448,11 @@
   "png": "desktop-creating-community.png",
   "url": "https://www.figma.com/design/y8h6w8PYR9jyI3zjYHL9Cl?node-id=1430-48030",
   "copy": [
-   "Creating community \"Rockets\"",
-   "Additional info if needed…"
+   "Creating community “Rockets”",
+   "Additional info if needed can go here otherwise this is hidden."
   ],
-  "counterpart": null,
-  "note": "The desktop Connecting / creating stage (the map lists it as a stage the apps have that the prototype does not draw): sidebar greyed, progress bar and a line of status text."
+  "counterpart": "globe-animation",
+  "note": "The desktop QSS progress stage: 220 sidebar with the channels greyed, and centred in the chat area a progress bar, the heading, and a second line for status (“Additional info if needed can go here otherwise this is hidden.”) — the status line under the bar, drawn. Its mobile counterpart is the prototype’s Joining now! frame; the heading here says “Creating” because the frame draws the creator case."
  },
  {
   "slug": "desktop-community-switcher-overlay",
@@ -559,5 +559,62 @@
   ],
   "counterpart": null,
   "note": "Where the server offer is reached from on desktop in the Subscriptions draft: an Upgrade Server button in the sidebar. Reference only; the prototype reaches Want a server? from Community home as mobile does."
+ },
+ {
+  "file": "3RcrYKRTiFY87TpFSqZyj4",
+  "fileName": "Device linking",
+  "date": "2024-12-11",
+  "slug": "desktop-link-devices",
+  "node": "879:20987",
+  "name": "Link devices — desktop (Modal full-window), no linked devices",
+  "width": 715,
+  "height": 1018,
+  "png": "devicelink/desktop-link-devices.png",
+  "url": "https://www.figma.com/design/3RcrYKRTiFY87TpFSqZyj4?node-id=879-20987",
+  "copy": [
+   "Link devices",
+   "Display QR code",
+   "Scan this code with another device",
+   "Scan QR code",
+   "Use this device to scan a code from another device"
+  ],
+  "counterpart": "link-devices",
+  "note": "The desktop design the user pointed to (Draft 5, Dec 2024): the Modal full-window shell with the two rows carrying subtitles, and the Linked devices list. The 2026 prototype drops the row subtitles; prototype copy wins, this frame gives the desktop structure."
+ },
+ {
+  "file": "3RcrYKRTiFY87TpFSqZyj4",
+  "fileName": "Device linking",
+  "date": "2024-12-11",
+  "slug": "desktop-link-devices-with-linked",
+  "node": "880:17196",
+  "name": "Link devices — desktop, with linked devices",
+  "width": 715,
+  "height": 1018,
+  "png": "devicelink/desktop-link-devices-with-linked.png",
+  "url": "https://www.figma.com/design/3RcrYKRTiFY87TpFSqZyj4?node-id=880-17196",
+  "copy": [
+   "Link devices",
+   "Linked devices"
+  ],
+  "counterpart": "link-devices",
+  "note": "Same screen with devices in the list."
+ },
+ {
+  "file": "3RcrYKRTiFY87TpFSqZyj4",
+  "fileName": "Device linking",
+  "date": "2024-12-11",
+  "slug": "desktop-link-devices-qr",
+  "node": "880:17427",
+  "name": "Link devices — desktop, Display QR code",
+  "width": 715,
+  "height": 1018,
+  "png": "devicelink/desktop-link-devices-qr.png",
+  "url": "https://www.figma.com/design/3RcrYKRTiFY87TpFSqZyj4?node-id=880-17427",
+  "copy": [
+   "Display QR code",
+   "Scan this code with another device"
+  ],
+  "counterpart": "sheet-2811-2601",
+  "note": "Desktop: the QR shown inside the Modal full-window shell (people display the QR on desktop and scan it with the phone)."
  }
 ]

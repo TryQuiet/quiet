@@ -138,8 +138,11 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
     [persistPreference, handleClose]
   )
 
+  // Want a server? (2922:10009): the bar zone with the close glyph at the left and no title; closing it is "No thanks".
+  const onDismiss = useCallback(() => onChoose(false), [onChoose])
+
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader={true} testIdPrefix='ServerOffer'>
+    <Modal open={open} handleClose={onDismiss} withoutTitle alignCloseLeft testIdPrefix='ServerOffer'>
       <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>
         <Grid item className={classes.iconContainer}>
           <ServerBoxIcon className={classes.icon} />

@@ -154,6 +154,8 @@ export const Modal: React.FC<IModalProps> = ({
   fullPage = true,
   isTransparent = false,
   withoutHeader = false,
+  withoutTitle = false,
+  cornerRadius,
   ...otherProps
 }) => {
   const zIndex = 1300
@@ -168,13 +170,14 @@ export const Modal: React.FC<IModalProps> = ({
           [classes.window]: !fullPage,
           [classes.transparent]: isTransparent,
         })}
+        style={cornerRadius !== undefined ? { borderRadius: cornerRadius, overflow: 'hidden' } : undefined}
       >
         <Grid
           container
           item
           className={classNames({
             [classes.header]: true,
-            [classes.headerBorder]: addBorder,
+            [classes.headerBorder]: addBorder && !withoutTitle,
             [classes.none]: isTransparent || withoutHeader,
           })}
           direction='row'
@@ -189,17 +192,19 @@ export const Modal: React.FC<IModalProps> = ({
             alignItems='center'
           >
             <Grid item xs>
-              <Typography
-                variant='subtitle1'
-                className={classNames({
-                  [classes.title]: true,
-                  [classes.bold]: isBold,
-                })}
-                style={alignCloseLeft ? { marginRight: 36 } : { marginLeft: 36 }}
-                align='center'
-              >
-                {title}
-              </Typography>
+              {withoutTitle ? null : (
+                <Typography
+                  variant='subtitle1'
+                  className={classNames({
+                    [classes.title]: true,
+                    [classes.bold]: isBold,
+                  })}
+                  style={alignCloseLeft ? { marginRight: 36 } : { marginLeft: 36 }}
+                  align='center'
+                >
+                  {title}
+                </Typography>
+              )}
             </Grid>
             <Grid item>
               <Grid

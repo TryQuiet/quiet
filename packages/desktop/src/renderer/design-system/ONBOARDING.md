@@ -1,12 +1,15 @@
 # Onboarding — design spec for implementation
 
-Generated 2026-09-11 from the Figma prototype **Get started (prototype)** (`f6Nr5b5wtvk6Xoh1HJZ8Dd`, last edited 2026-04-14) and the shipping code on branch `design/storybook-grid`. Every string under *Copy* is the designer's text node, verbatim. Nothing here is invented; where the design is silent it says so.
+Generated 2026-09-11 from the Figma prototype **Get started (prototype)** (`f6Nr5b5wtvk6Xoh1HJZ8Dd`, last edited 2026-04-14) and the shipping code on branch `design/storybook-grid`. Extended 2026-09-13 with the join tail of a second prototype, **Join from invite link + prototype** (`dSEZJr9crJjcV3ILogea9C`, page *Draft 1* `7:2510`, last edited 2025-02-04) — see *Join from invite link* below. Every string under *Copy* is the designer's text node, verbatim. Nothing here is invented; where the design is silent it says so.
 
 ## Framing (decided 2026-09-12)
 
 Storybook **is the new design library**, being rebuilt from this spec: one design — 4px grid, the Rubik scale, mobile-canonical layout, `Modal full-window` on desktop — scoped to features that exist in the code or are in branches now. There are no before/after or 2px comparisons in Storybook; `design-system/tokens` exports a single `tokens` set. Stories are library entries: `Foundations/*`, `Components/*`, `Screens/*`, `Onboarding flow`, `Desktop — designs`.
 
 ## Decisions already made
+
+- **No top bar title on full-screen h1 stages (user, 2026-09-13, from the prototype):** on mobile the frames with a large heading (Join community, Open invite link, Paste a link, Create a community, Choose username, Link devices, Account recovery, Want a server?…) hide the bar's title — only the back/close glyph shows and the h1 is the title; there is no bar line. Only sheets (QR code, Scan QR code, Join with QR code) and the username screen show a titled bar with a divider. The apps must follow this on mobile (no Appbar title/divider on those screens) and on desktop (the Modal full-window shell shows the back arrow but no title text on them — see the Device-linking desktop frames). The extractor now records hidden titles as `hiddenTitle`; the click-through's shell composition shows no title and no divider for them. Implemented (`design/h1-no-bar`): desktop `ui/Modal` `withoutTitle` — the 60px bar zone keeps the glyph, no title text, no hairline — on Join community's steps (Join community, Account recovery, Open invite link, Paste a link), Create a community and Choose username; mobile `Appbar` `withoutTitle` — the 60 bar zone with the glyph box 28 at (14, 16), icon 16 — on the same screens, content top-anchored 24 under it; Link devices follows here too (merge-up, 2026-09-21): the rule is applied wherever a screen carries a large heading, so the bar title goes from Link devices (2811:2575), Display QR code (2811:2601, heading "Linked devices"), Scan QR code (2811:2587) and Join with QR code (2811:2460) as well — the prototype draws those four as titled sheets, but in both apps they are full screens that repeat the bar's words as their heading, and no screen shows a bar title above a heading. Desktop `LinkDevices` and Join community's QR step pass `withoutTitle`; mobile `LinkDevices` and the two QR variants of `JoinCommunity` do the same. The Storybook captions say which title was dropped and why (`droppedBar`), as distinct from the ones the frame itself hides (`hiddenBar`). The frames are not uniform about the hairline (Choose username 2811:2371/2373, Create a community with photo 2811:2366 and Want a server? 2922:10009 still draw the #F0F0F0 line under the glyph; Join community, Open invite link, Paste a link, create--default, Link devices and Account recovery do not): the rule 'no top bar' is applied uniformly and the line is dropped on all of them.
+- **No "Quiet" header on Get started (user, 2026-09-13):** the prototype's Get started frame (`2811:2550`) and the Dec-2024 desktop *Modal full-window* Get started both carry a title bar reading "Quiet"; it is redundant with the app window on desktop and doesn't feel right on mobile, so the app renders Get started **without a title bar** on both platforms (content starts under the window chrome / at the safe area). The prototype exports still show it; the desktop composition in the click-through drops the bar for this stage (`flow/gen.cjs` `TITLE_BAR`). Superseded the same day: the prototype hides the bar title on every full-screen h1 stage (Join community's "Quiet" included) — see the decision above; titled bars remain only on sheets and the community home header.
 
 - **Spacing grid: 4px** — steps 4 8 12 16 24 32 48 64; semantic roles xs 4 · sm 8 · md 12 · lg 16 · xl 24 · xxl 32 (`design-system/tokens/grid-4px.ts`).
 - **Type scale (Rubik, weights 400/500 only)**: overline 10/16 w500 · caption 12/16 · body 14/20 · subtitle 14/20 w500 · bodyLg 16/24 · h5 16/24 w500 · title 20/28 w500 · h3 28/36 w500 · h2 32/40 w500 · h1 48/56 w500. Adopting it is component work: 39 desktop files hardcode `fontSize`; `TextMessage.tsx`/`BasicMessage.tsx` use no theme variants.
@@ -21,7 +24,7 @@ Storybook **is the new design library**, being rebuilt from this spec: one desig
 
 ## The flow as the prototype wires it
 
-24 of 25 screens are one connected graph from Get started (44 prototype links, 15 inferred back/close, 1 added); the 25th is the joiner-side v1 agree screen, unwired by design. Ids are the Storybook story ids under `Onboarding flow`.
+30 screens across the two prototype files. 24 of the Get started file's 25 are one connected graph from Get started; the 25th is the joiner-side v1 agree screen, unwired by design. The other five come from *Join from invite link* and hang off the paste screen by an added link. 47 prototype links, 16 inferred back/close, 3 added. Ids are the Storybook story ids under `Onboarding flow`. The back/close inference now skips glyphs the designer hid, which dropped two hotspots that pointed at nothing: the entry screen's bar (`2811:2550`) has no visible back arrow, and the community switcher's second, hidden title bar drew a second one.
 
 ```
 Get started ─┬─ Join community ─┬─ Open invite link ─(added)─ Paste a link to Join (frame 'Container', WIP)
@@ -33,6 +36,9 @@ Get started ─┬─ Join community ─┬─ Open invite link ─(added)─ Pa
              └─ Link devices ─┬─ Sheet: QR code (display)
                               └─ Sheet: Scan QR code
 Agree-and-join (v1, joiner) ─ Captcha          ← drawn, not linked from anywhere
+
+Paste a link to Join ─(added)─ Choose a username (join) ─ — name typed ─ Agree & join (joiner) ─ Joining now!   ← second file
+Starting Quiet                                 ← second file, app start, not wired to anything in scope
 ```
 
 **Where QSS fits, per the design:** creator-side, *after* the community exists (Community home → switcher → Want a server?). Both apps show the offer *during* creation and the joiner ToS *after* username. This is a product decision to make explicitly; phase 1 keeps the shipping timing and records the disagreement.
@@ -48,7 +54,7 @@ Agree-and-join (v1, joiner) ─ Captcha          ← drawn, not linked from anyw
 7. **Desktop variants of all of the above** — the prototype is mobile-only (375 wide); desktop = the 600px modal body the app uses, built from the same tokens. Render every screen in Storybook at both widths (the `RealScreens` harness pattern).
 8. Apply the type scale to the components touched.
 
-**Out of phase 1 (record as follow-ups):** recover account (no mechanism designed), plans / subscriptions / App Store (no product), community icon crop, moving the QSS offer to post-creation, `Agree-and-join (v1)` joiner screen (unwired).
+**Out of phase 1 (record as follow-ups):** a recover-account mechanism (none designed; the Account recovery info screen and its two routes are implemented), plans / subscriptions / App Store (no product), community icon crop, moving the QSS offer to post-creation, `Agree-and-join (v1)` joiner screen (unwired).
 
 ## Library component → code component
 
@@ -90,7 +96,8 @@ Copy:
 
 Uses: ButtonIcons (5), Divider (4), Button row (3), caret-black-r (3), Get started (1), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1)
 Goes to: Button row → join-community [prototype]; Button row → create-default [prototype]; Button row → link-devices [prototype]; Glyph → back [back]
-Implemented by: desktop `none — app opens in Join/Create modals` · mobile `none — app opens on JoinCommunity screen`
+Implemented by: desktop `Onboarding/GetStarted.tsx` (opens itself when connected without a community; Join / Create / Link devices return to it) · mobile `screens/GetStarted/GetStarted.screen.tsx`
+Departure (decided 2026-09-13): **no title bar on either platform** — the frame's "Quiet" bar is redundant with the app window on desktop and did not feel right on mobile; the content column starts under the window chrome / at the safe area with the frame's own rhythm minus the bar. Join community and the other onboarding screens keep their bars.
 
 ### Join community  ·  `join-community`
 Section: Onboarding · 375×667 · node `2811:2562` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2562)
@@ -105,7 +112,7 @@ Copy:
 
 Uses: ButtonIcons (5), Divider (4), Button row (3), caret-black-r (3), Join community (1), Title bar/Logged in (1), RightZ (1), Add (1), Avatar (1), TitleZ (1)
 Goes to: Glyph → get-started [prototype]; Content → open-invite-link [prototype]; Button row → sheet-2811-2460 [prototype]; Button row → recover-account-info [prototype]
-Implemented by: desktop `CreateJoinCommunity/JoinCommunity/JoinCommunity.tsx (paste field)` · mobile `JoinCommunity/JoinCommunity.component.tsx (paste field)`
+Implemented by: desktop `Onboarding/JoinCommunityOptionsComponent.tsx` in `CreateJoinCommunity/JoinCommunity/JoinCommunity.tsx` · mobile `JoinCommunityOptions/JoinCommunityOptions.component.tsx` — Recover account opens Account recovery
 
 ### Create a community  ·  `create-default`
 Figma frame `create--default` · Section: Onboarding · 375×667 · node `2811:2451` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2451)
@@ -150,7 +157,7 @@ Copy:
 
 Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Invite link (1), Monster (1)
 Goes to: Button → container [added]; Glyph → back [back]
-Implemented by: desktop `CreateJoinCommunity/PerformCommunityActionComponent.tsx` · mobile `JoinCommunity/JoinCommunity.component.tsx`
+Implemented by: desktop `Onboarding/OpenInviteLinkComponent.tsx` · mobile `OpenInviteLink/OpenInviteLink.component.tsx` — an invite link opened while this screen shows takes the deep-link path (desktop `sagas/invitation/customProtocol.saga.ts`, mobile `store/init/deepLink/deepLink.saga.ts`) straight to Choose username; *Paste a link* is the fallback
 
 ### Join with QR code (sheet)  ·  `sheet-2811-2460`
 Figma frame `Sheet` · Section: Onboarding · 375×499 · node `2811:2460` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2460)
@@ -177,7 +184,7 @@ Copy:
 
 Uses: ButtonIcons (8), Divider (5), Button row (4), caret-black-r (4), Title bar/Logged in (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1)
 Goes to: Content → link-devices [prototype]; Button row → open-invite-link [prototype]; Glyph → back [back]
-Implemented by: desktop `— (intermediate state)` · mobile `— (intermediate state)`
+Implemented by: desktop `Onboarding/RecoverAccountComponent.tsx` (a step of the Join community modal, title bar *Account recovery*; *Use linked device* opens Link devices with a way back to this step, on both platforms) · mobile `RecoverAccount/RecoverAccount.component.tsx` — the info screen and its two prototype routes only; *More options* has no target in the file and is inert; the fourth row (*Scan QR code*) is hidden in the frame; the illustration is the frame's own `Icon=Vpn key` glyph at 64px; no recovery mechanism exists
 
 ### Link devices — QR code (sheet)  ·  `sheet-2811-2601`
 Figma frame `Sheet` · Section: Onboarding · 375×442 · node `2811:2601` · [Figma](https://www.figma.com/design/f6Nr5b5wtvk6Xoh1HJZ8Dd?node-id=2811-2601)
@@ -457,6 +464,164 @@ Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar 
 Goes to: Glyph → choose-a-plan [prototype]; Frame 1612 → captcha-3054-4052 [prototype]
 Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx`
 
+
+### Join from invite link — second prototype (added 2026-09-13)
+
+File **Join from invite link + prototype** (`dSEZJr9crJjcV3ILogea9C`), page *Draft 1* (`7:2510`), section *Prototype: Join + Recover* (`2873:5377`). It draws the join path **after** the invite link is pasted — which the Get started prototype stops short of. Scope, per the user: the username screens, the Agree & join screen and the joining-progress screen; account recovery is out. The file's other four sections are screenshots of WhatsApp, a browser and two phones, not Quiet screens.
+
+Five stages, wired by the file's own prototype links: *Choose a username (join)* → *— name typed* → *Agree & join (joiner)* → *Joining now!*, with *Starting Quiet* standing alone. One **added** link joins the cluster to the rest of the flow — the paste screen's Continue button (`3190:10901`, in the Get started file) → `2811:2741` — because neither file wires the paste step to anything.
+
+Not included (`flow/extract.py`, per-file `exclude`; also listed under the section in *— all stages —*):
+
+| node | frame | why |
+|---|---|---|
+| `2811:2732` | recovery-unpopulated | account recovery — out of scope (user, 2026-09-13) |
+| `2811:2688` | recovery-populated 1 | account recovery, key pasted |
+| `2811:2704` | recovery-populated-2 | account recovery, second state |
+| `2811:2660` | recovery-populated-3 | account recovery, third state |
+| `2811:2757` | Join community | the Get started file's own `join-community` (`2811:2562`) is already a stage |
+| `2811:2769` | Community home | already a stage from the Get started file (`2811:2370`) |
+| `2811:2781` | Invite link page | the web invite-link landing page, in a browser |
+| `2811:2821` | Frame 1703 | a screenshot of the invite link in a browser |
+
+Two prototype links point into excluded screens and are dropped, not re-pointed: *Joining now!* → Community home (`2811:2769`) and *Starting Quiet* → Join community (`2811:2757`).
+
+### Choose a username (join)  ·  `username-unpopulated`
+Figma frame `Username-unpopulated` · Section: Join from invite link · 375×679 · node `2811:2741` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2811-2741)
+
+Copy:
+- Choose a username
+- Enter username
+- Username
+- Your username is only visible in this community. No spaces or special characters.
+- Continue
+
+Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Input3.0 (1), Input title (1)
+Goes to: Search input → username-populated-2811-2749 [prototype]; Glyph → back [back]
+Implemented by: desktop `CreateUsername/CreateUsernameComponent.tsx` · mobile `Registration/UsernameRegistration.component.tsx`
+
+Notes, against the create-side *Choose username* (`2811:2371`):
+- The bar title **is** shown here, with its divider (`I2811:2744;3606:13264;3606:13770`) — the bar-title decision already carves the username screen out of the hide-the-title rule, and this frame is why.
+- Different helper copy: "Your username is only visible in this community." against the create-side "Your username will be public…". Both apps ship the create-side string.
+- The label above the input reads *Enter username*, not *Enter a username*, and it is **visible** here (hidden on the create side).
+- The input carries a visibility (eye-slash) icon at its right (`I2811:2746;5077:43540`). Nothing in the flow acts on it and a username is not a secret; treat it as a leftover of the Input3.0 instance unless the designer says otherwise.
+- Continue is drawn disabled (30%) until a name is typed, matching the create side.
+
+### Choose a username (join) — name typed  ·  `username-populated-2811-2749`
+Figma frame `Username-populated` · Section: Join from invite link · 375×679 · node `2811:2749` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2811-2749)
+
+Copy:
+- Choose a username
+- Enter username
+- Julie
+- Your username is only visible in this community. No spaces or special characters.
+- Continue
+
+Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Input3.0 (1), Input title (1)
+Goes to: Frame 1611 → agree-and-join [prototype]; Glyph → back [back]
+Implemented by: desktop `CreateUsername/CreateUsernameComponent.tsx` · mobile `Registration/UsernameRegistration.component.tsx`
+
+The input is drawn focussed (blue 1px border) and Continue is at full strength. Its Continue is wired to Agree & join, so in this prototype the joiner consents **after** choosing a username — which is where mobile already shows JoiningOptIn + TermsOfService.
+
+### Agree & join (joiner)  ·  `agree-and-join`
+Figma frame `agree-and-join` · Section: Join from invite link · 375×667 · node `2811:2724` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2811-2724)
+
+Copy:
+- Agree & join
+- This community uses a server (api.tryquiet.org) for messaging without Tor. By joining you agree to this Privacy Policy and Terms of Use.
+- Agree & Join
+
+Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Button (1), arrow-up (1)
+Goes to: Frame 1612 → globe-animation [prototype]; Glyph → back [back]
+Implemented by: desktop `TermsOfService/TermsOfServiceComponent.tsx` · mobile `ServerOffer/JoiningOptIn/JoiningOptIn.component.tsx`
+
+The third and newest of three agree screens in the designs, and the only one wired into a join path:
+- this one — titled bar *Agree & join*, one paragraph naming the host (`api.tryquiet.org`), one button;
+- *Agree & join — server opt-in* (`3054:4090`) — creator-side, reached from Choose a plan;
+- *Use Quiet's server? (v1)* (`3111:4339`) — "v1 before we support multiple hosts", unwired.
+
+The host is written into the copy as a literal domain. The implementation has no such string; if this copy ships, the domain has to come from the invite, not from a constant. "Privacy Policy and Terms of Use" is drawn underlined as one link (`2811:2729`) — one target for two documents, which the designer has not resolved.
+
+### Joining now!  ·  `globe-animation`
+Figma frame `Globe animation` · Section: Join from invite link · 375×667 · node `2894:3382` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2894-3382)
+
+Copy:
+- N
+- nyc-activism
+- Joining now!
+
+Uses: Globe animation (2), Avatar type (2), Spinner (2), Community icon top-level (1), Alpha (1), Scheduled send (1), search (1), Online indicator (1), Globe animation scale (1), Progress bar 2 (1)
+Goes to: — (its own link continues to Community home `2811:2769`, excluded)
+Implemented by: desktop `LoadingPanel/JoiningPanelComponent.tsx` · mobile `ConnectionProcess/ConnectionProcess.component.tsx`
+
+**The QSS progress screen of record** — see *Progress while joining / creating* below. It is an in-app screen, not a modal: the community header (`I2894:3382;5978:19130`, 64 tall, purple, community name + search + avatar) is already drawn, with the globe, the heading and the bar over the empty channel. Desktop is the designer's own Draft-6 frame (`1430:48030`), not this content in the modal shell.
+
+### Starting Quiet  ·  `starting-quiet`
+Figma frame `Starting Quiet` · Section: Join from invite link · 375×667 · node `2811:2770` · [Figma](https://www.figma.com/design/dSEZJr9crJjcV3ILogea9C?node-id=2811-2770)
+
+Copy:
+- Quiet
+- Starting Quiet
+- Connecting to Tor...
+
+Uses: Title bar/Logged in (1), Divider (1), RightZ (1), Placeholder (1), Avatar (1), TitleZ (1), LeftZ (1), Back (1), Quiet logo (1), Progress bar 2 (1)
+Goes to: — (its own link returns to Join community `2811:2757`, excluded)
+Implemented by: desktop `LoadingPanel/StartingPanelComponent.tsx` · mobile `Splash/Splash.component.tsx`
+
+App start, not the join step, and kept for one reason: it is the drawn evidence for the **status line under the bar** — bar, *Starting Quiet* (`I2811:2777;5390:19572`), *Connecting to Tor...* (`I2811:2778;832:7718`, 12/16 #7F7F7F). The Tor wording is exactly what the QSS variant drops. Two things to settle:
+- neither app draws this today: desktop's `StartingPanelComponent.tsx` renders only the Quiet logo (its `progressBar` / `progress` styles are declared and never used) and mobile's `Splash.component.tsx` shows the logo with "Starting backend" / "This can take some time";
+- the bar reads **Quiet** (`I2811:2773;3606:13264;3606:13770`), the same header the Get started decision removed as redundant with the window. Worth confirming whether it goes here too.
+
+### Progress while joining / creating (decided 2026-09-13)
+
+**Rule (user):** joining over **Tor** keeps the existing explanatory screen; joining or creating with **QSS** gets a simpler progress bar. The designs exist and are exported to `figma/progress/`:
+
+| use | design | node | what it shows |
+|---|---|---|---|
+| Tor join (mobile) | Quiet Design Library › Content/pages › *Joining now* | `5978:19161` | globe illustration, **Joining now!**, progress bar, the explanation ("You can exit the app - we'll notify you once you're connected! **This first time might take 30 seconds, 10 minutes, or even longer.** There's a good reason why it's slow: Quiet stores data on *your* community's devices (not Big Tech's servers!) and uses the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but can take a long time to connect at first."), link **Learn more about Tor and Quiet** |
+| Tor join, status line | Mobile + desktop + prototypes › Prototype › *Joining* | `1316:34596` | the same inside the community chrome, with a status line under the bar: **Connecting via Tor** |
+| QSS join / create (mobile) | Quiet Design Library › Content/pages › *Joining now* | `5978:19142` | globe, **Joining now!**, progress bar — nothing else |
+| QSS join inside a community | Join from invite link + prototype › *Globe animation* | `2894:3382` | **the variant of record** — the simple variant under the community header; a stage in the flow since 2026-09-13 (`onboarding-flow--globe-animation`) |
+| Desktop (QSS) | Mobile + desktop + prototypes › Draft 6 › Frame 1320 | `1430:48030` | the split view with the sidebar greyed; centered in the chat area a progress bar, **Creating community "Rockets"**, and an optional secondary line ("Additional info if needed can go here otherwise this is hidden") — export `figma/desktop/desktop-creating-community.png` |
+| Components | Library › Info, alerts, banners › *Progress bar 2* `5390:19569`, *Progress-loading-template* `6049:26981` | — | the bar itself: track 300×4 #F0F0F0 r100; fill **teal #67BFD3** (user decision 2026-09-13). *Progress bar 2* also carries the two text slots under the bar: *Status* `5390:19572` and *Additional info* `5390:19573` |
+
+**The QSS screen of record and its status line (user, 2026-09-13).** `2894:3382` is what joining with QSS looks like: the community header already drawn, the globe (`I2894:3382;6110:27667`), **Joining now!** (`I2894:3382;5978:19146`) and the 300×4 bar (`I2894:3382;5978:19147`) over the empty channel. No Tor paragraph, no *Learn more* link. The frame itself draws **no status line** under the bar — keep the one both apps already render, by decision: desktop `LoadingPanel/JoiningPanelComponent.tsx` prints `connectionInfo.text` immediately under the bar, mobile `ConnectionProcess/ConnectionProcess.component.tsx` prints `connectionProcess.text` (`testID='connection-process-text'`, 14/20, 8 under the bar); the strings are the `ConnectionProcessInfo` enum in `packages/types/src/connection.ts`. The design backs that up in three places: the library component's own *Status* / *Additional info* slots (`5390:19572` / `5390:19573`), the desktop Draft-6 frame filling them ("Creating community “Rockets”" `I1430:48025;3816:12490` and "Additional info if needed can go here otherwise this is hidden." `I1430:48025;3816:12495`), and the same prototype's *Starting Quiet* frame (`2811:2770`) drawing bar + status + message for app start.
+
+**Correction to the teal decision (2026-09-13).** The decision stands — the fill is teal #67BFD3 — but the reason recorded earlier ("as the prototypes draw it") is wrong: no mobile Figma frame draws teal. The library *Joining now* frames (`5978:19142`, `5978:19161`) and both progress frames in the join prototype (`2894:3382`, `2811:2770`) all draw the *Progress bar 2* default **blue #1B6FEC**. Teal appears in the desktop Draft-6 frame, which uses the older *Progress bar/75%/True* component (`I1430:48025;3816:12501;3816:12486`), and in the shipped mobile app, which animates #67BFD3 while `CONNECTING_TO_COMMUNITY`. Adopting teal means changing every mobile frame, not matching them.
+
+Implementation mapping: desktop `LoadingPanel/JoiningPanelComponent.tsx` and mobile `ConnectionProcess/ConnectionProcess.component.tsx` are the joining screens and branch on whether the community uses a server: Tor → the explanatory *Joining now* (+ "Connecting via Tor" status); QSS → the simple bar, and on desktop the Draft-6 layout ("Joining community "X"" / "Creating community "X""). App start is a different pair — desktop `LoadingPanel/StartingPanelComponent.tsx` (logo only today) and mobile `Splash/Splash.component.tsx` — and is what `2811:2770` draws. Not designed: an error / timeout state (open bug #3368) — keep the app's existing message. Older draft `1031:42695` ("Joining… can take 10 minutes or more!" with a research prompt) is superseded by the library frames.
+
+### Mobile parity audit (2026-09-13)
+
+Audit of the Android app on `design/onboarding-entry` @ f12463cd2 against the prototype (agent `mobile-parity`; phase 2 — the fixes — not started when the session ended). Root cause of "Link devices looks old": the entry screen exists, but *Display QR code* opens #3400's old full-screen "Link a device" (old copy, "Share code", bare QR) instead of the designed *QR code* sheet, and *Scan QR code* opens the paste form.
+
+| stage | node | mobile file | status | what differs |
+|---|---|---|---|---|
+| Get started | 2811:2550 | components/GetStarted | partial | rows not in the bordered group (1px #E5E5E5 r16; rows 48, pad 16/11, gap 16, #F0F0F0 dividers); row title 16/26; beta caption left-aligned 12/16 #222222; content top-anchored (24 under the bar) |
+| Join community | 2811:2562 | components/JoinCommunityOptions | partial | missing the heart-chat illustration (I2815:2504;6181:27547, 219×160); bar title hidden in the frame (glyph only); rows not bordered; 24 side margin |
+| Open invite link | 2811:2455 | components/OpenInviteLink | partial | bar title hidden in frame; top-anchored; link 16/16 #1B6FEC |
+| Paste a link to Join | 3190:10892 | components/JoinCommunity (inviteLink) | partial | close glyph (mobile back); bar title hidden; Input3.0 42 tall r8 1px #999999 placeholder 14/20 #767676; Continue 108×50 r16 centred, 30% until valid |
+| Create a community | 2811:2451 / 2811:2366 | components/CreateCommunity | partial | input label hidden in frame; input/button shapes + disabled-until-valid; bar title hidden; top-anchored |
+| Choose username | 2811:2371 / 2811:2373 | components/Registration/UsernameRegistration | partial | back glyph + divider visible; label hidden; caption 12/16 #7F7F7F; input/button shapes |
+| Link devices | 2811:2575 | components/LinkDevices + screens/LinkDevices | partial | bar title hidden; rows not bordered; Linked devices list styled per the hidden nodes (overline 10/16 #7F7F7F header, bordered card, "No linked devices" 14/20 #767676) |
+| Link devices — QR code (sheet) | 2811:2601 | screens/LinkedDeviceQRCode → components/QRCode | **old design** | full screen not a sheet; title "Link a device"; #3400 copy; "Share code" button (design: "Reset QR code" text link); QR 172 bare (design: qr-code-box 220, 1px #B3B3B3 r4, 188 QR); no "Generating device link…" state |
+| Link devices — Scan QR code (sheet) | 2811:2587 | screens/PasteInviteLink (deviceLink) | **old / camera missing** | paste form instead of the sheet with viewfinder; no camera dependency on any branch |
+| Join with QR code (sheet) | 2811:2460 | screens/PasteInviteLink (qrCode) | **old / camera missing** | same; duplicated heading |
+| Account recovery | 2811:2535 | components/RecoverAccount | partial | bar title hidden; rows not bordered; "More options" drawn enabled in the frame |
+| Want a server? | 2922:10009 | ServerOffer.drawer + CreatingOffer | partial | drawer header vs 60 title bar with close; title 28 bold vs h3 500; "Add server" vs "Use Quiet's server" (121×50 r16); "Not now" text 16/16 #7F7F7F; body #222222 |
+| No server? | 2922:10050 | — | **missing** | "No server?" / "This won't work well for iPhone users in your community." / [Go back] / "Continue without server" (unwired in the file — interpretation: proceed without server) |
+| Community home / switcher | 2811:2370 / 2853:1955 | ChannelList, CommunityContextMenu | old design | in-app, not onboarding; multi-community not in the app — out of scope |
+| Agree & join, CAPTCHA, Add members (+QR), progress | — | — | in flight | design/onboarding-impl (both platforms) |
+
+Cross-cutting: bordered row group absent (also on desktop's RowGroup); content vertically centred vs top-anchored; full-screen frames hide the bar title (only sheets show one); Appbar 52 with a permanent divider vs 60 without; Input3.0 and Button (r16, 50, disabled 30%) shapes. Decisions taken: real camera scanning on mobile (vision-camera), No server? built, shared components for the cross-cutting items.
+
+### Device linking — desktop designs (user pointer, 2026-09-13)
+
+`Device linking` file `3RcrYKRTiFY87TpFSqZyj4`, canvas *Draft 5* (`880:17585`, Dec 2024). Exports in `figma/desktop/devicelink/`:
+- Desktop (board `879:18182` "Link devices (some desktop examples)"): `879:20987` Link devices in the Modal full-window shell, no linked devices; `880:17196` with linked devices; `880:17427` Display QR code (the QR inside the shell). Rows in this draft carry subtitles ("Scan this code with another device" / "Use this device to scan a code from another device"); the 2026 prototype (`2811:2575`) drops them — prototype copy wins, these frames give the desktop structure. Also in *Desktop designs*.
+- Mobile (board `879:16665`): Link devices basic states `879:15415` etc.; QR sheet `879:15503` (Link devices—QR instance); **Linking devices** progress sheet `879:15508` (Progress-loading-template-mobile `910:33355`); Linked / Without linked / With linked / Removed states `879:15640` / `879:15644` / `879:15648`; QR-scan-code sheets `879:15946` / `879:16178`. Entry points boards `879:14680` (mobile) / `879:19861` (desktop): Get started row and the Communities switcher's "Linked devices" row.
+- Banner promos (`898:8033` mobile, `898:8104` desktop): out of scope.
+- User decisions (2026-09-13): a third row **Paste link** on Link devices (Button row + link glyph; device links only, inline error otherwise); on the QR sheet a primary **Copy link** button in the Add-members "Share code" slot, no raw link shown; desktop Link devices / Linked devices match mobile and these frames.
 
 ### Purged stages (user decision, 2026-09-12)
 

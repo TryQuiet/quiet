@@ -20,11 +20,19 @@ const logger = createLogger('joinCommunity:component')
 /** The paste field's error for text that is not a Quiet invitation; the QR scanner shows the same. */
 export const INVALID_INVITATION_ERROR = 'Please check your invite link and try again'
 
-/** Title bar · heading · intro per flow. Copy is the prototype's. */
+/**
+ * Title bar · heading · intro per flow. Copy is the prototype's. Every variant
+ * draws its own large heading, and a page with a heading gets no bar title, so
+ * the variants keep only the glyph. Paste a link (3190:10892) is a full-screen
+ * h1 stage whose bar title the frame itself hides. `title` is what the bar
+ * would have said. The QR flows are no longer served from here: they open the
+ * camera sheet, which carries its own titled bar.
+ */
 const COPY = {
-  inviteLink: { title: 'Join with invite link', heading: 'Paste a link to Join', intro: undefined },
+  inviteLink: { title: 'Join with invite link', titleHidden: true, heading: 'Paste a link to Join', intro: undefined },
   deviceLink: {
     title: 'Link devices',
+    titleHidden: true,
     heading: 'Scan QR code',
     intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
   },
@@ -109,12 +117,12 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
           testID={'join-community-component'}
         >
-          <Appbar title={copy.title} back={handleBackButton} />
+          <Appbar title={copy.title} withoutTitle={copy.titleHidden} back={handleBackButton} />
           <KeyboardAvoidingView
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
               flex: 1,
-              justifyContent: 'center',
+              paddingTop: spacing.xl,
               paddingHorizontal: spacing.lg,
               gap: spacing.xl,
             }}

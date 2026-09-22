@@ -128,7 +128,7 @@ suite('Profile photo', () => {
 
     await pressIfPresent(by.text('Agree & Continue'))
 
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(STARTUP)
   })
@@ -182,7 +182,7 @@ suite('Profile photo', () => {
     // The process survives its own node runtime dying, so liveness has to be functional: a message
     // only renders if the backend took it, stored it and handed it back.
     await press(element(by.id('appbar_action_item')))
-    await waitFor(element(by.id('channel-list')))
+    await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(BASIC)
     await press(element(by.text('general')))
