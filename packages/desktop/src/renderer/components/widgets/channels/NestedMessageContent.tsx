@@ -6,7 +6,7 @@ import { Grid, useTheme } from '@mui/material'
 import ImageAttachment from '../../Channel/File/ImageAttachment/ImageAttachment'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { displayMathRegex } from '../../../../utils/functions/splitByTex'
-import { TextMessageComponent } from './TextMessage'
+import { ChannelLinkNavigation, TextMessageComponent } from './TextMessage'
 import { MathMessageComponent } from '../../MathMessage/MathMessageComponent'
 import { UseModalType } from '../../../containers/hooks'
 import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/types'
@@ -42,6 +42,7 @@ export interface NestedMessageContentProps {
   downloadStatus?: DownloadStatus
   maxAutodownloadSizeBytes: number
   openUrl: (url: string) => void
+  channelLinks?: ChannelLinkNavigation
   uploadedFileModal?: UseModalType<{
     src: string
   }>
@@ -56,6 +57,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   uploadedFileModal,
   onMathMessageRendered,
   openUrl,
+  channelLinks,
   openContainingFolder,
   downloadFile,
   cancelDownload,
@@ -126,6 +128,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               messageId={message.id}
               pending={pending}
               openUrl={openUrl}
+              channelLinks={channelLinks}
             />
           )
         }
@@ -136,6 +139,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             messageId={message.id}
             pending={pending}
             openUrl={openUrl}
+            channelLinks={channelLinks}
             onMathMessageRendered={onMathMessageRendered}
           />
         )
