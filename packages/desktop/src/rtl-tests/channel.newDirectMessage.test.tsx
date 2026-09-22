@@ -14,7 +14,7 @@ import { publicChannels, getReduxStoreFactory, messages } from '@quiet/state-man
 import { FETCHING_CHANNEL_MESSAGES } from '../renderer/components/widgets/channels/ChannelMessages'
 import { cleanup } from '@testing-library/react'
 import { SEARCH_PLACEHOLDER_TEXT } from '../renderer/components/Channel/NewDirectMessage.component'
-import { generateDmMemberHash, generateTestChannelId } from '@quiet/common'
+import { dmMemberHashFor, generateDmMemberHash, generateTestChannelId } from '@quiet/common'
 
 jest.setTimeout(20_000)
 
@@ -407,5 +407,68 @@ describe('New Direct Message', () => {
     expect(() => screen.getByPlaceholderText(SEARCH_PLACEHOLDER_TEXT)).toThrow()
 
     expect(await screen.findByText(messageText)).toBeVisible()
+  })
+
+  // Both of these go through the one DM lookup shared with mobile (`findDmChannelWithMembers`), which
+  // always adds me, de-duplicates and sorts before hashing. The composer used to build the list by hand
+  // and compare only a stored `memberIdHash`.
+  const openComposerWith = async (store: Awaited<ReturnType<typeof prepareStore>>['store'], nickname: string) => {
+    const publicChannel = await (await getReduxStoreFactory(store)).create<PublicChannel>('PublicChannel')
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+    renderComponent(<Channel />, store)
+    await act(async () => {
+      store.dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: true, prevChannelId: publicChannel.id }))
+    })
+    const searchInput = screen.getByPlaceholderText(SEARCH_PLACEHOLDER_TEXT)
+    await act(async () => {
+      await userEvent.type(searchInput, nickname)
+      await userEvent.type(searchInput, '{enter}')
+    })
+  }
+
+  it('opens the existing DM with yourself when you choose yourself', async () => {
+    const { store } = await prepareStore({}, socket)
+    const factory = await getReduxStoreFactory(store)
+    const alice = await factory.create('Identity', { userId: 'alice123' })
+    await factory.create('UserProfile', { userId: alice.userId, nickname: 'alice' })
+    await factory.create('UserProfile', { nickname: 'sue' })
+    await factory.create('User', { userId: alice.userId })
+    const selfHash = dmMemberHashFor([], alice.userId)
+    await factory.create('PublicChannel', {
+      channel: {
+        type: ChannelType.DM,
+        memberIds: [alice.userId],
+        id: generateTestChannelId('self-dm'),
+        name: selfHash,
+        memberIdHash: selfHash,
+      },
+      displayedName: 'alice',
+    })
+
+    await openComposerWith(store, 'alice')
+
+    expect(publicChannels.selectors.currentChannelId(store.getState())).toEqual(generateTestChannelId('self-dm'))
+  })
+
+  it('opens an existing DM that was replicated before its member hash was stored', async () => {
+    const { store } = await prepareStore({}, socket)
+    const factory = await getReduxStoreFactory(store)
+    const alice = await factory.create('Identity', { userId: 'alice123' })
+    await factory.create('UserProfile', { userId: alice.userId, nickname: 'alice' })
+    const sue: UserProfile = await factory.create('UserProfile', { nickname: 'sue' })
+    await factory.create('User', { userId: alice.userId })
+    await factory.create('PublicChannel', {
+      channel: {
+        type: ChannelType.DM,
+        memberIds: [sue.userId, alice.userId],
+        id: generateTestChannelId('legacy-dm'),
+        name: 'Direct message',
+      },
+      displayedName: 'sue',
+    })
+
+    await openComposerWith(store, 'sue')
+
+    expect(publicChannels.selectors.currentChannelId(store.getState())).toEqual(generateTestChannelId('legacy-dm'))
   })
 })

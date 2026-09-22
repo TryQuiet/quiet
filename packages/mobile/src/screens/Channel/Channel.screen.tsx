@@ -20,7 +20,7 @@ import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { initSelectors } from '../../store/init/init.selectors'
 import { Asset } from 'react-native-image-picker'
-import { generateDmMemberHash, getFilesData } from '@quiet/common'
+import { dmMemberHashFor, dmMemberIdsFor, findDmChannelWithMembers, getFilesData } from '@quiet/common'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('ChannelScreen')
@@ -238,9 +238,7 @@ const ChannelScreenContent: FC = () => {
         return
       }
 
-      const uniquedMemberIds = [...new Set([...memberIds, me.userId])]
-      const memberHash = generateDmMemberHash(uniquedMemberIds)
-      const existing = channels.find(channel => channel.type === ChannelType.DM && channel.memberIdHash === memberHash)
+      const existing = findDmChannelWithMembers(memberIds, me.userId, channels)
       // Validate channel name
       if (existing) {
         logger.debug('Found existing DM channel', existing.id)
@@ -257,13 +255,13 @@ const ChannelScreenContent: FC = () => {
       logger.debug('Creating DM channel')
       dispatch(
         publicChannels.actions.createChannel({
-          name: memberHash,
+          name: dmMemberHashFor(memberIds, me.userId),
           firstMessage,
           description: `Empty`,
           public: false,
           type: ChannelType.DM,
           teamId: community.teamId,
-          memberIds: uniquedMemberIds,
+          memberIds: dmMemberIdsFor(memberIds, me.userId),
         })
       )
     },
@@ -287,13 +285,11 @@ const ChannelScreenContent: FC = () => {
   const setDmChannelOnSelection = useCallback(
     (selectedIds: string[]) => {
       if (!publicChannels.selectors.isNewMessageOpen(store.getState())) return
-      if (channels == null || selectedIds.length === 0) {
+      if (channels == null || me == null || selectedIds.length === 0) {
         dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
         return
       }
-      const withMe = me != null ? [...selectedIds, me.userId] : selectedIds
-      const memberHash = generateDmMemberHash(withMe)
-      const existing = channels.find(channel => channel.type === ChannelType.DM && channel.memberIdHash === memberHash)
+      const existing = findDmChannelWithMembers(selectedIds, me.userId, channels)
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: existing?.id ?? EMPTY_CHANNEL_ID }))
     },
     [dispatch, store, channels, me]

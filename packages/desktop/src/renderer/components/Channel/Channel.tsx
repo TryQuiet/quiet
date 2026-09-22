@@ -32,7 +32,14 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
-import { generateDmMemberHash, getFilesData, isDefined, isDmConnected } from '@quiet/common'
+import {
+  dmMemberHashFor,
+  dmMemberIdsFor,
+  findDmChannelWithMembers,
+  getFilesData,
+  isDefined,
+  isDmConnected,
+} from '@quiet/common'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
@@ -40,7 +47,6 @@ import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { UserProfileContextMenuArgs } from '../ContextMenu/menus/UserProfileContextMenu.container'
 import { createLogger } from '../../logger'
-import _ from 'lodash'
 import NewDirectMessageComponent, { NewDirectMessageComponentProps } from './NewDirectMessage.component'
 
 const logger = createLogger('Channel')
@@ -279,17 +285,6 @@ const ChannelContent = () => {
     dispatch(publicChannels.actions.setCurrentChannel({ channelId: prevChannelId }))
   }
 
-  const generateDmChannelIdFromMemberIds = (
-    memberIds: string[],
-    me: UserProfile
-  ): { uniqueMemberIds: string[]; memberIdHash: string } => {
-    const uniqueMemberIds = _.uniq([...memberIds, me.userId]).sort()
-    return {
-      memberIdHash: generateDmMemberHash(uniqueMemberIds),
-      uniqueMemberIds,
-    }
-  }
-
   const handleNewMessageInputChange = (members: UserProfile[]) => {
     logger.debug('New message - Handling member ID change')
     const memberIds = members.map(member => member.userId)
@@ -297,8 +292,7 @@ const ChannelContent = () => {
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
       return
     }
-    const { memberIdHash } = generateDmChannelIdFromMemberIds(memberIds, me)
-    const existingDmChannel = channels.find(channel => channel.memberIdHash === memberIdHash)
+    const existingDmChannel = findDmChannelWithMembers(memberIds, me.userId, channels)
     if (existingDmChannel != null) {
       logger.debug('New message - Found existing DM channel')
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: existingDmChannel.id }))
@@ -315,8 +309,7 @@ const ChannelContent = () => {
         return
       }
 
-      const { memberIdHash, uniqueMemberIds } = generateDmChannelIdFromMemberIds(memberIds, me)
-      const dmChannel = channels.find(channel => channel.memberIdHash === memberIdHash)
+      const dmChannel = findDmChannelWithMembers(memberIds, me.userId, channels)
       if (dmChannel != null) {
         logger.debug('Found existing DM channel')
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
@@ -334,11 +327,11 @@ const ChannelContent = () => {
           return
         }
         const payload: CreateChannelPayload = {
-          name: memberIdHash,
+          name: dmMemberHashFor(memberIds, me.userId),
           type: ChannelType.DM,
           description: 'DM channel',
           public: false,
-          memberIds: uniqueMemberIds,
+          memberIds: dmMemberIdsFor(memberIds, me.userId),
           teamId: community.teamId,
         }
         logger.debug('Running create channel action')
