@@ -54,7 +54,7 @@ export const OpenInviteLink = () => (
 export const PasteLink = () => (
   <Body>
     <PasteLinkComponent
-      heading={'Paste a link to Join'}
+      heading={'Paste a link to join'}
       handleCommunityAction={data => logger.info('Joining community', data)}
       handleClickInputReveal={noop}
     />

@@ -194,7 +194,7 @@ export const LinkDevices: React.FC = () => {
         ) : null}
         {PASTE_STEPS.includes(step) ? (
           <PasteLinkComponent
-            heading={'Paste a link to Join'}
+            heading={'Paste a link to join'}
             open={linkDevicesModal.open}
             isConnectionReady={isConnected}
             revealInputValue={revealInputValue}

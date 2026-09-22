@@ -1325,7 +1325,7 @@ const isDeviceLinkValue = (value: string): boolean => {
 
 /**
  * The join flow: Get started → Join community (three-way choice) → Open invite
- * link → Paste a link to Join. `isReady` accepts the flow at its entry (Get
+ * link → Paste a link to join. `isReady` accepts the flow at its entry (Get
  * started) or on the choice screen, so tests written against the old single
  * paste field keep describing what a user does.
  */
@@ -1427,7 +1427,7 @@ export class JoinCommunityModal {
     await this.findVisible('paste-link-input')
   }
 
-  /** Waits for the step whose h3 heading this is (Join community · Recover account · Join with invite link · Paste a link to Join). */
+  /** Waits for the step whose h3 heading this is (Join community · Recover account · Join with invite link · Paste a link to join). */
   async waitForStep(heading: string) {
     await this.driver.wait(
       until.elementLocated(By.xpath(`//h3[text()='${heading}']`)),
@@ -1454,7 +1454,7 @@ export class JoinCommunityModal {
     await (await this.findVisible('recover-use-invite-link')).click()
     await this.waitForStep('Join with invite link')
     await (await this.findVisible('paste-a-link')).click()
-    await this.waitForStep('Paste a link to Join')
+    await this.waitForStep('Paste a link to join')
   }
 
   /** Back arrow of the join modal (any step). */

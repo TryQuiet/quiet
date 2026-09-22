@@ -214,7 +214,7 @@ const JoinCommunity = () => {
         ) : null}
         {step === 'pasteInviteLink' || step === 'pasteFromQrCode' ? (
           <PasteLinkComponent
-            heading={'Paste a link to Join'}
+            heading={'Paste a link to join'}
             open={joinCommunityModal.open}
             isConnectionReady={isConnected}
             revealInputValue={revealInputValue}
