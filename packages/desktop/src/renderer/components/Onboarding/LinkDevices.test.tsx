@@ -84,7 +84,8 @@ describe('Link devices → Scan QR code', () => {
     await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
     expect(await screen.findByTestId('device-link-consent', {}, { timeout: 5000 })).toBeVisible()
 
-    await userEvent.click(screen.getByTestId('cancel-device-link'))
+    // Agree & join has no decline button (#3524): the card's back glyph is the way out.
+    await userEvent.click(screen.getByTestId('deviceLinkConsentModalBack'))
 
     await waitFor(() => expect(screen.queryByTestId('device-link-consent')).not.toBeInTheDocument())
     expect(dispatchSpy).not.toHaveBeenCalledWith(consentedLinkDevice)
@@ -158,9 +159,11 @@ describe('Link devices — no bar title above a heading', () => {
     expect(header()).not.toHaveClass('ModalheaderBorder')
     expect(screen.getByTestId('linkDevicesModalBack')).toBeVisible()
 
-    // scan (2811:2587): the bar would have said "Scan QR code"; the heading does
+    // scan (2811:2587): the scanner draws the camera, not a heading, so this is the one
+    // step that keeps the frame's bar title rather than hiding it.
     await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
-    expect(await screen.findByRole('heading', { name: 'Scan QR code', level: 3 })).toBeVisible()
+    expect(await screen.findByTestId('link-devices-scanner-viewfinder')).toBeVisible()
+    expect(screen.queryByRole('heading', { name: 'Scan QR code', level: 3 })).not.toBeInTheDocument()
     expect(screen.getAllByText('Scan QR code')).toHaveLength(1)
     expect(header()).not.toHaveClass('ModalheaderBorder')
     expect(screen.getByTestId('linkDevicesModalBack')).toBeVisible()

@@ -28,10 +28,14 @@ type Step = 'entry' | 'display' | 'scan' | 'paste'
 
 /**
  * The title the prototype's frames put in the bar (2811:2575, 2811:2601,
- * 2811:2587). Every step here draws that same words as its own large heading —
- * "Link devices", "Linked devices", "Scan QR code" — and a page with a heading
- * gets no bar title, so the bar keeps only the back glyph and these are what it
- * would have said.
+ * 2811:2587). Every step but one draws those same words as its own large
+ * heading — "Link devices", "Linked devices", "Paste a link to Join" — and a
+ * page with a heading gets no bar title, so the bar keeps only the back glyph
+ * and these are what it would have said.
+ *
+ * The scanner is the exception. It draws the camera and the sheet's intro, not
+ * a heading, so under the same rule its step keeps the bar title the frame
+ * gives it; otherwise that screen would carry no title at all.
  */
 const HIDDEN_TITLES: Record<Step, string> = {
   entry: 'Link devices',
@@ -126,7 +130,7 @@ export const LinkDevices: React.FC = () => {
         open={linkDevicesModal.open}
         handleClose={linkDevicesModal.handleClose}
         title={HIDDEN_TITLES[step]}
-        withoutTitle
+        withoutTitle={step !== 'scan'}
         canGoBack
         handleBack={handleBack}
         alignCloseLeft

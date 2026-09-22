@@ -22,7 +22,6 @@ import CloseIcon from '@mui/icons-material/Close'
 import { composeInvitationDeepUrl, composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
 import { InvitationKind, isDeviceInvitationData } from '@quiet/types'
 import type { InvitationData } from '@quiet/types'
-import type { InvitationData } from '@quiet/types'
 
 // The implemented onboarding screens, one story each, plus a walkthrough that
 // wires them together with in-story state (bottom of the file). Left: the desktop
@@ -540,7 +539,6 @@ const STEPS: Record<Step, { title: string; bar?: string; hiddenBar?: string; dro
   linkDevices: { title: 'Link devices', droppedBar: 'Link devices', left: 'back' },
   displayQrCode: { title: 'Display QR code', droppedBar: 'QR code', left: 'back' },
   scanQrCode: { title: 'Scan QR code', droppedBar: 'Scan QR code', left: 'back' },
-  pasteFromScan: { title: 'Paste a link to Join', droppedBar: 'Scan QR code', left: 'back' },
 }
 
 const PASTE_STEPS: Step[] = ['pasteALink', 'joinWithQrCode', 'scanQrCode']
