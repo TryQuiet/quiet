@@ -95,6 +95,15 @@ runs:
       run: bash scripts/retry-network-command.sh npm ci
       shell: bash
 
+    - name: Reset cached local dependencies
+      if: runner.os == 'Windows'
+      run: node scripts/reset-cached-local-dependencies.cjs
+      shell: bash
+
+    - name: Test cached local dependency recovery
+      run: node --test scripts/reset-cached-local-dependencies.test.cjs
+      shell: bash
+
     - name: "Build submodules"
       run: |
         bash scripts/retry-network-command.sh npm run build:submodules:ci
