@@ -3,7 +3,9 @@ import { SettingsModalTabName } from './enums'
 
 // Use content present in released 11.x panels, not headings moved into the drawer bar.
 const tabContent: Record<SettingsModalTabName, string> = {
-  [SettingsModalTabName.INVITE]: "//*[@data-testid='invite-a-friend']",
+  // Either id: released 11.x panels print the `invite-a-friend` heading, which this line's panel
+  // no longer draws now the drawer bar carries it; the masked link is the body content in both.
+  [SettingsModalTabName.INVITE]: "//*[@data-testid='invite-a-friend' or @data-testid='invitation-link']",
   // Either id: released 11.x panels print `linked-devices-title`, while this line's tab is the
   // Link devices content, whose body carries `link-devices`.
   [SettingsModalTabName.LINKED_DEVICES]: "//*[@data-testid='linked-devices-title' or @data-testid='link-devices']",

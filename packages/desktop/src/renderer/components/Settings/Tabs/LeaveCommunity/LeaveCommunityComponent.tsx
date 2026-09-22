@@ -12,7 +12,6 @@ const PREFIX = 'LeaveCommunity'
 
 const classes = {
   root: `${PREFIX}root`,
-  titleContainer: `${PREFIX}titleContainer`,
   descContainer: `${PREFIX}descContainer`,
   iconContainer: `${PREFIX}iconContainer`,
   buttonContainer: `${PREFIX}buttonContainer`,
@@ -25,10 +24,6 @@ const classes = {
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.root}`]: {},
-
-  [`& .${classes.titleContainer}`]: {
-    marginTop: 16,
-  },
 
   [`& .${classes.descContainer}`]: {
     marginTop: 16,
@@ -95,6 +90,13 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
  * with `Leave community` under it as grey text (5548:33988) - so the quiet
  * grey is the design, not a disabled state.
  *
+ * The library draws that component as a standalone dialog, which has no bar to
+ * carry its name, so it prints `Remove community?` (5548:33984) itself. Here it
+ * is a Settings panel and the drawer's bar already says `Leave community`, so
+ * the panel does not repeat it - the rule every other panel in this drawer
+ * follows (SettingsComponent, `titleInPanel`). The warning is the panel's first
+ * line.
+ *
  * The design draws no leaving state, so the in-progress one is the library's
  * progress pattern (ui/ActionProgress) with the app's own wording, in place of
  * those two actions. The button used to stay put, disabled, with the status as
@@ -132,17 +134,14 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({ leaveCommunit
 
   return (
     <StyledGrid container justifyContent='center'>
-      <Grid container item className={classes.titleContainer} xs={12} direction='row' justifyContent='center'>
-        <Typography variant={'h3'}>Leave community?</Typography>
-      </Grid>
       <Grid container item className={classes.descContainer} xs={12} direction='row' justifyContent='center'>
         <Typography align={'center'} variant='body2'>
           You will no longer have access to this community. This can't be undone.
         </Typography>
       </Grid>
       {leaving ? (
-        // Leaving takes the action area's place: the title and the warning stay,
-        // the buttons go. Nothing here is clickable, so nothing is greyed out.
+        // Leaving takes the action area's place: the warning stays, the buttons
+        // go. Nothing here is clickable, so nothing is greyed out.
         <Grid container item className={classes.progressContainer} xs={12} direction='row' justifyContent='center'>
           <ActionProgress status={LEAVING_STATUS} data-testid={'leave-community-progress'} />
         </Grid>
