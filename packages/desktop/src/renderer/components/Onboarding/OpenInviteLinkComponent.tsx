@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import { OnboardingBody } from './OnboardingBody'
 import { monsterIllustration } from './icons'
 import { textLinkStates } from '../ui/interactionStates'
+import { JOIN_WITH_INVITE_LINK_HEADING } from '@quiet/common'
 
 const Illustration = styled('img')(({ theme }) => ({
   width: 120,
@@ -31,7 +32,7 @@ export interface OpenInviteLinkComponentProps {
 export const OpenInviteLinkComponent: React.FC<OpenInviteLinkComponentProps> = ({ onPasteLink }) => (
   <OnboardingBody
     leading={<Illustration src={monsterIllustration} alt='' aria-hidden />}
-    heading={'Join with invite link'}
+    heading={JOIN_WITH_INVITE_LINK_HEADING}
     intro={'Open an invite link from a community admin. (If you just installed Quiet, open the invite again!)'}
     dataTestId='open-invite-link'
   >

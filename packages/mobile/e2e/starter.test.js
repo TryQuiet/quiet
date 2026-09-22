@@ -5,7 +5,13 @@ import checkVisualRegression from './utils/checkVisualRegression'
 import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
 import waitForAndroidNotification from './utils/waitForAndroidNotification'
 import { BASIC, LONG, STARTUP } from './utils/consts/timeouts'
-import { deleteChannelMessage, generalChannelDeletionMessage } from '@quiet/common'
+import {
+  CHOOSE_USERNAME_HEADING,
+  CREATE_COMMUNITY_HEADING,
+  GET_STARTED_HEADING,
+  deleteChannelMessage,
+  generalChannelDeletionMessage,
+} from '@quiet/common'
 
 const { ios } = info
 
@@ -18,7 +24,7 @@ const waitForUsernameRegistration = async () => {
   if (step.text === 'Not now' || step.label === 'Not now') {
     await press(element(by.text('Not now')))
   }
-  await waitFor(element(by.text('Choose username')))
+  await waitFor(element(by.text(CHOOSE_USERNAME_HEADING)))
     .toBeVisible()
     .withTimeout(BASIC)
 }
@@ -53,7 +59,7 @@ describe('User', () => {
   })
 
   test('should see join community screen', async () => {
-    await waitFor(element(by.text('Let’s get started...')))
+    await waitFor(element(by.text(GET_STARTED_HEADING)))
       .toBeVisible()
       .withTimeout(STARTUP)
 
@@ -64,7 +70,7 @@ describe('User', () => {
   test('switches to create community screen', async () => {
     await press(element(by.id('get-started-create')))
 
-    await waitFor(element(by.text('Create a community')))
+    await waitFor(element(by.text(CREATE_COMMUNITY_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
 
@@ -262,13 +268,13 @@ describe('User', () => {
 
     await press(element(by.text('Leave community')).atIndex(1))
 
-    await waitFor(element(by.text('Let’s get started...')))
+    await waitFor(element(by.text(GET_STARTED_HEADING)))
       .toBeVisible()
       .withTimeout(STARTUP)
   })
 
   test('should see join community screen again', async () => {
-    await waitFor(element(by.text('Let’s get started...')))
+    await waitFor(element(by.text(GET_STARTED_HEADING)))
       .toBeVisible()
       .withTimeout(STARTUP)
 
@@ -276,7 +282,7 @@ describe('User', () => {
     await checkVisualRegression(componentName)
   })
   test('should not see create community screen', async () => {
-    await waitFor(element(by.text('Create a community')))
+    await waitFor(element(by.text(CREATE_COMMUNITY_HEADING)))
       .not.toBeVisible()
       .withTimeout(BASIC)
   })
@@ -284,7 +290,7 @@ describe('User', () => {
   test('switches to create community screen', async () => {
     await press(element(by.id('get-started-create')))
 
-    await waitFor(element(by.text('Create a community')))
+    await waitFor(element(by.text(CREATE_COMMUNITY_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
 

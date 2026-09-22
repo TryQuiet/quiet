@@ -134,11 +134,22 @@ export interface PanelHeaderProps {
   /** Test id for the dismiss control; panels have their own existing ids. */
   closeTestId?: string
   titleTestId?: string
+  /**
+   * Id for the title element, for a dialog that names itself by it (`aria-labelledby`). The
+   * caller owns it, because it is the caller that knows which element is the dialog.
+   */
+  titleId?: string
 }
 
 /**
  * The header shared by right-hand side panels: dismiss on the left, centred title, rule beneath.
  * Extracted so panels stay consistent by construction rather than by each rebuilding the row.
+ *
+ * The title is a real heading element. It is the only name these panels have - the bar carries it
+ * and the panels below do not repeat it - so drawing it as body text left a panel with nothing a
+ * screen reader could navigate to and nothing to name the dialog with. It keeps the design's
+ * 16/26 weight 500 and MUI's zero margin, so the element is all that changes. A panel that prints
+ * its own heading passes no title, and then no empty heading is drawn.
  */
 export const PanelHeader: React.FC<PanelHeaderProps> = ({
   title,
@@ -148,18 +159,22 @@ export const PanelHeader: React.FC<PanelHeaderProps> = ({
   leading = 'back',
   closeTestId,
   titleTestId,
+  titleId,
 }) => {
   return (
     <StyledHeader className={classNames(classes.root, { [classes.withSubtitle]: Boolean(subtitle) })}>
       <IconButton className={classes.glyph} onClick={handleClose} data-testid={closeTestId} size='small'>
         {leading === 'back' ? <ArrowBackIcon /> : <CloseIcon />}
       </IconButton>
-      <span className={classes.centre}>
-        <Typography className={classes.title} data-testid={titleTestId}>
-          {title}
-        </Typography>
+      {/* A div, not a span: a heading is flow content and cannot sit inside phrasing content. */}
+      <div className={classes.centre}>
+        {title && (
+          <Typography component='h2' className={classes.title} data-testid={titleTestId} id={titleId}>
+            {title}
+          </Typography>
+        )}
         {subtitle && <Typography className={classes.subtitle}>{subtitle}</Typography>}
-      </span>
+      </div>
       {action && (
         <Button
           className={classes.action}

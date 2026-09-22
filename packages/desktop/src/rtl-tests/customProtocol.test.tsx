@@ -20,7 +20,12 @@ import {
   type Identity,
   type InvitationDataV4,
 } from '@quiet/types'
-import { composeInvitationDeepUrl } from '@quiet/common'
+import {
+  CHOOSE_USERNAME_HEADING,
+  GET_STARTED_HEADING,
+  JOIN_WITH_INVITE_LINK_HEADING,
+  composeInvitationDeepUrl,
+} from '@quiet/common'
 import { act } from '@testing-library/react'
 import { createLogger } from './logger'
 
@@ -81,7 +86,7 @@ describe('Opening app through custom protocol', () => {
     })
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Choose username')
+    const createUsernameTitle = await screen.findByText(CHOOSE_USERNAME_HEADING)
     expect(createUsernameTitle).toBeVisible()
   })
 
@@ -105,18 +110,18 @@ describe('Opening app through custom protocol', () => {
     })
 
     await userEvent.click(await screen.findByTestId('join-with-invite-link'))
-    expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_WITH_INVITE_LINK_HEADING, level: 3 })).toBeVisible()
 
     // The link arrives through the OS custom protocol, the way every deep link does
     await act(async () => {
       store.dispatch(communities.actions.customProtocol([composeInvitationDeepUrl(invitationCodes)]))
     })
 
-    expect(await screen.findByText('Choose username')).toBeVisible()
+    expect(await screen.findByText(CHOOSE_USERNAME_HEADING)).toBeVisible()
 
     // Closing username registration returns to the screen the link arrived on, not to Get started
     await userEvent.click(await screen.findByTestId('createUsernameModalClose'))
-    expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
-    expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: JOIN_WITH_INVITE_LINK_HEADING, level: 3 })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: GET_STARTED_HEADING })).not.toBeInTheDocument()
   })
 })

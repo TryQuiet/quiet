@@ -27,8 +27,17 @@ export const sidebarMetrics = {
 
   /** "Team and search": vertical, 16px gap, 8px bottom padding. */
   header: {
-    /** The macOS window-control strip the sidebar leaves clear (`3797:15261`, 76 x 36). */
+    /**
+     * The strip above the community row. On macOS the window is borderless
+     * (`titleBarStyle: 'hidden'`) and the traffic lights sit in the sidebar, so
+     * the library's window-control space (`3797:15261`, 76 x 36) is left clear.
+     * Windows and Linux draw their own title bar above the window, so there is
+     * nothing to clear; there the inset is chosen so the community row's centre
+     * lines up with the channel header's centred title: 8 + 16 (gap) + 28 / 2
+     * = 38 against 75 / 2 = 37.5. See `headerTopInset`.
+     */
     windowControlsHeight: 36,
+    windowControlsHeightNonMac: 8,
     gap: 16,
     paddingBottom: 8,
     /** Side padding of the community row (`4233:12959`, 0/16). */
@@ -146,5 +155,13 @@ export const sidebarMetrics = {
     disabled: 0.3,
   },
 } as const
+
+/**
+ * Height of the strip above the community row for a platform: the macOS
+ * window-control space, or the smaller inset that aligns the row with the
+ * channel header where the OS draws its own title bar.
+ */
+export const headerTopInset = (platform: NodeJS.Platform = process.platform): number =>
+  platform === 'darwin' ? sidebarMetrics.header.windowControlsHeight : sidebarMetrics.header.windowControlsHeightNonMac
 
 export default sidebarMetrics

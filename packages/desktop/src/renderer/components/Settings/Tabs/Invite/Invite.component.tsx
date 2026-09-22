@@ -11,8 +11,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 const PREFIX = 'InviteToCommunity'
 
 const classes = {
-  title: `${PREFIX}title`,
-  titleDiv: `${PREFIX}titleDiv`,
   link: `${PREFIX}link`,
   button: `${PREFIX}button`,
   bold: `${PREFIX}bold`,
@@ -22,12 +20,8 @@ const classes = {
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
-  [`& .${classes.title}`]: {},
   [`& .${classes.wrapper}`]: {
     maxWidth: '100%',
-  },
-  [`& .${classes.titleDiv}`]: {
-    marginBottom: 24,
   },
   // The link is body text (14/20; prototype 'Add members' I2932:3711;4391:18645).
   [`& .${classes.link}`]: {
@@ -98,13 +92,6 @@ export const InviteComponent: FC<InviteComponentProps> = ({
   }
   return (
     <StyledGrid container direction='column'>
-      <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
-        <Grid item className={classes.title}>
-          <Typography variant='h3' data-testid='invite-a-friend'>
-            Add Members
-          </Typography>
-        </Grid>
-      </Grid>
       <Grid item className={classes.wrapper}>
         <Grid item>
           <Typography variant='h5'>Your community link</Typography>

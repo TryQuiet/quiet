@@ -4,6 +4,7 @@ import { fireEvent } from '@testing-library/react-native'
 import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { BETA_WARNING, GetStarted } from './GetStarted.component'
+import { GET_STARTED_HEADING } from '@quiet/common'
 
 describe('GetStarted component', () => {
   it('shows the entry without an app bar and routes its three rows', async () => {
@@ -21,7 +22,7 @@ describe('GetStarted component', () => {
       store
     )
 
-    expect(result.getByText('Let’s get started...')).toBeTruthy()
+    expect(result.getByText(GET_STARTED_HEADING)).toBeTruthy()
     expect(result.getByText(BETA_WARNING)).toBeTruthy()
     // No app bar on Get started (a deliberate departure from the frame's "Quiet" bar)
     expect(result.queryByTestId('appbar_action_item')).toBeNull()
@@ -33,5 +34,18 @@ describe('GetStarted component', () => {
     expect(onJoinCommunity).toHaveBeenCalledTimes(1)
     expect(onCreateCommunity).toHaveBeenCalledTimes(1)
     expect(onLinkDevices).toHaveBeenCalledTimes(1)
+  })
+
+  it('draws the beta caption in the onboarding ink the frames use, not the caption grey', async () => {
+    const { store } = await prepareStore()
+
+    const result = renderComponent(
+      <GetStarted onJoinCommunity={jest.fn()} onCreateCommunity={jest.fn()} onLinkDevices={jest.fn()} />,
+      store
+    )
+
+    // `Status`, Rubik 12/16 w400 #222222 (Get started 6066:27523), as desktop draws it since #3666.
+    // #999999 is the library's general caption grey and is wrong for this one line.
+    expect(result.getByText(BETA_WARNING)).toHaveStyle({ color: '#222222', fontSize: 12, lineHeight: 16 })
   })
 })

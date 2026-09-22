@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import Typography from '@mui/material/Typography'
 import WarningIcon from '@mui/icons-material/Warning'
 
-import { parseName } from '@quiet/common'
+import { CREATE_COMMUNITY_HEADING, parseName } from '@quiet/common'
 
 import { TextField } from '../ui/TextField/TextField'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
@@ -120,7 +120,7 @@ export const CreateCommunityComponent: React.FC<CreateCommunityComponentProps> =
   }, [open])
 
   return (
-    <OnboardingBody heading={'Create a community'} dataTestId='create-community'>
+    <OnboardingBody heading={CREATE_COMMUNITY_HEADING} dataTestId='create-community'>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <Typography variant='body2' className={classes.label} component='label' htmlFor='community-name'>

@@ -22,6 +22,7 @@ import { useCopyDeviceLink } from './useCopyDeviceLink'
 import { PasteLinkComponent } from './PasteLinkComponent'
 import { QrScannerComponent } from './qrScanner/QrScannerComponent'
 import { createLogger } from '../../logger'
+import { PASTE_LINK_HEADING, SCAN_QR_CODE_HEADING, SCAN_QR_CODE_INTRO } from '@quiet/common'
 
 const logger = createLogger('LinkDevices')
 
@@ -44,14 +45,10 @@ export interface LinkDevicesModalArgs {
  */
 const TITLED_STEPS: Partial<Record<Step, string>> = {
   display: 'QR code',
-  scan: 'Scan QR code',
+  scan: SCAN_QR_CODE_HEADING,
 }
 
 const PASTE_STEPS: Step[] = ['paste', 'pasteLink']
-
-/** The Scan QR code sheet's copy (2811:2587). */
-export const SCAN_QR_CODE_INTRO =
-  'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /**
  * Link devices, reached from Get started (receive: "Scan QR code" opens the camera
@@ -194,7 +191,7 @@ export const LinkDevices: React.FC = () => {
         ) : null}
         {PASTE_STEPS.includes(step) ? (
           <PasteLinkComponent
-            heading={'Paste a link to Join'}
+            heading={PASTE_LINK_HEADING}
             open={linkDevicesModal.open}
             isConnectionReady={isConnected}
             revealInputValue={revealInputValue}

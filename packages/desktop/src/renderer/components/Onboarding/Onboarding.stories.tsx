@@ -20,6 +20,7 @@ import BackIcon from '@mui/icons-material/ArrowBack'
 import ClearIcon from '@mui/icons-material/Clear'
 
 import { createLogger } from '../../logger'
+import { PASTE_LINK_HEADING } from '@quiet/common'
 
 const logger = createLogger('onboarding:stories')
 
@@ -54,7 +55,7 @@ export const OpenInviteLink = () => (
 export const PasteLink = () => (
   <Body>
     <PasteLinkComponent
-      heading={'Paste a link to Join'}
+      heading={PASTE_LINK_HEADING}
       handleCommunityAction={data => logger.info('Joining community', data)}
       handleClickInputReveal={noop}
     />

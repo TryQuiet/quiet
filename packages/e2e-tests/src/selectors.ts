@@ -21,7 +21,16 @@ import {
 import { createLogger } from './logger'
 import { closeSettingsTab, waitForSettingsTab } from './settingsTabReady'
 import { waitForAppWindow } from './appWindowReady'
-import { parseInvitationLink } from '@quiet/common'
+import {
+  CHOOSE_USERNAME_HEADING,
+  CREATE_COMMUNITY_HEADING,
+  GET_STARTED_HEADING,
+  JOIN_WITH_INVITE_LINK_HEADING,
+  LINK_DEVICES_HEADING,
+  PASTE_LINK_HEADING,
+  RECOVER_ACCOUNT_HEADING,
+  parseInvitationLink,
+} from '@quiet/common'
 import { isDeviceInvitationData } from '@quiet/types'
 
 const logger = createLogger('selectors')
@@ -1140,7 +1149,7 @@ export class RegisterUsernameModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Choose username']")),
+      until.elementLocated(By.xpath(`//h3[text()='${CHOOSE_USERNAME_HEADING}']`)),
       15_000,
       `Username registration modal couldn't be located within timeout`,
       500
@@ -1260,7 +1269,7 @@ export class GetStartedModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Let’s get started...']")),
+      until.elementLocated(By.xpath(`//h3[text()='${GET_STARTED_HEADING}']`)),
       10_000,
       `Get started modal couldn't be found within timeout`,
       500
@@ -1325,7 +1334,7 @@ const isDeviceLinkValue = (value: string): boolean => {
 
 /**
  * The join flow: Get started → Join community (three-way choice) → Open invite
- * link → Paste a link to Join. `isReady` accepts the flow at its entry (Get
+ * link → Paste a link to join. `isReady` accepts the flow at its entry (Get
  * started) or on the choice screen, so tests written against the old single
  * paste field keep describing what a user does.
  */
@@ -1427,7 +1436,7 @@ export class JoinCommunityModal {
     await this.findVisible('paste-link-input')
   }
 
-  /** Waits for the step whose h3 heading this is (Join community · Recover account · Join with invite link · Paste a link to Join). */
+  /** Waits for the step whose h3 heading this is (Join community · Recover account · Join with invite link · Paste a link to join). */
   async waitForStep(heading: string) {
     await this.driver.wait(
       until.elementLocated(By.xpath(`//h3[text()='${heading}']`)),
@@ -1441,21 +1450,20 @@ export class JoinCommunityModal {
   async recoverAccount() {
     await this.enter()
     await (await this.findVisible('recover-account')).click()
-    await this.waitForStep('Recover account')
+    await this.waitForStep(RECOVER_ACCOUNT_HEADING)
   }
 
-  /** "More options" on Account recovery has no target in the design and stays inert. */
-  async isRecoverMoreOptionsDisabled(): Promise<boolean> {
-    const row = await this.findVisible('recover-more-options')
-    return (await row.getAttribute('aria-disabled')) === 'true'
+  /** The frame's "More options" row has no target in the design, so it is not built. */
+  async isRecoverMoreOptionsAbsent(): Promise<boolean> {
+    return !(await this.isPresent('recover-more-options'))
   }
 
   /** Account recovery → Use invite link → Open invite link → Paste a link. */
   async recoverWithInviteLink() {
     await (await this.findVisible('recover-use-invite-link')).click()
-    await this.waitForStep('Join with invite link')
+    await this.waitForStep(JOIN_WITH_INVITE_LINK_HEADING)
     await (await this.findVisible('paste-a-link')).click()
-    await this.waitForStep('Paste a link to Join')
+    await this.waitForStep(PASTE_LINK_HEADING)
   }
 
   /** Back arrow of the join modal (any step). */
@@ -1525,7 +1533,7 @@ export class LinkDevicesModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Link devices']")),
+      until.elementLocated(By.xpath(`//h3[text()='${LINK_DEVICES_HEADING}']`)),
       10_000,
       `Link devices modal couldn't be found within timeout`,
       500
@@ -1718,7 +1726,7 @@ export class CreateCommunityModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Create a community']")),
+      until.elementLocated(By.xpath(`//h3[text()='${CREATE_COMMUNITY_HEADING}']`)),
       10_000,
       `Create community modal couldn't be found within timeout`,
       500
@@ -3520,7 +3528,9 @@ export class Settings {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//p[text()='Community Settings']")),
+      // Either element: released 11.x draws the bar's title as body text, while this line draws
+      // it as the heading that names the dialog.
+      until.elementLocated(By.xpath("//*[self::p or self::h2][text()='Community Settings']")),
       15_000,
       `Settings modal couldn't be found within timeout`,
       500

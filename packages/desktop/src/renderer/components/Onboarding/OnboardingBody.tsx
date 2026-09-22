@@ -76,7 +76,6 @@ const Root = styled('div')(({ theme }) => ({
     alignItems: 'flex-start',
     justifyContent: 'center',
     gap: theme.space.xs,
-    color: theme.palette.colors.darkGray,
   },
   [`& .${classes.betaIcon}`]: {
     width: 16,
@@ -100,6 +99,23 @@ export interface OnboardingBodyProps {
 }
 
 export const BETA_WARNING = "Quiet is in beta and shouldn't be used for activities requiring security."
+
+/**
+ * The beta line, in the ink the frames draw it in: `Status`, Rubik 12/16 w400 #222222, on
+ * Get started (`0j7Nna9zWmfOSNmRmQK1Uh` `6066:27523`) and on Join community (`6072:19844`).
+ * Every beta-warning caption in the Figma cache - 21 nodes across four files - is #222222;
+ * none is grey. `variant='caption'` alone paints it gray40 (#999999), which is the library's
+ * caption ink in general but not what these frames use. MUI writes the variant's colour onto
+ * the element itself, so a colour inherited from the row never reaches the text - which is
+ * what the row's old `darkGray` was doing, reaching only the gap beside the glyph. A class on
+ * the row would win in a browser, on specificity, but jsdom resolves `getComputedStyle` by
+ * document order, so it would report the grey and no test could tell. Declaring the colour on
+ * this element's own class is the one placement both agree on. `gray90` is that ink, inverted
+ * in the dark theme, which is how the library's Dark mode file draws text this size.
+ */
+const BetaCaption = styled(Typography)(({ theme }) => ({
+  color: theme.palette.colors.gray90,
+}))
 
 export const OnboardingBody: React.FC<OnboardingBodyProps> = ({
   heading,
@@ -130,7 +146,9 @@ export const OnboardingBody: React.FC<OnboardingBodyProps> = ({
     {betaWarning ? (
       <div className={classes.betaWarning} data-testid='onboardingBetaWarning'>
         <WarningIcon className={classes.betaIcon} />
-        <Typography variant='caption'>{BETA_WARNING}</Typography>
+        <BetaCaption variant='caption' data-testid='onboardingBetaWarningText'>
+          {BETA_WARNING}
+        </BetaCaption>
       </div>
     ) : null}
   </Root>

@@ -5,7 +5,16 @@ import userEvent from '@testing-library/user-event'
 
 import { communities, connection } from '@quiet/state-manager'
 import { type DeviceInvitationDataV4, type InvitationDataV4, InvitationKind } from '@quiet/types'
-import { QUIET_JOIN_PAGE, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
+import {
+  LINK_DEVICES_HEADING,
+  PASTE_LINK_HEADING,
+  PASTE_LINK_PLACEHOLDER,
+  QUIET_JOIN_PAGE,
+  SCAN_QR_CODE_HEADING,
+  SCAN_QR_CODE_INTRO,
+  getValidInvitationUrlTestData,
+  validInvitationDatav4,
+} from '@quiet/common'
 
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
 
@@ -19,7 +28,7 @@ import { StoreKeys } from '../../store/store.keys'
 import { SocketState } from '../../sagas/socket/socket.slice'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { modalsActions, ModalsInitialState } from '../../sagas/modals/modals.slice'
-import LinkDevices, { SCAN_QR_CODE_INTRO } from './LinkDevices'
+import LinkDevices from './LinkDevices'
 
 const openState = () => ({
   [StoreKeys.Socket]: { ...new SocketState(), isConnected: true },
@@ -66,7 +75,7 @@ describe('Link devices → Scan QR code', () => {
     await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
     expect(await screen.findByText(SCAN_QR_CODE_INTRO)).toBeVisible()
     expect(screen.getByTestId('link-devices-scanner-viewfinder')).toBeVisible()
-    expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText(PASTE_LINK_PLACEHOLDER)).not.toBeInTheDocument()
 
     // A camera decodes whatever is put in front of it, so the scan path is gated exactly as the
     // paste path is: nothing is linked until the user says so.
@@ -106,9 +115,9 @@ describe('Link devices → Scan QR code', () => {
 
     await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
     await userEvent.click(await screen.findByTestId('link-devices-scanner-paste-link'))
-    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: PASTE_LINK_HEADING, level: 3 })).toBeVisible()
 
-    await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)
+    await userEvent.type(screen.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), deviceLink)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
     expect(await screen.findByTestId('device-link-consent')).toBeVisible()
@@ -125,13 +134,13 @@ describe('Link devices → Scan QR code', () => {
 
     await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
     await userEvent.click(await screen.findByTestId('link-devices-scanner-paste-link'))
-    expect(await screen.findByPlaceholderText('Link')).toBeVisible()
+    expect(await screen.findByPlaceholderText(PASTE_LINK_PLACEHOLDER)).toBeVisible()
 
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
     expect(await screen.findByTestId('link-devices-scanner-viewfinder')).toBeVisible()
 
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })).toBeVisible()
   })
 })
 
@@ -143,11 +152,11 @@ describe('Link devices → Paste link', () => {
     renderComponent(<LinkDevices />, store)
 
     await userEvent.click(screen.getByTestId('link-devices-paste-link'))
-    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
-    expect(screen.queryByText('Link devices')).not.toBeInTheDocument() // no bar title: the h1 is the title
+    expect(await screen.findByRole('heading', { name: PASTE_LINK_HEADING, level: 3 })).toBeVisible()
+    expect(screen.queryByText(LINK_DEVICES_HEADING)).not.toBeInTheDocument() // no bar title: the h1 is the title
     expect(screen.queryByTestId('link-devices-scanner-viewfinder')).not.toBeInTheDocument()
 
-    await userEvent.type(screen.getByPlaceholderText('Link'), deviceLink)
+    await userEvent.type(screen.getByPlaceholderText(PASTE_LINK_PLACEHOLDER), deviceLink)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
     // Pasted or scanned, a device link is only acted on once its consent is given.
@@ -169,11 +178,11 @@ describe('Link devices → Paste link', () => {
     renderComponent(<LinkDevices />, store)
 
     await userEvent.click(screen.getByTestId('link-devices-paste-link'))
-    await userEvent.type(await screen.findByPlaceholderText('Link'), memberLink)
+    await userEvent.type(await screen.findByPlaceholderText(PASTE_LINK_PLACEHOLDER), memberLink)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
     expect(await screen.findByText(InviteLinkErrors.NotDeviceLink)).toBeVisible()
-    expect(screen.getByPlaceholderText('Link')).toBeVisible() // still on the paste step
+    expect(screen.getByPlaceholderText(PASTE_LINK_PLACEHOLDER)).toBeVisible() // still on the paste step
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       communities.actions.joinCommunity({ inviteData: memberInvitationData })
     )
@@ -193,7 +202,7 @@ describe('Link devices → Paste link', () => {
     renderComponent(<LinkDevices />, store)
 
     await userEvent.click(screen.getByTestId('link-devices-paste-link'))
-    await userEvent.type(await screen.findByPlaceholderText('Link'), 'https://example.com/')
+    await userEvent.type(await screen.findByPlaceholderText(PASTE_LINK_PLACEHOLDER), 'https://example.com/')
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
     expect(await screen.findByText(InviteLinkErrors.InvalidCode)).toBeVisible()
@@ -209,10 +218,10 @@ describe('Link devices → Paste link', () => {
     renderComponent(<LinkDevices />, store)
 
     await userEvent.click(screen.getByTestId('link-devices-paste-link'))
-    expect(await screen.findByPlaceholderText('Link')).toBeVisible()
+    expect(await screen.findByPlaceholderText(PASTE_LINK_PLACEHOLDER)).toBeVisible()
 
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })).toBeVisible()
     expect(screen.getByTestId('link-devices-paste-link')).toBeVisible()
   })
 
@@ -225,7 +234,7 @@ describe('Link devices → Paste link', () => {
 
     await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
     await userEvent.click(await screen.findByTestId('link-devices-scanner-paste-link'))
-    await userEvent.type(await screen.findByPlaceholderText('Link'), memberLink)
+    await userEvent.type(await screen.findByPlaceholderText(PASTE_LINK_PLACEHOLDER), memberLink)
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
     expect(await screen.findByText(InviteLinkErrors.NotDeviceLink)).toBeVisible()
@@ -268,7 +277,7 @@ describe('Link devices → Display QR code', () => {
     expect(screen.queryByTestId('linkDevicesModalBack')).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByTestId('linkDevicesModalClose'))
-    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })).toBeVisible()
     expect(dispatchSpy).not.toHaveBeenCalledWith(modalsActions.closeModal(ModalName.linkDevicesModal))
   })
 
@@ -327,8 +336,8 @@ describe('Link devices — no bar title above a heading', () => {
     renderComponent(<LinkDevices />, store)
 
     // entry (2811:2575)
-    expect(screen.getByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
-    expect(screen.getAllByText('Link devices')).toHaveLength(1)
+    expect(screen.getByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })).toBeVisible()
+    expect(screen.getAllByText(LINK_DEVICES_HEADING)).toHaveLength(1)
     expect(header()).not.toHaveClass('Modalnone')
     expect(header()).not.toHaveClass('ModalheaderBorder')
     expect(screen.getByTestId('linkDevicesModalBack')).toBeVisible()
@@ -337,16 +346,16 @@ describe('Link devices — no bar title above a heading', () => {
     // step that keeps the frame's bar title rather than hiding it.
     await userEvent.click(screen.getByTestId('link-devices-scan-qr'))
     expect(await screen.findByTestId('link-devices-scanner-viewfinder')).toBeVisible()
-    expect(screen.queryByRole('heading', { name: 'Scan QR code', level: 3 })).not.toBeInTheDocument()
-    expect(screen.getAllByText('Scan QR code')).toHaveLength(1)
+    expect(screen.queryByRole('heading', { name: SCAN_QR_CODE_HEADING, level: 3 })).not.toBeInTheDocument()
+    expect(screen.getAllByText(SCAN_QR_CODE_HEADING)).toHaveLength(1)
     expect(header()).not.toHaveClass('ModalheaderBorder')
     expect(screen.getByTestId('linkDevicesModalBack')).toBeVisible()
 
     // back to entry, then the Paste link step: the bar would have said "Link devices"
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
     await userEvent.click(await screen.findByTestId('link-devices-paste-link'))
-    expect(await screen.findByRole('heading', { name: 'Paste a link to Join', level: 3 })).toBeVisible()
-    expect(screen.queryByText('Link devices')).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: PASTE_LINK_HEADING, level: 3 })).toBeVisible()
+    expect(screen.queryByText(LINK_DEVICES_HEADING)).not.toBeInTheDocument()
     expect(header()).not.toHaveClass('ModalheaderBorder')
     expect(screen.getByTestId('linkDevicesModalBack')).toBeVisible()
   })

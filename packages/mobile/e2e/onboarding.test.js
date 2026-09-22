@@ -4,13 +4,21 @@ import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
 import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
 import { BASIC, STARTUP } from './utils/consts/timeouts'
+import {
+  CHOOSE_USERNAME_HEADING,
+  CREATE_COMMUNITY_HEADING,
+  GET_STARTED_HEADING,
+  JOIN_COMMUNITY_HEADING,
+  PASTE_A_LINK_LABEL,
+  PASTE_LINK_HEADING,
+} from '@quiet/common'
 
 const { ios } = info
 
 /* eslint-disable no-undef */
 
 // The onboarding redesign: Get started → Join community (three-way choice) →
-// Open invite link → Paste a link to Join, and Get started → Create a
+// Open invite link → Paste a link to join, and Get started → Create a
 // community → Choose username. One device; no community is joined here.
 describe('Onboarding', () => {
   beforeAll(async () => {
@@ -26,7 +34,7 @@ describe('Onboarding', () => {
   })
 
   test('starts on Get started', async () => {
-    await waitFor(element(by.text('Let’s get started...')))
+    await waitFor(element(by.text(GET_STARTED_HEADING)))
       .toBeVisible()
       .withTimeout(STARTUP)
     await checkVisualRegression('get-started-component')
@@ -34,7 +42,7 @@ describe('Onboarding', () => {
 
   test('Join a community offers invite link, QR code and a disabled Recover account', async () => {
     await press(element(by.id('get-started-join')))
-    await waitFor(element(by.text('Join community')))
+    await waitFor(element(by.text(JOIN_COMMUNITY_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
     await expect(element(by.id('join-with-invite-link'))).toBeVisible()
@@ -54,7 +62,7 @@ describe('Onboarding', () => {
       .withTimeout(BASIC)
     await checkVisualRegression('open-invite-link-component')
     await press(element(by.id('paste-a-link')))
-    await waitFor(element(by.text('Paste a link to Join')))
+    await waitFor(element(by.text(PASTE_LINK_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
     await checkVisualRegression('join-community-component')
@@ -71,15 +79,15 @@ describe('Onboarding', () => {
 
   test('back returns through the flow to Get started', async () => {
     await press(element(by.id('appbar_action_item')))
-    await waitFor(element(by.text('Paste a link')))
+    await waitFor(element(by.text(PASTE_A_LINK_LABEL)))
       .toBeVisible()
       .withTimeout(BASIC)
     await press(element(by.id('appbar_action_item')))
-    await waitFor(element(by.text('Join community')))
+    await waitFor(element(by.text(JOIN_COMMUNITY_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
     await press(element(by.id('appbar_action_item')))
-    await waitFor(element(by.text('Let’s get started...')))
+    await waitFor(element(by.text(GET_STARTED_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
   })
@@ -92,14 +100,14 @@ describe('Onboarding', () => {
     await expect(element(by.id('link-devices-scan-qr'))).toBeVisible()
     await checkVisualRegression('link-devices-component')
     await press(element(by.id('appbar_action_item')))
-    await waitFor(element(by.text('Let’s get started...')))
+    await waitFor(element(by.text(GET_STARTED_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
   })
 
   test('Create a new community leads to Choose username', async () => {
     await press(element(by.id('get-started-create')))
-    await waitFor(element(by.text('Create a community')))
+    await waitFor(element(by.text(CREATE_COMMUNITY_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
     await checkVisualRegression('create-community-component')
@@ -113,7 +121,7 @@ describe('Onboarding', () => {
     if (step.text === 'Not now' || step.label === 'Not now') {
       await press(element(by.text('Not now')))
     }
-    await waitFor(element(by.text('Choose username')))
+    await waitFor(element(by.text(CHOOSE_USERNAME_HEADING)))
       .toBeVisible()
       .withTimeout(BASIC)
     await expect(element(by.text('Enter a username'))).toBeVisible()

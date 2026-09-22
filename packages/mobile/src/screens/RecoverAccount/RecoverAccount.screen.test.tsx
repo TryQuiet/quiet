@@ -8,6 +8,7 @@ import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { LinkDevicesScreen } from '../LinkDevices/LinkDevices.screen'
 import { RecoverAccountScreen } from './RecoverAccount.screen'
+import { RECOVER_ACCOUNT_HEADING } from '@quiet/common'
 
 // The Link devices screen copies the minted device link (design/link-devices-paste); the
 // native clipboard has no jest binding, so it is mocked the way that screen's own test does.
@@ -21,17 +22,19 @@ describe('RecoverAccountScreen', () => {
     return { dispatchSpy, result }
   }
 
-  it("shows the frame's copy with More options inert", async () => {
+  it("shows the frame's copy and omits More options", async () => {
     const { result } = await renderScreen()
 
     // The frame hides the bar title; only the back glyph and the heading
     expect(result.queryByText('Account recovery')).toBeNull()
     expect(result.getByLabelText('Go back')).toBeTruthy()
-    expect(result.getByText('Recover account')).toBeTruthy()
+    expect(result.getByText(RECOVER_ACCOUNT_HEADING)).toBeTruthy()
     expect(
       result.getByText('Locked out? You can recover with a linked device or ask an admin to send you an invite link.')
     ).toBeTruthy()
-    expect(result.getByTestId('recover-more-options')).toBeDisabled()
+    // The frame draws a "More options" row with no target; it is omitted until the design gives it one
+    expect(result.queryByTestId('recover-more-options')).toBeNull()
+    expect(result.queryByText('More options')).toBeNull()
   })
 
   it('"Use linked device" goes to Link devices', async () => {

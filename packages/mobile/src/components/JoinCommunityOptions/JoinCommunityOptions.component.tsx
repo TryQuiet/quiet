@@ -10,6 +10,12 @@ import { Appbar } from '../Appbar/Appbar.component'
 import { Typography } from '../Typography/Typography.component'
 
 import type { JoinCommunityOptionsProps } from './JoinCommunityOptions.types'
+import {
+  JOIN_COMMUNITY_HEADING,
+  JOIN_WITH_INVITE_LINK_HEADING,
+  JOIN_WITH_QR_CODE_HEADING,
+  RECOVER_ACCOUNT_HEADING,
+} from '@quiet/common'
 
 /** The frame's Graphic--heart-chat instance (I2815:2504;6181:27547), exported at 1×/2×/3×. */
 export const GRAPHIC_SIZE = { width: 219, height: 160 } as const
@@ -44,24 +50,24 @@ export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
         testID={'join-community-graphic'}
       />
       <Typography variant={'h3'} horizontalTextAlign={'center'}>
-        {'Join community'}
+        {JOIN_COMMUNITY_HEADING}
       </Typography>
       <View>
         <ActionRow
           icon={<InviteLinkIcon />}
-          label={'Join with invite link'}
+          label={JOIN_WITH_INVITE_LINK_HEADING}
           onPress={onJoinWithInviteLink}
           testID={'join-with-invite-link'}
         />
         <ActionRow
           icon={<QrCodeIcon />}
-          label={'Join with QR code'}
+          label={JOIN_WITH_QR_CODE_HEADING}
           onPress={onJoinWithQrCode}
           testID={'join-with-qr-code'}
         />
         <ActionRow
           icon={<InfoIcon />}
-          label={'Recover account'}
+          label={RECOVER_ACCOUNT_HEADING}
           onPress={onRecoverAccount}
           testID={'recover-account'}
         />

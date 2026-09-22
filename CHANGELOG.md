@@ -4,6 +4,8 @@
 
 ### Chores
 
+* chore: add a root `.prettierignore` for image/SVG assets so prettier's typescript parser can never rewrite them (it broke an onboarding glyph)
+
 * chore(desktop): clear `dist/` before packaging so a repeat local build no longer packs the previous AppImage/DMG into the new one (`linux.files` includes `dist/**`, which electron-builder also writes to).
 * Declare `rimraf` in the desktop package, which every packaging script now runs to clear `dist/`, instead of relying on another dependency to hoist it
 
@@ -14,6 +16,7 @@
 
 ### Fixes
 
+* fix(desktop): on Windows and Linux the sidebar no longer reserves the macOS window-control strip, so the community name sits in line with the channel header title
 * Stop re-scanning and re-verifying a channel's whole message history every time a new message arrives, by indexing the messages already accepted and walking only the ancestry a replicated head brings in; the index is rebuilt when membership or keys change, and a notification no longer fires for a store that was closed or re-authorized while it was being prepared [#3536](https://github.com/TryQuiet/quiet/issues/3536) [#3539](https://github.com/TryQuiet/quiet/pull/3539)
 * Show a private channel on a device that was still missing the channel's key when its metadata arrived, retrying about once a minute until the key lands, instead of waiting for unrelated community activity that may never happen [#3563](https://github.com/TryQuiet/quiet/issues/3563)
 * Ask the local Tor daemon to generate onion identities on desktop and mobile, and start communities without waiting for Tor network publication; recover detached registrations after lost replies or control connections without an onion-address collision loop, and handle fragmented or interrupted local control authentication [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
@@ -26,6 +29,8 @@
 * Give the mobile Channels and Direct Messages `+` buttons a full-size touch target, and let a screen reader announce what each one does [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Give the mobile remove-attachment control a full-size touch target, and stop it hanging outside its parent where Android delivered no touch to it at all [#3595](https://github.com/TryQuiet/quiet/issues/3595)
 * Build the desktop community menu from design rows in a single drawer, so choosing a tab goes deeper instead of sliding one panel out and another in
+* Draw one title per desktop Settings panel, with Add members and Leave community no longer repeating the drawer bar's heading, and centre the invitation QR code and its copy as the design draws them
+* Announce each desktop Settings panel by name to a screen reader, drawing the drawer bar's title as a heading and naming the panel dialog by it
 * Match the desktop direct-message composer, channel header and message list to the designs, including recipient names that were invisible on the dark theme
 * Keep a recipient selected while composing a new direct message on mobile, instead of clearing the selection as soon as it is made
 * Make the whole recipient row tappable on mobile rather than only the checkbox and the name
@@ -50,6 +55,10 @@
 * Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
+* Drop the greyed-out "More options" row from Recover account on desktop and mobile, since it led nowhere and its glyph failed to load
+* Write the onboarding paste-link heading in sentence case, *Paste a link to join*, on desktop and mobile
+* Draw the digits of a message at the message's own size, rather than at emoji size, on mobile and desktop; a number, `#` or `*` is only emoji as part of a full keycap like 1️⃣
+* Draw the mobile onboarding beta warning in the onboarding ink the designs use, rather than the lighter caption grey, matching desktop
 
 ### Tests
 
@@ -58,6 +67,7 @@
 ### Chores
 
 * Run the backend unit tests in a recycled worker rather than one long-lived process, so the heap no longer climbs across the suites until it reaches the 4 GB ceiling and fails the job with "Ineffective mark-compacts near heap limit" [#3634](https://github.com/TryQuiet/quiet/issues/3634)
+* Define the shared onboarding copy once in `@quiet/common`, so a heading or placeholder the desktop app, the mobile app, the stories and the end-to-end selectors all draw is a single edit rather than dozens of literals
 
 ## [11.0.1]
 

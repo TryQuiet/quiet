@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { JoinCommunityOptionsComponent } from './JoinCommunityOptionsComponent'
+import { JOIN_COMMUNITY_HEADING } from '@quiet/common'
 
 describe('Join community', () => {
   it("opens with the frame's heart-chat illustration above the heading, then the rows", async () => {
@@ -24,7 +25,7 @@ describe('Join community', () => {
     const graphic = screen.getByTestId('join-community-graphic')
     expect(graphic.tagName).toBe('IMG')
     expect(graphic).toHaveAttribute('aria-hidden', 'true')
-    const heading = screen.getByRole('heading', { name: 'Join community', level: 3 })
+    const heading = screen.getByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })
     // Illustration first, heading after it, the rows after that
     expect(graphic.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(

@@ -9,6 +9,7 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { LinkDevicesScreen } from './LinkDevices.screen'
+import { PASTE_LINK_LABEL, SCAN_QR_CODE_HEADING } from '@quiet/common'
 
 describe('LinkDevicesScreen', () => {
   const renderScreen = async (withCommunity = false) => {
@@ -27,8 +28,8 @@ describe('LinkDevicesScreen', () => {
     it('shows Scan QR code and Paste link only, and mints nothing', async () => {
       const { dispatchSpy, result } = await renderScreen()
 
-      expect(result.getByText('Scan QR code')).toBeTruthy()
-      expect(result.getByText('Paste link')).toBeTruthy()
+      expect(result.getByText(SCAN_QR_CODE_HEADING)).toBeTruthy()
+      expect(result.getByText(PASTE_LINK_LABEL)).toBeTruthy()
       expect(result.queryByText('Display QR code')).toBeNull()
       expect(result.queryByText('Copy link')).toBeNull()
       // Receiving, there is no community and so no team graph to list devices from
@@ -74,8 +75,8 @@ describe('LinkDevicesScreen', () => {
 
       expect(result.getByText('Display QR code')).toBeTruthy()
       expect(result.getByText('Copy link')).toBeTruthy()
-      expect(result.queryByText('Scan QR code')).toBeNull()
-      expect(result.queryByText('Paste link')).toBeNull()
+      expect(result.queryByText(SCAN_QR_CODE_HEADING)).toBeNull()
+      expect(result.queryByText(PASTE_LINK_LABEL)).toBeNull()
       expect(dispatchSpy).toHaveBeenCalledWith(connection.actions.createDeviceLink())
       // The device list is asked for as soon as the screen shares, but nothing is drawn
       // until the answer arrives (TryQuiet/quiet#3636): a card reading "No linked devices"

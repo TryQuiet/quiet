@@ -15,6 +15,7 @@ import {
 import { SettingsModalTabName } from '../enums'
 import { createLogger } from '../logger'
 import { FAKE_CAMERA_FILE_ENV, fakeCameraFile, removeFakeCameraFile, writeQrY4m } from '../fakeCamera'
+import { JOIN_COMMUNITY_HEADING, JOIN_WITH_INVITE_LINK_HEADING, RECOVER_ACCOUNT_HEADING } from '@quiet/common'
 
 const logger = createLogger('onboarding')
 const previousLocalTransport = process.env.LOCAL_TRANSPORT
@@ -176,14 +177,14 @@ describe('Onboarding', () => {
       // Recover account → Account recovery; "Use invite link" reaches the same
       // paste step, and the back arrow retraces the trail to the three-way choice
       await joinModal.recoverAccount()
-      expect(await joinModal.isRecoverMoreOptionsDisabled()).toBe(true)
+      expect(await joinModal.isRecoverMoreOptionsAbsent()).toBe(true)
       await joinModal.recoverWithInviteLink()
       await joinModal.back()
-      await joinModal.waitForStep('Join with invite link')
+      await joinModal.waitForStep(JOIN_WITH_INVITE_LINK_HEADING)
       await joinModal.back()
-      await joinModal.waitForStep('Recover account')
+      await joinModal.waitForStep(RECOVER_ACCOUNT_HEADING)
       await joinModal.back()
-      await joinModal.waitForStep('Join community')
+      await joinModal.waitForStep(JOIN_COMMUNITY_HEADING)
 
       // Join with invite link → Open invite link → Paste a link
       await joinModal.joinWithInviteLink()

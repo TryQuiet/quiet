@@ -6,16 +6,17 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import { QrScanner } from './QrScanner.component'
 import { QrScannerSheet } from './QrScannerSheet.component'
 import type { QrScannerStatus } from './QrScanner.types'
+import { JOIN_WITH_QR_CODE_HEADING, SCAN_QR_CODE_HEADING, SCAN_QR_CODE_INTRO } from '@quiet/common'
 
 /** Stands in for the camera preview: a dark surface with nothing in it. */
 const MockCamera = () => (
   <View style={[StyleSheet.absoluteFill, { backgroundColor: '#202020' }]} testID={'mock-camera'} />
 )
 
-const JOIN = { title: 'Join with QR code' }
+const JOIN = { title: JOIN_WITH_QR_CODE_HEADING }
 const LINK = {
-  title: 'Scan QR code',
-  intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
+  title: SCAN_QR_CODE_HEADING,
+  intro: SCAN_QR_CODE_INTRO,
 }
 
 const sheet = (copy: typeof LINK | typeof JOIN, status: QrScannerStatus, invalid = false) =>

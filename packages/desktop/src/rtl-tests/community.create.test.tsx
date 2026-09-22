@@ -1,4 +1,4 @@
-import { generateTestChannelId } from '@quiet/common'
+import { CHOOSE_USERNAME_HEADING, CREATE_COMMUNITY_HEADING, generateTestChannelId } from '@quiet/common'
 import { getSocketFactory, getBaseTypesFactory } from '@quiet/state-manager'
 import { ChannelSubscribedPayload, SocketActions, SocketEvents, socketEventData } from '@quiet/types'
 import { screen } from '@testing-library/dom'
@@ -108,7 +108,7 @@ describe('User', () => {
     })
 
     // Confirm proper modal title is displayed
-    const createCommunityTitle = screen.getByRole('heading', { name: 'Create a community', level: 3 })
+    const createCommunityTitle = screen.getByRole('heading', { name: CREATE_COMMUNITY_HEADING, level: 3 })
     expect(createCommunityTitle).toBeVisible()
 
     // Enter community name and hit button
@@ -118,7 +118,7 @@ describe('User', () => {
     await userEvent.click(createCommunityButton)
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Choose username')
+    const createUsernameTitle = await screen.findByText(CHOOSE_USERNAME_HEADING)
     expect(createUsernameTitle).toBeVisible()
 
     // Enter username and hit button

@@ -1,4 +1,5 @@
 import info from './utils/info'
+import { GET_STARTED_HEADING, SCAN_QR_CODE_HEADING } from '@quiet/common'
 
 const { ios } = info
 
@@ -24,7 +25,7 @@ describeIfLink('Device linking (joiner half)', () => {
   })
 
   test('links this device from a pasted device link and lands in the community', async () => {
-    await waitFor(element(by.text('Let’s get started...')))
+    await waitFor(element(by.text(GET_STARTED_HEADING)))
       .toBeVisible()
       .withTimeout(120000)
     await element(by.id('get-started-link-devices')).tap()
@@ -32,7 +33,7 @@ describeIfLink('Device linking (joiner half)', () => {
       .toBeVisible()
       .withTimeout(10000)
     await element(by.id('link-devices-scan-qr')).tap()
-    await waitFor(element(by.text('Scan QR code')))
+    await waitFor(element(by.text(SCAN_QR_CODE_HEADING)))
       .toBeVisible()
       .withTimeout(10000)
     await element(by.id('input')).typeText(deviceLink)

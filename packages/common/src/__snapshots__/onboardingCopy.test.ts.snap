@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`onboarding copy matches the copy the screens are built against 1`] = `
+Array [
+  "CHOOSE_USERNAME_HEADING: Choose username",
+  "CREATE_COMMUNITY_HEADING: Create a community",
+  "GET_STARTED_HEADING: Let’s get started...",
+  "JOIN_COMMUNITY_HEADING: Join community",
+  "JOIN_WITH_INVITE_LINK_HEADING: Join with invite link",
+  "JOIN_WITH_QR_CODE_HEADING: Join with QR code",
+  "LINK_DEVICES_HEADING: Link devices",
+  "OPEN_INVITE_LINK_HEADING: Open invite link",
+  "PASTE_A_LINK_LABEL: Paste a link",
+  "PASTE_LINK_HEADING: Paste a link to join",
+  "PASTE_LINK_LABEL: Paste link",
+  "PASTE_LINK_PLACEHOLDER: Link",
+  "RECOVER_ACCOUNT_HEADING: Recover account",
+  "SCAN_QR_CODE_HEADING: Scan QR code",
+  "SCAN_QR_CODE_INTRO: Go to “Link devices” on the other device and display the QR code. Scan it to link devices.",
+]
+`;

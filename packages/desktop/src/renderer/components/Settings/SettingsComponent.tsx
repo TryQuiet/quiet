@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useId, useRef, useState } from 'react'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 import { useModal } from '../../containers/hooks'
@@ -17,6 +17,9 @@ const classes = {
  *  one; gray70 (#4C4C4C) all but disappears against the dark theme's #222222. */
 const CHEVRON_SX = { fontSize: 16, color: 'colors.gray50' }
 
+/** The drawer's own name, before a row is chosen. */
+const MENU_TITLE = 'Community Settings'
+
 /**
  * The community menu, drawn as the design library's Button row rather than MUI's list defaults
  * (see PanelRow, and "DM settings" 816:28609 for the same construct in a real menu): 48 tall,
@@ -33,9 +36,11 @@ interface SettingsRow {
   /** Id for the panel title, where something already resolves the tab by its heading. */
   titleTestId?: string
   /**
-   * The panel prints its own heading, so the bar does not repeat it. Every panel here had its
-   * heading moved into the bar except Linked devices, which arrived from develop with the heading
-   * inside it and its own tests resolving that heading.
+   * The panel prints its own heading, so the bar does not repeat it. Linked devices is the only
+   * row that does: its body is the shared Link devices stage, whose large heading is the title
+   * wherever it is drawn (the user's no-bar-title rule, design-system/ONBOARDING.md). Every other
+   * panel's heading moved into the bar - Add members and Leave community last, which drew their
+   * own h3 under a bar already carrying the same words.
    */
   titleInPanel?: boolean
   destructive?: boolean
@@ -112,6 +117,15 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   const TabComponent = tabs[currentTab]
   const currentRow = SETTINGS_ROWS.find(row => row.tab === currentTab)
+  /**
+   * The drawer is a dialog, and a dialog needs a name. The bar's title is that name wherever the
+   * bar draws one, so the dialog points at it. Linked devices draws no bar title - its panel
+   * prints the heading - and pointing at an element that is not there would leave the dialog
+   * nameless, so that one row names itself with its own words instead.
+   */
+  const titleId = useId()
+  const rowTitle = currentRow?.title ?? 'Settings'
+  const barTitle = currentTab === '' ? MENU_TITLE : currentRow?.titleInPanel ? '' : rowTitle
 
   return (
     <>
@@ -119,11 +133,18 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
           out to the right and then slid the tab in from the right — a panel leaving and another
           arriving, where the design is one panel going deeper. Switching the content in place
           keeps the panel still. */}
-      <Drawer open={open} onClose={handleCloseAll} anchor='right'>
+      <Drawer
+        open={open}
+        onClose={handleCloseAll}
+        anchor='right'
+        aria-labelledby={barTitle ? titleId : undefined}
+        aria-label={barTitle ? undefined : currentRow?.title}
+      >
         {currentTab === '' ? (
           <List sx={{ width: PANEL_WIDTH, paddingTop: '0px' }}>
             <PanelHeader
-              title='Community Settings'
+              title={MENU_TITLE}
+              titleId={titleId}
               handleClose={handleClose as () => void}
               // Settings has no design of its own saying otherwise, so it keeps the cross it had;
               // the back arrow is what the create-channel design asks for.
@@ -157,7 +178,8 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             heading as well; now the bar carries it and they do not repeat it. */}
             <Box data-testid={'close-tab-button-box'} width={PANEL_WIDTH}>
               <PanelHeader
-                title={currentRow?.titleInPanel ? '' : (currentRow?.title ?? 'Settings')}
+                title={barTitle}
+                titleId={titleId}
                 titleTestId={currentRow?.titleTestId}
                 handleClose={handleCloseTab}
                 leading={'back'}

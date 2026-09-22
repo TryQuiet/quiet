@@ -41,22 +41,8 @@ describe('CopyLink', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1s63py4-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1cx9yxu-MuiGrid-root"
           >
-            <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item InviteToCommunitytitleDiv css-89gxc5-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-item InviteToCommunitytitle css-13i4rnv-MuiGrid-root"
-              >
-                <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
-                  data-testid="invite-a-friend"
-                >
-                  Add Members
-                </h3>
-              </div>
-            </div>
             <div
               class="MuiGrid-root MuiGrid-item InviteToCommunitywrapper css-13i4rnv-MuiGrid-root"
             >
@@ -156,22 +142,8 @@ describe('CopyLink', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1s63py4-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1cx9yxu-MuiGrid-root"
           >
-            <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item InviteToCommunitytitleDiv css-89gxc5-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-item InviteToCommunitytitle css-13i4rnv-MuiGrid-root"
-              >
-                <h3
-                  class="MuiTypography-root MuiTypography-h3 css-ts8dj1-MuiTypography-root"
-                  data-testid="invite-a-friend"
-                >
-                  Add Members
-                </h3>
-              </div>
-            </div>
             <div
               class="MuiGrid-root MuiGrid-item InviteToCommunitywrapper css-13i4rnv-MuiGrid-root"
             >
@@ -247,6 +219,28 @@ describe('CopyLink', () => {
       </body>
     `)
   })
+  it('leaves the title to the drawer bar rather than repeating it in the panel', () => {
+    const result = renderComponent(
+      <InviteComponent
+        invitationLink={'https://tryquiet.org/join#abc'}
+        handleClickInputReveal={jest.fn()}
+        revealInputValue={true}
+      />
+    )
+
+    // The drawer bar above this panel already says "Add Members", as a heading (the Add members
+    // sheet 2932:3709 draws the title in the bar and starts the body at the copy), so the panel
+    // draws no title of its own.
+    expect(result.queryByTestId('invite-a-friend')).toBeNull()
+    expect(result.queryByText('Add Members')).toBeNull()
+    expect(result.queryAllByRole('heading', { level: 3 })).toHaveLength(0)
+
+    // What the panel does draw: the one section label, the link and the copy action.
+    expect(result.getByText('Your community link')).toBeTruthy()
+    expect(result.getByTestId('invitation-link').textContent).toBe('https://tryquiet.org/join#abc')
+    expect(result.getByTestId('copy-invitation-link')).toBeTruthy()
+  })
+
   it('renderComponent - not an admin', () => {
     const invitationLink = ''
     const result = renderComponent(
@@ -256,7 +250,7 @@ describe('CopyLink', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1s63py4-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1cx9yxu-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"

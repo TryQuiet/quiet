@@ -21,6 +21,7 @@ import { OpenInviteLinkComponent } from '../../Onboarding/OpenInviteLinkComponen
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
 import { QrScannerComponent } from '../../Onboarding/qrScanner/QrScannerComponent'
 import { createLogger } from '../../../logger'
+import { PASTE_LINK_HEADING } from '@quiet/common'
 
 const logger = createLogger('JoinCommunity')
 
@@ -214,7 +215,7 @@ const JoinCommunity = () => {
         ) : null}
         {step === 'pasteInviteLink' || step === 'pasteFromQrCode' ? (
           <PasteLinkComponent
-            heading={'Paste a link to Join'}
+            heading={PASTE_LINK_HEADING}
             open={joinCommunityModal.open}
             isConnectionReady={isConnected}
             revealInputValue={revealInputValue}

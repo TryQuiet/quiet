@@ -4,6 +4,8 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 
 import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
+import { Box } from '../ui'
+import PanelHeader, { PANEL_WIDTH } from '../ui/Panel/PanelHeader'
 
 import { InviteComponent } from './Tabs/Invite/Invite.component'
 
@@ -46,15 +48,10 @@ const Dummy: FC = () => {
   return <Typography>Dummy</Typography>
 }
 
+const noop = () => {}
+
 const Leave: FC = () => {
-  return (
-    <LeaveCommunityComponent
-      communityName={'Rockets'}
-      leaveCommunity={jest.fn()}
-      open={false}
-      handleClose={jest.fn()}
-    />
-  )
+  return <LeaveCommunityComponent communityName={'Rockets'} leaveCommunity={noop} open={false} handleClose={noop} />
 }
 
 const Invite: FC = () => {
@@ -93,6 +90,46 @@ const LinkedDevices: FC = () => (
     linkedDevices={settingsLinkedDevices}
   />
 )
+
+/**
+ * One tab in the chrome the drawer puts around it: the bar that titles it, then the tab's own
+ * content inset by 16. MUI's Drawer portals out of the story root, so the panels are drawn here
+ * without it; everything else is what `SettingsComponent` renders.
+ *
+ * `boxSizing: border-box` because the app gets it from the `CssBaseline` mounted in `Root`, which
+ * Storybook does not mount: without it the 375 body plus its 16 insets is 407 wide inside a 375
+ * frame, and a centred code reads 16 off centre - the story would contradict what it is here to
+ * show.
+ */
+const Panel: FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+  <Box width={PANEL_WIDTH} sx={{ border: '1px solid #E5E5E5', boxSizing: 'border-box' }}>
+    <PanelHeader title={title} handleClose={noop} leading={'back'} />
+    <Box p={2} width={PANEL_WIDTH} sx={{ boxSizing: 'border-box', '& *': { boxSizing: 'border-box' } }}>
+      {children}
+    </Box>
+  </Box>
+)
+
+/**
+ * The panels side by side, for reading the titles down the row: the bar carries each panel's
+ * name and no panel repeats it (Add members 2932:3709 draws the title in the bar and starts the
+ * body at the copy), and the QR code is centred on its column as the QR sheet draws it
+ * (2932:3707).
+ */
+export const Panels = () => (
+  <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', padding: 24 }}>
+    <Panel title='Add Members'>
+      <Invite />
+    </Panel>
+    <Panel title='QR Code'>
+      <QRCode />
+    </Panel>
+    <Panel title='Leave community'>
+      <Leave />
+    </Panel>
+  </div>
+)
+Panels.storyName = 'Panels — one title each'
 
 const args: SettingsComponentProps = {
   open: true,

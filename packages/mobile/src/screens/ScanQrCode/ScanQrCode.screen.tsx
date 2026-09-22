@@ -16,6 +16,7 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { confirmedDeviceLinkPayload } from '../../utils/deviceLinkConfirmation'
 import { createLogger } from '../../utils/logger'
 import { ScanQrCodeScreenProps } from './ScanQrCode.types'
+import { JOIN_WITH_QR_CODE_HEADING, SCAN_QR_CODE_HEADING, SCAN_QR_CODE_INTRO } from '@quiet/common'
 
 const logger = createLogger('ScanQrCodeScreen')
 
@@ -29,10 +30,10 @@ interface ScanQrCodeCopy {
 
 /** Title bar · intro per flow. Copy is the prototype's (sheets 2811:2460 and 2811:2587). */
 const COPY: Record<ScanQrCodeVariant, ScanQrCodeCopy> = {
-  join: { title: 'Join with QR code', pasteVariant: 'inviteLink', testID: 'join-qr-scanner' },
+  join: { title: JOIN_WITH_QR_CODE_HEADING, pasteVariant: 'inviteLink', testID: 'join-qr-scanner' },
   deviceLink: {
-    title: 'Scan QR code',
-    intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
+    title: SCAN_QR_CODE_HEADING,
+    intro: SCAN_QR_CODE_INTRO,
     pasteVariant: 'deviceLink',
     testID: 'link-devices-qr-scanner',
   },
@@ -40,7 +41,7 @@ const COPY: Record<ScanQrCodeVariant, ScanQrCodeCopy> = {
 
 /**
  * Join with QR code and Link devices → Scan QR code. A scanned code does exactly
- * what the same link pasted into "Paste a link to Join" does; when the camera
+ * what the same link pasted into "Paste a link to join" does; when the camera
  * cannot be used the sheet gives way to that paste form. The camera runs only
  * while this is the screen in front.
  */
