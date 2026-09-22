@@ -21,7 +21,7 @@ import {
   messages,
   generateMessageFactoryContentWithId,
 } from '@quiet/state-manager'
-import { Identity, MessageType, ChannelMessage, SocketEvents } from '@quiet/types'
+import { Identity, MessageType, ChannelMessage, SocketEvents, ChannelType } from '@quiet/types'
 
 import { DateTime } from 'luxon'
 
@@ -31,7 +31,7 @@ import { type Community, SocketActions } from '@quiet/types'
 jest.setTimeout(20_000)
 jest.mock('electron', () => {
   return {
-    ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+    ipcRenderer: { on: () => {}, removeListener: jest.fn(), send: jest.fn(), sendSync: jest.fn() },
     remote: {
       BrowserWindow: {
         getAllWindows: () => {
@@ -94,7 +94,9 @@ describe('Switch channels', () => {
           owner: alice.userId,
           id: name,
           public: isPublic,
+          type: ChannelType.CHANNEL,
         },
+        displayedName: name,
       })
     }
   })
@@ -247,7 +249,7 @@ describe('Switch channels', () => {
     const generalChannelLinkText = screen.getByTestId('general-channel-link-text')
 
     // Assert channel is selected and not highlighted
-    expect(generalChannelLink).toHaveClass('ChannelsListItemselected')
+    expect(generalChannelLink).toHaveClass('SidebarRowselected')
     expect(generalChannelLinkText).toHaveStyle('opacity: 0.7')
 
     await act(async () => {
@@ -255,7 +257,7 @@ describe('Switch channels', () => {
     })
 
     // Confirm nothing changed
-    expect(generalChannelLink).toHaveClass('ChannelsListItemselected')
+    expect(generalChannelLink).toHaveClass('SidebarRowselected')
     expect(generalChannelLinkText).toHaveStyle('opacity: 0.7')
 
     function* mockIncomingMessages(): Generator {

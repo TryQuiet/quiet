@@ -11,7 +11,7 @@ import red from '@mui/material/colors/red'
 
 import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 
-import type { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
+import { DisplayableMessage, DownloadStatus, MessageSendingStatus, MessageType } from '@quiet/types'
 
 import { NestedMessageContent } from './NestedMessageContent'
 import { ChannelLinkNavigation } from './TextMessage'
@@ -39,6 +39,7 @@ const classes = {
   broadcasted: `${PREFIX}broadcasted`,
   failed: `${PREFIX}failed`,
   avatar: `${PREFIX}avatar`,
+  authorLink: `${PREFIX}authorLink`,
   alignAvatar: `${PREFIX}alignAvatar`,
   moderation: `${PREFIX}moderation`,
   time: `${PREFIX}time`,
@@ -49,14 +50,18 @@ const classes = {
 }
 
 const StyledListItem = styled(ListItem)(({ theme }) => ({
+  // 'Message container' (library 4910:23935): avatar 36 r4 at x=16, name 16/26 w500 + time 14/20 #999999 8 apart,
+  // text 14/20, hover fill #F7F7F7 (4910:24211). Vertical padding 10/12 -> 8/12 on the grid.
   [`& .${classes.messageCard}`]: {
-    padding: '0 4px',
+    padding: 0,
   },
 
   [`&.${classes.wrapper}`]: {
+    paddingTop: theme.space.sm,
+    paddingBottom: theme.space.md,
     backgroundColor: theme.palette.background.default,
     '&:hover': {
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: theme.palette.colors.gray03,
     },
   },
 
@@ -73,16 +78,13 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   },
 
   [`& .${classes.username}`]: {
-    fontSize: 16,
-    fontWeight: 500,
-    marginTop: -4,
-    marginRight: 5,
+    marginRight: theme.space.sm,
   },
 
   [`& .${classes.statusIcon}`]: {
     color: theme.palette.colors.lightGray,
-    fontSize: 21,
-    marginLeft: theme.spacing(1),
+    fontSize: 20,
+    marginLeft: theme.space.sm,
   },
 
   [`& .${classes.broadcasted}`]: {
@@ -93,31 +95,36 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     color: red[500],
   },
 
+  // The author is a link to their profile; it only looks like one under the pointer, so an
+  // ordinary read of the conversation is undisturbed.
+  [`& .${classes.authorLink}`]: {
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+
   [`& .${classes.avatar}`]: {
-    minHeight: 40,
-    minWidth: 40,
-    marginRight: 10,
-    marginBottom: 4,
+    minHeight: 36,
+    minWidth: 36,
+    marginRight: theme.space.md,
+    marginBottom: 0,
     borderRadius: 4,
     backgroundColor: theme.palette.background.paper,
   },
 
   [`& .${classes.alignAvatar}`]: {
-    marginTop: 2,
-    marginLeft: 2,
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
   },
 
   [`& .${classes.moderation}`]: {
     cursor: 'pointer',
-    marginRight: 10,
+    marginRight: theme.space.md,
   },
 
   [`& .${classes.time}`]: {
-    color: theme.palette.colors.lightGray,
-    fontSize: 14,
-    marginTop: -2,
+    color: theme.palette.colors.gray40,
   },
 
   [`& .${classes.iconBox}`]: {
@@ -153,7 +160,6 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
       size={36}
       style={{
         borderRadius: '4px',
-        marginRight: '8px',
       }}
     />
   )
@@ -172,6 +178,8 @@ export interface BasicMessageProps {
   onMathMessageRendered?: () => void
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
+  /** Opens the author's profile. Absent where a profile cannot be reached, e.g. in tests. */
+  openUserProfile?: (userId: string) => void
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
@@ -188,6 +196,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   cancelDownload,
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,
+  openUserProfile,
 }) => {
   const messageDisplayData: DisplayableMessage = messages[0]
 
@@ -222,7 +231,15 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
                 ) : (
-                  <MessageProfilePhoto message={messageDisplayData} />
+                  // A message is where you most often meet someone, so the photo and the name lead
+                  // to their profile. An Info message is from Quiet itself and has nobody behind it.
+                  <span
+                    className={classNames({ [classes.authorLink]: openUserProfile != null })}
+                    onClick={() => openUserProfile?.(messageDisplayData.userId)}
+                    data-testid={`messageAuthorPhoto-${messageDisplayData.id}`}
+                  >
+                    <MessageProfilePhoto message={messageDisplayData} />
+                  </span>
                 )}
               </div>
             </Grid>
@@ -231,11 +248,15 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 <Grid container item xs alignItems='center' wrap='nowrap'>
                   <Grid item>
                     <Typography
+                      variant='h5'
                       color='textPrimary'
                       className={classNames({
                         [classes.username]: true,
                         [classes.pending]: pending,
+                        [classes.authorLink]: !infoMessage && openUserProfile != null,
                       })}
+                      onClick={() => !infoMessage && openUserProfile?.(messageDisplayData.userId)}
+                      data-testid={`messageAuthorName-${messageDisplayData.id}`}
                     >
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
@@ -253,6 +274,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   {status !== 'failed' && (
                     <Grid item>
                       <Typography
+                        variant='body2'
                         className={classNames({
                           [classes.time]: true,
                         })}
@@ -266,29 +288,30 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
               <Grid
                 container
                 direction='column'
-                style={{ marginTop: '-3px' }}
                 data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}
               >
-                {messages.map((message, index) => {
-                  const pending = pendingMessages[message.id] !== undefined
-                  const downloadStatus = downloadStatuses[message.id]
-                  return (
-                    <NestedMessageContent
-                      key={index}
-                      message={message}
-                      pending={pending}
-                      downloadStatus={downloadStatus}
-                      maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
-                      uploadedFileModal={uploadedFileModal}
-                      openUrl={openUrl}
-                      channelLinks={channelLinks}
-                      openContainingFolder={openContainingFolder}
-                      downloadFile={downloadFile}
-                      cancelDownload={cancelDownload}
-                      onMathMessageRendered={onMathMessageRendered}
-                    />
-                  )
-                })}
+                {messages
+                  .filter(message => message.type !== MessageType.Empty)
+                  .map((message, index) => {
+                    const pending = pendingMessages[message.id] !== undefined
+                    const downloadStatus = downloadStatuses[message.id]
+                    return (
+                      <NestedMessageContent
+                        key={index}
+                        message={message}
+                        pending={pending}
+                        downloadStatus={downloadStatus}
+                        maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
+                        uploadedFileModal={uploadedFileModal}
+                        openUrl={openUrl}
+                        channelLinks={channelLinks}
+                        openContainingFolder={openContainingFolder}
+                        downloadFile={downloadFile}
+                        cancelDownload={cancelDownload}
+                        onMathMessageRendered={onMathMessageRendered}
+                      />
+                    )
+                  })}
               </Grid>
             </Grid>
           </Grid>

@@ -14,6 +14,7 @@ import {
   DeleteChannelResponse,
   FileMetadata,
   MessageType,
+  MessagesLoadedPayload,
   PublicChannel,
   SocketActions,
   SocketEvents,
@@ -38,7 +39,7 @@ import { fileURLToPath } from 'url'
 import { LocalDbModule } from '../../local-db/local-db.module'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { createLogger } from '../../common/logger'
-import { ChannelsService } from './channels.service'
+import { ChannelsService, UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS } from './channels.service'
 import { SigChainService } from '../../auth/sigchain.service'
 import { CID } from 'multiformats/cid'
 import { SigChain } from '../../auth/sigchain'
@@ -133,7 +134,7 @@ describe('ChannelsService', () => {
     const invite = adminChain.invites.createUserInvite()
 
     const invitedChain = SigChain.createFromInvite({ seed: invite.seed }, adminChain.team!.id)
-    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: invitedChain.context })
+    const admission = InviteService.createMemberAdmission({ seed: invite.seed, context: invitedChain.localUserContext })
     adminChain.invites.admitMemberFromInvite(admission)
 
     const joinedChain = SigChain.joinForTesting(
@@ -318,6 +319,69 @@ describe('ChannelsService', () => {
   })
 
   describe('Channels', () => {
+    it.each([true, false])('stores encrypted own messages without mobile alerts (public=%s)', async isPublic => {
+      const originalBackend = process.env.BACKEND
+      const originalConnectionTime = process.env.CONNECTION_TIME
+      const stored: MessagesLoadedPayload[] = []
+      const notifications = jest.fn()
+      try {
+        process.env.BACKEND = 'mobile'
+        process.env.CONNECTION_TIME = String(Math.floor(Date.now() / 1000) - 1)
+        const response = await channelsService.handleCreateChannel({
+          name: 'new-channel',
+          public: isPublic,
+          teamId: sigChainService.team.id,
+        })
+        expect(response.status).toBe(ChannelOperationStatus.SUCCESS)
+        const createdChannel = response.channel!
+        channelsService.on(StorageEvents.MESSAGES_STORED, payload => stored.push(payload))
+        channelsService.on(StorageEvents.SEND_PUSH_NOTIFICATION, notifications)
+
+        const ownMessages = await Promise.all(
+          [MessageType.Info, MessageType.Basic].map(async type =>
+            factory.build<ChannelMessage>('ChannelMessage', {
+              channelId: createdChannel.id,
+              userId: aliceUserId,
+              createdAt: Math.floor(Date.now() / 1000),
+              type,
+              message: type === MessageType.Info ? 'Created #new-channel' : 'hello from the creator',
+            })
+          )
+        )
+        // Exercise real authenticated encryption, access control, OrbitDB append and update listeners.
+        // This is the same update path used when a pending local send completes after backgrounding.
+        for (const ownMessage of ownMessages) {
+          expect(await channelsService.sendMessage(ownMessage)).toBe(true)
+        }
+        await waitForExpect(() => {
+          expect(
+            stored
+              .flatMap(payload => payload.messages)
+              .map(item => item.id)
+              .sort()
+          ).toEqual(ownMessages.map(item => item.id).sort())
+        })
+        const loaded = await channelsService.getMessages(createdChannel.id)
+        expect(loaded?.isVerified).toBe(true)
+        expect(loaded?.messages.map(item => item.message).sort()).toEqual(ownMessages.map(item => item.message).sort())
+        const encrypted = await channelsService.channelsRepos.get(createdChannel.id)!.store.getEncryptedEntries()
+        expect(encrypted).toHaveLength(2)
+        for (const entry of encrypted) {
+          expect(entry.contents).toBeDefined()
+          expect(entry.encSignature.author.name).toBe(aliceUserId)
+          expect(entry).not.toHaveProperty('message')
+        }
+        // Wait for each async update handler to finish before asserting notification silence.
+        await new Promise(resolve => setImmediate(resolve))
+        expect(notifications).not.toHaveBeenCalled()
+      } finally {
+        if (originalBackend == null) delete process.env.BACKEND
+        else process.env.BACKEND = originalBackend
+        if (originalConnectionTime == null) delete process.env.CONNECTION_TIME
+        else process.env.CONNECTION_TIME = originalConnectionTime
+      }
+    })
+
     it('generates an opaque channel id and stores metadata encrypted', async () => {
       const payload: CreateChannelPayload = {
         name: 'secret-channel-name',
@@ -1271,6 +1335,191 @@ describe('ChannelsService', () => {
         malloryChain.user.userId,
         false
       )
+    })
+  })
+
+  describe('Undecryptable channel metadata retries', () => {
+    const buildPrivateChannelEntry = async (
+      id: string
+    ): Promise<{ entry: LogEntry<EncryptedAndSignedPayload>; roleName: string }> => {
+      const activeChain = sigChainService.getActiveChain()
+      const privateChannel: PublicChannel = {
+        id,
+        name: id,
+        description: 'private channel metadata',
+        owner: aliceUserId,
+        timestamp: Date.now(),
+        public: false,
+        teamId: community.teamId!,
+        roleName: activeChain.channels.create(),
+      }
+
+      return {
+        entry: channelPutEntry(privateChannel.id, channelsService.encryptChannelEntry(privateChannel)),
+        roleName: privateChannel.roleName!,
+      }
+    }
+
+    const retryTimer = (): NodeJS.Timeout | undefined => (channelsService as any).undecryptableEntryRetryTimer
+
+    // Reindexing also runs on sigchain updates, and building a private channel emits one;
+    // these tests are about the path that runs when nothing else happens.
+    const withoutSigchainListener = (): (() => void) => {
+      const listener = (channelsService as any).handleSigchainUpdated
+      sigChainService.off(SigchainEvents.UPDATED, listener)
+      return () => {
+        sigChainService.on(SigchainEvents.UPDATED, listener)
+      }
+    }
+
+    afterEach(() => {
+      ;(channelsService as any).cancelUndecryptableEntryRetry()
+    })
+
+    it('schedules a retry when a channel entry we belong to cannot be decrypted', async () => {
+      const { entry } = await buildPrivateChannelEntry('undecryptable-private-channel-id')
+      const activeChain = sigChainService.getActiveChain()
+      const decryptSpy = jest.spyOn(activeChain.crypto, 'decryptAndVerify').mockImplementation(() => {
+        throw new Error('Could not decrypt: no key found')
+      })
+
+      try {
+        expect(retryTimer()).toBeUndefined()
+
+        await expectChannelEntryValidation(entry, aliceUserId, false, 'private')
+
+        expect(retryTimer()).toBeDefined()
+      } finally {
+        decryptSpy.mockRestore()
+      }
+    })
+
+    it('does not schedule a retry for an entry that is simply invalid', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const forgedPrivateChannel: PublicChannel = {
+        id: 'never-retried-private-channel-id',
+        name: 'never-retried-private-channel',
+        description: 'forged private channel metadata',
+        owner: malloryChain.user.userId,
+        timestamp: Date.now(),
+        public: false,
+        roleName: RoleName.MEMBER,
+        teamId: community.teamId!,
+      }
+      const forgedEntry = malloryChain.crypto.encryptAndSign(forgedPrivateChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(forgedPrivateChannel.id, forgedEntry, 'never-retried-private-channel-metadata'),
+        malloryChain.user.userId,
+        false,
+        'private'
+      )
+
+      expect(retryTimer()).toBeUndefined()
+    })
+
+    // Phrased entirely in terms of behavior that exists either way, so it fails against
+    // unfixed code because the reindex never happens rather than because a helper is missing.
+    it('reindexes channel metadata on its own, with no sigchain or metadata activity', async () => {
+      const { entry } = await buildPrivateChannelEntry('self-healing-private-channel-id')
+      const activeChain = sigChainService.getActiveChain()
+      const decryptSpy = jest.spyOn(activeChain.crypto, 'decryptAndVerify').mockImplementation(() => {
+        throw new Error('Could not decrypt: no key found')
+      })
+      // Detached so that nothing but the retry itself can drive a reindex.
+      const detachSigchainListener = withoutSigchainListener()
+      const publicRetrySpy = jest.spyOn(channelsService.channels!, 'retryIndexingUnindexedEntries').mockResolvedValue()
+      const privateRetrySpy = jest
+        .spyOn(channelsService.privateChannels!, 'retryIndexingUnindexedEntries')
+        .mockResolvedValue()
+      // The sweep reindexes the direct message store too; a real traversal of it never
+      // settles under fake timers, which would hide everything after it.
+      const dmRetrySpy = jest
+        .spyOn(channelsService.directMessages!, 'retryIndexingUnindexedEntries')
+        .mockResolvedValue()
+      const broadcastSpy = jest.spyOn(channelsService, 'broadcastCurrentChannels').mockResolvedValue()
+
+      jest.useFakeTimers()
+      try {
+        await expectChannelEntryValidation(entry, aliceUserId, false, 'private')
+        // The key arrives; nothing about that is an event this service hears about.
+        decryptSpy.mockRestore()
+
+        expect(privateRetrySpy).not.toHaveBeenCalled()
+
+        await jest.advanceTimersByTimeAsync(UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS)
+
+        expect(publicRetrySpy).toHaveBeenCalledTimes(1)
+        expect(privateRetrySpy).toHaveBeenCalledTimes(1)
+        expect(dmRetrySpy).toHaveBeenCalledTimes(1)
+        expect(broadcastSpy).toHaveBeenCalled()
+
+        // Nothing was rejected during the sweep, so the sweep stops.
+        await jest.advanceTimersByTimeAsync(5 * UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS)
+
+        expect(privateRetrySpy).toHaveBeenCalledTimes(1)
+      } finally {
+        jest.useRealTimers()
+        decryptSpy.mockRestore()
+        publicRetrySpy.mockRestore()
+        privateRetrySpy.mockRestore()
+        dmRetrySpy.mockRestore()
+        broadcastSpy.mockRestore()
+        detachSigchainListener()
+      }
+    })
+
+    it('keeps retrying while entries still cannot be decrypted', async () => {
+      const { entry } = await buildPrivateChannelEntry('still-undecryptable-private-channel-id')
+      const activeChain = sigChainService.getActiveChain()
+      const decryptSpy = jest.spyOn(activeChain.crypto, 'decryptAndVerify').mockImplementation(() => {
+        throw new Error('Could not decrypt: no key found')
+      })
+      const detachSigchainListener = withoutSigchainListener()
+      // A real sweep re-validates the entry and rejects it again, which is what keeps the
+      // retry alive; validating it from inside the stubbed sweep stands in for that.
+      const reindexSpy = jest.spyOn(channelsService as any, 'reindexChannelMetadata').mockImplementation(async () => {
+        await channelsService.validatePrivateChannelMetadataEntry(entry)
+      })
+
+      jest.useFakeTimers()
+      try {
+        await expectChannelEntryValidation(entry, aliceUserId, false, 'private')
+
+        await jest.advanceTimersByTimeAsync(UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS)
+        expect(reindexSpy).toHaveBeenCalledTimes(1)
+
+        await jest.advanceTimersByTimeAsync(UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS)
+        expect(reindexSpy).toHaveBeenCalledTimes(2)
+        expect(retryTimer()).toBeDefined()
+      } finally {
+        jest.useRealTimers()
+        decryptSpy.mockRestore()
+        reindexSpy.mockRestore()
+        detachSigchainListener()
+      }
+    })
+
+    it('stops retrying when the channels service is closed', async () => {
+      const { entry } = await buildPrivateChannelEntry('closed-service-private-channel-id')
+      const activeChain = sigChainService.getActiveChain()
+      const decryptSpy = jest.spyOn(activeChain.crypto, 'decryptAndVerify').mockImplementation(() => {
+        throw new Error('Could not decrypt: no key found')
+      })
+
+      try {
+        await expectChannelEntryValidation(entry, aliceUserId, false, 'private')
+        expect(retryTimer()).toBeDefined()
+        ;(channelsService as any).cancelUndecryptableEntryRetry()
+
+        expect(retryTimer()).toBeUndefined()
+        expect((channelsService as any).undecryptableEntriesPending).toBe(false)
+      } finally {
+        decryptSpy.mockRestore()
+      }
     })
   })
 

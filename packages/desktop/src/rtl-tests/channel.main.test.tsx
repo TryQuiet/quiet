@@ -68,7 +68,7 @@ describe('PublicChannel', () => {
     window.Notification = notification
     jest.mock('electron', () => {
       return {
-        ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+        ipcRenderer: { on: () => {}, removeListener: jest.fn(), send: jest.fn(), sendSync: jest.fn() },
         remote: {
           BrowserWindow: {
             getAllWindows: () => {
@@ -414,8 +414,15 @@ describe('PublicChannel', () => {
     )
 
     const messageText = 'Hello!'
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
 
-    store.dispatch(messages.actions.sendMessage({ message: messageText }))
+    store.dispatch(
+      messages.actions.sendMessage({
+        message: messageText,
+        channelId,
+      })
+    )
 
     await act(async () => {})
 
@@ -464,6 +471,102 @@ describe('PublicChannel', () => {
     expect(await screen.findByText(messageText)).not.toHaveStyle('color:#B2B2B2')
   })
 
+  it('does not send a whitespace-only message as the first message in a new channel', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+
+    const community = await factory.create('Community')
+
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    await factory.create('UserProfile', {
+      userId: alice.userId,
+      nickname: alice.nickname,
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      store.dispatch(network.actions.addInitializedCommunity(community.id))
+    })
+
+    // The channel starts out empty - this is the exact case from the bug report
+    expect(publicChannels.selectors.currentChannelMessages(store.getState()).length).toBe(0)
+
+    const messageInput = screen.getByTestId('messageInput')
+
+    await userEvent.type(messageInput, ' ')
+    // Guard against the input silently swallowing the keystroke
+    expect((messageInput as HTMLTextAreaElement).value).toBe(' ')
+
+    await userEvent.type(messageInput, '{enter}')
+
+    await act(async () => {})
+
+    expect(publicChannels.selectors.currentChannelMessages(store.getState())).toEqual([])
+    expect(Object.values(publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())).length).toBe(
+      0
+    )
+  })
+
+  it('still sends a message that only looks blank but has content', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+
+    const community = await factory.create('Community')
+
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    await factory.create('UserProfile', {
+      userId: alice.userId,
+      nickname: alice.nickname,
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      store.dispatch(network.actions.addInitializedCommunity(community.id))
+    })
+
+    const messageInput = screen.getByTestId('messageInput')
+
+    // Four leading spaces are markdown-significant (code block) and must survive
+    await userEvent.type(messageInput, '    hi')
+    expect((messageInput as HTMLTextAreaElement).value).toBe('    hi')
+
+    await userEvent.type(messageInput, '{enter}')
+
+    await act(async () => {})
+
+    const sent = publicChannels.selectors.currentChannelMessages(store.getState())
+    expect(sent.length).toBe(1)
+    expect(sent[0].message).toBe('    hi')
+  })
+
   it("shows incoming message if it's not older than oldest message, and isn't the newest one", async () => {
     const { store, runSaga } = await prepareStore(
       {},
@@ -497,6 +600,7 @@ describe('PublicChannel', () => {
 
     for (const msg of messagesText) {
       const message = await baseTypesFactory.build('ChannelMessage', {
+        verified: true,
         createdAt: messagesText.indexOf(msg) + 1,
         channelId: generalId,
         userId: alice.userId,
@@ -786,7 +890,8 @@ describe('PublicChannel', () => {
         })
       } else if (action === SocketActions.SEND_MESSAGE) {
         const data = input[1] as ChannelMessage
-        const payload = data
+        // Model the backend's per-message transport verification marker.
+        const payload = { ...data, verified: true }
         return socket.socketClient.emit<MessagesLoadedPayload>(SocketEvents.MESSAGES_STORED, {
           messages: [withTransportVerification(payload)],
         })
@@ -834,7 +939,14 @@ describe('PublicChannel', () => {
       store
     )
 
-    store.dispatch(files.actions.attachFile(fileContent))
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
+    store.dispatch(
+      files.actions.attachFile({
+        ...fileContent,
+        channelId,
+      })
+    )
 
     await act(async () => {
       await new Promise(resolve => {
@@ -851,10 +963,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1012,12 +1124,12 @@ describe('PublicChannel', () => {
         "Communities/setCurrentCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1104,18 +1216,25 @@ describe('PublicChannel', () => {
       </>,
       store
     )
+    const channelId = publicChannels.selectors.currentChannelId(store.getState())
+    if (!channelId) throw new Error('no current channel')
     await act(async () => {
-      store.dispatch(files.actions.attachFile(fileContent))
+      store.dispatch(
+        files.actions.attachFile({
+          ...fileContent,
+          channelId,
+        })
+      )
     })
     // Confirm file component displays in HOSTED state
     expect(await screen.findByText('Show in folder')).toBeVisible()
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1177,6 +1296,7 @@ describe('PublicChannel', () => {
 
     const baseTypesFactory = await getBaseTypesFactory()
     const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
@@ -1231,10 +1351,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1292,6 +1412,7 @@ describe('PublicChannel', () => {
 
     const baseTypesFactory = await getBaseTypesFactory()
     const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
@@ -1345,10 +1466,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1415,6 +1536,7 @@ describe('PublicChannel', () => {
     }
 
     const message = await baseTypesFactory.build('ChannelMessage', {
+      verified: true,
       id: messageId,
       type: MessageType.File,
       message: '',
@@ -1493,10 +1615,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",

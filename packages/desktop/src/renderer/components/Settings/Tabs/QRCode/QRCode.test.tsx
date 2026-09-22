@@ -13,7 +13,7 @@ describe('QRCode', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1mgw62b-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-2pwor2-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -44,7 +44,7 @@ describe('QRCode', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <h5
-                    class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-h5 css-g8q9rb-MuiTypography-root"
                   >
                     Invitation QR code
                   </h5>
@@ -53,7 +53,7 @@ describe('QRCode', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                   >
                     This community QR code is private. If it is shared with someone, they can scan it with their camera to join this community.
                   </p>
@@ -72,13 +72,13 @@ describe('QRCode', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1mgw62b-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-2pwor2-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <h5
-                class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h5 css-g8q9rb-MuiTypography-root"
               >
                 Only admins can invite new members
               </h5>
@@ -87,7 +87,7 @@ describe('QRCode', () => {
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <p
-                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
               >
                 Only admins can invite new members to this community. Ask the community creator for a QR code to share.
               </p>

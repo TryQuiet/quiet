@@ -129,6 +129,8 @@ describe('ContextMenu component', () => {
             }
           >
             <View
+              accessibilityLabel="Close menu"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -161,6 +163,7 @@ describe('ContextMenu component', () => {
                   "opacity": 1,
                 }
               }
+              testID="context_menu_close"
             >
               <View
                 style={
@@ -287,19 +290,7 @@ describe('ContextMenu component', () => {
                   onLayout={[Function]}
                   style={null}
                 >
-                  <View
-                    style={
-                      [
-                        {
-                          "borderColor": "#F0F0F0",
-                          "borderTopWidth": 1,
-                        },
-                        {
-                          "borderBottomWidth": 0,
-                        },
-                      ]
-                    }
-                  >
+                  <View>
                     <View
                       accessibilityState={
                         {
@@ -342,8 +333,8 @@ describe('ContextMenu component', () => {
                             "display": "flex",
                             "flexDirection": "row",
                             "minHeight": 48,
-                            "paddingLeft": 20,
-                            "paddingRight": 20,
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
                             "paddingVertical": 11,
                             "width": "100%",
                           }
@@ -354,7 +345,7 @@ describe('ContextMenu component', () => {
                           style={
                             {
                               "display": "flex",
-                              "flex": 8,
+                              "flex": 1,
                               "flexDirection": "row",
                               "justifyContent": "flex-start",
                             }
@@ -384,6 +375,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -399,8 +391,8 @@ describe('ContextMenu component', () => {
                             {
                               "alignItems": "center",
                               "display": "flex",
-                              "flex": 1,
                               "flexDirection": "row",
+                              "flexShrink": 0,
                               "gap": 8,
                               "justifyContent": "flex-end",
                             }
@@ -424,6 +416,15 @@ describe('ContextMenu component', () => {
                         </View>
                       </View>
                     </View>
+                    <View
+                      style={
+                        {
+                          "backgroundColor": "#F0F0F0",
+                          "height": 1,
+                          "marginHorizontal": 16,
+                        }
+                      }
+                    />
                   </View>
                 </View>
                 <View
@@ -431,19 +432,7 @@ describe('ContextMenu component', () => {
                   onLayout={[Function]}
                   style={null}
                 >
-                  <View
-                    style={
-                      [
-                        {
-                          "borderColor": "#F0F0F0",
-                          "borderTopWidth": 1,
-                        },
-                        {
-                          "borderBottomWidth": 0,
-                        },
-                      ]
-                    }
-                  >
+                  <View>
                     <View
                       accessibilityState={
                         {
@@ -486,8 +475,8 @@ describe('ContextMenu component', () => {
                             "display": "flex",
                             "flexDirection": "row",
                             "minHeight": 48,
-                            "paddingLeft": 20,
-                            "paddingRight": 20,
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
                             "paddingVertical": 11,
                             "width": "100%",
                           }
@@ -498,7 +487,7 @@ describe('ContextMenu component', () => {
                           style={
                             {
                               "display": "flex",
-                              "flex": 8,
+                              "flex": 1,
                               "flexDirection": "row",
                               "justifyContent": "flex-start",
                             }
@@ -528,6 +517,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -543,8 +533,8 @@ describe('ContextMenu component', () => {
                             {
                               "alignItems": "center",
                               "display": "flex",
-                              "flex": 1,
                               "flexDirection": "row",
+                              "flexShrink": 0,
                               "gap": 8,
                               "justifyContent": "flex-end",
                             }
@@ -568,6 +558,15 @@ describe('ContextMenu component', () => {
                         </View>
                       </View>
                     </View>
+                    <View
+                      style={
+                        {
+                          "backgroundColor": "#F0F0F0",
+                          "height": 1,
+                          "marginHorizontal": 16,
+                        }
+                      }
+                    />
                   </View>
                 </View>
                 <View
@@ -575,19 +574,7 @@ describe('ContextMenu component', () => {
                   onLayout={[Function]}
                   style={null}
                 >
-                  <View
-                    style={
-                      [
-                        {
-                          "borderColor": "#F0F0F0",
-                          "borderTopWidth": 1,
-                        },
-                        {
-                          "borderBottomWidth": 1,
-                        },
-                      ]
-                    }
-                  >
+                  <View>
                     <View
                       accessibilityState={
                         {
@@ -630,8 +617,8 @@ describe('ContextMenu component', () => {
                             "display": "flex",
                             "flexDirection": "row",
                             "minHeight": 48,
-                            "paddingLeft": 20,
-                            "paddingRight": 20,
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
                             "paddingVertical": 11,
                             "width": "100%",
                           }
@@ -642,7 +629,7 @@ describe('ContextMenu component', () => {
                           style={
                             {
                               "display": "flex",
-                              "flex": 8,
+                              "flex": 1,
                               "flexDirection": "row",
                               "justifyContent": "flex-start",
                             }
@@ -672,6 +659,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -687,8 +675,8 @@ describe('ContextMenu component', () => {
                             {
                               "alignItems": "center",
                               "display": "flex",
-                              "flex": 1,
                               "flexDirection": "row",
+                              "flexShrink": 0,
                               "gap": 8,
                               "justifyContent": "flex-end",
                             }
@@ -712,6 +700,15 @@ describe('ContextMenu component', () => {
                         </View>
                       </View>
                     </View>
+                    <View
+                      style={
+                        {
+                          "backgroundColor": "#F0F0F0",
+                          "height": 1,
+                          "marginHorizontal": 16,
+                        }
+                      }
+                    />
                   </View>
                 </View>
               </View>
@@ -844,6 +841,8 @@ describe('ContextMenu component', () => {
             }
           >
             <View
+              accessibilityLabel="Close menu"
+              accessibilityRole="button"
               accessibilityState={
                 {
                   "busy": undefined,
@@ -876,6 +875,7 @@ describe('ContextMenu component', () => {
                   "opacity": 1,
                 }
               }
+              testID="context_menu_close"
             >
               <View
                 style={
@@ -1002,19 +1002,7 @@ describe('ContextMenu component', () => {
                   onLayout={[Function]}
                   style={null}
                 >
-                  <View
-                    style={
-                      [
-                        {
-                          "borderColor": "#F0F0F0",
-                          "borderTopWidth": 1,
-                        },
-                        {
-                          "borderBottomWidth": 0,
-                        },
-                      ]
-                    }
-                  >
+                  <View>
                     <View
                       accessibilityState={
                         {
@@ -1057,8 +1045,8 @@ describe('ContextMenu component', () => {
                             "display": "flex",
                             "flexDirection": "row",
                             "minHeight": 48,
-                            "paddingLeft": 20,
-                            "paddingRight": 20,
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
                             "paddingVertical": 11,
                             "width": "100%",
                           }
@@ -1069,7 +1057,7 @@ describe('ContextMenu component', () => {
                           style={
                             {
                               "display": "flex",
-                              "flex": 8,
+                              "flex": 1,
                               "flexDirection": "row",
                               "justifyContent": "flex-start",
                             }
@@ -1099,6 +1087,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -1114,8 +1103,8 @@ describe('ContextMenu component', () => {
                             {
                               "alignItems": "center",
                               "display": "flex",
-                              "flex": 1,
                               "flexDirection": "row",
+                              "flexShrink": 0,
                               "gap": 8,
                               "justifyContent": "flex-end",
                             }
@@ -1139,6 +1128,15 @@ describe('ContextMenu component', () => {
                         </View>
                       </View>
                     </View>
+                    <View
+                      style={
+                        {
+                          "backgroundColor": "#F0F0F0",
+                          "height": 1,
+                          "marginHorizontal": 16,
+                        }
+                      }
+                    />
                   </View>
                 </View>
                 <View
@@ -1146,19 +1144,7 @@ describe('ContextMenu component', () => {
                   onLayout={[Function]}
                   style={null}
                 >
-                  <View
-                    style={
-                      [
-                        {
-                          "borderColor": "#F0F0F0",
-                          "borderTopWidth": 1,
-                        },
-                        {
-                          "borderBottomWidth": 0,
-                        },
-                      ]
-                    }
-                  >
+                  <View>
                     <View
                       accessibilityState={
                         {
@@ -1201,8 +1187,8 @@ describe('ContextMenu component', () => {
                             "display": "flex",
                             "flexDirection": "row",
                             "minHeight": 48,
-                            "paddingLeft": 20,
-                            "paddingRight": 20,
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
                             "paddingVertical": 11,
                             "width": "100%",
                           }
@@ -1213,7 +1199,7 @@ describe('ContextMenu component', () => {
                           style={
                             {
                               "display": "flex",
-                              "flex": 8,
+                              "flex": 1,
                               "flexDirection": "row",
                               "justifyContent": "flex-start",
                             }
@@ -1243,6 +1229,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -1258,8 +1245,8 @@ describe('ContextMenu component', () => {
                             {
                               "alignItems": "center",
                               "display": "flex",
-                              "flex": 1,
                               "flexDirection": "row",
+                              "flexShrink": 0,
                               "gap": 8,
                               "justifyContent": "flex-end",
                             }
@@ -1283,6 +1270,15 @@ describe('ContextMenu component', () => {
                         </View>
                       </View>
                     </View>
+                    <View
+                      style={
+                        {
+                          "backgroundColor": "#F0F0F0",
+                          "height": 1,
+                          "marginHorizontal": 16,
+                        }
+                      }
+                    />
                   </View>
                 </View>
                 <View
@@ -1290,19 +1286,7 @@ describe('ContextMenu component', () => {
                   onLayout={[Function]}
                   style={null}
                 >
-                  <View
-                    style={
-                      [
-                        {
-                          "borderColor": "#F0F0F0",
-                          "borderTopWidth": 1,
-                        },
-                        {
-                          "borderBottomWidth": 1,
-                        },
-                      ]
-                    }
-                  >
+                  <View>
                     <View
                       accessibilityState={
                         {
@@ -1345,8 +1329,8 @@ describe('ContextMenu component', () => {
                             "display": "flex",
                             "flexDirection": "row",
                             "minHeight": 48,
-                            "paddingLeft": 20,
-                            "paddingRight": 20,
+                            "paddingLeft": 16,
+                            "paddingRight": 16,
                             "paddingVertical": 11,
                             "width": "100%",
                           }
@@ -1357,7 +1341,7 @@ describe('ContextMenu component', () => {
                           style={
                             {
                               "display": "flex",
-                              "flex": 8,
+                              "flex": 1,
                               "flexDirection": "row",
                               "justifyContent": "flex-start",
                             }
@@ -1387,6 +1371,7 @@ describe('ContextMenu component', () => {
                                     "textAlignVertical": "center",
                                   },
                                   {
+                                    "color": undefined,
                                     "lineHeight": 26,
                                   },
                                 ]
@@ -1402,8 +1387,8 @@ describe('ContextMenu component', () => {
                             {
                               "alignItems": "center",
                               "display": "flex",
-                              "flex": 1,
                               "flexDirection": "row",
+                              "flexShrink": 0,
                               "gap": 8,
                               "justifyContent": "flex-end",
                             }
@@ -1427,6 +1412,15 @@ describe('ContextMenu component', () => {
                         </View>
                       </View>
                     </View>
+                    <View
+                      style={
+                        {
+                          "backgroundColor": "#F0F0F0",
+                          "height": 1,
+                          "marginHorizontal": 16,
+                        }
+                      }
+                    />
                   </View>
                 </View>
               </View>

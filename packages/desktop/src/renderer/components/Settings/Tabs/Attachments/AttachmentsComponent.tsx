@@ -33,10 +33,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginBottom: 24,
   },
 
-  [`& .${classes.subtitle}`]: {
-    fontSize: 18,
-    lineHeight: '27px',
-  },
+  // Section subtitles are the title role (20/28 - the old 18/27); labels the body role.
+  [`& .${classes.subtitle}`]: {},
 
   [`& .${classes.radioDiv}`]: {
     marginLeft: 4,
@@ -57,8 +55,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
       color: theme.palette.colors.quietBlue,
     },
     '& .MuiTypography-body1': {
-      fontSize: '14px',
-      lineHeight: '25px',
+      fontSize: theme.typography.body2.fontSize,
+      lineHeight: theme.typography.body2.lineHeight,
     },
   },
 
@@ -67,7 +65,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.offset}`]: {
-    marginTop: 5,
+    marginTop: theme.space.xs,
   },
 
   [`& .${classes.spacing}`]: {
@@ -75,7 +73,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.label}`]: {
-    marginTop: 1,
     fontWeight: 500,
   },
 }))
@@ -155,12 +152,10 @@ export const AttachmentsComponent: React.FC<AttachmentsProps> = ({ maxAutodownlo
   return (
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
-        <Grid item className={classes.title}>
-          <Typography variant='h3'>Files and Images</Typography>
-        </Grid>
+        <Grid item className={classes.title}></Grid>
       </Grid>
       <Grid item>
-        <Typography variant='h5' className={classes.subtitle}>
+        <Typography variant='h4' className={classes.subtitle}>
           Auto-download...
         </Typography>
       </Grid>

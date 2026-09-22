@@ -16,6 +16,7 @@ jobs:
       DISPLAY: ":99.0"
       TEST_MODE: true
       IS_CI: true
+      LOCAL_TRANSPORT: "true"
 
     steps:
       - uses: actions/checkout@v5
@@ -81,32 +82,49 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: ENVFILE=.env.e2e.qss npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: ENVFILE=.env.e2e.qss bash ../../scripts/retry-network-command.sh npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
       - name: Run multiple clients with QSS test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test multipleClients.qss.test.ts
+        timeout-minutes: 25
+        run: cd packages/e2e-tests && npm run test multipleClients.qss.test.ts
 
       - name: Run multiple clients with QSS test (private channels)
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test multipleClients.privateChannels.qss.test.ts
+        timeout-minutes: 25
+        run: cd packages/e2e-tests && npm run test multipleClients.privateChannels.qss.test.ts
 
       - name: Run one client with QSS test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        timeout-minutes: 25
+        run: cd packages/e2e-tests && npm run test oneClient.qss.test.ts
+
+      - name: Run device linking with QSS test
+        timeout-minutes: 35
+        run: cd packages/e2e-tests && npm run test deviceLinking.qss.test.ts
+
+      - name: Run device linking direct message with QSS test
+        timeout-minutes: 35
+        run: cd packages/e2e-tests && npm run test deviceLinking.dms.qss.test.ts
+
+      # Keep the slower connection checks after the ordinary QSS suites.
+      # Tor runs in these clients, but relay access is blocked: only QSS is tested.
+      - name: Test QSS with asymmetric connection speeds
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iproute2 iptables iperf3
+          cd packages/e2e-tests
+          npm run test:network:qss
+
+      - name: Upload QSS network failure screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test oneClient.qss.test.ts
+          name: network-test-screenshots-qss
+          path: packages/e2e-tests/network-artifacts
+          if-no-files-found: ignore
 
       - name: Stop QSS docker
         if: always()

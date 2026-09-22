@@ -42,12 +42,24 @@ import { EncryptedAndSignedPayload, EncryptionScope, EncryptionScopeType } from 
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { isChannel } from '../../validation/validators'
-import { NotAMemberError } from './channels.errors'
+import { MissingChannelKeyError, NotAMemberError, isChannelEntryDecryptPending } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
 import { ChannelMetadataAccessController } from './orbitdb/ChannelMetadataAccessController'
 import crypto from 'crypto'
 import type { PrivateChannelMappings } from './channels.types'
+import { ChannelType, DMS_METADATA_STORE_NAME } from '@quiet/types'
 import { OrbitDbOp } from '../orbitDb/orbitdb.types'
+
+/**
+ * How often we re-attempt to index channel metadata entries that we couldn't decrypt yet.
+ *
+ * Reindexing is otherwise purely event-driven (a sigchain update or a channel metadata
+ * update), so a device that is short a role key waits for unrelated activity that a quiet
+ * community may never produce. The sweep runs only while at least one entry is still
+ * undecryptable and stops as soon as they all index, so a healthy community never pays for
+ * it. See https://github.com/TryQuiet/quiet/issues/3563.
+ */
+export const UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS = 60_000
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -60,6 +72,7 @@ export class ChannelsService extends EventEmitter {
   // Channel metadata store
   public channels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   public privateChannels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  public directMessages: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   private fileManagerEventsAttached = false
   private sigchainListenerAttached = false
   private channelCreationPromises: Map<string, Promise<ChannelStore>> = new Map()
@@ -67,15 +80,13 @@ export class ChannelsService extends EventEmitter {
     store: KeyValueIndexedValidatedType<EncryptedAndSignedPayload>
     handler: (entry: LogEntry<EncryptedAndSignedPayload>) => void
   }> = []
+  // Set when a metadata entry is rejected because membership or key material hasn't
+  // arrived yet, and cleared by a sweep in which nothing is rejected that way again.
+  private undecryptableEntriesPending = false
+  private undecryptableEntryRetryTimer: NodeJS.Timeout | undefined
   private readonly handleSigchainUpdated = async (): Promise<void> => {
-    if (!this.channels || !this.privateChannels) {
-      return
-    }
-
     try {
-      await this.channels.retryIndexingUnindexedEntries()
-      await this.privateChannels.retryIndexingUnindexedEntries()
-      await this.broadcastCurrentChannels()
+      await this.reindexChannelMetadata()
     } catch (e) {
       this.logger.warn('Error when attempting to reindex on sigchain update', e)
     }
@@ -134,6 +145,7 @@ export class ChannelsService extends EventEmitter {
     }
     OrbitDbService.updateMetadata(this.channels, { ...metadata, isPublic: true })
     OrbitDbService.updateMetadata(this.privateChannels, { ...metadata, isPublic: false })
+    if (this.directMessages) OrbitDbService.updateMetadata(this.directMessages, { ...metadata, isPublic: false })
     for (const repo of this.channelsRepos.values()) {
       repo.store.updateMetadata(metadata)
     }
@@ -158,6 +170,7 @@ export class ChannelsService extends EventEmitter {
   public async startSync(): Promise<void> {
     await this.channels?.sync.start()
     await this.privateChannels?.sync.start()
+    await this.directMessages?.sync.start()
     this.logger.info(`Started syncing channels management database`)
   }
 
@@ -167,6 +180,7 @@ export class ChannelsService extends EventEmitter {
   public async stopSync(): Promise<void> {
     await this.channels?.sync.stop()
     await this.privateChannels?.sync.stop()
+    await this.directMessages?.sync.stop()
   }
 
   // Channels Database Management
@@ -181,9 +195,16 @@ export class ChannelsService extends EventEmitter {
     this.logger.info('Creating channels database')
     this.channels = await this.openChannelsDb()
     this.privateChannels = await this.openPrivateChannelsDb()
+    this.directMessages = await this.openMetadataDb(
+      DMS_METADATA_STORE_NAME,
+      false,
+      this.validateDirectMessageMetadataEntry,
+      true
+    )
 
     this.attachChannelMetadataUpdateHandler(this.channels)
     this.attachChannelMetadataUpdateHandler(this.privateChannels)
+    this.attachChannelMetadataUpdateHandler(this.directMessages)
 
     if (!this.sigchainListenerAttached) {
       this.sigchainService.on(SigchainEvents.UPDATED, this.handleSigchainUpdated)
@@ -249,6 +270,73 @@ export class ChannelsService extends EventEmitter {
     await this.broadcastCurrentChannels()
   }
 
+  /**
+   * Re-run indexing on every channel metadata store and republish the result.
+   *
+   * Entries that failed validation were never marked indexed, so this is how a device
+   * picks up a channel it couldn't read the first time around. The direct message store is
+   * optional because it is only opened once secure DMs are available.
+   */
+  private async reindexChannelMetadata(): Promise<void> {
+    if (!this.channels || !this.privateChannels) {
+      return
+    }
+
+    await this.channels.retryIndexingUnindexedEntries()
+    await this.privateChannels.retryIndexingUnindexedEntries()
+    await this.directMessages?.retryIndexingUnindexedEntries()
+    await this.broadcastCurrentChannels()
+  }
+
+  /**
+   * Record that an entry couldn't be decrypted yet and make sure a retry is pending.
+   */
+  private markUndecryptableEntry(): void {
+    this.undecryptableEntriesPending = true
+    this.scheduleUndecryptableEntryRetry()
+  }
+
+  private scheduleUndecryptableEntryRetry(): void {
+    if (this.undecryptableEntryRetryTimer != null) {
+      return
+    }
+
+    this.undecryptableEntryRetryTimer = setTimeout(() => {
+      this.undecryptableEntryRetryTimer = undefined
+      void this.retryUndecryptableEntries()
+    }, UNDECRYPTABLE_ENTRY_RETRY_INTERVAL_MS)
+    this.undecryptableEntryRetryTimer.unref?.()
+  }
+
+  private cancelUndecryptableEntryRetry(): void {
+    if (this.undecryptableEntryRetryTimer != null) {
+      clearTimeout(this.undecryptableEntryRetryTimer)
+      this.undecryptableEntryRetryTimer = undefined
+    }
+    this.undecryptableEntriesPending = false
+  }
+
+  private async retryUndecryptableEntries(): Promise<void> {
+    if (!this.undecryptableEntriesPending) {
+      return
+    }
+
+    // Cleared before the sweep: validation sets it again for any entry that still can't be
+    // decrypted, so the loop keeps going exactly as long as something is waiting on a key.
+    this.undecryptableEntriesPending = false
+    try {
+      await this.reindexChannelMetadata()
+    } catch (e) {
+      this.logger.warn('Error when retrying channel metadata entries that could not be decrypted', e)
+      this.undecryptableEntriesPending = true
+    }
+
+    if (this.undecryptableEntriesPending) {
+      this.logger.info('Channel metadata entries are still waiting on membership or keys, will retry')
+      this.scheduleUndecryptableEntryRetry()
+    }
+  }
+
   private async openChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
     return await this.openMetadataDb(PUBLIC_CHANNEL_METADATA_STORE_NAME, true, this.validatePublicChannelMetadataEntry)
   }
@@ -264,13 +352,15 @@ export class ChannelsService extends EventEmitter {
   private async openMetadataDb(
     dbName: string,
     isPublic: boolean,
-    validateFunc: typeof this.validatePublicChannelMetadataEntry | typeof this.validatePrivateChannelMetadataEntry
+    validateFunc: typeof this.validatePublicChannelMetadataEntry | typeof this.validatePrivateChannelMetadataEntry,
+    isDirectMessage = false
   ): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
     const accessController = this.channelMetadataAccessController.createAccessControllerFunc({
       write: ['*'],
       sigchainService: this.sigchainService,
       isPublic,
       getPrivateChannelsByRolename: this.getPrivateChannelsByRolename,
+      isDirectMessage,
     })
     orbitDbUseAccessController(accessController as any)
     return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(dbName, {
@@ -283,6 +373,7 @@ export class ChannelsService extends EventEmitter {
   public encryptChannelEntry(payload: PublicChannel): EncryptedAndSignedPayload {
     try {
       const chain = this.sigchainService.getActiveChain()
+      if (payload.type === ChannelType.DM) return chain.directMessages.descriptor(payload.id)
       let scope: EncryptionScope = {
         type: EncryptionScopeType.ROLE,
         name: RoleName.MEMBER,
@@ -311,6 +402,11 @@ export class ChannelsService extends EventEmitter {
       throw new Error(`No active chain`)
     }
 
+    if (payload.encrypted.scope.type === EncryptionScopeType.DM_DESCRIPTOR) {
+      const channel = chain.directMessages.openDescriptor(payload, id ?? payload.encrypted.scope.name!)
+      if (!channel) throw new NotAMemberError(id)
+      return channel
+    }
     if (
       payload.encrypted.scope.type === EncryptionScopeType.ROLE &&
       payload.encrypted.scope.name != null &&
@@ -324,8 +420,10 @@ export class ChannelsService extends EventEmitter {
       const decryptedPayload = chain.crypto.decryptAndVerify<PublicChannel>(payload.encrypted, payload.signature)
       return decryptedPayload.contents
     } catch (err) {
+      // We are a member of the scope, so this is key material we don't have (yet) rather
+      // than an entry we should write off.
       this.logger.error('Failed to decrypt channel entry:', err)
-      throw err
+      throw new MissingChannelKeyError(id, err)
     }
   }
 
@@ -677,6 +775,19 @@ export class ChannelsService extends EventEmitter {
     return this.validateChannelMetadataEntry(entry, false, this.privateChannels)
   }
 
+  public async validateDirectMessageMetadataEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    try {
+      if (entry.payload.op !== OrbitDbOp.PUT || !entry.payload.key || !entry.payload.value) return false
+      const writer = await this.getVerifiedChannelEntryWriter(entry, OrbitDbOp.PUT)
+      const chain = this.sigchainService.getActiveChain()
+      if (!writer || writer.teamId !== chain.team!.id || writer.id !== entry.payload.value.userId) return false
+      chain.directMessages.validateDescriptor(entry.payload.value, entry.payload.key)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   private async validateChannelMetadataEntry(
     entry: LogEntry<EncryptedAndSignedPayload>,
     expectedPublic: boolean | undefined,
@@ -686,6 +797,7 @@ export class ChannelsService extends EventEmitter {
       if (entry.payload.op === OrbitDbOp.PUT) {
         const encPayload = entry.payload.value!
         const decEntry = this.decryptChannelEntry(encPayload)
+        if (decEntry.type === ChannelType.DM || decEntry.id?.startsWith('dm_')) return false
         if (!isChannel(decEntry)) {
           this.logger.error('Decrypted channel entry is not a valid channel:', entry.hash, decEntry)
           return false
@@ -705,8 +817,9 @@ export class ChannelsService extends EventEmitter {
         )
       }
     } catch (err) {
-      if (err instanceof NotAMemberError || err.message.startsWith('Not a member of this channel')) {
-        this.logger.warn(`Failed to decrypt and validate private channel entry, ignoring...`)
+      if (isChannelEntryDecryptPending(err)) {
+        this.logger.warn(`Failed to decrypt and validate private channel entry, will retry...`, entry.hash)
+        this.markUndecryptableEntry()
         return false
       }
       this.logger.error('Failed to validate channel entry:', entry.hash, err)
@@ -763,6 +876,10 @@ export class ChannelsService extends EventEmitter {
   }
 
   private getMetadataStoreForChannel(channel: PublicChannel): KeyValueIndexedValidatedType<EncryptedAndSignedPayload> {
+    if (channel.type === ChannelType.DM) {
+      if (!this.directMessages) throw new Error('Direct messages have not been initialized')
+      return this.directMessages
+    }
     if (channel.public === false) {
       if (this.privateChannels == null) {
         throw new Error('Private channels have not been initialized!')
@@ -798,7 +915,7 @@ export class ChannelsService extends EventEmitter {
       try {
         return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
       } catch (e) {
-        if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
+        if (isChannelEntryDecryptPending(e)) {
           this.logger.warn(`Failed to decrypt and validate private channel entry during getChannel, ignoring...`, id)
         } else {
           this.logger.error('Failed to decrypt channel entry', e)
@@ -815,6 +932,7 @@ export class ChannelsService extends EventEmitter {
     if (this.privateChannels != null) {
       stores.push(this.privateChannels)
     }
+    if (this.directMessages) stores.push(this.directMessages)
     return stores
   }
 
@@ -845,7 +963,7 @@ export class ChannelsService extends EventEmitter {
           this.logger.debug('Decrypting channel entry', x.key)
           channelsById.set(x.key, this.decryptChannelEntry(x.value, x.key))
         } catch (e) {
-          if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
+          if (isChannelEntryDecryptPending(e)) {
             this.logger.warn(
               `Failed to decrypt and validate private channel entry during getChannels, ignoring...`,
               x.key
@@ -974,6 +1092,15 @@ export class ChannelsService extends EventEmitter {
    * @returns Response containing metadata for new channel
    */
   public async handleCreateChannel(payload: CreateChannelPayload): Promise<CreateChannelResponse> {
+    if (payload.type === ChannelType.DM) {
+      const chain = this.sigchainService.getActiveChain()
+      if (payload.teamId !== chain.team!.id || !Array.isArray(payload.memberIds)) throw new Error('Invalid DM creation')
+      const channel = chain.directMessages.create(payload.memberIds)
+      await this.createChannel(channel)
+      await this.ensureChannelSubscription(channel)
+      await this.broadcastCurrentChannels()
+      return { status: ChannelOperationStatus.SUCCESS, channel }
+    }
     const id = await this.generateChannelId()
     const sigChain = this.sigchainService.getActiveChain()
     const channelData: PublicChannel = {
@@ -1137,6 +1264,7 @@ export class ChannelsService extends EventEmitter {
       this.logger.error(`Channel ${channelId} not found`)
       return { channelId, deleted: true } as DeleteChannelResponse
     }
+    if (channel.type === ChannelType.DM) return { channelId, deleted: false }
     const iCanDeleteChannel =
       (channel.public ?? true)
         ? this.sigchainService.activeChain.channels.canIDeletePublicChannel()
@@ -1188,7 +1316,7 @@ export class ChannelsService extends EventEmitter {
       return { channelId, status: AddMembersChannelStatus.CHANNEL_MISSING }
     }
 
-    if (channel.public ?? true) {
+    if (channel.type === ChannelType.DM || (channel.public ?? true)) {
       this.logger.error(`Attempted to add members to public channel ${channelId}`)
       return { channelId, status: AddMembersChannelStatus.INVALID_CHANNEL_TYPE }
     }
@@ -1237,7 +1365,7 @@ export class ChannelsService extends EventEmitter {
    * @param message Message to send
    */
   public async sendMessage(message: ChannelMessage): Promise<boolean> {
-    this.logger.info('Sending message', message)
+    this.logger.info('Sending message', message.id)
     let repo = this.channelsRepos.get(message.channelId)
     if (!repo?.subscribed) {
       const channel = await this.getChannel(message.channelId)
@@ -1357,6 +1485,11 @@ export class ChannelsService extends EventEmitter {
    * @emits IpfsFilesManagerEvents.ATTACH_FILE
    */
   public async attachFile(metadata: FileMetadata): Promise<void> {
+    if (metadata.message.channelId.startsWith('dm_')) {
+      const channel = await this.getChannel(metadata.message.channelId)
+      if (channel?.type !== ChannelType.DM) throw new Error('DM is unavailable')
+      this.sigchainService.getActiveChain().directMessages.channel(channel.id)
+    }
     this.filesManager.emit(IpfsFilesManagerEvents.ATTACH_FILE, metadata)
   }
 
@@ -1424,18 +1557,22 @@ export class ChannelsService extends EventEmitter {
    * Close the channels management database on OrbitDB and each channel's DB
    */
   public async closeChannels(): Promise<void> {
+    this.cancelUndecryptableEntryRetry()
     this.detachChannelMetadataUpdateHandlers()
     this.channelCreationPromises.clear()
     const channels = this.channels
     const privateChannels = this.privateChannels
+    const directMessages = this.directMessages
     const channelsRepos = this.channelsRepos
     this.channels = undefined
     this.privateChannels = undefined
+    this.directMessages = undefined
     this.channelsRepos = new Map()
 
     this.logger.info('Closing channels DB')
     await this.closeMetadataStore('public', channels)
     await this.closeMetadataStore('private', privateChannels)
+    await this.closeMetadataStore('direct', directMessages)
     this.logger.info('Closed channels DB')
 
     this.logger.info(`Closing each channel's DB`)
@@ -1479,19 +1616,23 @@ export class ChannelsService extends EventEmitter {
    */
   public async clean(): Promise<void> {
     this.initialized = false
+    this.cancelUndecryptableEntryRetry()
     this.detachFileManagerEvents()
     this.detachChannelMetadataUpdateHandlers()
     this.channelCreationPromises.clear()
     const channels = this.channels
     const privateChannels = this.privateChannels
+    const directMessages = this.directMessages
     const channelsRepos = this.channelsRepos
     this.channels = undefined
     this.privateChannels = undefined
+    this.directMessages = undefined
     this.channelsRepos = new Map()
 
     this.logger.info('Cleaning channels DB')
     await this.cleanMetadataStore('public', channels)
     await this.cleanMetadataStore('private', privateChannels)
+    await this.cleanMetadataStore('direct', directMessages)
 
     for (const [channelId, channel] of channelsRepos.entries()) {
       try {

@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals'
+
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 import { RoleName } from '..//roles/roles'
 import { UserService } from '../members/user.service'
-import { InviteService } from './invite.service'
+import { DEFAULT_DEVICE_INVITATION_VALID_FOR_MS, InviteService } from './invite.service'
 import { DeviceService } from '../members/device.service'
 import { base58 } from '@localfirst/crypto'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
@@ -72,12 +74,14 @@ describe('invites', () => {
 
     expect(isolatedSigChain.invites.isValidLongLivedUserInvite(legacyInvite.id)).toBe(false)
   })
-  it('should reject a long-lived invite after MEMBER keys rotate', () => {
+  it('should preserve a long-lived invite when disabled membership removal is refused', () => {
     const isolatedSigChain = SigChain.create()
     const invite = isolatedSigChain.invites.createLongLivedUserInvite()
-    isolatedSigChain.roles.revokeMembership(isolatedSigChain.user.userId, RoleName.MEMBER)
+    expect(() => isolatedSigChain.roles.revokeMembership(isolatedSigChain.user.userId, RoleName.MEMBER)).toThrow(
+      /removal and key rotation are disabled/i
+    )
 
-    expect(isolatedSigChain.invites.isValidLongLivedUserInvite(invite.id)).toBe(false)
+    expect(isolatedSigChain.invites.isValidLongLivedUserInvite(invite.id)).toBe(true)
   })
   it('admin should generate an invite seed and create a new user from it', () => {
     const invite = adminSigChain.invites.createUserInvite()
@@ -144,12 +148,28 @@ describe('invites', () => {
     }).toThrowError()
   })
   it('should invite device', () => {
+    const now = 1_700_000_000_000
+    const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(now)
     const newDevice = DeviceService.generateDeviceForUser(adminSigChain.user.userId)
-    const deviceInvite = adminSigChain.invites.createDeviceInvite()
-    const admission = InviteService.createDeviceAdmission({ seed: deviceInvite.seed, device: newDevice })
-    expect(admission.proof).toBeDefined()
-    expect(adminSigChain.invites.validateProof(admission.proof, admission.claim, admission.possessionProof)).toBe(true)
-    adminSigChain.invites.admitDeviceFromInvite(admission)
-    expect(adminSigChain.team!.hasDevice(newDevice.deviceId)).toBe(true)
+    try {
+      const deviceInvite = adminSigChain.invites.createDeviceInvite()
+      const storedInvite = adminSigChain.invites.getById(deviceInvite.id)
+      const admission = InviteService.createDeviceAdmission({ seed: deviceInvite.seed, device: newDevice })
+
+      expect(deviceInvite).toMatchObject({
+        expiresAt: now + DEFAULT_DEVICE_INVITATION_VALID_FOR_MS,
+        userId: adminSigChain.user.userId,
+        userName: adminSigChain.user.userName,
+      })
+      expect(storedInvite.expiration).toBe(deviceInvite.expiresAt)
+      expect(admission.proof).toBeDefined()
+      expect(adminSigChain.invites.validateProof(admission.proof, admission.claim, admission.possessionProof)).toBe(
+        true
+      )
+      adminSigChain.invites.admitDeviceFromInvite(admission)
+      expect(adminSigChain.team!.hasDevice(newDevice.deviceId)).toBe(true)
+    } finally {
+      dateNowSpy.mockRestore()
+    }
   })
 })

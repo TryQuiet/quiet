@@ -197,15 +197,15 @@ export class QSSClient extends EventEmitter {
 
     const onConnect = (): void => {
       this.logger.debug('QSS connected!', socket.id)
-      this.emit(QSSEvents.QSS_CONNECTED)
       this.captchaVerified = false
+      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
+      this.emit(QSSEvents.QSS_CONNECTED)
     }
 
     const onDisconnect = (): void => {
       this.logger.debug('QSS disconnected!')
-      this.emit(QSSEvents.QSS_DISCONNECTED)
-      this.captchaVerified = false
       this._closeSocket(socket)
+      this.emit(QSSEvents.QSS_DISCONNECTED)
     }
 
     // forward Quiet websocket events from the socket connection to the client's own emitter
@@ -244,6 +244,7 @@ export class QSSClient extends EventEmitter {
       this._clientSocketEndpoint = undefined
     }
     this.captchaVerified = false
+    this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
 
     if (wasConnected) {
       this.emit(QSSEvents.QSS_DISCONNECTED)
@@ -330,14 +331,16 @@ export class QSSClient extends EventEmitter {
         return true
       } else {
         this.logger.warn(`hCaptcha token verification with QSS failed: ${response?.reason ?? 'no reason provided'}`)
-        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
+        this.captchaService.hcaptchaToken = null
         this.captchaVerified = false
+        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
         return false
       }
     } catch (e) {
       this.logger.error('Error while verifying hCaptcha token with QSS', e)
-      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
+      this.captchaService.hcaptchaToken = null
       this.captchaVerified = false
+      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
       return false
     }
   }
@@ -386,6 +389,9 @@ export class QSSClient extends EventEmitter {
   private handleErrors(response?: BaseWebsocketMessage<object | undefined>): void {
     if (response?.reason === CaptchaErrorMessages.CATCHA_VERIFICATION_REQUIRED) {
       this.captchaVerified = false
+      // Invalidate the renderer before requesting another token. Otherwise Redux
+      // skips the new challenge while the desktop IPC path still opens its window.
+      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
       this.emit(QSSEvents.QSS_CAPTCHA_REQUIRED)
     }
   }

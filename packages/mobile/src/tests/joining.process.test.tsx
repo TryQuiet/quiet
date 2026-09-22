@@ -1,18 +1,20 @@
 import React from 'react'
 import '@testing-library/jest-native/extend-expect'
-import { screen, fireEvent, act } from '@testing-library/react-native'
+import { screen, fireEvent, act, waitFor } from '@testing-library/react-native'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../setupTests'
 import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
 import { FactoryGirl } from 'factory-girl'
-import { getReduxStoreFactory, communities, identity, connection } from '@quiet/state-manager'
+import { getReduxStoreFactory, communities, identity, connection, errors } from '@quiet/state-manager'
 import { ScreenNames } from '../const/ScreenNames.enum'
-import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
+import { AppHomeScreen } from '../screens/AppHome/AppHome.screen'
 import { ConnectionProcessScreen } from '../screens/ConnectionProcess/ConnectionProcess.screen'
+import { TOR_STATUS } from '../components/ConnectionProcess/ConnectionProcess.component'
 import { UsernameRegistrationScreen } from '../screens/UsernameRegistration/UsernameRegistration.screen'
-import { ConnectionProcessInfo } from '@quiet/types'
+import { ConnectionProcessInfo, ErrorMessages, SocketActions } from '@quiet/types'
 import { createLogger } from '../utils/logger'
+import { navigationActions } from '../store/navigation/navigation.slice'
 
 // Mocked because ConnectionProcessScreen now indirectly imports react-native-share
 // via the dev/alpha-only "Share logs" link helper (sendLogs).
@@ -42,7 +44,7 @@ describe('Joining process', () => {
     renderComponent(
       <>
         <ConnectionProcessScreen />
-        <ChannelListScreen />
+        <AppHomeScreen />
       </>,
       store
     )
@@ -57,17 +59,22 @@ describe('Joining process', () => {
 
     expect(connectionProcessScreen).toBeVisible()
 
+    // A Tor community: the bar's status names the transport and the phase the app
+    // reports moves to the line under it (Figma 1316:34596).
     const processText = screen.getByTestId('connection-process-text')
-    expect(processText.props.children).toEqual(ConnectionProcessInfo.CONNECTION_STARTED)
+    expect(processText.props.children).toEqual(TOR_STATUS)
+    const phase = screen.getByTestId('connection-process-secondary')
+    expect(phase.props.children).toEqual(ConnectionProcessInfo.CONNECTION_STARTED)
 
     store.dispatch(
       connection.actions.setConnectionProcess({ info: ConnectionProcessInfo.INITIALIZING_IPFS, isOwner: true })
     )
     await act(async () => {})
 
-    const processText2 = screen.getByTestId('connection-process-text')
-    logger.info(processText2.props)
-    expect(processText2.props.children).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
+    const phase2 = screen.getByTestId('connection-process-secondary')
+    logger.info(phase2.props)
+    expect(phase2.props.children).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
+    expect(screen.getByTestId('connection-process-text').props.children).toEqual(TOR_STATUS)
 
     await act(async () => {})
 
@@ -103,7 +110,7 @@ describe('Joining process', () => {
 
     expect(registrationScreen).toBeVisible()
 
-    const input = screen.getByPlaceholderText('Enter a username')
+    const input = screen.getByPlaceholderText('Username')
     expect(input).toBeVisible()
 
     fireEvent.changeText(input, userName)
@@ -123,8 +130,30 @@ describe('Joining process', () => {
     expect(connectionProcessScreen).toBeVisible()
 
     const processText = screen.getByTestId('connection-process-text')
-    expect(processText.props.children).toEqual('Connecting process started')
+    expect(processText.props.children).toEqual(TOR_STATUS)
+    expect(screen.getByTestId('connection-process-secondary').props.children).toEqual('Connecting process started')
     // Stop state-manager sagas
     root?.cancel()
+  })
+
+  test('invalid device invite requests backend cleanup before resetting onboarding', async () => {
+    const { store } = await prepareStore()
+    factory = await getReduxStoreFactory(store)
+    const community = await factory.create('Community')
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+    renderComponent(<ConnectionProcessScreen />, store)
+
+    act(() => {
+      store.dispatch(
+        errors.actions.addError({
+          type: SocketActions.LAUNCH_COMMUNITY,
+          message: ErrorMessages.INVALID_INVITE,
+          community: community.id,
+        })
+      )
+    })
+
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.resetAdmission(community.id)))
+    expect(dispatchSpy).not.toHaveBeenCalledWith(communities.actions.resetApp(undefined))
   })
 })

@@ -24,7 +24,7 @@ describe('OpenlinkModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -50,8 +50,8 @@ describe('OpenlinkModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
+                    style="margin-left: 56px;"
                   />
                 </div>
                 <div
@@ -62,7 +62,8 @@ describe('OpenlinkModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      aria-label="Close"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                       data-testid="ModalClose"
                       tabindex="0"
                       type="button"
@@ -78,9 +79,6 @@ describe('OpenlinkModal', () => {
                           d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                         />
                       </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
                     </button>
                   </div>
                 </div>
@@ -105,7 +103,7 @@ describe('OpenlinkModal', () => {
                       style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px;"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1bweu1d-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1rk6po4-MuiGrid-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-67pqv6-MuiGrid-root"
@@ -115,7 +113,7 @@ describe('OpenlinkModal', () => {
                             src="test-file-stub"
                           />
                           <h2
-                            class="MuiTypography-root MuiTypography-h2 OpenlinkModaltitle css-qahk46-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-h2 OpenlinkModaltitle css-1c2d2db-MuiTypography-root"
                           >
                             Watch out!
                           </h2>
@@ -127,7 +125,7 @@ describe('OpenlinkModal', () => {
                             class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                           >
                             <p
-                              class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                             >
                               Opening link posted in Quiet reveals data about you to your goverment, your Internet provider, the site you are visiting and, potentially, to whoever posted the link. Only open links from people you trust. If you are using Quiet to protect your anonymity, never open links.
                             </p>
@@ -265,7 +263,7 @@ describe('OpenlinkModal', () => {
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <button
-                                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge OpenlinkModalbuttonBack css-10kf9y4-MuiButtonBase-root-MuiButton-root"
+                                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge OpenlinkModalbuttonBack css-1lg8692-MuiButtonBase-root-MuiButton-root"
                                 tabindex="0"
                                 type="button"
                               >

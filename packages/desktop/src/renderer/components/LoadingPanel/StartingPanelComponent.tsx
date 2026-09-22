@@ -1,7 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import Modal from '../ui/Modal/Modal'
-import QuietLogo from '../../static/images/quiet-logo.png'
+import { logoIcon } from '../Onboarding/icons'
 import { Grid } from '@mui/material'
 
 const PREFIX = 'StartingPanelComponent'
@@ -30,11 +30,10 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
   [`& .${classes.image}`]: {
     width: '95px',
     height: '95px',
-    marginBottom: '58px',
+    marginBottom: theme.space.xxl + theme.space.xl,
   },
   [`& .${classes.heading2}`]: {
-    fontSize: '18px',
-    marginTop: '12px',
+    marginTop: theme.space.md,
   },
   [`& .${classes.link}`]: {
     color: theme.palette.colors.blue,
@@ -68,7 +67,8 @@ export interface StartingPanelComponentProps {
 
 const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({ open, handleClose }) => {
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
+    // No bar (as Get started and JoiningPanel): the frame's "Quiet" bar (2811:2770) is the window's own name on desktop.
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader>
       <StyledGrid container justifyContent='center' alignItems='center' className={classes.root}>
         <Grid
           container
@@ -77,7 +77,7 @@ const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({ open, h
           className={classes.contentWrapper}
           data-testid='startingPanelComponent'
         >
-          <img className={classes.image} src={QuietLogo} />
+          <img className={classes.image} src={logoIcon} alt='' aria-hidden />
         </Grid>
       </StyledGrid>
     </Modal>

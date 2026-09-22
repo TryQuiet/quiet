@@ -1,9 +1,13 @@
 import { InvitationData } from '@quiet/types'
+import type { PasteInviteLinkVariant } from '../../route.params'
 
 export interface JoinCommunityProps {
-  joinCommunityAction: (address: InvitationData) => void
-  redirectionAction: () => void
-  hasReceivedResponse: boolean
+  joinCommunityAction: (data: InvitationData) => void | Promise<void>
+  handleBackButton?: () => void
   invitationCode?: string
+  hasReceivedResponse: boolean
+  variant?: PasteInviteLinkVariant
   ready?: boolean
+  inputError?: string
+  onInputChange?: () => void
 }

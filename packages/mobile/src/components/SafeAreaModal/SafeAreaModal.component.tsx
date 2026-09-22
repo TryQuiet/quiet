@@ -1,6 +1,6 @@
 import React, { FC, ReactNode } from 'react'
-import { Modal, ModalProps, View, ViewStyle } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Modal, ModalProps, ViewStyle } from 'react-native'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 
 interface SafeAreaModalProps extends ModalProps {
   children: ReactNode
@@ -8,16 +8,15 @@ interface SafeAreaModalProps extends ModalProps {
 }
 
 /**
- * A Modal component that properly handles safe area insets for iOS devices with notches.
+ * A Modal component that handles system bars and display cutouts in its own window.
  * Always use this component instead of React Native's Modal directly.
  */
 export const SafeAreaModal: FC<SafeAreaModalProps> = ({ children, contentStyle, ...modalProps }) => {
-  // Get safe area insets to handle notched devices properly
-  const insets = useSafeAreaInsets()
-
   return (
     <Modal {...modalProps}>
-      <View style={[{ paddingTop: insets.top }, contentStyle]}>{children}</View>
+      <SafeAreaProvider>
+        <SafeAreaView style={[{ flex: 1 }, contentStyle]}>{children}</SafeAreaView>
+      </SafeAreaProvider>
     </Modal>
   )
 }
