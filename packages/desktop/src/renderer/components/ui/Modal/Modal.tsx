@@ -150,6 +150,7 @@ export const Modal: React.FC<IModalProps> = ({
   isTransparent = false,
   withoutHeader = false,
   withoutTitle = false,
+  closeAriaLabel = 'Close',
   cornerRadius,
   ...otherProps
 }) => {
@@ -233,7 +234,7 @@ export const Modal: React.FC<IModalProps> = ({
                         }
                       }}
                       dataTestId={`${testIdPrefix}ModalClose`}
-                      ariaLabel='Close'
+                      ariaLabel={closeAriaLabel}
                     >
                       <ClearIcon />
                     </IconButton>

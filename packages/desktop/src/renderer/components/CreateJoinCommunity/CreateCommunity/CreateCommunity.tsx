@@ -73,7 +73,7 @@ const CreateCommunity = () => {
     }
   }
 
-  const handleServerOfferClose = (useServer: boolean) => {
+  const handleServerOfferClose = (useServer: boolean, dontShowAgain: boolean) => {
     setShowServerOffer(false)
     if (pendingCommunityName) {
       const payload: CreateCommunityPayload = {
@@ -81,9 +81,18 @@ const CreateCommunity = () => {
         useServer,
       }
       logger.info('Creating community with payload:', payload)
+      // Nothing persists the preference yet - see TryQuiet/quiet#3644.
+      if (dontShowAgain) logger.info('User asked not to be shown the server offer again')
       dispatch(communities.actions.createCommunity(payload))
       createUsernameModal.handleOpen()
     }
+  }
+
+  // Want a server? (2922:10009) draws its bar glyph as a way back, not as a decision: it
+  // returns to the create form with the typed name still in it and creates nothing.
+  const handleServerOfferBack = () => {
+    setShowServerOffer(false)
+    setPendingCommunityName(null)
   }
 
   // Back arrow: return to Get started while there is nothing to go back into.
@@ -112,7 +121,13 @@ const CreateCommunity = () => {
           handleCommunityAction={handleCommunityAction}
         />
       </Modal>
-      {showServerOffer && <ServerOfferComponent open={showServerOffer} handleClose={handleServerOfferClose} />}
+      {showServerOffer && (
+        <ServerOfferComponent
+          open={showServerOffer}
+          handleClose={handleServerOfferClose}
+          handleBack={handleServerOfferBack}
+        />
+      )}
     </>
   )
 }
