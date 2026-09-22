@@ -25,8 +25,14 @@ const logger = createLogger('LinkDevices')
 
 type Step = 'entry' | 'display' | 'scan'
 
-/** Title bar text per step, from the prototype's frames (2811:2575, 2811:2601, 2811:2587). */
-const TITLES: Record<Step, string> = {
+/**
+ * The title the prototype's frames put in the bar (2811:2575, 2811:2601,
+ * 2811:2587). Every step here draws that same words as its own large heading —
+ * "Link devices", "Linked devices", "Scan QR code" — and a page with a heading
+ * gets no bar title, so the bar keeps only the back glyph and these are what it
+ * would have said.
+ */
+const HIDDEN_TITLES: Record<Step, string> = {
   entry: 'Link devices',
   display: 'QR code',
   scan: 'Scan QR code',
@@ -42,7 +48,9 @@ export const LinkDevices: React.FC = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
-  const linkDevicesModal = useModal(ModalName.linkDevicesModal)
+  // `returnTo`: where the back arrow goes when this was opened from Account recovery.
+  const linkDevicesModal = useModal<{ returnTo?: 'recoverAccount' }>(ModalName.linkDevicesModal)
+  const joinCommunityModal = useModal<{ step?: 'recoverAccount' }>(ModalName.joinCommunityModal)
   const getStartedModal = useModal(ModalName.getStartedModal)
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
@@ -58,6 +66,12 @@ export const LinkDevices: React.FC = () => {
   const handleBack = () => {
     if (step !== 'entry') {
       setStep('entry')
+      return
+    }
+    if (linkDevicesModal.returnTo === 'recoverAccount') {
+      // Opened from Account recovery → "Use linked device": back returns there.
+      joinCommunityModal.handleOpen({ step: 'recoverAccount' })
+      linkDevicesModal.handleClose()
       return
     }
     if (!currentCommunity) getStartedModal.handleOpen()
@@ -96,7 +110,8 @@ export const LinkDevices: React.FC = () => {
       <Modal
         open={linkDevicesModal.open}
         handleClose={linkDevicesModal.handleClose}
-        title={TITLES[step]}
+        title={HIDDEN_TITLES[step]}
+        withoutTitle
         canGoBack
         handleBack={handleBack}
         alignCloseLeft

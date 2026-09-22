@@ -100,7 +100,7 @@ export const Sidebar = () => (
     title='Sidebar'
     source='Components/SidebarComponent → Reusable'
     width={320}
-    note='Channel rows are 14px at weight 300 with hardcoded 3px vertical padding — to migrate onto the tokens.'
+    note='Channel rows now take their type from the body token (14/20, weight 400) and their geometry from sidebarMetrics, which is where the library puts the 3px vertical padding — the sidebar is off the hardcoded values.'
     render={() => (
       <div style={{ height: 620, display: 'flex', alignItems: 'stretch' }}>
         {renderStory(SidebarStories.Reusable as unknown as StoryFn)}

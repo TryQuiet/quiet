@@ -1,48 +1,15 @@
 import React, { useState } from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 
-import Grid from '@mui/material/Grid'
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
+import { lightTheme, darkTheme } from '../../theme'
 
-import { withTheme } from '../../storybook/decorators'
-
-import SidebarComponent from './SidebarComponent'
-import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
-import { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
-import { TorStatusProps } from './TorStatus'
-import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
-import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
+import SidebarComponent, { SidebarComponentProps } from './SidebarComponent'
 import { ChannelType, CommunityOwnership } from '@quiet/types'
 import { generateDmChannelDisplayName } from '@quiet/common'
 
-const Template: ComponentStory<typeof SidebarComponent> = args => {
-  const [currentChannel, setCurrentChannel] = useState('general')
-
-  return (
-    <WindowWrapper>
-      <Grid
-        container
-        direction='row'
-        style={{
-          minHeight: '100vh',
-          minWidth: '100vw',
-          overflow: 'hidden',
-          position: 'relative',
-        }}
-      >
-        <Grid item>
-          <SidebarComponent {...args} setCurrentChannel={setCurrentChannel} currentChannelId={currentChannel} />
-        </Grid>
-      </Grid>
-    </WindowWrapper>
-  )
-}
-
-const args: IdentityPanelProps &
-  ChannelsPanelProps &
-  TorStatusProps &
-  UserProfilePanelProps &
-  DirectMessagesPanelProps = {
+const args: SidebarComponentProps = {
   currentCommunity: {
     name: 'rockets',
     id: 'rocketsCommunityId',
@@ -62,6 +29,16 @@ const args: IdentityPanelProps &
       owner: 'aliceUserId',
       timestamp: Date.now(),
       public: true,
+      type: ChannelType.CHANNEL,
+      teamId: 'foobar',
+    },
+    {
+      id: 'updates',
+      name: 'updates',
+      description: 'Private channel for updates',
+      owner: 'aliceUserId',
+      timestamp: Date.now(),
+      public: false,
       type: ChannelType.CHANNEL,
       teamId: 'foobar',
     },
@@ -91,6 +68,11 @@ const args: IdentityPanelProps &
     nickname: 'Alice',
     channels: [],
   },
+  userProfile: {
+    userId: 'aliceUserId',
+    nickname: 'Alice',
+    channels: [],
+  },
   userProfiles: {
     aliceUserId: {
       userId: 'aliceUserId',
@@ -110,9 +92,11 @@ const args: IdentityPanelProps &
   },
   // Presence now answers by user id, so a story says who is online instead of listing peer ids.
   isUserConnected: (userId: string | undefined) => userId === 'aliceUserId' || userId === 'bobUserId',
-  unreadChannels: ['spooky'],
+  // The baseline column is clean; `Unread` below is the story that carries badges.
+  unreadChannels: [],
+  dmChannels: [],
+  unreadDms: [],
   setCurrentChannel: function (_id: string): void {},
-  currentChannel: 'general',
   currentChannelId: 'general',
   createChannelModal: {
     open: false,
@@ -124,11 +108,26 @@ const args: IdentityPanelProps &
   openNewMessageWindow: function (): void {},
   // @ts-expect-error
   currentIdentity: {},
+  userId: 'aliceUserId',
   userProfileContextMenu: {
     visible: false,
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {},
   },
+}
+
+const Template: ComponentStory<typeof SidebarComponent> = storyArgs => {
+  const [currentChannel, setCurrentChannel] = useState(storyArgs.currentChannelId)
+
+  return (
+    <WindowWrapper>
+      {/* Fixed to the viewport so the column is flush with the window, as it is
+          in the app: Storybook's own body margin would otherwise inset it. */}
+      <div style={{ position: 'fixed', inset: 0, display: 'flex', overflow: 'hidden' }}>
+        <SidebarComponent {...storyArgs} setCurrentChannel={setCurrentChannel} currentChannelId={currentChannel} />
+      </div>
+    </WindowWrapper>
+  )
 }
 
 // Extra members so a DM title can be exercised well past the sidebar's width.
@@ -173,11 +172,41 @@ const dmChannelWith = (count: number) => {
   }
 }
 
+/** The V1 variant, `6218:16416` - the purple column, and the only one in scope. */
+export const Component = Template.bind({})
+Component.args = args
+Component.storyName = 'V1'
+
+/**
+ * Not a designed variant. V1 is purple only ("No dark mode yet", `6222:13638`),
+ * so this is just the app's dark theme keeping today's `sidebarBackground`; it
+ * is here to catch the column breaking under it, not to review it.
+ */
+export const UndesignedDarkTheme: ComponentStory<typeof SidebarComponent> = storyArgs => (
+  <StyledEngineProvider injectFirst>
+    <ThemeProvider theme={darkTheme}>
+      <Template {...storyArgs} />
+    </ThemeProvider>
+  </StyledEngineProvider>
+)
+UndesignedDarkTheme.args = args
+UndesignedDarkTheme.storyName = 'Dark theme (undesigned)'
+
+/** Unread channels carry the library's red badge; Quiet has no unread counts. */
+export const Unread = Template.bind({})
+Unread.args = { ...args, unreadChannels: ['spooky', 'updates'] }
+
+/** Without the create-channel permission the section header loses its (+). */
+export const WithoutCreateChannelPermission = Template.bind({})
+WithoutCreateChannelPermission.args = { ...args, canCreateChannel: false }
+
 /**
  * Direct messages of growing size in the real sidebar. Desktop does not shorten a DM title the way
  * mobile does (mobile renders "a, b and N more" via generateTruncatedDmTitle); it renders the full
- * generateDmChannelDisplayName string and lets CSS clip it — DirectMessageListItem styles .nickname
- * with maxWidth 150, nowrap and text-overflow: ellipsis. This story is here to make that reviewable.
+ * generateDmChannelDisplayName string and lets CSS clip it. The clipping now belongs to the shared
+ * `SidebarRow`, whose label is a flex child with `minWidth: 0`, `nowrap` and `text-overflow:
+ * ellipsis`, so a long title truncates at the column's 220px rather than at a fixed 150px. This
+ * story is here to make that reviewable, including the row that is a conversation with yourself.
  */
 export const DirectMessages = Template.bind({})
 DirectMessages.args = {
@@ -227,15 +256,19 @@ DesignReference.args = {
   openNewMessageWindow: () => {},
 }
 
-export const Component = Template.bind({})
-
-Component.args = args
-
 export const Reusable: ComponentStory<typeof SidebarComponent> = () => <SidebarComponent {...args} />
 
 const component: ComponentMeta<typeof SidebarComponent> = {
   title: 'Components/SidebarComponent',
-  decorators: [withTheme],
+  decorators: [
+    (Story: React.FC) => (
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={lightTheme}>
+          <Story />
+        </ThemeProvider>
+      </StyledEngineProvider>
+    ),
+  ],
   component: SidebarComponent,
   excludeStories: ['Reusable'],
 }

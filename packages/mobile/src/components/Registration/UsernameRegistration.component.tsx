@@ -86,7 +86,8 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
       testID={'username-registration-component'}
     >
       {isNewUser ? (
-        <Appbar title={'Create a community'} plain />
+        // Choose username (2811:2371) hides its bar title ("Create a community"); nothing to go back to here.
+        <Appbar withoutTitle plain />
       ) : (
         <Appbar title={'Username taken'} back={handleBackButton} crossBackIcon />
       )}
@@ -94,7 +95,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         behavior={Platform.select({ ios: 'padding', android: 'height' })}
         style={{
           flex: 1,
-          justifyContent: !isNewUser ? 'flex-start' : 'center',
+          paddingTop: isNewUser ? spacing.xl : 0,
           paddingLeft: spacing.lg,
           paddingRight: spacing.lg,
         }}

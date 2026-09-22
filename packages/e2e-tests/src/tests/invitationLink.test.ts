@@ -10,8 +10,7 @@ import {
   JoiningLoadingPanel,
 } from '../selectors'
 import { composeInvitationDeepUrl, parseInvitationLink } from '@quiet/common'
-import { execSync } from 'child_process'
-import { type SupportedPlatformDesktop } from '@quiet/types'
+import { deepLinkCommand, openDeepLink } from '../deepLink'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 
@@ -133,18 +132,13 @@ describe('New user joins using invitation link while having app opened', () => {
       // Extract code from copied invitation url
 
       const url = new URL(invitationLink)
-      const command = {
-        linux: 'xdg-open',
-        darwin: 'open',
-        win32: 'start',
-      }
 
       const copiedCode = url.hash.substring(1)
       expect(() => parseInvitationLink(copiedCode)).not.toThrow()
       const data = parseInvitationLink(copiedCode)
-      const commandFull = `${command[process.platform as SupportedPlatformDesktop]} ${process.platform === 'win32' ? '""' : ''} "${composeInvitationDeepUrl(data)}"`
+      const commandFull = deepLinkCommand(composeInvitationDeepUrl(data))
       logger.info(`Calling ${commandFull}`)
-      execSync(commandFull)
+      openDeepLink(commandFull)
       logger.info('Guest opened invitation link')
     })
 

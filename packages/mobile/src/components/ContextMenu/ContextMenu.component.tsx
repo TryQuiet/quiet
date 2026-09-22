@@ -95,7 +95,12 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 width: '100%',
               }}
             >
-              <TouchableOpacity onPress={handleClose}>
+              <TouchableOpacity
+                onPress={handleClose}
+                testID={'context_menu_close'}
+                accessibilityRole='button'
+                accessibilityLabel='Close menu'
+              >
                 <View
                   style={{
                     flex: 1,

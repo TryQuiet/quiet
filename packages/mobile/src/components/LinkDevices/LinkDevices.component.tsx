@@ -19,7 +19,8 @@ export const LinkDevices: FC<LinkDevicesProps> = ({
 }) => {
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'link-devices-component'}>
-      <Appbar title={'Link devices'} back={handleBackButton} />
+      {/* The screen's own h3 says "Link devices"; a page with a heading gets no bar title. */}
+      <Appbar withoutTitle back={handleBackButton} />
       <View style={{ flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl, gap: spacing.xl }}>
         <View style={{ gap: spacing.sm }}>
           <Typography variant={'h3'} horizontalTextAlign={'center'}>
