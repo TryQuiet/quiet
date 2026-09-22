@@ -1,6 +1,6 @@
 import React from 'react'
 import { act, fireEvent } from '@testing-library/react-native'
-import { Keyboard } from 'react-native'
+import { DeviceEventEmitter, Platform } from 'react-native'
 import { launchImageLibrary } from 'react-native-image-picker'
 import { communities, errors, files, messages, publicChannels, users } from '@quiet/state-manager'
 import { type PublicChannel } from '@quiet/types'
@@ -10,7 +10,6 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 
 const mockDispatch = jest.fn()
 const mockSelections = new Map()
-let mockKeyboardDidShow: () => void
 
 jest.mock('react-redux', () => ({
   useDispatch: () => mockDispatch,
@@ -22,6 +21,7 @@ jest.mock('../../hooks/useContextMenu', () => ({
 jest.mock('react-native-image-picker', () => ({ launchImageLibrary: jest.fn() }))
 
 describe('channel composer send context', () => {
+  const originalOS = Platform.OS
   const privateChannel: PublicChannel = {
     id: 'private-channel',
     name: 'same-name',
@@ -46,13 +46,17 @@ describe('channel composer send context', () => {
     mockSelections.set(publicChannels.selectors.currentChannelMessagesMergedBySender, {})
     mockSelections.set(initSelectors.isWebsocketConnected, true)
     mockSelections.set(communities.selectors.isOwner, true)
-    jest.spyOn(Keyboard, 'addListener').mockImplementation((event, listener) => {
-      if (event === 'keyboardDidShow') mockKeyboardDidShow = listener as () => void
-      return { remove: jest.fn() } as unknown as ReturnType<typeof Keyboard.addListener>
-    })
   })
 
   afterEach(() => {
+    act(() =>
+      DeviceEventEmitter.emit('keyboardDidHide', {
+        duration: 0,
+        easing: 'keyboard',
+        endCoordinates: { screenX: 0, screenY: 844, width: 390, height: 0 },
+      })
+    )
+    Platform.OS = originalOS
     jest.clearAllTimers()
     jest.useRealTimers()
     jest.restoreAllMocks()
@@ -71,25 +75,36 @@ describe('channel composer send context', () => {
   const attachedActions = () =>
     mockDispatch.mock.calls.map(([action]) => action).filter(action => files.actions.attachFile.match(action))
 
-  it('discards transient text and attachments when switching private to public with the same name', () => {
-    const view = renderComponent(<ChannelScreen />)
-    const privateInput = view.getByTestId('input')
-    fireEvent.changeText(privateInput, 'private draft')
-    attachImage(view, 'private-file')
+  it.each(['ios', 'android'] as const)(
+    'discards transient text and attachments when switching private to public with the same name on %s',
+    async os => {
+      Platform.OS = os
+      const view = renderComponent(<ChannelScreen />)
+      const privateInput = view.getByTestId('input')
+      fireEvent.changeText(privateInput, 'private draft')
+      attachImage(view, 'private-file')
 
-    mockSelections.set(publicChannels.selectors.currentChannel, publicChannel)
-    mockSelections.set(publicChannels.selectors.currentChannelId, publicChannel.id)
-    mockSelections.set(publicChannels.selectors.currentChannelName, publicChannel.name)
-    view.rerender(<ChannelScreen />)
-    act(() => mockKeyboardDidShow())
+      mockSelections.set(publicChannels.selectors.currentChannel, publicChannel)
+      mockSelections.set(publicChannels.selectors.currentChannelId, publicChannel.id)
+      mockSelections.set(publicChannels.selectors.currentChannelName, publicChannel.name)
+      view.rerender(<ChannelScreen />)
+      // Dispatch a real keyboard event instead of calling the removed composer spacer listener.
+      await act(async () =>
+        DeviceEventEmitter.emit(os === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', {
+          duration: 0,
+          easing: 'keyboard',
+          endCoordinates: { screenX: 0, screenY: 510, width: 390, height: 334 },
+        })
+      )
 
-    expect(view.getByTestId('input')).not.toBe(privateInput)
-    fireEvent.press(view.getByTestId('send_message_button'))
-    act(() => jest.advanceTimersByTime(50))
+      expect(view.getByTestId('input')).not.toBe(privateInput)
+      fireEvent.press(view.getByTestId('send_message_button'))
+      act(() => jest.advanceTimersByTime(50))
 
-    expect(sentActions()).toEqual([])
-    expect(attachedActions()).toEqual([])
-  })
+      expect(sentActions()).toEqual([])
+      expect(attachedActions()).toEqual([])
+    }
+  )
 
   it('keeps a delayed send with its original text, files and channel without clearing the new composer', () => {
     const view = renderComponent(<ChannelScreen />)
