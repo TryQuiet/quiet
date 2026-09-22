@@ -25,6 +25,23 @@ push-disabled fixture. It exercises the Appium selectors and peer coordination
 without provider credentials. Its receipt explicitly records
 `fullLoopPassed: false`; it is not a substitute for either provider test.
 
+## Automated hCaptcha enrollment
+
+Local onboarding already supports hCaptcha's public integration test keys through
+[the isolated QSS fixture](../../scripts/qss-e2e/README.md). The fixture configures
+both the test site key and matching server secret; its protocol probe checks that
+missing tokens are rejected and the official test token is accepted by QSS through
+hCaptcha's `siteverify` API. Use `.env.e2e.qss` and `test:onboarding` for this lane.
+This setup landed in [#3423](https://github.com/TryQuiet/quiet/pull/3423) and is
+already included in `11.2.0`.
+
+Provider tests use public staging, whose live secret cannot verify a test-key
+token. Their automated enrollment is the GitHub OIDC path added in
+[#3613](https://github.com/TryQuiet/quiet/pull/3613). Local operator-assisted
+staging enrollment below is optional; it does not replace the automated test-key
+lane. The local fixture disables push, so a successful onboarding run does not
+prove APNs/FCM delivery.
+
 ## Build and fixture
 
 Use a disposable device or emulator/simulator and the normal workspace setup.
