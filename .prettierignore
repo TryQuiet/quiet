@@ -1,0 +1,8 @@
+# The root .prettierrc pins parser=typescript for every file, so prettier over an
+# SVG rewrites it as TSX (it prepended an ASI ";" to more-horiz.svg and broke the
+# glyph, #3663). Never format assets.
+*.svg
+*.png
+*.jpg
+*.gif
+*.y4m
