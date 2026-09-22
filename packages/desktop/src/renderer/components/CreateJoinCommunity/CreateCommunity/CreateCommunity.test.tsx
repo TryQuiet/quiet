@@ -286,5 +286,25 @@ describe('Create community', () => {
         })
       )
     })
+
+    it("returns to the form with the name still typed when the offer's glyph goes back", async () => {
+      const { store } = await prepareStore(createModalOpen)
+      jest.spyOn(store, 'dispatch')
+
+      renderComponent(<CreateCommunity />, store)
+      const input = screen.getByPlaceholderText('Community name')
+      await userEvent.type(input, 'rockets')
+      await userEvent.click(screen.getByText('Continue'))
+
+      // The bar glyph is a way back (2922:10009), so nothing is created and nothing is decided.
+      await userEvent.click(await screen.findByTestId('ServerOfferModalClose'))
+
+      expect(store.dispatch).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: expect.stringContaining('createCommunity') })
+      )
+      expect(screen.queryByTestId('ServerOffer-UseQuietServer')).toBeNull()
+      // The form was never unmounted, so the name the user typed is still there to edit.
+      expect(screen.getByPlaceholderText('Community name')).toHaveValue('rockets')
+    })
   })
 })

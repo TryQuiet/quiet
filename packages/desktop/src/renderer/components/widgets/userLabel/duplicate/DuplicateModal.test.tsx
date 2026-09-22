@@ -21,7 +21,7 @@ describe('DuplicateModalComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           data-testid="duplicateModalComponent"
           role="presentation"
         >
@@ -49,7 +49,7 @@ describe('DuplicateModalComponent', () => {
                 >
                   <h6
                     class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle Modalbold css-1d2bvqm-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    style="margin-left: 56px;"
                   >
                     Warning!
                   </h6>
@@ -92,7 +92,7 @@ describe('DuplicateModalComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-1ohhbag-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-g251u7-MuiGrid-root"
                 >
                   <img
                     class="UserDuplicateModalComponent-image"

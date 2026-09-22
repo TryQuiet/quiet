@@ -126,7 +126,7 @@ describe('Direct messages across linked devices (QSS)', () => {
       const settings = await new Sidebar(app.driver).openSettings()
       expect(await settings.isReady()).toBeTruthy()
       await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-      const link = await (await settings.deviceLink()).getText()
+      const link = await settings.deviceLink()
       expect(link.length).toBeGreaterThan(0)
       await settings.closeTabThenModal()
       return link

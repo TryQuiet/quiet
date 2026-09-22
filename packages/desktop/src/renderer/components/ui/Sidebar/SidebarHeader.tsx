@@ -79,12 +79,7 @@ export interface SidebarHeaderProps {
  * `List title` from the Quiet Design Library: a section header on the sidebar's
  * purple column, with the section's (+) at its right edge.
  */
-export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
-  title,
-  action,
-  tooltipText,
-  actionTitle,
-}) => {
+export const SidebarHeader: React.FC<SidebarHeaderProps> = ({ title, action, tooltipText, actionTitle }) => {
   return (
     <StyledHeader className={classes.root}>
       <Typography variant='subtitle2' className={classes.title}>

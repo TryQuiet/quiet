@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { By } from 'selenium-webdriver'
 
 import {
   App,
@@ -13,6 +14,7 @@ import {
 } from '../selectors'
 import { SettingsModalTabName } from '../enums'
 import { createLogger } from '../logger'
+import { FAKE_CAMERA_FILE_ENV, fakeCameraFile, removeFakeCameraFile, writeQrY4m } from '../fakeCamera'
 
 const logger = createLogger('onboarding')
 const previousLocalTransport = process.env.LOCAL_TRANSPORT
@@ -37,6 +39,16 @@ const timeouts = {
   joinPanelVisible: 15_000,
   joinCompletion: 60_000,
 }
+
+// Chromium plays this clip as the camera (E2E_FAKE_CAMERA_FILE); it is written once the
+// link it must show exists, before that client starts.
+const joinCameraClip = fakeCameraFile('join')
+
+afterAll(() => {
+  removeFakeCameraFile(joinCameraClip)
+})
+
+const NOT_A_DEVICE_LINK_ERROR = 'This is not a device link. Use the link from Link devices on your other device.'
 
 async function closeAndCleanupApps(apps: App[]): Promise<void> {
   for (const app of [...apps].reverse()) {
@@ -90,7 +102,7 @@ async function getDeviceInvitation(app: App): Promise<string> {
   const settings = await new Sidebar(app.driver).openSettings()
   expect(await settings.isReady()).toBeTruthy()
   await settings.switchTab(SettingsModalTabName.LINKED_DEVICES)
-  const link = await (await settings.deviceLink()).getText()
+  const link = await settings.deviceLink()
   expect(link.length).toBeGreaterThan(0)
   await settings.closeTabThenModal()
   return link
@@ -154,17 +166,18 @@ describe('Onboarding', () => {
     }
   })
 
-  // Desktop has no camera, so the QR-code branch of the three-way choice lands on the
-  // same paste field. It is a second route into the join flow, not a second join, so it
-  // needs its own run to prove the branch reaches admission.
-  it('Get started → join with QR code → paste link → username', async () => {
-    const owner = new App({ username: 'onboarding-qr-owner' })
-    const joiner = new App({ username: 'onboarding-qr-member' })
+  it('Get started → Join with QR code → scan → username', async () => {
+    const owner = new App({ username: 'onboarding-scan-owner' })
+    const joiner = new App({
+      username: 'onboarding-scan-member',
+      environment: { [FAKE_CAMERA_FILE_ENV]: joinCameraClip },
+    })
     const apps = [owner, joiner]
 
     try {
-      await createCommunity(owner, `onbqr${Date.now().toString(36)}`, 'onboardingqrowner')
+      await createCommunity(owner, `onbscan${Date.now().toString(36)}`, 'scanowner')
       const invitation = await getMemberInvitation(owner)
+      writeQrY4m(invitation, joinCameraClip)
 
       await joiner.openWithRetries()
 
@@ -175,13 +188,14 @@ describe('Onboarding', () => {
       const joinModal = new JoinCommunityModal(joiner.driver)
       expect(await joinModal.isReady()).toBeTruthy()
       await joinModal.joinWithQrCode()
-      await joinModal.typeCommunityInviteLink(invitation)
-      await joinModal.submit()
+      // The camera sheet, not a paste field
+      expect(await joiner.driver.findElements(By.xpath("//*[@data-testid='paste-link-input']"))).toHaveLength(0)
 
+      // The scanned code takes the paste field's path: Choose username
       const registerModal = new RegisterUsernameModal(joiner.driver)
       expect(await registerModal.isReady()).toBeTruthy()
       await registerModal.clearInput()
-      await registerModal.typeUsername('onboardingqrmember')
+      await registerModal.typeUsername('scanmember')
       await registerModal.submit()
 
       await new JoiningLoadingPanel(joiner.driver).waitForJoinToComplete(
@@ -254,6 +268,7 @@ describe('Onboarding', () => {
   describe('device linking (multiplayer)', () => {
     const ownerUsername = 'onboardingdevices'
     const owner = new App({ username: `${ownerUsername}-primary` })
+    // B links by pasting the link (the Paste link row); the join scenario above covers the camera.
     const linkedDevice = new App({ username: `${ownerUsername}-linked` })
     const apps = [owner, linkedDevice]
 
@@ -261,8 +276,9 @@ describe('Onboarding', () => {
       await closeAndCleanupApps(apps)
     })
 
-    it('A creates a community and generates a device link; B links through Get started → Link devices', async () => {
+    it('A creates a community and generates a device link; B links through Get started → Link devices → Paste link', async () => {
       await createCommunity(owner, `onbdev${Date.now().toString(36)}`, ownerUsername)
+      const memberInvitation = await getMemberInvitation(owner)
       const deviceInvitation = await getDeviceInvitation(owner)
 
       await linkedDevice.openWithRetries()
@@ -272,8 +288,27 @@ describe('Onboarding', () => {
 
       const linkDevices = new LinkDevicesModal(linkedDevice.driver)
       expect(await linkDevices.isReady()).toBeTruthy()
-      // Desktop has no camera: "Scan QR code" takes the pasted device link
-      await linkDevices.scanQrCode()
+      // "Paste link" opens the paste step directly, not the camera
+      await linkDevices.pasteLink()
+      expect(
+        await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='link-devices-scanner-viewfinder']"))
+      ).toHaveLength(0)
+
+      // A member invitation is refused: the error shows under the input and nothing starts
+      await linkDevices.typeDeviceLink(memberInvitation)
+      await linkDevices.submit()
+      expect(await linkDevices.waitForPasteLinkError(NOT_A_DEVICE_LINK_ERROR)).toBe(NOT_A_DEVICE_LINK_ERROR)
+      expect(
+        await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='joiningPanelComponent']"))
+      ).toHaveLength(0)
+      expect(await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='paste-link-input']"))).toHaveLength(1)
+      // The refusal raised no consent sheet, because nothing was going to be linked.
+      expect(await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='device-link-consent']"))).toHaveLength(
+        0
+      )
+
+      // The real device link links this device, once its consent is given (submit confirms it)
+      await linkDevices.clearLink()
       await linkDevices.typeDeviceLink(deviceInvitation)
       await linkDevices.submit()
 

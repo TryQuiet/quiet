@@ -196,3 +196,10 @@ jest.mock('@react-native-clipboard/clipboard', () => ({
 export const ioMock = io as jest.Mock
 
 jest.resetAllMocks()
+
+// @react-native-clipboard/clipboard is a TurboModule with no jest binding; every screen that
+// copies (Link devices, the device-link QR screen, the invitation menu) would otherwise fail to load.
+jest.mock('@react-native-clipboard/clipboard', () => ({
+  setString: jest.fn(),
+  getString: jest.fn(async () => ''),
+}))

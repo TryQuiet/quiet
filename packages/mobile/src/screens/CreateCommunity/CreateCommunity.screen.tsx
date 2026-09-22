@@ -1,4 +1,5 @@
 import React, { FC, useCallback, useState } from 'react'
+import { StyleSheet, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
 import { CreateCommunityPayload, LaunchCommunityPayload } from '@quiet/types'
@@ -6,7 +7,7 @@ import { initSelectors } from '../../store/init/init.selectors'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { CreateCommunity } from '../../components/CreateCommunity/CreateCommunity.component'
-import ServerOfferDrawer from '../../components/ModalBottomDrawer/drawers/ServerOffer.drawer'
+import { ServerOffer } from '../../components/ServerOffer/ServerOffer.component'
 import Config from 'react-native-config'
 import { createLogger } from '../../utils/logger'
 
@@ -60,12 +61,14 @@ export const CreateCommunityScreen: FC = () => {
   )
 
   const handleServerOfferClose = useCallback(
-    (useServer: boolean, _dontShowAgain: boolean) => {
+    (useServer: boolean, dontShowAgain: boolean) => {
       if (pendingName) {
         const payload: CreateCommunityPayload = {
           name: pendingName,
           useServer,
         }
+        // Nothing persists the preference yet - see TryQuiet/quiet#3644.
+        if (dontShowAgain) logger.info('User asked not to be shown the server offer again')
         dispatch(communities.actions.createCommunity(payload))
         if (useServer) {
           dispatch(navigationActions.setPendingNavigation({ screen: ScreenNames.TermsOfServiceScreen }))
@@ -78,6 +81,13 @@ export const CreateCommunityScreen: FC = () => {
     [dispatch, pendingName]
   )
 
+  // Want a server? (2922:10009) draws its bar glyph as a way back, not as a decision: it
+  // returns to the create step and creates nothing.
+  const handleServerOfferBack = useCallback(() => {
+    setShowServerOffer(false)
+    setPendingName(null)
+  }, [])
+
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.replaceScreen({
@@ -86,15 +96,28 @@ export const CreateCommunityScreen: FC = () => {
     )
   }, [dispatch])
 
+  // Want a server? (2922:10009) is a screen of its own, not a sheet over the create step, so it
+  // covers the window while the offer is open. The form stays mounted underneath: the name the
+  // user typed is its own state, and going back has to return to it unchanged.
   return (
-    <>
-      <CreateCommunity
-        createCommunityAction={handleCommunityNameSubmit}
-        handleBackButton={handleBackButton}
-        networkCreated={networkCreated}
-        ready={isWebsocketConnected}
-      />
-      <ServerOfferDrawer visible={showServerOffer} onClose={handleServerOfferClose} showDontShowAgain={false} />
-    </>
+    <View style={{ flex: 1 }}>
+      <View
+        style={{ flex: 1 }}
+        accessibilityElementsHidden={showServerOffer}
+        importantForAccessibility={showServerOffer ? 'no-hide-descendants' : 'auto'}
+      >
+        <CreateCommunity
+          createCommunityAction={handleCommunityNameSubmit}
+          handleBackButton={handleBackButton}
+          networkCreated={networkCreated}
+          ready={isWebsocketConnected}
+        />
+      </View>
+      {showServerOffer && (
+        <View style={StyleSheet.absoluteFill}>
+          <ServerOffer onClose={handleServerOfferClose} onBack={handleServerOfferBack} showDontShowAgain={false} />
+        </View>
+      )}
+    </View>
   )
 }

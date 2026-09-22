@@ -3,8 +3,12 @@ import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
 import { Community, InvitationData, UserProfile, type ChannelType } from '@quiet/types'
 
-/** Which flow the paste screen belongs to; it sets the heading and the intro. */
-export type PasteInviteLinkVariant = 'inviteLink' | 'deviceLink'
+/**
+ * Which flow the paste screen belongs to; it sets the heading and the intro.
+ * `deviceLink` (the scanner's fallback) and `pasteDeviceLink` (the Paste link
+ * row on Link devices) accept device links only.
+ */
+export type PasteInviteLinkVariant = 'inviteLink' | 'deviceLink' | 'pasteDeviceLink'
 
 /** Which flow the scanner sheet belongs to: Join with QR code, or Link devices → Scan QR code. */
 export type ScanQrCodeVariant = 'join' | 'deviceLink'

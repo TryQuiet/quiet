@@ -39,7 +39,6 @@ export const CommunityContextMenu: FC = () => {
   }
 
   const communityContextMenu = useContextMenu(MenuName.Community)
-  const linkedDevicesContextMenu = useContextMenu(MenuName.LinkedDevices)
 
   const redirect = useCallback(
     (screen: ScreenNames) => {
@@ -66,7 +65,15 @@ export const CommunityContextMenu: FC = () => {
   // Add members and Create channel live on the Community home card now
   // (Figma: Community home 5446:76594); this menu keeps the rest.
   const items: ContextMenuItemProps[] = [
-    { title: 'Linked devices', action: () => linkedDevicesContextMenu.handleOpen() },
+    // The same full-screen Link devices stage Get started opens (Device-linking file, Entry points 879:14680).
+    // Add members is not here: #3529 moved it onto the Community home card.
+    {
+      title: 'Linked devices',
+      action: () => {
+        communityContextMenu.handleClose()
+        redirect(ScreenNames.LinkDevicesScreen)
+      },
+    },
     ...(Platform.OS === 'android' && Config.QSS_ALLOWED === 'true' && community?.qssEnabled === true
       ? [
           {
@@ -99,7 +106,7 @@ export const CommunityContextMenu: FC = () => {
 
   useEffect(() => {
     communityContextMenu.handleClose()
-  }, [screen, linkedDevicesContextMenu.visible])
+  }, [screen])
 
   return <ContextMenu title={title} items={items} {...communityContextMenu} />
 }

@@ -13,7 +13,15 @@ import type { ActionRowProps } from './ActionRow.types'
  * hairline below. Distances are spacing roles on the 4px grid and text styles
  * come from the type scale, so the row matches its desktop counterpart.
  */
-export const ActionRow: FC<ActionRowProps> = ({ icon, label, subtitle, onPress, disabled = false, testID }) => (
+export const ActionRow: FC<ActionRowProps> = ({
+  icon,
+  label,
+  subtitle,
+  onPress,
+  disabled = false,
+  divider = true,
+  testID,
+}) => (
   <TouchableOpacity
     onPress={onPress}
     disabled={disabled}
@@ -25,8 +33,8 @@ export const ActionRow: FC<ActionRowProps> = ({ icon, label, subtitle, onPress, 
       alignItems: 'center',
       gap: spacing.md,
       paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: defaultTheme.palette.typography.veryLightGray,
+      borderBottomWidth: divider ? 1 : 0,
+      borderBottomColor: defaultTheme.palette.border.hairline,
       opacity: disabled ? 0.4 : 1,
     }}
   >

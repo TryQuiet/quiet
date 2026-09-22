@@ -44,14 +44,14 @@ describe('QSS Onboarding', () => {
     })
 
     test('shows Server Offer and accepts it', async () => {
-      await waitFor(element(by.id('server-offer-drawer')))
+      await waitFor(element(by.id('server-offer-component')))
         .toBeVisible()
         .withTimeout(BASIC)
 
-      // Visual checkpoint of the drawer content
+      // Visual checkpoint of the Want a server? screen (2922:10009)
       await checkVisualRegression('server-offer-component')
 
-      await press(element(by.text('Add server')))
+      await press(element(by.id('server-offer-use-server')))
     })
 
     test('registers username and proceeds to ToS', async () => {
@@ -115,11 +115,11 @@ describe('QSS Onboarding', () => {
     })
 
     test('chooses Not now on Server Offer', async () => {
-      await waitFor(element(by.id('server-offer-drawer')))
+      await waitFor(element(by.id('server-offer-component')))
         .toBeVisible()
         .withTimeout(BASIC)
 
-      await press(element(by.text('Not now')))
+      await press(element(by.id('server-offer-not-now')))
     })
 
     test('registers username; ToS is not shown', async () => {

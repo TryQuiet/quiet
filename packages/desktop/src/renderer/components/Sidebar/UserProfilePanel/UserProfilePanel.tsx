@@ -90,11 +90,7 @@ export interface UserProfilePanelProps {
  * (`6218:16416`) — the signed-in user's avatar and name, pinned to the bottom of
  * the column. It opens the profile menu the app already has.
  */
-export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
-  userId,
-  userProfile,
-  userProfileContextMenu,
-}) => {
+export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({ userId, userProfile, userProfileContextMenu }) => {
   const username = userProfile?.nickname || ''
   return (
     <StyledUserProfilePanel className={classes.root}>

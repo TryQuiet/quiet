@@ -47,4 +47,4 @@ exports[`SidebarHeader renders the title and the section action 1`] = `
     </div>
   </div>
 </body>
-`;
+`
