@@ -1,12 +1,18 @@
+import { ipcMain, shell } from 'electron'
+
+import { CAMERA_OPEN_PRIVACY_SETTINGS } from '../shared/camera'
 import {
   applyFakeCameraSwitches,
   isAppPageUrl,
+  openCameraPrivacySettings,
   registerCameraPermissionHandlers,
+  registerCameraPrivacySettingsHandler,
   resolveCameraAccess,
 } from './cameraPermission'
 
 jest.mock('electron', () => ({
   ipcMain: { handle: jest.fn() },
+  shell: { openExternal: jest.fn() },
   systemPreferences: { askForMediaAccess: jest.fn(), getMediaAccessStatus: jest.fn() },
 }))
 
@@ -129,6 +135,70 @@ describe('resolveCameraAccess', () => {
     expect(await resolveCameraAccess('linux', prefs)).toEqual({ status: 'granted' })
     expect(prefs.askForMediaAccess).not.toHaveBeenCalled()
     expect(prefs.getMediaAccessStatus).not.toHaveBeenCalled()
+  })
+})
+
+const MAC_SETTINGS = 'x-apple.systempreferences:com.apple.preference.security?Privacy_Camera'
+const WINDOWS_SETTINGS = 'ms-settings:privacy-webcam'
+
+describe('openCameraPrivacySettings', () => {
+  it('opens the page each platform keeps the camera toggle on', async () => {
+    const openExternal = jest.fn<Promise<void>, [string]>().mockResolvedValue(undefined)
+    expect(await openCameraPrivacySettings('darwin', openExternal)).toBe(true)
+    expect(await openCameraPrivacySettings('win32', openExternal)).toBe(true)
+    expect(openExternal.mock.calls).toEqual([[MAC_SETTINGS], [WINDOWS_SETTINGS]])
+  })
+
+  it('opens nothing where there is no such page', async () => {
+    const openExternal = jest.fn<Promise<void>, [string]>().mockResolvedValue(undefined)
+    expect(await openCameraPrivacySettings('linux', openExternal)).toBe(false)
+    expect(await openCameraPrivacySettings('freebsd', openExternal)).toBe(false)
+    expect(openExternal).not.toHaveBeenCalled()
+  })
+
+  it('reports a refusal by the OS rather than throwing at the renderer', async () => {
+    const openExternal = jest.fn<Promise<void>, [string]>().mockRejectedValue(new Error('no handler for the scheme'))
+    expect(await openCameraPrivacySettings('darwin', openExternal)).toBe(false)
+  })
+})
+
+describe('registerCameraPrivacySettingsHandler', () => {
+  const handler = (platform: NodeJS.Platform) => {
+    ;(ipcMain.handle as jest.Mock).mockClear()
+    registerCameraPrivacySettingsHandler(platform)
+    const [channel, listener] = (ipcMain.handle as jest.Mock).mock.calls[0]
+    expect(channel).toBe(CAMERA_OPEN_PRIVACY_SETTINGS)
+    return listener as (event: unknown, ...args: unknown[]) => Promise<boolean>
+  }
+
+  beforeEach(() => {
+    ;(shell.openExternal as jest.Mock).mockReset().mockResolvedValue(undefined)
+  })
+
+  it.each([
+    ['darwin' as const, MAC_SETTINGS],
+    ['win32' as const, WINDOWS_SETTINGS],
+  ])('opens the %s page on the platform it was registered for', async (platform, url) => {
+    expect(await handler(platform)({})).toBe(true)
+    expect(shell.openExternal).toHaveBeenCalledWith(url)
+  })
+
+  it('answers false on Linux without opening anything', async () => {
+    expect(await handler('linux')({})).toBe(false)
+    expect(shell.openExternal).not.toHaveBeenCalled()
+  })
+
+  /**
+   * The channel is `shell.openExternal` seen from the renderer, so the URL must not be the
+   * renderer's to choose: a renderer running someone else's script could otherwise hand the
+   * OS anything. Whatever arrives with the request is ignored.
+   */
+  it('ignores any URL the renderer sends and opens the platform one', async () => {
+    expect(await handler('darwin')({}, 'https://example.com/', 'x-apple.systempreferences:com.apple.anything')).toBe(
+      true
+    )
+    expect(shell.openExternal).toHaveBeenCalledTimes(1)
+    expect(shell.openExternal).toHaveBeenCalledWith(MAC_SETTINGS)
   })
 })
 

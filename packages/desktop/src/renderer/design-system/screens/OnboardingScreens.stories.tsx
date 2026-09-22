@@ -337,8 +337,10 @@ const ScannerScreen: React.FC<
     note: string
     intro?: string
     camera: StoryCamera
+    /** Which OS the denied state names a setting for; Storybook is on none of them. */
+    platform?: NodeJS.Platform
   } & ScannerBar
-> = ({ title, bar, droppedBar, figma, note, intro, camera }) => {
+> = ({ title, bar, droppedBar, figma, note, intro, camera, platform }) => {
   const [decoded, setDecoded] = React.useState<string[]>([])
   const record = (entry: string) => setDecoded(list => [...list, entry])
   return (
@@ -352,6 +354,7 @@ const ScannerScreen: React.FC<
         render={() => (
           <QrScannerComponent
             intro={intro}
+            platform={platform}
             onDecoded={data => record(describeInvitation(data))}
             onUsePasteLink={() => record('→ Paste a link to join (the paste step)')}
           />
@@ -412,14 +415,39 @@ export const JoinWithQrCodeInvalid = () => (
   />
 )
 
+/**
+ * The refusal is stored by the OS, so the copy has to name the page the toggle is on and
+ * offer to open it — macOS shows its permission dialog once and Windows shows none at all.
+ * Three platforms, because the copy is the only thing that differs between them and Linux
+ * has no such page. Open settings is inert here: the IPC it calls needs a main process.
+ */
 export const JoinWithQrCodeDenied = () => (
-  <ScannerScreen
-    title='Join with QR code · camera denied'
-    droppedBar={JOIN_WITH_QR_CODE_HEADING}
-    figma='2811:2460'
-    note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
-    camera={{ kind: 'denied' }}
-  />
+  <>
+    <ScannerScreen
+      title='Join with QR code · camera denied · macOS'
+      droppedBar={JOIN_WITH_QR_CODE_HEADING}
+      figma='2811:2460'
+      note='no frame in the prototype for this state; Open settings opens System Settings → Privacy & Security → Camera, and the scanner asks the camera again when the window is refocused afterwards'
+      camera={{ kind: 'denied' }}
+      platform='darwin'
+    />
+    <ScannerScreen
+      title='Join with QR code · camera denied · Windows'
+      droppedBar={JOIN_WITH_QR_CODE_HEADING}
+      figma='2811:2460'
+      note='the same state naming the Windows page; Open settings opens Settings → Privacy & security → Camera'
+      camera={{ kind: 'denied' }}
+      platform='win32'
+    />
+    <ScannerScreen
+      title='Join with QR code · camera denied · Linux'
+      droppedBar={JOIN_WITH_QR_CODE_HEADING}
+      figma='2811:2460'
+      note='unchanged: Linux has no camera permission and no page to send anyone to, so the copy is the minimum and "Paste a link" is the only way on'
+      camera={{ kind: 'denied' }}
+      platform='linux'
+    />
+  </>
 )
 
 export const JoinWithQrCodeNoCamera = () => (

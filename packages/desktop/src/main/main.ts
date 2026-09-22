@@ -20,6 +20,7 @@ import {
   isAppPageUrl,
   registerCameraAccessRequestHandler,
   registerCameraPermissionHandlers,
+  registerCameraPrivacySettingsHandler,
 } from './cameraPermission'
 import { e2eCaptchaToken } from './e2eCaptchaToken'
 const ElectronStore = require('electron-store')
@@ -682,6 +683,7 @@ app.on('ready', async () => {
       isAppPageUrl(requestingUrl, path.join(__dirname, 'index.html'))
   )
   registerCameraAccessRequestHandler()
+  registerCameraPrivacySettingsHandler()
 
   mainWindow?.webContents.on('did-finish-load', () => {
     logger.info('Main window finished loading')
