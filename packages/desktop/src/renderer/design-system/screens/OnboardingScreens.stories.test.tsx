@@ -3,7 +3,15 @@ import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
+import {
+  CHOOSE_USERNAME_HEADING,
+  JOIN_WITH_QR_CODE_HEADING,
+  LINK_DEVICES_HEADING,
+  PASTE_LINK_HEADING,
+  SCAN_QR_CODE_HEADING,
+  composeInvitationShareUrl,
+  validInvitationDatav4,
+} from '@quiet/common'
 import { InvitationKind } from '@quiet/types'
 
 import { renderComponent } from '../../testUtils/renderComponent'
@@ -160,7 +168,7 @@ describe('Screens/Onboarding — the Link devices stories', () => {
     expect(within(rows).queryByTestId('link-devices-scan-qr')).not.toBeInTheDocument()
     expect(within(rows).queryByTestId('link-devices-paste-link')).not.toBeInTheDocument()
     // The screen carries its own "Link devices" heading, so the frame's bar title is dropped.
-    expect(screen.getAllByRole('heading', { name: 'Link devices', level: 3 })[0]).toBeVisible()
+    expect(screen.getAllByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })[0]).toBeVisible()
     expect(barTitle()).toBe('')
   })
 
@@ -202,7 +210,7 @@ describe('Screens/Onboarding — the Link devices stories', () => {
   it('draws the Paste link step as the paste field under its own heading', () => {
     renderComponent(<PasteLinkOnLinkDevices />)
 
-    expect(screen.getAllByRole('heading', { name: 'Paste a link to join', level: 3 })[0]).toBeVisible()
+    expect(screen.getAllByRole('heading', { name: PASTE_LINK_HEADING, level: 3 })[0]).toBeVisible()
     expect(screen.getAllByTestId('paste-link-input')[0]).toBeVisible()
     expect(barTitle()).toBe('')
   })
@@ -256,7 +264,7 @@ describe('Screens/Onboarding — the Link devices stories', () => {
     expect(within(rows).getByTestId('link-devices-copy-link')).toBeVisible()
     // SettingsComponent gives Linked devices `titleInPanel`, so the panel's heading is the title.
     expect(barTitle()).toBe('')
-    expect(screen.getAllByRole('heading', { name: 'Link devices', level: 3 })[0]).toBeVisible()
+    expect(screen.getAllByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })[0]).toBeVisible()
   })
 })
 
@@ -281,13 +289,13 @@ describe('Screens/Onboarding — the walkthrough camera', () => {
     // The step is the scanner, not the paste stand-in it was left as.
     expect(screen.getAllByTestId('qr-scanner-viewfinder')[0]).toBeVisible()
     expect(screen.queryByTestId('paste-link-input')).not.toBeInTheDocument()
-    expect(trail()).toContain('Join with QR code')
+    expect(trail()).toContain(JOIN_WITH_QR_CODE_HEADING)
 
     await waitFor(
       () => expect(dispatched()).toContain('communities.actions.joinCommunity({ inviteData })'),
       DECODE_TIMEOUT
     )
-    expect(trail()).toContain('Choose username')
+    expect(trail()).toContain(CHOOSE_USERNAME_HEADING)
 
     // Both columns draw a camera and both decode the same code, but the app has one: the log
     // records the join once. Left ungated this is 2, which is what it was.
@@ -362,7 +370,7 @@ describe('Screens/Onboarding — the walkthrough camera', () => {
 
     expect(screen.getAllByTestId('link-devices-scanner-viewfinder')[0]).toBeVisible()
     // The sheet draws a camera, not a heading, so it keeps the frame's bar title.
-    expect(screen.getAllByTestId('shell-title')[0]).toHaveTextContent('Scan QR code')
+    expect(screen.getAllByTestId('shell-title')[0]).toHaveTextContent(SCAN_QR_CODE_HEADING)
 
     // A scanned device link does not link on arrival: the consent sheet comes first.
     await waitFor(() => expect(dispatched()).toContain('device-link consent'), DECODE_TIMEOUT)

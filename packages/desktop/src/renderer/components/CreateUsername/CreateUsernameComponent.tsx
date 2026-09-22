@@ -16,7 +16,7 @@ import { TextField } from '../ui/TextField/TextField'
 
 import { userNameField } from '../../forms/fields/createUserFields'
 
-import { parseName } from '@quiet/common'
+import { CHOOSE_USERNAME_HEADING, parseName } from '@quiet/common'
 
 import { OnboardingBody } from '../Onboarding/OnboardingBody'
 import { createLogger } from '../../logger'
@@ -163,7 +163,7 @@ export const CreateUsernameBody: React.FC<CreateUsernameBodyProps> = ({ open = t
   }, [open])
 
   return (
-    <OnboardingBody heading={'Choose username'} dataTestId='choose-username'>
+    <OnboardingBody heading={CHOOSE_USERNAME_HEADING} dataTestId='choose-username'>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <Typography variant='body2' className={classes.inputLabel} component='label' htmlFor='userName'>

@@ -19,10 +19,18 @@ import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { ErrorMessages, type DeviceInvitationDataV4, InvitationKind } from '@quiet/types'
 import { communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 import {
-  Site,
-  QUIET_JOIN_PAGE,
-  getValidInvitationUrlTestData,
+  CHOOSE_USERNAME_HEADING,
+  GET_STARTED_HEADING,
+  JOIN_COMMUNITY_HEADING,
+  JOIN_WITH_INVITE_LINK_HEADING,
+  LINK_DEVICES_HEADING,
+  PASTE_LINK_HEADING,
+  PASTE_LINK_PLACEHOLDER,
   PSK_PARAM_KEY,
+  QUIET_JOIN_PAGE,
+  RECOVER_ACCOUNT_HEADING,
+  Site,
+  getValidInvitationUrlTestData,
   validInvitationDatav4,
 } from '@quiet/common'
 
@@ -42,7 +50,7 @@ const openModalState = (name: ModalName) => ({
 const openPasteStep = async () => {
   await userEvent.click(screen.getByTestId('join-with-invite-link'))
   await userEvent.click(await screen.findByTestId('paste-a-link'))
-  return await screen.findByPlaceholderText('Link')
+  return await screen.findByPlaceholderText(PASTE_LINK_PLACEHOLDER)
 }
 
 describe('join community', () => {
@@ -78,7 +86,7 @@ describe('join community', () => {
 
     // A reported join error belongs on the invite field, so the flow opens there rather than on the
     // three-way choice.
-    const input = await screen.findByPlaceholderText('Link')
+    const input = await screen.findByPlaceholderText(PASTE_LINK_PLACEHOLDER)
     expect(await screen.findByText(ErrorMessages.INVALID_INVITE)).toBeVisible()
 
     await userEvent.type(input, 'abc')
@@ -100,7 +108,7 @@ describe('join community', () => {
       store
     )
 
-    expect(screen.getByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+    expect(screen.getByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })).toBeVisible()
     expect(screen.getByTestId('recover-account')).not.toHaveAttribute('aria-disabled', 'true')
     // Full-screen h1 stage (2811:2562): the bar keeps only the back glyph — no "Quiet" title, no hairline
     expect(screen.queryByText('Quiet')).not.toBeInTheDocument()
@@ -110,22 +118,22 @@ describe('join community', () => {
     expect(screen.getByTestId('joinCommunityModalBack')).toBeVisible()
 
     await userEvent.click(screen.getByTestId('join-with-invite-link'))
-    expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_WITH_INVITE_LINK_HEADING, level: 3 })).toBeVisible()
     // Open invite link (2811:2455): the heading is the only "Join with invite link" on screen
-    expect(screen.getAllByText('Join with invite link')).toHaveLength(1)
+    expect(screen.getAllByText(JOIN_WITH_INVITE_LINK_HEADING)).toHaveLength(1)
 
     await userEvent.click(screen.getByTestId('paste-a-link'))
-    expect(await screen.findByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
-    expect(screen.getByPlaceholderText('Link')).toBeVisible()
+    expect(await screen.findByRole('heading', { name: PASTE_LINK_HEADING, level: 3 })).toBeVisible()
+    expect(screen.getByPlaceholderText(PASTE_LINK_PLACEHOLDER)).toBeVisible()
 
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_WITH_INVITE_LINK_HEADING, level: 3 })).toBeVisible()
 
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })).toBeVisible()
 
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Let’s get started...', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: GET_STARTED_HEADING, level: 3 })).toBeVisible()
   })
 
   it('opens Account recovery; "Use invite link" continues to Join with invite link and back retraces', async () => {
@@ -134,20 +142,20 @@ describe('join community', () => {
     renderComponent(<JoinCommunity />, store)
 
     await userEvent.click(screen.getByTestId('recover-account'))
-    expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: RECOVER_ACCOUNT_HEADING, level: 3 })).toBeVisible()
     // Account recovery (2811:2535) hides its bar title
     expect(screen.queryByText('Account recovery')).not.toBeInTheDocument()
     // The frame's targetless "More options" row is not built
     expect(screen.queryByTestId('recover-more-options')).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByTestId('recover-use-invite-link'))
-    expect(await screen.findByRole('heading', { name: 'Join with invite link', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_WITH_INVITE_LINK_HEADING, level: 3 })).toBeVisible()
 
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: RECOVER_ACCOUNT_HEADING, level: 3 })).toBeVisible()
 
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })).toBeVisible()
   })
 
   it('"Use linked device" on Account recovery hands over to Link devices, whose back returns to Account recovery', async () => {
@@ -165,18 +173,18 @@ describe('join community', () => {
     await userEvent.click(screen.getByTestId('recover-account'))
     await userEvent.click(await screen.findByTestId('recover-use-linked-device'))
 
-    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
-    expect(screen.queryByRole('heading', { name: 'Recover account' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: RECOVER_ACCOUNT_HEADING })).not.toBeInTheDocument()
 
     // Back from Link devices returns to the screen it was opened from, not to Get started
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
-    expect(screen.queryByRole('heading', { name: 'Link devices' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: RECOVER_ACCOUNT_HEADING, level: 3 })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: LINK_DEVICES_HEADING })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: GET_STARTED_HEADING })).not.toBeInTheDocument()
 
     // And the trail continues back to the three-way choice
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
-    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })).toBeVisible()
   })
 
   describe('Join with QR code', () => {
@@ -201,9 +209,9 @@ describe('join community', () => {
 
       await userEvent.click(screen.getByTestId('join-with-qr-code'))
       expect(await screen.findByTestId('qr-scanner-viewfinder')).toBeVisible()
-      expect(screen.queryByPlaceholderText('Link')).not.toBeInTheDocument()
+      expect(screen.queryByPlaceholderText(PASTE_LINK_PLACEHOLDER)).not.toBeInTheDocument()
 
-      expect(await screen.findByText('Choose username', {}, { timeout: 5000 })).toBeVisible()
+      expect(await screen.findByText(CHOOSE_USERNAME_HEADING, {}, { timeout: 5000 })).toBeVisible()
       expect(dispatchSpy).toHaveBeenCalledWith(communities.actions.joinCommunity({ inviteData: data }))
       expect(camera.stop).toHaveBeenCalled()
     })
@@ -237,7 +245,7 @@ describe('join community', () => {
       await userEvent.click(screen.getByTestId('confirm-device-link'))
 
       await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(consentedLinkDevice))
-      expect(screen.queryByText('Choose username')).not.toBeInTheDocument()
+      expect(screen.queryByText(CHOOSE_USERNAME_HEADING)).not.toBeInTheDocument()
     })
 
     it('falls back to the paste field when the camera is denied, and back returns to the scanner', async () => {
@@ -248,14 +256,14 @@ describe('join community', () => {
 
       await userEvent.click(screen.getByTestId('join-with-qr-code'))
       await userEvent.click(await screen.findByTestId('qr-scanner-paste-link'))
-      expect(await screen.findByRole('heading', { name: 'Paste a link to join', level: 3 })).toBeVisible()
-      expect(screen.getByPlaceholderText('Link')).toBeVisible()
+      expect(await screen.findByRole('heading', { name: PASTE_LINK_HEADING, level: 3 })).toBeVisible()
+      expect(screen.getByPlaceholderText(PASTE_LINK_PLACEHOLDER)).toBeVisible()
 
       await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
       expect(await screen.findByTestId('qr-scanner-viewfinder')).toBeVisible()
 
       await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
-      expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+      expect(await screen.findByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })).toBeVisible()
     })
   })
 
@@ -275,14 +283,14 @@ describe('join community', () => {
     await userEvent.click(screen.getByTestId('continue-joinCommunity'))
 
     // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Choose username')
+    const createUsernameTitle = await screen.findByText(CHOOSE_USERNAME_HEADING)
     expect(createUsernameTitle).toBeVisible()
 
     // Close username registration modal by clicking explicit close button
     const closeButton = await screen.findByTestId('createUsernameModalClose')
     await userEvent.click(closeButton)
     // The join modal reopens on its first step
-    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })).toBeVisible()
   })
 
   it('links a device without opening username registration', async () => {
@@ -318,7 +326,7 @@ describe('join community', () => {
         args: undefined,
       })
     )
-    expect(screen.queryByText('Choose username')).not.toBeInTheDocument()
+    expect(screen.queryByText(CHOOSE_USERNAME_HEADING)).not.toBeInTheDocument()
   })
 
   it('joins community on submit if connection is ready and registrar url is correct', async () => {
@@ -326,11 +334,11 @@ describe('join community', () => {
     const handleCommunityAction = jest.fn()
 
     const result = renderComponent(
-      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />,
+      <PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />,
       store
     )
 
-    const textInput = result.queryByPlaceholderText('Link')
+    const textInput = result.queryByPlaceholderText(PASTE_LINK_PLACEHOLDER)
     expect(textInput).not.toBeNull()
 
     await userEvent.type(textInput!, validCode)
@@ -351,11 +359,11 @@ describe('join community', () => {
       const handleCommunityAction = jest.fn()
 
       const result = renderComponent(
-        <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />,
+        <PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />,
         store
       )
 
-      const textInput = result.queryByPlaceholderText('Link')
+      const textInput = result.queryByPlaceholderText(PASTE_LINK_PLACEHOLDER)
       expect(textInput).not.toBeNull()
       await userEvent.type(textInput!, registrarUrl.href)
 
@@ -374,11 +382,11 @@ describe('join community', () => {
     const handleCommunityAction = jest.fn()
 
     const result = renderComponent(
-      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />,
+      <PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />,
       store
     )
 
-    const textInput = result.queryByPlaceholderText('Link')
+    const textInput = result.queryByPlaceholderText(PASTE_LINK_PLACEHOLDER)
     expect(textInput).not.toBeNull()
     await userEvent.type(textInput!, registrarUrl)
 
@@ -406,11 +414,11 @@ describe('join community', () => {
     const handleCommunityAction = jest.fn()
 
     renderComponent(
-      <PasteLinkComponent heading={'Paste a link to join'} handleCommunityAction={handleCommunityAction} />,
+      <PasteLinkComponent heading={PASTE_LINK_HEADING} handleCommunityAction={handleCommunityAction} />,
       store
     )
 
-    const input = screen.getByPlaceholderText('Link')
+    const input = screen.getByPlaceholderText(PASTE_LINK_PLACEHOLDER)
     const button = screen.getByText('Continue')
 
     await userEvent.type(input, url)
@@ -428,14 +436,14 @@ describe('join community', () => {
 
     const result = renderComponent(
       <PasteLinkComponent
-        heading={'Paste a link to join'}
+        heading={PASTE_LINK_HEADING}
         handleCommunityAction={handleCommunityAction}
         isConnectionReady={false}
       />,
       store
     )
 
-    const textInput = result.queryByPlaceholderText('Link')
+    const textInput = result.queryByPlaceholderText(PASTE_LINK_PLACEHOLDER)
     expect(textInput).not.toBeNull()
     await userEvent.type(textInput!, validCode)
 

@@ -3,6 +3,7 @@ import React from 'react'
 import { ActionRow } from './ActionRow'
 import { OnboardingBody, RowGroup } from './OnboardingBody'
 import { onboardingIcons } from './icons'
+import { RECOVER_ACCOUNT_HEADING } from '@quiet/common'
 
 export interface RecoverAccountComponentProps {
   onUseLinkedDevice: () => void
@@ -24,7 +25,7 @@ export const RecoverAccountComponent: React.FC<RecoverAccountComponentProps> = (
 }) => (
   <OnboardingBody
     leading={<img src={onboardingIcons.info} alt='' aria-hidden width={64} height={64} />}
-    heading={'Recover account'}
+    heading={RECOVER_ACCOUNT_HEADING}
     intro={'Locked out? You can recover with a linked device or ask an admin to send you an invite link.'}
     dataTestId='recover-account-info'
   >

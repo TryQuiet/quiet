@@ -64,6 +64,7 @@
 ### Chores
 
 * Run the backend unit tests in a recycled worker rather than one long-lived process, so the heap no longer climbs across the suites until it reaches the 4 GB ceiling and fails the job with "Ineffective mark-compacts near heap limit" [#3634](https://github.com/TryQuiet/quiet/issues/3634)
+* Define the shared onboarding copy once in `@quiet/common`, so a heading or placeholder the desktop app, the mobile app, the stories and the end-to-end selectors all draw is a single edit rather than dozens of literals
 
 ## [11.0.1]
 

@@ -4,7 +4,13 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 import { InvitationKind } from '@quiet/types'
-import { validInvitationDatav4 } from '@quiet/common'
+import {
+  CREATE_COMMUNITY_HEADING,
+  GET_STARTED_HEADING,
+  JOIN_COMMUNITY_HEADING,
+  LINK_DEVICES_HEADING,
+  validInvitationDatav4,
+} from '@quiet/common'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
@@ -28,7 +34,7 @@ const freshInstall = {
   },
 }
 
-const findEntry = () => screen.findByRole('heading', { name: 'Let’s get started...', level: 3 })
+const findEntry = () => screen.findByRole('heading', { name: GET_STARTED_HEADING, level: 3 })
 
 describe('Get started', () => {
   it('is the first screen once the app is connected without a community', async () => {
@@ -57,7 +63,7 @@ describe('Get started', () => {
     renderComponent(<GetStarted />, store)
 
     // A community is being created or joined behind the loading panel: no entry screen over it
-    expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: GET_STARTED_HEADING })).not.toBeInTheDocument()
 
     store.dispatch(modalsActions.closeModal(ModalName.loadingPanel))
     expect(await findEntry()).toBeVisible()
@@ -74,7 +80,7 @@ describe('Get started', () => {
 
     renderComponent(<GetStarted />, store)
 
-    expect(screen.queryByRole('heading', { name: 'Let’s get started...' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: GET_STARTED_HEADING })).not.toBeInTheDocument()
   })
 
   it('routes to Join community, Create a community and Link devices, and each comes back here', async () => {
@@ -92,17 +98,17 @@ describe('Get started', () => {
 
     await findEntry()
     await userEvent.click(screen.getByTestId('get-started-join'))
-    expect(await screen.findByRole('heading', { name: 'Join community', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: JOIN_COMMUNITY_HEADING, level: 3 })).toBeVisible()
     await userEvent.click(screen.getByTestId('joinCommunityModalBack'))
 
     await findEntry()
     await userEvent.click(screen.getByTestId('get-started-create'))
-    expect(await screen.findByRole('heading', { name: 'Create a community', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: CREATE_COMMUNITY_HEADING, level: 3 })).toBeVisible()
     await userEvent.click(screen.getByTestId('createCommunityModalBack'))
 
     await findEntry()
     await userEvent.click(screen.getByTestId('get-started-link-devices'))
-    expect(await screen.findByRole('heading', { name: 'Link devices', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: LINK_DEVICES_HEADING, level: 3 })).toBeVisible()
     await userEvent.click(screen.getByTestId('linkDevicesModalBack'))
 
     expect(await findEntry()).toBeVisible()

@@ -15,6 +15,14 @@ import { InvitationData, isDeviceInvitationData } from '@quiet/types'
 import type { PasteInviteLinkVariant } from '../../route.params'
 
 import { createLogger } from '../../utils/logger'
+import {
+  JOIN_WITH_INVITE_LINK_HEADING,
+  LINK_DEVICES_HEADING,
+  PASTE_LINK_HEADING,
+  PASTE_LINK_PLACEHOLDER,
+  SCAN_QR_CODE_HEADING,
+  SCAN_QR_CODE_INTRO,
+} from '@quiet/common'
 
 const logger = createLogger('joinCommunity:component')
 
@@ -31,15 +39,20 @@ export const INVALID_INVITATION_ERROR = 'Please check your invite link and try a
  * carries its own titled bar.
  */
 const COPY = {
-  inviteLink: { title: 'Join with invite link', titleHidden: true, heading: 'Paste a link to join', intro: undefined },
-  deviceLink: {
-    title: 'Link devices',
+  inviteLink: {
+    title: JOIN_WITH_INVITE_LINK_HEADING,
     titleHidden: true,
-    heading: 'Scan QR code',
-    intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
+    heading: PASTE_LINK_HEADING,
+    intro: undefined,
+  },
+  deviceLink: {
+    title: LINK_DEVICES_HEADING,
+    titleHidden: true,
+    heading: SCAN_QR_CODE_HEADING,
+    intro: SCAN_QR_CODE_INTRO,
   },
   /** Link devices → Paste link (user addition, 2026-09-13): the paste step under the Link devices title. */
-  pasteDeviceLink: { title: 'Link devices', heading: 'Paste a link to join', intro: undefined, titleHidden: true },
+  pasteDeviceLink: { title: LINK_DEVICES_HEADING, heading: PASTE_LINK_HEADING, intro: undefined, titleHidden: true },
 } as const
 
 /** The Link devices flow's variants: only a device link is accepted there. */
@@ -156,7 +169,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
             </View>
             <Input
               onChangeText={onChangeText}
-              placeholder={'Link'}
+              placeholder={PASTE_LINK_PLACEHOLDER}
               disabled={loading}
               validation={inputError}
               ref={inputRef}

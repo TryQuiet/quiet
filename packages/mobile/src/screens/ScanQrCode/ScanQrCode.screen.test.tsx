@@ -2,7 +2,13 @@ import React from 'react'
 import { act, fireEvent, waitFor } from '@testing-library/react-native'
 import type { ReactTestInstance } from 'react-test-renderer'
 
-import { composeInvitationShareUrl, validInvitationDatav4 } from '@quiet/common'
+import {
+  JOIN_WITH_QR_CODE_HEADING,
+  SCAN_QR_CODE_HEADING,
+  SCAN_QR_CODE_INTRO,
+  composeInvitationShareUrl,
+  validInvitationDatav4,
+} from '@quiet/common'
 import { communities } from '@quiet/state-manager'
 import { type DeviceInvitationDataV4, InvitationKind, type InvitationDataV4 } from '@quiet/types'
 
@@ -53,7 +59,7 @@ describe('ScanQrCodeScreen', () => {
   it('joins from a scanned member invite and goes to Choose username, as a pasted link does', async () => {
     const parsedMemberInvite: InvitationDataV4 = { ...memberInvite, kind: InvitationKind.Member }
     const { dispatchSpy, result } = await renderScreen('join')
-    expect(result.getByText('Join with QR code')).toBeTruthy()
+    expect(result.getByText(JOIN_WITH_QR_CODE_HEADING)).toBeTruthy()
 
     scan(result.getByTestId('join-qr-scanner-camera'), composeInvitationShareUrl(memberInvite))
 
@@ -68,10 +74,8 @@ describe('ScanQrCodeScreen', () => {
 
   it('asks for consent before linking from a scanned device link, then links on confirm', async () => {
     const { dispatchSpy, result } = await renderScreen('deviceLink')
-    expect(result.getByText('Scan QR code')).toBeTruthy()
-    expect(
-      result.getByText('Go to “Link devices” on the other device and display the QR code. Scan it to link devices.')
-    ).toBeTruthy()
+    expect(result.getByText(SCAN_QR_CODE_HEADING)).toBeTruthy()
+    expect(result.getByText(SCAN_QR_CODE_INTRO)).toBeTruthy()
 
     scan(result.getByTestId('link-devices-qr-scanner-camera'), composeInvitationShareUrl(deviceInvite))
 

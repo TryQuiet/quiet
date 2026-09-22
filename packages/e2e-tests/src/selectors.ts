@@ -21,7 +21,16 @@ import {
 import { createLogger } from './logger'
 import { closeSettingsTab, waitForSettingsTab } from './settingsTabReady'
 import { waitForAppWindow } from './appWindowReady'
-import { parseInvitationLink } from '@quiet/common'
+import {
+  CHOOSE_USERNAME_HEADING,
+  CREATE_COMMUNITY_HEADING,
+  GET_STARTED_HEADING,
+  JOIN_WITH_INVITE_LINK_HEADING,
+  LINK_DEVICES_HEADING,
+  PASTE_LINK_HEADING,
+  RECOVER_ACCOUNT_HEADING,
+  parseInvitationLink,
+} from '@quiet/common'
 import { isDeviceInvitationData } from '@quiet/types'
 
 const logger = createLogger('selectors')
@@ -1140,7 +1149,7 @@ export class RegisterUsernameModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Choose username']")),
+      until.elementLocated(By.xpath(`//h3[text()='${CHOOSE_USERNAME_HEADING}']`)),
       15_000,
       `Username registration modal couldn't be located within timeout`,
       500
@@ -1260,7 +1269,7 @@ export class GetStartedModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Let’s get started...']")),
+      until.elementLocated(By.xpath(`//h3[text()='${GET_STARTED_HEADING}']`)),
       10_000,
       `Get started modal couldn't be found within timeout`,
       500
@@ -1441,7 +1450,7 @@ export class JoinCommunityModal {
   async recoverAccount() {
     await this.enter()
     await (await this.findVisible('recover-account')).click()
-    await this.waitForStep('Recover account')
+    await this.waitForStep(RECOVER_ACCOUNT_HEADING)
   }
 
   /** The frame's "More options" row has no target in the design, so it is not built. */
@@ -1452,9 +1461,9 @@ export class JoinCommunityModal {
   /** Account recovery → Use invite link → Open invite link → Paste a link. */
   async recoverWithInviteLink() {
     await (await this.findVisible('recover-use-invite-link')).click()
-    await this.waitForStep('Join with invite link')
+    await this.waitForStep(JOIN_WITH_INVITE_LINK_HEADING)
     await (await this.findVisible('paste-a-link')).click()
-    await this.waitForStep('Paste a link to join')
+    await this.waitForStep(PASTE_LINK_HEADING)
   }
 
   /** Back arrow of the join modal (any step). */
@@ -1524,7 +1533,7 @@ export class LinkDevicesModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Link devices']")),
+      until.elementLocated(By.xpath(`//h3[text()='${LINK_DEVICES_HEADING}']`)),
       10_000,
       `Link devices modal couldn't be found within timeout`,
       500
@@ -1717,7 +1726,7 @@ export class CreateCommunityModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='Create a community']")),
+      until.elementLocated(By.xpath(`//h3[text()='${CREATE_COMMUNITY_HEADING}']`)),
       10_000,
       `Create community modal couldn't be found within timeout`,
       500

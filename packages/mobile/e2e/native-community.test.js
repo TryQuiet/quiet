@@ -1,3 +1,4 @@
+import { GET_STARTED_HEADING } from '@quiet/common'
 // Run against a standard app on an owned simulator/emulator. This deliberately
 // clears its app data and uses the production backend with Detox synchronization.
 /* global device, element, by, waitFor */
@@ -18,7 +19,7 @@ describe('Native community persistence', () => {
   })
 
   it('creates a community, sends with the keyboard open, and restores the message after a process restart', async () => {
-    await waitFor(element(by.text('Let’s get started...')))
+    await waitFor(element(by.text(GET_STARTED_HEADING)))
       .toBeVisible()
       .withTimeout(120000)
     await element(by.id('get-started-create')).tap()

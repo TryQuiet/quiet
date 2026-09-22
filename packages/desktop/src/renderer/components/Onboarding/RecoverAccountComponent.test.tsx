@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { RecoverAccountComponent } from './RecoverAccountComponent'
+import { RECOVER_ACCOUNT_HEADING } from '@quiet/common'
 
 describe('Recover account', () => {
   it("shows the frame's copy, routes its two wired rows and omits More options", async () => {
@@ -17,7 +18,7 @@ describe('Recover account', () => {
       store
     )
 
-    expect(screen.getByRole('heading', { name: 'Recover account', level: 3 })).toBeVisible()
+    expect(screen.getByRole('heading', { name: RECOVER_ACCOUNT_HEADING, level: 3 })).toBeVisible()
     expect(
       screen.getByText('Locked out? You can recover with a linked device or ask an admin to send you an invite link.')
     ).toBeVisible()

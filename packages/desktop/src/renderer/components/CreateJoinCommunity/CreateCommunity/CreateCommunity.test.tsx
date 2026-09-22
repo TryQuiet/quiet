@@ -14,6 +14,7 @@ import CreateCommunity from './CreateCommunity'
 import { CommunityNameErrors } from '../../../forms/fieldsErrors'
 import { CreateCommunityComponent } from '../../Onboarding/CreateCommunityComponent'
 import { identity, communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
+import { CHOOSE_USERNAME_HEADING, CREATE_COMMUNITY_HEADING, GET_STARTED_HEADING } from '@quiet/common'
 
 const createModalOpen = {
   [StoreKeys.Socket]: {
@@ -41,15 +42,15 @@ describe('Create community', () => {
 
     await userEvent.type(screen.getByPlaceholderText('Community name'), 'rockets')
     await userEvent.click(screen.getByTestId('continue-createCommunity'))
-    expect(await screen.findByText('Choose username')).toBeVisible()
+    expect(await screen.findByText(CHOOSE_USERNAME_HEADING)).toBeVisible()
     // The form is still mounted underneath (aria-hidden behind Choose username) while the username and the terms are asked
-    expect(screen.getByRole('heading', { name: 'Create a community', level: 3, hidden: true })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: CREATE_COMMUNITY_HEADING, level: 3, hidden: true })).toBeInTheDocument()
 
     // Creation proceeds: the loading panel opens (terms accepted / username registered)
     store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
     await waitFor(() =>
       expect(
-        screen.queryByRole('heading', { name: 'Create a community', level: 3, hidden: true })
+        screen.queryByRole('heading', { name: CREATE_COMMUNITY_HEADING, level: 3, hidden: true })
       ).not.toBeInTheDocument()
     )
   })
@@ -61,7 +62,7 @@ describe('Create community', () => {
 
     // Nothing submitted yet: a loading panel (e.g. the app starting) must not take the form away
     store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
-    expect(screen.getByRole('heading', { name: 'Create a community', level: 3 })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: CREATE_COMMUNITY_HEADING, level: 3 })).toBeInTheDocument()
   })
 
   it('goes back to Get started from the create screen', async () => {
@@ -75,16 +76,16 @@ describe('Create community', () => {
       store
     )
 
-    expect(screen.getByRole('heading', { name: 'Create a community', level: 3 })).toBeVisible()
+    expect(screen.getByRole('heading', { name: CREATE_COMMUNITY_HEADING, level: 3 })).toBeVisible()
     // Full-screen h1 stage (2811:2451): the heading is the only "Create a community"; the bar has no title, no hairline
-    expect(screen.getAllByText('Create a community')).toHaveLength(1)
+    expect(screen.getAllByText(CREATE_COMMUNITY_HEADING)).toHaveLength(1)
     const header = screen.getByTestId('createCommunityModalActions').closest('.Modalheader')
     expect(header).not.toHaveClass('Modalnone')
     expect(header).not.toHaveClass('ModalheaderBorder')
 
     await userEvent.click(screen.getByTestId('createCommunityModalBack'))
 
-    expect(await screen.findByRole('heading', { name: 'Let’s get started...', level: 3 })).toBeVisible()
+    expect(await screen.findByRole('heading', { name: GET_STARTED_HEADING, level: 3 })).toBeVisible()
   })
 
   it.skip('user goes from creating community to username registration, then comes back', async () => {
@@ -106,13 +107,13 @@ describe('Create community', () => {
       store
     )
 
-    const createCommunityTitle = screen.getByRole('heading', { name: 'Create a community', level: 3 })
+    const createCommunityTitle = screen.getByRole('heading', { name: CREATE_COMMUNITY_HEADING, level: 3 })
     expect(createCommunityTitle).toBeVisible()
 
     await userEvent.type(screen.getByPlaceholderText('Community name'), 'rockets')
     await userEvent.click(screen.getByText('Continue'))
 
-    const createUsernameTitle = await screen.findByText('Choose username')
+    const createUsernameTitle = await screen.findByText(CHOOSE_USERNAME_HEADING)
     expect(createUsernameTitle).toBeVisible()
 
     const closeButton = await screen.findByTestId('createUsernameModalClose')
@@ -226,7 +227,7 @@ describe('Create community', () => {
       await userEvent.click(screen.getByText('Continue'))
 
       // Straight to username registration, no server offer
-      expect(await screen.findByText('Choose username')).toBeVisible()
+      expect(await screen.findByText(CHOOSE_USERNAME_HEADING)).toBeVisible()
       expect(() => screen.getByTestId('ServerOffer-UseQuietServer')).toThrow()
       expect(() => screen.getByTestId('ServerOffer-NotNow')).toThrow()
     })

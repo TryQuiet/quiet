@@ -16,6 +16,7 @@ import { inviteLinkField } from '../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { OnboardingBody } from './OnboardingBody'
 import { createLogger } from '../../logger'
+import { PASTE_LINK_PLACEHOLDER } from '@quiet/common'
 
 const logger = createLogger('pasteLink:component')
 
@@ -166,7 +167,7 @@ export const PasteLinkComponent: React.FC<PasteLinkComponentProps> = ({
                 [classes.margin]: true,
                 [classes.error]: errors.name,
               })}
-              placeholder={'Link'}
+              placeholder={PASTE_LINK_PLACEHOLDER}
               errors={errors}
               variant='outlined'
               onchange={event => {

@@ -9,6 +9,7 @@ import { Appbar } from '../Appbar/Appbar.component'
 import { Typography } from '../Typography/Typography.component'
 
 import type { RecoverAccountProps } from './RecoverAccount.types'
+import { RECOVER_ACCOUNT_HEADING } from '@quiet/common'
 
 /**
  * Account recovery · Figma 2811:2535. The frame's illustration is the
@@ -32,7 +33,7 @@ export const RecoverAccount: FC<RecoverAccountProps> = ({ onUseLinkedDevice, onU
       </View>
       <View style={{ gap: spacing.sm }}>
         <Typography variant={'h3'} horizontalTextAlign={'center'}>
-          {'Recover account'}
+          {RECOVER_ACCOUNT_HEADING}
         </Typography>
         <Typography variant={'body'} horizontalTextAlign={'center'}>
           {'Locked out? You can recover with a linked device or ask an admin to send you an invite link.'}

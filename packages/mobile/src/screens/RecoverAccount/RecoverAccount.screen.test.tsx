@@ -8,6 +8,7 @@ import { prepareStore } from '../../tests/utils/prepareStore'
 import { renderComponent } from '../../tests/utils/renderComponent'
 import { LinkDevicesScreen } from '../LinkDevices/LinkDevices.screen'
 import { RecoverAccountScreen } from './RecoverAccount.screen'
+import { RECOVER_ACCOUNT_HEADING } from '@quiet/common'
 
 // The Link devices screen copies the minted device link (design/link-devices-paste); the
 // native clipboard has no jest binding, so it is mocked the way that screen's own test does.
@@ -27,7 +28,7 @@ describe('RecoverAccountScreen', () => {
     // The frame hides the bar title; only the back glyph and the heading
     expect(result.queryByText('Account recovery')).toBeNull()
     expect(result.getByLabelText('Go back')).toBeTruthy()
-    expect(result.getByText('Recover account')).toBeTruthy()
+    expect(result.getByText(RECOVER_ACCOUNT_HEADING)).toBeTruthy()
     expect(
       result.getByText('Locked out? You can recover with a linked device or ask an admin to send you an invite link.')
     ).toBeTruthy()

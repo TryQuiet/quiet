@@ -1,6 +1,7 @@
 import { fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../../utils/functions/renderComponent/renderComponent'
 import { JoinCommunity } from '../JoinCommunity.component'
+import { PASTE_LINK_HEADING, PASTE_LINK_PLACEHOLDER, SCAN_QR_CODE_HEADING } from '@quiet/common'
 
 describe('JoinCommunity component', () => {
   it('renders component', () => {
@@ -21,7 +22,7 @@ describe('JoinCommunity component', () => {
       <JoinCommunity joinCommunityAction={joinCommunityAction} hasReceivedResponse={false} />
     )
 
-    fireEvent.changeText(getByPlaceholderText('Link'), 'nqnw4kc4c77fb47lk52m5l57h4tc')
+    fireEvent.changeText(getByPlaceholderText(PASTE_LINK_PLACEHOLDER), 'nqnw4kc4c77fb47lk52m5l57h4tc')
     fireEvent.press(getByTestId('paste-link-continue'))
 
     expect(getByText('Please check your invite link and try again')).toBeTruthy()
@@ -30,7 +31,7 @@ describe('JoinCommunity component', () => {
 
   // The prototype draws the two QR flows as titled sheets (2811:2460, 2811:2587); here they are
   // full screens under their own heading, and a page with a heading gets no bar title.
-  it.each([['deviceLink' as const, 'Scan QR code']])(
+  it.each([['deviceLink' as const, SCAN_QR_CODE_HEADING]])(
     'renders the %s variant with the bar zone empty: the heading is the title',
     (variant, heading) => {
       const { getByTestId, getAllByText, queryByTestId } = renderComponent(
@@ -50,6 +51,6 @@ describe('JoinCommunity component', () => {
     )
 
     expect(getByTestId('appbar_without_title')).toBeTruthy()
-    expect(getAllByText('Paste a link to join')).toHaveLength(1)
+    expect(getAllByText(PASTE_LINK_HEADING)).toHaveLength(1)
   })
 })

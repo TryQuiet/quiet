@@ -5,7 +5,7 @@ import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
 import { UsernameRegistrationProps, UsernameVariant } from './UsernameRegistration.types'
 import { icons } from '../../assets'
-import { parseName } from '@quiet/common'
+import { CHOOSE_USERNAME_HEADING, parseName } from '@quiet/common'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
 import { Appbar } from '../Appbar/Appbar.component'
@@ -103,7 +103,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         {isNewUser ? (
           <>
             <Typography variant={'h3'} horizontalTextAlign={'center'} style={{ marginBottom: spacing.xl }}>
-              {'Choose username'}
+              {CHOOSE_USERNAME_HEADING}
             </Typography>
           </>
         ) : (

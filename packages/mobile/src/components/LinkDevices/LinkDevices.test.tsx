@@ -4,6 +4,7 @@ import { fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 
 import { LinkDevices } from './LinkDevices.component'
+import { PASTE_LINK_LABEL, SCAN_QR_CODE_HEADING } from '@quiet/common'
 
 describe('LinkDevices component', () => {
   it('share: Display QR code and Copy link, and Copy link calls back', () => {
@@ -15,8 +16,8 @@ describe('LinkDevices component', () => {
 
     expect(result.getByText('Display QR code')).toBeTruthy()
     expect(result.getByText('Copy link')).toBeTruthy()
-    expect(result.queryByText('Scan QR code')).toBeNull()
-    expect(result.queryByText('Paste link')).toBeNull()
+    expect(result.queryByText(SCAN_QR_CODE_HEADING)).toBeNull()
+    expect(result.queryByText(PASTE_LINK_LABEL)).toBeNull()
     fireEvent.press(result.getByTestId('link-devices-copy-link'))
     expect(onCopyLink).toHaveBeenCalledTimes(1)
     fireEvent.press(result.getByTestId('link-devices-display-qr'))
@@ -26,8 +27,8 @@ describe('LinkDevices component', () => {
   it('receive: Scan QR code and Paste link only', () => {
     const result = renderComponent(<LinkDevices direction='receive' />)
 
-    expect(result.getByText('Scan QR code')).toBeTruthy()
-    expect(result.getByText('Paste link')).toBeTruthy()
+    expect(result.getByText(SCAN_QR_CODE_HEADING)).toBeTruthy()
+    expect(result.getByText(PASTE_LINK_LABEL)).toBeTruthy()
     expect(result.queryByText('Display QR code')).toBeNull()
     expect(result.queryByText('Copy link')).toBeNull()
   })
