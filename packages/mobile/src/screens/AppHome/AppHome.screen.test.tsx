@@ -4,7 +4,8 @@ import { fireEvent, screen } from '@testing-library/react-native'
 import MockedSocket from 'socket.io-mock'
 import { FactoryGirl } from 'factory-girl'
 import { getReduxStoreFactory, publicChannels } from '@quiet/state-manager'
-import { ChannelType, EMPTY_CHANNEL_ID } from '@quiet/types'
+import { ChannelType } from '@quiet/types'
+import { generateDmMemberHash } from '@quiet/common'
 
 import { ioMock } from '../../setupTests'
 import { prepareStore } from '../../tests/utils/prepareStore'
@@ -21,8 +22,8 @@ describe('Community home screen', () => {
     const { store, root } = await prepareStore({}, socket)
     factory = await getReduxStoreFactory(store)
     const community = await factory.create('Community')
-    await factory.create('Identity', { communityId: community.id })
-    return { store, root, community }
+    const identity = await factory.create('Identity', { communityId: community.id })
+    return { store, root, community, identity }
   }
 
   it('shows the community name and its channels without message previews', async () => {
@@ -56,8 +57,21 @@ describe('Community home screen', () => {
     root?.cancel()
   })
 
-  it('lists a direct message and opens its channel, not a member roster', async () => {
+  it('lists the community members', async () => {
     const { store, root } = await prepare()
+    await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })
+    renderComponent(<AppHomeScreen />, store)
+
+    expect(screen.getByText('Members')).toBeVisible()
+    expect(screen.getByTestId('user_tile_alice')).toBeVisible()
+
+    root?.cancel()
+  })
+
+  it('opens the existing conversation when a member already has one', async () => {
+    const { store, root, identity } = await prepare()
+    await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })
+    const memberIds = [identity.userId, 'alice-id']
     await factory.create('PublicChannel', {
       channel: {
         name: 'alice',
@@ -67,36 +81,34 @@ describe('Community home screen', () => {
         id: 'alice-dm-id',
         public: false,
         type: ChannelType.DM,
-        memberIds: ['me-id', 'alice-id'],
+        memberIds,
+        memberIdHash: generateDmMemberHash(memberIds),
       },
-      // The factory takes the displayed name beside the channel, not inside it.
       displayedName: 'alice',
     })
     const dispatchSpy = jest.spyOn(store, 'dispatch')
     renderComponent(<AppHomeScreen />, store)
 
-    expect(screen.getByText('Direct messages')).toBeVisible()
-    fireEvent.press(screen.getByTestId('dm_tile_alice'))
+    fireEvent.press(screen.getByTestId('user_tile_alice'))
 
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      publicChannels.actions.setCurrentChannel({ channelId: 'alice-dm-id' })
-    )
+    expect(dispatchSpy).toHaveBeenCalledWith(publicChannels.actions.setCurrentChannel({ channelId: 'alice-dm-id' }))
+    expect(dispatchSpy).toHaveBeenCalledWith(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
 
     root?.cancel()
   })
 
-  it('starts a new direct message from the section plus', async () => {
+  it('opens the composer with the member chosen when there is no conversation yet', async () => {
     const { store, root } = await prepare()
+    await factory.create('UserProfile', { userId: 'alice-id', nickname: 'alice' })
     const dispatchSpy = jest.spyOn(store, 'dispatch')
     renderComponent(<AppHomeScreen />, store)
 
-    fireEvent.press(screen.getByTestId('New direct message'))
+    fireEvent.press(screen.getByTestId('user_tile_alice'))
 
-    // An empty conversation, exactly what the old pencil button opened.
+    // A DM comes into being with its first message, so nothing is created here.
     expect(dispatchSpy).toHaveBeenCalledWith(
-      publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID })
+      publicChannels.actions.setNewMessageOpen({ isOpen: true, recipientIds: ['alice-id'] })
     )
-    expect(dispatchSpy).toHaveBeenCalledWith(publicChannels.actions.setNewMessageOpen({ isOpen: true }))
 
     root?.cancel()
   })

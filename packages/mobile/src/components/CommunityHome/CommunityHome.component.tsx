@@ -26,23 +26,27 @@ const CARD_RADIUS = 16
  * `StatusBar backgroundColor` anyway. Colouring it purple needs an edge-to-edge
  * change in App.tsx, which is out of this screen's scope.
  *
- * The card holds the Add members row, the Channels section and the Direct
- * messages section. Rows carry no message preview: the mobile design is a
- * navigation list, not an inbox.
+ * The card holds the Add members row, the Channels section and the community's
+ * members. Rows carry no message preview: the mobile design is a navigation
+ * list, not an inbox.
+ *
+ * The member rows are the people in the community, which is what the frame of
+ * record draws. Quiet has direct messages now, so a member row is no longer
+ * inert: tapping one opens the conversation with that person, or starts it.
  */
 export const CommunityHome: FC<CommunityHomeProps> = ({
   communityName,
   channels,
-  conversations,
+  users,
   canCreateChannel,
   openCommunityMenu,
   addMembers,
   createChannel,
-  createDm,
   openChannel,
+  openMember,
 }) => {
   const loading = channels.length === 0
-  const unread = channels.some(channel => channel.unread) || conversations.some(c => c.unread)
+  const unread = channels.some(channel => channel.unread)
 
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.main.brand }} testID={'channel-list-component'}>
@@ -89,23 +93,20 @@ export const CommunityHome: FC<CommunityHomeProps> = ({
               ))}
             </View>
 
-            <View>
-              <ListSectionTitle
-                title='Direct messages'
-                testID={'dm_section'}
-                onAdd={createDm}
-                addTestID={'New direct message'}
-                addAccessibilityLabel='New direct message'
-              />
-              {conversations.map(conversation => (
-                <PersonRow
-                  key={conversation.id}
-                  conversation={conversation}
-                  onPress={() => openChannel(conversation.id)}
-                  testID={`dm_tile_${conversation.name}`}
-                />
-              ))}
-            </View>
+            {/* The empty community (6124:9816) draws no member section at all. */}
+            {users.length > 0 && (
+              <View>
+                <ListSectionTitle title='Members' testID={'members_section'} />
+                {users.map(user => (
+                  <PersonRow
+                    key={user.userId}
+                    user={user}
+                    onPress={() => openMember(user.userId)}
+                    testID={`user_tile_${user.nickname}`}
+                  />
+                ))}
+              </View>
+            )}
           </ScrollView>
         )}
       </View>

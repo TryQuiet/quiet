@@ -1318,7 +1318,7 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                 "paddingVertical": 8,
               }
             }
-            testID="dm_section"
+            testID="members_section"
           >
             <Text
               color="charcoal"
@@ -1345,175 +1345,11 @@ exports[`CommunityHome component matches the snapshot 1`] = `
               }
               verticalTextAlign="center"
             >
-              Direct messages
+              Members
             </Text>
-            <View
-              accessibilityLabel="New direct message"
-              accessibilityRole="button"
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              hitSlop={
-                {
-                  "bottom": 12,
-                  "left": 12,
-                  "right": 12,
-                  "top": 12,
-                }
-              }
-              onBlur={[Function]}
-              onClick={[Function]}
-              onFocus={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "height": 16,
-                  "width": 16,
-                }
-              }
-              testID="New direct message"
-            >
-              <RNSVGSvgView
-                align="xMidYMid"
-                bbHeight={16}
-                bbWidth={16}
-                fill="none"
-                focusable={false}
-                height={16}
-                meetOrSlice={0}
-                minX={0}
-                minY={0}
-                style={
-                  [
-                    {
-                      "backgroundColor": "transparent",
-                      "borderWidth": 0,
-                    },
-                    {
-                      "flex": 0,
-                      "height": 16,
-                      "width": 16,
-                    },
-                  ]
-                }
-                vbHeight={16}
-                vbWidth={16}
-                width={16}
-              >
-                <RNSVGGroup
-                  fill={null}
-                  propList={
-                    [
-                      "fill",
-                    ]
-                  }
-                >
-                  <RNSVGGroup
-                    fill={
-                      {
-                        "payload": 4278190080,
-                        "type": 0,
-                      }
-                    }
-                    opacity={0.6}
-                  >
-                    <RNSVGPath
-                      d="M8 4V12"
-                      fill={
-                        {
-                          "payload": 4278190080,
-                          "type": 0,
-                        }
-                      }
-                      propList={
-                        [
-                          "stroke",
-                          "strokeWidth",
-                        ]
-                      }
-                      stroke={
-                        {
-                          "payload": 4280427042,
-                          "type": 0,
-                        }
-                      }
-                      strokeWidth={1}
-                    />
-                    <RNSVGPath
-                      d="M12 8L4 8"
-                      fill={
-                        {
-                          "payload": 4278190080,
-                          "type": 0,
-                        }
-                      }
-                      propList={
-                        [
-                          "stroke",
-                          "strokeWidth",
-                        ]
-                      }
-                      stroke={
-                        {
-                          "payload": 4280427042,
-                          "type": 0,
-                        }
-                      }
-                      strokeWidth={1}
-                    />
-                    <RNSVGCircle
-                      cx={8}
-                      cy={8}
-                      fill={
-                        {
-                          "payload": 4278190080,
-                          "type": 0,
-                        }
-                      }
-                      propList={
-                        [
-                          "stroke",
-                          "strokeWidth",
-                        ]
-                      }
-                      r={7.5}
-                      stroke={
-                        {
-                          "payload": 4280427042,
-                          "type": 0,
-                        }
-                      }
-                      strokeWidth={1}
-                    />
-                  </RNSVGGroup>
-                </RNSVGGroup>
-              </RNSVGSvgView>
-            </View>
           </View>
           <View
-            accessibilityLabel="StoneJump, direct message"
+            accessibilityLabel="StoneJump, send a direct message"
             accessibilityRole="button"
             accessibilityState={
               {
@@ -1555,7 +1391,7 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                 "paddingVertical": 8,
               }
             }
-            testID="dm_tile_StoneJump"
+            testID="user_tile_StoneJump"
           >
             <View
               style={{}}
@@ -1729,16 +1565,9 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             >
               StoneJump
             </Text>
-            <View
-              style={
-                {
-                  "flex": 1,
-                }
-              }
-            />
           </View>
           <View
-            accessibilityLabel="MoonThinke8, direct message"
+            accessibilityLabel="MoonThinke8, send a direct message"
             accessibilityRole="button"
             accessibilityState={
               {
@@ -1780,7 +1609,7 @@ exports[`CommunityHome component matches the snapshot 1`] = `
                 "paddingVertical": 8,
               }
             }
-            testID="dm_tile_MoonThinke8"
+            testID="user_tile_MoonThinke8"
           >
             <View
               style={{}}
@@ -1940,25 +1769,6 @@ exports[`CommunityHome component matches the snapshot 1`] = `
             >
               MoonThinke8
             </Text>
-            <View
-              style={
-                {
-                  "flex": 1,
-                }
-              }
-            />
-            <View
-              accessibilityLabel="Unread messages"
-              style={
-                {
-                  "backgroundColor": "#E42656",
-                  "borderRadius": 4,
-                  "height": 8,
-                  "width": 8,
-                }
-              }
-              testID="dm_tile_MoonThinke8_unread"
-            />
           </View>
         </View>
       </View>

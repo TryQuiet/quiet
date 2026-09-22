@@ -1,6 +1,4 @@
-import type { PublicChannelStorage } from '@quiet/types'
-
-import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
+import type { FileMetadata } from '@quiet/types'
 
 /** One channel row in the Channels section. */
 export interface CommunityHomeChannel {
@@ -17,19 +15,21 @@ export interface CommunityHomeChannel {
 }
 
 /**
- * One conversation row in the Direct messages section: a direct-message channel
- * the user can open, with the other person's profile behind the avatar.
+ * One member row in the Members section: someone in the community, as the
+ * design's `List item--people` draws them.
  */
-export interface CommunityHomeConversation {
-  /** The DM channel's id; opening the row opens this channel. */
-  id: string
-  /** The other person's name, as the channel displays it. */
-  name: string
-  unread: boolean
-  /** Drives the avatar and its presence badge. */
-  userData?: DmChannelUserData
-  channel: PublicChannelStorage
-  /** A conversation with yourself is labelled, as the channel list labels it. */
+export interface CommunityHomeUser {
+  userId: string
+  nickname: string
+  /** Base64 photo (legacy profiles). */
+  photo?: string
+  profilePhoto?: FileMetadata
+  /**
+   * Whether this member is reachable right now, for the avatar's presence
+   * badge. Undefined before presence is known, which draws no badge.
+   */
+  connected?: boolean
+  /** You are in the community's member list, and are labelled as such. */
   isMe?: boolean
 }
 
@@ -37,7 +37,7 @@ export interface CommunityHomeProps {
   /** Community name shown in the title bar; its initial fills the icon tile. */
   communityName: string
   channels: CommunityHomeChannel[]
-  conversations: CommunityHomeConversation[]
+  users: CommunityHomeUser[]
   /** The generic public-channel create permission, same as the context menu's. */
   canCreateChannel: boolean
   /** Opens the community context menu (linked devices, leave, share logs). */
@@ -46,9 +46,12 @@ export interface CommunityHomeProps {
   addMembers: () => void
   /** Opens the existing create-channel screen. */
   createChannel: () => void
-  /** Starts a new direct message (an empty conversation). */
-  createDm: () => void
-  openChannel: (id: string, newChat?: boolean) => void
+  openChannel: (id: string) => void
+  /**
+   * Opens the direct message with this member, or the composer with them
+   * already chosen when there is no conversation yet.
+   */
+  openMember: (userId: string) => void
 }
 
 export interface ListRowProps {
@@ -70,8 +73,8 @@ export interface ListSectionTitleProps {
 }
 
 export interface PersonRowProps {
-  conversation: CommunityHomeConversation
-  /** Opens the conversation. */
+  user: CommunityHomeUser
+  /** Opens (or starts) the direct message with this member. */
   onPress: () => void
   testID?: string
 }

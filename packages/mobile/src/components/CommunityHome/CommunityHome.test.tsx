@@ -5,9 +5,7 @@ import { act, fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { CommunityHome } from './CommunityHome.component'
 
-import { ChannelType, type PublicChannelStorage } from '@quiet/types'
-
-import type { CommunityHomeChannel, CommunityHomeConversation, CommunityHomeProps } from './CommunityHome.types'
+import type { CommunityHomeChannel, CommunityHomeProps, CommunityHomeUser } from './CommunityHome.types'
 
 const channels: CommunityHomeChannel[] = [
   { id: 'general-id', name: 'general', isPublic: true, unread: false },
@@ -15,43 +13,22 @@ const channels: CommunityHomeChannel[] = [
   { id: 'philosophy-id', name: 'philosophy', isPublic: false, unread: false },
 ]
 
-const dmChannel = (id: string, name: string): PublicChannelStorage =>
-  ({
-    id,
-    name,
-    displayedName: name,
-    type: ChannelType.DM,
-    memberIds: ['me', id],
-  }) as unknown as PublicChannelStorage
-
-const conversations: CommunityHomeConversation[] = [
-  {
-    id: 'stone-jump-dm',
-    name: 'StoneJump',
-    unread: false,
-    channel: dmChannel('stone-jump-dm', 'StoneJump'),
-    userData: { connected: true, user: { userId: 'stone-jump', nickname: 'StoneJump' } as never },
-  },
-  {
-    id: 'moon-thinke-dm',
-    name: 'MoonThinke8',
-    unread: true,
-    channel: dmChannel('moon-thinke-dm', 'MoonThinke8'),
-    userData: { connected: false, user: { userId: 'moon-thinke', nickname: 'MoonThinke8' } as never },
-  },
+const users: CommunityHomeUser[] = [
+  { userId: 'stone-jump', nickname: 'StoneJump', connected: true },
+  { userId: 'moon-thinke', nickname: 'MoonThinke8', connected: false },
 ]
 
 const setup = (overrides: Partial<CommunityHomeProps> = {}) => {
   const props: CommunityHomeProps = {
     communityName: 'Nyc-activism',
     channels,
-    conversations,
+    users,
     canCreateChannel: true,
     openCommunityMenu: jest.fn(),
     addMembers: jest.fn(),
     createChannel: jest.fn(),
-    createDm: jest.fn(),
     openChannel: jest.fn(),
+    openMember: jest.fn(),
     ...overrides,
   }
   return { props, ...renderComponent(<CommunityHome {...props} />) }
@@ -107,34 +84,27 @@ describe('CommunityHome component', () => {
     expect(toJSON()).toMatchSnapshot()
   })
 
-  it('lists every channel and conversation, and no message previews', () => {
+  it('lists every channel and member, and no message previews', () => {
     const { getByText } = setup()
     expect(getByText('Add members')).toBeTruthy()
     expect(getByText('Channels')).toBeTruthy()
     expect(getByText('general')).toBeTruthy()
     expect(getByText('philosophy')).toBeTruthy()
-    expect(getByText('Direct messages')).toBeTruthy()
+    expect(getByText('Members')).toBeTruthy()
     expect(getByText('StoneJump')).toBeTruthy()
   })
 
-  it('opens a conversation by its channel id', () => {
+  it('messages a member by user id, since a member row now opens a DM', () => {
     const { props, getByTestId } = setup()
-    fireEvent.press(getByTestId('dm_tile_StoneJump'))
-    expect(props.openChannel).toHaveBeenCalledWith('stone-jump-dm')
+    fireEvent.press(getByTestId('user_tile_StoneJump'))
+    expect(props.openMember).toHaveBeenCalledWith('stone-jump')
   })
 
-  it('starts a new direct message from the section plus', () => {
-    const { props, getByTestId } = setup()
-    fireEvent.press(getByTestId('New direct message'))
-    expect(props.createDm).toHaveBeenCalled()
-  })
-
-  it('marks an unread conversation, and the community with it', () => {
-    const { getByTestId, queryByTestId } = setup({ channels: channels.map(c => ({ ...c, unread: false })) })
-    expect(getByTestId('dm_tile_MoonThinke8_unread')).toBeTruthy()
-    expect(queryByTestId('dm_tile_StoneJump_unread')).toBeNull()
-    // Nothing else is unread, so the community mark comes from the conversation.
-    expect(getByTestId('community_unread')).toBeTruthy()
+  it('gives the members section no plus — a DM is started from the member row', () => {
+    const { queryByTestId, queryByText } = setup()
+    expect(queryByTestId('New direct message')).toBeNull()
+    // The design draws no Direct messages section on this screen.
+    expect(queryByText('Direct messages')).toBeNull()
   })
 
   it('opens a channel by id', () => {
@@ -174,17 +144,19 @@ describe('CommunityHome component', () => {
   })
 
   it('leaves the community unmarked when nothing is unread', () => {
-    const { queryByTestId } = setup({
-      channels: channels.map(channel => ({ ...channel, unread: false })),
-      conversations: conversations.map(conversation => ({ ...conversation, unread: false })),
-    })
+    const { queryByTestId } = setup({ channels: channels.map(channel => ({ ...channel, unread: false })) })
     expect(queryByTestId('community_unread')).toBeNull()
   })
 
-  it('keeps the Direct messages section and its plus with no conversations yet', () => {
-    const { getByText, getByTestId } = setup({ conversations: [] })
-    expect(getByText('Direct messages')).toBeTruthy()
-    expect(getByTestId('New direct message')).toBeTruthy()
+  // The empty community (6124:9816) draws no member section at all.
+  it('hides the members section until profiles arrive', () => {
+    const { queryByText } = setup({ users: [] })
+    expect(queryByText('Members')).toBeNull()
+  })
+
+  it('labels yourself in the member list, which includes you', () => {
+    const { getByText } = setup({ users: [{ ...users[0], isMe: true }] })
+    expect(getByText('you')).toBeTruthy()
   })
 
   // "Tapped state for all clickable stuff" — the designer's V1 note 6220:24045.
@@ -225,9 +197,9 @@ describe('CommunityHome component', () => {
       expect(group).toHaveStyle({ backgroundColor: 'transparent' })
     })
 
-    it('fills a conversation row while it is held, now that it opens something', () => {
+    it('fills a member row while it is held, now that it opens a DM', () => {
       const { getByTestId } = setup()
-      const row = getByTestId('dm_tile_StoneJump')
+      const row = getByTestId('user_tile_StoneJump')
       expect(row).toHaveStyle({ backgroundColor: 'transparent' })
       hold(row)
       expect(row).toHaveStyle({ backgroundColor: '#F0F0F0' })
