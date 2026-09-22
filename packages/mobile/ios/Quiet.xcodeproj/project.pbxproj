@@ -38,8 +38,8 @@
 		03B674212E6103DC00A86655 /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */; };
 		03B674222E6103DC00A86655 /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673F92E6103DC00A86655 /* Rubik-Black.ttf */; };
 		180E120B2AEFB7F900804659 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180E120A2AEFB7F900804659 /* Utils.swift */; };
-		1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1827A9E329783D7600245FD3 /* classic-level.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.xcframework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		1827A9E429783D7600245FD3 /* classic-level.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1868B952292E9211001D6D5E /* NodeRunner.mm */; };
 		1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = 1868B953292E9211001D6D5E /* RNNodeJsMobile.m */; };
 		1868BCF1292E9212001D6D5E /* rn-bridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1868BCEC292E9212001D6D5E /* rn-bridge.cpp */; };
@@ -50,7 +50,7 @@
 		1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1889CA4D26E763E1004ECFBD /* Extensions.swift */; };
 		1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189814392934CF70001F39E7 /* TorHandler.swift */; };
 		18FD2A3D296F009E00A2B8C0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A35296F009E00A2B8C0 /* LaunchScreen.storyboard */; };
-		18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.m */; };
+		18FD2A3E296F009E00A2B8C0 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.mm */; };
 		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
 		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
 		4D83A3053BB0BA758B7C612D /* Pods_QuietNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D609F9D4DF7238B86189CDC /* Pods_QuietNotificationServiceExtension.framework */; };
@@ -69,6 +69,12 @@
 		A11500000000000000000010 /* NSENetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000E /* NSENetworkClient.swift */; };
 		A11500000000000000000011 /* NSECryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1150000000000000000000F /* NSECryptoService.swift */; };
 		A11500000000000000000013 /* NSEBackgroundNotificationOrchestrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */; };
+		A11600000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
+		A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000004 /* QuietBackgroundTaskTests.m */; };
+		A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000006 /* TorHandlerLifecycleTests.swift */; };
+		A11600000000000000000008 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
+		A11700000000000000000001 /* TorBackgroundTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11700000000000000000003 /* TorBackgroundTransitions.swift */; };
+		A11700000000000000000002 /* TorBackgroundTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11700000000000000000003 /* TorBackgroundTransitions.swift */; };
 		D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */; };
 		EB4DC7EC2F5FF6AB00EFD23F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */; };
 		EB4DC8002F608A3300EFD23F /* QuietNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -77,12 +83,7 @@
 		EB5F92FC2F5FBB2100B5C60D /* FirebaseMessagingModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */; };
 		EB5F92FD2F5FBB2100B5C60D /* FirebaseMessagingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */; };
 		EE51651EA363C766EA0DE07A /* Pods_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */; };
-		A11600000000000000000001 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
-		A11600000000000000000003 /* QuietBackgroundTaskTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000004 /* QuietBackgroundTaskTests.m */; };
-		A11600000000000000000005 /* TorHandlerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000006 /* TorHandlerLifecycleTests.swift */; };
-		A11600000000000000000008 /* QuietBackgroundTask.m in Sources */ = {isa = PBXBuildFile; fileRef = A11600000000000000000002 /* QuietBackgroundTask.m */; };
-		A11700000000000000000001 /* TorBackgroundTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11700000000000000000003 /* TorBackgroundTransitions.swift */; };
-		A11700000000000000000002 /* TorBackgroundTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11700000000000000000003 /* TorBackgroundTransitions.swift */; };
+		BE9027BE228F4086A35829F9 /* QuietFirebaseUnavailableTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,6 +93,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = EB4DC7F82F608A3300EFD23F;
 			remoteInfo = QuietNotificationServiceExtension;
+		};
+		E30552CD3A5B4E708F14ADEB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
+			remoteInfo = Quiet;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -103,7 +111,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				00A416372EC2EC7F00ACC877 /* NodeMobile.xcframework in Embed Frameworks */,
-				1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */,
+				1827A9E429783D7600245FD3 /* classic-level.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -142,7 +150,7 @@
 		03B674062E6103DC00A86655 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-SemiBoldItalic.ttf"; path = "../src/assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		13B07F961A680F5B00A75B9A /* Quiet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		180E120A2AEFB7F900804659 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		1827A9E129783D6E00245FD3 /* classic-level.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = "classic-level.framework"; sourceTree = "<group>"; };
+		1827A9E129783D6E00245FD3 /* classic-level.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "classic-level.xcframework"; path = "classic-level/classic-level.xcframework"; sourceTree = "<group>"; };
 		183C484F296C7B6700BA2D8B /* v8-platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-platform.h"; sourceTree = "<group>"; };
 		183C4850296C7B6700BA2D8B /* v8-version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-version.h"; sourceTree = "<group>"; };
 		183C4851296C7B6700BA2D8B /* node_api_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node_api_types.h; sourceTree = "<group>"; };
@@ -645,7 +653,7 @@
 		18FD2A34296F009E00A2B8C0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Quiet/Info.plist; sourceTree = "<group>"; };
 		18FD2A35296F009E00A2B8C0 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Quiet/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		18FD2A36296F009E00A2B8C0 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Quiet/AppDelegate.h; sourceTree = "<group>"; };
-		18FD2A37296F009E00A2B8C0 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Quiet/AppDelegate.m; sourceTree = "<group>"; };
+		18FD2A37296F009E00A2B8C0 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Quiet/AppDelegate.mm; sourceTree = "<group>"; };
 		18FD2A38296F009E00A2B8C0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Quiet/Images.xcassets; sourceTree = "<group>"; };
 		18FD2A39296F009E00A2B8C0 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Quiet/main.m; sourceTree = "<group>"; };
 		18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Quiet.entitlements; path = Quiet/Quiet.entitlements; sourceTree = "<group>"; };
@@ -673,6 +681,11 @@
 		A1150000000000000000000E /* NSENetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSENetworkClient.swift; path = ../QuietNotificationServiceExtension/NSENetworkClient.swift; sourceTree = "<group>"; };
 		A1150000000000000000000F /* NSECryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSECryptoService.swift; path = ../QuietNotificationServiceExtension/NSECryptoService.swift; sourceTree = "<group>"; };
 		A11500000000000000000012 /* NSEBackgroundNotificationOrchestrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NSEBackgroundNotificationOrchestrator.swift; path = ../QuietNotificationServiceExtension/NSEBackgroundNotificationOrchestrator.swift; sourceTree = "<group>"; };
+		A11600000000000000000002 /* QuietBackgroundTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTask.m; sourceTree = "<group>"; };
+		A11600000000000000000004 /* QuietBackgroundTaskTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTaskTests.m; sourceTree = "<group>"; };
+		A11600000000000000000006 /* TorHandlerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandlerLifecycleTests.swift; sourceTree = "<group>"; };
+		A11600000000000000000007 /* QuietBackgroundTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietBackgroundTask.h; sourceTree = "<group>"; };
+		A11700000000000000000003 /* TorBackgroundTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorBackgroundTransitions.swift; sourceTree = "<group>"; };
 		D138F5E8F9C27CF118B62554 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		D48393269FBBD868224E65E9 /* Pods-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-QuietTests/Pods-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		DC03A48F321B4BE2A5339F05 /* Quiet.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.xcconfig; sourceTree = SOURCE_ROOT; };
@@ -687,11 +700,8 @@
 		EB5F92FA2F5FBB2100B5C60D /* FirebaseMessagingModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FirebaseMessagingModule.m; path = Quiet/FirebaseMessagingModule.m; sourceTree = "<group>"; };
 		EB5F92FB2F5FBB2100B5C60D /* FirebaseMessagingModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FirebaseMessagingModule.swift; path = Quiet/FirebaseMessagingModule.swift; sourceTree = "<group>"; };
 		EB5F93032F5FC50100B5C60D /* Quiet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Quiet-Bridging-Header.h"; sourceTree = "<group>"; };
-		A11600000000000000000002 /* QuietBackgroundTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTask.m; sourceTree = "<group>"; };
-		A11600000000000000000004 /* QuietBackgroundTaskTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietBackgroundTaskTests.m; sourceTree = "<group>"; };
-		A11600000000000000000006 /* TorHandlerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandlerLifecycleTests.swift; sourceTree = "<group>"; };
-		A11600000000000000000007 /* QuietBackgroundTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuietBackgroundTask.h; sourceTree = "<group>"; };
-		A11700000000000000000003 /* TorBackgroundTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorBackgroundTransitions.swift; sourceTree = "<group>"; };
+		D2CFF9D8BC2E46A2BA6F289C /* QuietAppTests.xctest */ = {isa = PBXFileReference; name = "QuietAppTests.xctest"; path = "QuietAppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; explicitFileType = "wrapper.cfbundle"; includeInIndex = 0; };
+		FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */ = {isa = PBXFileReference; name = "QuietFirebaseUnavailableTests.m"; path = "QuietFirebaseUnavailableTests.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -736,7 +746,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */,
-				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
+				1827A9E329783D7600245FD3 /* classic-level.xcframework in Frameworks */,
 				6204263D91F3440F598B7BB0 /* Pods_Quiet.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -746,6 +756,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D83A3053BB0BA758B7C612D /* Pods_QuietNotificationServiceExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1EFDFDDB588E43298CC6A406 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -789,7 +806,7 @@
 				EB4DC8152F60912900EFD23F /* AppDelegate+Firebase.swift */,
 				180E120A2AEFB7F900804659 /* Utils.swift */,
 				18FD2A36296F009E00A2B8C0 /* AppDelegate.h */,
-				18FD2A37296F009E00A2B8C0 /* AppDelegate.m */,
+				18FD2A37296F009E00A2B8C0 /* AppDelegate.mm */,
 				18FD2A38296F009E00A2B8C0 /* Images.xcassets */,
 				18FD2A34296F009E00A2B8C0 /* Info.plist */,
 				18FD2A35296F009E00A2B8C0 /* LaunchScreen.storyboard */,
@@ -4840,7 +4857,7 @@
 			isa = PBXGroup;
 			children = (
 				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
-				1827A9E129783D6E00245FD3 /* classic-level.framework */,
+				1827A9E129783D6E00245FD3 /* classic-level.xcframework */,
 				4656C8360BE2B6E9C1BCF8CF /* Pods_Quiet.framework */,
 				3D609F9D4DF7238B86189CDC /* Pods_QuietNotificationServiceExtension.framework */,
 				5A2E101CD621116D912422C4 /* Pods_QuietTests.framework */,
@@ -4894,6 +4911,7 @@
 				E17A7BE86B5879902AF7BA3A /* QuietNotificationServiceExtension.debug.xcconfig */,
 				E4A82686A95EE5D58359B484 /* QuietNotificationServiceExtension.release.xcconfig */,
 				E079692B46015F1D27CDBBC2 /* Quiet.release.xcconfig */,
+				E49D8F94156C4FB3AB4D5C6D /* QuietAppTests */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -4906,8 +4924,18 @@
 				13B07F961A680F5B00A75B9A /* Quiet.app */,
 				00E356EE1AD99517003FC87E /* QuietTests.xctest */,
 				EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */,
+				D2CFF9D8BC2E46A2BA6F289C /* QuietAppTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E49D8F94156C4FB3AB4D5C6D /* QuietAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				FCC0E5ED73C04DA0922089DF /* QuietFirebaseUnavailableTests.m */,
+			);
+			name = QuietAppTests;
+			path = QuietAppTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -4947,6 +4975,7 @@
 				18FD2A32296D736300A2B8C0 /* [CUSTOM NODEJS MOBILE] Remove Python3 Binaries */,
 				1827A9E0297837FE00245FD3 /* [CUSTOM NODEJS MOBILE] Remove prebuilds */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
+				50D1A01950D1A01950D1A019 /* Embed native libsodium */,
 				EBD3273E2F5FA01F00E2CD0C /* Embed Foundation Extensions */,
 				45E8E1CED3ACB0A8578792B4 /* [CP] Embed Pods Frameworks */,
 				256DD21612F4D56D318DA3D7 /* [CP] Copy Pods Resources */,
@@ -4986,6 +5015,24 @@
 			productReference = EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		0355805E9B0B4882BDC9173E /* "QuietAppTests" */ = {
+			isa = PBXNativeTarget;
+			name = "QuietAppTests";
+			productName = "QuietAppTests";
+			productReference = D2CFF9D8BC2E46A2BA6F289C;
+			productType = "com.apple.product-type.bundle.unit-test";
+			buildConfigurationList = 55544ACA02A64A438968DB49;
+			buildPhases = (
+				AB6A2671748F4C3E9C439EA2 /* Sources */,
+				1EFDFDDB588E43298CC6A406 /* Frameworks */,
+				F377DE6A1E114599A8284D72 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3AAC75D3296B47B3A834CDC9 /* PBXTargetDependency */,
+			);
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -5007,6 +5054,9 @@
 					EB4DC7F82F608A3300EFD23F = {
 						CreatedOnToolsVersion = 26.3;
 					};
+					0355805E9B0B4882BDC9173E = {
+						TestTargetID = 13B07F861A680F5B00A75B9A;
+					};
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Quiet" */;
@@ -5025,6 +5075,7 @@
 				13B07F861A680F5B00A75B9A /* Quiet */,
 				00E356ED1AD99517003FC87E /* QuietTests */,
 				EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */,
+				0355805E9B0B4882BDC9173E /* "QuietAppTests" */,
 			);
 		};
 /* End PBXProject section */
@@ -5084,9 +5135,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F377DE6A1E114599A8284D72 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		50D1A01950D1A01950D1A019 /* Embed native libsodium */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = ();
+			name = "Embed native libsodium";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n[ ! -f \"$SRCROOT/.xcode.env\" ] || . \"$SRCROOT/.xcode.env\"\n[ ! -f \"$SRCROOT/.xcode.env.local\" ] || . \"$SRCROOT/.xcode.env.local\"\n\"${NODE_BINARY:-node}\" \"$SRCROOT/../scripts/embed-sodium-ios.cjs\"\n";
+		};
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5359,7 +5428,7 @@
 				1868C4382930D7D6001D6D5E /* DataDirectory.swift in Sources */,
 				1868C43E2930EAEA001D6D5E /* CommunicationBridge.m in Sources */,
 				1868C43A2930D859001D6D5E /* FindFreePort.swift in Sources */,
-				18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */,
+				18FD2A3E296F009E00A2B8C0 /* AppDelegate.mm in Sources */,
 				A11600000000000000000001 /* QuietBackgroundTask.m in Sources */,
 				1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */,
 				1868C43C2930E255001D6D5E /* CommunicationModule.swift in Sources */,
@@ -5374,6 +5443,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AB6A2671748F4C3E9C439EA2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE9027BE228F4086A35829F9 /* QuietFirebaseUnavailableTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -5381,6 +5458,11 @@
 			isa = PBXTargetDependency;
 			target = EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */;
 			targetProxy = EB4DC7FE2F608A3300EFD23F /* PBXContainerItemProxy */;
+		};
+		3AAC75D3296B47B3A834CDC9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 13B07F861A680F5B00A75B9A /* Quiet */;
+			targetProxy = E30552CD3A5B4E708F14ADEB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -5704,6 +5786,8 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers/platform/ios",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
@@ -5789,6 +5873,8 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers/platform/ios",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
@@ -5835,7 +5921,7 @@
 				INFOPLIST_FILE = QuietNotificationServiceExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = QuietNotificationServiceExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5881,7 +5967,7 @@
 				INFOPLIST_FILE = QuietNotificationServiceExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = QuietNotificationServiceExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5902,6 +5988,42 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		CD90F926CA6E4306B7F9C41A /* Debug */ = {
+			name = Debug;
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				SWIFT_VERSION = 5.0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = QuietAppTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "QuietAppTests";
+				SKIP_INSTALL = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quietmobile.app-tests";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quiet.app/Quiet";
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				CLANG_ENABLE_MODULES = YES;
+			};
+		};
+		CD78069C370B48F89E307721 /* Release */ = {
+			name = Release;
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				SWIFT_VERSION = 5.0;
+				INFOPLIST_FILE = QuietAppTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "QuietAppTests";
+				SKIP_INSTALL = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.quietmobile.app-tests";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quiet.app/Quiet";
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				CLANG_ENABLE_MODULES = YES;
+			};
 		};
 /* End XCBuildConfiguration section */
 
@@ -5938,6 +6060,15 @@
 			buildConfigurations = (
 				EB4DC8032F608A3300EFD23F /* Debug */,
 				EB4DC8042F608A3300EFD23F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55544ACA02A64A438968DB49 /* Build configuration list for PBXNativeTarget "QuietAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CD90F926CA6E4306B7F9C41A /* Debug */,
+				CD78069C370B48F89E307721 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

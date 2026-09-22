@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Typography, TypographyOptions } from '@mui/material/styles/createTypography'
 import { Palette, PaletteOptions } from '@mui/material/styles/createPalette'
+import type { SemanticSpace } from './design-system/tokens/types'
 
 declare module '@mui/material/styles/createTypography' {
   interface Typography {
@@ -26,6 +27,8 @@ declare module '@mui/material/styles/createPalette' {
 
 declare module '@mui/material/styles' {
   interface Theme {
+    /** Spacing roles on the 4px grid (design-system/tokens). */
+    space: SemanticSpace
     componentSizes: {
       avatar: {
         small: number
@@ -40,12 +43,24 @@ declare module '@mui/material/styles' {
           bottom: number
         }
       }
+      dmMemberCountIndicator: {
+        minSize: number
+        maxSize: number
+        borderWidth: number
+        fontSize: number
+        lineHeight: number
+        position: {
+          right: number
+          bottom: number
+        }
+      }
       userListItem: {
         gap: number
       }
     }
   }
   interface ThemeOptions {
+    space?: SemanticSpace
     componentSizes?: {
       avatar?: {
         small?: number
@@ -55,6 +70,17 @@ declare module '@mui/material/styles' {
       statusIndicator?: {
         size?: number
         borderWidth?: number
+        position?: {
+          right?: number
+          bottom?: number
+        }
+      }
+      dmMemberCountIndicator?: {
+        minSize?: number
+        maxSize?: number
+        borderWidth?: number
+        fontSize?: number
+        lineHeight?: number
         position?: {
           right?: number
           bottom?: number

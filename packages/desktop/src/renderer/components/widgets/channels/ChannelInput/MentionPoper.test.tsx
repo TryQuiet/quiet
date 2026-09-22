@@ -17,7 +17,7 @@ describe('MentionPoper', () => {
       <body>
         <div />
         <div
-          class="MentionPoperroot css-1swboy6-MuiPopper-root MuiPopperUnstyled-root"
+          class="MentionPoperroot css-s3capc-MuiPopper-root MuiPopperUnstyled-root"
           role="tooltip"
           style="position: fixed; top: 0px; left: 0px; transform: translate3d(0px,0px,0px; z-index: -1;"
         >

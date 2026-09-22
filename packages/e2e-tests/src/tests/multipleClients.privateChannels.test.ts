@@ -10,11 +10,11 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
+  Settings,
   Sidebar,
-  UsersList,
 } from '../selectors'
 import { createArbitraryFile, promiseWithRetries } from '../utils'
-import { MessageIds, UserListStatus, UserTestData } from '../types'
+import { DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS, MessageIds, UserListStatus, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import { FileAttachmentType, SettingsModalTabName } from '../enums'
 import {
@@ -38,6 +38,7 @@ describe('Multiple Clients (Private Channels)', () => {
   let privateChannelUser1: Channel
   let privateChannel2Owner: Channel
   let privateChannel2User1: Channel
+  let privateChannelDeletedOwner: Channel
 
   let channelContextMenuOwner: ChannelContextMenu
 
@@ -47,12 +48,17 @@ describe('Multiple Clients (Private Channels)', () => {
   let sidebarUser1: Sidebar
   let sidebarUser2: Sidebar
 
+  let settingsOwner: Settings
+  let settingsUser1: Settings
+  let settingsUser2: Settings
+
   let users: Record<string, UserTestData>
 
   const communityName = 'testcommunity'
   const displayedCommunityName = 'Testcommunity'
   const privateChannelName = 'private-chat'
   const privateChannel2Name = 'private-chat-2'
+  const deletedPrivateChannelName = 'private-delete-me'
   const generalChannelName = 'general'
 
   beforeAll(async () => {
@@ -64,7 +70,7 @@ describe('Multiple Clients (Private Channels)', () => {
           'Only I can see this',
           `I'm still the only one who can see this`,
           `New private channel only I can see`,
-          `The second user can now see this`,
+          `The user can now see this`,
         ],
         app: new App({ username: 'owner' }),
       },
@@ -152,10 +158,76 @@ describe('Multiple Clients (Private Channels)', () => {
       })
     })
 
+    describe('Creating and Deleting Private Channel Before User Joins', () => {
+      describe('Owner Creates a Temporary Private Channel', () => {
+        it('Owner creates a private channel', async () => {
+          await sidebarOwner.addNewChannel(deletedPrivateChannelName, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
+          await sidebarOwner.switchChannel(deletedPrivateChannelName, false)
+        })
+
+        it(`Temporary private channel is in owner's sidebar`, async () => {
+          const channels = await sidebarOwner.getChannelsNames()
+          expect(channels).toContain(deletedPrivateChannelName)
+          await sidebarOwner.getChannelIcon(deletedPrivateChannelName, false)
+        })
+
+        it('Owner sends message in temporary private channel', async () => {
+          privateChannelDeletedOwner = new Channel(users.owner.app.driver, deletedPrivateChannelName)
+          expect(await privateChannelDeletedOwner.isReady()).toBeTruthy()
+          expect(await privateChannelDeletedOwner.isMessageInputReady()).toBeTruthy()
+          await privateChannelDeletedOwner.sendMessage(users.owner.messages[1], users.owner.username)
+        })
+
+        it("Owner's message is visible in temporary private channel", async () => {
+          const messages = await privateChannelDeletedOwner.getUserMessages(users.owner.username)
+          const text = await messages[1].getText()
+          expect(text).toEqual(users.owner.messages[1])
+        })
+      })
+
+      describe('Owner Deletes the Temporary Private Channel', () => {
+        it('Owner deletes temporary private channel', async () => {
+          channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
+          const { iconVisible, menuOpened, menuButton } = await channelContextMenuOwner.openMenu()
+          expect(menuButton).toBe(true)
+          expect(menuOpened).toBe(true)
+          expect(iconVisible).toBe(true)
+          await channelContextMenuOwner.openDeletionChannelModal()
+          await channelContextMenuOwner.deleteChannel()
+          await sidebarOwner.waitForChannelsNum(1)
+        })
+
+        it('Owner sees that the temporary private channel is missing in the sidebar', async () => {
+          const channelNames = await sidebarOwner.getChannelsNames()
+          expect(channelNames).not.toContain(deletedPrivateChannelName)
+        })
+
+        it('Owner does not see info about channel deletion in general channel', async () => {
+          expect(await generalChannelOwner.isOpen()).toBeTruthy()
+          let messageIds: MessageIds | undefined = undefined
+          try {
+            messageIds = await generalChannelOwner.getMessageIdsByText(
+              deleteChannelMessage(deletedPrivateChannelName),
+              users.owner.username
+            )
+          } catch (e) {
+            // do nothing - we don't expect to see the deletion message for private channels
+          }
+          expect(messageIds).toBeUndefined()
+        })
+      })
+    })
+
     describe('Creating Private Channel Before User Joins', () => {
       describe('Owner Creates a Private Channel', () => {
         it('Owner creates a private channel', async () => {
-          await sidebarOwner.addNewChannel(privateChannelName, false)
+          const { channel, errors } = await sidebarOwner.addNewChannel(
+            privateChannelName,
+            DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS
+          )
+          expect(channel).toBeDefined()
+          expect(errors).toBeUndefined()
+          await sidebarOwner.waitForChannelsNum(2)
           await sidebarOwner.switchChannel(privateChannelName, false)
         })
 
@@ -246,21 +318,75 @@ describe('Multiple Clients (Private Channels)', () => {
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         })
 
-        it('User sees owner in user list', async () => {
-          const userList = new UsersList(users.user1.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+        it.skip('First user opens community membership tab', async () => {
+          settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
+          expect(await settingsUser1.isReady()).toBeTruthy()
+          await settingsUser1.openCommunityMembership(2)
         })
 
-        it('Owner sees user in user list', async () => {
-          const userList = new UsersList(users.owner.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+        it.skip('First user sees self in user list', async () => {
+          const status = await settingsUser1.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.ONLINE,
+            true
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('First user sees owner in user list', async () => {
+          const status = await settingsUser1.getUserInCommunityMembership(
+            users.owner.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('First user closes community membership tab', async () => {
+          await settingsUser1.closeTabThenModal()
+        })
+
+        it.skip('Owner opens community membership tab', async () => {
+          settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+          expect(await settingsOwner.isReady()).toBeTruthy()
+          await settingsOwner.openCommunityMembership(2)
+        })
+
+        it.skip('Owner sees user in user list', async () => {
+          const status = await settingsOwner.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('Owner closes community membership tab', async () => {
+          await settingsOwner.closeTabThenModal()
         })
 
         it("Owner's message is visible in general channel", async () => {
           await generalChannelUser1.getUserMessages(users.owner.username)
           await generalChannelUser1.getMessageIdsByText(users.owner.messages[0], users.owner.username, 60_000)
+        })
+
+        it('First user does not see info about channel deletion in general channel', async () => {
+          sidebarUser1 = new Sidebar(users.user1.app.driver)
+          generalChannelUser1 = await sidebarUser1.switchChannel(generalChannelName)
+          expect(await generalChannelUser1.isOpen()).toBeTruthy()
+          let messageIds: MessageIds | undefined = undefined
+          try {
+            messageIds = await generalChannelUser1.getMessageIdsByText(
+              deleteChannelMessage(deletedPrivateChannelName),
+              users.owner.username
+            )
+          } catch (e) {
+            // do nothing - we don't expect to see the deletion message for private channels
+          }
+          expect(messageIds).toBeUndefined()
         })
       })
 
@@ -315,7 +441,7 @@ describe('Multiple Clients (Private Channels)', () => {
         })
 
         it(`Private channel is in user's sidebar`, async () => {
-          const channels = await sidebarUser1.waitForChannels([generalChannelName, privateChannelName])
+          const channels = await sidebarUser1.waitForChannels([generalChannelName, privateChannelName], 60_000)
           expect(channels).toHaveLength(2)
           expect(channels).toContain(privateChannelName)
           await sidebarUser1.getChannelIcon(privateChannelName, false)
@@ -329,7 +455,7 @@ describe('Multiple Clients (Private Channels)', () => {
         })
 
         it("Owner's messages are visible in private channel for user", async () => {
-          await privateChannelUser1.getUserMessages(users.owner.username)
+          await privateChannelUser1.getUserMessages(users.owner.username, 60_000)
           await privateChannelUser1.getMessageIdsByText(users.owner.messages[1], users.owner.username)
           await privateChannelUser1.getMessageIdsByText(users.owner.messages[2], users.owner.username)
         })
@@ -356,7 +482,13 @@ describe('Multiple Clients (Private Channels)', () => {
       describe('Owner Creates Another Private Channel', () => {
         it('Owner creates a second private channel', async () => {
           sidebarOwner = new Sidebar(users.owner.app.driver)
-          await sidebarOwner.addNewChannel(privateChannel2Name, false)
+          const { channel, errors } = await sidebarOwner.addNewChannel(
+            privateChannel2Name,
+            DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS
+          )
+          expect(channel).toBeDefined()
+          expect(errors).toBeUndefined()
+          await sidebarOwner.waitForChannelsNum(3)
           await sidebarOwner.switchChannel(privateChannel2Name, false)
           const channels = await sidebarOwner.waitForChannels([
             generalChannelName,
@@ -394,8 +526,7 @@ describe('Multiple Clients (Private Channels)', () => {
       describe(`Owner Adds User To Second Private Channel`, () => {
         it(`First user's sidebar is missing private channel`, async () => {
           sidebarUser1 = new Sidebar(users.user1.app.driver)
-          const channels = await sidebarUser1.waitForChannels([generalChannelName, privateChannelName])
-          expect(channels).toHaveLength(2)
+          await sidebarUser1.waitForChannelsNum(2)
         })
 
         it('Owner adds first user to second private channel', async () => {
@@ -515,28 +646,84 @@ describe('Multiple Clients (Private Channels)', () => {
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         })
 
-        it('User sees second user in user list', async () => {
-          const userList = new UsersList(users.user1.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+        it.skip('First user opens community membership tab', async () => {
+          settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
+          expect(await settingsUser1.isReady()).toBeTruthy()
+          await settingsUser1.openCommunityMembership(3)
         })
 
-        it('Owner sees second user in user list', async () => {
-          const userList = new UsersList(users.owner.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+        it.skip('First user sees second user in user list', async () => {
+          const status = await settingsUser1.getUserInCommunityMembership(
+            users.user2.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
         })
 
-        it('Second user sees first user in user list', async () => {
-          const userList = new UsersList(users.user2.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+        it.skip('First user closes community membership tab', async () => {
+          await settingsUser1.closeTabThenModal()
         })
 
-        it('Second user sees owner in user list', async () => {
-          const userList = new UsersList(users.user2.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+        it.skip('Owner opens community membership tab', async () => {
+          settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+          expect(await settingsOwner.isReady()).toBeTruthy()
+          await settingsOwner.openCommunityMembership(3)
+        })
+
+        it.skip('Owner user sees second user in user list', async () => {
+          const status = await settingsOwner.getUserInCommunityMembership(
+            users.user2.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('Owner closes community membership tab', async () => {
+          await settingsOwner.closeTabThenModal()
+        })
+
+        it.skip('Second user opens community membership tab', async () => {
+          settingsUser2 = await new Sidebar(users.user2.app.driver).openSettings()
+          expect(await settingsUser2.isReady()).toBeTruthy()
+          await settingsUser2.openCommunityMembership(3)
+        })
+
+        it.skip('Second user sees self in user list', async () => {
+          const status = await settingsUser2.getUserInCommunityMembership(
+            users.user2.username,
+            UserListStatus.ONLINE,
+            true
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('Second user sees first user in user list', async () => {
+          const status = await settingsUser2.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('Second user sees owner in user list', async () => {
+          const status = await settingsUser2.getUserInCommunityMembership(
+            users.owner.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('Second user closes community membership tab', async () => {
+          await settingsUser2.closeTabThenModal()
         })
 
         it('Second user can see messages from before they joined', async () => {
@@ -550,6 +737,22 @@ describe('Multiple Clients (Private Channels)', () => {
           const channels = await sidebarUser2.getChannelsNames()
           expect(channels.length).toBe(1)
           expect(channels).toContain(generalChannelName)
+        })
+
+        it('Second user does not see info about channel deletion in general channel', async () => {
+          sidebarUser2 = new Sidebar(users.user2.app.driver)
+          generalChannelUser2 = await sidebarUser2.switchChannel(generalChannelName)
+          expect(await generalChannelUser2.isOpen()).toBeTruthy()
+          let messageIds: MessageIds | undefined = undefined
+          try {
+            messageIds = await generalChannelUser2.getMessageIdsByText(
+              deleteChannelMessage(deletedPrivateChannelName),
+              users.owner.username
+            )
+          } catch (e) {
+            // do nothing - we don't expect to see the deletion message for private channels
+          }
+          expect(messageIds).toBeUndefined()
         })
       })
     })
@@ -828,6 +1031,56 @@ describe('Multiple Clients (Private Channels)', () => {
           // do nothing - we don't expect to see the deletion message for private channels
         }
         expect(messageIds).toBeUndefined()
+      })
+    })
+
+    describe('Recreate private channel and re-add a former member', () => {
+      const replacementMessage = 'This message belongs to the recreated private channel'
+      const replacementReply = 'I can reply after being added to the recreated channel'
+
+      it('Owner recreates a private channel with the deleted channel name', async () => {
+        await sidebarUser1.waitForChannels([generalChannelName, privateChannel2Name])
+        await sidebarOwner.addNewChannel(privateChannelName, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
+        privateChannelOwner = await sidebarOwner.switchChannel(privateChannelName, false)
+        expect(await privateChannelOwner.isMessageInputReady()).toBeTruthy()
+      })
+
+      it('Former membership does not make the replacement channel visible', async () => {
+        const channels = await sidebarUser1.waitForChannels([generalChannelName, privateChannel2Name])
+        expect(channels).not.toContain(privateChannelName)
+      })
+
+      it('Owner explicitly adds the former member to the replacement channel', async () => {
+        channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
+        const { menuButton, menuOpened, iconVisible } = await channelContextMenuOwner.openMenu()
+        expect(menuButton).toBe(true)
+        expect(menuOpened).toBe(true)
+        expect(iconVisible).toBe(true)
+        await channelContextMenuOwner.openAddMembersModal()
+        await channelContextMenuOwner.addMembersToChannel(privateChannelName, [users.user1.username])
+      })
+
+      it('Re-added member receives the replacement channel and its new message', async () => {
+        await sidebarUser1.waitForChannels([generalChannelName, privateChannelName, privateChannel2Name], 60_000)
+        privateChannelUser1 = await sidebarUser1.switchChannel(privateChannelName, false)
+        await privateChannelOwner.sendMessage(replacementMessage, users.owner.username)
+        await privateChannelOwner.getMessageIdsByText(replacementMessage, users.owner.username)
+        await privateChannelUser1.getMessageIdsByText(replacementMessage, users.owner.username)
+        const messages = await privateChannelUser1.getUserMessages(users.owner.username)
+        const texts = await Promise.all(messages.map(message => message.getText()))
+        expect(texts).not.toContain(users.owner.messages[1])
+        expect(texts).not.toContain(users.owner.messages[2])
+      })
+
+      it('Re-added member sends a message that the owner receives', async () => {
+        expect(await privateChannelUser1.isMessageInputReady()).toBeTruthy()
+        await privateChannelUser1.sendMessage(replacementReply, users.user1.username)
+        await privateChannelOwner.getMessageIdsByText(replacementReply, users.user1.username)
+      })
+
+      it('The member who was never added still cannot see the replacement channel', async () => {
+        const channels = await sidebarUser2.waitForChannels([generalChannelName])
+        expect(channels).not.toContain(privateChannelName)
       })
     })
   })

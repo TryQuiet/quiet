@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validate that the audit client's private auth and QSS submodules can be
+# Validate that the release client's auth and QSS submodules can be
 # initialized from this repository and land on the commits recorded by the
 # superproject. Run from the repository root (or via npm run
 # test:submodule-policy).
@@ -42,10 +42,10 @@ assert_qss_auth_matches_client() {
   fi
 }
 
-assert_config "$auth_path" '../private.git' 'auth/main-baseline'
-assert_config "$qss_path" '../private.git' 'qss/main-baseline'
+assert_config "$auth_path" 'https://github.com/TryQuiet/auth.git' 'main'
+assert_config "$qss_path" 'https://github.com/TryQuiet/quiet-storage-service.git' 'main'
 
-# Sync makes Git use the relative URLs from .gitmodules. Initialize the two
+# Sync makes Git use the URLs from .gitmodules. Initialize the two
 # top-level gitlinks first because QSS's nested policy cannot be inspected from
 # a fresh non-recursive checkout until QSS itself exists.
 git submodule sync -- "$auth_path" "$qss_path"
@@ -55,7 +55,7 @@ git submodule update --init --checkout --depth 1 -- "$auth_path" "$qss_path"
 # the QSS gitlink above. Check it after initialization so this test works both in
 # developer worktrees and in a non-recursive CI clone.
 test "$(git -C "$qss_path" config -f .gitmodules \
-  --get "submodule.${qss_auth_relative_path}.url")" = '../private.git'
+  --get "submodule.${qss_auth_relative_path}.url")" = 'https://github.com/TryQuiet/auth.git'
 test "$(git -C "$qss_path" config -f .gitmodules \
   --get "submodule.${qss_auth_relative_path}.branch")" = 'auth/main-baseline'
 

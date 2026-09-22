@@ -44,6 +44,7 @@ describe('ChannelMessages', () => {
         duplicatedUsernameModalHandleOpen={jest.fn()}
         unregisteredUsernameModalHandleOpen={jest.fn()}
         maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        allowEmpty={false}
         messages={messages}
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}
@@ -55,7 +56,7 @@ describe('ChannelMessages', () => {
       <body>
         <div>
           <div
-            class="ChannelMessagesComponentscroll css-5o22xt"
+            class="ChannelMessagesComponentscroll css-1djtdvl"
             data-testid="channelContent"
           >
             <div
@@ -69,7 +70,7 @@ describe('ChannelMessages', () => {
                 style="opacity: 0; pointer-events: none;"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body1 FloatingDatedateText css-ghvhpl-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body1 FloatingDatedateText css-1ql8hfl-MuiTypography-root"
                 />
               </div>
               <div
@@ -83,7 +84,7 @@ describe('ChannelMessages', () => {
               <div>
                 <div
                   aria-label="Messages from Today"
-                  class="MuiGrid-root MuiGrid-container css-aaog9h-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-12vglnp-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
@@ -96,7 +97,7 @@ describe('ChannelMessages', () => {
                     class="MuiGrid-root MuiGrid-item DateDividertitleDiv css-13i4rnv-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body1 DateDividerdateText css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 DateDividerdateText css-1ql8hfl-MuiTypography-root"
                     >
                       Today
                     </p>
@@ -110,7 +111,7 @@ describe('ChannelMessages', () => {
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1fhpzgs-MuiListItem-root"
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -125,7 +126,12 @@ describe('ChannelMessages', () => {
                         <div
                           class="BasicMessageComponentalignAvatar"
                         >
-                          Jdenticon
+                          <span
+                            class=""
+                            data-testid="messageAuthorPhoto-string"
+                          >
+                            Jdenticon
+                          </span>
                         </div>
                       </div>
                       <div
@@ -140,17 +146,18 @@ describe('ChannelMessages', () => {
                             <div
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
-                              <p
-                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
+                              <h5
+                                class="MuiTypography-root MuiTypography-h5 BasicMessageComponentusername css-nngeka-MuiTypography-root"
+                                data-testid="messageAuthorName-string"
                               >
                                 string
-                              </p>
+                              </h5>
                             </div>
                             <div
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body2 BasicMessageComponenttime css-1t82dwi-MuiTypography-root"
                               >
                                 4:58 PM
                               </p>
@@ -160,13 +167,12 @@ describe('ChannelMessages', () => {
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                           data-testid="userMessages-string-string"
-                          style="margin-top: -3px;"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-item css-1pa5e9v-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-q628pt-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string

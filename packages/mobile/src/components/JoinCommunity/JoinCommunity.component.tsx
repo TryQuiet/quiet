@@ -1,43 +1,84 @@
 import React, { FC, useEffect, useState, useRef } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View, Image } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { spacing } from '../../styles/const/spacing'
+import { Appbar } from '../Appbar/Appbar.component'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
-import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
 import { getInvitationCodes } from '@quiet/state-manager'
 
 import { Splash } from '../Splash/Splash.component'
-import { InvitationData } from '@quiet/types'
+import { InvitationData, isDeviceInvitationData } from '@quiet/types'
+import type { PasteInviteLinkVariant } from '../../route.params'
 
 import { createLogger } from '../../utils/logger'
-import { icons } from '../../assets'
 
 const logger = createLogger('joinCommunity:component')
 
+/** The paste field's error for text that is not a Quiet invitation; the QR scanner shows the same. */
+export const INVALID_INVITATION_ERROR = 'Please check your invite link and try again'
+
+/**
+ * Title bar · heading · intro per flow. Copy is the prototype's. Every variant
+ * draws its own large heading, and a page with a heading gets no bar title, so
+ * `titleHidden` keeps only the glyph and `title` is what the bar would have
+ * said. Paste a link (3190:10892) is a full-screen h1 stage whose bar title the
+ * frame itself hides, and both Link devices paste screens hide it too. The QR
+ * flows are no longer served from here: they open the camera sheet, which
+ * carries its own titled bar.
+ */
+const COPY = {
+  inviteLink: { title: 'Join with invite link', titleHidden: true, heading: 'Paste a link to Join', intro: undefined },
+  deviceLink: {
+    title: 'Link devices',
+    titleHidden: true,
+    heading: 'Scan QR code',
+    intro: 'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.',
+  },
+  /** Link devices → Paste link (user addition, 2026-09-13): the paste step under the Link devices title. */
+  pasteDeviceLink: { title: 'Link devices', heading: 'Paste a link to Join', intro: undefined, titleHidden: true },
+} as const
+
+/** The Link devices flow's variants: only a device link is accepted there. */
+const DEVICE_LINK_VARIANTS: PasteInviteLinkVariant[] = ['deviceLink', 'pasteDeviceLink']
+
+/** Shown under the input for a member link (or any other invitation) in the Link devices flow. Undesigned copy. */
+export const NOT_A_DEVICE_LINK_ERROR = 'This is not a device link. Use the link from Link devices on your other device.'
+
+/**
+ * "Paste a link to Join": one input with placeholder "Link" and Continue.
+ * Member and device invitations both land here; the caller decides — except in
+ * the Link devices flow, where a member link is an error and stays on this screen.
+ * The QR scanner sheets fall back to this form when the camera cannot be used.
+ */
 export const JoinCommunity: FC<JoinCommunityProps> = ({
   joinCommunityAction,
-  redirectionAction,
+  handleBackButton,
   invitationCode,
   hasReceivedResponse,
+  variant = 'inviteLink',
   ready = true,
+  inputError: initialInputError,
+  onInputChange,
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
 
   const inputRef = useRef<TextInput>(null)
+  const copy = COPY[variant]
 
   const onChangeText = (value: string) => {
+    onInputChange?.()
     setInputError(undefined)
     setJoinCommunityInput(value)
   }
 
   const onPress = () => {
     Keyboard.dismiss()
-    // setLoading(true)
 
     if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
       setLoading(false)
@@ -54,7 +95,13 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
 
     if (!submitValue) {
       setLoading(false)
-      setInputError('Please check your invitation code and try again')
+      setInputError(INVALID_INVITATION_ERROR)
+      return
+    }
+
+    if (DEVICE_LINK_VARIANTS.includes(variant) && !isDeviceInvitationData(submitValue)) {
+      setLoading(false)
+      setInputError(NOT_A_DEVICE_LINK_ERROR)
       return
     }
 
@@ -65,7 +112,6 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     if (invitationCode) {
       setJoinCommunityInput(invitationCode)
       setInputError(undefined)
-      // setLoading(true)
       inputRef.current?.setNativeProps({ text: invitationCode })
     }
   }, [invitationCode])
@@ -74,12 +120,12 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     logger.info(`hasReceivedResponse changed: ${hasReceivedResponse}`)
     if (hasReceivedResponse) {
       logger.info('Resetting component state after receiving response')
-      setInputError(undefined)
+      setInputError(initialInputError)
       setJoinCommunityInput('')
       setLoading(false)
       inputRef.current?.setNativeProps({ text: '' })
     }
-  }, [hasReceivedResponse])
+  }, [hasReceivedResponse, initialInputError])
 
   return (
     <>
@@ -88,67 +134,36 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
           testID={'join-community-component'}
         >
+          <Appbar title={copy.title} withoutTitle={copy.titleHidden} back={handleBackButton} />
           <KeyboardAvoidingView
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
               flex: 1,
-              justifyContent: 'center',
-              paddingLeft: 20,
-              paddingRight: 20,
+              paddingTop: spacing.xl,
+              paddingHorizontal: spacing.lg,
+              gap: spacing.xl,
             }}
           >
-            <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
-              {'Join community'}
-            </Typography>
+            <View style={{ gap: spacing.sm }}>
+              <Typography variant={'h3'} horizontalTextAlign={'center'}>
+                {copy.heading}
+              </Typography>
+              {copy.intro ? (
+                <Typography variant={'body'} horizontalTextAlign={'center'}>
+                  {copy.intro}
+                </Typography>
+              ) : null}
+            </View>
             <Input
               onChangeText={onChangeText}
-              label={'Paste your invite link to join an existing community'}
-              placeholder={'Invite link'}
+              placeholder={'Link'}
               disabled={loading}
               validation={inputError}
               ref={inputRef}
               autoCorrect={false}
+              testID={'paste-link-input'}
             />
-            <View style={{ marginTop: 32 }}>
-              <TextWithLink
-                text={'You can %a instead'}
-                links={[
-                  {
-                    tag: 'a',
-                    label: 'create a new community',
-                    action: redirectionAction,
-                  },
-                ]}
-              />
-            </View>
-            <View style={{ marginTop: 32 + 12 }}>
-              <Button onPress={onPress} title={'Continue'} loading={loading} />
-            </View>
-            <View
-              style={{
-                marginTop: 32 + 12,
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                gap: 4,
-              }}
-            >
-              <Image
-                source={icons.icon_warning}
-                resizeMode='cover'
-                resizeMethod='resize'
-                style={{
-                  width: 16,
-                  height: 16,
-                }}
-              />
-              <Typography
-                fontSize={14}
-                style={{ color: defaultTheme.palette.typography.grayDark, textAlign: 'center' }}
-              >
-                {"Quiet is in beta and shouldn't be used for activities requiring security."}
-              </Typography>
-            </View>
+            <Button onPress={onPress} title={'Continue'} loading={loading} testID={'paste-link-continue'} />
           </KeyboardAvoidingView>
         </View>
       ) : (

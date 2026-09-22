@@ -17,6 +17,17 @@ import path from 'path'
 import { emojify, findMatchingEmojis, extractPartialEmojiCode, getEmojiFromShortcode } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
+
+// Compose field rules, from the design library component "Platform=Desktop, Placeholder=False"
+// (Figma Quiet Design Library 5022:19593): a 16px-radius box outlined in #E5E5E5. Neither value
+// exists in the desktop theme palette yet (border01 is #F0F0F0).
+//
+// #E5E5E5 is a hairline a shade off white — against the dark theme's #222222 the same value is a
+// bright outline, far louder than the design intends. Dark mode takes the equivalent step off its
+// own background instead.
+const COMPOSE_BORDER = '#E5E5E5'
+const COMPOSE_BORDER_DARK = '#3A3A3A'
+const COMPOSE_RADIUS = 16
 const MAX_EMOJI_SUGGESTIONS = 100
 const SKIN_TONE_KEY = 'emojiPickerSkinTone'
 
@@ -84,22 +95,23 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
       '&:before': {
         content: 'attr(placeholder)',
         display: 'block',
-        color: '#aaa',
+        color: theme.palette.colors.darkGray,
       },
     },
     '&::placeholder': {
-      color: '#aaa',
+      color: theme.palette.colors.darkGray,
     },
     wordBreak: 'break-word',
     position: 'relative',
     paddingRight: '60px',
   },
+  // 'Compose input' (library 1933:47078;4395:14382): radius 16, hairline border, placeholder #7F7F7F (darkGray).
   [`& .${classes.textfield}`]: {
-    border: `1px solid ${theme.palette.colors.border01}`,
+    border: `1px solid ${theme.palette.mode === 'dark' ? COMPOSE_BORDER_DARK : COMPOSE_BORDER}`,
     maxHeight: maxHeight,
     overflowY: 'auto',
     overflowX: 'visible',
-    borderRadius: 4,
+    borderRadius: COMPOSE_RADIUS,
     display: 'flex',
     flexDirection: 'column',
     flexWrap: 'nowrap',
@@ -109,9 +121,10 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     width: '100%',
     position: 'relative',
   },
+  // 'Compose row' side padding is 16 (library 1933:47078), the same as the message avatars.
   [`& .${classes.inputsDiv}`]: {
-    paddingLeft: '20px',
-    paddingRight: '20px',
+    paddingLeft: theme.space.lg,
+    paddingRight: theme.space.lg,
     width: '100%',
     margin: '0px',
     position: 'relative',
@@ -141,47 +154,54 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     cursor: 'pointer',
     position: 'relative',
     float: 'right',
-    color: '#808080',
+    color: theme.palette.colors.darkGray,
     '&:hover': {
-      color: 'black',
-      border: '1px solid black',
+      color: theme.palette.text.primary,
+      border: `1px solid ${theme.palette.text.primary}`,
     },
-    border: '1px solid #808080',
+    border: `1px solid ${theme.palette.colors.darkGray}`,
     // boxShadow: '-.75px -.75px 1px #808080',
     borderRadius: '100%',
     width: '23px',
     height: '23px',
   },
+  /**
+   * The paperclip and the emoji swap a grey glyph for a black one on hover, which in the dark
+   * theme means hovering makes them darker — nearly invisible against #222222. Inverting in dark
+   * mode fixes the direction without a second set of assets: mid grey inverts to mid grey, so the
+   * resting state is unchanged, and the black hover becomes white.
+   */
   [`& .${classes.emoji}`]: {
     cursor: 'pointer',
     position: 'relative',
     float: 'right',
+    ...(theme.palette.mode === 'dark' ? { filter: 'invert(1)' } : {}),
   },
   [`& .${classes.highlight}`]: {
     color: theme.palette.colors.lushSky,
     backgroundColor: theme.palette.colors.lushSky12,
-    padding: 5,
+    padding: theme.space.xs,
     borderRadius: 4,
   },
   [`& .${classes.actions}`]: {
     postion: 'relative',
     float: 'right',
-    padding: '5px',
+    padding: theme.space.xs,
   },
   [`& .${classes.picker}`]: {
     position: 'fixed',
     bottom: 60,
-    right: 15,
+    right: theme.space.lg,
   },
   [`& .${classes.errorIcon}`]: {
     display: 'flex',
     justify: 'center',
     alignItems: 'center',
     marginLeft: 20,
-    marginRight: 5,
+    marginRight: theme.space.xs,
   },
   [`& .${classes.errorBox}`]: {
-    marginTop: 5,
+    marginTop: theme.space.xs,
   },
   [`& .${classes.linkBlue}`]: {
     fontWeight: 'normal',
@@ -215,6 +235,7 @@ export interface ChannelInputProps {
   channelName?: string
   inputPlaceholder: string
   inputState?: INPUT_STATE
+  inputStateErrorMessage?: string
   initialMessage?: string
   onChange: (arg: string) => void
   onKeyPress: (input: string) => void
@@ -230,6 +251,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   channelId,
   inputPlaceholder,
   inputState = INPUT_STATE.AVAILABLE,
+  inputStateErrorMessage,
   initialMessage = '',
   onChange,
   onKeyPress,
@@ -653,7 +675,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             </Grid>
           </ClickAwayListener>
         </Grid>
-        <ChannelInputInfoMessage showInfoMessage={inputState !== INPUT_STATE.AVAILABLE} />
+        <ChannelInputInfoMessage state={inputState} errorMessage={inputStateErrorMessage} />
       </Grid>
     </StyledChannelInput>
   )

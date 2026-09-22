@@ -1,6 +1,7 @@
 import { type Store } from 'redux'
 
 import { connectionSelectors } from './connection.selectors'
+import { connectionActions } from './connection.slice'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
@@ -63,5 +64,14 @@ describe('connectionReducer', () => {
     expect(number).toEqual(30)
 
     expect(text).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
+  })
+
+  it('clears a previous device-link generation failure when retrying', () => {
+    store.dispatch(connectionActions.setDeviceLinkCreationFailed(true))
+    expect(connectionSelectors.deviceLinkCreationFailed(store.getState())).toBe(true)
+
+    store.dispatch(connectionActions.createDeviceLink())
+
+    expect(connectionSelectors.deviceLinkCreationFailed(store.getState())).toBe(false)
   })
 })

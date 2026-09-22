@@ -16,15 +16,15 @@ const args: TermsOfServiceComponentProps = {
     // eslint-disable-next-line no-console
     console.info('TermsOfService closed with selection: false')
   },
-  onChoose: selection => {
+  onAgree: () => {
     // eslint-disable-next-line no-console
-    console.info('TermsOfService onChoose with selection:', selection)
+    console.info('TermsOfService onAgree')
   },
   openURL: () => {
     // eslint-disable-next-line no-console
     console.info('TermsOfService openURL called')
   },
-  qssEndPoint: 'qss.tryquiet.org',
+  qssEndPoint: 'api.tryquiet.org',
 }
 
 Component.args = args

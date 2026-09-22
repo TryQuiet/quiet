@@ -1,10 +1,13 @@
 import React from 'react'
+import '@testing-library/jest-dom/extend-expect'
 import { renderComponent } from '../../testUtils/renderComponent'
 import StartingPanelComponent from './StartingPanelComponent'
 
 describe('Create StartingPanelComponent', () => {
   it('renders component', () => {
     const result = renderComponent(<StartingPanelComponent handleClose={jest.fn()} open={true} />)
+    // No bar: neither an empty title nor a hairline above the logo
+    expect(result.getByTestId('ModalActions').closest('.Modalheader')).toHaveClass('Modalnone')
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
@@ -13,7 +16,7 @@ describe('Create StartingPanelComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1l68gny-MuiModal-root"
+          class="MuiModal-root css-gsaxwv-MuiModal-root"
           role="presentation"
         >
           <div
@@ -30,7 +33,7 @@ describe('Create StartingPanelComponent', () => {
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader Modalnone css-lx31tv-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
@@ -39,8 +42,8 @@ describe('Create StartingPanelComponent', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
-                    style="margin-left: 36px;"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
+                    style="margin-left: 56px;"
                   />
                 </div>
                 <div
@@ -54,20 +57,22 @@ describe('Create StartingPanelComponent', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage css-1h16bbz-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage ModalwithoutHeader css-1h16bbz-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-1y7od3a-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-16hk5cy-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column StartingPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
                     data-testid="startingPanelComponent"
                   >
                     <img
+                      alt=""
+                      aria-hidden="true"
                       class="StartingPanelComponentimage"
                       src="test-file-stub"
                     />

@@ -77,7 +77,7 @@ describe('Search Modal', () => {
             aria-hidden="true"
           />
           <div
-            class="MuiModal-root css-1l68gny-MuiModal-root"
+            class="MuiModal-root css-gsaxwv-MuiModal-root"
             data-testid="searchChannelModal"
             role="presentation"
           >
@@ -104,8 +104,8 @@ describe('Search Modal', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <h6
-                      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
-                      style="margin-left: 36px;"
+                      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-1d2bvqm-MuiTypography-root"
+                      style="margin-left: 56px;"
                     />
                   </div>
                   <div
@@ -116,7 +116,8 @@ describe('Search Modal', () => {
                       data-testid="ModalActions"
                     >
                       <button
-                        class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                        aria-label="Close"
+                        class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1460yxp-MuiButtonBase-root-MuiIconButton-root"
                         data-testid="ModalClose"
                         tabindex="0"
                         type="button"
@@ -132,9 +133,6 @@ describe('Search Modal', () => {
                             d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                           />
                         </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
                       </button>
                     </div>
                   </div>
@@ -147,7 +145,7 @@ describe('Search Modal', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent Modaltransparent css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-7qrazo-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-1xpcwiu-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container SearchModalComponentoverlay css-1hbmzt3-MuiGrid-root"
@@ -166,11 +164,11 @@ describe('Search Modal', () => {
                               src="test-file-stub"
                             />
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root SearchModalComponentinput css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root SearchModalComponentinput css-3wyanu-MuiFormControl-root-MuiTextField-root"
                               data-testid="searchChannelInput"
                             >
                               <div
-                                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-4l3wau-MuiInputBase-root-MuiInput-root"
+                                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-63unr2-MuiInputBase-root-MuiInput-root"
                               >
                                 <input
                                   aria-invalid="false"
@@ -183,9 +181,6 @@ describe('Search Modal', () => {
                                 />
                               </div>
                             </div>
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 css-6gbt2m-MuiTypography-root"
-                            />
                           </div>
                           <img
                             class="SearchModalComponentcloseIcon"
@@ -215,7 +210,7 @@ describe('Search Modal', () => {
                               tabindex="0"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                               >
                                 # fun
                               </p>
@@ -225,7 +220,7 @@ describe('Search Modal', () => {
                               tabindex="0"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                               >
                                 # random
                               </p>
@@ -235,7 +230,7 @@ describe('Search Modal', () => {
                               tabindex="0"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body2 css-1t82dwi-MuiTypography-root"
                               >
                                 # test
                               </p>

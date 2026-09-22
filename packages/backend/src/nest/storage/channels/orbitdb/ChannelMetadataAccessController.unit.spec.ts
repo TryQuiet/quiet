@@ -319,11 +319,14 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
   })
 
-  it('rejects private channel metadata DEL entries from non-admin members', async () => {
-    const access = await createAccess(createSigchainService({ member: true, admin: false }), false)
+  it.each<Record<string, string>>([{}, { 'channel-id': 'private-role' }])(
+    'rejects private channel metadata DEL entries from non-admin members with mappings %j',
+    async mappings => {
+      const access = await createAccess(createSigchainService({ member: true, admin: false }), false, mappings)
 
-    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
-  })
+      await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
+    }
+  )
 
   it('allows public channel metadata DEL entries from admins', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
@@ -343,8 +346,16 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(createEntry(OrbitDbOp.DEL, channelId))).resolves.toBe(true)
   })
 
-  it('rejects private channel metadata DEL entries from admins without valid channel role name', async () => {
+  it('allows historical private channel metadata DEL entries from admins when the role mapping is unavailable', async () => {
     const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+
+    await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(true)
+  })
+
+  it('rejects private channel metadata DEL entries from admins outside a resolved channel role', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false, {
+      'channel-id': 'private-role',
+    })
 
     await expect(access.canAppend(createEntry(OrbitDbOp.DEL))).resolves.toBe(false)
   })

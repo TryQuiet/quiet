@@ -8,7 +8,7 @@ import { type CreatedSelectors, type StoreState } from '../store.types'
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
 import type {} from 'pkijs'
 import { createLogger } from '../../utils/logger'
-import { CommunityOwnership } from '@quiet/types'
+import { CommunityOwnership, InvitationDataVersion, type InvitationData } from '@quiet/types'
 
 const logger = createLogger('communitiesSelectors')
 
@@ -39,6 +39,45 @@ export const invitationCodes = createSelector(communitiesSlice, reducerState => 
   return reducerState.invitationCodes
 })
 
+export const pendingJoin = createSelector(communitiesSlice, reducerState => reducerState.pendingJoin ?? null)
+
+export const pendingCreate = createSelector(communitiesSlice, reducerState => reducerState.pendingCreate ?? null)
+
+/**
+ * Whether an invite is to a community hosted on a server (QSS). v5 is the QSS
+ * invite version; older versions are Tor-only. Shared with joinCommunitySaga,
+ * which gates the terms of service on the same question.
+ */
+export const inviteUsesServer = (invite: InvitationData | null | undefined): boolean =>
+  invite?.version === InvitationDataVersion.v5 && Boolean(invite.qssEnabled || invite.qssEndpoint)
+
+/**
+ * Whether the community in play reaches its peers through a server (QSS) rather
+ * than over Tor alone. The progress screens branch on it, and each stage of the
+ * flow knows it from a different place:
+ *
+ * - joining: the invite, before any community record exists;
+ * - creating: the owner's own answer, before the backend has replied;
+ * - afterwards: the community record the backend handed back.
+ */
+export const usesServer = createSelector(pendingJoin, pendingCreate, currentCommunity, (join, creating, community) => {
+  if (join) return inviteUsesServer(join.inviteData)
+  if (creating) return creating.useServer
+  return community?.qssEnabled === true
+})
+
+/**
+ * What the progress screen should call the community, and whether the person
+ * waiting is its owner. Both are on the community record, and the record is the
+ * last thing to arrive: an owner watches the whole of creation before it
+ * exists. The pending create carries the name they typed and says, by existing
+ * at all, that they are creating rather than joining.
+ */
+export const communityInProgress = createSelector(pendingCreate, currentCommunity, (creating, community) => ({
+  name: creating?.name ?? community?.name,
+  isOwner: creating !== null || community?.ownership === CommunityOwnership.Owner,
+}))
+
 export const inviteData = createSelector(currentCommunity, currentCommunity => {
   return currentCommunity?.inviteData
 })
@@ -59,16 +98,25 @@ export const tosRequested = createSelector(communitiesSlice, reducerState => {
   return reducerState.tosRequested
 })
 
+export const joinCommunityError = createSelector(communitiesSlice, reducerState => reducerState.joinCommunityError)
+
 export const communitiesSelectors = {
+  admissionResetStatus: createSelector(communitiesSlice, state => state.admissionResetStatus ?? 'idle'),
+  admissionResetResult: createSelector(communitiesSlice, state => state.admissionResetResult ?? null),
   selectById,
   selectEntities,
   selectCommunities,
   currentCommunity,
   currentCommunityId,
   invitationCodes,
+  pendingJoin,
+  pendingCreate,
+  usesServer,
+  communityInProgress,
   inviteData,
   ownerOrbitDbIdentity,
   psk,
   isOwner,
   tosRequested,
+  joinCommunityError,
 }

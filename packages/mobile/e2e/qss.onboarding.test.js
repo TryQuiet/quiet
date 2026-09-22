@@ -21,14 +21,14 @@ describe('QSS Onboarding', () => {
     })
 
     test('should see join community screen', async () => {
-      await waitFor(element(by.text('Join community')))
+      await waitFor(element(by.text('Let’s get started...')))
         .toBeVisible()
         .withTimeout(STARTUP)
-      await checkVisualRegression('join-community-component')
+      await checkVisualRegression('get-started-component')
     })
 
     test('switches to create community screen', async () => {
-      await press(element(by.text('create a new community')))
+      await press(element(by.id('get-started-create')))
 
       await waitFor(element(by.text('Create a community')))
         .toBeVisible()
@@ -44,18 +44,18 @@ describe('QSS Onboarding', () => {
     })
 
     test('shows Server Offer and accepts it', async () => {
-      await waitFor(element(by.id('server-offer-drawer')))
+      await waitFor(element(by.id('server-offer-component')))
         .toBeVisible()
         .withTimeout(BASIC)
 
-      // Visual checkpoint of the drawer content
+      // Visual checkpoint of the Want a server? screen (2922:10009)
       await checkVisualRegression('server-offer-component')
 
-      await press(element(by.text('Add server')))
+      await press(element(by.id('server-offer-use-server')))
     })
 
     test('registers username and proceeds to ToS', async () => {
-      await waitFor(element(by.text('Register a username')))
+      await waitFor(element(by.text('Choose username')))
         .toBeVisible()
         .withTimeout(BASIC)
       await checkVisualRegression('username-registration-component')
@@ -71,7 +71,7 @@ describe('QSS Onboarding', () => {
         .toBeVisible()
         .withTimeout(LONG)
 
-      await press(element(by.text('Agree & Continue')))
+      await press(element(by.text('Agree & Join')))
     })
 
     test('lands on channels list and can open #general', async () => {
@@ -98,11 +98,11 @@ describe('QSS Onboarding', () => {
     })
 
     test('navigates to create and submits name', async () => {
-      await waitFor(element(by.text('Join community')))
+      await waitFor(element(by.text('Let’s get started...')))
         .toBeVisible()
         .withTimeout(STARTUP)
 
-      await press(element(by.text('create a new community')))
+      await press(element(by.id('get-started-create')))
 
       await waitFor(element(by.text('Create a community')))
         .toBeVisible()
@@ -115,15 +115,15 @@ describe('QSS Onboarding', () => {
     })
 
     test('chooses Not now on Server Offer', async () => {
-      await waitFor(element(by.id('server-offer-drawer')))
+      await waitFor(element(by.id('server-offer-component')))
         .toBeVisible()
         .withTimeout(BASIC)
 
-      await press(element(by.text('Not now')))
+      await press(element(by.id('server-offer-not-now')))
     })
 
     test('registers username; ToS is not shown', async () => {
-      await waitFor(element(by.text('Register a username')))
+      await waitFor(element(by.text('Choose username')))
         .toBeVisible()
         .withTimeout(BASIC)
 

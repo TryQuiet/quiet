@@ -12,6 +12,7 @@ import { Typography } from '@mui/material'
 import { QRCodeComponent } from './Tabs/QRCode/QRCode.component'
 import { composeInvitationShareUrl } from '@quiet/common'
 import { InvitationDataVersion } from '@quiet/types'
+import { LinkDevicesComponent } from '../Onboarding/LinkDevicesComponent'
 
 const invitationLink = composeInvitationShareUrl({
   version: InvitationDataVersion.v4,
@@ -73,6 +74,15 @@ const QRCode: FC = () => {
   return <QRCodeComponent value={invitationLink} />
 }
 
+const LinkedDevices: FC = () => (
+  <LinkDevicesComponent
+    direction='share'
+    onDisplayQrCode={() => {}}
+    deviceLink={invitationLink}
+    onLinkCopied={() => {}}
+  />
+)
+
 const args: SettingsComponentProps = {
   open: true,
   handleClose: function (): void {},
@@ -82,6 +92,7 @@ const args: SettingsComponentProps = {
     invite: Invite,
     leave: Leave,
     qrcode: QRCode,
+    linkedDevices: LinkedDevices,
   },
   leaveCommunityModal: {
     open: false,

@@ -7,16 +7,12 @@ import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
 import Channel from '../renderer/components/Channel/Channel'
-import {
-  CreateCommunityDictionary,
-  JoinCommunityDictionary,
-} from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { communities, getReduxStoreFactory, network, publicChannels } from '@quiet/state-manager'
 import { act } from 'react-dom/test-utils'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
-import { LoadingPanelType } from '@quiet/types'
+import { ChannelType, LoadingPanelType } from '@quiet/types'
 import { socketActions } from '../renderer/sagas/socket/socket.slice'
 
 jest.setTimeout(20_000)
@@ -78,6 +74,7 @@ describe('Restart app works correctly', () => {
         publicChannels.actions.sendInitialChannelMessage({
           channelId: generalId,
           channelName: 'general',
+          type: ChannelType.CHANNEL,
         })
       )
     })
@@ -85,12 +82,10 @@ describe('Restart app works correctly', () => {
     const startAppLoadingText = screen.queryByText(LoadingPanelType.StartingApplication)
     expect(startAppLoadingText).toBeNull()
 
-    const joinCommunityDictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.queryByText(joinCommunityDictionary.header)
+    const joinCommunityTitle = screen.queryByRole('heading', { name: 'Join community', level: 3 })
     expect(joinCommunityTitle).toBeNull()
 
-    const createCommunityDictionary = CreateCommunityDictionary()
-    const createCommunityTitle = screen.queryByText(createCommunityDictionary.header)
+    const createCommunityTitle = screen.queryByRole('heading', { name: 'Create a community', level: 3 })
     expect(createCommunityTitle).toBeNull()
 
     const channelName = await screen.findByText('general')
