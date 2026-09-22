@@ -176,7 +176,7 @@ describe('Onboarding', () => {
       // Recover account → Account recovery; "Use invite link" reaches the same
       // paste step, and the back arrow retraces the trail to the three-way choice
       await joinModal.recoverAccount()
-      expect(await joinModal.isRecoverMoreOptionsDisabled()).toBe(true)
+      expect(await joinModal.isRecoverMoreOptionsAbsent()).toBe(true)
       await joinModal.recoverWithInviteLink()
       await joinModal.back()
       await joinModal.waitForStep('Join with invite link')

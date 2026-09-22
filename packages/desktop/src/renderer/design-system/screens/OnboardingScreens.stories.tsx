@@ -234,7 +234,7 @@ export const RecoverAccount = () => (
     title='Recover account'
     hiddenBar='Account recovery'
     figma='2811:2535'
-    note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); More options goes nowhere in the design and is inert; no recovery mechanism exists'
+    note='Use linked device → Link devices (whose back arrow returns here), Use invite link → Join with invite link (the prototype’s links); the frame’s third row, More options, goes nowhere in the design, so it is omitted until the design gives it a target (user, 2026-09-22); no recovery mechanism exists'
     render={() => <RecoverAccountComponent onUseLinkedDevice={noop} onUseInviteLink={noop} />}
   />
 )

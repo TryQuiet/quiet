@@ -14,6 +14,8 @@
 
 ### Fixes
 
+* fix(desktop): on Windows and Linux the sidebar no longer reserves the macOS window-control strip, so the community name sits in line with the channel header title
+
 * Show a private channel on a device that was still missing the channel's key when its metadata arrived, retrying about once a minute until the key lands, instead of waiting for unrelated community activity that may never happen [#3563](https://github.com/TryQuiet/quiet/issues/3563)
 * Ask the local Tor daemon to generate onion identities on desktop and mobile, and start communities without waiting for Tor network publication; recover detached registrations after lost replies or control connections without an onion-address collision loop, and handle fragmented or interrupted local control authentication [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
 * Show a member as online when any of their linked devices is connected, rather than only the one device presence used to be read from
@@ -49,6 +51,7 @@
 * Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
+* Drop the greyed-out "More options" row from Recover account on desktop and mobile, since it led nowhere and its glyph failed to load
 * Write the onboarding paste-link heading in sentence case, *Paste a link to join*, on desktop and mobile
 
 ### Tests
