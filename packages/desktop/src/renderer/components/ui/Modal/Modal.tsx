@@ -195,7 +195,12 @@ export const Modal: React.FC<IModalProps> = ({
                     [classes.title]: true,
                     [classes.bold]: isBold,
                   })}
-                  // 56 keeps the centred title clear of the 56-wide glyph zone (audit finding).
+                  // 56 is the action column's own width (8 + the 40 icon button + 8), so this
+                  // margin puts the title's centre back on the bar's centre rather than on the
+                  // centre of what is left beside the glyph. The library centres it in the whole
+                  // bar: in the shell (5825:29938 -> 6002:27130) the title sits at 358 of 715.
+                  // At 36 nothing collided - the title box still stopped at the glyph column -
+                  // it simply sat 10px off centre.
                   style={alignCloseLeft ? { marginRight: 56 } : { marginLeft: 56 }}
                   align='center'
                 >
