@@ -8,6 +8,7 @@
 * Sending the first message of a new direct message no longer leaves a blank screen: the conversation the message created is the one that opens, instead of being overwritten by a late sync of the composer's recipients
 * The Channel screen returns to the community home when there is no conversation to show and none being composed, rather than drawing nothing the user cannot get off without restarting
 * Start a conversation from a plus on the Community home's Direct messages heading, as the design draws it — available to everyone, unlike creating a channel
+* Direct messages no longer appear in the Community home's Channels section as rows reading "Direct message"; a conversation is listed under the person it is with, and its unread mark now sits on their row
 
 ### Features
 

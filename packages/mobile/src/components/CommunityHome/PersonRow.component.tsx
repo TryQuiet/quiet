@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Pressable } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { spacing } from '../../styles/const/spacing'
@@ -7,7 +7,7 @@ import { TAP_FEEDBACK_DELAY_MS } from '../../utils/const/tapFeedback'
 import { ProfilePhotoWithBadge } from '../ProfilePhoto/ProfilePhotoWithBadge.component'
 import { ProfilePhotoSize } from '../ProfilePhoto/ProfilePhoto.types'
 import { Typography } from '../Typography/Typography.component'
-import { LIST_ROW_PRESSED, LIST_TEXT_OPACITY } from './ListRow.component'
+import { LIST_ROW_PRESSED, LIST_TEXT_OPACITY, UnreadDot } from './ListRow.component'
 
 import type { PersonRowProps } from './CommunityHome.types'
 
@@ -29,7 +29,10 @@ export const PERSON_ROW_HEIGHT = 40
  * `TAP_FEEDBACK_DELAY_MS` rather than following the first frame of a flick.
  *
  * The avatar carries the member's presence badge, the same one the DM list
- * shows elsewhere in the app.
+ * shows elsewhere in the app, and the row takes the unread mark at its far
+ * right when the conversation with this person has something unseen — the
+ * frame's `badge2` on `List item--people`, degraded to a dot because Quiet
+ * records unread as a flag rather than a count.
  */
 export const PersonRow: FC<PersonRowProps> = ({ user, onPress, testID }) => (
   <Pressable
@@ -60,7 +63,12 @@ export const PersonRow: FC<PersonRowProps> = ({ user, onPress, testID }) => (
       }}
       size={ProfilePhotoSize.SMALL}
     />
-    <Typography variant={'body'} color={'charcoal'} numberOfLines={1} style={{ opacity: LIST_TEXT_OPACITY }}>
+    <Typography
+      variant={'body'}
+      color={'charcoal'}
+      numberOfLines={1}
+      style={{ opacity: LIST_TEXT_OPACITY, flexShrink: 1 }}
+    >
       {user.nickname}
     </Typography>
     {user.isMe && (
@@ -72,5 +80,7 @@ export const PersonRow: FC<PersonRowProps> = ({ user, onPress, testID }) => (
         you
       </Typography>
     )}
+    <View style={{ flex: 1 }} />
+    {user.unread && <UnreadDot testID={testID ? `${testID}_unread` : undefined} />}
   </Pressable>
 )

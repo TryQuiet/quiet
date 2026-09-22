@@ -440,6 +440,63 @@ describe('publicChannelsSelectors', () => {
     expect(names).toStrictEqual(DM_CHANNEL_NAMES)
   })
 
+  /**
+   * A DM is a channel underneath and so has a status like any other, but it is listed under the
+   * people in it rather than under its own name. Left in, it turned up on the mobile Community home
+   * as a channel row reading "Direct message".
+   */
+  it('channelsStatusSorted leaves direct messages out, and keeps typeless channels in', async () => {
+    const statuses = publicChannelsSelectors.channelsStatusSorted(store.getState())
+    const dms = dmChannels(store.getState())
+
+    expect(dms.length).toBeGreaterThan(0)
+    for (const dm of dms) {
+      expect(statuses.map(status => status.id)).not.toContain(dm.id)
+    }
+    const everyChannel = getPublicChannels(store.getState())
+    const channelsOnly = everyChannel
+      .filter(channel => channel.type == null || channel.type === ChannelType.CHANNEL)
+      .map(channel => channel.name)
+      .sort()
+    expect(channelsOnly.length).toBeGreaterThan(0)
+    expect(statuses.map(status => status.name).sort()).toStrictEqual(channelsOnly)
+
+    // A channel created before the type existed carries none, and is still a channel.
+    const baseState = store.getState()
+    const withTypeless = {
+      ...baseState,
+      PublicChannels: {
+        ...baseState.PublicChannels,
+        channels: {
+          ...baseState.PublicChannels.channels,
+          ids: [...baseState.PublicChannels.channels.ids, 'legacy-id'],
+          entities: {
+            ...baseState.PublicChannels.channels.entities,
+            'legacy-id': {
+              id: 'legacy-id',
+              name: 'legacy',
+              displayedName: 'legacy',
+              description: '',
+              owner: owner.userId,
+              timestamp: 0,
+              public: true,
+              messages: { ids: [], entities: {} },
+            },
+          },
+        },
+        channelsStatus: {
+          ...baseState.PublicChannels.channelsStatus,
+          ids: [...baseState.PublicChannels.channelsStatus.ids, 'legacy-id'],
+          entities: {
+            ...baseState.PublicChannels.channelsStatus.entities,
+            'legacy-id': { id: 'legacy-id', unread: false, newestMessage: null, public: true },
+          },
+        },
+      },
+    }
+    expect(publicChannelsSelectors.channelsStatusSorted(withTypeless).map(status => status.name)).toContain('legacy')
+  })
+
   it('subscription selectors return only subscribed channels and current channel readiness', async () => {
     const baseState = store.getState()
     const stateWithSubscriptions = {

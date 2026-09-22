@@ -34,6 +34,7 @@ export const AppHomeScreen: FC = () => {
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
   const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
   const allChannels = useSelector(publicChannels.selectors.publicChannels)
+  const unreadDms = useSelector(publicChannels.selectors.unreadDms)
   const userProfiles = useSelector(users.selectors.userProfiles)
   const me = useSelector(users.selectors.myUserProfile)
   const isUserConnected = useSelector(connection.selectors.isUserConnected)
@@ -107,6 +108,11 @@ export const AppHomeScreen: FC = () => {
     [dispatch, me, allChannels]
   )
 
+  /**
+   * The Channels section. `channelsStatusSorted` leaves direct messages out — a DM is a channel
+   * underneath, but it belongs to the section below under the name of the person in it, not here
+   * under its own name of "Direct message".
+   */
   const channels: CommunityHomeChannel[] = channelsStatusSorted.map(status => ({
     id: status.id,
     name: status.name,
@@ -121,16 +127,22 @@ export const AppHomeScreen: FC = () => {
   const members: CommunityHomeUser[] = useMemo(
     () =>
       Object.values(userProfiles ?? {})
-        .map(profile => ({
-          userId: profile.userId,
-          nickname: profile.nickname,
-          photo: profile.photo,
-          profilePhoto: profile.profilePhoto,
-          connected: isUserConnected(profile.userId),
-          isMe: me != null && me.userId === profile.userId,
-        }))
+        .map(profile => {
+          // The conversation with this person, if there is one. Its unread mark belongs on their
+          // row, because the conversation itself is never listed as a channel.
+          const dm = me != null ? findDmChannelWithMembers([me.userId, profile.userId], allChannels) : undefined
+          return {
+            userId: profile.userId,
+            nickname: profile.nickname,
+            photo: profile.photo,
+            profilePhoto: profile.profilePhoto,
+            connected: isUserConnected(profile.userId),
+            isMe: me != null && me.userId === profile.userId,
+            unread: dm != null && unreadDms.includes(dm.id),
+          }
+        })
         .sort((a, b) => a.nickname.localeCompare(b.nickname)),
-    [userProfiles, isUserConnected, me]
+    [userProfiles, isUserConnected, me, allChannels, unreadDms]
   )
 
   return (
