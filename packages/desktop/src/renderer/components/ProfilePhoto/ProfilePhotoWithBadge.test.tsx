@@ -51,7 +51,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -80,7 +80,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -109,7 +109,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -138,7 +138,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -175,7 +175,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -220,7 +220,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -257,7 +257,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -294,7 +294,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -331,7 +331,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -370,7 +370,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -409,7 +409,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -446,7 +446,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -491,7 +491,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"
@@ -538,7 +538,7 @@ describe('ProfilePhotoWithBadge', () => {
       <body>
         <div>
           <span
-            class="MuiBadge-root MuiBadge-root css-1uwile2-MuiBadge-root"
+            class="MuiBadge-root MuiBadge-root css-98hzf4-MuiBadge-root"
           >
             <span
               class="ProfilePhotoWithBadgeavatar ProfilePhotoWithBadgeavatarSmall"

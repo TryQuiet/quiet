@@ -14,7 +14,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.bodyText}`]: {
     textAlign: 'center',
     width: '60%',
-    margin: '30px 0 4px',
+    margin: `${theme.space.xxl}px 0 ${theme.space.xs}px`,
   },
 
   [`& .${classes.button}`]: {

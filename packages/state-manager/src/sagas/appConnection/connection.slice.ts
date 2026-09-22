@@ -12,7 +12,6 @@ import {
   type DeviceNetworkEndpoint,
   type NetworkEndpointsStoredEvent,
 } from '@quiet/types'
-import { communitiesActions } from '../communities/communities.slice'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('connectionSlice')
@@ -33,13 +32,8 @@ export class ConnectionState {
   public longLivedInvite: InviteResultWithSalt | undefined = undefined
   public deviceLinkInvite: DeviceLinkInvite | undefined = undefined
   public deviceLinkCreationFailed = false
-  /**
-   * The current user's devices, as last read from the backend (see getLinkedDevices).
-   * `undefined` until a read comes back: a surface cannot tell "nothing linked" from
-   * "not asked yet" if both are the empty array, and it would say "No linked devices"
-   * before the answer arrives.
-   */
-  public linkedDevices: LinkedDevice[] | undefined = undefined
+  /** The current user's devices, as last read from the backend (see getLinkedDevices). */
+  public linkedDevices: LinkedDevice[] = []
   public p2pEnabled: boolean = true
 }
 
@@ -131,18 +125,6 @@ export const connectionSlice = createSlice({
     setP2PEnabled: (state, action: PayloadAction<boolean>) => {
       state.p2pEnabled = action.payload
     },
-  },
-  extraReducers: builder => {
-    // The device list is one community's team graph. Leaving or switching makes the
-    // cached rows someone else's, so they go back to "not read yet" rather than being
-    // painted under the new community until the next read lands.
-    builder
-      .addCase(communitiesActions.setCurrentCommunity, state => {
-        state.linkedDevices = undefined
-      })
-      .addCase(communitiesActions.deleteCommunity, state => {
-        state.linkedDevices = undefined
-      })
   },
 })
 

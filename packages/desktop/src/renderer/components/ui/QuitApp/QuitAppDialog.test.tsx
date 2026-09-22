@@ -15,7 +15,7 @@ describe('QuitAppDialog', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiDialog-root MuiModal-root css-1jwcu1u-MuiModal-root-MuiDialog-root"
+          class="MuiDialog-root MuiModal-root css-1tvy29x-MuiModal-root-MuiDialog-root"
           role="presentation"
         >
           <div
@@ -28,14 +28,14 @@ describe('QuitAppDialog', () => {
             tabindex="0"
           />
           <div
-            class="MuiDialog-container MuiDialog-scrollPaper css-hz1bth-MuiDialog-container"
+            class="MuiDialog-container MuiDialog-scrollPaper css-1sep8xo-MuiDialog-container"
             role="presentation"
             style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
             tabindex="-1"
           >
             <div
               aria-labelledby=":r0:"
-              class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm css-1clza1p-MuiPaper-root-MuiDialog-paper"
+              class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm css-gpyfn6-MuiPaper-root-MuiDialog-paper"
               role="dialog"
             >
               <div

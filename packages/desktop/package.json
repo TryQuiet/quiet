@@ -98,10 +98,10 @@
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
     "distMac:local": "npm run rmDist && export SOURCE_PATH=darwin IS_LOCAL=true && npm run copyBinariesDarwin && npm run build:dev:dist && electron-builder --mac -p never -c.mac.type=development -c.mac.identity=null",
     "dist": "npm run distMac",
-    "distMac": "export SOURCE_PATH=darwin && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
-    "distUbuntu": "export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
-    "distUbuntu:qss": "export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
-    "distwin": "export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
+    "distMac": "npm run rmDist && export SOURCE_PATH=darwin && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
+    "distUbuntu": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
+    "distUbuntu:qss": "npm run rmDist && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
+    "distwin": "npm run rmDist && export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "eslint src --ext .ts,.tsx --config .eslintrc.js --fix",
     "lint:cypress": "eslint src/**/*.cy.{ts,tsx} --config .eslintrc.cypress.js",
@@ -157,6 +157,7 @@
     "electron-updater": "^5.0.1",
     "fuse.js": "7.3.0",
     "get-port": "^5.1.1",
+    "jsqr": "1.4.0",
     "keymirror": "0.1.1",
     "libsodium-wrappers-sumo": "0.7.15",
     "luxon": "^3.4.4",
@@ -239,6 +240,7 @@
     "local-cypress": "1.2.6",
     "mathjax-full": "^3.2.2",
     "node-polyfill-webpack-plugin": "^2.0.1",
+    "qr.js": "0.0.0",
     "ramda": "^0.26.1",
     "rc-scrollbars": "^1.1.5",
     "react": "18.3.1",
@@ -302,7 +304,8 @@
     ],
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/shared/testing/fileMock.ts",
-      "\\.(scss|css|less)$": "identity-obj-proxy"
+      "\\.(scss|css|less)$": "identity-obj-proxy",
+      "^backend-bundle$": "<rootDir>/src/shared/testing/backendBundleMock.ts"
     },
     "testRegex": "src/.*\\.test\\.(t|j)sx?$",
     "snapshotSerializers": [

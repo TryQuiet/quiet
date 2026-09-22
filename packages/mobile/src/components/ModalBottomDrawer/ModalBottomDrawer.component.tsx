@@ -12,6 +12,14 @@ import { defaultPalette } from '../../styles/palettes/default.palette'
 import { icons } from '../../assets'
 import { ModalBottomDrawerProps } from './ModalBottomDrawer.types'
 
+/**
+ * The design library's Sheet on mobile (design-system/ONBOARDING.md, library → code table).
+ * No screen renders it today: the server offer and the device-link consent both became full
+ * screens, and the three sheets the prototype draws — Join with QR code (2811:2460), Link
+ * devices' QR code (2811:2601) and Scan QR code (2811:2587) — are not built as sheets yet.
+ * It is kept for those, with its own test and the AndroidCompatibility story that exercises
+ * what it does when the activity is resized.
+ */
 export const ModalBottomDrawer: FC<ModalBottomDrawerProps> = ({
   visible,
   onClose,

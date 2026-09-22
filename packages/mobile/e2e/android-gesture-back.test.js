@@ -41,19 +41,31 @@ const swipeBackFromEdge = async (anchor = element(by.id('chat_general'))) => {
 
 describeAndroid('Android system Back gestures', () => {
   it('dismisses the keyboard, leaves the channel, and closes its image modal through edge gestures', async () => {
-    assert.equal(await shell('settings', 'get', 'secure', 'navigation_mode'), '2', 'Use an emulator with gesture navigation')
+    assert.equal(
+      await shell('settings', 'get', 'secure', 'navigation_mode'),
+      '2',
+      'Use an emulator with gesture navigation'
+    )
     await device.launchApp({ newInstance: true })
     await device.setOrientation('portrait')
-    await waitFor(element(by.id('BottomMenu.Sidebar'))).toBeVisible().withTimeout(120000)
+    await waitFor(element(by.id('BottomMenu.Sidebar')))
+      .toBeVisible()
+      .withTimeout(120000)
     await element(by.id('BottomMenu.Sidebar')).tap()
-    await waitFor(element(by.id('Storybook.ListView.SearchBar'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('Storybook.ListView.SearchBar')))
+      .toBeVisible()
+      .withTimeout(10000)
     await element(by.id('Storybook.ListView.SearchBar')).replaceText('AndroidCompatibility')
     await element(by.text('SystemBack')).tap()
     await element(by.id('BottomMenu.Canvas')).tap()
-    await waitFor(element(by.id('android-compatibility-reset'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('android-compatibility-reset')))
+      .toBeVisible()
+      .withTimeout(10000)
     await element(by.id('android-compatibility-reset')).tap()
     await element(by.id('channel_tile_general')).tap()
-    await waitFor(element(by.id('chat_general'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('chat_general')))
+      .toBeVisible()
+      .withTimeout(10000)
     await element(by.id('input')).tap()
     await element(by.id('input')).replaceText('Keep this draft after an edge gesture')
     await waitForKeyboard(true)
@@ -65,12 +77,18 @@ describeAndroid('Android system Back gestures', () => {
     await expect(element(by.id('input'))).toHaveText('Keep this draft after an edge gesture')
 
     await swipeBackFromEdge()
-    await waitFor(element(by.id('channels_list'))).toBeVisible().withTimeout(10000)
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(10000)
     await expect(channelState()).toHaveText('(none)')
 
     await element(by.id('channel_tile_general')).tap()
-    await waitFor(element(by.id('chat_general'))).toBeVisible().withTimeout(10000)
-    await waitFor(element(by.id('android-compatibility-image-state'))).toHaveText('ready').withTimeout(10000)
+    await waitFor(element(by.id('chat_general')))
+      .toBeVisible()
+      .withTimeout(10000)
+    await waitFor(element(by.id('android-compatibility-image-state')))
+      .toHaveText('ready')
+      .withTimeout(10000)
     await element(by.id('android-compatibility-open-preview')).tap()
     await waitFor(previewTitle()).toBeVisible().withTimeout(10000)
     await swipeBackFromEdge(element(by.id('image-preview-image')))

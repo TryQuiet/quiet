@@ -1,47 +1,43 @@
-import React, { type FC, useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { type FC } from 'react'
+import { useSelector } from 'react-redux'
 
-import { communities, connection } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 
-import { LinkedDevicesComponent } from './LinkedDevices.component'
+import { useModal } from '../../../../containers/hooks'
+import { ModalName } from '../../../../sagas/modals/modals.types'
+import { ConfirmationToast } from '../../../ui/ConfirmationToast/ConfirmationToast'
+import { LinkDevicesComponent } from '../../../Onboarding/LinkDevicesComponent'
+import { useCopyDeviceLink } from '../../../Onboarding/useCopyDeviceLink'
+import type { LinkDevicesModalArgs } from '../../../Onboarding/LinkDevices'
 
-export const LinkedDevices: FC<{ centered?: boolean }> = ({ centered = false }) => {
-  const dispatch = useDispatch()
-  const deviceLink = useSelector(connection.selectors.deviceLinkUrl)
-  const deviceLinkInvite = useSelector(connection.selectors.deviceLinkInvite)
-  const deviceLinkCreationFailed = useSelector(connection.selectors.deviceLinkCreationFailed)
+/**
+ * Settings → Linked devices: the in-app entry to the one Link devices stage (Device-linking
+ * file, Entry points 879:19861 — the switcher's row opens the same screen Get started does).
+ * Inside a community this device shares: Display QR code opens the Link devices modal
+ * straight at the QR sheet, on top of Settings; Copy link copies the same link
+ * and confirms with the design's toast.
+ *
+ * The frame's "Linked devices" list is absent: nothing on this line enumerates a user's
+ * devices (TryQuiet/quiet#3636).
+ */
+export const LinkedDevices: FC = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const linkedDevices = useSelector(connection.selectors.linkedDevices)
-  // The device list is read off the team graph, so it only exists inside a community.
-  const hasCommunity = Boolean(currentCommunity)
-  const [revealLink, setRevealLink] = useState(false)
-  const [requestPending, setRequestPending] = useState(!deviceLinkInvite || deviceLinkInvite.expiresAt <= Date.now())
-  const didRequestOnMount = useRef(false)
-
-  useEffect(() => {
-    if (didRequestOnMount.current) return
-    didRequestOnMount.current = true
-    if (requestPending) {
-      dispatch(connection.actions.createDeviceLink())
-    }
-  }, [dispatch, requestPending])
-
-  useEffect(() => {
-    if (hasCommunity) dispatch(connection.actions.getLinkedDevices())
-  }, [dispatch, hasCommunity])
-
-  useEffect(() => {
-    if (deviceLinkInvite || deviceLinkCreationFailed) setRequestPending(false)
-  }, [deviceLinkCreationFailed, deviceLinkInvite])
+  const linkDevicesModal = useModal<LinkDevicesModalArgs>(ModalName.linkDevicesModal)
+  const inCommunity = Boolean(currentCommunity)
+  const copyLink = useCopyDeviceLink(inCommunity)
 
   return (
-    <LinkedDevicesComponent
-      deviceLink={deviceLink}
-      isLoading={requestPending && !deviceLinkCreationFailed}
-      revealLink={revealLink}
-      onToggleLinkVisibility={() => setRevealLink(currentValue => !currentValue)}
-      linkedDevices={hasCommunity ? linkedDevices : undefined}
-      centered={centered}
-    />
+    <>
+      <LinkDevicesComponent
+        direction={inCommunity ? 'share' : 'receive'}
+        onDisplayQrCode={() => linkDevicesModal.handleOpen({ step: 'display' })}
+        deviceLink={copyLink.deviceLink}
+        onCopyLink={copyLink.onCopyLink}
+        onLinkCopied={copyLink.onLinkCopied}
+        onScanQrCode={() => linkDevicesModal.handleOpen({ step: 'scan' })}
+        onPasteLink={() => linkDevicesModal.handleOpen({ step: 'pasteLink' })}
+      />
+      <ConfirmationToast open={copyLink.copied} message={'Copied'} onClose={copyLink.dismissCopied} />
+    </>
   )
 }

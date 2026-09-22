@@ -12,8 +12,7 @@ import { Typography } from '@mui/material'
 import { QRCodeComponent } from './Tabs/QRCode/QRCode.component'
 import { composeInvitationShareUrl } from '@quiet/common'
 import { InvitationDataVersion } from '@quiet/types'
-import type { LinkedDevice } from '@quiet/types'
-import { LinkedDevicesComponent } from './Tabs/LinkedDevices/LinkedDevices.component'
+import { LinkDevicesComponent } from '../Onboarding/LinkDevicesComponent'
 
 const invitationLink = composeInvitationShareUrl({
   version: InvitationDataVersion.v4,
@@ -75,28 +74,14 @@ const QRCode: FC = () => {
   return <QRCodeComponent value={invitationLink} />
 }
 
-// Settings is only reachable inside a community, so this tab always has a team
-// graph to read devices off: it shows the list. This device and any removed
-// device are filtered out before the rows are drawn.
-const settingsLinkedDevices: LinkedDevice[] = [
-  { deviceId: 'this', deviceName: 'this device', isCurrent: true },
-  { deviceId: 'laptop', deviceName: 'nyc-laptop', isCurrent: false },
-  { deviceId: 'phone', deviceName: 'work-phone', isCurrent: false },
-]
-
-const LinkedDevices: FC = () => {
-  const [revealLink, setRevealLink] = useState(false)
-
-  return (
-    <LinkedDevicesComponent
-      deviceLink={invitationLink}
-      isLoading={false}
-      revealLink={revealLink}
-      onToggleLinkVisibility={() => setRevealLink(currentValue => !currentValue)}
-      linkedDevices={settingsLinkedDevices}
-    />
-  )
-}
+const LinkedDevices: FC = () => (
+  <LinkDevicesComponent
+    direction='share'
+    onDisplayQrCode={() => {}}
+    deviceLink={invitationLink}
+    onLinkCopied={() => {}}
+  />
+)
 
 const args: SettingsComponentProps = {
   open: true,
@@ -121,17 +106,6 @@ WindowsComponent.args = {
   ...args,
   isWindows: true,
 }
-
-/**
- * The Linked devices tab on its own. Inside Settings the surface is left-aligned
- * (the onboarding modal renders the same component `centered`), so this is where
- * the device list's own geometry is reviewed.
- */
-export const LinkedDevicesTab = () => (
-  <div style={{ width: 600, padding: 24 }}>
-    <LinkedDevices />
-  </div>
-)
 
 const component: ComponentMeta<typeof SettingsComponent> = {
   title: 'Components/Settings',

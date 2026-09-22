@@ -28,7 +28,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-1wtglci-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-t21bgj-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -85,7 +85,7 @@ describe('ChannelInput', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root MuiGrid-container ChannelInputInfoMessageboot css-15146l7-MuiGrid-root"
+                class="MuiGrid-root MuiGrid-container ChannelInputInfoMessageboot css-msl308-MuiGrid-root"
                 data-testid="channel-input-info-message-container"
               >
                 <div
@@ -119,7 +119,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1wtglci-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-t21bgj-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -177,7 +177,7 @@ describe('ChannelInput', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root MuiGrid-container ChannelInputInfoMessageboot css-15146l7-MuiGrid-root"
+                class="MuiGrid-root MuiGrid-container ChannelInputInfoMessageboot css-msl308-MuiGrid-root"
                 data-testid="channel-input-info-message-container"
               >
                 <div

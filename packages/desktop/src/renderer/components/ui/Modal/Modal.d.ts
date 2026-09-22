@@ -31,6 +31,11 @@ export interface IModalProps {
    * text on them and keeps titled bars only on sheets.
    */
   withoutTitle?: boolean
+  /**
+   * What the close glyph does, for assistive tech; defaults to "Close". Pass it where the
+   * icon and the action differ, as on Want a server? (2922:10009), whose × goes back.
+   */
+  closeAriaLabel?: string
   /** Rounded corners for a windowed (`fullPage={false}`) card — the library's modal/small. */
   cornerRadius?: number
   zIndex?: number

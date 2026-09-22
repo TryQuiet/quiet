@@ -24,10 +24,11 @@ const Root = styled('div')(({ theme }) => ({
   [`& .${classes.indicator}`]: {
     margin: '0 auto',
     display: 'flex',
+    // 'alert-new-messages' (library 1058:618): 32 tall, radius 8, primary purple, caption 12/16 in white.
     backgroundColor: theme.palette.colors.purple,
     width: 200,
-    height: 40,
-    borderRadius: 50,
+    height: 32,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
@@ -35,15 +36,15 @@ const Root = styled('div')(({ theme }) => ({
 
   [`& .${classes.label}`]: {
     color: theme.palette.colors.white,
-    fontSize: '0.855rem',
+    fontSize: theme.typography.caption.fontSize,
     whiteSpace: 'pre-line',
-    lineHeight: '21px',
+    lineHeight: theme.typography.caption.lineHeight,
   },
 
   [`& .${classes.icon}`]: {
     width: 16,
     height: 16,
-    margin: '0px 0px 0px 8px',
+    marginLeft: theme.space.sm,
   },
 }))
 

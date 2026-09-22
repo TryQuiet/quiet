@@ -6,5 +6,7 @@ export interface ActionRowProps {
   subtitle?: string
   onPress?: () => void
   disabled?: boolean
+  /** The hairline under the row; off for the last row of a bordered group. */
+  divider?: boolean
   testID?: string
 }

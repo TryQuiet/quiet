@@ -3,7 +3,9 @@ import classNames from 'classnames'
 import React, { ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import type { PluggableList } from 'unified'
 import { isAllEmoji } from '../../../../../../common/src/emojis'
+import { parseChannelLinkHref, remarkChannelLinks } from './remarkChannelLinks'
 
 const PREFIX = 'TextMessage'
 
@@ -24,16 +26,17 @@ const classes = {
 }
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
+  // Message text is the body role (14/20; library 'Message' text 4910:23681); emoji-only is twice that on the grid.
   [`&.${classes.message}`]: {
-    fontSize: '0.855rem',
+    fontSize: theme.typography.body2.fontSize,
     whiteSpace: 'pre-line',
-    lineHeight: '21px',
+    lineHeight: theme.typography.body2.lineHeight,
     overflowWrap: 'anywhere',
     fontFamily: '"Rubik", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
   },
   [`&.${classes.emojiMessage}`]: {
-    fontSize: '1.7rem', // Double the normal fontSize
-    lineHeight: '42px', // Double the normal lineHeight
+    fontSize: 28, // Double the body size
+    lineHeight: '40px', // Double the body line-height
     fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
   },
   [`&.${classes.pending}`]: {
@@ -105,14 +108,41 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
   },
 })) as typeof Typography
 
+/**
+ * Everything TextMessage needs to turn `#some-channel` into a link the user can click.
+ * Optional throughout the message tree so stories, tests and any other caller can leave it out and
+ * keep the previous plain-text behaviour.
+ */
+export interface ChannelLinkNavigation {
+  /** lowercased channel name -> channel id, for every channel the user can currently see */
+  channels: Map<string, string>
+  onChannelLinkClick: (channelId: string) => void
+}
+
 export interface TextMessageComponentProps {
   message: string
   messageId: string
   pending: boolean
   openUrl: (url: string) => void
+  channelLinks?: ChannelLinkNavigation
 }
 
-export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ message, messageId, pending, openUrl }) => {
+export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
+  message,
+  messageId,
+  pending,
+  openUrl,
+  channelLinks,
+}) => {
+  const remarkPlugins: PluggableList = [[remarkGfm, { singleTilde: false }]]
+  if (channelLinks && channelLinks.channels.size > 0) {
+    remarkPlugins.push([remarkChannelLinks, { channels: channelLinks.channels }])
+  }
+
+  // Guards against a hand-written `[x](#channel/…)` link pointing at a channel the user cannot see.
+  const isVisibleChannel = (channelId: string): boolean =>
+    Array.from(channelLinks?.channels.values() ?? []).includes(channelId)
+
   const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
     return (
       <a
@@ -138,19 +168,28 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ mess
       data-testid={`messagesGroupContent-${messageId}`}
     >
       <ReactMarkdown
-        remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
+        remarkPlugins={remarkPlugins}
         children={message}
         components={{
-          a: ({ node, ...props }) => (
-            <a
-              onClick={e => {
-                e.preventDefault()
-                if (props.href) openUrl(props.href)
-              }}
-              className={classNames({ [classes.link]: true })}
-              {...props}
-            />
-          ),
+          a: ({ node, ...props }) => {
+            const channelId = parseChannelLinkHref(props.href)
+            return (
+              <a
+                onClick={e => {
+                  e.preventDefault()
+                  if (channelId !== null) {
+                    // Channel links never reach openUrl - they navigate inside the app.
+                    if (isVisibleChannel(channelId)) channelLinks?.onChannelLinkClick(channelId)
+                    return
+                  }
+                  if (props.href) openUrl(props.href)
+                }}
+                className={classNames({ [classes.link]: true })}
+                data-testid={channelId !== null ? 'channelLink' : undefined}
+                {...props}
+              />
+            )
+          },
           // Not working in older ReactMarkdown version we use because of ESM
           // blockquote: ({ node, ...props }) => (
           //   <blockquote className={classNames({ [classes.blockquote]: true })} {...props} />

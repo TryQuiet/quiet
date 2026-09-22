@@ -30,11 +30,10 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
   [`& .${classes.image}`]: {
     width: '95px',
     height: '95px',
-    marginBottom: '58px',
+    marginBottom: theme.space.xxl + theme.space.xl,
   },
   [`& .${classes.heading2}`]: {
-    fontSize: '18px',
-    marginTop: '12px',
+    marginTop: theme.space.md,
   },
   [`& .${classes.link}`]: {
     color: theme.palette.colors.blue,

@@ -419,6 +419,15 @@ describe('Appbar component', () => {
     expect(getByLabelText('Close')).toBeTruthy()
   })
 
+  it('lets a screen say what its glyph does when the icon and the action differ', () => {
+    // Want a server? (2922:10009) draws an × that goes back, so it says so.
+    const { getByLabelText } = renderComponent(
+      <Appbar withoutTitle crossBackIcon back={() => {}} backAccessibilityLabel={'Go back'} />
+    )
+
+    expect(getByLabelText('Go back')).toBeTruthy()
+  })
+
   it('renders submit button with a touch target that meets the accessibility minimum', () => {
     const { getByTestId } = renderComponent(<Appbar title={'quiet'} submit={() => {}} />)
 

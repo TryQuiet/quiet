@@ -12,6 +12,9 @@ import {
 import { NotificationPermissionStatus } from './pushNotifications.types'
 import { communities, pushNotifications } from '@quiet/state-manager'
 import { initSelectors } from '../init/init.selectors'
+import { navigationSelectors } from '../navigation/navigation.selectors'
+import { navigationActions } from '../navigation/navigation.slice'
+import { ScreenNames } from '../../const/ScreenNames.enum'
 import { createLogger } from '../../utils/logger'
 import Config from 'react-native-config'
 
@@ -42,6 +45,18 @@ function* checkPermissionSaga(): Generator {
   yield* call([communicationModule, communicationModule.checkNotificationPermission])
 }
 
+/**
+ * The QR scanner sheet asks for the camera; the notifications prompt is never
+ * stacked on top of that ask. If the sheet is in front when the launch-time
+ * request comes due, the request waits until the sheet is left.
+ */
+export function* waitUntilNoCameraSheetSaga(): Generator {
+  while ((yield* select(navigationSelectors.currentScreen)) === ScreenNames.ScanQrCodeScreen) {
+    logger.info('QR scanner in front, holding the notification permission request')
+    yield* take([navigationActions.navigation.type, navigationActions.replaceScreen.type, navigationActions.pop.type])
+  }
+}
+
 function* triggerPermissionRequestSaga(): Generator {
   if (Config.QPS_ALLOWED !== 'true' && Platform.OS !== 'android') {
     logger.info('QPS not allowed, skipping automatic permission request trigger')
@@ -51,6 +66,7 @@ function* triggerPermissionRequestSaga(): Generator {
   logger.info(`App opened. alreadyRequested=${alreadyRequested}`)
 
   if (!alreadyRequested) {
+    yield* call(waitUntilNoCameraSheetSaga)
     yield* put(pushNotificationsActions.requestPermission())
   } else {
     yield* put(pushNotificationsActions.checkPermissionOnLaunch())

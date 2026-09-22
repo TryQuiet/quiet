@@ -2,13 +2,18 @@
 // Storybook derives a story's id from the EXPORT NAME (storyNameFromExport → toId),
 // not from `storyName`, so export identifiers are chosen so the derived id equals
 // `onboarding-flow--<slug>`, and that equality is asserted here with @storybook/csf.
-const fs = require('fs'); const path = require('path')
+const fs = require('fs')
+const path = require('path')
 const { toId, storyNameFromExport } = require('@storybook/csf')
 const TITLE = 'Onboarding flow'
 const flowPath = path.join(__dirname, '..', 'figma', 'flow.json')
 const flow = JSON.parse(fs.readFileSync(flowPath, 'utf8'))
 // 'ios-photo-gallery-2811-2501' -> 'IosPhotoGallery_2811_2501' : words PascalCased, numeric runs underscored
-const exportFor = slug => slug.split('-').map(w => (/^\d+$/.test(w) ? '_' + w : w[0].toUpperCase() + w.slice(1))).join('')
+const exportFor = slug =>
+  slug
+    .split('-')
+    .map(w => (/^\d+$/.test(w) ? '_' + w : w[0].toUpperCase() + w.slice(1)))
+    .join('')
 const expectId = slug => `${toId(TITLE, 'x').split('--')[0]}--${slug}`
 // Purged screens (user decision, 2026-09-12): Apple system UI captured as stages, exact duplicates that differ
 // only in prototype wiring, extra input states of one screen, and placeholder art. Both Agree & join screens stay —
@@ -36,11 +41,21 @@ for (const f of flow.frames) {
   f.links = f.links.flatMap(l => {
     if (!l.target || !(l.target in PURGE)) return [l]
     const t = PURGE[l.target]
-    if (t === null || t === f.slug) { console.log(`  link dropped: ${f.slug} → ${l.target} (${l.label})`); return [] }
-    console.log(`  link re-targeted: ${f.slug} → ${l.target} ⇒ ${t} (${l.label})`); return [{ ...l, target: t }]
+    if (t === null || t === f.slug) {
+      console.log(`  link dropped: ${f.slug} → ${l.target} (${l.label})`)
+      return []
+    }
+    console.log(`  link re-targeted: ${f.slug} → ${l.target} ⇒ ${t} (${l.label})`)
+    return [{ ...l, target: t }]
   })
 }
-for (const slug of Object.keys(PURGE)) { const png = path.join(__dirname, '..', 'figma', slug + '.png'); if (fs.existsSync(png)) { fs.unlinkSync(png); console.log(`  export removed: figma/${slug}.png`) } }
+for (const slug of Object.keys(PURGE)) {
+  const png = path.join(__dirname, '..', 'figma', slug + '.png')
+  if (fs.existsSync(png)) {
+    fs.unlinkSync(png)
+    console.log(`  export removed: figma/${slug}.png`)
+  }
+}
 console.log(`purged ${before - flow.frames.length} of ${before} screens; ${flow.frames.length} remain`)
 // Sidebar / map / side-panel names: the screen's own title (its title-bar text, else its heading,
 // else the Figma frame name — never an invented label), a real visible state after an em dash,
@@ -56,7 +71,7 @@ const DISPLAY = {
   'sheet-2811-2601': 'Link devices — QR code (sheet)',
   'sheet-2811-2587': 'Link devices — Scan QR code (sheet)',
   'open-invite-link': 'Join with invite link',
-  'container': 'Paste a link to Join (WIP)',
+  container: 'Paste a link to Join (WIP)',
   'sheet-2811-2460': 'Join with QR code (sheet)',
   'recover-account-info': 'Account recovery',
   'username-default': 'Choose username',
@@ -83,18 +98,37 @@ const DISPLAY = {
 }
 const rows = []
 for (const f of flow.frames) {
-  const exp = exportFor(f.slug); const id = toId(TITLE, storyNameFromExport(exp)); const want = expectId(f.slug)
-  if (id !== want) { console.error(`ID MISMATCH ${f.slug}: export ${exp} -> ${id}, wanted ${want}`); process.exit(1) }
-  f.id = id; f.export = exp; f.display = DISPLAY[f.slug] ?? f.display; rows.push(f)
+  const exp = exportFor(f.slug)
+  const id = toId(TITLE, storyNameFromExport(exp))
+  const want = expectId(f.slug)
+  if (id !== want) {
+    console.error(`ID MISMATCH ${f.slug}: export ${exp} -> ${id}, wanted ${want}`)
+    process.exit(1)
+  }
+  f.id = id
+  f.export = exp
+  f.display = DISPLAY[f.slug] ?? f.display
+  rows.push(f)
   // Figma exports include drop shadows, so a frame with a shadow comes back larger than its box (the switcher:
   // 352×732 for a 320×700 frame). Record the margin so the image is painted at natural size and hotspots stay true.
-  const png = fs.readFileSync(path.join(__dirname, '..', 'figma', f.png)); const pw = png.readUInt32BE(16) / 2, ph = png.readUInt32BE(20) / 2
-  const padX = Math.round((pw - f.width) / 2), padY = Math.round((ph - f.height) / 2)
-  if (padX || padY) f.pad = { x: padX, y: padY }; else delete f.pad
+  const png = fs.readFileSync(path.join(__dirname, '..', 'figma', f.png))
+  const pw = png.readUInt32BE(16) / 2,
+    ph = png.readUInt32BE(20) / 2
+  const padX = Math.round((pw - f.width) / 2),
+    padY = Math.round((ph - f.height) / 2)
+  if (padX || padY) f.pad = { x: padX, y: padY }
+  else delete f.pad
 }
-for (const k of Object.keys(DISPLAY)) if (!flow.frames.some(f => f.slug === k)) { console.error(`DISPLAY has no frame for slug ${k}`); process.exit(1) }
+for (const k of Object.keys(DISPLAY))
+  if (!flow.frames.some(f => f.slug === k)) {
+    console.error(`DISPLAY has no frame for slug ${k}`)
+    process.exit(1)
+  }
 const dups = rows.map(f => f.display).filter((d, i, a) => a.indexOf(d) !== i)
-if (dups.length) { console.error(`duplicate display names: ${[...new Set(dups)].join(' | ')}`); process.exit(1) }
+if (dups.length) {
+  console.error(`duplicate display names: ${[...new Set(dups)].join(' | ')}`)
+  process.exit(1)
+}
 // Desktop renderings from the designer's own desktop frames (user, 2026-09-12: "sidebar on left and chat in the
 // rest of the screen" and "there should be plenty of designs on this in figma already"). Per stage: kind 'app' =
 // a 740-wide split-view frame — drawn at 740; wider windows keep [0,right) at the left edge and [right,740) at
@@ -104,64 +138,180 @@ if (dups.length) { console.error(`duplicate display names: ${[...new Set(dups)].
 // the shell composition of the mobile frame already produces — so they need no entry (see Desktop designs). Hotspots are measured on the export (1×) and
 // wired to the targets of the mobile frame's own links, matched by label — or to 'back'. Nothing else is drawn.
 const DESKTOP = {
-  'community-home': { kind: 'app', png: 'desktop-community-home-empty.png', node: '1430:48044', width: 740, height: 800, stretch: { col: 600, right: 640 }, hotspots: [
-    { x: 52, y: 47, w: 126, h: 26, label: 'Community name', from: 'Avatar and switcher' },
-    { x: 186, y: 47, w: 24, h: 24, label: 'Gear → community menu (Add members)', to: 'home-add-members', kind: 'added' },
-  ] },
-  'home-add-members': { kind: 'app', png: 'desktop-community-menu-open.png', node: '1430:48372', width: 740, height: 800, stretch: { col: 290, right: 325 }, hotspots: [
-    { x: 365, y: 109, w: 375, h: 49, label: 'Add members row', from: 'Home add members' },
-    { x: 380, y: 18, w: 28, h: 28, label: 'Back arrow', back: true },
-  ] },
-  'community-switcher-2853-1955': { kind: 'app', png: 'desktop-community-switcher-overlay.png', node: '1104:38645', width: 740, height: 646, stretch: { col: 600, right: 640 }, hotspots: [
-    { x: 288, y: 282, w: 28, h: 26, label: 'Person add (VibeVillage row)', from: 'Person add' },
-    { x: 66, y: 100, w: 24, h: 24, label: 'Close', back: true },
-  ] },
+  'community-home': {
+    kind: 'app',
+    png: 'desktop-community-home-empty.png',
+    node: '1430:48044',
+    width: 740,
+    height: 800,
+    stretch: { col: 600, right: 640 },
+    hotspots: [
+      { x: 52, y: 47, w: 126, h: 26, label: 'Community name', from: 'Avatar and switcher' },
+      {
+        x: 186,
+        y: 47,
+        w: 24,
+        h: 24,
+        label: 'Gear → community menu (Add members)',
+        to: 'home-add-members',
+        kind: 'added',
+      },
+    ],
+  },
+  'home-add-members': {
+    kind: 'app',
+    png: 'desktop-community-menu-open.png',
+    node: '1430:48372',
+    width: 740,
+    height: 800,
+    stretch: { col: 290, right: 325 },
+    hotspots: [
+      { x: 365, y: 109, w: 375, h: 49, label: 'Add members row', from: 'Home add members' },
+      { x: 380, y: 18, w: 28, h: 28, label: 'Back arrow', back: true },
+    ],
+  },
+  'community-switcher-2853-1955': {
+    kind: 'app',
+    png: 'desktop-community-switcher-overlay.png',
+    node: '1104:38645',
+    width: 740,
+    height: 646,
+    stretch: { col: 600, right: 640 },
+    hotspots: [
+      { x: 288, y: 282, w: 28, h: 26, label: 'Person add (VibeVillage row)', from: 'Person add' },
+      { x: 66, y: 100, w: 24, h: 24, label: 'Close', back: true },
+    ],
+  },
   // Device linking desktop designs (user pointer 2026-09-13): the Draft-5 frames are whole Modal full-window
   // instances (715×1018) carrying their own chrome (dots + back arrow, no title bar) — cropped by 96 and set
   // into the shell composition like any 715 content; the shell's bar shows the stage's title text.
-  'link-devices': { kind: 'content', png: 'devicelink/desktop-link-devices.png', node: '879:20987', width: 715, height: 1018, crop: 96, hotspots: [
-    { x: 122, y: 239, w: 458, h: 46, label: 'Display QR code row', from: 'Content' },
-    { x: 122, y: 286, w: 458, h: 46, label: 'Scan QR code row', from: 'Button row' },
-    { x: 122, y: 333, w: 458, h: 46, label: 'Paste link — added by decision 2026-09-13, not in the Figma frame', to: 'container', kind: 'added' },
-    { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
-  ] },
-  'sheet-2811-2601': { kind: 'content', png: 'devicelink/desktop-link-devices-qr.png', node: '880:17427', width: 715, height: 1018, crop: 96, hotspots: [
-    { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
-  ] },
+  'link-devices': {
+    kind: 'content',
+    png: 'devicelink/desktop-link-devices.png',
+    node: '879:20987',
+    width: 715,
+    height: 1018,
+    crop: 96,
+    hotspots: [
+      { x: 122, y: 239, w: 458, h: 46, label: 'Display QR code row', from: 'Content' },
+      { x: 122, y: 286, w: 458, h: 46, label: 'Scan QR code row', from: 'Button row' },
+      {
+        x: 122,
+        y: 333,
+        w: 458,
+        h: 46,
+        label: 'Paste link — added by decision 2026-09-13, not in the Figma frame',
+        to: 'container',
+        kind: 'added',
+      },
+      { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
+    ],
+  },
+  'sheet-2811-2601': {
+    kind: 'content',
+    png: 'devicelink/desktop-link-devices-qr.png',
+    node: '880:17427',
+    width: 715,
+    height: 1018,
+    crop: 96,
+    hotspots: [{ x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true }],
+  },
   // The joining-progress stage is an in-app screen, not a modal, so the shell composition does not apply: the
   // designer drew the desktop version (Draft 6 'Frame 1320'), already in Desktop designs. Its content sits in the
   // chat area with nothing at the frame's right edge, so wider windows extend the chat's plain white to the right
   // (stretch col 700) and the block keeps its place next to the sidebar — the design has no wider variant. The
   // stage has no outgoing links once Community home is excluded, so it has no hotspots.
-  'globe-animation': { kind: 'app', png: 'desktop-creating-community.png', node: '1430:48030', width: 740, height: 800, stretch: { col: 700, right: 740 }, hotspots: [] },
-  'choose-a-plan': { kind: 'content', png: 'desktop-choose-a-plan.png', node: '2840:6718', width: 715, height: 929, hotspots: [
-    { x: 32, y: 297, w: 103, h: 48, label: 'Upgrade (Free)', from: 'Button', nth: 0 },
-    { x: 265, y: 297, w: 104, h: 48, label: 'Upgrade ($20)', from: 'Button', nth: 1 },
-    { x: 498, y: 297, w: 103, h: 48, label: 'Upgrade ($40)', from: 'Button', nth: 2 },
-    { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
-  ] },
+  'globe-animation': {
+    kind: 'app',
+    png: 'desktop-creating-community.png',
+    node: '1430:48030',
+    width: 740,
+    height: 800,
+    stretch: { col: 700, right: 740 },
+    hotspots: [],
+  },
+  'choose-a-plan': {
+    kind: 'content',
+    png: 'desktop-choose-a-plan.png',
+    node: '2840:6718',
+    width: 715,
+    height: 929,
+    hotspots: [
+      { x: 32, y: 297, w: 103, h: 48, label: 'Upgrade (Free)', from: 'Button', nth: 0 },
+      { x: 265, y: 297, w: 104, h: 48, label: 'Upgrade ($20)', from: 'Button', nth: 1 },
+      { x: 498, y: 297, w: 103, h: 48, label: 'Upgrade ($40)', from: 'Button', nth: 2 },
+      { x: -1, y: -1, w: 0, h: 0, label: 'Back', back: true },
+    ],
+  },
 }
 for (const f of flow.frames) delete f.desktop // derived; never carried over from a previous run
 // Decisions that add UI the Figma frames do not draw, shown as 'added' (amber) rows in the click-through.
 const ADDED_LINKS = {
-  'link-devices': [{ x: 16, y: 324, w: 343, h: 49, label: 'Paste link — added by decision 2026-09-13, not in the Figma frame', target: 'container', kind: 'added', note: 'User decision: a third Button row with the link glyph; the paste step accepts device links only.' }],
+  'link-devices': [
+    {
+      x: 16,
+      y: 324,
+      w: 343,
+      h: 49,
+      label: 'Paste link — added by decision 2026-09-13, not in the Figma frame',
+      target: 'container',
+      kind: 'added',
+      note: 'User decision: a third Button row with the link glyph; the paste step accepts device links only.',
+    },
+  ],
 }
-for (const [slug, links] of Object.entries(ADDED_LINKS)) { const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`ADDED_LINKS has no frame ${slug}`); process.exit(1) }
-  f.links = f.links.filter(l => !(l.kind === 'added' && links.some(a => a.label === l.label))).concat(links) }
+for (const [slug, links] of Object.entries(ADDED_LINKS)) {
+  const f = flow.frames.find(x => x.slug === slug)
+  if (!f) {
+    console.error(`ADDED_LINKS has no frame ${slug}`)
+    process.exit(1)
+  }
+  f.links = f.links.filter(l => !(l.kind === 'added' && links.some(a => a.label === l.label))).concat(links)
+}
 // User decision (2026-09-13): no "Quiet" header on Get started — redundant with the window on desktop, wrong on
 // mobile. The prototype frame still draws it; the desktop composition drops the title bar for this stage.
 const TITLE_BAR = { 'get-started': { height: 60, text: null, removed: true } }
-for (const [slug, tb] of Object.entries(TITLE_BAR)) { const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`TITLE_BAR has no frame ${slug}`); process.exit(1) } f.titleBar = tb }
+for (const [slug, tb] of Object.entries(TITLE_BAR)) {
+  const f = flow.frames.find(x => x.slug === slug)
+  if (!f) {
+    console.error(`TITLE_BAR has no frame ${slug}`)
+    process.exit(1)
+  }
+  f.titleBar = tb
+}
 for (const [slug, d] of Object.entries(DESKTOP)) {
-  const f = flow.frames.find(x => x.slug === slug); if (!f) { console.error(`DESKTOP has no frame for slug ${slug}`); process.exit(1) }
+  const f = flow.frames.find(x => x.slug === slug)
+  if (!f) {
+    console.error(`DESKTOP has no frame for slug ${slug}`)
+    process.exit(1)
+  }
   const hotspots = d.hotspots.map(h => {
     if (h.back) return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: null, kind: 'back' }
-    if (h.to) { if (!flow.frames.some(x => x.slug === h.to)) { console.error(`DESKTOP ${slug}: unknown target ${h.to}`); process.exit(1) } return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: h.to, kind: h.kind ?? 'added' } }
-    const cands = f.links.filter(l => l.label === h.from && l.kind !== 'back'); const from = cands[h.nth ?? 0]
-    if (!from) { console.error(`DESKTOP ${slug}: no link labelled ${h.from} #${h.nth ?? 0}`); process.exit(1) }
+    if (h.to) {
+      if (!flow.frames.some(x => x.slug === h.to)) {
+        console.error(`DESKTOP ${slug}: unknown target ${h.to}`)
+        process.exit(1)
+      }
+      return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: h.to, kind: h.kind ?? 'added' }
+    }
+    const cands = f.links.filter(l => l.label === h.from && l.kind !== 'back')
+    const from = cands[h.nth ?? 0]
+    if (!from) {
+      console.error(`DESKTOP ${slug}: no link labelled ${h.from} #${h.nth ?? 0}`)
+      process.exit(1)
+    }
     return { x: h.x, y: h.y, w: h.w, h: h.h, label: h.label, target: from.target, kind: from.kind }
   })
-  f.desktop = { kind: d.kind, png: d.png, node: d.node, width: d.width, height: d.height, stretch: d.stretch ?? null, crop: d.crop ?? 0, hotspots }
+  f.desktop = {
+    kind: d.kind,
+    png: d.png,
+    node: d.node,
+    width: d.width,
+    height: d.height,
+    stretch: d.stretch ?? null,
+    crop: d.crop ?? 0,
+    hotspots,
+  }
 }
 const mapId = toId(TITLE, storyNameFromExport('AllStages'))
 flow.mapId = mapId
@@ -169,16 +319,43 @@ fs.writeFileSync(flowPath, JSON.stringify(flow, null, 1))
 const L = [
   '// GENERATED by design-system/flow/gen.cjs from figma/flow.json — do not hand-edit.',
   '// One story per screen reachable from "Get started" via the prototype\'s own links.',
-  '// Export names are chosen so Storybook\'s derived id equals `onboarding-flow--<slug>`; gen.cjs asserts it.',
-  "import React from 'react'", '', "import flowJson from '../figma/flow.json'",
-  "import { DesktopDesigns, Flow, FlowMap, FLOW_TITLE, Stage } from '../flow/FigmaFlow'", '',
-  'const flow = flowJson as Flow', 'const frame = (slug: string) => flow.frames.find(f => f.slug === slug)!', '',
-  'export default {', '  title: FLOW_TITLE,', "  parameters: { layout: 'fullscreen', chromatic: { disableSnapshot: true } },", '}', '',
-  'export const AllStages = () => <FlowMap flow={flow} />', "AllStages.storyName = '— all stages —'", '',
-  'export const DesktopDesigns_ = () => <DesktopDesigns flow={flow} />', "DesktopDesigns_.storyName = 'Desktop — designs'", '',
+  "// Export names are chosen so Storybook's derived id equals `onboarding-flow--<slug>`; gen.cjs asserts it.",
+  "import React from 'react'",
+  '',
+  "import flowJson from '../figma/flow.json'",
+  "import { DesktopDesigns, Flow, FlowMap, FLOW_TITLE, Stage } from '../flow/FigmaFlow'",
+  '',
+  'const flow = flowJson as Flow',
+  'const frame = (slug: string) => flow.frames.find(f => f.slug === slug)!',
+  '',
+  'export default {',
+  '  title: FLOW_TITLE,',
+  "  parameters: { layout: 'fullscreen', chromatic: { disableSnapshot: true } },",
+  '}',
+  '',
+  'export const AllStages = () => <FlowMap flow={flow} />',
+  "AllStages.storyName = '— all stages —'",
+  '',
+  'export const DesktopDesigns_ = () => <DesktopDesigns flow={flow} />',
+  "DesktopDesigns_.storyName = 'Desktop — designs'",
+  '',
 ]
-for (const f of rows) L.push(`export const ${f.export} = () => <Stage flow={flow} frame={frame(${JSON.stringify(f.slug)})} />`, `${f.export}.storyName = ${JSON.stringify(f.display)}`, '')
+for (const f of rows)
+  L.push(
+    `export const ${f.export} = () => <Stage flow={flow} frame={frame(${JSON.stringify(f.slug)})} />`,
+    `${f.export}.storyName = ${JSON.stringify(f.display)}`,
+    ''
+  )
 fs.writeFileSync(path.join(__dirname, '..', 'screens', 'OnboardingFlow.stories.tsx'), L.join('\n'))
 // gate rows: id<TAB>export-name needle
-fs.writeFileSync('/mnt/storage/holmes-tmp/gate-ids.txt', [[mapId, 'AllStages'], [toId(TITLE, storyNameFromExport('DesktopDesigns_')), 'DesktopDesigns_'], ...rows.map(f => [f.id, f.export])].map(r => r.join('\t')).join('\n') + '\n')
+fs.writeFileSync(
+  '/mnt/storage/holmes-tmp/gate-ids.txt',
+  [
+    [mapId, 'AllStages'],
+    [toId(TITLE, storyNameFromExport('DesktopDesigns_')), 'DesktopDesigns_'],
+    ...rows.map(f => [f.id, f.export]),
+  ]
+    .map(r => r.join('\t'))
+    .join('\n') + '\n'
+)
 console.log(`generated ${rows.length} stories; ids verified with @storybook/csf; map id ${mapId}`)
