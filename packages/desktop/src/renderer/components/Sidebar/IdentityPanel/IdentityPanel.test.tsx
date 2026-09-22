@@ -1,4 +1,5 @@
 import React from 'react'
+import { fireEvent } from '@testing-library/react'
 import { getReduxStoreFactory, communities } from '@quiet/state-manager'
 
 import { IdentityPanel } from './IdentityPanel'
@@ -73,6 +74,35 @@ describe('IdentityPanel', () => {
         </div>
       </body>
     `)
+  })
+
+  /**
+   * The community row is the only way into the community menu, and since the sidebar column has
+   * no Add members row of its own (user decision, 2026-09-22) it is the only way to Add members
+   * too. It opens the drawer on the menu, not on a tab: the modal reducer keeps a previous
+   * caller's args, so the row passes its own empty ones rather than inheriting a tab.
+   */
+  it('opens the community menu, on the menu rather than a tab', async () => {
+    const { store } = await prepareStore()
+    const factory = await getReduxStoreFactory(store)
+    const community: Community = await factory.create('Community')
+    const handleOpen = jest.fn()
+
+    const result = renderComponent(
+      <IdentityPanel
+        currentCommunity={community}
+        accountSettingsModal={{
+          open: false,
+          handleOpen,
+          handleClose: function (): any {},
+        }}
+      />
+    )
+
+    fireEvent.click(result.getByTestId('settings-panel-button'))
+
+    expect(handleOpen).toHaveBeenCalledTimes(1)
+    expect(handleOpen).toHaveBeenCalledWith({})
   })
 
   it("doesn't break if there's no community", async () => {

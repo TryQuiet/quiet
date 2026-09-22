@@ -105,59 +105,6 @@ describe('Main', () => {
                             <div
                               class="SidebarComponentcontent"
                             >
-                              <ul
-                                class="MuiList-root css-1mk9mw3-MuiList-root"
-                                data-testid="prominentActionsList"
-                              >
-                                <div
-                                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root SidebarRowroot css-7m12uz-MuiButtonBase-root-MuiListItemButton-root"
-                                  data-testid="add-members-link"
-                                  role="button"
-                                  tabindex="0"
-                                >
-                                  <span
-                                    class="SidebarRowglyph"
-                                  >
-                                    <svg
-                                      aria-hidden="true"
-                                      fill="none"
-                                      focusable="false"
-                                      height="12"
-                                      viewBox="0 0 12 12"
-                                      width="12"
-                                    >
-                                      <circle
-                                        cx="4.5"
-                                        cy="4"
-                                        r="1.5"
-                                        stroke="currentColor"
-                                      />
-                                      <path
-                                        d="M9.5 3.5C9.5 4.67157 9.5 6.5 9.5 6.5"
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-width="0.75"
-                                      />
-                                      <path
-                                        d="M11 5C9.82843 5 8 5 8 5"
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-width="0.75"
-                                      />
-                                      <path
-                                        d="M7.82375 8.77097C7.2907 7.40505 5.66103 6.86719 4.5 6.86719C3.33611 6.86719 1.70127 7.3863 1.17233 8.77001C0.975132 9.28589 1.44742 9.75 1.99971 9.75H4.5H7.00012C7.5524 9.75 8.02453 9.28547 7.82375 8.77097Z"
-                                        stroke="currentColor"
-                                      />
-                                    </svg>
-                                  </span>
-                                  <p
-                                    class="MuiTypography-root MuiTypography-body2 SidebarRowlabel css-1t82dwi-MuiTypography-root"
-                                    data-testid="add-members-link-text"
-                                  >
-                                    Add members
-                                  </p>
-                                </div>
-                              </ul>
                               <div>
                                 <div
                                   class="SidebarHeaderroot css-1f72bw8"

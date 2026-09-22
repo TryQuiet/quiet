@@ -3566,9 +3566,9 @@ export class Settings {
 
   async switchTab(name: SettingsModalTabName) {
     logger.info(`Switching to settings tab ${name}`)
-    // Settings can be opened straight onto a tab - the sidebar's "Add members"
-    // row asks for the invite tab - which leaves that tab's drawer sitting over
-    // the menu. A click aimed at a menu item then lands on whatever the tab
+    // A tab's drawer sits over the menu once one is open, so switching from one
+    // tab to another - or opening the drawer straight onto a tab - leaves it in
+    // the way. A click aimed at a menu item then lands on whatever the tab
     // drawer has at those coordinates instead, so go back to the menu first.
     if (await this.isTabOpen()) {
       await this.closeTab()
