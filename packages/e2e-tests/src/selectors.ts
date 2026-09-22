@@ -1409,9 +1409,22 @@ export class JoinCommunityModal {
     await (await this.findVisible('paste-a-link')).click()
   }
 
+  /** Join with QR code: the camera sheet. Resolves once the scanner is on screen. */
   async joinWithQrCode() {
     await this.enter()
     await (await this.findVisible('join-with-qr-code')).click()
+    await this.findVisible('qr-scanner-viewfinder')
+  }
+
+  /** Camera state of the scanner: requesting | scanning | denied | unavailable | stopped. */
+  async scannerStatus(): Promise<string | null> {
+    return await (await this.findVisible('qr-scanner-viewfinder')).getAttribute('data-status')
+  }
+
+  /** The scanner's "Paste a link" (shown when the camera is denied or absent) → the paste step. */
+  async usePasteLinkFromScanner() {
+    await (await this.findVisible('qr-scanner-paste-link', 30_000)).click()
+    await this.findVisible('paste-link-input')
   }
 
   /** Waits for the step whose h3 heading this is (Join community · Recover account · Join with invite link · Paste a link to Join). */
@@ -1535,8 +1548,28 @@ export class LinkDevicesModal {
     return element
   }
 
+  /** Scan QR code: the camera sheet. Resolves once the scanner is on screen. */
   async scanQrCode() {
     await (await this.findVisible('link-devices-scan-qr')).click()
+    await this.findVisible('link-devices-scanner-viewfinder')
+  }
+
+  async scannerStatus(): Promise<string | null> {
+    return await (await this.findVisible('link-devices-scanner-viewfinder')).getAttribute('data-status')
+  }
+
+  /**
+   * Confirms the device-link consent the scanner's decode raises. A camera decodes whatever is put
+   * in front of it, so a scanned device link goes through the same consent as a pasted one.
+   */
+  async confirmScannedDeviceLink() {
+    await confirmDeviceLinkConsent(this.driver)
+  }
+
+  /** The scanner's "Paste a link" (shown when the camera is denied or absent) → the paste step. */
+  async usePasteLinkFromScanner() {
+    await (await this.findVisible('link-devices-scanner-paste-link', 30_000)).click()
+    await this.findVisible('paste-link-input')
   }
 
   async displayQrCode() {

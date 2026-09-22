@@ -12,6 +12,8 @@ import { PasteLinkComponent } from '../../components/Onboarding/PasteLinkCompone
 import { CreateCommunityComponent } from '../../components/Onboarding/CreateCommunityComponent'
 import { LinkDevicesComponent } from '../../components/Onboarding/LinkDevicesComponent'
 import { LinkedDevicesComponent } from '../../components/Settings/Tabs/LinkedDevices/LinkedDevices.component'
+import { QrScannerComponent } from '../../components/Onboarding/qrScanner/QrScannerComponent'
+import { installStoryCamera, type StoryCamera } from './storyCamera'
 
 import { CreateUsernameBody } from '../../components/CreateUsername/CreateUsernameComponent'
 import { CONTENT_COLUMN_WIDTH, OnboardingBody } from '../../components/Onboarding/OnboardingBody'
@@ -34,6 +36,32 @@ import type { InvitationData } from '@quiet/types'
 
 const SHELL_WIDTH = 715
 const noop = () => {}
+
+/**
+ * What JoinCommunity.tsx / LinkDevices.tsx do with a decoded code, recorded under the columns.
+ *
+ * A member link joins straight away. A device link does not: both containers raise the device-link
+ * consent sheet and only dispatch `linkDevice` once it is confirmed, because a camera decodes
+ * whatever is put in front of it and that is not consent to hand this account to another device.
+ * The scanner itself is what these stories render, so the consent sheet is named here rather than
+ * drawn.
+ */
+const describeInvitation = (data: InvitationData) =>
+  isDeviceInvitationData(data)
+    ? `device link · ${data.authData.userName} → device-link consent, then communities.actions.linkDevice({ inviteData, deviceLinkConsent: true })`
+    : `communities.actions.joinCommunity({ inviteData }) · member link · ${data.authData.communityName}`
+
+/**
+ * No camera exists under Storybook; `installStoryCamera` makes getUserMedia return a
+ * canvas stream (a real QR code of a real fixture link, a blank feed, or the failure
+ * modes), so the real <video> → canvas → jsQR pipeline runs in the stories.
+ */
+const WithCamera: React.FC<{ camera: StoryCamera; children: React.ReactNode }> = ({ camera, children }) => {
+  const current = React.useRef(camera)
+  current.current = camera
+  React.useLayoutEffect(() => installStoryCamera(() => current.current), [])
+  return <>{children}</>
+}
 
 const Column: React.FC<{ width: number; label: string; children: React.ReactNode }> = ({ width, label, children }) => (
   <div style={{ flex: `0 0 ${width}px`, minWidth: 0 }}>
@@ -226,13 +254,108 @@ export const PasteALink = () => (
   />
 )
 
+// ---------------------------------------------------------------------------
+// The scanner sheets. The prototype draws one state: the camera. The requesting,
+// denied and no-camera states have no frame; their copy is the implementation's
+// minimum (QrScannerComponent SCANNER_COPY), not the designer's.
+
+const ScannerScreen: React.FC<{
+  title: string
+  droppedBar: string
+  figma: string
+  note: string
+  intro?: string
+  camera: StoryCamera
+}> = ({ title, droppedBar, figma, note, intro, camera }) => {
+  const [decoded, setDecoded] = React.useState<string[]>([])
+  const record = (entry: string) => setDecoded(list => [...list, entry])
+  return (
+    <WithCamera camera={camera}>
+      <Screen
+        title={title}
+        droppedBar={droppedBar}
+        figma={figma}
+        note={note}
+        render={() => (
+          <QrScannerComponent
+            intro={intro}
+            onDecoded={data => record(describeInvitation(data))}
+            onUsePasteLink={() => record('→ Paste a link to Join (the paste step)')}
+          />
+        )}
+      />
+      <div
+        style={{ fontFamily: mono, fontSize: 12, lineHeight: '18px', color: INK_3, padding: '0 24px 24px' }}
+        data-testid='scanner-dispatched'
+      >
+        dispatched, both columns ({decoded.length}):{decoded.length === 0 ? ' —' : null}
+        {decoded.map((entry, i) => (
+          <div key={i} style={{ color: '#171B12' }}>
+            {i + 1}. {entry}
+          </div>
+        ))}
+      </div>
+    </WithCamera>
+  )
+}
+
 export const JoinWithQrCode = () => (
-  <Screen
+  <ScannerScreen
     title='Join with QR code'
     droppedBar='Join with QR code'
     figma='2811:2460'
-    note='desktop has no camera: the sheet becomes the paste step'
-    render={() => <PasteLinkComponent heading={'Join with QR code'} handleCommunityAction={noop} />}
+    note='scanning; the camera is a canvas stream with no code in view'
+    camera={{ kind: 'blank' }}
+  />
+)
+
+export const JoinWithQrCodeRequesting = () => (
+  <ScannerScreen
+    title='Join with QR code · requesting camera access'
+    droppedBar='Join with QR code'
+    figma='2811:2460'
+    note='no frame in the prototype for this state; getUserMedia never settles here'
+    camera={{ kind: 'pending' }}
+  />
+)
+
+export const JoinWithQrCodeDecoded = () => (
+  <ScannerScreen
+    title='Join with QR code · decoded'
+    droppedBar='Join with QR code'
+    figma='2811:2460'
+    note='the camera shows a QR code of the sample member link; the decoded link is dispatched below and the camera released'
+    camera={{ kind: 'code', text: SAMPLE_MEMBER_LINK }}
+  />
+)
+
+export const JoinWithQrCodeInvalid = () => (
+  <ScannerScreen
+    title='Join with QR code · not an invitation'
+    droppedBar='Join with QR code'
+    figma='2811:2460'
+    note="the camera shows a QR code of https://example.com/: the paste field's error, scanning continues"
+    camera={{ kind: 'code', text: 'https://example.com/' }}
+  />
+)
+
+export const JoinWithQrCodeDenied = () => (
+  <ScannerScreen
+    title='Join with QR code · camera denied'
+    droppedBar='Join with QR code'
+    figma='2811:2460'
+    note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
+    camera={{ kind: 'denied' }}
+  />
+)
+
+export const JoinWithQrCodeNoCamera = () => (
+  <ScannerScreen
+    title='Join with QR code · no camera'
+    droppedBar='Join with QR code'
+    figma='2811:2460'
+    note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
+    camera={{ kind: 'none' }}
   />
 )
 
@@ -276,18 +399,35 @@ export const DisplayQrCode = () => (
 )
 
 export const ScanQrCode = () => (
-  <Screen
+  <ScannerScreen
     title='Scan QR code'
     droppedBar='Scan QR code'
     figma='2811:2587'
-    note='desktop has no camera: the sheet copy introduces the paste step'
-    render={() => (
-      <PasteLinkComponent
-        heading={'Scan QR code'}
-        intro={'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'}
-        handleCommunityAction={noop}
-      />
-    )}
+    note='scanning, with the sheet copy above the camera; the camera is a canvas stream with no code in view'
+    intro={SCAN_QR_INTRO}
+    camera={{ kind: 'blank' }}
+  />
+)
+
+export const ScanQrCodeDecoded = () => (
+  <ScannerScreen
+    title='Scan QR code · decoded'
+    droppedBar='Scan QR code'
+    figma='2811:2587'
+    note='the camera shows a QR code of the sample device link; the camera is released and the consent sheet is raised — linkDevice follows only once it is confirmed'
+    intro={SCAN_QR_INTRO}
+    camera={{ kind: 'code', text: SAMPLE_DEVICE_LINK }}
+  />
+)
+
+export const ScanQrCodeDenied = () => (
+  <ScannerScreen
+    title='Scan QR code · camera denied'
+    droppedBar='Scan QR code'
+    figma='2811:2587'
+    note='no frame in the prototype for this state; the copy is the minimum, "Paste a link" routes to the paste step'
+    intro={SCAN_QR_INTRO}
+    camera={{ kind: 'denied' }}
   />
 )
 

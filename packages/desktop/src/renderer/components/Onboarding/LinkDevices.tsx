@@ -19,29 +19,42 @@ import { LinkedDevices as LinkedDevicesTab } from '../Settings/Tabs/LinkedDevice
 import { LinkDevicesComponent } from './LinkDevicesComponent'
 import { PasteLinkComponent } from './PasteLinkComponent'
 import { OnboardingBody } from './OnboardingBody'
+import { QrScannerComponent } from './qrScanner/QrScannerComponent'
 import { createLogger } from '../../logger'
 
 const logger = createLogger('LinkDevices')
 
-type Step = 'entry' | 'display' | 'scan'
+type Step = 'entry' | 'display' | 'scan' | 'paste'
 
 /**
  * The title the prototype's frames put in the bar (2811:2575, 2811:2601,
- * 2811:2587). Every step here draws that same words as its own large heading —
- * "Link devices", "Linked devices", "Scan QR code" — and a page with a heading
- * gets no bar title, so the bar keeps only the back glyph and these are what it
- * would have said.
+ * 2811:2587). Every step but one draws those same words as its own large
+ * heading — "Link devices", "Linked devices", "Paste a link to Join" — and a
+ * page with a heading gets no bar title, so the bar keeps only the back glyph
+ * and these are what it would have said.
+ *
+ * The scanner is the exception. It draws the camera and the sheet's intro, not
+ * a heading, so under the same rule its step keeps the bar title the frame
+ * gives it; otherwise that screen would carry no title at all.
  */
 const HIDDEN_TITLES: Record<Step, string> = {
   entry: 'Link devices',
   display: 'QR code',
   scan: 'Scan QR code',
+  paste: 'Scan QR code',
 }
+
+/** The Scan QR code sheet's copy (2811:2587). */
+export const SCAN_QR_CODE_INTRO =
+  'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'
 
 /**
  * Link devices, reached from Get started. "Display QR code" shows #3400's
  * Linked devices surface (a link can only be minted from inside a community);
- * "Scan QR code" has no camera on desktop, so it takes the pasted device link.
+ * "Scan QR code" opens the camera, and offers the paste field when it cannot.
+ *
+ * Whichever way the link arrives — scanned or pasted — linking hands the other device this
+ * account, so it goes through the same consent sheet rather than starting on arrival.
  */
 export const LinkDevices: React.FC = () => {
   const dispatch = useDispatch()
@@ -64,6 +77,10 @@ export const LinkDevices: React.FC = () => {
   }, [linkDevicesModal.open])
 
   const handleBack = () => {
+    if (step === 'paste') {
+      setStep('scan')
+      return
+    }
     if (step !== 'entry') {
       setStep('entry')
       return
@@ -81,10 +98,12 @@ export const LinkDevices: React.FC = () => {
   const handleCommunityAction = (data: InvitationData) => {
     if (isDeviceInvitationData(data)) {
       // Linking a device hands the other device this account, so it is never done without consent.
+      // A scanned code is no more deliberate than a pasted one here: the camera decodes whatever is
+      // in front of it, so the scan path needs the gate at least as much as the paste path does.
       setPendingDeviceInvite(data)
       return
     }
-    // A member invitation pasted here still joins, the way Join community does.
+    // A member invitation here still joins, the way Join community does.
     const payload: JoinCommunityPayload = { inviteData: data }
     dispatch(communities.actions.joinCommunity(payload))
     createUsernameModal.handleOpen()
@@ -98,7 +117,7 @@ export const LinkDevices: React.FC = () => {
       deviceLinkConsent: true,
       confirmedQssEndpoint: pendingDeviceInvite.version === 'v5' ? pendingDeviceInvite.qssEndpoint : undefined,
     }
-    logger.info('Linking this device from a pasted device link')
+    logger.info('Linking this device from a device link')
     loadingPanelModal.handleOpen()
     dispatch(communities.actions.linkDevice(payload))
     linkDevicesModal.handleClose()
@@ -111,7 +130,7 @@ export const LinkDevices: React.FC = () => {
         open={linkDevicesModal.open}
         handleClose={linkDevicesModal.handleClose}
         title={HIDDEN_TITLES[step]}
-        withoutTitle
+        withoutTitle={step !== 'scan'}
         canGoBack
         handleBack={handleBack}
         alignCloseLeft
@@ -128,9 +147,16 @@ export const LinkDevices: React.FC = () => {
           </OnboardingBody>
         ) : null}
         {step === 'scan' ? (
+          <QrScannerComponent
+            intro={SCAN_QR_CODE_INTRO}
+            onDecoded={handleCommunityAction}
+            onUsePasteLink={() => setStep('paste')}
+            dataTestId='link-devices-scanner'
+          />
+        ) : null}
+        {step === 'paste' ? (
           <PasteLinkComponent
-            heading={'Scan QR code'}
-            intro={'Go to “Link devices” on the other device and display the QR code. Scan it to link devices.'}
+            heading={'Paste a link to Join'}
             open={linkDevicesModal.open}
             isConnectionReady={isConnected}
             revealInputValue={revealInputValue}

@@ -19,11 +19,12 @@ import { JoinCommunityOptionsComponent } from '../../Onboarding/JoinCommunityOpt
 import { RecoverAccountComponent } from '../../Onboarding/RecoverAccountComponent'
 import { OpenInviteLinkComponent } from '../../Onboarding/OpenInviteLinkComponent'
 import { PasteLinkComponent } from '../../Onboarding/PasteLinkComponent'
+import { QrScannerComponent } from '../../Onboarding/qrScanner/QrScannerComponent'
 import { createLogger } from '../../../logger'
 
 const logger = createLogger('JoinCommunity')
 
-type Step = 'options' | 'recoverAccount' | 'openInviteLink' | 'pasteInviteLink' | 'pasteQrCode'
+type Step = 'options' | 'recoverAccount' | 'openInviteLink' | 'pasteInviteLink' | 'scanQrCode' | 'pasteFromQrCode'
 
 /**
  * The bar per step. Every step of this modal carries its own large heading, and
@@ -32,15 +33,16 @@ type Step = 'options' | 'recoverAccount' | 'openInviteLink' | 'pasteInviteLink' 
  * (Join community 2811:2562 "Quiet", Account recovery 2811:2535, Open invite
  * link 2811:2455, Paste a link 3190:10892 "Join with invite link"); the Join
  * with QR code sheet (2811:2460) is drawn titled in the prototype, but on
- * desktop it is the full-window paste step under its own "Join with QR code"
- * heading, so its bar title goes too. Left as a map: a step without a heading
- * would take one.
+ * desktop it is a full-window step under its own heading, so its bar title
+ * goes too, and so does the paste field the scanner falls back to. Left as a
+ * map: a step without a heading would take one.
  */
 const TITLED_STEPS: Partial<Record<Step, string>> = {}
 
 /**
- * Join community: the three-way choice, then Open invite link → Paste a link.
- * Desktop has no camera, so "Join with QR code" also lands on the paste step.
+ * Join community: the three-way choice, then Open invite link → Paste a link,
+ * or Join with QR code → the camera. A scanned code and a pasted link take the
+ * same path; when the camera cannot be used the scanner offers the paste field.
  * Recover account is the designed info screen: "Use linked device" hands over
  * to the Link devices modal, "Use invite link" continues to Open invite link.
  *
@@ -196,7 +198,7 @@ const JoinCommunity = () => {
         {step === 'options' ? (
           <JoinCommunityOptionsComponent
             onJoinWithInviteLink={() => go('openInviteLink')}
-            onJoinWithQrCode={() => go('pasteQrCode')}
+            onJoinWithQrCode={() => go('scanQrCode')}
             onRecoverAccount={() => go('recoverAccount')}
           />
         ) : null}
@@ -207,9 +209,12 @@ const JoinCommunity = () => {
           />
         ) : null}
         {step === 'openInviteLink' ? <OpenInviteLinkComponent onPasteLink={() => go('pasteInviteLink')} /> : null}
-        {step === 'pasteInviteLink' || step === 'pasteQrCode' ? (
+        {step === 'scanQrCode' ? (
+          <QrScannerComponent onDecoded={handleCommunityAction} onUsePasteLink={() => go('pasteFromQrCode')} />
+        ) : null}
+        {step === 'pasteInviteLink' || step === 'pasteFromQrCode' ? (
           <PasteLinkComponent
-            heading={step === 'pasteQrCode' ? 'Join with QR code' : 'Paste a link to Join'}
+            heading={'Paste a link to Join'}
             open={joinCommunityModal.open}
             isConnectionReady={isConnected}
             revealInputValue={revealInputValue}

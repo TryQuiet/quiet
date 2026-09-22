@@ -48,9 +48,9 @@ Starting Quiet                                 ← second file, app start, not w
 1. **Get started** entry screen (both apps skip it today): *Let’s get started…* with *Join a community* / *Create a new community* / *Link devices* and the beta warning.
 2. **Join community** three-way choice screen.
 3. **Open invite link** (explanatory) + **Paste a link to Join** (the WIP frame’s intent: title, one input with placeholder *Link*, *Continue*; keep the title bar, drop the leftover avatar/subtitle from the duplicated create screen — note this in the PR as an interpretation of an unfinished frame).
-4. **Join with QR code** sheet (mobile: scan; desktop: no camera — show the QR *display* and route to paste).
+4. **Join with QR code** sheet (mobile: scan; desktop: scan too — the camera through Electron's permission handler, decoded with jsQR in the renderer; the paste field is offered when the camera is denied or absent, a state the prototype does not draw).
 5. **Create a community** (name + *Continue*); **Choose username** with the real helper copy. Community icon upload/crop: **out** (needs an asset pipeline; note as phase 2).
-6. **Link devices** entry from Get started → the #3400 `LinkedDevices` / `LinkedDeviceQRCode` surfaces, with the design’s copy on the entry screen and the *Linked devices / No linked devices* list.
+6. **Link devices** entry from Get started → the #3400 `LinkedDevices` / `LinkedDeviceQRCode` surfaces, with the design’s copy on the entry screen. The *Linked devices / No linked devices* list is **not** built: there is no backend that lists a user's devices on this line (TryQuiet/quiet#3636), so the entry screen offers *Display QR code* and *Scan QR code* and nothing enumerates. Whichever way a device link arrives — scanned or pasted — it goes through the device-link consent sheet before anything is linked.
 7. **Desktop variants of all of the above** — the prototype is mobile-only (375 wide); desktop = the 600px modal body the app uses, built from the same tokens. Render every screen in Storybook at both widths (the `RealScreens` harness pattern).
 8. Apply the type scale to the components touched.
 
@@ -71,7 +71,7 @@ Starting Quiet                                 ← second file, app start, not w
 | Spinner | ui/Spinner.tsx | components/Spinner |  |
 | Sheet (bottom sheets: QR display / scan / link devices) | ui/Modal.tsx or ui/Drawer.tsx | components/ModalBottomDrawer | Desktop: sheets become modals |
 | QR code display | Settings/Tabs/QRCode/QRCode.component.tsx | components/QRCode | Display exists on both |
-| QR code scan (camera) | none — desktop has no camera; scan = paste link | none on this branch; check #3400 for a scanner or deep-link only | Mobile scanner may need a camera dependency — verify in #3400 before adding one |
+| QR code scan (camera) | Onboarding/qrScanner/QrScannerComponent.tsx (getUserMedia + jsQR; main/cameraPermission.ts narrows the session's media permission to the camera) | none on this branch; check #3400 for a scanner or deep-link only | Mobile scanner may need a camera dependency — verify in #3400 before adding one |
 | Icons: Person add · gear · badge2 · caret · check · arrow-up · Close · Back | ui/Icon.tsx + @mui/icons-material | mobile/src/assets/icons (check names) | Map each to an existing icon; do not draw new ones |
 | Illustrations: Monster · group illustration on Join community | static asset (export SVG from Figma node) | static asset (export SVG from Figma node) | Export via Figma images API format=svg; never redraw |
 | Wireframe text · Placeholder | — (design placeholders) | — | Not UI |

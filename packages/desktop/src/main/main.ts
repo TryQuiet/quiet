@@ -14,6 +14,12 @@ import { getFilesData } from '@quiet/common'
 import { createLeaveCommunityHandler } from './leaveCommunity'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { registerExternalLinkHandler } from './externalLinks'
+import {
+  applyFakeCameraSwitches,
+  isAppPageUrl,
+  registerCameraAccessRequestHandler,
+  registerCameraPermissionHandlers,
+} from './cameraPermission'
 import { e2eCaptchaToken } from './e2eCaptchaToken'
 const ElectronStore = require('electron-store')
 import { setupContextMenu } from './contextMenu'
@@ -38,6 +44,7 @@ export const isE2Etest = process.env.IS_E2E === 'true'
 if (isE2Etest) {
   autoUpdater.autoInstallOnAppQuit = false
 }
+applyFakeCameraSwitches(app.commandLine, process.env)
 
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
@@ -544,6 +551,15 @@ app.on('ready', async () => {
   ports = await getPorts()
 
   await createWindow()
+
+  registerCameraPermissionHandlers(
+    session.defaultSession,
+    (webContents, requestingUrl) =>
+      isBrowserWindow(mainWindow) &&
+      webContents === mainWindow.webContents &&
+      isAppPageUrl(requestingUrl, path.join(__dirname, 'index.html'))
+  )
+  registerCameraAccessRequestHandler()
 
   mainWindow?.webContents.on('did-finish-load', () => {
     logger.info('Main window finished loading')

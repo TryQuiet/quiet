@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { By } from 'selenium-webdriver'
 
 import {
   App,
@@ -13,6 +14,7 @@ import {
 } from '../selectors'
 import { SettingsModalTabName } from '../enums'
 import { createLogger } from '../logger'
+import { FAKE_CAMERA_FILE_ENV, fakeCameraFile, removeFakeCameraFile, writeQrY4m } from '../fakeCamera'
 
 const logger = createLogger('onboarding')
 const previousLocalTransport = process.env.LOCAL_TRANSPORT
@@ -37,6 +39,16 @@ const timeouts = {
   joinPanelVisible: 15_000,
   joinCompletion: 60_000,
 }
+
+// Chromium plays these clips as the camera (E2E_FAKE_CAMERA_FILE); each is written once the
+// link it must show exists, before that client starts.
+const joinCameraClip = fakeCameraFile('join')
+const deviceCameraClip = fakeCameraFile('device')
+
+afterAll(() => {
+  removeFakeCameraFile(joinCameraClip)
+  removeFakeCameraFile(deviceCameraClip)
+})
 
 async function closeAndCleanupApps(apps: App[]): Promise<void> {
   for (const app of [...apps].reverse()) {
@@ -154,17 +166,18 @@ describe('Onboarding', () => {
     }
   })
 
-  // Desktop has no camera, so the QR-code branch of the three-way choice lands on the
-  // same paste field. It is a second route into the join flow, not a second join, so it
-  // needs its own run to prove the branch reaches admission.
-  it('Get started → join with QR code → paste link → username', async () => {
-    const owner = new App({ username: 'onboarding-qr-owner' })
-    const joiner = new App({ username: 'onboarding-qr-member' })
+  it('Get started → Join with QR code → scan → username', async () => {
+    const owner = new App({ username: 'onboarding-scan-owner' })
+    const joiner = new App({
+      username: 'onboarding-scan-member',
+      environment: { [FAKE_CAMERA_FILE_ENV]: joinCameraClip },
+    })
     const apps = [owner, joiner]
 
     try {
-      await createCommunity(owner, `onbqr${Date.now().toString(36)}`, 'onboardingqrowner')
+      await createCommunity(owner, `onbscan${Date.now().toString(36)}`, 'scanowner')
       const invitation = await getMemberInvitation(owner)
+      writeQrY4m(invitation, joinCameraClip)
 
       await joiner.openWithRetries()
 
@@ -175,13 +188,14 @@ describe('Onboarding', () => {
       const joinModal = new JoinCommunityModal(joiner.driver)
       expect(await joinModal.isReady()).toBeTruthy()
       await joinModal.joinWithQrCode()
-      await joinModal.typeCommunityInviteLink(invitation)
-      await joinModal.submit()
+      // The camera sheet, not a paste field
+      expect(await joiner.driver.findElements(By.xpath("//*[@data-testid='paste-link-input']"))).toHaveLength(0)
 
+      // The scanned code takes the paste field's path: Choose username
       const registerModal = new RegisterUsernameModal(joiner.driver)
       expect(await registerModal.isReady()).toBeTruthy()
       await registerModal.clearInput()
-      await registerModal.typeUsername('onboardingqrmember')
+      await registerModal.typeUsername('scanmember')
       await registerModal.submit()
 
       await new JoiningLoadingPanel(joiner.driver).waitForJoinToComplete(
@@ -254,7 +268,10 @@ describe('Onboarding', () => {
   describe('device linking (multiplayer)', () => {
     const ownerUsername = 'onboardingdevices'
     const owner = new App({ username: `${ownerUsername}-primary` })
-    const linkedDevice = new App({ username: `${ownerUsername}-linked` })
+    const linkedDevice = new App({
+      username: `${ownerUsername}-linked`,
+      environment: { [FAKE_CAMERA_FILE_ENV]: deviceCameraClip },
+    })
     const apps = [owner, linkedDevice]
 
     afterAll(async () => {
@@ -264,6 +281,7 @@ describe('Onboarding', () => {
     it('A creates a community and generates a device link; B links through Get started → Link devices', async () => {
       await createCommunity(owner, `onbdev${Date.now().toString(36)}`, ownerUsername)
       const deviceInvitation = await getDeviceInvitation(owner)
+      writeQrY4m(deviceInvitation, deviceCameraClip)
 
       await linkedDevice.openWithRetries()
       const getStarted = new GetStartedModal(linkedDevice.driver)
@@ -272,10 +290,11 @@ describe('Onboarding', () => {
 
       const linkDevices = new LinkDevicesModal(linkedDevice.driver)
       expect(await linkDevices.isReady()).toBeTruthy()
-      // Desktop has no camera: "Scan QR code" takes the pasted device link
+      // "Scan QR code" opens the camera, which shows the device link's QR code
       await linkDevices.scanQrCode()
-      await linkDevices.typeDeviceLink(deviceInvitation)
-      await linkDevices.submit()
+      expect(await linkedDevice.driver.findElements(By.xpath("//*[@data-testid='paste-link-input']"))).toHaveLength(0)
+      // Scanned or pasted, a device link is only acted on after consent.
+      await linkDevices.confirmScannedDeviceLink()
 
       const joinPanel = new JoiningLoadingPanel(linkedDevice.driver)
       expect(await joinPanel.waitUntilVisible(timeouts.joinPanelVisible)).toBeTruthy()
