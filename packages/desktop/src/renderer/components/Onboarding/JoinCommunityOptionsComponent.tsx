@@ -12,17 +12,20 @@ const Illustration = styled('img')({
 export interface JoinCommunityOptionsComponentProps {
   onJoinWithInviteLink: () => void
   onJoinWithQrCode: () => void
+  onRecoverAccount: () => void
 }
 
 /**
  * Join community · Figma 2811:2562: the heart-chat illustration directly under
  * the bar, the title 24 below it, then the three-way choice (graphic at y 60,
- * title at 244, rows from 302 in the frame). "Recover account"
- * has no mechanism yet, so its row is present but disabled.
+ * title at 244, rows from 302 in the frame). "Recover account" opens the
+ * Account recovery screen (2811:2535), whose routes are the existing Link
+ * devices and Join with invite link flows.
  */
 export const JoinCommunityOptionsComponent: React.FC<JoinCommunityOptionsComponentProps> = ({
   onJoinWithInviteLink,
   onJoinWithQrCode,
+  onRecoverAccount,
 }) => (
   <OnboardingBody
     leading={<Illustration src={heartChatIllustration} alt='' aria-hidden data-testid='join-community-graphic' />}
@@ -43,7 +46,12 @@ export const JoinCommunityOptionsComponent: React.FC<JoinCommunityOptionsCompone
         onClick={onJoinWithQrCode}
         dataTestId='join-with-qr-code'
       />
-      <ActionRow icon={onboardingIcons.info} label={'Recover account'} disabled dataTestId='recover-account' />
+      <ActionRow
+        icon={onboardingIcons.info}
+        label={'Recover account'}
+        onClick={onRecoverAccount}
+        dataTestId='recover-account'
+      />
     </RowGroup>
   </OnboardingBody>
 )

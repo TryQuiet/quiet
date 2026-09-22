@@ -14,6 +14,10 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
+    <!-- QR scanning in "Join with QR code" and "Link devices"; a pasted link works without a camera. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <!--
       android:allowNativeHeapPointerTagging="false" opts this process out of the
       ARM Top-Byte-Ignore heap pointer tagging that Android 11+ enables for apps

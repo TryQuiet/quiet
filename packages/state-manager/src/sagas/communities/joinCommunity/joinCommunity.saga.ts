@@ -2,14 +2,8 @@ import { apply, put, call, take, select, cancelled } from 'typed-redux-saga'
 import { applyEmitParams, type Socket } from '../../../types'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions } from '../communities.slice'
-import { communitiesSelectors } from '../communities.selectors'
-import {
-  type InitCommunityPayload,
-  InvitationDataVersion,
-  LoadingPanelType,
-  ResponseJoinCommunityPayload,
-  SocketActions,
-} from '@quiet/types'
+import { communitiesSelectors, inviteUsesServer } from '../communities.selectors'
+import { type InitCommunityPayload, LoadingPanelType, ResponseJoinCommunityPayload, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { usersActions } from '../../users/users.slice'
@@ -22,8 +16,9 @@ export function* joinCommunitySaga(socket: Socket): Generator {
   if (!initialJoin || initialJoin.status !== 'draft') return
   const { attempt, inviteData } = initialJoin
   const communityId = initialJoin.communityId ?? (yield* call(generateId))
-  const needsTerms =
-    inviteData.version === InvitationDataVersion.v5 && Boolean(inviteData.qssEnabled || inviteData.qssEndpoint)
+  // Terms of service are a server's, so the same question decides them and the
+  // shape of the progress screen.
+  const needsTerms = inviteUsesServer(inviteData)
 
   yield* put(communitiesActions.setPendingJoinId({ attempt, communityId }))
   yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))

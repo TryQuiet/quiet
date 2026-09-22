@@ -1,82 +1,33 @@
-import React, { useRef } from 'react'
-import { styled, useTheme } from '@mui/material/styles'
-import classNames from 'classnames'
-import { Typography, ListItemButton, Grid } from '@mui/material'
-import Badge from '@mui/material/Badge'
-import ListItemText from '@mui/material/ListItemText'
+import React from 'react'
+import { styled } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
 import { PublicChannelStorage, UserProfile } from '@quiet/types'
-import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 import { DmChannelUserData } from './DirectMessagesPanel'
 import ProfilePhotoWithBadge from '../../ProfilePhoto/ProfilePhotoWithBadge'
+import SidebarRow from '../../ui/Sidebar/SidebarRow'
+import SidebarUnreadBadge from '../../ui/Sidebar/SidebarUnreadBadge'
 
-const PREFIX = 'UserProfileListItem'
+const PREFIX = 'DirectMessageListItem'
 
 const classes = {
-  root: `${PREFIX}root`,
-  primary: `${PREFIX}primary`,
-  nickname: `${PREFIX}nickname`,
-  itemText: `${PREFIX}itemText`,
-  selected: `${PREFIX}selected`,
-  disabled: `${PREFIX}disabled`,
-  newMessages: `${PREFIX}newMessages`,
   me: `${PREFIX}me`,
 }
 
-const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
-  [`&.${classes.root}`]: {
-    width: 220,
-    padding: `3px 16px 3px 16px`,
-    gap: theme.componentSizes.userListItem.gap,
-    opacity: 1,
-    display: 'flex',
-    backgroundColor: 'inherit',
-    alignItems: 'center',
-  },
-  [`&:hover`]: {
-    backgroundColor: theme.palette.colors?.sidebarHover || theme.palette.action.hover,
-  },
-  [`& .${classes.nickname}`]: {
-    fontWeight: 400,
-    paddingLeft: 0,
-    paddingRight: 0,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    maxWidth: 150,
-    whiteSpace: 'nowrap',
-  },
-  [`& .${classes.itemText}`]: {
-    margin: 0,
-  },
-  [`&.${classes.selected}`]: {
-    backgroundColor: theme.palette.colors.sidebarSelected,
-  },
-  [`&.${classes.disabled}`]: {
-    opacity: '0.3',
-    pointerEvents: 'none',
-    cursor: 'not-allowed',
-  },
-  [`& .${classes.newMessages}`]: {
-    opacity: 1,
-    fontWeight: 600,
-  },
-  /**
-   * Which of these conversations is with yourself — an annotation, not a second name, so it is
-   * smaller and quieter than the nickname rather than the same size merely greyed.
-   *
-   * On the purple sidebar a mid grey has too little contrast, and less still on a selected row,
-   * which is that purple lightened. White at 60% keeps the same relationship to the text beside it
-   * against every state the row has.
-   */
-  [`& .${classes.me}`]: {
+/**
+ * Which of these conversations is with yourself — an annotation, not a second name, so it is
+ * smaller and quieter than the nickname rather than the same size merely greyed.
+ *
+ * On the purple sidebar a mid grey has too little contrast, and less still on a selected row,
+ * which is that purple lightened. White at 60% keeps the same relationship to the text beside it
+ * against every state the row has.
+ */
+const StyledAnnotation = styled(Typography)(() => ({
+  [`&.${classes.me}`]: {
     fontSize: 12,
     lineHeight: '16px',
     letterSpacing: '0.4px',
     color: 'rgba(255, 255, 255, 0.6)',
     flexShrink: 0,
-  },
-
-  [`&.${classes.root}:hover`]: {
-    backgroundColor: theme.palette.colors.sidebarHover,
   },
 }))
 
@@ -90,58 +41,51 @@ export interface DirectMessageListItemProps {
   setCurrentChannel: (channelId: string) => void
 }
 
+/**
+ * One conversation in the sidebar's "Direct messages" section — the Quiet Design Library's
+ * `List item--people` (`4606:16448`): a 30px row, a 24px avatar at 4px radius, and the label at
+ * white 70%, with the library's hover and selected overlays spanning the whole 220px column.
+ *
+ * The row's geometry and states come from `SidebarRow` so a DM row and a channel row share one
+ * rhythm; only the avatar and the "you" annotation are this row's own.
+ *
+ * Unread is drawn the way the library draws it on a channel row: the label goes to full opacity and
+ * weight AND the row takes `badge2` at its right edge. develop marked an unread DM by weight alone,
+ * which left the two kinds of row in the same list disagreeing about what unread looks like, and
+ * left the state depending on a weight change with no non-colour cue beside it.
+ */
 export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
   channel,
   me,
-  userProfiles,
   userData,
   selected,
   unread,
   setCurrentChannel,
 }) => {
-  const theme = useTheme()
-  const ref = useRef<HTMLDivElement>(null)
+  const isConversationWithMyself = userData != null && me != null && userData.user.userId === me.userId
 
   return (
-    <StyledListItemButton
-      className={classNames(classes.root, {
-        [classes.selected]: selected,
-        [classes.disabled]: false,
-      })}
-      disableGutters
-      data-testid={`${channel.id}-dm-link`}
+    <SidebarRow
+      variant='people'
+      label={channel.displayedName}
+      selected={selected}
+      unread={unread}
       tabIndex={-1}
       onClick={() => {
         setCurrentChannel(channel.id)
       }}
-      ref={ref}
-    >
-      <ProfilePhotoWithBadge userData={userData} channel={channel} />
-      <ListItemText
-        primary={
-          <Grid container item display='flex' flexDirection='row' alignItems='baseline' gap='6px'>
-            <Typography
-              variant='body2'
-              className={classNames(classes.nickname, {
-                [classes.newMessages]: unread,
-              })}
-              data-testid={`${channel.id}-dm-link-text`}
-            >
-              {channel.displayedName}
-            </Typography>
-            {userData != null && me != null && userData.user.userId === me.userId && (
-              <Typography align='left' className={classes.me} data-testid={`dm-link-text-me`}>
-                you
-              </Typography>
-            )}
-          </Grid>
-        }
-        classes={{
-          primary: classes.primary,
-        }}
-        className={classes.itemText}
-      />
-    </StyledListItemButton>
+      data-testid={`${channel.id}-dm-link`}
+      labelTestId={`${channel.id}-dm-link-text`}
+      glyph={<ProfilePhotoWithBadge userData={userData} channel={channel} />}
+      badge={unread ? <SidebarUnreadBadge data-testid={`${channel.id}-dm-link-unread`} /> : undefined}
+      annotation={
+        isConversationWithMyself ? (
+          <StyledAnnotation align='left' className={classes.me} data-testid={'dm-link-text-me'}>
+            you
+          </StyledAnnotation>
+        ) : undefined
+      }
+    />
   )
 }
 

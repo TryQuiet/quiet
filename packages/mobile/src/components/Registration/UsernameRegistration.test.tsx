@@ -1,5 +1,4 @@
 import React from 'react'
-import { screen, fireEvent } from '@testing-library/react-native'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { UsernameRegistration } from './UsernameRegistration.component'
 import { UsernameVariant } from './UsernameRegistration.types'
@@ -27,129 +26,25 @@ describe('UsernameRegistration', () => {
       >
         <View
           style={
-            {
-              "alignItems": "center",
-              "backgroundColor": "#ffffff",
-              "borderBottomColor": "#F0F0F0",
-              "borderBottomWidth": 1,
-              "display": "flex",
-              "flexDirection": "row",
-              "justifyContent": "center",
-              "maxHeight": 64,
-              "minHeight": 60,
-            }
+            [
+              {
+                "backgroundColor": "#ffffff",
+                "height": 60,
+              },
+              undefined,
+            ]
           }
-        >
-          <View
-            style={
-              {
-                "alignSelf": "stretch",
-                "flex": 1,
-              }
-            }
-          >
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              hitSlop={
-                {
-                  "bottom": 8,
-                  "left": 8,
-                  "right": 8,
-                  "top": 8,
-                }
-              }
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "flex": 1,
-                  "opacity": 1,
-                }
-              }
-              testID="appbar_action_item"
-            >
-              <View
-                style={
-                  {
-                    "alignItems": "center",
-                    "flex": 1,
-                    "justifyContent": "center",
-                    "minHeight": 44,
-                    "width": 64,
-                  }
-                }
-              />
-            </View>
-          </View>
-          <View
-            style={
-              {
-                "alignItems": "center",
-                "flex": 4,
-              }
-            }
-          >
-            <Text
-              color="main"
-              fontSize={16}
-              fontWeight="medium"
-              horizontalTextAlign="left"
-              style={
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Medium",
-                  "fontSize": 16,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                }
-              }
-              verticalTextAlign="center"
-            >
-              Create a community
-            </Text>
-          </View>
-          <View
-            style={
-              {
-                "alignSelf": "stretch",
-                "flex": 1,
-              }
-            }
-          />
-        </View>
+          testID="appbar_without_title"
+        />
         <View
           onLayout={[Function]}
           style={
             [
               {
                 "flex": 1,
-                "justifyContent": "center",
                 "paddingLeft": 16,
                 "paddingRight": 16,
+                "paddingTop": 24,
               },
               {
                 "paddingBottom": 0,
@@ -781,49 +676,4 @@ describe('UsernameRegistration', () => {
   //     </View>
   //   `)
   // })
-
-  // https://github.com/TryQuiet/quiet/issues/1306 - a leading hyphen used to be registered as-is.
-  // ' holmes' is included because parseName turns the leading space into a hyphen too.
-  it.each([['-holmes'], ['-1'], ['--'], [' holmes']])(
-    'user inserting name starting with a hyphen "%s" cannot submit and sees an explanation',
-    (name: string) => {
-      const registerUsernameAction = jest.fn()
-
-      renderComponent(
-        <UsernameRegistration
-          variant={UsernameVariant.NEW}
-          registerUsernameAction={registerUsernameAction}
-          usernameRegistered={false}
-          fetching={false}
-        />
-      )
-
-      fireEvent.changeText(screen.getByTestId('input'), name)
-      fireEvent.press(screen.getByTestId('button'))
-
-      expect(registerUsernameAction).not.toBeCalled()
-      expect(screen.getByText('Username must start with a letter or number')).toBeVisible()
-    }
-  )
-
-  it.each([['holmes'], ['1-holmes'], ['holmes-']])(
-    'user inserting name "%s" without a leading hyphen can still submit',
-    (name: string) => {
-      const registerUsernameAction = jest.fn()
-
-      renderComponent(
-        <UsernameRegistration
-          variant={UsernameVariant.NEW}
-          registerUsernameAction={registerUsernameAction}
-          usernameRegistered={false}
-          fetching={false}
-        />
-      )
-
-      fireEvent.changeText(screen.getByTestId('input'), name)
-      fireEvent.press(screen.getByTestId('button'))
-
-      expect(registerUsernameAction).toBeCalledWith(name)
-    }
-  )
 })

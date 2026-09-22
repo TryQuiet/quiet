@@ -4,6 +4,7 @@ import caretRight from '../../static/images/onboarding/caret-right.svg'
 import info from '../../static/images/onboarding/info.svg'
 import inviteLink from '../../static/images/onboarding/invite-link.svg'
 import linkDevices from '../../static/images/onboarding/link-devices.svg'
+import moreHoriz from '../../static/images/onboarding/more-horiz.svg'
 import personAdd from '../../static/images/onboarding/person-add.svg'
 import plus from '../../static/images/onboarding/plus.svg'
 import qrCode from '../../static/images/onboarding/qr-code.svg'
@@ -15,9 +16,12 @@ import circleLogo from '../../static/images/onboarding/get-started-circle-logo.s
 
 export const onboardingIcons = {
   caretRight,
+  /** The library's "Icon=Vpn key" glyph (the Recover account row and, at 64px, the Account recovery illustration). */
   info,
   inviteLink,
   linkDevices,
+  /** Material baseline more_horiz, the "More options" row's glyph on the Account recovery frame (2811:2535), gray 50. */
+  moreHoriz,
   personAdd,
   plus,
   qrCode,

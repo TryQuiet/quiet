@@ -10,6 +10,10 @@ import { Typography } from '../Typography/Typography.component'
 import { CreateCommunityProps } from './CreateCommunity.types'
 import { Splash } from '../Splash/Splash.component'
 
+/**
+ * Create a community · Figma 2811:2451. The frame hides its bar title: the back
+ * glyph alone, the heading is the title, content top-anchored 24 under the bar zone.
+ */
 export const CreateCommunity: FC<CreateCommunityProps> = ({
   createCommunityAction,
   handleBackButton,
@@ -55,12 +59,12 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
           style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
           testID={'create-community-component'}
         >
-          <Appbar title={'Create a community'} back={handleBackButton} />
+          <Appbar withoutTitle back={handleBackButton} />
           <KeyboardAvoidingView
             behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
               flex: 1,
-              justifyContent: 'center',
+              paddingTop: spacing.xl,
               paddingHorizontal: spacing.lg,
               gap: spacing.xl,
             }}

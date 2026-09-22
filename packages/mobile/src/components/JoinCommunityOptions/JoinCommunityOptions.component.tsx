@@ -16,20 +16,26 @@ export const GRAPHIC_SIZE = { width: 219, height: 160 } as const
 
 /**
  * Join community · Figma 2811:2562: the heart-chat illustration directly under
- * the title bar, the title, then the three-way choice — top-anchored, 24 apart,
- * as in the frame (graphic at y 60, title at 244, rows from 302). "Recover
- * account" has no mechanism yet, so its row is present but disabled.
+ * the bar zone, the title, then the three-way choice — top-anchored, 24 apart,
+ * as in the frame (graphic at y 60, title at 244, rows from 302). The frame
+ * hides its bar title ("Quiet"): the back glyph alone, and the heading is the
+ * title. The illustration is what sits 24 above the title, so it is flush under
+ * the bar zone rather than 24 below it, matching the desktop column's
+ * flushLeading. "Recover account" opens the Account recovery screen
+ * (2811:2535), whose routes are the existing Link devices and Join with invite
+ * link flows.
  */
 export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
   onJoinWithInviteLink,
   onJoinWithQrCode,
+  onRecoverAccount,
   handleBackButton,
 }) => (
   <View
     style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
     testID={'join-community-options-component'}
   >
-    <Appbar title={'Quiet'} back={handleBackButton} />
+    <Appbar withoutTitle back={handleBackButton} />
     <View style={{ flex: 1, paddingHorizontal: spacing.lg, gap: spacing.xl }}>
       <Image
         source={icons.graphic_heart_chat}
@@ -53,7 +59,12 @@ export const JoinCommunityOptions: FC<JoinCommunityOptionsProps> = ({
           onPress={onJoinWithQrCode}
           testID={'join-with-qr-code'}
         />
-        <ActionRow icon={<InfoIcon />} label={'Recover account'} disabled testID={'recover-account'} />
+        <ActionRow
+          icon={<InfoIcon />}
+          label={'Recover account'}
+          onPress={onRecoverAccount}
+          testID={'recover-account'}
+        />
       </View>
     </View>
   </View>

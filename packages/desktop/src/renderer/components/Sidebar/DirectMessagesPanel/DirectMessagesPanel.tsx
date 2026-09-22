@@ -1,5 +1,4 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import DirectMessageListItem from './DirectMessageListItem'
@@ -63,6 +62,14 @@ const getUserDataForDmChannel = (
   return { connected, user: userThatIsntMe }
 }
 
+/**
+ * The library's "Direct messages" section (`6218:16416`): a section title with its own (+), over
+ * the library's `List item--people` rows.
+ *
+ * The section is a plain block, not a `Grid item xs`: the sidebar column is now a flex column whose
+ * rows span its full 220px so the hover and selected overlays reach both edges, and a flexing grid
+ * item would inset them again.
+ */
 const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   myUserProfile,
   userProfiles,
@@ -75,7 +82,7 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   openNewMessageWindow,
 }) => {
   return (
-    <Grid container item xs direction='column'>
+    <div>
       <SidebarHeader
         title={'Direct messages'}
         tooltipText='Start a new DM'
@@ -107,7 +114,7 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
           )
         })}
       </List>
-    </Grid>
+    </div>
   )
 }
 

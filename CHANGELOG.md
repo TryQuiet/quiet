@@ -9,6 +9,7 @@
 
 ### Fixes
 
+* Show a private channel on a device that was still missing the channel's key when its metadata arrived, retrying about once a minute until the key lands, instead of waiting for unrelated community activity that may never happen [#3563](https://github.com/TryQuiet/quiet/issues/3563)
 * Ask the local Tor daemon to generate onion identities on desktop and mobile, and start communities without waiting for Tor network publication; recover detached registrations after lost replies or control connections without an onion-address collision loop, and handle fragmented or interrupted local control authentication [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3594](https://github.com/TryQuiet/quiet/issues/3594)
 * Show a member as online when any of their linked devices is connected, rather than only the one device presence used to be read from
 * Keep the backend running when an attachment fails to upload, instead of tearing the node down and leaving the app talking to a dead backend
@@ -43,6 +44,14 @@
 * Lay the desktop create-channel panel out to the designs: rows run full width with their own rule, and only the field and the button are inset
 * Draw every desktop button, form field and toggle to the design library — button and field corners, field border and focus, hover and disabled states included
 * Present adding members to a private channel as a side panel matching the designs, with the people picked shown as pills and confirmed with Done
+
+### Tests
+
+* Make interrupted device-admission recovery tests independent of public Tor timing and local QSS servers, while retaining separate Tor device-link coverage [#3580](https://github.com/TryQuiet/quiet/issues/3580) [#3581](https://github.com/TryQuiet/quiet/issues/3581)
+
+### Chores
+
+* Run the backend unit tests in a recycled worker rather than one long-lived process, so the heap no longer climbs across the suites until it reaches the 4 GB ceiling and fails the job with "Ineffective mark-compacts near heap limit" [#3634](https://github.com/TryQuiet/quiet/issues/3634)
 
 ## [11.0.1]
 
