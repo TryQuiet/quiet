@@ -33,7 +33,7 @@ test('preinstalled WebDriverAgent selection is explicit and requires its bundle 
   assert.equal(iosCapabilities(base)['appium:usePreinstalledWDA'], undefined)
 })
 
-test('physical iOS onboarding focuses the accessible wrapper before typing', async () => {
+test('iOS onboarding focuses the accessible wrapper and types a full invitation in one native text operation', async () => {
   const events = []
   const input = {
     async isDisplayed() { return true },
@@ -46,12 +46,13 @@ test('physical iOS onboarding focuses the accessible wrapper before typing', asy
       assert.equal(selector, "//*[@label='Invite link' or @name='Invite link']")
       return input
     },
-    async execute(command, value) { events.push(['type', command, value]) },
+    async sendKeys(value) { events.push(['type', value]) },
   }
 
-  await mobile.input('Invite link', 'quiet-test-invite')
+  const invitation = 'quiet://?invite=' + 'a'.repeat(1000)
+  await mobile.input('Invite link', invitation)
 
-  assert.deepEqual(events, ['focus', ['type', 'mobile: keys', { keys: [...'quiet-test-invite'] }]])
+  assert.deepEqual(events, ['focus', ['type', [invitation]]])
 })
 
 test('native onboarding input errors do not disclose entered values', async () => {
@@ -59,7 +60,7 @@ test('native onboarding input errors do not disclose entered values', async () =
   mobile.driver = {
     async waitUntil(check) { assert.equal(await check(), true) },
     async $() { return { async isDisplayed() { return true }, async click() {} } },
-    async execute() { throw new Error('driver included sensitive input') },
+    async sendKeys() { throw new Error('driver included sensitive input') },
   }
 
   await assert.rejects(mobile.input('Invite link', 'quiet-test-invite'), error => {

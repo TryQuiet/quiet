@@ -96,10 +96,10 @@ export class Mobile {
       if (this.android) await input.setValue(value)
       else {
         await input.click()
-        // WebdriverIO's browser.keys() groups every keyDown before every keyUp.
-        // Current WebDriverAgent rejects that action sequence. Its native mobile
-        // command types into the focused control with paired key events.
-        await this.driver.execute('mobile: keys', { keys: [...value] })
+        // Appium's sendKeys uses WDA's native text-typing endpoint. browser.keys()
+        // creates incompatible grouped key actions, while mobile: keys waits for
+        // XCTest once per character and can time out on a full invitation.
+        await this.driver.sendKeys([value])
       }
     } catch { throw new Error('Could not fill the native onboarding field (input redacted)') }
     if (this.android && await this.driver.isKeyboardShown()) await this.driver.back()
