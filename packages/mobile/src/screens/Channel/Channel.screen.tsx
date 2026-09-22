@@ -192,7 +192,10 @@ const ChannelScreenContent: FC = () => {
   const sendMessageAction = React.useCallback(
     async (message: string) => {
       const channelId = currentChannel?.id
-      if (!channelId) return
+      if (!channelId) {
+        logger.info('Send dropped: no current channel', currentChannelId)
+        return
+      }
       // Whitespace-only input has nothing to send, but any attached files below
       // still go out.
       if (message.trim()) {
@@ -206,7 +209,7 @@ const ChannelScreenContent: FC = () => {
       // Reset file previews for input state
       setAttachingFiles({})
     },
-    [dispatch, currentChannel?.id]
+    [dispatch, currentChannel?.id, currentChannelId]
   )
 
   useEffect(() => {
