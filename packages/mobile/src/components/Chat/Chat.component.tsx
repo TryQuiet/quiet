@@ -181,16 +181,37 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const inputRef = useRef<TextInput>(null)
   const [headerTitle, setHeaderTitle] = useState<string>('')
   const [userData, setUserData] = useState<Record<string, DmChannelUserData>>({})
+  // The list as last rendered, so a rebuild can carry the selection over. The list component
+  // toggles rows through `setOptions` directly, so this follows every render rather than every
+  // rebuild.
+  const optionsRef = useRef<SelectableListOption[] | undefined>(options)
+  optionsRef.current = options
+  // The recipients the open composer was last seeded with; null while it is closed.
+  const seededWith = useRef<string | null>(null)
 
-  const _initializeOptions = () => {
+  /**
+   * Rebuilds the candidate list from the current profiles and connection states.
+   *
+   * That happens far more often than the composer opens: every profile update, every peer or Tor
+   * status change, and a burst of each right after a message is sent. So the rebuild carries the
+   * selection across rather than recomputing it. Only a fresh open (`seed`) starts from the
+   * recipients the composer was opened with; otherwise whoever was chosen stays chosen — including
+   * someone whose profile is missing for a moment, who keeps their row until it comes back. Seeding
+   * on every rebuild is what used to drop a tapped recipient, the self-DM included, a moment after
+   * it was chosen and send the composer back to no conversation at all.
+   */
+  const _initializeOptions = (seed: boolean) => {
+    const previous = seed ? [] : optionsRef.current ?? []
+    const chosen = new Set(
+      seed ? newChatRecipientIds ?? [] : previous.filter(option => option.selected).map(option => option.id)
+    )
     const initialOptions: SelectableListOption[] = []
     const visibleIndices: Set<number> = new Set()
     const updatedUsers: { [userId: string]: DmChannelUserData } = {}
     let index = 0
     for (const user of Object.values(userProfiles)) {
       const mutable = true
-      // Opened from a profile's Message button, the composer starts with that person chosen.
-      const selected = newChatRecipientIds?.includes(user.userId) ?? false
+      const selected = chosen.has(user.userId)
       const hide = false
       initialOptions.push({ label: user.nickname, id: user.userId, selected, index, mutable, hide })
       if (!hide) {
@@ -202,6 +223,14 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       }
       index++
     }
+    for (const option of previous) {
+      if (!option.selected || option.id in userProfiles) continue
+      initialOptions.push({ ...option, index })
+      visibleIndices.add(index)
+      if (userData[option.id] != null) updatedUsers[option.id] = userData[option.id]
+      index++
+    }
+    optionsRef.current = initialOptions
     setOptions(initialOptions)
     setVisibleOptionIndices(visibleIndices)
     setFuzzySearch(
@@ -246,8 +275,12 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 
   useEffect(() => {
     if (newChat) {
-      _initializeOptions()
+      const recipientsKey = (newChatRecipientIds ?? []).join(',')
+      const seed = seededWith.current !== recipientsKey
+      seededWith.current = recipientsKey
+      _initializeOptions(seed)
     } else {
+      seededWith.current = null
       _clearOptions()
     }
   }, [newChat, newChatRecipientIds, userProfiles, me, isUserConnected, isTorInitialized])
@@ -265,6 +298,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   useEffect(() => {
     if (!newChat) return
     if (options == null) return
+    logger.info('New message recipients changed', selectedRecipientIds.length, selectedRecipientKey)
     setDmChannelOnSelection(selectedRecipientIds)
     // Only the selection itself decides which conversation the composer is pointing at.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -469,12 +503,14 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   // Calculate if submit should be disabled - defined at top level
   const checkShouldDisableSubmit = useCallback(() => {
     if (!ready) return true
+    // A new message goes nowhere until somebody is chosen to receive it.
+    if (newChat && selectedRecipientIds.length === 0) return true
 
-    const isInputEmpty = messageInput.length === 0
+    const isInputEmpty = messageInput.trim().length === 0
     if (isInputEmpty && !areFilesUploaded) return true
 
     return false
-  }, [messageInput, areFilesUploaded, ready])
+  }, [messageInput, areFilesUploaded, ready, newChat, selectedRecipientIds.length])
 
   // Store result of the check
   const shouldDisableSubmit = checkShouldDisableSubmit()
@@ -532,6 +568,12 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }
 
   const onPress = () => {
+    // The button is disabled for these already; the press can still race a re-render, and the
+    // input must come out of a refused send exactly as it went in.
+    if (shouldDisableSubmit || (newChat && me == null)) {
+      logger.info('Send refused', { newChat, recipients: selectedRecipientIds.length, ready })
+      return
+    }
     // only send if there's text or uploaded files
     if (messageInputValueRef.current.length > 0 || areFilesUploaded) {
       if (messageInputValueRef.current.length > 0) {
@@ -546,7 +588,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         setTimeout(() => {
           const textToSend = messageInputValueRef.current.trim()
           if (newChat) {
-            if (selectedMembers.length === 0 || me == null) return
             createOrSetDmChannelAction(
               selectedMembers.map(member => member.id),
               textToSend
