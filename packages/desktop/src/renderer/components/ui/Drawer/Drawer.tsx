@@ -13,10 +13,32 @@ import { Drawer as MuiDrawer, DrawerProps as MuiDrawerProps } from '@mui/materia
  * darkening disappear. It is off here, once, for every panel.
  *
  * A caller that genuinely needs a scrim can still pass its own BackdropProps.
+ *
+ * Naming the panel: MUI puts its modal root at `role="presentation"`, which is not in the
+ * accessibility tree, so an `aria-label`/`aria-labelledby` landing there names nothing. A caller
+ * that passes one means the panel, so it is moved onto the Paper together with the dialog role
+ * and `aria-modal` - the arrangement MUI's own Dialog uses. A caller that passes neither gets the
+ * markup it always had.
  */
-export const Drawer: React.FC<MuiDrawerProps> = ({ children, BackdropProps, ...otherProps }) => {
+export const Drawer: React.FC<MuiDrawerProps> = ({ children, BackdropProps, PaperProps, ...otherProps }) => {
+  const { 'aria-labelledby': labelledBy, 'aria-label': label, ...rest } = otherProps
+  const named = Boolean(labelledBy ?? label)
   return (
-    <MuiDrawer BackdropProps={{ invisible: true, ...BackdropProps }} {...otherProps}>
+    <MuiDrawer
+      BackdropProps={{ invisible: true, ...BackdropProps }}
+      PaperProps={
+        named
+          ? {
+              role: 'dialog',
+              'aria-modal': true,
+              'aria-labelledby': labelledBy,
+              'aria-label': label,
+              ...PaperProps,
+            }
+          : PaperProps
+      }
+      {...rest}
+    >
       {children}
     </MuiDrawer>
   )

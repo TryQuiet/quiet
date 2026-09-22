@@ -50,10 +50,10 @@ describe('LeaveCommunity', () => {
       <LeaveCommunityComponent communityName='Rockets' leaveCommunity={jest.fn()} open={true} handleClose={jest.fn()} />
     )
 
-    // The drawer bar above this panel already says "Leave community", so the panel draws no
-    // heading of its own - neither the old "Leave community?" nor any other.
+    // The drawer bar above this panel already says "Leave community" - as a heading, so the
+    // panel still has one - and the panel does not repeat it.
     expect(result.queryByText('Leave community?')).toBeNull()
-    expect(result.queryAllByRole('heading')).toHaveLength(0)
+    expect(result.queryAllByRole('heading', { level: 3 })).toHaveLength(0)
 
     // The warning and both actions stay.
     expect(result.getByText(/You will no longer have access to this community/)).toBeTruthy()

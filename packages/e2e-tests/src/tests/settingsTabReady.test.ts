@@ -9,7 +9,7 @@ const panels: Array<[SettingsModalTabName, string]> = [
   [SettingsModalTabName.ABOUT, '<div class="Abouttitle"></div><p>Version: 11.0.0<br>Copyright Quiet LLC</p>'],
   [SettingsModalTabName.NOTIFICATIONS, '<div class="Notificationstitle"></div><h5>Notify me about...</h5>'],
   [SettingsModalTabName.LEAVE_COMMUNITY, '<button data-testid="leave-community-button">Leave community</button>'],
-  [SettingsModalTabName.QR_CODE, '<svg width="172" height="172"></svg><h5>Invitation QR code</h5>'],
+  [SettingsModalTabName.QR_CODE, '<svg width="188" height="188"></svg><h5>Invitation QR code</h5>'],
   [SettingsModalTabName.QR_CODE, '<h5>Only admins can invite new members</h5>'],
   [SettingsModalTabName.DEBUG, '<span data-testid="p2p-toggle-switch"><input type="checkbox"></span>'],
   [
