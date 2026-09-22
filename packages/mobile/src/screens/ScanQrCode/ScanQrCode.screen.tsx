@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { communities } from '@quiet/state-manager'
 import type { DeviceInvitationData } from '@quiet/types'
 
-import DeviceLinkConsentDrawer from '../../components/ModalBottomDrawer/drawers/DeviceLinkConsent.drawer'
+import { DeviceLinkConsent } from '../../components/DeviceLinkConsent/DeviceLinkConsent.component'
 import { QrScanner } from '../../components/QrScanner/QrScanner.component'
 import { Splash } from '../../components/Splash/Splash.component'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -53,7 +53,7 @@ export const ScanQrCodeScreen: FC<ScanQrCodeScreenProps> = ({ route }) => {
 
   const [deviceLinkInvite, setDeviceLinkInvite] = useState<DeviceInvitationData | undefined>(undefined)
 
-  // A scanned device link goes through the same consent drawer a pasted one
+  // A scanned device link goes through the same consent screen a pasted one
   // does: scanning is not a shortcut around it.
   const onDecoded = useInvitationAction(setDeviceLinkInvite)
 
@@ -85,26 +85,29 @@ export const ScanQrCodeScreen: FC<ScanQrCodeScreenProps> = ({ route }) => {
 
   if (!isWebsocketConnected) return <Splash />
 
-  return (
-    <>
-      <QrScanner
-        title={copy.title}
-        intro={copy.intro}
-        // The camera stops while the consent drawer is up: nothing is scanned behind it.
-        active={active && !deviceLinkInvite}
-        onDecoded={onDecoded}
-        onClose={onClose}
-        onUsePasteLink={onUsePasteLink}
-        testID={copy.testID}
-      />
-      <DeviceLinkConsentDrawer
+  // Agree & join (3054:4090) is a screen of its own, not a sheet over the scanner, the same
+  // way PasteInviteLink presents it: it takes the window while the decision is open, and
+  // declining returns here, where the camera restarts and the code can be scanned again.
+  if (deviceLinkInvite) {
+    return (
+      <DeviceLinkConsent
         inviteData={deviceLinkInvite}
-        onConfirm={() => {
-          if (!deviceLinkInvite) return
-          linkDevice(deviceLinkInvite)
-        }}
+        visible
+        onConfirm={() => linkDevice(deviceLinkInvite)}
         onCancel={() => setDeviceLinkInvite(undefined)}
       />
-    </>
+    )
+  }
+
+  return (
+    <QrScanner
+      title={copy.title}
+      intro={copy.intro}
+      active={active}
+      onDecoded={onDecoded}
+      onClose={onClose}
+      onUsePasteLink={onUsePasteLink}
+      testID={copy.testID}
+    />
   )
 }

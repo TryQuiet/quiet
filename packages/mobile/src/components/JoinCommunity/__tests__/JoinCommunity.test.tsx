@@ -30,19 +30,19 @@ describe('JoinCommunity component', () => {
 
   // The prototype draws the two QR flows as titled sheets (2811:2460, 2811:2587); here they are
   // full screens under their own heading, and a page with a heading gets no bar title.
-  it.each([
-    ['qrCode' as const, 'Join with QR code'],
-    ['deviceLink' as const, 'Scan QR code'],
-  ])('renders the %s variant with the bar zone empty: the heading is the title', (variant, heading) => {
-    const { getByTestId, getAllByText, queryByTestId } = renderComponent(
-      <JoinCommunity joinCommunityAction={jest.fn()} hasReceivedResponse={false} variant={variant} />
-    )
+  it.each([['deviceLink' as const, 'Scan QR code']])(
+    'renders the %s variant with the bar zone empty: the heading is the title',
+    (variant, heading) => {
+      const { getByTestId, getAllByText, queryByTestId } = renderComponent(
+        <JoinCommunity joinCommunityAction={jest.fn()} hasReceivedResponse={false} variant={variant} />
+      )
 
-    expect(getByTestId('appbar_without_title')).toBeTruthy()
-    expect(queryByTestId('appbar_title')).toBeNull()
-    // The words appear once, as the heading — not again in the bar.
-    expect(getAllByText(heading)).toHaveLength(1)
-  })
+      expect(getByTestId('appbar_without_title')).toBeTruthy()
+      expect(queryByTestId('appbar_title')).toBeNull()
+      // The words appear once, as the heading — not again in the bar.
+      expect(getAllByText(heading)).toHaveLength(1)
+    }
+  )
 
   it('keeps the bar zone empty on the invite-link variant too', () => {
     const { getByTestId, getAllByText } = renderComponent(

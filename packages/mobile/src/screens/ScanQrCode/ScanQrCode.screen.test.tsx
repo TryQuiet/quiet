@@ -75,13 +75,13 @@ describe('ScanQrCodeScreen', () => {
 
     scan(result.getByTestId('link-devices-qr-scanner-camera'), composeInvitationShareUrl(deviceInvite))
 
-    // Scanning alone links nothing: the consent drawer comes up first, and the
-    // camera stops behind it.
+    // Scanning alone links nothing: consent comes up first. Agree & join takes the whole
+    // window (3054:4090), so the camera is not merely paused behind it, it is gone.
     expect(result.getByTestId('device-link-consent')).toBeTruthy()
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       communities.actions.linkDevice(confirmedDeviceLinkPayload(deviceInvite))
     )
-    expect(result.getByTestId('link-devices-qr-scanner-camera').props.isActive).toBe(false)
+    expect(result.queryByTestId('link-devices-qr-scanner-camera')).toBeNull()
 
     fireEvent.press(result.getByTestId('device-link-confirm'))
 
@@ -99,12 +99,14 @@ describe('ScanQrCodeScreen', () => {
     const { dispatchSpy, result } = await renderScreen('deviceLink')
 
     scan(result.getByTestId('link-devices-qr-scanner-camera'), composeInvitationShareUrl(deviceInvite))
-    fireEvent.press(result.getByTestId('device-link-cancel'))
+    // Agree & join has no decline button: its back arrow is the way out.
+    fireEvent.press(result.getByTestId('appbar_action_item'))
 
     expect(dispatchSpy).not.toHaveBeenCalledWith(
       communities.actions.linkDevice(confirmedDeviceLinkPayload(deviceInvite))
     )
-    // Back to scanning, not stuck behind a dismissed drawer.
+    // Back to scanning, not stuck on a declined consent screen.
+    expect(result.queryByTestId('device-link-consent')).toBeNull()
     expect(result.getByTestId('link-devices-qr-scanner-camera').props.isActive).toBe(true)
   })
 
