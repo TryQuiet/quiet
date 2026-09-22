@@ -78,7 +78,7 @@ jobs:
 
       - name: Run user profile test
         timeout-minutes: 25
-        run: cd packages/e2e-tests && npm run test userProfile.test.ts selectors.test.ts
+        run: cd packages/e2e-tests && npm run test userProfile.test.ts selectors.test.ts deepLink.test.ts unavailableQssEndpoint.test.ts
 
       - name: Run multiple clients test
         timeout-minutes: 25
